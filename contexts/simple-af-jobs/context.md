@@ -15,7 +15,24 @@
 **Simple AF Jobs** is a semantic AI-powered recruitment platform that automates candidate screening for recruiters and hiring managers. It captures job requirements through voice conversations with an AI assistant (Alexandra) or document upload, automatically builds LinkedIn Sales Navigator search strategies, and then uses Claude AI to semantically assess and rank every candidate—not through keyword matching, but through reasoning about whether a candidate's profile evidence genuinely matches the job requirements. The platform generates evidence-backed shortlists and client reports where every recommendation is defensible and traceable back to what the client actually asked for.
 
 **Stage:** Late beta / Early revenue (first paying customer: 2025-11-28)
-**Funding:** Bootstrapped, funds drying up, revenue-critical
+**Funding:** Bootstrapped, 100% self-funded (not open to angel investment)
+
+---
+
+## Financial Position (The "Survival Number")
+
+### Monthly Burn: ~$10,000/month
+- Developer (India): $4,000/month
+- Core Signal (future data source): $1,500/month (not yet active)
+- Tech stack, hosting, APIs: ~$4,500/month (buffer included)
+
+### Runway: 12 months from November 2025
+- Cash available to sustain operations through late 2026
+- Conservative estimate with safety margin built in
+
+### Founder Personal Need: $0 for 12 months
+- Founder does not require income draw from the business
+- Full runway available for growth/operations
 
 ---
 
@@ -288,19 +305,24 @@ Example:
 ### Current Situation:
 - **No NDA in place** with developer
 - Developer implemented platform code
-- **Developer controls deployment keys/access**
 - CTO owns prompts, logic, QC processes (the "brains")
 
+### Founder Access (Bus Factor Mitigated):
+- **Full GitHub access:** YES - Founder has complete repository access
+- **Database access:** YES - Founder has direct access
+- **Hosting/infrastructure access:** YES - Founder controls all systems
+- **Could disconnect developer today:** YES - Core platform would survive
+- **Documentation:** Limited to what's in GitHub (code comments, README)
+
 ### Risk Assessment:
-- **Critical risk:** If developer leaves, platform operation at risk
-- Developer has implementation knowledge
-- No documentation of deployment procedures
-- Single point of failure for technical operations
+- **Mitigated:** If developer leaves, founder retains full access to codebase
+- **Remaining risk:** Founder not deeply technical, would need time to onboard replacement
+- **Positive:** Good chunk of work preserved even without developer
+- Developer has implementation knowledge but founder controls access
 
 ### Mitigation Strategy:
-- Get documentation of all deployment procedures
 - Establish NDA/IP assignment agreement
-- Create backup access to all systems
+- Improve documentation beyond code comments
 - Long-term: Reduce dependency on single developer
 
 ---
@@ -360,16 +382,33 @@ Future data source—a comprehensive LinkedIn dataset that will replace manual S
 
 ---
 
+## Exit Strategy (The Exit Horizon)
+
+### Timeline: 18 months maximum
+- **Rationale:** AI moves fast; window of opportunity is limited
+- Must achieve exit-ready state by mid-2027
+
+### Target Exit Number: $5 million
+- 50/50 ownership split = $2.5 million per partner
+- "Life-changing number" that makes both founders happy
+
+### Investment Appetite: 100% Bootstrapped
+- **NOT open to angel investors** or outside funding
+- Must achieve exit through organic revenue growth
+- All growth funded from runway + revenue
+
+---
+
 ## Decision-Making Priorities
 
 When advising Simple AF Jobs, the council should prioritize in this order:
 
 1. **Automation** - Platform must self-run with minimal human intervention
-2. **Revenue / Cash Flow** - Recoup high expenses, funds are drying up
+2. **Revenue / Cash Flow** - Generate revenue to extend runway and prove value
 3. **User Acquisition** - Get paying users on the platform
-4. **Exit Potential** - Build to sell (long-term goal)
+4. **Exit Potential** - Build to sell within 18 months
 
-**Context:** The company is bootstrapped and needs to generate revenue soon. First paying customer acquired on 2025-11-28. Prior to this, beta testing with free users in exchange for feedback.
+**Context:** The company is bootstrapped with 12 months runway. First paying customer acquired on 2025-11-28. Must reach exit-ready state within 18 months while staying 100% bootstrapped.
 
 ---
 
@@ -418,19 +457,27 @@ Tech stack choices are NOT constraints—council can suggest alternatives if ben
 
 ---
 
-## Traction & Validation
+## Traction & Validation (Sales Reality)
 
 **Current Stage:** Late beta / Early revenue
 
 **Traction:**
 - Beta users testing for free in exchange for feedback
-- First paying customer: 2025-11-28
-- Recruiters keep using it (product-market fit signal)
+- **First paying customer:** 2025-11-28
+- Stripe payments just integrated (this week)
+- Following up on feedback from beta testers
+
+**Sales Data (Honest Assessment):**
+- **Total paying customers:** 1
+- **Repeat purchase data:** None yet (too early)
+- **Main objection when people don't buy:** Unknown (insufficient sample size)
+- **First customer acquisition method:** LinkedIn outreach campaign
 
 **Validation:**
-- Platform delivers value that users return for
-- Multiple industries tested (legal, executive, finance)
+- Platform delivers value that beta users return for
+- Multiple industries tested (legal, executive, finance, compliance)
 - Evidence-based approach differentiates from competitors
+- Quality of output validated by recruiter feedback
 
 ---
 
