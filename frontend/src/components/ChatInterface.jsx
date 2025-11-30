@@ -15,6 +15,12 @@ export default function ChatInterface({
   departments = [],
   selectedDepartment,
   onSelectDepartment,
+  channels = [],
+  selectedChannel,
+  onSelectChannel,
+  styles = [],
+  selectedStyle,
+  onSelectStyle,
 }) {
   const [input, setInput] = useState('');
   const messagesEndRef = useRef(null);
@@ -128,7 +134,7 @@ export default function ChatInterface({
 
       {conversation.messages.length === 0 && (
         <form className="input-form" onSubmit={handleSubmit}>
-          {/* Department Selector */}
+          {/* Row 1: Department & Company */}
           <div className="selector-row">
             <div className="selector-item">
               <label htmlFor="department-select">Department:</label>
@@ -166,6 +172,48 @@ export default function ChatInterface({
               </div>
             )}
           </div>
+
+          {/* Row 2: Channel (only for Marketing) & Style */}
+          <div className="selector-row">
+            {/* Channel - only visible when Marketing department selected */}
+            {selectedDepartment === 'marketing' && (
+              <div className="selector-item">
+                <label htmlFor="channel-select">Channel:</label>
+                <select
+                  id="channel-select"
+                  value={selectedChannel || ''}
+                  onChange={(e) => onSelectChannel(e.target.value)}
+                  disabled={isLoading}
+                >
+                  {channels
+                    .filter((ch) => !ch.department || ch.department === 'marketing')
+                    .map((channel) => (
+                      <option key={channel.id} value={channel.id}>
+                        {channel.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            )}
+
+            {/* Style Selector */}
+            <div className="selector-item">
+              <label htmlFor="style-select">Style:</label>
+              <select
+                id="style-select"
+                value={selectedStyle || ''}
+                onChange={(e) => onSelectStyle(e.target.value)}
+                disabled={isLoading}
+              >
+                {styles.map((style) => (
+                  <option key={style.id} value={style.id}>
+                    {style.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           <div className="input-row">
             <textarea
               className="message-input"
