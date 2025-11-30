@@ -12,6 +12,15 @@ export default function ChatInterface({
   businesses = [],
   selectedBusiness,
   onSelectBusiness,
+  departments = [],
+  selectedDepartment,
+  onSelectDepartment,
+  channels = [],
+  selectedChannel,
+  onSelectChannel,
+  styles = [],
+  selectedStyle,
+  onSelectStyle,
 }) {
   const [input, setInput] = useState('');
   const messagesEndRef = useRef(null);
@@ -44,7 +53,7 @@ export default function ChatInterface({
     return (
       <div className="chat-interface">
         <div className="empty-state">
-          <h2>Welcome to LLM Council</h2>
+          <h2>Welcome to AI Council</h2>
           <p>Create a new conversation to get started</p>
         </div>
       </div>
@@ -57,7 +66,7 @@ export default function ChatInterface({
         {conversation.messages.length === 0 ? (
           <div className="empty-state">
             <h2>Start a conversation</h2>
-            <p>Ask a question to consult the LLM Council</p>
+            <p>Ask a question to consult the AI Council</p>
           </div>
         ) : (
           conversation.messages.map((msg, index) => (
@@ -73,7 +82,7 @@ export default function ChatInterface({
                 </div>
               ) : (
                 <div className="assistant-message">
-                  <div className="message-label">LLM Council</div>
+                  <div className="message-label">AI Council</div>
 
                   {/* Stage 1 */}
                   {msg.loading?.stage1 && (
@@ -125,24 +134,86 @@ export default function ChatInterface({
 
       {conversation.messages.length === 0 && (
         <form className="input-form" onSubmit={handleSubmit}>
-          {businesses.length > 0 && (
-            <div className="business-selector">
-              <label htmlFor="business-select">Business Context:</label>
+          {/* Row 1: Department & Company */}
+          <div className="selector-row">
+            <div className="selector-item">
+              <label htmlFor="department-select">Department:</label>
               <select
-                id="business-select"
-                value={selectedBusiness || ''}
-                onChange={(e) => onSelectBusiness(e.target.value || null)}
+                id="department-select"
+                value={selectedDepartment || 'standard'}
+                onChange={(e) => onSelectDepartment(e.target.value)}
                 disabled={isLoading}
               >
-                <option value="">(No Context)</option>
-                {businesses.map((biz) => (
-                  <option key={biz.id} value={biz.id}>
-                    {biz.name}
+                {departments.map((dept) => (
+                  <option key={dept.id} value={dept.id}>
+                    {dept.name}
                   </option>
                 ))}
               </select>
             </div>
-          )}
+
+            {/* Company Selector */}
+            {businesses.length > 0 && (
+              <div className="selector-item">
+                <label htmlFor="business-select">Company:</label>
+                <select
+                  id="business-select"
+                  value={selectedBusiness || ''}
+                  onChange={(e) => onSelectBusiness(e.target.value || null)}
+                  disabled={isLoading}
+                >
+                  <option value="">(No Context)</option>
+                  {businesses.map((biz) => (
+                    <option key={biz.id} value={biz.id}>
+                      {biz.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+
+          {/* Row 2: Channel (only for Marketing) & Style */}
+          <div className="selector-row">
+            {/* Channel - only visible when Marketing department selected */}
+            {selectedDepartment === 'marketing' && (
+              <div className="selector-item">
+                <label htmlFor="channel-select">Channel:</label>
+                <select
+                  id="channel-select"
+                  value={selectedChannel || ''}
+                  onChange={(e) => onSelectChannel(e.target.value)}
+                  disabled={isLoading}
+                >
+                  {channels
+                    .filter((ch) => !ch.department || ch.department === 'marketing')
+                    .map((channel) => (
+                      <option key={channel.id} value={channel.id}>
+                        {channel.name}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            )}
+
+            {/* Style Selector */}
+            <div className="selector-item">
+              <label htmlFor="style-select">Style:</label>
+              <select
+                id="style-select"
+                value={selectedStyle || ''}
+                onChange={(e) => onSelectStyle(e.target.value)}
+                disabled={isLoading}
+              >
+                {styles.map((style) => (
+                  <option key={style.id} value={style.id}>
+                    {style.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           <div className="input-row">
             <textarea
               className="message-input"

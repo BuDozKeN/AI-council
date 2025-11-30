@@ -4,6 +4,29 @@ import ChatInterface from './components/ChatInterface';
 import { api } from './api';
 import './App.css';
 
+// Available departments for the council
+const DEPARTMENTS = [
+  { id: 'standard', name: 'Standard', description: 'General advisory council' },
+  { id: 'marketing', name: 'Marketing', description: 'Marketing expertise' },
+  { id: 'sales', name: 'Sales', description: 'Sales expertise' },
+  { id: 'legal', name: 'Legal', description: 'Legal expertise' },
+  { id: 'executive', name: 'Executive', description: 'Strategic advisory' },
+];
+
+// Available channels (shown when Marketing department is selected)
+const CHANNELS = [
+  { id: '', name: '(No Channel)', department: null },
+  { id: 'linkedin', name: 'LinkedIn', department: 'marketing' },
+  { id: 'x', name: 'X (Twitter)', department: 'marketing' },
+  { id: 'email', name: 'Email', department: 'marketing' },
+];
+
+// Available writing styles
+const STYLES = [
+  { id: '', name: '(No Style)' },
+  { id: 'ann-friedman', name: 'Ann Friedman' },
+];
+
 function App() {
   const [conversations, setConversations] = useState([]);
   const [currentConversationId, setCurrentConversationId] = useState(null);
@@ -11,6 +34,9 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [businesses, setBusinesses] = useState([]);
   const [selectedBusiness, setSelectedBusiness] = useState(null);
+  const [selectedDepartment, setSelectedDepartment] = useState('standard');
+  const [selectedChannel, setSelectedChannel] = useState('');
+  const [selectedStyle, setSelectedStyle] = useState('');
 
   // Load conversations and businesses on mount
   useEffect(() => {
@@ -204,6 +230,7 @@ function App() {
         currentConversationId={currentConversationId}
         onSelectConversation={handleSelectConversation}
         onNewConversation={handleNewConversation}
+        departments={DEPARTMENTS}
       />
       <ChatInterface
         conversation={currentConversation}
@@ -212,6 +239,21 @@ function App() {
         businesses={businesses}
         selectedBusiness={selectedBusiness}
         onSelectBusiness={setSelectedBusiness}
+        departments={DEPARTMENTS}
+        selectedDepartment={selectedDepartment}
+        onSelectDepartment={(dept) => {
+          setSelectedDepartment(dept);
+          // Clear channel when switching away from marketing
+          if (dept !== 'marketing') {
+            setSelectedChannel('');
+          }
+        }}
+        channels={CHANNELS}
+        selectedChannel={selectedChannel}
+        onSelectChannel={setSelectedChannel}
+        styles={STYLES}
+        selectedStyle={selectedStyle}
+        onSelectStyle={setSelectedStyle}
       />
     </div>
   );
