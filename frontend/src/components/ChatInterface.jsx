@@ -129,43 +129,43 @@ export default function ChatInterface({
       {conversation.messages.length === 0 && (
         <form className="input-form" onSubmit={handleSubmit}>
           {/* Department Selector */}
-          <div className="department-selector">
-            <label>Department:</label>
-            <div className="department-pills">
-              {departments.map((dept) => (
-                <button
-                  key={dept.id}
-                  type="button"
-                  className={`department-pill ${selectedDepartment === dept.id ? 'active' : ''}`}
-                  onClick={() => onSelectDepartment(dept.id)}
-                  disabled={isLoading}
-                  title={dept.description}
-                >
-                  {dept.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Company Selector */}
-          {businesses.length > 0 && (
-            <div className="business-selector">
-              <label htmlFor="business-select">Company:</label>
+          <div className="selector-row">
+            <div className="selector-item">
+              <label htmlFor="department-select">Department:</label>
               <select
-                id="business-select"
-                value={selectedBusiness || ''}
-                onChange={(e) => onSelectBusiness(e.target.value || null)}
+                id="department-select"
+                value={selectedDepartment || 'standard'}
+                onChange={(e) => onSelectDepartment(e.target.value)}
                 disabled={isLoading}
               >
-                <option value="">(No Context)</option>
-                {businesses.map((biz) => (
-                  <option key={biz.id} value={biz.id}>
-                    {biz.name}
+                {departments.map((dept) => (
+                  <option key={dept.id} value={dept.id}>
+                    {dept.name}
                   </option>
                 ))}
               </select>
             </div>
-          )}
+
+            {/* Company Selector */}
+            {businesses.length > 0 && (
+              <div className="selector-item">
+                <label htmlFor="business-select">Company:</label>
+                <select
+                  id="business-select"
+                  value={selectedBusiness || ''}
+                  onChange={(e) => onSelectBusiness(e.target.value || null)}
+                  disabled={isLoading}
+                >
+                  <option value="">(No Context)</option>
+                  {businesses.map((biz) => (
+                    <option key={biz.id} value={biz.id}>
+                      {biz.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
           <div className="input-row">
             <textarea
               className="message-input"
