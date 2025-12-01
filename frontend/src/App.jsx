@@ -105,6 +105,21 @@ function App() {
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
       setIsLoading(false);
+
+      // Also reset loading states in the last message
+      setCurrentConversation((prev) => {
+        if (!prev || !prev.messages || prev.messages.length === 0) return prev;
+        const messages = [...prev.messages];
+        const lastMsg = messages[messages.length - 1];
+        if (lastMsg.loading) {
+          lastMsg.loading = {
+            stage1: false,
+            stage2: false,
+            stage3: false,
+          };
+        }
+        return { ...prev, messages };
+      });
     }
   };
 
