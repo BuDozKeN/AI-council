@@ -10,7 +10,7 @@ import json
 import asyncio
 
 from . import storage
-from .council import run_full_council, generate_conversation_title, stage1_collect_responses, stage2_collect_rankings, stage3_synthesize_final, calculate_aggregate_rankings
+from .council import run_full_council, generate_conversation_title, stage1_collect_responses, stage1_stream_responses, stage2_collect_rankings, stage3_synthesize_final, calculate_aggregate_rankings
 from .context_loader import list_available_businesses
 
 app = FastAPI(title="LLM Council API")
@@ -156,10 +156,23 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
             if is_first_message:
                 title_task = asyncio.create_task(generate_conversation_title(request.content))
 
-            # Stage 1: Collect responses
+            # Stage 1: Collect responses with streaming
             yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
-            stage1_results = await stage1_collect_responses(request.content, request.business_id)
-            yield f"data: {json.dumps({'type': 'stage1_complete', 'data': stage1_results})}\n\n"
+            stage1_results = []
+            async for event in stage1_stream_responses(request.content, business_id=request.business_id):
+                if event['type'] == 'stage1_token':
+                    # Stream individual tokens
+                    yield f"data: {json.dumps(event)}\n\n"
+                elif event['type'] == 'stage1_model_complete':
+                    # A single model finished
+                    yield f"data: {json.dumps(event)}\n\n"
+                elif event['type'] == 'stage1_model_error':
+                    # A model had an error
+                    yield f"data: {json.dumps(event)}\n\n"
+                elif event['type'] == 'stage1_all_complete':
+                    # All models done - capture results
+                    stage1_results = event['data']
+                    yield f"data: {json.dumps({'type': 'stage1_complete', 'data': stage1_results})}\n\n"
 
             # Stage 2: Collect rankings
             yield f"data: {json.dumps({'type': 'stage2_start'})}\n\n"
