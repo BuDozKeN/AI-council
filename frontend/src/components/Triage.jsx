@@ -35,52 +35,50 @@ export default function Triage({
   // If ready, show success state
   if (ready) {
     return (
-      <div className="triage-chat">
-        {/* Original question */}
-        <div className="triage-user-message">
-          <div className="triage-avatar user">You</div>
-          <div className="triage-bubble user">
-            {originalQuestion}
-          </div>
+      <div className="triage-container">
+        {/* User's original question */}
+        <div className="triage-user-question">
+          <div className="message-label">You</div>
+          <div className="message-content">{originalQuestion}</div>
         </div>
 
-        {/* AI ready message */}
-        <div className="triage-ai-message">
-          <div className="triage-avatar ai">🎯</div>
-          <div className="triage-bubble ai ready">
-            <div className="ready-header">
-              <span className="ready-icon">✅</span>
-              <strong>Great! I have everything I need.</strong>
+        {/* Triage ready response */}
+        <div className="triage-response">
+          <div className="message-label">Pre-Council Check</div>
+          <div className="triage-card ready">
+            <div className="triage-header ready">
+              <span className="triage-header-icon">✅</span>
+              <span className="triage-header-text">Ready to send to the council</span>
             </div>
-
-            <div className="constraints-summary-chat">
-              <p>Here's what I understood:</p>
-              <ul className="constraint-list">
-                {constraints.who && (
-                  <li><strong>Who's doing this:</strong> {constraints.who}</li>
-                )}
-                {constraints.goal && (
-                  <li><strong>Your goal:</strong> {constraints.goal}</li>
-                )}
-                {constraints.budget && (
-                  <li><strong>Budget:</strong> {constraints.budget}</li>
-                )}
-                {constraints.risk && (
-                  <li><strong>Quality priority:</strong> {constraints.risk}</li>
-                )}
-              </ul>
+            <div className="triage-body">
+              <div className="triage-summary">
+                <p className="triage-summary-intro">Here's what I understood from your question:</p>
+                <ul className="triage-summary-list">
+                  {constraints.who && (
+                    <li><strong>Who's doing this:</strong> {constraints.who}</li>
+                  )}
+                  {constraints.goal && (
+                    <li><strong>Your goal:</strong> {constraints.goal}</li>
+                  )}
+                  {constraints.budget && (
+                    <li><strong>Budget:</strong> {constraints.budget}</li>
+                  )}
+                  {constraints.risk && (
+                    <li><strong>Quality priority:</strong> {constraints.risk}</li>
+                  )}
+                </ul>
+              </div>
             </div>
-
-            <div className="triage-actions-chat">
+            <div className="triage-ready-actions">
               <button
-                className="proceed-btn-chat"
+                className="triage-proceed-btn"
                 onClick={() => onProceed(enhanced_query)}
                 disabled={isLoading}
               >
-                {isLoading ? 'Sending...' : 'Send to Council →'}
+                {isLoading ? 'Sending...' : 'Send to Council'} →
               </button>
               <button
-                className="edit-btn-chat"
+                className="triage-edit-btn"
                 onClick={onSkip}
                 disabled={isLoading}
               >
@@ -93,111 +91,115 @@ export default function Triage({
     );
   }
 
-  // Not ready - show conversational questions
+  // Not ready - show what's needed
   return (
-    <div className="triage-chat">
-      {/* Original question */}
-      <div className="triage-user-message">
-        <div className="triage-avatar user">You</div>
-        <div className="triage-bubble user">
-          {originalQuestion}
-        </div>
+    <div className="triage-container">
+      {/* User's original question */}
+      <div className="triage-user-question">
+        <div className="message-label">You</div>
+        <div className="message-content">{originalQuestion}</div>
       </div>
 
-      {/* AI asking for more info */}
-      <div className="triage-ai-message">
-        <div className="triage-avatar ai">🔍</div>
-        <div className="triage-bubble ai">
-          <div className="triage-intro">
-            <strong>Before I send this to the council, I need a bit more context to get you the best answer.</strong>
+      {/* Triage needs more info */}
+      <div className="triage-response">
+        <div className="message-label">Pre-Council Check</div>
+        <div className="triage-card needs-info">
+          <div className="triage-header needs-info">
+            <span className="triage-header-icon">🔍</span>
+            <span className="triage-header-text">A few more details will help get better answers</span>
           </div>
+          <div className="triage-body">
+            {/* What we already know */}
+            {Object.values(constraints).some(v => v) && (
+              <div className="triage-known">
+                <div className="triage-section-title">
+                  <span>✓</span> What I already know:
+                </div>
+                <ul className="triage-known-list">
+                  {constraints.who && <li><strong>Who:</strong> {constraints.who}</li>}
+                  {constraints.goal && <li><strong>Goal:</strong> {constraints.goal}</li>}
+                  {constraints.budget && <li><strong>Budget:</strong> {constraints.budget}</li>}
+                  {constraints.risk && <li><strong>Quality:</strong> {constraints.risk}</li>}
+                </ul>
+              </div>
+            )}
 
-          {/* What we already know */}
-          {Object.values(constraints).some(v => v) && (
-            <div className="what-we-know">
-              <p className="section-label">✓ What I already know:</p>
-              <ul className="known-list">
-                {constraints.who && <li><strong>Who:</strong> {constraints.who}</li>}
-                {constraints.goal && <li><strong>Goal:</strong> {constraints.goal}</li>}
-                {constraints.budget && <li><strong>Budget:</strong> {constraints.budget}</li>}
-                {constraints.risk && <li><strong>Quality:</strong> {constraints.risk}</li>}
+            {/* What's missing */}
+            <div className="triage-missing">
+              <div className="triage-section-title missing">
+                <span>⚠</span> What I still need:
+              </div>
+              <ul className="triage-missing-list">
+                {missing?.includes('who') && (
+                  <li className="triage-missing-item">
+                    <div className="triage-missing-title">Who will do this?</div>
+                    <div className="triage-missing-hint">Are you (the founder) doing this yourself, or your developer, or hiring someone?</div>
+                  </li>
+                )}
+                {missing?.includes('goal') && (
+                  <li className="triage-missing-item">
+                    <div className="triage-missing-title">What's your main goal?</div>
+                    <div className="triage-missing-hint">Do you need cash flow NOW (survival), or are you building for a future exit?</div>
+                  </li>
+                )}
+                {missing?.includes('budget') && (
+                  <li className="triage-missing-item">
+                    <div className="triage-missing-title">What's your budget?</div>
+                    <div className="triage-missing-hint">Is this $0 (use what you have), or can you invest some money?</div>
+                  </li>
+                )}
+                {missing?.includes('risk') && (
+                  <li className="triage-missing-item">
+                    <div className="triage-missing-title">Speed or quality?</div>
+                    <div className="triage-missing-hint">Can we prioritize speed, or is quality/defensibility non-negotiable?</div>
+                  </li>
+                )}
               </ul>
             </div>
-          )}
 
-          {/* What's missing - highlighted */}
-          <div className="what-we-need">
-            <p className="section-label missing-label">⚠️ What I still need:</p>
-            <ul className="missing-list">
-              {missing?.includes('who') && (
-                <li className="missing-item">
-                  <strong>Who will do this?</strong>
-                  <span className="hint">Are you (the founder) doing this yourself, or your developer, or hiring someone?</span>
-                </li>
-              )}
-              {missing?.includes('goal') && (
-                <li className="missing-item">
-                  <strong>What's your main goal?</strong>
-                  <span className="hint">Do you need cash flow NOW (survival), or are you building for a future exit?</span>
-                </li>
-              )}
-              {missing?.includes('budget') && (
-                <li className="missing-item">
-                  <strong>What's your budget?</strong>
-                  <span className="hint">Is this $0 (use what you have), or can you invest some money?</span>
-                </li>
-              )}
-              {missing?.includes('risk') && (
-                <li className="missing-item">
-                  <strong>Speed or quality?</strong>
-                  <span className="hint">Can we prioritize speed, or is quality/defensibility non-negotiable?</span>
-                </li>
-              )}
-            </ul>
-          </div>
-
-          {/* Custom AI questions if any */}
-          {questions && (
-            <div className="ai-questions">
-              <div className="markdown-content">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{questions}</ReactMarkdown>
+            {/* Custom AI questions if any */}
+            {questions && (
+              <div className="triage-questions">
+                <div className="markdown-content">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{questions}</ReactMarkdown>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Response input - chat style */}
-      <div className="triage-response-area">
-        <form className="triage-chat-form" onSubmit={handleSubmit}>
-          <textarea
-            className="triage-chat-input"
-            placeholder="Type your answers here... (Enter to send, Shift+Enter for new line)"
-            value={response}
-            onChange={(e) => setResponse(e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={isLoading}
-            rows={2}
-            autoFocus
-          />
-          <div className="triage-chat-actions">
-            <button
-              type="button"
-              className="skip-btn-chat"
-              onClick={onSkip}
-              disabled={isLoading}
-            >
-              Skip & Send Anyway
-            </button>
-            <button
-              type="submit"
-              className="send-btn-chat"
-              disabled={!response.trim() || isLoading}
-            >
-              {isLoading ? '...' : 'Send'}
-            </button>
+            )}
           </div>
-        </form>
+
+          {/* Input area */}
+          <div className="triage-input-area">
+            <form className="triage-input-form" onSubmit={handleSubmit}>
+              <textarea
+                className="triage-textarea"
+                placeholder="Type your answers here... (Enter to send, Shift+Enter for new line)"
+                value={response}
+                onChange={(e) => setResponse(e.target.value)}
+                onKeyDown={handleKeyDown}
+                disabled={isLoading}
+                rows={2}
+                autoFocus
+              />
+              <div className="triage-input-actions">
+                <button
+                  type="button"
+                  className="triage-skip-btn"
+                  onClick={onSkip}
+                  disabled={isLoading}
+                >
+                  Skip & Send Anyway
+                </button>
+                <button
+                  type="submit"
+                  className="triage-send-btn"
+                  disabled={!response.trim() || isLoading}
+                >
+                  {isLoading ? '...' : 'Send'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   );
