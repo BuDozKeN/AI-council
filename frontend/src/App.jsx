@@ -403,6 +403,19 @@ function App() {
 
           case 'error':
             console.error('Stream error:', event.message);
+            // Reset all loading states in the message
+            setCurrentConversation((prev) => {
+              if (!prev || !prev.messages || prev.messages.length === 0) return prev;
+              const messages = prev.messages.map((msg, idx) =>
+                idx === prev.messages.length - 1
+                  ? {
+                      ...msg,
+                      loading: { stage1: false, stage2: false, stage3: false },
+                    }
+                  : msg
+              );
+              return { ...prev, messages };
+            });
             setIsLoading(false);
             break;
 
