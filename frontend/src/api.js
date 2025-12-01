@@ -85,10 +85,13 @@ export const api = {
    * @param {string} conversationId - The conversation ID
    * @param {string} content - The message content
    * @param {function} onEvent - Callback function for each event: (eventType, data) => void
-   * @param {string|null} businessId - Optional business context ID
+   * @param {object} options - Context options
+   * @param {string|null} options.businessId - Optional business context ID
+   * @param {AbortSignal} options.signal - Optional AbortSignal for cancellation
    * @returns {Promise<void>}
    */
-  async sendMessageStream(conversationId, content, onEvent, businessId = null) {
+  async sendMessageStream(conversationId, content, onEvent, options = {}) {
+    const { businessId = null, signal = null } = options;
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/message/stream`,
       {
@@ -97,6 +100,7 @@ export const api = {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ content, business_id: businessId }),
+        signal, // Allow cancellation
       }
     );
 
@@ -106,24 +110,40 @@ export const api = {
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
+    let buffer = ''; // Buffer for incomplete SSE events
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-      const chunk = decoder.decode(value);
-      const lines = chunk.split('\n');
+        buffer += decoder.decode(value, { stream: true });
 
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          const data = line.slice(6);
-          try {
-            const event = JSON.parse(data);
-            onEvent(event.type, event);
-          } catch (e) {
-            console.error('Failed to parse SSE event:', e);
+        // Process complete SSE events (separated by double newlines)
+        while (buffer.includes('\n\n')) {
+          const eventEnd = buffer.indexOf('\n\n');
+          const eventText = buffer.slice(0, eventEnd);
+          buffer = buffer.slice(eventEnd + 2);
+
+          // Parse the SSE event
+          for (const line of eventText.split('\n')) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              try {
+                const event = JSON.parse(data);
+                onEvent(event.type, event);
+              } catch (e) {
+                console.error('Failed to parse SSE event:', e);
+              }
+            }
           }
         }
+      }
+    } catch (e) {
+      if (e.name === 'AbortError') {
+        onEvent('cancelled', { message: 'Request was cancelled' });
+      } else {
+        throw e;
       }
     }
   },
