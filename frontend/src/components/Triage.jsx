@@ -11,6 +11,8 @@ export default function Triage({
   isLoading,
 }) {
   const [response, setResponse] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedConstraints, setEditedConstraints] = useState(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -27,9 +29,39 @@ export default function Triage({
     }
   };
 
+  const startEditing = () => {
+    setEditedConstraints({ ...triageResult.constraints });
+    setIsEditing(true);
+  };
+
+  const cancelEditing = () => {
+    setEditedConstraints(null);
+    setIsEditing(false);
+  };
+
+  const saveEdits = () => {
+    // Build enhanced query with edited constraints
+    const c = editedConstraints;
+    const enhanced = `${originalQuestion}
+
+Context:
+- Who: ${c.who || 'Not specified'}
+- Goal: ${c.goal || 'Not specified'}
+- Budget: ${c.budget || 'Not specified'}
+- Priority: ${c.risk || 'Not specified'}`;
+
+    setIsEditing(false);
+    onProceed(enhanced);
+  };
+
+  const updateConstraint = (key, value) => {
+    setEditedConstraints(prev => ({ ...prev, [key]: value }));
+  };
+
   if (!triageResult) return null;
 
   const { ready, constraints, questions, enhanced_query } = triageResult;
+  const displayConstraints = isEditing ? editedConstraints : constraints;
 
   // Ready state - show summary and proceed
   if (ready) {
@@ -48,48 +80,112 @@ export default function Triage({
             <div className="ready-header">
               <span className="ready-icon">✓</span>
               <span>Got it! Here's what I understood:</span>
+              {!isEditing && (
+                <button className="edit-icon-btn" onClick={startEditing} title="Edit constraints">
+                  ✎
+                </button>
+              )}
             </div>
+
             <div className="constraints-summary">
-              {constraints.who && (
+              {displayConstraints.who !== undefined && (
                 <div className="constraint-row">
                   <span className="constraint-label">Who:</span>
-                  <span className="constraint-value">{constraints.who}</span>
+                  {isEditing ? (
+                    <textarea
+                      className="constraint-edit"
+                      value={editedConstraints.who || ''}
+                      onChange={(e) => updateConstraint('who', e.target.value)}
+                      rows={2}
+                    />
+                  ) : (
+                    <span className="constraint-value">{constraints.who}</span>
+                  )}
                 </div>
               )}
-              {constraints.goal && (
+              {displayConstraints.goal !== undefined && (
                 <div className="constraint-row">
                   <span className="constraint-label">Goal:</span>
-                  <span className="constraint-value">{constraints.goal}</span>
+                  {isEditing ? (
+                    <textarea
+                      className="constraint-edit"
+                      value={editedConstraints.goal || ''}
+                      onChange={(e) => updateConstraint('goal', e.target.value)}
+                      rows={2}
+                    />
+                  ) : (
+                    <span className="constraint-value">{constraints.goal}</span>
+                  )}
                 </div>
               )}
-              {constraints.budget && (
+              {displayConstraints.budget !== undefined && (
                 <div className="constraint-row">
                   <span className="constraint-label">Budget:</span>
-                  <span className="constraint-value">{constraints.budget}</span>
+                  {isEditing ? (
+                    <textarea
+                      className="constraint-edit"
+                      value={editedConstraints.budget || ''}
+                      onChange={(e) => updateConstraint('budget', e.target.value)}
+                      rows={2}
+                    />
+                  ) : (
+                    <span className="constraint-value">{constraints.budget}</span>
+                  )}
                 </div>
               )}
-              {constraints.risk && (
+              {displayConstraints.risk !== undefined && (
                 <div className="constraint-row">
                   <span className="constraint-label">Priority:</span>
-                  <span className="constraint-value">{constraints.risk}</span>
+                  {isEditing ? (
+                    <textarea
+                      className="constraint-edit"
+                      value={editedConstraints.risk || ''}
+                      onChange={(e) => updateConstraint('risk', e.target.value)}
+                      rows={2}
+                    />
+                  ) : (
+                    <span className="constraint-value">{constraints.risk}</span>
+                  )}
                 </div>
               )}
             </div>
+
             <div className="ready-actions">
-              <button
-                className="proceed-btn"
-                onClick={() => onProceed(enhanced_query)}
-                disabled={isLoading}
-              >
-                {isLoading ? 'Sending...' : 'Send to Council →'}
-              </button>
-              <button
-                className="edit-btn"
-                onClick={onSkip}
-                disabled={isLoading}
-              >
-                Start over
-              </button>
+              {isEditing ? (
+                <>
+                  <button
+                    className="proceed-btn"
+                    onClick={saveEdits}
+                    disabled={isLoading}
+                  >
+                    Save & Send →
+                  </button>
+                  <button
+                    className="edit-btn"
+                    onClick={cancelEditing}
+                    disabled={isLoading}
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    className="proceed-btn"
+                    onClick={() => onProceed(enhanced_query)}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Sending...' : 'Send to Council →'}
+                  </button>
+                  <button
+                    className="edit-btn"
+                    onClick={onSkip}
+                    disabled={isLoading}
+                  >
+                    Start over
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
