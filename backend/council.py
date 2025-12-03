@@ -87,27 +87,35 @@ async def stage1_stream_responses(
 
     async def stream_single_model(model: str):
         """Stream tokens from a single model and put events on the queue."""
+        print(f"[STAGE1 TASK START] {model}: Task started", flush=True)
         content = ""
+        chunk_count = 0
         try:
             async for chunk in query_model_stream(model, messages):
+                chunk_count += 1
                 content += chunk
                 await queue.put({"type": "stage1_token", "model": model, "content": chunk})
+            print(f"[STAGE1 TASK DONE] {model}: Received {chunk_count} chunks, {len(content)} chars", flush=True)
             model_content[model] = content
             await queue.put({"type": "stage1_model_complete", "model": model, "response": content})
         except Exception as e:
-            print(f"Error streaming from {model}: {e}")
+            print(f"[STAGE1 TASK ERROR] {model}: {type(e).__name__}: {e}", flush=True)
             await queue.put({"type": "stage1_model_error", "model": model, "error": str(e)})
 
     # Start all model streams with staggered delays to avoid rate limiting
+    print(f"[STAGE1] Starting {len(COUNCIL_MODELS)} models: {COUNCIL_MODELS}", flush=True)
     tasks = []
     for i, model in enumerate(COUNCIL_MODELS):
         if i > 0:
+            print(f"[STAGE1] Waiting 2s before starting {model}...", flush=True)
             await asyncio.sleep(2.0)  # 2 second delay between each model
+        print(f"[STAGE1] Creating task for {model}", flush=True)
         tasks.append(asyncio.create_task(stream_single_model(model)))
 
     # Track how many models have completed
     completed_count = 0
     total_models = len(COUNCIL_MODELS)
+    print(f"[STAGE1] All {total_models} tasks created, waiting for results...", flush=True)
 
     # Yield events as they arrive
     while completed_count < total_models:
@@ -220,27 +228,35 @@ Now provide your evaluation and ranking:"""
 
     async def stream_single_model(model: str):
         """Stream tokens from a single model and put events on the queue."""
+        print(f"[STAGE2 TASK START] {model}: Task started", flush=True)
         content = ""
+        chunk_count = 0
         try:
             async for chunk in query_model_stream(model, messages):
+                chunk_count += 1
                 content += chunk
                 await queue.put({"type": "stage2_token", "model": model, "content": chunk})
+            print(f"[STAGE2 TASK DONE] {model}: Received {chunk_count} chunks, {len(content)} chars", flush=True)
             model_content[model] = content
             await queue.put({"type": "stage2_model_complete", "model": model, "ranking": content})
         except Exception as e:
-            print(f"Error streaming stage2 from {model}: {e}")
+            print(f"[STAGE2 TASK ERROR] {model}: {type(e).__name__}: {e}", flush=True)
             await queue.put({"type": "stage2_model_error", "model": model, "error": str(e)})
 
     # Start all model streams with staggered delays to avoid rate limiting
+    print(f"[STAGE2] Starting {len(COUNCIL_MODELS)} models: {COUNCIL_MODELS}", flush=True)
     tasks = []
     for i, model in enumerate(COUNCIL_MODELS):
         if i > 0:
+            print(f"[STAGE2] Waiting 2s before starting {model}...", flush=True)
             await asyncio.sleep(2.0)  # 2 second delay between each model
+        print(f"[STAGE2] Creating task for {model}", flush=True)
         tasks.append(asyncio.create_task(stream_single_model(model)))
 
     # Track how many models have completed
     completed_count = 0
     total_models = len(COUNCIL_MODELS)
+    print(f"[STAGE2] All {total_models} tasks created, waiting for results...", flush=True)
 
     # Yield events as they arrive
     while completed_count < total_models:
@@ -340,13 +356,17 @@ Provide a clear, well-reasoned final answer that represents the council's collec
     messages.append({"role": "user", "content": chairman_prompt})
 
     # Stream from the chairman model
+    print(f"[STAGE3] Starting chairman: {CHAIRMAN_MODEL}", flush=True)
     content = ""
+    chunk_count = 0
     try:
         async for chunk in query_model_stream(CHAIRMAN_MODEL, messages):
+            chunk_count += 1
             content += chunk
             yield {"type": "stage3_token", "model": CHAIRMAN_MODEL, "content": chunk}
+        print(f"[STAGE3] Chairman done: {chunk_count} chunks, {len(content)} chars", flush=True)
     except Exception as e:
-        print(f"Error streaming stage3 from chairman: {e}")
+        print(f"[STAGE3 ERROR] Chairman {CHAIRMAN_MODEL}: {type(e).__name__}: {e}", flush=True)
         yield {"type": "stage3_error", "model": CHAIRMAN_MODEL, "error": str(e)}
 
     yield {
