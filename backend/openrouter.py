@@ -90,6 +90,7 @@ async def query_model_stream(
     }
 
     try:
+        print(f"[STREAM START] {model}: Connecting...", flush=True)
         async with httpx.AsyncClient(timeout=timeout) as client:
             async with client.stream(
                 "POST",
@@ -98,20 +99,32 @@ async def query_model_stream(
                 json=payload
             ) as response:
                 response.raise_for_status()
+                print(f"[STREAM CONNECTED] {model}: Status {response.status_code}", flush=True)
 
+                line_count = 0
+                token_count = 0
                 async for line in response.aiter_lines():
+                    line_count += 1
                     if line.startswith("data: "):
                         data_str = line[6:]  # Remove "data: " prefix
                         if data_str.strip() == "[DONE]":
+                            print(f"[STREAM DONE] {model}: Received [DONE] after {line_count} lines, {token_count} tokens", flush=True)
                             break
                         try:
                             data = json.loads(data_str)
                             delta = data.get('choices', [{}])[0].get('delta', {})
                             content = delta.get('content', '')
                             if content:
+                                token_count += 1
                                 yield content
                         except json.JSONDecodeError:
+                            print(f"[STREAM JSON ERROR] {model}: Failed to parse: {data_str[:100]}", flush=True)
                             continue
+
+                if line_count == 0:
+                    print(f"[STREAM EMPTY] {model}: No lines received!", flush=True)
+                elif token_count == 0:
+                    print(f"[STREAM NO TOKENS] {model}: {line_count} lines but 0 tokens!", flush=True)
 
     except httpx.TimeoutException as e:
         print(f"[TIMEOUT] Model {model}: Streaming timed out after {timeout}s", flush=True)
