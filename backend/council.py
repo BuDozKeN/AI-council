@@ -3,7 +3,7 @@
 import asyncio
 from typing import List, Dict, Any, Tuple, Optional, AsyncGenerator
 from .openrouter import query_models_parallel, query_model, query_model_stream
-from .config import COUNCIL_MODELS, CHAIRMAN_MODEL
+from .config import COUNCIL_MODELS, CHAIRMAN_MODEL, CHAIRMAN_MODELS
 from .context_loader import get_system_prompt_with_context
 
 
@@ -355,25 +355,57 @@ Provide a clear, well-reasoned final answer that represents the council's collec
 
     messages.append({"role": "user", "content": chairman_prompt})
 
-    # Stream from the chairman model
-    print(f"[STAGE3] Starting chairman: {CHAIRMAN_MODEL}", flush=True)
-    content = ""
-    chunk_count = 0
-    try:
-        async for chunk in query_model_stream(CHAIRMAN_MODEL, messages):
-            chunk_count += 1
-            content += chunk
-            yield {"type": "stage3_token", "model": CHAIRMAN_MODEL, "content": chunk}
-        print(f"[STAGE3] Chairman done: {chunk_count} chunks, {len(content)} chars", flush=True)
-    except Exception as e:
-        print(f"[STAGE3 ERROR] Chairman {CHAIRMAN_MODEL}: {type(e).__name__}: {e}", flush=True)
-        yield {"type": "stage3_error", "model": CHAIRMAN_MODEL, "error": str(e)}
+    # Try each chairman model in order until one succeeds
+    successful_chairman = None
+    final_content = ""
+
+    for chairman_index, chairman_model in enumerate(CHAIRMAN_MODELS):
+        print(f"[STAGE3] Trying chairman {chairman_index + 1}/{len(CHAIRMAN_MODELS)}: {chairman_model}", flush=True)
+
+        content = ""
+        chunk_count = 0
+        had_error = False
+
+        try:
+            async for chunk in query_model_stream(chairman_model, messages):
+                # Check if this is an error message
+                if chunk.startswith("[Error:"):
+                    print(f"[STAGE3] Chairman {chairman_model} returned error: {chunk}", flush=True)
+                    had_error = True
+                    # Try next chairman
+                    break
+
+                chunk_count += 1
+                content += chunk
+                yield {"type": "stage3_token", "model": chairman_model, "content": chunk}
+
+            if not had_error and content and len(content) > 50:  # Successful response
+                print(f"[STAGE3] Chairman {chairman_model} succeeded: {chunk_count} chunks, {len(content)} chars", flush=True)
+                successful_chairman = chairman_model
+                final_content = content
+                break
+            elif not had_error:
+                print(f"[STAGE3] Chairman {chairman_model} returned insufficient content ({len(content)} chars), trying next...", flush=True)
+
+        except Exception as e:
+            print(f"[STAGE3 ERROR] Chairman {chairman_model}: {type(e).__name__}: {e}", flush=True)
+            yield {"type": "stage3_error", "model": chairman_model, "error": str(e)}
+
+        # If not the last chairman, notify we're trying fallback
+        if chairman_index < len(CHAIRMAN_MODELS) - 1:
+            print(f"[STAGE3] Falling back to next chairman...", flush=True)
+            yield {"type": "stage3_fallback", "failed_model": chairman_model, "next_model": CHAIRMAN_MODELS[chairman_index + 1]}
+
+    if not successful_chairman:
+        print(f"[STAGE3] All chairmen failed!", flush=True)
+        final_content = "[Error: All chairman models failed. Please try again.]"
+        successful_chairman = CHAIRMAN_MODELS[0]  # Report as primary for consistency
 
     yield {
         "type": "stage3_complete",
         "data": {
-            "model": CHAIRMAN_MODEL,
-            "response": content
+            "model": successful_chairman,
+            "response": final_content
         }
     }
 

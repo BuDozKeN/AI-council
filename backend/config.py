@@ -18,8 +18,16 @@ COUNCIL_MODELS = [
     "deepseek/deepseek-chat-v3-0324",
 ]
 
-# Chairman model - synthesizes final response
-CHAIRMAN_MODEL = "google/gemini-3-pro-preview"
+# Chairman models - synthesizes final response (with fallbacks)
+# Will try each in order until one succeeds
+CHAIRMAN_MODELS = [
+    "anthropic/claude-opus-4.5",     # Primary
+    "google/gemini-3-pro-preview",   # Fallback 1
+    "openai/gpt-5.1",                # Fallback 2
+]
+
+# For backwards compatibility
+CHAIRMAN_MODEL = CHAIRMAN_MODELS[0]
 
 # OpenRouter API endpoint
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
