@@ -90,7 +90,7 @@ async def query_model_stream(
         "model": model,
         "messages": messages,
         "stream": True,
-        "max_tokens": 4096,  # Explicit limit to prevent truncation (especially for DeepSeek)
+        "max_tokens": 16384,  # Higher limit to prevent truncation
     }
 
     retries = 0
@@ -113,12 +113,16 @@ async def query_model_stream(
                     line_count = 0
                     token_count = 0
                     first_data_logged = False
+                    finish_reason = None
                     async for line in response.aiter_lines():
                         line_count += 1
                         if line.startswith("data: "):
                             data_str = line[6:]  # Remove "data: " prefix
                             if data_str.strip() == "[DONE]":
-                                print(f"[STREAM DONE] {model}: Received [DONE] after {line_count} lines, {token_count} tokens", flush=True)
+                                done_msg = f"[STREAM DONE] {model}: Received [DONE] after {line_count} lines, {token_count} tokens"
+                                if finish_reason == "length":
+                                    done_msg += " [TRUNCATED - hit max_tokens limit!]"
+                                print(done_msg, flush=True)
                                 return  # Successfully completed
                             try:
                                 data = json.loads(data_str)
@@ -144,7 +148,14 @@ async def query_model_stream(
                                     yield f"[Error: {error_msg}]"
                                     return
 
-                                delta = data.get('choices', [{}])[0].get('delta', {})
+                                choice = data.get('choices', [{}])[0]
+                                delta = choice.get('delta', {})
+
+                                # Check for finish_reason (indicates truncation if "length")
+                                fr = choice.get('finish_reason')
+                                if fr:
+                                    finish_reason = fr
+
                                 # Capture both 'content' and 'reasoning' fields
                                 # Gemini sends thinking in 'reasoning' and final answer in 'content'
                                 content = delta.get('content', '')
