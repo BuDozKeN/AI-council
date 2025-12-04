@@ -157,7 +157,7 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
                   Avg: {agg.average_rank.toFixed(2)}
                 </span>
                 <span className="rank-count">
-                  ({agg.rankings_count} votes)
+                  (by {agg.rankings_count}/{aggregateRankings.length} judges)
                 </span>
               </div>
             ))}
