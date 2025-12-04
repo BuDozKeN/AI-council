@@ -131,20 +131,25 @@ async def query_model_stream(
                                     print(f"[STREAM FIRST DATA] {model}: {json.dumps(data)[:500]}", flush=True)
                                     first_data_logged = True
 
-                                # Check for error response (Overloaded, rate limit, etc.)
+                                # Check for error response (Overloaded, rate limit, server errors, etc.)
                                 if 'error' in data:
                                     error_msg = data['error'].get('message', 'Unknown error')
                                     error_code = data['error'].get('code', 0)
                                     print(f"[STREAM ERROR RESPONSE] {model}: {error_msg} (code: {error_code})", flush=True)
 
-                                    # Retry on overloaded/rate limit errors
-                                    if 'overloaded' in error_msg.lower() or 'rate' in error_msg.lower() or error_code in [429, 503]:
-                                        if retries < max_retries:
-                                            should_retry = True
-                                            wait_time = (retries + 1) * 3  # 3s, 6s backoff
-                                            print(f"[RETRY] {model}: Will retry in {wait_time}s...", flush=True)
-                                            await asyncio.sleep(wait_time)
-                                            break  # Break inner loop to retry
+                                    # Retry on overloaded, rate limit, or server errors (500, 503)
+                                    is_retryable = (
+                                        'overloaded' in error_msg.lower() or
+                                        'rate' in error_msg.lower() or
+                                        'internal server' in error_msg.lower() or
+                                        error_code in [429, 500, 502, 503, 504]
+                                    )
+                                    if is_retryable and retries < max_retries:
+                                        should_retry = True
+                                        wait_time = (retries + 1) * 3  # 3s, 6s backoff
+                                        print(f"[RETRY] {model}: Will retry in {wait_time}s...", flush=True)
+                                        await asyncio.sleep(wait_time)
+                                        break  # Break inner loop to retry
                                     yield f"[Error: {error_msg}]"
                                     return
 
