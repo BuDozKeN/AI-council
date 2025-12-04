@@ -103,6 +103,7 @@ async def query_model_stream(
 
                 line_count = 0
                 token_count = 0
+                first_data_logged = False
                 async for line in response.aiter_lines():
                     line_count += 1
                     if line.startswith("data: "):
@@ -112,6 +113,10 @@ async def query_model_stream(
                             break
                         try:
                             data = json.loads(data_str)
+                            # Log first data packet to see structure
+                            if not first_data_logged:
+                                print(f"[STREAM FIRST DATA] {model}: {json.dumps(data)[:500]}", flush=True)
+                                first_data_logged = True
                             delta = data.get('choices', [{}])[0].get('delta', {})
                             content = delta.get('content', '')
                             if content:
