@@ -1,0 +1,309 @@
+"""Knowledge base for storing council decisions and patterns."""
+
+from typing import Optional, List, Dict, Any
+from .database import get_supabase, get_supabase_service
+
+
+def create_knowledge_entry(
+    user_id: str,
+    company_id: str,
+    title: str,
+    summary: str,
+    category: str,
+    department_id: Optional[str] = None,
+    role_id: Optional[str] = None,
+    project_id: Optional[str] = None,
+    source_conversation_id: Optional[str] = None,
+    access_token: Optional[str] = None,
+    # Structured decision fields
+    problem_statement: Optional[str] = None,
+    decision_text: Optional[str] = None,
+    reasoning: Optional[str] = None,
+    status: str = "active",
+    # Framework/SOP fields
+    body_md: Optional[str] = None,
+    version: str = "v1"
+) -> Optional[Dict[str, Any]]:
+    """Create a new knowledge entry with structured decision fields."""
+    client = get_supabase_service()  # Use service for insert to bypass RLS for now
+
+    data = {
+        "company_id": company_id,
+        "department_id": department_id,
+        "role_id": role_id,
+        "project_id": project_id,
+        "category": category,
+        "title": title,
+        "summary": summary,
+        "source_conversation_id": source_conversation_id,
+        "created_by": user_id,
+        "is_active": True,
+        # Structured fields
+        "problem_statement": problem_statement,
+        "decision_text": decision_text,
+        "reasoning": reasoning,
+        "status": status,
+        # Framework/SOP fields
+        "body_md": body_md,
+        "version": version
+    }
+
+    result = client.table("knowledge_entries").insert(data).execute()
+    return result.data[0] if result.data else None
+
+
+def get_knowledge_entries(
+    company_id: str,
+    department_id: Optional[str] = None,
+    project_id: Optional[str] = None,
+    category: Optional[str] = None,
+    status: Optional[str] = "active",
+    search: Optional[str] = None,
+    limit: int = 50,
+    access_token: Optional[str] = None
+) -> List[Dict[str, Any]]:
+    """Get knowledge entries for a company with filtering options."""
+    client = get_supabase_service()  # Use service for read to bypass RLS for now
+
+    query = (client
+        .table("knowledge_entries")
+        .select("*")
+        .eq("company_id", company_id)
+        .eq("is_active", True)
+        .order("updated_at", desc=True)
+        .limit(limit))
+
+    # Filter by status if provided (None = all statuses)
+    if status:
+        query = query.eq("status", status)
+
+    # Filter by project
+    if project_id:
+        query = query.eq("project_id", project_id)
+    elif department_id:
+        # Get entries for specific department OR company-wide (NULL department)
+        query = query.or_(f"department_id.eq.{department_id},department_id.is.null")
+
+    # Filter by category
+    if category:
+        query = query.eq("category", category)
+
+    # Search in title, problem_statement, and decision_text
+    if search:
+        search_pattern = f"%{search}%"
+        query = query.or_(
+            f"title.ilike.{search_pattern},"
+            f"problem_statement.ilike.{search_pattern},"
+            f"decision_text.ilike.{search_pattern}"
+        )
+
+    result = query.execute()
+    return result.data or []
+
+
+def get_knowledge_for_context(
+    company_id: str,
+    department_id: Optional[str] = None,
+    role_id: Optional[str] = None,
+    limit: int = 15
+) -> str:
+    """Get knowledge entries formatted as markdown for context injection.
+
+    Uses a decision-focused format that clearly communicates:
+    - What problem was being solved
+    - What decision was made
+    - Why it was made
+    """
+    entries = get_knowledge_entries(
+        company_id=company_id,
+        department_id=department_id,
+        limit=limit
+    )
+
+    if not entries:
+        return ""
+
+    # Format as markdown section with decision-focused structure
+    lines = ["\n\n---\n\n## Prior Decisions (Apply These Standards)\n"]
+
+    for entry in entries:
+        date = entry["created_at"][:10]
+        status = entry.get("status", "active")
+
+        # Skip superseded/deprecated entries unless explicitly active
+        if status not in ("active", None):
+            lines.append(f"### ~~{entry['title']}~~ ({date}) [SUPERSEDED]")
+            lines.append(f"*This decision has been superseded. See newer entries.*\n")
+            continue
+
+        lines.append(f"### {entry['title']} ({date})")
+
+        # Use new structured fields if available, fall back to summary
+        problem = entry.get("problem_statement")
+        decision = entry.get("decision_text")
+        reasoning = entry.get("reasoning")
+
+        if problem or decision or reasoning:
+            # New structured format
+            if problem:
+                lines.append(f"**Problem:** {problem}")
+            if decision:
+                lines.append(f"**Decision:** {decision}")
+            if reasoning:
+                lines.append(f"**Reasoning:** {reasoning}")
+            lines.append("")
+        else:
+            # Fall back to old summary format for backwards compatibility
+            lines.append(f"*Category: {entry['category']}*\n")
+            lines.append(f"{entry['summary']}\n")
+
+    return "\n".join(lines)
+
+
+def update_knowledge_entry(
+    entry_id: str,
+    user_id: str,
+    updates: Dict[str, Any],
+    access_token: Optional[str] = None
+) -> Optional[Dict[str, Any]]:
+    """Update a knowledge entry with the provided fields."""
+    client = get_supabase_service()
+
+    # Filter out None values and empty updates
+    if not updates:
+        return None
+
+    # The updated_at will be handled by the database trigger
+    result = (client
+        .table("knowledge_entries")
+        .update(updates)
+        .eq("id", entry_id)
+        .execute())
+
+    return result.data[0] if result.data else None
+
+
+def get_knowledge_count_for_conversation(
+    conversation_id: str,
+    company_id: str
+) -> int:
+    """Get count of knowledge entries saved from a specific conversation."""
+    client = get_supabase_service()
+
+    result = (client
+        .table("knowledge_entries")
+        .select("id", count="exact")
+        .eq("source_conversation_id", conversation_id)
+        .eq("company_id", company_id)
+        .eq("is_active", True)
+        .execute())
+
+    return result.count if result.count is not None else 0
+
+
+def deactivate_knowledge_entry(
+    entry_id: str,
+    user_id: str,
+    access_token: Optional[str] = None
+) -> bool:
+    """Soft delete a knowledge entry."""
+    client = get_supabase_service()
+
+    result = (client
+        .table("knowledge_entries")
+        .update({"is_active": False})
+        .eq("id", entry_id)
+        .execute())
+
+    return len(result.data) > 0 if result.data else False
+
+
+def generate_project_report(
+    project_id: str,
+    project_name: str,
+    company_id: str,
+    include_executive_summary: bool = True
+) -> Dict[str, Any]:
+    """
+    Generate a professional report of all decisions made for a project.
+    Returns structured data that can be rendered as HTML/PDF.
+
+    The report is client-friendly - no mention of "AI Council" or internal tooling.
+    """
+    entries = get_knowledge_entries(
+        company_id=company_id,
+        project_id=project_id,
+        limit=100  # Get all entries for the report
+    )
+
+    if not entries:
+        return {
+            "project_name": project_name,
+            "generated_at": None,
+            "entry_count": 0,
+            "categories": {},
+            "timeline": [],
+            "executive_summary": "No decisions have been recorded for this project yet."
+        }
+
+    # Group entries by category
+    categories = {}
+    category_names = {
+        'technical_decision': 'Technical Decisions',
+        'ux_pattern': 'UX & Design Patterns',
+        'feature': 'Features & Functionality',
+        'policy': 'Policies & Guidelines',
+        'process': 'Processes & Workflows'
+    }
+
+    for entry in entries:
+        cat = entry.get('category', 'general')
+        cat_display = category_names.get(cat, cat.replace('_', ' ').title())
+
+        if cat_display not in categories:
+            categories[cat_display] = []
+
+        categories[cat_display].append({
+            "title": entry.get('title', 'Untitled'),
+            "summary": entry.get('summary', ''),
+            "date": entry.get('created_at', '')[:10],
+            "department": entry.get('department_id', 'General')
+        })
+
+    # Build timeline (chronological order)
+    timeline = sorted(entries, key=lambda x: x.get('created_at', ''))
+    timeline_items = [
+        {
+            "date": e.get('created_at', '')[:10],
+            "title": e.get('title', 'Untitled'),
+            "category": category_names.get(e.get('category', 'general'), 'Decision')
+        }
+        for e in timeline
+    ]
+
+    # Generate executive summary
+    exec_summary = ""
+    if include_executive_summary and entries:
+        total = len(entries)
+        date_range_start = timeline_items[0]['date'] if timeline_items else 'N/A'
+        date_range_end = timeline_items[-1]['date'] if timeline_items else 'N/A'
+
+        exec_summary = f"""This report summarizes {total} key decisions and recommendations made during the {project_name} project engagement, spanning from {date_range_start} to {date_range_end}.
+
+The decisions cover the following areas:
+"""
+        for cat_name, cat_entries in categories.items():
+            exec_summary += f"• {cat_name}: {len(cat_entries)} decision(s)\n"
+
+        exec_summary += "\nEach decision includes the rationale and recommended approach based on thorough analysis and industry best practices."
+
+    from datetime import datetime
+
+    return {
+        "project_name": project_name,
+        "generated_at": datetime.utcnow().isoformat() + 'Z',
+        "entry_count": len(entries),
+        "categories": categories,
+        "timeline": timeline_items,
+        "executive_summary": exec_summary
+    }

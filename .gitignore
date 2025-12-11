@@ -1,0 +1,38 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Keys and secrets
+.env
+.mcp.json
+
+# Data files
+data/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/.claude/
+
+# Root node_modules (for Supabase CLI)
+node_modules/
+
+# Supabase temp files
+supabase/.temp/
+supabase/.branches/
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# Windows reserved device names
+nul
+NUL
+con
+CON

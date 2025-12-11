@@ -1,0 +1,367 @@
+.stage3 {
+  background: #f0fff0;
+  border-color: #c8e6c8;
+}
+
+/* Collapsible styles */
+.stage3 .stage-title.clickable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.stage3 .stage-title.clickable:hover {
+  color: #2d8a2d;
+}
+
+.stage3 .collapse-arrow {
+  font-size: 12px;
+  color: #5a8a5a;
+  margin-right: 4px;
+  transition: transform 0.2s ease;
+}
+
+.stage3 .collapsed-summary {
+  margin-left: 12px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60%;
+}
+
+/* Collapsed state */
+.stage3.collapsed {
+  padding: 12px 20px;
+}
+
+.stage3.collapsed .stage-title {
+  margin-bottom: 0;
+}
+
+.final-response {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 6px;
+  border: 1px solid #c8e6c8;
+}
+
+/* Sticky copy button - floats at top-right of final-response */
+.sticky-copy-btn {
+  position: sticky;
+  top: 8px;
+  float: right;
+  z-index: 10;
+  margin-left: 8px;
+}
+
+.chairman-label {
+  color: #2d8a2d;
+  font-size: 12px;
+  font-family: monospace;
+  margin-bottom: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.chairman-info {
+  display: flex;
+  align-items: center;
+}
+
+/* Copy button */
+.copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  background: transparent;
+  border: 1px solid #c8e6c8;
+  border-radius: 4px;
+  color: #2d8a2d;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.copy-btn:hover {
+  background: #e8f5e9;
+}
+
+.copy-icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* Code block with copy button - light theme to match Stage3 */
+.code-block-wrapper {
+  position: relative;
+  margin: 12px 0;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #f8faf8;
+  border: 1px solid #c8e6c8;
+}
+
+.code-block-wrapper .code-language {
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  font-size: 11px;
+  color: #5a8a5a;
+  text-transform: uppercase;
+  font-family: monospace;
+  font-weight: 600;
+}
+
+.code-block-wrapper .copy-code-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  background: transparent;
+  border: 1px solid #c8e6c8;
+  border-radius: 4px;
+  color: #2d8a2d;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.code-block-wrapper .copy-code-btn:hover {
+  background: #e8f5e9;
+}
+
+.code-block-wrapper .copy-code-btn .copy-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.code-block-wrapper pre {
+  margin: 0;
+  padding: 36px 12px 12px 12px;
+  overflow-x: auto;
+  background: #f8faf8;
+}
+
+.code-block-wrapper code {
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #1b5e20;
+}
+
+/* Inline code styling (for short snippets like table names, paths) */
+.inline-code {
+  display: inline;
+  padding: 1px 4px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 3px;
+  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+  font-size: 0.9em;
+  color: inherit;
+}
+
+.final-text {
+  color: #333;
+  line-height: 1.7;
+  font-size: 15px;
+}
+
+.final-text.error-text {
+  color: #d32f2f;
+}
+
+/* Streaming styles */
+.stage3 .typing-indicator {
+  display: inline-block;
+  margin-left: 8px;
+  color: #4caf50;
+  animation: blink 0.8s infinite;
+}
+
+.stage3 .complete-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 6px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.stage3 .error-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 6px;
+  background: #fff3e0;
+  color: #e65100;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.stage3 .cursor {
+  display: inline-block;
+  color: #2d8a2d;
+  animation: blink 0.8s infinite;
+  margin-left: 2px;
+}
+
+.stage3 .empty-message {
+  color: #666;
+  font-style: italic;
+}
+
+/* Loading state */
+.stage3 .stage-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  color: #666;
+}
+
+.stage3 .loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e0e0e0;
+  border-top-color: #2d8a2d;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Thinking state */
+.stage3 .thinking-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 6px;
+  background: #fff8e1;
+  color: #f57c00;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.stage3 .thinking-dots {
+  display: inline-block;
+  margin-left: 2px;
+}
+
+.stage3 .thinking-dots span {
+  animation: dotPulse 1.4s infinite ease-in-out;
+  opacity: 0;
+}
+
+.stage3 .thinking-dots span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.stage3 .thinking-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.stage3 .thinking-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dotPulse {
+  0%, 60%, 100% { opacity: 0; }
+  30% { opacity: 1; }
+}
+
+.stage3 .thinking-container {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stage3 .thinking-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #666;
+  font-size: 14px;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #f5f5f5 0%, #e8f5e9 100%);
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.stage3 .thinking-icon {
+  font-size: 24px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Save to Knowledge Base button */
+.stage3-actions {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.save-knowledge-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #e8f5e9;
+  border: 1px solid #c8e6c8;
+  border-radius: 6px;
+  color: #2d8a2d;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.save-knowledge-btn:hover {
+  background: #c8e6c8;
+  border-color: #a5d6a7;
+}
+
+.save-knowledge-btn .btn-icon {
+  font-size: 16px;
+}
+
+/* Saved count inline with button */
+.saved-count-inline {
+  margin-left: 4px;
+  font-size: 12px;
+  color: #4a8a4a;
+  font-weight: 400;
+}
+
+/* KB saved badge in collapsed header */
+.stage3 .kb-saved-badge {
+  padding: 2px 8px;
+  background: #e3f2fd;
+  color: #1565c0;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 11px;
+}

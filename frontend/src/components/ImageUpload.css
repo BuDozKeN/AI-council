@@ -1,0 +1,291 @@
+/* Image Upload Component Styles */
+
+/* Image previews container */
+.image-previews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+/* Individual image preview */
+.image-preview-item {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.image-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-preview-item .image-name {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 2px 4px;
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  font-size: 9px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.image-preview-item:hover .image-name {
+  opacity: 1;
+}
+
+/* Remove button */
+.remove-image-btn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.9);
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.image-preview-item:hover .remove-image-btn {
+  opacity: 1;
+}
+
+.remove-image-btn:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+}
+
+.remove-image-btn:disabled {
+  cursor: not-allowed;
+  background: #9ca3af;
+}
+
+/* Add more images button */
+.add-more-images-btn {
+  width: 80px;
+  height: 80px;
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.add-more-images-btn:hover:not(:disabled) {
+  border-color: #4a90e2;
+  color: #4a90e2;
+  background: #f0f7ff;
+}
+
+.add-more-images-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.add-more-images-btn span:first-child {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.add-more-images-btn .add-label {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Drag overlay - visible when dragging files */
+.drag-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(74, 144, 226, 0.15);
+  border: 3px dashed #4a90e2;
+  border-radius: 8px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  backdrop-filter: blur(2px);
+}
+
+/* Invalid file type - red/orange styling */
+.drag-overlay.invalid {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: #ef4444;
+}
+
+.drag-overlay.invalid .drag-overlay-content {
+  color: #dc2626;
+}
+
+.drag-overlay-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #4a90e2;
+  font-size: 18px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 24px 32px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.drag-overlay-content svg {
+  opacity: 0.8;
+}
+
+.drag-overlay-content .invalid-message {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.drag-overlay-content .invalid-hint {
+  font-size: 13px;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+/* Error display */
+.image-upload-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+/* Drag state indicator on input form */
+.input-form.dragging {
+  background: rgba(74, 144, 226, 0.05);
+}
+
+/* Image attachment button - inline inside textarea */
+.attach-image-btn-inline {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #aaa;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  z-index: 1;
+}
+
+.attach-image-btn-inline:hover:not(:disabled) {
+  color: #4a90e2;
+  background: #f0f7ff;
+}
+
+.attach-image-btn-inline:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.attach-image-btn-inline svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Images in user messages */
+.user-message-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.user-message-images img {
+  max-width: 200px;
+  max-height: 150px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.user-message-images img:hover {
+  transform: scale(1.02);
+}
+
+/* Image modal for full size view */
+.image-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.image-modal-content {
+  max-width: 90vw;
+  max-height: 90vh;
+  position: relative;
+}
+
+.image-modal-content img {
+  max-width: 100%;
+  max-height: 90vh;
+  border-radius: 8px;
+}
+
+.image-modal-close {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.image-modal-close:hover {
+  color: #e0e0e0;
+}
