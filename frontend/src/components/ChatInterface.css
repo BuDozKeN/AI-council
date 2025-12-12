@@ -2,7 +2,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100%;
   background: #ffffff;
   min-width: 0;
   overflow: hidden;
@@ -106,9 +106,10 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 24px;
+  padding: 20px 24px;
   border-top: 1px solid #e0e0e0;
   background: #fafafa;
+  flex-shrink: 0;
 }
 
 /* Context Bar - Clean, minimal, single row */

@@ -214,14 +214,12 @@
 }
 
 .mc-context-content {
-  background: #f9fafb;
+  background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-  padding: 16px;
-  font-size: 0.9375rem;
-  line-height: 1.6;
-  color: #4b5563;
-  white-space: pre-wrap;
+  padding: 24px;
+  max-height: 60vh;
+  overflow-y: auto;
 }
 
 /* Team Tab */
@@ -360,6 +358,59 @@
 }
 
 /* Playbooks Tab */
+.mc-playbooks-filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.mc-search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  background: white;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.mc-search-input:focus {
+  outline: none;
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+.mc-search-input::placeholder {
+  color: #9ca3af;
+}
+
+.mc-filter-select {
+  padding: 10px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  background: white;
+  cursor: pointer;
+  min-width: 140px;
+}
+
+.mc-filter-select:focus {
+  outline: none;
+  border-color: #f59e0b;
+}
+
+.mc-empty-filter {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6b7280;
+}
+
+.mc-empty-filter p {
+  margin-bottom: 12px;
+}
+
 .mc-playbook-group {
   margin-bottom: 24px;
 }
@@ -387,17 +438,81 @@
   background: #f9fafb;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.mc-playbook-item.clickable {
+  cursor: pointer;
+}
+
+.mc-playbook-item.clickable:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .mc-playbook-info {
   display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.mc-playbook-header {
+  display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .mc-playbook-title {
   font-weight: 500;
   color: #374151;
+}
+
+/* Doc type badges (SOP/Framework/Policy) */
+.mc-type-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+}
+
+.mc-type-badge.sop {
+  background: #fed7aa;
+  color: #c2410c;
+}
+
+.mc-type-badge.framework {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.mc-type-badge.policy {
+  background: #fce7f3;
+  color: #be185d;
+}
+
+/* Edit hint on hover */
+.mc-edit-hint {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  flex-shrink: 0;
+}
+
+.mc-playbook-item.clickable:hover .mc-edit-hint {
+  opacity: 1;
+  color: #6366f1;
+}
+
+.mc-playbook-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .mc-playbook-version {
@@ -406,6 +521,15 @@
   background: #e5e7eb;
   padding: 2px 8px;
   border-radius: 8px;
+}
+
+.mc-company-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #f3e8ff;
+  color: #7c3aed;
+  padding: 2px 8px;
+  border-radius: 6px;
 }
 
 /* Decisions Tab */
@@ -457,11 +581,72 @@
 .mc-decision-actions {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding-top: 10px;
+  gap: 8px;
+  padding-top: 12px;
   border-top: 1px solid #e5e7eb;
 }
 
+/* Icon-based action buttons for decisions */
+.mc-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.mc-action-btn:hover {
+  background: #e5e7eb;
+}
+
+.mc-action-btn .icon {
+  font-size: 0.875rem;
+}
+
+/* View button - subtle gray */
+.mc-action-btn.view {
+  background: #f3f4f6;
+  color: #4b5563;
+  border-color: #e5e7eb;
+}
+
+.mc-action-btn.view:hover {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+/* Promote button - orange accent */
+.mc-action-btn.promote {
+  background: #fff7ed;
+  color: #c2410c;
+  border-color: #fed7aa;
+}
+
+.mc-action-btn.promote:hover {
+  background: #ffedd5;
+  border-color: #fdba74;
+}
+
+/* Archive button - subtle red */
+.mc-action-btn.archive {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
+.mc-action-btn.archive:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+
+/* Legacy text buttons - keep for backwards compatibility */
 .mc-text-btn {
   background: none;
   border: none;
@@ -481,10 +666,125 @@
 
 .mc-promoted-badge {
   font-size: 0.75rem;
+  font-weight: 500;
   background: #d1fae5;
   color: #047857;
+  padding: 4px 10px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mc-text-btn.delete {
+  color: #dc2626;
+}
+
+.mc-text-btn.delete:hover {
+  color: #b91c1c;
+}
+
+/* Council type badge */
+.mc-council-badge {
+  font-size: 0.75rem;
+  background: #e0e7ff;
+  color: #4338ca;
   padding: 3px 10px;
   border-radius: 12px;
+  font-weight: 500;
+}
+
+/* Decision badges row */
+.mc-decision-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+/* Activity Tab */
+.mc-activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.mc-activity-group {
+  margin-bottom: 24px;
+}
+
+.mc-activity-date {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 12px;
+}
+
+.mc-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mc-activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  transition: background-color 0.15s;
+}
+
+.mc-activity-item:hover {
+  background: #f3f4f6;
+}
+
+.mc-activity-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.mc-activity-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.mc-activity-type {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 2px;
+}
+
+.mc-activity-title {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.mc-activity-description {
+  margin: 6px 0 0;
+  font-size: 0.8125rem;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.mc-activity-time {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* Buttons */
@@ -655,6 +955,15 @@
   color: #6b7280;
 }
 
+.mc-dept-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #dbeafe;
+  color: #1e40af;
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
 .mc-date {
   font-size: 0.8125rem;
   color: #6b7280;
@@ -715,6 +1024,29 @@
 .mc-view-context-btn:hover {
   background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
   border-color: #7dd3fc;
+}
+
+.mc-view-context-btn.has-content {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-color: #86efac;
+  color: #166534;
+}
+
+.mc-view-context-btn.has-content:hover {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  border-color: #4ade80;
+}
+
+.mc-view-context-btn.no-content {
+  background: #f9fafb;
+  border-color: #e5e7eb;
+  color: #9ca3af;
+}
+
+.mc-view-context-btn.no-content:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+  color: #6b7280;
 }
 
 .mc-roles-title {
@@ -847,6 +1179,257 @@
   color: #7c3aed;
   padding: 4px 12px;
   border-radius: 12px;
+}
+
+/* Activity item clickable state */
+.mc-activity-item.clickable {
+  cursor: pointer;
+}
+
+.mc-activity-item.clickable:hover {
+  background: #f0f4ff;
+  border-color: #c7d2fe;
+}
+
+.mc-activity-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.mc-activity-arrow {
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+.mc-activity-item.clickable:hover .mc-activity-arrow {
+  color: #6366f1;
+}
+
+/* Title input for editable headers */
+.mc-title-input {
+  flex: 1;
+  font-size: 1.25rem;
+  font-weight: 600;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+}
+
+.mc-title-input:focus {
+  outline: none;
+  border-color: #f97316;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
+}
+
+/* Large textarea for company context */
+.mc-edit-textarea.large {
+  min-height: 400px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+/* Modal hint text */
+.mc-modal-hint {
+  margin: 0 0 16px 0;
+  padding: 12px 16px;
+  background: #fef3c7;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #92400e;
+  line-height: 1.5;
+}
+
+/* Playbook Tags */
+.mc-playbook-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.mc-tag {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  background: #f3f4f6;
+  color: #6b7280;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+}
+
+/* Title row with SOP badge inline */
+.mc-playbook-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+/* Department Badge Color Variants - Each department gets a unique color */
+.mc-dept-badge.dept-technology {
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #93c5fd;
+}
+
+.mc-dept-badge.dept-sales {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.mc-dept-badge.dept-finance {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+.mc-dept-badge.dept-operations {
+  background: #f3e8ff;
+  color: #7c3aed;
+  border: 1px solid #c4b5fd;
+}
+
+.mc-dept-badge.dept-marketing {
+  background: #fce7f3;
+  color: #be185d;
+  border: 1px solid #f9a8d4;
+}
+
+.mc-dept-badge.dept-hr {
+  background: #ffedd5;
+  color: #c2410c;
+  border: 1px solid #fdba74;
+}
+
+.mc-dept-badge.dept-legal {
+  background: #e0e7ff;
+  color: #4338ca;
+  border: 1px solid #a5b4fc;
+}
+
+.mc-dept-badge.dept-product {
+  background: #ccfbf1;
+  color: #0d9488;
+  border: 1px solid #5eead4;
+}
+
+.mc-dept-badge.dept-default {
+  background: #f3f4f6;
+  color: #4b5563;
+  border: 1px solid #d1d5db;
+}
+
+/* Playbook Department Assignment */
+.mc-playbook-departments {
+  margin: 16px 0;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.mc-playbook-departments h4 {
+  margin: 0 0 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.mc-dept-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mc-dept-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.15s ease;
+}
+
+.mc-dept-checkbox:hover {
+  border-color: #9ca3af;
+  background: #f3f4f6;
+}
+
+.mc-dept-checkbox input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+.mc-dept-checkbox.owner {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+.mc-dept-checkbox.owner input[type="checkbox"] {
+  cursor: not-allowed;
+}
+
+.mc-owner-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.mc-dept-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Activity Source Link */
+.mc-activity-source {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 0.6875rem;
+  color: #6366f1;
+  background: #eef2ff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #c7d2fe;
+}
+
+.mc-activity-source::before {
+  content: "💬 ";
+}
+
+/* Activity Source Link (clickable button) */
+.mc-activity-source-link {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 0.6875rem;
+  font-family: inherit;
+  color: #6366f1;
+  background: #eef2ff;
+  padding: 4px 10px;
+  border-radius: 4px;
+  border: 1px solid #c7d2fe;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-activity-source-link:hover {
+  background: #e0e7ff;
+  border-color: #a5b4fc;
+  color: #4f46e5;
+}
+
+.mc-activity-source-link::before {
+  content: "💬 ";
 }
 
 /* Responsive */

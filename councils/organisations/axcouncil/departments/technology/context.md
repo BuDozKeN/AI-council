@@ -26,6 +26,15 @@ Technical execution and development guidance for AxCouncil.
 | LLM API | OpenRouter | 5 models (Claude, GPT, Gemini, Grok, DeepSeek) |
 | Billing | Stripe | Free/Pro ($29)/Enterprise ($99) tiers |
 
+## Local Development
+
+| Component | Port | Command |
+|-----------|------|---------|
+| Backend | 8080 | `py -m uvicorn backend.main:app --reload --port 8080` |
+| Frontend | 5173+ | `cd frontend && npm run dev` |
+
+**Note:** Backend runs on port 8080 (not 8000) to avoid port conflicts with zombie processes on Windows.
+
 ## What's Working
 
 - **3-Stage Council Deliberation** - Independent responses → Peer review → Chairman synthesis
@@ -35,6 +44,7 @@ Technical execution and development guidance for AxCouncil.
 - **Live Streaming** - SSE streaming displays responses in real-time
 - **Mock Mode** - Testing without real API calls (`POST /api/mock?enabled=true`)
 - **Settings Modal** - Profile management (display name, company, phone, bio) with Billing tab
+- **My Company Interface** - COMPLETE - Unified UI for managing organization structure
 
 ## Key Environment Variables
 
@@ -70,6 +80,18 @@ Note: `SUPABASE_SERVICE_KEY` is optional - profile operations now use authentica
 - Models that completed before stop retain their green "Complete" status
 - Files: `Stage1.jsx`, `Stage1.css`, `CouncilProgressCapsule.jsx`, `CouncilProgressCapsule.css`, `App.jsx`
 - UX Principle: "Make intentional actions look intentional"
+
+### My Company Interface - COMPLETE (2025-12-12)
+- **What it does:** Unified interface for managing company organization directly from Supabase database
+- **4 Tabs:** Overview, Team, Playbooks, Decisions
+- **Key Feature:** Role system prompts now stored in database, editable from UI
+- **Architecture:** Per Council recommendation, ALL data comes from Supabase (filesystem is deprecated for runtime)
+- **Backend:** New router at `backend/routers/company.py` with full CRUD endpoints
+- **Frontend:** `MyCompany.jsx` component with modal views for roles, departments, playbooks
+- **Database Tables:** `companies`, `departments`, `roles`, `org_documents`, `org_document_versions`, `decisions`
+- **Data Verified:** CTO (2912 chars), Head of AI People & Culture (2265 chars), AI UX/UI Designer (2710 chars) system prompts in Supabase
+- **Files:** `MyCompany.jsx`, `MyCompany.css`, `company.py`, organization migrations in `supabase/migrations/`
+- Technical Note: Backend runs on port 8080 locally due to Windows port conflicts
 
 ### Tailwind CSS v4 Migration
 - Upgraded from v3 to v4 with CSS-first configuration

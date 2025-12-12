@@ -57,6 +57,47 @@ def resolve_company_id(company_id_or_slug: str, access_token: Optional[str] = No
     raise ValueError(f"Company not found: {company_id_or_slug}")
 
 
+def resolve_department_id(
+    department_id_or_slug: Optional[str],
+    company_id: str,
+    access_token: Optional[str] = None
+) -> Optional[str]:
+    """
+    Resolve a department identifier to its UUID.
+    If it's already a UUID, return it. If it's a slug, look up the UUID.
+
+    Args:
+        department_id_or_slug: Department UUID or slug (e.g., 'technology')
+        company_id: The company UUID (required for slug lookup)
+        access_token: User's JWT for authenticated queries
+
+    Returns:
+        Department UUID or None if not provided/found
+    """
+    if not department_id_or_slug:
+        return None
+
+    # Check if it looks like a UUID (contains dashes and is 36 chars)
+    if len(department_id_or_slug) == 36 and '-' in department_id_or_slug:
+        return department_id_or_slug
+
+    # It's a slug, look up the UUID
+    client = _get_client(access_token)
+    result = (client
+        .table('departments')
+        .select('id')
+        .eq('company_id', company_id)
+        .eq('slug', department_id_or_slug)
+        .execute())
+
+    if result.data:
+        return result.data[0]['id']
+
+    # Not found - return None rather than raising (department is optional)
+    print(f"Warning: Department not found: {department_id_or_slug} in company {company_id}")
+    return None
+
+
 def _get_client(access_token: Optional[str] = None):
     """Get appropriate Supabase client based on whether we have an access token."""
     if access_token:
@@ -190,21 +231,20 @@ def list_conversations(
     limit: int = 10,
     offset: int = 0,
     search: Optional[str] = None,
-    include_archived: bool = False
+    include_archived: bool = False,
+    sort_by: str = "date"
 ) -> Dict[str, Any]:
     """
     List conversations for a specific user with at least one message (metadata only).
 
-    Sorted by: starred first, then by message_count (most active), then by last_updated.
-    This ensures frequently used conversations appear at the top.
-
     Args:
         user_id: ID of the user to list conversations for
         access_token: User's JWT access token for RLS authentication
-        limit: Maximum number of conversations to return (default 20)
+        limit: Maximum number of conversations to return (default 10)
         offset: Number of conversations to skip for pagination
         search: Optional search string to filter by title
         include_archived: Whether to include archived conversations (default False)
+        sort_by: Sort order - "date" (most recent first) or "activity" (most messages first)
 
     Returns:
         Dict with 'conversations' list and 'has_more' boolean for pagination
@@ -251,20 +291,20 @@ def list_conversations(
             "department": conv.get('department', 'standard')
         })
 
-    # Sort: starred first, then by message count (descending), then by last_updated (descending)
-    conversations.sort(key=lambda c: (
-        not c['is_starred'],  # False (not starred) sorts after True (starred)
-        -c['message_count'],  # Higher message count first
-        c['last_updated']     # More recent first (will be reversed by negative)
-    ), reverse=False)
-
-    # Re-sort starred by last_updated within starred group
+    # Separate starred and non-starred
     starred = [c for c in conversations if c['is_starred']]
     non_starred = [c for c in conversations if not c['is_starred']]
+
+    # Sort starred always by date (most recent first)
     starred.sort(key=lambda c: c['last_updated'], reverse=True)
-    non_starred.sort(key=lambda c: (-c['message_count'], c['last_updated']), reverse=False)
-    # For non_starred, sort by message_count desc, then last_updated desc
-    non_starred.sort(key=lambda c: (c['message_count'], c['last_updated']), reverse=True)
+
+    # Sort non-starred based on sort_by preference
+    if sort_by == "activity":
+        # Sort by message count (most messages first), then by date
+        non_starred.sort(key=lambda c: (c['message_count'], c['last_updated']), reverse=True)
+    else:
+        # Default: sort by date (most recent first)
+        non_starred.sort(key=lambda c: c['last_updated'], reverse=True)
 
     conversations = starred + non_starred
 

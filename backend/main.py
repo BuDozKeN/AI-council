@@ -36,6 +36,9 @@ CORS_ORIGINS = [
     "http://localhost:5177",
     "http://localhost:5178",
     "http://localhost:5179",
+    "http://localhost:5180",
+    "http://localhost:5181",
+    "http://localhost:5182",
     "http://localhost:3000",
     "https://ai-council-three.vercel.app",
 ]
@@ -43,9 +46,8 @@ CORS_ORIGINS = [
 # Enable CORS - MUST be added before any routes
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
-    allow_origin_regex=r"https://.*\.vercel\.app",  # Vercel preview deployments
-    allow_credentials=True,
+    allow_origins=["*"],  # Allow all origins for local development
+    allow_credentials=False,  # Must be False when using allow_origins=["*"]
     allow_methods=["*"],
     allow_headers=["*"],
     expose_headers=["Content-Disposition"],  # Allow frontend to read filename header
@@ -117,6 +119,7 @@ class CreateKnowledgeRequest(BaseModel):
     role_id: Optional[str] = None
     project_id: Optional[str] = None
     source_conversation_id: Optional[str] = None
+    source_message_id: Optional[str] = None   # Specific message ID for precise linking
     # Structured decision fields
     problem_statement: Optional[str] = None  # What problem/question led to this
     decision_text: Optional[str] = None       # The actual decision made
@@ -125,6 +128,10 @@ class CreateKnowledgeRequest(BaseModel):
     # Framework/SOP support
     body_md: Optional[str] = None             # Long-form markdown content for SOPs/Frameworks
     version: str = "v1"                       # Version tracking (v1, v2, etc.)
+    # Knowledge consolidation fields (new)
+    auto_inject: bool = False                 # Auto-inject into future council context
+    scope: str = "department"                 # Visibility: company, department, project
+    tags: Optional[List[str]] = None          # Tags for categorization
 
 
 class UpdateKnowledgeRequest(BaseModel):
@@ -140,6 +147,10 @@ class UpdateKnowledgeRequest(BaseModel):
     status: Optional[str] = None  # active, superseded, archived
     body_md: Optional[str] = None
     version: Optional[str] = None
+    # Knowledge consolidation fields (new)
+    auto_inject: Optional[bool] = None
+    scope: Optional[str] = None  # company, department, project
+    tags: Optional[List[str]] = None
 
 
 class ConversationMetadata(BaseModel):
@@ -196,12 +207,15 @@ async def list_conversations(
     limit: int = 20,
     offset: int = 0,
     search: Optional[str] = None,
-    include_archived: bool = False
+    include_archived: bool = False,
+    sort_by: str = "date"
 ):
     """
     List conversations for the authenticated user (metadata only).
 
-    Sorted by: starred first, then by message_count (most active), then by last_updated.
+    Args:
+        sort_by: "date" (most recent first, default) or "activity" (most messages first)
+
     Returns { conversations: [...], has_more: bool } for pagination.
     """
     import time
@@ -212,10 +226,11 @@ async def list_conversations(
         limit=limit,
         offset=offset,
         search=search,
-        include_archived=include_archived
+        include_archived=include_archived,
+        sort_by=sort_by
     )
     elapsed = time.time() - start
-    print(f"[PERF] list_conversations took {elapsed:.2f}s for {len(result['conversations'])} conversations (limit={limit}, offset={offset})", flush=True)
+    print(f"[PERF] list_conversations took {elapsed:.2f}s for {len(result['conversations'])} conversations (limit={limit}, offset={offset}, sort_by={sort_by})", flush=True)
     return result
 
 
@@ -1666,16 +1681,24 @@ async def create_knowledge_entry(
         # Resolve company_id if it's a slug (e.g., "axcouncil" -> UUID)
         company_uuid = storage.resolve_company_id(request.company_id, access_token)
 
+        # Resolve department_id if it's a slug (e.g., "technology" -> UUID)
+        department_uuid = storage.resolve_department_id(
+            request.department_id,
+            company_uuid,
+            access_token
+        )
+
         result = knowledge.create_knowledge_entry(
             user_id=user["id"],
             company_id=company_uuid,
             title=request.title,
             summary=request.summary,
             category=request.category,
-            department_id=request.department_id,
+            department_id=department_uuid,
             role_id=request.role_id,
             project_id=request.project_id,
             source_conversation_id=request.source_conversation_id,
+            source_message_id=request.source_message_id,
             access_token=access_token,
             # Structured decision fields
             problem_statement=request.problem_statement,
@@ -1684,9 +1707,24 @@ async def create_knowledge_entry(
             status=request.status,
             # Framework/SOP fields
             body_md=request.body_md,
-            version=request.version
+            version=request.version,
+            # Knowledge consolidation fields
+            auto_inject=request.auto_inject,
+            scope=request.scope,
+            tags=request.tags
         )
         if result:
+            # Log activity with conversation link so activity feed can navigate back
+            await company_router.log_activity(
+                company_id=company_uuid,
+                event_type="decision",
+                title=f"Saved: {request.title}",
+                description=request.summary[:200] if request.summary else None,
+                department_id=department_uuid,  # Use resolved UUID, not slug
+                related_id=result.get("id"),
+                related_type="decision",
+                conversation_id=request.source_conversation_id
+            )
             return result
         raise HTTPException(status_code=500, detail="Failed to create knowledge entry")
     except ValueError as e:

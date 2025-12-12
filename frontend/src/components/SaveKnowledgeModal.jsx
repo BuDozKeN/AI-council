@@ -19,6 +19,35 @@ const CATEGORIES = [
   { id: 'general', label: 'General', description: 'General knowledge and guidance' },
 ];
 
+// Save modes for progressive disclosure
+const SAVE_MODES = [
+  {
+    id: 'just_save',
+    label: 'Just Save',
+    icon: '📄',
+    description: 'Save for reference, won\'t auto-inject into future councils'
+  },
+  {
+    id: 'remember',
+    label: 'Remember This',
+    icon: '🧠',
+    description: 'Auto-inject into future council sessions for this project/department'
+  },
+  {
+    id: 'playbook',
+    label: 'Make Playbook',
+    icon: '📋',
+    description: 'Promote to SOP/Framework/Policy for formal documentation'
+  }
+];
+
+// Scope options
+const SCOPES = [
+  { id: 'department', label: 'Department', description: 'Visible to this department only' },
+  { id: 'company', label: 'Company-wide', description: 'Visible to all departments' },
+  { id: 'project', label: 'Project Only', description: 'Visible only within this project' }
+];
+
 const DEPARTMENTS = [
   { id: 'technology', label: 'Technology' },
   { id: 'marketing', label: 'Marketing' },
@@ -70,6 +99,11 @@ export default function SaveKnowledgeModal({
   const [problemStatement, setProblemStatement] = useState('');
   const [decisionText, setDecisionText] = useState('');
   const [reasoning, setReasoning] = useState('');
+  // NEW: Knowledge consolidation fields
+  const [saveMode, setSaveMode] = useState('just_save'); // just_save, remember, playbook
+  const [scope, setScope] = useState('department'); // department, company, project
+  const [tags, setTags] = useState([]);
+  const [tagInput, setTagInput] = useState('');
   // Project creation
   const [showProjectPreview, setShowProjectPreview] = useState(false);
   const [extractingProject, setExtractingProject] = useState(false);
@@ -92,6 +126,11 @@ export default function SaveKnowledgeModal({
       setExtractingProject(false);
       setNewProjectName('');
       setNewProjectDescription('');
+      // Reset knowledge consolidation fields
+      setSaveMode('just_save');
+      setScope('department');
+      setTags([]);
+      setTagInput('');
     }
   }, [isOpen]);
 
@@ -235,6 +274,28 @@ export default function SaveKnowledgeModal({
 
   if (!isOpen) return null;
 
+  // Add a tag
+  const handleAddTag = () => {
+    const tag = tagInput.trim().toLowerCase().replace(/\s+/g, '-');
+    if (tag && !tags.includes(tag)) {
+      setTags([...tags, tag]);
+      setTagInput('');
+    }
+  };
+
+  // Remove a tag
+  const handleRemoveTag = (tagToRemove) => {
+    setTags(tags.filter(t => t !== tagToRemove));
+  };
+
+  // Handle tag input keypress
+  const handleTagKeyPress = (e) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      handleAddTag();
+    }
+  };
+
   const handleSave = async () => {
     if (!title.trim()) {
       setError('Title is required');
@@ -245,12 +306,25 @@ export default function SaveKnowledgeModal({
       return;
     }
 
+    // If playbook mode, we need to redirect to playbook creation (future enhancement)
+    if (saveMode === 'playbook') {
+      setError('Playbook creation coming soon! For now, save as "Remember This" and promote later from My Company.');
+      return;
+    }
+
     setSaving(true);
     setError(null);
 
     try {
       const effectiveSummary = summary.trim() ||
         [problemStatement, decisionText, reasoning].filter(Boolean).join(' | ');
+
+      // Determine auto_inject based on save mode
+      const autoInject = saveMode === 'remember';
+
+      // Use the user's selected scope - respect their choice from the dropdown
+      // Only applies when saveMode === 'remember', otherwise default to 'department'
+      const effectiveScope = saveMode === 'remember' ? scope : 'department';
 
       const payload = {
         company_id: companyId,
@@ -264,6 +338,10 @@ export default function SaveKnowledgeModal({
         decision_text: decisionText.trim(),
         reasoning: reasoning.trim() || null,
         status: 'active',
+        // NEW: Knowledge consolidation fields
+        auto_inject: autoInject,
+        scope: effectiveScope,
+        tags: tags.length > 0 ? tags : null,
       };
 
       console.log('[SaveKnowledge] Saving with payload:', payload);
@@ -291,8 +369,14 @@ export default function SaveKnowledgeModal({
         {success ? (
           <div className="success-message">
             <span className="success-icon">&#10003;</span>
-            <p className="success-title">Saved to Knowledge Base</p>
-            <p className="success-detail">This decision will now inform future council discussions.</p>
+            <p className="success-title">
+              {saveMode === 'remember' ? 'Saved & Will Be Remembered' : 'Saved to Knowledge Base'}
+            </p>
+            <p className="success-detail">
+              {saveMode === 'remember'
+                ? 'This will be automatically injected into future council discussions.'
+                : 'This decision has been saved for reference.'}
+            </p>
             <div className="success-location">
               <div className="success-location-row">
                 <span className="success-location-label">Department</span>
@@ -328,6 +412,27 @@ export default function SaveKnowledgeModal({
         ) : (
           <>
             <div className="modal-body">
+              {/* Save Mode Selector - Progressive Disclosure */}
+              <div className="save-mode-selector">
+                <label className="save-mode-label">What would you like to do?</label>
+                <div className="save-mode-options">
+                  {SAVE_MODES.map(mode => (
+                    <button
+                      key={mode.id}
+                      type="button"
+                      className={`save-mode-option ${saveMode === mode.id ? 'selected' : ''}`}
+                      onClick={() => setSaveMode(mode.id)}
+                    >
+                      <span className="save-mode-icon">{mode.icon}</span>
+                      <span className="save-mode-text">
+                        <span className="save-mode-name">{mode.label}</span>
+                        <span className="save-mode-desc">{mode.description}</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Show context: AI-cleaned summary of what was asked */}
               {(contextSummary || userQuestion) && (
                 <div className="context-info">
@@ -573,6 +678,60 @@ export default function SaveKnowledgeModal({
                 />
               </div>
 
+              {/* Scope selector - only show for "Remember This" mode */}
+              {saveMode === 'remember' && (
+                <div className="form-group">
+                  <label htmlFor="knowledge-scope">Visibility Scope</label>
+                  <select
+                    id="knowledge-scope"
+                    value={scope}
+                    onChange={e => setScope(e.target.value)}
+                  >
+                    {SCOPES.map(s => (
+                      <option key={s.id} value={s.id}>
+                        {s.label} - {s.description}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="hint">
+                    {scope === 'company' && 'This will be injected into ALL council sessions for this company'}
+                    {scope === 'department' && 'This will be injected into council sessions for this department'}
+                    {scope === 'project' && 'This will only be injected when this project is selected'}
+                  </p>
+                </div>
+              )}
+
+              {/* Tags input */}
+              <div className="form-group">
+                <label htmlFor="knowledge-tags">Tags (optional)</label>
+                <div className="tags-input-container">
+                  <div className="tags-list">
+                    {tags.map(tag => (
+                      <span key={tag} className="tag-chip">
+                        {tag}
+                        <button
+                          type="button"
+                          className="tag-remove"
+                          onClick={() => handleRemoveTag(tag)}
+                        >
+                          &times;
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                  <input
+                    id="knowledge-tags"
+                    type="text"
+                    value={tagInput}
+                    onChange={e => setTagInput(e.target.value)}
+                    onKeyDown={handleTagKeyPress}
+                    onBlur={handleAddTag}
+                    placeholder="Add tags (press Enter or comma)"
+                  />
+                </div>
+                <p className="hint">Tags help organize and find this later</p>
+              </div>
+
               {error && <div className="error-message">{error}</div>}
             </div>
 
@@ -581,7 +740,11 @@ export default function SaveKnowledgeModal({
                 Cancel
               </button>
               <button className="save-btn" onClick={handleSave} disabled={saving}>
-                {saving ? 'Saving...' : 'Save to Knowledge Base'}
+                {saving ? 'Saving...' : (
+                  saveMode === 'just_save' ? 'Save' :
+                  saveMode === 'remember' ? 'Save & Remember' :
+                  'Create Playbook'
+                )}
               </button>
             </div>
           </>

@@ -355,41 +355,50 @@ def get_playbooks_for_context(
 def get_decisions_for_context(
     company_id: str,
     department_id: Optional[str] = None,
+    project_id: Optional[str] = None,
     limit: int = 10
 ) -> List[Dict[str, Any]]:
     """
-    Get recent decisions from database for context injection.
+    Get auto-injectable knowledge entries from database for context injection.
+
+    Now uses the consolidated knowledge_entries table with auto_inject=True.
+    Respects scope (company/department/project) for visibility filtering.
 
     Args:
         company_id: The company UUID
         department_id: Optional department UUID to filter by
-        limit: Max number of decisions to return
+        project_id: Optional project UUID for project-scoped entries
+        limit: Max number of entries to return
 
     Returns:
-        List of decision dicts with title, content, tags, etc.
+        List of knowledge entry dicts with title, summary, tags, etc.
     """
-    client = get_supabase_service()
-    if not client:
-        return []
-
+    # Use the new injectable entries function from knowledge module
     try:
-        query = (client
-            .table("decisions")
-            .select("id, title, content, tags, created_at")
-            .eq("company_id", company_id)
-            .eq("is_promoted", False)  # Don't include promoted ones (they're in playbooks)
-            .order("created_at", desc=True)
-            .limit(limit))
+        entries = knowledge.get_injectable_entries(
+            company_id=company_id,
+            department_id=department_id,
+            project_id=project_id,
+            limit=limit
+        )
 
-        # Filter by department if specified (include company-wide ones too)
-        if department_id:
-            query = query.or_(f"department_id.eq.{department_id},department_id.is.null")
+        # Transform to expected format for formatting
+        formatted = []
+        for entry in entries:
+            formatted.append({
+                "id": entry.get("id"),
+                "title": entry.get("title", "Untitled"),
+                "content": entry.get("summary", ""),  # Map summary to content for compatibility
+                "tags": entry.get("tags", []),
+                "created_at": entry.get("created_at"),
+                "scope": entry.get("scope", "department"),
+                "category": entry.get("category")
+            })
 
-        result = query.execute()
-        return result.data or []
+        return formatted
 
     except Exception as e:
-        print(f"Warning: Failed to load decisions: {e}")
+        print(f"Warning: Failed to load injectable knowledge: {e}")
         return []
 
 
@@ -435,31 +444,56 @@ def format_playbooks_for_prompt(playbooks: List[Dict[str, Any]]) -> str:
 
 
 def format_decisions_for_prompt(decisions: List[Dict[str, Any]]) -> str:
-    """Format decisions as markdown for injection into system prompt."""
+    """Format auto-injected knowledge entries as markdown for system prompt."""
     if not decisions:
         return ""
 
-    lines = ["\n=== RECENT DECISIONS ===\n"]
-    lines.append("Recent decisions made by this organization that may be relevant:\n")
+    lines = ["\n=== AUTO-INJECTED CONTEXT (Remember This) ===\n"]
+    lines.append("The following context has been marked for automatic injection into council discussions:\n")
 
-    for decision in decisions:
-        title = decision.get('title', 'Untitled')
-        content = decision.get('content', '')
-        tags = decision.get('tags', [])
-        date = decision.get('created_at', '')[:10] if decision.get('created_at') else ''
+    # Group by scope for better organization
+    by_scope = {"company": [], "department": [], "project": []}
+    for entry in decisions:
+        scope = entry.get('scope', 'department')
+        by_scope.setdefault(scope, []).append(entry)
 
-        lines.append(f"### {title}")
-        if date:
-            lines.append(f"*Decision Date: {date}*")
-        if tags:
-            lines.append(f"*Tags: {', '.join(tags)}*")
-        if content:
-            # Truncate very long content
-            if len(content) > 1000:
-                content = content[:1000] + "...[truncated]"
-            lines.append(f"\n{content}\n")
+    scope_headers = {
+        "company": "Company-Wide Context",
+        "department": "Department Context",
+        "project": "Project Context"
+    }
 
-    lines.append("\n=== END RECENT DECISIONS ===\n")
+    for scope, entries in by_scope.items():
+        if not entries:
+            continue
+
+        lines.append(f"\n### {scope_headers.get(scope, scope.title())}\n")
+
+        for entry in entries:
+            title = entry.get('title', 'Untitled')
+            content = entry.get('content', '')
+            tags = entry.get('tags', [])
+            category = entry.get('category', '')
+            date = entry.get('created_at', '')[:10] if entry.get('created_at') else ''
+
+            lines.append(f"#### {title}")
+            meta_parts = []
+            if date:
+                meta_parts.append(f"Date: {date}")
+            if category:
+                meta_parts.append(f"Category: {category.replace('_', ' ').title()}")
+            if tags:
+                meta_parts.append(f"Tags: {', '.join(tags)}")
+            if meta_parts:
+                lines.append(f"*{' | '.join(meta_parts)}*")
+
+            if content:
+                # Truncate very long content
+                if len(content) > 1000:
+                    content = content[:1000] + "...[truncated]"
+                lines.append(f"\n{content}\n")
+
+    lines.append("\n=== END AUTO-INJECTED CONTEXT ===\n")
     return "\n".join(lines)
 
 

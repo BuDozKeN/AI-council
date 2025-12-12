@@ -46,19 +46,20 @@ export const api = {
   /**
    * List conversations for the authenticated user with pagination and search.
    * Returns { conversations: [...], has_more: bool }
-   * Sorted by: starred first, then by message count, then by last updated.
    *
    * @param {Object} options - Query options
    * @param {number} options.limit - Max conversations to return (default 20)
    * @param {number} options.offset - Number to skip for pagination (default 0)
    * @param {string} options.search - Optional search string for title filtering
    * @param {boolean} options.includeArchived - Include archived conversations (default false)
+   * @param {string} options.sortBy - Sort order: "date" (most recent first) or "activity" (most messages first)
    */
-  async listConversations({ limit = 20, offset = 0, search = '', includeArchived = false } = {}) {
+  async listConversations({ limit = 20, offset = 0, search = '', includeArchived = false, sortBy = 'date' } = {}) {
     const headers = await getAuthHeaders();
     const params = new URLSearchParams();
     params.set('limit', limit.toString());
     params.set('offset', offset.toString());
+    params.set('sort_by', sortBy);
     if (search) {
       params.set('search', search);
     }
@@ -1331,6 +1332,26 @@ export const api = {
   },
 
   /**
+   * Update company context markdown.
+   * @param {string} companyId - Company ID
+   * @param {Object} data - {context_md: string}
+   * @returns {Promise<Object>} Updated company
+   */
+  async updateCompanyContext(companyId, data) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/company/${companyId}/context`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to update company context' }));
+      throw new Error(error.detail || 'Failed to update company context');
+    }
+    return response.json();
+  },
+
+  /**
    * Get team structure (departments and roles).
    * @param {string} companyId - Company ID
    * @returns {Promise<{departments: Array}>}
@@ -1445,6 +1466,20 @@ export const api = {
   },
 
   /**
+   * Get all unique tags used across playbooks for a company.
+   * @param {string} companyId - Company ID
+   * @returns {Promise<{tags: Array<string>}>}
+   */
+  async getCompanyPlaybookTags(companyId) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/company/${companyId}/playbooks/tags`, { headers });
+    if (!response.ok) {
+      throw new Error('Failed to get playbook tags');
+    }
+    return response.json();
+  },
+
+  /**
    * Create a new playbook.
    * @param {string} companyId - Company ID
    * @param {Object} playbook - Playbook data {title, doc_type, content, department_id}
@@ -1536,6 +1571,45 @@ export const api = {
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Failed to promote decision' }));
       throw new Error(error.detail || 'Failed to promote decision');
+    }
+    return response.json();
+  },
+
+  /**
+   * Archive a decision (soft delete).
+   * @param {string} companyId - Company ID
+   * @param {string} decisionId - Decision ID
+   * @returns {Promise<Object>} Success response
+   */
+  async archiveDecision(companyId, decisionId) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions/${decisionId}/archive`, {
+      method: 'POST',
+      headers,
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to archive decision' }));
+      throw new Error(error.detail || 'Failed to archive decision');
+    }
+    return response.json();
+  },
+
+  /**
+   * Get activity logs for a company.
+   * @param {string} companyId - Company ID
+   * @param {number} limit - Max number of logs to return
+   * @param {string} eventType - Optional filter by event type
+   * @returns {Promise<{logs: Array}>}
+   */
+  async getCompanyActivity(companyId, limit = 50, eventType = null) {
+    const headers = await getAuthHeaders();
+    const params = new URLSearchParams();
+    if (limit) params.append('limit', limit);
+    if (eventType) params.append('event_type', eventType);
+    const queryString = params.toString() ? `?${params.toString()}` : '';
+    const response = await fetch(`${API_BASE}/api/company/${companyId}/activity${queryString}`, { headers });
+    if (!response.ok) {
+      throw new Error('Failed to get activity logs');
     }
     return response.json();
   },

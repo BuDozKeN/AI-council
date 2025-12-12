@@ -3,7 +3,12 @@
 -- =============================================
 -- This migration creates the full AxCouncil company with all
 -- departments and roles from the filesystem config.json
--- Run this in Supabase SQL Editor
+--
+-- IDEMPOTENCY NOTES:
+-- - Departments: Use ON CONFLICT (company_id, slug) DO UPDATE
+-- - Roles: Use ON CONFLICT (department_id, slug) DO UPDATE
+-- - These constraints were added in migration 20251213000000_fix_duplicate_roles.sql
+-- - Re-running this migration is safe - it will update existing records instead of duplicating
 
 -- =============================================
 -- 1. ENSURE COMPANY EXISTS

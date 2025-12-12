@@ -1,7 +1,7 @@
 # AxCouncil - Business Context
 
-> **Last Updated:** 2025-12-11
-> **Version:** 1.1
+> **Last Updated:** 2025-12-13
+> **Version:** 1.2
 
 ---
 
@@ -20,6 +20,8 @@
 11. [Open Questions](#11-open-questions)
 12. [Decision Log](#12-decision-log)
 13. [Advisory Guidelines](#13-advisory-guidelines)
+14. [Organization Structure](#14-organization-structure)
+15. [Appendices](#15-appendices)
 
 ---
 
@@ -39,19 +41,7 @@ Productise the AI Council deliberation system to give users peer-reviewed, synth
 | Exit | Would sell immediately for $5M (or $2M) |
 
 ### 1.4 Legal Structure
-12. Decision Log
-
-December 2025 - Hired Head of AI People and Culture
-• Rationale: This is the meta-role that creates all future AI staff, ensures consistency across roles, and enforces the Execution Guidance Standard
-• Status: Pending execution
-
-December 2025 - Hired AI CTO
-• Rationale: Deployment is the single blocker to revenue and the founder has a DevOps gap that was identified in council discussions
-• Status: Pending execution
-
-December 2025 - No Human Hires Policy
-• Rationale: Human hires violate our constraints of minimal budget, time as primary investment, and low risk tolerance
-• Status: Active policy
+*To be determined*
 
 ---
 
@@ -140,21 +130,11 @@ Build virtual companies with AI departments and roles. Users assemble their own 
 - Working from forked GitHub repo (LLM Council) from former OpenAI employee
 
 ### 3.4 Constraints
-3.4 Constraints
-
-Time - AxCouncil runs existing businesses and development happens opportunistically
-
-Budget - Minimal additional spend using existing tech stack from current company
-
-Risk Tolerance - Low financial risk with primary investment being time
-
-Gaps - DevOps and deployment experience identified as skill gap. This is mitigated by using the CTO Council for step-by-step guidance
-
-No Human Hires - Human employees or contractors ruled out at current stage. AI departments handle all execution guidance instead
-
-**Gaps** - DevOps/deployment experience identified as skill gap; mitigated by using CTO Council for step-by-step guidance
-
-**No Human Hires** - Human employees or contractors ruled out at current stage; AI departments handle all execution guidance
+- **Time** - AxCouncil runs existing businesses and development happens opportunistically
+- **Budget** - Minimal additional spend using existing tech stack from current company
+- **Risk Tolerance** - Low financial risk with primary investment being time
+- **Gaps** - DevOps/deployment experience identified as skill gap; mitigated by using CTO Council for step-by-step guidance
+- **No Human Hires** - Human employees or contractors ruled out at current stage; AI departments handle all execution guidance
 
 ### 3.5 Hard Boundaries
 - **No outreach calls** — will not do phone-based sales
@@ -201,14 +181,12 @@ Users currently:
 ## 5. Go-to-Market Strategy
 
 ### 5.1 Reachable in 90 Days
-5.1 Reachable in 90 Days
+**Target:** localhost to live URL to 10 paying users
 
-Target: localhost to live URL to 10 paying users
-
-People We Can Reach:
-• Own businesses (primary testing ground)
-• Office contacts who have seen the product
-• Friend with an accounting business (confirmed early adopter, first to receive beta access)
+**People We Can Reach:**
+- Own businesses (primary testing ground)
+- Office contacts who have seen the product
+- Friend with an accounting business (confirmed early adopter, first to receive beta access)
 
 ### 5.2 Early Adopters
 | Name/Type | Status | Notes |
@@ -373,6 +351,48 @@ If it works for our own company — running marketing campaigns, writing LinkedI
 
 **Question:** What would make this business acquirable beyond just revenue?
 
+### 10.7 AI Organizational Structure
+**Status:** Decided (December 2025)
+
+We decided to build AxCouncil using AI departments instead of hiring human staff. This means the founder uses AxCouncil itself to run the company.
+
+**Why no human hires:**
+- Violates our constraints of minimal budget and low risk tolerance
+- Adding payroll contradicts our solo founder approach
+- Time is our main investment, not money
+
+**The AI org chart:**
+- **CEO** - The founder makes decisions and sets priorities
+- **Head of AI People and Culture** - Creates and maintains all other AI roles
+- **AI CTO** - Handles technical execution, deployment, and architecture
+- **AI CMO** - Coming next, will handle marketing execution
+- **AI Onboarding Specialist** - Designs and optimizes new user journey (pending)
+- **AI UX/UI Designer** - Ensures every interaction is beautiful and intuitive (HIRED)
+
+**Key insight from this decision:**
+Before you can have an AI CTO or AI CMO, you need something that defines what each role does and creates their prompts. That is the Head of AI People and Culture. This role solves the question of "who builds the builders."
+
+### 10.8 AI Role Design Standard
+**Status:** Decided (December 2025)
+
+Every AI role we create must follow the Execution Guidance Standard. This ensures the founder gets actionable help, not just high-level advice.
+
+**What every AI role must do:**
+- Assume the founder is a complete beginner in that topic
+- Provide DIY step-by-step instructions with exact commands
+- Break complex tasks into smaller steps (max 1-2 hours each)
+- Include troubleshooting for common errors
+- Be concrete with code samples, commands, templates, and examples
+- Never suggest freelancers, contractors, or human hires
+
+**What the Head of AI People and Culture provides for each new role:**
+- Role Summary in two to three sentences explaining what they own and why they exist
+- Responsibilities as a bullet list focused on current stage
+- Full System Prompt that is copy-paste ready
+- Success Criteria that are clear and measurable
+- First three tasks to assign immediately
+- Boundaries explaining what they should NOT do
+
 ---
 
 ## 11. Open Questions
@@ -394,8 +414,8 @@ If it works for our own company — running marketing campaigns, writing LinkedI
 ### 11.2 Technical Questions
 | # | Question | Status | Answer |
 |---|----------|--------|--------|
-| 1 | How should clients edit their company context, department contexts, and project contexts from the UI instead of via code? | Open | |
-| 2 | What is the right UX for context management that aligns with Zero Friction philosophy? | Open | |
+| 1 | How should clients edit their company context, department contexts, and project contexts from the UI instead of via code? | RESOLVED | My Company interface with 4 tabs (Overview, Team, Playbooks, Decisions). Data stored in Supabase with full CRUD. |
+| 2 | What is the right UX for context management that aligns with Zero Friction philosophy? | RESOLVED | Modal-based editing with inline forms. Click role → see system prompt → edit → save. No page navigation required. |
 
 ### 11.3 Operational Questions
 *To be added*
@@ -410,6 +430,9 @@ If it works for our own company — running marketing campaigns, writing LinkedI
 |------|----------|-----------|---------|
 | 2025-12-04 | Context document created | Need structured knowledge base for Council | In progress |
 | 2025-12-04 | AI Departments vs Human Hires | Maintains bootstrap constraints, proves product through dogfooding, zero additional cost | Create CTO Council and CMO Council as internal departments |
+| 2025-12-04 | Hired Head of AI People and Culture | Meta-role that creates all future AI staff, ensures consistency across roles, enforces Execution Guidance Standard | Pending execution |
+| 2025-12-04 | Hired AI CTO | Deployment is the single blocker to revenue; founder has DevOps gap identified in council discussions | Pending execution |
+| 2025-12-04 | No Human Hires Policy | Human hires violate constraints of minimal budget, time as primary investment, and low risk tolerance | Active policy |
 | 2025-12-06 | Supabase database migration | Move from JSON files to cloud PostgreSQL for persistence and multi-tenant support | COMPLETE - local backend now connects to Supabase |
 | 2025-12-06 | Disable RLS temporarily | Allow anonymous access during development before user auth is implemented | REVERSED - RLS now enabled |
 | 2025-12-06 | Security Hardening | Implement JWT auth, RLS policies, user data isolation | COMPLETE - all 7 steps done |
@@ -422,12 +445,12 @@ If it works for our own company — running marketing campaigns, writing LinkedI
 | 2025-12-09 | UI Stack: Tailwind + Shadcn | Council recommended gradual migration from vanilla CSS to Tailwind + Shadcn. Preflight disabled to preserve existing styles. | COMPLETE - Foundation installed, Shadcn components ready |
 | 2025-12-09 | Aceternity UI purchase approved | $149 one-time purchase for premium animations. ROI: saves 20-30 hours, creates "WOW" first impression | APPROVED - Purchase when ready to build login/onboarding |
 | 2025-12-11 | Stop Button UX | Clear visual feedback when user stops council - gray icons, "Stopped" badges | COMPLETE |
+| 2025-12-12 | My Company Interface | Unified org management UI - users can view/edit roles, departments, playbooks from sidebar | COMPLETE - Data stored in Supabase, filesystem deprecated |
+| 2025-12-12 | Organization Data Migration | Moved all org data from filesystem to Supabase PostgreSQL | COMPLETE - Role system prompts now editable from UI |
 
----
+### 12.1 Current Technical Status (December 2025)
 
-## 12.1 Current Technical Status (December 2025)
-
-### What's Working Now
+#### What's Working Now
 - **Authentication**: Supabase Auth with JWT tokens, Google OAuth
 - **Database**: PostgreSQL on Supabase with Row Level Security (RLS)
 - **Backend**: FastAPI on Render (auto-deploys from GitHub)
@@ -437,20 +460,24 @@ If it works for our own company — running marketing campaigns, writing LinkedI
 - **Projects**: Users can create projects with custom context from the UI
 - **AI Polish**: Magic wand button to improve user text input
 
-### Data Storage Architecture
+#### Data Storage Architecture
 | Data Type | Storage Location | Editable From |
 |-----------|-----------------|---------------|
 | Conversations | Supabase `conversations` table | UI (chat interface) |
 | Messages | Supabase `messages` table | UI (chat interface) |
 | Projects | Supabase `projects` table | UI (create only, no edit yet) |
-| Company Context | Local markdown files (`councils/organisations/`) | Code only |
-| Department Context | Local markdown files | Code only |
+| Company Context | Supabase `companies` table | UI (My Company → Overview) |
+| Departments | Supabase `departments` table | UI (My Company → Team) |
+| Roles & System Prompts | Supabase `roles` table | UI (My Company → Team → Role modal) |
+| Playbooks (SOPs/Policies) | Supabase `org_documents` + `org_document_versions` | UI (My Company → Playbooks) |
+| Decisions | Supabase `decisions` table | UI (My Company → Decisions) |
 
-### Known Gap
-Company and department contexts are still stored as markdown files in the codebase. This means:
-- Only developers can edit them
-- Changes require code deployment
-- Clients cannot self-serve their context updates
+#### RESOLVED - Organization Data Migration (2025-12-12)
+Company, department, and role data has been migrated from filesystem to Supabase:
+- Users can now edit role system prompts directly from the UI
+- File-based storage (`councils/organisations/`) is deprecated for runtime use
+- Markdown files remain as templates/reference only
+- My Company interface provides full CRUD for organization structure
 
 ---
 
@@ -499,11 +526,9 @@ All Council advice must include:
 
 ---
 
-<!-- AUTO-GENERATED: ORGANIZATION STRUCTURE - DO NOT EDIT MANUALLY -->
-
 ## 14. Organization Structure
 
-> Auto-synced from config.json on 2025-12-09
+> Auto-synced from database. See **My Company → Team** for live editable version.
 
 ### 14.1 Departments & Roles
 
@@ -563,9 +588,9 @@ All Council advice must include:
 - **Head of AI People & Culture** - AI org structure, roles, governance and capability development
 - **AI UX/UI Designer** - Zero-friction interface design and user experience optimization
 
-<!-- END AUTO-GENERATED: ORGANIZATION STRUCTURE -->
+---
 
-## Appendices
+## 15. Appendices
 
 ### Appendix A: Glossary
 | Term | Definition |
@@ -583,43 +608,3 @@ All Council advice must include:
 ---
 
 *Document maintained by AxCouncil. For updates, add information to the relevant numbered section.*
-
-10.7 AI Organizational Structure
-
-We decided to build AxCouncil using AI departments instead of hiring human staff. This means the founder uses AxCouncil itself to run the company.
-
-Why no human hires:
-• Violates our constraints of minimal budget and low risk tolerance
-• Adding payroll contradicts our solo founder approach
-• Time is our main investment, not money
-
-The AI org chart:
-• CEO - The founder makes decisions and sets priorities
-• Head of AI People and Culture - Creates and maintains all other AI roles
-• AI CTO - Handles technical execution, deployment, and architecture
-• AI CMO - Coming next, will handle marketing execution
-• AI Onboarding Specialist - Designs and optimizes new user journey (pending)
-• AI UX/UI Designer - Ensures every interaction is beautiful and intuitive (HIRED)
-
-Key insight from this decision:
-Before you can have an AI CTO or AI CMO, you need something that defines what each role does and creates their prompts. That is the Head of AI People and Culture. This role solves the question of who builds the builders.
-
-10.8 AI Role Design Standard
-
-Every AI role we create must follow the Execution Guidance Standard. This ensures the founder gets actionable help, not just high-level advice.
-
-What every AI role must do:
-• Assume the founder is a complete beginner in that topic
-• Provide DIY step-by-step instructions with exact commands
-• Break complex tasks into smaller steps (max 1-2 hours each)
-• Include troubleshooting for common errors
-• Be concrete with code samples, commands, templates, and examples
-• Never suggest freelancers, contractors, or human hires
-
-What the Head of AI People and Culture provides for each new role:
-• Role Summary in two to three sentences explaining what they own and why they exist
-• Responsibilities as a bullet list focused on current stage
-• Full System Prompt that is copy-paste ready
-• Success Criteria that are clear and measurable
-• First three tasks to assign immediately
-• Boundaries explaining what they should NOT do

@@ -29,6 +29,7 @@ function App() {
 
   const [conversations, setConversations] = useState([]);
   const [hasMoreConversations, setHasMoreConversations] = useState(true);
+  const [conversationSortBy, setConversationSortBy] = useState('date'); // 'date' or 'activity'
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -162,7 +163,8 @@ function App() {
   const loadConversations = async (options = {}) => {
     try {
       const limit = options.limit || CONVERSATIONS_PAGE_SIZE;
-      const result = await api.listConversations({ ...options, limit });
+      const sortBy = options.sortBy || conversationSortBy;
+      const result = await api.listConversations({ ...options, limit, sortBy });
 
       // API now returns { conversations: [...], has_more: bool }
       const convs = result.conversations || result; // Backwards compatible
@@ -237,6 +239,16 @@ function App() {
       if (token) {
         loadConversations();
         loadBusinesses();
+
+        // Check for conversation ID in URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const conversationId = urlParams.get('conversation');
+        if (conversationId) {
+          // Load the specific conversation from URL
+          setCurrentConversationId(conversationId);
+          // Clean up URL without reload
+          window.history.replaceState({}, '', window.location.pathname);
+        }
       }
     };
     loadData();
@@ -1106,6 +1118,11 @@ function App() {
           departments={availableDepartments}
           user={user}
           onSignOut={signOut}
+          sortBy={conversationSortBy}
+          onSortByChange={(newSort) => {
+            setConversationSortBy(newSort);
+            loadConversations({ sortBy: newSort, offset: 0 });
+          }}
         />
       <ChatInterface
         conversation={currentConversation}
@@ -1180,6 +1197,10 @@ function App() {
           companyId={selectedBusiness}
           companyName={currentBusiness?.name}
           onClose={() => setIsMyCompanyOpen(false)}
+          onNavigateToConversation={(conversationId) => {
+            setIsMyCompanyOpen(false);
+            setCurrentConversationId(conversationId);
+          }}
         />
       )}
       </div>

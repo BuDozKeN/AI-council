@@ -258,11 +258,19 @@ export default function Stage1({ responses, streaming, isLoading, stopped, isCom
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
                     components={{
-                      code({ node, inline, className, children, ...props }) {
-                        if (inline) {
-                          return <code className={className} {...props}>{children}</code>;
-                        }
-                        return <CodeBlock className={className}>{children}</CodeBlock>;
+                      // Override pre to render our CodeBlock wrapper
+                      pre({ children, node }) {
+                        // Extract the code element's props
+                        const codeElement = node?.children?.[0];
+                        const className = codeElement?.properties?.className?.[0] || '';
+                        const codeContent = codeElement?.children?.[0]?.value || '';
+                        return <CodeBlock className={className}>{codeContent}</CodeBlock>;
+                      },
+                      // For inline code only (not wrapped in pre)
+                      code({ node, className, children, ...props }) {
+                        // If this code is inside a pre, let pre handle it
+                        // Otherwise render as inline code
+                        return <code className={className} {...props}>{children}</code>;
                       }
                     }}
                   >

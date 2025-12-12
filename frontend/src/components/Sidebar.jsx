@@ -80,7 +80,9 @@ export default function Sidebar({
   hasMoreConversations = true,
   departments = [],
   user,
-  onSignOut
+  onSignOut,
+  sortBy = 'date',
+  onSortByChange
 }) {
   const [filter, setFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -367,7 +369,7 @@ export default function Sidebar({
         </div>
       )}
 
-      {/* Filter Dropdown */}
+      {/* Filter and Sort Dropdowns */}
       {totalConversations > 0 && (
         <div className="sidebar-filter">
           <select
@@ -387,6 +389,15 @@ export default function Sidebar({
             {filteredBySearch.archived.length > 0 && (
               <option value="archived">Archived ({filteredBySearch.archived.length})</option>
             )}
+          </select>
+          <select
+            value={sortBy}
+            onChange={(e) => onSortByChange?.(e.target.value)}
+            className="sort-select"
+            title="Sort conversations"
+          >
+            <option value="date">Latest</option>
+            <option value="activity">Active</option>
           </select>
         </div>
       )}

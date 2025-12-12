@@ -14,6 +14,7 @@ def create_knowledge_entry(
     role_id: Optional[str] = None,
     project_id: Optional[str] = None,
     source_conversation_id: Optional[str] = None,
+    source_message_id: Optional[str] = None,
     access_token: Optional[str] = None,
     # Structured decision fields
     problem_statement: Optional[str] = None,
@@ -22,9 +23,19 @@ def create_knowledge_entry(
     status: str = "active",
     # Framework/SOP fields
     body_md: Optional[str] = None,
-    version: str = "v1"
+    version: str = "v1",
+    # New consolidation fields
+    auto_inject: bool = False,
+    scope: str = "department",  # 'company', 'department', 'project'
+    tags: Optional[List[str]] = None
 ) -> Optional[Dict[str, Any]]:
-    """Create a new knowledge entry with structured decision fields."""
+    """Create a new knowledge entry with structured decision fields.
+
+    Args:
+        auto_inject: If True, this entry will be automatically included in council context
+        scope: Visibility level - 'company' (all), 'department' (specific), 'project' (specific)
+        tags: List of tags for categorization
+    """
     client = get_supabase_service()  # Use service for insert to bypass RLS for now
 
     data = {
@@ -36,6 +47,7 @@ def create_knowledge_entry(
         "title": title,
         "summary": summary,
         "source_conversation_id": source_conversation_id,
+        "source_message_id": source_message_id,
         "created_by": user_id,
         "is_active": True,
         # Structured fields
@@ -45,7 +57,11 @@ def create_knowledge_entry(
         "status": status,
         # Framework/SOP fields
         "body_md": body_md,
-        "version": version
+        "version": version,
+        # Consolidation fields
+        "auto_inject": auto_inject,
+        "scope": scope,
+        "tags": tags or []
     }
 
     result = client.table("knowledge_entries").insert(data).execute()
@@ -101,11 +117,62 @@ def get_knowledge_entries(
     return result.data or []
 
 
+def get_injectable_entries(
+    company_id: str,
+    department_id: Optional[str] = None,
+    project_id: Optional[str] = None,
+    limit: int = 20
+) -> List[Dict[str, Any]]:
+    """Get knowledge entries marked for auto-injection.
+
+    Returns entries where auto_inject=True, filtered by scope:
+    - company: all entries visible
+    - department: only if department matches or entry has no department
+    - project: only if project matches
+    """
+    client = get_supabase_service()
+
+    query = (client
+        .table("knowledge_entries")
+        .select("*")
+        .eq("company_id", company_id)
+        .eq("is_active", True)
+        .eq("auto_inject", True)
+        .order("created_at", desc=True)
+        .limit(limit))
+
+    result = query.execute()
+    entries = result.data or []
+
+    # Filter by scope in Python (more flexible than complex SQL)
+    filtered = []
+    for entry in entries:
+        scope = entry.get("scope", "department")
+        entry_dept = entry.get("department_id")
+        entry_proj = entry.get("project_id")
+
+        if scope == "company":
+            # Company-wide entries always included
+            filtered.append(entry)
+        elif scope == "department":
+            # Department entries if matching or entry is company-wide (null dept)
+            if entry_dept is None or entry_dept == department_id:
+                filtered.append(entry)
+        elif scope == "project":
+            # Project entries only if project matches
+            if entry_proj == project_id:
+                filtered.append(entry)
+
+    return filtered
+
+
 def get_knowledge_for_context(
     company_id: str,
     department_id: Optional[str] = None,
     role_id: Optional[str] = None,
-    limit: int = 15
+    project_id: Optional[str] = None,
+    limit: int = 15,
+    auto_inject_only: bool = False
 ) -> str:
     """Get knowledge entries formatted as markdown for context injection.
 
@@ -113,12 +180,24 @@ def get_knowledge_for_context(
     - What problem was being solved
     - What decision was made
     - Why it was made
+
+    Args:
+        auto_inject_only: If True, only return entries marked for auto-injection
     """
-    entries = get_knowledge_entries(
-        company_id=company_id,
-        department_id=department_id,
-        limit=limit
-    )
+    if auto_inject_only:
+        entries = get_injectable_entries(
+            company_id=company_id,
+            department_id=department_id,
+            project_id=project_id,
+            limit=limit
+        )
+    else:
+        entries = get_knowledge_entries(
+            company_id=company_id,
+            department_id=department_id,
+            project_id=project_id,
+            limit=limit
+        )
 
     if not entries:
         return ""
