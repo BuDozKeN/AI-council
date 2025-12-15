@@ -1520,6 +1520,30 @@ export const api = {
     return response.json();
   },
 
+  // Alias for updateCompanyPlaybook for consistency with MyCompany.jsx naming
+  async updatePlaybook(companyId, playbookId, data) {
+    return this.updateCompanyPlaybook(companyId, playbookId, data);
+  },
+
+  /**
+   * Delete a playbook.
+   * @param {string} companyId - Company ID
+   * @param {string} playbookId - Playbook ID
+   * @returns {Promise<void>}
+   */
+  async deletePlaybook(companyId, playbookId) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/company/${companyId}/playbooks/${playbookId}`, {
+      method: 'DELETE',
+      headers,
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to delete playbook' }));
+      throw new Error(error.detail || 'Failed to delete playbook');
+    }
+    return response.json();
+  },
+
   /**
    * Get decisions (saved council outputs).
    * @param {string} companyId - Company ID
@@ -1590,6 +1614,25 @@ export const api = {
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Failed to archive decision' }));
       throw new Error(error.detail || 'Failed to archive decision');
+    }
+    return response.json();
+  },
+
+  /**
+   * Delete a decision permanently.
+   * @param {string} companyId - Company ID
+   * @param {string} decisionId - Decision ID
+   * @returns {Promise<Object>} Success response
+   */
+  async deleteDecision(companyId, decisionId) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions/${decisionId}`, {
+      method: 'DELETE',
+      headers,
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to delete decision' }));
+      throw new Error(error.detail || 'Failed to delete decision');
     }
     return response.json();
   },

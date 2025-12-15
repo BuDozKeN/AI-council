@@ -315,53 +315,268 @@
   50% { transform: scale(1.1); }
 }
 
-/* Save to Knowledge Base button */
+/* Save actions container */
 .stage3-actions {
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid #e0e0e0;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.save-knowledge-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: #e8f5e9;
-  border: 1px solid #c8e6c8;
-  border-radius: 6px;
-  color: #2d8a2d;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.save-knowledge-btn:hover {
-  background: #c8e6c8;
-  border-color: #a5d6a7;
-}
-
-.save-knowledge-btn .btn-icon {
-  font-size: 16px;
-}
-
-/* Saved count inline with button */
-.saved-count-inline {
-  margin-left: 4px;
-  font-size: 12px;
-  color: #4a8a4a;
-  font-weight: 400;
 }
 
 /* KB saved badge in collapsed header */
 .stage3 .kb-saved-badge {
   padding: 2px 8px;
-  background: #e3f2fd;
-  color: #1565c0;
+  background: #ecfdf5;
+  color: #059669;
   border-radius: 4px;
   font-weight: 500;
   font-size: 11px;
 }
+
+/* ============================================================================
+   SAVE TOOLBAR - Unified, modern design (v2)
+   ============================================================================ */
+
+/* Unified toolbar container */
+.save-toolbar-unified {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Options group - visually contained */
+.save-options-group {
+  display: inline-flex;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 4px;
+  gap: 0;
+}
+
+/* Compact department trigger */
+.save-dept-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-width: auto;
+  width: auto;
+  height: auto;
+  box-shadow: none;
+}
+
+.save-dept-trigger:hover {
+  background: white;
+  color: #374151;
+}
+
+.save-dept-trigger:focus {
+  outline: none;
+  background: white;
+}
+
+.save-dept-trigger svg:last-child {
+  /* Hide default chevron, we use icon instead */
+  display: none;
+}
+
+/* Divider between dept and type */
+.save-divider {
+  width: 1px;
+  height: 20px;
+  background: #e2e8f0;
+  margin: 0 2px;
+}
+
+/* Type selector pills - inside the group */
+.save-type-pills {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.save-type-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+/* Type-specific hover states - lighter version of selected colors */
+.save-type-pill.sop:hover:not(:disabled):not(.selected) {
+  background: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.save-type-pill.framework:hover:not(:disabled):not(.selected) {
+  background: #fde68a;
+  color: #b45309;
+}
+
+.save-type-pill.policy:hover:not(:disabled):not(.selected) {
+  background: #e9d5ff;
+  color: #7c3aed;
+}
+
+/* Type-specific selected states - consistent with playbook colors */
+.save-type-pill.selected.sop {
+  background: #dbeafe;
+  color: #1d4ed8;
+  box-shadow: 0 1px 2px rgba(29, 78, 216, 0.15);
+}
+
+.save-type-pill.selected.framework {
+  background: #fef3c7;
+  color: #b45309;
+  box-shadow: 0 1px 2px rgba(180, 83, 9, 0.15);
+}
+
+.save-type-pill.selected.policy {
+  background: #f3e8ff;
+  color: #7c3aed;
+  box-shadow: 0 1px 2px rgba(124, 58, 237, 0.15);
+}
+
+.save-type-pill:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.save-type-pill svg {
+  opacity: 0.7;
+}
+
+.save-type-pill.selected svg {
+  opacity: 1;
+}
+
+/* Saved state - type-specific colors with checkmark indicator */
+.save-type-pill.saved {
+  cursor: default;
+}
+
+.save-type-pill.saved.sop {
+  background: #dbeafe;
+  color: #1d4ed8;
+  box-shadow: 0 1px 2px rgba(29, 78, 216, 0.15);
+}
+
+.save-type-pill.saved.framework {
+  background: #fef3c7;
+  color: #b45309;
+  box-shadow: 0 1px 2px rgba(180, 83, 9, 0.15);
+}
+
+.save-type-pill.saved.policy {
+  background: #f3e8ff;
+  color: #7c3aed;
+  box-shadow: 0 1px 2px rgba(124, 58, 237, 0.15);
+}
+
+.save-type-pill.saved svg {
+  opacity: 1;
+}
+
+/* Main save button - prominent CTA */
+.save-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2);
+}
+
+.save-action-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #047857 0%, #059669 100%);
+  box-shadow: 0 4px 8px rgba(5, 150, 105, 0.3);
+  transform: translateY(-1px);
+}
+
+.save-action-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.save-action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.save-action-btn.loading {
+  background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+  box-shadow: none;
+}
+
+/* Spinner for loading state */
+.save-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+/* ============================================================================
+   SAVE SUCCESS - Blue access button (replaces the green save button)
+   ============================================================================ */
+
+.save-access-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25);
+}
+
+.save-access-btn:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+  box-shadow: 0 4px 8px rgba(37, 99, 235, 0.35);
+  transform: translateY(-1px);
+}
+
+.save-access-btn:active {
+  transform: translateY(0);
+}
+
+.save-access-btn svg {
+  width: 16px;
+  height: 16px;
+}
+

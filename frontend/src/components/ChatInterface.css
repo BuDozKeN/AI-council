@@ -6,6 +6,43 @@
   background: #ffffff;
   min-width: 0;
   overflow: hidden;
+  position: relative;
+}
+
+/* Back to My Company floating button */
+.back-to-company-btn {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  border: none;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.back-to-company-btn:hover {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateX(-50%) translateY(-1px);
+}
+
+.back-to-company-btn:active {
+  transform: translateX(-50%) translateY(0);
+}
+
+.back-to-company-btn svg {
+  flex-shrink: 0;
 }
 
 .messages-container {
@@ -185,6 +222,83 @@
 /* Channel and Style selects */
 .channel-select,
 .style-select {
+  min-width: 120px;
+}
+
+/* Radix Select Trigger - Design System compliant */
+.context-select-trigger {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 6px 10px !important;
+  height: 32px !important;
+  width: auto !important;
+  min-width: 0 !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 16px !important;
+  background: white !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #374151 !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.context-select-trigger:hover {
+  border-color: #d1d5db !important;
+  background: #f9fafb !important;
+}
+
+.context-select-trigger:focus {
+  outline: none !important;
+  border-color: #f97316 !important;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1) !important;
+}
+
+.context-select-trigger[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Company select - slightly more prominent */
+.company-select-trigger {
+  min-width: 140px;
+}
+
+/* Project select */
+.project-select-trigger {
+  min-width: 130px;
+}
+
+/* Department select */
+.department-select-trigger {
+  min-width: 160px;
+}
+
+/* Role select - distinct purple styling */
+.role-select-trigger {
+  min-width: 180px;
+  border-color: #d8b4fe !important;
+  background: #faf5ff !important;
+  color: #7c3aed !important;
+}
+
+.role-select-trigger:hover {
+  border-color: #c084fc !important;
+  background: #f3e8ff !important;
+}
+
+.role-select-trigger:focus {
+  border-color: #a855f7 !important;
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15) !important;
+}
+
+/* Channel and Style select triggers */
+.channel-select-trigger,
+.style-select-trigger {
   min-width: 120px;
 }
 

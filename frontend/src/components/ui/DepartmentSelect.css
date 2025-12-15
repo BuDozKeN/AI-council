@@ -1,0 +1,148 @@
+/**
+ * DepartmentSelect Styles
+ * Uses CSS custom properties for department-specific colors
+ */
+
+/* Trigger button - inherits from save-dept-trigger when used in Stage3 */
+.dept-select-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+/* When a department is selected, show its color */
+.dept-select-trigger.has-selection {
+  border: 1px solid currentColor;
+  opacity: 0.9;
+}
+
+.dept-select-trigger.has-selection:hover {
+  opacity: 1;
+}
+
+.dept-select-trigger:hover:not(.has-selection) {
+  background: white;
+  color: #374151;
+}
+
+.dept-select-trigger:focus {
+  outline: none;
+}
+
+.dept-select-trigger:focus:not(.has-selection) {
+  background: white;
+}
+
+.dept-select-trigger[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Dropdown content - Design System compliant */
+.dept-select-content,
+[data-radix-popper-content-wrapper] .dept-select-content {
+  position: relative;
+  z-index: 9999 !important;
+  max-height: 300px;
+  min-width: 8rem;
+  overflow: hidden;
+  border-radius: 12px !important;
+  border: 1px solid #e5e7eb !important;
+  background: white !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Animation keyframes */
+@keyframes dropdownInBottom {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes dropdownInTop {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.dept-select-content[data-side="bottom"] {
+  transform-origin: top;
+  animation: dropdownInBottom 0.15s ease-out;
+}
+
+.dept-select-content[data-side="top"] {
+  transform-origin: bottom;
+  animation: dropdownInTop 0.15s ease-out;
+}
+
+/* Viewport (inner container) */
+.dept-select-viewport {
+  padding: 8px;
+  min-width: var(--radix-select-trigger-width);
+}
+
+/* Individual items */
+.dept-select-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+  cursor: pointer;
+  user-select: none;
+  align-items: center;
+  border-radius: 8px;
+  padding: 10px 12px;
+  padding-right: 36px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  outline: none;
+  transition: all 0.1s ease;
+}
+
+/* Hover state - uses CSS variable from inline style */
+.dept-select-item[data-highlighted] {
+  background: var(--dept-hover-bg, #f3f4f6);
+}
+
+/* Selected/checked state */
+.dept-select-item[data-state="checked"] {
+  background: var(--dept-checked-bg, #f3f4f6);
+  color: var(--dept-checked-text, #374151);
+}
+
+/* Disabled state */
+.dept-select-item[data-disabled] {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Checkmark indicator */
+.dept-select-item-indicator {
+  position: absolute;
+  right: 12px;
+  display: flex;
+  height: 16px;
+  width: 16px;
+  align-items: center;
+  justify-content: center;
+  color: var(--dept-checked-text, #059669);
+}

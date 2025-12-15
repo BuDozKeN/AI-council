@@ -1310,6 +1310,47 @@ async def polish_text(request: PolishTextRequest, user: dict = Depends(get_curre
     """
     from .openrouter import query_model
 
+    # Special handling for markdown conversion - comprehensive formatting
+    if request.field_type == "markdown":
+        prompt = f"""You are a markdown formatting expert. Convert the following text into clean, well-structured Markdown.
+
+RULES:
+1. Preserve ALL information - don't remove or summarize anything
+2. Use proper Markdown syntax:
+   - # for main title, ## for sections, ### for subsections
+   - | col | col | for tables (with header separator |---|---|)
+   - ```language for code blocks (detect language: javascript, css, python, etc.)
+   - **bold** for emphasis
+   - - for bullet lists
+   - 1. for numbered lists
+3. If you see tabular data (columns of values), convert to proper Markdown tables
+4. If you see code (CSS properties, JavaScript, functions), wrap in code blocks
+5. Detect numbered sections like "1. Title" and convert to ## headers
+6. Output ONLY the formatted markdown, no explanations
+
+TEXT TO CONVERT:
+{request.text}
+
+MARKDOWN:"""
+
+        try:
+            messages = [
+                {"role": "system", "content": "You are a markdown formatting expert. Convert text to clean, properly structured Markdown."},
+                {"role": "user", "content": prompt}
+            ]
+
+            result = await query_model(
+                model="google/gemini-3-pro-preview",  # Council model - confirmed working
+                messages=messages
+            )
+
+            if result and result.get('content'):
+                return {"polished": result['content'].strip()}
+            else:
+                raise HTTPException(status_code=500, detail="Failed to get AI response")
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"AI polish failed: {str(e)}")
+
     # Field-specific prompts for better context
     field_prompts = {
         "client_background": "This text describes a client or project. Rewrite it clearly, organizing information about the company, industry, size, and key people.",
@@ -1345,7 +1386,7 @@ Polished version:"""
         ]
 
         result = await query_model(
-            model="anthropic/claude-3.5-haiku",  # Fast model for quick polish
+            model="google/gemini-3-pro-preview",  # Council model - confirmed working
             messages=messages
         )
 

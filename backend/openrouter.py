@@ -68,21 +68,22 @@ async def query_model(
     }
 
     try:
-        async with httpx.AsyncClient(timeout=timeout) as client:
-            response = await client.post(
-                OPENROUTER_API_URL,
-                headers=headers,
-                json=payload
-            )
-            response.raise_for_status()
+        # Use shared HTTP client for connection pooling (same as streaming)
+        client = get_http_client(timeout)
+        response = await client.post(
+            OPENROUTER_API_URL,
+            headers=headers,
+            json=payload
+        )
+        response.raise_for_status()
 
-            data = response.json()
-            message = data['choices'][0]['message']
+        data = response.json()
+        message = data['choices'][0]['message']
 
-            return {
-                'content': message.get('content'),
-                'reasoning_details': message.get('reasoning_details')
-            }
+        return {
+            'content': message.get('content'),
+            'reasoning_details': message.get('reasoning_details')
+        }
 
     except httpx.TimeoutException as e:
         print(f"[TIMEOUT] Model {model}: Request timed out after {timeout}s", flush=True)

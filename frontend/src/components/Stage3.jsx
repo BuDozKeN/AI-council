@@ -1,8 +1,17 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { api } from '../api';
+import { DepartmentSelect } from './ui/DepartmentSelect';
+import { Bookmark, FileText, Layers, ScrollText } from 'lucide-react';
 import './Stage3.css';
+
+// Playbook type definitions with icons
+const DOC_TYPES = [
+  { value: 'sop', label: 'SOP', icon: ScrollText },
+  { value: 'framework', label: 'Framework', icon: Layers },
+  { value: 'policy', label: 'Policy', icon: FileText }
+];
 
 // Copy button component
 function CopyButton({ text, label = 'Copy' }) {
@@ -91,35 +100,64 @@ export default function Stage3({
   conversationTitle,
   userQuestion,  // The original user question that led to this response
   defaultCollapsed = false,
+  onViewDecision,  // Callback to open My Company with decision
 }) {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
-  const [saveState, setSaveState] = useState('idle'); // 'idle' | 'saving' | 'saved' | 'error'
-  const [savedCount, setSavedCount] = useState(0);
+  const [saveState, setSaveState] = useState('idle'); // 'idle' | 'saving' | 'saved' | 'promoting' | 'promoted' | 'error'
+  const [savedDecisionId, setSavedDecisionId] = useState(null); // ID of saved decision
+  const [promotedPlaybookId, setPromotedPlaybookId] = useState(null); // ID of promoted playbook
 
-  // Save as Decision - simple inline save
-  const handleSaveDecision = async () => {
-    if (!companyId || saveState === 'saving') return;
+  // Save toolbar state
+  const [departments, setDepartments] = useState([]);
+  const [selectedDeptId, setSelectedDeptId] = useState(departmentId || 'all');
+  const [selectedDocType, setSelectedDocType] = useState('');
+
+  // Load departments when complete (for the toolbar)
+  useEffect(() => {
+    if (companyId && departments.length === 0 && !streaming?.error) {
+      api.getCompanyTeam(companyId)
+        .then(data => {
+          setDepartments(data.departments || []);
+          if (departmentId) {
+            setSelectedDeptId(departmentId);
+          }
+        })
+        .catch(err => console.error('Failed to load departments:', err));
+    }
+  }, [companyId, departmentId, departments.length, streaming?.error]);
+
+  // Determine what to display (moved up so displayText is available)
+  const displayText = finalResponse?.response || streaming?.text || '';
+
+  // Generate title from conversation or first line
+  const getTitle = () => {
+    return conversationTitle ||
+      (displayText.split('\n')[0].slice(0, 100)) ||
+      'Council Decision';
+  };
+
+  // Save as Decision only (for later promotion)
+  const handleSaveForLater = async () => {
+    if (!companyId || saveState === 'saving' || savedDecisionId) return;
 
     setSaveState('saving');
     try {
-      // Generate a title from the conversation or first line of response
-      const title = conversationTitle ||
-        (displayText.split('\n')[0].slice(0, 100)) ||
-        'Council Decision';
-
-      await api.createCompanyDecision(companyId, {
-        title: title,
+      const result = await api.createCompanyDecision(companyId, {
+        title: getTitle(),
         content: displayText,
-        department_id: departmentId || null,
+        department_id: selectedDeptId === 'all' ? null : selectedDeptId,
         source_conversation_id: conversationId?.startsWith('temp-') ? null : conversationId,
         tags: []
       });
 
+      console.log('Save result:', result);
+      const decisionId = result?.decision?.id || result?.id;
+      if (!decisionId) {
+        console.error('No decision ID in response:', result);
+        throw new Error('No decision ID returned');
+      }
+      setSavedDecisionId(decisionId);
       setSaveState('saved');
-      setSavedCount(prev => prev + 1);
-
-      // Reset to allow saving again after 3 seconds
-      setTimeout(() => setSaveState('idle'), 3000);
     } catch (err) {
       console.error('Failed to save decision:', err);
       setSaveState('error');
@@ -127,8 +165,56 @@ export default function Stage3({
     }
   };
 
-  // Determine what to display
-  const displayText = finalResponse?.response || streaming?.text || '';
+  // Save AND promote to playbook in one step
+  const handleSaveAndPromote = async () => {
+    if (!companyId || !selectedDocType || saveState === 'saving' || saveState === 'promoting') return;
+
+    setSaveState('promoting');
+    try {
+      // Step 1: Save as decision first
+      console.log('Saving decision...');
+      const saveResult = await api.createCompanyDecision(companyId, {
+        title: getTitle(),
+        content: displayText,
+        department_id: selectedDeptId === 'all' ? null : selectedDeptId,
+        source_conversation_id: conversationId?.startsWith('temp-') ? null : conversationId,
+        tags: []
+      });
+
+      console.log('Save result:', saveResult);
+      const decisionId = saveResult?.decision?.id || saveResult?.id;
+      if (!decisionId) {
+        console.error('No decision ID in response:', saveResult);
+        throw new Error('No decision ID returned');
+      }
+      setSavedDecisionId(decisionId);
+
+      // Step 2: Immediately promote to playbook
+      console.log('Promoting to playbook...', decisionId);
+      const promoteResult = await api.promoteDecisionToPlaybook(companyId, decisionId, {
+        doc_type: selectedDocType,
+        title: getTitle(),
+        department_id: selectedDeptId === 'all' ? null : selectedDeptId
+      });
+
+      console.log('Promote result:', promoteResult);
+      const playbookId = promoteResult?.playbook?.id || promoteResult?.id;
+      setPromotedPlaybookId(playbookId);
+      setSaveState('promoted');
+    } catch (err) {
+      console.error('Failed to save and promote:', err);
+      setSaveState('error');
+      setTimeout(() => setSaveState('idle'), 3000);
+    }
+  };
+
+  // View the saved decision in My Company
+  const handleViewDecision = () => {
+    if (savedDecisionId && onViewDecision) {
+      onViewDecision(savedDecisionId);
+    }
+  };
+
   const isStreaming = streaming && !streaming.complete;
   const hasError = streaming?.error;
   const chairmanModel = finalResponse?.model || streaming?.model || 'google/gemini-3-pro-preview';
@@ -136,7 +222,6 @@ export default function Stage3({
   const isComplete = !isStreaming && !hasError && displayText;
 
   const toggleCollapsed = () => {
-    setUserToggled(true);
     setIsCollapsed(!isCollapsed);
   };
 
@@ -168,25 +253,15 @@ export default function Stage3({
     return null;
   }
 
-  // Get button text based on save state
-  const getSaveButtonText = () => {
-    switch (saveState) {
-      case 'saving': return 'Saving...';
-      case 'saved': return 'Saved!';
-      case 'error': return 'Failed - Try Again';
-      default: return savedCount > 0 ? `Save as Decision (${savedCount} saved)` : 'Save as Decision';
-    }
-  };
-
   return (
     <div className={`stage stage3 ${isCollapsed ? 'collapsed' : ''}`}>
       <h3 className="stage-title clickable" onClick={toggleCollapsed}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
         Stage 3: Final Council Answer
         {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
-        {isCollapsed && savedCount > 0 && (
+        {isCollapsed && savedDecisionId && (
           <span className="collapsed-summary">
-            <span className="kb-saved-badge">{savedCount} saved</span>
+            <span className="kb-saved-badge">Decision saved</span>
           </span>
         )}
       </h3>
@@ -239,15 +314,106 @@ export default function Stage3({
         </div>
         {isComplete && companyId && (
           <div className="stage3-actions">
-            <button
-              className={`save-knowledge-btn ${saveState === 'saved' ? 'saved' : ''} ${saveState === 'error' ? 'error' : ''}`}
-              onClick={handleSaveDecision}
-              disabled={saveState === 'saving'}
-              title="Save this council output to My Company → Decisions"
-            >
-              <span className="btn-icon">{saveState === 'saved' ? '✓' : '💾'}</span>
-              {getSaveButtonText()}
-            </button>
+            {/* Error state */}
+            {saveState === 'error' && (
+              <div className="save-error-bar" style={{
+                padding: '12px 16px',
+                background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
+                border: '1px solid #fca5a5',
+                borderRadius: '10px',
+                color: '#dc2626',
+                fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <span>⚠️</span>
+                <span>Failed to save. Please try again.</span>
+              </div>
+            )}
+            {/* Compact inline save toolbar - unified design */}
+            <div className="save-toolbar-unified">
+              {/* Left group: Department + Type in a visual container */}
+              <div className="save-options-group">
+                {/* Compact department selector with colors */}
+                <DepartmentSelect
+                  value={selectedDeptId}
+                  onValueChange={setSelectedDeptId}
+                  departments={departments}
+                  includeAll={true}
+                  allLabel="All Departments"
+                  disabled={saveState !== 'idle'}
+                  className="save-dept-trigger"
+                  compact={true}
+                />
+
+                {/* Divider */}
+                <div className="save-divider" />
+
+                {/* Type selector pills */}
+                <div className="save-type-pills">
+                  {DOC_TYPES.map(type => {
+                    const Icon = type.icon;
+                    const isSaved = saveState === 'saved' || saveState === 'promoted';
+                    const isSelected = selectedDocType === type.value;
+                    return (
+                      <button
+                        key={type.value}
+                        className={`save-type-pill ${type.value} ${isSelected ? 'selected' : ''} ${isSaved && isSelected ? 'saved' : ''}`}
+                        onClick={() => !isSaved && setSelectedDocType(isSelected ? '' : type.value)}
+                        disabled={saveState === 'saving' || saveState === 'promoting'}
+                        title={isSaved && isSelected ? `Saved as ${type.label}` : `Save as ${type.label}`}
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                        <span>{type.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Save/Access button - transforms after save */}
+              {(saveState === 'saved' || saveState === 'promoted') ? (
+                <button
+                  className="save-access-btn"
+                  onClick={() => {
+                    if (promotedPlaybookId) {
+                      onViewDecision && onViewDecision(savedDecisionId, 'playbook', promotedPlaybookId);
+                    } else {
+                      handleViewDecision();
+                    }
+                  }}
+                >
+                  <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  <span>
+                    {selectedDocType
+                      ? `Access ${DOC_TYPES.find(t => t.value === selectedDocType)?.label}`
+                      : 'Access Decision'}
+                  </span>
+                </button>
+              ) : (
+                <button
+                  className={`save-action-btn ${saveState === 'saving' || saveState === 'promoting' ? 'loading' : ''}`}
+                  onClick={selectedDocType ? handleSaveAndPromote : handleSaveForLater}
+                  disabled={saveState === 'saving' || saveState === 'promoting'}
+                  title={selectedDocType ? `Save as ${DOC_TYPES.find(t => t.value === selectedDocType)?.label} to your knowledge base` : 'Save to your knowledge base for later'}
+                >
+                  {(saveState === 'saving' || saveState === 'promoting') ? (
+                    <>
+                      <span className="save-spinner" />
+                      <span>Saving...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Bookmark className="h-4 w-4" />
+                      <span>{selectedDocType ? `Save ${DOC_TYPES.find(t => t.value === selectedDocType)?.label}` : 'Save'}</span>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
           </div>
         )}
         </div>

@@ -1,6 +1,7 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
+import { smartTextToMarkdown } from '../lib/smartTextToMarkdown';
 import './MarkdownViewer.css';
 
 /**
@@ -40,17 +41,26 @@ function cleanContent(content) {
  * Uses Tailwind Typography plugin for beautiful prose styling.
  * Supports GitHub Flavored Markdown (tables, strikethrough, etc.)
  *
+ * Features:
+ * - Auto-converts plain text to Markdown (tables, headers, code blocks)
+ * - Cleans up redundant metadata headers
+ *
  * Props:
- * - content: The markdown string to render
+ * - content: The markdown or plain text string to render
  * - className: Additional CSS classes
  * - skipCleanup: Set to true to skip metadata removal (for raw editing preview)
+ * - skipSmartConvert: Set to true to skip plain text to markdown conversion
  */
-export default function MarkdownViewer({ content, className = '', skipCleanup = false }) {
+export default function MarkdownViewer({ content, className = '', skipCleanup = false, skipSmartConvert = false }) {
   if (!content || content.trim() === '') {
     return <p className="text-gray-500 italic">No content yet.</p>;
   }
 
-  const displayContent = skipCleanup ? content : cleanContent(content);
+  // First, convert plain text to markdown if needed
+  let processedContent = skipSmartConvert ? content : smartTextToMarkdown(content);
+
+  // Then clean up redundant headers/metadata
+  const displayContent = skipCleanup ? processedContent : cleanContent(processedContent);
 
   return (
     <div className={`prose prose-slate prose-sm max-w-none ${className}`}>

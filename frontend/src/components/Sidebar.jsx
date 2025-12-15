@@ -1,6 +1,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { api } from '../api';
 import { Button } from './ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Plus, Trophy, Briefcase, ChevronRight, Star, Trash2, Archive, ArchiveRestore, Square, CheckSquare } from 'lucide-react';
 import './Sidebar.css';
 
@@ -372,33 +373,34 @@ export default function Sidebar({
       {/* Filter and Sort Dropdowns */}
       {totalConversations > 0 && (
         <div className="sidebar-filter">
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="filter-select"
-          >
-            <option value="all">All Conversations ({filteredBySearch.active.length})</option>
-            {departments.map(dept => {
-              const deptCount = groupedConversations[dept.id]?.conversations.length || 0;
-              return (
-                <option key={dept.id} value={dept.id}>
-                  {dept.name} ({deptCount})
-                </option>
-              );
-            })}
-            {filteredBySearch.archived.length > 0 && (
-              <option value="archived">Archived ({filteredBySearch.archived.length})</option>
-            )}
-          </select>
-          <select
-            value={sortBy}
-            onChange={(e) => onSortByChange?.(e.target.value)}
-            className="sort-select"
-            title="Sort conversations"
-          >
-            <option value="date">Latest</option>
-            <option value="activity">Active</option>
-          </select>
+          <Select value={filter} onValueChange={setFilter}>
+            <SelectTrigger className="filter-select-trigger">
+              <SelectValue placeholder="All Conversations" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Conversations ({filteredBySearch.active.length})</SelectItem>
+              {departments.map(dept => {
+                const deptCount = groupedConversations[dept.id]?.conversations.length || 0;
+                return (
+                  <SelectItem key={dept.id} value={dept.id}>
+                    {dept.name} ({deptCount})
+                  </SelectItem>
+                );
+              })}
+              {filteredBySearch.archived.length > 0 && (
+                <SelectItem value="archived">Archived ({filteredBySearch.archived.length})</SelectItem>
+              )}
+            </SelectContent>
+          </Select>
+          <Select value={sortBy} onValueChange={onSortByChange}>
+            <SelectTrigger className="sort-select-trigger" title="Sort conversations">
+              <SelectValue placeholder="Latest" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="date">Latest</SelectItem>
+              <SelectItem value="activity">Active</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       )}
 

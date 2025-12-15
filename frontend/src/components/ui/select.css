@@ -1,0 +1,22 @@
+/**
+ * Select Component Styles - Design System compliant
+ * Handles hover and focus states that inline styles can't do
+ */
+
+/* Dropdown item hover state */
+[data-radix-select-item]:hover,
+[data-radix-select-item][data-highlighted] {
+  background: #f3f4f6 !important;
+}
+
+/* Selected/checked item state */
+[data-radix-select-item][data-state="checked"] {
+  background: #fff7ed !important;
+  color: #9a3412 !important;
+}
+
+/* Selected + hover */
+[data-radix-select-item][data-state="checked"]:hover,
+[data-radix-select-item][data-state="checked"][data-highlighted] {
+  background: #ffedd5 !important;
+}

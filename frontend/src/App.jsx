@@ -47,6 +47,12 @@ function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [isMyCompanyOpen, setIsMyCompanyOpen] = useState(false);
+  const [myCompanyInitialTab, setMyCompanyInitialTab] = useState('overview');
+  const [myCompanyInitialDecisionId, setMyCompanyInitialDecisionId] = useState(null);
+  const [myCompanyInitialPlaybookId, setMyCompanyInitialPlaybookId] = useState(null);
+  const [myCompanyPromoteDecision, setMyCompanyPromoteDecision] = useState(null); // Decision object to open in Promote modal on return
+  const [scrollToStage3, setScrollToStage3] = useState(false); // When navigating from decision source, scroll to Stage 3
+  const [returnToMyCompanyTab, setReturnToMyCompanyTab] = useState(null); // Tab to return to after viewing source (e.g., 'decisions', 'activity')
   // Triage state
   const [triageState, setTriageState] = useState(null); // null, 'analyzing', or triage result object
   const [originalQuery, setOriginalQuery] = useState('');
@@ -325,10 +331,18 @@ function App() {
     // Just set it as the current conversation
     setCurrentConversationId(tempId);
     setCurrentConversation(tempConv);
+
+    // Clear return-to-company state - user has started a new action
+    setReturnToMyCompanyTab(null);
+    setMyCompanyPromoteDecision(null);
   };
 
   const handleSelectConversation = (id) => {
     setCurrentConversationId(id);
+
+    // Clear return-to-company state - user has started a new action
+    setReturnToMyCompanyTab(null);
+    setMyCompanyPromoteDecision(null);
   };
 
   const handleArchiveConversation = async (id, archived) => {
@@ -1106,7 +1120,12 @@ function App() {
           onNewConversation={handleNewConversation}
           onOpenLeaderboard={() => setIsLeaderboardOpen(true)}
           onOpenSettings={() => setIsSettingsOpen(true)}
-          onOpenMyCompany={() => setIsMyCompanyOpen(true)}
+          onOpenMyCompany={() => {
+            // Clear return-to-company state - user is opening it fresh
+            setReturnToMyCompanyTab(null);
+            setMyCompanyPromoteDecision(null);
+            setIsMyCompanyOpen(true);
+          }}
           onArchiveConversation={handleArchiveConversation}
           onStarConversation={handleStarConversation}
           onDeleteConversation={handleDeleteConversation}
@@ -1170,6 +1189,40 @@ function App() {
         isUploading={isUploading}
         // Knowledge Base navigation (now part of My Company)
         onViewKnowledgeBase={() => {
+          // Clear return-to-company state - user is opening it fresh
+          setReturnToMyCompanyTab(null);
+          setMyCompanyPromoteDecision(null);
+          setIsMyCompanyOpen(true);
+        }}
+        // Scroll target - for navigating from decision source
+        scrollToStage3={scrollToStage3}
+        onScrollToStage3Complete={() => setScrollToStage3(false)}
+        // Decision/Playbook navigation - open My Company to appropriate tab
+        onViewDecision={(decisionId, type = 'decision', playbookId = null) => {
+          // Clear return-to-company state - user is taking a new action
+          setReturnToMyCompanyTab(null);
+          setMyCompanyPromoteDecision(null);
+
+          if (type === 'playbook' && playbookId) {
+            setMyCompanyInitialTab('playbooks');
+            setMyCompanyInitialPlaybookId(playbookId);
+            setMyCompanyInitialDecisionId(null);
+          } else {
+            setMyCompanyInitialTab('decisions');
+            setMyCompanyInitialDecisionId(decisionId);
+            setMyCompanyInitialPlaybookId(null);
+          }
+          setIsMyCompanyOpen(true);
+        }}
+        // Return to My Company button (after navigating from source)
+        returnToMyCompanyTab={returnToMyCompanyTab}
+        returnPromoteDecision={myCompanyPromoteDecision}
+        onReturnToMyCompany={(tab) => {
+          setReturnToMyCompanyTab(null); // Clear the return state
+          setMyCompanyInitialTab(tab);
+          setMyCompanyInitialDecisionId(null);
+          setMyCompanyInitialPlaybookId(null);
+          // Don't clear myCompanyPromoteDecision here - let MyCompany use it to re-open modal
           setIsMyCompanyOpen(true);
         }}
       />
@@ -1196,11 +1249,34 @@ function App() {
         <MyCompany
           companyId={selectedBusiness}
           companyName={currentBusiness?.name}
-          onClose={() => setIsMyCompanyOpen(false)}
-          onNavigateToConversation={(conversationId) => {
+          allCompanies={businesses}
+          onSelectCompany={(newCompanyId) => {
+            setSelectedBusiness(newCompanyId);
+            // Reset to Overview tab when switching companies
+            setMyCompanyInitialTab('overview');
+            setMyCompanyInitialDecisionId(null);
+            setMyCompanyInitialPlaybookId(null);
+          }}
+          onClose={() => {
             setIsMyCompanyOpen(false);
+            // Reset to defaults for next open
+            setMyCompanyInitialTab('overview');
+            setMyCompanyInitialDecisionId(null);
+            setMyCompanyInitialPlaybookId(null);
+            setMyCompanyPromoteDecision(null);
+          }}
+          onNavigateToConversation={(conversationId, fromTab, promoteDecision = null) => {
+            setIsMyCompanyOpen(false);
+            setScrollToStage3(true); // Scroll to Stage 3 when coming from decision source
+            setReturnToMyCompanyTab(fromTab || null); // Remember which tab to return to
+            setMyCompanyPromoteDecision(promoteDecision); // Remember decision to re-open Promote modal
             setCurrentConversationId(conversationId);
           }}
+          initialTab={myCompanyInitialTab}
+          initialDecisionId={myCompanyInitialDecisionId}
+          initialPlaybookId={myCompanyInitialPlaybookId}
+          initialPromoteDecision={myCompanyPromoteDecision}
+          onConsumePromoteDecision={() => setMyCompanyPromoteDecision(null)}
         />
       )}
       </div>

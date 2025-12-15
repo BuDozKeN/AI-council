@@ -15,12 +15,22 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
+import re
+from functools import lru_cache
+import time
 
 from ..auth import get_current_user
 from ..database import get_supabase_with_auth, get_supabase_service
 
 
 router = APIRouter(prefix="/api/company", tags=["company"])
+
+# UUID pattern for validation
+UUID_PATTERN = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', re.I)
+
+# In-memory cache for company slug → UUID mapping (TTL: 5 minutes)
+_company_uuid_cache = {}
+_CACHE_TTL = 300  # 5 minutes
 
 
 # ============================================
@@ -132,20 +142,30 @@ def resolve_company_id(client, company_id: str) -> str:
     """
     Resolve company_id to UUID.
     Accepts either a UUID or a slug, returns the UUID.
+    Uses in-memory cache to avoid repeated DB lookups.
     """
-    # Check if it's a valid UUID format
-    import re
-    uuid_pattern = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', re.I)
-
-    if uuid_pattern.match(company_id):
+    # Check if it's already a valid UUID format
+    if UUID_PATTERN.match(company_id):
         return company_id
 
-    # Otherwise, look up by slug
+    # Check cache first
+    cache_key = company_id.lower()
+    now = time.time()
+    if cache_key in _company_uuid_cache:
+        cached_uuid, cached_time = _company_uuid_cache[cache_key]
+        if now - cached_time < _CACHE_TTL:
+            return cached_uuid
+
+    # Cache miss - look up by slug
     result = client.table("companies").select("id").eq("slug", company_id).single().execute()
     if not result.data:
         raise HTTPException(status_code=404, detail=f"Company not found: {company_id}")
 
-    return result.data["id"]
+    # Store in cache
+    uuid = result.data["id"]
+    _company_uuid_cache[cache_key] = (uuid, now)
+
+    return uuid
 
 
 # ============================================
@@ -488,16 +508,19 @@ async def get_playbooks(
     - department_id: filter by owner or visible departments
     - tag: filter by tag
 
+    Returns playbooks with departments embedded to avoid extra API calls.
     Note: Playbooks come from database. If company not in DB yet, returns empty list.
     """
     client = get_client(user)
+    # Use service client for read-only department data (bypasses RLS)
+    service_client = get_service_client()
 
     # Try to resolve company UUID - may not exist in DB yet
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
         # Company not in database yet - return empty playbooks
-        return {"playbooks": []}
+        return {"playbooks": [], "departments": []}
 
     # First get all documents for this company
     doc_query = client.table("org_documents") \
@@ -513,8 +536,17 @@ async def get_playbooks(
 
     doc_result = doc_query.order("created_at", desc=True).execute()
 
+    # Fetch departments for name lookup using service client (bypasses RLS)
+    dept_result = service_client.table("departments") \
+        .select("id, name, slug") \
+        .eq("company_id", company_uuid) \
+        .execute()
+
+    dept_map = {d["id"]: d for d in (dept_result.data or [])}
+
     if not doc_result.data:
-        return {"playbooks": []}
+        departments = [{"id": d["id"], "name": d["name"], "slug": d["slug"]} for d in (dept_result.data or [])]
+        return {"playbooks": [], "departments": departments}
 
     # Get current versions for all documents
     doc_ids = [doc["id"] for doc in doc_result.data]
@@ -562,9 +594,18 @@ async def get_playbooks(
             if not (is_owner or is_visible):
                 continue
 
+        # Embed department name for display
+        dept_id = doc.get("department_id")
+        if dept_id and dept_id in dept_map:
+            doc["department_name"] = dept_map[dept_id].get("name")
+            doc["department_slug"] = dept_map[dept_id].get("slug")
+
         playbooks.append(doc)
 
-    return {"playbooks": playbooks}
+    # Include departments list so frontend doesn't need separate call
+    departments = [{"id": d["id"], "name": d["name"], "slug": d["slug"]} for d in (dept_result.data or [])]
+
+    return {"playbooks": playbooks, "departments": departments}
 
 
 # IMPORTANT: Static routes must come BEFORE dynamic routes like /{playbook_id}
@@ -750,20 +791,23 @@ async def update_playbook(company_id: str, playbook_id: str, data: PlaybookUpdat
         }).execute()
 
     # Update additional departments if provided (replace all)
+    # Use service client to bypass RLS for junction table operations
     if data.additional_departments is not None:
-        # Delete all existing mappings
-        client.table("org_document_departments") \
-            .delete() \
-            .eq("document_id", playbook_id) \
-            .execute()
+        service_client = get_supabase_service()
+        if service_client:
+            # Delete all existing mappings
+            service_client.table("org_document_departments") \
+                .delete() \
+                .eq("document_id", playbook_id) \
+                .execute()
 
-        # Insert new mappings
-        if data.additional_departments:
-            dept_mappings = [
-                {"document_id": playbook_id, "department_id": dept_id}
-                for dept_id in data.additional_departments
-            ]
-            client.table("org_document_departments").insert(dept_mappings).execute()
+            # Insert new mappings
+            if data.additional_departments:
+                dept_mappings = [
+                    {"document_id": playbook_id, "department_id": dept_id}
+                    for dept_id in data.additional_departments
+                ]
+                service_client.table("org_document_departments").insert(dept_mappings).execute()
 
     # Fetch updated document
     updated_doc = client.table("org_documents") \
@@ -797,6 +841,59 @@ async def update_playbook(company_id: str, playbook_id: str, data: PlaybookUpdat
     return {"playbook": playbook}
 
 
+@router.delete("/{company_id}/playbooks/{playbook_id}")
+async def delete_playbook(company_id: str, playbook_id: str, user=Depends(get_current_user)):
+    """
+    Delete a playbook permanently.
+    Also removes associated versions and department mappings.
+    """
+    client = get_client(user)
+    company_uuid = resolve_company_id(client, company_id)
+
+    # Verify the playbook exists and belongs to this company
+    existing = client.table("org_documents") \
+        .select("id, title") \
+        .eq("id", playbook_id) \
+        .eq("company_id", company_uuid) \
+        .single() \
+        .execute()
+
+    if not existing.data:
+        raise HTTPException(status_code=404, detail="Playbook not found")
+
+    playbook_title = existing.data.get("title", "Playbook")
+
+    # Delete department mappings first (foreign key constraint)
+    service_client = get_supabase_service()
+    if service_client:
+        service_client.table("org_document_departments") \
+            .delete() \
+            .eq("document_id", playbook_id) \
+            .execute()
+
+    # Delete versions
+    client.table("org_document_versions") \
+        .delete() \
+        .eq("document_id", playbook_id) \
+        .execute()
+
+    # Delete the document itself
+    client.table("org_documents") \
+        .delete() \
+        .eq("id", playbook_id) \
+        .execute()
+
+    # Log activity
+    await log_activity(
+        company_id=company_uuid,
+        event_type="playbook",
+        title=f"Deleted: {playbook_title}",
+        description="Playbook was permanently deleted"
+    )
+
+    return {"success": True, "message": f"Playbook '{playbook_title}' deleted"}
+
+
 # ============================================
 # DECISIONS ENDPOINTS
 # ============================================
@@ -812,16 +909,27 @@ async def get_decisions(
     Get all decisions (knowledge entries), newest first.
     Optional search by title/content.
 
+    Returns decisions with department_name embedded to avoid extra API calls.
     Note: Decisions now come from knowledge_entries table.
     """
     client = get_client(user)
+    # Use service client for read-only department data (bypasses RLS)
+    service_client = get_service_client()
 
     # Try to resolve company UUID - may not exist in DB yet
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
         # Company not in database yet - return empty decisions
-        return {"decisions": []}
+        return {"decisions": [], "departments": []}
+
+    # Fetch departments for name lookup using service client (bypasses RLS)
+    dept_result = service_client.table("departments") \
+        .select("id, name, slug") \
+        .eq("company_id", company_uuid) \
+        .execute()
+
+    dept_map = {d["id"]: d for d in (dept_result.data or [])}
 
     query = client.table("knowledge_entries") \
         .select("*") \
@@ -837,16 +945,24 @@ async def get_decisions(
     # Transform to expected format for frontend compatibility
     decisions = []
     for entry in result.data or []:
+        dept_id = entry.get("department_id")
+        dept_info = dept_map.get(dept_id, {}) if dept_id else {}
+
         decisions.append({
             "id": entry.get("id"),
             "title": entry.get("title"),
             "content": entry.get("summary", ""),  # Map summary to content
             "tags": entry.get("tags", []),
             "category": entry.get("category"),
-            "department_id": entry.get("department_id"),
+            "department_id": dept_id,
+            "department_name": dept_info.get("name"),  # Embedded for display
+            "department_slug": dept_info.get("slug"),  # Embedded for filtering
             "project_id": entry.get("project_id"),
             "is_promoted": entry.get("is_promoted", False),
             "promoted_to_id": entry.get("promoted_to_id"),
+            "promoted_to_type": entry.get("promoted_to_type"),  # sop/framework/policy
+            "promoted_by_name": entry.get("promoted_by_name"),  # Who promoted it
+            "promoted_at": entry.get("promoted_at"),  # When it was promoted
             "source_conversation_id": entry.get("source_conversation_id"),
             "created_at": entry.get("created_at"),
             "updated_at": entry.get("updated_at"),
@@ -855,7 +971,10 @@ async def get_decisions(
             "council_type": entry.get("council_type")
         })
 
-    return {"decisions": decisions}
+    # Include departments list so frontend doesn't need separate call
+    departments = [{"id": d["id"], "name": d["name"], "slug": d["slug"]} for d in (dept_result.data or [])]
+
+    return {"decisions": decisions, "departments": departments}
 
 
 @router.post("/{company_id}/decisions")
@@ -909,6 +1028,19 @@ async def create_decision(company_id: str, data: DecisionCreate, user=Depends(ge
         "council_type": entry.get("council_type")
     }
 
+    # Log activity for the new decision
+    await log_activity(
+        company_id=company_uuid,
+        event_type="decision",
+        title=f"Saved: {data.title}",
+        description=data.content[:200] if data.content else None,
+        department_id=data.department_id,
+        related_id=entry.get("id"),
+        related_type="decision",
+        conversation_id=data.source_conversation_id,
+        message_id=data.source_message_id
+    )
+
     return {"decision": decision}
 
 
@@ -944,9 +1076,27 @@ async def promote_decision(company_id: str, decision_id: str, data: PromoteDecis
         raise HTTPException(status_code=400, detail="doc_type must be 'sop', 'framework', or 'policy'")
 
     # Auto-generate slug from title if not provided
-    slug = data.slug
-    if not slug:
-        slug = re.sub(r'[^a-z0-9]+', '-', data.title.lower()).strip('-')
+    base_slug = data.slug
+    if not base_slug:
+        base_slug = re.sub(r'[^a-z0-9]+', '-', data.title.lower()).strip('-')
+
+    # Ensure slug is unique by checking for existing documents with same slug
+    slug = base_slug
+    suffix = 1
+    while True:
+        existing = user_client.table("org_documents") \
+            .select("id") \
+            .eq("company_id", company_uuid) \
+            .eq("doc_type", data.doc_type) \
+            .eq("slug", slug) \
+            .execute()
+
+        if not existing.data:
+            break  # Slug is unique
+
+        # Append suffix and try again
+        suffix += 1
+        slug = f"{base_slug}-{suffix}"
 
     # Get content from knowledge entry (use summary as content)
     content = decision.data.get("summary", "") or decision.data.get("body_md", "") or ""
@@ -978,11 +1128,9 @@ async def promote_decision(company_id: str, decision_id: str, data: PromoteDecis
         "created_by": user.get('id') if isinstance(user, dict) else user.id
     }).execute()
 
-    # Mark knowledge entry as promoted (service_client to bypass RLS)
-    service_client.table("knowledge_entries").update({
-        "is_promoted": True,
-        "promoted_to_id": doc_id
-    }).eq("id", decision_id).execute()
+    # NOTE: Marking decision as "promoted" is skipped because the knowledge_entries
+    # table doesn't have the required columns (is_promoted, promoted_to_id, promoted_to_type).
+    # The playbook is created successfully regardless.
 
     playbook = doc_result.data[0]
     playbook["content"] = content
@@ -1036,6 +1184,9 @@ async def get_decision(company_id: str, decision_id: str, user=Depends(get_curre
         "project_id": entry.get("project_id"),
         "is_promoted": entry.get("is_promoted", False),
         "promoted_to_id": entry.get("promoted_to_id"),
+        "promoted_to_type": entry.get("promoted_to_type"),  # sop/framework/policy
+        "promoted_by_name": entry.get("promoted_by_name"),  # Who promoted it
+        "promoted_at": entry.get("promoted_at"),  # When it was promoted
         "source_conversation_id": entry.get("source_conversation_id"),
         "created_at": entry.get("created_at"),
         "updated_at": entry.get("updated_at"),
@@ -1086,6 +1237,41 @@ async def archive_decision(company_id: str, decision_id: str, user=Depends(get_c
     return {"success": True, "message": "Decision archived"}
 
 
+@router.delete("/{company_id}/decisions/{decision_id}")
+async def delete_decision(company_id: str, decision_id: str, user=Depends(get_current_user)):
+    """
+    Permanently delete a decision.
+    Uses service client to bypass RLS on knowledge_entries table.
+    """
+    # Use service client for knowledge_entries (bypasses RLS)
+    service_client = get_supabase_service()
+
+    # Still need user client to resolve company
+    user_client = get_client(user)
+    company_uuid = resolve_company_id(user_client, company_id)
+
+    # Verify decision exists and belongs to company
+    check = service_client.table("knowledge_entries") \
+        .select("id, title") \
+        .eq("id", decision_id) \
+        .eq("company_id", company_uuid) \
+        .single() \
+        .execute()
+
+    if not check.data:
+        raise HTTPException(status_code=404, detail="Decision not found")
+
+    decision_title = check.data.get("title", "Decision")
+
+    # Permanently delete the decision
+    result = service_client.table("knowledge_entries") \
+        .delete() \
+        .eq("id", decision_id) \
+        .execute()
+
+    return {"success": True, "message": f"Decision '{decision_title}' deleted"}
+
+
 # ============================================
 # ACTIVITY ENDPOINTS
 # ============================================
@@ -1100,6 +1286,8 @@ async def get_activity_logs(
     """
     Get activity logs for a company.
     Optional filter by event_type (decision, playbook, role, department, council_session).
+
+    Returns logs with lightweight playbook/decision IDs for click navigation.
     """
     # Use service client for read operations
     client = get_service_client()
@@ -1107,7 +1295,7 @@ async def get_activity_logs(
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        return {"logs": []}
+        return {"logs": [], "playbook_ids": [], "decision_ids": []}
 
     query = client.table("activity_logs") \
         .select("*") \
@@ -1119,8 +1307,19 @@ async def get_activity_logs(
         query = query.eq("event_type", event_type)
 
     result = query.execute()
+    logs = result.data or []
 
-    return {"logs": result.data or []}
+    # Extract unique related IDs for navigation (lightweight - just IDs, not full objects)
+    playbook_ids = list(set(
+        log["related_id"] for log in logs
+        if log.get("related_type") == "playbook" and log.get("related_id")
+    ))
+    decision_ids = list(set(
+        log["related_id"] for log in logs
+        if log.get("related_type") == "decision" and log.get("related_id")
+    ))
+
+    return {"logs": logs, "playbook_ids": playbook_ids, "decision_ids": decision_ids}
 
 
 async def log_activity(

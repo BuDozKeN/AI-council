@@ -8,6 +8,7 @@ import Stage3 from './Stage3';
 import Triage from './Triage';
 import ImageUpload from './ImageUpload';
 import CouncilProgressCapsule from './CouncilProgressCapsule';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import './ChatInterface.css';
 import './ImageUpload.css';
 
@@ -54,6 +55,14 @@ export default function ChatInterface({
   isUploading,
   // Knowledge Base navigation
   onViewKnowledgeBase,
+  // Decision navigation
+  onViewDecision,
+  // Scroll to Stage 3 when navigating from decision source
+  scrollToStage3,
+  onScrollToStage3Complete,
+  // Return to My Company (after viewing source)
+  returnToMyCompanyTab,
+  onReturnToMyCompany,
 }) {
   const [input, setInput] = useState('');
   const [chatMode, setChatMode] = useState('chat'); // 'chat' (chairman only) or 'council' (full)
@@ -90,10 +99,32 @@ export default function ChatInterface({
 
   // Only auto-scroll if user hasn't scrolled up
   useEffect(() => {
-    if (!userHasScrolledUp.current) {
+    if (!userHasScrolledUp.current && !scrollToStage3) {
       scrollToBottom();
     }
-  }, [conversation]);
+  }, [conversation, scrollToStage3]);
+
+  // Scroll to Stage 3 when navigating from decision source
+  useEffect(() => {
+    if (scrollToStage3 && conversation?.messages?.length > 0) {
+      // Prevent auto-scroll to bottom from interfering
+      userHasScrolledUp.current = true;
+
+      // Longer delay to ensure DOM is fully rendered after conversation loads
+      const timer = setTimeout(() => {
+        const stage3Element = messagesContainerRef.current?.querySelector('.stage3');
+        if (stage3Element) {
+          // Scroll to TOP of Stage 3 so user can read from the beginning
+          stage3Element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        // Clear the flag after scroll completes
+        if (onScrollToStage3Complete) {
+          onScrollToStage3Complete();
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [scrollToStage3, conversation, onScrollToStage3Complete]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -142,8 +173,32 @@ export default function ChatInterface({
     );
   }
 
+  // Format tab name for display
+  const formatTabName = (tab) => {
+    const tabNames = {
+      'decisions': 'Decisions',
+      'activity': 'Activity',
+      'playbooks': 'Playbooks',
+      'team': 'Team',
+      'overview': 'Overview'
+    };
+    return tabNames[tab] || 'My Company';
+  };
+
   return (
     <div className="chat-interface">
+      {/* Back to My Company floating button - shows when navigating from Source */}
+      {returnToMyCompanyTab && onReturnToMyCompany && (
+        <button
+          className="back-to-company-btn"
+          onClick={() => onReturnToMyCompany(returnToMyCompanyTab)}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          <span>Back to {formatTabName(returnToMyCompanyTab)}</span>
+        </button>
+      )}
       <div className="messages-container" ref={messagesContainerRef} onScroll={handleScroll}>
         {/* Triage - show at top when active */}
         {triageState === 'analyzing' && (
@@ -255,6 +310,7 @@ export default function ChatInterface({
                           projects={projects}
                           currentProjectId={selectedProject}
                           onProjectCreated={onProjectCreated}
+                          onViewDecision={onViewDecision}
                         />
                       )}
                     </>
@@ -301,21 +357,20 @@ export default function ChatInterface({
           {/* Context bar - only show for new conversations */}
           {conversation.messages.length === 0 && businesses.length > 0 && (
             <div className="context-bar">
-              {/* Company selector as subtle dropdown */}
-              <select
-                id="business-select"
-                value={selectedBusiness || ''}
-                onChange={(e) => onSelectBusiness(e.target.value || null)}
-                disabled={isLoading}
-                className="context-select company-select"
-              >
-                <option value="">No company</option>
-                {businesses.map((biz) => (
-                  <option key={biz.id} value={biz.id}>
-                    {biz.name}
-                  </option>
-                ))}
-              </select>
+              {/* Company selector as styled dropdown */}
+              <Select value={selectedBusiness || '__none__'} onValueChange={(v) => onSelectBusiness(v === '__none__' ? null : v)} disabled={isLoading}>
+                <SelectTrigger className="context-select-trigger company-select-trigger">
+                  <SelectValue placeholder="No company" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">No company</SelectItem>
+                  {businesses.map((biz) => (
+                    <SelectItem key={biz.id} value={biz.id}>
+                      {biz.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
               {/* When company selected: show company context toggle and department options */}
               {selectedBusiness && (
@@ -335,20 +390,19 @@ export default function ChatInterface({
                   {/* Project selector with add button */}
                   <div className="project-selector-group">
                     {projects.length > 0 ? (
-                      <select
-                        id="project-select"
-                        value={selectedProject || ''}
-                        onChange={(e) => onSelectProject(e.target.value || null)}
-                        disabled={isLoading}
-                        className="context-select project-select"
-                      >
-                        <option value="">Company-wide</option>
-                        {projects.map((proj) => (
-                          <option key={proj.id} value={proj.id}>
-                            {proj.name}
-                          </option>
-                        ))}
-                      </select>
+                      <Select value={selectedProject || '__none__'} onValueChange={(v) => onSelectProject(v === '__none__' ? null : v)} disabled={isLoading}>
+                        <SelectTrigger className="context-select-trigger project-select-trigger">
+                          <SelectValue placeholder="Company-wide" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__none__">Company-wide</SelectItem>
+                          {projects.map((proj) => (
+                            <SelectItem key={proj.id} value={proj.id}>
+                              {proj.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     ) : (
                       <span className="no-projects-hint">No projects</span>
                     )}
@@ -366,37 +420,35 @@ export default function ChatInterface({
                   {/* Department selector - always show when company has departments */}
                   {departments.length > 0 && (
                     <>
-                      <select
-                        id="department-select"
-                        value={selectedDepartment || ''}
-                        onChange={(e) => onSelectDepartment(e.target.value || null)}
-                        disabled={isLoading}
-                        className="context-select department-select"
-                      >
-                        <option value="">General Council</option>
-                        {departments.map((dept) => (
-                          <option key={dept.id} value={dept.id}>
-                            {dept.name}
-                          </option>
-                        ))}
-                      </select>
+                      <Select value={selectedDepartment || '__none__'} onValueChange={(v) => onSelectDepartment(v === '__none__' ? null : v)} disabled={isLoading}>
+                        <SelectTrigger className="context-select-trigger department-select-trigger">
+                          <SelectValue placeholder="General Council" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__none__">General Council</SelectItem>
+                          {departments.map((dept) => (
+                            <SelectItem key={dept.id} value={dept.id}>
+                              {dept.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
 
                       {/* Role selector - show when department has roles */}
                       {selectedDepartment && roles.length > 0 && (
-                        <select
-                          id="role-select"
-                          value={selectedRole || ''}
-                          onChange={(e) => onSelectRole(e.target.value || null)}
-                          disabled={isLoading}
-                          className="context-select role-select"
-                        >
-                          <option value="">All {departments.find(d => d.id === selectedDepartment)?.name || 'Dept'} Roles</option>
-                          {roles.map((role) => (
-                            <option key={role.id} value={role.id}>
-                              {role.name}
-                            </option>
-                          ))}
-                        </select>
+                        <Select value={selectedRole || '__none__'} onValueChange={(v) => onSelectRole(v === '__none__' ? null : v)} disabled={isLoading}>
+                          <SelectTrigger className="context-select-trigger role-select-trigger">
+                            <SelectValue placeholder={`All ${departments.find(d => d.id === selectedDepartment)?.name || 'Dept'} Roles`} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="__none__">All {departments.find(d => d.id === selectedDepartment)?.name || 'Dept'} Roles</SelectItem>
+                            {roles.map((role) => (
+                              <SelectItem key={role.id} value={role.id}>
+                                {role.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       )}
 
                       {/* Department Context toggle - only when department is selected */}
@@ -417,38 +469,36 @@ export default function ChatInterface({
 
                   {/* Channel - only when department has channels */}
                   {selectedDepartment && channels.length > 0 && (
-                    <select
-                      id="channel-select"
-                      value={selectedChannel || ''}
-                      onChange={(e) => onSelectChannel(e.target.value || null)}
-                      disabled={isLoading}
-                      className="context-select channel-select"
-                    >
-                      <option value="">Any channel</option>
-                      {channels.map((channel) => (
-                        <option key={channel.id} value={channel.id}>
-                          {channel.name}
-                        </option>
-                      ))}
-                    </select>
+                    <Select value={selectedChannel || '__none__'} onValueChange={(v) => onSelectChannel(v === '__none__' ? null : v)} disabled={isLoading}>
+                      <SelectTrigger className="context-select-trigger channel-select-trigger">
+                        <SelectValue placeholder="Any channel" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">Any channel</SelectItem>
+                        {channels.map((channel) => (
+                          <SelectItem key={channel.id} value={channel.id}>
+                            {channel.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   )}
 
                   {/* Style - only when company has styles */}
                   {styles.length > 0 && (
-                    <select
-                      id="style-select"
-                      value={selectedStyle || ''}
-                      onChange={(e) => onSelectStyle(e.target.value || null)}
-                      disabled={isLoading}
-                      className="context-select style-select"
-                    >
-                      <option value="">Default style</option>
-                      {styles.map((style) => (
-                        <option key={style.id} value={style.id}>
-                          {style.name}
-                        </option>
-                      ))}
-                    </select>
+                    <Select value={selectedStyle || '__none__'} onValueChange={(v) => onSelectStyle(v === '__none__' ? null : v)} disabled={isLoading}>
+                      <SelectTrigger className="context-select-trigger style-select-trigger">
+                        <SelectValue placeholder="Default style" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">Default style</SelectItem>
+                        {styles.map((style) => (
+                          <SelectItem key={style.id} value={style.id}>
+                            {style.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   )}
                 </>
               )}
