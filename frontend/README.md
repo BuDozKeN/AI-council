@@ -1,16 +1,93 @@
-# React + Vite
+# AI Council Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React 19 frontend application for the AI Council platform.
 
-Currently, two official plugins are available:
+## Technology Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **React 19** with Vite for fast development
+- **Radix UI** for accessible, unstyled UI primitives
+- **Tailwind CSS 4** for styling
+- **Supabase** for authentication and real-time features
+- **React Markdown** with remark-gfm for markdown rendering
+- **Framer Motion** for animations
+- **Lucide React** for icons
+- **Sonner** for toast notifications
+- **next-themes** for dark/light theme support
 
-## React Compiler
+## Getting Started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+# Install dependencies
+npm install
 
-## Expanding the ESLint configuration
+# Start development server
+npm run dev
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+
+# Lint code
+npm run lint
+```
+
+## Project Structure
+
+```
+src/
+├── components/           # React components
+│   ├── ChatInterface.jsx    # Main chat interface
+│   ├── MyCompany.jsx        # Company management
+│   ├── Sidebar.jsx          # Navigation sidebar
+│   ├── CuratorPanel.jsx     # Context curation
+│   ├── KnowledgeBase.jsx    # Knowledge management
+│   └── ui/                  # Reusable UI components
+│       ├── DepartmentSelect.jsx
+│       ├── select.jsx
+│       ├── dialog.jsx
+│       └── button.jsx
+├── lib/                  # Utilities
+│   ├── DESIGN_SYSTEM.md     # Design system documentation
+│   ├── colors.js            # Color utilities
+│   ├── smartTextToMarkdown.js
+│   └── utils.js
+├── api.js                # API client
+└── App.jsx               # Root component
+```
+
+## Design System
+
+See [DESIGN_SYSTEM.md](./src/lib/DESIGN_SYSTEM.md) for comprehensive design guidelines including:
+- Color philosophy and palettes
+- Department and playbook type colors
+- Component patterns (cards, modals, buttons, etc.)
+- Typography scale
+- Spacing system
+- Animation guidelines
+
+## Key Features
+
+- **Real-time Streaming**: Live AI responses with streaming support
+- **Multi-stage Council**: Visual representation of triage, responses, and synthesis
+- **Context Management**: Company, project, and department context
+- **Knowledge Base**: Save and organize conversation insights
+- **Image Upload**: Support for image attachments and analysis
+- **Responsive Design**: Works on desktop and mobile devices
+- **Theme Support**: Dark and light themes
+
+## Environment Variables
+
+The frontend requires backend API endpoints. The API base URL is configured in `src/api.js` and defaults to:
+- Development: `http://localhost:8001/api`
+- Production: Configured via Vercel environment
+
+For Supabase authentication, you'll need to configure your Supabase project URL and anon key in the frontend code.
+
+## Development Tips
+
+- Use the design system colors from `lib/colors.js` instead of hardcoding colors
+- Follow the component patterns documented in `DESIGN_SYSTEM.md`
+- Test with both dark and light themes
+- Ensure all components are accessible (use Radix UI primitives)
