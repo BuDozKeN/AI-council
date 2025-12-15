@@ -211,6 +211,11 @@ The application is designed for deployment on:
 
 Ensure all environment variables are configured in your deployment platform.
 
+## Utility Scripts
+
+- `start.sh` - Convenience script to start both frontend and backend servers
+- `create_project.py` - CLI utility to create projects using Supabase service key
+
 ## API Endpoints
 
 ### Core System
