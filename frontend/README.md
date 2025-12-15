@@ -79,9 +79,24 @@ See [DESIGN_SYSTEM.md](./src/lib/DESIGN_SYSTEM.md) for comprehensive design guid
 
 ## Environment Variables
 
-The frontend requires backend API endpoints. The API base URL is configured in `src/api.js` and defaults to:
-- Development: `http://localhost:8001/api`
-- Production: Configured via Vercel environment
+The frontend requires backend API endpoints. The API base URL is configured in `src/api.js`:
+
+```javascript
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+```
+
+**Note:** By default, the frontend expects the backend on port 8080, but the backend's `main.py` runs on port 8001 by default. To fix this:
+
+**Option 1:** Set `VITE_API_URL` environment variable:
+```bash
+# In frontend/.env or frontend/.env.local
+VITE_API_URL=http://localhost:8001
+```
+
+**Option 2:** Run the backend on port 8080:
+```bash
+python -m uvicorn backend.main:app --reload --host 0.0.0.0 --port 8080
+```
 
 For Supabase authentication, you'll need to configure your Supabase project URL and anon key in the frontend code.
 

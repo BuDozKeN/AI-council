@@ -86,6 +86,10 @@ A multi-model AI council platform that enables intelligent conversations with co
    ```bash
    cd frontend
    npm install
+   
+   # Optional: Create frontend/.env.local to set API URL
+   # If not set, defaults to http://localhost:8080
+   echo "VITE_API_URL=http://localhost:8001" > .env.local
    ```
 
 ### Running the Application
@@ -100,6 +104,7 @@ This will start both backend and frontend servers.
 
 1. **Start the Backend**
    ```bash
+   # Backend runs on port 8001 by default
    python -m uvicorn backend.main:app --reload --host 0.0.0.0 --port 8001
    ```
 
@@ -108,6 +113,7 @@ This will start both backend and frontend servers.
    cd frontend
    npm run dev
    ```
+   **Note:** The frontend defaults to port 8080 for the API. Set `VITE_API_URL=http://localhost:8001` in `frontend/.env.local` to match the backend port.
 
 3. **Access the Application**
    - Frontend: http://localhost:5173
