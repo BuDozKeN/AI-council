@@ -1,295 +1,239 @@
-"""Business context loader for multi-tenant AI Council."""
+"""Business context loader for multi-tenant AI Council.
 
-import os
-import json
-from pathlib import Path
+Now uses Supabase database for all context:
+- companies.context_md for company context
+- departments.context_md for department context
+- roles.system_prompt for role personas
+"""
+
 from typing import Optional, List, Dict, Any
+from pathlib import Path
+import re
 
 from . import storage
 from . import knowledge
 from .database import get_supabase_service
 
-# Base directory for business contexts (within councils structure)
+
+# Legacy path constant for backwards compatibility with curator.py
+# Note: This folder is DEPRECATED - all context now comes from Supabase
 CONTEXTS_DIR = Path(__file__).parent.parent / "councils" / "organisations"
 
-# Project root for accessing CLAUDE.md
-PROJECT_ROOT = Path(__file__).parent.parent
+
+# UUID v4 regex pattern for validation
+UUID_PATTERN = re.compile(
+    r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+    re.IGNORECASE
+)
 
 
-def load_technical_documentation() -> Optional[str]:
-    """
-    Load CLAUDE.md technical documentation from project root.
-    This is automatically injected into Technology department context.
-
-    Returns:
-        The CLAUDE.md content, or None if not found
-    """
-    claude_md = PROJECT_ROOT / "CLAUDE.md"
-
-    if not claude_md.exists():
-        return None
-
-    try:
-        return claude_md.read_text(encoding='utf-8')
-    except Exception as e:
-        print(f"Error loading CLAUDE.md: {e}")
-        return None
+def is_valid_uuid(value: str) -> bool:
+    """Check if a string is a valid UUID format."""
+    return bool(UUID_PATTERN.match(value))
 
 
-def load_business_config(business_id: str) -> Optional[Dict[str, Any]]:
-    """
-    Load the config.json for a specific business.
+# Maximum context length in characters (rough estimate: 4 chars ≈ 1 token)
+# Target ~40K tokens = ~160K chars to stay under DeepSeek's 164K limit
+# (Other models have higher limits: Claude 200K, GPT 128K+, Gemini 1M+)
+MAX_CONTEXT_CHARS = 150000
 
-    Args:
-        business_id: The folder name of the business (e.g., 'simple-af')
+# Maximum characters per section to prevent any single section from being too large
+MAX_SECTION_CHARS = 30000
 
-    Returns:
-        The config dict, or None if not found
-    """
-    business_dir = CONTEXTS_DIR / business_id
-    config_file = business_dir / "config.json"
 
-    if not config_file.exists():
-        return None
+def estimate_tokens(text: str) -> int:
+    """Rough estimate of token count (approximately 4 chars per token)."""
+    return len(text) // 4
 
-    try:
-        with open(config_file, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except Exception as e:
-        print(f"Error loading config for {business_id}: {e}")
-        return None
+
+def truncate_to_limit(text: str, max_chars: int, label: str = "") -> str:
+    """Truncate text to max characters with a warning message."""
+    if len(text) <= max_chars:
+        return text
+    truncated = text[:max_chars]
+    # Try to truncate at a sentence or paragraph boundary
+    last_period = truncated.rfind('.')
+    last_newline = truncated.rfind('\n')
+    cut_point = max(last_period, last_newline)
+    if cut_point > max_chars * 0.8:  # Only use boundary if it's not too far back
+        truncated = truncated[:cut_point + 1]
+    warning = f"\n\n[...{label} truncated due to length...]"
+    return truncated + warning
 
 
 def list_available_businesses() -> List[Dict[str, Any]]:
     """
-    List all available business contexts with their configurations.
-
-    Returns:
-        List of dicts with 'id', 'name', 'departments', 'styles' for each business
+    List available businesses/companies from Supabase.
+    Returns list of company objects with id, name, slug, and departments.
     """
-    businesses = []
+    client = get_supabase_service()
+    if not client:
+        return []
 
-    if not CONTEXTS_DIR.exists():
-        return businesses
+    try:
+        # Get companies with their departments
+        result = client.table("companies").select(
+            "id, name, slug, departments(id, name, slug, roles(id, name, slug))"
+        ).execute()
 
-    for item in CONTEXTS_DIR.iterdir():
-        if item.is_dir() and not item.name.startswith('_'):
-            # Try to get a friendly name from the context file
-            context_file = item / "context.md"
-            name = item.name.replace('-', ' ').title()
+        companies = []
+        for row in result.data:
+            companies.append({
+                "id": row["id"],
+                "name": row.get("name", row.get("slug", "Unknown")),
+                "slug": row.get("slug"),
+                "departments": row.get("departments", [])
+            })
 
-            if context_file.exists():
-                # Try to extract name from first heading
-                try:
-                    with open(context_file, 'r', encoding='utf-8') as f:
-                        first_line = f.readline().strip()
-                        if first_line.startswith('# '):
-                            # Extract name, remove " - Business Context" suffix if present
-                            name = first_line[2:].split(' - ')[0].strip()
-                except Exception:
-                    pass
-
-            # Load config if available
-            config = load_business_config(item.name)
-
-            # Filter departments to only include those with actual content
-            all_departments = config.get('departments', []) if config else []
-            active_departments = [
-                dept for dept in all_departments
-                if department_has_content(item.name, dept.get('id', ''))
-            ]
-
-            business_entry = {
-                'id': item.name,
-                'name': name,
-                'departments': active_departments,
-                'styles': config.get('styles', []) if config else []
-            }
-
-            businesses.append(business_entry)
-
-    return sorted(businesses, key=lambda x: x['name'])
+        return companies
+    except Exception as e:
+        print(f"Error listing businesses: {e}")
+        return []
 
 
 def load_business_context(business_id: str) -> Optional[str]:
     """
-    Load the context for a specific business.
+    Load business context from Supabase.
+    Wrapper around load_company_context_from_db for backwards compatibility.
+    """
+    return load_company_context_from_db(business_id)
+
+
+def load_company_context_from_db(company_id: str) -> Optional[str]:
+    """
+    Load company context from Supabase companies.context_md column.
 
     Args:
-        business_id: The folder name of the business (e.g., 'simple-af-jobs')
+        company_id: The company UUID or slug
 
     Returns:
-        The combined context as a string, or None if not found
+        The context_md content, or None if not found
     """
-    business_dir = CONTEXTS_DIR / business_id
-
-    if not business_dir.exists():
-        return None
-
-    context_file = business_dir / "context.md"
-
-    if not context_file.exists():
+    client = get_supabase_service()
+    if not client:
         return None
 
     try:
-        with open(context_file, 'r', encoding='utf-8') as f:
-            return f.read()
+        # Check if it's a UUID or slug and query appropriately
+        if is_valid_uuid(company_id):
+            result = client.table("companies").select("context_md, name").eq("id", company_id).execute()
+        else:
+            # It's a slug, query by slug
+            result = client.table("companies").select("context_md, name").eq("slug", company_id).execute()
+
+        if result.data and result.data[0].get("context_md"):
+            return result.data[0]["context_md"]
+
+        return None
     except Exception as e:
-        print(f"Error loading context for {business_id}: {e}")
+        print(f"Error loading company context from DB: {e}")
         return None
 
 
-def department_has_content(business_id: str, department_id: str) -> bool:
+def load_department_context_from_db(department_id: str) -> Optional[str]:
     """
-    Check if a department has substantive content (not just empty template).
+    Load department context from Supabase departments.context_md column.
 
     Args:
-        business_id: The folder name of the business
-        department_id: The department ID
+        department_id: The department UUID or slug
 
     Returns:
-        True if department has real content, False if empty/template only
+        The context_md content, or None if not found
     """
-    department_dir = CONTEXTS_DIR / business_id / "departments" / department_id
-    context_file = department_dir / "context.md"
-
-    if not context_file.exists():
-        return False
-
-    try:
-        content = context_file.read_text(encoding='utf-8')
-
-        # Check for template-only indicators
-        template_phrases = [
-            "*To be populated via Knowledge Curator*",
-            "*Department-specific knowledge will be curated here*",
-        ]
-
-        # Remove common template sections and check what's left
-        lines = content.split('\n')
-        substantive_lines = 0
-
-        for line in lines:
-            line = line.strip()
-            # Skip empty lines, headers, metadata, and template placeholders
-            if not line:
-                continue
-            if line.startswith('#'):
-                continue
-            if line.startswith('>'):
-                continue
-            if line.startswith('---'):
-                continue
-            if line.startswith('*') and line.endswith('*'):
-                continue
-            if any(phrase in line for phrase in template_phrases):
-                continue
-            # Skip simple role listings like "- **CTO** -"
-            if line.startswith('- **') and line.count('**') == 2 and ':' not in line:
-                continue
-
-            # This looks like real content
-            substantive_lines += 1
-
-        # Require at least 3 lines of real content
-        return substantive_lines >= 3
-
-    except Exception:
-        return False
-
-
-def load_department_context(business_id: str, department_id: str) -> Optional[str]:
-    """
-    Load the context for a specific department within a business.
-
-    Args:
-        business_id: The folder name of the business (e.g., 'axcouncil')
-        department_id: The department ID (e.g., 'technology', 'marketing')
-
-    Returns:
-        The department context as a string, or None if not found
-    """
-    department_dir = CONTEXTS_DIR / business_id / "departments" / department_id
-    context_file = department_dir / "context.md"
-
-    if not context_file.exists():
+    client = get_supabase_service()
+    if not client:
         return None
 
     try:
-        with open(context_file, 'r', encoding='utf-8') as f:
-            return f.read()
+        # Check if it's a UUID or slug and query appropriately
+        if is_valid_uuid(department_id):
+            result = client.table("departments").select("context_md, name").eq("id", department_id).execute()
+        else:
+            # It's a slug, query by slug
+            result = client.table("departments").select("context_md, name").eq("slug", department_id).execute()
+
+        if result.data and result.data[0].get("context_md"):
+            return result.data[0]["context_md"]
+
+        return None
     except Exception as e:
-        print(f"Error loading department context for {business_id}/{department_id}: {e}")
+        print(f"Error loading department context from DB: {e}")
         return None
 
 
-def get_department_info(business_id: str, department_id: str) -> Optional[Dict[str, Any]]:
+def load_role_prompt_from_db(role_id: str) -> Optional[Dict[str, Any]]:
     """
-    Get department info including roles from config.
+    Load role system_prompt from Supabase roles table.
 
     Args:
-        business_id: The folder name of the business
-        department_id: The department ID
+        role_id: The role UUID or slug
 
     Returns:
-        Department dict with id, name, description, roles, or None if not found
+        Dict with name, description, system_prompt, or None if not found
     """
-    config = load_business_config(business_id)
-    if not config:
-        return None
-
-    for dept in config.get('departments', []):
-        if dept.get('id') == department_id:
-            return dept
-
-    return None
-
-
-def get_role_info(business_id: str, department_id: str, role_id: str) -> Optional[Dict[str, Any]]:
-    """
-    Get role info from the department config.
-
-    Args:
-        business_id: The folder name of the business
-        department_id: The department ID
-        role_id: The role ID
-
-    Returns:
-        Role dict with id, name, description, or None if not found
-    """
-    dept_info = get_department_info(business_id, department_id)
-    if not dept_info:
-        return None
-
-    for role in dept_info.get('roles', []):
-        if role.get('id') == role_id:
-            return role
-
-    return None
-
-
-def load_role_context(business_id: str, department_id: str, role_id: str) -> Optional[str]:
-    """
-    Load the context markdown file for a specific role.
-
-    Args:
-        business_id: The folder name of the business
-        department_id: The department ID
-        role_id: The role ID
-
-    Returns:
-        The role context as a string, or None if not found
-    """
-    role_file = CONTEXTS_DIR / business_id / "departments" / department_id / "roles" / f"{role_id}.md"
-
-    if not role_file.exists():
+    client = get_supabase_service()
+    if not client:
         return None
 
     try:
-        return role_file.read_text(encoding='utf-8')
-    except Exception as e:
-        print(f"Error loading role context for {business_id}/{department_id}/{role_id}: {e}")
+        # Check if it's a UUID or slug and query appropriately
+        if is_valid_uuid(role_id):
+            result = client.table("roles").select("id, name, description, system_prompt, slug").eq("id", role_id).execute()
+        else:
+            # It's a slug, query by slug
+            result = client.table("roles").select("id, name, description, system_prompt, slug").eq("slug", role_id).execute()
+
+        if result.data:
+            return result.data[0]
+
         return None
+    except Exception as e:
+        print(f"Error loading role prompt from DB: {e}")
+        return None
+
+
+def get_company_departments(company_id: str) -> List[Dict[str, Any]]:
+    """
+    Get all departments for a company from Supabase.
+
+    Args:
+        company_id: The company UUID
+
+    Returns:
+        List of department dicts with id, name, slug, description
+    """
+    client = get_supabase_service()
+    if not client:
+        return []
+
+    try:
+        result = client.table("departments").select("id, name, slug, description, context_md").eq("company_id", company_id).execute()
+        return result.data or []
+    except Exception as e:
+        print(f"Error loading departments from DB: {e}")
+        return []
+
+
+def get_department_roles(department_id: str) -> List[Dict[str, Any]]:
+    """
+    Get all roles for a department from Supabase.
+
+    Args:
+        department_id: The department UUID
+
+    Returns:
+        List of role dicts with id, name, slug, description
+    """
+    client = get_supabase_service()
+    if not client:
+        return []
+
+    try:
+        result = client.table("roles").select("id, name, slug, description").eq("department_id", department_id).execute()
+        return result.data or []
+    except Exception as e:
+        print(f"Error loading roles from DB: {e}")
+        return []
 
 
 def get_playbooks_for_context(
@@ -488,10 +432,28 @@ def format_decisions_for_prompt(decisions: List[Dict[str, Any]]) -> str:
                 lines.append(f"*{' | '.join(meta_parts)}*")
 
             if content:
-                # Truncate very long content
-                if len(content) > 1000:
-                    content = content[:1000] + "...[truncated]"
-                lines.append(f"\n{content}\n")
+                # Strip synthesis-style language that could confuse Stage 1 models
+                # These phrases from previous chairman syntheses make models think they should synthesize
+                synthesis_phrases = [
+                    "Chairman's Synthesis",
+                    "After reviewing",
+                    "council responses",
+                    "peer evaluations",
+                    "Executive Summary",
+                    "council unanimously",
+                    "consensus emerges",
+                ]
+                content_lower = content.lower()
+                has_synthesis_language = any(phrase.lower() in content_lower for phrase in synthesis_phrases)
+
+                if has_synthesis_language:
+                    # Skip content that looks like a raw synthesis - just use title as reference
+                    lines.append(f"\n*[Previous council decision - see title for context]*\n")
+                else:
+                    # Truncate very long content
+                    if len(content) > 1000:
+                        content = content[:1000] + "...[truncated]"
+                    lines.append(f"\n{content}\n")
 
     lines.append("\n=== END AUTO-INJECTED CONTEXT ===\n")
     return "\n".join(lines)
@@ -505,87 +467,113 @@ def get_system_prompt_with_context(
     role_id: Optional[str] = None,
     project_id: Optional[str] = None,
     access_token: Optional[str] = None,
-    company_uuid: Optional[str] = None,  # Supabase company UUID for knowledge lookup
-    department_uuid: Optional[str] = None  # Supabase department UUID for knowledge lookup
+    company_uuid: Optional[str] = None,
+    department_uuid: Optional[str] = None
 ) -> Optional[str]:
     """
     Generate a system prompt that includes business, project, and department context.
 
+    Now reads all context from Supabase database instead of markdown files.
+
     Args:
-        business_id: The business to load context for, or None for no context
-        department_id: Optional department to load specific context for
+        business_id: The business slug or UUID (used to lookup company context)
+        department_id: Optional department slug or UUID for department context
         channel_id: Optional channel context (future use)
         style_id: Optional writing style (future use)
-        role_id: Optional role within department for persona injection
-        project_id: Optional project ID to load project-specific context from database
-        access_token: User's JWT access token for RLS authentication (required for project context)
+        role_id: Optional role slug or UUID for persona injection
+        project_id: Optional project UUID for project-specific context
+        access_token: User's JWT access token for RLS authentication
+        company_uuid: Supabase company UUID for knowledge lookup
+        department_uuid: Supabase department UUID for knowledge lookup
 
     Returns:
-        System prompt string with business, project, and department context, or None if no context
+        System prompt string with all context, or None if no context found
     """
-    if not business_id:
+    if not business_id and not company_uuid:
         return None
 
-    # Load company-level context
-    company_context = load_business_context(business_id)
+    # Debug log what parameters we received
+    print(f"[CONTEXT] Building system prompt - role_id: {role_id}, department_id: {department_id}, business_id: {business_id}", flush=True)
+
+    # Resolve company UUID if we only have business_id (slug)
+    if not company_uuid and business_id:
+        client = get_supabase_service()
+        if client:
+            try:
+                result = client.table("companies").select("id").eq("slug", business_id).execute()
+                if result.data:
+                    company_uuid = result.data[0]["id"]
+            except Exception:
+                pass
+
+    # Load company context from database
+    company_context = load_company_context_from_db(company_uuid or business_id)
+    print(f"[CONTEXT DEBUG] Raw company_context length: {len(company_context) if company_context else 0} chars", flush=True)
 
     if not company_context:
         return None
 
-    # Check if a specific role is selected for persona injection
+    # Load role info from database if role_id provided
     role_info = None
-    role_context = None
-    if role_id and department_id:
-        role_info = get_role_info(business_id, department_id, role_id)
-        role_context = load_role_context(business_id, department_id, role_id)
+    if role_id:
+        role_info = load_role_prompt_from_db(role_id)
+        role_prompt_len = len(role_info.get('system_prompt', '')) if role_info else 0
+        print(f"[CONTEXT DEBUG] Role info: {role_info.get('name') if role_info else 'None'}, system_prompt length: {role_prompt_len} chars", flush=True)
+    else:
+        print(f"[CONTEXT DEBUG] No role_id provided - using generic AI advisor prompt", flush=True)
 
-    # Build the system prompt - customize intro based on role
-    if role_info:
+    # Build the system prompt
+    if role_info and role_info.get("system_prompt"):
         role_name = role_info.get('name', role_id)
-        role_desc = role_info.get('description', '')
+        role_prompt = role_info.get('system_prompt', '')
 
-        # If we have a detailed role context file, use it as the primary prompt
-        if role_context:
-            system_prompt = f"""=== ROLE: {role_name.upper()} ===
+        system_prompt = f"""=== ROLE: {role_name.upper()} ===
 
-You are participating in an AI Council as a council of {role_name}s - multiple AI models responding as {role_name}s to give diverse perspectives on the same question.
+You are an AI advisor serving as a {role_name}. You are one of several AI models providing independent perspectives on this question.
 
-{role_context}
+{role_prompt}
 
 === END ROLE CONTEXT ===
 
 === COMPANY CONTEXT ===
 
 """
-        else:
-            # Fallback to basic role prompt if no context file exists
-            system_prompt = f"""You are the {role_name} for this company. You are participating in an AI Council as a council of {role_name}s - multiple AI models responding as {role_name}s to give diverse perspectives on the same question.
+    elif role_info:
+        # Role exists but no system_prompt - use basic prompt
+        role_name = role_info.get('name', role_id)
+        role_desc = role_info.get('description', '')
+
+        system_prompt = f"""You are an AI advisor serving as the {role_name} for this company. You are one of several AI models providing independent perspectives.
 
 Your role: {role_desc}
 
-Respond from the perspective of a {role_name}. Focus on the aspects of this question that are most relevant to your role and expertise. Be practical and actionable while staying within your domain of responsibility.
-
-Read the business context carefully and ensure all your advice is relevant and appropriate for this company's situation, priorities, and constraints.
+Focus on aspects relevant to your role. Be practical and actionable.
 
 === COMPANY CONTEXT ===
 
 """
     else:
-        system_prompt = """You are an AI advisor participating in an AI Council. You are helping make decisions for a specific business. Read the business context carefully and ensure all your advice is relevant and appropriate for this company's situation, priorities, and constraints.
+        system_prompt = """You are an AI advisor. You are one of several AI models providing independent perspectives on this question.
 
 === COMPANY CONTEXT ===
 
 """
+
+    # Truncate company context if too large
+    company_context = truncate_to_limit(company_context, MAX_SECTION_CHARS, "company context")
     system_prompt += company_context
     system_prompt += "\n\n=== END COMPANY CONTEXT ===\n"
 
     # Inject project context if project_id is provided
     if project_id and access_token:
         project_context = storage.get_project_context(project_id, access_token)
+        print(f"[CONTEXT DEBUG] Project context length: {len(project_context) if project_context else 0} chars", flush=True)
         if project_context:
-            # Get project name for the header
             project = storage.get_project(project_id, access_token)
             project_name = project.get('name', 'Current Project') if project else 'Current Project'
+
+            # Truncate project context if too large
+            project_context = truncate_to_limit(project_context, MAX_SECTION_CHARS // 2, "project context")
 
             system_prompt += f"\n=== PROJECT: {project_name.upper()} ===\n\n"
             system_prompt += "The user is currently working on this specific project/client. "
@@ -593,129 +581,65 @@ Read the business context carefully and ensure all your advice is relevant and a
             system_prompt += project_context
             system_prompt += "\n\n=== END PROJECT CONTEXT ===\n"
 
-    # Dynamically inject active departments info
-    config = load_business_config(business_id)
-    if config:
-        all_departments = config.get('departments', [])
-        active_departments = [
-            dept for dept in all_departments
-            if department_has_content(business_id, dept.get('id', ''))
-        ]
+    # List active departments from database
+    if company_uuid:
+        departments = get_company_departments(company_uuid)
+        # Filter to only departments with context_md populated
+        active_departments = [d for d in departments if d.get("context_md")]
 
         if active_departments:
             system_prompt += "\n=== ACTIVE DEPARTMENTS ===\n\n"
-            system_prompt += "This company currently has the following active departments with populated knowledge bases:\n\n"
+            system_prompt += "This company currently has the following active departments:\n\n"
             system_prompt += "| Department | Description |\n"
             system_prompt += "|------------|-------------|\n"
             for dept in active_departments:
-                dept_name = dept.get('name', dept.get('id', ''))
+                dept_name = dept.get('name', '')
                 dept_desc = dept.get('description', 'No description')
                 system_prompt += f"| {dept_name} | {dept_desc} |\n"
             system_prompt += "\n=== END ACTIVE DEPARTMENTS ===\n"
 
-    # Load department-specific context if department is specified
-    if department_id:
-        dept_context = load_department_context(business_id, department_id)
-        dept_info = get_department_info(business_id, department_id)
+    # Load department-specific context from database
+    if department_uuid or department_id:
+        dept_context = load_department_context_from_db(department_uuid or department_id)
+        print(f"[CONTEXT DEBUG] Department context length: {len(dept_context) if dept_context else 0} chars", flush=True)
 
-        # Auto-inject CLAUDE.md for Technology department
-        if department_id == "technology":
-            tech_docs = load_technical_documentation()
-            if tech_docs:
-                system_prompt += "\n=== TECHNICAL DOCUMENTATION (Auto-synced from CLAUDE.md) ===\n\n"
-                system_prompt += "This documentation is automatically loaded from the project's CLAUDE.md file.\n"
-                system_prompt += "It reflects the current technical architecture and implementation details.\n\n"
-                system_prompt += tech_docs
-                system_prompt += "\n\n=== END TECHNICAL DOCUMENTATION ===\n"
-
-        if dept_info:
-            dept_name = dept_info.get('name', department_id)
-            dept_desc = dept_info.get('description', '')
-            roles = dept_info.get('roles', [])
+        if dept_context:
+            # Get department name
+            client = get_supabase_service()
+            dept_name = "Department"
+            if client:
+                try:
+                    result = client.table("departments").select("name, description").eq("id", department_uuid or department_id).execute()
+                    if not result.data:
+                        result = client.table("departments").select("name, description").eq("slug", department_id).execute()
+                    if result.data:
+                        dept_name = result.data[0].get("name", "Department")
+                        dept_desc = result.data[0].get("description", "")
+                except Exception:
+                    pass
 
             system_prompt += f"\n=== DEPARTMENT: {dept_name.upper()} ===\n"
-            if dept_desc:
-                system_prompt += f"\n{dept_desc}\n"
 
-            if roles:
-                system_prompt += "\nAvailable Roles:\n"
-                for role in roles:
-                    role_name = role.get('name', '')
-                    role_desc = role.get('description', '')
-                    system_prompt += f"- {role_name}: {role_desc}\n"
+            # List roles in this department
+            if department_uuid:
+                roles = get_department_roles(department_uuid)
+                if roles:
+                    system_prompt += "\nAvailable Roles:\n"
+                    for role in roles:
+                        role_name = role.get('name', '')
+                        role_desc = role.get('description', '')
+                        system_prompt += f"- {role_name}: {role_desc}\n"
 
-            if dept_context:
-                system_prompt += f"\n{dept_context}\n"
-
+            system_prompt += f"\n{dept_context}\n"
             system_prompt += f"\n=== END {dept_name.upper()} DEPARTMENT ===\n"
 
-    # Inject dynamic knowledge entries from database
-    if company_uuid:
-        try:
-            knowledge_entries = knowledge.get_knowledge_for_context(
-                company_id=company_uuid,
-                department_id=department_uuid,  # None = company-wide + department-specific
-                role_id=None,  # Future: could filter by role
-                limit=20  # Reasonable limit for context
-            )
-
-            if knowledge_entries:
-                system_prompt += "\n=== KNOWLEDGE BASE (Recent Decisions & Patterns) ===\n\n"
-                system_prompt += "The following knowledge has been captured from previous council discussions and decisions:\n\n"
-
-                # Group by category for better readability
-                categories = {}
-                for entry in knowledge_entries:
-                    cat = entry.get('category', 'general')
-                    if cat not in categories:
-                        categories[cat] = []
-                    categories[cat].append(entry)
-
-                # Pretty names for categories
-                category_names = {
-                    'technical_decision': 'Technical Decisions',
-                    'ux_pattern': 'UX Patterns',
-                    'feature': 'Features',
-                    'policy': 'Policies',
-                    'process': 'Processes'
-                }
-
-                for cat, entries in categories.items():
-                    cat_name = category_names.get(cat, cat.replace('_', ' ').title())
-                    system_prompt += f"### {cat_name}\n\n"
-
-                    for entry in entries:
-                        title = entry.get('title', 'Untitled')
-                        summary = entry.get('summary', '')
-                        system_prompt += f"**{title}**\n{summary}\n\n"
-
-                system_prompt += "=== END KNOWLEDGE BASE ===\n"
-        except Exception as e:
-            # Don't fail the whole prompt if knowledge lookup fails
-            print(f"Warning: Failed to load knowledge entries: {e}")
-
-        # Inject playbooks (SOPs, frameworks, policies) from database
-        try:
-            playbooks = get_playbooks_for_context(
-                company_id=company_uuid,
-                department_id=department_uuid
-            )
-            if playbooks:
-                system_prompt += format_playbooks_for_prompt(playbooks)
-        except Exception as e:
-            print(f"Warning: Failed to load playbooks: {e}")
-
-        # Inject recent decisions from database
-        try:
-            decisions = get_decisions_for_context(
-                company_id=company_uuid,
-                department_id=department_uuid,
-                limit=10
-            )
-            if decisions:
-                system_prompt += format_decisions_for_prompt(decisions)
-        except Exception as e:
-            print(f"Warning: Failed to load decisions: {e}")
+    # NOTE: Auto-injection of knowledge entries, playbooks, and decisions has been DISABLED.
+    # Users should explicitly select what context they want included via:
+    # - Company context (selected by user)
+    # - Department context (selected by user)
+    # - Role context (selected by user)
+    # - Project context (selected by user)
+    # No automatic injection of previous decisions or playbooks - keeps conversations isolated and clean.
 
     system_prompt += """
 When responding:
@@ -730,102 +654,76 @@ When responding:
         role_name = role_info.get('name', role_id)
         system_prompt += f"5. Respond AS the {role_name} - stay in character and focus on your role's responsibilities\n"
         system_prompt += f"6. Bring your unique perspective as {role_name} to this question\n"
-    # Add department-specific guidance if applicable (but no specific role)
     elif department_id:
-        system_prompt += f"5. Focus your advice from the perspective of the {department_id.replace('-', ' ').title()} department\n"
+        dept_display = department_id.replace('-', ' ').title() if isinstance(department_id, str) else "the selected"
+        system_prompt += f"5. Focus your advice from the perspective of the {dept_display} department\n"
+
+    # Final length check - ensure total context doesn't exceed safe limits
+    if len(system_prompt) > MAX_CONTEXT_CHARS:
+        print(f"[CONTEXT WARNING] System prompt is {len(system_prompt):,} chars (~{estimate_tokens(system_prompt):,} tokens). Truncating to {MAX_CONTEXT_CHARS:,} chars.", flush=True)
+        system_prompt = truncate_to_limit(system_prompt, MAX_CONTEXT_CHARS, "total context")
+
+    # Log final context size for debugging
+    print(f"[CONTEXT] Final system prompt: {len(system_prompt):,} chars (~{estimate_tokens(system_prompt):,} tokens)", flush=True)
 
     return system_prompt
 
 
-def create_department_for_business(business_id: str, department_id: str, department_name: str) -> Dict[str, Any]:
+# ============================================================
+# LEGACY FUNCTIONS FOR BACKWARDS COMPATIBILITY
+# These are used by main.py and curator.py but now use Supabase
+# ============================================================
+
+
+def create_department_for_business(business_id: str, dept_id: str, dept_name: str) -> Dict[str, Any]:
     """
-    Create a new department for a business.
+    Create a department for a business.
+    Now creates in Supabase instead of filesystem.
 
-    This function:
-    1. Creates the department folder structure
-    2. Creates an initial context.md template
-    3. Updates the config.json to include the new department
-    4. Syncs the org structure to context.md
-
-    Args:
-        business_id: The business folder ID
-        department_id: The department ID (lowercase, hyphenated)
-        department_name: The display name for the department
-
-    Returns:
-        Dict with success status, department_id, and message
-
-    Raises:
-        ValueError: If business doesn't exist or department already exists
+    Note: This is called from main.py but the actual department creation
+    should be done via the company router with proper auth context.
     """
-    from datetime import datetime
-    from .org_sync import sync_org_structure_to_context
+    client = get_supabase_service()
+    if not client:
+        raise ValueError("Database connection not available")
 
-    business_dir = CONTEXTS_DIR / business_id
+    try:
+        # First, find the company by slug
+        company_result = client.table("companies").select("id").eq("slug", business_id).execute()
+        if not company_result.data:
+            raise ValueError(f"Company '{business_id}' not found")
 
-    if not business_dir.exists():
-        raise ValueError(f"Business '{business_id}' does not exist")
+        company_uuid = company_result.data[0]["id"]
 
-    # Create department directory
-    department_dir = business_dir / "departments" / department_id
-
-    if department_dir.exists():
-        raise ValueError(f"Department '{department_id}' already exists for business '{business_id}'")
-
-    # Create the directory
-    department_dir.mkdir(parents=True, exist_ok=True)
-
-    # Create initial context.md template
-    today = datetime.now().strftime("%Y-%m-%d")
-    context_content = f"""# {department_name} Department Context
-
-> Last updated: {today}
-
-## Overview
-
-*Department-specific knowledge will be curated here via the Knowledge Curator.*
-
-## Key Information
-
-*To be populated via Knowledge Curator*
-
----
-
-*This department context was created on {today}.*
-"""
-
-    context_file = department_dir / "context.md"
-    context_file.write_text(context_content, encoding='utf-8')
-
-    # Update config.json to include the new department
-    config_file = business_dir / "config.json"
-
-    if config_file.exists():
-        with open(config_file, 'r', encoding='utf-8') as f:
-            config = json.load(f)
-    else:
-        config = {"departments": [], "styles": []}
-
-    # Check if department already in config
-    existing_ids = [d.get('id') for d in config.get('departments', [])]
-    if department_id not in existing_ids:
-        new_dept = {
-            "id": department_id,
-            "name": department_name,
-            "description": f"{department_name} department knowledge base"
+        # Create the department
+        dept_data = {
+            "company_id": company_uuid,
+            "slug": dept_id,
+            "name": dept_name,
+            "context_md": f"# {dept_name} Department\n\nContext for the {dept_name} department."
         }
-        config.setdefault('departments', []).append(new_dept)
 
-        # Write updated config
-        with open(config_file, 'w', encoding='utf-8') as f:
-            json.dump(config, f, indent=2, ensure_ascii=False)
+        result = client.table("departments").insert(dept_data).execute()
 
-    # Sync org structure to context.md
-    sync_result = sync_org_structure_to_context(business_id)
+        if result.data:
+            return {
+                "success": True,
+                "message": f"Created department '{dept_name}' in Supabase",
+                "department": result.data[0]
+            }
+        else:
+            raise ValueError("Failed to create department")
 
-    return {
-        "success": True,
-        "department_id": department_id,
-        "message": f"Department '{department_name}' created successfully",
-        "org_sync": sync_result.get('success', False)
-    }
+    except Exception as e:
+        raise ValueError(f"Failed to create department: {e}")
+
+
+def load_role_context(business_id: str, department_id: str, role_id: str) -> Optional[str]:
+    """
+    Load role context/system prompt from Supabase.
+    Used by main.py for the /roles/{role_id}/context endpoint.
+    """
+    role_info = load_role_prompt_from_db(role_id)
+    if role_info:
+        return role_info.get("system_prompt")
+    return None

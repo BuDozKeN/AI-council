@@ -1,3 +1,4 @@
+import { useRef, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
@@ -52,6 +53,44 @@ function cleanContent(content) {
  * - skipSmartConvert: Set to true to skip plain text to markdown conversion
  */
 export default function MarkdownViewer({ content, className = '', skipCleanup = false, skipSmartConvert = false }) {
+  const containerRef = useRef(null);
+
+  // Handle clicks on anchor links to scroll within the container (works in modals)
+  const handleClick = useCallback((e) => {
+    const target = e.target.closest('a');
+    if (!target) return;
+
+    const href = target.getAttribute('href');
+    if (!href || !href.startsWith('#')) return;
+
+    e.preventDefault();
+    const id = href.slice(1);
+    const element = containerRef.current?.querySelector(`#${CSS.escape(id)}`);
+
+    if (element) {
+      // Find the scrollable parent (modal body or container)
+      let scrollParent = element.parentElement;
+      while (scrollParent && scrollParent !== document.body) {
+        const style = getComputedStyle(scrollParent);
+        if (style.overflowY === 'auto' || style.overflowY === 'scroll') {
+          break;
+        }
+        scrollParent = scrollParent.parentElement;
+      }
+
+      if (scrollParent && scrollParent !== document.body) {
+        // Scroll within the modal/container
+        const containerRect = scrollParent.getBoundingClientRect();
+        const elementRect = element.getBoundingClientRect();
+        const offsetTop = elementRect.top - containerRect.top + scrollParent.scrollTop;
+        scrollParent.scrollTo({ top: offsetTop - 20, behavior: 'smooth' });
+      } else {
+        // Fallback to standard scroll
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  }, []);
+
   if (!content || content.trim() === '') {
     return <p className="text-gray-500 italic">No content yet.</p>;
   }
@@ -63,7 +102,11 @@ export default function MarkdownViewer({ content, className = '', skipCleanup = 
   const displayContent = skipCleanup ? processedContent : cleanContent(processedContent);
 
   return (
-    <div className={`prose prose-slate prose-sm max-w-none ${className}`}>
+    <div
+      ref={containerRef}
+      className={`prose prose-slate prose-sm max-w-none ${className}`}
+      onClick={handleClick}
+    >
       <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSlug]}>
         {displayContent}
       </ReactMarkdown>

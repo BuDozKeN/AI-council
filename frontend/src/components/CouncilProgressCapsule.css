@@ -3,7 +3,7 @@
   bottom: 2rem;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 50;
+  z-index: var(--z-sticky);
 }
 
 .council-progress-capsule.fade-in {
@@ -41,10 +41,10 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.625rem 1rem;
-  background: #1e293b; /* slate-800 */
-  color: white;
-  border-radius: 9999px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  background: var(--color-slate-800);
+  color: var(--color-text-inverse);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-lg);
   border: 1px solid rgba(71, 85, 105, 0.6); /* slate-600/60 */
   font-size: 0.875rem;
   font-weight: 500;
@@ -64,8 +64,8 @@
   display: inline-flex;
   height: 100%;
   width: 100%;
-  border-radius: 9999px;
-  background-color: #34d399; /* emerald-400 */
+  border-radius: var(--radius-full);
+  background-color: var(--color-emerald-400);
   opacity: 0.75;
   animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
@@ -73,10 +73,10 @@
 .pulse-dot {
   position: relative;
   display: inline-flex;
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   height: 0.625rem;
   width: 0.625rem;
-  background-color: #34d399; /* emerald-400 */
+  background-color: var(--color-emerald-400);
 }
 
 @keyframes ping {
@@ -92,7 +92,7 @@
 
 /* Stopped state - gray instead of green, no animation */
 .council-progress-capsule.stopped .capsule-inner {
-  background: #475569; /* slate-600 - lighter than active */
+  background: var(--color-slate-600);
   border-color: rgba(100, 116, 139, 0.6); /* slate-500/60 */
 }
 
@@ -108,13 +108,13 @@
   display: inline-block;
   height: 0.5rem;
   width: 0.5rem;
-  background-color: #9ca3af; /* gray-400 */
-  border-radius: 2px;
+  background-color: var(--color-gray-400);
+  border-radius: var(--radius-sm);
 }
 
 /* Uploading state - blue theme */
 .council-progress-capsule.uploading .capsule-inner {
-  background: #1e40af; /* blue-800 */
+  background: var(--color-blue-800);
   border-color: rgba(59, 130, 246, 0.6); /* blue-500/60 */
 }
 

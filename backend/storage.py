@@ -105,7 +105,7 @@ def _get_client(access_token: Optional[str] = None):
     return get_supabase()
 
 
-def create_conversation(conversation_id: str, user_id: str, access_token: Optional[str] = None) -> Dict[str, Any]:
+def create_conversation(conversation_id: str, user_id: str, access_token: Optional[str] = None, company_id: Optional[str] = None) -> Dict[str, Any]:
     """
     Create a new conversation.
 
@@ -113,13 +113,16 @@ def create_conversation(conversation_id: str, user_id: str, access_token: Option
         conversation_id: Unique identifier for the conversation
         user_id: ID of the user creating the conversation
         access_token: User's JWT access token for RLS authentication
+        company_id: Company ID to associate with this conversation (uses default if not provided)
 
     Returns:
         New conversation dict
     """
     supabase = _get_client(access_token)
     now = datetime.utcnow().isoformat() + 'Z'
-    company_id = get_default_company_id(access_token)
+    # Use provided company_id or fall back to default
+    if not company_id:
+        company_id = get_default_company_id(access_token)
 
     # Insert into conversations table with user_id
     result = supabase.table('conversations').insert({
@@ -232,7 +235,8 @@ def list_conversations(
     offset: int = 0,
     search: Optional[str] = None,
     include_archived: bool = False,
-    sort_by: str = "date"
+    sort_by: str = "date",
+    company_id: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     List conversations for a specific user with at least one message (metadata only).
@@ -245,6 +249,7 @@ def list_conversations(
         search: Optional search string to filter by title
         include_archived: Whether to include archived conversations (default False)
         sort_by: Sort order - "date" (most recent first) or "activity" (most messages first)
+        company_id: Optional company ID to filter conversations by
 
     Returns:
         Dict with 'conversations' list and 'has_more' boolean for pagination
@@ -255,6 +260,10 @@ def list_conversations(
     query = supabase.table('conversations').select(
         '*, messages(count)'
     ).eq('user_id', user_id)
+
+    # Filter by company if provided
+    if company_id:
+        query = query.eq('company_id', company_id)
 
     # Filter out archived by default
     if not include_archived:
@@ -611,20 +620,44 @@ def create_project(
     name: str,
     description: Optional[str] = None,
     context_md: Optional[str] = None,
+    department_id: Optional[str] = None,
+    department_ids: Optional[List[str]] = None,
+    source_conversation_id: Optional[str] = None,
+    source: str = "manual",  # 'manual', 'council', or 'import'
     access_token: Optional[str] = None
 ) -> Optional[Dict[str, Any]]:
     """Create a new project."""
     # Resolve slug to UUID if needed
     company_uuid = resolve_company_id(company_id_or_slug, access_token)
 
-    client = _get_client(access_token)
-    result = client.table("projects").insert({
+    # Use service client to bypass RLS - user auth is validated by the endpoint
+    client = get_supabase_service()
+    print(f"[CREATE_PROJECT] service_client={client is not None}", flush=True)
+    if not client:
+        # Fall back to user client if service key not configured
+        print("[CREATE_PROJECT] WARNING: No service client, falling back to user client", flush=True)
+        client = _get_client(access_token)
+    insert_data = {
         "company_id": company_uuid,
         "user_id": user_id,
         "name": name,
         "description": description,
-        "context_md": context_md
-    }).execute()
+        "context_md": context_md,
+        "source": source
+    }
+    # Handle department assignment - prefer department_ids array if provided
+    if department_ids and len(department_ids) > 0:
+        insert_data["department_ids"] = department_ids
+        # Also set legacy department_id to first department for backwards compatibility
+        insert_data["department_id"] = department_ids[0]
+    elif department_id:
+        insert_data["department_id"] = department_id
+        insert_data["department_ids"] = [department_id]
+
+    if source_conversation_id:
+        insert_data["source_conversation_id"] = source_conversation_id
+
+    result = client.table("projects").insert(insert_data).execute()
     return result.data[0] if result.data else None
 
 
@@ -639,6 +672,199 @@ def get_project_context(project_id: str, access_token: str) -> Optional[str]:
         .single()\
         .execute()
     return result.data.get("context_md") if result.data else None
+
+
+def update_project(
+    project_id: str,
+    access_token: str,
+    name: Optional[str] = None,
+    description: Optional[str] = None,
+    context_md: Optional[str] = None,
+    status: Optional[str] = None,
+    department_id: Optional[str] = None,
+    department_ids: Optional[List[str]] = None,
+    source_conversation_id: Optional[str] = None
+) -> Optional[Dict[str, Any]]:
+    """Update a project's fields."""
+    # Use service client to bypass RLS - user auth is validated by the endpoint
+    client = get_supabase_service()
+    print(f"[UPDATE_PROJECT] project_id={project_id}, service_client={client is not None}", flush=True)
+    if not client:
+        # Fall back to user client if service key not configured
+        print("[UPDATE_PROJECT] WARNING: No service client, falling back to user client", flush=True)
+        client = _get_client(access_token)
+
+    # Build update payload with only provided fields
+    now = datetime.utcnow().isoformat() + 'Z'
+    update_data = {"updated_at": now}
+    if name is not None:
+        update_data["name"] = name
+    if description is not None:
+        update_data["description"] = description
+    if context_md is not None:
+        update_data["context_md"] = context_md
+    if status is not None:
+        if status not in ("active", "completed", "archived"):
+            raise ValueError(f"Invalid status: {status}")
+        update_data["status"] = status
+
+    # Handle department assignment - prefer department_ids array if provided
+    if department_ids is not None:
+        update_data["department_ids"] = department_ids if department_ids else []
+        # Also set legacy department_id to first department for backwards compatibility
+        update_data["department_id"] = department_ids[0] if department_ids else None
+    elif department_id is not None:
+        # Legacy single department update
+        update_data["department_id"] = department_id if department_id else None
+        update_data["department_ids"] = [department_id] if department_id else []
+
+    if source_conversation_id is not None:
+        update_data["source_conversation_id"] = source_conversation_id if source_conversation_id else None
+
+    print(f"[UPDATE_PROJECT] update_data={update_data}", flush=True)
+    result = client.table("projects")\
+        .update(update_data)\
+        .eq("id", project_id)\
+        .execute()
+    print(f"[UPDATE_PROJECT] result.data={result.data}", flush=True)
+    return result.data[0] if result.data else None
+
+
+def touch_project_last_accessed(project_id: str, access_token: str) -> bool:
+    """Update last_accessed_at to now for a project."""
+    if not project_id:
+        return False
+    try:
+        # Use service client to bypass RLS - user auth is validated by the endpoint
+        client = get_supabase_service()
+        if not client:
+            client = _get_client(access_token)
+        now = datetime.utcnow().isoformat() + 'Z'
+        client.table("projects")\
+            .update({"last_accessed_at": now})\
+            .eq("id", project_id)\
+            .execute()
+        return True
+    except Exception as e:
+        print(f"[STORAGE] Failed to touch project last_accessed: {e}", flush=True)
+        return False
+
+
+def delete_project(project_id: str, access_token: str) -> bool:
+    """Delete a project by ID."""
+    if not project_id:
+        return False
+    try:
+        client = _get_client(access_token)
+        # First, unlink any knowledge_entries that reference this project
+        client.table("knowledge_entries")\
+            .update({"project_id": None})\
+            .eq("project_id", project_id)\
+            .execute()
+        # Then delete the project
+        client.table("projects")\
+            .delete()\
+            .eq("id", project_id)\
+            .execute()
+        return True
+    except Exception as e:
+        print(f"[STORAGE] Failed to delete project: {e}", flush=True)
+        return False
+
+
+def get_projects_with_stats(
+    company_id_or_slug: str,
+    access_token: str,
+    status_filter: Optional[str] = None,
+    include_archived: bool = False
+) -> List[Dict[str, Any]]:
+    """
+    Get projects with decision counts for the Projects Tab.
+
+    Args:
+        company_id_or_slug: Company ID or slug
+        access_token: User's JWT
+        status_filter: Filter by specific status ('active', 'completed', 'archived')
+        include_archived: If True, include archived projects (default: False)
+    """
+    try:
+        company_uuid = resolve_company_id(company_id_or_slug, access_token)
+        client = _get_client(access_token)
+
+        query = client.table("projects")\
+            .select("id, name, description, status, created_at, updated_at, last_accessed_at, context_md, department_id, department_ids")\
+            .eq("company_id", company_uuid)
+
+        if status_filter:
+            query = query.eq("status", status_filter)
+        elif not include_archived:
+            query = query.neq("status", "archived")
+
+        # Order by last_accessed_at for recently used first
+        result = query.order("last_accessed_at", desc=True).execute()
+
+        projects = result.data if result.data else []
+
+        # Get departments for name lookup
+        dept_result = client.table("departments")\
+            .select("id, name, slug")\
+            .eq("company_id", company_uuid)\
+            .execute()
+        dept_map = {d["id"]: d for d in (dept_result.data or [])}
+
+        # Enrich projects with decision counts and department names
+        for project in projects:
+            # Add department info - support both single department_id and array department_ids
+            dept_ids = project.get("department_ids") or []
+            dept_id = project.get("department_id")
+
+            # Build list of department names from department_ids array
+            if dept_ids and len(dept_ids) > 0:
+                project["department_names"] = [
+                    dept_map[did].get("name") for did in dept_ids
+                    if did in dept_map
+                ]
+                # Also set department_name to first one for backwards compatibility
+                if project["department_names"]:
+                    project["department_name"] = project["department_names"][0]
+                else:
+                    project["department_name"] = None
+            # Fallback to single department_id for old projects
+            elif dept_id and dept_id in dept_map:
+                project["department_name"] = dept_map[dept_id].get("name")
+                project["department_names"] = [dept_map[dept_id].get("name")]
+            else:
+                project["department_name"] = None
+                project["department_names"] = []
+
+            # Get decision count and first decision's user question (for "what was asked")
+            try:
+                count_result = client.table("knowledge_entries")\
+                    .select("id", count="exact")\
+                    .eq("project_id", project["id"])\
+                    .execute()
+                project["decision_count"] = count_result.count or 0
+
+                # Get the first decision's user_question (the question that created this project)
+                first_decision = client.table("knowledge_entries")\
+                    .select("user_question")\
+                    .eq("project_id", project["id"])\
+                    .order("created_at", desc=False)\
+                    .limit(1)\
+                    .execute()
+                if first_decision.data and len(first_decision.data) > 0:
+                    project["source_question"] = first_decision.data[0].get("user_question")
+                else:
+                    project["source_question"] = None
+            except Exception:
+                project["decision_count"] = 0
+                project["source_question"] = None
+
+        return projects
+    except Exception as e:
+        error_msg = str(e).encode('ascii', 'replace').decode('ascii')
+        print(f"[STORAGE ERROR] get_projects_with_stats failed: {type(e).__name__}: {error_msg}", flush=True)
+        raise
 
 
 # ============================================

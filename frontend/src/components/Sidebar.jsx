@@ -2,6 +2,8 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import { api } from '../api';
 import { Button } from './ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Spinner } from './ui/Spinner';
+import { AppModal } from './ui/AppModal';
 import { Plus, Trophy, Briefcase, ChevronRight, Star, Trash2, Archive, ArchiveRestore, Square, CheckSquare } from 'lucide-react';
 import './Sidebar.css';
 
@@ -34,6 +36,37 @@ function useMockMode() {
   };
 
   return { mockMode, isToggling, toggle };
+}
+
+// Hook to fetch and manage prompt caching state
+function useCachingMode() {
+  const [cachingMode, setCachingMode] = useState(null); // null = loading
+  const [isToggling, setIsToggling] = useState(false);
+
+  useEffect(() => {
+    // Load initial caching mode status
+    api.getCachingMode()
+      .then(result => setCachingMode(result.enabled))
+      .catch(err => {
+        console.error('Failed to get caching mode:', err);
+        setCachingMode(false); // Default to disabled on error
+      });
+  }, []);
+
+  const toggle = async () => {
+    if (isToggling || cachingMode === null) return;
+    setIsToggling(true);
+    try {
+      const result = await api.setCachingMode(!cachingMode);
+      setCachingMode(result.enabled);
+    } catch (err) {
+      console.error('Failed to toggle caching mode:', err);
+    } finally {
+      setIsToggling(false);
+    }
+  };
+
+  return { cachingMode, isToggling, toggle };
 }
 
 /**
@@ -102,6 +135,8 @@ export default function Sidebar({
 
   // Mock mode toggle
   const { mockMode, isToggling, toggle: toggleMockMode } = useMockMode();
+  // Caching mode toggle
+  const { cachingMode, isToggling: isCachingToggling, toggle: toggleCachingMode } = useCachingMode();
 
   // Focus the input when editing starts
   useEffect(() => {
@@ -327,7 +362,7 @@ export default function Sidebar({
       </div>
 
       {/* Search Input */}
-      {totalConversations > 0 && (
+      {(totalConversations > 0 || searchQuery) && (
         <div className="sidebar-search">
           <div className="search-input-wrapper">
             <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -348,7 +383,7 @@ export default function Sidebar({
               }}
               className="search-input"
             />
-            {isSearching && <span className="search-spinner"></span>}
+            {isSearching && <Spinner size="sm" />}
             {searchQuery && !isSearching && (
               <button
                 className="search-clear"
@@ -371,7 +406,7 @@ export default function Sidebar({
       )}
 
       {/* Filter and Sort Dropdowns */}
-      {totalConversations > 0 && (
+      {(totalConversations > 0 || searchQuery) && (
         <div className="sidebar-filter">
           <Select value={filter} onValueChange={setFilter}>
             <SelectTrigger className="filter-select-trigger">
@@ -405,10 +440,10 @@ export default function Sidebar({
       )}
 
       <div className="conversation-list">
-        {totalConversations === 0 ? (
-          <div className="no-conversations">No conversations yet</div>
-        ) : searchQuery && filteredBySearch.active.length === 0 && filteredBySearch.archived.length === 0 ? (
+        {searchQuery && filteredBySearch.active.length === 0 && filteredBySearch.archived.length === 0 ? (
           <div className="no-conversations">No conversations found for "{searchQuery}"</div>
+        ) : totalConversations === 0 ? (
+          <div className="no-conversations">No conversations yet</div>
         ) : filter === 'archived' && filteredBySearch.archived.length === 0 ? (
           <div className="no-conversations">No archived conversations</div>
         ) : filter !== 'archived' && filteredBySearch.active.length === 0 ? (
@@ -543,7 +578,7 @@ export default function Sidebar({
           >
             {isLoadingMore ? (
               <>
-                <span className="load-more-spinner"></span>
+                <Spinner size="sm" variant="muted" />
                 Loading...
               </>
             ) : (
@@ -577,7 +612,7 @@ export default function Sidebar({
       {/* User Footer */}
       {user && (
         <div className="sidebar-footer">
-          {/* Mode Toggle */}
+          {/* Mode Toggles */}
           <div className="mode-toggle-section">
             <button
               className={`mode-toggle-btn ${mockMode ? 'mock' : 'production'} ${isToggling ? 'toggling' : ''}`}
@@ -586,7 +621,16 @@ export default function Sidebar({
               title={mockMode ? 'Mock Mode: Using simulated responses (free)' : 'Production Mode: Using real API calls (costs credits)'}
             >
               <span className="mode-indicator"></span>
-              <span className="mode-label">{mockMode === null ? 'Loading...' : mockMode ? 'Mock' : 'Production'}</span>
+              <span className="mode-label">{mockMode === null ? '...' : mockMode ? 'Mock' : 'Prod'}</span>
+            </button>
+            <button
+              className={`mode-toggle-btn caching ${cachingMode ? 'enabled' : 'disabled'} ${isCachingToggling ? 'toggling' : ''}`}
+              onClick={toggleCachingMode}
+              disabled={isCachingToggling || cachingMode === null}
+              title={cachingMode ? 'Caching ON: Reduces costs by caching context (Claude/Gemini)' : 'Caching OFF: Standard API calls'}
+            >
+              <span className="mode-indicator"></span>
+              <span className="mode-label">{cachingMode === null ? '...' : cachingMode ? 'Cache' : 'No Cache'}</span>
             </button>
           </div>
 
@@ -607,33 +651,33 @@ export default function Sidebar({
       )}
 
       {/* Delete Confirmation Modal */}
-      {deleteConfirm && (
-        <div className="delete-modal-overlay" onClick={() => setDeleteConfirm(null)}>
-          <div className="delete-modal" onClick={(e) => e.stopPropagation()}>
-            <div className="delete-modal-header">Delete Conversation?</div>
-            <div className="delete-modal-body">
-              This action cannot be undone. The conversation will be permanently deleted.
-            </div>
-            <div className="delete-modal-actions">
-              <button
-                className="delete-modal-cancel"
-                onClick={() => setDeleteConfirm(null)}
-              >
-                Cancel
-              </button>
-              <button
-                className="delete-modal-confirm"
-                onClick={() => {
-                  onDeleteConversation(deleteConfirm);
-                  setDeleteConfirm(null);
-                }}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <AppModal
+        isOpen={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        title="Delete Conversation?"
+        size="sm"
+      >
+        <p className="delete-modal-body">
+          This action cannot be undone. The conversation will be permanently deleted.
+        </p>
+        <AppModal.Footer>
+          <button
+            className="app-modal-btn app-modal-btn-secondary"
+            onClick={() => setDeleteConfirm(null)}
+          >
+            Cancel
+          </button>
+          <button
+            className="app-modal-btn app-modal-btn-danger-sm"
+            onClick={() => {
+              onDeleteConversation(deleteConfirm);
+              setDeleteConfirm(null);
+            }}
+          >
+            Delete
+          </button>
+        </AppModal.Footer>
+      </AppModal>
     </div>
   );
 }

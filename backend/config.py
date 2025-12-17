@@ -24,6 +24,36 @@ MOCK_LLM = os.getenv("MOCK_LLM", "false").lower() == "true"
 # - empty_ranking: Stage 2 has header but no ranking items
 MOCK_LLM_SCENARIO = os.getenv("MOCK_LLM_SCENARIO", "happy_path").lower()
 
+# =============================================================================
+# PROMPT CACHING CONFIGURATION (KILL SWITCH)
+# =============================================================================
+# Set ENABLE_PROMPT_CACHING=false in .env to disable caching and revert to
+# standard message format. This is your safety switch if caching causes issues.
+#
+# When enabled:
+# - System prompts are sent with cache_control for Anthropic/Gemini
+# - Can reduce costs by 50-75% on repeated context
+# - 5-minute TTL on cached content
+#
+# When disabled:
+# - Standard message format (no cache_control)
+# - Identical behavior to before this feature was added
+# =============================================================================
+ENABLE_PROMPT_CACHING = os.getenv("ENABLE_PROMPT_CACHING", "false").lower() == "true"
+
+# Models that support cache_control via OpenRouter
+# Anthropic: explicit cache_control required (max 4 breakpoints)
+# Gemini: implicit + explicit supported
+# Others: may have automatic caching, no explicit support needed
+CACHE_SUPPORTED_MODELS = [
+    "anthropic/claude-opus-4.5",
+    "anthropic/claude-sonnet-4",
+    "anthropic/claude-3.5-sonnet",
+    "google/gemini-3-pro-preview",
+    "google/gemini-2.5-pro",
+    "google/gemini-2.5-flash",
+]
+
 # Council members - list of OpenRouter model identifiers
 # Note: Gemini placed first to avoid potential issues with concurrent streams
 COUNCIL_MODELS = [

@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { api } from '../api';
-import { DepartmentSelect } from './ui/DepartmentSelect';
-import { Bookmark, FileText, Layers, ScrollText } from 'lucide-react';
+import { MultiDepartmentSelect } from './ui/MultiDepartmentSelect';
+import { Spinner } from './ui/Spinner';
+import { Bookmark, FileText, Layers, ScrollText, FolderKanban, ChevronDown, Plus } from 'lucide-react';
 import './Stage3.css';
 
 // Playbook type definitions with icons
@@ -29,9 +31,11 @@ function CopyButton({ text, label = 'Copy' }) {
   };
 
   return (
-    <button className="copy-btn" onClick={handleCopy} title={label}>
+    <button className={`copy-btn ${copied ? 'copied' : ''}`} onClick={handleCopy} title={label}>
       {copied ? (
-        <span className="copy-icon">✓</span>
+        <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
       ) : (
         <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
@@ -73,9 +77,11 @@ function CodeBlock({ children, className }) {
   return (
     <div className="code-block-wrapper">
       {language && <span className="code-language">{language}</span>}
-      <button className="copy-code-btn" onClick={handleCopy} title="Copy code">
+      <button className={`copy-code-btn ${copied ? 'copied' : ''}`} onClick={handleCopy} title="Copy code">
         {copied ? (
-          <span className="copy-icon">✓</span>
+          <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
         ) : (
           <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
@@ -99,8 +105,13 @@ export default function Stage3({
   conversationId,
   conversationTitle,
   userQuestion,  // The original user question that led to this response
+  responseIndex = 0,  // Index of this response within the conversation (for multi-turn)
   defaultCollapsed = false,
   onViewDecision,  // Callback to open My Company with decision
+  projects = [],  // Available projects for this company
+  currentProjectId = null,  // Currently selected project in chat
+  onSelectProject,  // Callback to select/change project
+  onCreateProject,  // Callback to create a new project
 }) {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [saveState, setSaveState] = useState('idle'); // 'idle' | 'saving' | 'saved' | 'promoting' | 'promoted' | 'error'
@@ -109,8 +120,65 @@ export default function Stage3({
 
   // Save toolbar state
   const [departments, setDepartments] = useState([]);
-  const [selectedDeptId, setSelectedDeptId] = useState(departmentId || 'all');
+  const [selectedDeptIds, setSelectedDeptIds] = useState(departmentId ? [departmentId] : []);
   const [selectedDocType, setSelectedDocType] = useState('');
+
+  // Project state
+  const [selectedProjectId, setSelectedProjectId] = useState(currentProjectId);
+  const [showProjectDropdown, setShowProjectDropdown] = useState(false);
+  const [fullProjectData, setFullProjectData] = useState(null); // Full project with context_md
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+  const projectButtonRef = useRef(null);
+  const containerRef = useRef(null);
+  const lastVisibilityCheck = useRef(0); // Throttle visibility checks
+
+  // Get current project name from list
+  const currentProjectBasic = projects.find(p => p.id === selectedProjectId);
+  // Use full data if available, otherwise basic
+  const currentProject = fullProjectData?.id === selectedProjectId ? fullProjectData : currentProjectBasic;
+
+  // Fetch full project data when project is selected (needed for context_md)
+  // Also sync the department selector to match the project's department
+  useEffect(() => {
+    if (selectedProjectId && selectedProjectId !== fullProjectData?.id) {
+      api.getProject(selectedProjectId)
+        .then(data => {
+          const project = data.project || data;
+          setFullProjectData(project);
+          // Sync department selector to project's departments (multi-department support)
+          if (project.department_ids?.length > 0) {
+            console.log('[Stage3] Syncing departments to project:', project.department_ids);
+            setSelectedDeptIds(project.department_ids);
+          } else if (project.department_id) {
+            // Fallback to single department_id for older projects
+            console.log('[Stage3] Syncing department to project (legacy):', project.department_id);
+            setSelectedDeptIds([project.department_id]);
+          }
+        })
+        .catch(err => console.error('Failed to load project:', err));
+    } else if (!selectedProjectId) {
+      setFullProjectData(null);
+    }
+  }, [selectedProjectId]);
+
+  // Close project dropdown when clicking outside
+  useEffect(() => {
+    if (!showProjectDropdown) return;
+
+    const handleClickOutside = (e) => {
+      // Check if click is outside both the button and the dropdown
+      if (projectButtonRef.current && !projectButtonRef.current.contains(e.target)) {
+        // Also check if the click is on the portal dropdown
+        const portalDropdown = document.querySelector('.save-project-dropdown-portal');
+        if (!portalDropdown || !portalDropdown.contains(e.target)) {
+          setShowProjectDropdown(false);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showProjectDropdown]);
 
   // Load departments when complete (for the toolbar)
   useEffect(() => {
@@ -119,45 +187,194 @@ export default function Stage3({
         .then(data => {
           setDepartments(data.departments || []);
           if (departmentId) {
-            setSelectedDeptId(departmentId);
+            setSelectedDeptIds([departmentId]);
           }
         })
         .catch(err => console.error('Failed to load departments:', err));
     }
   }, [companyId, departmentId, departments.length, streaming?.error]);
 
+  // Check if this conversation already has a saved decision and/or linked project
+  useEffect(() => {
+    if (!conversationId || !companyId || conversationId.startsWith('temp-')) return;
+
+    // Check for existing linked project
+    api.getConversationLinkedProject(conversationId, companyId)
+      .then(data => {
+        if (data?.project) {
+          console.log('[Stage3] Found linked project:', data.project.name);
+          setSelectedProjectId(data.project.id);
+          // Also notify parent if callback exists
+          if (onSelectProject) {
+            onSelectProject(data.project.id);
+          }
+        }
+      })
+      .catch(err => console.log('[Stage3] No linked project found'));
+
+    // Check for existing saved decision for this response
+    api.getConversationDecision(conversationId, companyId, responseIndex)
+      .then(data => {
+        if (data?.decision) {
+          console.log('[Stage3] Found existing decision:', data.decision.id);
+          setSavedDecisionId(data.decision.id);
+          setSaveState('saved');
+          // If decision has a project linked, use that
+          if (data.decision.project_id) {
+            setSelectedProjectId(data.decision.project_id);
+          }
+        }
+      })
+      .catch(err => console.log('[Stage3] No existing decision found'));
+  }, [conversationId, companyId, responseIndex]);
+
+  // Re-check decision status when tab becomes visible (catches deletions done elsewhere)
+  useEffect(() => {
+    if (!conversationId || !companyId || conversationId.startsWith('temp-')) return;
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && savedDecisionId) {
+        // Re-verify the decision still exists
+        api.getConversationDecision(conversationId, companyId, responseIndex)
+          .then(data => {
+            if (!data?.decision) {
+              // Decision was deleted
+              console.log('[Stage3] Decision was deleted, clearing state');
+              setSavedDecisionId(null);
+              setSaveState('idle');
+            }
+          })
+          .catch(() => {
+            // Error checking = assume deleted
+            setSavedDecisionId(null);
+            setSaveState('idle');
+          });
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [conversationId, companyId, responseIndex, savedDecisionId]);
+
+  // Re-check decision status when component scrolls into view (catches in-app navigation)
+  useEffect(() => {
+    if (!containerRef.current || !conversationId || !companyId || conversationId.startsWith('temp-')) return;
+    if (!savedDecisionId) return; // Only re-check if we think there's a saved decision
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // Throttle: only check once every 2 seconds
+            const now = Date.now();
+            if (now - lastVisibilityCheck.current < 2000) return;
+            lastVisibilityCheck.current = now;
+
+            // Re-verify the decision still exists
+            api.getConversationDecision(conversationId, companyId, responseIndex)
+              .then(data => {
+                if (!data?.decision) {
+                  console.log('[Stage3] Decision was deleted (intersection check), clearing state');
+                  setSavedDecisionId(null);
+                  setSaveState('idle');
+                }
+              })
+              .catch(() => {
+                setSavedDecisionId(null);
+                setSaveState('idle');
+              });
+          }
+        });
+      },
+      { threshold: 0.1 } // Trigger when 10% visible
+    );
+
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [conversationId, companyId, responseIndex, savedDecisionId]);
+
   // Determine what to display (moved up so displayText is available)
   const displayText = finalResponse?.response || streaming?.text || '';
 
-  // Generate title from conversation or first line
+  // Generate title from user question (most unique) or conversation title
   const getTitle = () => {
+    // Prefer userQuestion as it's unique per response
+    if (userQuestion) {
+      // Truncate and clean up long questions
+      const cleaned = userQuestion.trim().replace(/\n+/g, ' ');
+      return cleaned.length > 80 ? `${cleaned.slice(0, 77)}...` : cleaned;
+    }
     return conversationTitle ||
       (displayText.split('\n')[0].slice(0, 100)) ||
       'Council Decision';
   };
 
   // Save as Decision only (for later promotion)
+  // If a project is selected, also merge into project context
   const handleSaveForLater = async () => {
-    if (!companyId || saveState === 'saving' || savedDecisionId) return;
+    // Allow re-saving to project even if decision exists (for updating project context)
+    // Only block if: no company, already saving, or (decision exists AND no project selected)
+    if (!companyId || saveState === 'saving') return;
+    if (savedDecisionId && !selectedProjectId) return; // Already saved without project - don't duplicate
 
     setSaveState('saving');
     try {
-      const result = await api.createCompanyDecision(companyId, {
-        title: getTitle(),
-        content: displayText,
-        department_id: selectedDeptId === 'all' ? null : selectedDeptId,
-        source_conversation_id: conversationId?.startsWith('temp-') ? null : conversationId,
-        tags: []
-      });
+      // If project selected, merge decision into project context AND save decision
+      if (selectedProjectId && currentProject) {
+        console.log('Merging decision into project:', selectedProjectId, 'departments:', selectedDeptIds);
 
-      console.log('Save result:', result);
-      const decisionId = result?.decision?.id || result?.id;
-      if (!decisionId) {
-        console.error('No decision ID in response:', result);
-        throw new Error('No decision ID returned');
+        const mergeResult = await api.mergeDecisionIntoProject(
+          selectedProjectId,
+          currentProject.context_md || '',
+          displayText,
+          userQuestion || conversationTitle || '',
+          {
+            saveDecision: true,
+            companyId,
+            conversationId: conversationId?.startsWith('temp-') ? null : conversationId,
+            responseIndex,  // Track which response in the conversation this is
+            decisionTitle: getTitle(),
+            departmentId: selectedDeptIds.length > 0 ? selectedDeptIds[0] : null,  // Primary for backwards compat
+            departmentIds: selectedDeptIds  // All selected departments
+          }
+        );
+
+        console.log('Merge result:', mergeResult);
+
+        // Update project context with merged content
+        if (mergeResult?.merged?.context_md) {
+          await api.updateProject(selectedProjectId, {
+            context_md: mergeResult.merged.context_md
+          });
+        }
+
+        // Get the saved decision ID from the response
+        // Backend returns 'saved_decision_id' not 'decision_id'
+        const decisionId = mergeResult?.saved_decision_id;
+        if (decisionId) {
+          setSavedDecisionId(decisionId);
+        }
+        setSaveState('saved');
+      } else {
+        // No project - just save as decision
+        const result = await api.createCompanyDecision(companyId, {
+          title: getTitle(),
+          content: displayText,
+          department_id: selectedDeptIds.length > 0 ? selectedDeptIds[0] : null,
+          source_conversation_id: conversationId?.startsWith('temp-') ? null : conversationId,
+          project_id: selectedProjectId || null,
+          tags: []
+        });
+
+        console.log('Save result:', result);
+        const decisionId = result?.decision?.id || result?.id;
+        if (!decisionId) {
+          console.error('No decision ID in response:', result);
+          throw new Error('No decision ID returned');
+        }
+        setSavedDecisionId(decisionId);
+        setSaveState('saved');
       }
-      setSavedDecisionId(decisionId);
-      setSaveState('saved');
     } catch (err) {
       console.error('Failed to save decision:', err);
       setSaveState('error');
@@ -176,8 +393,9 @@ export default function Stage3({
       const saveResult = await api.createCompanyDecision(companyId, {
         title: getTitle(),
         content: displayText,
-        department_id: selectedDeptId === 'all' ? null : selectedDeptId,
+        department_id: selectedDeptIds.length > 0 ? selectedDeptIds[0] : null,
         source_conversation_id: conversationId?.startsWith('temp-') ? null : conversationId,
+        project_id: selectedProjectId || null,
         tags: []
       });
 
@@ -194,7 +412,7 @@ export default function Stage3({
       const promoteResult = await api.promoteDecisionToPlaybook(companyId, decisionId, {
         doc_type: selectedDocType,
         title: getTitle(),
-        department_id: selectedDeptId === 'all' ? null : selectedDeptId
+        department_id: selectedDeptIds.length > 0 ? selectedDeptIds[0] : null
       });
 
       console.log('Promote result:', promoteResult);
@@ -254,7 +472,7 @@ export default function Stage3({
   }
 
   return (
-    <div className={`stage stage3 ${isCollapsed ? 'collapsed' : ''}`}>
+    <div ref={containerRef} className={`stage stage3 ${isCollapsed ? 'collapsed' : ''}`}>
       <h3 className="stage-title clickable" onClick={toggleCollapsed}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
         Stage 3: Final Council Answer
@@ -333,19 +551,112 @@ export default function Stage3({
             )}
             {/* Compact inline save toolbar - unified design */}
             <div className="save-toolbar-unified">
-              {/* Left group: Department + Type in a visual container */}
+              {/* Left group: Department + Project + Type in a visual container */}
               <div className="save-options-group">
-                {/* Compact department selector with colors */}
-                <DepartmentSelect
-                  value={selectedDeptId}
-                  onValueChange={setSelectedDeptId}
+                {/* Multi-department selector with colors */}
+                <MultiDepartmentSelect
+                  value={selectedDeptIds}
+                  onValueChange={setSelectedDeptIds}
                   departments={departments}
-                  includeAll={true}
-                  allLabel="All Departments"
                   disabled={saveState !== 'idle'}
+                  placeholder="Departments"
                   className="save-dept-trigger"
-                  compact={true}
                 />
+
+                {/* Divider */}
+                <div className="save-divider" />
+
+                {/* Project selector - inline pill style like department */}
+                <div className="save-project-selector-inline">
+                  <button
+                    ref={projectButtonRef}
+                    className={`save-project-pill ${currentProject ? 'has-project' : ''}`}
+                    onClick={() => {
+                      if (!showProjectDropdown && projectButtonRef.current) {
+                        const rect = projectButtonRef.current.getBoundingClientRect();
+                        setDropdownPosition({
+                          top: rect.bottom + 4,
+                          left: rect.left
+                        });
+                      }
+                      setShowProjectDropdown(!showProjectDropdown);
+                    }}
+                    disabled={saveState === 'saving' || saveState === 'promoting'}
+                    title={currentProject ? `Linked to: ${currentProject.name}` : 'Select project'}
+                  >
+                    <FolderKanban className="h-3.5 w-3.5" />
+                    <span>{currentProject ? currentProject.name : 'Project'}</span>
+                    <ChevronDown className="h-3 w-3" />
+                  </button>
+
+                  {showProjectDropdown && createPortal(
+                    <div
+                      className="save-project-dropdown-portal"
+                      style={{
+                        position: 'fixed',
+                        top: dropdownPosition.top,
+                        left: dropdownPosition.left,
+                        zIndex: 9999,
+                        minWidth: '260px',
+                        maxWidth: '320px',
+                        background: 'white',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '10px',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.05)',
+                        overflow: 'hidden'
+                      }}
+                    >
+                      <div className="save-project-dropdown-header">Select Project</div>
+                      <div className="save-project-list">
+                        {/* No project option */}
+                        <button
+                          className={`save-project-option ${!selectedProjectId ? 'selected' : ''}`}
+                          onClick={() => {
+                            setSelectedProjectId(null);
+                            onSelectProject && onSelectProject(null);
+                            setShowProjectDropdown(false);
+                          }}
+                        >
+                          <span className="save-project-option-name">No Project</span>
+                          <span className="save-project-option-desc">Save without linking to a project</span>
+                        </button>
+                        {/* Active projects */}
+                        {projects.filter(p => p.status === 'active').map(project => (
+                          <button
+                            key={project.id}
+                            className={`save-project-option ${selectedProjectId === project.id ? 'selected' : ''}`}
+                            onClick={() => {
+                              setSelectedProjectId(project.id);
+                              onSelectProject && onSelectProject(project.id);
+                              setShowProjectDropdown(false);
+                            }}
+                          >
+                            <span className="save-project-option-name">{project.name}</span>
+                            {project.description && (
+                              <span className="save-project-option-desc">{project.description}</span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                      {/* Create new project */}
+                      {onCreateProject && (
+                        <div className="save-project-create">
+                          <button
+                            className="save-project-create-btn"
+                            onClick={() => {
+                              setShowProjectDropdown(false);
+                              onCreateProject();
+                            }}
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                            <span>Create New Project</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>,
+                    document.body
+                  )}
+                </div>
 
                 {/* Divider */}
                 <div className="save-divider" />
@@ -372,43 +683,70 @@ export default function Stage3({
                 </div>
               </div>
 
-              {/* Save/Access button - transforms after save */}
+              {/* Save/Access button - logic:
+                  - If saved: show clear "Decision saved" status with link to view
+                  - Otherwise: show "Save" button */}
               {(saveState === 'saved' || saveState === 'promoted') ? (
-                <button
-                  className="save-access-btn"
-                  onClick={() => {
-                    if (promotedPlaybookId) {
-                      onViewDecision && onViewDecision(savedDecisionId, 'playbook', promotedPlaybookId);
-                    } else {
-                      handleViewDecision();
-                    }
-                  }}
-                >
-                  <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  <span>
-                    {selectedDocType
-                      ? `Access ${DOC_TYPES.find(t => t.value === selectedDocType)?.label}`
-                      : 'Access Decision'}
+                // Already saved - show clear status message with link
+                <div className="save-status-group">
+                  <span className="save-status-text">
+                    <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Decision saved
                   </span>
-                </button>
+                  <button
+                    className="save-view-link"
+                    onClick={async () => {
+                      // Verify decision still exists before navigating
+                      try {
+                        const check = await api.getConversationDecision(conversationId, companyId, responseIndex);
+                        if (!check?.decision) {
+                          // Decision was deleted - reset state
+                          setSavedDecisionId(null);
+                          setSaveState('idle');
+                          return;
+                        }
+                      } catch {
+                        // Decision not found - reset state
+                        setSavedDecisionId(null);
+                        setSaveState('idle');
+                        return;
+                      }
+
+                      if (promotedPlaybookId) {
+                        onViewDecision && onViewDecision(savedDecisionId, 'playbook', promotedPlaybookId);
+                      } else if (currentProject) {
+                        onViewDecision && onViewDecision(savedDecisionId, 'project', currentProject.id);
+                      } else {
+                        handleViewDecision();
+                      }
+                    }}
+                  >
+                    View in project
+                  </button>
+                </div>
               ) : (
+                // Not saved yet - show save button
                 <button
                   className={`save-action-btn ${saveState === 'saving' || saveState === 'promoting' ? 'loading' : ''}`}
                   onClick={selectedDocType ? handleSaveAndPromote : handleSaveForLater}
                   disabled={saveState === 'saving' || saveState === 'promoting'}
-                  title={selectedDocType ? `Save as ${DOC_TYPES.find(t => t.value === selectedDocType)?.label} to your knowledge base` : 'Save to your knowledge base for later'}
+                  title={currentProject
+                    ? 'Save this decision and merge into the project context'
+                    : selectedDocType
+                      ? `Save as ${DOC_TYPES.find(t => t.value === selectedDocType)?.label} to your knowledge base`
+                      : 'Save to your knowledge base for later'}
                 >
                   {(saveState === 'saving' || saveState === 'promoting') ? (
                     <>
-                      <span className="save-spinner" />
-                      <span>Saving...</span>
+                      <Spinner size="sm" variant="muted" />
+                      <span>{currentProject ? 'Saving...' : 'Saving...'}</span>
                     </>
                   ) : (
                     <>
                       <Bookmark className="h-4 w-4" />
-                      <span>{selectedDocType ? `Save ${DOC_TYPES.find(t => t.value === selectedDocType)?.label}` : 'Save'}</span>
+                      <span>{currentProject ? `Save to ${currentProject.name}` : 'Save Decision'}</span>
                     </>
                   )}
                 </button>

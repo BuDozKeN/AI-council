@@ -1,10 +1,19 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { api } from '../api';
 import MarkdownViewer from './MarkdownViewer';
+import ProjectModal from './ProjectModal';
+import { AppModal } from './ui/AppModal';
 import { DepartmentSelect } from './ui/DepartmentSelect';
-import { Building2, ScrollText, Layers, FileText, Bookmark } from 'lucide-react';
+import { MultiDepartmentSelect } from './ui/MultiDepartmentSelect';
+import { StatusSelect } from './ui/StatusSelect';
+import { SortSelect } from './ui/SortSelect';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Spinner } from './ui/Spinner';
+import { AIWriteAssist } from './ui/AIWriteAssist';
+import { Building2, ScrollText, Layers, FileText, Bookmark, FolderKanban, CheckCircle, Archive, RotateCcw, ExternalLink, Trash2, Sparkles, PenLine, RefreshCw } from 'lucide-react';
 import { getDeptColor, getPlaybookTypeColor } from '../lib/colors';
 import smartTextToMarkdown, { isAlreadyMarkdown } from '../lib/smartTextToMarkdown';
+import { truncateText } from '../lib/utils';
 import './MyCompany.css';
 
 /**
@@ -16,7 +25,7 @@ import './MyCompany.css';
  * - Playbooks: SOPs, frameworks, policies
  * - Decisions: Saved council outputs with "promote to playbook" feature
  */
-export default function MyCompany({ companyId, companyName, allCompanies = [], onSelectCompany, onClose, onNavigateToConversation, initialTab = 'overview', initialDecisionId = null, initialPlaybookId = null, initialPromoteDecision = null, onConsumePromoteDecision = null }) {
+export default function MyCompany({ companyId, companyName, allCompanies = [], onSelectCompany, onClose, onNavigateToConversation, initialTab = 'overview', initialDecisionId = null, initialPlaybookId = null, initialProjectId = null, initialPromoteDecision = null, onConsumePromoteDecision = null }) {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -27,6 +36,7 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
   const [playbooks, setPlaybooks] = useState([]);
   const [decisions, setDecisions] = useState([]);
   const [activityLogs, setActivityLogs] = useState([]);
+  const [projects, setProjects] = useState([]);
 
 
   // UI state
@@ -37,16 +47,26 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
   const [promoteModal, setPromoteModal] = useState(null); // Decision being promoted
   const [highlightedDecisionId, setHighlightedDecisionId] = useState(initialDecisionId);
   const [highlightedPlaybookId, setHighlightedPlaybookId] = useState(initialPlaybookId);
+  const [highlightedProjectId, setHighlightedProjectId] = useState(initialProjectId);
   const [confirmModal, setConfirmModal] = useState(null); // { type, item, title, message, confirmText, variant }
-  const [showCompanySwitcher, setShowCompanySwitcher] = useState(false); // Company dropdown visible
+  const [alertModal, setAlertModal] = useState(null); // { title, message, variant } - replaces browser alert()
   const [deletingDecisionId, setDeletingDecisionId] = useState(null); // ID of decision being deleted (for animation)
+  const [fadingProjectId, setFadingProjectId] = useState(null); // ID of project being archived/deleted (for animation)
+  const [confirmingDeleteProjectId, setConfirmingDeleteProjectId] = useState(null); // ID of project showing "Are you sure?"
 
   // Playbooks filter state
   const [playbookSearch, setPlaybookSearch] = useState('');
-  const [playbookTypeFilter, setPlaybookTypeFilter] = useState('all');
-  const [playbookDeptFilter, setPlaybookDeptFilter] = useState('all');
+  const [playbookTypeFilter, setPlaybookTypeFilter] = useState('all'); // 'all', 'sop', 'framework', 'policy'
+  const [playbookDeptFilter, setPlaybookDeptFilter] = useState([]); // Array of department IDs for multi-select
   const [playbookTagFilter, setPlaybookTagFilter] = useState('all');
   const [expandedTypes, setExpandedTypes] = useState({}); // Track which types are expanded beyond 5
+
+  // Projects filter state
+  const [projectStatusFilter, setProjectStatusFilter] = useState('active'); // 'active', 'completed', 'archived', 'all'
+  const [projectDeptFilter, setProjectDeptFilter] = useState([]); // Array of department IDs for multi-select
+  const [projectSortBy, setProjectSortBy] = useState('updated'); // 'updated', 'created', 'name', 'decisions'
+  const [showArchived, setShowArchived] = useState(false);
+  const [projectsLoaded, setProjectsLoaded] = useState(false); // Track if projects have been fetched at least once
 
   // Load data based on active tab
   const loadData = useCallback(async () => {
@@ -93,6 +113,21 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
           setActivityLogs(activityData.logs || []);
           break;
         }
+        case 'projects': {
+          // Load ALL projects (client-side filtering)
+          const projectsData = await api.listProjectsWithStats(companyId, {
+            status: null,  // Load all statuses for client-side filtering
+            includeArchived: true  // Include all for filtering
+          });
+          setProjects(projectsData.projects || []);
+          setProjectsLoaded(true); // Mark that we've fetched projects at least once
+          // Also load departments if not already loaded (needed for project edit modal)
+          if (departments.length === 0) {
+            const teamData = await api.getCompanyTeam(companyId);
+            setDepartments(teamData.departments || []);
+          }
+          break;
+        }
       }
     } catch (err) {
       console.error(`Failed to load ${activeTab}:`, err);
@@ -113,6 +148,8 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
     setPlaybooks([]);
     setDecisions([]);
     setActivityLogs([]);
+    setProjects([]);
+    setProjectsLoaded(false); // Reset loaded flag so we show loading state for new company
   }, [companyId]);
 
   // Auto-open decision modal if initialDecisionId is provided and decisions are loaded
@@ -138,6 +175,18 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
       }
     }
   }, [highlightedPlaybookId, playbooks, activeTab, editingItem]);
+
+  // Auto-open project modal if initialProjectId is provided and projects are loaded
+  useEffect(() => {
+    if (highlightedProjectId && projects.length > 0 && activeTab === 'projects' && departments.length > 0) {
+      const project = projects.find(p => p.id === highlightedProjectId);
+      if (project && !editingItem) {
+        setEditingItem({ type: 'project', data: project });
+        // Clear highlight after opening (don't re-open on subsequent loads)
+        setHighlightedProjectId(null);
+      }
+    }
+  }, [highlightedProjectId, projects, activeTab, editingItem, departments.length]);
 
   // Auto-open Promote modal if initialPromoteDecision is provided (returning from Source view)
   useEffect(() => {
@@ -189,6 +238,31 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
   // Count stats
   const totalRoles = departments.reduce((sum, dept) => sum + (dept.roles?.length || 0), 0);
 
+  // Parse metadata from context markdown (Last Updated, Version)
+  const parseContextMetadata = (contextMd) => {
+    if (!contextMd) return { lastUpdated: null, version: null };
+
+    // Look for patterns like "> **Last Updated:** 2025-12-16" and "> **Version:** 1.2"
+    const lastUpdatedMatch = contextMd.match(/\*\*Last Updated:\*\*\s*(\d{4}-\d{2}-\d{2})/);
+    const versionMatch = contextMd.match(/\*\*Version:\*\*\s*([\d.]+)/);
+
+    // Format date as "December 16, 2025" (works for US and EU readers)
+    let formattedDate = null;
+    if (lastUpdatedMatch) {
+      const date = new Date(lastUpdatedMatch[1] + 'T00:00:00');
+      formattedDate = date.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    }
+
+    return {
+      lastUpdated: formattedDate,
+      version: versionMatch ? versionMatch[1] : null
+    };
+  };
+
   // Tab content renderers
   const renderOverview = () => {
     if (!overview) {
@@ -201,8 +275,49 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
       );
     }
 
+    const contextMd = overview.company?.context_md || '';
+    const { lastUpdated, version } = parseContextMetadata(contextMd);
+
     return (
       <div className="mc-overview">
+        {/* Hero section - immediately explains what this is */}
+        <div className="mc-overview-hero">
+          <div className="mc-overview-hero-content">
+            <h2 className="mc-overview-title">{companyName} Business Context</h2>
+            <p className="mc-overview-description">
+              This document defines your company's mission, goals, constraints, and strategic decisions.
+              When selected, it's injected into Council conversations to provide relevant, contextual advice.
+            </p>
+          </div>
+          <div className="mc-overview-meta">
+            {lastUpdated && (
+              <div className="mc-meta-item">
+                <span className="mc-meta-label">Last Updated</span>
+                <span className="mc-meta-value">{lastUpdated}</span>
+              </div>
+            )}
+            {version && (
+              <div className="mc-meta-item">
+                <span className="mc-meta-label">Version</span>
+                <span className="mc-meta-value">{version}</span>
+              </div>
+            )}
+            <button
+              className="mc-btn primary small"
+              onClick={() => setEditingItem({
+                type: 'company-context',
+                data: {
+                  id: overview.company?.id,
+                  context_md: contextMd
+                }
+              })}
+            >
+              Edit Context
+            </button>
+          </div>
+        </div>
+
+        {/* Stats grid */}
         <div className="mc-stats-grid">
           <div className="mc-stat-card">
             <div className="mc-stat-value">{overview.stats?.departments || 0}</div>
@@ -222,27 +337,36 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
           </div>
         </div>
 
+        {/* Context content */}
         <div className="mc-context-section">
-          <div className="mc-context-header">
-            <h3>Company Context</h3>
-            <button
-              className="mc-btn small"
-              onClick={() => setEditingItem({
-                type: 'company-context',
-                data: {
-                  id: overview.company?.id,
-                  context_md: overview.company?.context_md || ''
-                }
-              })}
-            >
-              Edit
-            </button>
+          <div className="mc-context-section-header">
+            <h3>Document Preview</h3>
+            {contextMd && (
+              <button
+                className="mc-expand-btn"
+                onClick={() => setEditingItem({
+                  type: 'company-context-view',
+                  data: {
+                    id: overview.company?.id,
+                    context_md: contextMd
+                  }
+                })}
+                title="Expand"
+              >
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H5.414l4.293 4.293a1 1 0 01-1.414 1.414L4 6.414V9a1 1 0 01-2 0V4zm9 1a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 11-2 0V6.414l-4.293 4.293a1 1 0 01-1.414-1.414L14.586 5H12a1 1 0 01-1-1zm-9 10a1 1 0 011-1h2.586l4.293-4.293a1 1 0 011.414 1.414L8.414 15H11a1 1 0 110 2H4a1 1 0 01-1-1v-5z" clipRule="evenodd" />
+                </svg>
+              </button>
+            )}
           </div>
           <div className="mc-context-content">
-            {overview.company?.context_md ? (
-              <MarkdownViewer content={overview.company.context_md} />
+            {contextMd ? (
+              <MarkdownViewer content={contextMd} />
             ) : (
-              <p className="mc-empty-hint">No company context defined yet. Click Edit to add your company's mission, goals, strategy, and other important information.</p>
+              <div className="mc-empty-context">
+                <p className="mc-empty-title">No business context defined yet</p>
+                <p className="mc-empty-hint">Click "Edit Context" above to add your company's mission, goals, strategy, and other important information that the AI Council should know.</p>
+              </div>
             )}
           </div>
         </div>
@@ -376,16 +500,21 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
   };
 
   const renderPlaybooks = () => {
-    // Filter playbooks based on search and filters
+    // Calculate stats from ALL playbooks (for stat cards)
+    const allSops = playbooks.filter(p => p.doc_type === 'sop');
+    const allFrameworks = playbooks.filter(p => p.doc_type === 'framework');
+    const allPolicies = playbooks.filter(p => p.doc_type === 'policy');
+
+    // Filter playbooks based on search and filters (client-side)
     const filteredPlaybooks = playbooks
       .filter(pb => {
         const matchesSearch = !playbookSearch ||
           pb.title.toLowerCase().includes(playbookSearch.toLowerCase());
         const matchesType = playbookTypeFilter === 'all' || pb.doc_type === playbookTypeFilter;
-        const matchesDept = playbookDeptFilter === 'all' ||
-          (playbookDeptFilter === 'company-wide' ? !pb.department_id :
-            pb.department_id === playbookDeptFilter ||
-            (pb.additional_departments || []).includes(playbookDeptFilter));
+        // Multi-select department filter
+        const matchesDept = playbookDeptFilter.length === 0 ||
+          playbookDeptFilter.includes(pb.department_id) ||
+          (pb.additional_departments || []).some(id => playbookDeptFilter.includes(id));
         const matchesTag = playbookTagFilter === 'all' ||
           (pb.tags && pb.tags.includes(playbookTagFilter));
         return matchesSearch && matchesType && matchesDept && matchesTag;
@@ -423,62 +552,66 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
 
     return (
       <div className="mc-playbooks">
-        <div className="mc-playbooks-header">
-          <span>{filteredPlaybooks.length} of {playbooks.length} playbooks</span>
+        {/* Stats grid - clickable filters like Projects tab */}
+        <div className="mc-stats-grid">
+          <div
+            className={`mc-stat-card ${playbookTypeFilter === 'all' ? 'selected' : ''}`}
+            onClick={() => setPlaybookTypeFilter('all')}
+            style={{ cursor: 'pointer' }}
+          >
+            <div className="mc-stat-value" style={{ color: '#059669' }}>{playbooks.length}</div>
+            <div className="mc-stat-label">Total</div>
+          </div>
+          <div
+            className={`mc-stat-card ${playbookTypeFilter === 'sop' ? 'selected' : ''}`}
+            onClick={() => setPlaybookTypeFilter(playbookTypeFilter === 'sop' ? 'all' : 'sop')}
+            style={{ cursor: 'pointer' }}
+          >
+            <div className="mc-stat-value" style={{ color: '#1d4ed8' }}>{allSops.length}</div>
+            <div className="mc-stat-label">SOPs</div>
+          </div>
+          <div
+            className={`mc-stat-card ${playbookTypeFilter === 'framework' ? 'selected' : ''}`}
+            onClick={() => setPlaybookTypeFilter(playbookTypeFilter === 'framework' ? 'all' : 'framework')}
+            style={{ cursor: 'pointer' }}
+          >
+            <div className="mc-stat-value" style={{ color: '#b45309' }}>{allFrameworks.length}</div>
+            <div className="mc-stat-label">Frameworks</div>
+          </div>
+          <div
+            className={`mc-stat-card ${playbookTypeFilter === 'policy' ? 'selected' : ''}`}
+            onClick={() => setPlaybookTypeFilter(playbookTypeFilter === 'policy' ? 'all' : 'policy')}
+            style={{ cursor: 'pointer' }}
+          >
+            <div className="mc-stat-value" style={{ color: '#6d28d9' }}>{allPolicies.length}</div>
+            <div className="mc-stat-label">Policies</div>
+          </div>
+        </div>
+
+        {/* Filters row - multi-department and search */}
+        <div className="mc-projects-filters">
+          <div className="mc-filters-left">
+            <MultiDepartmentSelect
+              value={playbookDeptFilter}
+              onValueChange={setPlaybookDeptFilter}
+              departments={departments}
+              placeholder="All Depts"
+            />
+          </div>
           <button
-            className="mc-btn primary small"
+            className="mc-btn-clean primary"
             onClick={() => setShowAddForm('playbook')}
           >
-            + Create Playbook
+            <svg style={{ width: '14px', height: '14px', marginRight: '4px' }} viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+            </svg>
+            New Playbook
           </button>
         </div>
 
-        {/* Search and Filters */}
-        <div className="mc-playbooks-filters">
-          <input
-            type="text"
-            placeholder="Search playbooks..."
-            value={playbookSearch}
-            onChange={(e) => setPlaybookSearch(e.target.value)}
-            className="mc-search-input"
-          />
-          <select
-            value={playbookTypeFilter}
-            onChange={(e) => setPlaybookTypeFilter(e.target.value)}
-            className="mc-filter-select"
-          >
-            <option value="all">All Types</option>
-            <option value="sop">SOPs</option>
-            <option value="framework">Frameworks</option>
-            <option value="policy">Policies</option>
-          </select>
-          <select
-            value={playbookDeptFilter}
-            onChange={(e) => setPlaybookDeptFilter(e.target.value)}
-            className="mc-filter-select"
-          >
-            <option value="all">All Departments</option>
-            <option value="company-wide">Company-Wide</option>
-            {departments.map(d => (
-              <option key={d.id} value={d.id}>{d.name}</option>
-            ))}
-          </select>
-        </div>
-
         {filteredPlaybooks.length === 0 ? (
-          <div className="mc-empty-filter">
-            <p>No playbooks match your filters</p>
-            <button
-              className="mc-text-btn"
-              onClick={() => {
-                setPlaybookSearch('');
-                setPlaybookTypeFilter('all');
-                setPlaybookDeptFilter('all');
-                setPlaybookTagFilter('all');
-              }}
-            >
-              Clear filters
-            </button>
+          <div className="mc-empty-filtered">
+            No playbooks match your filters
           </div>
         ) : (
           docTypes.map(type => {
@@ -590,6 +723,290 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
     );
   };
 
+  // Format relative time for last accessed
+  const formatRelativeTime = (dateStr) => {
+    if (!dateStr) return 'Never';
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
+  };
+
+  // Handle project status change
+  const handleProjectStatusChange = async (project, newStatus) => {
+    try {
+      setSaving(true);
+      await api.updateProject(project.id, { status: newStatus });
+      // Refresh projects list
+      loadData();
+    } catch (err) {
+      console.error('Failed to update project status:', err);
+      alert('Failed to update project status');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Handle opening project details/edit modal
+  const handleProjectClick = (project) => {
+    setEditingItem({ type: 'project', data: project });
+  };
+
+  const renderProjects = () => {
+    // Show loading state until we've fetched at least once - prevents flash of "No projects"
+    if (!projectsLoaded || (loading && projects.length === 0)) {
+      return (
+        <div className="mc-empty">
+          <Spinner size="lg" variant="brand" />
+          <p className="mc-empty-title">Loading projects...</p>
+        </div>
+      );
+    }
+
+    if (projects.length === 0) {
+      return (
+        <div className="mc-empty">
+          <div className="mc-empty-icon">📁</div>
+          <p className="mc-empty-title">No projects yet</p>
+          <p className="mc-empty-hint">
+            Create projects to organize council sessions and track decisions.
+            Projects help you maintain context across related queries.
+          </p>
+        </div>
+      );
+    }
+
+    // Calculate stats from ALL projects (for display in stat cards)
+    const allActiveProjects = projects.filter(p => p.status === 'active');
+    const allCompletedProjects = projects.filter(p => p.status === 'completed');
+    const allArchivedProjects = projects.filter(p => p.status === 'archived');
+    const totalDecisions = projects.reduce((sum, p) => sum + (p.decision_count || 0), 0);
+
+    // Client-side filtering - no API reload needed
+    let filteredProjects = projects;
+
+    // Filter by status (client-side)
+    if (projectStatusFilter !== 'all') {
+      filteredProjects = filteredProjects.filter(p => p.status === projectStatusFilter);
+    }
+
+    // Filter by department (client-side, multi-select)
+    if (projectDeptFilter.length > 0) {
+      filteredProjects = filteredProjects.filter(p =>
+        projectDeptFilter.includes(p.department_id) ||
+        p.department_ids?.some(id => projectDeptFilter.includes(id))
+      );
+    }
+
+    // Sort projects (client-side)
+    const sortedProjects = [...filteredProjects].sort((a, b) => {
+      switch (projectSortBy) {
+        case 'name':
+          return (a.name || '').localeCompare(b.name || '');
+        case 'created':
+          return new Date(b.created_at) - new Date(a.created_at);
+        case 'decisions':
+          return (b.decision_count || 0) - (a.decision_count || 0);
+        case 'updated':
+        default:
+          return new Date(b.last_accessed_at || b.updated_at || b.created_at) -
+                 new Date(a.last_accessed_at || a.updated_at || a.created_at);
+      }
+    });
+
+    // Compact project row - consistent with decisions/playbooks
+    const renderProjectRow = (project) => {
+      // Get all departments for this project - show ALL, no truncation
+      const deptIds = project.department_ids?.length > 0
+        ? project.department_ids
+        : project.department_id ? [project.department_id] : [];
+      const deptNames = project.department_names || [];
+      const isFading = fadingProjectId === project.id;
+
+      return (
+        <div
+          key={project.id}
+          className={`mc-project-row-compact ${isFading ? 'fading' : ''}`}
+          onClick={() => !isFading && handleProjectClick(project)}
+        >
+          {/* Status indicator dot */}
+          <div className={`mc-status-dot ${project.status}`} />
+
+          {/* Title group: name + ALL department badges */}
+          <div className="mc-project-title-group">
+            <span className="mc-project-name">{project.name}</span>
+            {deptIds.map((deptId, idx) => {
+              const deptName = deptNames[idx] || departments.find(d => d.id === deptId)?.name;
+              if (!deptName) return null;
+              return (
+                <span
+                  key={deptId}
+                  className="mc-project-dept-badge"
+                  style={{
+                    background: getDeptColor(deptId).bg,
+                    color: getDeptColor(deptId).text,
+                  }}
+                >
+                  {deptName}
+                </span>
+              );
+            })}
+          </div>
+
+          {/* Meta: decision count + time - hidden on hover when actions show */}
+          <div className="mc-project-meta">
+            <span className="mc-project-decision-count">
+              {project.decision_count || 0}
+            </span>
+            <span className="mc-project-time">
+              {formatRelativeTime(project.last_accessed_at || project.updated_at)}
+            </span>
+          </div>
+
+          {/* Actions - visible on hover */}
+          <div className="mc-project-actions">
+            {project.status === 'active' && (
+              <button
+                className="mc-project-action complete"
+                onClick={(e) => handleCompleteProject(project, e)}
+                title="Mark as completed"
+              >
+                <CheckCircle className="w-3.5 h-3.5" />
+                <span>Complete</span>
+              </button>
+            )}
+            {project.status === 'archived' ? (
+              <button
+                className="mc-project-action restore"
+                onClick={(e) => handleRestoreProject(project, e)}
+                title="Restore project"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Restore</span>
+              </button>
+            ) : (
+              <button
+                className="mc-project-action archive"
+                onClick={(e) => handleArchiveProject(project, e)}
+                title="Archive project"
+              >
+                <Archive className="w-3.5 h-3.5" />
+                <span>Archive</span>
+              </button>
+            )}
+            {confirmingDeleteProjectId === project.id ? (
+              <>
+                <button
+                  className="mc-project-action confirm-yes"
+                  onClick={(e) => handleDeleteProject(project, e)}
+                  title="Confirm delete"
+                >
+                  <span>Yes</span>
+                </button>
+                <button
+                  className="mc-project-action confirm-no"
+                  onClick={(e) => { e.stopPropagation(); setConfirmingDeleteProjectId(null); }}
+                  title="Cancel"
+                >
+                  <span>No</span>
+                </button>
+              </>
+            ) : (
+              <button
+                className="mc-project-action delete"
+                onClick={(e) => handleDeleteProject(project, e)}
+                title="Delete project"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Delete</span>
+              </button>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    return (
+      <div className="mc-projects">
+        {/* Stats grid - same style as Overview tab */}
+        <div className="mc-stats-grid">
+          <div
+            className={`mc-stat-card ${projectStatusFilter === 'active' ? 'selected' : ''}`}
+            onClick={() => setProjectStatusFilter(projectStatusFilter === 'active' ? 'all' : 'active')}
+            style={{ cursor: 'pointer' }}
+          >
+            <div className="mc-stat-value" style={{ color: '#1d4ed8' }}>{allActiveProjects.length}</div>
+            <div className="mc-stat-label">Active</div>
+          </div>
+          <div
+            className={`mc-stat-card ${projectStatusFilter === 'completed' ? 'selected' : ''}`}
+            onClick={() => setProjectStatusFilter(projectStatusFilter === 'completed' ? 'all' : 'completed')}
+            style={{ cursor: 'pointer' }}
+          >
+            <div className="mc-stat-value" style={{ color: '#15803d' }}>{allCompletedProjects.length}</div>
+            <div className="mc-stat-label">Completed</div>
+          </div>
+          <div
+            className={`mc-stat-card ${projectStatusFilter === 'archived' ? 'selected' : ''}`}
+            onClick={() => setProjectStatusFilter(projectStatusFilter === 'archived' ? 'all' : 'archived')}
+            style={{ cursor: 'pointer' }}
+          >
+            <div className="mc-stat-value" style={{ color: '#6b7280' }}>{allArchivedProjects.length}</div>
+            <div className="mc-stat-label">Archived</div>
+          </div>
+          <div className="mc-stat-card">
+            <div className="mc-stat-value" style={{ color: '#b45309' }}>{totalDecisions}</div>
+            <div className="mc-stat-label">Decisions</div>
+          </div>
+        </div>
+
+        {/* Filters row - multi-department and sort */}
+        <div className="mc-projects-filters">
+          <div className="mc-filters-left">
+            <MultiDepartmentSelect
+              value={projectDeptFilter}
+              onValueChange={setProjectDeptFilter}
+              departments={departments}
+              placeholder="All Depts"
+            />
+            <SortSelect
+              value={projectSortBy}
+              onValueChange={setProjectSortBy}
+            />
+          </div>
+          <button
+            className="mc-btn-clean primary"
+            onClick={() => setEditingItem({ type: 'new_project', data: {} })}
+          >
+            <svg style={{ width: '14px', height: '14px', marginRight: '4px' }} viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+            </svg>
+            New Project
+          </button>
+        </div>
+
+        {/* Projects list */}
+        <div className="mc-projects-list">
+          {sortedProjects.length === 0 ? (
+            <div className="mc-empty-filtered">
+              No projects match your filters
+            </div>
+          ) : (
+            sortedProjects.map(renderProjectRow)
+          )}
+        </div>
+      </div>
+    );
+  };
+
   const renderDecisions = () => {
     // Filter out promoted decisions - they're now playbooks
     const pendingDecisions = decisions.filter(d => !d.is_promoted);
@@ -639,26 +1056,27 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
                 {/* Status indicator - yellow for pending */}
                 <div className="mc-status-dot draft" />
 
-                {/* Main content */}
+                {/* Main content - title + department badges */}
                 <div className="mc-elegant-content">
                   <span className="mc-elegant-title">{decision.title}</span>
-
-                  {/* Department badge */}
-                  {deptName ? (
-                    <span
-                      className="mc-elegant-dept"
-                      style={{
-                        background: getDeptColor(deptId).bg,
-                        color: getDeptColor(deptId).text
-                      }}
-                    >
-                      {deptName}
-                    </span>
-                  ) : (
-                    <span className="mc-elegant-dept mc-elegant-dept-none">
-                      General
-                    </span>
-                  )}
+                  {/* Department badges */}
+                  {(decision.department_ids?.length > 0 ? decision.department_ids : (decision.department_id ? [decision.department_id] : [])).map(deptId => {
+                    const dept = departments.find(d => d.id === deptId);
+                    if (!dept) return null;
+                    const color = getDeptColor(deptId);
+                    return (
+                      <span
+                        key={deptId}
+                        className="mc-elegant-dept"
+                        style={{
+                          background: color.bg,
+                          color: color.text
+                        }}
+                      >
+                        {dept.name}
+                      </span>
+                    );
+                  })}
                 </div>
 
                 {/* Actions - only visible on hover */}
@@ -990,6 +1408,85 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
     setSaving(false);
   };
 
+  // Handle project status changes with fade animation - update local state, no spinner
+  const handleCompleteProject = async (project, e) => {
+    e?.stopPropagation();
+    setFadingProjectId(project.id);
+    setTimeout(async () => {
+      try {
+        await api.updateProject(project.id, { status: 'completed' });
+        // Update local state - no full reload, no spinner
+        setProjects(prev => prev.map(p =>
+          p.id === project.id ? { ...p, status: 'completed' } : p
+        ));
+      } catch (err) {
+        console.error('Failed to complete project:', err);
+      } finally {
+        setFadingProjectId(null);
+      }
+    }, 300);
+  };
+
+  const handleArchiveProject = async (project, e) => {
+    e?.stopPropagation();
+    setFadingProjectId(project.id);
+    setTimeout(async () => {
+      try {
+        await api.updateProject(project.id, { status: 'archived' });
+        // Update local state - no full reload, no spinner
+        setProjects(prev => prev.map(p =>
+          p.id === project.id ? { ...p, status: 'archived' } : p
+        ));
+      } catch (err) {
+        console.error('Failed to archive project:', err);
+      } finally {
+        setFadingProjectId(null);
+      }
+    }, 300);
+  };
+
+  const handleRestoreProject = async (project, e) => {
+    e?.stopPropagation();
+    setFadingProjectId(project.id);
+    setTimeout(async () => {
+      try {
+        await api.updateProject(project.id, { status: 'active' });
+        // Update local state - no full reload, no spinner
+        setProjects(prev => prev.map(p =>
+          p.id === project.id ? { ...p, status: 'active' } : p
+        ));
+      } catch (err) {
+        console.error('Failed to restore project:', err);
+      } finally {
+        setFadingProjectId(null);
+      }
+    }, 300);
+  };
+
+  // First click: show inline "Are you sure?" / Second click: actually delete
+  const handleDeleteProject = (project, e) => {
+    e?.stopPropagation();
+    if (confirmingDeleteProjectId === project.id) {
+      // Second click - actually delete with fade
+      setConfirmingDeleteProjectId(null);
+      setFadingProjectId(project.id);
+      setTimeout(async () => {
+        try {
+          await api.deleteProject(project.id);
+          // Remove from local state - no full reload, no spinner
+          setProjects(prev => prev.filter(p => p.id !== project.id));
+        } catch (err) {
+          console.error('Failed to delete project:', err);
+        } finally {
+          setFadingProjectId(null);
+        }
+      }, 300);
+    } else {
+      // First click - show "Are you sure?"
+      setConfirmingDeleteProjectId(project.id);
+    }
+  };
+
   // Handle add department
   const handleAddDepartment = async (name, description) => {
     setSaving(true);
@@ -1093,6 +1590,31 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
     }
   };
 
+    // Handle update project
+  // Returns updated project data so modal can update state without closing
+  const handleUpdateProject = async (projectId, updates) => {
+    try {
+      const result = await api.updateProject(projectId, updates);
+      await loadData();
+      // Return the updated project so modal can refresh state without closing
+      return result.project || result;
+    } catch (err) {
+      alert('Failed to update project: ' + err.message);
+      throw err;
+    }
+  };
+
+  // Handle create project
+  const handleCreateProject = async (_, projectData) => {
+    try {
+      await api.createProject(companyId, projectData);
+      await loadData();
+      setEditingItem(null);
+    } catch (err) {
+      alert('Failed to create project: ' + err.message);
+      throw err;
+    }
+  };
   // Render add forms
   const renderAddForm = () => {
     if (!showAddForm) return null;
@@ -1147,6 +1669,19 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
       );
     }
 
+    if (editingItem.type === 'company-context-view') {
+      return (
+        <ViewCompanyContextModal
+          data={editingItem.data}
+          companyName={companyName}
+          onClose={() => setEditingItem(null)}
+          onSave={handleUpdateCompanyContext}
+          initialEditing={false}
+          fullscreen={true}
+        />
+      );
+    }
+
     if (editingItem.type === 'department') {
       return (
         <ViewDepartmentModal
@@ -1185,10 +1720,67 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
           decision={editingItem.data}
           departments={departments}
           playbooks={playbooks}
+          projects={projects}
           onClose={() => setEditingItem(null)}
           onPromote={(decision) => {
             setEditingItem(null); // Close view modal
             setPromoteModal(decision); // Open promote modal
+          }}
+          onViewProject={(projectId) => {
+            setEditingItem(null); // Close decision modal
+            const project = projects.find(p => p.id === projectId);
+            if (project) {
+              setEditingItem({ type: 'project', data: project });
+            }
+          }}
+        />
+      );
+    }
+
+    if (editingItem.type === 'project') {
+      return (
+        <ViewProjectModal
+          project={editingItem.data}
+          companyId={companyId}
+          departments={departments}
+          onClose={() => setEditingItem(null)}
+          onSave={handleUpdateProject}
+          onNavigateToConversation={onNavigateToConversation}
+          onProjectUpdate={(projectId, updates) => {
+            // Update project in the list with new department_ids from sync
+            setProjects(prev => prev.map(p =>
+              p.id === projectId ? { ...p, ...updates } : p
+            ));
+          }}
+          onStatusChange={async (projectId, newStatus) => {
+            // Handle status changes from modal (complete, archive, restore)
+            await api.updateProject(projectId, { status: newStatus });
+            setProjects(prev => prev.map(p =>
+              p.id === projectId ? { ...p, status: newStatus } : p
+            ));
+            // Close modal after status change
+            setEditingItem(null);
+          }}
+          onDelete={async (projectId) => {
+            // Handle delete from modal
+            await api.deleteProject(projectId);
+            setProjects(prev => prev.filter(p => p.id !== projectId));
+            setEditingItem(null);
+          }}
+        />
+      );
+    }
+
+    if (editingItem.type === 'new_project') {
+      return (
+        <ProjectModal
+          companyId={companyId}
+          departments={departments}
+          onClose={() => setEditingItem(null)}
+          onProjectCreated={(project) => {
+            // Add the new project to the list
+            setProjects(prev => [project, ...prev]);
+            setEditingItem(null);
           }}
         />
       );
@@ -1217,45 +1809,30 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
             {/* Company Switcher - separate row if multiple companies */}
             {allCompanies.length > 1 && (
               <div className="mc-company-switcher">
-                <button
-                  className="mc-company-dropdown-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowCompanySwitcher(!showCompanySwitcher);
-                  }}
-                >
-                  <svg className="mc-switch-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M16 3h5v5M8 3H3v5M3 16v5h5M21 16v5h-5M3 12h18" />
-                  </svg>
-                  <span>Switch company</span>
-                  <svg className={`mc-chevron ${showCompanySwitcher ? 'open' : ''}`} width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <path d="M6 9l6 6 6-6" />
-                  </svg>
-                </button>
-                {showCompanySwitcher && (
-                  <div className="mc-company-dropdown">
+                <Select value={companyId} onValueChange={(val) => {
+                    if (val !== companyId) {
+                      onSelectCompany?.(val);
+                    }
+                  }}>
+                  <SelectTrigger 
+                    className="h-auto w-auto gap-2 border-white/15 bg-white/10 px-3 py-1.5 text-xs font-medium text-white/70 shadow-none hover:bg-white/15 hover:text-white focus:ring-white/20 data-[state=open]:bg-white/15 data-[state=open]:text-white"
+                    style={{ borderRadius: '6px' }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <svg className="mc-switch-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M16 3h5v5M8 3H3v5M3 16v5h5M21 16v5h-5M3 12h18" />
+                      </svg>
+                      <SelectValue placeholder="Switch company" />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
                     {allCompanies.map(company => (
-                      <button
-                        key={company.id}
-                        className={`mc-company-option ${company.id === companyId ? 'active' : ''}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (company.id !== companyId) {
-                            onSelectCompany?.(company.id);
-                          }
-                          setShowCompanySwitcher(false);
-                        }}
-                      >
-                        <span className="mc-company-option-name">{company.name}</span>
-                        {company.id === companyId && (
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                            <path d="M20 6L9 17l-5-5" />
-                          </svg>
-                        )}
-                      </button>
+                      <SelectItem key={company.id} value={company.id}>
+                        {company.name}
+                      </SelectItem>
                     ))}
-                  </div>
-                )}
+                  </SelectContent>
+                </Select>
               </div>
             )}
           </div>
@@ -1267,6 +1844,7 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
           {[
             { id: 'overview', label: 'Overview', icon: '📊' },
             { id: 'team', label: 'Team', icon: '👥' },
+            { id: 'projects', label: 'Projects', icon: '📁' },
             { id: 'playbooks', label: 'Playbooks', icon: '📚' },
             { id: 'decisions', label: 'Decisions', icon: '💡' },
             { id: 'activity', label: 'Activity', icon: '📋' }
@@ -1286,7 +1864,7 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
         <div className="mc-content">
           {loading ? (
             <div className="mc-loading">
-              <div className="mc-loading-spinner"></div>
+              <Spinner size="xl" variant="brand" />
               <p>Loading...</p>
             </div>
           ) : error ? (
@@ -1298,6 +1876,7 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
             <>
               {activeTab === 'overview' && renderOverview()}
               {activeTab === 'team' && renderTeam()}
+              {activeTab === 'projects' && renderProjects()}
               {activeTab === 'playbooks' && renderPlaybooks()}
               {activeTab === 'decisions' && renderDecisions()}
               {activeTab === 'activity' && renderActivity()}
@@ -1357,58 +1936,53 @@ function AddDepartmentModal({ onSave, onClose, saving }) {
   };
 
   return (
-    <div className="mc-modal-overlay" onClick={onClose}>
-      <div className="mc-modal mc-modal-unified" onClick={e => e.stopPropagation()}>
-        <div className="mc-modal-header-unified">
-          <h2>Add Department</h2>
-          <button className="mc-modal-close-unified" onClick={onClose}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
+    <AppModal isOpen={true} onClose={onClose} title="Add Department" size="sm">
+      <form onSubmit={handleSubmit}>
+        <div className="mc-form-unified">
+          <label className="mc-label-unified">Department Name *</label>
+          <input
+            type="text"
+            className="mc-input-unified"
+            placeholder="e.g., Human Resources"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            autoFocus
+          />
         </div>
-        <form onSubmit={handleSubmit}>
-          <div className="mc-modal-body-unified">
-            <div className="mc-form-unified">
-              <label className="mc-label-unified">Department Name *</label>
-              <input
-                type="text"
-                className="mc-input-unified"
-                placeholder="e.g., Human Resources"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                autoFocus
-              />
-            </div>
-            <div className="mc-form-unified">
-              <label className="mc-label-unified">Description</label>
-              <textarea
-                className="mc-input-unified mc-textarea-unified"
-                placeholder="What does this department do?"
-                value={description}
-                onChange={e => setDescription(e.target.value)}
-                rows={3}
-              />
-            </div>
-          </div>
-          <div className="mc-modal-footer-unified">
-            <button type="button" className="mc-btn-unified secondary" onClick={onClose} disabled={saving}>
-              Cancel
-            </button>
-            <button type="submit" className="mc-btn-unified primary" disabled={saving || !name.trim()}>
-              {saving ? (
-                <>
-                  <span className="mc-btn-spinner" />
-                  Creating...
-                </>
-              ) : (
-                'Create Department'
-              )}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div className="mc-form-unified">
+          <label className="mc-label-unified">Description</label>
+          <AIWriteAssist
+            context="department-description"
+            value={description}
+            onSuggestion={setDescription}
+            additionalContext={name ? `Department: ${name}` : ''}
+          >
+            <textarea
+              className="mc-input-unified mc-textarea-unified"
+              placeholder="What does this department do?"
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              rows={3}
+            />
+          </AIWriteAssist>
+        </div>
+        <AppModal.Footer>
+          <button type="button" className="app-modal-btn app-modal-btn-secondary" onClick={onClose} disabled={saving}>
+            Cancel
+          </button>
+          <button type="submit" className="app-modal-btn app-modal-btn-primary" disabled={saving || !name.trim()}>
+            {saving ? (
+              <>
+                <Spinner size="sm" variant="muted" />
+                Creating...
+              </>
+            ) : (
+              'Create Department'
+            )}
+          </button>
+        </AppModal.Footer>
+      </form>
+    </AppModal>
   );
 }
 
@@ -1424,58 +1998,46 @@ function AddRoleModal({ deptId, onSave, onClose, saving }) {
   };
 
   return (
-    <div className="mc-modal-overlay" onClick={onClose}>
-      <div className="mc-modal mc-modal-unified" onClick={e => e.stopPropagation()}>
-        <div className="mc-modal-header-unified">
-          <h2>Add Role</h2>
-          <button className="mc-modal-close-unified" onClick={onClose}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
+    <AppModal isOpen={true} onClose={onClose} title="Add Role" size="sm">
+      <form onSubmit={handleSubmit}>
+        <div className="mc-form-unified">
+          <label className="mc-label-unified">Role Name *</label>
+          <input
+            type="text"
+            className="mc-input-unified"
+            placeholder="e.g., CTO"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            autoFocus
+          />
         </div>
-        <form onSubmit={handleSubmit}>
-          <div className="mc-modal-body-unified">
-            <div className="mc-form-unified">
-              <label className="mc-label-unified">Role Name *</label>
-              <input
-                type="text"
-                className="mc-input-unified"
-                placeholder="e.g., CTO"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                autoFocus
-              />
-            </div>
-            <div className="mc-form-unified">
-              <label className="mc-label-unified">Title</label>
-              <input
-                type="text"
-                className="mc-input-unified"
-                placeholder="e.g., Chief Technology Officer"
-                value={title}
-                onChange={e => setTitle(e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="mc-modal-footer-unified">
-            <button type="button" className="mc-btn-unified secondary" onClick={onClose} disabled={saving}>
-              Cancel
-            </button>
-            <button type="submit" className="mc-btn-unified primary" disabled={saving || !name.trim()}>
-              {saving ? (
-                <>
-                  <span className="mc-btn-spinner" />
-                  Creating...
-                </>
-              ) : (
-                'Create Role'
-              )}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div className="mc-form-unified">
+          <label className="mc-label-unified">Title</label>
+          <input
+            type="text"
+            className="mc-input-unified"
+            placeholder="e.g., Chief Technology Officer"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+          />
+        </div>
+        <AppModal.Footer>
+          <button type="button" className="app-modal-btn app-modal-btn-secondary" onClick={onClose} disabled={saving}>
+            Cancel
+          </button>
+          <button type="submit" className="app-modal-btn app-modal-btn-primary" disabled={saving || !name.trim()}>
+            {saving ? (
+              <>
+                <Spinner size="sm" variant="muted" />
+                Creating...
+              </>
+            ) : (
+              'Create Role'
+            )}
+          </button>
+        </AppModal.Footer>
+      </form>
+    </AppModal>
   );
 }
 
@@ -1499,102 +2061,98 @@ function AddPlaybookModal({ onSave, onClose, saving, departments = [] }) {
   };
 
   return (
-    <div className="mc-modal-overlay" onClick={onClose}>
-      <div className="mc-modal mc-modal-unified mc-modal-wide" onClick={e => e.stopPropagation()}>
-        <div className="mc-modal-header-unified">
-          <h2>Create Playbook</h2>
-          <button className="mc-modal-close-unified" onClick={onClose}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
+    <AppModal isOpen={true} onClose={onClose} title="Create Playbook" size="lg">
+      <form onSubmit={handleSubmit}>
+        <div className="mc-form-unified">
+          <label className="mc-label-unified">Title *</label>
+          <input
+            type="text"
+            className="mc-input-unified"
+            placeholder="e.g., Customer Onboarding Process"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            autoFocus
+          />
         </div>
-        <form onSubmit={handleSubmit}>
-          <div className="mc-modal-body-unified">
-            <div className="mc-form-unified">
-              <label className="mc-label-unified">Title *</label>
-              <input
-                type="text"
-                className="mc-input-unified"
-                placeholder="e.g., Customer Onboarding Process"
-                value={title}
-                onChange={e => setTitle(e.target.value)}
-                autoFocus
-              />
-            </div>
-            <div className="mc-form-unified">
-              <label className="mc-label-unified">Department</label>
-              <DepartmentSelect
-                value={departmentId || 'all'}
-                onValueChange={(val) => setDepartmentId(val === 'all' ? '' : val)}
-                departments={departments}
-                includeAll={true}
-                allLabel="Company-wide (All Departments)"
-                className="mc-dept-select-modal"
-              />
-            </div>
-            <div className="mc-form-unified">
-              <label className="mc-label-unified">Type *</label>
-              <div className="mc-type-pills-unified">
-                {DOC_TYPES.map(type => {
-                  const Icon = type.icon;
-                  const isSelected = docType === type.value;
-                  const colors = getPlaybookTypeColor(type.value);
-                  return (
-                    <button
-                      key={type.value}
-                      type="button"
-                      className={`mc-type-pill-unified ${type.value} ${isSelected ? 'selected' : ''}`}
-                      style={isSelected ? {
-                        background: colors.bg,
-                        color: colors.text,
-                        boxShadow: `0 1px 2px ${colors.shadowColor}`
-                      } : {}}
-                      onClick={() => setDocType(type.value)}
-                    >
-                      <Icon className="h-3.5 w-3.5" />
-                      <span>{type.label}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-            <div className="mc-form-unified">
-              <label className="mc-label-unified">Content *</label>
-              <textarea
-                className="mc-input-unified mc-textarea-unified"
-                placeholder="Write your playbook content..."
-                value={content}
-                onChange={e => setContent(e.target.value)}
-                rows={10}
-              />
-            </div>
+        <div className="mc-form-unified">
+          <label className="mc-label-unified">Department</label>
+          <DepartmentSelect
+            value={departmentId || 'all'}
+            onValueChange={(val) => setDepartmentId(val === 'all' ? '' : val)}
+            departments={departments}
+            includeAll={true}
+            allLabel="Company-wide (All Departments)"
+            className="mc-dept-select-modal"
+          />
+        </div>
+        <div className="mc-form-unified">
+          <label className="mc-label-unified">Type *</label>
+          <div className="mc-type-pills-unified">
+            {DOC_TYPES.map(type => {
+              const Icon = type.icon;
+              const isSelected = docType === type.value;
+              const colors = getPlaybookTypeColor(type.value);
+              return (
+                <button
+                  key={type.value}
+                  type="button"
+                  className={`mc-type-pill-unified ${type.value} ${isSelected ? 'selected' : ''}`}
+                  style={isSelected ? {
+                    background: colors.bg,
+                    color: colors.text,
+                    boxShadow: `0 1px 2px ${colors.shadowColor}`
+                  } : {}}
+                  onClick={() => setDocType(type.value)}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  <span>{type.label}</span>
+                </button>
+              );
+            })}
           </div>
-          <div className="mc-modal-footer-unified">
-            <button type="button" className="mc-btn-unified secondary" onClick={onClose} disabled={saving}>
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="mc-btn-unified primary"
-              disabled={saving || !title.trim() || !content.trim()}
-            >
-              {saving ? (
-                <>
-                  <span className="mc-btn-spinner" />
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <Bookmark className="h-4 w-4" />
-                  Create Playbook
-                </>
-              )}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        </div>
+        <div className="mc-form-unified">
+          <label className="mc-label-unified">Content *</label>
+          <AIWriteAssist
+            context="playbook-content"
+            value={content}
+            onSuggestion={setContent}
+            additionalContext={title ? `Playbook: ${title}` : ''}
+            playbookType={docType}
+          >
+            <textarea
+              className="mc-input-unified mc-textarea-unified"
+              placeholder="Write your playbook content..."
+              value={content}
+              onChange={e => setContent(e.target.value)}
+              rows={10}
+            />
+          </AIWriteAssist>
+        </div>
+        <AppModal.Footer>
+          <button type="button" className="app-modal-btn app-modal-btn-secondary" onClick={onClose} disabled={saving}>
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="app-modal-btn app-modal-btn-primary"
+            disabled={saving || !title.trim() || !content.trim()}
+          >
+            {saving ? (
+              <>
+                <Spinner size="sm" variant="muted" />
+                Creating...
+              </>
+            ) : (
+              <>
+                <Bookmark className="h-4 w-4" />
+                Create Playbook
+              </>
+            )}
+          </button>
+        </AppModal.Footer>
+      </form>
+    </AppModal>
   );
 }
 
@@ -1682,194 +2240,194 @@ function ViewPlaybookModal({ playbook, departments = [], onClose, onSave, startE
   const typeStyle = typeStyles[playbook.doc_type] || typeStyles.sop;
 
   return (
-    <div className="mc-modal-overlay" onClick={onClose}>
-      <div className="mc-modal wide" onClick={e => e.stopPropagation()}>
-        {/* Clean header with title and close */}
-        <div className="mc-modal-header-clean">
-          <div className="mc-header-title-row">
-            {/* Title with pencil on hover - always editable */}
-            {isEditingTitle ? (
-              <input
-                type="text"
-                className="mc-title-inline-edit"
-                value={editedTitle}
-                onChange={(e) => setEditedTitle(e.target.value)}
-                onBlur={() => setIsEditingTitle(false)}
-                onKeyDown={(e) => e.key === 'Enter' && setIsEditingTitle(false)}
-                autoFocus
-              />
-            ) : (
-              <h2
-                className="mc-title-display editable"
-                onClick={() => setIsEditingTitle(true)}
-                title="Click to edit title"
-              >
-                {editedTitle || playbook.title}
-                <svg className="mc-pencil-icon" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                </svg>
-              </h2>
-            )}
-          </div>
-          <button className="mc-modal-close-clean" onClick={onClose} aria-label="Close">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <div className="mc-modal-body">
-          {/* Metadata row: Type badge + Department badges together */}
-          <div className="mc-playbook-meta-row">
-            {/* Type badge */}
-            <span
-              className="mc-type-badge"
-              style={{ background: typeStyle.bg, color: typeStyle.color }}
+    <AppModal isOpen={true} onClose={onClose} size="lg" showCloseButton={false} contentClassName="mc-modal-no-padding">
+      {/* Clean header with title and close */}
+      <div className="mc-modal-header-clean">
+        <div className="mc-header-title-row">
+          {/* Title with pencil on hover - always editable */}
+          {isEditingTitle ? (
+            <input
+              type="text"
+              className="mc-title-inline-edit"
+              value={editedTitle}
+              onChange={(e) => setEditedTitle(e.target.value)}
+              onBlur={() => setIsEditingTitle(false)}
+              onKeyDown={(e) => e.key === 'Enter' && setIsEditingTitle(false)}
+              autoFocus
+            />
+          ) : (
+            <h2
+              className="mc-title-display editable"
+              onClick={() => setIsEditingTitle(true)}
+              title="Click to edit title"
             >
-              {playbook.doc_type.toUpperCase()}
-            </span>
-
-            {/* Department badges - inline with type */}
-            {isEditing ? (
-              <div className="mc-dept-edit-inline">
-                <span className="mc-dept-label">Departments:</span>
-                {filteredDepts.slice(0, 5).map(dept => {
-                  const isOwner = dept.id === playbook.department_id;
-                  const isSelected = selectedDepts.includes(dept.id);
-                  const color = getDeptColor(dept.id);
-                  return (
-                    <button
-                      key={dept.id}
-                      type="button"
-                      className={`mc-dept-chip-mini ${isOwner || isSelected ? 'selected' : ''}`}
-                      style={isOwner || isSelected ? {
-                        background: color.bg,
-                        color: color.text,
-                        borderColor: color.border
-                      } : {}}
-                      onClick={() => !isOwner && handleToggleDept(dept.id)}
-                      disabled={isOwner}
-                    >
-                      {dept.name.split(' ')[0]}
-                      {isOwner && <span className="mc-owner-star">*</span>}
-                    </button>
-                  );
-                })}
-              </div>
-            ) : (
-              <>
-                {ownerDept && (() => {
-                  const color = getDeptColor(ownerDept.id);
-                  return (
-                    <span
-                      className="mc-dept-badge"
-                      style={{ background: color.bg, color: color.text, borderColor: color.border }}
-                    >
-                      {ownerDept.name}
-                    </span>
-                  );
-                })()}
-                {linkedDeptNames.map(d => {
-                  const color = getDeptColor(d.id);
-                  return (
-                    <span
-                      key={d.id}
-                      className="mc-dept-badge"
-                      style={{ background: color.bg, color: color.text, borderColor: color.border }}
-                    >
-                      {d.name}
-                    </span>
-                  );
-                })}
-                {!ownerDept && linkedDeptNames.length === 0 && (
-                  <span className="mc-scope-badge company-wide">Company-wide</span>
-                )}
-              </>
-            )}
-          </div>
-
-          {/* Content Section - Preview by default, markdown when editing */}
-          <div className="mc-content-section">
-            {isEditing ? (
-              <div className="mc-edit-full">
-                <div className="mc-editor-toolbar">
-                  <button
-                    className="mc-btn-format-ai"
-                    onClick={handleFormatWithAI}
-                    disabled={formatting || !editedContent.trim()}
-                    title="Convert plain text to formatted Markdown"
-                  >
-                    {formatting ? (
-                      <>
-                        <svg className="mc-btn-icon spinning" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M12 2v4m0 12v4m-8-10h4m12 0h4m-5.66-5.66l-2.83 2.83m-5.02 5.02l-2.83 2.83m0-11.32l2.83 2.83m5.02 5.02l2.83 2.83"/>
-                        </svg>
-                        Formatting...
-                      </>
-                    ) : (
-                      <>
-                        <svg className="mc-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                        </svg>
-                        Smart Format
-                      </>
-                    )}
-                  </button>
-                  <span className="mc-editor-hint">Converts tables, headers, and lists to Markdown</span>
-                </div>
-                <textarea
-                  className="mc-edit-textarea-full"
-                  value={editedContent}
-                  onChange={(e) => setEditedContent(e.target.value)}
-                  rows={18}
-                  placeholder="Paste any text here... then click Smart Format to convert to Markdown"
-                  autoFocus={!startEditing}
-                />
-              </div>
-            ) : (
-              <div className="mc-content-preview">
-                {content ? (
-                  <MarkdownViewer content={content} skipCleanup={true} />
-                ) : (
-                  <p className="mc-no-content">No content yet. Click Edit to add content.</p>
-                )}
-              </div>
-            )}
-          </div>
+              {editedTitle || playbook.title}
+              <svg className="mc-pencil-icon" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+              </svg>
+            </h2>
+          )}
         </div>
+        <button className="mc-modal-close-clean" onClick={onClose} aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
 
-        <div className="mc-modal-footer-clean">
+      <div className="mc-modal-body">
+        {/* Metadata row: Type badge + Department badges together */}
+        <div className="mc-playbook-meta-row">
+          {/* Type badge */}
+          <span
+            className="mc-type-badge"
+            style={{ background: typeStyle.bg, color: typeStyle.color }}
+          >
+            {playbook.doc_type.toUpperCase()}
+          </span>
+
+          {/* Department badges - inline with type */}
           {isEditing ? (
-            <>
-              <button className="mc-btn-clean secondary" onClick={handleCancelEdit} disabled={saving}>
-                Cancel
-              </button>
-              <button className="mc-btn-clean primary" onClick={handleSave} disabled={saving}>
-                {saving ? 'Saving...' : 'Save Changes'}
-              </button>
-            </>
+            <div className="mc-dept-edit-inline">
+              <span className="mc-dept-label">Departments:</span>
+              {filteredDepts.slice(0, 5).map(dept => {
+                const isOwner = dept.id === playbook.department_id;
+                const isSelected = selectedDepts.includes(dept.id);
+                const color = getDeptColor(dept.id);
+                return (
+                  <button
+                    key={dept.id}
+                    type="button"
+                    className={`mc-dept-chip-mini ${isOwner || isSelected ? 'selected' : ''}`}
+                    style={isOwner || isSelected ? {
+                      background: color.bg,
+                      color: color.text,
+                      borderColor: color.border
+                    } : {}}
+                    onClick={() => !isOwner && handleToggleDept(dept.id)}
+                    disabled={isOwner}
+                  >
+                    {dept.name.split(' ')[0]}
+                    {isOwner && <span className="mc-owner-star">*</span>}
+                  </button>
+                );
+              })}
+            </div>
           ) : (
             <>
-              {onSave && (
-                <button className="mc-btn-clean secondary" onClick={() => setIsEditing(true)}>
-                  <svg className="mc-btn-icon" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                  </svg>
-                  Edit
-                </button>
+              {ownerDept && (() => {
+                const color = getDeptColor(ownerDept.id);
+                return (
+                  <span
+                    className="mc-dept-badge"
+                    style={{ background: color.bg, color: color.text, borderColor: color.border }}
+                  >
+                    {ownerDept.name}
+                  </span>
+                );
+              })()}
+              {linkedDeptNames.map(d => {
+                const color = getDeptColor(d.id);
+                return (
+                  <span
+                    key={d.id}
+                    className="mc-dept-badge"
+                    style={{ background: color.bg, color: color.text, borderColor: color.border }}
+                  >
+                    {d.name}
+                  </span>
+                );
+              })}
+              {!ownerDept && linkedDeptNames.length === 0 && (
+                <span className="mc-scope-badge company-wide">Company-wide</span>
               )}
-              <button className="mc-btn-clean primary" onClick={onClose}>Done</button>
             </>
           )}
         </div>
+
+        {/* Content Section - Preview by default, markdown when editing */}
+        <div className="mc-content-section">
+          {isEditing ? (
+            <div className="mc-edit-full">
+              <div className="mc-editor-toolbar">
+                <button
+                  className="mc-btn-format-ai"
+                  onClick={handleFormatWithAI}
+                  disabled={formatting || !editedContent.trim()}
+                  title="Convert plain text to formatted Markdown"
+                >
+                  {formatting ? (
+                    <>
+                      <svg className="mc-btn-icon spinning" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M12 2v4m0 12v4m-8-10h4m12 0h4m-5.66-5.66l-2.83 2.83m-5.02 5.02l-2.83 2.83m0-11.32l2.83 2.83m5.02 5.02l2.83 2.83"/>
+                      </svg>
+                      Formatting...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="mc-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                      </svg>
+                      Smart Format
+                    </>
+                  )}
+                </button>
+                <span className="mc-editor-hint">Converts tables, headers, and lists to Markdown</span>
+              </div>
+              <textarea
+                className="mc-edit-textarea-full"
+                value={editedContent}
+                onChange={(e) => setEditedContent(e.target.value)}
+                rows={18}
+                placeholder="Paste any text here... then click Smart Format to convert to Markdown"
+                autoFocus={!startEditing}
+              />
+            </div>
+          ) : (
+            <div className="mc-content-preview">
+              {content ? (
+                <MarkdownViewer content={content} skipCleanup={true} />
+              ) : (
+                <p className="mc-no-content">No content yet. Click Edit to add content.</p>
+              )}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+
+      <AppModal.Footer>
+        {isEditing ? (
+          <>
+            <button className="app-modal-btn app-modal-btn-secondary" onClick={handleCancelEdit} disabled={saving}>
+              Cancel
+            </button>
+            <button className="app-modal-btn app-modal-btn-primary" onClick={handleSave} disabled={saving}>
+              {saving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </>
+        ) : (
+          <>
+            {onSave && (
+              <button className="app-modal-btn app-modal-btn-secondary" onClick={() => setIsEditing(true)}>
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
+                Edit
+              </button>
+            )}
+            <button className="app-modal-btn app-modal-btn-primary" onClick={onClose}>Done</button>
+          </>
+        )}
+      </AppModal.Footer>
+    </AppModal>
   );
 }
 
-// Edit Company Context Modal - Preview-first UX with clean design
-function ViewCompanyContextModal({ data, companyName, onClose, onSave }) {
-  const [isEditing, setIsEditing] = useState(false);
+// ViewPlaybookModal - end of component
+
+// Edit Company Context Modal - starts in edit mode when triggered from Edit button
+function ViewCompanyContextModal({ data, companyName, onClose, onSave, initialEditing = true, fullscreen = false }) {
+  const [isEditing, setIsEditing] = useState(initialEditing);
   const [editedContext, setEditedContext] = useState(data.context_md || '');
   const [saving, setSaving] = useState(false);
 
@@ -1894,32 +2452,26 @@ function ViewCompanyContextModal({ data, companyName, onClose, onSave }) {
   };
 
   return (
-    <div className="mc-modal-overlay" onClick={onClose}>
-      <div className="mc-modal wide" onClick={e => e.stopPropagation()}>
-        {/* Clean header */}
-        <div className="mc-modal-header-clean">
-          <div className="mc-header-title-row">
-            <span className="mc-type-badge-header" style={{ background: '#ecfdf5', color: '#047857' }}>
-              COMPANY
-            </span>
-            <h2 className="mc-title-display">{companyName || 'Company'} Context</h2>
-          </div>
-          <button className="mc-modal-close-clean" onClick={onClose} aria-label="Close">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+    <AppModal
+      isOpen={true}
+      onClose={onClose}
+      size={fullscreen ? 'full' : 'lg'}
+      title="Company Context"
+      description="This context is injected into every AI Council conversation."
+      contentClassName="mc-modal-no-padding"
+    >
+      <div className="mc-modal-body">
 
-        <div className="mc-modal-body">
-          <p className="mc-context-hint">
-            This context is injected into every AI Council conversation to help provide relevant advice.
-          </p>
-
-          {/* Content Section - Preview by default, markdown when editing */}
-          <div className="mc-content-section">
-            {isEditing ? (
-              <div className="mc-edit-full">
+        {/* Content Section - Preview by default, markdown when editing */}
+        <div className="mc-content-section">
+          {isEditing ? (
+            <div className="mc-edit-full">
+              <AIWriteAssist
+                context="company-context"
+                value={editedContext}
+                onSuggestion={setEditedContext}
+                additionalContext={companyName ? `Company: ${companyName}` : ''}
+              >
                 <textarea
                   className="mc-edit-textarea-full"
                   value={editedContext}
@@ -1936,50 +2488,63 @@ Include:
 - Team structure
 - Any other important context for the AI Council"
                 />
-              </div>
-            ) : (
-              <div className="mc-content-preview">
-                {content ? (
-                  <MarkdownViewer content={content} skipCleanup={true} />
-                ) : (
-                  <p className="mc-no-content">No company context yet. Click Edit to add context.</p>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="mc-modal-footer-clean">
-          {isEditing ? (
-            <>
-              <button className="mc-btn-clean secondary" onClick={handleCancelEdit} disabled={saving}>
-                Cancel
-              </button>
-              <button className="mc-btn-clean primary" onClick={handleSave} disabled={saving}>
-                {saving ? 'Saving...' : 'Save Changes'}
-              </button>
-            </>
+              </AIWriteAssist>
+            </div>
           ) : (
-            <>
-              {onSave && (
-                <button className="mc-btn-clean secondary" onClick={() => setIsEditing(true)}>
-                  <svg className="mc-btn-icon" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                  </svg>
-                  Edit
-                </button>
+            <div className="mc-content-preview">
+              {content ? (
+                <MarkdownViewer content={content} skipCleanup={true} />
+              ) : (
+                <p className="mc-no-content">No company context yet. Click Edit to add context.</p>
               )}
-              <button className="mc-btn-clean primary" onClick={onClose}>Done</button>
-            </>
+            </div>
           )}
         </div>
       </div>
-    </div>
+
+      <AppModal.Footer>
+        {isEditing ? (
+          <>
+            <button className="app-modal-btn app-modal-btn-secondary" onClick={handleCancelEdit} disabled={saving}>
+              Cancel
+            </button>
+            <button className="app-modal-btn app-modal-btn-primary" onClick={handleSave} disabled={saving}>
+              {saving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </>
+        ) : (
+          <>
+            {onSave && (
+              <button className="app-modal-btn app-modal-btn-secondary" onClick={() => setIsEditing(true)}>
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
+                Edit
+              </button>
+            )}
+            <button className="app-modal-btn app-modal-btn-primary" onClick={onClose}>Done</button>
+          </>
+        )}
+      </AppModal.Footer>
+    </AppModal>
   );
 }
 
 // View Decision Modal
-function ViewDecisionModal({ decision, departments = [], playbooks = [], onClose, onPromote }) {
+function ViewDecisionModal({ decision, departments = [], playbooks = [], projects = [], onClose, onPromote, onViewProject }) {
+  const [copied, setCopied] = useState(false);
+
+  // Copy decision content (not including user question)
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(decision.content || '');
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
   // Format date as "December 12, 2025" - works for US and EU
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
@@ -1994,6 +2559,14 @@ function ViewDecisionModal({ decision, departments = [], playbooks = [], onClose
   const linkedPlaybook = decision.promoted_to_id && playbooks.length > 0
     ? playbooks.find(p => p.id === decision.promoted_to_id)
     : null;
+
+  // Get linked project (if decision was saved as part of a project)
+  const linkedProject = decision.project_id && projects.length > 0
+    ? projects.find(p => p.id === decision.project_id)
+    : null;
+
+  // Decision is "promoted" if it's either a playbook OR a project
+  const isAlreadyPromoted = decision.is_promoted || decision.project_id;
 
   // Get type from linked playbook (always use playbook as source of truth)
   const getTypeLabel = () => {
@@ -2037,75 +2610,107 @@ function ViewDecisionModal({ decision, departments = [], playbooks = [], onClose
   const playbookDepts = getPlaybookDepts();
 
   return (
-    <div className="mc-modal-overlay" onClick={onClose}>
-      <div className="mc-modal wide" onClick={e => e.stopPropagation()}>
-        <div className="mc-modal-header">
-          <h2>{decision.title}</h2>
-          <button className="mc-modal-close" onClick={onClose}>&times;</button>
+    <AppModal isOpen={true} onClose={onClose} title={decision.title} size="lg">
+      {/* User question - most important context for understanding what this is about */}
+      {decision.user_question && (
+        <div className="mc-decision-question">
+          <span className="mc-decision-question-label">Question:</span>
+          <p className="mc-decision-question-text">{decision.user_question}</p>
         </div>
-        <div className="mc-modal-body">
-          <div className="mc-decision-meta">
-            {decision.is_promoted ? (
-              <div className="mc-promoted-info-row">
-                <span className="mc-promoted-label">
-                  <span className="icon">✓</span>
-                  Promoted
-                </span>
-                {typeLabel && (
-                  <span className={`mc-type-badge ${typeValue}`}>
-                    {typeLabel}
-                  </span>
-                )}
-                {playbookDepts.length > 0 && playbookDepts.map(dept => {
-                  const color = getDeptColor(dept.id);
-                  return (
-                    <span
-                      key={dept.id}
-                      className="mc-dept-badge"
-                      style={{ background: color.bg, color: color.text, borderColor: color.border }}
-                    >
-                      {dept.name}
-                    </span>
-                  );
-                })}
-                {playbookDepts.length === 0 && (
-                  <span className="mc-scope-badge company-wide">Company-wide</span>
-                )}
-              </div>
-            ) : (
-              <span className="mc-pending-label">Pending promotion</span>
-            )}
-            <span className="mc-date">
-              {formatDate(decision.created_at)}
+      )}
+
+      <div className="mc-decision-meta">
+        {/* Show project link if decision is linked to a project */}
+        {linkedProject ? (
+          <div className="mc-promoted-info-row">
+            <span className="mc-promoted-label project">
+              <span className="icon">📁</span>
+              Project
             </span>
-          </div>
-          {decision.tags && decision.tags.length > 0 && (
-            <div className="mc-tags">
-              {decision.tags.map(tag => (
-                <span key={tag} className="mc-tag">{tag}</span>
-              ))}
-            </div>
-          )}
-          <div className="mc-decision-content">
-            <MarkdownViewer content={decision.content || ''} />
-          </div>
-        </div>
-        <div className="mc-modal-footer">
-          {!decision.is_promoted && onPromote && (
             <button
-              className="mc-btn primary"
-              onClick={() => onPromote(decision)}
+              className="mc-project-link-btn"
+              onClick={() => onViewProject && onViewProject(linkedProject.id)}
             >
-              <span className="mc-btn-icon">📋</span>
-              Promote to Playbook
+              {linkedProject.name} →
             </button>
-          )}
-          <button className="mc-btn" onClick={onClose}>
-            {decision.is_promoted ? 'Close' : 'Close'}
-          </button>
-        </div>
+          </div>
+        ) : decision.is_promoted ? (
+          <div className="mc-promoted-info-row">
+            <span className="mc-promoted-label">
+              <span className="icon">✓</span>
+              Playbook
+            </span>
+            {typeLabel && (
+              <span className={`mc-type-badge ${typeValue}`}>
+                {typeLabel}
+              </span>
+            )}
+            {playbookDepts.length > 0 && playbookDepts.map(dept => {
+              const color = getDeptColor(dept.id);
+              return (
+                <span
+                  key={dept.id}
+                  className="mc-dept-badge"
+                  style={{ background: color.bg, color: color.text, borderColor: color.border }}
+                >
+                  {dept.name}
+                </span>
+              );
+            })}
+            {playbookDepts.length === 0 && (
+              <span className="mc-scope-badge company-wide">Company-wide</span>
+            )}
+          </div>
+        ) : (
+          <span className="mc-pending-label">Saved decision</span>
+        )}
+        <span className="mc-date">
+          {formatDate(decision.created_at)}
+        </span>
       </div>
-    </div>
+      {decision.tags && decision.tags.length > 0 && (
+        <div className="mc-tags">
+          {decision.tags.map(tag => (
+            <span key={tag} className="mc-tag">{tag}</span>
+          ))}
+        </div>
+      )}
+      <div className="mc-decision-content">
+        {/* Floating copy button - icon only, matches Stage3 */}
+        <button
+          className={`mc-content-copy-btn ${copied ? 'copied' : ''}`}
+          onClick={handleCopy}
+          title="Copy council response"
+        >
+          {copied ? (
+            <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          ) : (
+            <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+            </svg>
+          )}
+        </button>
+        <MarkdownViewer content={decision.content || ''} />
+      </div>
+      <AppModal.Footer>
+        {/* Only show Promote to Playbook if NOT already a playbook AND NOT linked to a project */}
+        {!isAlreadyPromoted && onPromote && (
+          <button
+            className="mc-btn primary"
+            onClick={() => onPromote(decision)}
+          >
+            <span className="mc-btn-icon">📋</span>
+            Promote to Playbook
+          </button>
+        )}
+        <button className="mc-btn" onClick={onClose}>
+          Close
+        </button>
+      </AppModal.Footer>
+    </AppModal>
   );
 }
 
@@ -2137,36 +2742,29 @@ function ViewDepartmentModal({ department, onClose, onSave }) {
   };
 
   return (
-    <div className="mc-modal-overlay" onClick={onClose}>
-      <div className="mc-modal wide" onClick={e => e.stopPropagation()}>
-        {/* Clean header */}
-        <div className="mc-modal-header-clean">
-          <div className="mc-header-title-row">
-            <span
-              className="mc-type-badge-header"
-              style={{ background: deptColor.bg, color: deptColor.text }}
-            >
-              DEPARTMENT
-            </span>
-            <h2 className="mc-title-display">{department.name}</h2>
-            <span className="mc-meta-pill">{department.roles?.length || 0} roles</span>
-          </div>
-          <button className="mc-modal-close-clean" onClick={onClose} aria-label="Close">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+    <AppModal
+      isOpen={true}
+      onClose={onClose}
+      size="lg"
+      badge="DEPARTMENT"
+      badgeStyle={{ background: deptColor.bg, color: deptColor.text }}
+      title={department.name}
+      titleExtra={`${department.roles?.length || 0} roles`}
+      description={department.description}
+      contentClassName="mc-modal-no-padding"
+    >
+      <div className="mc-modal-body">
 
-        <div className="mc-modal-body">
-          {department.description && (
-            <p className="mc-context-hint">{department.description}</p>
-          )}
-
-          {/* Content Section - Preview by default, markdown when editing */}
-          <div className="mc-content-section">
-            {isEditing ? (
-              <div className="mc-edit-full">
+        {/* Content Section - Preview by default, markdown when editing */}
+        <div className="mc-content-section">
+          {isEditing ? (
+            <div className="mc-edit-full">
+              <AIWriteAssist
+                context="department-description"
+                value={editedContext}
+                onSuggestion={setEditedContext}
+                additionalContext={department.name ? `Department: ${department.name}` : ''}
+              >
                 <textarea
                   className="mc-edit-textarea-full"
                   value={editedContext}
@@ -2175,45 +2773,45 @@ function ViewDepartmentModal({ department, onClose, onSave }) {
                   autoFocus
                   placeholder="Enter the context documentation for this department..."
                 />
-              </div>
-            ) : (
-              <div className="mc-content-preview">
-                {content ? (
-                  <MarkdownViewer content={content} skipCleanup={true} />
-                ) : (
-                  <p className="mc-no-content">No department context yet. Click Edit to add context.</p>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div className="mc-modal-footer-clean">
-          {isEditing ? (
-            <>
-              <button className="mc-btn-clean secondary" onClick={handleCancelEdit} disabled={saving}>
-                Cancel
-              </button>
-              <button className="mc-btn-clean primary" onClick={handleSave} disabled={saving}>
-                {saving ? 'Saving...' : 'Save Changes'}
-              </button>
-            </>
+              </AIWriteAssist>
+            </div>
           ) : (
-            <>
-              {onSave && (
-                <button className="mc-btn-clean secondary" onClick={() => setIsEditing(true)}>
-                  <svg className="mc-btn-icon" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                  </svg>
-                  Edit
-                </button>
+            <div className="mc-content-preview">
+              {content ? (
+                <MarkdownViewer content={content} skipCleanup={true} />
+              ) : (
+                <p className="mc-no-content">No department context yet. Click Edit to add context.</p>
               )}
-              <button className="mc-btn-clean primary" onClick={onClose}>Done</button>
-            </>
+            </div>
           )}
         </div>
       </div>
-    </div>
+
+      <AppModal.Footer>
+        {isEditing ? (
+          <>
+            <button className="app-modal-btn app-modal-btn-secondary" onClick={handleCancelEdit} disabled={saving}>
+              Cancel
+            </button>
+            <button className="app-modal-btn app-modal-btn-primary" onClick={handleSave} disabled={saving}>
+              {saving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </>
+        ) : (
+          <>
+            {onSave && (
+              <button className="app-modal-btn app-modal-btn-secondary" onClick={() => setIsEditing(true)}>
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
+                Edit
+              </button>
+            )}
+            <button className="app-modal-btn app-modal-btn-primary" onClick={onClose}>Done</button>
+          </>
+        )}
+      </AppModal.Footer>
+    </AppModal>
   );
 }
 
@@ -2238,120 +2836,110 @@ function PromoteDecisionModal({ decision, departments, onPromote, onClose, savin
   const hasSource = decision?.source_conversation_id && !decision.source_conversation_id.startsWith('temp-');
 
   return (
-    <div className="mc-modal-overlay" onClick={onClose}>
-      <div className="mc-modal mc-promote-modal-full" onClick={e => e.stopPropagation()}>
-        <div className="mc-modal-header-unified">
-          <h2>Promote to Playbook</h2>
-          <button className="mc-modal-close-unified" onClick={onClose}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        <form onSubmit={handleSubmit}>
-          <div className="mc-promote-layout-v2">
-            {/* LEFT side: Options */}
-            <div className="mc-promote-sidebar">
-              {/* Title Input */}
-              <div className="mc-form-unified">
-                <label className="mc-label-unified">Title</label>
-                <input
-                  type="text"
-                  className="mc-input-unified"
-                  value={title}
-                  onChange={e => setTitle(e.target.value)}
-                  placeholder="e.g., Customer Onboarding Process"
-                  autoFocus
-                />
-              </div>
-
-              {/* Department selector */}
-              <div className="mc-form-unified">
-                <label className="mc-label-unified">Department</label>
-                <DepartmentSelect
-                  value={departmentId || 'all'}
-                  onValueChange={(val) => setDepartmentId(val === 'all' ? '' : val)}
-                  departments={departments || []}
-                  includeAll={true}
-                  allLabel="All Departments"
-                  className="mc-dept-select-modal"
-                />
-              </div>
-
-              {/* Type selector - vertical cards */}
-              <div className="mc-form-unified">
-                <label className="mc-label-unified">Playbook Type</label>
-                <div className="mc-type-cards">
-                  {DOC_TYPES.map(type => {
-                    const Icon = type.icon;
-                    const isSelected = docType === type.value;
-                    return (
-                      <button
-                        key={type.value}
-                        type="button"
-                        className={`mc-type-card ${type.value} ${isSelected ? 'selected' : ''}`}
-                        onClick={() => setDocType(type.value)}
-                      >
-                        <Icon className="mc-type-card-icon" />
-                        <div className="mc-type-card-text">
-                          <span className="mc-type-card-label">{type.label}</span>
-                          <span className="mc-type-card-desc">{type.desc}</span>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Source link - compact inline text */}
-              {hasSource && onViewSource && (
-                <button
-                  type="button"
-                  className="mc-source-link-compact"
-                  onClick={() => onViewSource(decision.source_conversation_id)}
-                >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" />
-                  </svg>
-                  View source
-                </button>
-              )}
+    <AppModal isOpen={true} onClose={onClose} title="Promote to Playbook" size="xl" contentClassName="mc-modal-no-padding">
+      <form onSubmit={handleSubmit}>
+        <div className="mc-promote-layout-v2">
+          {/* LEFT side: Options */}
+          <div className="mc-promote-sidebar">
+            {/* Title Input */}
+            <div className="mc-form-unified">
+              <label className="mc-label-unified">Title</label>
+              <input
+                type="text"
+                className="mc-input-unified"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+                placeholder="e.g., Customer Onboarding Process"
+                autoFocus
+              />
             </div>
 
-            {/* RIGHT side: Full content rendered */}
-            <div className="mc-promote-content-full">
-              <label className="mc-label-unified">Content</label>
-              <div className="mc-promote-content-rendered">
-                {decision?.content ? (
-                  <MarkdownViewer content={decision.content} />
-                ) : (
-                  <p className="mc-no-content">No content available</p>
-                )}
+            {/* Department selector */}
+            <div className="mc-form-unified">
+              <label className="mc-label-unified">Department</label>
+              <DepartmentSelect
+                value={departmentId || 'all'}
+                onValueChange={(val) => setDepartmentId(val === 'all' ? '' : val)}
+                departments={departments || []}
+                includeAll={true}
+                allLabel="All Departments"
+                className="mc-dept-select-modal"
+              />
+            </div>
+
+            {/* Type selector - vertical cards */}
+            <div className="mc-form-unified">
+              <label className="mc-label-unified">Playbook Type</label>
+              <div className="mc-type-cards">
+                {DOC_TYPES.map(type => {
+                  const Icon = type.icon;
+                  const isSelected = docType === type.value;
+                  return (
+                    <button
+                      key={type.value}
+                      type="button"
+                      className={`mc-type-card ${type.value} ${isSelected ? 'selected' : ''}`}
+                      onClick={() => setDocType(type.value)}
+                    >
+                      <Icon className="mc-type-card-icon" />
+                      <div className="mc-type-card-text">
+                        <span className="mc-type-card-label">{type.label}</span>
+                        <span className="mc-type-card-desc">{type.desc}</span>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
+
+            {/* Source link - compact inline text */}
+            {hasSource && onViewSource && (
+              <button
+                type="button"
+                className="mc-source-link-compact"
+                onClick={() => onViewSource(decision.source_conversation_id)}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" />
+                </svg>
+                View source
+              </button>
+            )}
           </div>
 
-          <div className="mc-modal-footer-unified">
-            <button type="button" className="mc-btn-unified secondary" onClick={onClose} disabled={saving}>
-              Cancel
-            </button>
-            <button type="submit" className="mc-btn-unified primary" disabled={saving || !title.trim()}>
-              {saving ? (
-                <>
-                  <span className="mc-btn-spinner" />
-                  Creating...
-                </>
+          {/* RIGHT side: Full content rendered */}
+          <div className="mc-promote-content-full">
+            <label className="mc-label-unified">Content</label>
+            <div className="mc-promote-content-rendered">
+              {decision?.content ? (
+                <MarkdownViewer content={decision.content} />
               ) : (
-                <>
-                  <Bookmark className="h-4 w-4" />
-                  Create {DOC_TYPES.find(t => t.value === docType)?.label}
-                </>
+                <p className="mc-no-content">No content available</p>
               )}
-            </button>
+            </div>
           </div>
-        </form>
-      </div>
-    </div>
+        </div>
+
+        <AppModal.Footer>
+          <button type="button" className="app-modal-btn app-modal-btn-secondary" onClick={onClose} disabled={saving}>
+            Cancel
+          </button>
+          <button type="submit" className="app-modal-btn app-modal-btn-primary" disabled={saving || !title.trim()}>
+            {saving ? (
+              <>
+                <Spinner size="sm" variant="muted" />
+                Creating...
+              </>
+            ) : (
+              <>
+                <Bookmark className="h-4 w-4" />
+                Create {DOC_TYPES.find(t => t.value === docType)?.label}
+              </>
+            )}
+          </button>
+        </AppModal.Footer>
+      </form>
+    </AppModal>
   );
 }
 
@@ -2361,65 +2949,124 @@ function ConfirmModal({
   message,
   confirmText = 'Confirm',
   cancelText = 'Cancel',
-  variant = 'warning', // 'warning' (amber), 'danger' (red)
+  variant = 'warning', // 'warning' (amber), 'danger' (red), 'info' (purple/brand)
   onConfirm,
   onCancel,
   processing = false
 }) {
   const isDanger = variant === 'danger';
+  const isInfo = variant === 'info';
+
+  // Icon based on variant
+  const renderIcon = () => {
+    if (isDanger) {
+      // Trash icon for danger
+      return (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" />
+        </svg>
+      );
+    } else if (isInfo) {
+      // Sparkles icon for AI/info
+      return (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M12 3v1m0 16v1m-9-9h1m16 0h1m-2.636-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+        </svg>
+      );
+    } else {
+      // Warning triangle for warning
+      return (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      );
+    }
+  };
+
+  const iconClass = isDanger ? 'danger' : isInfo ? 'info' : 'warning';
+  const buttonClass = isDanger ? 'danger' : isInfo ? 'primary' : 'warning';
 
   return (
-    <div className="mc-modal-overlay" onClick={onCancel}>
-      <div className="mc-modal mc-modal-unified mc-confirm-modal" onClick={e => e.stopPropagation()}>
-        <div className="mc-modal-header-unified">
-          <h2>{title}</h2>
-          <button className="mc-modal-close-unified" onClick={onCancel} disabled={processing}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        <div className="mc-modal-body-unified">
-          <div className={`mc-confirm-icon ${isDanger ? 'danger' : 'warning'}`}>
-            {isDanger ? (
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" />
-              </svg>
-            ) : (
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            )}
-          </div>
-          <p className="mc-confirm-message">{message}</p>
-        </div>
-        <div className="mc-modal-footer-unified">
-          <button
-            type="button"
-            className="mc-btn-unified secondary"
-            onClick={onCancel}
-            disabled={processing}
-          >
-            {cancelText}
-          </button>
-          <button
-            type="button"
-            className={`mc-btn-unified ${isDanger ? 'danger' : 'warning'}`}
-            onClick={onConfirm}
-            disabled={processing}
-          >
-            {processing ? (
-              <>
-                <span className="mc-btn-spinner" />
-                Processing...
-              </>
-            ) : (
-              confirmText
-            )}
-          </button>
-        </div>
+    <AppModal isOpen={true} onClose={onCancel} title={title} size="sm">
+      <div className={`mc-confirm-icon ${iconClass}`}>
+        {renderIcon()}
       </div>
-    </div>
+      <p className="mc-confirm-message">{message}</p>
+      <AppModal.Footer>
+        <button
+          type="button"
+          className="app-modal-btn app-modal-btn-secondary"
+          onClick={onCancel}
+          disabled={processing}
+        >
+          {cancelText}
+        </button>
+        <button
+          type="button"
+          className={`app-modal-btn ${buttonClass === 'danger' ? 'app-modal-btn-danger-sm' : buttonClass === 'warning' ? 'app-modal-btn-primary' : 'app-modal-btn-primary'}`}
+          onClick={onConfirm}
+          disabled={processing}
+        >
+          {processing ? (
+            <>
+              <Spinner size="sm" variant="muted" />
+              Processing...
+            </>
+          ) : (
+            confirmText
+          )}
+        </button>
+      </AppModal.Footer>
+    </AppModal>
+  );
+}
+
+// Alert Modal - For success/error messages (replaces browser alert())
+function AlertModal({
+  title,
+  message,
+  variant = 'success', // 'success', 'error', 'info'
+  onClose
+}) {
+  const iconMap = {
+    success: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+        <polyline points="22 4 12 14.01 9 11.01" />
+      </svg>
+    ),
+    error: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+    ),
+    info: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="16" x2="12" y2="12" />
+        <line x1="12" y1="8" x2="12.01" y2="8" />
+      </svg>
+    )
+  };
+
+  return (
+    <AppModal isOpen={true} onClose={onClose} title={title} size="sm">
+      <div className={`mc-alert-icon ${variant}`}>
+        {iconMap[variant]}
+      </div>
+      <p className="mc-alert-message">{message}</p>
+      <AppModal.Footer>
+        <button
+          type="button"
+          className={`app-modal-btn ${variant === 'error' ? 'app-modal-btn-danger-sm' : 'app-modal-btn-primary'}`}
+          onClick={onClose}
+        >
+          OK
+        </button>
+      </AppModal.Footer>
+    </AppModal>
   );
 }
 
@@ -2448,22 +3095,454 @@ function ViewRoleModal({ role, onClose, onSave }) {
   };
 
   return (
-    <div className="mc-modal-overlay" onClick={onClose}>
-      <div className="mc-modal wide" onClick={e => e.stopPropagation()}>
-        {/* Clean header */}
+    <AppModal
+      isOpen={true}
+      onClose={onClose}
+      size="lg"
+      badge="ROLE"
+      badgeVariant="purple"
+      title={role.name}
+      titleExtra={role.departmentName}
+      description={role.title}
+      contentClassName="mc-modal-no-padding"
+    >
+      <div className="mc-modal-body">
+
+        {/* Content Section - Preview by default, markdown when editing */}
+        <div className="mc-content-section">
+          {isEditing ? (
+            <div className="mc-edit-full">
+              <AIWriteAssist
+                context="role-prompt"
+                value={editedPrompt}
+                onSuggestion={setEditedPrompt}
+                additionalContext={role.name ? `Role: ${role.name}${role.title ? ` (${role.title})` : ''}` : ''}
+              >
+                <textarea
+                  className="mc-edit-textarea-full"
+                  value={editedPrompt}
+                  onChange={(e) => setEditedPrompt(e.target.value)}
+                  rows={15}
+                  autoFocus
+                  placeholder="Enter the system prompt for this role..."
+                />
+              </AIWriteAssist>
+            </div>
+          ) : (
+            <div className="mc-content-preview">
+              {content ? (
+                <MarkdownViewer content={content} skipCleanup={true} />
+              ) : (
+                <p className="mc-no-content">No system prompt yet. Click Edit to add one.</p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <AppModal.Footer>
+        {isEditing ? (
+          <>
+            <button className="app-modal-btn app-modal-btn-secondary" onClick={handleCancelEdit} disabled={saving}>
+              Cancel
+            </button>
+            <button className="app-modal-btn app-modal-btn-primary" onClick={handleSave} disabled={saving}>
+              {saving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </>
+        ) : (
+          <>
+            {onSave && (
+              <button className="app-modal-btn app-modal-btn-secondary" onClick={() => setIsEditing(true)}>
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
+                Edit
+              </button>
+            )}
+            <button className="app-modal-btn app-modal-btn-primary" onClick={onClose}>Done</button>
+          </>
+        )}
+      </AppModal.Footer>
+    </AppModal>
+  );
+}
+
+
+/**
+ * ViewProjectModal - View and edit project details including context and decisions timeline
+ */
+function ViewProjectModal({ project: initialProject, companyId, departments = [], onClose, onSave, isNew = false, onNavigateToConversation, onProjectUpdate, onStatusChange, onDelete }) {
+  // Local project state that can be updated after save
+  const [project, setProject] = useState(initialProject);
+
+  // State for action confirmations
+  const [confirmingAction, setConfirmingAction] = useState(null); // 'complete' | 'archive' | 'restore' | 'delete'
+  const [actionLoading, setActionLoading] = useState(false);
+
+  // Alert modal state (local to this component)
+  const [alertModal, setAlertModal] = useState(null); // { title, message, variant }
+
+  const [isEditing, setIsEditing] = useState(isNew);
+  const [editedName, setEditedName] = useState(project.name || '');
+  const [editedDescription, setEditedDescription] = useState(project.description || '');
+  const [editedContext, setEditedContext] = useState(project.context_md || '');
+  const [editedStatus, setEditedStatus] = useState(project.status || 'active');
+  // Use department_ids array (with fallback to single department_id for backwards compatibility)
+  const [editedDepartmentIds, setEditedDepartmentIds] = useState(
+    project.department_ids?.length > 0 ? project.department_ids :
+    project.department_id ? [project.department_id] : []
+  );
+  const [saving, setSaving] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(isNew);
+
+  // Tab state for Context vs Decisions
+  const [activeTab, setActiveTab] = useState('context'); // 'context' | 'decisions'
+
+  // Decisions timeline state
+  const [projectDecisions, setProjectDecisions] = useState([]);
+  const [loadingDecisions, setLoadingDecisions] = useState(false);
+  const [expandedDecisionId, setExpandedDecisionId] = useState(null);
+  const [generatingSummaryId, setGeneratingSummaryId] = useState(null);
+
+  // Regenerate context state
+  const [regenerating, setRegenerating] = useState(false);
+
+  // Copy context state
+  const [contextCopied, setContextCopied] = useState(false);
+
+  // Check if a summary is garbage and needs regeneration
+  // NOTE: New decisions get summaries at save time (in merge endpoint).
+  // This check is only for LEGACY decisions saved before that feature was added.
+  const isGarbageSummary = (summary) => {
+    if (!summary) return true;
+    const garbageTexts = [
+      'added council decision to project',
+      'decision merged into project',
+      'added new council decision section'
+    ];
+    const lowerSummary = summary.toLowerCase().trim();
+    return garbageTexts.includes(lowerSummary) || summary.length < 50;
+  };
+
+  // Handle expanding a decision - only regenerate summaries for legacy decisions without one
+  // New decisions should already have summaries (generated at save time)
+  const handleExpandDecision = async (decisionId) => {
+    if (expandedDecisionId === decisionId) {
+      // Collapsing
+      setExpandedDecisionId(null);
+      return;
+    }
+
+    // Expanding
+    setExpandedDecisionId(decisionId);
+
+    // LEGACY FALLBACK: Only regenerate for old decisions without proper summaries
+    // New decisions get summaries at save time, so this should rarely trigger
+    const decision = projectDecisions.find(d => d.id === decisionId);
+    const needsRegeneration = decision && decision.user_question && isGarbageSummary(decision.decision_summary);
+
+    if (needsRegeneration) {
+      console.log('[MyCompany] Legacy decision needs summary:', decisionId, 'current:', decision.decision_summary);
+      setGeneratingSummaryId(decisionId);
+      try {
+        const result = await api.generateDecisionSummary(companyId, decisionId);
+        console.log('[MyCompany] Generated summary result:', result);
+        if (result && !result.cached) {
+          // Update the decision in state with both new summary and title
+          setProjectDecisions(prev => prev.map(d =>
+            d.id === decisionId ? {
+              ...d,
+              decision_summary: result.summary || d.decision_summary,
+              title: result.title || d.title
+            } : d
+          ));
+        }
+      } catch (err) {
+        console.error('Failed to generate summary:', err);
+      } finally {
+        setGeneratingSummaryId(null);
+      }
+    }
+  };
+
+  // Group decisions by conversation for visual linking
+  const groupedDecisions = useMemo(() => {
+    if (!projectDecisions.length) return [];
+
+    // Create groups - decisions with same source_conversation_id are grouped together
+    const groups = [];
+    let currentGroup = null;
+
+    // Sort by created_at to ensure chronological order
+    const sorted = [...projectDecisions].sort((a, b) =>
+      new Date(a.created_at) - new Date(b.created_at)
+    );
+
+    sorted.forEach(decision => {
+      const convId = decision.source_conversation_id;
+
+      if (!convId) {
+        // No conversation - standalone decision
+        groups.push({ type: 'single', decisions: [decision] });
+        currentGroup = null;
+      } else if (currentGroup && currentGroup.conversationId === convId) {
+        // Same conversation as current group
+        currentGroup.decisions.push(decision);
+      } else {
+        // New conversation group
+        currentGroup = {
+          type: 'group',
+          conversationId: convId,
+          decisions: [decision]
+        };
+        groups.push(currentGroup);
+      }
+    });
+
+    return groups;
+  }, [projectDecisions]);
+
+  const content = project.context_md || '';
+
+  // Get department names for display
+  const getDepartmentNames = () => {
+    if (!editedDepartmentIds || editedDepartmentIds.length === 0) return null;
+    return editedDepartmentIds
+      .map(id => departments.find(d => d.id === id)?.name)
+      .filter(Boolean);
+  };
+
+  // Handle regenerating project context from all decisions
+  const [regenCountdown, setRegenCountdown] = useState(null); // null = not counting, 3/2/1 = counting down
+  const countdownRef = useRef(null);
+
+  const handleRegenerateContext = () => {
+    if (!project.id || regenerating) return;
+    // Start 3-second countdown
+    setRegenCountdown(3);
+  };
+
+  const cancelCountdown = () => {
+    if (countdownRef.current) {
+      clearInterval(countdownRef.current);
+      countdownRef.current = null;
+    }
+    setRegenCountdown(null);
+  };
+
+  // Countdown effect
+  useEffect(() => {
+    if (regenCountdown === null) return;
+
+    if (regenCountdown === 0) {
+      // Time's up - execute
+      countdownRef.current = null;
+      setRegenCountdown(null);
+      executeRegenerateContext();
+      return;
+    }
+
+    // Tick down every second
+    countdownRef.current = setTimeout(() => {
+      setRegenCountdown(prev => prev - 1);
+    }, 1000);
+
+    return () => {
+      if (countdownRef.current) {
+        clearTimeout(countdownRef.current);
+      }
+    };
+  }, [regenCountdown]);
+
+  const executeRegenerateContext = async () => {
+    setRegenerating(true);
+    try {
+      console.log('[AI Enhance] Calling regenerateProjectContext for project:', project.id);
+      const result = await api.regenerateProjectContext(project.id);
+      console.log('[AI Enhance] Result received:', result);
+      if (result.success && result.context_md) {
+        // Update local state - user sees context update immediately, no modal needed
+        setProject(prev => ({ ...prev, context_md: result.context_md }));
+        setEditedContext(result.context_md);
+        // Silent success - the updated context appearing is feedback enough
+      } else {
+        setAlertModal({
+          title: 'Regeneration Failed',
+          message: result.message || 'Unknown error occurred.',
+          variant: 'error'
+        });
+      }
+    } catch (err) {
+      console.error('Failed to regenerate context:', err);
+      setAlertModal({
+        title: 'Regeneration Failed',
+        message: err.message || 'An unexpected error occurred.',
+        variant: 'error'
+      });
+    } finally {
+      setRegenerating(false);
+    }
+  };
+
+  // Sync project departments from all decisions when modal opens
+  // This ensures the department badges are up-to-date from all decisions
+  useEffect(() => {
+    if (companyId && project.id && !isEditing) {
+      console.log('[MyCompany] Syncing departments on modal open for project:', project.id);
+      api.syncProjectDepartments(companyId, project.id)
+        .then(syncResult => {
+          console.log('[MyCompany] Sync result:', syncResult);
+          // Update local project state with synced department_ids
+          if (syncResult?.department_ids) {
+            console.log('[MyCompany] Updating editedDepartmentIds to:', syncResult.department_ids);
+            setProject(prev => ({
+              ...prev,
+              department_ids: syncResult.department_ids
+            }));
+            setEditedDepartmentIds(syncResult.department_ids);
+            // Also update parent projects list so dashboard shows correct departments
+            if (onProjectUpdate) {
+              onProjectUpdate(project.id, { department_ids: syncResult.department_ids });
+            }
+          }
+        })
+        .catch(err => {
+          console.log('[MyCompany] Dept sync failed:', err.message);
+        });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyId, project.id]); // Only run once on modal open, not on tab change
+
+  // Load decisions when switching to decisions tab (only if not already loaded)
+  useEffect(() => {
+    if (activeTab === 'decisions' && companyId && project.id && projectDecisions.length === 0) {
+      setLoadingDecisions(true);
+      api.getProjectDecisions(companyId, project.id)
+        .then(data => {
+          setProjectDecisions(data.decisions || []);
+        })
+        .catch(err => {
+          console.error('Failed to load project decisions:', err);
+        })
+        .finally(() => {
+          setLoadingDecisions(false);
+        });
+    }
+  }, [activeTab, companyId, project.id, projectDecisions.length]);
+
+  // Format date for timeline
+  const formatTimelineDate = (dateStr) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'active': return { bg: '#dbeafe', text: '#1d4ed8' };
+      case 'completed': return { bg: '#dcfce7', text: '#15803d' };
+      case 'archived': return { bg: '#f3f4f6', text: '#6b7280' };
+      default: return { bg: '#f3f4f6', text: '#6b7280' };
+    }
+  };
+
+  const handleSave = async () => {
+    if (onSave) {
+      if (!editedName.trim()) {
+        alert('Project name is required');
+        return;
+      }
+      setSaving(true);
+      try {
+        // onSave now returns the updated project data
+        const updatedProject = await onSave(project.id, {
+          name: editedName,
+          description: editedDescription,
+          context_md: editedContext,
+          status: editedStatus,
+          department_ids: editedDepartmentIds.length > 0 ? editedDepartmentIds : null
+        });
+        // Update local project state with returned data (stay on view, don't close)
+        if (updatedProject) {
+          setProject(updatedProject);
+        }
+        setIsEditing(false);
+        setIsEditingName(false);
+      } catch (err) {
+        // Error handled by parent
+      }
+      setSaving(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    if (isNew) {
+      onClose(); // Close modal for new project cancel
+      return;
+    }
+    setIsEditing(false);
+    setIsEditingName(false);
+    setEditedName(project.name || '');
+    setEditedDescription(project.description || '');
+    setEditedContext(project.context_md || '');
+    setEditedStatus(project.status || 'active');
+    setEditedDepartmentIds(
+      project.department_ids?.length > 0 ? project.department_ids :
+      project.department_id ? [project.department_id] : []
+    );
+  };
+
+  // Copy context to clipboard
+  const handleCopyContext = async () => {
+    try {
+      await navigator.clipboard.writeText(content || '');
+      setContextCopied(true);
+      setTimeout(() => setContextCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
+  return (
+    <AppModal
+      isOpen={true}
+      onClose={onClose}
+      size="lg"
+      showCloseButton={false}
+      contentClassName="mc-modal-no-padding"
+    >
+        {/* Header with title */}
         <div className="mc-modal-header-clean">
           <div className="mc-header-title-row">
-            <span className="mc-type-badge-header" style={{ background: '#e0e7ff', color: '#4338ca' }}>
-              ROLE
-            </span>
-            <h2 className="mc-title-display">{role.name}</h2>
-            {role.departmentName && (
-              <span
-                className="mc-dept-badge"
-                style={{ background: deptColor.bg, color: deptColor.text, borderColor: deptColor.border || deptColor.bg }}
+            {isEditingName || isNew ? (
+              <input
+                type="text"
+                className="mc-title-inline-edit"
+                value={editedName}
+                onChange={(e) => setEditedName(e.target.value)}
+                onBlur={() => !isNew && setIsEditingName(false)}
+                onKeyDown={(e) => e.key === 'Enter' && !isNew && setIsEditingName(false)}
+                placeholder={isNew ? "Enter project name..." : ""}
+                autoFocus
+              />
+            ) : (
+              <h2
+                className="mc-title-display editable"
+                onClick={() => setIsEditingName(true)}
+                title="Click to edit name"
               >
-                {role.departmentName}
-              </span>
+                {editedName || project.name}
+                <svg className="mc-pencil-icon" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
+              </h2>
             )}
           </div>
           <button className="mc-modal-close-clean" onClick={onClose} aria-label="Close">
@@ -2474,60 +3553,563 @@ function ViewRoleModal({ role, onClose, onSave }) {
         </div>
 
         <div className="mc-modal-body">
-          {role.title && (
-            <p className="mc-context-hint">{role.title}</p>
-          )}
+          {/* Status, Department and info row */}
+          <div className="mc-project-meta-row">
+            {/* Status badge - shown in both view and edit modes (status changed via footer actions) */}
+            {!isNew && (
+              <span
+                className="mc-status-badge"
+                style={{
+                  background: getStatusColor(editedStatus).bg,
+                  color: getStatusColor(editedStatus).text
+                }}
+              >
+                {editedStatus}
+              </span>
+            )}
 
-          {/* Content Section - Preview by default, markdown when editing */}
-          <div className="mc-content-section">
+            {/* Source indicator - how was this project created */}
+            {!isNew && !isEditing && project.source && project.source !== 'manual' && (
+              <span className={`mc-source-badge ${project.source}`}>
+                {project.source === 'council' ? 'From Council' : project.source === 'import' ? 'Imported' : project.source}
+              </span>
+            )}
+
+            {/* Departments - using multi-select when editing */}
             {isEditing ? (
-              <div className="mc-edit-full">
-                <textarea
-                  className="mc-edit-textarea-full"
-                  value={editedPrompt}
-                  onChange={(e) => setEditedPrompt(e.target.value)}
-                  rows={15}
-                  autoFocus
-                  placeholder="Enter the system prompt for this role..."
-                />
-              </div>
+              <MultiDepartmentSelect
+                value={editedDepartmentIds}
+                onValueChange={setEditedDepartmentIds}
+                departments={departments}
+                placeholder="Select departments..."
+              />
             ) : (
-              <div className="mc-content-preview">
-                {content ? (
-                  <MarkdownViewer content={content} skipCleanup={true} />
-                ) : (
-                  <p className="mc-no-content">No system prompt yet. Click Edit to add one.</p>
+              <>
+                {/* Show multiple department badges */}
+                {getDepartmentNames()?.map((name, idx) => {
+                  const deptId = editedDepartmentIds[idx];
+                  return (
+                    <span
+                      key={deptId || idx}
+                      className="mc-dept-badge"
+                      style={{
+                        background: getDeptColor(deptId)?.bg || '#f3e8ff',
+                        color: getDeptColor(deptId)?.text || '#7c3aed',
+                        borderColor: getDeptColor(deptId)?.border || '#e9d5ff'
+                      }}
+                    >
+                      {name}
+                    </span>
+                  );
+                })}
+              </>
+            )}
+
+            {/* Timestamps inline - small and subtle */}
+            {!isNew && !isEditing && (project.created_at || project.updated_at) && (
+              <div className="mc-project-timestamps">
+                {project.created_at && (
+                  <span className="mc-timestamp">
+                    {new Date(project.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </span>
+                )}
+                {project.updated_at && project.updated_at !== project.created_at && (
+                  <span className="mc-timestamp">
+                    Updated {new Date(project.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  </span>
                 )}
               </div>
             )}
-          </div>
-        </div>
 
-        <div className="mc-modal-footer-clean">
+            {/* View original conversation link - subtle, on the right */}
+            {!isNew && !isEditing && project.source_conversation_id && onNavigateToConversation && (
+              <button
+                className="mc-source-link"
+                onClick={() => {
+                  onClose();
+                  onNavigateToConversation(project.source_conversation_id, 'projects');
+                }}
+                title="View the original conversation that created this project"
+              >
+                <ExternalLink size={12} />
+                <span>View source</span>
+              </button>
+            )}
+          </div>
+
+          {/* Description - stripped of markdown for clean display */}
           {isEditing ? (
-            <>
-              <button className="mc-btn-clean secondary" onClick={handleCancelEdit} disabled={saving}>
-                Cancel
+            <div className="mc-field-group">
+              <label className="mc-field-label">Description</label>
+              <AIWriteAssist
+                context="project-description"
+                value={editedDescription}
+                onSuggestion={setEditedDescription}
+                additionalContext={editedName ? `Project: ${editedName}` : ''}
+                inline
+              >
+                <input
+                  type="text"
+                  className="mc-input-unified"
+                  value={editedDescription}
+                  onChange={(e) => setEditedDescription(e.target.value)}
+                  placeholder="Brief description of the project..."
+                />
+              </AIWriteAssist>
+            </div>
+          ) : project.description && (
+            <p className="mc-project-description">
+              {truncateText(project.description, 200)}
+            </p>
+          )}
+
+          {/* Tab navigation - only show when not editing and not new */}
+          {!isEditing && !isNew && (
+            <div className="mc-project-tabs">
+              <button
+                className={`mc-project-tab ${activeTab === 'context' ? 'active' : ''}`}
+                onClick={() => setActiveTab('context')}
+              >
+                <svg style={{ width: '14px', height: '14px' }} viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2H4a1 1 0 010-2zm3 1h6v4H7V5zm6 6H7v2h6v-2z" clipRule="evenodd" />
+                </svg>
+                Context
               </button>
-              <button className="mc-btn-clean primary" onClick={handleSave} disabled={saving}>
-                {saving ? 'Saving...' : 'Save Changes'}
+              <button
+                className={`mc-project-tab ${activeTab === 'decisions' ? 'active' : ''}`}
+                onClick={() => setActiveTab('decisions')}
+              >
+                <Bookmark size={14} />
+                Decisions
+                {project.decision_count > 0 && (
+                  <span className="mc-tab-badge">{project.decision_count}</span>
+                )}
               </button>
-            </>
-          ) : (
+            </div>
+          )}
+
+          {/* Context Tab Content */}
+          {(activeTab === 'context' || isEditing || isNew) && (
             <>
-              {onSave && (
-                <button className="mc-btn-clean secondary" onClick={() => setIsEditing(true)}>
-                  <svg className="mc-btn-icon" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                  </svg>
-                  Edit
-                </button>
-              )}
-              <button className="mc-btn-clean primary" onClick={onClose}>Done</button>
+              {/* Context section header with Edit/Save actions */}
+              <div className="mc-context-header-row">
+                <div className="mc-context-header-left">
+                  <label className="mc-section-label">Project Context</label>
+                  <span className="mc-section-hint">
+                    Injected into council sessions when this project is selected
+                  </span>
+                </div>
+                {/* Right side: AI Enhance + Edit/Save buttons */}
+                <div className="mc-context-header-actions">
+                  {/* AI Enhance - always available (not for new projects) */}
+                  {!isNew && (
+                    regenCountdown !== null ? (
+                      <button
+                        className="mc-ai-synthesize-btn countdown"
+                        onClick={cancelCountdown}
+                        title="Cancel AI Enhance"
+                      >
+                        <span className="mc-countdown-num">{regenCountdown}</span>
+                        <span>Cancel</span>
+                      </button>
+                    ) : (
+                      <button
+                        className="mc-ai-synthesize-btn"
+                        onClick={handleRegenerateContext}
+                        disabled={regenerating}
+                        title={isEditing
+                          ? "AI will enhance your current content"
+                          : (project.decision_count > 0 || projectDecisions.length > 0)
+                            ? "AI will synthesize all decisions into organized project context"
+                            : "AI will enhance and structure your project context"
+                        }
+                      >
+                        {regenerating ? (
+                          <>
+                            <Spinner size="sm" variant="brand" />
+                            <span>Processing...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles size={14} />
+                            <span>AI Enhance</span>
+                          </>
+                        )}
+                      </button>
+                    )
+                  )}
+                  {isEditing ? (
+                    /* When editing: Cancel and Save buttons */
+                    <>
+                      <button
+                        className="mc-btn-clean secondary small"
+                        onClick={handleCancelEdit}
+                        disabled={saving}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        className="mc-btn-clean primary small"
+                        onClick={handleSave}
+                        disabled={saving}
+                      >
+                        {saving ? 'Saving...' : 'Save'}
+                      </button>
+                    </>
+                  ) : (
+                    /* When viewing: Edit button (AI Enhance is always shown above) */
+                    <>
+                      {/* Edit button */}
+                      {onSave && (
+                        <button
+                          className="mc-btn-clean secondary small"
+                          onClick={() => setIsEditing(true)}
+                          title="Edit project context"
+                        >
+                          <PenLine size={14} />
+                          <span>Edit</span>
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Context Section - Preview by default, textarea when editing */}
+              <div className="mc-content-section">
+                {isEditing ? (
+                  <div className="mc-edit-full">
+                    <AIWriteAssist
+                      context="project-context"
+                      value={editedContext}
+                      onSuggestion={setEditedContext}
+                      additionalContext={editedName ? `Project: ${editedName}` : ''}
+                    >
+                      <textarea
+                        className="mc-edit-textarea-full"
+                        value={editedContext}
+                        onChange={(e) => setEditedContext(e.target.value)}
+                        rows={15}
+                        autoFocus
+                        placeholder="Add project context here..."
+                      />
+                    </AIWriteAssist>
+                  </div>
+                ) : (
+                  <div className="mc-content-preview">
+                    {content ? (
+                      <>
+                        {/* Floating copy button - matches Stage3/timeline style */}
+                        <button
+                          className={`mc-timeline-copy-btn ${contextCopied ? 'copied' : ''}`}
+                          onClick={handleCopyContext}
+                          title="Copy project context"
+                        >
+                          {contextCopied ? (
+                            <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          ) : (
+                            <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                            </svg>
+                          )}
+                        </button>
+                        <MarkdownViewer content={content} skipCleanup={true} />
+                      </>
+                    ) : (
+                      <p className="mc-no-content">No project context yet. Click Edit to add context that will be included in all council sessions for this project.</p>
+                    )}
+                  </div>
+                )}
+              </div>
             </>
           )}
+
+          {/* Decisions Tab Content - Timeline View */}
+          {activeTab === 'decisions' && !isEditing && !isNew && (
+            <div className="mc-project-decisions">
+              {loadingDecisions ? (
+                <div className="mc-decisions-loading">
+                  <Spinner size="md" variant="brand" />
+                  <span>Loading decisions...</span>
+                </div>
+              ) : projectDecisions.length === 0 ? (
+                <div className="mc-empty-decisions">
+                  <Bookmark size={32} className="mc-empty-icon" style={{ color: '#cbd5e1', marginBottom: '12px' }} />
+                  <p className="mc-empty-title">No decisions yet</p>
+                  <p className="mc-empty-hint">
+                    Save council responses to this project to build a decision timeline.
+                  </p>
+                </div>
+              ) : (
+                <div className="mc-decisions-timeline">
+                  {groupedDecisions.map((group, groupIndex) => (
+                    <div
+                      key={group.conversationId || `single-${groupIndex}`}
+                      className={`mc-timeline-group ${group.type === 'group' && group.decisions.length > 1 ? 'linked' : ''}`}
+                    >
+                      {group.decisions.map((decision, decisionIndex) => (
+                        <div
+                          key={decision.id}
+                          className={`mc-timeline-item ${expandedDecisionId === decision.id ? 'expanded' : ''}`}
+                        >
+                          {/* Decision card - clean, no dots/lines */}
+                          <div className="mc-timeline-content">
+                            <div
+                              className="mc-timeline-header"
+                              onClick={() => handleExpandDecision(decision.id)}
+                            >
+                              {/* Single row: Title | Dept Badge | #N | Date | Chevron */}
+                              <div className="mc-timeline-title-row">
+                                <h4 className="mc-timeline-title">{decision.title}</h4>
+                                <div className="mc-timeline-title-badges">
+                                  {/* Show multiple department badges if available */}
+                                  {(decision.department_names?.length > 0 ? decision.department_names : (decision.department_name ? [decision.department_name] : [])).map((deptName, idx) => {
+                                    const deptId = decision.department_ids?.[idx] || decision.department_id;
+                                    return (
+                                      <span
+                                        key={deptId || idx}
+                                        className="mc-timeline-dept-badge"
+                                        style={{
+                                          background: getDeptColor(deptId)?.bg || '#f3f4f6',
+                                          color: getDeptColor(deptId)?.text || '#374151',
+                                          borderColor: getDeptColor(deptId)?.border || '#e5e7eb'
+                                        }}
+                                      >
+                                        {deptName}
+                                      </span>
+                                    );
+                                  })}
+                                  {/* Show iteration badge for multi-turn conversations */}
+                                  {group.type === 'group' && group.decisions.length > 1 && (
+                                    <span className="mc-timeline-iteration-badge">
+                                      #{decisionIndex + 1}
+                                    </span>
+                                  )}
+                                  <span className="mc-timeline-date">
+                                    {new Date(decision.created_at).toLocaleDateString('en-US', {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      year: 'numeric'
+                                    })}
+                                  </span>
+                                  <svg
+                                    className={`mc-timeline-chevron ${expandedDecisionId === decision.id ? 'expanded' : ''}`}
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                  >
+                                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                  </svg>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Expanded content */}
+                            {expandedDecisionId === decision.id && (
+                              <div className="mc-timeline-body">
+                                {/* Clean AI-generated summary */}
+                                {generatingSummaryId === decision.id ? (
+                                  <div className="mc-timeline-summary-loading">
+                                    <Spinner size="sm" variant="brand" />
+                                    <span>Generating summary...</span>
+                                  </div>
+                                ) : decision.decision_summary ? (
+                                  <div className="mc-timeline-summary">
+                                    {decision.decision_summary}
+                                  </div>
+                                ) : null}
+
+                                {/* Council's response with copy button */}
+                                <div className="mc-timeline-answer">
+                                  <button
+                                    className="mc-timeline-copy-btn"
+                                    onClick={async (e) => {
+                                      e.stopPropagation();
+                                      const btn = e.target.closest('.mc-timeline-copy-btn');
+                                      try {
+                                        await navigator.clipboard.writeText(decision.content || '');
+                                        // Brief visual feedback - swap icon
+                                        btn.classList.add('copied');
+                                        btn.querySelector('.copy-icon').style.display = 'none';
+                                        btn.querySelector('.check-icon').style.display = 'block';
+                                        setTimeout(() => {
+                                          if (btn) {
+                                            btn.classList.remove('copied');
+                                            const copyIcon = btn.querySelector('.copy-icon');
+                                            const checkIcon = btn.querySelector('.check-icon');
+                                            if (copyIcon) copyIcon.style.display = 'block';
+                                            if (checkIcon) checkIcon.style.display = 'none';
+                                          }
+                                        }, 2000);
+                                      } catch (err) {
+                                        console.error('Failed to copy:', err);
+                                      }
+                                    }}
+                                    title="Copy council response"
+                                  >
+                                    <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                      <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                                    </svg>
+                                    <svg className="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{display: 'none'}}>
+                                      <polyline points="20 6 9 17 4 12" />
+                                    </svg>
+                                  </button>
+                                  <MarkdownViewer content={decision.content || ''} skipCleanup={true} />
+                                </div>
+
+                                {decision.source_conversation_id && onNavigateToConversation && (
+                                  <button
+                                    className="mc-timeline-source-link"
+                                    onClick={() => {
+                                      onClose();
+                                      // Pass response_index to scroll to the correct response in multi-turn conversations
+                                      // If response_index is null (legacy decision), infer from position in group
+                                      // Council responses are at odd indices: 1, 3, 5, 7...
+                                      // So decisionIndex 0 → response_index 1, decisionIndex 1 → response_index 3, etc.
+                                      const inferredIndex = decision.response_index ?? (decisionIndex * 2 + 1);
+                                      console.log('[MyCompany] Navigating to conversation:', decision.source_conversation_id, 'response_index:', inferredIndex, '(stored:', decision.response_index, ', inferred from decisionIndex:', decisionIndex, ')');
+                                      onNavigateToConversation(decision.source_conversation_id, 'projects', inferredIndex);
+                                    }}
+                                  >
+                                    View original conversation →
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
-      </div>
-    </div>
+
+        <div className="app-modal-footer-with-actions">
+          {/* Left side: Status actions (always visible for existing projects) */}
+          {!isNew && onStatusChange && (
+            <div className="app-modal-footer-left">
+              {confirmingAction === 'delete' ? (
+                <div className="app-modal-confirm-inline">
+                  <span>Delete this project?</span>
+                  <button
+                    className="app-modal-btn app-modal-btn-sm app-modal-btn-danger-sm"
+                    onClick={async () => {
+                      setActionLoading(true);
+                      try {
+                        await onDelete(project.id);
+                      } catch (err) {
+                        console.error('Failed to delete:', err);
+                        setActionLoading(false);
+                        setConfirmingAction(null);
+                      }
+                    }}
+                    disabled={actionLoading}
+                  >
+                    {actionLoading ? 'Deleting...' : 'Yes, Delete'}
+                  </button>
+                  <button
+                    className="app-modal-btn app-modal-btn-sm app-modal-btn-secondary"
+                    onClick={() => setConfirmingAction(null)}
+                    disabled={actionLoading}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {/* Complete button - only for active projects */}
+                  {editedStatus === 'active' && (
+                    <button
+                      className="app-modal-btn app-modal-btn-action app-modal-btn-success"
+                      onClick={async () => {
+                        setActionLoading(true);
+                        try {
+                          await onStatusChange(project.id, 'completed');
+                        } catch (err) {
+                          console.error('Failed to complete:', err);
+                          setActionLoading(false);
+                        }
+                      }}
+                      disabled={actionLoading || saving}
+                      title="Mark project as completed"
+                    >
+                      <CheckCircle size={14} />
+                      <span>Complete</span>
+                    </button>
+                  )}
+                  {/* Archive/Restore button */}
+                  {editedStatus === 'archived' ? (
+                    <button
+                      className="app-modal-btn app-modal-btn-action app-modal-btn-secondary"
+                      onClick={async () => {
+                        setActionLoading(true);
+                        try {
+                          await onStatusChange(project.id, 'active');
+                        } catch (err) {
+                          console.error('Failed to restore:', err);
+                          setActionLoading(false);
+                        }
+                      }}
+                      disabled={actionLoading || saving}
+                      title="Restore project to active"
+                    >
+                      <RotateCcw size={14} />
+                      <span>Restore</span>
+                    </button>
+                  ) : (
+                    <button
+                      className="app-modal-btn app-modal-btn-action app-modal-btn-secondary"
+                      onClick={async () => {
+                        setActionLoading(true);
+                        try {
+                          await onStatusChange(project.id, 'archived');
+                        } catch (err) {
+                          console.error('Failed to archive:', err);
+                          setActionLoading(false);
+                        }
+                      }}
+                      disabled={actionLoading || saving}
+                      title="Archive this project"
+                    >
+                      <Archive size={14} />
+                      <span>Archive</span>
+                    </button>
+                  )}
+                  {/* Delete button */}
+                  <button
+                    className="app-modal-btn app-modal-btn-action app-modal-btn-danger"
+                    onClick={() => setConfirmingAction('delete')}
+                    disabled={actionLoading || saving}
+                    title="Delete this project"
+                  >
+                    <Trash2 size={14} />
+                    <span>Delete</span>
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+
+        </div>
+
+      {/* Alert Modal for success/error messages */}
+      {alertModal && (
+        <AlertModal
+          title={alertModal.title}
+          message={alertModal.message}
+          variant={alertModal.variant}
+          onClose={() => setAlertModal(null)}
+        />
+      )}
+    </AppModal>
   );
 }
+
+
+/* End of ViewProjectModal */

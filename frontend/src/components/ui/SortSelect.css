@@ -1,0 +1,77 @@
+/* SortSelect - matches DepartmentSelect/StatusSelect design */
+
+.sort-select-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-gray-700);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  outline: none;
+}
+
+.sort-select-trigger:hover {
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+}
+
+.sort-select-trigger:focus {
+  border-color: var(--color-blue-500);
+  box-shadow: var(--shadow-focus);
+}
+
+.sort-select-trigger[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sort-select-content {
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-slate-200);
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-modal);
+  overflow: hidden;
+  min-width: 140px;
+}
+
+.sort-select-viewport {
+  padding: 6px;
+}
+
+.sort-select-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: var(--color-gray-700);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  outline: none;
+  transition: background 0.1s ease;
+}
+
+.sort-select-item:hover,
+.sort-select-item[data-highlighted] {
+  background: var(--color-slate-100);
+}
+
+.sort-select-item[data-state="checked"] {
+  background: var(--color-blue-50);
+  font-weight: 500;
+}
+
+.sort-select-item-indicator {
+  width: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-warning);
+}

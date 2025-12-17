@@ -7,7 +7,7 @@
   width: 100%;
   align-items: center;
   justify-content: center;
-  background-color: #18181b; /* zinc-900 - dark background */
+  background-color: var(--color-zinc-900);
   overflow: hidden;
 }
 
@@ -18,14 +18,14 @@
 }
 
 .aurora-gradient {
-  --white: #fff;
-  --black: #000;
+  --white: var(--white);
+  --black: var(--black);
   --transparent: transparent;
-  --blue-300: #93c5fd;
-  --blue-400: #60a5fa;
-  --blue-500: #3b82f6;
-  --indigo-300: #a5b4fc;
-  --violet-200: #ddd6fe;
+  --blue-300: var(--color-blue-300);
+  --blue-400: var(--color-blue-400);
+  --blue-500: var(--color-blue-500);
+  --indigo-300: var(--color-indigo-300);
+  --violet-200: var(--color-violet-200);
 
   position: absolute;
   inset: -10px;
@@ -59,7 +59,7 @@
 /* Login Card - Glassmorphism Style */
 .login-card {
   position: relative;
-  z-index: 10;
+  z-index: var(--z-sticky);
   width: 100%;
   max-width: 420px;
   padding: 40px;
@@ -83,7 +83,7 @@
 .login-title {
   font-size: 32px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-text-inverse);
   margin: 0 0 8px 0;
   letter-spacing: -0.5px;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
@@ -110,20 +110,20 @@
   gap: 12px;
   width: 100%;
   padding: 14px 20px;
-  background: #ffffff;
+  background: var(--color-bg-primary);
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   font-size: 16px;
   font-weight: 500;
-  color: #333333;
+  color: var(--color-text-primary);
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .google-button:hover:not(:disabled) {
-  background: #f8f8f8;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  background: var(--color-bg-secondary);
+  box-shadow: var(--shadow-lg);
 }
 
 .google-button:disabled {
@@ -172,31 +172,32 @@
   gap: 6px;
 }
 
-.form-group label {
+/* Scoped to login-form to prevent global leakage */
+.login-form .form-group label {
   font-size: 14px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.8);
 }
 
-.form-group input {
+.login-form .form-group input {
   padding: 14px 16px;
   background: rgba(30, 41, 59, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   font-size: 15px;
-  color: #ffffff;
+  color: var(--color-text-inverse);
   transition: all 0.2s ease;
 }
 
-.form-group input::placeholder {
+.login-form .form-group input::placeholder {
   color: rgba(255, 255, 255, 0.5);
 }
 
-.form-group input:focus {
+.login-form .form-group input:focus {
   outline: none;
   border-color: rgba(99, 102, 241, 0.8);
   background: rgba(30, 41, 59, 0.9);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  box-shadow: var(--shadow-focus);
 }
 
 /* Submit Button */
@@ -205,18 +206,18 @@
   padding: 14px 20px;
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.8), rgba(139, 92, 246, 0.8));
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   font-size: 16px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--color-text-inverse);
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+  box-shadow: var(--shadow-md);
 }
 
 .submit-button:hover:not(:disabled) {
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.9), rgba(139, 92, 246, 0.9));
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+  box-shadow: var(--shadow-lg);
 }
 
 .submit-button:disabled {
@@ -228,18 +229,18 @@
 .error-message {
   background: rgba(239, 68, 68, 0.15);
   border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #fca5a5;
+  color: var(--color-red-300);
   padding: 12px 14px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-size: 14px;
 }
 
 .success-message {
   background: rgba(34, 197, 94, 0.15);
   border: 1px solid rgba(34, 197, 94, 0.3);
-  color: #86efac;
+  color: var(--color-green-300);
   padding: 12px 14px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-size: 14px;
 }
 
@@ -263,11 +264,11 @@
 }
 
 .link-button:hover {
-  color: #ffffff;
+  color: var(--color-text-inverse);
 }
 
 .link-button strong {
-  color: #ffffff;
+  color: var(--color-text-inverse);
   font-weight: 600;
 }
 

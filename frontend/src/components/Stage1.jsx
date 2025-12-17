@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { Spinner } from './ui/Spinner';
 import './Stage1.css';
 
 // Copy button component
@@ -19,9 +20,11 @@ function CopyButton({ text }) {
   };
 
   return (
-    <button className="copy-btn" onClick={handleCopy} title="Copy response">
+    <button className={`copy-btn ${copied ? 'copied' : ''}`} onClick={handleCopy} title="Copy response">
       {copied ? (
-        <span className="copy-icon">✓</span>
+        <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
       ) : (
         <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
@@ -60,9 +63,11 @@ function CodeBlock({ children, className }) {
   return (
     <div className="code-block-wrapper">
       {language && <span className="code-language">{language}</span>}
-      <button className="copy-code-btn" onClick={handleCopy} title="Copy code">
+      <button className={`copy-code-btn ${copied ? 'copied' : ''}`} onClick={handleCopy} title="Copy code">
         {copied ? (
-          <span className="copy-icon">✓</span>
+          <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
         ) : (
           <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
@@ -167,7 +172,7 @@ export default function Stage1({ responses, streaming, isLoading, stopped, isCom
         )}
 
         <div className="stage-loading">
-          <div className="loading-spinner"></div>
+          <Spinner size="md" />
           <span>Waiting for models to respond...</span>
         </div>
       </div>

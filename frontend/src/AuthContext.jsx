@@ -18,10 +18,15 @@ export function AuthProvider({ children }) {
     }
 
     // Get initial session (this also processes any tokens in the URL hash)
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        setUser(session?.user ?? null);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to get session:', err);
+        setLoading(false);
+      });
 
     // Listen for auth changes - this handles magic links, password recovery, etc.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {

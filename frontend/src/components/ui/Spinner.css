@@ -1,0 +1,94 @@
+/* =============================================================================
+   Unified Spinner Component Styles
+
+   This is the SINGLE source of truth for spinner animations in the app.
+   Do NOT define @keyframes spin elsewhere - import and use <Spinner /> instead.
+   ============================================================================= */
+
+/* Base spinner styles */
+.spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner-icon {
+  animation: spinner-rotate 0.8s linear infinite;
+}
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* =============================================================================
+   Size Variants
+   ============================================================================= */
+
+.spinner-sm .spinner-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.spinner-md .spinner-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.spinner-lg .spinner-icon {
+  width: 32px;
+  height: 32px;
+}
+
+.spinner-xl .spinner-icon {
+  width: 40px;
+  height: 40px;
+}
+
+/* =============================================================================
+   Color Variants
+   ============================================================================= */
+
+/* Default - Blue (matches most existing spinners) */
+.spinner-default .spinner-icon {
+  color: var(--color-info);
+}
+
+/* Success - Green (for Stage 3 synthesis, success states) */
+.spinner-success .spinner-icon {
+  color: var(--color-success);
+}
+
+/* Brand - Indigo (matches app accent color) */
+.spinner-brand .spinner-icon {
+  color: var(--color-indigo);
+}
+
+/* Muted - Gray (for subtle/secondary loading states) */
+.spinner-muted .spinner-icon {
+  color: var(--color-gray-500);
+}
+
+/* =============================================================================
+   Animation Keyframes
+
+   IMPORTANT: This is the ONLY place @keyframes for spinners should be defined.
+   Using a unique name (spinner-rotate) to avoid conflicts during migration.
+   ============================================================================= */
+
+@keyframes spinner-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { api } from '../api';
 import { computeInlineDiff } from '../utils/diffUtils';
+import { Spinner } from './ui/Spinner';
 import './CuratorPanel.css';
 
 /**
@@ -716,7 +717,7 @@ export default function CuratorPanel({
           <div className="curator-title">Knowledge Curator</div>
         </div>
         <div className="curator-content curator-loading">
-          <div className="curator-spinner"></div>
+          <Spinner size="lg" variant="brand" />
           <p>Analysing conversation for valuable insights...</p>
         </div>
       </div>

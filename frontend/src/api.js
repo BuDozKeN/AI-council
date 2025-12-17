@@ -53,8 +53,9 @@ export const api = {
    * @param {string} options.search - Optional search string for title filtering
    * @param {boolean} options.includeArchived - Include archived conversations (default false)
    * @param {string} options.sortBy - Sort order: "date" (most recent first) or "activity" (most messages first)
+   * @param {string} options.companyId - Optional company ID to filter conversations by
    */
-  async listConversations({ limit = 20, offset = 0, search = '', includeArchived = false, sortBy = 'date' } = {}) {
+  async listConversations({ limit = 20, offset = 0, search = '', includeArchived = false, sortBy = 'date', companyId = null } = {}) {
     const headers = await getAuthHeaders();
     const params = new URLSearchParams();
     params.set('limit', limit.toString());
@@ -65,6 +66,9 @@ export const api = {
     }
     if (includeArchived) {
       params.set('include_archived', 'true');
+    }
+    if (companyId) {
+      params.set('company_id', companyId);
     }
     const response = await fetch(`${API_BASE}/api/conversations?${params}`, { headers });
     if (!response.ok) {
@@ -98,13 +102,14 @@ export const api = {
 
   /**
    * Create a new conversation.
+   * @param {string} companyId - The company ID to associate with this conversation
    */
-  async createConversation() {
+  async createConversation(companyId = null) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/conversations`, {
       method: 'POST',
       headers,
-      body: JSON.stringify({}),
+      body: JSON.stringify({ company_id: companyId }),
     });
     if (!response.ok) {
       throw new Error('Failed to create conversation');
@@ -651,6 +656,37 @@ export const api = {
   },
 
   /**
+   * Get current prompt caching status.
+   * @returns {Promise<{enabled: boolean, supported_models: string[]}>}
+   */
+  async getCachingMode() {
+    const response = await fetch(`${API_BASE}/api/settings/caching-mode`);
+    if (!response.ok) {
+      throw new Error('Failed to get caching mode status');
+    }
+    return response.json();
+  },
+
+  /**
+   * Toggle prompt caching on/off.
+   * @param {boolean} enabled - Whether to enable prompt caching
+   * @returns {Promise<{success: boolean, enabled: boolean, message: string}>}
+   */
+  async setCachingMode(enabled) {
+    const response = await fetch(`${API_BASE}/api/settings/caching-mode`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ enabled }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to set caching mode');
+    }
+    return response.json();
+  },
+
+  /**
    * Get the last updated date from a business context file.
    * @param {string} businessId - The business context ID
    * @returns {Promise<{last_updated: string|null}>}
@@ -849,6 +885,114 @@ export const api = {
     );
     if (!response.ok) {
       throw new Error('Failed to get project');
+    }
+    return response.json();
+  },
+
+  /**
+   * Update a project.
+   * @param {string} projectId - The project ID
+   * @param {object} updates - Fields to update (name, description, context_md, status)
+   * @returns {Promise<{project: object}>}
+   */
+  async updateProject(projectId, updates) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE}/api/projects/${projectId}`,
+      {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify(updates),
+      }
+    );
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to update project' }));
+      throw new Error(error.detail || 'Failed to update project');
+    }
+    return response.json();
+  },
+
+  /**
+   * Touch a project's last_accessed_at timestamp (when selected in chat).
+   * @param {string} projectId - The project ID
+   * @returns {Promise<{success: boolean}>}
+   */
+  async touchProject(projectId) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE}/api/projects/${projectId}/touch`,
+      {
+        method: 'POST',
+        headers,
+      }
+    );
+    if (!response.ok) {
+      throw new Error('Failed to touch project');
+    }
+    return response.json();
+  },
+
+  /**
+   * Regenerate project context by synthesizing ALL decisions from scratch.
+   * Useful when context has accumulated duplicates or garbage.
+   * @param {string} projectId - The project ID
+   * @returns {Promise<{success: boolean, context_md: string, message: string, decision_count: number}>}
+   */
+  async regenerateProjectContext(projectId) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE}/api/projects/${projectId}/regenerate-context`,
+      {
+        method: 'POST',
+        headers,
+      }
+    );
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to regenerate context' }));
+      throw new Error(error.detail || 'Failed to regenerate context');
+    }
+    return response.json();
+  },
+
+  /**
+   * Delete a project permanently.
+   * @param {string} projectId - The project ID
+   * @returns {Promise<{success: boolean}>}
+   */
+  async deleteProject(projectId) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE}/api/projects/${projectId}`,
+      {
+        method: 'DELETE',
+        headers,
+      }
+    );
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to delete project' }));
+      throw new Error(error.detail || 'Failed to delete project');
+    }
+    return response.json();
+  },
+
+  /**
+   * List projects with stats for Command Centre.
+   * @param {string} companyId - The company ID
+   * @param {object} options - Optional filters
+   * @param {string} options.status - Filter by status ('active', 'completed', 'archived')
+   * @param {boolean} options.includeArchived - Include archived projects
+   * @returns {Promise<{projects: Array}>}
+   */
+  async listProjectsWithStats(companyId, options = {}) {
+    const headers = await getAuthHeaders();
+    const params = new URLSearchParams();
+    if (options.status) params.append('status', options.status);
+    if (options.includeArchived) params.append('include_archived', 'true');
+
+    const url = `${API_BASE}/api/companies/${companyId}/projects/stats${params.toString() ? '?' + params.toString() : ''}`;
+    const response = await fetch(url, { headers });
+    if (!response.ok) {
+      throw new Error('Failed to list projects with stats');
     }
     return response.json();
   },
@@ -1240,6 +1384,50 @@ export const api = {
   },
 
   /**
+   * Get any project linked to a conversation via saved decisions.
+   * @param {string} conversationId - Conversation UUID
+   * @param {string} companyId - Company UUID
+   * @returns {Promise<{project: {id: string, name: string, description: string, status: string} | null}>}
+   */
+  async getConversationLinkedProject(conversationId, companyId) {
+    const headers = await getAuthHeaders();
+    const params = new URLSearchParams({ company_id: companyId });
+    const response = await fetch(
+      `${API_BASE}/api/conversations/${conversationId}/linked-project?${params.toString()}`,
+      { headers }
+    );
+    if (!response.ok) {
+      throw new Error('Failed to get linked project');
+    }
+    return response.json();
+  },
+
+  /**
+   * Check if a specific decision exists for this conversation and response index.
+   * @param {string} conversationId - The conversation ID
+   * @param {string} companyId - The company ID
+   * @param {number} responseIndex - The index of the response within the conversation
+   * @returns {Promise<{decision: Object|null}>}
+   */
+  async getConversationDecision(conversationId, companyId, responseIndex) {
+    const headers = await getAuthHeaders();
+    const params = new URLSearchParams({
+      company_id: companyId,
+      response_index: responseIndex.toString()
+    });
+    const response = await fetch(
+      `${API_BASE}/api/conversations/${conversationId}/decision?${params.toString()}`,
+      { headers }
+    );
+    if (!response.ok) {
+      const error = new Error('Failed to get conversation decision');
+      error.status = response.status;
+      throw error;
+    }
+    return response.json();
+  },
+
+  /**
    * Extract key decision/recommendation from a council response using AI.
    * This uses an LLM to intelligently extract what's important.
    * @param {string} userQuestion - The original user question
@@ -1289,6 +1477,76 @@ export const api = {
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Failed to extract project' }));
       throw new Error(error.detail || 'Failed to extract project');
+    }
+    return response.json();
+  },
+
+  /**
+   * Use AI to structure free-form project description into organized context.
+   * @param {string} freeText - User's free-form project description
+   * @param {string} projectName - Optional project name (AI may suggest one if empty)
+   * @returns {Promise<{structured: Object}>}
+   *   - structured.context_md: Formatted markdown context
+   *   - structured.description: Brief project description
+   *   - structured.suggested_name: Suggested project name (if not provided)
+   *   - structured.sections: Array of {title, content} for preview
+   */
+  async structureProjectContext(freeText, projectName = '') {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/projects/structure-context`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        free_text: freeText,
+        project_name: projectName,
+      }),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to structure context' }));
+      throw new Error(error.detail || 'Failed to structure context');
+    }
+    return response.json();
+  },
+
+  /**
+   * Use AI to merge a council decision into existing project context.
+   * @param {string} projectId - Project to update
+   * @param {string} existingContext - Current project context markdown
+   * @param {string} decisionContent - The council decision to merge
+   * @param {string} userQuestion - Original question that led to the decision
+   * @returns {Promise<{merged: Object}>}
+   *   - merged.context_md: Updated context with decision integrated
+   *   - merged.summary: Brief summary of what was learned
+   *   - merged.changes: Description of changes made
+   */
+  async mergeDecisionIntoProject(projectId, existingContext, decisionContent, userQuestion = '', options = {}) {
+    const headers = await getAuthHeaders();
+    const body = {
+      existing_context: existingContext,
+      decision_content: decisionContent,
+      user_question: userQuestion,
+    };
+
+    // Optional: save decision to knowledge_entries for audit trail
+    if (options.saveDecision) {
+      body.save_decision = true;
+      body.company_id = options.companyId;
+      body.conversation_id = options.conversationId;
+      body.response_index = options.responseIndex;
+      body.decision_title = options.decisionTitle;
+      body.department_id = options.departmentId;  // Primary department (backwards compat)
+      body.department_ids = options.departmentIds;  // All selected departments
+      console.log('[API] mergeDecisionIntoProject body:', JSON.stringify(body, null, 2));
+    }
+
+    const response = await fetch(`${API_BASE}/api/projects/${projectId}/merge-decision`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to merge decision' }));
+      throw new Error(error.detail || 'Failed to merge decision');
     }
     return response.json();
   },
@@ -1561,7 +1819,8 @@ export const api = {
   /**
    * Save a decision from council output.
    * @param {string} companyId - Company ID
-   * @param {Object} decision - Decision data {title, content, department_id, source_conversation_id, tags}
+   * @param {Object} decision - Decision data {title, content, department_id, project_id, source_conversation_id, tags}
+   * @param {string} decision.project_id - Optional project ID to link this decision to a project timeline
    * @returns {Promise<Object>} Created decision
    */
   async createCompanyDecision(companyId, decision) {
@@ -1574,6 +1833,24 @@ export const api = {
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Failed to save decision' }));
       throw new Error(error.detail || 'Failed to save decision');
+    }
+    return response.json();
+  },
+
+  /**
+   * Get all decisions linked to a project (timeline view).
+   * @param {string} companyId - Company ID
+   * @param {string} projectId - Project ID
+   * @returns {Promise<{project: Object, decisions: Array, total_count: number}>}
+   */
+  async getProjectDecisions(companyId, projectId) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE}/api/company/${companyId}/projects/${projectId}/decisions`,
+      { headers }
+    );
+    if (!response.ok) {
+      throw new Error('Failed to get project decisions');
     }
     return response.json();
   },
@@ -1619,6 +1896,26 @@ export const api = {
   },
 
   /**
+   * Sync project's department_ids from all its decisions.
+   * Recalculates departments based on all active decisions in the project.
+   * @param {string} companyId - Company ID
+   * @param {string} projectId - Project ID
+   * @returns {Promise<Object>} Updated department_ids
+   */
+  async syncProjectDepartments(companyId, projectId) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/company/${companyId}/projects/${projectId}/sync-departments`, {
+      method: 'POST',
+      headers,
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to sync departments' }));
+      throw new Error(error.detail || 'Failed to sync departments');
+    }
+    return response.json();
+  },
+
+  /**
    * Delete a decision permanently.
    * @param {string} companyId - Company ID
    * @param {string} decisionId - Decision ID
@@ -1633,6 +1930,26 @@ export const api = {
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Failed to delete decision' }));
       throw new Error(error.detail || 'Failed to delete decision');
+    }
+    return response.json();
+  },
+
+  /**
+   * Generate a summary for a decision's user_question.
+   * Called on-demand when expanding a decision in the UI.
+   * @param {string} companyId - Company ID
+   * @param {string} decisionId - Decision ID
+   * @returns {Promise<{summary: string, cached: boolean}>}
+   */
+  async generateDecisionSummary(companyId, decisionId) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions/${decisionId}/generate-summary`, {
+      method: 'POST',
+      headers,
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to generate summary' }));
+      throw new Error(error.detail || 'Failed to generate summary');
     }
     return response.json();
   },
@@ -1653,6 +1970,33 @@ export const api = {
     const response = await fetch(`${API_BASE}/api/company/${companyId}/activity${queryString}`, { headers });
     if (!response.ok) {
       throw new Error('Failed to get activity logs');
+    }
+    return response.json();
+  },
+
+  /**
+   * AI Writing Assistant - Get AI help with form content.
+   * Sends user's draft text along with context-specific prompt to LLM.
+   * @param {Object} params
+   * @param {string} params.prompt - Full prompt including instructions and user text
+   * @param {string} params.context - Context type (e.g., 'project-title', 'decision-statement')
+   * @param {string} [params.playbookType] - For playbook content: 'sop', 'framework', or 'policy'
+   * @returns {Promise<{suggestion: string}>} AI-generated suggestion
+   */
+  async aiWriteAssist({ prompt, context, playbookType }) {
+    const headers = await getAuthHeaders();
+    const body = { prompt, context };
+    if (playbookType) {
+      body.playbook_type = playbookType;
+    }
+    const response = await fetch(`${API_BASE}/api/ai/write-assist`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to get AI suggestion' }));
+      throw new Error(error.detail || 'Failed to get AI suggestion');
     }
     return response.json();
   },

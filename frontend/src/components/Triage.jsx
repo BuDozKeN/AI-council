@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { Button } from './ui/button';
+import { Pencil } from 'lucide-react';
 import './Triage.css';
 
 export default function Triage({
@@ -81,9 +83,9 @@ Context:
               <span className="ready-icon">✓</span>
               <span>Got it! Here's what I understood:</span>
               {!isEditing && (
-                <button className="edit-icon-btn" onClick={startEditing} title="Edit constraints">
-                  ✎
-                </button>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={startEditing} title="Edit constraints">
+                  <Pencil className="h-3.5 w-3.5" />
+                </Button>
               )}
             </div>
 
@@ -153,37 +155,35 @@ Context:
             <div className="ready-actions">
               {isEditing ? (
                 <>
-                  <button
-                    className="proceed-btn"
+                  <Button
                     onClick={saveEdits}
                     disabled={isLoading}
                   >
                     Save & Send →
-                  </button>
-                  <button
-                    className="edit-btn"
+                  </Button>
+                  <Button
+                    variant="outline"
                     onClick={cancelEditing}
                     disabled={isLoading}
                   >
                     Cancel
-                  </button>
+                  </Button>
                 </>
               ) : (
                 <>
-                  <button
-                    className="proceed-btn"
+                  <Button
                     onClick={() => onProceed(enhanced_query)}
                     disabled={isLoading}
                   >
                     {isLoading ? 'Sending...' : 'Send to Council →'}
-                  </button>
-                  <button
-                    className="edit-btn"
+                  </Button>
+                  <Button
+                    variant="outline"
                     onClick={onSkip}
                     disabled={isLoading}
                   >
                     Start over
-                  </button>
+                  </Button>
                 </>
               )}
             </div>
@@ -237,21 +237,20 @@ Context:
             autoFocus
           />
           <div className="input-actions">
-            <button
+            <Button
+              variant="ghost"
               type="button"
-              className="skip-btn"
               onClick={onSkip}
               disabled={isLoading}
             >
               Skip
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="send-btn"
               disabled={!response.trim() || isLoading}
             >
               {isLoading ? '...' : 'Reply'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

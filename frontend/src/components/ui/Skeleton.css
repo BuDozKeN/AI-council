@@ -1,0 +1,112 @@
+/* =============================================================================
+   Skeleton Component - Animated Loading Placeholders
+
+   Modern shimmer effect used by top apps (GitHub, Notion, Linear, Vercel).
+   Shows users the shape of content before it loads.
+   ============================================================================= */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-slate-100) 0%,
+    var(--color-slate-200) 50%,
+    var(--color-slate-100) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+/* Variants */
+.skeleton-rectangular {
+  border-radius: var(--radius-sm, 4px);
+}
+
+.skeleton-circular {
+  border-radius: 50%;
+}
+
+.skeleton-text {
+  border-radius: var(--radius-sm, 4px);
+  height: 1em;
+  width: 100%;
+}
+
+.skeleton-text-short {
+  width: 70%;
+}
+
+/* Text block spacing */
+.skeleton-text-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* =============================================================================
+   Shimmer Animation
+   ============================================================================= */
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* =============================================================================
+   Common Preset Sizes (use with className)
+   ============================================================================= */
+
+/* Table row skeleton */
+.skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.skeleton-row .skeleton {
+  flex-shrink: 0;
+}
+
+/* Table skeleton */
+.skeleton-table {
+  display: flex;
+  flex-direction: column;
+}
+
+.skeleton-table-header {
+  display: flex;
+  gap: 12px;
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--color-border-light, #f1f5f9);
+}
+
+.skeleton-table-row {
+  display: flex;
+  gap: 12px;
+  padding: 12px 8px;
+  border-bottom: 1px solid var(--color-border-light, #f1f5f9);
+}
+
+/* Avatar skeleton */
+.skeleton-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+/* Button skeleton */
+.skeleton-button {
+  height: 36px;
+  border-radius: var(--radius-md, 8px);
+}
+
+/* Badge/chip skeleton */
+.skeleton-badge {
+  height: 24px;
+  width: 60px;
+  border-radius: var(--radius-full, 9999px);
+}

@@ -38,15 +38,212 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
+
+    /* Z-index scale - use these instead of arbitrary values */
+    --z-base: 1;
+    --z-sticky: 50;
+    --z-dropdown: 100;
+    --z-modal: 1000;
+    --z-modal-dropdown: 1100;
+    --z-toast: 1200;
+
+    /* Shadow scale - use these instead of arbitrary box-shadow values */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+    --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.3);
+    --shadow-focus: 0 0 0 3px rgba(99, 102, 241, 0.1);
+
+    /* Border radius scale - use these instead of arbitrary pixel values */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-full: 9999px;
+
+    /* ===== COLOR TOKENS ===== */
+
+    /* Text colors */
+    --color-text-primary: #333333;
+    --color-text-secondary: #666666;
+    --color-text-tertiary: #9ca3af;
+    --color-text-muted: #888888;
+    --color-text-inverse: #ffffff;
+
+    /* Background colors */
+    --color-bg-primary: #ffffff;
+    --color-bg-secondary: #f9fafb;
+    --color-bg-tertiary: #f5f5f5;
+    --color-bg-hover: #f3f4f6;
+    --color-bg-active: #e5e7eb;
+
+    /* Border colors */
+    --color-border: #e5e7eb;
+    --color-border-light: #f1f5f9;
+    --color-border-dark: #d1d5db;
+    --color-border-muted: #dddddd;
+
+    /* Brand colors - Primary Blue */
+    --color-brand-primary: #4a90e2;
+    --color-brand-primary-hover: #3b82f6;
+    --color-brand-primary-light: #f0f7ff;
+
+    /* Brand colors - Orange Accent */
+    --color-accent: #f97316;
+    --color-accent-hover: #ea580c;
+    --color-accent-light: #fff7ed;
+    --color-accent-dark: #d97706;
+    --color-accent-amber: #f59e0b;
+
+    /* Brand colors - Indigo */
+    --color-indigo: #6366f1;
+    --color-indigo-light: rgba(99, 102, 241, 0.1);
+
+    /* Semantic colors - Success */
+    --color-success: #10b981;
+    --color-success-light: #d1fae5;
+    --color-success-dark: #059669;
+    --color-success-muted: #5a8a5a;
+    --color-success-border: #c8e6c8;
+    --color-success-bg: #f8faf8;
+    --color-success-code: #1b5e20;
+
+    /* Semantic colors - Error */
+    --color-error: #ef4444;
+    --color-error-light: #fee2e2;
+    --color-error-dark: #dc2626;
+
+    /* Semantic colors - Warning */
+    --color-warning: #f59e0b;
+    --color-warning-light: #fef3c7;
+    --color-warning-dark: #d97706;
+
+    /* Semantic colors - Info */
+    --color-info: #3b82f6;
+    --color-info-light: #dbeafe;
+
+    /* Department colors - for badges and UI elements */
+    --color-dept-engineering: #3b82f6;
+    --color-dept-design: #8b5cf6;
+    --color-dept-product: #10b981;
+    --color-dept-marketing: #f59e0b;
+    --color-dept-legal: #6b7280;
+    --color-dept-finance: #14b8a6;
+    --color-dept-hr: #ec4899;
+    --color-dept-operations: #f97316;
+
+    /* Curator (purple theme) */
+    --color-curator-primary: #9c27b0;
+    --color-curator-hover: #7b1fa2;
+    --color-curator-dark: #6a1b9a;
+    --color-curator-light: #f3e5f5;
+    --color-curator-lighter: #e1bee7;
+    --color-curator-border: #ce93d8;
+
+    /* ===== TAILWIND COLOR PALETTE TOKENS ===== */
+
+    /* Slate scale - for neutral/gray UI elements */
+    --color-slate-50: #f8fafc;
+    --color-slate-100: #f1f5f9;
+    --color-slate-200: #e2e8f0;
+    --color-slate-300: #cbd5e1;
+    --color-slate-500: #64748b;
+    --color-slate-600: #475569;
+    --color-slate-700: #334155;
+    --color-slate-800: #1e293b;
+
+    /* Gray scale */
+    --color-gray-400: #9ca3af;
+    --color-gray-500: #6b7280;
+    --color-gray-700: #374151;
+
+    /* Blue scale - for SOP type, links, info */
+    --color-blue-100: #dbeafe;
+    --color-blue-200: #bfdbfe;
+    --color-blue-500: #3b82f6;
+    --color-blue-600: #2563eb;
+    --color-blue-700: #1d4ed8;
+    --color-blue-800: #1e40af;
+
+    /* Green scale - for success states */
+    --color-green-50: #f0fdf4;
+    --color-green-100: #dcfce7;
+    --color-green-300: #86efac;
+    --color-green-600: #16a34a;
+
+    /* Emerald scale - for save buttons */
+    --color-emerald-400: #34d399;
+    --color-emerald-500: #10b981;
+    --color-emerald-600: #059669;
+    --color-emerald-700: #047857;
+
+    /* Amber scale - for framework type */
+    --color-amber-100: #fef3c7;
+    --color-amber-200: #fde68a;
+    --color-amber-700: #b45309;
+
+    /* Purple scale - for policy type, projects */
+    --color-purple-100: #f3e8ff;
+    --color-purple-200: #e9d5ff;
+    --color-purple-600: #7c3aed;
+
+    /* Violet scale - for project hover states */
+    --color-violet-100: #ede9fe;
+    --color-violet-200: #ddd6fe;
+    --color-violet-300: #c4b5fd;
+    --color-violet-400: #a78bfa;
+    --color-violet-700: #6d28d9;
+    --color-violet-900: #4c1d95;
+
+    /* Indigo extended scale */
+    --color-indigo-600: #4f46e5;
+
+    /* Knowledge Base (dark theme) */
+    --color-kb-bg-primary: #1a1a2e;
+    --color-kb-bg-secondary: #1e1e32;
+    --color-kb-bg-tertiary: #16162a;
+    --color-kb-bg-hover: #252540;
+    --color-kb-border: #2d2d44;
+    --color-kb-border-light: #3d3d5c;
+    --color-kb-text-primary: #ffffff;
+    --color-kb-text-secondary: #ccccdd;
+    --color-kb-text-muted: #8888aa;
+    --color-kb-text-dim: #6666aa;
+    --color-kb-text-subtle: #aaaacc;
+    --color-kb-accent: #4a4ae8;
+    --color-kb-accent-hover: #5a5af8;
+    --color-kb-error: #ff6b6b;
+
+    /* KB Category badges */
+    --color-kb-cat-technical-bg: #2d4a7c;
+    --color-kb-cat-technical-text: #6fa8dc;
+    --color-kb-cat-ux-bg: #5c2d7c;
+    --color-kb-cat-ux-text: #b47cdc;
+    --color-kb-cat-feature-bg: #2d7c4a;
+    --color-kb-cat-feature-text: #6fdc8f;
+    --color-kb-cat-policy-bg: #7c5c2d;
+    --color-kb-cat-policy-text: #dcb46f;
+    --color-kb-cat-process-bg: #7c2d5c;
+    --color-kb-cat-process-text: #dc6fb4;
+    --color-kb-cat-role-bg: #2d7c7c;
+    --color-kb-cat-role-text: #6fdcdc;
+    --color-kb-cat-framework-bg: #4a2d7c;
+    --color-kb-cat-framework-text: #8f6fdc;
+    --color-kb-cat-sop-bg: #7c7c2d;
+    --color-kb-cat-sop-text: #dcdc6f;
+
+    /* KB Status badges */
+    --color-kb-status-superseded-bg: #7c5c2d;
+    --color-kb-status-superseded-text: #dcb46f;
+    --color-kb-status-archived-bg: #4a4a5c;
+    --color-kb-status-archived-text: #9999aa;
+
     /* Aurora background colors */
     --white: #fff;
     --black: #000;
     --transparent: transparent;
     --blue-300: #93c5fd;
     --blue-400: #60a5fa;
-    --blue-500: #3b82f6;
     --indigo-300: #a5b4fc;
-    --violet-200: #ddd6fe;
   }
   .dark {
     --background: 0 0% 3.9%;

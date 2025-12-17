@@ -5,6 +5,7 @@ import json
 from typing import List, Dict, Any, Optional, AsyncGenerator
 from .config import OPENROUTER_API_KEY, OPENROUTER_API_URL
 from .config import MOCK_LLM as _MOCK_LLM_INITIAL
+from .config import ENABLE_PROMPT_CACHING, CACHE_SUPPORTED_MODELS
 
 # Module-level mock mode flag (can be changed at runtime via API)
 MOCK_LLM = _MOCK_LLM_INITIAL
@@ -34,6 +35,87 @@ if MOCK_LLM:
     from .mock_llm import generate_mock_response, generate_mock_response_stream
     print("[MOCK] MOCK MODE ENABLED - No real API calls will be made", flush=True)
 
+# Log caching status on startup
+if ENABLE_PROMPT_CACHING:
+    print("[CACHE] PROMPT CACHING ENABLED - cache_control will be added to supported models", flush=True)
+else:
+    print("[CACHE] Prompt caching DISABLED - using standard message format", flush=True)
+
+
+def convert_to_cached_messages(
+    messages: List[Dict[str, Any]],
+    model: str
+) -> List[Dict[str, Any]]:
+    """
+    Convert standard messages to cached format for supported models.
+
+    KILL SWITCH: Set ENABLE_PROMPT_CACHING=false in .env to disable this.
+
+    When caching is enabled and model supports it:
+    - System message content is wrapped with cache_control
+    - This allows OpenRouter to cache the static context
+
+    When caching is disabled OR model doesn't support it:
+    - Returns messages unchanged (standard format)
+
+    Args:
+        messages: Standard message list [{"role": "system", "content": "..."}]
+        model: The model identifier to check for cache support
+
+    Returns:
+        Messages in cached format if applicable, otherwise unchanged
+    """
+    # KILL SWITCH CHECK - read from config dynamically to support runtime toggle
+    from .config import ENABLE_PROMPT_CACHING as caching_enabled
+    if not caching_enabled:
+        return messages
+
+    # Check if model supports cache_control
+    model_supports_cache = any(
+        supported in model for supported in CACHE_SUPPORTED_MODELS
+    )
+
+    if not model_supports_cache:
+        return messages
+
+    # Convert messages to cached format
+    cached_messages = []
+
+    for msg in messages:
+        role = msg.get("role", "user")
+        content = msg.get("content", "")
+
+        if role == "system" and isinstance(content, str) and content:
+            # Convert system message to multipart format with cache_control
+            cached_messages.append({
+                "role": "system",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": content,
+                        "cache_control": {"type": "ephemeral"}
+                    }
+                ]
+            })
+            print(f"[CACHE] Added cache_control to system message for {model} ({len(content)} chars)", flush=True)
+        elif role == "user" and isinstance(content, str) and content:
+            # Keep user messages in multipart format for consistency
+            # but without cache_control (dynamic content)
+            cached_messages.append({
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": content
+                    }
+                ]
+            })
+        else:
+            # Keep other messages unchanged
+            cached_messages.append(msg)
+
+    return cached_messages
+
 
 async def query_model(
     model: str,
@@ -61,9 +143,12 @@ async def query_model(
         "Content-Type": "application/json",
     }
 
+    # Apply prompt caching if enabled (KILL SWITCH: set ENABLE_PROMPT_CACHING=false to disable)
+    cached_messages = convert_to_cached_messages(messages, model)
+
     payload = {
         "model": model,
-        "messages": messages,
+        "messages": cached_messages,
         "max_tokens": 4096,  # Explicit limit to prevent truncation (especially for DeepSeek)
     }
 
@@ -128,9 +213,12 @@ async def query_model_stream(
         "Content-Type": "application/json",
     }
 
+    # Apply prompt caching if enabled (KILL SWITCH: set ENABLE_PROMPT_CACHING=false to disable)
+    cached_messages = convert_to_cached_messages(messages, model)
+
     payload = {
         "model": model,
-        "messages": messages,
+        "messages": cached_messages,
         "stream": True,
         "max_tokens": 16384,  # Higher limit to prevent truncation
     }
@@ -151,7 +239,17 @@ async def query_model_stream(
                 headers=headers,
                 json=payload
             ) as response:
-                response.raise_for_status()
+                # Check for HTTP errors BEFORE reading stream - this lets us capture error body
+                if response.status_code >= 400:
+                    # Read the full error response body
+                    error_body = await response.aread()
+                    error_text = error_body.decode('utf-8')[:1000]
+                    print(f"[HTTP ERROR] Model {model}: Status {response.status_code} - {error_text}", flush=True)
+                    if response.status_code == 400:
+                        print(f"[400 DEBUG] {model}: This often means context too long, invalid request format, or model-specific restrictions", flush=True)
+                    yield f"[Error: Status {response.status_code}]"
+                    return
+
                 print(f"[STREAM CONNECTED] {model}: Status {response.status_code}", flush=True)
 
                 line_count = 0
@@ -236,13 +334,27 @@ async def query_model_stream(
             return
         except httpx.HTTPStatusError as e:
             error_msg = f"Status {e.response.status_code}"
-            # In streaming mode, we can't access .text directly - need to read first
+            error_detail = "Unknown error"
+            # In streaming mode, try multiple methods to read the error
             try:
-                error_body = await e.response.aread()
-                error_detail = error_body.decode('utf-8')[:200]
-            except Exception:
-                error_detail = "Could not read error response"
+                # Try to read the response body
+                if hasattr(e.response, '_content') and e.response._content:
+                    error_detail = e.response._content.decode('utf-8')[:500]
+                elif hasattr(e.response, 'content') and e.response.content:
+                    error_detail = e.response.content.decode('utf-8')[:500]
+                else:
+                    # Try async read
+                    error_body = await e.response.aread()
+                    error_detail = error_body.decode('utf-8')[:500]
+            except Exception as read_err:
+                error_detail = f"Could not read error response: {type(read_err).__name__}"
+
             print(f"[HTTP ERROR] Model {model}: {error_msg} - {error_detail}", flush=True)
+
+            # For 400 errors, also log what might be wrong
+            if e.response.status_code == 400:
+                print(f"[400 DEBUG] {model}: This is often caused by: context too long, invalid characters, or model-specific restrictions", flush=True)
+
             yield f"[Error: {error_msg}]"
             return
         except (httpx.ConnectError, httpx.ReadError, httpx.RemoteProtocolError) as e:

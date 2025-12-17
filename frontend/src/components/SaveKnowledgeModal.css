@@ -1,75 +1,8 @@
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  animation: fadeIn 0.15s ease-out;
-}
+/* SaveKnowledgeModal - Content styles (modal wrapper handled by AppModal) */
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.save-knowledge-modal {
-  background: var(--bg-primary, #1a1a1a);
-  border-radius: 12px;
-  width: 94%;
-  max-width: 640px;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  animation: slideUp 0.2s ease-out;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border-color, #333);
-}
-
-.modal-header h2 {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--text-primary, #fff);
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: var(--text-secondary, #888);
-  cursor: pointer;
-  padding: 4px 8px;
-  line-height: 1;
-  border-radius: 4px;
-  transition: background 0.15s, color 0.15s;
-}
-
-.close-btn:hover {
-  background: var(--bg-secondary, #2a2a2a);
-  color: var(--text-primary, #fff);
+/* Override AppModal body padding */
+.save-knowledge-modal-body {
+  padding: 0;
 }
 
 .modal-body {
@@ -96,10 +29,10 @@
 .form-group textarea {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid var(--border-color, #333);
-  border-radius: 6px;
-  background: var(--bg-secondary, #2a2a2a);
-  color: var(--text-primary, #fff);
+  border: 1px solid var(--color-border-dark);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
   font-size: 0.9rem;
   font-family: inherit;
   transition: border-color 0.15s;
@@ -109,20 +42,21 @@
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: var(--accent-color, #4a9eff);
+  border-color: var(--color-brand-primary);
+  box-shadow: var(--shadow-focus);
 }
 
 .form-group textarea {
   resize: vertical;
   min-height: 60px;
-  color: #ffffff !important;
+  color: var(--color-text-inverse) !important;
   line-height: 1.5;
   white-space: pre-wrap;
 }
 
 /* Ensure placeholder is distinguishable but not mistaken for content */
 .form-group textarea::placeholder {
-  color: #666;
+  color: var(--color-text-muted);
   opacity: 1;
 }
 
@@ -136,7 +70,7 @@
 .context-info {
   padding: 10px 12px;
   background: var(--bg-secondary, #2a2a2a);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   margin-bottom: 12px;
   border-left: 3px solid var(--accent-color, #4a9eff);
 }
@@ -172,7 +106,7 @@
   font-size: 0.8rem;
   cursor: pointer;
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   transition: background 0.15s;
 }
 
@@ -201,7 +135,7 @@
 .cancel-btn,
 .save-btn {
   padding: 10px 20px;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
@@ -239,8 +173,8 @@
   padding: 10px 12px;
   background: rgba(220, 53, 69, 0.15);
   border: 1px solid rgba(220, 53, 69, 0.3);
-  border-radius: 6px;
-  color: #ff6b6b;
+  border-radius: var(--radius-md);
+  color: var(--color-red-400);
   font-size: 0.85rem;
   margin-top: 12px;
 }
@@ -287,7 +221,7 @@
   gap: 6px;
   padding: 12px 16px;
   background: var(--bg-secondary, #2a2a2a);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   margin-bottom: 20px;
   width: 100%;
   max-width: 300px;
@@ -312,7 +246,7 @@
   padding: 10px 24px;
   background: var(--accent-color, #4a9eff);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   color: white;
   font-size: 0.9rem;
   font-weight: 500;
@@ -374,15 +308,15 @@
   padding: 10px 12px;
   background: var(--bg-primary, #1a1a1a);
   border: 1px solid var(--border-color, #444);
-  border-radius: 6px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
   font-size: 0.8rem;
   font-weight: 400;
   color: var(--text-primary, #fff);
   line-height: 1.4;
   white-space: normal;
   text-align: left;
-  z-index: 100;
+  z-index: var(--z-dropdown);
   opacity: 0;
   visibility: hidden;
   transform: translateY(4px);
@@ -406,7 +340,7 @@
   right: 13px;
   border: 5px solid transparent;
   border-top-color: var(--bg-primary, #1a1a1a);
-  z-index: 1;
+  z-index: var(--z-base);
 }
 
 .detection-tooltip:hover .tooltip-text {
@@ -420,7 +354,7 @@
 }
 
 .tooltip-changed {
-  color: #f59e0b;
+  color: var(--color-amber-500);
   font-size: 0.75rem;
 }
 
@@ -433,21 +367,7 @@
   text-align: center;
 }
 
-.extracting-spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--border-color, #333);
-  border-top-color: var(--accent-color, #4a9eff);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 20px;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+/* extracting-spinner styles removed - now using unified <Spinner /> component */
 
 .extracting-message p {
   margin: 0;
@@ -475,7 +395,7 @@
   padding: 14px;
   background: var(--bg-secondary, #2a2a2a);
   border: 1px solid var(--accent-color, #4a9eff);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 .project-preview-header {
@@ -513,7 +433,7 @@
   width: 100%;
   padding: 8px 10px;
   border: 1px solid var(--border-color, #444);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   background: var(--bg-primary, #1a1a1a);
   color: var(--text-primary, #fff);
   font-size: 0.85rem;
@@ -543,7 +463,7 @@
 .project-cancel-btn,
 .project-create-btn {
   padding: 8px 14px;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
@@ -586,15 +506,7 @@
   text-align: center;
 }
 
-.project-extracting-spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid var(--border-color, #333);
-  border-top-color: var(--accent-color, #4a9eff);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 12px;
-}
+/* project-extracting-spinner styles removed - now using unified <Spinner /> component */
 
 .project-extracting p {
   margin: 0;
@@ -665,39 +577,8 @@
   }
 }
 
-/* Mobile breakpoint */
+/* Mobile breakpoint - AppModal handles overlay, these are content-specific */
 @media (max-width: 480px) {
-  .modal-overlay {
-    align-items: flex-end;
-  }
-
-  .save-knowledge-modal {
-    width: 100%;
-    max-height: 92vh;
-    margin: 0;
-    border-radius: 16px 16px 0 0;
-    animation: slideUpMobile 0.25s ease-out;
-  }
-
-  @keyframes slideUpMobile {
-    from {
-      opacity: 0;
-      transform: translateY(100%);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .modal-header {
-    padding: 16px;
-    position: sticky;
-    top: 0;
-    background: var(--bg-primary, #1a1a1a);
-    z-index: 10;
-  }
-
   .modal-body {
     padding: 12px 16px;
   }
@@ -724,14 +605,6 @@
 
   .context-text {
     font-size: 0.85rem;
-  }
-
-  .modal-footer {
-    position: sticky;
-    bottom: 0;
-    background: var(--bg-primary, #1a1a1a);
-    padding: 12px 16px;
-    padding-bottom: max(12px, env(safe-area-inset-bottom));
   }
 
   .cancel-btn,
@@ -810,7 +683,7 @@
   gap: 10px;
   padding: 12px;
   border: 1px solid var(--border-color, #333);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: var(--bg-secondary, #2a2a2a);
   cursor: pointer;
   transition: all 0.15s ease;
@@ -874,7 +747,7 @@
   padding: 4px 8px;
   background: var(--accent-color, #0ea5e9);
   color: white;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   font-size: 0.8rem;
   font-weight: 500;
 }
@@ -900,7 +773,7 @@
   width: 100%;
   padding: 10px 12px;
   border: 1px solid var(--border-color, #333);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   background: var(--bg-secondary, #2a2a2a);
   color: var(--text-primary, #fff);
   font-size: 0.9rem;

@@ -11,10 +11,10 @@
   padding: 6px 10px;
   background: transparent;
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 13px;
   font-weight: 500;
-  color: #64748b;
+  color: var(--color-slate-500);
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -30,8 +30,8 @@
 }
 
 .dept-select-trigger:hover:not(.has-selection) {
-  background: white;
-  color: #374151;
+  background: var(--color-bg-primary);
+  color: var(--color-gray-700);
 }
 
 .dept-select-trigger:focus {
@@ -39,7 +39,7 @@
 }
 
 .dept-select-trigger:focus:not(.has-selection) {
-  background: white;
+  background: var(--color-bg-primary);
 }
 
 .dept-select-trigger[data-disabled] {
@@ -48,17 +48,21 @@
 }
 
 /* Dropdown content - Design System compliant */
-.dept-select-content,
-[data-radix-popper-content-wrapper] .dept-select-content {
+.dept-select-content {
   position: relative;
-  z-index: 9999 !important;
+  z-index: var(--z-modal-dropdown);
   max-height: 300px;
   min-width: 8rem;
   overflow: hidden;
-  border-radius: 12px !important;
-  border: 1px solid #e5e7eb !important;
-  background: white !important;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-gray-200);
+  background: var(--color-bg-primary);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Ensure the portal wrapper has correct z-index for modal context */
+[data-radix-popper-content-wrapper]:has(.dept-select-content) {
+  z-index: var(--z-modal-dropdown);
 }
 
 /* Animation keyframes */
@@ -108,25 +112,25 @@
   cursor: pointer;
   user-select: none;
   align-items: center;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 10px 12px;
   padding-right: 36px;
   font-size: 14px;
   font-weight: 500;
-  color: #374151;
+  color: var(--color-gray-700);
   outline: none;
   transition: all 0.1s ease;
 }
 
 /* Hover state - uses CSS variable from inline style */
 .dept-select-item[data-highlighted] {
-  background: var(--dept-hover-bg, #f3f4f6);
+  background: var(--dept-hover-bg, var(--color-gray-100));
 }
 
 /* Selected/checked state */
 .dept-select-item[data-state="checked"] {
-  background: var(--dept-checked-bg, #f3f4f6);
-  color: var(--dept-checked-text, #374151);
+  background: var(--dept-checked-bg, var(--color-gray-100));
+  color: var(--dept-checked-text, var(--color-gray-700));
 }
 
 /* Disabled state */
@@ -144,5 +148,5 @@
   width: 16px;
   align-items: center;
   justify-content: center;
-  color: var(--dept-checked-text, #059669);
+  color: var(--dept-checked-text, var(--color-emerald-600));
 }

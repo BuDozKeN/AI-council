@@ -1,0 +1,119 @@
+/**
+ * StatusSelect Styles
+ * Matches DepartmentSelect design system - rounded corners, smooth animations
+ */
+
+/* Trigger button - same pattern as DepartmentSelect */
+.status-select-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.status-select-trigger:hover {
+  opacity: 0.9;
+}
+
+.status-select-trigger:focus {
+  outline: none;
+}
+
+.status-select-trigger[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Dropdown content - Design System compliant (12px radius) */
+.status-select-content {
+  position: relative;
+  z-index: var(--z-modal-dropdown);
+  max-height: 300px;
+  min-width: 140px;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-gray-200);
+  background: var(--color-bg-primary);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Ensure Radix portal wrapper has correct z-index for modal context */
+[data-radix-popper-content-wrapper]:has(.status-select-content) {
+  z-index: var(--z-modal-dropdown);
+}
+
+/* Animation - same as DepartmentSelect */
+@keyframes statusDropdownIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.status-select-content[data-side="bottom"] {
+  transform-origin: top;
+  animation: statusDropdownIn 0.15s ease-out;
+}
+
+.status-select-content[data-side="top"] {
+  transform-origin: bottom;
+  animation: statusDropdownIn 0.15s ease-out;
+}
+
+/* Viewport */
+.status-select-viewport {
+  padding: 6px;
+}
+
+/* Individual items - 8px radius to match design system */
+.status-select-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+  cursor: pointer;
+  user-select: none;
+  align-items: center;
+  gap: 8px;
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  padding-right: 36px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-gray-700);
+  outline: none;
+  transition: all 0.1s ease;
+}
+
+/* Hover state */
+.status-select-item[data-highlighted] {
+  background: var(--status-hover-bg, var(--color-gray-100));
+}
+
+/* Selected/checked state */
+.status-select-item[data-state="checked"] {
+  background: var(--status-checked-bg, var(--color-gray-100));
+  color: var(--status-checked-text, var(--color-gray-700));
+}
+
+/* Checkmark indicator - orange like design system */
+.status-select-item-indicator {
+  position: absolute;
+  right: 12px;
+  display: flex;
+  height: 16px;
+  width: 16px;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-warning);
+}

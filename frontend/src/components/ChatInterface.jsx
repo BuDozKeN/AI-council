@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { api } from '../api';
 import Stage1 from './Stage1';
 import Stage2 from './Stage2';
 import Stage3 from './Stage3';
@@ -9,6 +8,7 @@ import Triage from './Triage';
 import ImageUpload from './ImageUpload';
 import CouncilProgressCapsule from './CouncilProgressCapsule';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Spinner } from './ui/Spinner';
 import './ChatInterface.css';
 import './ImageUpload.css';
 
@@ -53,12 +53,11 @@ export default function ChatInterface({
   onTriageProceed,
   // Upload progress
   isUploading,
-  // Knowledge Base navigation
-  onViewKnowledgeBase,
   // Decision navigation
   onViewDecision,
   // Scroll to Stage 3 when navigating from decision source
   scrollToStage3,
+  scrollToResponseIndex,  // Specific response index for multi-turn conversations
   onScrollToStage3Complete,
   // Return to My Company (after viewing source)
   returnToMyCompanyTab,
@@ -112,10 +111,35 @@ export default function ChatInterface({
 
       // Longer delay to ensure DOM is fully rendered after conversation loads
       const timer = setTimeout(() => {
-        const stage3Element = messagesContainerRef.current?.querySelector('.stage3');
-        if (stage3Element) {
-          // Scroll to TOP of Stage 3 so user can read from the beginning
-          stage3Element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        let targetElement = null;
+
+        // If we have a specific response index, find the message group at that index
+        // response_index is the index in the full messages array (including user messages and chat responses)
+        if (scrollToResponseIndex !== null && scrollToResponseIndex !== undefined) {
+          // Find all message groups (each message is in a .message-group div)
+          const allMessageGroups = messagesContainerRef.current?.querySelectorAll('.message-group');
+          if (allMessageGroups && allMessageGroups.length > scrollToResponseIndex) {
+            // Found the message group at this index
+            const messageGroup = allMessageGroups[scrollToResponseIndex];
+            // Try to find a stage3 or chat-response within this group
+            targetElement = messageGroup?.querySelector('.stage3') ||
+                           messageGroup?.querySelector('.chat-response') ||
+                           messageGroup;
+          } else {
+            // Fallback: try to find any stage3 element
+            const allStage3Elements = messagesContainerRef.current?.querySelectorAll('.stage3');
+            if (allStage3Elements && allStage3Elements.length > 0) {
+              targetElement = allStage3Elements[allStage3Elements.length - 1];
+            }
+          }
+        } else {
+          // No specific index - scroll to first stage3
+          targetElement = messagesContainerRef.current?.querySelector('.stage3');
+        }
+
+        if (targetElement) {
+          // Scroll to TOP of the target Stage 3 so user can read from the beginning
+          targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
         // Clear the flag after scroll completes
         if (onScrollToStage3Complete) {
@@ -124,7 +148,7 @@ export default function ChatInterface({
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [scrollToStage3, conversation, onScrollToStage3Complete]);
+  }, [scrollToStage3, scrollToResponseIndex, conversation, onScrollToStage3Complete]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -179,6 +203,7 @@ export default function ChatInterface({
       'decisions': 'Decisions',
       'activity': 'Activity',
       'playbooks': 'Playbooks',
+      'projects': 'Projects',
       'team': 'Team',
       'overview': 'Overview'
     };
@@ -203,7 +228,7 @@ export default function ChatInterface({
         {/* Triage - show at top when active */}
         {triageState === 'analyzing' && (
           <div className="triage-analyzing">
-            <div className="spinner"></div>
+            <Spinner size="md" />
             <span>Analyzing your question...</span>
           </div>
         )}
@@ -302,13 +327,24 @@ export default function ChatInterface({
                           departmentId={selectedDepartment}
                           conversationId={conversation?.id}
                           conversationTitle={conversation?.title}
+                          responseIndex={index}  // Unique index for this response within the conversation
                           userQuestion={
-                            // Get the FIRST user message in this conversation (the original question)
-                            // This ensures follow-up questions still show the original context
-                            conversation.messages.find(m => m.role === 'user')?.content || null
+                            // Get the user message that immediately preceded THIS specific response
+                            // This ensures each decision has its own unique question context
+                            (() => {
+                              // Look backwards from this index to find the nearest user message
+                              for (let i = index - 1; i >= 0; i--) {
+                                if (conversation.messages[i]?.role === 'user') {
+                                  return conversation.messages[i].content;
+                                }
+                              }
+                              return null;
+                            })()
                           }
                           projects={projects}
                           currentProjectId={selectedProject}
+                          onSelectProject={onSelectProject}
+                          onCreateProject={onOpenProjectModal}
                           onProjectCreated={onProjectCreated}
                           onViewDecision={onViewDecision}
                         />
@@ -332,7 +368,7 @@ export default function ChatInterface({
           // Show generic loading only during initial setup (creating conversation, etc.)
           return (
             <div className="loading-indicator">
-              <div className="spinner"></div>
+              <Spinner size="md" />
               <span>Setting up conversation...</span>
             </div>
           );

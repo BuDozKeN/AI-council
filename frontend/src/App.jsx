@@ -50,8 +50,10 @@ function App() {
   const [myCompanyInitialTab, setMyCompanyInitialTab] = useState('overview');
   const [myCompanyInitialDecisionId, setMyCompanyInitialDecisionId] = useState(null);
   const [myCompanyInitialPlaybookId, setMyCompanyInitialPlaybookId] = useState(null);
+  const [myCompanyInitialProjectId, setMyCompanyInitialProjectId] = useState(null);
   const [myCompanyPromoteDecision, setMyCompanyPromoteDecision] = useState(null); // Decision object to open in Promote modal on return
   const [scrollToStage3, setScrollToStage3] = useState(false); // When navigating from decision source, scroll to Stage 3
+  const [scrollToResponseIndex, setScrollToResponseIndex] = useState(null); // Specific response index to scroll to in multi-turn
   const [returnToMyCompanyTab, setReturnToMyCompanyTab] = useState(null); // Tab to return to after viewing source (e.g., 'decisions', 'activity')
   // Triage state
   const [triageState, setTriageState] = useState(null); // null, 'analyzing', or triage result object
@@ -111,7 +113,30 @@ function App() {
       setSelectedStyle(null);
       setSelectedProject(null);
       setProjects([]);
+      // Clear conversations - will reload below
+      setConversations([]);
     }
+
+    // Always load conversations for the current business (including on initial selection)
+    // This runs on every selectedBusiness change to ensure conversations match the company
+    const loadConversationsForBusiness = async () => {
+      if (selectedBusiness) {
+        try {
+          const result = await api.listConversations({
+            limit: 10,
+            offset: 0,
+            companyId: selectedBusiness
+          });
+          const convs = result.conversations || result;
+          setConversations(convs);
+          setHasMoreConversations(result.has_more !== undefined ? result.has_more : convs.length >= 10);
+        } catch (error) {
+          console.error('Failed to load conversations:', error);
+          setConversations([]);
+        }
+      }
+    };
+    loadConversationsForBusiness();
 
     // Load projects for the selected business
     const loadProjects = async () => {
@@ -120,10 +145,8 @@ function App() {
           const result = await api.listProjects(selectedBusiness);
           const loadedProjects = result.projects || [];
           setProjects(loadedProjects);
-          // Auto-select the first project if available (only on business change or initial load)
-          if (loadedProjects.length > 0 && !selectedProject) {
-            setSelectedProject(loadedProjects[0].id);
-          }
+          // Don't auto-select - user must explicitly choose a project
+          // This ensures conversations aren't accidentally linked to projects
         } catch (error) {
           console.error('Failed to load projects:', error);
           setProjects([]);
@@ -170,7 +193,9 @@ function App() {
     try {
       const limit = options.limit || CONVERSATIONS_PAGE_SIZE;
       const sortBy = options.sortBy || conversationSortBy;
-      const result = await api.listConversations({ ...options, limit, sortBy });
+      // Pass the currently selected company to filter conversations
+      const companyId = options.companyId !== undefined ? options.companyId : selectedBusiness;
+      const result = await api.listConversations({ ...options, limit, sortBy, companyId });
 
       // API now returns { conversations: [...], has_more: bool }
       const convs = result.conversations || result; // Backwards compatible
@@ -243,8 +268,9 @@ function App() {
     const loadData = async () => {
       const token = await getAccessToken();
       if (token) {
-        loadConversations();
-        loadBusinesses();
+        // Load businesses first - conversations will be loaded after business is selected
+        // via the useEffect that watches selectedBusiness
+        await loadBusinesses();
 
         // Check for conversation ID in URL parameters
         const urlParams = new URLSearchParams(window.location.search);
@@ -573,7 +599,8 @@ function App() {
 
     if (isTemp) {
       try {
-        const newConv = await api.createConversation();
+        // Pass the selected business ID so the conversation is associated with the correct company
+        const newConv = await api.createConversation(selectedBusiness);
         conversationId = newConv.id;
 
         // Skip the loadConversation call that would be triggered by setCurrentConversationId
@@ -1118,8 +1145,14 @@ function App() {
           currentConversationId={currentConversationId}
           onSelectConversation={handleSelectConversation}
           onNewConversation={handleNewConversation}
-          onOpenLeaderboard={() => setIsLeaderboardOpen(true)}
-          onOpenSettings={() => setIsSettingsOpen(true)}
+          onOpenLeaderboard={() => {
+            setReturnToMyCompanyTab(null); // Clear return state - user is navigating elsewhere
+            setIsLeaderboardOpen(true);
+          }}
+          onOpenSettings={() => {
+            setReturnToMyCompanyTab(null); // Clear return state - user is navigating elsewhere
+            setIsSettingsOpen(true);
+          }}
           onOpenMyCompany={() => {
             // Clear return-to-company state - user is opening it fresh
             setReturnToMyCompanyTab(null);
@@ -1167,7 +1200,15 @@ function App() {
         // Projects
         projects={projects}
         selectedProject={selectedProject}
-        onSelectProject={setSelectedProject}
+        onSelectProject={(projectId) => {
+          setSelectedProject(projectId);
+          // Touch project to update last_accessed_at for sorting
+          if (projectId) {
+            api.touchProject(projectId).catch(err => {
+              console.error('Failed to touch project:', err);
+            });
+          }
+        }}
         onOpenProjectModal={() => setIsProjectModalOpen(true)}
         onProjectCreated={(newProject) => {
           // Add to projects list so it appears in dropdown immediately
@@ -1196,21 +1237,35 @@ function App() {
         }}
         // Scroll target - for navigating from decision source
         scrollToStage3={scrollToStage3}
-        onScrollToStage3Complete={() => setScrollToStage3(false)}
-        // Decision/Playbook navigation - open My Company to appropriate tab
-        onViewDecision={(decisionId, type = 'decision', playbookId = null) => {
+        scrollToResponseIndex={scrollToResponseIndex}
+        onScrollToStage3Complete={() => {
+          setScrollToStage3(false);
+          setScrollToResponseIndex(null);
+        }}
+        // Decision/Playbook/Project navigation - open My Company to appropriate tab
+        onViewDecision={(decisionId, type = 'decision', targetId = null) => {
           // Clear return-to-company state - user is taking a new action
           setReturnToMyCompanyTab(null);
           setMyCompanyPromoteDecision(null);
 
-          if (type === 'playbook' && playbookId) {
+          if (type === 'playbook' && targetId) {
             setMyCompanyInitialTab('playbooks');
-            setMyCompanyInitialPlaybookId(playbookId);
+            setMyCompanyInitialPlaybookId(targetId);
             setMyCompanyInitialDecisionId(null);
+            setMyCompanyInitialProjectId(null);
+          } else if (type === 'project' && targetId) {
+            // Navigate to projects tab with specific project and auto-open it
+            setMyCompanyInitialTab('projects');
+            setMyCompanyInitialDecisionId(null);
+            setMyCompanyInitialPlaybookId(null);
+            setMyCompanyInitialProjectId(targetId);
+            // Also select the project in the main app for context
+            setSelectedProject(targetId);
           } else {
             setMyCompanyInitialTab('decisions');
             setMyCompanyInitialDecisionId(decisionId);
             setMyCompanyInitialPlaybookId(null);
+            setMyCompanyInitialProjectId(null);
           }
           setIsMyCompanyOpen(true);
         }}
@@ -1222,6 +1277,7 @@ function App() {
           setMyCompanyInitialTab(tab);
           setMyCompanyInitialDecisionId(null);
           setMyCompanyInitialPlaybookId(null);
+          setMyCompanyInitialProjectId(null);
           // Don't clear myCompanyPromoteDecision here - let MyCompany use it to re-open modal
           setIsMyCompanyOpen(true);
         }}
@@ -1256,6 +1312,7 @@ function App() {
             setMyCompanyInitialTab('overview');
             setMyCompanyInitialDecisionId(null);
             setMyCompanyInitialPlaybookId(null);
+            setMyCompanyInitialProjectId(null);
           }}
           onClose={() => {
             setIsMyCompanyOpen(false);
@@ -1263,18 +1320,20 @@ function App() {
             setMyCompanyInitialTab('overview');
             setMyCompanyInitialDecisionId(null);
             setMyCompanyInitialPlaybookId(null);
+            setMyCompanyInitialProjectId(null);
             setMyCompanyPromoteDecision(null);
           }}
-          onNavigateToConversation={(conversationId, fromTab, promoteDecision = null) => {
+          onNavigateToConversation={(conversationId, fromTab, responseIndex = null) => {
             setIsMyCompanyOpen(false);
             setScrollToStage3(true); // Scroll to Stage 3 when coming from decision source
+            setScrollToResponseIndex(responseIndex); // Scroll to specific response in multi-turn
             setReturnToMyCompanyTab(fromTab || null); // Remember which tab to return to
-            setMyCompanyPromoteDecision(promoteDecision); // Remember decision to re-open Promote modal
             setCurrentConversationId(conversationId);
           }}
           initialTab={myCompanyInitialTab}
           initialDecisionId={myCompanyInitialDecisionId}
           initialPlaybookId={myCompanyInitialPlaybookId}
+          initialProjectId={myCompanyInitialProjectId}
           initialPromoteDecision={myCompanyPromoteDecision}
           onConsumePromoteDecision={() => setMyCompanyPromoteDecision(null)}
         />

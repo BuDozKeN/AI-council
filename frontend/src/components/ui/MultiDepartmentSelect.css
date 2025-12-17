@@ -1,0 +1,176 @@
+/**
+ * MultiDepartmentSelect Styles
+ * Multi-select variant with badges and checkboxes
+ */
+
+/* Trigger button */
+.multi-dept-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  min-height: 36px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  color: var(--color-gray-700);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: 100%;
+  text-align: left;
+}
+
+.multi-dept-trigger:hover {
+  border-color: var(--color-gray-300);
+}
+
+.multi-dept-trigger:focus {
+  outline: none;
+  border-color: var(--color-indigo-500);
+  box-shadow: var(--shadow-focus);
+}
+
+.multi-dept-trigger[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Placeholder text */
+.multi-dept-placeholder {
+  color: var(--color-gray-400);
+  flex: 1;
+}
+
+/* Selected department badges container */
+.multi-dept-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  flex: 1;
+}
+
+/* Individual department badge */
+.multi-dept-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid;
+}
+
+.multi-dept-badge-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.1s;
+}
+
+.multi-dept-badge-remove:hover {
+  opacity: 1;
+}
+
+/* Dropdown content - must appear above modal content */
+.multi-dept-content {
+  z-index: var(--z-modal-dropdown);
+  min-width: 200px;
+  max-width: 300px;
+  max-height: 280px;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-gray-200);
+  background: var(--color-bg-primary);
+  box-shadow: var(--shadow-lg);
+  animation: multiDeptIn 0.15s ease-out;
+}
+
+/* Ensure Radix portal wrapper has correct z-index */
+[data-radix-popper-content-wrapper]:has(.multi-dept-content) {
+  z-index: var(--z-modal-dropdown);
+}
+
+@keyframes multiDeptIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* List container */
+.multi-dept-list {
+  padding: 8px;
+  overflow-y: auto;
+  max-height: 264px;
+}
+
+/* Empty state */
+.multi-dept-empty {
+  padding: 12px;
+  text-align: center;
+  color: var(--color-gray-400);
+  font-size: 13px;
+}
+
+/* Individual item */
+.multi-dept-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  color: var(--color-gray-700);
+  cursor: pointer;
+  transition: all 0.1s ease;
+  text-align: left;
+}
+
+.multi-dept-item:hover {
+  background: var(--dept-hover-bg, var(--color-gray-100));
+}
+
+.multi-dept-item.selected {
+  background: var(--dept-selected-bg, var(--color-gray-100));
+  color: var(--dept-selected-text, var(--color-gray-700));
+}
+
+/* Checkbox */
+.multi-dept-checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--color-gray-300);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-primary);
+  transition: all 0.1s ease;
+  flex-shrink: 0;
+}
+
+.multi-dept-checkbox.checked {
+  background: var(--dept-selected-text, var(--color-indigo-500));
+  border-color: var(--dept-selected-text, var(--color-indigo-500));
+  color: var(--color-text-inverse);
+}
+
+/* Item label */
+.multi-dept-item-label {
+  font-weight: 500;
+}

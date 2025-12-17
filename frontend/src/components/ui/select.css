@@ -1,22 +1,231 @@
 /**
- * Select Component Styles - Design System compliant
- * Handles hover and focus states that inline styles can't do
+ * Select Component Styles - Design System Token-ized
+ * All values use CSS variables for consistent theming
  */
 
-/* Dropdown item hover state */
-[data-radix-select-item]:hover,
-[data-radix-select-item][data-highlighted] {
-  background: #f3f4f6 !important;
+/* ============================================================================
+   TRIGGER - The button that opens the dropdown
+   ============================================================================ */
+
+.select-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  height: 36px;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  outline: none;
 }
 
-/* Selected/checked item state */
-[data-radix-select-item][data-state="checked"] {
-  background: #fff7ed !important;
-  color: #9a3412 !important;
+.select-trigger:hover {
+  border-color: var(--color-border-dark);
+  background: var(--color-bg-hover);
 }
 
-/* Selected + hover */
-[data-radix-select-item][data-state="checked"]:hover,
-[data-radix-select-item][data-state="checked"][data-highlighted] {
-  background: #ffedd5 !important;
+.select-trigger:focus {
+  border-color: var(--color-brand-primary);
+  box-shadow: var(--shadow-focus);
+}
+
+.select-trigger:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.select-trigger[data-placeholder] {
+  color: var(--color-text-tertiary);
+}
+
+.select-trigger-icon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+/* ============================================================================
+   CONTENT - The dropdown panel
+   ============================================================================ */
+
+.select-content {
+  position: relative;
+  z-index: var(--z-modal-dropdown);
+  max-height: 300px;
+  min-width: 8rem;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-dropdown);
+}
+
+/* Animation states */
+.select-content[data-state="open"] {
+  animation: select-fade-in 0.15s ease-out;
+}
+
+.select-content[data-state="closed"] {
+  animation: select-fade-out 0.1s ease-in;
+}
+
+@keyframes select-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes select-fade-out {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+/* Popper position adjustments */
+.select-content-popper[data-side="bottom"] {
+  transform: translateY(4px);
+}
+
+.select-content-popper[data-side="top"] {
+  transform: translateY(-4px);
+}
+
+.select-content-popper[data-side="left"] {
+  transform: translateX(-4px);
+}
+
+.select-content-popper[data-side="right"] {
+  transform: translateX(4px);
+}
+
+/* ============================================================================
+   VIEWPORT - The scrollable area containing items
+   ============================================================================ */
+
+.select-viewport {
+  padding: 8px;
+}
+
+.select-viewport-popper {
+  height: var(--radix-select-trigger-height);
+  width: 100%;
+  min-width: var(--radix-select-trigger-width);
+}
+
+/* ============================================================================
+   SCROLL BUTTONS - Up/down scroll indicators
+   ============================================================================ */
+
+.select-scroll-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 0;
+  cursor: default;
+  color: var(--color-text-secondary);
+}
+
+/* ============================================================================
+   LABEL - Group labels
+   ============================================================================ */
+
+.select-label {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ============================================================================
+   ITEM - Individual selectable options
+   ============================================================================ */
+
+.select-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 10px 12px;
+  padding-right: 36px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  transition: background 0.1s ease;
+}
+
+.select-item:hover,
+.select-item[data-highlighted] {
+  background: var(--color-bg-hover);
+}
+
+.select-item:focus {
+  background: var(--color-bg-hover);
+}
+
+.select-item[data-disabled] {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Selected state */
+.select-item[data-state="checked"] {
+  background: var(--color-orange-50);
+  color: var(--color-orange-800);
+}
+
+.select-item[data-state="checked"]:hover,
+.select-item[data-state="checked"][data-highlighted] {
+  background: var(--color-orange-100);
+}
+
+/* Checkmark indicator */
+.select-item-indicator {
+  position: absolute;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.select-item-check {
+  width: 16px;
+  height: 16px;
+  color: var(--color-accent);
+}
+
+/* ============================================================================
+   SEPARATOR - Divider between groups
+   ============================================================================ */
+
+.select-separator {
+  height: 1px;
+  margin: 4px -4px;
+  background: var(--color-border-light);
 }

@@ -12,7 +12,7 @@
 .triage-message .message-label {
   font-size: 11px;
   font-weight: 600;
-  color: #888;
+  color: var(--color-text-muted);
   margin-bottom: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -21,31 +21,31 @@
 /* Message bubbles */
 .message-bubble {
   padding: 14px 18px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   line-height: 1.6;
   font-size: 15px;
 }
 
 .message-bubble.user {
-  background: #f0f7ff;
-  border: 1px solid #d0e7ff;
-  color: #333;
+  background: var(--color-brand-primary-light);
+  border: 1px solid var(--color-blue-200);
+  color: var(--color-text-primary);
   max-width: 85%;
 }
 
 .message-bubble.ai {
-  background: #fff;
-  border: 2px solid #ff9800;
-  color: #333;
+  background: var(--color-bg-primary);
+  border: 2px solid var(--color-accent);
+  color: var(--color-text-primary);
 }
 
 .message-bubble.ai.ready {
-  border-color: #4caf50;
+  border-color: var(--color-success);
 }
 
 /* AI questions content */
 .ai-questions {
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .ai-questions p {
@@ -78,26 +78,26 @@
 .edit-icon-btn {
   margin-left: auto;
   background: none;
-  border: 1px solid #ddd;
-  border-radius: 6px;
+  border: 1px solid var(--color-border-muted);
+  border-radius: var(--radius-md);
   padding: 4px 10px;
   font-size: 14px;
-  color: #666;
+  color: var(--color-text-secondary);
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .edit-icon-btn:hover {
-  background: #f5f5f5;
-  border-color: #4caf50;
-  color: #4caf50;
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-success);
+  color: var(--color-success);
 }
 
 .ready-icon {
   width: 22px;
   height: 22px;
-  background: #4caf50;
-  color: white;
+  background: var(--color-success);
+  color: var(--color-text-inverse);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -107,8 +107,8 @@
 }
 
 .constraints-summary {
-  background: #f8fdf8;
-  border-radius: 8px;
+  background: var(--color-success-bg);
+  border-radius: var(--radius-md);
   padding: 12px 14px;
   margin-bottom: 14px;
 }
@@ -116,7 +116,7 @@
 .constraint-row {
   display: flex;
   padding: 6px 0;
-  border-bottom: 1px solid #e8f5e9;
+  border-bottom: 1px solid var(--color-success-light);
   font-size: 14px;
 }
 
@@ -131,24 +131,24 @@
 
 .constraint-label {
   font-weight: 600;
-  color: #2e7d32;
+  color: var(--color-success-dark);
   min-width: 70px;
 }
 
 .constraint-value {
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .constraint-edit {
   flex: 1;
   padding: 8px 10px;
-  border: 1px solid #4caf50;
-  border-radius: 6px;
+  border: 1px solid var(--color-success);
+  border-radius: var(--radius-md);
   font-size: 14px;
   font-family: inherit;
   line-height: 1.4;
   resize: none;
-  background: #fff;
+  background: var(--color-bg-primary);
 }
 
 .constraint-edit:focus {
@@ -164,10 +164,10 @@
 
 .proceed-btn {
   padding: 10px 22px;
-  background: #4caf50;
+  background: var(--color-success);
   border: none;
-  border-radius: 8px;
-  color: white;
+  border-radius: var(--radius-md);
+  color: var(--color-text-inverse);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -175,22 +175,22 @@
 }
 
 .proceed-btn:hover:not(:disabled) {
-  background: #43a047;
+  background: var(--color-success-dark);
 }
 
 .edit-btn {
   padding: 10px 16px;
   background: transparent;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  color: #666;
+  border: 1px solid var(--color-border-dark);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
   font-size: 14px;
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .edit-btn:hover:not(:disabled) {
-  background: #f5f5f5;
+  background: var(--color-bg-tertiary);
 }
 
 .proceed-btn:disabled,
@@ -213,24 +213,24 @@
 .triage-input textarea {
   width: 100%;
   padding: 12px 14px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
+  border: 1px solid var(--color-border-muted);
+  border-radius: var(--radius-lg);
   font-size: 14px;
   font-family: inherit;
   line-height: 1.5;
   resize: none;
-  background: #fff;
+  background: var(--color-bg-primary);
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .triage-input textarea:focus {
   outline: none;
-  border-color: #ff9800;
-  box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.1);
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-focus);
 }
 
 .triage-input textarea::placeholder {
-  color: #999;
+  color: var(--color-text-tertiary);
 }
 
 .input-actions {
@@ -242,24 +242,24 @@
 .skip-btn {
   padding: 8px 16px;
   background: transparent;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  color: #666;
+  border: 1px solid var(--color-border-muted);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
   font-size: 13px;
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .skip-btn:hover:not(:disabled) {
-  background: #f5f5f5;
+  background: var(--color-bg-tertiary);
 }
 
 .send-btn {
   padding: 8px 20px;
-  background: #ff9800;
+  background: var(--color-accent);
   border: none;
-  border-radius: 6px;
-  color: white;
+  border-radius: var(--radius-md);
+  color: var(--color-text-inverse);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -267,7 +267,7 @@
 }
 
 .send-btn:hover:not(:disabled) {
-  background: #f57c00;
+  background: var(--color-accent-hover);
 }
 
 .send-btn:disabled,

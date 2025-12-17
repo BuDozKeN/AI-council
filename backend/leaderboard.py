@@ -197,6 +197,34 @@ def get_department_leaderboard(department: str) -> List[Dict[str, Any]]:
         return []
 
 
+def _is_uuid_like(value: str) -> bool:
+    """Check if a string looks like a UUID (including seed UUIDs with letters like D0000...)."""
+    import re
+    # Match standard UUID format: 8-4-4-4-12 with any alphanumeric characters
+    uuid_pattern = re.compile(
+        r'^[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}$'
+    )
+    return bool(uuid_pattern.match(value))
+
+
+def _resolve_department_name(supabase, dept_id: str) -> str:
+    """
+    Resolve a department ID (UUID) to its display name.
+    Returns the original value if not a UUID or not found.
+    """
+    if not _is_uuid_like(dept_id):
+        return dept_id
+
+    try:
+        result = supabase.table('departments').select('name').eq('id', dept_id).execute()
+        if result.data and len(result.data) > 0:
+            return result.data[0]['name']
+    except Exception as e:
+        print(f"[LEADERBOARD] Error resolving department name for {dept_id}: {e}", flush=True)
+
+    return dept_id
+
+
 def get_all_department_leaderboards() -> Dict[str, List[Dict[str, Any]]]:
     """
     Get leaderboards for all departments.
@@ -215,7 +243,14 @@ def get_all_department_leaderboards() -> Dict[str, List[Dict[str, Any]]]:
 
         departments = set(row['department'] for row in result.data)
 
-        return {dept: get_department_leaderboard(dept) for dept in departments}
+        # Build result with resolved department names
+        leaderboards = {}
+        for dept in departments:
+            display_name = _resolve_department_name(supabase, dept)
+            # Use the original dept ID for querying, but display_name as the key
+            leaderboards[display_name] = get_department_leaderboard(dept)
+
+        return leaderboards
 
     except Exception as e:
         print(f"[LEADERBOARD] Error getting all department leaderboards: {e}", flush=True)

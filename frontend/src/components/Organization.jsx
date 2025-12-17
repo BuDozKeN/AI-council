@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { api } from '../api';
+import { Spinner } from './ui/Spinner';
+import { AppModal } from './ui/AppModal';
+import { AIWriteAssist } from './ui/AIWriteAssist';
 import './Organization.css';
 
 /**
@@ -202,40 +205,35 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
   const totalRoles = departments.reduce((sum, dept) => sum + (dept.roles?.length || 0), 0);
 
   return (
-    <div className="org-overlay" onClick={onClose}>
-      <div className="org-panel" onClick={e => e.stopPropagation()}>
-        {/* Header */}
-        <header className="org-header">
-          <div className="org-header-content">
-            <h1>Organization</h1>
-            <p className="org-subtitle">
-              {companyName || 'Your Company'} • {departments.length} departments • {totalRoles} roles
-            </p>
-          </div>
-          <button className="org-close-btn" onClick={onClose}>&times;</button>
-        </header>
+    <AppModal
+      isOpen={true}
+      onClose={onClose}
+      title="Organization"
+      description={`${companyName || 'Your Company'} • ${departments.length} departments • ${totalRoles} roles`}
+      size="lg"
+      contentClassName="org-modal-body"
+    >
+      {/* Quick Actions */}
+      <div className="org-actions">
+        <button
+          className="org-action-btn primary"
+          onClick={() => setShowAddDept(true)}
+        >
+          + Add Department
+        </button>
+        <button
+          className="org-action-btn"
+          onClick={() => onOpenKnowledgeBase && onOpenKnowledgeBase()}
+        >
+          View SOPs & Policies
+        </button>
+      </div>
 
-        {/* Quick Actions */}
-        <div className="org-actions">
-          <button
-            className="org-action-btn primary"
-            onClick={() => setShowAddDept(true)}
-          >
-            + Add Department
-          </button>
-          <button
-            className="org-action-btn"
-            onClick={() => onOpenKnowledgeBase && onOpenKnowledgeBase()}
-          >
-            View SOPs & Policies
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="org-content">
+      {/* Content */}
+      <div className="org-content">
           {loading ? (
             <div className="org-loading">
-              <div className="org-loading-spinner"></div>
+              <Spinner size="lg" variant="brand" />
               <p>Loading organization...</p>
             </div>
           ) : error ? (
@@ -337,12 +335,19 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
                             onChange={e => setNewRole({ ...newRole, name: e.target.value })}
                             autoFocus
                           />
-                          <input
-                            type="text"
-                            placeholder="Description (optional)"
+                          <AIWriteAssist
+                            context="role-description"
                             value={newRole.description}
-                            onChange={e => setNewRole({ ...newRole, description: e.target.value })}
-                          />
+                            onSuggestion={(val) => setNewRole({ ...newRole, description: val })}
+                            additionalContext={newRole.name ? `Role: ${newRole.name}` : ''}
+                          >
+                            <input
+                              type="text"
+                              placeholder="Description (optional)"
+                              value={newRole.description}
+                              onChange={e => setNewRole({ ...newRole, description: e.target.value })}
+                            />
+                          </AIWriteAssist>
                           <div className="org-add-form-actions">
                             <button
                               className="org-btn secondary"
@@ -379,116 +384,126 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
         </div>
 
         {/* Add Department Modal */}
-        {showAddDept && (
-          <div className="org-modal-overlay" onClick={() => setShowAddDept(false)}>
-            <div className="org-modal" onClick={e => e.stopPropagation()}>
-              <div className="org-modal-header">
-                <h2>Add Department</h2>
-                <button className="org-modal-close" onClick={() => setShowAddDept(false)}>&times;</button>
-              </div>
-              <div className="org-modal-body">
-                <div className="org-form-group">
-                  <label>Department Name *</label>
-                  <input
-                    type="text"
-                    placeholder="e.g., Human Resources"
-                    value={newDept.name}
-                    onChange={e => setNewDept({ ...newDept, name: e.target.value })}
-                    autoFocus
-                  />
-                </div>
-                <div className="org-form-group">
-                  <label>Slug (auto-generated)</label>
-                  <input
-                    type="text"
-                    value={newDept.id || generateSlug(newDept.name)}
-                    onChange={e => setNewDept({ ...newDept, id: e.target.value })}
-                    placeholder="auto-generated from name"
-                  />
-                  <span className="org-form-hint">Used in URLs and file paths</span>
-                </div>
-              </div>
-              <div className="org-modal-footer">
-                <button className="org-btn" onClick={() => setShowAddDept(false)} disabled={saving}>
-                  Cancel
-                </button>
-                <button
-                  className="org-btn primary"
-                  onClick={handleAddDepartment}
-                  disabled={saving || !newDept.name.trim()}
-                >
-                  {saving ? 'Creating...' : 'Create Department'}
-                </button>
-              </div>
-            </div>
+        <AppModal
+          isOpen={showAddDept}
+          onClose={() => setShowAddDept(false)}
+          title="Add Department"
+          size="sm"
+        >
+          <div className="org-form-group">
+            <label>Department Name *</label>
+            <input
+              type="text"
+              placeholder="e.g., Human Resources"
+              value={newDept.name}
+              onChange={e => setNewDept({ ...newDept, name: e.target.value })}
+              autoFocus
+            />
           </div>
-        )}
+          <div className="org-form-group">
+            <label>Slug (auto-generated)</label>
+            <input
+              type="text"
+              value={newDept.id || generateSlug(newDept.name)}
+              onChange={e => setNewDept({ ...newDept, id: e.target.value })}
+              placeholder="auto-generated from name"
+            />
+            <span className="org-form-hint">Used in URLs and file paths</span>
+          </div>
+          <AppModal.Footer>
+            <button className="app-modal-btn app-modal-btn-secondary" onClick={() => setShowAddDept(false)} disabled={saving}>
+              Cancel
+            </button>
+            <button
+              className="app-modal-btn app-modal-btn-primary"
+              onClick={handleAddDepartment}
+              disabled={saving || !newDept.name.trim()}
+            >
+              {saving ? 'Creating...' : 'Create Department'}
+            </button>
+          </AppModal.Footer>
+        </AppModal>
 
         {/* Edit Department Modal */}
-        {editingDept && (
-          <div className="org-modal-overlay" onClick={() => setEditingDept(null)}>
-            <div className="org-modal" onClick={e => e.stopPropagation()}>
-              <div className="org-modal-header">
-                <h2>Edit Department</h2>
-                <button className="org-modal-close" onClick={() => setEditingDept(null)}>&times;</button>
+        <AppModal
+          isOpen={!!editingDept}
+          onClose={() => setEditingDept(null)}
+          title="Edit Department"
+          size="sm"
+        >
+          {editingDept && (
+            <>
+              <div className="org-form-group">
+                <label>Department Name</label>
+                <input
+                  type="text"
+                  value={editingDept.name}
+                  onChange={e => setEditingDept({ ...editingDept, name: e.target.value })}
+                />
               </div>
-              <div className="org-modal-body">
-                <div className="org-form-group">
-                  <label>Department Name</label>
-                  <input
-                    type="text"
-                    value={editingDept.name}
-                    onChange={e => setEditingDept({ ...editingDept, name: e.target.value })}
-                  />
-                </div>
-                <div className="org-form-group">
-                  <label>Description</label>
+              <div className="org-form-group">
+                <label>Description</label>
+                <AIWriteAssist
+                  context="department-description"
+                  value={editingDept.description || ''}
+                  onSuggestion={(val) => setEditingDept({ ...editingDept, description: val })}
+                  additionalContext={editingDept.name ? `Department: ${editingDept.name}` : ''}
+                >
                   <textarea
                     value={editingDept.description || ''}
                     onChange={e => setEditingDept({ ...editingDept, description: e.target.value })}
                     rows={3}
                     placeholder="What does this department do?"
                   />
-                </div>
+                </AIWriteAssist>
               </div>
-              <div className="org-modal-footer">
-                <button className="org-btn" onClick={() => setEditingDept(null)} disabled={saving}>
+              <AppModal.Footer>
+                <button className="app-modal-btn app-modal-btn-secondary" onClick={() => setEditingDept(null)} disabled={saving}>
                   Cancel
                 </button>
                 <button
-                  className="org-btn primary"
+                  className="app-modal-btn app-modal-btn-primary"
                   onClick={handleUpdateDepartment}
                   disabled={saving}
                 >
                   {saving ? 'Saving...' : 'Save Changes'}
                 </button>
-              </div>
-            </div>
-          </div>
-        )}
+              </AppModal.Footer>
+            </>
+          )}
+        </AppModal>
 
         {/* Edit Role Modal */}
-        {editingRole && (
-          <div className="org-modal-overlay" onClick={() => setEditingRole(null)}>
-            <div className="org-modal" onClick={e => e.stopPropagation()}>
-              <div className="org-modal-header">
-                <h2>Edit Role</h2>
-                <button className="org-modal-close" onClick={() => setEditingRole(null)}>&times;</button>
+        <AppModal
+          isOpen={!!editingRole}
+          onClose={() => setEditingRole(null)}
+          title="Edit Role"
+          size="sm"
+        >
+          {editingRole && (
+            <>
+              <div className="org-form-group">
+                <label>Role Name</label>
+                <input
+                  type="text"
+                  value={editingRole.role.name}
+                  onChange={e => setEditingRole({
+                    ...editingRole,
+                    role: { ...editingRole.role, name: e.target.value }
+                  })}
+                />
               </div>
-              <div className="org-modal-body">
-                <div className="org-form-group">
-                  <label>Role Name</label>
-                  <input
-                    type="text"
-                    value={editingRole.role.name}
-                    onChange={e => setEditingRole({
-                      ...editingRole,
-                      role: { ...editingRole.role, name: e.target.value }
-                    })}
-                  />
-                </div>
-                <div className="org-form-group">
-                  <label>Description</label>
+              <div className="org-form-group">
+                <label>Description</label>
+                <AIWriteAssist
+                  context="role-description"
+                  value={editingRole.role.description || ''}
+                  onSuggestion={(val) => setEditingRole({
+                    ...editingRole,
+                    role: { ...editingRole.role, description: val }
+                  })}
+                  additionalContext={editingRole.role.name ? `Role: ${editingRole.role.name}` : ''}
+                >
                   <textarea
                     value={editingRole.role.description || ''}
                     onChange={e => setEditingRole({
@@ -498,52 +513,50 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
                     rows={3}
                     placeholder="What does this role do?"
                   />
-                </div>
+                </AIWriteAssist>
               </div>
-              <div className="org-modal-footer">
-                <button className="org-btn" onClick={() => setEditingRole(null)} disabled={saving}>
+              <AppModal.Footer>
+                <button className="app-modal-btn app-modal-btn-secondary" onClick={() => setEditingRole(null)} disabled={saving}>
                   Cancel
                 </button>
                 <button
-                  className="org-btn primary"
+                  className="app-modal-btn app-modal-btn-primary"
                   onClick={handleUpdateRole}
                   disabled={saving}
                 >
                   {saving ? 'Saving...' : 'Save Changes'}
                 </button>
-              </div>
-            </div>
-          </div>
-        )}
+              </AppModal.Footer>
+            </>
+          )}
+        </AppModal>
 
         {/* View Role Prompt Modal */}
-        {viewingRolePrompt && (
-          <div className="org-modal-overlay" onClick={() => setViewingRolePrompt(null)}>
-            <div className="org-modal wide" onClick={e => e.stopPropagation()}>
-              <div className="org-modal-header">
-                <h2>Role System Prompt</h2>
-                <button className="org-modal-close" onClick={() => setViewingRolePrompt(null)}>&times;</button>
+        <AppModal
+          isOpen={!!viewingRolePrompt}
+          onClose={() => setViewingRolePrompt(null)}
+          title="Role System Prompt"
+          size="lg"
+        >
+          {viewingRolePrompt && (
+            <>
+              <div className="org-prompt-info">
+                <span className="org-prompt-path">
+                  councils/organisations/{companyId}/departments/{viewingRolePrompt.deptId}/roles/{viewingRolePrompt.roleId}.md
+                </span>
+                {!viewingRolePrompt.exists && (
+                  <span className="org-prompt-missing">File not found - using default prompt</span>
+                )}
               </div>
-              <div className="org-modal-body">
-                <div className="org-prompt-info">
-                  <span className="org-prompt-path">
-                    councils/organisations/{companyId}/departments/{viewingRolePrompt.deptId}/roles/{viewingRolePrompt.roleId}.md
-                  </span>
-                  {!viewingRolePrompt.exists && (
-                    <span className="org-prompt-missing">File not found - using default prompt</span>
-                  )}
-                </div>
-                <pre className="org-prompt-content">{viewingRolePrompt.prompt}</pre>
-              </div>
-              <div className="org-modal-footer">
-                <button className="org-btn" onClick={() => setViewingRolePrompt(null)}>
+              <pre className="org-prompt-content">{viewingRolePrompt.prompt}</pre>
+              <AppModal.Footer>
+                <button className="app-modal-btn app-modal-btn-primary" onClick={() => setViewingRolePrompt(null)}>
                   Close
                 </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+              </AppModal.Footer>
+            </>
+          )}
+        </AppModal>
+    </AppModal>
   );
 }

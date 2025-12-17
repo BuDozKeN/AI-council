@@ -1,0 +1,229 @@
+/* AI Write Assist - Magic wand for form fields */
+
+/* Wrapper for input + button */
+.ai-assist-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ai-assist-wrapper.ai-assist-inline {
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.ai-assist-wrapper.ai-assist-inline .ai-assist-input-area {
+  flex: 1;
+}
+
+.ai-assist-input-area {
+  width: 100%;
+}
+
+.ai-assist-input-area input,
+.ai-assist-input-area textarea {
+  width: 100%;
+}
+
+/* Controls area */
+.ai-assist-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-assist-wrapper.ai-assist-inline .ai-assist-controls {
+  flex-shrink: 0;
+}
+
+/* The magic button */
+.ai-assist-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-bg-secondary) 100%);
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.ai-assist-btn:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  background: linear-gradient(135deg, var(--color-accent-light) 0%, var(--color-orange-50) 100%);
+  color: var(--color-accent);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.15);
+}
+
+.ai-assist-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.ai-assist-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ai-assist-btn:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.ai-assist-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.ai-assist-text {
+  font-size: 13px;
+}
+
+/* Error message */
+.ai-assist-error {
+  font-size: 12px;
+  color: var(--color-error);
+}
+
+/* Preview panel */
+.ai-assist-preview {
+  position: relative;
+  margin-top: 12px;
+  border: 2px solid var(--color-accent);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-primary);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  animation: ai-assist-slide-in 0.2s ease-out;
+}
+
+@keyframes ai-assist-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ai-assist-preview-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, var(--color-accent-light) 0%, var(--color-orange-50) 100%);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ai-assist-preview-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.ai-assist-preview-content {
+  padding: 14px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  max-height: 300px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.ai-assist-preview-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 14px;
+  background: var(--color-bg-secondary);
+  border-top: 1px solid var(--color-border);
+}
+
+.ai-assist-preview-btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ai-assist-preview-btn.reject {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.ai-assist-preview-btn.reject:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+}
+
+.ai-assist-preview-btn.accept {
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-amber) 100%);
+  border: none;
+  color: var(--color-text-inverse);
+}
+
+.ai-assist-preview-btn.accept:hover {
+  background: linear-gradient(135deg, var(--color-accent-hover) 0%, var(--color-accent-dark) 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.25);
+}
+
+/* Standalone mode */
+.ai-assist-standalone {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Tooltip hint when hovering disabled button */
+.ai-assist-btn[disabled][title]:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 10px;
+  background: var(--color-slate-800);
+  color: var(--color-text-inverse);
+  font-size: 12px;
+  font-weight: 400;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  z-index: 100;
+  margin-bottom: 4px;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .ai-assist-wrapper.ai-assist-inline {
+    flex-direction: column;
+  }
+
+  .ai-assist-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ai-assist-preview-actions {
+    flex-direction: column;
+  }
+
+  .ai-assist-preview-btn {
+    width: 100%;
+    text-align: center;
+  }
+}

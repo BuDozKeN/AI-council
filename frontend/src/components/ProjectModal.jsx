@@ -1,71 +1,81 @@
 import { useState } from 'react';
 import { api } from '../api';
+import { AppModal } from './ui/AppModal';
+import { MultiDepartmentSelect } from './ui/MultiDepartmentSelect';
+import MarkdownViewer from './MarkdownViewer';
+import { Spinner } from './ui/Spinner';
+import { AIWriteAssist } from './ui/AIWriteAssist';
+import { getDeptColor } from '../lib/colors';
+import { Sparkles, FolderKanban, Check, RefreshCw, Edit3, FileText } from 'lucide-react';
 import './ProjectModal.css';
 
-export default function ProjectModal({ companyId, onClose, onProjectCreated }) {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  // Guided context fields - we'll assemble these into markdown
-  const [clientBackground, setClientBackground] = useState('');
-  const [goals, setGoals] = useState('');
-  const [constraints, setConstraints] = useState('');
-  const [additionalInfo, setAdditionalInfo] = useState('');
+/**
+ * New Project Modal - Flexible creation flow:
+ * Option A: AI-assisted - describe project, AI structures it, review/edit, confirm
+ * Option B: Manual - skip AI and enter everything directly
+ */
+export default function ProjectModal({ companyId, departments = [], onClose, onProjectCreated }) {
+  // Step state: 'input', 'review', or 'manual'
+  const [step, setStep] = useState('input');
+
+  // Input state
+  const [freeText, setFreeText] = useState('');
+  const [selectedDeptIds, setSelectedDeptIds] = useState([]);
+
+  // AI result state / editable fields
+  const [editedName, setEditedName] = useState('');
+  const [editedDescription, setEditedDescription] = useState('');
+  const [editedContext, setEditedContext] = useState(''); // Editable context markdown
+
+  // UI state
+  const [structuring, setStructuring] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
-  // Track which field is being polished
-  const [polishing, setPolishing] = useState(null);
+  const [editingDepts, setEditingDepts] = useState(false); // Inline dept editing in review step
+  const [editingContext, setEditingContext] = useState(false); // Toggle context edit mode
+  const [isAIGenerated, setIsAIGenerated] = useState(false); // Track if AI was used
 
-  // Build markdown from the guided fields
-  const buildContextMarkdown = () => {
-    const sections = [];
-
-    if (clientBackground.trim()) {
-      sections.push(`## Client Background\n${clientBackground.trim()}`);
+  // Step 1: Process with AI and move to review
+  const handleProcessWithAI = async () => {
+    if (!freeText.trim()) {
+      setError('Please describe your project');
+      return;
     }
 
-    if (goals.trim()) {
-      sections.push(`## Goals & Objectives\n${goals.trim()}`);
-    }
-
-    if (constraints.trim()) {
-      sections.push(`## Constraints & Requirements\n${constraints.trim()}`);
-    }
-
-    if (additionalInfo.trim()) {
-      sections.push(`## Additional Context\n${additionalInfo.trim()}`);
-    }
-
-    if (sections.length === 0) {
-      return null;
-    }
-
-    return `# ${name.trim()}\n\n${sections.join('\n\n')}`;
-  };
-
-  // AI polish handler
-  const handlePolish = async (fieldType, currentValue, setValue) => {
-    if (!currentValue.trim()) return;
-
-    setPolishing(fieldType);
+    setStructuring(true);
     setError(null);
 
     try {
-      const result = await api.polishText(currentValue, fieldType);
-      if (result.polished) {
-        setValue(result.polished);
+      const result = await api.structureProjectContext(freeText);
+      if (result?.structured) {
+        setEditedName(result.structured.suggested_name || '');
+        setEditedDescription(result.structured.description || '');
+        setEditedContext(result.structured.context_md || '');
+        setIsAIGenerated(true);
+        setStep('review');
+      } else {
+        setError('AI could not structure the content. Please try again or add more detail.');
       }
     } catch (err) {
-      console.error('Failed to polish text:', err);
-      setError('Failed to polish text. Please try again.');
+      console.error('Failed to structure context:', err);
+      setError('Failed to process with AI. Please try again.');
     } finally {
-      setPolishing(null);
+      setStructuring(false);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // Skip AI - go directly to manual entry
+  const handleSkipAI = () => {
+    setEditedName('');
+    setEditedDescription('');
+    setEditedContext('');
+    setIsAIGenerated(false);
+    setStep('manual');
+  };
 
-    if (!name.trim()) {
+  // Save the project (works for both AI-assisted and manual)
+  const handleSave = async () => {
+    if (!editedName.trim()) {
       setError('Project name is required');
       return;
     }
@@ -74,12 +84,15 @@ export default function ProjectModal({ companyId, onClose, onProjectCreated }) {
       setSaving(true);
       setError(null);
 
-      const contextMd = buildContextMarkdown();
+      // Use edited context if available, otherwise generate basic context
+      const contextMd = editedContext.trim() || `# ${editedName.trim()}\n\n${editedDescription.trim() || 'No description provided.'}`;
 
       const result = await api.createProject(companyId, {
-        name: name.trim(),
-        description: description.trim() || null,
+        name: editedName.trim(),
+        description: editedDescription.trim() || null,
         context_md: contextMd,
+        department_ids: selectedDeptIds.length > 0 ? selectedDeptIds : null,
+        source: isAIGenerated ? 'ai' : 'manual',
       });
 
       onProjectCreated(result.project);
@@ -91,171 +104,421 @@ export default function ProjectModal({ companyId, onClose, onProjectCreated }) {
     }
   };
 
-  return (
-    <div className="project-modal-overlay" onClick={onClose}>
-      <div className="project-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="project-modal-header">
-          <h2>New Project / Client</h2>
-          <button className="project-modal-close" onClick={onClose}>&times;</button>
-        </div>
+  // Go back to edit the input
+  const handleBackToEdit = () => {
+    setStep('input');
+    setError(null);
+  };
 
-        {error && (
-          <div className="project-modal-error">{error}</div>
+  // Regenerate AI output
+  const handleRegenerate = () => {
+    handleProcessWithAI();
+  };
+
+  // Get title based on step
+  const getTitle = () => {
+    if (step === 'input') return 'New Project';
+    if (step === 'manual') return 'Create Project';
+    return 'Review & Edit';
+  };
+
+  return (
+    <AppModal
+      isOpen={true}
+      onClose={onClose}
+      title={getTitle()}
+      size="md"
+      contentClassName="pm-modal-body"
+    >
+      {/* Error */}
+      {error && (
+        <div className="pm-error">
+          <span>⚠️</span>
+          <span>{error}</span>
+        </div>
+      )}
+
+        {/* STEP 1: Input */}
+        {step === 'input' && (
+          <div className="pm-form">
+            {/* AI Intro */}
+            <div className="pm-field pm-context-field">
+              <div className="pm-ai-intro">
+                <Sparkles className="pm-ai-intro-icon" />
+                <span>Just describe your project - AI will structure it beautifully</span>
+              </div>
+              <textarea
+                id="project-context"
+                value={freeText}
+                onChange={(e) => setFreeText(e.target.value)}
+                placeholder="What's this project about? Goals, constraints, background... just type whatever comes to mind"
+                disabled={structuring}
+                rows={5}
+                autoFocus
+              />
+              {structuring && (
+                <div className="pm-ai-structuring">
+                  <Spinner size="sm" variant="brand" />
+                  <span>AI is structuring your project...</span>
+                </div>
+              )}
+            </div>
+
+            {/* Departments - multi-select */}
+            <div className="pm-field">
+              <label>Departments <span className="pm-optional">(optional)</span></label>
+              <MultiDepartmentSelect
+                value={selectedDeptIds}
+                onValueChange={setSelectedDeptIds}
+                departments={departments}
+                placeholder="Select departments"
+                disabled={structuring}
+              />
+            </div>
+
+            {/* Actions */}
+            <div className="pm-actions">
+              <button
+                type="button"
+                className="pm-btn-cancel"
+                onClick={onClose}
+                disabled={structuring}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="pm-btn-skip"
+                onClick={handleSkipAI}
+                disabled={structuring}
+              >
+                <FileText className="pm-btn-icon-small" />
+                <span>Skip AI</span>
+              </button>
+              <button
+                type="button"
+                className="pm-btn-create"
+                onClick={handleProcessWithAI}
+                disabled={structuring || !freeText.trim()}
+              >
+                {structuring ? (
+                  <>
+                    <Spinner size="sm" variant="muted" />
+                    <span>AI Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="pm-btn-icon" />
+                    <span>Create with AI</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         )}
 
-        <form onSubmit={handleSubmit} className="project-modal-form">
-          <div className="form-group">
-            <label htmlFor="project-name">Project Name *</label>
-            <input
-              id="project-name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., Acme Corp, Q1 Campaign, Website Redesign"
-              disabled={saving}
-              autoFocus
-            />
-          </div>
+        {/* STEP 2: Review AI output */}
+        {step === 'review' && (
+          <div className="pm-form">
+            {/* AI Success badge */}
+            <div className="pm-ai-success">
+              <Check className="pm-ai-success-icon" />
+              <span>AI structured your project! Review and edit below.</span>
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="project-description">Short Description</label>
-            <input
-              id="project-description"
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="One-line summary (shown in dropdown)"
-              disabled={saving}
-            />
-          </div>
+            {/* Editable Name */}
+            <div className="pm-field">
+              <label htmlFor="project-name">Project Name</label>
+              <input
+                id="project-name"
+                type="text"
+                value={editedName}
+                onChange={(e) => setEditedName(e.target.value)}
+                placeholder="Project name"
+                disabled={saving}
+                autoFocus
+              />
+            </div>
 
-          <div className="form-section-header">
-            <span>Context for AI</span>
-          </div>
+            {/* Editable Description */}
+            <div className="pm-field">
+              <label htmlFor="project-desc">Description</label>
+              <AIWriteAssist
+                context="project-description"
+                value={editedDescription}
+                onSuggestion={setEditedDescription}
+                additionalContext={editedName ? `Project: ${editedName}` : ''}
+              >
+                <textarea
+                  id="project-desc"
+                  value={editedDescription}
+                  onChange={(e) => setEditedDescription(e.target.value)}
+                  placeholder="Brief description..."
+                  disabled={saving}
+                  rows={3}
+                />
+              </AIWriteAssist>
+            </div>
 
-          {/* Client Background */}
-          <div className="form-group">
-            <div className="label-row">
-              <label htmlFor="client-background">About the Client / Project</label>
-              {clientBackground.trim() && (
-                <button
-                  type="button"
-                  className="polish-btn"
-                  onClick={() => handlePolish('client_background', clientBackground, setClientBackground)}
-                  disabled={saving || polishing === 'client_background'}
-                  title="Polish with AI"
-                >
-                  {polishing === 'client_background' ? '...' : '✨'}
-                </button>
+            {/* Show selected departments - with inline editing */}
+            <div className="pm-field">
+              <label>Departments</label>
+              {editingDepts ? (
+                /* Inline department editor - no page reset */
+                <div className="pm-departments-editor">
+                  <MultiDepartmentSelect
+                    value={selectedDeptIds}
+                    onValueChange={setSelectedDeptIds}
+                    departments={departments}
+                    placeholder="Select departments"
+                    disabled={saving}
+                  />
+                  <button
+                    type="button"
+                    className="pm-dept-done-btn"
+                    onClick={() => setEditingDepts(false)}
+                    disabled={saving}
+                  >
+                    Done
+                  </button>
+                </div>
+              ) : selectedDeptIds.length > 0 ? (
+                <div className="pm-departments-display">
+                  {selectedDeptIds.map(deptId => {
+                    const dept = departments.find(d => d.id === deptId);
+                    const colors = getDeptColor(deptId);
+                    return dept ? (
+                      <span
+                        key={deptId}
+                        className="pm-dept-badge"
+                        style={{
+                          backgroundColor: colors.bg,
+                          color: colors.text,
+                          borderColor: colors.border
+                        }}
+                      >
+                        {dept.name}
+                      </span>
+                    ) : null;
+                  })}
+                  <button
+                    type="button"
+                    className="pm-dept-edit-btn"
+                    onClick={() => setEditingDepts(true)}
+                    disabled={saving}
+                  >
+                    Edit
+                  </button>
+                </div>
+              ) : (
+                <div className="pm-departments-none">
+                  <span>No departments selected</span>
+                  <button
+                    type="button"
+                    className="pm-dept-edit-btn"
+                    onClick={() => setEditingDepts(true)}
+                    disabled={saving}
+                  >
+                    Add
+                  </button>
+                </div>
               )}
             </div>
-            <textarea
-              id="client-background"
-              value={clientBackground}
-              onChange={(e) => setClientBackground(e.target.value)}
-              placeholder="Who is the client? What industry? Company size? Key people involved?"
-              disabled={saving || polishing === 'client_background'}
-              rows={3}
-            />
-          </div>
 
-          {/* Goals */}
-          <div className="form-group">
-            <div className="label-row">
-              <label htmlFor="project-goals">Goals & Objectives</label>
-              {goals.trim() && (
+            {/* Editable context - toggle between preview and edit */}
+            <div className="pm-field">
+              <div className="pm-context-header">
+                <label>Project Context</label>
                 <button
                   type="button"
-                  className="polish-btn"
-                  onClick={() => handlePolish('goals', goals, setGoals)}
-                  disabled={saving || polishing === 'goals'}
-                  title="Polish with AI"
+                  className="pm-context-toggle"
+                  onClick={() => setEditingContext(!editingContext)}
+                  disabled={saving}
                 >
-                  {polishing === 'goals' ? '...' : '✨'}
+                  {editingContext ? (
+                    <>
+                      <Sparkles className="pm-btn-icon-tiny" />
+                      <span>Preview</span>
+                    </>
+                  ) : (
+                    <>
+                      <Edit3 className="pm-btn-icon-tiny" />
+                      <span>Edit</span>
+                    </>
+                  )}
                 </button>
+              </div>
+              {editingContext ? (
+                <textarea
+                  value={editedContext}
+                  onChange={(e) => setEditedContext(e.target.value)}
+                  placeholder="# Project Context\n\nAdd background info, goals, constraints..."
+                  disabled={saving}
+                  rows={10}
+                  className="pm-context-editor"
+                />
+              ) : (
+                <div className="pm-preview">
+                  <div className="pm-preview-header">
+                    <Sparkles className="pm-preview-icon" />
+                    <span>Context injected when this project is selected</span>
+                  </div>
+                  <div className="pm-preview-content">
+                    {editedContext ? (
+                      <MarkdownViewer content={editedContext} />
+                    ) : (
+                      <p className="pm-no-context">No context yet. Click Edit to add.</p>
+                    )}
+                  </div>
+                </div>
               )}
             </div>
-            <textarea
-              id="project-goals"
-              value={goals}
-              onChange={(e) => setGoals(e.target.value)}
-              placeholder="What are you trying to achieve? What does success look like?"
-              disabled={saving || polishing === 'goals'}
-              rows={3}
-            />
-          </div>
 
-          {/* Constraints */}
-          <div className="form-group">
-            <div className="label-row">
-              <label htmlFor="project-constraints">Constraints & Requirements</label>
-              {constraints.trim() && (
-                <button
-                  type="button"
-                  className="polish-btn"
-                  onClick={() => handlePolish('constraints', constraints, setConstraints)}
-                  disabled={saving || polishing === 'constraints'}
-                  title="Polish with AI"
-                >
-                  {polishing === 'constraints' ? '...' : '✨'}
-                </button>
-              )}
+            {/* Actions */}
+            <div className="pm-actions pm-actions-review">
+              <button
+                type="button"
+                className="pm-btn-back"
+                onClick={handleBackToEdit}
+                disabled={saving}
+              >
+                <Edit3 className="pm-btn-icon-small" />
+                <span>Edit Input</span>
+              </button>
+              <button
+                type="button"
+                className="pm-btn-regen"
+                onClick={handleRegenerate}
+                disabled={saving || structuring}
+              >
+                <RefreshCw className={`pm-btn-icon-small ${structuring ? 'pm-spinning' : ''}`} />
+                <span>Regenerate</span>
+              </button>
+              <button
+                type="button"
+                className="pm-btn-create"
+                onClick={handleSave}
+                disabled={saving || !editedName.trim()}
+              >
+                {saving ? (
+                  <>
+                    <Spinner size="sm" variant="muted" />
+                    <span>Creating...</span>
+                  </>
+                ) : (
+                  <>
+                    <Check className="pm-btn-icon" />
+                    <span>Confirm & Create</span>
+                  </>
+                )}
+              </button>
             </div>
-            <textarea
-              id="project-constraints"
-              value={constraints}
-              onChange={(e) => setConstraints(e.target.value)}
-              placeholder="Budget limits? Timeline? Technical requirements? Things to avoid?"
-              disabled={saving || polishing === 'constraints'}
-              rows={3}
-            />
           </div>
+        )}
 
-          {/* Additional Info */}
-          <div className="form-group">
-            <div className="label-row">
-              <label htmlFor="additional-info">Anything Else the AI Should Know</label>
-              {additionalInfo.trim() && (
-                <button
-                  type="button"
-                  className="polish-btn"
-                  onClick={() => handlePolish('additional', additionalInfo, setAdditionalInfo)}
-                  disabled={saving || polishing === 'additional'}
-                  title="Polish with AI"
-                >
-                  {polishing === 'additional' ? '...' : '✨'}
-                </button>
-              )}
+        {/* MANUAL: Direct entry without AI */}
+        {step === 'manual' && (
+          <div className="pm-form">
+            {/* Manual mode badge */}
+            <div className="pm-manual-badge">
+              <FileText className="pm-manual-badge-icon" />
+              <span>Manual entry - create your project from scratch</span>
             </div>
-            <textarea
-              id="additional-info"
-              value={additionalInfo}
-              onChange={(e) => setAdditionalInfo(e.target.value)}
-              placeholder="Past decisions, preferences, relevant history, important context..."
-              disabled={saving || polishing === 'additional'}
-              rows={3}
-            />
-          </div>
 
-          <div className="project-modal-actions">
-            <button
-              type="button"
-              className="btn-cancel"
-              onClick={onClose}
-              disabled={saving}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="btn-save"
-              disabled={saving || !name.trim()}
-            >
-              {saving ? 'Creating...' : 'Create Project'}
-            </button>
+            {/* Project Name */}
+            <div className="pm-field">
+              <label htmlFor="manual-name">Project Name <span className="pm-required">*</span></label>
+              <input
+                id="manual-name"
+                type="text"
+                value={editedName}
+                onChange={(e) => setEditedName(e.target.value)}
+                placeholder="Enter project name"
+                disabled={saving}
+                autoFocus
+              />
+            </div>
+
+            {/* Description */}
+            <div className="pm-field">
+              <label htmlFor="manual-desc">Description <span className="pm-optional">(optional)</span></label>
+              <textarea
+                id="manual-desc"
+                value={editedDescription}
+                onChange={(e) => setEditedDescription(e.target.value)}
+                placeholder="Brief description of the project..."
+                disabled={saving}
+                rows={3}
+              />
+            </div>
+
+            {/* Departments */}
+            <div className="pm-field">
+              <label>Departments <span className="pm-optional">(optional)</span></label>
+              <MultiDepartmentSelect
+                value={selectedDeptIds}
+                onValueChange={setSelectedDeptIds}
+                departments={departments}
+                placeholder="Select departments"
+                disabled={saving}
+              />
+            </div>
+
+            {/* Context */}
+            <div className="pm-field">
+              <label htmlFor="manual-context">Project Context <span className="pm-optional">(optional)</span></label>
+              <textarea
+                id="manual-context"
+                value={editedContext}
+                onChange={(e) => setEditedContext(e.target.value)}
+                placeholder="# Project Context&#10;&#10;Add background info, goals, constraints, technical requirements..."
+                disabled={saving}
+                rows={8}
+                className="pm-context-editor"
+              />
+              <p className="pm-field-hint">Supports Markdown formatting. This context will be injected into AI council sessions.</p>
+            </div>
+
+            {/* Actions */}
+            <div className="pm-actions">
+              <button
+                type="button"
+                className="pm-btn-cancel"
+                onClick={onClose}
+                disabled={saving}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="pm-btn-back"
+                onClick={() => setStep('input')}
+                disabled={saving}
+              >
+                <Sparkles className="pm-btn-icon-small" />
+                <span>Use AI</span>
+              </button>
+              <button
+                type="button"
+                className="pm-btn-create"
+                onClick={handleSave}
+                disabled={saving || !editedName.trim()}
+              >
+                {saving ? (
+                  <>
+                    <Spinner size="sm" variant="muted" />
+                    <span>Creating...</span>
+                  </>
+                ) : (
+                  <>
+                    <Check className="pm-btn-icon" />
+                    <span>Create Project</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
-        </form>
-      </div>
-    </div>
+        )}
+    </AppModal>
   );
 }

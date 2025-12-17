@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../AuthContext';
 import { api } from '../api';
+import { AppModal } from './ui/AppModal';
+import { Skeleton } from './ui/Skeleton';
 import './Settings.css';
 
 export default function Settings({ isOpen, onClose }) {
@@ -116,24 +118,106 @@ export default function Settings({ isOpen, onClose }) {
     }
   };
 
-  if (!isOpen) return null;
-
   const currentTier = subscription?.tier || 'free';
   const queriesUsed = subscription?.queries_used || 0;
   const queriesLimit = subscription?.queries_limit || 5;
   const isUnlimited = queriesLimit === -1;
 
-  return (
-    <div className="settings-overlay" onClick={onClose}>
-      <div className="settings-modal" onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
-        <div className="settings-header">
-          <h2>Settings</h2>
-          <button className="settings-close" onClick={onClose}>&times;</button>
+  // Profile skeleton
+  const ProfileSkeleton = () => (
+    <>
+      {/* Account Info Card Skeleton */}
+      <div className="settings-card">
+        <div className="card-header">
+          <Skeleton width={180} height={20} />
+          <Skeleton width={200} height={14} style={{ marginTop: 8 }} />
         </div>
+        <div className="card-body">
+          <div className="form-group">
+            <Skeleton width={50} height={14} />
+            <Skeleton height={40} style={{ marginTop: 8 }} />
+            <Skeleton width={160} height={12} style={{ marginTop: 6 }} />
+          </div>
+        </div>
+      </div>
 
-        {/* Content */}
-        <div className="settings-content">
+      {/* Profile Details Card Skeleton */}
+      <div className="settings-card">
+        <div className="card-header">
+          <Skeleton width={140} height={20} />
+          <Skeleton width={220} height={14} style={{ marginTop: 8 }} />
+        </div>
+        <div className="card-body">
+          {[1, 2, 3].map((i) => (
+            <div className="form-group" key={i}>
+              <Skeleton width={80} height={14} />
+              <Skeleton height={40} style={{ marginTop: 8 }} />
+            </div>
+          ))}
+          <div className="form-group">
+            <Skeleton width={40} height={14} />
+            <Skeleton height={80} style={{ marginTop: 8 }} />
+          </div>
+          <div className="form-actions">
+            <Skeleton width={120} height={40} />
+          </div>
+        </div>
+      </div>
+    </>
+  );
+
+  // Billing skeleton
+  const BillingSkeleton = () => (
+    <>
+      {/* Usage Card Skeleton */}
+      <div className="settings-card">
+        <div className="card-header">
+          <Skeleton width={120} height={20} />
+          <Skeleton width={240} height={14} style={{ marginTop: 8 }} />
+        </div>
+        <div className="card-body">
+          <Skeleton height={10} style={{ borderRadius: 5 }} />
+          <Skeleton width={200} height={14} style={{ marginTop: 10 }} />
+        </div>
+      </div>
+
+      {/* Plans Skeleton */}
+      <div className="plans-section">
+        <Skeleton width={160} height={20} style={{ marginBottom: 16 }} />
+        <div className="plans-grid">
+          {[1, 2, 3].map((i) => (
+            <div className="plan-card" key={i}>
+              <div className="plan-header">
+                <Skeleton width={60} height={20} style={{ margin: '0 auto 8px' }} />
+                <Skeleton width={80} height={32} style={{ margin: '0 auto 4px' }} />
+                <Skeleton width={100} height={14} style={{ margin: '0 auto' }} />
+              </div>
+              <div style={{ padding: '0 0 16px' }}>
+                {[1, 2, 3, 4].map((j) => (
+                  <div key={j} style={{ display: 'flex', gap: 8, padding: '6px 0' }}>
+                    <Skeleton width={16} height={16} />
+                    <Skeleton width={120} height={14} />
+                  </div>
+                ))}
+              </div>
+              <Skeleton height={40} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+
+  return (
+    <AppModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Settings"
+      size="xl"
+      contentClassName="settings-modal-body"
+    >
+      {/* Content */}
+      <div className="settings-content">
           {/* Sidebar tabs */}
           <div className="settings-sidebar">
             <button
@@ -157,7 +241,7 @@ export default function Settings({ isOpen, onClose }) {
             {activeTab === 'profile' && (
               <div className="profile-content">
                 {profileLoading ? (
-                  <div className="loading-state">Loading profile...</div>
+                  <ProfileSkeleton />
                 ) : (
                   <>
                     {/* Account Info Card */}
@@ -246,7 +330,7 @@ export default function Settings({ isOpen, onClose }) {
             {activeTab === 'billing' && (
               <div className="billing-content">
                 {billingLoading ? (
-                  <div className="loading-state">Loading billing information...</div>
+                  <BillingSkeleton />
                 ) : (
                   <>
                     {billingError && (
@@ -361,7 +445,6 @@ export default function Settings({ isOpen, onClose }) {
             )}
           </div>
         </div>
-      </div>
-    </div>
+    </AppModal>
   );
 }

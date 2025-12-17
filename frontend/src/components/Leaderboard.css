@@ -1,91 +1,47 @@
-.leaderboard-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
+/* Leaderboard content styles (modal handled by AppModal) */
+
+/* Skeleton loading state - matches real content structure */
+.leaderboard-skeleton {
+  /* Same structure as loaded content, no size jumping */
 }
 
-.leaderboard-panel {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  width: 90%;
-  max-width: 700px;
-  max-height: 80vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.leaderboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid #eee;
-  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
-  color: white;
-}
-
-.leaderboard-header h2 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 24px;
-  color: white;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-  opacity: 0.8;
-}
-
-.close-btn:hover {
-  opacity: 1;
-}
-
-.leaderboard-loading,
+/* Error/empty states - centered */
 .leaderboard-error,
 .leaderboard-empty {
   padding: 40px 20px;
   text-align: center;
-  color: #666;
+  color: var(--color-text-secondary);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .leaderboard-empty .hint {
   font-size: 13px;
-  color: #999;
+  color: var(--color-text-tertiary);
   margin-top: 8px;
 }
 
 .leaderboard-error {
-  color: #d32f2f;
+  color: var(--color-error);
 }
 
 .leaderboard-tabs {
   display: flex;
   gap: 8px;
   padding: 12px 16px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border-light);
   overflow-x: auto;
   flex-wrap: wrap;
 }
 
 .tab-btn {
   padding: 6px 14px;
-  border: 1px solid #ddd;
-  background: white;
-  border-radius: 20px;
+  border: 1px solid var(--color-border-muted);
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-full);
   font-size: 13px;
   cursor: pointer;
   transition: all 0.2s;
@@ -93,25 +49,25 @@
 }
 
 .tab-btn:hover {
-  background: #f5f5f5;
+  background: var(--color-bg-tertiary);
 }
 
 .tab-btn.active {
-  background: #4a90e2;
-  color: white;
-  border-color: #4a90e2;
+  background: var(--color-brand-primary);
+  color: var(--color-text-inverse);
+  border-color: var(--color-brand-primary);
 }
 
 .leaderboard-stats {
   padding: 10px 16px;
-  background: #f9f9f9;
-  border-bottom: 1px solid #eee;
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border-light);
   font-size: 13px;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .stat-item strong {
-  color: #333;
+  color: var(--color-text-primary);
 }
 
 .leaderboard-table {
@@ -130,29 +86,29 @@
 .leaderboard-table td {
   padding: 12px 8px;
   text-align: left;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .leaderboard-table th {
   font-weight: 600;
-  color: #666;
+  color: var(--color-text-secondary);
   font-size: 12px;
   text-transform: uppercase;
   position: sticky;
   top: 0;
-  background: white;
+  background: var(--color-bg-primary);
 }
 
 .leaderboard-table tr:hover {
-  background: #f8f9fa;
+  background: var(--color-bg-secondary);
 }
 
 .leaderboard-table tr.leader {
-  background: #fff8e1;
+  background: var(--color-warning-light);
 }
 
 .leaderboard-table tr.leader:hover {
-  background: #fff3c4;
+  background: var(--color-amber-200);
 }
 
 .rank-col {
@@ -174,26 +130,26 @@
 
 .score-col {
   font-family: monospace;
-  color: #4a90e2;
+  color: var(--color-brand-primary);
   font-weight: 600;
 }
 
 .rate-col {
-  color: #2e7d32;
+  color: var(--color-success-dark);
 }
 
 .no-data {
   padding: 40px 20px;
   text-align: center;
-  color: #999;
+  color: var(--color-text-tertiary);
 }
 
 .leaderboard-legend {
   padding: 12px 16px;
-  background: #f9f9f9;
-  border-top: 1px solid #eee;
+  background: var(--color-bg-secondary);
+  border-top: 1px solid var(--color-border-light);
   font-size: 12px;
-  color: #666;
+  color: var(--color-text-secondary);
 }
 
 .leaderboard-legend p {
@@ -201,5 +157,5 @@
 }
 
 .leaderboard-legend strong {
-  color: #333;
+  color: var(--color-text-primary);
 }

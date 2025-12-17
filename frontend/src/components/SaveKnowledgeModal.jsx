@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { api } from '../api';
+import { AppModal } from './ui/AppModal';
+import { Spinner } from './ui/Spinner';
+import { AIWriteAssist } from './ui/AIWriteAssist';
 import './SaveKnowledgeModal.css';
 
 /**
@@ -359,14 +362,14 @@ export default function SaveKnowledgeModal({
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="save-knowledge-modal" onClick={e => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>Save to Knowledge Base</h2>
-          <button className="close-btn" onClick={onClose}>&times;</button>
-        </div>
-
-        {success ? (
+    <AppModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Save to Knowledge Base"
+      size="lg"
+      contentClassName="save-knowledge-modal-body"
+    >
+      {success ? (
           <div className="success-message">
             <span className="success-icon">&#10003;</span>
             <p className="success-title">
@@ -405,7 +408,7 @@ export default function SaveKnowledgeModal({
           </div>
         ) : extracting ? (
           <div className="extracting-message">
-            <div className="extracting-spinner"></div>
+            <Spinner size="xl" variant="brand" />
             <p>AI is extracting key insights...</p>
             <p className="extracting-hint">Analyzing the council response to identify the important decision</p>
           </div>
@@ -456,14 +459,22 @@ export default function SaveKnowledgeModal({
 
               <div className="form-group">
                 <label htmlFor="knowledge-title">Title</label>
-                <input
-                  id="knowledge-title"
-                  type="text"
+                <AIWriteAssist
+                  context="decision-title"
                   value={title}
-                  onChange={e => setTitle(e.target.value)}
-                  placeholder="e.g., Supabase-based Context Storage Decision"
-                  maxLength={200}
-                />
+                  onSuggestion={setTitle}
+                  additionalContext={userQuestion ? `Question: ${userQuestion.slice(0, 200)}` : ''}
+                  inline
+                >
+                  <input
+                    id="knowledge-title"
+                    type="text"
+                    value={title}
+                    onChange={e => setTitle(e.target.value)}
+                    placeholder="e.g., Supabase-based Context Storage Decision"
+                    maxLength={200}
+                  />
+                </AIWriteAssist>
                 <p className="hint">A clear, searchable title for this decision or pattern</p>
               </div>
 
@@ -578,7 +589,7 @@ export default function SaveKnowledgeModal({
                   <div className="project-preview-form">
                     {extractingProject ? (
                       <div className="project-extracting">
-                        <div className="project-extracting-spinner"></div>
+                        <Spinner size="lg" variant="brand" />
                         <p>AI is generating project details...</p>
                         <span className="project-extracting-hint">Creating a clear name and description</span>
                       </div>
@@ -735,21 +746,20 @@ export default function SaveKnowledgeModal({
               {error && <div className="error-message">{error}</div>}
             </div>
 
-            <div className="modal-footer">
-              <button className="cancel-btn" onClick={onClose} disabled={saving}>
+            <AppModal.Footer>
+              <button className="app-modal-btn app-modal-btn-secondary" onClick={onClose} disabled={saving}>
                 Cancel
               </button>
-              <button className="save-btn" onClick={handleSave} disabled={saving}>
+              <button className="app-modal-btn app-modal-btn-primary" onClick={handleSave} disabled={saving}>
                 {saving ? 'Saving...' : (
                   saveMode === 'just_save' ? 'Save' :
                   saveMode === 'remember' ? 'Save & Remember' :
                   'Create Playbook'
                 )}
               </button>
-            </div>
+            </AppModal.Footer>
           </>
         )}
-      </div>
-    </div>
+    </AppModal>
   );
 }
