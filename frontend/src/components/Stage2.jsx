@@ -111,7 +111,7 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
     return (
       <div className="stage stage2">
         <h3 className="stage-title">
-          Stage 2: Peer Rankings
+          Peer Review
           {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
         </h3>
         <div className="stage-loading">
@@ -145,7 +145,7 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
     <div className={`stage stage2 ${isCollapsed ? 'collapsed' : ''}`}>
       <h3 className="stage-title clickable" onClick={toggleCollapsed}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
-        Stage 2: Peer Rankings
+        Peer Review
         {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
         {isCollapsed && (
           <span className="collapsed-summary">

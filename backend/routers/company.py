@@ -146,10 +146,12 @@ async def auto_regenerate_project_context(project_id: str, user: dict) -> bool:
     """
     Automatically regenerate project context when a decision is saved.
     This synthesizes ALL decisions into the project context.
+    Uses the single 'sarah' persona for consistent output.
 
     Returns True if context was updated, False otherwise.
     """
     from ..openrouter import query_model, MOCK_LLM
+    from ..personas import get_db_persona_with_fallback
     from datetime import datetime
     import json
 
@@ -191,6 +193,13 @@ async def auto_regenerate_project_context(project_id: str, user: dict) -> bool:
         }).eq("id", project_id).execute()
         return True
 
+    # Get the ONE Sarah persona from database
+    persona = await get_db_persona_with_fallback('sarah')
+    system_prompt = persona.get('system_prompt', '')
+    models = persona.get('model_preferences', ['google/gemini-2.0-flash-001', 'openai/gpt-4o'])
+    if isinstance(models, str):
+        models = json.loads(models)
+
     # Build decisions summary for LLM
     decisions_summary = ""
     for i, d in enumerate(decisions, 1):
@@ -201,7 +210,8 @@ async def auto_regenerate_project_context(project_id: str, user: dict) -> bool:
 
     today_date = datetime.now().strftime("%B %d, %Y")
 
-    prompt = f"""You are Sarah, an experienced Project Manager. Your job is to create a CLEAN, WELL-ORGANIZED project document.
+    # Task-specific user prompt (Sarah's personality comes from system_prompt)
+    user_prompt = f"""Create a CLEAN, WELL-ORGANIZED project document.
 
 ## THE PROJECT
 - Name: {project.get('name', 'Unknown Project')}
@@ -212,57 +222,29 @@ async def auto_regenerate_project_context(project_id: str, user: dict) -> bool:
 
 ---
 
-## YOUR TASK
-
 Create a single, clean project document that:
-1. Starts with a clear project overview (what is this project? who is it for?)
-2. Synthesizes ALL the decisions into organized sections
-3. ELIMINATES ALL DUPLICATES - if the same insight appears multiple times, include it ONCE
-4. Uses clear, simple language anyone can understand
+1. Starts with a clear project overview
+2. Synthesizes ALL decisions into organized sections
+3. ELIMINATES ALL DUPLICATES - if information appears in multiple decisions, include it ONCE
+4. Uses clear, simple language
 5. Includes a "Decision Log" section with dates
-
-## DOCUMENTATION STYLE RULES
-
-✅ DO:
-- Write a clear 1-2 sentence summary at the top
-- Group related decisions together
-- Use bullet points for action items
-- Include dates for key decisions
-- Make it readable by someone new to the project
-
-❌ DON'T:
-- Include duplicate content (very important!)
-- Use vague language
-- Include raw LLM output or "Chairman's Synthesis" headers
-- Leave any section empty
-
-## OUTPUT FORMAT
 
 Return valid JSON:
 {{
-  "context_md": "The complete project documentation in markdown",
-  "sections_count": <number of main sections>,
-  "decisions_incorporated": <number of decisions you incorporated>
+  "context_md": "The complete project documentation in markdown"
 }}
 
 Today's date: {today_date}"""
 
     messages = [
-        {"role": "system", "content": "You are Sarah, a senior Project Manager. Create clean, well-organized project documentation. NEVER include duplicate content. Respond only with valid JSON."},
-        {"role": "user", "content": prompt}
-    ]
-
-    # Use fast models for auto-synthesis
-    SYNTH_MODELS = [
-        "google/gemini-2.0-flash-001",
-        "anthropic/claude-3-5-haiku-20241022",
-        "openai/gpt-4o-mini",
+        {"role": "system", "content": system_prompt + "\n\nRespond only with valid JSON."},
+        {"role": "user", "content": user_prompt}
     ]
 
     result_data = None
     last_error = None
 
-    for model in SYNTH_MODELS:
+    for model in models:
         try:
             print(f"[AUTO-SYNTH] Trying model: {model}", flush=True)
             result = await query_model(model=model, messages=messages)

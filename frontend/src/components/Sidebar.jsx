@@ -7,6 +7,10 @@ import { AppModal } from './ui/AppModal';
 import { Plus, Trophy, Briefcase, ChevronRight, Star, Trash2, Archive, ArchiveRestore, Square, CheckSquare } from 'lucide-react';
 import './Sidebar.css';
 
+// Dev mode flag - set to true to show developer controls (Mock/Prod toggle, Cache toggle, Leaderboard)
+// In production, this should be false. Can be overridden via localStorage: localStorage.setItem('devMode', 'true')
+const DEV_MODE = typeof window !== 'undefined' && localStorage.getItem('devMode') === 'true';
+
 // Hook to fetch and manage mock mode state
 function useMockMode() {
   const [mockMode, setMockMode] = useState(null); // null = loading
@@ -326,39 +330,13 @@ export default function Sidebar({
   return (
     <div className="sidebar">
       <div className="sidebar-header">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-md">
-            <span className="text-white font-bold text-sm">AX</span>
-          </div>
-          <h1 className="text-lg font-semibold text-gray-900 tracking-tight">AxCouncil</h1>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={onOpenLeaderboard}
-            title="View Model Leaderboard"
-            className="h-10 w-10 border-amber-300 bg-amber-50 hover:bg-amber-100 hover:border-amber-400"
-          >
-            <Trophy className="h-4 w-4 text-amber-600" />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={onOpenMyCompany}
-            title="My Company"
-            className="h-10 w-10 border-indigo-300 bg-indigo-50 hover:bg-indigo-100 hover:border-indigo-400"
-          >
-            <Briefcase className="h-4 w-4 text-indigo-600" />
-          </Button>
-          <Button
-            onClick={onNewConversation}
-            className="flex-1 h-10 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-md hover:shadow-lg transition-all"
-          >
-            <Plus className="h-4 w-4 mr-1" />
-            New Chat
-          </Button>
-        </div>
+        <Button
+          onClick={onNewConversation}
+          className="w-full h-9 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-sm font-medium"
+        >
+          <Plus className="h-4 w-4 mr-1.5" />
+          New Chat
+        </Button>
       </div>
 
       {/* Search Input */}
@@ -441,11 +419,21 @@ export default function Sidebar({
 
       <div className="conversation-list">
         {searchQuery && filteredBySearch.active.length === 0 && filteredBySearch.archived.length === 0 ? (
-          <div className="no-conversations">No conversations found for "{searchQuery}"</div>
+          <div className="no-conversations">
+            <span className="no-conv-icon">🔍</span>
+            No results for "{searchQuery}"
+          </div>
         ) : totalConversations === 0 ? (
-          <div className="no-conversations">No conversations yet</div>
+          <div className="no-conversations">
+            <span className="no-conv-icon">💬</span>
+            <span>No conversations yet</span>
+            <span className="no-conv-hint">Click "New" to start</span>
+          </div>
         ) : filter === 'archived' && filteredBySearch.archived.length === 0 ? (
-          <div className="no-conversations">No archived conversations</div>
+          <div className="no-conversations">
+            <span className="no-conv-icon">📦</span>
+            No archived conversations
+          </div>
         ) : filter !== 'archived' && filteredBySearch.active.length === 0 ? (
           <div className="no-conversations">No active conversations</div>
         ) : (
@@ -612,27 +600,29 @@ export default function Sidebar({
       {/* User Footer */}
       {user && (
         <div className="sidebar-footer">
-          {/* Mode Toggles */}
-          <div className="mode-toggle-section">
-            <button
-              className={`mode-toggle-btn ${mockMode ? 'mock' : 'production'} ${isToggling ? 'toggling' : ''}`}
-              onClick={toggleMockMode}
-              disabled={isToggling || mockMode === null}
-              title={mockMode ? 'Mock Mode: Using simulated responses (free)' : 'Production Mode: Using real API calls (costs credits)'}
-            >
-              <span className="mode-indicator"></span>
-              <span className="mode-label">{mockMode === null ? '...' : mockMode ? 'Mock' : 'Prod'}</span>
-            </button>
-            <button
-              className={`mode-toggle-btn caching ${cachingMode ? 'enabled' : 'disabled'} ${isCachingToggling ? 'toggling' : ''}`}
-              onClick={toggleCachingMode}
-              disabled={isCachingToggling || cachingMode === null}
-              title={cachingMode ? 'Caching ON: Reduces costs by caching context (Claude/Gemini)' : 'Caching OFF: Standard API calls'}
-            >
-              <span className="mode-indicator"></span>
-              <span className="mode-label">{cachingMode === null ? '...' : cachingMode ? 'Cache' : 'No Cache'}</span>
-            </button>
-          </div>
+          {/* Mode Toggles - Dev only */}
+          {DEV_MODE && (
+            <div className="mode-toggle-section">
+              <button
+                className={`mode-toggle-btn ${mockMode ? 'mock' : 'production'} ${isToggling ? 'toggling' : ''}`}
+                onClick={toggleMockMode}
+                disabled={isToggling || mockMode === null}
+                title={mockMode ? 'Mock Mode: Using simulated responses (free)' : 'Production Mode: Using real API calls (costs credits)'}
+              >
+                <span className="mode-indicator"></span>
+                <span className="mode-label">{mockMode === null ? '...' : mockMode ? 'Mock' : 'Prod'}</span>
+              </button>
+              <button
+                className={`mode-toggle-btn caching ${cachingMode ? 'enabled' : 'disabled'} ${isCachingToggling ? 'toggling' : ''}`}
+                onClick={toggleCachingMode}
+                disabled={isCachingToggling || cachingMode === null}
+                title={cachingMode ? 'Caching ON: Reduces costs by caching context (Claude/Gemini)' : 'Caching OFF: Standard API calls'}
+              >
+                <span className="mode-indicator"></span>
+                <span className="mode-label">{cachingMode === null ? '...' : cachingMode ? 'Cache' : 'No Cache'}</span>
+              </button>
+            </div>
+          )}
 
           <div className="user-info">
             <span className="user-email" title={user.email}>
@@ -640,6 +630,10 @@ export default function Sidebar({
             </span>
           </div>
           <div className="sidebar-footer-buttons">
+            <button className="company-btn" onClick={onOpenMyCompany} title="My Company">
+              <Briefcase className="h-3.5 w-3.5" />
+              Company
+            </button>
             <button className="settings-btn" onClick={onOpenSettings} title="Settings & Profile">
               Settings
             </button>

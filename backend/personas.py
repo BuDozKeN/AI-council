@@ -16,7 +16,7 @@ Categories:
     - WRITE_ASSIST_PERSONAS: AI helpers for form fields (SOP writer, etc.)
     - COUNCIL_ROLE_DEFAULTS: Default personas for council roles (CTO, CFO, etc.)
     - SYSTEM_PERSONAS: Internal system assistants (summarizer, etc.)
-    - DB_PERSONAS: Personas stored in Supabase (sarah_project_manager, etc.)
+    - DB_PERSONAS: Personas stored in Supabase (sarah, sop_writer, etc.)
 """
 
 import time
@@ -481,6 +481,8 @@ FORMATTING RULES (CRITICAL):
 def get_write_assist_persona(context: str, playbook_type: str = None) -> str:
     """
     Get the appropriate persona prompt for a write-assist context.
+    SYNC version - uses hardcoded fallbacks only.
+    For database-backed personas, use get_write_assist_persona_async.
 
     Args:
         context: The context type (e.g., 'playbook-content', 'company-context')
@@ -495,6 +497,58 @@ def get_write_assist_persona(context: str, playbook_type: str = None) -> str:
         persona = WRITE_ASSIST_PERSONAS.get(context, WRITE_ASSIST_PERSONAS["generic"])
 
     return persona["prompt"]
+
+
+# Mapping from playbook types to database persona keys
+PLAYBOOK_TYPE_TO_PERSONA = {
+    "sop": "sop_writer",
+    "framework": "framework_author",
+    "policy": "policy_writer"
+}
+
+
+async def get_write_assist_persona_async(
+    context: str,
+    playbook_type: str = None,
+    company_id: str = None
+) -> Dict[str, Any]:
+    """
+    Get the appropriate persona for write-assist, using database personas for playbook types.
+
+    For playbook types (sop, framework, policy), fetches the expert persona from the database.
+    For other contexts, returns the hardcoded persona from WRITE_ASSIST_PERSONAS.
+
+    Args:
+        context: The context type (e.g., 'playbook-content', 'company-context')
+        playbook_type: For playbook content, the specific type ('sop', 'framework', 'policy')
+        company_id: Optional company ID for company-specific persona overrides
+
+    Returns:
+        Dict with 'system_prompt' and 'model_preferences' keys
+    """
+    # For playbook content with a type, use database personas
+    if context == "playbook-content" and playbook_type:
+        persona_key = PLAYBOOK_TYPE_TO_PERSONA.get(playbook_type.lower())
+        if persona_key:
+            db_persona = await get_db_persona(persona_key, company_id)
+            if db_persona:
+                return {
+                    "system_prompt": db_persona.get("system_prompt", ""),
+                    "model_preferences": db_persona.get("model_preferences", ["openai/gpt-4o"])
+                }
+            else:
+                print(f"[PERSONAS] WARNING: DB persona '{persona_key}' not found, using hardcoded fallback", flush=True)
+
+    # Fallback to hardcoded personas
+    if context == "playbook-content" and playbook_type:
+        persona = WRITE_ASSIST_PERSONAS.get(playbook_type, WRITE_ASSIST_PERSONAS["sop"])
+    else:
+        persona = WRITE_ASSIST_PERSONAS.get(context, WRITE_ASSIST_PERSONAS["generic"])
+
+    return {
+        "system_prompt": persona["prompt"],
+        "model_preferences": ["openai/gpt-4o-mini"]  # Default for non-playbook contexts
+    }
 
 
 def get_council_role_default(role_id: str) -> dict:
@@ -566,7 +620,7 @@ async def get_db_persona(
     Fetch a persona from the Supabase database.
 
     Args:
-        persona_key: The unique key for the persona (e.g., 'sarah_project_manager')
+        persona_key: The unique key for the persona (e.g., 'sarah')
         company_id: Optional company ID for company-specific overrides
         use_cache: Whether to use cached data (default True)
 
@@ -692,7 +746,7 @@ async def query_with_persona(
     - Model fallback chain
 
     Args:
-        persona_key: The persona to use (e.g., 'sarah_project_manager')
+        persona_key: The persona to use (e.g., 'sarah')
         user_prompt: The user's message/prompt
         variables: Optional dict of variables to substitute in templates
         company_id: Optional company ID for company-specific personas

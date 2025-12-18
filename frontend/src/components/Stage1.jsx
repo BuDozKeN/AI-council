@@ -149,7 +149,7 @@ export default function Stage1({ responses, streaming, isLoading, stopped, isCom
     return (
       <div className="stage stage1">
         <h3 className="stage-title">
-          Stage 1: Individual Responses
+          Council Responses
           {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
         </h3>
 
@@ -194,7 +194,7 @@ export default function Stage1({ responses, streaming, isLoading, stopped, isCom
     <div className={`stage stage1 ${isCollapsed ? 'collapsed' : ''}`}>
       <h3 className="stage-title clickable" onClick={toggleCollapsed}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
-        Stage 1: Individual Responses
+        Council Responses
         {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
         {isCollapsed && (
           <span className="collapsed-summary">

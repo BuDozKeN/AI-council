@@ -102,9 +102,11 @@ async def _auto_synthesize_project_context(project_id: str, user: dict) -> bool:
     Synthesizes ALL decisions into a clean context document.
 
     This runs in the background so the save response returns immediately.
+    Uses the single 'sarah' persona for consistent output.
     """
     from .openrouter import query_model, MOCK_LLM
     from .database import get_supabase_service
+    from .personas import get_db_persona_with_fallback
     from datetime import datetime
     import json
 
@@ -150,6 +152,13 @@ async def _auto_synthesize_project_context(project_id: str, user: dict) -> bool:
             }).eq("id", project_id).execute()
             return True
 
+        # Get the ONE Sarah persona from database
+        persona = await get_db_persona_with_fallback('sarah')
+        system_prompt = persona.get('system_prompt', '')
+        models = persona.get('model_preferences', ['google/gemini-2.0-flash-001', 'openai/gpt-4o'])
+        if isinstance(models, str):
+            models = json.loads(models)
+
         # Build decisions summary for LLM
         decisions_summary = ""
         for i, d in enumerate(decisions, 1):
@@ -160,7 +169,8 @@ async def _auto_synthesize_project_context(project_id: str, user: dict) -> bool:
 
         today_date = datetime.now().strftime("%B %d, %Y")
 
-        prompt = f"""You are Sarah, an experienced Project Manager. Create a CLEAN, WELL-ORGANIZED project document.
+        # Task-specific user prompt (Sarah's personality comes from system_prompt)
+        user_prompt = f"""Create a CLEAN, WELL-ORGANIZED project document.
 
 ## THE PROJECT
 - Name: {project.get('name', 'Unknown Project')}
@@ -174,7 +184,7 @@ async def _auto_synthesize_project_context(project_id: str, user: dict) -> bool:
 Create a single, clean project document that:
 1. Starts with a clear project overview
 2. Synthesizes ALL decisions into organized sections
-3. ELIMINATES ALL DUPLICATES
+3. ELIMINATES ALL DUPLICATES - if information appears in multiple decisions, include it ONCE
 4. Uses clear, simple language
 5. Includes a "Decision Log" section with dates
 
@@ -186,19 +196,12 @@ Return valid JSON:
 Today's date: {today_date}"""
 
         messages = [
-            {"role": "system", "content": "You are Sarah, a senior Project Manager. Create clean, well-organized project documentation. Respond only with valid JSON."},
-            {"role": "user", "content": prompt}
-        ]
-
-        # Use fast models
-        SYNTH_MODELS = [
-            "google/gemini-2.0-flash-001",
-            "anthropic/claude-3-5-haiku-20241022",
-            "openai/gpt-4o-mini",
+            {"role": "system", "content": system_prompt + "\n\nRespond only with valid JSON."},
+            {"role": "user", "content": user_prompt}
         ]
 
         result_data = None
-        for model in SYNTH_MODELS:
+        for model in models:
             try:
                 print(f"[AUTO-SYNTH] Trying model: {model}", flush=True)
                 result = await query_model(model=model, messages=messages)
@@ -2555,7 +2558,7 @@ async def structure_project_context(
     free_text = request.free_text[:5000] if request.free_text else ""
 
     # Get Sarah persona from database (with hardcoded fallback)
-    persona = await get_db_persona_with_fallback('sarah_project_manager')
+    persona = await get_db_persona_with_fallback('sarah')
     system_prompt = persona.get('system_prompt', '')
     models = persona.get('model_preferences', ['openai/gpt-4o', 'google/gemini-2.0-flash-001'])
 
@@ -2949,7 +2952,7 @@ async def regenerate_project_context(
 ):
     """
     Regenerate project context by synthesizing ALL decisions associated with this project.
-    Uses an LLM to create a clean, deduplicated context document from scratch.
+    Uses the single 'sarah' persona for consistent output.
 
     This is useful when:
     - Project context has accumulated duplicates
@@ -2958,7 +2961,9 @@ async def regenerate_project_context(
     """
     from .openrouter import query_model, MOCK_LLM
     from .database import get_supabase_service
+    from .personas import get_db_persona_with_fallback
     from datetime import datetime
+    import json
 
     print(f"[REGEN] Starting regenerate-context for project {project_id}", flush=True)
 
@@ -2968,7 +2973,6 @@ async def regenerate_project_context(
         raise HTTPException(status_code=401, detail="Authentication required")
 
     # Get project details - use service client to bypass RLS issues
-    from .database import get_supabase_with_auth
     service_client = get_supabase_service()
 
     print(f"[REGEN] Fetching project {project_id}", flush=True)
@@ -2982,7 +2986,6 @@ async def regenerate_project_context(
 
     # Get ALL decisions for this project (use service client to bypass RLS on knowledge_entries)
     print(f"[REGEN] About to query decisions...", flush=True)
-    service_client = get_supabase_service()
     decisions_result = service_client.table("knowledge_entries") \
         .select("id, title, body_md, summary, created_at, department_id") \
         .eq("project_id", project_id) \
@@ -3019,6 +3022,13 @@ async def regenerate_project_context(
             "decision_count": len(decisions)
         }
 
+    # Get the ONE Sarah persona from database
+    persona = await get_db_persona_with_fallback('sarah')
+    system_prompt = persona.get('system_prompt', '')
+    models = persona.get('model_preferences', ['google/gemini-2.0-flash-001', 'openai/gpt-4o'])
+    if isinstance(models, str):
+        models = json.loads(models)
+
     # Build a summary of all decisions for the LLM
     decisions_summary = ""
     for i, d in enumerate(decisions, 1):
@@ -3030,9 +3040,10 @@ async def regenerate_project_context(
 
     today_date = datetime.now().strftime("%B %d, %Y")
 
-    # Different prompts for: with decisions vs. enhance existing context only
+    # Task-specific user prompt (same as auto-synth for consistency)
+    # Sarah's personality comes from system_prompt
     if decisions:
-        prompt = f"""You are Sarah, an experienced Project Manager. Your job is to create a CLEAN, WELL-ORGANIZED project document.
+        user_prompt = f"""Create a CLEAN, WELL-ORGANIZED project document.
 
 ## THE PROJECT
 - Name: {project.get('name', 'Unknown Project')}
@@ -3043,31 +3054,12 @@ async def regenerate_project_context(
 
 ---
 
-## YOUR TASK
-
 Create a single, clean project document that:
-1. Starts with a clear project overview (what is this project? who is it for?)
-2. Synthesizes ALL the decisions into organized sections
-3. ELIMINATES ALL DUPLICATES - if the same insight appears multiple times, include it ONCE
-4. Uses clear, simple language anyone can understand
+1. Starts with a clear project overview
+2. Synthesizes ALL decisions into organized sections
+3. ELIMINATES ALL DUPLICATES - if information appears in multiple decisions, include it ONCE
+4. Uses clear, simple language
 5. Includes a "Decision Log" section with dates
-
-## DOCUMENTATION STYLE RULES
-
-✅ DO:
-- Write a clear 1-2 sentence summary at the top
-- Group related decisions together
-- Use bullet points for action items
-- Include dates for key decisions
-- Make it readable by someone new to the project
-
-❌ DON'T:
-- Include duplicate content (very important!)
-- Use vague language
-- Include raw LLM output or "Chairman's Synthesis" headers
-- Leave any section empty
-
-## OUTPUT FORMAT
 
 Return valid JSON:
 {{
@@ -3079,7 +3071,7 @@ Return valid JSON:
 Today's date: {today_date}"""
     else:
         # No decisions - enhance/structure existing context
-        prompt = f"""You are Sarah, an experienced Project Manager. Your job is to ENHANCE and STRUCTURE existing project documentation.
+        user_prompt = f"""ENHANCE and STRUCTURE this existing project documentation.
 
 ## THE PROJECT
 - Name: {project.get('name', 'Unknown Project')}
@@ -3090,31 +3082,12 @@ Today's date: {today_date}"""
 
 ---
 
-## YOUR TASK
-
-Take the existing context and create a CLEAN, WELL-ORGANIZED project document that:
+Create a CLEAN, WELL-ORGANIZED project document that:
 1. Starts with a clear project overview
 2. Organizes the information into logical sections
 3. Improves clarity and readability
-4. Preserves ALL the original information - don't remove anything important
+4. Preserves ALL the original information
 5. Adds helpful structure (headers, bullet points, etc.)
-
-## DOCUMENTATION STYLE RULES
-
-✅ DO:
-- Write a clear 1-2 sentence summary at the top
-- Group related information together
-- Use bullet points for lists
-- Add section headers where appropriate
-- Make it readable by someone new to the project
-
-❌ DON'T:
-- Remove any important information from the original
-- Add fictional content not implied by the original
-- Use vague language
-- Leave any section empty
-
-## OUTPUT FORMAT
 
 Return valid JSON:
 {{
@@ -3125,22 +3098,15 @@ Return valid JSON:
 
 Today's date: {today_date}"""
 
-    # LLM fallback chain
-    REGEN_MODELS = [
-        "google/gemini-2.0-flash-001",
-        "anthropic/claude-3-5-haiku-20241022",
-        "openai/gpt-4o-mini",
-    ]
-
     messages = [
-        {"role": "system", "content": "You are Sarah, a senior Project Manager. Create clean, well-organized project documentation. NEVER include duplicate content. Respond only with valid JSON."},
-        {"role": "user", "content": prompt}
+        {"role": "system", "content": system_prompt + "\n\nRespond only with valid JSON."},
+        {"role": "user", "content": user_prompt}
     ]
 
     result_data = None
     last_error = None
 
-    for model in REGEN_MODELS:
+    for model in models:
         try:
             print(f"[REGEN] Trying model: {model}", flush=True)
             result = await query_model(model=model, messages=messages)
@@ -3156,7 +3122,6 @@ Today's date: {today_date}"""
                     content = content.split('```')[0]
                 content = content.strip()
 
-                import json
                 try:
                     result_data = json.loads(content)
                     print(f"[REGEN] Success with {model}", flush=True)
@@ -3256,10 +3221,12 @@ async def ai_write_assist(
     """
     AI Writing Assistant - helps users write better form content.
     Uses centralized personas from personas.py for consistency.
+    For playbook types (SOP, Framework, Policy), uses expert personas from database.
     Returns plain text (no markdown) for clean UX.
     """
     from .openrouter import query_model, MOCK_LLM
-    from .personas import get_write_assist_persona, build_system_prompt
+    from .personas import get_write_assist_persona_async, build_system_prompt
+    import json as json_module
 
     # Handle mock mode
     if MOCK_LLM:
@@ -3272,8 +3239,15 @@ async def ai_write_assist(
     if not prompt.strip():
         raise HTTPException(status_code=400, detail="Prompt cannot be empty")
 
-    # Get persona from centralized personas module
-    persona_prompt = get_write_assist_persona(request.context, request.playbook_type)
+    # Get persona from database (for playbooks) or hardcoded fallback
+    persona_data = await get_write_assist_persona_async(request.context, request.playbook_type)
+    persona_prompt = persona_data["system_prompt"]
+    model_preferences = persona_data["model_preferences"]
+
+    # Handle model_preferences being a JSON string
+    if isinstance(model_preferences, str):
+        model_preferences = json_module.loads(model_preferences)
+
     type_label = request.playbook_type.upper() if request.playbook_type else request.context
 
     # Build system prompt with formatting rules
@@ -3286,23 +3260,36 @@ async def ai_write_assist(
             {"role": "user", "content": prompt}
         ]
 
-        model_to_use = "openai/gpt-4o-mini"
-        print(f"[WRITE-ASSIST] context={request.context}, type={type_label}, model={model_to_use}", flush=True)
+        # Try each model in preference order (from database persona)
+        last_error = None
+        for model_to_use in model_preferences:
+            try:
+                print(f"[WRITE-ASSIST] context={request.context}, type={type_label}, model={model_to_use}", flush=True)
 
-        result = await query_model(
-            model=model_to_use,
-            messages=messages
-        )
+                result = await query_model(
+                    model=model_to_use,
+                    messages=messages
+                )
 
-        if result and result.get('content'):
-            # Strip any remaining markdown artifacts
-            suggestion = result['content'].strip()
-            # Remove common markdown patterns
-            suggestion = suggestion.replace('**', '').replace('__', '')
-            suggestion = suggestion.replace('```', '').replace('`', '')
-            return {"suggestion": suggestion}
-        else:
-            raise HTTPException(status_code=500, detail="No response from AI model")
+                if result and result.get('content'):
+                    # Strip any remaining markdown artifacts
+                    suggestion = result['content'].strip()
+                    # Remove common markdown patterns
+                    suggestion = suggestion.replace('**', '').replace('__', '')
+                    suggestion = suggestion.replace('```', '').replace('`', '')
+                    return {"suggestion": suggestion}
+                else:
+                    last_error = f"No response from {model_to_use}"
+                    print(f"[WRITE-ASSIST] {last_error}", flush=True)
+                    continue
+
+            except Exception as model_err:
+                last_error = f"{model_to_use} failed: {type(model_err).__name__}: {model_err}"
+                print(f"[WRITE-ASSIST] {last_error}", flush=True)
+                continue
+
+        # All models failed
+        raise HTTPException(status_code=500, detail=f"All AI models failed. Last error: {last_error}")
 
     except HTTPException:
         raise

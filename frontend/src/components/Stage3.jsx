@@ -463,7 +463,7 @@ export default function Stage3({
     return (
       <div className="stage stage3">
         <h3 className="stage-title">
-          Stage 3: Final Council Answer
+          Council Decision
           {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
         </h3>
         <div className="final-response">
@@ -490,7 +490,7 @@ export default function Stage3({
     <div ref={containerRef} className={`stage stage3 ${isCollapsed ? 'collapsed' : ''}`}>
       <h3 className="stage-title clickable" onClick={toggleCollapsed}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
-        Stage 3: Final Council Answer
+        Council Decision
         {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
         {isCollapsed && savedDecisionId && (
           <span className="collapsed-summary">

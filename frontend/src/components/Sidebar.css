@@ -16,8 +16,6 @@
   background: var(--color-bg-primary);
 }
 
-/* Header buttons now use Tailwind + Shadcn Button component */
-
 /* Search Section */
 .sidebar-search {
   padding: 12px 16px 8px;
@@ -181,10 +179,26 @@
 }
 
 .no-conversations {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
   padding: 32px 16px;
   text-align: center;
   color: var(--color-text-muted);
   font-size: 14px;
+}
+
+.no-conv-icon {
+  font-size: 24px;
+  margin-bottom: 4px;
+  opacity: 0.7;
+}
+
+.no-conv-hint {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  margin-top: 4px;
 }
 
 /* Conversation Groups */
@@ -686,42 +700,65 @@
 
 .sidebar-footer-buttons {
   display: flex;
-  gap: 8px;
+  gap: 6px;
+}
+
+.company-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 10px;
+  background: var(--color-indigo-50);
+  border: 1px solid var(--color-indigo-200);
+  border-radius: var(--radius-md);
+  color: var(--color-indigo-700);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.company-btn:hover {
+  background: var(--color-indigo-100);
+  border-color: var(--color-indigo-300);
 }
 
 .settings-btn {
   flex: 1;
-  padding: 8px 12px;
-  background: var(--color-info-light);
-  border: 1px solid var(--color-info);
+  padding: 7px 10px;
+  background: transparent;
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  color: var(--color-blue-700);
-  font-size: 13px;
+  color: var(--color-text-secondary);
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .settings-btn:hover {
-  background: var(--color-blue-200);
-  border-color: var(--color-blue-600);
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-primary);
 }
 
 .sign-out-btn {
   flex: 1;
-  padding: 8px 12px;
+  padding: 7px 10px;
   background: transparent;
-  border: 1px solid var(--color-border-dark);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  color: var(--color-text-secondary);
-  font-size: 13px;
+  color: var(--color-text-tertiary);
+  font-size: 12px;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .sign-out-btn:hover {
   background: var(--color-bg-tertiary);
-  border-color: var(--color-text-muted);
+  border-color: var(--color-border-dark);
   color: var(--color-text-primary);
 }
 

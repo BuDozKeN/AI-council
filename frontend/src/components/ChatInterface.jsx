@@ -225,6 +225,31 @@ export default function ChatInterface({
         </button>
       )}
       <div className="messages-container" ref={messagesContainerRef} onScroll={handleScroll}>
+        {/* Persistent Context Indicator - shows current context during conversation */}
+        {selectedBusiness && conversation.messages.length > 0 && (
+          <div className="context-indicator">
+            <span className="context-indicator-label">Context:</span>
+            <span className="context-indicator-item company">
+              {businesses.find(b => b.id === selectedBusiness)?.name || 'Company'}
+            </span>
+            {selectedProject && (
+              <span className="context-indicator-item project">
+                {projects.find(p => p.id === selectedProject)?.name || 'Project'}
+              </span>
+            )}
+            {selectedDepartment && (
+              <span className="context-indicator-item department">
+                {departments.find(d => d.id === selectedDepartment)?.name || 'Department'}
+              </span>
+            )}
+            {selectedRole && (
+              <span className="context-indicator-item role">
+                {roles.find(r => r.id === selectedRole)?.name || 'Role'}
+              </span>
+            )}
+          </div>
+        )}
+
         {/* Triage - show at top when active */}
         {triageState === 'analyzing' && (
           <div className="triage-analyzing">
@@ -247,8 +272,18 @@ export default function ChatInterface({
         {/* Show empty state only when no triage and no messages */}
         {conversation.messages.length === 0 && !triageState ? (
           <div className="empty-state">
-            <h2>Start a conversation</h2>
-            <p>Ask a question to consult the AI Council</p>
+            <div className="empty-state-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M12 6v6l4 2" />
+                <circle cx="12" cy="12" r="10" />
+              </svg>
+            </div>
+            <h2>Ask the Council</h2>
+            <p>Get insights from 5 AI models who debate and synthesize the best answer</p>
+            <div className="empty-state-hints">
+              <span className="hint-item">💡 Try: "What's the best approach to..."</span>
+              <span className="hint-item">📎 Paste images with Ctrl+V</span>
+            </div>
           </div>
         ) : conversation.messages.length > 0 ? (
           conversation.messages.map((msg, index) => (
@@ -474,10 +509,10 @@ export default function ChatInterface({
                       {selectedDepartment && roles.length > 0 && (
                         <Select value={selectedRole || '__none__'} onValueChange={(v) => onSelectRole(v === '__none__' ? null : v)} disabled={isLoading}>
                           <SelectTrigger className="context-select-trigger role-select-trigger">
-                            <SelectValue placeholder={`All ${departments.find(d => d.id === selectedDepartment)?.name || 'Dept'} Roles`} />
+                            <SelectValue placeholder={`All ${departments.find(d => d.id === selectedDepartment)?.name || 'Department'} Roles`} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="__none__">All {departments.find(d => d.id === selectedDepartment)?.name || 'Dept'} Roles</SelectItem>
+                            <SelectItem value="__none__">All {departments.find(d => d.id === selectedDepartment)?.name || 'Department'} Roles</SelectItem>
                             {roles.map((role) => (
                               <SelectItem key={role.id} value={role.id}>
                                 {role.name}
@@ -497,7 +532,7 @@ export default function ChatInterface({
                           title="Toggle department-specific context (department knowledge)"
                         >
                           <span className="pill-icon">{useDepartmentContext ? '✓' : '○'}</span>
-                          <span className="pill-text">Dept</span>
+                          <span className="pill-text">Department</span>
                         </button>
                       )}
                     </>
@@ -544,24 +579,26 @@ export default function ChatInterface({
           {/* Mode toggle - only show for follow-up messages (after first exchange) */}
           {conversation.messages.length > 0 && (
             <div className={`mode-toggle-bar ${isLoading ? 'disabled' : ''}`}>
-              <span className="mode-label">Continue with:</span>
+              <span className="mode-label">Reply mode:</span>
               <div className="mode-buttons">
                 <button
                   type="button"
                   className={`mode-btn ${chatMode === 'chat' ? 'active' : ''}`}
                   onClick={() => !isLoading && setChatMode('chat')}
                   disabled={isLoading}
-                  title="Quick follow-up with Claude Opus 4.5 (faster, uses less tokens)"
+                  title="Quick follow-up with the Chairman (faster)"
                 >
-                  Chat
+                  <span className="mode-btn-icon">💬</span>
+                  Quick Chat
                 </button>
                 <button
                   type="button"
                   className={`mode-btn ${chatMode === 'council' ? 'active' : ''}`}
                   onClick={() => !isLoading && setChatMode('council')}
                   disabled={isLoading}
-                  title="Full council deliberation with all 5 models"
+                  title="Full council deliberation with all 5 AI models"
                 >
+                  <span className="mode-btn-icon">👥</span>
                   Full Council
                 </button>
               </div>
@@ -643,7 +680,7 @@ export default function ChatInterface({
                       title="Toggle department-specific context (department knowledge)"
                     >
                       <span className="toggle-icon">{useDepartmentContext ? '✓' : '○'}</span>
-                      {departments.find(d => d.id === selectedDepartment)?.name || 'Dept'}
+                      {departments.find(d => d.id === selectedDepartment)?.name || 'Department'}
                     </button>
                   )}
                 </div>
@@ -663,10 +700,10 @@ export default function ChatInterface({
                 className="message-input"
                 placeholder={
                   conversation.messages.length === 0
-                    ? "Ask the council... (Ctrl+V to paste images)"
+                    ? "Ask a question... (Enter to send, Shift+Enter for new line)"
                     : chatMode === 'chat'
-                    ? "Follow-up question..."
-                    : "Ask the full council..."
+                    ? "Quick follow-up with the Chairman..."
+                    : "Send to the full council for deliberation..."
                 }
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
