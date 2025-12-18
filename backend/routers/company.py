@@ -330,7 +330,7 @@ async def generate_decision_summary_internal(
 ) -> dict:
     """
     Generate an AI summary for a decision - includes title and contextual summary.
-    Uses Sarah (Project Manager persona) with Gemini 2.5 Flash.
+    Uses the 'sarah' persona from the database for consistent style.
     For multi-turn conversations, includes context from prior decisions.
 
     This is the core logic, extracted so it can be called from both:
@@ -342,6 +342,7 @@ async def generate_decision_summary_internal(
     print(f"[SUMMARY] generate_decision_summary_internal called with decision_id={decision_id}, company_uuid={company_uuid}", flush=True)
 
     from ..openrouter import query_model, MOCK_LLM
+    from ..personas import get_db_persona_with_fallback
     print(f"[SUMMARY] MOCK_LLM={MOCK_LLM}", flush=True)
 
     if service_client is None:
@@ -361,13 +362,14 @@ async def generate_decision_summary_internal(
 
     decision = result.data
     user_question = decision.get("user_question", "")
-    council_response = decision.get("body_md", "")
+    # Council response can be in body_md (new) or summary (legacy/standalone decisions)
+    council_response = decision.get("body_md", "") or decision.get("summary", "")
     conversation_id = decision.get("source_conversation_id")
     response_index = decision.get("response_index", 0) or 0
 
-    # If no user_question, can't generate a meaningful summary
-    if not user_question:
-        return {"summary": "No question recorded for this decision.", "title": decision.get("title"), "cached": False}
+    # If no user_question AND no council_response, can't generate a meaningful summary
+    if not user_question and not council_response:
+        return {"summary": "No content recorded for this decision.", "title": decision.get("title"), "cached": False}
 
     # Fetch prior decisions from the same conversation for context
     prior_context = ""
@@ -406,16 +408,27 @@ async def generate_decision_summary_internal(
 
     # Handle mock mode
     if MOCK_LLM:
-        mock_title = f"Decision about {user_question[:30]}..."
-        mock_summary = f"The user asked about {user_question[:100]}..."
+        if user_question:
+            mock_title = f"Decision about {user_question[:30]}..."
+            mock_summary = f"The user asked about {user_question[:100]}..."
+        else:
+            mock_title = "Council Decision Summary"
+            mock_summary = f"The council discussed: {council_response[:100]}..."
         return {"summary": mock_summary, "title": mock_title, "cached": False}
 
-    # Build the prompt for Sarah (Project Manager)
+    # Get the project manager persona from database
+    persona = await get_db_persona_with_fallback('sarah')
+    system_prompt = persona.get('system_prompt', '')
+
+    # Build the summary generation prompt
     council_excerpt = council_response[:2500] if council_response else ""
 
-    # Different prompts for first decision vs follow-up decisions
+    # Different prompts depending on available context
+    # 1. Follow-up decision (has prior context and response_index > 0)
+    # 2. First decision with user question
+    # 3. Decision without user question (legacy data - extract from council response)
     if prior_context and response_index > 0:
-        prompt = f"""You are Sarah, an experienced Project Manager documenting a multi-turn conversation with an AI council.
+        user_prompt = f"""## TASK: Generate a title and summary for this follow-up decision
 
 ## CONTEXT - THIS IS DECISION #{response_index + 1} (A FOLLOW-UP)
 
@@ -437,22 +450,68 @@ Generate a TITLE and SUMMARY that help someone understand THIS SPECIFIC follow-u
    - "UX Council Review of CTO Wait Strategy"
    - "Design Implementation Follow-up: Loading States"
    - "Iteration 2: UX Refinements for Engagement"
-   - NOT just "User Engagement" or "Wait Times" (too vague, doesn't show follow-up)
 
-2. **SUMMARY** (4-6 sentences): MUST answer these questions:
+2. **SUMMARY**: Write in third person, referring to "the user" and "the council".
+
+   **FORMAT YOUR SUMMARY WITH CLEAR STRUCTURE:**
+   - Use **short paragraphs** (2-3 sentences each) separated by blank lines
+   - Use **bullet points** for lists of recommendations or key points
+   - Bold **key terms** or **important concepts**
+
+   **MUST COVER:**
    - What did the user ask the council to do differently this time?
    - What new perspective or expertise were they seeking?
    - What key new insights did the council provide?
-   - How does this build on or differ from the previous decision?
 
 ## OUTPUT FORMAT
 TITLE: [your specific follow-up title]
 
-SUMMARY: [your complete 4-6 sentence summary explaining the follow-up and new insights]
+SUMMARY:
+[First paragraph: context and what the user asked - 2-3 sentences]
 
-CRITICAL: The summary must make clear this is a FOLLOW-UP. Someone reading it should understand what changed from the previous decision."""
+[Second paragraph or bullets: key council insights - can use bullet points]
+
+[Final sentence: outcome or next steps]"""
+    elif not user_question:
+        # Legacy decision without user_question - extract from council response alone
+        user_prompt = f"""## TASK: Generate a title and summary from this council decision
+
+## THE COUNCIL'S RESPONSE (no original question recorded):
+{council_excerpt}
+
+## YOUR TASK
+This is a legacy decision where the original user question wasn't recorded. Generate a title and summary based on the council's response alone.
+
+Generate TWO things:
+
+1. **TITLE** (4-8 words): Specific title capturing what the council discussed.
+   - Extract the main topic from the council's response
+   - BAD: "Council Decision" (too vague)
+   - GOOD: "Department Context Structure Strategy"
+
+2. **SUMMARY**: Write in third person, referring to "the council".
+
+   **FORMAT YOUR SUMMARY WITH CLEAR STRUCTURE:**
+   - Use **short paragraphs** (2-3 sentences each) separated by blank lines
+   - Use **bullet points** for lists of recommendations or key points
+   - Bold **key terms** or **important concepts**
+
+   **MUST COVER:**
+   - What topic or problem was the council addressing?
+   - What were the council's key recommendations?
+   - What specific approach or strategy did they suggest?
+
+## OUTPUT FORMAT
+TITLE: [your specific title]
+
+SUMMARY:
+[First paragraph: the topic being discussed - 2-3 sentences]
+
+[Second paragraph or bullets: key council recommendations]
+
+[Final sentence: outcome or approach suggested]"""
     else:
-        prompt = f"""You are Sarah, an experienced Project Manager. Document this council decision clearly.
+        user_prompt = f"""## TASK: Generate a title, question summary, and decision summary for this council decision
 
 ## THE USER'S QUESTION:
 {user_question}
@@ -461,14 +520,26 @@ CRITICAL: The summary must make clear this is a FOLLOW-UP. Someone reading it sh
 {council_excerpt}
 
 ## YOUR TASK
-Generate TWO things:
+Generate THREE things:
 
 1. **TITLE** (4-8 words): Specific title capturing the decision topic.
    - BAD: "User Engagement" (too vague)
    - GOOD: "Wait Time Engagement via Progress Indicators"
    - GOOD: "CTO Council: Reducing Perceived Wait Time"
 
-2. **SUMMARY** (3-5 sentences): A complete summary that answers:
+2. **QUESTION_SUMMARY** (1-2 sentences): A concise summary of what the user asked.
+   - Capture the core question/problem in plain language
+   - Should be understandable without reading the full question
+   - Example: "The user asked whether to implement PDF support or focus solely on images for sharing development screenshots with the AI council."
+
+3. **SUMMARY**: Write in third person, referring to "the user" and "the council".
+
+   **FORMAT YOUR SUMMARY WITH CLEAR STRUCTURE:**
+   - Use **short paragraphs** (2-3 sentences each) separated by blank lines
+   - Use **bullet points** for lists of recommendations or key points
+   - Bold **key terms** or **important concepts**
+
+   **MUST COVER:**
    - What specific problem did the user bring to the council?
    - What was the council's key recommendation?
    - What specific approach or strategy did they suggest?
@@ -476,41 +547,76 @@ Generate TWO things:
 ## OUTPUT FORMAT
 TITLE: [your specific title]
 
-SUMMARY: [your 3-5 sentence summary]
+QUESTION_SUMMARY: [1-2 sentence summary of what the user asked]
 
-CRITICAL: Write for someone who has never seen this project. Be specific about what was decided."""
+SUMMARY:
+[First paragraph: the problem/question - 2-3 sentences]
+
+[Second paragraph or bullets: key council recommendations]
+
+[Final sentence: outcome or approach suggested]"""
+
+    # Use model preferences from persona
+    import json as json_module
+    model_prefs = persona.get('model_preferences', ['google/gemini-2.0-flash-001'])
+    if isinstance(model_prefs, str):
+        model_prefs = json_module.loads(model_prefs)
 
     try:
         response = await query_model(
-            "google/gemini-2.5-flash",
-            [{"role": "user", "content": prompt}]
+            model_prefs[0],  # Use first preferred model
+            [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt}
+            ]
         )
 
         content = response.get("content", "").strip() if response else ""
-        print(f"[SUMMARY] Gemini response: {content[:200]}...", flush=True)
+        print(f"[SUMMARY] Response: {content[:300]}...", flush=True)
 
-        # Parse the response
+        # Parse the response - extract TITLE, QUESTION_SUMMARY, and SUMMARY
         generated_title = decision.get("title")
+        generated_question_summary = ""
         generated_summary = ""
 
-        if "TITLE:" in content and "SUMMARY:" in content:
-            parts = content.split("SUMMARY:")
-            title_part = parts[0].replace("TITLE:", "").strip()
-            summary_part = parts[1].strip() if len(parts) > 1 else ""
+        if "TITLE:" in content:
+            # Extract TITLE
+            title_match = content.split("TITLE:")[1] if "TITLE:" in content else ""
+            if "QUESTION_SUMMARY:" in title_match:
+                generated_title = title_match.split("QUESTION_SUMMARY:")[0].strip()
+            elif "SUMMARY:" in title_match:
+                generated_title = title_match.split("SUMMARY:")[0].strip()
+            else:
+                generated_title = title_match.split("\n")[0].strip()
 
-            if title_part:
-                generated_title = title_part.strip()
-            if summary_part:
-                generated_summary = summary_part.strip()
+            # Extract QUESTION_SUMMARY if present
+            if "QUESTION_SUMMARY:" in content:
+                qs_part = content.split("QUESTION_SUMMARY:")[1]
+                if "SUMMARY:" in qs_part:
+                    generated_question_summary = qs_part.split("SUMMARY:")[0].strip()
+                else:
+                    generated_question_summary = qs_part.split("\n")[0].strip()
+
+            # Extract SUMMARY
+            if "SUMMARY:" in content:
+                # Get everything after the last SUMMARY: marker
+                parts = content.split("SUMMARY:")
+                generated_summary = parts[-1].strip()
         else:
+            # Fallback if no structured output
             generated_summary = content
 
-        if generated_summary:
-            # Save both title and summary in the database
+        if generated_summary or generated_question_summary:
+            # Save title, question_summary, and decision_summary in the database
             update_data = {"decision_summary": generated_summary}
+
             if generated_title and generated_title != decision.get("title"):
                 update_data["title"] = generated_title
-                print(f"[SUMMARY] Updating title from '{decision.get('title')[:50]}...' to '{generated_title[:50]}...'", flush=True)
+                print(f"[SUMMARY] Updating title to: '{generated_title[:50]}...'", flush=True)
+
+            if generated_question_summary:
+                update_data["question_summary"] = generated_question_summary
+                print(f"[SUMMARY] Question summary: '{generated_question_summary[:100]}...'", flush=True)
 
             print(f"[SUMMARY] Saving to database: {list(update_data.keys())}", flush=True)
             update_result = service_client.table("knowledge_entries") \
@@ -519,16 +625,23 @@ CRITICAL: Write for someone who has never seen this project. Be specific about w
                 .execute()
             print(f"[SUMMARY] Database update result: {len(update_result.data) if update_result.data else 0} rows", flush=True)
 
-            return {"summary": generated_summary, "title": generated_title, "cached": False}
+            return {
+                "summary": generated_summary,
+                "title": generated_title,
+                "question_summary": generated_question_summary,
+                "cached": False
+            }
         else:
-            print(f"[SUMMARY] No summary generated, falling back to user question", flush=True)
-            return {"summary": user_question[:300], "title": decision.get("title"), "cached": False}
+            print(f"[SUMMARY] No summary generated, falling back to available content", flush=True)
+            fallback = user_question[:300] if user_question else (council_response[:300] if council_response else "No content available")
+            return {"summary": fallback, "title": decision.get("title"), "cached": False}
 
     except Exception as e:
         import traceback
         print(f"[SUMMARY] Failed to generate summary: {e}", flush=True)
         print(f"[SUMMARY] Traceback: {traceback.format_exc()}", flush=True)
-        return {"summary": user_question[:300], "title": decision.get("title"), "cached": False}
+        fallback = user_question[:300] if user_question else (council_response[:300] if council_response else "No content available")
+        return {"summary": fallback, "title": decision.get("title"), "cached": False}
 
 
 # ============================================
@@ -1322,7 +1435,8 @@ async def get_decisions(
             "id": entry.get("id"),
             "title": entry.get("title"),
             "content": content,  # Full council response from body_md (with summary fallback)
-            "user_question": entry.get("user_question", ""),  # User question for context
+            "user_question": entry.get("user_question", ""),  # Raw user question for context
+            "question_summary": entry.get("question_summary", ""),  # AI-summarized question
             "decision_summary": entry.get("decision_summary", ""),  # AI-generated summary
             "tags": entry.get("tags", []),
             "category": entry.get("category"),
@@ -1367,7 +1481,8 @@ async def create_decision(company_id: str, data: DecisionCreate, user=Depends(ge
         "company_id": company_uuid,
         "department_id": data.department_id,
         "title": data.title,
-        "summary": data.content,  # Map content to summary (full response)
+        "body_md": data.content,  # Full council response in body_md (primary field)
+        "summary": data.content,  # Also in summary for backwards compatibility
         "decision_summary": data.decision_summary,  # Brief summary for quick scanning
         "category": "technical_decision",  # Default category
         "source_conversation_id": data.source_conversation_id,
@@ -1399,15 +1514,34 @@ async def create_decision(company_id: str, data: DecisionCreate, user=Depends(ge
 
     # Transform response to expected format
     entry = result.data[0]
+    decision_id = entry.get("id")
+
+    # Generate AI summary (title, question_summary, decision_summary) immediately
+    # This ensures the decision has proper metadata before we log activity
+    ai_title = data.title  # fallback to raw title
+    try:
+        print(f"[CREATE_DECISION] Generating AI summary for decision {decision_id}", flush=True)
+        summary_result = await generate_decision_summary_internal(
+            decision_id=decision_id,
+            company_uuid=company_uuid,
+            service_client=get_service_client()
+        )
+        if summary_result.get("title"):
+            ai_title = summary_result["title"]
+            print(f"[CREATE_DECISION] AI generated title: {ai_title}", flush=True)
+    except Exception as e:
+        print(f"[CREATE_DECISION] Summary generation failed (non-fatal): {e}", flush=True)
+
     # Use body_md if available, fall back to summary for legacy data
     body_md = entry.get("body_md", "")
     content = body_md if body_md else entry.get("summary", "")
 
     decision = {
-        "id": entry.get("id"),
-        "title": entry.get("title"),
+        "id": decision_id,
+        "title": ai_title,  # Use AI-generated title
         "content": content,  # Full council response from body_md (with summary fallback)
         "decision_summary": entry.get("decision_summary"),
+        "question_summary": entry.get("question_summary"),  # AI-summarized question
         "user_question": entry.get("user_question"),
         "tags": entry.get("tags", []),
         "category": entry.get("category"),
@@ -1418,14 +1552,14 @@ async def create_decision(company_id: str, data: DecisionCreate, user=Depends(ge
         "council_type": entry.get("council_type")
     }
 
-    # Log activity for the new decision
+    # Log activity with AI-generated title (not raw question)
     await log_activity(
         company_id=company_uuid,
         event_type="decision",
-        title=f"Saved: {data.title}",
+        title=f"Saved: {ai_title}",
         description=data.content[:200] if data.content else None,
         department_id=data.department_id,
-        related_id=entry.get("id"),
+        related_id=decision_id,
         related_type="decision",
         conversation_id=data.source_conversation_id,
         message_id=data.source_message_id
@@ -1529,9 +1663,12 @@ async def promote_decision(company_id: str, decision_id: str, data: PromoteDecis
         "created_by": user.get('id') if isinstance(user, dict) else user.id
     }).execute()
 
-    # NOTE: Marking decision as "promoted" is skipped because the knowledge_entries
-    # table doesn't have the required columns (is_promoted, promoted_to_id, promoted_to_type).
-    # The playbook is created successfully regardless.
+    # Mark the decision as promoted
+    service_client.table("knowledge_entries").update({
+        "is_promoted": True,
+        "promoted_to_id": doc_id,
+        "promoted_to_type": data.doc_type
+    }).eq("id", decision_id).execute()
 
     playbook = doc_result.data[0]
     playbook["content"] = content
@@ -1583,7 +1720,8 @@ async def get_decision(company_id: str, decision_id: str, user=Depends(get_curre
         "id": entry.get("id"),
         "title": entry.get("title"),
         "content": content,  # Full council response from body_md (with summary fallback)
-        "user_question": entry.get("user_question", ""),  # User question for context
+        "user_question": entry.get("user_question", ""),  # Raw user question for context
+        "question_summary": entry.get("question_summary", ""),  # AI-summarized question
         "decision_summary": entry.get("decision_summary", ""),  # AI-generated summary
         "tags": entry.get("tags", []),
         "category": entry.get("category"),
@@ -1678,6 +1816,267 @@ async def archive_decision(company_id: str, decision_id: str, user=Depends(get_c
     return {"success": True, "message": "Decision archived"}
 
 
+class LinkDecisionToProject(BaseModel):
+    project_id: str
+
+
+@router.post("/{company_id}/decisions/{decision_id}/link-project")
+async def link_decision_to_project(company_id: str, decision_id: str, data: LinkDecisionToProject, user=Depends(get_current_user)):
+    """
+    Link a decision to an existing project.
+    Updates the decision's project_id and syncs department_ids.
+    """
+    service_client = get_supabase_service()
+    user_client = get_client(user)
+    company_uuid = resolve_company_id(user_client, company_id)
+
+    # Verify decision exists
+    decision = service_client.table("knowledge_entries") \
+        .select("*") \
+        .eq("id", decision_id) \
+        .eq("company_id", company_uuid) \
+        .eq("is_active", True) \
+        .single() \
+        .execute()
+
+    if not decision.data:
+        raise HTTPException(status_code=404, detail="Decision not found")
+
+    # Verify project exists
+    project = user_client.table("projects") \
+        .select("id, name, department_ids") \
+        .eq("id", data.project_id) \
+        .eq("company_id", company_uuid) \
+        .single() \
+        .execute()
+
+    if not project.data:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    # Update decision with project_id and mark as promoted to project
+    result = service_client.table("knowledge_entries") \
+        .update({
+            "project_id": data.project_id,
+            "is_promoted": True,
+            "promoted_to_type": "project"
+        }) \
+        .eq("id", decision_id) \
+        .execute()
+
+    if not result.data:
+        raise HTTPException(status_code=400, detail="Failed to link decision to project")
+
+    # Sync project department_ids with decision's departments
+    _sync_project_departments_internal(data.project_id)
+
+    return {
+        "success": True,
+        "decision_id": decision_id,
+        "project_id": data.project_id,
+        "project_name": project.data.get("name")
+    }
+
+
+class CreateProjectFromDecision(BaseModel):
+    name: str
+    department_ids: Optional[List[str]] = None
+
+
+@router.post("/{company_id}/decisions/{decision_id}/create-project")
+async def create_project_from_decision(company_id: str, decision_id: str, data: CreateProjectFromDecision, user=Depends(get_current_user)):
+    """
+    Create a new project from a decision.
+    Creates the project and links the decision to it.
+    Uses Sarah (Project Manager persona) to generate project context from the decision.
+    """
+    service_client = get_supabase_service()
+    user_client = get_client(user)
+    company_uuid = resolve_company_id(user_client, company_id)
+
+    # Verify decision exists
+    decision = service_client.table("knowledge_entries") \
+        .select("*") \
+        .eq("id", decision_id) \
+        .eq("company_id", company_uuid) \
+        .eq("is_active", True) \
+        .single() \
+        .execute()
+
+    if not decision.data:
+        raise HTTPException(status_code=404, detail="Decision not found")
+
+    # Use decision's department_ids if none provided
+    dept_ids = data.department_ids
+    if not dept_ids:
+        dept_ids = decision.data.get("department_ids") or []
+        if not dept_ids and decision.data.get("department_id"):
+            dept_ids = [decision.data.get("department_id")]
+
+    # Get user_id properly (user can be dict or object)
+    print(f"[CREATE_PROJECT] user type: {type(user)}, user: {user}", flush=True)
+    if isinstance(user, dict):
+        user_id = user.get('id') or user.get('sub')
+    else:
+        user_id = getattr(user, 'id', None) or getattr(user, 'sub', None)
+    print(f"[CREATE_PROJECT] resolved user_id: {user_id}", flush=True)
+
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Could not determine user ID from authentication")
+
+    # Generate project context using Sarah
+    # Try multiple fields where content might be stored
+    decision_content = (
+        decision.data.get("summary") or  # Full council response (most common)
+        decision.data.get("decision_summary") or  # Structured decision
+        decision.data.get("body_md") or  # Manual entry
+        decision.data.get("content") or  # Legacy field
+        ""
+    )
+    user_question = decision.data.get("user_question") or decision.data.get("title") or ""
+
+    print(f"[CREATE_PROJECT] Decision data keys: {list(decision.data.keys())}", flush=True)
+    print(f"[CREATE_PROJECT] decision_content length: {len(decision_content)}", flush=True)
+    print(f"[CREATE_PROJECT] user_question: {user_question[:100] if user_question else 'None'}", flush=True)
+    project_name = data.name
+
+    context_md = ""
+    description = f"Created from decision: {decision.data.get('title', 'Council Decision')}"
+
+    # Try to generate structured context with Sarah
+    try:
+        from ..personas import get_db_persona_with_fallback
+        from ..openrouter import query_model, MOCK_LLM
+        import json as json_module
+
+        if not MOCK_LLM and decision_content:
+            print(f"[CREATE_PROJECT] Generating context with Sarah for: {project_name}", flush=True)
+
+            # Get Sarah persona from database
+            persona = await get_db_persona_with_fallback('sarah')
+            system_prompt = persona.get('system_prompt', '')
+            models = persona.get('model_preferences', ['openai/gpt-4o', 'google/gemini-2.0-flash-001'])
+
+            # Parse models if stored as JSON string
+            if isinstance(models, str):
+                models = json_module.loads(models)
+
+            # Build context from decision
+            free_text = f"Project: {project_name}\n\n"
+            if user_question:
+                free_text += f"Original question: {user_question}\n\n"
+            free_text += f"Council decision/insights:\n{decision_content[:4000]}"
+
+            prompt = f"""Create a project brief from this council decision that is being promoted to a project:
+
+"{free_text}"
+
+Return JSON with these exact fields:
+
+{{
+  "description": "One sentence describing what this project delivers",
+  "context_md": "Well-formatted markdown brief with sections below"
+}}
+
+For context_md, use clean markdown formatting. Use these sections (skip any that don't apply):
+
+## Objective
+One sentence: what we're building and why.
+
+## Key Insights
+- Main takeaways from the council decision
+
+## Deliverables
+- Bullet list of concrete outputs
+
+## Success Criteria
+- How we know it's done/working
+
+## Technical Notes
+Only if relevant technical details were mentioned.
+
+FORMATTING RULES:
+- Use ## for section headers
+- Use - for bullet points
+- Keep it clean and readable
+
+CONTENT RULES:
+- Extract from the council decision. Don't invent requirements.
+- Be concise. Each section 2-4 bullet points max.
+- Skip sections not relevant to the decision."""
+
+            messages = [
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt}
+            ]
+
+            # Try each model
+            for model in models[:2]:  # Try first 2 models max
+                try:
+                    print(f"[CREATE_PROJECT] Trying model: {model}", flush=True)
+                    result = await query_model(model=model, messages=messages)
+
+                    if result and result.get('content'):
+                        content = result['content']
+                        # Clean up markdown code blocks
+                        if content.startswith('```'):
+                            content = content.split('```')[1]
+                            if content.startswith('json'):
+                                content = content[4:]
+                        if '```' in content:
+                            content = content.split('```')[0]
+                        content = content.strip()
+
+                        structured = json_module.loads(content)
+                        context_md = structured.get('context_md', '')
+                        if structured.get('description'):
+                            description = structured['description']
+                        print(f"[CREATE_PROJECT] Successfully generated context with {model}", flush=True)
+                        break
+                except Exception as e:
+                    print(f"[CREATE_PROJECT] Model {model} failed: {e}", flush=True)
+                    continue
+    except Exception as e:
+        print(f"[CREATE_PROJECT] Failed to generate context with Sarah: {e}", flush=True)
+        # Fall back to using decision summary as context
+        if decision_content:
+            context_md = f"## Overview\n\n{decision_content[:2000]}"
+
+    # Create the project with generated context
+    project_result = user_client.table("projects").insert({
+        "company_id": company_uuid,
+        "user_id": user_id,
+        "name": data.name,
+        "description": description,
+        "context_md": context_md if context_md else None,
+        "status": "active",
+        "department_ids": dept_ids if dept_ids else None,
+        "department_id": dept_ids[0] if dept_ids else None,  # Legacy field
+        "source_conversation_id": decision.data.get("source_conversation_id"),
+        "source": "council"  # Mark as created from council decision
+    }).execute()
+
+    if not project_result.data:
+        raise HTTPException(status_code=400, detail="Failed to create project")
+
+    project_id = project_result.data[0]["id"]
+
+    # Update decision with project_id and mark as promoted to project
+    service_client.table("knowledge_entries") \
+        .update({
+            "project_id": project_id,
+            "is_promoted": True,
+            "promoted_to_type": "project"
+        }) \
+        .eq("id", decision_id) \
+        .execute()
+
+    return {
+        "success": True,
+        "project": project_result.data[0],
+        "decision_id": decision_id
+    }
+
+
 @router.get("/{company_id}/projects/{project_id}/decisions")
 async def get_project_decisions(
     company_id: str,
@@ -1689,13 +2088,16 @@ async def get_project_decisions(
     Get all decisions linked to a specific project, ordered by date (timeline view).
     Returns decisions as dated entries for project history tracking.
     """
+    print(f"[GET_PROJECT_DECISIONS] company_id={company_id}, project_id={project_id}", flush=True)
     service_client = get_service_client()
     user_client = get_client(user)
 
     # Resolve company UUID
     try:
         company_uuid = resolve_company_id(user_client, company_id)
+        print(f"[GET_PROJECT_DECISIONS] Resolved company_uuid={company_uuid}", flush=True)
     except HTTPException:
+        print(f"[GET_PROJECT_DECISIONS] Failed to resolve company", flush=True)
         return {"decisions": [], "project": None}
 
     # Verify project exists and belongs to company
@@ -1707,7 +2109,10 @@ async def get_project_decisions(
         .execute()
 
     if not project_result.data:
+        print(f"[GET_PROJECT_DECISIONS] Project not found", flush=True)
         raise HTTPException(status_code=404, detail="Project not found")
+
+    print(f"[GET_PROJECT_DECISIONS] Found project: {project_result.data.get('name')}", flush=True)
 
     # Get all decisions for this project, ordered by created_at (timeline)
     decisions_result = service_client.table("knowledge_entries") \
@@ -1718,6 +2123,8 @@ async def get_project_decisions(
         .order("created_at", desc=True) \
         .limit(limit) \
         .execute()
+
+    print(f"[GET_PROJECT_DECISIONS] Found {len(decisions_result.data or [])} decisions", flush=True)
 
     # Get departments for name lookup
     dept_result = service_client.table("departments") \
@@ -1776,6 +2183,45 @@ async def get_project_decisions(
     }
 
 
+def _sync_project_departments_internal(project_id: str):
+    """
+    Internal helper to sync project department_ids from its decisions.
+    Uses service client - no auth needed.
+    """
+    service_client = get_service_client()
+
+    # Get all active decisions for this project
+    decisions_result = service_client.table("knowledge_entries") \
+        .select("department_ids, department_id") \
+        .eq("project_id", project_id) \
+        .eq("is_active", True) \
+        .execute()
+
+    print(f"[SYNC] Found {len(decisions_result.data or [])} decisions for project {project_id}", flush=True)
+
+    # Collect unique department_ids from all decisions
+    all_dept_ids = set()
+    for decision in (decisions_result.data or []):
+        dept_ids = decision.get("department_ids") or []
+        for did in dept_ids:
+            if did:
+                all_dept_ids.add(did)
+        # Also check legacy department_id field
+        legacy_dept = decision.get("department_id")
+        if legacy_dept and legacy_dept not in all_dept_ids:
+            all_dept_ids.add(legacy_dept)
+
+    # Update project's department_ids
+    updated_dept_ids = list(all_dept_ids) if all_dept_ids else None
+    print(f"[SYNC] Updating project {project_id} with department_ids={updated_dept_ids}", flush=True)
+    service_client.table("projects") \
+        .update({"department_ids": updated_dept_ids}) \
+        .eq("id", project_id) \
+        .execute()
+
+    return updated_dept_ids
+
+
 @router.post("/{company_id}/projects/{project_id}/sync-departments")
 async def sync_project_departments(company_id: str, project_id: str, user=Depends(get_current_user)):
     """
@@ -1797,43 +2243,12 @@ async def sync_project_departments(company_id: str, project_id: str, user=Depend
     if not project_check.data:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    # Get all active decisions for this project
-    decisions_result = service_client.table("knowledge_entries") \
-        .select("department_ids, department_id") \
-        .eq("project_id", project_id) \
-        .eq("is_active", True) \
-        .execute()
-
-    print(f"[SYNC] Found {len(decisions_result.data or [])} decisions for project {project_id}", flush=True)
-
-    # Collect unique department_ids from all decisions
-    all_dept_ids = set()
-    for decision in (decisions_result.data or []):
-        dept_ids = decision.get("department_ids") or []
-        print(f"[SYNC] Decision has department_ids={dept_ids}, department_id={decision.get('department_id')}", flush=True)
-        for did in dept_ids:
-            if did:
-                all_dept_ids.add(did)
-        # Also check legacy department_id field
-        legacy_dept = decision.get("department_id")
-        if legacy_dept and legacy_dept not in all_dept_ids:
-            all_dept_ids.add(legacy_dept)
-
-    print(f"[SYNC] Collected all_dept_ids={all_dept_ids}", flush=True)
-
-    # Update project's department_ids
-    updated_dept_ids = list(all_dept_ids) if all_dept_ids else None
-    print(f"[SYNC] Updating project {project_id} with department_ids={updated_dept_ids}", flush=True)
-    service_client.table("projects") \
-        .update({"department_ids": updated_dept_ids}) \
-        .eq("id", project_id) \
-        .execute()
+    updated_dept_ids = _sync_project_departments_internal(project_id)
 
     return {
         "success": True,
         "project_id": project_id,
-        "department_ids": updated_dept_ids,
-        "decision_count": len(decisions_result.data or [])
+        "department_ids": updated_dept_ids
     }
 
 
@@ -1880,7 +2295,7 @@ async def generate_decision_summary(
 ):
     """
     Generate an AI summary for a decision - includes title and contextual summary.
-    Uses Sarah (Project Manager persona) with Gemini 2.5 Flash.
+    Uses Gemini 2.5 Flash for fast summary generation.
     For multi-turn conversations, includes context from prior decisions.
 
     This endpoint is for on-demand regeneration (e.g., if user wants to refresh).

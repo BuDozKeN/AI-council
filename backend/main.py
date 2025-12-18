@@ -1333,6 +1333,9 @@ async def create_project(
     access_token = user.get("access_token")
     user_id = user.get("id")
 
+    print(f"[CREATE_PROJECT_ENDPOINT] company_id={company_id}, user_id={user_id}, name={project.name}", flush=True)
+    print(f"[CREATE_PROJECT_ENDPOINT] project data: name={project.name}, desc={project.description[:50] if project.description else None}, dept_ids={project.department_ids}, source={project.source}", flush=True)
+
     try:
         result = storage.create_project(
             company_id_or_slug=company_id,
@@ -1348,14 +1351,22 @@ async def create_project(
         )
 
         if not result:
+            print(f"[CREATE_PROJECT_ENDPOINT] No result returned from storage.create_project", flush=True)
             raise HTTPException(status_code=500, detail="Failed to create project - no result returned")
 
+        print(f"[CREATE_PROJECT_ENDPOINT] Success! project_id={result.get('id')}", flush=True)
         return {"project": result}
     except HTTPException:
         raise
     except Exception as e:
-        print(f"[ERROR] Failed to create project: {type(e).__name__}: {e}", flush=True)
+        import traceback
+        print(f"[CREATE_PROJECT_ENDPOINT] ERROR: {type(e).__name__}: {e}", flush=True)
+        print(f"[CREATE_PROJECT_ENDPOINT] Traceback:\n{traceback.format_exc()}", flush=True)
         raise HTTPException(status_code=500, detail=f"Failed to create project: {str(e)}")
+
+
+## NOTE: create_project_from_decision endpoint is in backend/routers/company.py
+## It uses Sarah persona to generate project context from decision content
 
 
 @app.get("/api/projects/{project_id}")
@@ -2135,19 +2146,28 @@ async def get_conversation_decision(
             return {"decision": None}
 
         # Resolve company_id if it's a slug
-        company_uuid = storage.resolve_company_id(company_id, access_token)
+        try:
+            company_uuid = storage.resolve_company_id(company_id, access_token)
+        except Exception as resolve_err:
+            print(f"[CONV-DECISION] Failed to resolve company_id: {resolve_err}", flush=True)
+            return {"decision": None}
 
-        print(f"[CONV-DECISION] Looking for conversation_id={conversation_id}, response_index={response_index}", flush=True)
+        print(f"[CONV-DECISION] Looking for conversation_id={conversation_id}, company={company_uuid}, response_index={response_index}", flush=True)
 
         # Find decision by conversation_id and response_index
-        result = service_client.table("knowledge_entries") \
-            .select("id, title, summary, project_id, created_at, response_index") \
-            .eq("company_id", company_uuid) \
-            .eq("source_conversation_id", conversation_id) \
-            .eq("response_index", response_index) \
-            .eq("is_active", True) \
-            .limit(1) \
-            .execute()
+        # Only select specific fields that we know exist to avoid column errors
+        try:
+            result = service_client.table("knowledge_entries") \
+                .select("id, title, summary, project_id, department_id, created_at, response_index") \
+                .eq("company_id", company_uuid) \
+                .eq("source_conversation_id", conversation_id) \
+                .eq("response_index", response_index) \
+                .eq("is_active", True) \
+                .limit(1) \
+                .execute()
+        except Exception as query_err:
+            print(f"[CONV-DECISION] Query failed: {type(query_err).__name__}: {query_err}", flush=True)
+            return {"decision": None}
 
         if result.data and result.data[0]:
             print(f"[CONV-DECISION] Found decision with response_index={response_index}: {result.data[0]['id']}", flush=True)
@@ -2156,19 +2176,22 @@ async def get_conversation_decision(
         # Legacy fallback: For the first assistant message (index 1), also check for decisions
         # saved before response_index was added (they have NULL response_index)
         if response_index == 1:
-            legacy_result = service_client.table("knowledge_entries") \
-                .select("id, title, summary, project_id, created_at, response_index") \
-                .eq("company_id", company_uuid) \
-                .eq("source_conversation_id", conversation_id) \
-                .is_("response_index", "null") \
-                .eq("is_active", True) \
-                .order("created_at", desc=False) \
-                .limit(1) \
-                .execute()
+            try:
+                legacy_result = service_client.table("knowledge_entries") \
+                    .select("id, title, summary, project_id, department_id, created_at, response_index") \
+                    .eq("company_id", company_uuid) \
+                    .eq("source_conversation_id", conversation_id) \
+                    .is_("response_index", "null") \
+                    .eq("is_active", True) \
+                    .order("created_at", desc=False) \
+                    .limit(1) \
+                    .execute()
 
-            if legacy_result.data and legacy_result.data[0]:
-                print(f"[CONV-DECISION] Found legacy decision (no response_index): {legacy_result.data[0]['id']}", flush=True)
-                return {"decision": legacy_result.data[0]}
+                if legacy_result.data and legacy_result.data[0]:
+                    print(f"[CONV-DECISION] Found legacy decision (no response_index): {legacy_result.data[0]['id']}", flush=True)
+                    return {"decision": legacy_result.data[0]}
+            except Exception as legacy_err:
+                print(f"[CONV-DECISION] Legacy query failed: {legacy_err}", flush=True)
 
         return {"decision": None}
     except ValueError as e:
@@ -2394,6 +2417,7 @@ async def extract_project_from_response(
     print(f"[PROJECT EXTRACT] Called with question: {request.user_question[:100]}...", flush=True)
     from .openrouter import query_model, MOCK_LLM
     from .knowledge_fallback import extract_project_fallback
+    from .personas import get_db_persona_with_fallback
 
     # Handle mock mode
     if MOCK_LLM:
@@ -2407,12 +2431,16 @@ async def extract_project_from_response(
             }
         }
 
+    # Get the project manager persona from database
+    persona = await get_db_persona_with_fallback('sarah')
+    system_prompt = persona.get('system_prompt', '')
+
     # Truncate inputs to prevent prompt bloat
     user_question = request.user_question[:3000] if request.user_question else ""
     council_response = request.council_response[:5000] if request.council_response else ""
 
-    # Create a prompt focused on generating clear, accessible project details
-    extraction_prompt = f"""You are a senior Project Manager creating documentation for a company's project portfolio.
+    # Task-specific user prompt (persona's style comes from system_prompt)
+    extraction_prompt = f"""## TASK: Extract project name and description from a council discussion
 
 Your goal: Create a project name and description that ANYONE can understand at a glance.
 Think: "If my non-technical mom saw this in a list, would she understand what it's about?"
@@ -2465,14 +2493,20 @@ Respond ONLY with this JSON (no markdown code blocks, just the JSON):
   "context_md": "## Background\\nOne paragraph explaining the project.\\n\\n## Key Decisions\\n- Decision 1\\n- Decision 2\\n\\n## Guidelines\\n- Guideline 1\\n- Guideline 2"
 }}"""
 
+    # Use model preferences from persona
+    import json as json_module
+    model_prefs = persona.get('model_preferences', ['anthropic/claude-3-5-haiku-20241022'])
+    if isinstance(model_prefs, str):
+        model_prefs = json_module.loads(model_prefs)
+
     try:
         messages = [
-            {"role": "system", "content": "You are a senior Project Manager who excels at naming and organizing projects. Your superpower is taking complex discussions and extracting the core topic into a clean, professional project name. You respond ONLY with valid JSON - no markdown, no explanation, just the JSON object."},
+            {"role": "system", "content": system_prompt + "\n\nRespond ONLY with valid JSON - no markdown, no explanation, just the JSON object."},
             {"role": "user", "content": extraction_prompt}
         ]
 
         result = await query_model(
-            model="anthropic/claude-3-5-haiku-20241022",
+            model=model_prefs[0],
             messages=messages
         )
 
@@ -2548,7 +2582,7 @@ async def structure_project_context(
         mock_title = request.project_name or _short_title(request.free_text, max_words=4)
         return {
             "structured": {
-                "context_md": f"## Overview\n\n{request.free_text[:300]}\n\n## Goals\n\n• Define clear metrics\n• Track progress",
+                "context_md": f"Objective\n{request.free_text[:300]}\n\nGoals\n- Define clear metrics\n- Track progress",
                 "description": request.free_text[:150],
                 "suggested_name": mock_title
             }
@@ -2576,10 +2610,10 @@ Return JSON with these exact fields:
 {{
   "suggested_name": "Clear Project Title (3-5 words, e.g. 'Stripe Revenue Dashboard' or 'Customer Onboarding Flow')",
   "description": "One sentence describing what this project delivers",
-  "context_md": "Markdown brief with sections below"
+  "context_md": "Well-formatted markdown brief with sections below"
 }}
 
-For context_md, use ONLY these sections (skip any that don't apply):
+For context_md, use clean markdown formatting. Use these sections (skip any that don't apply):
 
 ## Objective
 One sentence: what we're building and why.
@@ -2596,7 +2630,12 @@ What's included. What's explicitly NOT included.
 ## Technical Notes
 Only if the user mentioned technical requirements.
 
-RULES:
+FORMATTING RULES:
+- Use ## for section headers
+- Use - for bullet points
+- Keep it clean and readable
+
+CONTENT RULES:
 - Extract from what they said. Don't invent requirements.
 - Project name must be specific (e.g. "Stripe Revenue Dashboard" not "Dashboard" or "User")
 - Be concise. Each section 2-4 bullet points max.
@@ -2685,10 +2724,11 @@ async def merge_decision_into_project(
 ):
     """
     Use AI to intelligently merge a council decision into existing project context.
-    Extracts key learnings and integrates them into the project documentation.
+    Uses the 'sarah' persona from the database for consistent documentation style.
     Does NOT replace - it merges and updates.
     """
     from .openrouter import query_model, MOCK_LLM
+    from .personas import get_db_persona_with_fallback
 
     # Handle mock mode
     if MOCK_LLM:
@@ -2701,6 +2741,10 @@ async def merge_decision_into_project(
             }
         }
 
+    # Get the project manager persona from database
+    persona = await get_db_persona_with_fallback('sarah')
+    system_prompt = persona.get('system_prompt', '')
+
     # Increase limits for better context handling
     existing = request.existing_context[:10000] if request.existing_context else ""
     decision = request.decision_content[:8000] if request.decision_content else ""
@@ -2709,20 +2753,8 @@ async def merge_decision_into_project(
     from datetime import datetime
     today_date = datetime.now().strftime("%B %d, %Y")
 
-    prompt = f"""You are Sarah, an experienced Project Manager with 15 years in professional services.
-
-Your job: Keep project documentation crystal clear so that ANYONE can understand what this project is about - even someone's grandmother who has never heard of this company.
-
-## YOUR PERSONALITY
-- Clear, direct communicator - no jargon, no fluff
-- Obsessive about organization and clarity
-- Think of documentation like a recipe - clear steps, clear outcomes
-- Always write as if explaining to someone new to the company
-
-## THE TASK
-You're updating a project file with new information from a council decision. Your goal is to merge the new learnings WITHOUT losing existing information.
-
----
+    # Task-specific user prompt (persona's style comes from system_prompt)
+    user_prompt = f"""## TASK: Merge a council decision into project documentation
 
 ## CURRENT PROJECT DOCUMENTATION:
 {existing if existing else "(This is a new project with no existing documentation)"}
@@ -2750,26 +2782,8 @@ You're updating a project file with new information from a council decision. You
    - Add a "## Decision Log" section if one doesn't exist
    - Add this decision with today's date: {today_date}
    - If information conflicts with existing docs, UPDATE the old info and note the change
-
-## DOCUMENTATION STYLE RULES:
-
-✅ DO:
-- Use simple, everyday language (no technical jargon unless absolutely necessary)
-- Start with a clear 1-2 sentence summary of what this project IS
-- Use bullet points for lists
-- Include dates for decisions and deadlines
-- Write action items as "Person/Role will do X by Y date"
-- Make sure someone reading for the first time can understand:
-  → What is this project?
-  → Who is it for?
-  → What problem are we solving?
-  → What have we decided so far?
-
-❌ DON'T:
-- Don't include the full council discussion - just the conclusions
-- Don't use vague language like "various options were considered"
-- Don't lose any existing important information
-- Don't add sections that are empty or say "TBD"
+   - NEVER lose existing important information
+   - ALWAYS deduplicate - if the same decision appears multiple times, consolidate into one
 
 ## OUTPUT FORMAT:
 
@@ -2780,38 +2794,44 @@ Return valid JSON with exactly these fields:
   "changes": "Bullet list of what you added or changed (e.g., '- Added Decision Log section\\n- Updated budget from TBD to $50k')"
 }}
 
-Remember: The context_md should be a complete, standalone document that tells the full story of this project. Anyone should be able to read it and understand exactly what's going on."""
+Remember: The context_md should be a complete, standalone document. Respond only with valid JSON."""
 
-    # LLM fallback chain - try multiple models before giving up
-    MERGE_MODELS = [
-        "google/gemini-2.0-flash-001",      # Primary: fast and good at JSON
-        "anthropic/claude-3-5-haiku-20241022",  # Fallback 1: reliable
-        "openai/gpt-4o-mini",                # Fallback 2: another option
-    ]
+    # Use model preferences from persona, with fallback timeouts
+    import json as json_module
+    model_prefs = persona.get('model_preferences', ['google/gemini-2.0-flash-001', 'openai/gpt-4o'])
+    if isinstance(model_prefs, str):
+        model_prefs = json_module.loads(model_prefs)
+
+    # Add timeouts: first model gets more time, fallbacks get less
+    MERGE_MODELS = [(model_prefs[0], 45.0)] + [(m, 30.0) for m in model_prefs[1:3]]
 
     messages = [
-        {"role": "system", "content": "You are Sarah, a senior Project Manager. Your documentation is so clear that anyone could understand it - from the CEO to someone who just walked in off the street. You NEVER lose existing information when updating documents. You ALWAYS deduplicate - if the same decision appears multiple times, consolidate into one. Respond only with valid JSON."},
-        {"role": "user", "content": prompt}
+        {"role": "system", "content": system_prompt + "\n\nRespond only with valid JSON."},
+        {"role": "user", "content": user_prompt}
     ]
 
     merged = None
     last_error = None
 
-    for model in MERGE_MODELS:
+    for model, timeout in MERGE_MODELS:
         try:
-            print(f"[MERGE] Trying model: {model}", flush=True)
-            result = await query_model(model=model, messages=messages)
+            print(f"[MERGE] Trying model: {model} (timeout: {timeout}s)", flush=True)
+            result = await query_model(model=model, messages=messages, timeout=timeout)
 
             if result and result.get('content'):
                 content = result['content']
-                # Clean up markdown code blocks if present
-                if content.startswith('```'):
-                    content = content.split('```')[1]
-                    if content.startswith('json'):
-                        content = content[4:]
-                if '```' in content:
-                    content = content.split('```')[0]
-                content = content.strip()
+                # Clean up markdown code blocks if present - more robust extraction
+                # Try to extract JSON from markdown code block first
+                json_match = re.search(r'```(?:json)?\s*([\s\S]*?)```', content)
+                if json_match:
+                    content = json_match.group(1).strip()
+                else:
+                    # No code block - try to find JSON object directly
+                    json_obj_match = re.search(r'\{[\s\S]*\}', content)
+                    if json_obj_match:
+                        content = json_obj_match.group(0)
+                    else:
+                        content = content.strip()
 
                 import json
                 try:
@@ -2820,7 +2840,7 @@ Remember: The context_md should be a complete, standalone document that tells th
                     break  # Success! Exit the loop
                 except json.JSONDecodeError as e:
                     last_error = f"JSON parse error from {model}: {e}"
-                    print(f"[MERGE] {last_error}", flush=True)
+                    print(f"[MERGE] {last_error}. Content preview: {content[:200]}...", flush=True)
                     continue  # Try next model
             else:
                 last_error = f"No response from {model}"
@@ -2850,9 +2870,21 @@ Remember: The context_md should be a complete, standalone document that tells th
         try:
             access_token = user.get("access_token")
             user_id = user.get('id')
+            print(f"[MERGE] user_id={user_id}, has_access_token={bool(access_token)}", flush=True)
+            if not user_id:
+                print(f"[MERGE] WARNING: user_id is None! User object: {user}", flush=True)
             if access_token:
                 from .database import get_supabase_with_auth
                 client = get_supabase_with_auth(access_token)
+
+                # Resolve company_id to UUID (it might be a slug)
+                from .routers.company import resolve_company_id
+                try:
+                    company_uuid = resolve_company_id(client, request.company_id)
+                    print(f"[MERGE] Resolved company_id '{request.company_id}' to UUID: {company_uuid}", flush=True)
+                except Exception as resolve_err:
+                    print(f"[MERGE] Failed to resolve company_id: {resolve_err}", flush=True)
+                    company_uuid = request.company_id  # Fall back to original value
 
                 # Build title for the decision
                 decision_title = request.decision_title
@@ -2872,7 +2904,7 @@ Remember: The context_md should be a complete, standalone document that tells th
                 print(f"[MERGE] Resolved dept_ids={dept_ids}, primary_dept_id={primary_dept_id}", flush=True)
 
                 insert_data = {
-                    "company_id": request.company_id,
+                    "company_id": company_uuid,  # Use resolved UUID, not potentially slug
                     "title": decision_title,
                     "body_md": request.decision_content,  # Full council response (stored in body_md column)
                     "summary": question[:500] if question else "Council decision",  # Required field - will be replaced by AI summary
@@ -2890,32 +2922,40 @@ Remember: The context_md should be a complete, standalone document that tells th
                     "created_by": user_id,
                     "tags": []
                 }
-                print(f"[MERGE] Saving decision with departments: {dept_ids}", flush=True)
+                print(f"[MERGE] Saving decision with project_id={project_id}, company_uuid={company_uuid}, departments={dept_ids}, created_by={user_id}", flush=True)
 
-                result = client.table("knowledge_entries").insert(insert_data).execute()
-                if result.data and len(result.data) > 0:
-                    saved_decision_id = result.data[0].get("id")
-                    print(f"[MERGE] Saved decision to knowledge_entries: {saved_decision_id}", flush=True)
+                try:
+                    result = client.table("knowledge_entries").insert(insert_data).execute()
+                    if result.data and len(result.data) > 0:
+                        saved_decision_id = result.data[0].get("id")
+                        print(f"[MERGE] SUCCESS! Saved decision to knowledge_entries: {saved_decision_id}", flush=True)
 
-                    # Generate summary immediately at save time (not on-demand)
-                    # This avoids burning tokens every time the user views the decision
-                    try:
-                        from .routers.company import generate_decision_summary_internal
-                        print(f"[MERGE] Generating summary for decision: {saved_decision_id}, company: {request.company_id}", flush=True)
-                        summary_result = await generate_decision_summary_internal(
-                            saved_decision_id,
-                            request.company_id
-                        )
-                        print(f"[MERGE] Summary result: {summary_result}", flush=True)
-                        if summary_result.get('title'):
-                            print(f"[MERGE] Summary generated - title: {summary_result.get('title')[:50]}...", flush=True)
-                        else:
-                            print(f"[MERGE] WARNING: No title in summary result!", flush=True)
-                    except Exception as summary_err:
-                        import traceback
-                        print(f"[MERGE] Failed to generate summary (non-fatal): {summary_err}", flush=True)
-                        print(f"[MERGE] Traceback: {traceback.format_exc()}", flush=True)
-                        # Don't fail the merge just because summary generation failed
+                        # Generate summary immediately at save time (not on-demand)
+                        # This avoids burning tokens every time the user views the decision
+                        try:
+                            from .routers.company import generate_decision_summary_internal
+                            print(f"[MERGE] Generating summary for decision: {saved_decision_id}, company_uuid: {company_uuid}", flush=True)
+                            summary_result = await generate_decision_summary_internal(
+                                saved_decision_id,
+                                company_uuid  # Use resolved UUID
+                            )
+                            print(f"[MERGE] Summary result: {summary_result}", flush=True)
+                            if summary_result.get('title'):
+                                print(f"[MERGE] Summary generated - title: {summary_result.get('title')[:50]}...", flush=True)
+                            else:
+                                print(f"[MERGE] WARNING: No title in summary result!", flush=True)
+                        except Exception as summary_err:
+                            import traceback
+                            print(f"[MERGE] Failed to generate summary (non-fatal): {summary_err}", flush=True)
+                            print(f"[MERGE] Traceback: {traceback.format_exc()}", flush=True)
+                            # Don't fail the merge just because summary generation failed
+                    else:
+                        print(f"[MERGE] WARNING: Insert returned no data. Result: {result}", flush=True)
+                except Exception as insert_err:
+                    import traceback
+                    print(f"[MERGE] ERROR inserting decision: {insert_err}", flush=True)
+                    print(f"[MERGE] Insert traceback: {traceback.format_exc()}", flush=True)
+                    # Don't re-raise - let the merge succeed even if saving fails
 
                 # Sync ALL decision departments to project's department_ids
                 if dept_ids:
@@ -2987,7 +3027,7 @@ async def regenerate_project_context(
     # Get ALL decisions for this project (use service client to bypass RLS on knowledge_entries)
     print(f"[REGEN] About to query decisions...", flush=True)
     decisions_result = service_client.table("knowledge_entries") \
-        .select("id, title, body_md, summary, created_at, department_id") \
+        .select("id, title, body_md, summary, user_question, decision_summary, created_at, department_id") \
         .eq("project_id", project_id) \
         .eq("is_active", True) \
         .order("created_at", desc=False) \
@@ -3034,9 +3074,14 @@ async def regenerate_project_context(
     for i, d in enumerate(decisions, 1):
         date_str = d.get("created_at", "")[:10] if d.get("created_at") else "Unknown date"
         title = d.get("title", "Untitled")
-        # Use summary if available, otherwise truncate body
-        content = d.get("summary") or (d.get("body_md", "")[:1000] + "..." if len(d.get("body_md", "")) > 1000 else d.get("body_md", ""))
-        decisions_summary += f"\n### Decision {i}: {title} ({date_str})\n{content}\n"
+        user_question = d.get("user_question", "")
+        # Use summary (full council response) if available, otherwise truncate body_md
+        content = d.get("summary") or (d.get("body_md", "")[:2000] + "..." if len(d.get("body_md", "")) > 2000 else d.get("body_md", ""))
+
+        decisions_summary += f"\n### Decision {i}: {title} ({date_str})\n"
+        if user_question:
+            decisions_summary += f"**Question asked:** {user_question}\n\n"
+        decisions_summary += f"{content}\n"
 
     today_date = datetime.now().strftime("%B %d, %Y")
 

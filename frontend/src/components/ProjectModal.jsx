@@ -5,8 +5,7 @@ import { MultiDepartmentSelect } from './ui/MultiDepartmentSelect';
 import MarkdownViewer from './MarkdownViewer';
 import { Spinner } from './ui/Spinner';
 import { AIWriteAssist } from './ui/AIWriteAssist';
-import { getDeptColor } from '../lib/colors';
-import { Sparkles, FolderKanban, Check, RefreshCw, Edit3, FileText } from 'lucide-react';
+import { Sparkles, Check, RefreshCw, Edit3, FileText } from 'lucide-react';
 import './ProjectModal.css';
 
 /**
@@ -18,6 +17,7 @@ import './ProjectModal.css';
  * @param {Object} initialContext - Optional context from council session
  * @param {string} initialContext.userQuestion - The question user asked the council
  * @param {string} initialContext.councilResponse - The council's response
+ * @param {string[]} initialContext.departmentIds - Pre-selected department IDs from Stage3
  */
 export default function ProjectModal({ companyId, departments = [], onClose, onProjectCreated, initialContext }) {
   // Step state: 'input', 'review', or 'manual'
@@ -26,7 +26,8 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
 
   // Input state
   const [freeText, setFreeText] = useState('');
-  const [selectedDeptIds, setSelectedDeptIds] = useState([]);
+  // Initialize with departments from initialContext if provided (from Stage3 selection)
+  const [selectedDeptIds, setSelectedDeptIds] = useState(initialContext?.departmentIds || []);
 
   // AI result state / editable fields
   const [editedName, setEditedName] = useState('');
@@ -37,8 +38,8 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
   const [structuring, setStructuring] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
-  const [editingContext, setEditingContext] = useState(false); // Toggle context edit mode
   const [isAIGenerated, setIsAIGenerated] = useState(false); // Track if AI was used
+  const [isEditingDetails, setIsEditingDetails] = useState(false); // Toggle between view/edit for project details
 
   // Auto-process when initialContext is provided (from council session)
   useEffect(() => {
@@ -147,7 +148,7 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
   const getTitle = () => {
     if (step === 'input') return 'New Project';
     if (step === 'manual') return 'Create Project';
-    return 'Review & Edit';
+    return 'Review Your Project';
   };
 
   return (
@@ -251,7 +252,7 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
             {/* AI Success badge */}
             <div className="pm-ai-success">
               <Check className="pm-ai-success-icon" />
-              <span>AI structured your project! Review and edit below.</span>
+              <span>AI created your project. Make any changes you want, then save.</span>
             </div>
 
             {/* Editable Name */}
@@ -271,21 +272,14 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
             {/* Editable Description */}
             <div className="pm-field">
               <label htmlFor="project-desc">Description</label>
-              <AIWriteAssist
-                context="project-description"
+              <textarea
+                id="project-desc"
                 value={editedDescription}
-                onSuggestion={setEditedDescription}
-                additionalContext={editedName ? `Project: ${editedName}` : ''}
-              >
-                <textarea
-                  id="project-desc"
-                  value={editedDescription}
-                  onChange={(e) => setEditedDescription(e.target.value)}
-                  placeholder="Brief description..."
-                  disabled={saving}
-                  rows={3}
-                />
-              </AIWriteAssist>
+                onChange={(e) => setEditedDescription(e.target.value)}
+                placeholder="One or two sentences about what this project is for..."
+                disabled={saving}
+                rows={2}
+              />
             </div>
 
             {/* Departments - always show selector, no toggle needed */}
@@ -300,49 +294,56 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
               />
             </div>
 
-            {/* Editable context - toggle between preview and edit */}
+            {/* Project Details - show formatted, click to edit */}
             <div className="pm-field">
               <div className="pm-context-header">
-                <label>Project Context</label>
-                <button
-                  type="button"
-                  className="pm-context-toggle"
-                  onClick={() => setEditingContext(!editingContext)}
-                  disabled={saving}
-                >
-                  {editingContext ? (
-                    <>
-                      <Sparkles className="pm-btn-icon-tiny" />
-                      <span>Preview</span>
-                    </>
-                  ) : (
-                    <>
-                      <Edit3 className="pm-btn-icon-tiny" />
-                      <span>Edit</span>
-                    </>
-                  )}
-                </button>
+                <label>Project Details</label>
+                {!isEditingDetails ? (
+                  <button
+                    type="button"
+                    className="pm-context-toggle"
+                    onClick={() => setIsEditingDetails(true)}
+                    disabled={saving}
+                  >
+                    <Edit3 className="pm-btn-icon-tiny" />
+                    <span>Edit</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="pm-context-toggle"
+                    onClick={() => setIsEditingDetails(false)}
+                    disabled={saving}
+                  >
+                    <Check className="pm-btn-icon-tiny" />
+                    <span>Done</span>
+                  </button>
+                )}
               </div>
-              {editingContext ? (
-                <textarea
+              {isEditingDetails ? (
+                <AIWriteAssist
+                  context="project-context"
                   value={editedContext}
-                  onChange={(e) => setEditedContext(e.target.value)}
-                  placeholder="# Project Context\n\nAdd background info, goals, constraints..."
-                  disabled={saving}
-                  rows={10}
-                  className="pm-context-editor"
-                />
+                  onSuggestion={setEditedContext}
+                  additionalContext={editedName ? `Project: ${editedName}\nDescription: ${editedDescription || 'None'}` : ''}
+                >
+                  <textarea
+                    value={editedContext}
+                    onChange={(e) => setEditedContext(e.target.value)}
+                    placeholder="Add any details about your project - goals, background, constraints, requirements..."
+                    disabled={saving}
+                    rows={8}
+                    className="pm-context-editor"
+                    autoFocus
+                  />
+                </AIWriteAssist>
               ) : (
-                <div className="pm-preview">
-                  <div className="pm-preview-header">
-                    <Sparkles className="pm-preview-icon" />
-                    <span>Context injected when this project is selected</span>
-                  </div>
-                  <div className="pm-preview-content">
+                <div className="pm-preview" onClick={() => setIsEditingDetails(true)}>
+                  <div className="pm-preview-content clickable">
                     {editedContext ? (
                       <MarkdownViewer content={editedContext} />
                     ) : (
-                      <p className="pm-no-context">No context yet. Click Edit to add.</p>
+                      <p className="pm-no-context">Click to add project details...</p>
                     )}
                   </div>
                 </div>
@@ -356,18 +357,20 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
                 className="pm-btn-back"
                 onClick={handleBackToEdit}
                 disabled={saving}
+                title="Go back and change your original description"
               >
                 <Edit3 className="pm-btn-icon-small" />
-                <span>Edit Input</span>
+                <span>Start Over</span>
               </button>
               <button
                 type="button"
                 className="pm-btn-regen"
                 onClick={handleRegenerate}
                 disabled={saving || structuring}
+                title="Ask AI to write this differently"
               >
                 <RefreshCw className={`pm-btn-icon-small ${structuring ? 'pm-spinning' : ''}`} />
-                <span>Regenerate</span>
+                <span>Try Again</span>
               </button>
               <button
                 type="button"
@@ -378,12 +381,12 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
                 {saving ? (
                   <>
                     <Spinner size="sm" variant="muted" />
-                    <span>Creating...</span>
+                    <span>Saving...</span>
                   </>
                 ) : (
                   <>
                     <Check className="pm-btn-icon" />
-                    <span>Confirm & Create</span>
+                    <span>Save Project</span>
                   </>
                 )}
               </button>
@@ -441,17 +444,24 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
 
             {/* Context */}
             <div className="pm-field">
-              <label htmlFor="manual-context">Project Context <span className="pm-optional">(optional)</span></label>
-              <textarea
-                id="manual-context"
+              <label htmlFor="manual-context">Project Details <span className="pm-optional">(optional)</span></label>
+              <AIWriteAssist
+                context="project-context"
                 value={editedContext}
-                onChange={(e) => setEditedContext(e.target.value)}
-                placeholder="# Project Context&#10;&#10;Add background info, goals, constraints, technical requirements..."
-                disabled={saving}
-                rows={8}
-                className="pm-context-editor"
-              />
-              <p className="pm-field-hint">Supports Markdown formatting. This context will be injected into AI council sessions.</p>
+                onSuggestion={setEditedContext}
+                additionalContext={editedName ? `Project: ${editedName}\nDescription: ${editedDescription || 'None'}` : ''}
+              >
+                <textarea
+                  id="manual-context"
+                  value={editedContext}
+                  onChange={(e) => setEditedContext(e.target.value)}
+                  placeholder="What should the AI know about this project? Add goals, background, constraints, technical details..."
+                  disabled={saving}
+                  rows={8}
+                  className="pm-context-editor"
+                />
+              </AIWriteAssist>
+              <p className="pm-field-hint">AI will use this info when you ask questions about this project.</p>
             </div>
 
             {/* Actions */}

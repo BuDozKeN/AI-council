@@ -627,8 +627,15 @@ def create_project(
     access_token: Optional[str] = None
 ) -> Optional[Dict[str, Any]]:
     """Create a new project."""
+    print(f"[CREATE_PROJECT] Starting: company={company_id_or_slug}, name={name}", flush=True)
+
     # Resolve slug to UUID if needed
-    company_uuid = resolve_company_id(company_id_or_slug, access_token)
+    try:
+        company_uuid = resolve_company_id(company_id_or_slug, access_token)
+        print(f"[CREATE_PROJECT] Resolved company_uuid={company_uuid}", flush=True)
+    except Exception as e:
+        print(f"[CREATE_PROJECT] ERROR resolving company: {type(e).__name__}: {e}", flush=True)
+        raise
 
     # Use service client to bypass RLS - user auth is validated by the endpoint
     client = get_supabase_service()
@@ -657,8 +664,14 @@ def create_project(
     if source_conversation_id:
         insert_data["source_conversation_id"] = source_conversation_id
 
-    result = client.table("projects").insert(insert_data).execute()
-    return result.data[0] if result.data else None
+    print(f"[CREATE_PROJECT] Inserting: {insert_data}", flush=True)
+    try:
+        result = client.table("projects").insert(insert_data).execute()
+        print(f"[CREATE_PROJECT] Insert result: {result.data}", flush=True)
+        return result.data[0] if result.data else None
+    except Exception as e:
+        print(f"[CREATE_PROJECT] ERROR inserting: {type(e).__name__}: {e}", flush=True)
+        raise
 
 
 def get_project_context(project_id: str, access_token: str) -> Optional[str]:
@@ -753,22 +766,45 @@ def touch_project_last_accessed(project_id: str, access_token: str) -> bool:
 def delete_project(project_id: str, access_token: str) -> bool:
     """Delete a project by ID."""
     if not project_id:
+        print(f"[DELETE_PROJECT] No project_id provided", flush=True)
         return False
     try:
+        print(f"[DELETE_PROJECT] Starting delete for project: {project_id}", flush=True)
         client = _get_client(access_token)
-        # First, unlink any knowledge_entries that reference this project
-        client.table("knowledge_entries")\
+
+        # First verify the project exists and user has access
+        check_result = client.table("projects").select("id, name, user_id").eq("id", project_id).execute()
+        if not check_result.data:
+            print(f"[DELETE_PROJECT] Project not found or no access: {project_id}", flush=True)
+            return False
+        print(f"[DELETE_PROJECT] Found project: {check_result.data[0]}", flush=True)
+
+        # Unlink any knowledge_entries that reference this project
+        unlink_result = client.table("knowledge_entries")\
             .update({"project_id": None})\
             .eq("project_id", project_id)\
             .execute()
-        # Then delete the project
-        client.table("projects")\
+        print(f"[DELETE_PROJECT] Unlinked {len(unlink_result.data or [])} knowledge entries", flush=True)
+
+        # Delete the project
+        delete_result = client.table("projects")\
             .delete()\
             .eq("id", project_id)\
             .execute()
+        print(f"[DELETE_PROJECT] Delete result: {delete_result.data}", flush=True)
+
+        # Verify deletion actually happened
+        verify_result = client.table("projects").select("id").eq("id", project_id).execute()
+        if verify_result.data:
+            print(f"[DELETE_PROJECT] WARNING: Project still exists after delete! RLS may be blocking.", flush=True)
+            return False
+
+        print(f"[DELETE_PROJECT] SUCCESS: Project {project_id} deleted", flush=True)
         return True
     except Exception as e:
-        print(f"[STORAGE] Failed to delete project: {e}", flush=True)
+        import traceback
+        print(f"[DELETE_PROJECT] Failed to delete project: {e}", flush=True)
+        print(f"[DELETE_PROJECT] Traceback: {traceback.format_exc()}", flush=True)
         return False
 
 
@@ -842,6 +878,7 @@ def get_projects_with_stats(
                 count_result = client.table("knowledge_entries")\
                     .select("id", count="exact")\
                     .eq("project_id", project["id"])\
+                    .eq("is_active", True)\
                     .execute()
                 project["decision_count"] = count_result.count or 0
 
@@ -849,6 +886,7 @@ def get_projects_with_stats(
                 first_decision = client.table("knowledge_entries")\
                     .select("user_question")\
                     .eq("project_id", project["id"])\
+                    .eq("is_active", True)\
                     .order("created_at", desc=False)\
                     .limit(1)\
                     .execute()

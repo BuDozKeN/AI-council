@@ -50,19 +50,26 @@ const CONTEXT_PROMPTS = {
   'project-description': {
     instruction: 'Write a clear 1-2 sentence project description based on this:',
     placeholder: 'What is this project about?',
-    buttonText: 'Help me write this',
+    buttonText: 'AI, rewrite this better',
     emptyHint: 'Describe what you\'re building',
   },
   'project-context': {
-    instruction: `Take what I wrote and turn it into a clear project document with sections for:
-- Overview (what the project is)
+    instruction: `Take what I wrote and turn it into a clear, well-organized project document.
+
+Use clean markdown formatting:
+- Use ## for section headers
+- Use - for bullet points
+
+Include sections for:
+- Objective (what we're building)
 - Goals (what success looks like)
+- Deliverables (specific things to create)
 - Constraints (budget, timeline, resources)
-- Technical requirements (if applicable)
+- Technical notes (if applicable)
 
 Keep it concise but comprehensive:`,
     placeholder: 'Tell us about your project...',
-    buttonText: 'Expand this for me',
+    buttonText: 'AI, rewrite this better',
     emptyHint: 'Just type what you know about the project',
   },
   'company-context': {

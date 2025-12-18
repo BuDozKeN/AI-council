@@ -841,7 +841,15 @@ export const api = {
       }
     );
     if (!response.ok) {
-      throw new Error('Failed to create project');
+      // Try to get the actual error message from the server
+      let errorDetail = 'Failed to create project';
+      try {
+        const errorData = await response.json();
+        errorDetail = errorData.detail || errorDetail;
+      } catch (e) {
+        // Ignore JSON parse errors
+      }
+      throw new Error(errorDetail);
     }
     return response.json();
   },
@@ -1833,7 +1841,7 @@ export const api = {
    * Promote a decision to a playbook.
    * @param {string} companyId - Company ID
    * @param {string} decisionId - Decision ID
-   * @param {Object} data - {doc_type, title}
+   * @param {Object} data - {doc_type, title, department_id, department_ids}
    * @returns {Promise<Object>} Created playbook
    */
   async promoteDecisionToPlaybook(companyId, decisionId, data) {
@@ -1846,6 +1854,48 @@ export const api = {
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Failed to promote decision' }));
       throw new Error(error.detail || 'Failed to promote decision');
+    }
+    return response.json();
+  },
+
+  /**
+   * Link a decision to an existing project.
+   * @param {string} companyId - Company ID
+   * @param {string} decisionId - Decision ID
+   * @param {string} projectId - Project ID to link to
+   * @returns {Promise<Object>} Updated decision
+   */
+  async linkDecisionToProject(companyId, decisionId, projectId) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions/${decisionId}/link-project`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ project_id: projectId }),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to link decision to project' }));
+      throw new Error(error.detail || 'Failed to link decision to project');
+    }
+    return response.json();
+  },
+
+  /**
+   * Create a new project from a decision.
+   * @param {string} companyId - Company ID
+   * @param {string} decisionId - Decision ID
+   * @param {Object} data - {name, department_ids}
+   * @returns {Promise<Object>} Created project
+   */
+  async createProjectFromDecision(companyId, decisionId, data) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions/${decisionId}/create-project`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to create project from decision' }));
+      throw new Error(error.detail || 'Failed to create project from decision');
     }
     return response.json();
   },

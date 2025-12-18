@@ -74,6 +74,10 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
   const [showArchived, setShowArchived] = useState(false);
   const [projectsLoaded, setProjectsLoaded] = useState(false); // Track if projects have been fetched at least once
 
+  // Decisions filter state
+  const [decisionDeptFilter, setDecisionDeptFilter] = useState([]); // Array of department IDs
+  const [decisionSearch, setDecisionSearch] = useState(''); // Keyword search
+
   // Load data based on active tab
   const loadData = useCallback(async () => {
     if (!companyId) return;
@@ -104,9 +108,14 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
           break;
         }
         case 'decisions': {
-          // Single API call - departments embedded in response
-          const decisionsData = await api.getCompanyDecisions(companyId);
+          // Load decisions and projects in parallel (need projects for Promote modal)
+          const [decisionsData, projectsData] = await Promise.all([
+            api.getCompanyDecisions(companyId),
+            api.listProjectsWithStats(companyId, { status: null, includeArchived: true })
+          ]);
           setDecisions(decisionsData.decisions || []);
+          setProjects(projectsData.projects || []);
+          setProjectsLoaded(true);
           // Use departments from decisions endpoint
           if (decisionsData.departments) {
             setDepartments(decisionsData.departments.map(d => ({ ...d, roles: [] })));
@@ -224,7 +233,8 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
     api.getCompanyDecisions(companyId)
       .then(data => {
         const allDecisions = data.decisions || [];
-        const pending = allDecisions.filter(d => !d.is_promoted);
+        // Pending = not promoted AND not linked to a project
+        const pending = allDecisions.filter(d => !d.is_promoted && !d.project_id);
         setPendingDecisionsCount(pending.length);
       })
       .catch(err => {
@@ -236,7 +246,8 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
   // Update count when decisions change (e.g., after promoting)
   useEffect(() => {
     if (decisions.length > 0 || activeTab === 'decisions') {
-      const pending = decisions.filter(d => !d.is_promoted);
+      // Pending = not promoted AND not linked to a project
+      const pending = decisions.filter(d => !d.is_promoted && !d.project_id);
       setPendingDecisionsCount(pending.length);
     }
   }, [decisions, activeTab]);
@@ -1014,30 +1025,61 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
   };
 
   const renderDecisions = () => {
-    // Filter out promoted decisions - they're now playbooks
-    const pendingDecisions = decisions.filter(d => !d.is_promoted);
+    // Only show pending (not promoted) decisions
+    // Also exclude decisions that belong to a project (project_id set = promoted to project)
+    const pendingDecisions = decisions.filter(d => !d.is_promoted && !d.project_id);
 
-    if (pendingDecisions.length === 0 && decisions.length > 0) {
-      return (
-        <div className="mc-empty">
-          <div className="mc-empty-icon">✅</div>
-          <p className="mc-empty-title">All decisions promoted!</p>
-          <p className="mc-empty-hint">
-            All your saved council decisions have been promoted to playbooks.
-            Check the Playbooks tab to view them.
-          </p>
-        </div>
-      );
+    // Helper to get a clean, short title from decision
+    const getDecisionDisplayTitle = (decision) => {
+      // If we have an AI-generated summary, extract first sentence as title
+      if (decision.decision_summary) {
+        const firstSentence = decision.decision_summary.split(/[.!?]/)[0];
+        if (firstSentence && firstSentence.length > 10 && firstSentence.length < 100) {
+          return firstSentence.trim();
+        }
+      }
+      // Fall back to title, but clean it up
+      const title = decision.title || 'Council Decision';
+      // Remove markdown headers
+      const cleaned = title.replace(/^#+\s*/, '').trim();
+      // Truncate if too long
+      return cleaned.length > 80 ? cleaned.slice(0, 77) + '...' : cleaned;
+    };
+
+    // Apply filters
+    let filteredDecisions = pendingDecisions;
+
+    // Department filter
+    if (decisionDeptFilter.length > 0) {
+      filteredDecisions = filteredDecisions.filter(d => {
+        const deptIds = d.department_ids?.length > 0 ? d.department_ids : (d.department_id ? [d.department_id] : []);
+        return deptIds.some(id => decisionDeptFilter.includes(id));
+      });
     }
 
-    if (decisions.length === 0) {
+    // Keyword search (title + content + user_question)
+    if (decisionSearch.trim()) {
+      const searchLower = decisionSearch.toLowerCase().trim();
+      filteredDecisions = filteredDecisions.filter(d => {
+        const title = (d.title || '').toLowerCase();
+        const content = (d.content || d.summary || '').toLowerCase();
+        const userQuestion = (d.user_question || '').toLowerCase();
+        const decisionSummary = (d.decision_summary || '').toLowerCase();
+        return title.includes(searchLower) ||
+               content.includes(searchLower) ||
+               userQuestion.includes(searchLower) ||
+               decisionSummary.includes(searchLower);
+      });
+    }
+
+    // Empty state - no decisions at all
+    if (pendingDecisions.length === 0) {
       return (
         <div className="mc-empty">
-          <div className="mc-empty-icon">💡</div>
-          <p className="mc-empty-title">No decisions saved</p>
+          <CheckCircle size={40} className="mc-empty-icon-svg" />
+          <p className="mc-empty-title">All caught up!</p>
           <p className="mc-empty-hint">
-            Decisions from council sessions will appear here.
-            You can promote important ones to playbooks.
+            No pending decisions to review. Save council outputs to see them here.
           </p>
         </div>
       );
@@ -1045,75 +1087,149 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
 
     return (
       <div className="mc-decisions">
-        <div className="mc-elegant-list">
-          {pendingDecisions.map(decision => {
-            // Use embedded department info (or fallback to lookup for backwards compat)
-            const deptName = decision.department_name || departments.find(d => d.id === decision.department_id)?.name;
-            const deptId = decision.department_id;
-
-            const isDeleting = deletingDecisionId === decision.id;
-
-            return (
-              <div
-                key={decision.id}
-                className={`mc-elegant-row mc-decision-row ${isDeleting ? 'deleting' : ''}`}
-                onClick={() => !isDeleting && handlePromoteDecision(decision)}
+        {/* Filter controls */}
+        <div className="mc-decisions-filters">
+          {/* Search input */}
+          <div className="mc-search-input-wrapper">
+            <svg className="mc-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+            <input
+              type="text"
+              className="mc-search-input"
+              placeholder="Search decisions..."
+              value={decisionSearch}
+              onChange={(e) => setDecisionSearch(e.target.value)}
+            />
+            {decisionSearch && (
+              <button
+                className="mc-search-clear"
+                onClick={() => setDecisionSearch('')}
+                title="Clear search"
               >
-                {/* Status indicator - yellow for pending */}
-                <div className="mc-status-dot draft" />
+                ×
+              </button>
+            )}
+          </div>
 
-                {/* Main content - title + department badges */}
-                <div className="mc-elegant-content">
-                  <span className="mc-elegant-title">{decision.title}</span>
-                  {/* Department badges */}
-                  {(decision.department_ids?.length > 0 ? decision.department_ids : (decision.department_id ? [decision.department_id] : [])).map(deptId => {
-                    const dept = departments.find(d => d.id === deptId);
-                    if (!dept) return null;
-                    const color = getDeptColor(deptId);
-                    return (
-                      <span
-                        key={deptId}
-                        className="mc-elegant-dept"
-                        style={{
-                          background: color.bg,
-                          color: color.text
-                        }}
-                      >
-                        {dept.name}
-                      </span>
-                    );
-                  })}
-                </div>
-
-                {/* Actions - only visible on hover */}
-                <div className="mc-elegant-actions">
-                  {/* Source link - if has original conversation */}
-                  {decision.source_conversation_id && !decision.source_conversation_id.startsWith('temp-') && onNavigateToConversation && (
-                    <button
-                      className="mc-text-btn source"
-                      onClick={(e) => { e.stopPropagation(); onNavigateToConversation(decision.source_conversation_id, 'decisions'); }}
-                      title="View original conversation"
-                    >
-                      Source
-                    </button>
-                  )}
-                  <button
-                    className="mc-text-btn promote"
-                    onClick={(e) => { e.stopPropagation(); handlePromoteDecision(decision); }}
-                  >
-                    Promote
-                  </button>
-                  <button
-                    className="mc-text-btn delete"
-                    onClick={(e) => { e.stopPropagation(); handleDeleteDecision(decision); }}
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+          {/* Department filter */}
+          <MultiDepartmentSelect
+            value={decisionDeptFilter}
+            onValueChange={setDecisionDeptFilter}
+            departments={departments}
+            placeholder="All departments"
+            className="mc-dept-filter"
+          />
         </div>
+
+        {/* Results count */}
+        {(decisionSearch || decisionDeptFilter.length > 0) && (
+          <div className="mc-filter-results">
+            {filteredDecisions.length} of {pendingDecisions.length} decision{pendingDecisions.length !== 1 ? 's' : ''}
+            {(decisionSearch || decisionDeptFilter.length > 0) && (
+              <button
+                className="mc-clear-filters"
+                onClick={() => {
+                  setDecisionSearch('');
+                  setDecisionDeptFilter([]);
+                }}
+              >
+                Clear filters
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Empty state for filtered results */}
+        {filteredDecisions.length === 0 && (
+          <div className="mc-empty">
+            <div className="mc-empty-icon">🔍</div>
+            <p className="mc-empty-title">No matching decisions</p>
+            <p className="mc-empty-hint">
+              Try adjusting your search or department filter.
+            </p>
+          </div>
+        )}
+
+        {/* Decision list */}
+        {filteredDecisions.length > 0 && (
+          <div className="mc-elegant-list">
+            {filteredDecisions.map(decision => {
+              const isDeleting = deletingDecisionId === decision.id;
+              const displayTitle = getDecisionDisplayTitle(decision);
+
+              return (
+                <div
+                  key={decision.id}
+                  className={`mc-elegant-row mc-decision-row ${isDeleting ? 'deleting' : ''}`}
+                  onClick={() => !isDeleting && handlePromoteDecision(decision)}
+                >
+                  {/* Status indicator - amber for pending */}
+                  <div className="mc-status-dot draft" />
+
+                  {/* Main content - title + badges */}
+                  <div className="mc-elegant-content">
+                    <span className="mc-elegant-title">{displayTitle}</span>
+                    <div className="mc-elegant-badges">
+                      {/* Department badges */}
+                      {(decision.department_ids?.length > 0 ? decision.department_ids : (decision.department_id ? [decision.department_id] : [])).map(deptId => {
+                        const dept = departments.find(d => d.id === deptId);
+                        if (!dept) return null;
+                        const color = getDeptColor(deptId);
+                        return (
+                          <span
+                            key={deptId}
+                            className="mc-elegant-dept"
+                            style={{
+                              background: color.bg,
+                              color: color.text
+                            }}
+                          >
+                            {dept.name}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Right side: Date (fades on hover) + Actions (appear on hover) */}
+                  <div className="mc-elegant-right">
+                    <span className="mc-elegant-date">
+                      {new Date(decision.created_at).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </span>
+                    <div className="mc-elegant-actions">
+                      {decision.source_conversation_id && !decision.source_conversation_id.startsWith('temp-') && onNavigateToConversation && (
+                        <button
+                          className="mc-text-btn source"
+                          onClick={(e) => { e.stopPropagation(); onNavigateToConversation(decision.source_conversation_id, 'decisions'); }}
+                          title="View original conversation"
+                        >
+                          Source
+                        </button>
+                      )}
+                      <button
+                        className="mc-text-btn promote"
+                        onClick={(e) => { e.stopPropagation(); handlePromoteDecision(decision); }}
+                      >
+                        Promote
+                      </button>
+                      <button
+                        className="mc-text-btn delete"
+                        onClick={(e) => { e.stopPropagation(); handleDeleteDecision(decision); }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     );
   };
@@ -1315,16 +1431,46 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
   };
 
   // Actually promote after user selects type in modal
-  const handleConfirmPromote = async (docType, title, departmentId) => {
+  // Now accepts departmentIds (array) and optional projectId
+  const handleConfirmPromote = async (docType, title, departmentIds, projectId) => {
     if (!promoteModal) return;
 
     setSaving(true);
     try {
-      await api.promoteDecisionToPlaybook(companyId, promoteModal.id, {
-        doc_type: docType,
-        title: title || promoteModal.title,
-        department_id: departmentId || promoteModal.department_id
-      });
+      if (docType === 'project') {
+        // Promote to project
+        let targetProjectId = projectId;
+        if (projectId) {
+          // Add to existing project - link decision to project
+          await api.linkDecisionToProject(companyId, promoteModal.id, projectId);
+        } else {
+          // Create new project from decision
+          const result = await api.createProjectFromDecision(companyId, promoteModal.id, {
+            name: title || promoteModal.title,
+            department_ids: departmentIds?.length > 0 ? departmentIds : null
+          });
+          // Get the new project ID from the response
+          targetProjectId = result?.project?.id;
+        }
+        // Navigate to the project after promotion
+        if (targetProjectId) {
+          setPromoteModal(null);
+          await loadData();
+          setActiveTab('projects');
+          setHighlightedProjectId(targetProjectId);
+          setSaving(false);
+          return; // Early return - we've handled everything
+        }
+      } else {
+        // Promote to playbook (SOP, Framework, Policy)
+        await api.promoteDecisionToPlaybook(companyId, promoteModal.id, {
+          doc_type: docType,
+          title: title || promoteModal.title,
+          // Support both single department_id (backwards compat) and array
+          department_id: departmentIds?.[0] || promoteModal.department_id,
+          department_ids: departmentIds?.length > 0 ? departmentIds : null
+        });
+      }
       setPromoteModal(null);
       // Reload decisions to show promoted status
       await loadData();
@@ -1730,6 +1876,12 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
               setEditingItem({ type: 'project', data: project });
             }
           }}
+          onNavigateToConversation={(conversationId, source, responseIndex) => {
+            setEditingItem(null); // Close modal
+            if (onNavigateToConversation) {
+              onNavigateToConversation(conversationId, source, responseIndex);
+            }
+          }}
         />
       );
     }
@@ -1839,17 +1991,18 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
         {/* Tabs */}
         <nav className="mc-tabs">
           {[
-            { id: 'overview', label: 'Overview', Icon: BarChart3 },
-            { id: 'team', label: 'Team', Icon: Users },
-            { id: 'projects', label: 'Projects', Icon: FolderKanban },
-            { id: 'playbooks', label: 'Playbooks', Icon: BookOpen },
-            { id: 'decisions', label: 'Decisions', Icon: Lightbulb },
-            { id: 'activity', label: 'Activity', Icon: ClipboardList }
+            { id: 'overview', label: 'Overview', Icon: BarChart3, tooltip: 'Company summary: see your stats, description, and company context at a glance' },
+            { id: 'team', label: 'Team', Icon: Users, tooltip: 'Your departments and roles: manage the structure of your organization' },
+            { id: 'projects', label: 'Projects', Icon: FolderKanban, tooltip: 'Organize your work: group related council sessions and track progress' },
+            { id: 'playbooks', label: 'Playbooks', Icon: BookOpen, tooltip: 'Your knowledge library: SOPs, frameworks, and policies the AI council uses' },
+            { id: 'decisions', label: 'Decisions', Icon: Lightbulb, tooltip: 'Saved council outputs: review, archive, or promote decisions to playbooks' },
+            { id: 'activity', label: 'Activity', Icon: ClipboardList, tooltip: 'Recent changes: see what happened across your company' }
           ].map(tab => (
             <button
               key={tab.id}
               className={`mc-tab ${activeTab === tab.id ? 'active' : ''}`}
               onClick={() => setActiveTab(tab.id)}
+              title={tab.tooltip}
             >
               <tab.Icon size={16} className="mc-tab-icon" />
               <span className="mc-tab-label">{tab.label}</span>
@@ -1890,6 +2043,8 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
           <PromoteDecisionModal
             decision={promoteModal}
             departments={departments}
+            projects={projects}
+            companyId={companyId}
             onPromote={handleConfirmPromote}
             onClose={() => setPromoteModal(null)}
             saving={saving}
@@ -2027,7 +2182,7 @@ Include:
 }
 
 // View Decision Modal
-function ViewDecisionModal({ decision, departments = [], playbooks = [], projects = [], onClose, onPromote, onViewProject }) {
+function ViewDecisionModal({ decision, departments = [], playbooks = [], projects = [], onClose, onPromote, onViewProject, onNavigateToConversation }) {
   const [copied, setCopied] = useState(false);
 
   // Copy decision content (not including user question)
@@ -2107,11 +2262,11 @@ function ViewDecisionModal({ decision, departments = [], playbooks = [], project
 
   return (
     <AppModal isOpen={true} onClose={onClose} title={decision.title} size="lg">
-      {/* User question - most important context for understanding what this is about */}
-      {decision.user_question && (
+      {/* User question - show AI summary if available, fall back to raw question */}
+      {(decision.question_summary || decision.user_question) && (
         <div className="mc-decision-question">
           <span className="mc-decision-question-label">Question:</span>
-          <p className="mc-decision-question-text">{decision.user_question}</p>
+          <p className="mc-decision-question-text">{decision.question_summary || decision.user_question}</p>
         </div>
       )}
 
@@ -2190,6 +2345,20 @@ function ViewDecisionModal({ decision, departments = [], playbooks = [], project
           )}
         </button>
         <MarkdownViewer content={decision.content || ''} />
+
+        {/* Source link - at the bottom of the content */}
+        {decision.source_conversation_id && !decision.source_conversation_id.startsWith('temp-') && onNavigateToConversation && (
+          <button
+            className="mc-decision-source-link"
+            onClick={() => {
+              // Pass response_index to scroll to the correct response in multi-turn conversations
+              onNavigateToConversation(decision.source_conversation_id, 'decisions', decision.response_index || 0);
+            }}
+          >
+            <ExternalLink size={14} />
+            View original conversation →
+          </button>
+        )}
       </div>
       <AppModal.Footer>
         {/* Only show Promote to Playbook if NOT already a playbook AND NOT linked to a project */}

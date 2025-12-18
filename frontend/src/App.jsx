@@ -359,6 +359,9 @@ function App() {
     setCurrentConversationId(tempId);
     setCurrentConversation(tempConv);
 
+    // Reset project selection for new conversation
+    setSelectedProject(null);
+
     // Clear return-to-company state - user has started a new action
     setReturnToMyCompanyTab(null);
     setMyCompanyPromoteDecision(null);
@@ -366,6 +369,10 @@ function App() {
 
   const handleSelectConversation = (id) => {
     setCurrentConversationId(id);
+
+    // Reset project selection - each conversation may have its own linked project
+    // Stage3 will load the correct project from the backend for this conversation
+    setSelectedProject(null);
 
     // Clear return-to-company state - user has started a new action
     setReturnToMyCompanyTab(null);

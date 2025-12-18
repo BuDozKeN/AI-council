@@ -1,0 +1,203 @@
+/**
+ * ProjectSelect Styles
+ * Matches DepartmentSelect design system with indigo theme for projects
+ */
+
+/* Trigger button */
+.project-select-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-slate-500);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  width: 100%;
+  justify-content: flex-start;
+}
+
+/* When a project is selected */
+.project-select-trigger.has-selection {
+  border-color: var(--color-indigo-300);
+  color: var(--color-indigo-700);
+}
+
+.project-select-trigger.has-selection:hover {
+  border-color: var(--color-indigo-400);
+}
+
+.project-select-trigger:hover:not(.has-selection) {
+  border-color: var(--color-gray-300);
+  color: var(--color-gray-700);
+}
+
+.project-select-trigger:focus {
+  outline: none;
+  border-color: var(--color-indigo-400);
+  box-shadow: 0 0 0 3px var(--color-indigo-100);
+}
+
+.project-select-trigger[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Trigger icons */
+.project-select-trigger-icon {
+  color: var(--color-indigo-600);
+  flex-shrink: 0;
+}
+
+.project-select-trigger-icon-create {
+  color: var(--color-slate-400);
+  flex-shrink: 0;
+}
+
+/* Dropdown content */
+.project-select-content {
+  position: relative;
+  z-index: var(--z-modal-dropdown);
+  max-height: 300px;
+  min-width: 8rem;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-gray-200);
+  background: var(--color-bg-primary);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Ensure the portal wrapper has correct z-index for modal context */
+[data-radix-popper-content-wrapper]:has(.project-select-content) {
+  z-index: var(--z-modal-dropdown) !important;
+}
+
+/* Animation keyframes */
+@keyframes projectDropdownInBottom {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes projectDropdownInTop {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.project-select-content[data-side="bottom"] {
+  transform-origin: top;
+  animation: projectDropdownInBottom 0.15s ease-out;
+}
+
+.project-select-content[data-side="top"] {
+  transform-origin: bottom;
+  animation: projectDropdownInTop 0.15s ease-out;
+}
+
+/* Viewport (inner container) */
+.project-select-viewport {
+  padding: 8px;
+  min-width: var(--radix-select-trigger-width);
+}
+
+/* Individual items */
+.project-select-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+  cursor: pointer;
+  user-select: none;
+  align-items: center;
+  gap: 8px;
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  padding-right: 36px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-gray-700);
+  outline: none;
+  transition: all 0.1s ease;
+}
+
+/* Hover state */
+.project-select-item[data-highlighted] {
+  background: var(--color-indigo-50);
+}
+
+/* Selected/checked state */
+.project-select-item[data-state="checked"] {
+  background: var(--color-indigo-50);
+  color: var(--color-indigo-700);
+}
+
+/* Disabled state */
+.project-select-item[data-disabled] {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Item icons */
+.project-select-icon {
+  color: var(--color-indigo-600);
+  flex-shrink: 0;
+}
+
+/* Create item styling */
+.project-select-item-create {
+  color: var(--color-slate-500);
+  font-style: normal;
+}
+
+.project-select-item-create[data-highlighted] {
+  background: var(--color-slate-50);
+}
+
+.project-select-item-create[data-state="checked"] {
+  background: var(--color-slate-50);
+  color: var(--color-slate-700);
+}
+
+.project-select-create-icon {
+  color: var(--color-slate-400);
+  flex-shrink: 0;
+}
+
+/* Current project badge */
+.project-select-current-badge {
+  margin-left: auto;
+  padding: 2px 6px;
+  background: var(--color-indigo-100);
+  color: var(--color-indigo-700);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: var(--radius-sm);
+}
+
+/* Checkmark indicator - orange like DepartmentSelect */
+.project-select-item-indicator {
+  position: absolute;
+  right: 12px;
+  display: flex;
+  height: 16px;
+  width: 16px;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-orange-500);
+}

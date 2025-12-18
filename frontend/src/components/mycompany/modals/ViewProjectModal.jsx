@@ -805,7 +805,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                                   </div>
                                 ) : decision.decision_summary ? (
                                   <div className="mc-timeline-summary">
-                                    {decision.decision_summary}
+                                    <MarkdownViewer content={decision.decision_summary} skipCleanup={true} />
                                   </div>
                                 ) : null}
 

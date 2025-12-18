@@ -176,6 +176,45 @@ export default function Stage3({
     }
   }, [conversationId, companyId, responseIndex, savedDecisionId, selectedProjectId]);
 
+  // Track previous conversationId to detect actual changes (not initial mount)
+  const prevConversationRef = useRef(conversationId);
+  const prevResponseIndexRef = useRef(responseIndex);
+
+  // Reset saved decision state when conversation changes
+  // This prevents "Decision saved" from persisting across different conversations
+  useEffect(() => {
+    const conversationChanged = prevConversationRef.current !== conversationId;
+    const responseIndexChanged = prevResponseIndexRef.current !== responseIndex;
+
+    // Update refs
+    prevConversationRef.current = conversationId;
+    prevResponseIndexRef.current = responseIndex;
+
+    // Only reset if this is an actual change (not initial mount)
+    if (conversationChanged || responseIndexChanged) {
+      console.log('[Stage3] Conversation/response changed, resetting saved state');
+      setSavedDecisionId(null);
+      setSaveState('idle');
+      setPromotedPlaybookId(null);
+      setSelectedProjectId(currentProjectId);
+      setFullProjectData(null);
+      // Reset department selection to the prop value (or empty)
+      setSelectedDeptIds(departmentId ? [departmentId] : []);
+      setSelectedDocType('');
+      lastDecisionCheck.current = 0;
+      isCheckingDecision.current = false;
+    }
+  }, [conversationId, responseIndex, currentProjectId, departmentId]); // Reset when conversation OR response index changes
+
+  // Sync selectedProjectId when currentProjectId prop changes (e.g., after creating a new project)
+  useEffect(() => {
+    if (currentProjectId && currentProjectId !== selectedProjectId) {
+      console.log('[Stage3] Syncing selectedProjectId from prop:', currentProjectId);
+      setSelectedProjectId(currentProjectId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentProjectId]); // Only re-run when currentProjectId changes (intentionally omit selectedProjectId to avoid loops)
+
   // Get current project name from list
   const currentProjectBasic = projects.find(p => p.id === selectedProjectId);
   // Use full data if available, otherwise basic
@@ -242,35 +281,35 @@ export default function Stage3({
   useEffect(() => {
     if (!conversationId || !companyId || conversationId.startsWith('temp-')) return;
 
-    // Fetch linked project and decision status in parallel
-    Promise.all([
-      api.getConversationLinkedProject(conversationId, companyId).catch(() => null),
-      api.getConversationDecision(conversationId, companyId, responseIndex).catch(() => null)
-    ]).then(([projectData, decisionData]) => {
-      // Handle linked project
-      if (projectData?.project) {
-        console.log('[Stage3] Found linked project:', projectData.project.name);
-        setSelectedProjectId(projectData.project.id);
-        if (onSelectProject) {
-          onSelectProject(projectData.project.id);
+    // Only fetch decision status for THIS specific response (by responseIndex)
+    // Don't fetch linked-project - that's conversation-level and causes cross-talk between Stage3 instances
+    api.getConversationDecision(conversationId, companyId, responseIndex)
+      .then(decisionData => {
+        if (decisionData?.decision) {
+          const decision = decisionData.decision;
+          console.log(`[Stage3:${responseIndex}] Found existing decision:`, decision.id);
+          setSavedDecisionId(decision.id);
+          setSaveState('saved');
+          // Restore all saved state from THIS decision
+          if (decision.project_id) {
+            setSelectedProjectId(decision.project_id);
+          }
+          // Restore departments from decision (prefer department_ids array, fallback to single department_id)
+          if (decision.department_ids?.length > 0) {
+            setSelectedDeptIds(decision.department_ids);
+          } else if (decision.department_id) {
+            setSelectedDeptIds([decision.department_id]);
+          }
+          // Restore doc type if saved
+          if (decision.doc_type) {
+            setSelectedDocType(decision.doc_type);
+          }
         }
-      }
-
-      // Handle existing decision
-      if (decisionData?.decision) {
-        console.log('[Stage3] Found existing decision:', decisionData.decision.id);
-        setSavedDecisionId(decisionData.decision.id);
-        setSaveState('saved');
-        // If decision has a project linked, use that (overwrites above if both exist)
-        if (decisionData.decision.project_id) {
-          setSelectedProjectId(decisionData.decision.project_id);
-        }
-      }
-
-      // Update last check time since we just fetched
-      lastDecisionCheck.current = Date.now();
-    });
-  }, [conversationId, companyId, responseIndex, onSelectProject]);
+        // Update last check time since we just fetched
+        lastDecisionCheck.current = Date.now();
+      })
+      .catch(() => null);
+  }, [conversationId, companyId, responseIndex]);
 
   // Re-check decision status when tab becomes visible or component scrolls into view
   // Uses unified throttled check function
@@ -326,20 +365,48 @@ export default function Stage3({
   // Save as Decision only (for later promotion)
   // If a project is selected, also merge into project context
   const handleSaveForLater = async () => {
+    console.log('[Stage3] handleSaveForLater called:', {
+      companyId,
+      saveState,
+      savedDecisionId,
+      selectedProjectId,
+      currentProject: currentProject ? { id: currentProject.id, name: currentProject.name, hasContextMd: !!currentProject.context_md } : null,
+      fullProjectData: fullProjectData ? { id: fullProjectData.id, name: fullProjectData.name } : null
+    });
+
     // Allow re-saving to project even if decision exists (for updating project context)
     // Only block if: no company, already saving, or (decision exists AND no project selected)
-    if (!companyId || saveState === 'saving') return;
-    if (savedDecisionId && !selectedProjectId) return; // Already saved without project - don't duplicate
+    if (!companyId || saveState === 'saving') {
+      console.log('[Stage3] Early return - no companyId or already saving');
+      return;
+    }
+    if (savedDecisionId && !selectedProjectId) {
+      console.log('[Stage3] Early return - already saved without project');
+      return; // Already saved without project - don't duplicate
+    }
 
     setSaveState('saving');
     try {
       // If project selected, merge decision into project context AND save decision
-      if (selectedProjectId && currentProject) {
-        console.log('Merging decision into project:', selectedProjectId, 'departments:', selectedDeptIds);
+      // Note: currentProject might be null if full data hasn't loaded yet - fetch it if needed
+      let projectToUse = currentProject;
+      if (selectedProjectId && !projectToUse) {
+        console.log('[Stage3] Project selected but no current data, fetching...');
+        try {
+          const data = await api.getProject(selectedProjectId);
+          projectToUse = data.project || data;
+          setFullProjectData(projectToUse);
+        } catch (err) {
+          console.error('[Stage3] Failed to fetch project:', err);
+        }
+      }
+
+      if (selectedProjectId && projectToUse) {
+        console.log('[Stage3] Merging decision into project:', selectedProjectId, 'departments:', selectedDeptIds);
 
         const mergeResult = await api.mergeDecisionIntoProject(
           selectedProjectId,
-          currentProject.context_md || '',
+          projectToUse.context_md || '',
           displayText,
           userQuestion || conversationTitle || '',
           {
@@ -353,10 +420,11 @@ export default function Stage3({
           }
         );
 
-        console.log('Merge result:', mergeResult);
+        console.log('[Stage3] Merge result:', mergeResult);
 
         // Update project context with merged content
         if (mergeResult?.merged?.context_md) {
+          console.log('[Stage3] Updating project context with merged content');
           await api.updateProject(selectedProjectId, {
             context_md: mergeResult.merged.context_md
           });
@@ -365,11 +433,13 @@ export default function Stage3({
         // Get the saved decision ID from the response
         // Backend returns 'saved_decision_id' not 'decision_id'
         const decisionId = mergeResult?.saved_decision_id;
+        console.log('[Stage3] saved_decision_id from response:', decisionId);
         if (decisionId) {
           setSavedDecisionId(decisionId);
         }
         setSaveState('saved');
       } else {
+        console.log('[Stage3] No project selected, saving as standalone decision');
         // No project - just save as decision
         const result = await api.createCompanyDecision(companyId, {
           title: getTitle(),
@@ -377,6 +447,7 @@ export default function Stage3({
           user_question: userQuestion || null,  // Store what the user asked for context
           department_id: selectedDeptIds.length > 0 ? selectedDeptIds[0] : null,
           source_conversation_id: conversationId?.startsWith('temp-') ? null : conversationId,
+          response_index: responseIndex,  // Track which response in the conversation this is
           project_id: selectedProjectId || null,
           tags: []
         });
@@ -661,9 +732,11 @@ export default function Stage3({
                             onClick={() => {
                               setShowProjectDropdown(false);
                               // Pass council context for auto-populating project
+                              // Include selectedDeptIds so ProjectModal can pre-select them
                               onCreateProject({
                                 userQuestion,
-                                councilResponse: displayText
+                                councilResponse: displayText,
+                                departmentIds: selectedDeptIds
                               });
                             }}
                           >
@@ -731,7 +804,7 @@ export default function Stage3({
                       }
                     }}
                   >
-                    View in project
+                    {promotedPlaybookId ? 'View Playbook' : currentProject ? 'View in Project' : 'View Decision'}
                   </button>
                 </div>
               ) : (
