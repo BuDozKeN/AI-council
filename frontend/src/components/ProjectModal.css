@@ -459,6 +459,11 @@
 }
 
 /* Spinning animation for regenerate */
+@keyframes pm-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .pm-spinning {
   animation: pm-spin 1s linear infinite;
 }

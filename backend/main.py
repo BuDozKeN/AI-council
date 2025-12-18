@@ -2553,18 +2553,25 @@ async def structure_project_context(
     project_name = request.project_name.strip() if request.project_name else ""
     free_text = request.free_text[:5000] if request.free_text else ""
 
-    # PM System Prompt - expert project manager who creates proper briefs
-    system_prompt = """You are an experienced Project Manager creating project briefs.
+    # Sarah - Project Manager persona for structuring projects
+    system_prompt = """You are Sarah, an experienced Senior Project Manager with 15+ years of experience.
 
-Your job is to take a user's rough description and turn it into a clear, actionable project brief that any team member could understand.
+Your expertise is in taking messy, unstructured ideas and transforming them into clear, actionable project briefs that any team member can understand and execute on.
 
-You think in terms of:
-- What is the deliverable? (concrete output)
-- What problem does this solve? (business value)
-- What does success look like? (measurable outcomes)
-- What are the boundaries? (scope)
+You excel at:
+- Identifying the core deliverable from vague descriptions
+- Extracting implicit business value and stakeholder needs
+- Defining measurable success criteria
+- Setting clear boundaries to prevent scope creep
+- Organizing information in a logical, scannable format
 
-You are concise. You don't add fluff or repeat information. You extract the essence."""
+Your communication style:
+- Direct and professional, never verbose
+- You ask clarifying questions in your head, then answer them in the output
+- You surface hidden assumptions
+- You focus on outcomes, not activities
+
+You NEVER add fluff, filler, or generic statements. Every word serves a purpose."""
 
     prompt = f"""Create a project brief from this description:
 
@@ -2601,78 +2608,69 @@ RULES:
 - Be concise. Each section 2-4 bullet points max.
 - Skip sections the user didn't mention anything about."""
 
-    try:
-        messages = [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": prompt}
-        ]
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": prompt}
+    ]
 
-        # Use GPT-4o-mini - reliable, fast, good at structured JSON output
-        model_to_use = "openai/gpt-4o-mini"
-        print(f"[STRUCTURE] Calling model: {model_to_use}", flush=True)
+    # Model fallback chain: GPT-4o (best quality) → Gemini 2.0 Flash (fast, reliable)
+    STRUCTURE_MODELS = [
+        "openai/gpt-4o",
+        "google/gemini-2.0-flash-001",
+    ]
 
-        result = await query_model(
-            model=model_to_use,
-            messages=messages
-        )
+    import json
+    result_data = None
+    last_error = None
 
-        print(f"[STRUCTURE] Result: {result is not None}, content: {bool(result.get('content') if result else False)}", flush=True)
+    for model in STRUCTURE_MODELS:
+        try:
+            print(f"[STRUCTURE] Trying model: {model}", flush=True)
+            result = await query_model(model=model, messages=messages)
 
-        if result and result.get('content'):
-            content = result['content']
-            # Clean up markdown code blocks if present
-            if content.startswith('```'):
-                content = content.split('```')[1]
-                if content.startswith('json'):
-                    content = content[4:]
-            if '```' in content:
-                content = content.split('```')[0]
-            content = content.strip()
+            if result and result.get('content'):
+                content = result['content']
+                # Clean up markdown code blocks if present
+                if content.startswith('```'):
+                    content = content.split('```')[1]
+                    if content.startswith('json'):
+                        content = content[4:]
+                if '```' in content:
+                    content = content.split('```')[0]
+                content = content.strip()
 
-            import json
-            try:
-                structured = json.loads(content)
-                # Ensure we have a good title
-                if not structured.get('suggested_name') or structured.get('suggested_name') == 'New Project':
-                    from .knowledge_fallback import _short_title
-                    structured['suggested_name'] = _short_title(free_text, max_words=4)
-                return {"structured": structured}
-            except json.JSONDecodeError as e:
-                print(f"[STRUCTURE] JSON parse error: {e}", flush=True)
-                # Fallback: generate a proper title from the text
-                from .knowledge_fallback import _short_title
-                fallback_title = project_name or _short_title(free_text, max_words=4)
-                return {
-                    "structured": {
-                        "context_md": f"## Overview\n\n{free_text[:300]}",
-                        "description": free_text[:150],
-                        "suggested_name": fallback_title
-                    }
-                }
-        else:
-            # No response - generate a proper title from the text
-            print(f"[STRUCTURE] AI returned no content - using fallback", flush=True)
-            from .knowledge_fallback import _short_title
-            fallback_title = project_name or _short_title(free_text, max_words=4)
-            return {
-                "structured": {
-                    "context_md": f"## Overview\n\n{free_text[:300]}",
-                    "description": free_text[:150],
-                    "suggested_name": fallback_title
-                }
-            }
+                try:
+                    structured = json.loads(content)
+                    # Ensure we have a good title
+                    if not structured.get('suggested_name') or structured.get('suggested_name') == 'New Project':
+                        from .knowledge_fallback import _short_title
+                        structured['suggested_name'] = _short_title(free_text, max_words=4)
+                    print(f"[STRUCTURE] Success with {model}", flush=True)
+                    return {"structured": structured}
+                except json.JSONDecodeError as e:
+                    last_error = f"JSON parse error from {model}: {e}"
+                    print(f"[STRUCTURE] {last_error}", flush=True)
+                    continue
+            else:
+                last_error = f"No response from {model}"
+                print(f"[STRUCTURE] {last_error}", flush=True)
+                continue
+        except Exception as e:
+            last_error = f"{model} failed: {type(e).__name__}: {e}"
+            print(f"[STRUCTURE] {last_error}", flush=True)
+            continue
 
-    except Exception as e:
-        print(f"[STRUCTURE] AI failed ({type(e).__name__}: {e})", flush=True)
-        from .knowledge_fallback import _short_title
-        fallback_title = project_name or _short_title(free_text, max_words=4)
-        return {
-            "structured": {
-                "context_md": f"## Overview\n\n{free_text[:300]}",
-                "description": free_text[:150],
-                "suggested_name": fallback_title
-            }
+    # All models failed - use fallback
+    print(f"[STRUCTURE] All models failed. Last error: {last_error}", flush=True)
+    from .knowledge_fallback import _short_title
+    fallback_title = project_name or _short_title(free_text, max_words=4)
+    return {
+        "structured": {
+            "context_md": f"## Overview\n\n{free_text[:300]}",
+            "description": free_text[:150],
+            "suggested_name": fallback_title
         }
+    }
 
 
 class MergeDecisionRequest(BaseModel):
