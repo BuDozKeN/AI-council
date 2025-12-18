@@ -72,14 +72,23 @@ CREATE POLICY "ai_personas_read_global" ON ai_personas
     FOR SELECT
     USING (company_id IS NULL);
 
--- Company members can read their company's custom personas
-CREATE POLICY "ai_personas_read_company" ON ai_personas
+-- Company owners can read their company's custom personas
+CREATE POLICY "ai_personas_read_company_owner" ON ai_personas
     FOR SELECT
     USING (
         company_id IS NOT NULL
         AND company_id IN (
-            SELECT company_id FROM user_company_access
-            WHERE user_id = auth.uid()
+            SELECT id FROM companies WHERE user_id = auth.uid()
+        )
+    );
+
+-- Company team members can read their company's custom personas
+CREATE POLICY "ai_personas_read_company_member" ON ai_personas
+    FOR SELECT
+    USING (
+        company_id IS NOT NULL
+        AND company_id IN (
+            SELECT company_id FROM user_department_access WHERE user_id = auth.uid()
         )
     );
 

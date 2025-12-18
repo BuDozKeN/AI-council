@@ -547,58 +547,8 @@ def build_system_prompt(persona_prompt: str, include_formatting: bool = True) ->
 # =============================================================================
 # DATABASE-BACKED PERSONAS
 # Fetched from Supabase ai_personas table with caching
+# Single source of truth - all personas live in the database
 # =============================================================================
-
-# Hardcoded fallbacks for when database is unavailable
-DB_PERSONA_FALLBACKS = {
-    'sarah_project_manager': {
-        'name': 'Sarah',
-        'system_prompt': """You are Sarah, an experienced Senior Project Manager with 15+ years of experience.
-
-Your expertise is in taking messy, unstructured ideas and transforming them into clear, actionable project briefs that any team member can understand and execute on.
-
-You excel at:
-- Identifying the core deliverable from vague descriptions
-- Extracting implicit business value and stakeholder needs
-- Defining measurable success criteria
-- Setting clear boundaries to prevent scope creep
-- Organizing information in a logical, scannable format
-
-Your communication style:
-- Direct and professional, never verbose
-- You ask clarifying questions in your head, then answer them in the output
-- You surface hidden assumptions
-- You focus on outcomes, not activities
-
-You NEVER add fluff, filler, or generic statements. Every word serves a purpose.""",
-        'model_preferences': ['openai/gpt-4o', 'google/gemini-2.0-flash-001']
-    },
-    'sarah_decision_summarizer': {
-        'name': 'Sarah',
-        'system_prompt': 'You are Sarah, an experienced Project Manager. Create clean, well-organized project documentation. NEVER include duplicate content. Respond only with valid JSON.',
-        'model_preferences': ['google/gemini-2.5-flash', 'openai/gpt-4o-mini']
-    },
-    'sarah_project_synthesizer': {
-        'name': 'Sarah',
-        'system_prompt': 'You are Sarah, an experienced Project Manager. Create clean, well-organized project documentation. NEVER include duplicate content. Respond only with valid JSON.',
-        'model_preferences': ['google/gemini-2.0-flash-001', 'anthropic/claude-3-5-haiku-20241022', 'openai/gpt-4o-mini']
-    },
-    'sop_writer': {
-        'name': 'SOP Writer',
-        'system_prompt': WRITE_ASSIST_PERSONAS['sop']['prompt'],
-        'model_preferences': ['openai/gpt-4o', 'google/gemini-2.0-flash-001']
-    },
-    'framework_author': {
-        'name': 'Framework Author',
-        'system_prompt': WRITE_ASSIST_PERSONAS['framework']['prompt'],
-        'model_preferences': ['openai/gpt-4o', 'anthropic/claude-3-5-sonnet-20241022']
-    },
-    'policy_writer': {
-        'name': 'Policy Writer',
-        'system_prompt': WRITE_ASSIST_PERSONAS['policy']['prompt'],
-        'model_preferences': ['openai/gpt-4o', 'anthropic/claude-3-5-sonnet-20241022']
-    },
-}
 
 
 def _get_service_client():
@@ -708,21 +658,17 @@ async def get_db_persona_with_fallback(
     company_id: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Get persona from database with hardcoded fallback.
-    Always returns a persona dict (never None).
+    Get persona from database.
+    Returns a basic assistant if persona not found (shouldn't happen in production).
     """
     persona = await get_db_persona(persona_key, company_id)
 
     if persona:
         return persona
 
-    # Use hardcoded fallback
-    if persona_key in DB_PERSONA_FALLBACKS:
-        print(f"[PERSONAS] Using hardcoded fallback for '{persona_key}'", flush=True)
-        return DB_PERSONA_FALLBACKS[persona_key]
-
-    # Ultimate fallback - basic assistant
-    print(f"[PERSONAS] No fallback for '{persona_key}', using basic assistant", flush=True)
+    # Persona not found - log warning and return basic assistant
+    # This should only happen if database is misconfigured
+    print(f"[PERSONAS] WARNING: Persona '{persona_key}' not found in database!", flush=True)
     return {
         'name': 'Assistant',
         'system_prompt': 'You are a helpful assistant.',
