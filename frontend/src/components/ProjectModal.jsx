@@ -37,7 +37,6 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
   const [structuring, setStructuring] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
-  const [editingDepts, setEditingDepts] = useState(false); // Inline dept editing in review step
   const [editingContext, setEditingContext] = useState(false); // Toggle context edit mode
   const [isAIGenerated, setIsAIGenerated] = useState(false); // Track if AI was used
 
@@ -289,69 +288,16 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
               </AIWriteAssist>
             </div>
 
-            {/* Show selected departments - with inline editing */}
+            {/* Departments - always show selector, no toggle needed */}
             <div className="pm-field">
               <label>Departments</label>
-              {editingDepts ? (
-                /* Inline department editor - no page reset */
-                <div className="pm-departments-editor">
-                  <MultiDepartmentSelect
-                    value={selectedDeptIds}
-                    onValueChange={setSelectedDeptIds}
-                    departments={departments}
-                    placeholder="Select departments"
-                    disabled={saving}
-                  />
-                  <button
-                    type="button"
-                    className="pm-dept-done-btn"
-                    onClick={() => setEditingDepts(false)}
-                    disabled={saving}
-                  >
-                    Done
-                  </button>
-                </div>
-              ) : selectedDeptIds.length > 0 ? (
-                <div className="pm-departments-display">
-                  {selectedDeptIds.map(deptId => {
-                    const dept = departments.find(d => d.id === deptId);
-                    const colors = getDeptColor(deptId);
-                    return dept ? (
-                      <span
-                        key={deptId}
-                        className="pm-dept-badge"
-                        style={{
-                          backgroundColor: colors.bg,
-                          color: colors.text,
-                          borderColor: colors.border
-                        }}
-                      >
-                        {dept.name}
-                      </span>
-                    ) : null;
-                  })}
-                  <button
-                    type="button"
-                    className="pm-dept-edit-btn"
-                    onClick={() => setEditingDepts(true)}
-                    disabled={saving}
-                  >
-                    Edit
-                  </button>
-                </div>
-              ) : (
-                <div className="pm-departments-none">
-                  <span>No departments selected</span>
-                  <button
-                    type="button"
-                    className="pm-dept-edit-btn"
-                    onClick={() => setEditingDepts(true)}
-                    disabled={saving}
-                  >
-                    Add
-                  </button>
-                </div>
-              )}
+              <MultiDepartmentSelect
+                value={selectedDeptIds}
+                onValueChange={setSelectedDeptIds}
+                departments={departments}
+                placeholder="Select departments"
+                disabled={saving}
+              />
             </div>
 
             {/* Editable context - toggle between preview and edit */}

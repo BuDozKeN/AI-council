@@ -1297,6 +1297,7 @@ function App() {
       {isProjectModalOpen && selectedBusiness && (
         <ProjectModal
           companyId={selectedBusiness}
+          departments={availableDepartments}
           initialContext={projectModalContext}
           onClose={() => {
             setIsProjectModalOpen(false);
