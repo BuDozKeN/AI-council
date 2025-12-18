@@ -9,6 +9,26 @@ from fastapi import Request
 import uuid
 import json
 import asyncio
+import re
+
+
+# =============================================================================
+# SECURITY: Input validation for path parameters
+# =============================================================================
+# Prevent path traversal and injection attacks by validating IDs
+SAFE_ID_PATTERN = re.compile(r'^[a-zA-Z0-9_-]+$')
+
+def validate_safe_id(value: str, field_name: str = "id") -> str:
+    """
+    Validate that an ID only contains safe characters (alphanumeric, underscore, hyphen).
+    Prevents path traversal attacks like '../../../etc/passwd'.
+    """
+    if not value or not SAFE_ID_PATTERN.match(value):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid {field_name}: must contain only letters, numbers, underscores, and hyphens"
+        )
+    return value
 
 from . import storage
 from .council import run_full_council, generate_conversation_title, stage1_collect_responses, stage1_stream_responses, stage2_collect_rankings, stage2_stream_rankings, stage3_synthesize_final, stage3_stream_synthesis, calculate_aggregate_rankings, chat_stream_response
@@ -44,10 +64,11 @@ CORS_ORIGINS = [
 ]
 
 # Enable CORS - MUST be added before any routes
+# Use explicit allowlist for security (not wildcard)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for local development
-    allow_credentials=False,  # Must be False when using allow_origins=["*"]
+    allow_origins=CORS_ORIGINS,  # Use explicit allowlist, not "*"
+    allow_credentials=True,  # Safe with explicit origins
     allow_methods=["*"],
     allow_headers=["*"],
     expose_headers=["Content-Disposition"],  # Allow frontend to read filename header
@@ -59,7 +80,8 @@ async def cors_exception_handler(request: Request, exc: HTTPException):
     from fastapi.responses import JSONResponse
     origin = request.headers.get("origin", "")
     headers = {}
-    if origin in CORS_ORIGINS or origin.endswith(".vercel.app"):
+    # Only allow origins from explicit allowlist (no wildcard patterns)
+    if origin in CORS_ORIGINS:
         headers = {
             "Access-Control-Allow-Origin": origin,
             "Access-Control-Allow-Credentials": "true",
@@ -328,17 +350,21 @@ async def root():
 
 
 @app.get("/api/businesses")
-async def get_businesses():
-    """List all available business contexts."""
+async def get_businesses(user: dict = Depends(get_current_user)):
+    """List all available business contexts. Requires authentication."""
     return list_available_businesses()
 
 
 @app.post("/api/businesses/{business_id}/departments")
-async def create_department(business_id: str, request: CreateDepartmentRequest):
-    """Create a new department for a business.
+async def create_department(business_id: str, request: CreateDepartmentRequest, user: dict = Depends(get_current_user)):
+    """Create a new department for a business. Requires authentication.
 
     This scaffolds the department folder structure and creates an initial context file.
     """
+    # Validate path parameters to prevent traversal attacks
+    validate_safe_id(business_id, "business_id")
+    validate_safe_id(request.id, "department_id")
+
     from .context_loader import create_department_for_business
 
     try:
@@ -347,7 +373,7 @@ async def create_department(business_id: str, request: CreateDepartmentRequest):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create department: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to create department")
 
 
 @app.get("/api/conversations")
@@ -1172,14 +1198,20 @@ async def apply_context_suggestion(request: ApplySuggestionRequest):
 
 
 @app.get("/api/context/{business_id}/section/{section_name}")
-async def get_context_section(business_id: str, section_name: str, department: Optional[str] = None):
+async def get_context_section(business_id: str, section_name: str, department: Optional[str] = None, user: dict = Depends(get_current_user)):
     """Get the full content of a specific section in the business context.
+    Requires authentication.
 
     Args:
         business_id: The business folder name
         section_name: The section heading to find
         department: Optional department ID to look in department-specific context
     """
+    # Validate path parameters to prevent traversal attacks
+    validate_safe_id(business_id, "business_id")
+    if department:
+        validate_safe_id(department, "department")
+
     content = curator.get_section_content(business_id, section_name, department)
     if content is None:
         # Return empty content instead of 404 - this is expected for new sections
@@ -1248,11 +1280,15 @@ async def get_curator_history(conversation_id: str, user: dict = Depends(get_cur
 
 
 @app.get("/api/context/{business_id}/last-updated")
-async def get_context_last_updated(business_id: str):
+async def get_context_last_updated(business_id: str, user: dict = Depends(get_current_user)):
     """
     Get the last updated date from a business context file.
     Used for smart curator history comparison.
+    Requires authentication.
     """
+    # Validate path parameters to prevent traversal attacks
+    validate_safe_id(business_id, "business_id")
+
     content = curator.get_section_content(business_id, "")
     if content is None:
         # Try loading the full context
@@ -1267,11 +1303,15 @@ async def get_context_last_updated(business_id: str):
 
 # Org sync endpoints
 @app.post("/api/businesses/{business_id}/sync-org")
-async def sync_org_structure(business_id: str):
+async def sync_org_structure(business_id: str, user: dict = Depends(get_current_user)):
     """
     Manually trigger org structure sync from config.json to context.md.
     This regenerates the auto-generated Organization Structure section.
+    Requires authentication.
     """
+    # Validate path parameters to prevent traversal attacks
+    validate_safe_id(business_id, "business_id")
+
     result = org_sync.sync_org_structure_to_context(business_id)
 
     if not result.get('success'):
@@ -1288,10 +1328,16 @@ class AddRoleRequest(BaseModel):
 
 
 @app.post("/api/businesses/{business_id}/departments/{department_id}/roles")
-async def add_role_to_department(business_id: str, department_id: str, request: AddRoleRequest):
+async def add_role_to_department(business_id: str, department_id: str, request: AddRoleRequest, user: dict = Depends(get_current_user)):
     """
     Add a new role to a department and sync org structure to context.md.
+    Requires authentication.
     """
+    # Validate path parameters to prevent traversal attacks
+    validate_safe_id(business_id, "business_id")
+    validate_safe_id(department_id, "department_id")
+    validate_safe_id(request.role_id, "role_id")
+
     result = org_sync.add_role_to_department(
         business_id=business_id,
         department_id=department_id,
@@ -1323,10 +1369,15 @@ class UpdateRoleRequest(BaseModel):
 
 
 @app.put("/api/businesses/{business_id}/departments/{department_id}")
-async def update_department(business_id: str, department_id: str, request: UpdateDepartmentRequest):
+async def update_department(business_id: str, department_id: str, request: UpdateDepartmentRequest, user: dict = Depends(get_current_user)):
     """
     Update a department's name and/or description in config.json and sync to context.md.
+    Requires authentication.
     """
+    # Validate path parameters to prevent traversal attacks
+    validate_safe_id(business_id, "business_id")
+    validate_safe_id(department_id, "department_id")
+
     result = org_sync.update_department(
         business_id=business_id,
         department_id=department_id,
@@ -1341,10 +1392,16 @@ async def update_department(business_id: str, department_id: str, request: Updat
 
 
 @app.put("/api/businesses/{business_id}/departments/{department_id}/roles/{role_id}")
-async def update_role(business_id: str, department_id: str, role_id: str, request: UpdateRoleRequest):
+async def update_role(business_id: str, department_id: str, role_id: str, request: UpdateRoleRequest, user: dict = Depends(get_current_user)):
     """
     Update a role's name and/or description in config.json and sync to context.md.
+    Requires authentication.
     """
+    # Validate path parameters to prevent traversal attacks
+    validate_safe_id(business_id, "business_id")
+    validate_safe_id(department_id, "department_id")
+    validate_safe_id(role_id, "role_id")
+
     result = org_sync.update_role(
         business_id=business_id,
         department_id=department_id,
@@ -1360,11 +1417,17 @@ async def update_role(business_id: str, department_id: str, role_id: str, reques
 
 
 @app.get("/api/businesses/{business_id}/departments/{department_id}/roles/{role_id}/context")
-async def get_role_context(business_id: str, department_id: str, role_id: str):
+async def get_role_context(business_id: str, department_id: str, role_id: str, user: dict = Depends(get_current_user)):
     """
     Get the system prompt/context for a specific role.
     Returns the content of the role's .md file if it exists.
+    Requires authentication.
     """
+    # Validate path parameters to prevent traversal attacks
+    validate_safe_id(business_id, "business_id")
+    validate_safe_id(department_id, "department_id")
+    validate_safe_id(role_id, "role_id")
+
     from .context_loader import load_role_context
 
     context = load_role_context(business_id, department_id, role_id)
