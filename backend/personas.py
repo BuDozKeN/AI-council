@@ -4,14 +4,27 @@ AI Personas - Centralized definitions for all AI personalities in the system.
 This is the SINGLE SOURCE OF TRUTH for how AI assistants behave across the app.
 When you want to change how an AI sounds, update it here.
 
+Personas can be stored in two places:
+1. Supabase `ai_personas` table (preferred - allows runtime updates & client customization)
+2. Hardcoded fallbacks in this file (used when database is unavailable)
+
 Usage:
     from .personas import WRITE_ASSIST_PERSONAS, get_persona
+    from .personas import get_db_persona, query_with_persona  # Database-backed
 
 Categories:
     - WRITE_ASSIST_PERSONAS: AI helpers for form fields (SOP writer, etc.)
     - COUNCIL_ROLE_DEFAULTS: Default personas for council roles (CTO, CFO, etc.)
     - SYSTEM_PERSONAS: Internal system assistants (summarizer, etc.)
+    - DB_PERSONAS: Personas stored in Supabase (sarah_project_manager, etc.)
 """
+
+import time
+from typing import Optional, Dict, Any, List
+
+# Cache for database personas: {persona_key: (data, timestamp)}
+_db_persona_cache: Dict[str, tuple] = {}
+PERSONA_CACHE_TTL = 300  # 5 minutes
 
 # =============================================================================
 # WRITE ASSIST PERSONAS
@@ -529,3 +542,271 @@ def build_system_prompt(persona_prompt: str, include_formatting: bool = True) ->
     if include_formatting:
         return f"{persona_prompt}\n\n{FORMATTING_RULES}"
     return persona_prompt
+
+
+# =============================================================================
+# DATABASE-BACKED PERSONAS
+# Fetched from Supabase ai_personas table with caching
+# =============================================================================
+
+# Hardcoded fallbacks for when database is unavailable
+DB_PERSONA_FALLBACKS = {
+    'sarah_project_manager': {
+        'name': 'Sarah',
+        'system_prompt': """You are Sarah, an experienced Senior Project Manager with 15+ years of experience.
+
+Your expertise is in taking messy, unstructured ideas and transforming them into clear, actionable project briefs that any team member can understand and execute on.
+
+You excel at:
+- Identifying the core deliverable from vague descriptions
+- Extracting implicit business value and stakeholder needs
+- Defining measurable success criteria
+- Setting clear boundaries to prevent scope creep
+- Organizing information in a logical, scannable format
+
+Your communication style:
+- Direct and professional, never verbose
+- You ask clarifying questions in your head, then answer them in the output
+- You surface hidden assumptions
+- You focus on outcomes, not activities
+
+You NEVER add fluff, filler, or generic statements. Every word serves a purpose.""",
+        'model_preferences': ['openai/gpt-4o', 'google/gemini-2.0-flash-001']
+    },
+    'sarah_decision_summarizer': {
+        'name': 'Sarah',
+        'system_prompt': 'You are Sarah, an experienced Project Manager. Create clean, well-organized project documentation. NEVER include duplicate content. Respond only with valid JSON.',
+        'model_preferences': ['google/gemini-2.5-flash', 'openai/gpt-4o-mini']
+    },
+    'sarah_project_synthesizer': {
+        'name': 'Sarah',
+        'system_prompt': 'You are Sarah, an experienced Project Manager. Create clean, well-organized project documentation. NEVER include duplicate content. Respond only with valid JSON.',
+        'model_preferences': ['google/gemini-2.0-flash-001', 'anthropic/claude-3-5-haiku-20241022', 'openai/gpt-4o-mini']
+    },
+    'sop_writer': {
+        'name': 'SOP Writer',
+        'system_prompt': WRITE_ASSIST_PERSONAS['sop']['prompt'],
+        'model_preferences': ['openai/gpt-4o', 'google/gemini-2.0-flash-001']
+    },
+    'framework_author': {
+        'name': 'Framework Author',
+        'system_prompt': WRITE_ASSIST_PERSONAS['framework']['prompt'],
+        'model_preferences': ['openai/gpt-4o', 'anthropic/claude-3-5-sonnet-20241022']
+    },
+    'policy_writer': {
+        'name': 'Policy Writer',
+        'system_prompt': WRITE_ASSIST_PERSONAS['policy']['prompt'],
+        'model_preferences': ['openai/gpt-4o', 'anthropic/claude-3-5-sonnet-20241022']
+    },
+}
+
+
+def _get_service_client():
+    """Get Supabase service client (bypasses RLS)."""
+    from .supabase_client import get_supabase_service
+    return get_supabase_service()
+
+
+async def get_db_persona(
+    persona_key: str,
+    company_id: Optional[str] = None,
+    use_cache: bool = True
+) -> Optional[Dict[str, Any]]:
+    """
+    Fetch a persona from the Supabase database.
+
+    Args:
+        persona_key: The unique key for the persona (e.g., 'sarah_project_manager')
+        company_id: Optional company ID for company-specific overrides
+        use_cache: Whether to use cached data (default True)
+
+    Returns:
+        Persona dict with: id, persona_key, name, system_prompt,
+        user_prompt_template, model_preferences
+        Or None if not found.
+    """
+    global _db_persona_cache
+    cache_key = f"{persona_key}:{company_id or 'global'}"
+    now = time.time()
+
+    # Check cache
+    if use_cache and cache_key in _db_persona_cache:
+        data, cached_at = _db_persona_cache[cache_key]
+        if now - cached_at < PERSONA_CACHE_TTL:
+            return data
+
+    try:
+        client = _get_service_client()
+
+        # Try the database function first (handles company fallback)
+        try:
+            if company_id:
+                result = client.rpc('get_persona', {
+                    'p_key': persona_key,
+                    'p_company_id': company_id
+                }).execute()
+            else:
+                result = client.rpc('get_persona', {
+                    'p_key': persona_key
+                }).execute()
+
+            if result.data and len(result.data) > 0:
+                persona = result.data[0]
+                _db_persona_cache[cache_key] = (persona, now)
+                return persona
+        except Exception as rpc_err:
+            print(f"[PERSONAS] RPC failed, trying direct query: {rpc_err}", flush=True)
+
+        # Fallback: Direct query if RPC fails
+        if company_id:
+            # Try company-specific first
+            company_result = client.table('ai_personas') \
+                .select('id, persona_key, name, system_prompt, user_prompt_template, model_preferences') \
+                .eq('persona_key', persona_key) \
+                .eq('is_active', True) \
+                .eq('company_id', company_id) \
+                .execute()
+
+            if company_result.data:
+                persona = company_result.data[0]
+                _db_persona_cache[cache_key] = (persona, now)
+                return persona
+
+        # Fall back to global
+        global_result = client.table('ai_personas') \
+            .select('id, persona_key, name, system_prompt, user_prompt_template, model_preferences') \
+            .eq('persona_key', persona_key) \
+            .eq('is_active', True) \
+            .is_('company_id', 'null') \
+            .execute()
+
+        if global_result.data:
+            persona = global_result.data[0]
+            _db_persona_cache[cache_key] = (persona, now)
+            return persona
+
+        return None
+
+    except Exception as e:
+        print(f"[PERSONAS] Error fetching persona '{persona_key}': {e}", flush=True)
+        return None
+
+
+def clear_persona_cache(persona_key: Optional[str] = None):
+    """Clear persona cache. If persona_key is None, clears all."""
+    global _db_persona_cache
+    if persona_key:
+        keys_to_remove = [k for k in _db_persona_cache if k.startswith(f"{persona_key}:")]
+        for k in keys_to_remove:
+            del _db_persona_cache[k]
+    else:
+        _db_persona_cache = {}
+
+
+async def get_db_persona_with_fallback(
+    persona_key: str,
+    company_id: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Get persona from database with hardcoded fallback.
+    Always returns a persona dict (never None).
+    """
+    persona = await get_db_persona(persona_key, company_id)
+
+    if persona:
+        return persona
+
+    # Use hardcoded fallback
+    if persona_key in DB_PERSONA_FALLBACKS:
+        print(f"[PERSONAS] Using hardcoded fallback for '{persona_key}'", flush=True)
+        return DB_PERSONA_FALLBACKS[persona_key]
+
+    # Ultimate fallback - basic assistant
+    print(f"[PERSONAS] No fallback for '{persona_key}', using basic assistant", flush=True)
+    return {
+        'name': 'Assistant',
+        'system_prompt': 'You are a helpful assistant.',
+        'model_preferences': ['openai/gpt-4o', 'google/gemini-2.0-flash-001']
+    }
+
+
+async def query_with_persona(
+    persona_key: str,
+    user_prompt: str,
+    variables: Optional[Dict[str, str]] = None,
+    company_id: Optional[str] = None,
+    override_models: Optional[List[str]] = None
+) -> Optional[Dict[str, Any]]:
+    """
+    Query an LLM using a persona from the database.
+
+    Handles:
+    - Fetching the persona's system prompt
+    - Applying user_prompt_template if defined (with variable substitution)
+    - Model fallback chain
+
+    Args:
+        persona_key: The persona to use (e.g., 'sarah_project_manager')
+        user_prompt: The user's message/prompt
+        variables: Optional dict of variables to substitute in templates
+        company_id: Optional company ID for company-specific personas
+        override_models: Optional list of models to use instead of persona's preferences
+
+    Returns:
+        The LLM response dict with 'content' key, or None if all models fail.
+    """
+    from .openrouter import query_model, MOCK_LLM
+    import json as json_module
+
+    # Fetch persona with fallback
+    persona = await get_db_persona_with_fallback(persona_key, company_id)
+
+    # Build system prompt
+    system_prompt = persona.get('system_prompt', '')
+
+    # Build user prompt (apply template if exists)
+    final_user_prompt = user_prompt
+    if persona.get('user_prompt_template') and variables:
+        template = persona['user_prompt_template']
+        for key, value in variables.items():
+            template = template.replace(f"{{{{{key}}}}}", str(value))
+        final_user_prompt = template
+
+    # Get model preferences
+    models = override_models or persona.get('model_preferences', ['openai/gpt-4o'])
+    if isinstance(models, str):
+        models = json_module.loads(models)
+
+    # Handle mock mode
+    if MOCK_LLM:
+        print(f"[PERSONAS] MOCK mode for persona '{persona_key}'", flush=True)
+        return {"content": f"[MOCK] Response from {persona.get('name', persona_key)}"}
+
+    # Build messages
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": final_user_prompt}
+    ]
+
+    # Try each model in order
+    last_error = None
+    for model in models:
+        try:
+            print(f"[PERSONAS] Trying {persona_key} with model: {model}", flush=True)
+            result = await query_model(model=model, messages=messages)
+
+            if result and result.get('content'):
+                print(f"[PERSONAS] Success with {model}", flush=True)
+                return result
+            else:
+                last_error = f"No response from {model}"
+                print(f"[PERSONAS] {last_error}", flush=True)
+                continue
+
+        except Exception as e:
+            last_error = f"{model} failed: {type(e).__name__}: {e}"
+            print(f"[PERSONAS] {last_error}", flush=True)
+            continue
+
+    print(f"[PERSONAS] All models failed for '{persona_key}'. Last error: {last_error}", flush=True)
+    return None

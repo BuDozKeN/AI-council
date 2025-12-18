@@ -2533,13 +2533,14 @@ async def structure_project_context(
     """
     Use AI to structure a free-form project description into organized context.
     Takes messy user input and creates clean, professional project documentation.
+    Uses Sarah (Project Manager persona) from database with model fallbacks.
     """
-    from .openrouter import query_model, MOCK_LLM
+    from .openrouter import MOCK_LLM
+    from .personas import get_db_persona_with_fallback
 
     # Handle mock mode
     if MOCK_LLM:
         print("[MOCK] Returning mock structure context", flush=True)
-        # Generate a reasonable title from the text
         from .knowledge_fallback import _short_title
         mock_title = request.project_name or _short_title(request.free_text, max_words=4)
         return {
@@ -2553,25 +2554,15 @@ async def structure_project_context(
     project_name = request.project_name.strip() if request.project_name else ""
     free_text = request.free_text[:5000] if request.free_text else ""
 
-    # Sarah - Project Manager persona for structuring projects
-    system_prompt = """You are Sarah, an experienced Senior Project Manager with 15+ years of experience.
+    # Get Sarah persona from database (with hardcoded fallback)
+    persona = await get_db_persona_with_fallback('sarah_project_manager')
+    system_prompt = persona.get('system_prompt', '')
+    models = persona.get('model_preferences', ['openai/gpt-4o', 'google/gemini-2.0-flash-001'])
 
-Your expertise is in taking messy, unstructured ideas and transforming them into clear, actionable project briefs that any team member can understand and execute on.
-
-You excel at:
-- Identifying the core deliverable from vague descriptions
-- Extracting implicit business value and stakeholder needs
-- Defining measurable success criteria
-- Setting clear boundaries to prevent scope creep
-- Organizing information in a logical, scannable format
-
-Your communication style:
-- Direct and professional, never verbose
-- You ask clarifying questions in your head, then answer them in the output
-- You surface hidden assumptions
-- You focus on outcomes, not activities
-
-You NEVER add fluff, filler, or generic statements. Every word serves a purpose."""
+    # Parse models if stored as JSON string
+    import json
+    if isinstance(models, str):
+        models = json.loads(models)
 
     prompt = f"""Create a project brief from this description:
 
@@ -2613,17 +2604,11 @@ RULES:
         {"role": "user", "content": prompt}
     ]
 
-    # Model fallback chain: GPT-4o (best quality) → Gemini 2.0 Flash (fast, reliable)
-    STRUCTURE_MODELS = [
-        "openai/gpt-4o",
-        "google/gemini-2.0-flash-001",
-    ]
-
-    import json
-    result_data = None
+    # Try each model in order (from persona preferences)
+    from .openrouter import query_model
     last_error = None
 
-    for model in STRUCTURE_MODELS:
+    for model in models:
         try:
             print(f"[STRUCTURE] Trying model: {model}", flush=True)
             result = await query_model(model=model, messages=messages)
