@@ -374,6 +374,7 @@ export default function Stage3({
         const result = await api.createCompanyDecision(companyId, {
           title: getTitle(),
           content: displayText,
+          user_question: userQuestion || null,  // Store what the user asked for context
           department_id: selectedDeptIds.length > 0 ? selectedDeptIds[0] : null,
           source_conversation_id: conversationId?.startsWith('temp-') ? null : conversationId,
           project_id: selectedProjectId || null,
@@ -659,7 +660,11 @@ export default function Stage3({
                             className="save-project-create-btn"
                             onClick={() => {
                               setShowProjectDropdown(false);
-                              onCreateProject();
+                              // Pass council context for auto-populating project
+                              onCreateProject({
+                                userQuestion,
+                                councilResponse: displayText
+                              });
                             }}
                           >
                             <Plus className="h-3.5 w-3.5" />

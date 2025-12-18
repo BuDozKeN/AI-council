@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { api } from '../api';
 import { AppModal } from './ui/AppModal';
 import { MultiDepartmentSelect } from './ui/MultiDepartmentSelect';
@@ -13,10 +13,16 @@ import './ProjectModal.css';
  * New Project Modal - Flexible creation flow:
  * Option A: AI-assisted - describe project, AI structures it, review/edit, confirm
  * Option B: Manual - skip AI and enter everything directly
+ * Option C: From council session - auto-populate with council Q&A and process
+ *
+ * @param {Object} initialContext - Optional context from council session
+ * @param {string} initialContext.userQuestion - The question user asked the council
+ * @param {string} initialContext.councilResponse - The council's response
  */
-export default function ProjectModal({ companyId, departments = [], onClose, onProjectCreated }) {
+export default function ProjectModal({ companyId, departments = [], onClose, onProjectCreated, initialContext }) {
   // Step state: 'input', 'review', or 'manual'
   const [step, setStep] = useState('input');
+  const hasAutoProcessed = useRef(false);
 
   // Input state
   const [freeText, setFreeText] = useState('');
@@ -35,9 +41,29 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
   const [editingContext, setEditingContext] = useState(false); // Toggle context edit mode
   const [isAIGenerated, setIsAIGenerated] = useState(false); // Track if AI was used
 
-  // Step 1: Process with AI and move to review
-  const handleProcessWithAI = async () => {
-    if (!freeText.trim()) {
+  // Auto-process when initialContext is provided (from council session)
+  useEffect(() => {
+    if (initialContext && !hasAutoProcessed.current) {
+      hasAutoProcessed.current = true;
+
+      // Build the context text from council Q&A
+      const contextText = [
+        initialContext.userQuestion && `Question: ${initialContext.userQuestion}`,
+        initialContext.councilResponse && `Council Response:\n${initialContext.councilResponse}`
+      ].filter(Boolean).join('\n\n');
+
+      if (contextText) {
+        setFreeText(contextText);
+        // Auto-trigger AI processing
+        processWithAI(contextText);
+      }
+    }
+  }, [initialContext]);
+
+  // Process with AI (can be called with custom text for auto-processing)
+  const processWithAI = async (text) => {
+    const inputText = text || freeText;
+    if (!inputText.trim()) {
       setError('Please describe your project');
       return;
     }
@@ -46,7 +72,7 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
     setError(null);
 
     try {
-      const result = await api.structureProjectContext(freeText);
+      const result = await api.structureProjectContext(inputText);
       if (result?.structured) {
         setEditedName(result.structured.suggested_name || '');
         setEditedDescription(result.structured.description || '');
@@ -63,6 +89,9 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
       setStructuring(false);
     }
   };
+
+  // Step 1: Process with AI and move to review (wrapper for button click)
+  const handleProcessWithAI = () => processWithAI();
 
   // Skip AI - go directly to manual entry
   const handleSkipAI = () => {

@@ -46,6 +46,7 @@ function App() {
   const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
+  const [projectModalContext, setProjectModalContext] = useState(null); // { userQuestion, councilResponse } for pre-fill
   const [isMyCompanyOpen, setIsMyCompanyOpen] = useState(false);
   const [myCompanyInitialTab, setMyCompanyInitialTab] = useState('overview');
   const [myCompanyInitialDecisionId, setMyCompanyInitialDecisionId] = useState(null);
@@ -1209,7 +1210,10 @@ function App() {
             });
           }
         }}
-        onOpenProjectModal={() => setIsProjectModalOpen(true)}
+        onOpenProjectModal={(context) => {
+          setProjectModalContext(context || null);
+          setIsProjectModalOpen(true);
+        }}
         onProjectCreated={(newProject) => {
           // Add to projects list so it appears in dropdown immediately
           setProjects((prev) => [...prev, newProject]);
@@ -1293,7 +1297,11 @@ function App() {
       {isProjectModalOpen && selectedBusiness && (
         <ProjectModal
           companyId={selectedBusiness}
-          onClose={() => setIsProjectModalOpen(false)}
+          initialContext={projectModalContext}
+          onClose={() => {
+            setIsProjectModalOpen(false);
+            setProjectModalContext(null);
+          }}
           onProjectCreated={(newProject) => {
             // Add to projects list and select it
             setProjects((prev) => [...prev, newProject]);
