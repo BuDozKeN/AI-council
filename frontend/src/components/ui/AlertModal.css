@@ -1,0 +1,57 @@
+/* ===========================================
+   AlertModal - Styled replacement for browser alert()
+   =========================================== */
+
+.alert-modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 8px 0 16px;
+}
+
+.alert-modal-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  margin-bottom: 16px;
+}
+
+/* Icon variants */
+.alert-modal-icon-success {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.alert-modal-icon-error {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.alert-modal-icon-info {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.alert-modal-icon-warning {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.alert-modal-title {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary, #1f2937);
+}
+
+.alert-modal-message {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text-secondary, #6b7280);
+  max-width: 320px;
+}

@@ -3,6 +3,7 @@ import { useAuth } from '../AuthContext';
 import { api } from '../api';
 import { AppModal } from './ui/AppModal';
 import { Skeleton } from './ui/Skeleton';
+import { User, CreditCard } from 'lucide-react';
 import './Settings.css';
 
 export default function Settings({ isOpen, onClose }) {
@@ -224,14 +225,14 @@ export default function Settings({ isOpen, onClose }) {
               className={`settings-tab ${activeTab === 'profile' ? 'active' : ''}`}
               onClick={() => setActiveTab('profile')}
             >
-              <span className="tab-icon">👤</span>
+              <User size={18} className="tab-icon" />
               Profile
             </button>
             <button
               className={`settings-tab ${activeTab === 'billing' ? 'active' : ''}`}
               onClick={() => setActiveTab('billing')}
             >
-              <span className="tab-icon">💳</span>
+              <CreditCard size={18} className="tab-icon" />
               Billing
             </button>
           </div>

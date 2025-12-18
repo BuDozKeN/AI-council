@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { api } from '../api';
 import { computeInlineDiff } from '../utils/diffUtils';
 import { Spinner } from './ui/Spinner';
+import { AlertModal } from './ui/AlertModal';
 import './CuratorPanel.css';
 
 /**
@@ -39,6 +40,7 @@ export default function CuratorPanel({
   const [localDepartments, setLocalDepartments] = useState([]); // Newly created departments (not yet in config)
   // State for tracking fetched current content for "update" type suggestions
   const [currentContents, setCurrentContents] = useState({}); // { [suggestionIndex]: { content, loading, error } }
+  const [alertModal, setAlertModal] = useState(null);
 
   // Build department options: Company-wide + dynamic departments + locally created ones
   const departmentOptions = useMemo(() => {
@@ -443,8 +445,7 @@ export default function CuratorPanel({
       setNewDeptName('');
     } catch (err) {
       console.error('Failed to create department:', err);
-      // Show error to user (could add error state if needed)
-      alert('Failed to create department: ' + err.message);
+      setAlertModal({ title: 'Error', message: 'Failed to create department: ' + err.message, variant: 'error' });
     } finally {
       setNewDeptCreating(false);
     }
@@ -1103,6 +1104,16 @@ export default function CuratorPanel({
           </>
         )}
       </div>
+
+      {/* Alert Modal */}
+      {alertModal && (
+        <AlertModal
+          title={alertModal.title}
+          message={alertModal.message}
+          variant={alertModal.variant}
+          onClose={() => setAlertModal(null)}
+        />
+      )}
     </div>
   );
 }

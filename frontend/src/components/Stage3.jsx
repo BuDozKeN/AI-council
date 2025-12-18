@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -7,6 +7,9 @@ import { MultiDepartmentSelect } from './ui/MultiDepartmentSelect';
 import { Spinner } from './ui/Spinner';
 import { Bookmark, FileText, Layers, ScrollText, FolderKanban, ChevronDown, Plus } from 'lucide-react';
 import './Stage3.css';
+
+// Minimum interval between decision status checks (ms)
+const DECISION_CHECK_THROTTLE = 5000;
 
 // Playbook type definitions with icons
 const DOC_TYPES = [
@@ -130,7 +133,48 @@ export default function Stage3({
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const projectButtonRef = useRef(null);
   const containerRef = useRef(null);
-  const lastVisibilityCheck = useRef(0); // Throttle visibility checks
+  const lastDecisionCheck = useRef(0); // Throttle all decision status checks
+  const isCheckingDecision = useRef(false); // Prevent concurrent checks
+
+  // Unified decision status check - throttled and deduped
+  const checkDecisionStatus = useCallback(async (force = false) => {
+    if (!conversationId || !companyId || conversationId.startsWith('temp-')) return;
+    if (!savedDecisionId && !force) return; // Nothing to check unless forced
+    if (isCheckingDecision.current) return; // Already checking
+
+    const now = Date.now();
+    if (!force && now - lastDecisionCheck.current < DECISION_CHECK_THROTTLE) return;
+
+    isCheckingDecision.current = true;
+    lastDecisionCheck.current = now;
+
+    try {
+      const data = await api.getConversationDecision(conversationId, companyId, responseIndex);
+      if (data?.decision) {
+        if (!savedDecisionId) {
+          // Found existing decision on initial check
+          setSavedDecisionId(data.decision.id);
+          setSaveState('saved');
+        }
+        if (data.decision.project_id && !selectedProjectId) {
+          setSelectedProjectId(data.decision.project_id);
+        }
+      } else if (savedDecisionId) {
+        // Decision was deleted
+        console.log('[Stage3] Decision was deleted, clearing state');
+        setSavedDecisionId(null);
+        setSaveState('idle');
+      }
+    } catch {
+      if (savedDecisionId) {
+        // Error checking = assume deleted
+        setSavedDecisionId(null);
+        setSaveState('idle');
+      }
+    } finally {
+      isCheckingDecision.current = false;
+    }
+  }, [conversationId, companyId, responseIndex, savedDecisionId, selectedProjectId]);
 
   // Get current project name from list
   const currentProjectBasic = projects.find(p => p.id === selectedProjectId);
@@ -194,69 +238,56 @@ export default function Stage3({
     }
   }, [companyId, departmentId, departments.length, streaming?.error]);
 
-  // Check if this conversation already has a saved decision and/or linked project
+  // Initial load: Check for existing linked project and decision (single combined fetch)
   useEffect(() => {
     if (!conversationId || !companyId || conversationId.startsWith('temp-')) return;
 
-    // Check for existing linked project
-    api.getConversationLinkedProject(conversationId, companyId)
-      .then(data => {
-        if (data?.project) {
-          console.log('[Stage3] Found linked project:', data.project.name);
-          setSelectedProjectId(data.project.id);
-          // Also notify parent if callback exists
-          if (onSelectProject) {
-            onSelectProject(data.project.id);
-          }
+    // Fetch linked project and decision status in parallel
+    Promise.all([
+      api.getConversationLinkedProject(conversationId, companyId).catch(() => null),
+      api.getConversationDecision(conversationId, companyId, responseIndex).catch(() => null)
+    ]).then(([projectData, decisionData]) => {
+      // Handle linked project
+      if (projectData?.project) {
+        console.log('[Stage3] Found linked project:', projectData.project.name);
+        setSelectedProjectId(projectData.project.id);
+        if (onSelectProject) {
+          onSelectProject(projectData.project.id);
         }
-      })
-      .catch(err => console.log('[Stage3] No linked project found'));
+      }
 
-    // Check for existing saved decision for this response
-    api.getConversationDecision(conversationId, companyId, responseIndex)
-      .then(data => {
-        if (data?.decision) {
-          console.log('[Stage3] Found existing decision:', data.decision.id);
-          setSavedDecisionId(data.decision.id);
-          setSaveState('saved');
-          // If decision has a project linked, use that
-          if (data.decision.project_id) {
-            setSelectedProjectId(data.decision.project_id);
-          }
+      // Handle existing decision
+      if (decisionData?.decision) {
+        console.log('[Stage3] Found existing decision:', decisionData.decision.id);
+        setSavedDecisionId(decisionData.decision.id);
+        setSaveState('saved');
+        // If decision has a project linked, use that (overwrites above if both exist)
+        if (decisionData.decision.project_id) {
+          setSelectedProjectId(decisionData.decision.project_id);
         }
-      })
-      .catch(err => console.log('[Stage3] No existing decision found'));
-  }, [conversationId, companyId, responseIndex]);
+      }
 
-  // Re-check decision status when tab becomes visible (catches deletions done elsewhere)
+      // Update last check time since we just fetched
+      lastDecisionCheck.current = Date.now();
+    });
+  }, [conversationId, companyId, responseIndex, onSelectProject]);
+
+  // Re-check decision status when tab becomes visible or component scrolls into view
+  // Uses unified throttled check function
   useEffect(() => {
     if (!conversationId || !companyId || conversationId.startsWith('temp-')) return;
 
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && savedDecisionId) {
-        // Re-verify the decision still exists
-        api.getConversationDecision(conversationId, companyId, responseIndex)
-          .then(data => {
-            if (!data?.decision) {
-              // Decision was deleted
-              console.log('[Stage3] Decision was deleted, clearing state');
-              setSavedDecisionId(null);
-              setSaveState('idle');
-            }
-          })
-          .catch(() => {
-            // Error checking = assume deleted
-            setSavedDecisionId(null);
-            setSaveState('idle');
-          });
+      if (document.visibilityState === 'visible') {
+        checkDecisionStatus();
       }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [conversationId, companyId, responseIndex, savedDecisionId]);
+  }, [checkDecisionStatus, conversationId, companyId]);
 
-  // Re-check decision status when component scrolls into view (catches in-app navigation)
+  // IntersectionObserver for re-checking when scrolled into view
   useEffect(() => {
     if (!containerRef.current || !conversationId || !companyId || conversationId.startsWith('temp-')) return;
     if (!savedDecisionId) return; // Only re-check if we think there's a saved decision
@@ -265,24 +296,7 @@ export default function Stage3({
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            // Throttle: only check once every 2 seconds
-            const now = Date.now();
-            if (now - lastVisibilityCheck.current < 2000) return;
-            lastVisibilityCheck.current = now;
-
-            // Re-verify the decision still exists
-            api.getConversationDecision(conversationId, companyId, responseIndex)
-              .then(data => {
-                if (!data?.decision) {
-                  console.log('[Stage3] Decision was deleted (intersection check), clearing state');
-                  setSavedDecisionId(null);
-                  setSaveState('idle');
-                }
-              })
-              .catch(() => {
-                setSavedDecisionId(null);
-                setSaveState('idle');
-              });
+            checkDecisionStatus();
           }
         });
       },
@@ -291,7 +305,7 @@ export default function Stage3({
 
     observer.observe(containerRef.current);
     return () => observer.disconnect();
-  }, [conversationId, companyId, responseIndex, savedDecisionId]);
+  }, [checkDecisionStatus, savedDecisionId, conversationId, companyId]);
 
   // Determine what to display (moved up so displayText is available)
   const displayText = finalResponse?.response || streaming?.text || '';
@@ -698,21 +712,10 @@ export default function Stage3({
                   <button
                     className="save-view-link"
                     onClick={async () => {
-                      // Verify decision still exists before navigating
-                      try {
-                        const check = await api.getConversationDecision(conversationId, companyId, responseIndex);
-                        if (!check?.decision) {
-                          // Decision was deleted - reset state
-                          setSavedDecisionId(null);
-                          setSaveState('idle');
-                          return;
-                        }
-                      } catch {
-                        // Decision not found - reset state
-                        setSavedDecisionId(null);
-                        setSaveState('idle');
-                        return;
-                      }
+                      // Quick check if decision still exists (force check bypasses throttle)
+                      await checkDecisionStatus(true);
+                      // If state was reset, don't navigate
+                      if (!savedDecisionId) return;
 
                       if (promotedPlaybookId) {
                         onViewDecision && onViewDecision(savedDecisionId, 'playbook', promotedPlaybookId);

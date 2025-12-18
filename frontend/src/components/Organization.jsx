@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { api } from '../api';
 import { Spinner } from './ui/Spinner';
 import { AppModal } from './ui/AppModal';
+import { AlertModal } from './ui/AlertModal';
 import { AIWriteAssist } from './ui/AIWriteAssist';
 import './Organization.css';
 
@@ -32,6 +33,7 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
   const [newDept, setNewDept] = useState({ id: '', name: '', description: '' });
   const [showAddRole, setShowAddRole] = useState(null); // deptId or null
   const [newRole, setNewRole] = useState({ id: '', name: '', description: '' });
+  const [alertModal, setAlertModal] = useState(null);
 
   // Fetch departments on mount
   useEffect(() => {
@@ -115,7 +117,7 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
       setShowAddDept(false);
       setNewDept({ id: '', name: '', description: '' });
     } catch (err) {
-      alert('Failed to create department: ' + err.message);
+      setAlertModal({ title: 'Error', message: 'Failed to create department: ' + err.message, variant: 'error' });
     }
     setSaving(false);
   }
@@ -138,7 +140,7 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
       setShowAddRole(null);
       setNewRole({ id: '', name: '', description: '' });
     } catch (err) {
-      alert('Failed to create role: ' + err.message);
+      setAlertModal({ title: 'Error', message: 'Failed to create role: ' + err.message, variant: 'error' });
     }
     setSaving(false);
   }
@@ -157,7 +159,7 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
       await fetchOrganization();
       setEditingDept(null);
     } catch (err) {
-      alert('Failed to update department: ' + err.message);
+      setAlertModal({ title: 'Error', message: 'Failed to update department: ' + err.message, variant: 'error' });
     }
     setSaving(false);
   }
@@ -176,7 +178,7 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
       await fetchOrganization();
       setEditingRole(null);
     } catch (err) {
-      alert('Failed to update role: ' + err.message);
+      setAlertModal({ title: 'Error', message: 'Failed to update role: ' + err.message, variant: 'error' });
     }
     setSaving(false);
   }
@@ -557,6 +559,16 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
             </>
           )}
         </AppModal>
+
+        {/* Alert Modal */}
+        {alertModal && (
+          <AlertModal
+            title={alertModal.title}
+            message={alertModal.message}
+            variant={alertModal.variant}
+            onClose={() => setAlertModal(null)}
+          />
+        )}
     </AppModal>
   );
 }

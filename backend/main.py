@@ -274,12 +274,6 @@ class ChatRequest(BaseModel):
     project_id: Optional[str] = None  # Project ID for project-specific context
 
 
-class CreateDepartmentRequest(BaseModel):
-    """Request to create a new department for a business."""
-    id: str
-    name: str
-
-
 class CreateKnowledgeRequest(BaseModel):
     """Request to create a knowledge entry with structured decision fields."""
     company_id: str
@@ -353,27 +347,6 @@ async def root():
 async def get_businesses(user: dict = Depends(get_current_user)):
     """List all available business contexts. Requires authentication."""
     return list_available_businesses()
-
-
-@app.post("/api/businesses/{business_id}/departments")
-async def create_department(business_id: str, request: CreateDepartmentRequest, user: dict = Depends(get_current_user)):
-    """Create a new department for a business. Requires authentication.
-
-    This scaffolds the department folder structure and creates an initial context file.
-    """
-    # Validate path parameters to prevent traversal attacks
-    validate_safe_id(business_id, "business_id")
-    validate_safe_id(request.id, "department_id")
-
-    from .context_loader import create_department_for_business
-
-    try:
-        result = create_department_for_business(business_id, request.id, request.name)
-        return result
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="Failed to create department")
 
 
 @app.get("/api/conversations")
@@ -1299,144 +1272,6 @@ async def get_context_last_updated(business_id: str, user: dict = Depends(get_cu
 
     last_updated = curator.extract_last_updated(content)
     return {"last_updated": last_updated}
-
-
-# Org sync endpoints
-@app.post("/api/businesses/{business_id}/sync-org")
-async def sync_org_structure(business_id: str, user: dict = Depends(get_current_user)):
-    """
-    Manually trigger org structure sync from config.json to context.md.
-    This regenerates the auto-generated Organization Structure section.
-    Requires authentication.
-    """
-    # Validate path parameters to prevent traversal attacks
-    validate_safe_id(business_id, "business_id")
-
-    result = org_sync.sync_org_structure_to_context(business_id)
-
-    if not result.get('success'):
-        raise HTTPException(status_code=400, detail=result.get('message', 'Sync failed'))
-
-    return result
-
-
-class AddRoleRequest(BaseModel):
-    """Request to add a new role to a department."""
-    role_id: str
-    role_name: str
-    role_description: str = ""
-
-
-@app.post("/api/businesses/{business_id}/departments/{department_id}/roles")
-async def add_role_to_department(business_id: str, department_id: str, request: AddRoleRequest, user: dict = Depends(get_current_user)):
-    """
-    Add a new role to a department and sync org structure to context.md.
-    Requires authentication.
-    """
-    # Validate path parameters to prevent traversal attacks
-    validate_safe_id(business_id, "business_id")
-    validate_safe_id(department_id, "department_id")
-    validate_safe_id(request.role_id, "role_id")
-
-    result = org_sync.add_role_to_department(
-        business_id=business_id,
-        department_id=department_id,
-        role_id=request.role_id,
-        role_name=request.role_name,
-        role_description=request.role_description
-    )
-
-    if not result.get('success'):
-        raise HTTPException(status_code=400, detail=result.get('message', 'Failed to add role'))
-
-    return result
-
-
-# ============================================
-# ORGANIZATION MANAGEMENT ENDPOINTS
-# ============================================
-
-class UpdateDepartmentRequest(BaseModel):
-    """Request to update department info."""
-    name: Optional[str] = None
-    description: Optional[str] = None
-
-
-class UpdateRoleRequest(BaseModel):
-    """Request to update role info."""
-    name: Optional[str] = None
-    description: Optional[str] = None
-
-
-@app.put("/api/businesses/{business_id}/departments/{department_id}")
-async def update_department(business_id: str, department_id: str, request: UpdateDepartmentRequest, user: dict = Depends(get_current_user)):
-    """
-    Update a department's name and/or description in config.json and sync to context.md.
-    Requires authentication.
-    """
-    # Validate path parameters to prevent traversal attacks
-    validate_safe_id(business_id, "business_id")
-    validate_safe_id(department_id, "department_id")
-
-    result = org_sync.update_department(
-        business_id=business_id,
-        department_id=department_id,
-        name=request.name,
-        description=request.description
-    )
-
-    if not result.get('success'):
-        raise HTTPException(status_code=400, detail=result.get('message', 'Failed to update department'))
-
-    return result
-
-
-@app.put("/api/businesses/{business_id}/departments/{department_id}/roles/{role_id}")
-async def update_role(business_id: str, department_id: str, role_id: str, request: UpdateRoleRequest, user: dict = Depends(get_current_user)):
-    """
-    Update a role's name and/or description in config.json and sync to context.md.
-    Requires authentication.
-    """
-    # Validate path parameters to prevent traversal attacks
-    validate_safe_id(business_id, "business_id")
-    validate_safe_id(department_id, "department_id")
-    validate_safe_id(role_id, "role_id")
-
-    result = org_sync.update_role(
-        business_id=business_id,
-        department_id=department_id,
-        role_id=role_id,
-        name=request.name,
-        description=request.description
-    )
-
-    if not result.get('success'):
-        raise HTTPException(status_code=400, detail=result.get('message', 'Failed to update role'))
-
-    return result
-
-
-@app.get("/api/businesses/{business_id}/departments/{department_id}/roles/{role_id}/context")
-async def get_role_context(business_id: str, department_id: str, role_id: str, user: dict = Depends(get_current_user)):
-    """
-    Get the system prompt/context for a specific role.
-    Returns the content of the role's .md file if it exists.
-    Requires authentication.
-    """
-    # Validate path parameters to prevent traversal attacks
-    validate_safe_id(business_id, "business_id")
-    validate_safe_id(department_id, "department_id")
-    validate_safe_id(role_id, "role_id")
-
-    from .context_loader import load_role_context
-
-    context = load_role_context(business_id, department_id, role_id)
-
-    return {
-        "context": context,
-        "exists": context is not None,
-        "path": f"councils/organisations/{business_id}/departments/{department_id}/roles/{role_id}.md"
-    }
 
 
 # ============================================

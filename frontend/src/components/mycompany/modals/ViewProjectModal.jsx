@@ -1,0 +1,1000 @@
+/**
+ * ViewProjectModal - View and edit project details including context and decisions timeline
+ *
+ * Extracted from MyCompany.jsx for better maintainability.
+ */
+
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { api } from '../../../api';
+import MarkdownViewer from '../../MarkdownViewer';
+import { AppModal } from '../../ui/AppModal';
+import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
+import { Spinner } from '../../ui/Spinner';
+import { AIWriteAssist } from '../../ui/AIWriteAssist';
+import { Bookmark, CheckCircle, Archive, RotateCcw, ExternalLink, Trash2, Sparkles, PenLine } from 'lucide-react';
+import { getDeptColor } from '../../../lib/colors';
+import { truncateText } from '../../../lib/utils';
+
+/**
+ * Simple alert modal for success/error messages within ViewProjectModal
+ */
+function AlertModal({
+  title,
+  message,
+  variant = 'success', // 'success', 'error', 'info'
+  onClose
+}) {
+  const iconMap = {
+    success: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+        <polyline points="22 4 12 14.01 9 11.01" />
+      </svg>
+    ),
+    error: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+    ),
+    info: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="16" x2="12" y2="12" />
+        <line x1="12" y1="8" x2="12.01" y2="8" />
+      </svg>
+    ),
+    warning: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+        <line x1="12" y1="9" x2="12" y2="13" />
+        <line x1="12" y1="17" x2="12.01" y2="17" />
+      </svg>
+    )
+  };
+
+  return (
+    <AppModal isOpen={true} onClose={onClose} title={title} size="sm">
+      <div className={`mc-alert-icon ${variant}`}>
+        {iconMap[variant]}
+      </div>
+      <p className="mc-alert-message">{message}</p>
+      <AppModal.Footer>
+        <button
+          type="button"
+          className={`app-modal-btn ${variant === 'error' ? 'app-modal-btn-danger-sm' : 'app-modal-btn-primary'}`}
+          onClick={onClose}
+        >
+          OK
+        </button>
+      </AppModal.Footer>
+    </AppModal>
+  );
+}
+
+export function ViewProjectModal({ project: initialProject, companyId, departments = [], onClose, onSave, isNew = false, onNavigateToConversation, onProjectUpdate, onStatusChange, onDelete }) {
+  // Local project state that can be updated after save
+  const [project, setProject] = useState(initialProject);
+
+  // State for action confirmations
+  const [confirmingAction, setConfirmingAction] = useState(null); // 'complete' | 'archive' | 'restore' | 'delete'
+  const [actionLoading, setActionLoading] = useState(false);
+
+  // Alert modal state (local to this component)
+  const [alertModal, setAlertModal] = useState(null); // { title, message, variant }
+
+  const [isEditing, setIsEditing] = useState(isNew);
+  const [editedName, setEditedName] = useState(project.name || '');
+  const [editedDescription, setEditedDescription] = useState(project.description || '');
+  const [editedContext, setEditedContext] = useState(project.context_md || '');
+  const [editedStatus, setEditedStatus] = useState(project.status || 'active');
+  // Use department_ids array (with fallback to single department_id for backwards compatibility)
+  const [editedDepartmentIds, setEditedDepartmentIds] = useState(
+    project.department_ids?.length > 0 ? project.department_ids :
+    project.department_id ? [project.department_id] : []
+  );
+  const [saving, setSaving] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(isNew);
+
+  // Tab state for Context vs Decisions
+  const [activeTab, setActiveTab] = useState('context'); // 'context' | 'decisions'
+
+  // Decisions timeline state
+  const [projectDecisions, setProjectDecisions] = useState([]);
+  const [loadingDecisions, setLoadingDecisions] = useState(false);
+  const [expandedDecisionId, setExpandedDecisionId] = useState(null);
+  const [generatingSummaryId, setGeneratingSummaryId] = useState(null);
+
+  // Regenerate context state
+  const [regenerating, setRegenerating] = useState(false);
+
+  // Copy context state
+  const [contextCopied, setContextCopied] = useState(false);
+
+  // Check if a summary is garbage and needs regeneration
+  // NOTE: New decisions get summaries at save time (in merge endpoint).
+  // This check is only for LEGACY decisions saved before that feature was added.
+  const isGarbageSummary = (summary) => {
+    if (!summary) return true;
+    const garbageTexts = [
+      'added council decision to project',
+      'decision merged into project',
+      'added new council decision section'
+    ];
+    const lowerSummary = summary.toLowerCase().trim();
+    return garbageTexts.includes(lowerSummary) || summary.length < 50;
+  };
+
+  // Handle expanding a decision - only regenerate summaries for legacy decisions without one
+  // New decisions should already have summaries (generated at save time)
+  const handleExpandDecision = async (decisionId) => {
+    if (expandedDecisionId === decisionId) {
+      // Collapsing
+      setExpandedDecisionId(null);
+      return;
+    }
+
+    // Expanding
+    setExpandedDecisionId(decisionId);
+
+    // LEGACY FALLBACK: Only regenerate for old decisions without proper summaries
+    // New decisions get summaries at save time, so this should rarely trigger
+    const decision = projectDecisions.find(d => d.id === decisionId);
+    const needsRegeneration = decision && decision.user_question && isGarbageSummary(decision.decision_summary);
+
+    if (needsRegeneration) {
+      console.log('[ViewProjectModal] Legacy decision needs summary:', decisionId, 'current:', decision.decision_summary);
+      setGeneratingSummaryId(decisionId);
+      try {
+        const result = await api.generateDecisionSummary(companyId, decisionId);
+        console.log('[ViewProjectModal] Generated summary result:', result);
+        if (result && !result.cached) {
+          // Update the decision in state with both new summary and title
+          setProjectDecisions(prev => prev.map(d =>
+            d.id === decisionId ? {
+              ...d,
+              decision_summary: result.summary || d.decision_summary,
+              title: result.title || d.title
+            } : d
+          ));
+        }
+      } catch (err) {
+        console.error('Failed to generate summary:', err);
+      } finally {
+        setGeneratingSummaryId(null);
+      }
+    }
+  };
+
+  // Group decisions by conversation for visual linking
+  const groupedDecisions = useMemo(() => {
+    if (!projectDecisions.length) return [];
+
+    // Create groups - decisions with same source_conversation_id are grouped together
+    const groups = [];
+    let currentGroup = null;
+
+    // Sort by created_at to ensure chronological order
+    const sorted = [...projectDecisions].sort((a, b) =>
+      new Date(a.created_at) - new Date(b.created_at)
+    );
+
+    sorted.forEach(decision => {
+      const convId = decision.source_conversation_id;
+
+      if (!convId) {
+        // No conversation - standalone decision
+        groups.push({ type: 'single', decisions: [decision] });
+        currentGroup = null;
+      } else if (currentGroup && currentGroup.conversationId === convId) {
+        // Same conversation as current group
+        currentGroup.decisions.push(decision);
+      } else {
+        // New conversation group
+        currentGroup = {
+          type: 'group',
+          conversationId: convId,
+          decisions: [decision]
+        };
+        groups.push(currentGroup);
+      }
+    });
+
+    return groups;
+  }, [projectDecisions]);
+
+  const content = project.context_md || '';
+
+  // Get department names for display
+  const getDepartmentNames = () => {
+    if (!editedDepartmentIds || editedDepartmentIds.length === 0) return null;
+    return editedDepartmentIds
+      .map(id => departments.find(d => d.id === id)?.name)
+      .filter(Boolean);
+  };
+
+  // Handle regenerating project context from all decisions
+  const [regenCountdown, setRegenCountdown] = useState(null); // null = not counting, 3/2/1 = counting down
+  const countdownRef = useRef(null);
+
+  const handleRegenerateContext = () => {
+    if (!project.id || regenerating) return;
+    // Start 3-second countdown
+    setRegenCountdown(3);
+  };
+
+  const cancelCountdown = () => {
+    if (countdownRef.current) {
+      clearInterval(countdownRef.current);
+      countdownRef.current = null;
+    }
+    setRegenCountdown(null);
+  };
+
+  // Countdown effect
+  useEffect(() => {
+    if (regenCountdown === null) return;
+
+    if (regenCountdown === 0) {
+      // Time's up - execute
+      countdownRef.current = null;
+      setRegenCountdown(null);
+      executeRegenerateContext();
+      return;
+    }
+
+    // Tick down every second
+    countdownRef.current = setTimeout(() => {
+      setRegenCountdown(prev => prev - 1);
+    }, 1000);
+
+    return () => {
+      if (countdownRef.current) {
+        clearTimeout(countdownRef.current);
+      }
+    };
+  }, [regenCountdown]);
+
+  const executeRegenerateContext = async () => {
+    setRegenerating(true);
+    try {
+      console.log('[AI Enhance] Calling regenerateProjectContext for project:', project.id);
+      const result = await api.regenerateProjectContext(project.id);
+      console.log('[AI Enhance] Result received:', result);
+      if (result.success && result.context_md) {
+        // Update local state - user sees context update immediately, no modal needed
+        setProject(prev => ({ ...prev, context_md: result.context_md }));
+        setEditedContext(result.context_md);
+        // Silent success - the updated context appearing is feedback enough
+      } else {
+        setAlertModal({
+          title: 'Regeneration Failed',
+          message: result.message || 'Unknown error occurred.',
+          variant: 'error'
+        });
+      }
+    } catch (err) {
+      console.error('Failed to regenerate context:', err);
+      setAlertModal({
+        title: 'Regeneration Failed',
+        message: err.message || 'An unexpected error occurred.',
+        variant: 'error'
+      });
+    } finally {
+      setRegenerating(false);
+    }
+  };
+
+  // Sync project departments from all decisions when modal opens
+  // This ensures the department badges are up-to-date from all decisions
+  useEffect(() => {
+    if (companyId && project.id && !isEditing) {
+      console.log('[ViewProjectModal] Syncing departments on modal open for project:', project.id);
+      api.syncProjectDepartments(companyId, project.id)
+        .then(syncResult => {
+          console.log('[ViewProjectModal] Sync result:', syncResult);
+          // Update local project state with synced department_ids
+          if (syncResult?.department_ids) {
+            console.log('[ViewProjectModal] Updating editedDepartmentIds to:', syncResult.department_ids);
+            setProject(prev => ({
+              ...prev,
+              department_ids: syncResult.department_ids
+            }));
+            setEditedDepartmentIds(syncResult.department_ids);
+            // Also update parent projects list so dashboard shows correct departments
+            if (onProjectUpdate) {
+              onProjectUpdate(project.id, { department_ids: syncResult.department_ids });
+            }
+          }
+        })
+        .catch(err => {
+          console.log('[ViewProjectModal] Dept sync failed:', err.message);
+        });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyId, project.id]); // Only run once on modal open, not on tab change
+
+  // Load decisions when switching to decisions tab (only if not already loaded)
+  useEffect(() => {
+    if (activeTab === 'decisions' && companyId && project.id && projectDecisions.length === 0) {
+      setLoadingDecisions(true);
+      api.getProjectDecisions(companyId, project.id)
+        .then(data => {
+          setProjectDecisions(data.decisions || []);
+        })
+        .catch(err => {
+          console.error('Failed to load project decisions:', err);
+        })
+        .finally(() => {
+          setLoadingDecisions(false);
+        });
+    }
+  }, [activeTab, companyId, project.id, projectDecisions.length]);
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'active': return { bg: '#dbeafe', text: '#1d4ed8' };
+      case 'completed': return { bg: '#dcfce7', text: '#15803d' };
+      case 'archived': return { bg: '#f3f4f6', text: '#6b7280' };
+      default: return { bg: '#f3f4f6', text: '#6b7280' };
+    }
+  };
+
+  const handleSave = async () => {
+    if (onSave) {
+      if (!editedName.trim()) {
+        setAlertModal({ title: 'Validation Error', message: 'Project name is required', variant: 'warning' });
+        return;
+      }
+      setSaving(true);
+      try {
+        // onSave now returns the updated project data
+        const updatedProject = await onSave(project.id, {
+          name: editedName,
+          description: editedDescription,
+          context_md: editedContext,
+          status: editedStatus,
+          department_ids: editedDepartmentIds.length > 0 ? editedDepartmentIds : null
+        });
+        // Update local project state with returned data (stay on view, don't close)
+        if (updatedProject) {
+          setProject(updatedProject);
+        }
+        setIsEditing(false);
+        setIsEditingName(false);
+      } catch (err) {
+        // Error handled by parent
+      }
+      setSaving(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    if (isNew) {
+      onClose(); // Close modal for new project cancel
+      return;
+    }
+    setIsEditing(false);
+    setIsEditingName(false);
+    setEditedName(project.name || '');
+    setEditedDescription(project.description || '');
+    setEditedContext(project.context_md || '');
+    setEditedStatus(project.status || 'active');
+    setEditedDepartmentIds(
+      project.department_ids?.length > 0 ? project.department_ids :
+      project.department_id ? [project.department_id] : []
+    );
+  };
+
+  // Copy context to clipboard
+  const handleCopyContext = async () => {
+    try {
+      await navigator.clipboard.writeText(content || '');
+      setContextCopied(true);
+      setTimeout(() => setContextCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
+  return (
+    <AppModal
+      isOpen={true}
+      onClose={onClose}
+      size="lg"
+      showCloseButton={false}
+      contentClassName="mc-modal-no-padding"
+    >
+        {/* Header with title */}
+        <div className="mc-modal-header-clean">
+          <div className="mc-header-title-row">
+            {isEditingName || isNew ? (
+              <input
+                type="text"
+                className="mc-title-inline-edit"
+                value={editedName}
+                onChange={(e) => setEditedName(e.target.value)}
+                onBlur={() => !isNew && setIsEditingName(false)}
+                onKeyDown={(e) => e.key === 'Enter' && !isNew && setIsEditingName(false)}
+                placeholder={isNew ? "Enter project name..." : ""}
+                autoFocus
+              />
+            ) : (
+              <h2
+                className="mc-title-display editable"
+                onClick={() => setIsEditingName(true)}
+                title="Click to edit name"
+              >
+                {editedName || project.name}
+                <svg className="mc-pencil-icon" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
+              </h2>
+            )}
+          </div>
+          <button className="mc-modal-close-clean" onClick={onClose} aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="mc-modal-body">
+          {/* Status, Department and info row */}
+          <div className="mc-project-meta-row">
+            {/* Status badge - shown in both view and edit modes (status changed via footer actions) */}
+            {!isNew && (
+              <span
+                className="mc-status-badge"
+                style={{
+                  background: getStatusColor(editedStatus).bg,
+                  color: getStatusColor(editedStatus).text
+                }}
+              >
+                {editedStatus}
+              </span>
+            )}
+
+            {/* Source indicator - how was this project created */}
+            {!isNew && !isEditing && project.source && project.source !== 'manual' && (
+              <span className={`mc-source-badge ${project.source}`}>
+                {project.source === 'council' ? 'From Council' : project.source === 'import' ? 'Imported' : project.source}
+              </span>
+            )}
+
+            {/* Departments - using multi-select when editing */}
+            {isEditing ? (
+              <MultiDepartmentSelect
+                value={editedDepartmentIds}
+                onValueChange={setEditedDepartmentIds}
+                departments={departments}
+                placeholder="Select departments..."
+              />
+            ) : (
+              <>
+                {/* Show multiple department badges */}
+                {getDepartmentNames()?.map((name, idx) => {
+                  const deptId = editedDepartmentIds[idx];
+                  return (
+                    <span
+                      key={deptId || idx}
+                      className="mc-dept-badge"
+                      style={{
+                        background: getDeptColor(deptId)?.bg || '#f3e8ff',
+                        color: getDeptColor(deptId)?.text || '#7c3aed',
+                        borderColor: getDeptColor(deptId)?.border || '#e9d5ff'
+                      }}
+                    >
+                      {name}
+                    </span>
+                  );
+                })}
+              </>
+            )}
+
+            {/* Timestamps inline - small and subtle */}
+            {!isNew && !isEditing && (project.created_at || project.updated_at) && (
+              <div className="mc-project-timestamps">
+                {project.created_at && (
+                  <span className="mc-timestamp">
+                    {new Date(project.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </span>
+                )}
+                {project.updated_at && project.updated_at !== project.created_at && (
+                  <span className="mc-timestamp">
+                    Updated {new Date(project.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* View original conversation link - subtle, on the right */}
+            {!isNew && !isEditing && project.source_conversation_id && onNavigateToConversation && (
+              <button
+                className="mc-source-link"
+                onClick={() => {
+                  onClose();
+                  onNavigateToConversation(project.source_conversation_id, 'projects');
+                }}
+                title="View the original conversation that created this project"
+              >
+                <ExternalLink size={12} />
+                <span>View source</span>
+              </button>
+            )}
+          </div>
+
+          {/* Description - stripped of markdown for clean display */}
+          {isEditing ? (
+            <div className="mc-field-group">
+              <label className="mc-field-label">Description</label>
+              <AIWriteAssist
+                context="project-description"
+                value={editedDescription}
+                onSuggestion={setEditedDescription}
+                additionalContext={editedName ? `Project: ${editedName}` : ''}
+                inline
+              >
+                <input
+                  type="text"
+                  className="mc-input-unified"
+                  value={editedDescription}
+                  onChange={(e) => setEditedDescription(e.target.value)}
+                  placeholder="Brief description of the project..."
+                />
+              </AIWriteAssist>
+            </div>
+          ) : project.description && (
+            <p className="mc-project-description">
+              {truncateText(project.description, 200)}
+            </p>
+          )}
+
+          {/* Tab navigation - only show when not editing and not new */}
+          {!isEditing && !isNew && (
+            <div className="mc-project-tabs">
+              <button
+                className={`mc-project-tab ${activeTab === 'context' ? 'active' : ''}`}
+                onClick={() => setActiveTab('context')}
+              >
+                <svg style={{ width: '14px', height: '14px' }} viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2H4a1 1 0 010-2zm3 1h6v4H7V5zm6 6H7v2h6v-2z" clipRule="evenodd" />
+                </svg>
+                Context
+              </button>
+              <button
+                className={`mc-project-tab ${activeTab === 'decisions' ? 'active' : ''}`}
+                onClick={() => setActiveTab('decisions')}
+              >
+                <Bookmark size={14} />
+                Decisions
+                {project.decision_count > 0 && (
+                  <span className="mc-tab-badge">{project.decision_count}</span>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* Context Tab Content */}
+          {(activeTab === 'context' || isEditing || isNew) && (
+            <>
+              {/* Context section header with Edit/Save actions */}
+              <div className="mc-context-header-row">
+                <div className="mc-context-header-left">
+                  <label className="mc-section-label">Project Context</label>
+                  <span className="mc-section-hint">
+                    Injected into council sessions when this project is selected
+                  </span>
+                </div>
+                {/* Right side: AI Enhance + Edit/Save buttons */}
+                <div className="mc-context-header-actions">
+                  {/* AI Enhance - always available (not for new projects) */}
+                  {!isNew && (
+                    regenCountdown !== null ? (
+                      <button
+                        className="mc-ai-synthesize-btn countdown"
+                        onClick={cancelCountdown}
+                        title="Cancel AI Enhance"
+                      >
+                        <span className="mc-countdown-num">{regenCountdown}</span>
+                        <span>Cancel</span>
+                      </button>
+                    ) : (
+                      <button
+                        className="mc-ai-synthesize-btn"
+                        onClick={handleRegenerateContext}
+                        disabled={regenerating}
+                        title={isEditing
+                          ? "AI will enhance your current content"
+                          : (project.decision_count > 0 || projectDecisions.length > 0)
+                            ? "AI will synthesize all decisions into organized project context"
+                            : "AI will enhance and structure your project context"
+                        }
+                      >
+                        {regenerating ? (
+                          <>
+                            <Spinner size="sm" variant="brand" />
+                            <span>Processing...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles size={14} />
+                            <span>AI Enhance</span>
+                          </>
+                        )}
+                      </button>
+                    )
+                  )}
+                  {isEditing ? (
+                    /* When editing: Cancel and Save buttons */
+                    <>
+                      <button
+                        className="mc-btn-clean secondary small"
+                        onClick={handleCancelEdit}
+                        disabled={saving}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        className="mc-btn-clean primary small"
+                        onClick={handleSave}
+                        disabled={saving}
+                      >
+                        {saving ? 'Saving...' : 'Save'}
+                      </button>
+                    </>
+                  ) : (
+                    /* When viewing: Edit button (AI Enhance is always shown above) */
+                    <>
+                      {/* Edit button */}
+                      {onSave && (
+                        <button
+                          className="mc-btn-clean secondary small"
+                          onClick={() => setIsEditing(true)}
+                          title="Edit project context"
+                        >
+                          <PenLine size={14} />
+                          <span>Edit</span>
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Context Section - Preview by default, textarea when editing */}
+              <div className="mc-content-section">
+                {isEditing ? (
+                  <div className="mc-edit-full">
+                    <AIWriteAssist
+                      context="project-context"
+                      value={editedContext}
+                      onSuggestion={setEditedContext}
+                      additionalContext={editedName ? `Project: ${editedName}` : ''}
+                    >
+                      <textarea
+                        className="mc-edit-textarea-full"
+                        value={editedContext}
+                        onChange={(e) => setEditedContext(e.target.value)}
+                        rows={15}
+                        autoFocus
+                        placeholder="Add project context here..."
+                      />
+                    </AIWriteAssist>
+                  </div>
+                ) : (
+                  <div className="mc-content-preview">
+                    {content ? (
+                      <>
+                        {/* Floating copy button - matches Stage3/timeline style */}
+                        <button
+                          className={`mc-timeline-copy-btn ${contextCopied ? 'copied' : ''}`}
+                          onClick={handleCopyContext}
+                          title="Copy project context"
+                        >
+                          {contextCopied ? (
+                            <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          ) : (
+                            <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                            </svg>
+                          )}
+                        </button>
+                        <MarkdownViewer content={content} skipCleanup={true} />
+                      </>
+                    ) : (
+                      <p className="mc-no-content">No project context yet. Click Edit to add context that will be included in all council sessions for this project.</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+
+          {/* Decisions Tab Content - Timeline View */}
+          {activeTab === 'decisions' && !isEditing && !isNew && (
+            <div className="mc-project-decisions">
+              {loadingDecisions ? (
+                <div className="mc-decisions-loading">
+                  <Spinner size="md" variant="brand" />
+                  <span>Loading decisions...</span>
+                </div>
+              ) : projectDecisions.length === 0 ? (
+                <div className="mc-empty-decisions">
+                  <Bookmark size={32} className="mc-empty-icon" style={{ color: '#cbd5e1', marginBottom: '12px' }} />
+                  <p className="mc-empty-title">No decisions yet</p>
+                  <p className="mc-empty-hint">
+                    Save council responses to this project to build a decision timeline.
+                  </p>
+                </div>
+              ) : (
+                <div className="mc-decisions-timeline">
+                  {groupedDecisions.map((group, groupIndex) => (
+                    <div
+                      key={group.conversationId || `single-${groupIndex}`}
+                      className={`mc-timeline-group ${group.type === 'group' && group.decisions.length > 1 ? 'linked' : ''}`}
+                    >
+                      {group.decisions.map((decision, decisionIndex) => (
+                        <div
+                          key={decision.id}
+                          className={`mc-timeline-item ${expandedDecisionId === decision.id ? 'expanded' : ''}`}
+                        >
+                          {/* Decision card - clean, no dots/lines */}
+                          <div className="mc-timeline-content">
+                            <div
+                              className="mc-timeline-header"
+                              onClick={() => handleExpandDecision(decision.id)}
+                            >
+                              {/* Single row: Title | Dept Badge | #N | Date | Chevron */}
+                              <div className="mc-timeline-title-row">
+                                <h4 className="mc-timeline-title">{decision.title}</h4>
+                                <div className="mc-timeline-title-badges">
+                                  {/* Show multiple department badges if available */}
+                                  {(decision.department_names?.length > 0 ? decision.department_names : (decision.department_name ? [decision.department_name] : [])).map((deptName, idx) => {
+                                    const deptId = decision.department_ids?.[idx] || decision.department_id;
+                                    return (
+                                      <span
+                                        key={deptId || idx}
+                                        className="mc-timeline-dept-badge"
+                                        style={{
+                                          background: getDeptColor(deptId)?.bg || '#f3f4f6',
+                                          color: getDeptColor(deptId)?.text || '#374151',
+                                          borderColor: getDeptColor(deptId)?.border || '#e5e7eb'
+                                        }}
+                                      >
+                                        {deptName}
+                                      </span>
+                                    );
+                                  })}
+                                  {/* Show iteration badge for multi-turn conversations */}
+                                  {group.type === 'group' && group.decisions.length > 1 && (
+                                    <span className="mc-timeline-iteration-badge">
+                                      #{decisionIndex + 1}
+                                    </span>
+                                  )}
+                                  <span className="mc-timeline-date">
+                                    {new Date(decision.created_at).toLocaleDateString('en-US', {
+                                      month: 'short',
+                                      day: 'numeric',
+                                      year: 'numeric'
+                                    })}
+                                  </span>
+                                  <svg
+                                    className={`mc-timeline-chevron ${expandedDecisionId === decision.id ? 'expanded' : ''}`}
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                  >
+                                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                  </svg>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Expanded content */}
+                            {expandedDecisionId === decision.id && (
+                              <div className="mc-timeline-body">
+                                {/* Clean AI-generated summary */}
+                                {generatingSummaryId === decision.id ? (
+                                  <div className="mc-timeline-summary-loading">
+                                    <Spinner size="sm" variant="brand" />
+                                    <span>Generating summary...</span>
+                                  </div>
+                                ) : decision.decision_summary ? (
+                                  <div className="mc-timeline-summary">
+                                    {decision.decision_summary}
+                                  </div>
+                                ) : null}
+
+                                {/* Council's response with copy button */}
+                                <div className="mc-timeline-answer">
+                                  <button
+                                    className="mc-timeline-copy-btn"
+                                    onClick={async (e) => {
+                                      e.stopPropagation();
+                                      const btn = e.target.closest('.mc-timeline-copy-btn');
+                                      try {
+                                        await navigator.clipboard.writeText(decision.content || '');
+                                        // Brief visual feedback - swap icon
+                                        btn.classList.add('copied');
+                                        btn.querySelector('.copy-icon').style.display = 'none';
+                                        btn.querySelector('.check-icon').style.display = 'block';
+                                        setTimeout(() => {
+                                          if (btn) {
+                                            btn.classList.remove('copied');
+                                            const copyIcon = btn.querySelector('.copy-icon');
+                                            const checkIcon = btn.querySelector('.check-icon');
+                                            if (copyIcon) copyIcon.style.display = 'block';
+                                            if (checkIcon) checkIcon.style.display = 'none';
+                                          }
+                                        }, 2000);
+                                      } catch (err) {
+                                        console.error('Failed to copy:', err);
+                                      }
+                                    }}
+                                    title="Copy council response"
+                                  >
+                                    <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                      <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                                    </svg>
+                                    <svg className="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{display: 'none'}}>
+                                      <polyline points="20 6 9 17 4 12" />
+                                    </svg>
+                                  </button>
+                                  <MarkdownViewer content={decision.content || ''} skipCleanup={true} />
+                                </div>
+
+                                {decision.source_conversation_id && onNavigateToConversation && (
+                                  <button
+                                    className="mc-timeline-source-link"
+                                    onClick={() => {
+                                      onClose();
+                                      // Pass response_index to scroll to the correct response in multi-turn conversations
+                                      // If response_index is null (legacy decision), infer from position in group
+                                      // Council responses are at odd indices: 1, 3, 5, 7...
+                                      // So decisionIndex 0 → response_index 1, decisionIndex 1 → response_index 3, etc.
+                                      const inferredIndex = decision.response_index ?? (decisionIndex * 2 + 1);
+                                      console.log('[ViewProjectModal] Navigating to conversation:', decision.source_conversation_id, 'response_index:', inferredIndex, '(stored:', decision.response_index, ', inferred from decisionIndex:', decisionIndex, ')');
+                                      onNavigateToConversation(decision.source_conversation_id, 'projects', inferredIndex);
+                                    }}
+                                  >
+                                    View original conversation →
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="app-modal-footer-with-actions">
+          {/* Left side: Status actions (always visible for existing projects) */}
+          {!isNew && onStatusChange && (
+            <div className="app-modal-footer-left">
+              {confirmingAction === 'delete' ? (
+                <div className="app-modal-confirm-inline">
+                  <span>Delete this project?</span>
+                  <button
+                    className="app-modal-btn app-modal-btn-sm app-modal-btn-danger-sm"
+                    onClick={async () => {
+                      setActionLoading(true);
+                      try {
+                        await onDelete(project.id);
+                      } catch (err) {
+                        console.error('Failed to delete:', err);
+                        setActionLoading(false);
+                        setConfirmingAction(null);
+                      }
+                    }}
+                    disabled={actionLoading}
+                  >
+                    {actionLoading ? 'Deleting...' : 'Yes, Delete'}
+                  </button>
+                  <button
+                    className="app-modal-btn app-modal-btn-sm app-modal-btn-secondary"
+                    onClick={() => setConfirmingAction(null)}
+                    disabled={actionLoading}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {/* Complete button - only for active projects */}
+                  {editedStatus === 'active' && (
+                    <button
+                      className="app-modal-btn app-modal-btn-action app-modal-btn-success"
+                      onClick={async () => {
+                        setActionLoading(true);
+                        try {
+                          await onStatusChange(project.id, 'completed');
+                        } catch (err) {
+                          console.error('Failed to complete:', err);
+                          setActionLoading(false);
+                        }
+                      }}
+                      disabled={actionLoading || saving}
+                      title="Mark project as completed"
+                    >
+                      <CheckCircle size={14} />
+                      <span>Complete</span>
+                    </button>
+                  )}
+                  {/* Archive/Restore button */}
+                  {editedStatus === 'archived' ? (
+                    <button
+                      className="app-modal-btn app-modal-btn-action app-modal-btn-secondary"
+                      onClick={async () => {
+                        setActionLoading(true);
+                        try {
+                          await onStatusChange(project.id, 'active');
+                        } catch (err) {
+                          console.error('Failed to restore:', err);
+                          setActionLoading(false);
+                        }
+                      }}
+                      disabled={actionLoading || saving}
+                      title="Restore project to active"
+                    >
+                      <RotateCcw size={14} />
+                      <span>Restore</span>
+                    </button>
+                  ) : (
+                    <button
+                      className="app-modal-btn app-modal-btn-action app-modal-btn-secondary"
+                      onClick={async () => {
+                        setActionLoading(true);
+                        try {
+                          await onStatusChange(project.id, 'archived');
+                        } catch (err) {
+                          console.error('Failed to archive:', err);
+                          setActionLoading(false);
+                        }
+                      }}
+                      disabled={actionLoading || saving}
+                      title="Archive this project"
+                    >
+                      <Archive size={14} />
+                      <span>Archive</span>
+                    </button>
+                  )}
+                  {/* Delete button */}
+                  <button
+                    className="app-modal-btn app-modal-btn-action app-modal-btn-danger"
+                    onClick={() => setConfirmingAction('delete')}
+                    disabled={actionLoading || saving}
+                    title="Delete this project"
+                  >
+                    <Trash2 size={14} />
+                    <span>Delete</span>
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+
+        </div>
+
+      {/* Alert Modal for success/error messages */}
+      {alertModal && (
+        <AlertModal
+          title={alertModal.title}
+          message={alertModal.message}
+          variant={alertModal.variant}
+          onClose={() => setAlertModal(null)}
+        />
+      )}
+    </AppModal>
+  );
+}

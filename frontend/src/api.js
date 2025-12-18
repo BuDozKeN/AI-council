@@ -709,133 +709,97 @@ export const api = {
   },
 
   /**
-   * Create a new department for a business.
-   * This scaffolds the department folder structure and creates an initial context file.
-   * Requires authentication.
-   * @param {string} businessId - The business context ID
+   * Create a new department for a company.
+   * @deprecated Use createCompanyDepartment instead
+   * @param {string} companyId - The company ID
    * @param {object} department - The department to create
-   * @param {string} department.id - The department ID (lowercase, hyphenated)
+   * @param {string} department.id - The department ID (used as slug)
    * @param {string} department.name - The display name for the department
-   * @returns {Promise<{success: boolean, department_id: string, message: string}>}
+   * @returns {Promise<Object>} Created department
    */
-  async createDepartment(businessId, department) {
-    const headers = await getAuthHeaders();
-    const response = await fetch(
-      `${API_BASE}/api/businesses/${businessId}/departments`,
-      {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(department),
-      }
-    );
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ detail: 'Failed to create department' }));
-      throw new Error(error.detail || 'Failed to create department');
-    }
-    return response.json();
+  async createDepartment(companyId, department) {
+    // Delegate to new unified endpoint
+    return this.createCompanyDepartment(companyId, {
+      name: department.name,
+      slug: department.id || department.name.toLowerCase().replace(/\s+/g, '-'),
+      description: department.description || null,
+    });
   },
 
   /**
    * Update a department's name and/or description.
-   * Requires authentication.
-   * @param {string} businessId - The business context ID
+   * @deprecated Use updateCompanyDepartment instead
+   * @param {string} companyId - The company ID
    * @param {string} departmentId - The department ID to update
    * @param {object} updates - Fields to update
-   * @param {string} updates.name - New name (optional)
-   * @param {string} updates.description - New description (optional)
-   * @returns {Promise<{success: boolean, message: string}>}
+   * @returns {Promise<Object>} Updated department
    */
-  async updateDepartment(businessId, departmentId, updates) {
-    const headers = await getAuthHeaders();
-    const response = await fetch(
-      `${API_BASE}/api/businesses/${businessId}/departments/${departmentId}`,
-      {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify(updates),
-      }
-    );
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ detail: 'Failed to update department' }));
-      throw new Error(error.detail || 'Failed to update department');
-    }
-    return response.json();
+  async updateDepartment(companyId, departmentId, updates) {
+    // Delegate to new unified endpoint
+    return this.updateCompanyDepartment(companyId, departmentId, updates);
   },
 
   /**
    * Add a new role to a department.
-   * Requires authentication.
-   * @param {string} businessId - The business context ID
+   * @deprecated Use createCompanyRole instead
+   * @param {string} companyId - The company ID
    * @param {string} departmentId - The department to add the role to
    * @param {object} role - The role to create
-   * @param {string} role.role_id - The role ID (lowercase, hyphenated)
+   * @param {string} role.role_id - The role ID (used as slug)
    * @param {string} role.role_name - The display name for the role
    * @param {string} role.role_description - Optional description
-   * @returns {Promise<{success: boolean, message: string, role: object}>}
+   * @returns {Promise<Object>} Created role
    */
-  async addRole(businessId, departmentId, role) {
-    const headers = await getAuthHeaders();
-    const response = await fetch(
-      `${API_BASE}/api/businesses/${businessId}/departments/${departmentId}/roles`,
-      {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(role),
-      }
-    );
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ detail: 'Failed to add role' }));
-      throw new Error(error.detail || 'Failed to add role');
-    }
-    return response.json();
+  async addRole(companyId, departmentId, role) {
+    // Delegate to new unified endpoint
+    return this.createCompanyRole(companyId, departmentId, {
+      name: role.role_name,
+      slug: role.role_id || role.role_name.toLowerCase().replace(/\s+/g, '-'),
+      title: role.role_name,
+      responsibilities: role.role_description || null,
+    });
   },
 
   /**
    * Update a role's name and/or description.
-   * Requires authentication.
-   * @param {string} businessId - The business context ID
+   * @deprecated Use updateCompanyRole instead
+   * @param {string} companyId - The company ID
    * @param {string} departmentId - The department the role belongs to
    * @param {string} roleId - The role ID to update
    * @param {object} updates - Fields to update
-   * @param {string} updates.name - New name (optional)
-   * @param {string} updates.description - New description (optional)
-   * @returns {Promise<{success: boolean, message: string}>}
+   * @returns {Promise<Object>} Updated role
    */
-  async updateRole(businessId, departmentId, roleId, updates) {
-    const headers = await getAuthHeaders();
-    const response = await fetch(
-      `${API_BASE}/api/businesses/${businessId}/departments/${departmentId}/roles/${roleId}`,
-      {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify(updates),
-      }
-    );
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ detail: 'Failed to update role' }));
-      throw new Error(error.detail || 'Failed to update role');
-    }
-    return response.json();
+  async updateRole(companyId, departmentId, roleId, updates) {
+    // Delegate to new unified endpoint
+    return this.updateCompanyRole(companyId, departmentId, roleId, {
+      name: updates.name,
+      responsibilities: updates.description,
+    });
   },
 
   /**
    * Get the system prompt/context for a specific role.
-   * Requires authentication.
-   * @param {string} businessId - The business context ID
+   * @param {string} companyId - The company ID
    * @param {string} departmentId - The department ID
    * @param {string} roleId - The role ID
-   * @returns {Promise<{context: string|null, exists: boolean, path: string}>}
+   * @returns {Promise<{role: Object}>} Role with system_prompt
    */
-  async getRoleContext(businessId, departmentId, roleId) {
+  async getRoleContext(companyId, departmentId, roleId) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/businesses/${businessId}/departments/${departmentId}/roles/${roleId}/context`,
+      `${API_BASE}/api/company/${companyId}/departments/${departmentId}/roles/${roleId}`,
       { headers }
     );
     if (!response.ok) {
       throw new Error('Failed to get role context');
     }
-    return response.json();
+    const data = await response.json();
+    // Transform to match old API shape for backwards compatibility
+    return {
+      context: data.role?.system_prompt || null,
+      exists: !!data.role?.system_prompt,
+      path: `Database: roles/${roleId}`,
+    };
   },
 
   // ============ Projects API ============
