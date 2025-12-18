@@ -607,7 +607,7 @@ def build_system_prompt(persona_prompt: str, include_formatting: bool = True) ->
 
 def _get_service_client():
     """Get Supabase service client (bypasses RLS)."""
-    from .supabase_client import get_supabase_service
+    from .storage import get_supabase_service
     return get_supabase_service()
 
 

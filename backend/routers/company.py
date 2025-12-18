@@ -2349,11 +2349,13 @@ async def get_activity_logs(
     company_id: str,
     limit: int = 50,
     event_type: Optional[str] = None,
+    days: Optional[int] = None,
     user=Depends(get_current_user)
 ):
     """
     Get activity logs for a company.
     Optional filter by event_type (decision, playbook, role, department, council_session).
+    Optional filter by days (1 = today, 7 = last week, 30 = last month).
 
     Returns logs with lightweight playbook/decision IDs for click navigation.
     """
@@ -2373,6 +2375,12 @@ async def get_activity_logs(
 
     if event_type:
         query = query.eq("event_type", event_type)
+
+    # Filter by date range if specified
+    if days:
+        from datetime import datetime, timedelta
+        cutoff = (datetime.utcnow() - timedelta(days=days)).isoformat()
+        query = query.gte("created_at", cutoff)
 
     result = query.execute()
     logs = result.data or []

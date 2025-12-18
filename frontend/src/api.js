@@ -1985,11 +1985,13 @@ export const api = {
    * @param {string} eventType - Optional filter by event type
    * @returns {Promise<{logs: Array}>}
    */
-  async getCompanyActivity(companyId, limit = 50, eventType = null) {
+  async getCompanyActivity(companyId, options = {}) {
+    const { limit = 50, eventType = null, days = null } = options;
     const headers = await getAuthHeaders();
     const params = new URLSearchParams();
     if (limit) params.append('limit', limit);
     if (eventType) params.append('event_type', eventType);
+    if (days) params.append('days', days);
     const queryString = params.toString() ? `?${params.toString()}` : '';
     const response = await fetch(`${API_BASE}/api/company/${companyId}/activity${queryString}`, { headers });
     if (!response.ok) {

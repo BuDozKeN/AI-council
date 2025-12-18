@@ -67,6 +67,12 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
   const [playbookTagFilter, setPlaybookTagFilter] = useState('all');
   const [expandedTypes, setExpandedTypes] = useState({}); // Track which types are expanded beyond 5
 
+  // Activity pagination and filter state
+  const [activityDateFilter, setActivityDateFilter] = useState('7'); // '1' = today, '7' = week, '30' = month, 'all'
+  const [activityLimit, setActivityLimit] = useState(20);
+  const [activityHasMore, setActivityHasMore] = useState(false);
+  const [activityLoadingMore, setActivityLoadingMore] = useState(false);
+
   // Projects filter state
   const [projectStatusFilter, setProjectStatusFilter] = useState('active'); // 'active', 'completed', 'archived', 'all'
   const [projectDeptFilter, setProjectDeptFilter] = useState([]); // Array of department IDs for multi-select
@@ -123,9 +129,14 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
           break;
         }
         case 'activity': {
-          // Single API call for activity logs
-          const activityData = await api.getCompanyActivity(companyId);
-          setActivityLogs(activityData.logs || []);
+          // Load activity with pagination - request one extra to check if more exist
+          const activityData = await api.getCompanyActivity(companyId, {
+            limit: activityLimit + 1,
+            days: activityDateFilter === 'all' ? null : parseInt(activityDateFilter)
+          });
+          const logs = activityData.logs || [];
+          setActivityHasMore(logs.length > activityLimit);
+          setActivityLogs(logs.slice(0, activityLimit));
           break;
         }
         case 'projects': {
@@ -165,6 +176,9 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
     setActivityLogs([]);
     setProjects([]);
     setProjectsLoaded(false); // Reset loaded flag so we show loading state for new company
+    // Reset activity pagination
+    setActivityLimit(20);
+    setActivityHasMore(false);
   }, [companyId]);
 
   // Auto-open decision modal if initialDecisionId is provided and decisions are loaded
@@ -1350,10 +1364,68 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
       return { action: null, cleanTitle: title };
     };
 
+    // Handle loading more events
+    const handleLoadMore = async () => {
+      setActivityLoadingMore(true);
+      try {
+        const newLimit = activityLimit + 20;
+        const activityData = await api.getCompanyActivity(companyId, {
+          limit: newLimit + 1,
+          days: activityDateFilter === 'all' ? null : parseInt(activityDateFilter)
+        });
+        const logs = activityData.logs || [];
+        setActivityHasMore(logs.length > newLimit);
+        setActivityLogs(logs.slice(0, newLimit));
+        setActivityLimit(newLimit);
+      } catch (err) {
+        console.error('Failed to load more activity:', err);
+      } finally {
+        setActivityLoadingMore(false);
+      }
+    };
+
+    // Handle date filter change
+    const handleDateFilterChange = async (newFilter) => {
+      setActivityDateFilter(newFilter);
+      setActivityLimit(20); // Reset to initial limit
+      setLoading(true);
+      try {
+        const activityData = await api.getCompanyActivity(companyId, {
+          limit: 21,
+          days: newFilter === 'all' ? null : parseInt(newFilter)
+        });
+        const logs = activityData.logs || [];
+        setActivityHasMore(logs.length > 20);
+        setActivityLogs(logs.slice(0, 20));
+      } catch (err) {
+        console.error('Failed to filter activity:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const dateFilterLabels = {
+      '1': 'Today',
+      '7': 'Last 7 days',
+      '30': 'Last 30 days',
+      'all': 'All time'
+    };
+
     return (
       <div className="mc-activity">
         <div className="mc-activity-header">
           <span>{activityLogs.length} events</span>
+          <div className="mc-activity-filters">
+            {Object.entries(dateFilterLabels).map(([value, label]) => (
+              <button
+                key={value}
+                className={`mc-filter-chip ${activityDateFilter === value ? 'active' : ''}`}
+                onClick={() => handleDateFilterChange(value)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {Object.entries(groupedLogs).map(([date, logs]) => (
@@ -1395,9 +1467,6 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
                           </span>
                         )}
                       </div>
-                      {log.description && (
-                        <p className="mc-activity-desc">{log.description}</p>
-                      )}
                     </div>
 
                     {/* Time + Actions */}
@@ -1421,6 +1490,19 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
             </div>
           </div>
         ))}
+
+        {/* Load more button */}
+        {activityHasMore && (
+          <div className="mc-load-more-container">
+            <button
+              className="mc-load-more-btn"
+              onClick={handleLoadMore}
+              disabled={activityLoadingMore}
+            >
+              {activityLoadingMore ? 'Loading...' : 'Load more'}
+            </button>
+          </div>
+        )}
       </div>
     );
   };
