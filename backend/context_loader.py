@@ -468,23 +468,29 @@ def get_system_prompt_with_context(
     project_id: Optional[str] = None,
     access_token: Optional[str] = None,
     company_uuid: Optional[str] = None,
-    department_uuid: Optional[str] = None
+    department_uuid: Optional[str] = None,
+    # Multi-select support (new)
+    department_ids: Optional[List[str]] = None,
+    role_ids: Optional[List[str]] = None
 ) -> Optional[str]:
     """
     Generate a system prompt that includes business, project, and department context.
 
     Now reads all context from Supabase database instead of markdown files.
+    Supports multi-select for departments and roles.
 
     Args:
         business_id: The business slug or UUID (used to lookup company context)
-        department_id: Optional department slug or UUID for department context
+        department_id: Optional single department slug or UUID (legacy, use department_ids)
         channel_id: Optional channel context (future use)
         style_id: Optional writing style (future use)
-        role_id: Optional role slug or UUID for persona injection
+        role_id: Optional single role slug or UUID (legacy, use role_ids)
         project_id: Optional project UUID for project-specific context
         access_token: User's JWT access token for RLS authentication
         company_uuid: Supabase company UUID for knowledge lookup
         department_uuid: Supabase department UUID for knowledge lookup
+        department_ids: Optional list of department UUIDs for multi-select
+        role_ids: Optional list of role UUIDs for multi-select
 
     Returns:
         System prompt string with all context, or None if no context found
@@ -492,8 +498,23 @@ def get_system_prompt_with_context(
     if not business_id and not company_uuid:
         return None
 
+    # Normalize single values to lists for unified processing
+    all_role_ids = []
+    if role_ids:
+        all_role_ids = role_ids
+    elif role_id:
+        all_role_ids = [role_id]
+
+    all_department_ids = []
+    if department_ids:
+        all_department_ids = department_ids
+    elif department_uuid:
+        all_department_ids = [department_uuid]
+    elif department_id:
+        all_department_ids = [department_id]
+
     # Debug log what parameters we received
-    print(f"[CONTEXT] Building system prompt - role_id: {role_id}, department_id: {department_id}, business_id: {business_id}", flush=True)
+    print(f"[CONTEXT] Building system prompt - roles: {all_role_ids}, departments: {all_department_ids}, business_id: {business_id}", flush=True)
 
     # Resolve company UUID if we only have business_id (slug)
     if not company_uuid and business_id:
@@ -513,21 +534,54 @@ def get_system_prompt_with_context(
     if not company_context:
         return None
 
-    # Load role info from database if role_id provided
-    role_info = None
-    if role_id:
-        role_info = load_role_prompt_from_db(role_id)
-        role_prompt_len = len(role_info.get('system_prompt', '')) if role_info else 0
-        print(f"[CONTEXT DEBUG] Role info: {role_info.get('name') if role_info else 'None'}, system_prompt length: {role_prompt_len} chars", flush=True)
-    else:
-        print(f"[CONTEXT DEBUG] No role_id provided - using generic AI advisor prompt", flush=True)
+    # Load role info from database for all selected roles
+    role_infos = []
+    for rid in all_role_ids:
+        info = load_role_prompt_from_db(rid)
+        if info:
+            role_infos.append(info)
+            print(f"[CONTEXT DEBUG] Loaded role: {info.get('name')}, system_prompt length: {len(info.get('system_prompt', ''))} chars", flush=True)
 
-    # Build the system prompt
-    if role_info and role_info.get("system_prompt"):
-        role_name = role_info.get('name', role_id)
-        role_prompt = role_info.get('system_prompt', '')
+    if not role_infos:
+        print(f"[CONTEXT DEBUG] No roles provided - using generic AI advisor prompt", flush=True)
 
-        system_prompt = f"""=== ROLE: {role_name.upper()} ===
+    # Build the system prompt based on role selection
+    if len(role_infos) > 1:
+        # Multiple roles selected - combine perspectives
+        role_names = [r.get('name', 'Unknown') for r in role_infos]
+        role_names_str = ", ".join(role_names[:-1]) + " and " + role_names[-1] if len(role_names) > 1 else role_names[0]
+
+        system_prompt = f"""=== COMBINED ROLES: {', '.join([r.upper() for r in role_names])} ===
+
+You are an AI advisor providing perspectives from multiple roles: {role_names_str}. You are one of several AI models providing independent perspectives on this question.
+
+Consider insights from all of these perspectives when responding:
+
+"""
+        for role_info in role_infos:
+            role_name = role_info.get('name', 'Unknown')
+            role_prompt = role_info.get('system_prompt', '')
+            role_desc = role_info.get('description', '')
+
+            system_prompt += f"--- {role_name.upper()} ---\n"
+            if role_prompt:
+                system_prompt += f"{role_prompt}\n\n"
+            elif role_desc:
+                system_prompt += f"{role_desc}\n\n"
+
+        system_prompt += """=== END COMBINED ROLES ===
+
+=== COMPANY CONTEXT ===
+
+"""
+    elif len(role_infos) == 1:
+        # Single role selected
+        role_info = role_infos[0]
+        if role_info.get("system_prompt"):
+            role_name = role_info.get('name', all_role_ids[0])
+            role_prompt = role_info.get('system_prompt', '')
+
+            system_prompt = f"""=== ROLE: {role_name.upper()} ===
 
 You are an AI advisor serving as a {role_name}. You are one of several AI models providing independent perspectives on this question.
 
@@ -538,12 +592,12 @@ You are an AI advisor serving as a {role_name}. You are one of several AI models
 === COMPANY CONTEXT ===
 
 """
-    elif role_info:
-        # Role exists but no system_prompt - use basic prompt
-        role_name = role_info.get('name', role_id)
-        role_desc = role_info.get('description', '')
+        else:
+            # Role exists but no system_prompt - use basic prompt
+            role_name = role_info.get('name', all_role_ids[0])
+            role_desc = role_info.get('description', '')
 
-        system_prompt = f"""You are an AI advisor serving as the {role_name} for this company. You are one of several AI models providing independent perspectives.
+            system_prompt = f"""You are an AI advisor serving as the {role_name} for this company. You are one of several AI models providing independent perspectives.
 
 Your role: {role_desc}
 
@@ -553,6 +607,7 @@ Focus on aspects relevant to your role. Be practical and actionable.
 
 """
     else:
+        # No roles selected - generic advisor
         system_prompt = """You are an AI advisor. You are one of several AI models providing independent perspectives on this question.
 
 === COMPANY CONTEXT ===
@@ -581,57 +636,45 @@ Focus on aspects relevant to your role. Be practical and actionable.
             system_prompt += project_context
             system_prompt += "\n\n=== END PROJECT CONTEXT ===\n"
 
-    # List active departments from database
-    if company_uuid:
-        departments = get_company_departments(company_uuid)
-        # Filter to only departments with context_md populated
-        active_departments = [d for d in departments if d.get("context_md")]
+    # NOTE: Active departments listing has been REMOVED.
+    # Users must explicitly select departments - no auto-listing of all departments.
+    # This prevents models from referencing departments the user didn't select.
 
-        if active_departments:
-            system_prompt += "\n=== ACTIVE DEPARTMENTS ===\n\n"
-            system_prompt += "This company currently has the following active departments:\n\n"
-            system_prompt += "| Department | Description |\n"
-            system_prompt += "|------------|-------------|\n"
-            for dept in active_departments:
-                dept_name = dept.get('name', '')
-                dept_desc = dept.get('description', 'No description')
-                system_prompt += f"| {dept_name} | {dept_desc} |\n"
-            system_prompt += "\n=== END ACTIVE DEPARTMENTS ===\n"
+    # Load department-specific context from database (only if explicitly selected)
+    if all_department_ids:
+        client = get_supabase_service()
 
-    # Load department-specific context from database
-    if department_uuid or department_id:
-        dept_context = load_department_context_from_db(department_uuid or department_id)
-        print(f"[CONTEXT DEBUG] Department context length: {len(dept_context) if dept_context else 0} chars", flush=True)
+        for dept_id in all_department_ids:
+            dept_context = load_department_context_from_db(dept_id)
+            print(f"[CONTEXT DEBUG] Department {dept_id} context length: {len(dept_context) if dept_context else 0} chars", flush=True)
 
-        if dept_context:
-            # Get department name
-            client = get_supabase_service()
-            dept_name = "Department"
-            if client:
-                try:
-                    result = client.table("departments").select("name, description").eq("id", department_uuid or department_id).execute()
-                    if not result.data:
-                        result = client.table("departments").select("name, description").eq("slug", department_id).execute()
-                    if result.data:
-                        dept_name = result.data[0].get("name", "Department")
-                        dept_desc = result.data[0].get("description", "")
-                except Exception:
-                    pass
+            if dept_context:
+                # Get department name
+                dept_name = "Department"
+                if client:
+                    try:
+                        result = client.table("departments").select("name, description").eq("id", dept_id).execute()
+                        if not result.data:
+                            result = client.table("departments").select("name, description").eq("slug", dept_id).execute()
+                        if result.data:
+                            dept_name = result.data[0].get("name", "Department")
+                    except Exception:
+                        pass
 
-            system_prompt += f"\n=== DEPARTMENT: {dept_name.upper()} ===\n"
+                system_prompt += f"\n=== DEPARTMENT: {dept_name.upper()} ===\n"
 
-            # List roles in this department
-            if department_uuid:
-                roles = get_department_roles(department_uuid)
-                if roles:
-                    system_prompt += "\nAvailable Roles:\n"
-                    for role in roles:
-                        role_name = role.get('name', '')
-                        role_desc = role.get('description', '')
-                        system_prompt += f"- {role_name}: {role_desc}\n"
+                # List roles in this department (only if it's a UUID)
+                if is_valid_uuid(dept_id):
+                    roles = get_department_roles(dept_id)
+                    if roles:
+                        system_prompt += "\nAvailable Roles:\n"
+                        for role in roles:
+                            r_name = role.get('name', '')
+                            r_desc = role.get('description', '')
+                            system_prompt += f"- {r_name}: {r_desc}\n"
 
-            system_prompt += f"\n{dept_context}\n"
-            system_prompt += f"\n=== END {dept_name.upper()} DEPARTMENT ===\n"
+                system_prompt += f"\n{dept_context}\n"
+                system_prompt += f"\n=== END {dept_name.upper()} DEPARTMENT ===\n"
 
     # NOTE: Auto-injection of knowledge entries, playbooks, and decisions has been DISABLED.
     # Users should explicitly select what context they want included via:
@@ -647,16 +690,32 @@ When responding:
 2. Be practical given their current stage and resources
 3. Reference specific aspects of their business when relevant
 4. Avoid generic advice that ignores their context
+
+IMPORTANT: Provide a complete recommendation. Do NOT end your response with questions.
+If you lack information, state what would be helpful to know, but still give your best
+recommendation based on what you have. Example:
+- BAD: "What's your budget for this project?"
+- GOOD: "Without knowing your budget, I'd recommend X for cost-efficiency or Y if budget allows."
 """
 
-    # Add role-specific guidance if a specific role is selected
-    if role_info:
-        role_name = role_info.get('name', role_id)
+    # Add role-specific guidance if roles are selected
+    if len(role_infos) > 1:
+        role_names = [r.get('name', 'Unknown') for r in role_infos]
+        role_names_str = ", ".join(role_names[:-1]) + " and " + role_names[-1]
+        system_prompt += f"5. Consider perspectives from all selected roles: {role_names_str}\n"
+        system_prompt += f"6. Integrate insights from each role into a cohesive response\n"
+    elif len(role_infos) == 1:
+        role_name = role_infos[0].get('name', all_role_ids[0] if all_role_ids else 'Unknown')
         system_prompt += f"5. Respond AS the {role_name} - stay in character and focus on your role's responsibilities\n"
         system_prompt += f"6. Bring your unique perspective as {role_name} to this question\n"
-    elif department_id:
-        dept_display = department_id.replace('-', ' ').title() if isinstance(department_id, str) else "the selected"
-        system_prompt += f"5. Focus your advice from the perspective of the {dept_display} department\n"
+    elif all_department_ids:
+        # No roles but departments selected
+        if len(all_department_ids) > 1:
+            system_prompt += f"5. Focus your advice considering the perspectives of the selected departments\n"
+        else:
+            dept_id = all_department_ids[0]
+            dept_display = dept_id.replace('-', ' ').title() if isinstance(dept_id, str) and not is_valid_uuid(dept_id) else "the selected"
+            system_prompt += f"5. Focus your advice from the perspective of the {dept_display} department\n"
 
     # Final length check - ensure total context doesn't exceed safe limits
     if len(system_prompt) > MAX_CONTEXT_CHARS:

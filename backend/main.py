@@ -398,18 +398,24 @@ class SendMessageRequest(BaseModel):
     """Request to send a message in a conversation."""
     content: str
     business_id: Optional[str] = None
-    department: Optional[str] = "standard"
-    role: Optional[str] = None  # Role ID for persona injection (e.g., 'cto', 'head-of-ai-people-culture')
+    department: Optional[str] = "standard"  # Legacy: single department
+    role: Optional[str] = None  # Legacy: single role ID for persona injection
     project_id: Optional[str] = None  # Project ID for project-specific context
     attachment_ids: Optional[List[str]] = None  # Optional list of attachment IDs (images to analyze)
+    # Multi-select support (new)
+    departments: Optional[List[str]] = None  # Multiple department UUIDs
+    roles: Optional[List[str]] = None  # Multiple role UUIDs
 
 
 class ChatRequest(BaseModel):
     """Request to send a chat message (Chairman only, no full council)."""
     content: str
     business_id: Optional[str] = None
-    department_id: Optional[str] = None
+    department_id: Optional[str] = None  # Legacy: single department
     project_id: Optional[str] = None  # Project ID for project-specific context
+    # Multi-select support (new)
+    department_ids: Optional[List[str]] = None  # Multiple department UUIDs
+    role_ids: Optional[List[str]] = None  # Multiple role UUIDs
 
 
 class CreateKnowledgeRequest(BaseModel):
@@ -732,7 +738,9 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
                 conversation_history=None,  # Intentionally None - keep Stage 1 isolated
                 project_id=body.project_id,
                 access_token=access_token,
-                company_uuid=company_uuid
+                company_uuid=company_uuid,
+                department_ids=body.departments,  # Multi-select support
+                role_ids=body.roles  # Multi-select support
             ):
                 if event['type'] == 'stage1_token':
                     # Stream individual tokens
@@ -776,7 +784,9 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
                 business_id=body.business_id,
                 project_id=body.project_id,
                 access_token=access_token,
-                company_uuid=company_uuid
+                company_uuid=company_uuid,
+                department_ids=body.departments,  # Multi-select support
+                role_ids=body.roles  # Multi-select support
             ):
                 if event['type'] == 'stage3_token':
                     yield f"data: {json.dumps(event)}\n\n"
@@ -815,8 +825,8 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
             if aggregate_rankings:
                 leaderboard.record_session_rankings(
                     conversation_id=conversation_id,
-                    department=request.department or "standard",
-                    business_id=request.business_id,
+                    department=body.department or "standard",
+                    business_id=body.business_id,
                     aggregate_rankings=aggregate_rankings
                 )
 

@@ -177,12 +177,21 @@ export default function Stage3({
   }, [conversationId, companyId, responseIndex, savedDecisionId, selectedProjectId]);
 
   // Track previous conversationId to detect actual changes (not initial mount)
-  const prevConversationRef = useRef(conversationId);
-  const prevResponseIndexRef = useRef(responseIndex);
+  const prevConversationRef = useRef(null); // Start as null to detect initial mount
+  const prevResponseIndexRef = useRef(null);
+  const isInitialMount = useRef(true);
 
   // Reset saved decision state when conversation changes
   // This prevents "Decision saved" from persisting across different conversations
   useEffect(() => {
+    // Skip reset on initial mount - let the "initial load" effect handle it
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      prevConversationRef.current = conversationId;
+      prevResponseIndexRef.current = responseIndex;
+      return;
+    }
+
     const conversationChanged = prevConversationRef.current !== conversationId;
     const responseIndexChanged = prevResponseIndexRef.current !== responseIndex;
 
@@ -190,7 +199,7 @@ export default function Stage3({
     prevConversationRef.current = conversationId;
     prevResponseIndexRef.current = responseIndex;
 
-    // Only reset if this is an actual change (not initial mount)
+    // Only reset if conversation or response index actually changed
     if (conversationChanged || responseIndexChanged) {
       console.log('[Stage3] Conversation/response changed, resetting saved state');
       setSavedDecisionId(null);
@@ -204,7 +213,7 @@ export default function Stage3({
       lastDecisionCheck.current = 0;
       isCheckingDecision.current = false;
     }
-  }, [conversationId, responseIndex, currentProjectId, departmentId]); // Reset when conversation OR response index changes
+  }, [conversationId, responseIndex]); // Only reset when conversation or response index changes (not other props)
 
   // Sync selectedProjectId when currentProjectId prop changes (e.g., after creating a new project)
   useEffect(() => {
