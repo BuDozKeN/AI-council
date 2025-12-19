@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import { captureError } from '../utils/sentry';
 
 /**
  * Error Boundary component to catch JavaScript errors anywhere in the child
@@ -20,15 +21,16 @@ class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    // Log the error to console (in production, send to error tracking service)
+    // Log the error to console
     console.error('ErrorBoundary caught an error:', error, errorInfo);
 
     this.setState({ errorInfo });
 
-    // TODO: Send to Sentry or other error tracking service
-    // if (window.Sentry) {
-    //   window.Sentry.captureException(error, { extra: errorInfo });
-    // }
+    // Send to Sentry
+    captureError(error, {
+      componentStack: errorInfo?.componentStack,
+      errorBoundary: true,
+    });
   }
 
   handleReload = () => {

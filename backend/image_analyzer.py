@@ -7,9 +7,16 @@ import random
 from typing import List, Dict, Any, Optional
 from .config import OPENROUTER_API_KEY, OPENROUTER_API_URL
 from . import openrouter  # Import to check MOCK_LLM at runtime
+from .model_registry import get_primary_model, get_primary_model_sync
 
-# Vision-capable model for image analysis
-VISION_MODEL = "openai/gpt-4o"  # GPT-4o has excellent vision capabilities
+# Vision-capable model for image analysis (sync fallback for module level)
+VISION_MODEL = get_primary_model_sync('vision_analyzer') or "openai/gpt-4o"
+
+
+async def _get_vision_model() -> str:
+    """Get vision model from registry (async)."""
+    model = await get_primary_model('vision_analyzer')
+    return model or VISION_MODEL
 
 # Mock mode delay range (seconds)
 MOCK_DELAY_MIN = 0.3
@@ -156,8 +163,11 @@ async def analyze_image(
         "Content-Type": "application/json",
     }
 
+    # Get vision model from registry
+    vision_model = await _get_vision_model()
+
     payload = {
-        "model": VISION_MODEL,
+        "model": vision_model,
         "messages": messages,
         "max_tokens": 2048,
     }

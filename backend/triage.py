@@ -10,9 +10,16 @@ Ensures questions have the 4 key constraints before going to the council:
 import json
 from typing import Dict, Any, List, Optional
 from .openrouter import query_model
+from .model_registry import get_primary_model, get_primary_model_sync
 
-# Use a fast, cheap model for triage
-TRIAGE_MODEL = "google/gemini-2.0-flash-001"
+# Get triage model from registry (async), with sync fallback for module-level access
+TRIAGE_MODEL = get_primary_model_sync('triage')  # Fallback for backwards compat
+
+
+async def _get_triage_model() -> str:
+    """Get triage model from registry (async)."""
+    model = await get_primary_model('triage')
+    return model or TRIAGE_MODEL
 
 TRIAGE_PROMPT = """You are a triage assistant for an AI Council that advises a bootstrapped startup.
 
@@ -134,7 +141,8 @@ This is just so you understand the business. You must still ask the user about W
         "content": TRIAGE_PROMPT + user_input
     })
 
-    response = await query_model(TRIAGE_MODEL, messages, timeout=30.0)
+    triage_model = await _get_triage_model()
+    response = await query_model(triage_model, messages, timeout=30.0)
 
     if response is None:
         # Fallback: assume ready if triage fails
@@ -226,7 +234,8 @@ Only use constraints the user has explicitly stated in their responses."""
         "content": prompt
     })
 
-    response = await query_model(TRIAGE_MODEL, messages, timeout=30.0)
+    triage_model = await _get_triage_model()
+    response = await query_model(triage_model, messages, timeout=30.0)
 
     if response is None:
         # Merge what we have and proceed

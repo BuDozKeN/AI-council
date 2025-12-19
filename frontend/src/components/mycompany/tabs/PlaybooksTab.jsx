@@ -1,0 +1,255 @@
+/**
+ * PlaybooksTab - SOPs, Frameworks, and Policies management
+ *
+ * Shows:
+ * - Stats cards with clickable type filters
+ * - Department multi-select filter
+ * - Playbooks grouped by type (SOP, Framework, Policy)
+ * - Archive and delete actions
+ *
+ * Extracted from MyCompany.jsx for better maintainability.
+ */
+
+import { BookOpen } from 'lucide-react';
+import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
+import { getDeptColor } from '../../../lib/colors';
+
+const DOC_TYPES = ['sop', 'framework', 'policy'];
+const TYPE_LABELS = {
+  sop: 'Standard Operating Procedures',
+  framework: 'Frameworks',
+  policy: 'Policies'
+};
+const TYPE_SHORT_LABELS = {
+  sop: 'SOP',
+  framework: 'Framework',
+  policy: 'Policy'
+};
+
+export function PlaybooksTab({
+  playbooks = [],
+  departments = [],
+  // Filter state
+  playbookTypeFilter = 'all',
+  playbookDeptFilter = [],
+  expandedTypes = {},
+  // Filter setters
+  onTypeFilterChange,
+  onDeptFilterChange,
+  onExpandedTypesChange,
+  // Actions
+  onAddPlaybook,
+  onViewPlaybook,
+  onArchivePlaybook,
+  onDeletePlaybook
+}) {
+  // Calculate stats from ALL playbooks (for stat cards)
+  const allSops = playbooks.filter(p => p.doc_type === 'sop');
+  const allFrameworks = playbooks.filter(p => p.doc_type === 'framework');
+  const allPolicies = playbooks.filter(p => p.doc_type === 'policy');
+
+  // Filter playbooks based on filters (client-side)
+  const filteredPlaybooks = playbooks
+    .filter(pb => {
+      const matchesType = playbookTypeFilter === 'all' || pb.doc_type === playbookTypeFilter;
+      // Multi-select department filter
+      const matchesDept = playbookDeptFilter.length === 0 ||
+        playbookDeptFilter.includes(pb.department_id) ||
+        (pb.additional_departments || []).some(id => playbookDeptFilter.includes(id));
+      return matchesType && matchesDept;
+    })
+    .sort((a, b) => a.title.localeCompare(b.title)); // Alphabetical order
+
+  // Group filtered playbooks by type
+  const groupedPlaybooks = DOC_TYPES.reduce((acc, type) => {
+    acc[type] = filteredPlaybooks.filter(p => p.doc_type === type);
+    return acc;
+  }, {});
+
+  if (playbooks.length === 0) {
+    return (
+      <div className="mc-empty">
+        <BookOpen size={32} className="mc-empty-icon" />
+        <p className="mc-empty-title">No playbooks yet</p>
+        <p className="mc-empty-hint">Create SOPs, frameworks, and policies for your AI council</p>
+        <button
+          className="mc-btn primary"
+          onClick={onAddPlaybook}
+        >
+          + Create Playbook
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mc-playbooks">
+      {/* Stats grid - clickable filters like Projects tab */}
+      <div className="mc-stats-grid">
+        <div
+          className={`mc-stat-card ${playbookTypeFilter === 'all' ? 'selected' : ''}`}
+          onClick={() => onTypeFilterChange && onTypeFilterChange('all')}
+          style={{ cursor: 'pointer' }}
+        >
+          <div className="mc-stat-value" style={{ color: '#059669' }}>{playbooks.length}</div>
+          <div className="mc-stat-label">Total</div>
+        </div>
+        <div
+          className={`mc-stat-card ${playbookTypeFilter === 'sop' ? 'selected' : ''}`}
+          onClick={() => onTypeFilterChange && onTypeFilterChange(playbookTypeFilter === 'sop' ? 'all' : 'sop')}
+          style={{ cursor: 'pointer' }}
+        >
+          <div className="mc-stat-value" style={{ color: '#1d4ed8' }}>{allSops.length}</div>
+          <div className="mc-stat-label">SOPs</div>
+        </div>
+        <div
+          className={`mc-stat-card ${playbookTypeFilter === 'framework' ? 'selected' : ''}`}
+          onClick={() => onTypeFilterChange && onTypeFilterChange(playbookTypeFilter === 'framework' ? 'all' : 'framework')}
+          style={{ cursor: 'pointer' }}
+        >
+          <div className="mc-stat-value" style={{ color: '#b45309' }}>{allFrameworks.length}</div>
+          <div className="mc-stat-label">Frameworks</div>
+        </div>
+        <div
+          className={`mc-stat-card ${playbookTypeFilter === 'policy' ? 'selected' : ''}`}
+          onClick={() => onTypeFilterChange && onTypeFilterChange(playbookTypeFilter === 'policy' ? 'all' : 'policy')}
+          style={{ cursor: 'pointer' }}
+        >
+          <div className="mc-stat-value" style={{ color: '#6d28d9' }}>{allPolicies.length}</div>
+          <div className="mc-stat-label">Policies</div>
+        </div>
+      </div>
+
+      {/* Filters row - multi-department and search */}
+      <div className="mc-projects-filters">
+        <div className="mc-filters-left">
+          <MultiDepartmentSelect
+            value={playbookDeptFilter}
+            onValueChange={onDeptFilterChange}
+            departments={departments}
+            placeholder="All Depts"
+          />
+        </div>
+        <button
+          className="mc-btn-clean primary"
+          onClick={onAddPlaybook}
+        >
+          <svg style={{ width: '14px', height: '14px', marginRight: '4px' }} viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+          </svg>
+          New Playbook
+        </button>
+      </div>
+
+      {filteredPlaybooks.length === 0 ? (
+        <div className="mc-empty-filtered">
+          No playbooks match your filters
+        </div>
+      ) : (
+        DOC_TYPES.map(type => {
+          const docs = groupedPlaybooks[type];
+          if (docs.length === 0) return null;
+
+          const MAX_VISIBLE = 5;
+          const isExpanded = expandedTypes[type];
+          const visibleDocs = isExpanded ? docs : docs.slice(0, MAX_VISIBLE);
+          const hasMore = docs.length > MAX_VISIBLE;
+
+          return (
+            <div key={type} className="mc-playbook-group">
+              <h4 className="mc-group-title">
+                {TYPE_LABELS[type]}
+                <span className="mc-group-count">({docs.length})</span>
+              </h4>
+              <div className="mc-elegant-list">
+                {visibleDocs.map(doc => {
+                  // Use embedded department name (or fallback to lookup for backwards compat)
+                  const dept = doc.department_name
+                    ? { id: doc.department_id, name: doc.department_name, slug: doc.department_slug }
+                    : departments.find(d => d.id === doc.department_id);
+                  // Find additional department names
+                  const additionalDepts = (doc.additional_departments || [])
+                    .map(deptId => departments.find(d => d.id === deptId))
+                    .filter(Boolean);
+
+                  // All departments for this playbook
+                  const allDepts = [dept, ...additionalDepts].filter(Boolean);
+
+                  const typeLabel = TYPE_SHORT_LABELS[doc.doc_type] || doc.doc_type;
+
+                  return (
+                    <div
+                      key={doc.id}
+                      className="mc-elegant-row"
+                      onClick={() => onViewPlaybook && onViewPlaybook(doc)}
+                    >
+                      {/* Type indicator dot */}
+                      <div className={`mc-type-dot ${doc.doc_type}`} />
+
+                      {/* Main content */}
+                      <div className="mc-elegant-content">
+                        <span className="mc-elegant-title">{doc.title}</span>
+
+                        {/* Department badges */}
+                        {allDepts.map(d => {
+                          const color = getDeptColor(d.id);
+                          return (
+                            <span
+                              key={d.id}
+                              className="mc-elegant-dept"
+                              style={{
+                                background: color.bg,
+                                color: color.text
+                              }}
+                            >
+                              {d.name}
+                            </span>
+                          );
+                        })}
+                        {allDepts.length === 0 && (
+                          <span className="mc-elegant-dept mc-elegant-dept-none">
+                            Company-wide
+                          </span>
+                        )}
+
+                        {/* Type badge */}
+                        <span className={`mc-elegant-badge ${doc.doc_type}`}>{typeLabel}</span>
+                      </div>
+
+                      {/* Actions on hover - Archive and Delete */}
+                      <div className="mc-elegant-actions">
+                        <button
+                          className="mc-text-btn archive"
+                          onClick={(e) => { e.stopPropagation(); onArchivePlaybook && onArchivePlaybook(doc); }}
+                          title="Archive playbook"
+                        >
+                          Archive
+                        </button>
+                        <button
+                          className="mc-text-btn delete"
+                          onClick={(e) => { e.stopPropagation(); onDeletePlaybook && onDeletePlaybook(doc); }}
+                          title="Delete playbook"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {/* Load more / Show less button */}
+              {hasMore && (
+                <button
+                  className="mc-load-more-btn"
+                  onClick={() => onExpandedTypesChange && onExpandedTypesChange(prev => ({ ...prev, [type]: !prev[type] }))}
+                >
+                  {isExpanded ? `Show less` : `Load more (${docs.length - MAX_VISIBLE} more)`}
+                </button>
+              )}
+            </div>
+          );
+        })
+      )}
+    </div>
+  );
+}

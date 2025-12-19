@@ -6,6 +6,10 @@ import App from './App.jsx'
 import { AuthProvider } from './AuthContext'
 import ErrorBoundary from './components/ErrorBoundary'
 import { initWebVitals } from './utils/webVitals'
+import { initSentry } from './utils/sentry'
+
+// Initialize Sentry error tracking (before anything else)
+initSentry()
 
 // Initialize performance monitoring
 initWebVitals()

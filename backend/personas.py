@@ -21,6 +21,7 @@ Categories:
 
 import time
 from typing import Optional, Dict, Any, List
+from .model_registry import get_models, get_models_sync
 
 # Cache for database personas: {persona_key: (data, timestamp)}
 _db_persona_cache: Dict[str, tuple] = {}
@@ -532,9 +533,14 @@ async def get_write_assist_persona_async(
         if persona_key:
             db_persona = await get_db_persona(persona_key, company_id)
             if db_persona:
+                # Get model preferences from DB persona, or fall back to registry
+                model_prefs = db_persona.get("model_preferences")
+                if not model_prefs:
+                    # Use the persona_key role from model_registry (e.g., 'sop_writer')
+                    model_prefs = await get_models(persona_key) or ["openai/gpt-4o"]
                 return {
                     "system_prompt": db_persona.get("system_prompt", ""),
-                    "model_preferences": db_persona.get("model_preferences", ["openai/gpt-4o"])
+                    "model_preferences": model_prefs
                 }
             else:
                 print(f"[PERSONAS] WARNING: DB persona '{persona_key}' not found, using hardcoded fallback", flush=True)
@@ -545,9 +551,12 @@ async def get_write_assist_persona_async(
     else:
         persona = WRITE_ASSIST_PERSONAS.get(context, WRITE_ASSIST_PERSONAS["generic"])
 
+    # Get default model from registry for non-playbook contexts
+    default_models = await get_models('ai_write_assist') or ["openai/gpt-4o-mini"]
+
     return {
         "system_prompt": persona["prompt"],
-        "model_preferences": ["openai/gpt-4o-mini"]  # Default for non-playbook contexts
+        "model_preferences": default_models
     }
 
 

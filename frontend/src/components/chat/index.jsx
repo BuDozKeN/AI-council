@@ -1,0 +1,12 @@
+/**
+ * Chat Components
+ *
+ * Extracted from ChatInterface.jsx for better maintainability.
+ */
+
+export { WelcomeState, ConversationEmptyState } from './EmptyState';
+export { ContextIndicator } from './ContextIndicator';
+export { ContextBar } from './ContextBar';
+export { ModeToggle } from './ModeToggle';
+export { MessageList } from './MessageList';
+export { ChatInput } from './ChatInput';

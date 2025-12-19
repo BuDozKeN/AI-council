@@ -27,6 +27,7 @@ import {
   ViewCompanyContextModal,
   ViewDecisionModal
 } from './mycompany/modals';
+import { ActivityTab, OverviewTab, TeamTab, PlaybooksTab, ProjectsTab, DecisionsTab } from './mycompany/tabs';
 import './MyCompany.css';
 
 /**
@@ -280,508 +281,6 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
   // Count stats
   const totalRoles = departments.reduce((sum, dept) => sum + (dept.roles?.length || 0), 0);
 
-  // Parse metadata from context markdown (Last Updated, Version)
-  const parseContextMetadata = (contextMd) => {
-    if (!contextMd) return { lastUpdated: null, version: null };
-
-    // Look for patterns like "> **Last Updated:** 2025-12-16" and "> **Version:** 1.2"
-    const lastUpdatedMatch = contextMd.match(/\*\*Last Updated:\*\*\s*(\d{4}-\d{2}-\d{2})/);
-    const versionMatch = contextMd.match(/\*\*Version:\*\*\s*([\d.]+)/);
-
-    // Format date as "December 16, 2025" (works for US and EU readers)
-    let formattedDate = null;
-    if (lastUpdatedMatch) {
-      const date = new Date(lastUpdatedMatch[1] + 'T00:00:00');
-      formattedDate = date.toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric'
-      });
-    }
-
-    return {
-      lastUpdated: formattedDate,
-      version: versionMatch ? versionMatch[1] : null
-    };
-  };
-
-  // Tab content renderers
-  const renderOverview = () => {
-    if (!overview) {
-      return (
-        <div className="mc-empty">
-          <Building2 size={32} className="mc-empty-icon" />
-          <p className="mc-empty-title">No company data</p>
-          <p className="mc-empty-hint">Company information will appear here</p>
-        </div>
-      );
-    }
-
-    const contextMd = overview.company?.context_md || '';
-    const { lastUpdated, version } = parseContextMetadata(contextMd);
-
-    return (
-      <div className="mc-overview">
-        {/* Hero section - immediately explains what this is */}
-        <div className="mc-overview-hero">
-          <div className="mc-overview-hero-content">
-            <h2 className="mc-overview-title">{companyName} Business Context</h2>
-            <p className="mc-overview-description">
-              This document defines your company's mission, goals, constraints, and strategic decisions.
-              When selected, it's injected into Council conversations to provide relevant, contextual advice.
-            </p>
-          </div>
-          <div className="mc-overview-meta">
-            {lastUpdated && (
-              <div className="mc-meta-item">
-                <span className="mc-meta-label">Last Updated</span>
-                <span className="mc-meta-value">{lastUpdated}</span>
-              </div>
-            )}
-            {version && (
-              <div className="mc-meta-item">
-                <span className="mc-meta-label">Version</span>
-                <span className="mc-meta-value">{version}</span>
-              </div>
-            )}
-            <button
-              className="mc-btn primary small"
-              onClick={() => setEditingItem({
-                type: 'company-context',
-                data: {
-                  id: overview.company?.id,
-                  context_md: contextMd
-                }
-              })}
-            >
-              Edit Context
-            </button>
-          </div>
-        </div>
-
-        {/* Stats grid */}
-        <div className="mc-stats-grid">
-          <div className="mc-stat-card">
-            <div className="mc-stat-value">{overview.stats?.departments || 0}</div>
-            <div className="mc-stat-label">Departments</div>
-          </div>
-          <div className="mc-stat-card">
-            <div className="mc-stat-value">{overview.stats?.roles || 0}</div>
-            <div className="mc-stat-label">Roles</div>
-          </div>
-          <div className="mc-stat-card">
-            <div className="mc-stat-value">{overview.stats?.playbooks || 0}</div>
-            <div className="mc-stat-label">Playbooks</div>
-          </div>
-          <div className="mc-stat-card">
-            <div className="mc-stat-value">{overview.stats?.decisions || 0}</div>
-            <div className="mc-stat-label">Decisions</div>
-          </div>
-        </div>
-
-        {/* Context content */}
-        <div className="mc-context-section">
-          <div className="mc-context-section-header">
-            <h3>Document Preview</h3>
-            {contextMd && (
-              <button
-                className="mc-expand-btn"
-                onClick={() => setEditingItem({
-                  type: 'company-context-view',
-                  data: {
-                    id: overview.company?.id,
-                    context_md: contextMd
-                  }
-                })}
-                title="Expand"
-              >
-                <svg viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H5.414l4.293 4.293a1 1 0 01-1.414 1.414L4 6.414V9a1 1 0 01-2 0V4zm9 1a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 11-2 0V6.414l-4.293 4.293a1 1 0 01-1.414-1.414L14.586 5H12a1 1 0 01-1-1zm-9 10a1 1 0 011-1h2.586l4.293-4.293a1 1 0 011.414 1.414L8.414 15H11a1 1 0 110 2H4a1 1 0 01-1-1v-5z" clipRule="evenodd" />
-                </svg>
-              </button>
-            )}
-          </div>
-          <div className="mc-context-content">
-            {contextMd ? (
-              <MarkdownViewer content={contextMd} />
-            ) : (
-              <div className="mc-empty-context">
-                <p className="mc-empty-title">No business context defined yet</p>
-                <p className="mc-empty-hint">Click "Edit Context" above to add your company's mission, goals, strategy, and other important information that the AI Council should know.</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const renderTeam = () => {
-    if (departments.length === 0) {
-      return (
-        <div className="mc-empty">
-          <Users size={32} className="mc-empty-icon" />
-          <p className="mc-empty-title">No departments yet</p>
-          <p className="mc-empty-hint">Add your first department to organize your AI council</p>
-          <button
-            className="mc-btn primary"
-            onClick={() => setShowAddForm('department')}
-          >
-            + Add Department
-          </button>
-        </div>
-      );
-    }
-
-    return (
-      <div className="mc-team">
-        <div className="mc-team-header">
-          <span>{departments.length} departments • {totalRoles} roles</span>
-          <button
-            className="mc-btn primary small"
-            onClick={() => setShowAddForm('department')}
-          >
-            + Add Department
-          </button>
-        </div>
-
-        <div className="mc-elegant-list">
-          {departments.map(dept => {
-            const deptColors = getDeptColor(dept.id);
-            const isExpanded = expandedDept === dept.id;
-
-            return (
-              <div key={dept.id} className="mc-dept-container">
-                <div
-                  className={`mc-elegant-row mc-dept-row ${isExpanded ? 'expanded' : ''}`}
-                  onClick={() => setExpandedDept(isExpanded ? null : dept.id)}
-                >
-                  {/* Department color indicator */}
-                  <div
-                    className="mc-dept-indicator"
-                    style={{ background: deptColors.text }}
-                  />
-
-                  {/* Main content */}
-                  <div className="mc-elegant-content">
-                    <span className="mc-elegant-title">{dept.name}</span>
-                    <span className="mc-elegant-meta">{dept.roles?.length || 0} roles</span>
-                  </div>
-
-                  {/* Expand icon */}
-                  <div className="mc-elegant-actions">
-                    <span className={`mc-expand-chevron ${isExpanded ? 'expanded' : ''}`}>
-                      ›
-                    </span>
-                  </div>
-                </div>
-
-                {/* Expanded content */}
-                {isExpanded && (
-                  <div className="mc-dept-expanded-content">
-                    {/* Department context button */}
-                    <button
-                      className="mc-context-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEditingItem({ type: 'department', data: dept });
-                      }}
-                    >
-                      <span className="mc-context-icon">📄</span>
-                      <span>View Context</span>
-                      {dept.context_md && (
-                        <span className="mc-context-size">{Math.round(dept.context_md.length / 1000)}k</span>
-                      )}
-                    </button>
-
-                    {/* Roles list */}
-                    <div className="mc-roles-section">
-                      <div className="mc-roles-header">
-                        <span className="mc-roles-label">Roles</span>
-                        <button
-                          className="mc-text-btn add"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setShowAddForm({ type: 'role', deptId: dept.id });
-                          }}
-                        >
-                          + Add
-                        </button>
-                      </div>
-
-                      {dept.roles && dept.roles.length > 0 ? (
-                        <div className="mc-roles-list">
-                          {dept.roles.map(role => (
-                            <div
-                              key={role.id}
-                              className="mc-role-row"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setEditingItem({ type: 'role', data: { ...role, departmentName: dept.name, departmentId: dept.id } });
-                              }}
-                            >
-                              <span className="mc-role-name">{role.name}</span>
-                              {role.title && (
-                                <span className="mc-role-title">{role.title}</span>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="mc-no-roles">No roles defined</p>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
-
-  const renderPlaybooks = () => {
-    // Calculate stats from ALL playbooks (for stat cards)
-    const allSops = playbooks.filter(p => p.doc_type === 'sop');
-    const allFrameworks = playbooks.filter(p => p.doc_type === 'framework');
-    const allPolicies = playbooks.filter(p => p.doc_type === 'policy');
-
-    // Filter playbooks based on search and filters (client-side)
-    const filteredPlaybooks = playbooks
-      .filter(pb => {
-        const matchesSearch = !playbookSearch ||
-          pb.title.toLowerCase().includes(playbookSearch.toLowerCase());
-        const matchesType = playbookTypeFilter === 'all' || pb.doc_type === playbookTypeFilter;
-        // Multi-select department filter
-        const matchesDept = playbookDeptFilter.length === 0 ||
-          playbookDeptFilter.includes(pb.department_id) ||
-          (pb.additional_departments || []).some(id => playbookDeptFilter.includes(id));
-        const matchesTag = playbookTagFilter === 'all' ||
-          (pb.tags && pb.tags.includes(playbookTagFilter));
-        return matchesSearch && matchesType && matchesDept && matchesTag;
-      })
-      .sort((a, b) => a.title.localeCompare(b.title)); // Alphabetical order
-
-    const docTypes = ['sop', 'framework', 'policy'];
-    const typeLabels = {
-      sop: 'Standard Operating Procedures',
-      framework: 'Frameworks',
-      policy: 'Policies'
-    };
-
-    // Group filtered playbooks by type
-    const groupedPlaybooks = docTypes.reduce((acc, type) => {
-      acc[type] = filteredPlaybooks.filter(p => p.doc_type === type);
-      return acc;
-    }, {});
-
-    if (playbooks.length === 0) {
-      return (
-        <div className="mc-empty">
-          <BookOpen size={32} className="mc-empty-icon" />
-          <p className="mc-empty-title">No playbooks yet</p>
-          <p className="mc-empty-hint">Create SOPs, frameworks, and policies for your AI council</p>
-          <button
-            className="mc-btn primary"
-            onClick={() => setShowAddForm('playbook')}
-          >
-            + Create Playbook
-          </button>
-        </div>
-      );
-    }
-
-    return (
-      <div className="mc-playbooks">
-        {/* Stats grid - clickable filters like Projects tab */}
-        <div className="mc-stats-grid">
-          <div
-            className={`mc-stat-card ${playbookTypeFilter === 'all' ? 'selected' : ''}`}
-            onClick={() => setPlaybookTypeFilter('all')}
-            style={{ cursor: 'pointer' }}
-          >
-            <div className="mc-stat-value" style={{ color: '#059669' }}>{playbooks.length}</div>
-            <div className="mc-stat-label">Total</div>
-          </div>
-          <div
-            className={`mc-stat-card ${playbookTypeFilter === 'sop' ? 'selected' : ''}`}
-            onClick={() => setPlaybookTypeFilter(playbookTypeFilter === 'sop' ? 'all' : 'sop')}
-            style={{ cursor: 'pointer' }}
-          >
-            <div className="mc-stat-value" style={{ color: '#1d4ed8' }}>{allSops.length}</div>
-            <div className="mc-stat-label">SOPs</div>
-          </div>
-          <div
-            className={`mc-stat-card ${playbookTypeFilter === 'framework' ? 'selected' : ''}`}
-            onClick={() => setPlaybookTypeFilter(playbookTypeFilter === 'framework' ? 'all' : 'framework')}
-            style={{ cursor: 'pointer' }}
-          >
-            <div className="mc-stat-value" style={{ color: '#b45309' }}>{allFrameworks.length}</div>
-            <div className="mc-stat-label">Frameworks</div>
-          </div>
-          <div
-            className={`mc-stat-card ${playbookTypeFilter === 'policy' ? 'selected' : ''}`}
-            onClick={() => setPlaybookTypeFilter(playbookTypeFilter === 'policy' ? 'all' : 'policy')}
-            style={{ cursor: 'pointer' }}
-          >
-            <div className="mc-stat-value" style={{ color: '#6d28d9' }}>{allPolicies.length}</div>
-            <div className="mc-stat-label">Policies</div>
-          </div>
-        </div>
-
-        {/* Filters row - multi-department and search */}
-        <div className="mc-projects-filters">
-          <div className="mc-filters-left">
-            <MultiDepartmentSelect
-              value={playbookDeptFilter}
-              onValueChange={setPlaybookDeptFilter}
-              departments={departments}
-              placeholder="All Depts"
-            />
-          </div>
-          <button
-            className="mc-btn-clean primary"
-            onClick={() => setShowAddForm('playbook')}
-          >
-            <svg style={{ width: '14px', height: '14px', marginRight: '4px' }} viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-            </svg>
-            New Playbook
-          </button>
-        </div>
-
-        {filteredPlaybooks.length === 0 ? (
-          <div className="mc-empty-filtered">
-            No playbooks match your filters
-          </div>
-        ) : (
-          docTypes.map(type => {
-            const docs = groupedPlaybooks[type];
-            if (docs.length === 0) return null;
-
-            const MAX_VISIBLE = 5;
-            const isExpanded = expandedTypes[type];
-            const visibleDocs = isExpanded ? docs : docs.slice(0, MAX_VISIBLE);
-            const hasMore = docs.length > MAX_VISIBLE;
-
-            return (
-              <div key={type} className="mc-playbook-group">
-                <h4 className="mc-group-title">
-                  {typeLabels[type]}
-                  <span className="mc-group-count">({docs.length})</span>
-                </h4>
-                <div className="mc-elegant-list">
-                  {visibleDocs.map(doc => {
-                    // Use embedded department name (or fallback to lookup for backwards compat)
-                    const dept = doc.department_name
-                      ? { id: doc.department_id, name: doc.department_name, slug: doc.department_slug }
-                      : departments.find(d => d.id === doc.department_id);
-                    // Find additional department names
-                    const additionalDepts = (doc.additional_departments || [])
-                      .map(deptId => departments.find(d => d.id === deptId))
-                      .filter(Boolean);
-
-                    // All departments for this playbook
-                    const allDepts = [dept, ...additionalDepts].filter(Boolean);
-
-                    // Doc type labels
-                    const typeLabel = { sop: 'SOP', framework: 'Framework', policy: 'Policy' }[doc.doc_type] || doc.doc_type;
-
-                    return (
-                      <div
-                        key={doc.id}
-                        className="mc-elegant-row"
-                        onClick={() => setEditingItem({ type: 'playbook', data: doc })}
-                      >
-                        {/* Type indicator dot */}
-                        <div className={`mc-type-dot ${doc.doc_type}`} />
-
-                        {/* Main content */}
-                        <div className="mc-elegant-content">
-                          <span className="mc-elegant-title">{doc.title}</span>
-
-                          {/* Department badges */}
-                          {allDepts.map(d => {
-                            const color = getDeptColor(d.id);
-                            return (
-                              <span
-                                key={d.id}
-                                className="mc-elegant-dept"
-                                style={{
-                                  background: color.bg,
-                                  color: color.text
-                                }}
-                              >
-                                {d.name}
-                              </span>
-                            );
-                          })}
-                          {allDepts.length === 0 && (
-                            <span className="mc-elegant-dept mc-elegant-dept-none">
-                              Company-wide
-                            </span>
-                          )}
-
-                          {/* Type badge */}
-                          <span className={`mc-elegant-badge ${doc.doc_type}`}>{typeLabel}</span>
-                        </div>
-
-                        {/* Actions on hover - Archive and Delete */}
-                        <div className="mc-elegant-actions">
-                          <button
-                            className="mc-text-btn archive"
-                            onClick={(e) => { e.stopPropagation(); handleArchivePlaybook(doc); }}
-                            title="Archive playbook"
-                          >
-                            Archive
-                          </button>
-                          <button
-                            className="mc-text-btn delete"
-                            onClick={(e) => { e.stopPropagation(); handleDeletePlaybook(doc); }}
-                            title="Delete playbook"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-                {/* Load more / Show less button */}
-                {hasMore && (
-                  <button
-                    className="mc-load-more-btn"
-                    onClick={() => setExpandedTypes(prev => ({ ...prev, [type]: !prev[type] }))}
-                  >
-                    {isExpanded ? `Show less` : `Load more (${docs.length - MAX_VISIBLE} more)`}
-                  </button>
-                )}
-              </div>
-            );
-          })
-        )}
-      </div>
-    );
-  };
-
-  // Format relative time for last accessed
-  const formatRelativeTime = (dateStr) => {
-    if (!dateStr) return 'Never';
-    const date = new Date(dateStr);
-    const now = new Date();
-    const diffMs = now - date;
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
-    return date.toLocaleDateString();
-  };
-
   // Handle project status change
   const handleProjectStatusChange = async (project, newStatus) => {
     try {
@@ -800,459 +299,6 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
   // Handle opening project details/edit modal
   const handleProjectClick = (project) => {
     setEditingItem({ type: 'project', data: project });
-  };
-
-  const renderProjects = () => {
-    // Note: Skeleton loading is shown by parent when loading=true
-    // This catches edge case where projectsLoaded is false after loading completes
-    if (!projectsLoaded && !loading) {
-      return null; // Let skeleton handle loading state
-    }
-
-    if (projects.length === 0) {
-      return (
-        <div className="mc-empty">
-          <FolderKanban size={32} className="mc-empty-icon" />
-          <p className="mc-empty-title">No projects yet</p>
-          <p className="mc-empty-hint">
-            Create projects to organize council sessions and track decisions.
-            Projects help you maintain context across related queries.
-          </p>
-        </div>
-      );
-    }
-
-    // Calculate stats from ALL projects (for display in stat cards)
-    const allActiveProjects = projects.filter(p => p.status === 'active');
-    const allCompletedProjects = projects.filter(p => p.status === 'completed');
-    const allArchivedProjects = projects.filter(p => p.status === 'archived');
-    const totalDecisions = projects.reduce((sum, p) => sum + (p.decision_count || 0), 0);
-
-    // Client-side filtering - no API reload needed
-    let filteredProjects = projects;
-
-    // Filter by status (client-side)
-    if (projectStatusFilter !== 'all') {
-      filteredProjects = filteredProjects.filter(p => p.status === projectStatusFilter);
-    }
-
-    // Filter by department (client-side, multi-select)
-    if (projectDeptFilter.length > 0) {
-      filteredProjects = filteredProjects.filter(p =>
-        projectDeptFilter.includes(p.department_id) ||
-        p.department_ids?.some(id => projectDeptFilter.includes(id))
-      );
-    }
-
-    // Sort projects (client-side)
-    const sortedProjects = [...filteredProjects].sort((a, b) => {
-      switch (projectSortBy) {
-        case 'name':
-          return (a.name || '').localeCompare(b.name || '');
-        case 'created':
-          return new Date(b.created_at) - new Date(a.created_at);
-        case 'decisions':
-          return (b.decision_count || 0) - (a.decision_count || 0);
-        case 'updated':
-        default:
-          return new Date(b.last_accessed_at || b.updated_at || b.created_at) -
-                 new Date(a.last_accessed_at || a.updated_at || a.created_at);
-      }
-    });
-
-    // Compact project row - consistent with decisions/playbooks
-    const renderProjectRow = (project) => {
-      // Get all departments for this project - show ALL, no truncation
-      const deptIds = project.department_ids?.length > 0
-        ? project.department_ids
-        : project.department_id ? [project.department_id] : [];
-      const deptNames = project.department_names || [];
-      const isFading = fadingProjectId === project.id;
-
-      return (
-        <div
-          key={project.id}
-          className={`mc-project-row-compact ${isFading ? 'fading' : ''}`}
-          onClick={() => !isFading && handleProjectClick(project)}
-        >
-          {/* Status indicator dot */}
-          <div className={`mc-status-dot ${project.status}`} />
-
-          {/* Title group: name + ALL department badges */}
-          <div className="mc-project-title-group">
-            <span className="mc-project-name">{project.name}</span>
-            {deptIds.map((deptId, idx) => {
-              const deptName = deptNames[idx] || departments.find(d => d.id === deptId)?.name;
-              if (!deptName) return null;
-              return (
-                <span
-                  key={deptId}
-                  className="mc-project-dept-badge"
-                  style={{
-                    background: getDeptColor(deptId).bg,
-                    color: getDeptColor(deptId).text,
-                  }}
-                >
-                  {deptName}
-                </span>
-              );
-            })}
-          </div>
-
-          {/* Meta: decision count + time - hidden on hover when actions show */}
-          <div className="mc-project-meta">
-            <span className="mc-project-decision-count">
-              {project.decision_count || 0}
-            </span>
-            <span className="mc-project-time">
-              {formatRelativeTime(project.last_accessed_at || project.updated_at)}
-            </span>
-          </div>
-
-          {/* Actions - visible on hover */}
-          <div className="mc-project-actions">
-            {project.status === 'active' && (
-              <button
-                className="mc-project-action complete"
-                onClick={(e) => handleCompleteProject(project, e)}
-                title="Mark as completed"
-              >
-                <CheckCircle className="w-3.5 h-3.5" />
-                <span>Complete</span>
-              </button>
-            )}
-            {project.status === 'archived' ? (
-              <button
-                className="mc-project-action restore"
-                onClick={(e) => handleRestoreProject(project, e)}
-                title="Restore project"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                <span>Restore</span>
-              </button>
-            ) : (
-              <button
-                className="mc-project-action archive"
-                onClick={(e) => handleArchiveProject(project, e)}
-                title="Archive project"
-              >
-                <Archive className="w-3.5 h-3.5" />
-                <span>Archive</span>
-              </button>
-            )}
-            {confirmingDeleteProjectId === project.id ? (
-              <>
-                <button
-                  className="mc-project-action confirm-yes"
-                  onClick={(e) => handleDeleteProject(project, e)}
-                  title="Confirm delete"
-                >
-                  <span>Yes</span>
-                </button>
-                <button
-                  className="mc-project-action confirm-no"
-                  onClick={(e) => { e.stopPropagation(); setConfirmingDeleteProjectId(null); }}
-                  title="Cancel"
-                >
-                  <span>No</span>
-                </button>
-              </>
-            ) : (
-              <button
-                className="mc-project-action delete"
-                onClick={(e) => handleDeleteProject(project, e)}
-                title="Delete project"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>Delete</span>
-              </button>
-            )}
-          </div>
-        </div>
-      );
-    };
-
-    return (
-      <div className="mc-projects">
-        {/* Stats grid - same style as Overview tab */}
-        <div className="mc-stats-grid">
-          <div
-            className={`mc-stat-card ${projectStatusFilter === 'active' ? 'selected' : ''}`}
-            onClick={() => setProjectStatusFilter(projectStatusFilter === 'active' ? 'all' : 'active')}
-            style={{ cursor: 'pointer' }}
-          >
-            <div className="mc-stat-value" style={{ color: '#1d4ed8' }}>{allActiveProjects.length}</div>
-            <div className="mc-stat-label">Active</div>
-          </div>
-          <div
-            className={`mc-stat-card ${projectStatusFilter === 'completed' ? 'selected' : ''}`}
-            onClick={() => setProjectStatusFilter(projectStatusFilter === 'completed' ? 'all' : 'completed')}
-            style={{ cursor: 'pointer' }}
-          >
-            <div className="mc-stat-value" style={{ color: '#15803d' }}>{allCompletedProjects.length}</div>
-            <div className="mc-stat-label">Completed</div>
-          </div>
-          <div
-            className={`mc-stat-card ${projectStatusFilter === 'archived' ? 'selected' : ''}`}
-            onClick={() => setProjectStatusFilter(projectStatusFilter === 'archived' ? 'all' : 'archived')}
-            style={{ cursor: 'pointer' }}
-          >
-            <div className="mc-stat-value" style={{ color: '#6b7280' }}>{allArchivedProjects.length}</div>
-            <div className="mc-stat-label">Archived</div>
-          </div>
-          <div className="mc-stat-card">
-            <div className="mc-stat-value" style={{ color: '#b45309' }}>{totalDecisions}</div>
-            <div className="mc-stat-label">Decisions</div>
-          </div>
-        </div>
-
-        {/* Filters row - multi-department and sort */}
-        <div className="mc-projects-filters">
-          <div className="mc-filters-left">
-            <MultiDepartmentSelect
-              value={projectDeptFilter}
-              onValueChange={setProjectDeptFilter}
-              departments={departments}
-              placeholder="All Depts"
-            />
-            <SortSelect
-              value={projectSortBy}
-              onValueChange={setProjectSortBy}
-            />
-          </div>
-          <button
-            className="mc-btn-clean primary"
-            onClick={() => setEditingItem({ type: 'new_project', data: {} })}
-          >
-            <svg style={{ width: '14px', height: '14px', marginRight: '4px' }} viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-            </svg>
-            New Project
-          </button>
-        </div>
-
-        {/* Projects list */}
-        <div className="mc-projects-list">
-          {sortedProjects.length === 0 ? (
-            <div className="mc-empty-filtered">
-              No projects match your filters
-            </div>
-          ) : (
-            sortedProjects.map(renderProjectRow)
-          )}
-        </div>
-      </div>
-    );
-  };
-
-  const renderDecisions = () => {
-    // Only show pending (not promoted) decisions
-    // Also exclude decisions that belong to a project (project_id set = promoted to project)
-    const pendingDecisions = decisions.filter(d => !d.is_promoted && !d.project_id);
-
-    // Helper to get a clean, short title from decision
-    const getDecisionDisplayTitle = (decision) => {
-      // If we have an AI-generated summary, extract first sentence as title
-      if (decision.decision_summary) {
-        const firstSentence = decision.decision_summary.split(/[.!?]/)[0];
-        if (firstSentence && firstSentence.length > 10 && firstSentence.length < 100) {
-          return firstSentence.trim();
-        }
-      }
-      // Fall back to title, but clean it up
-      const title = decision.title || 'Council Decision';
-      // Remove markdown headers
-      const cleaned = title.replace(/^#+\s*/, '').trim();
-      // Truncate if too long
-      return cleaned.length > 80 ? cleaned.slice(0, 77) + '...' : cleaned;
-    };
-
-    // Apply filters
-    let filteredDecisions = pendingDecisions;
-
-    // Department filter
-    if (decisionDeptFilter.length > 0) {
-      filteredDecisions = filteredDecisions.filter(d => {
-        const deptIds = d.department_ids?.length > 0 ? d.department_ids : (d.department_id ? [d.department_id] : []);
-        return deptIds.some(id => decisionDeptFilter.includes(id));
-      });
-    }
-
-    // Keyword search (title + content + user_question)
-    if (decisionSearch.trim()) {
-      const searchLower = decisionSearch.toLowerCase().trim();
-      filteredDecisions = filteredDecisions.filter(d => {
-        const title = (d.title || '').toLowerCase();
-        const content = (d.content || d.summary || '').toLowerCase();
-        const userQuestion = (d.user_question || '').toLowerCase();
-        const decisionSummary = (d.decision_summary || '').toLowerCase();
-        return title.includes(searchLower) ||
-               content.includes(searchLower) ||
-               userQuestion.includes(searchLower) ||
-               decisionSummary.includes(searchLower);
-      });
-    }
-
-    // Empty state - no decisions at all
-    if (pendingDecisions.length === 0) {
-      return (
-        <div className="mc-empty">
-          <CheckCircle size={40} className="mc-empty-icon-svg" />
-          <p className="mc-empty-title">All caught up!</p>
-          <p className="mc-empty-hint">
-            No pending decisions to review. Save council outputs to see them here.
-          </p>
-        </div>
-      );
-    }
-
-    return (
-      <div className="mc-decisions">
-        {/* Filter controls */}
-        <div className="mc-decisions-filters">
-          {/* Search input */}
-          <div className="mc-search-input-wrapper">
-            <svg className="mc-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.35-4.35" />
-            </svg>
-            <input
-              type="text"
-              className="mc-search-input"
-              placeholder="Search decisions..."
-              value={decisionSearch}
-              onChange={(e) => setDecisionSearch(e.target.value)}
-            />
-            {decisionSearch && (
-              <button
-                className="mc-search-clear"
-                onClick={() => setDecisionSearch('')}
-                title="Clear search"
-              >
-                ×
-              </button>
-            )}
-          </div>
-
-          {/* Department filter */}
-          <MultiDepartmentSelect
-            value={decisionDeptFilter}
-            onValueChange={setDecisionDeptFilter}
-            departments={departments}
-            placeholder="All departments"
-            className="mc-dept-filter"
-          />
-        </div>
-
-        {/* Results count */}
-        {(decisionSearch || decisionDeptFilter.length > 0) && (
-          <div className="mc-filter-results">
-            {filteredDecisions.length} of {pendingDecisions.length} decision{pendingDecisions.length !== 1 ? 's' : ''}
-            {(decisionSearch || decisionDeptFilter.length > 0) && (
-              <button
-                className="mc-clear-filters"
-                onClick={() => {
-                  setDecisionSearch('');
-                  setDecisionDeptFilter([]);
-                }}
-              >
-                Clear filters
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Empty state for filtered results */}
-        {filteredDecisions.length === 0 && (
-          <div className="mc-empty">
-            <div className="mc-empty-icon">🔍</div>
-            <p className="mc-empty-title">No matching decisions</p>
-            <p className="mc-empty-hint">
-              Try adjusting your search or department filter.
-            </p>
-          </div>
-        )}
-
-        {/* Decision list */}
-        {filteredDecisions.length > 0 && (
-          <div className="mc-elegant-list">
-            {filteredDecisions.map(decision => {
-              const isDeleting = deletingDecisionId === decision.id;
-              const displayTitle = getDecisionDisplayTitle(decision);
-
-              return (
-                <div
-                  key={decision.id}
-                  className={`mc-elegant-row mc-decision-row ${isDeleting ? 'deleting' : ''}`}
-                  onClick={() => !isDeleting && handlePromoteDecision(decision)}
-                >
-                  {/* Status indicator - amber for pending */}
-                  <div className="mc-status-dot draft" />
-
-                  {/* Main content - title + badges */}
-                  <div className="mc-elegant-content">
-                    <span className="mc-elegant-title">{displayTitle}</span>
-                    <div className="mc-elegant-badges">
-                      {/* Department badges */}
-                      {(decision.department_ids?.length > 0 ? decision.department_ids : (decision.department_id ? [decision.department_id] : [])).map(deptId => {
-                        const dept = departments.find(d => d.id === deptId);
-                        if (!dept) return null;
-                        const color = getDeptColor(deptId);
-                        return (
-                          <span
-                            key={deptId}
-                            className="mc-elegant-dept"
-                            style={{
-                              background: color.bg,
-                              color: color.text
-                            }}
-                          >
-                            {dept.name}
-                          </span>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Right side: Date (fades on hover) + Actions (appear on hover) */}
-                  <div className="mc-elegant-right">
-                    <span className="mc-elegant-date">
-                      {new Date(decision.created_at).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric'
-                      })}
-                    </span>
-                    <div className="mc-elegant-actions">
-                      {decision.source_conversation_id && !decision.source_conversation_id.startsWith('temp-') && onNavigateToConversation && (
-                        <button
-                          className="mc-text-btn source"
-                          onClick={(e) => { e.stopPropagation(); onNavigateToConversation(decision.source_conversation_id, 'decisions'); }}
-                          title="View original conversation"
-                        >
-                          Source
-                        </button>
-                      )}
-                      <button
-                        className="mc-text-btn promote"
-                        onClick={(e) => { e.stopPropagation(); handlePromoteDecision(decision); }}
-                      >
-                        Promote
-                      </button>
-                      <button
-                        className="mc-text-btn delete"
-                        onClick={(e) => { e.stopPropagation(); handleDeleteDecision(decision); }}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    );
   };
 
   // Handle clicking on activity item to view related content
@@ -1346,234 +392,21 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
     }
   };
 
-  const renderActivity = () => {
-    const EVENT_LABELS = {
-      consultation: 'Consultation',  // Council consultation (may not be saved)
-      decision: 'Decision',
-      playbook: 'Playbook',
-      project: 'Project',
-      role: 'Role Change',
-      department: 'Department',
-      council_session: 'Council Session'
-    };
-
-    // Labels and colors for promoted_to_type
-    const PROMOTED_TYPE_LABELS = {
-      sop: 'SOP',
-      framework: 'FRAMEWORK',
-      policy: 'POLICY',
-      project: 'PROJECT'
-    };
-    const PROMOTED_TYPE_COLORS = {
-      sop: { bg: '#fef3c7', text: '#d97706' },        // Amber
-      framework: { bg: '#dbeafe', text: '#2563eb' },   // Blue
-      policy: { bg: '#ede9fe', text: '#7c3aed' },      // Violet
-      project: { bg: '#d1fae5', text: '#059669' }      // Emerald
-    };
-
-    // Group logs by date
-    const groupedLogs = activityLogs.reduce((groups, log) => {
-      const date = new Date(log.created_at);
-      const today = new Date();
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-
-      let dateKey;
-      if (date.toDateString() === today.toDateString()) {
-        dateKey = 'Today';
-      } else if (date.toDateString() === yesterday.toDateString()) {
-        dateKey = 'Yesterday';
-      } else {
-        dateKey = date.toLocaleDateString('en-US', {
-          weekday: 'long',
-          month: 'short',
-          day: 'numeric'
-        });
-      }
-
-      if (!groups[dateKey]) groups[dateKey] = [];
-      groups[dateKey].push(log);
-      return groups;
-    }, {});
-
-    const formatTime = (ts) => new Date(ts).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit'
-    });
-
-    // Only show empty state if data has been loaded (not during initial load)
-    if (activityLogs.length === 0 && activityLoaded) {
-      return (
-        <div className="mc-empty">
-          <ClipboardList className="mc-empty-icon" size={48} />
-          <p className="mc-empty-title">No activity yet</p>
-          <p className="mc-empty-hint">
-            Activity will appear here as you use the council, save decisions, and update playbooks.
-          </p>
-        </div>
-      );
+  // Handle loading more activity events
+  const handleLoadMoreActivity = async () => {
+    setActivityLoadingMore(true);
+    try {
+      const newLimit = activityLimit + 20;
+      const activityData = await api.getCompanyActivity(companyId, { limit: newLimit + 1 });
+      const logs = activityData.logs || [];
+      setActivityHasMore(logs.length > newLimit);
+      setActivityLogs(logs.slice(0, newLimit));
+      setActivityLimit(newLimit);
+    } catch (err) {
+      console.error('Failed to load more activity:', err);
+    } finally {
+      setActivityLoadingMore(false);
     }
-
-    // If not loaded yet and no logs, return null (skeleton will be shown by parent)
-    if (activityLogs.length === 0 && !activityLoaded) {
-      return null;
-    }
-
-    // Event type colors for dots
-    const EVENT_COLORS = {
-      consultation: '#6366f1', // Indigo - council consultations
-      decision: '#22c55e',    // Green
-      playbook: '#3b82f6',    // Blue
-      project: '#14b8a6',     // Teal
-      role: '#8b5cf6',        // Purple
-      department: '#f59e0b',  // Amber
-      council_session: '#10b981', // Emerald
-      default: '#64748b'      // Slate
-    };
-
-    // Action colors - consistent across the app
-    const ACTION_COLORS = {
-      deleted: { bg: '#fef2f2', text: '#dc2626', border: '#fecaca' },  // Red
-      promoted: { bg: '#ecfdf5', text: '#059669', border: '#a7f3d0' }, // Green
-      saved: { bg: '#eff6ff', text: '#2563eb', border: '#bfdbfe' },    // Blue
-      created: { bg: '#ecfdf5', text: '#059669', border: '#a7f3d0' },  // Green
-      updated: { bg: '#fefce8', text: '#ca8a04', border: '#fef08a' },  // Yellow
-      archived: { bg: '#f5f5f4', text: '#78716c', border: '#d6d3d1' }, // Gray
-      consulted: { bg: '#eef2ff', text: '#4f46e5', border: '#c7d2fe' } // Indigo
-    };
-
-    // Parse action from title (e.g., "Deleted: Title" -> { action: "Deleted", cleanTitle: "Title" })
-    const parseTitle = (title) => {
-      const match = title?.match(/^(Deleted|Promoted|Saved|Created|Updated|Archived|Consulted):\s*(.+)$/i);
-      if (match) {
-        return { action: match[1], cleanTitle: match[2] };
-      }
-      return { action: null, cleanTitle: title };
-    };
-
-    // Handle loading more events
-    const handleLoadMore = async () => {
-      setActivityLoadingMore(true);
-      try {
-        const newLimit = activityLimit + 20;
-        const activityData = await api.getCompanyActivity(companyId, { limit: newLimit + 1 });
-        const logs = activityData.logs || [];
-        setActivityHasMore(logs.length > newLimit);
-        setActivityLogs(logs.slice(0, newLimit));
-        setActivityLimit(newLimit);
-      } catch (err) {
-        console.error('Failed to load more activity:', err);
-      } finally {
-        setActivityLoadingMore(false);
-      }
-    };
-
-    return (
-      <div className="mc-activity">
-        <div className="mc-activity-header">
-          <span>{activityLogs.length} events</span>
-        </div>
-
-        {Object.entries(groupedLogs).map(([date, logs]) => (
-          <div key={date} className="mc-activity-group">
-            <h4 className="mc-group-title">{date}</h4>
-            <div className="mc-elegant-list">
-              {logs.map(log => {
-                const dotColor = EVENT_COLORS[log.event_type] || EVENT_COLORS.default;
-                const { action: parsedAction, cleanTitle } = parseTitle(log.title);
-                // If promoted_to_type is set, show "Promoted" instead of the parsed action (e.g., "Saved")
-                const action = log.promoted_to_type ? 'Promoted' : parsedAction;
-                const actionColors = action ? ACTION_COLORS[action.toLowerCase()] : null;
-                const isDeleted = parsedAction?.toLowerCase() === 'deleted';
-
-                // Deleted items are never clickable (the item no longer exists)
-                // For other items, check if we have related_id and related_type
-                // Consultations are clickable if they have a conversation_id
-                const isClickable = !isDeleted && (
-                  (log.related_id && log.related_type) ||
-                  (log.related_type === 'conversation' && log.conversation_id)
-                );
-
-                return (
-                  <div
-                    key={log.id}
-                    className={`mc-elegant-row ${isClickable ? '' : 'no-hover'} ${isDeleted ? 'deleted-item' : ''}`}
-                    onClick={isClickable ? () => handleActivityClick(log) : undefined}
-                    title={isDeleted ? 'This item has been deleted' : undefined}
-                  >
-                    {/* Event type indicator */}
-                    <div
-                      className="mc-event-dot"
-                      style={{ background: dotColor }}
-                    />
-
-                    {/* Main content */}
-                    <div className="mc-elegant-content mc-activity-content-wrap">
-                      <span className="mc-elegant-title">{cleanTitle}</span>
-                      {/* Badges row: Type badge + Action badge */}
-                      <div className="mc-activity-badges">
-                        {/* Use promoted_to_type if available (SOP, FRAMEWORK, POLICY, PROJECT), else fall back to event_type */}
-                        {log.promoted_to_type && PROMOTED_TYPE_LABELS[log.promoted_to_type] ? (
-                          <span
-                            className="mc-elegant-badge activity-type"
-                            style={{
-                              background: PROMOTED_TYPE_COLORS[log.promoted_to_type]?.bg || '#f1f5f9',
-                              color: PROMOTED_TYPE_COLORS[log.promoted_to_type]?.text || '#64748b'
-                            }}
-                          >
-                            {PROMOTED_TYPE_LABELS[log.promoted_to_type]}
-                          </span>
-                        ) : (
-                          <span className="mc-elegant-badge activity-type" style={{ background: `${dotColor}20`, color: dotColor }}>
-                            {EVENT_LABELS[log.event_type] || log.event_type}
-                          </span>
-                        )}
-                        {action && actionColors && (
-                          <span
-                            className="mc-elegant-badge activity-action"
-                            style={{ background: actionColors.bg, color: actionColors.text }}
-                          >
-                            {action}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Source link on hover */}
-                    {log.conversation_id && onNavigateToConversation && (
-                      <div className="mc-elegant-actions">
-                        <button
-                          className="mc-text-btn source"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onNavigateToConversation(log.conversation_id, 'activity');
-                          }}
-                        >
-                          View source
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-
-        {/* Load more button */}
-        {activityHasMore && (
-          <div className="mc-load-more-container">
-            <button
-              className="mc-load-more-btn"
-              onClick={handleLoadMore}
-              disabled={activityLoadingMore}
-            >
-              {activityLoadingMore ? 'Loading...' : 'Load more'}
-            </button>
-          </div>
-        )}
-      </div>
-    );
   };
 
   // Handle promote decision to playbook - opens modal
@@ -2277,12 +1110,90 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
             </div>
           ) : (
             <>
-              {activeTab === 'overview' && renderOverview()}
-              {activeTab === 'team' && renderTeam()}
-              {activeTab === 'projects' && renderProjects()}
-              {activeTab === 'playbooks' && renderPlaybooks()}
-              {activeTab === 'decisions' && renderDecisions()}
-              {activeTab === 'activity' && renderActivity()}
+              {activeTab === 'overview' && (
+                <OverviewTab
+                  overview={overview}
+                  companyName={companyName}
+                  onEditContext={(data) => setEditingItem({ type: 'company-context', data })}
+                  onViewContext={(data) => setEditingItem({ type: 'company-context-view', data })}
+                />
+              )}
+              {activeTab === 'team' && (
+                <TeamTab
+                  departments={departments}
+                  totalRoles={totalRoles}
+                  expandedDept={expandedDept}
+                  onExpandDept={setExpandedDept}
+                  onAddDepartment={() => setShowAddForm('department')}
+                  onAddRole={(deptId) => setShowAddForm({ type: 'role', deptId })}
+                  onViewDepartment={(dept) => setEditingItem({ type: 'department', data: dept })}
+                  onViewRole={(role) => setEditingItem({ type: 'role', data: role })}
+                />
+              )}
+              {activeTab === 'projects' && (
+                <ProjectsTab
+                  projects={projects}
+                  departments={departments}
+                  projectsLoaded={projectsLoaded}
+                  loading={loading}
+                  projectStatusFilter={projectStatusFilter}
+                  projectDeptFilter={projectDeptFilter}
+                  projectSortBy={projectSortBy}
+                  fadingProjectId={fadingProjectId}
+                  confirmingDeleteProjectId={confirmingDeleteProjectId}
+                  onStatusFilterChange={setProjectStatusFilter}
+                  onDeptFilterChange={setProjectDeptFilter}
+                  onSortByChange={setProjectSortBy}
+                  onConfirmingDeleteChange={setConfirmingDeleteProjectId}
+                  onAddProject={() => setEditingItem({ type: 'new_project', data: {} })}
+                  onProjectClick={handleProjectClick}
+                  onCompleteProject={handleCompleteProject}
+                  onArchiveProject={handleArchiveProject}
+                  onRestoreProject={handleRestoreProject}
+                  onDeleteProject={handleDeleteProject}
+                />
+              )}
+              {activeTab === 'playbooks' && (
+                <PlaybooksTab
+                  playbooks={playbooks}
+                  departments={departments}
+                  playbookTypeFilter={playbookTypeFilter}
+                  playbookDeptFilter={playbookDeptFilter}
+                  expandedTypes={expandedTypes}
+                  onTypeFilterChange={setPlaybookTypeFilter}
+                  onDeptFilterChange={setPlaybookDeptFilter}
+                  onExpandedTypesChange={setExpandedTypes}
+                  onAddPlaybook={() => setShowAddForm('playbook')}
+                  onViewPlaybook={(doc) => setEditingItem({ type: 'playbook', data: doc })}
+                  onArchivePlaybook={handleArchivePlaybook}
+                  onDeletePlaybook={handleDeletePlaybook}
+                />
+              )}
+              {activeTab === 'decisions' && (
+                <DecisionsTab
+                  decisions={decisions}
+                  departments={departments}
+                  decisionDeptFilter={decisionDeptFilter}
+                  decisionSearch={decisionSearch}
+                  deletingDecisionId={deletingDecisionId}
+                  onDeptFilterChange={setDecisionDeptFilter}
+                  onSearchChange={setDecisionSearch}
+                  onPromoteDecision={handlePromoteDecision}
+                  onDeleteDecision={handleDeleteDecision}
+                  onNavigateToConversation={onNavigateToConversation}
+                />
+              )}
+              {activeTab === 'activity' && (
+                <ActivityTab
+                  activityLogs={activityLogs}
+                  activityLoaded={activityLoaded}
+                  activityHasMore={activityHasMore}
+                  activityLoadingMore={activityLoadingMore}
+                  onActivityClick={handleActivityClick}
+                  onLoadMore={handleLoadMoreActivity}
+                  onNavigateToConversation={onNavigateToConversation}
+                />
+              )}
             </>
           )}
         </div>

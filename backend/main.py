@@ -76,6 +76,7 @@ try:
     from . import attachments
     from . import image_analyzer
     from . import knowledge
+    from . import model_registry
     from .routers import company as company_router
 except ImportError:
     import storage
@@ -91,6 +92,7 @@ except ImportError:
     import attachments
     import image_analyzer
     import knowledge
+    import model_registry
     from routers import company as company_router
 
 app = FastAPI(title="LLM Council API")
@@ -1637,6 +1639,9 @@ async def polish_text(request: PolishTextRequest, user: dict = Depends(get_curre
     """
     from .openrouter import query_model
 
+    # Get AI polish model from registry
+    polish_model = await model_registry.get_primary_model('ai_polish') or 'google/gemini-3-pro-preview'
+
     # Special handling for markdown conversion - comprehensive formatting
     if request.field_type == "markdown":
         prompt = f"""You are a markdown formatting expert. Convert the following text into clean, well-structured Markdown.
@@ -1667,7 +1672,7 @@ MARKDOWN:"""
             ]
 
             result = await query_model(
-                model="google/gemini-3-pro-preview",  # Council model - confirmed working
+                model=polish_model,
                 messages=messages
             )
 
@@ -1713,7 +1718,7 @@ Polished version:"""
         ]
 
         result = await query_model(
-            model="google/gemini-3-pro-preview",  # Council model - confirmed working
+            model=polish_model,
             messages=messages
         )
 
@@ -2429,6 +2434,9 @@ async def extract_decision_from_response(
     from .openrouter import query_model, MOCK_LLM
     from .knowledge_fallback import extract_knowledge_fallback
 
+    # Get decision summarizer model from registry
+    summarizer_model = await model_registry.get_primary_model('decision_summarizer') or 'anthropic/claude-3-5-haiku-20241022'
+
     # Handle mock mode - return a reasonable mock extraction
     if MOCK_LLM:
         print("[MOCK] Returning mock knowledge extraction response", flush=True)
@@ -2510,7 +2518,7 @@ RULES:
         ]
 
         result = await query_model(
-            model="anthropic/claude-3-5-haiku-20241022",  # Fast, good at structured extraction
+            model=summarizer_model,
             messages=messages
         )
 

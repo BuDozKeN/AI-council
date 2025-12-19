@@ -5,6 +5,7 @@ from typing import List, Dict, Any, Tuple, Optional, AsyncGenerator
 from .openrouter import query_models_parallel, query_model, query_model_stream
 from .config import COUNCIL_MODELS, CHAIRMAN_MODEL, CHAIRMAN_MODELS
 from .context_loader import get_system_prompt_with_context
+from .model_registry import get_primary_model
 
 
 async def stage1_collect_responses(
@@ -727,9 +728,10 @@ Title:"""
 
     messages = [{"role": "user", "content": title_prompt}]
 
-    # Use gemini-2.5-flash for title generation (fast and cheap)
-    print(f"[TITLE] Calling google/gemini-2.5-flash...", flush=True)
-    response = await query_model("google/gemini-2.5-flash", messages, timeout=30.0)
+    # Get title generator model from registry
+    title_model = await get_primary_model('title_generator') or 'google/gemini-2.5-flash'
+    print(f"[TITLE] Calling {title_model}...", flush=True)
+    response = await query_model(title_model, messages, timeout=30.0)
 
     if response is None:
         # Fallback to a generic title

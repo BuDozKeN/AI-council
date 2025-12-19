@@ -54,26 +54,21 @@ CACHE_SUPPORTED_MODELS = [
     "google/gemini-2.5-flash",
 ]
 
-# Council members - list of OpenRouter model identifiers
-# Note: Gemini placed first to avoid potential issues with concurrent streams
-COUNCIL_MODELS = [
-    "google/gemini-3-pro-preview",
-    "openai/gpt-5.1",
-    "anthropic/claude-opus-4.5",
-    "x-ai/grok-4",
-    "deepseek/deepseek-chat-v3-0324",
-]
-
-# Chairman models - synthesizes final response (with fallbacks)
-# Will try each in order until one succeeds
-CHAIRMAN_MODELS = [
-    "anthropic/claude-opus-4.5",     # Primary
-    "google/gemini-3-pro-preview",   # Fallback 1
-    "openai/gpt-5.1",                # Fallback 2
-]
-
-# For backwards compatibility
-CHAIRMAN_MODEL = CHAIRMAN_MODELS[0]
+# =============================================================================
+# MODEL CONFIGURATION
+# =============================================================================
+# Models are now managed in the database (model_registry table).
+# These imports provide backwards compatibility - they use hardcoded fallbacks
+# at module load time, but async code should use model_registry.get_models()
+# to get the latest from the database.
+#
+# To change models: Update the model_registry table in Supabase
+# =============================================================================
+from .model_registry import (
+    COUNCIL_MODELS,
+    CHAIRMAN_MODELS,
+    CHAIRMAN_MODEL,
+)
 
 # OpenRouter API endpoint
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"

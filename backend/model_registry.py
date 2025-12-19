@@ -1,0 +1,167 @@
+"""
+Model Registry - Centralized model configuration.
+
+This module provides helpers to fetch model configurations from the database,
+with hardcoded fallbacks if the database is unavailable.
+
+Usage:
+    from model_registry import get_models, get_primary_model
+
+    # Get all models for a role (with fallbacks)
+    chairman_models = await get_models('chairman')
+    # Returns: ['anthropic/claude-opus-4.5', 'google/gemini-3-pro-preview', 'openai/gpt-5.1']
+
+    # Get just the primary model
+    title_model = await get_primary_model('title_generator')
+    # Returns: 'google/gemini-2.5-flash'
+"""
+
+from typing import List, Optional
+import os
+from supabase import create_client, Client
+
+# Hardcoded fallbacks - used if database is unavailable
+# These should match the seed data in the migration
+FALLBACK_MODELS = {
+    'council_member': [
+        'google/gemini-3-pro-preview',
+        'openai/gpt-5.1',
+        'anthropic/claude-opus-4.5',
+        'x-ai/grok-4',
+        'deepseek/deepseek-chat-v3-0324',
+    ],
+    'chairman': [
+        'anthropic/claude-opus-4.5',
+        'google/gemini-3-pro-preview',
+        'openai/gpt-5.1',
+    ],
+    'title_generator': [
+        'google/gemini-2.5-flash',
+    ],
+    'triage': [
+        'google/gemini-2.5-flash',
+    ],
+    'sarah': [
+        'google/gemini-2.0-flash-001',
+        'openai/gpt-4o',
+        'anthropic/claude-3-5-haiku-20241022',
+    ],
+    'decision_summarizer': [
+        'anthropic/claude-3-5-haiku-20241022',
+    ],
+    'sop_writer': [
+        'openai/gpt-4o',
+        'anthropic/claude-3-5-sonnet-20241022',
+        'google/gemini-2.0-flash-001',
+    ],
+    'framework_author': [
+        'openai/gpt-4o',
+        'anthropic/claude-3-5-sonnet-20241022',
+        'google/gemini-2.0-flash-001',
+    ],
+    'policy_writer': [
+        'openai/gpt-4o',
+        'anthropic/claude-3-5-sonnet-20241022',
+        'google/gemini-2.0-flash-001',
+    ],
+    'ai_write_assist': [
+        'openai/gpt-4o-mini',
+        'google/gemini-2.0-flash-001',
+    ],
+    'vision_analyzer': [
+        'openai/gpt-4o',
+    ],
+    'ai_polish': [
+        'google/gemini-3-pro-preview',
+        'openai/gpt-4o',
+    ],
+}
+
+
+def _get_supabase_client() -> Optional[Client]:
+    """Get Supabase client, or None if not configured."""
+    url = os.getenv("SUPABASE_URL")
+    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY")
+    if not url or not key:
+        return None
+    try:
+        return create_client(url, key)
+    except Exception:
+        return None
+
+
+async def get_models(role: str, company_id: Optional[str] = None) -> List[str]:
+    """
+    Get all models for a role, ordered by priority (primary first, then fallbacks).
+
+    Args:
+        role: The role to get models for (e.g., 'chairman', 'council_member')
+        company_id: Optional company ID for company-specific overrides
+
+    Returns:
+        List of model IDs, ordered by priority
+    """
+    try:
+        supabase = _get_supabase_client()
+        if supabase:
+            # Try database first
+            query = supabase.table('model_registry') \
+                .select('model_id') \
+                .eq('role', role) \
+                .eq('is_active', True) \
+                .order('priority')
+
+            # If company_id provided, prefer company-specific models
+            if company_id:
+                # Try company-specific first
+                company_result = query.eq('company_id', company_id).execute()
+                if company_result.data and len(company_result.data) > 0:
+                    return [row['model_id'] for row in company_result.data]
+
+            # Fall back to global models
+            result = query.is_('company_id', 'null').execute()
+            if result.data and len(result.data) > 0:
+                return [row['model_id'] for row in result.data]
+    except Exception as e:
+        print(f"[MODEL_REGISTRY] Database fetch failed, using fallback: {e}", flush=True)
+
+    # Fallback to hardcoded
+    return FALLBACK_MODELS.get(role, [])
+
+
+async def get_primary_model(role: str, company_id: Optional[str] = None) -> Optional[str]:
+    """
+    Get the primary (first priority) model for a role.
+
+    Args:
+        role: The role to get the primary model for
+        company_id: Optional company ID for company-specific overrides
+
+    Returns:
+        The primary model ID, or None if no models configured
+    """
+    models = await get_models(role, company_id)
+    return models[0] if models else None
+
+
+def get_models_sync(role: str) -> List[str]:
+    """
+    Synchronous version - returns hardcoded fallbacks only.
+    Use this when you can't use async (e.g., at module load time).
+    """
+    return FALLBACK_MODELS.get(role, [])
+
+
+def get_primary_model_sync(role: str) -> Optional[str]:
+    """
+    Synchronous version - returns hardcoded fallback only.
+    """
+    models = FALLBACK_MODELS.get(role, [])
+    return models[0] if models else None
+
+
+# For backwards compatibility with config.py imports
+# These are synchronous and use fallbacks only
+COUNCIL_MODELS = get_models_sync('council_member')
+CHAIRMAN_MODELS = get_models_sync('chairman')
+CHAIRMAN_MODEL = get_primary_model_sync('chairman')

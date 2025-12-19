@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from './supabase';
+import { setUserContext, clearUserContext } from './utils/sentry';
 
 const AuthContext = createContext({});
 
@@ -31,8 +32,16 @@ export function AuthProvider({ children }) {
     // Listen for auth changes - this handles magic links, password recovery, etc.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('Auth state changed:', event, session?.user?.email);
-      setUser(session?.user ?? null);
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
       setAuthEvent(event);
+
+      // Update Sentry user context
+      if (currentUser) {
+        setUserContext(currentUser);
+      } else {
+        clearUserContext();
+      }
 
       // If we get a PASSWORD_RECOVERY event, set the flag (persists until password is updated)
       if (event === 'PASSWORD_RECOVERY') {
