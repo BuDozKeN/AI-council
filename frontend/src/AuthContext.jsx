@@ -96,8 +96,32 @@ export function AuthProvider({ children }) {
 
   const getAccessToken = async () => {
     if (!supabase) return null;
-    const { data: { session } } = await supabase.auth.getSession();
-    return session?.access_token ?? null;
+
+    // First try to get the current session
+    const { data: { session }, error } = await supabase.auth.getSession();
+
+    // If we have a session but the token might be expired, try to refresh
+    if (session?.access_token) {
+      // Check if token is about to expire (within 60 seconds)
+      const expiresAt = session.expires_at;
+      const now = Math.floor(Date.now() / 1000);
+
+      if (expiresAt && expiresAt - now < 60) {
+        // Token is expired or about to expire, refresh it
+        const { data: refreshData } = await supabase.auth.refreshSession();
+        return refreshData?.session?.access_token ?? session.access_token;
+      }
+
+      return session.access_token;
+    }
+
+    // No session, try to refresh in case there's a valid refresh token
+    if (!session && !error) {
+      const { data: refreshData } = await supabase.auth.refreshSession();
+      return refreshData?.session?.access_token ?? null;
+    }
+
+    return null;
   };
 
   const signInWithGoogle = async () => {
