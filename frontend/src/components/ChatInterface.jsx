@@ -3,6 +3,7 @@ import Triage from './Triage';
 import ImageUpload from './ImageUpload';
 import CouncilProgressCapsule from './CouncilProgressCapsule';
 import { Spinner } from './ui/Spinner';
+import { MessageSkeletonGroup } from './ui/Skeleton';
 import {
   WelcomeState,
   ConversationEmptyState,
@@ -76,6 +77,8 @@ export default function ChatInterface({
   // Return to My Company (after viewing source)
   returnToMyCompanyTab,
   onReturnToMyCompany,
+  // Initial loading state (for conversation fetch)
+  isLoadingConversation = false,
 }) {
   const [input, setInput] = useState('');
   const [chatMode, setChatMode] = useState('chat');
@@ -248,8 +251,13 @@ export default function ChatInterface({
           />
         )}
 
+        {/* Show skeleton while loading conversation */}
+        {isLoadingConversation && !hasMessages && (
+          <MessageSkeletonGroup count={3} />
+        )}
+
         {/* Show empty state only when no triage and no messages */}
-        {!hasMessages && !triageState ? (
+        {!hasMessages && !triageState && !isLoadingConversation ? (
           <ConversationEmptyState />
         ) : hasMessages ? (
           <MessageList

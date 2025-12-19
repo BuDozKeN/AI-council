@@ -12,6 +12,7 @@ import MyCompany from './components/MyCompany';
 import { useAuth } from './AuthContext';
 import { api, setTokenGetter } from './api';
 import { userPreferencesApi } from './supabase';
+import { useGlobalSwipe } from './hooks';
 import './App.css';
 
 // Default departments when no company is selected or company has no departments
@@ -71,6 +72,15 @@ function App() {
   const [landingChatMode, setLandingChatMode] = useState('council'); // 'chat' or 'council' for landing hero
   const [userPreferences, setUserPreferences] = useState(null); // Smart Auto context persistence
   const abortControllerRef = useRef(null);
+
+  // Mobile swipe gesture to open sidebar from left edge
+  useGlobalSwipe({
+    onSwipeRight: () => setIsMobileSidebarOpen(true),
+    onSwipeLeft: () => setIsMobileSidebarOpen(false),
+    edgeWidth: 30,
+    threshold: 80,
+    enabled: typeof window !== 'undefined' && window.innerWidth <= 768,
+  });
   const skipNextLoadRef = useRef(false); // Skip loadConversation when transitioning from temp to real
   const hasLoadedInitialData = useRef(false); // Prevent repeated API calls on mount
 

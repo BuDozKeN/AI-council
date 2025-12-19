@@ -161,6 +161,27 @@
 .user-message,
 .assistant-message {
   margin-bottom: 16px;
+  animation: message-slide-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Spring animation for message entrance */
+@keyframes message-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .user-message,
+  .assistant-message {
+    animation: none;
+  }
 }
 
 .message-label {
@@ -998,4 +1019,224 @@
 .add-project-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* ==========================================
+   MOBILE RESPONSIVE STYLES
+   ========================================== */
+
+/* Tablet and below */
+@media (max-width: 768px) {
+  .messages-container {
+    padding: 16px;
+  }
+
+  .input-form {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .message-input {
+    min-height: 56px;
+    padding: 12px;
+    padding-left: 40px;
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+
+  .send-button,
+  .stop-button {
+    padding: 12px 20px;
+    font-size: 14px;
+  }
+
+  .message-group {
+    margin-bottom: 24px;
+  }
+
+  .user-message .message-content {
+    max-width: 90%;
+    padding: 12px;
+  }
+
+  /* Context bar becomes more compact */
+  .context-bar {
+    gap: 8px;
+  }
+
+  .context-select-trigger {
+    padding: 5px 8px !important;
+    height: 30px !important;
+    font-size: 12px !important;
+  }
+}
+
+/* Small phones */
+@media (max-width: 480px) {
+  .messages-container {
+    padding: 12px;
+  }
+
+  .input-form {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .message-input {
+    min-height: 44px;
+    padding: 10px;
+    padding-left: 36px;
+  }
+
+  .send-button,
+  .stop-button {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .user-message .message-content {
+    max-width: 95%;
+    padding: 10px 12px;
+  }
+
+  .message-label {
+    font-size: 11px;
+  }
+
+  /* Stack context bar vertically on very small screens */
+  .context-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  .context-select-trigger {
+    width: 100% !important;
+    justify-content: space-between;
+  }
+
+  /* Mode toggle adjustments */
+  .mode-toggle-bar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .mode-buttons {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .department-pills,
+  .role-pills {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 360px) {
+  .input-form {
+    padding: 10px;
+  }
+
+  .message-input {
+    min-height: 40px;
+  }
+
+  .send-button,
+  .stop-button {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+
+  .context-select-trigger {
+    font-size: 11px !important;
+    padding: 4px 6px !important;
+  }
+}
+
+/* ==========================================
+   GLASS MORPHISM EFFECTS (Mobile)
+   ========================================== */
+
+@media (max-width: 768px) {
+  /* Glass effect on input form for floating appearance */
+  .input-form {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+  }
+
+  /* Context bar glass pill effect */
+  .context-bar {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 8px 12px;
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  }
+}
+
+/* Dark mode glass effects */
+@media (max-width: 768px) {
+  [data-theme="dark"] .input-form,
+  .dark .input-form {
+    background: rgba(30, 30, 35, 0.9);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  [data-theme="dark"] .context-bar,
+  .dark .context-bar {
+    background: rgba(40, 40, 50, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+}
+
+/* ==========================================
+   SCROLL FADE GRADIENTS
+   ========================================== */
+
+.messages-container {
+  position: relative;
+}
+
+/* Top fade for scroll indication */
+.messages-container::before {
+  content: '';
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(
+    to bottom,
+    var(--color-bg-primary) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+  margin-bottom: -40px;
+}
+
+/* Bottom fade */
+.messages-container::after {
+  content: '';
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(
+    to top,
+    var(--color-bg-primary) 0%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+  margin-top: -40px;
 }

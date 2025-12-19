@@ -12,11 +12,11 @@
   margin-bottom: 12px;
 }
 
-/* Individual image preview */
+/* Individual image preview - responsive sizing */
 .image-preview-item {
   position: relative;
-  width: 80px;
-  height: 80px;
+  width: clamp(60px, 15vw, 100px);
+  height: clamp(60px, 15vw, 100px);
   border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--color-bg-primary);
@@ -86,10 +86,10 @@
   background: var(--color-gray-400);
 }
 
-/* Add more images button */
+/* Add more images button - matches preview size */
 .add-more-images-btn {
-  width: 80px;
-  height: 80px;
+  width: clamp(60px, 15vw, 100px);
+  height: clamp(60px, 15vw, 100px);
   border: 2px dashed var(--color-slate-300);
   border-radius: var(--radius-md);
   background: transparent;
@@ -248,4 +248,56 @@
 
 .user-message-images img:hover {
   transform: scale(1.02);
+}
+
+/* ==========================================
+   MOBILE RESPONSIVE STYLES
+   ========================================== */
+
+@media (max-width: 768px) {
+  .image-previews {
+    padding: 10px;
+    gap: 6px;
+  }
+
+  /* On mobile, always show remove button for touch accessibility */
+  .remove-image-btn {
+    opacity: 1;
+    width: 24px;
+    height: 24px;
+    min-width: 44px;
+    min-height: 44px;
+    top: -4px;
+    right: -4px;
+  }
+
+  .user-message-images img {
+    max-width: 150px;
+    max-height: 120px;
+  }
+
+  /* Attach button touch target */
+  .attach-image-btn-inline {
+    width: 36px;
+    height: 36px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .image-previews {
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .user-message-images img {
+    max-width: 120px;
+    max-height: 100px;
+  }
+
+  .drag-overlay-content {
+    padding: 16px 20px;
+    font-size: 16px;
+  }
 }

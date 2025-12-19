@@ -6247,3 +6247,192 @@
   white-space: normal;
 }
 
+/* ============================================================================
+   SMALL PHONE RESPONSIVE (480px and below)
+   ============================================================================ */
+
+@media (max-width: 480px) {
+  .mc-panel {
+    height: 100vh;
+    border-radius: 0;
+  }
+
+  .mc-header {
+    padding: 12px 16px;
+  }
+
+  .mc-header h1 {
+    font-size: 1rem;
+  }
+
+  .mc-close-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mc-overview-hero {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .mc-overview-title {
+    font-size: 1.125rem;
+  }
+
+  .mc-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .mc-stat-card {
+    padding: 12px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+  }
+
+  .mc-stat-value {
+    font-size: 1.25rem;
+    order: 1;
+  }
+
+  .mc-stat-label {
+    font-size: 0.75rem;
+    order: 0;
+  }
+
+  .mc-tabs {
+    padding: 6px 8px;
+  }
+
+  .mc-tab {
+    padding: 8px 10px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .mc-content {
+    padding: 12px;
+  }
+
+  /* Lists and grids become single column */
+  .mc-dept-list,
+  .mc-projects-list,
+  .mc-tech-grid,
+  .mc-decisions-list {
+    grid-template-columns: 1fr !important;
+    gap: 8px;
+  }
+
+  /* Card adjustments */
+  .mc-dept-card,
+  .mc-project-card,
+  .mc-tech-item {
+    padding: 12px;
+  }
+
+  /* Form fields */
+  .mc-form-group input,
+  .mc-form-group textarea,
+  .mc-select {
+    font-size: 16px; /* Prevents iOS zoom */
+    padding: 12px;
+  }
+
+  /* Buttons need 44px minimum touch target */
+  .mc-btn,
+  .mc-action-btn,
+  .mc-edit-btn,
+  .mc-save-btn,
+  .mc-cancel-btn,
+  .mc-add-btn {
+    min-height: 44px;
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  /* Timeline items */
+  .mc-timeline-item {
+    padding: 12px;
+  }
+
+  .mc-timeline-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* Promote modal */
+  .mc-promote-type {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .mc-promote-type-icon {
+    font-size: 1.5rem;
+  }
+
+  .mc-promote-type-label {
+    font-size: 0.9375rem;
+  }
+
+  .mc-promote-type-desc {
+    font-size: 0.75rem;
+  }
+}
+
+/* ============================================================================
+   VERY SMALL PHONES (360px and below)
+   ============================================================================ */
+
+@media (max-width: 360px) {
+  .mc-header {
+    padding: 10px 12px;
+  }
+
+  .mc-header h1 {
+    font-size: 0.9375rem;
+  }
+
+  .mc-overview-hero {
+    padding: 10px;
+  }
+
+  .mc-overview-title {
+    font-size: 1rem;
+  }
+
+  .mc-content {
+    padding: 10px;
+  }
+
+  .mc-tab {
+    padding: 6px 8px;
+  }
+
+  .mc-stat-card {
+    padding: 10px;
+  }
+
+  .mc-stat-value {
+    font-size: 1.125rem;
+  }
+
+  /* Reduce text sizes */
+  .mc-dept-title,
+  .mc-project-title {
+    font-size: 0.875rem;
+  }
+
+  .mc-dept-desc,
+  .mc-project-desc {
+    font-size: 0.75rem;
+  }
+}
+

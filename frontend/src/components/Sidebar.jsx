@@ -12,6 +12,8 @@ import {
   BulkActionBar,
   DeleteModal
 } from './sidebar/index.jsx';
+import { usePullToRefresh } from '../hooks';
+import { PullToRefreshIndicator } from './ui/PullToRefresh';
 import './Sidebar.css';
 
 export default function Sidebar({
@@ -37,7 +39,8 @@ export default function Sidebar({
   sortBy = 'date',
   onSortByChange,
   isMobileOpen = false,
-  onMobileClose
+  onMobileClose,
+  onRefresh,
 }) {
   const [filter, setFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,6 +57,20 @@ export default function Sidebar({
   // Mode toggles
   const { mockMode, isToggling: isTogglingMock, toggle: toggleMockMode } = useMockMode();
   const { cachingMode, isToggling: isTogglingCaching, toggle: toggleCachingMode } = useCachingMode();
+
+  // Pull to refresh (mobile only)
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+  const {
+    ref: pullToRefreshRef,
+    pullDistance,
+    isRefreshing,
+    progress,
+  } = usePullToRefresh({
+    onRefresh,
+    threshold: 80,
+    maxPull: 120,
+    enabled: isMobile && !!onRefresh,
+  });
 
   // Edit handlers
   const handleStartEdit = (conv, e) => {
@@ -257,7 +274,15 @@ export default function Sidebar({
         />
       )}
 
-      <div className="conversation-list">
+      <div className="conversation-list" ref={pullToRefreshRef} style={{ position: 'relative' }}>
+        {/* Pull to refresh indicator (mobile) */}
+        <PullToRefreshIndicator
+          pullDistance={pullDistance}
+          threshold={80}
+          isRefreshing={isRefreshing}
+          progress={progress}
+        />
+
         {searchQuery && searchResultCount === 0 ? (
           <div className="no-conversations">
             <span className="no-conv-icon">🔍</span>

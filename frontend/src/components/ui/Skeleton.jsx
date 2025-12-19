@@ -75,4 +75,40 @@ const SkeletonText = ({ lines = 3, className, ...props }) => (
 
 SkeletonText.displayName = "SkeletonText"
 
-export { Skeleton, SkeletonText }
+/**
+ * MessageSkeleton - Loading placeholder for chat messages
+ *
+ * @param {string} variant - "assistant" (default) or "user"
+ */
+const MessageSkeleton = ({ variant = "assistant", ...props }) => (
+  <div className={cn("skeleton-message", variant)} {...props}>
+    <div className="skeleton-message-header">
+      <Skeleton className="skeleton-message-avatar" />
+      <Skeleton className="skeleton-message-label" />
+    </div>
+    <div className="skeleton-message-content">
+      <Skeleton className="skeleton-message-line" />
+      <Skeleton className="skeleton-message-line" />
+      <Skeleton className="skeleton-message-line" />
+    </div>
+  </div>
+)
+
+MessageSkeleton.displayName = "MessageSkeleton"
+
+/**
+ * MessageSkeletonGroup - Multiple message skeletons for initial load
+ *
+ * @param {number} count - Number of skeletons to show
+ */
+const MessageSkeletonGroup = ({ count = 3, ...props }) => (
+  <div className="skeleton-message-group" {...props}>
+    {Array.from({ length: count }).map((_, i) => (
+      <MessageSkeleton key={i} variant={i % 2 === 0 ? "assistant" : "user"} />
+    ))}
+  </div>
+)
+
+MessageSkeletonGroup.displayName = "MessageSkeletonGroup"
+
+export { Skeleton, SkeletonText, MessageSkeleton, MessageSkeletonGroup }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../AuthContext';
 import { api } from '../api';
-import { AppModal } from './ui/AppModal';
+import { AdaptiveModal } from './ui/AdaptiveModal';
 import { Skeleton } from './ui/Skeleton';
 import { User, CreditCard } from 'lucide-react';
 import './Settings.css';
@@ -210,7 +210,7 @@ export default function Settings({ isOpen, onClose }) {
   );
 
   return (
-    <AppModal
+    <AdaptiveModal
       isOpen={isOpen}
       onClose={onClose}
       title="Settings"
@@ -446,6 +446,6 @@ export default function Settings({ isOpen, onClose }) {
             )}
           </div>
         </div>
-    </AppModal>
+    </AdaptiveModal>
   );
 }

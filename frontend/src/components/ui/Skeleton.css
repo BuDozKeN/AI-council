@@ -110,3 +110,101 @@
   width: 60px;
   border-radius: var(--radius-full, 9999px);
 }
+
+/* =============================================================================
+   Message Skeleton - Chat message loading placeholders
+   ============================================================================= */
+
+.skeleton-message {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  animation: skeleton-message-fade 0.3s ease-out;
+}
+
+.skeleton-message-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.skeleton-message-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skeleton-message-label {
+  height: 12px;
+  width: 80px;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-message-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  background: var(--color-slate-50);
+  border-radius: var(--radius-md);
+  max-width: 80%;
+}
+
+.skeleton-message-line {
+  height: 14px;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-message-line:nth-child(1) {
+  width: 90%;
+}
+
+.skeleton-message-line:nth-child(2) {
+  width: 75%;
+}
+
+.skeleton-message-line:nth-child(3) {
+  width: 60%;
+}
+
+/* User message skeleton - right aligned */
+.skeleton-message.user .skeleton-message-content {
+  margin-left: auto;
+  background: var(--color-brand-primary-light, #f0f7ff);
+}
+
+/* Staggered animation for multiple skeletons */
+.skeleton-message:nth-child(1) { animation-delay: 0s; }
+.skeleton-message:nth-child(2) { animation-delay: 0.1s; }
+.skeleton-message:nth-child(3) { animation-delay: 0.2s; }
+
+@keyframes skeleton-message-fade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .skeleton-message {
+    padding: 12px;
+  }
+
+  .skeleton-message-content {
+    padding: 12px;
+    max-width: 90%;
+  }
+}
+
+@media (max-width: 480px) {
+  .skeleton-message-content {
+    max-width: 95%;
+  }
+}
