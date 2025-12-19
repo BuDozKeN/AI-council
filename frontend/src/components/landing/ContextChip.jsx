@@ -76,159 +76,111 @@ export function ContextChip({
       </PopoverTrigger>
 
       <PopoverContent className="context-popover" align="end" sideOffset={8}>
-        {/* Smart Auto option */}
-        <div className="context-section">
-          <button
-            className={`context-option smart-auto ${isSmartAuto ? 'active' : ''}`}
-            onClick={handleSmartAuto}
-          >
-            <div className="context-option-radio">
-              {isSmartAuto && <div className="context-option-radio-dot" />}
-            </div>
-            <div className="context-option-content">
-              <div className="context-option-label">
-                <Sparkles size={14} />
-                <span>Smart Auto</span>
-              </div>
-              <p className="context-option-desc">
-                Routes based on your last activity
-              </p>
-              {isSmartAuto && userPreferences?.last_company_id && (
-                <p className="context-option-current">
-                  Currently: {businesses.find(b => b.id === userPreferences.last_company_id)?.name || 'Company'}
-                </p>
-              )}
-            </div>
-          </button>
-        </div>
-
-        {/* Recent & Pinned presets */}
-        {recentContexts.length > 0 && (
+        {/* Company selection - always visible */}
+        {businesses.length > 0 && (
           <div className="context-section">
-            <h4 className="context-section-title">Recent & Pinned</h4>
-            <div className="context-presets">
-              {recentContexts.slice(0, 3).map((preset, index) => (
+            <h4 className="context-section-title">Company</h4>
+            <div className="context-companies">
+              {businesses.map((biz) => (
                 <button
-                  key={index}
-                  className="context-preset"
-                  onClick={() => handlePresetSelect(preset)}
+                  key={biz.id}
+                  className={`context-company-btn ${selectedBusiness === biz.id ? 'active' : ''}`}
+                  onClick={() => onSelectBusiness?.(biz.id)}
                 >
-                  <Briefcase size={14} />
-                  <span>{preset.name}</span>
+                  <Building2 size={16} />
+                  <span>{biz.name}</span>
+                  {selectedBusiness === biz.id && (
+                    <svg className="context-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )}
                 </button>
               ))}
             </div>
           </div>
         )}
 
-        {/* Advanced context selection */}
-        <div className="context-section context-advanced">
-          <details className="context-advanced-details">
-            <summary className="context-advanced-summary">
-              <ChevronDown size={14} className="context-advanced-chevron" />
-              <span>Advanced context</span>
-            </summary>
-
-            <div className="context-advanced-content">
-              {/* Company selector */}
-              {businesses.length > 0 && (
-                <div className="context-field">
-                  <label className="context-field-label">
-                    <Building2 size={12} />
-                    Company
-                  </label>
-                  <Select
-                    value={selectedBusiness || '__none__'}
-                    onValueChange={(v) => onSelectBusiness?.(v === '__none__' ? null : v)}
-                  >
-                    <SelectTrigger className="context-field-select">
-                      <SelectValue placeholder="Select company" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="__none__">No company</SelectItem>
-                      {businesses.map((biz) => (
-                        <SelectItem key={biz.id} value={biz.id}>
-                          {biz.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              {/* Department & Role multi-select */}
-              {selectedBusiness && departments.length > 0 && (
-                <div className="context-field">
-                  <label className="context-field-label">
-                    <Users size={12} />
-                    Departments & Roles
-                  </label>
-                  <div className="context-field-multi">
-                    <MultiDepartmentSelect
-                      value={selectedDepartments}
-                      onValueChange={onSelectDepartments}
-                      departments={departments}
-                      placeholder="Departments..."
-                      className="context-multi-select"
-                    />
-                    {allRoles.length > 0 && (
-                      <MultiRoleSelect
-                        value={selectedRoles}
-                        onValueChange={onSelectRoles}
-                        roles={allRoles}
-                        placeholder="Roles..."
-                        className="context-multi-select"
-                      />
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Project selector */}
-              {selectedBusiness && projects.length > 0 && (
-                <div className="context-field">
-                  <label className="context-field-label">
-                    <Briefcase size={12} />
-                    Project
-                  </label>
-                  <Select
-                    value={selectedProject || '__none__'}
-                    onValueChange={(v) => onSelectProject?.(v === '__none__' ? null : v)}
-                  >
-                    <SelectTrigger className="context-field-select">
-                      <SelectValue placeholder="Company-wide" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="__none__">Company-wide</SelectItem>
-                      {projects.map((proj) => (
-                        <SelectItem key={proj.id} value={proj.id}>
-                          {proj.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              {/* Playbooks selector */}
-              {selectedBusiness && playbooks.length > 0 && (
-                <div className="context-field">
-                  <label className="context-field-label">
-                    <BookOpen size={12} />
-                    Playbooks
-                  </label>
-                  <MultiPlaybookSelect
-                    value={selectedPlaybooks}
-                    onValueChange={onSelectPlaybooks}
-                    playbooks={playbooks}
-                    placeholder="Select playbooks..."
-                    className="context-multi-select"
-                  />
-                </div>
+        {/* Department & Role selection - show when company selected */}
+        {selectedBusiness && departments.length > 0 && (
+          <div className="context-section">
+            <h4 className="context-section-title">Focus Area</h4>
+            <div className="context-field-multi">
+              <MultiDepartmentSelect
+                value={selectedDepartments}
+                onValueChange={onSelectDepartments}
+                departments={departments}
+                placeholder="All departments"
+                className="context-multi-select"
+              />
+              {allRoles.length > 0 && (
+                <MultiRoleSelect
+                  value={selectedRoles}
+                  onValueChange={onSelectRoles}
+                  roles={allRoles}
+                  placeholder="All roles"
+                  className="context-multi-select"
+                />
               )}
             </div>
-          </details>
-        </div>
+          </div>
+        )}
+
+        {/* Project & Playbooks - collapsible advanced */}
+        {selectedBusiness && (projects.length > 0 || playbooks.length > 0) && (
+          <div className="context-section context-advanced">
+            <details className="context-advanced-details">
+              <summary className="context-advanced-summary">
+                <ChevronDown size={14} className="context-advanced-chevron" />
+                <span>Project & Playbooks</span>
+              </summary>
+
+              <div className="context-advanced-content">
+                {/* Project selector */}
+                {projects.length > 0 && (
+                  <div className="context-field">
+                    <label className="context-field-label">
+                      <Briefcase size={12} />
+                      Project
+                    </label>
+                    <Select
+                      value={selectedProject || '__none__'}
+                      onValueChange={(v) => onSelectProject?.(v === '__none__' ? null : v)}
+                    >
+                      <SelectTrigger className="context-field-select">
+                        <SelectValue placeholder="Company-wide" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">Company-wide</SelectItem>
+                        {projects.map((proj) => (
+                          <SelectItem key={proj.id} value={proj.id}>
+                            {proj.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
+                {/* Playbooks selector */}
+                {playbooks.length > 0 && (
+                  <div className="context-field">
+                    <label className="context-field-label">
+                      <BookOpen size={12} />
+                      Playbooks
+                    </label>
+                    <MultiPlaybookSelect
+                      value={selectedPlaybooks}
+                      onValueChange={onSelectPlaybooks}
+                      playbooks={playbooks}
+                      placeholder="Select playbooks..."
+                      className="context-multi-select"
+                    />
+                  </div>
+                )}
+              </div>
+            </details>
+          </div>
+        )}
 
         {/* Use this context button */}
         <button

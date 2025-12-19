@@ -153,6 +153,61 @@
   font-style: italic;
 }
 
+/* Company buttons */
+.context-companies {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.context-company-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.context-company-btn:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-brand-primary);
+}
+
+.context-company-btn.active {
+  background: var(--color-brand-primary-light);
+  border-color: var(--color-brand-primary);
+  color: var(--color-brand-primary-hover);
+}
+
+.context-company-btn svg {
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+}
+
+.context-company-btn.active svg {
+  color: var(--color-brand-primary);
+}
+
+.context-company-btn span {
+  flex: 1;
+}
+
+.context-check {
+  width: 16px;
+  height: 16px;
+  color: var(--color-brand-primary);
+  flex-shrink: 0;
+}
+
 /* Presets */
 .context-presets {
   display: flex;
