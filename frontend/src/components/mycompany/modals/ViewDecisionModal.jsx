@@ -1,0 +1,224 @@
+/**
+ * ViewDecisionModal - View a saved council decision
+ *
+ * Shows decision content with:
+ * - Question summary
+ * - Linked project or playbook info
+ * - Copy functionality
+ * - Navigate to source conversation
+ * - Promote to playbook action
+ *
+ * Extracted from MyCompany.jsx for better maintainability.
+ */
+
+import { useState } from 'react';
+import { AppModal } from '../../ui/AppModal';
+import MarkdownViewer from '../../MarkdownViewer';
+import { Bookmark, FolderKanban, ExternalLink } from 'lucide-react';
+import { getDeptColor } from '../../../lib/colors';
+
+export function ViewDecisionModal({
+  decision,
+  departments = [],
+  playbooks = [],
+  projects = [],
+  onClose,
+  onPromote,
+  onViewProject,
+  onNavigateToConversation
+}) {
+  const [copied, setCopied] = useState(false);
+
+  // Copy decision content (not including user question)
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(decision.content || '');
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
+  // Format date as "December 12, 2025" - works for US and EU
+  const formatDate = (dateStr) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  // Get linked playbook (source of truth for promoted decisions)
+  const linkedPlaybook = decision.promoted_to_id && playbooks.length > 0
+    ? playbooks.find(p => p.id === decision.promoted_to_id)
+    : null;
+
+  // Get linked project (if decision was saved as part of a project)
+  const linkedProject = decision.project_id && projects.length > 0
+    ? projects.find(p => p.id === decision.project_id)
+    : null;
+
+  // Decision is "promoted" if it's either a playbook OR a project
+  const isAlreadyPromoted = decision.is_promoted || decision.project_id;
+
+  // Get type from linked playbook OR decision's promoted_to_type
+  // Decision.promoted_to_type is set when promoted (sop/framework/policy/project)
+  const getTypeLabel = () => {
+    const typeLabels = {
+      sop: 'SOP',
+      framework: 'Framework',
+      policy: 'Policy'
+    };
+    // Try linkedPlaybook first, then fall back to decision.promoted_to_type
+    const docType = linkedPlaybook?.doc_type || decision.promoted_to_type;
+    return typeLabels[docType] || null;
+  };
+
+  // Get the actual type value for CSS class
+  const getTypeValue = () => {
+    return linkedPlaybook?.doc_type || decision.promoted_to_type || null;
+  };
+
+  // Get departments from linked playbook (source of truth)
+  const getPlaybookDepts = () => {
+    if (!linkedPlaybook) return [];
+
+    // Collect all departments the playbook belongs to
+    const deptIds = new Set();
+    if (linkedPlaybook.department_id) deptIds.add(linkedPlaybook.department_id);
+    if (linkedPlaybook.linked_departments) {
+      linkedPlaybook.linked_departments.forEach(ld => {
+        if (ld.department_id) deptIds.add(ld.department_id);
+      });
+    }
+
+    // Map to department objects
+    return Array.from(deptIds)
+      .map(id => departments.find(d => d.id === id))
+      .filter(Boolean);
+  };
+
+  const typeLabel = getTypeLabel();
+  const typeValue = getTypeValue();
+  const playbookDepts = getPlaybookDepts();
+
+  return (
+    <AppModal isOpen={true} onClose={onClose} title={decision.title} size="lg">
+      {/* User question - show AI summary if available, fall back to raw question */}
+      {(decision.question_summary || decision.user_question) && (
+        <div className="mc-decision-question">
+          <span className="mc-decision-question-label">Question:</span>
+          <p className="mc-decision-question-text">{decision.question_summary || decision.user_question}</p>
+        </div>
+      )}
+
+      <div className="mc-decision-meta">
+        {/* Show project link if decision is linked to a project */}
+        {linkedProject ? (
+          <div className="mc-promoted-info-row">
+            <span className="mc-promoted-label project">
+              <FolderKanban size={14} className="icon" />
+              Project
+            </span>
+            <button
+              className="mc-project-link-btn"
+              onClick={() => onViewProject && onViewProject(linkedProject.id)}
+            >
+              {linkedProject.name} →
+            </button>
+          </div>
+        ) : decision.is_promoted ? (
+          <div className="mc-promoted-info-row">
+            <span className="mc-promoted-label">
+              <span className="icon">✓</span>
+              Playbook
+            </span>
+            {typeLabel && (
+              <span className={`mc-type-badge ${typeValue}`}>
+                {typeLabel}
+              </span>
+            )}
+            {playbookDepts.length > 0 && playbookDepts.map(dept => {
+              const color = getDeptColor(dept.id);
+              return (
+                <span
+                  key={dept.id}
+                  className="mc-dept-badge"
+                  style={{ background: color.bg, color: color.text, borderColor: color.border }}
+                >
+                  {dept.name}
+                </span>
+              );
+            })}
+            {playbookDepts.length === 0 && (
+              <span className="mc-scope-badge company-wide">Company-wide</span>
+            )}
+          </div>
+        ) : (
+          <span className="mc-pending-label">Saved decision</span>
+        )}
+        <span className="mc-date">
+          {formatDate(decision.created_at)}
+        </span>
+      </div>
+      {decision.tags && decision.tags.length > 0 && (
+        <div className="mc-tags">
+          {decision.tags.map(tag => (
+            <span key={tag} className="mc-tag">{tag}</span>
+          ))}
+        </div>
+      )}
+      <div className="mc-decision-content">
+        {/* Floating copy button - icon only, matches Stage3 */}
+        <button
+          className={`mc-content-copy-btn ${copied ? 'copied' : ''}`}
+          onClick={handleCopy}
+          title="Copy council response"
+        >
+          {copied ? (
+            <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          ) : (
+            <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+            </svg>
+          )}
+        </button>
+        <MarkdownViewer content={decision.content || ''} />
+
+        {/* Source link - at the bottom of the content */}
+        {decision.source_conversation_id && !decision.source_conversation_id.startsWith('temp-') && onNavigateToConversation && (
+          <button
+            className="mc-decision-source-link"
+            onClick={() => {
+              // Pass response_index to scroll to the correct response in multi-turn conversations
+              onNavigateToConversation(decision.source_conversation_id, 'decisions', decision.response_index || 0);
+            }}
+          >
+            <ExternalLink size={14} />
+            View original conversation →
+          </button>
+        )}
+      </div>
+      <AppModal.Footer>
+        {/* Only show Promote to Playbook if NOT already a playbook AND NOT linked to a project */}
+        {!isAlreadyPromoted && onPromote && (
+          <button
+            className="mc-btn primary"
+            onClick={() => onPromote(decision)}
+          >
+            <Bookmark size={14} className="mc-btn-icon" />
+            Promote to Playbook
+          </button>
+        )}
+        <button className="mc-btn" onClick={onClose}>
+          Close
+        </button>
+      </AppModal.Footer>
+    </AppModal>
+  );
+}

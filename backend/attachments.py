@@ -10,6 +10,46 @@ BUCKET_NAME = "attachments"
 ALLOWED_MIME_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"]
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
+# Magic bytes for image file validation
+# These are the first few bytes that identify file types
+IMAGE_MAGIC_BYTES = {
+    "image/png": [b'\x89PNG\r\n\x1a\n'],
+    "image/jpeg": [b'\xff\xd8\xff'],
+    "image/gif": [b'GIF87a', b'GIF89a'],
+    "image/webp": [b'RIFF'],  # WebP starts with RIFF, then has WEBP at offset 8
+}
+
+
+def validate_image_magic_bytes(file_data: bytes, claimed_mime_type: str) -> bool:
+    """
+    Validate that file content matches the claimed MIME type using magic bytes.
+
+    This prevents MIME type spoofing attacks where an attacker claims a file
+    is an image but actually uploads malicious content.
+
+    Args:
+        file_data: Raw file bytes
+        claimed_mime_type: The MIME type claimed by the client
+
+    Returns:
+        True if magic bytes match the claimed type, False otherwise
+    """
+    if claimed_mime_type not in IMAGE_MAGIC_BYTES:
+        return False
+
+    magic_patterns = IMAGE_MAGIC_BYTES[claimed_mime_type]
+
+    for pattern in magic_patterns:
+        if file_data.startswith(pattern):
+            # Special case for WebP: verify WEBP marker at offset 8
+            if claimed_mime_type == "image/webp":
+                if len(file_data) >= 12 and file_data[8:12] == b'WEBP':
+                    return True
+                return False
+            return True
+
+    return False
+
 
 async def upload_attachment(
     user_id: str,
@@ -45,6 +85,11 @@ async def upload_attachment(
     # Validate file size
     if len(file_data) > MAX_FILE_SIZE:
         raise ValueError(f"File too large. Maximum size is {MAX_FILE_SIZE // (1024*1024)}MB")
+
+    # SECURITY: Validate magic bytes match claimed MIME type
+    # This prevents MIME type spoofing attacks
+    if not validate_image_magic_bytes(file_data, file_type):
+        raise ValueError(f"File content does not match claimed type '{file_type}'")
 
     # Generate unique file path: user_id/uuid.extension
     file_ext = file_name.split('.')[-1] if '.' in file_name else 'png'

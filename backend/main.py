@@ -10,6 +10,38 @@ import uuid
 import json
 import asyncio
 import re
+import logging
+
+# =============================================================================
+# SECURITY: Rate limiting
+# =============================================================================
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+
+try:
+    from .security import SecureHTTPException, log_security_event, get_client_ip
+except ImportError:
+    from security import SecureHTTPException, log_security_event, get_client_ip
+
+
+def get_user_identifier(request: Request) -> str:
+    """
+    Get rate limit key from authenticated user ID or fall back to IP address.
+    This ensures rate limits are per-user for authenticated requests.
+    """
+    # Try to get user ID from authorization header
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.startswith("Bearer "):
+        # Use a hash of the token as identifier (more privacy-preserving)
+        import hashlib
+        token_hash = hashlib.sha256(auth_header[7:].encode()).hexdigest()[:16]
+        return f"user:{token_hash}"
+    # Fall back to IP address for unauthenticated requests
+    return get_remote_address(request)
+
+
+limiter = Limiter(key_func=get_user_identifier)
 
 
 # =============================================================================
@@ -30,22 +62,42 @@ def validate_safe_id(value: str, field_name: str = "id") -> str:
         )
     return value
 
-from . import storage
-from .council import run_full_council, generate_conversation_title, stage1_collect_responses, stage1_stream_responses, stage2_collect_rankings, stage2_stream_rankings, stage3_synthesize_final, stage3_stream_synthesis, calculate_aggregate_rankings, chat_stream_response
-from .context_loader import list_available_businesses, load_business_context
-from .auth import get_current_user
-from . import leaderboard
-from . import triage
-from . import curator
-from . import org_sync
-from . import config
-from . import billing
-from . import attachments
-from . import image_analyzer
-from . import knowledge
-from .routers import company as company_router
+try:
+    from . import storage
+    from .council import run_full_council, generate_conversation_title, stage1_collect_responses, stage1_stream_responses, stage2_collect_rankings, stage2_stream_rankings, stage3_synthesize_final, stage3_stream_synthesis, calculate_aggregate_rankings, chat_stream_response
+    from .context_loader import list_available_businesses, load_business_context
+    from .auth import get_current_user
+    from . import leaderboard
+    from . import triage
+    from . import curator
+    from . import org_sync
+    from . import config
+    from . import billing
+    from . import attachments
+    from . import image_analyzer
+    from . import knowledge
+    from .routers import company as company_router
+except ImportError:
+    import storage
+    from council import run_full_council, generate_conversation_title, stage1_collect_responses, stage1_stream_responses, stage2_collect_rankings, stage2_stream_rankings, stage3_synthesize_final, stage3_stream_synthesis, calculate_aggregate_rankings, chat_stream_response
+    from context_loader import list_available_businesses, load_business_context
+    from auth import get_current_user
+    import leaderboard
+    import triage
+    import curator
+    import org_sync
+    import config
+    import billing
+    import attachments
+    import image_analyzer
+    import knowledge
+    from routers import company as company_router
 
 app = FastAPI(title="LLM Council API")
+
+# Add rate limiter to app state
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # CORS origins list
 CORS_ORIGINS = [
@@ -63,7 +115,82 @@ CORS_ORIGINS = [
     "https://ai-council-three.vercel.app",
 ]
 
-# Enable CORS - MUST be added before any routes
+# =============================================================================
+# SECURITY: Request size limit middleware
+# =============================================================================
+MAX_REQUEST_SIZE = 15 * 1024 * 1024  # 15MB max (slightly above 10MB file limit)
+
+
+# =============================================================================
+# SECURITY: Security headers middleware
+# =============================================================================
+from starlette.middleware.base import BaseHTTPMiddleware
+
+
+class RequestSizeLimitMiddleware(BaseHTTPMiddleware):
+    """Reject requests that exceed the size limit to prevent DoS attacks."""
+
+    async def dispatch(self, request, call_next):
+        # Check Content-Length header if present
+        content_length = request.headers.get("content-length")
+        if content_length:
+            if int(content_length) > MAX_REQUEST_SIZE:
+                log_security_event(
+                    "OVERSIZED_REQUEST",
+                    ip_address=get_client_ip(request),
+                    details={"size": content_length, "limit": MAX_REQUEST_SIZE},
+                    severity="WARNING"
+                )
+                from fastapi.responses import JSONResponse
+                return JSONResponse(
+                    status_code=413,
+                    content={"detail": "Request too large"}
+                )
+        return await call_next(request)
+
+
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Add security headers to all responses."""
+
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+
+        # Prevent clickjacking - deny embedding in iframes
+        response.headers["X-Frame-Options"] = "DENY"
+
+        # Prevent MIME type sniffing
+        response.headers["X-Content-Type-Options"] = "nosniff"
+
+        # Enable browser XSS protection
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+
+        # Content Security Policy
+        # - Allow self for default, scripts, styles
+        # - Allow data: and https: for images (Supabase storage)
+        # - Allow connections to self, Supabase, and OpenRouter
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline'; "
+            "style-src 'self' 'unsafe-inline'; "
+            "img-src 'self' data: https:; "
+            "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://openrouter.ai; "
+            "font-src 'self' data:; "
+            "frame-ancestors 'none';"
+        )
+
+        # Referrer policy - send origin only for cross-origin requests
+        response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+
+        # Permissions policy - disable unnecessary browser features
+        response.headers["Permissions-Policy"] = (
+            "accelerometer=(), camera=(), geolocation=(), gyroscope=(), "
+            "magnetometer=(), microphone=(), payment=(), usb=()"
+        )
+
+        return response
+
+
+# Enable CORS - added first so it's innermost (processed last on response)
 # Use explicit allowlist for security (not wildcard)
 app.add_middleware(
     CORSMiddleware,
@@ -73,6 +200,12 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["Content-Disposition"],  # Allow frontend to read filename header
 )
+
+# Add security headers middleware
+app.add_middleware(SecurityHeadersMiddleware)
+
+# Add request size limit middleware - outermost, checks before processing
+app.add_middleware(RequestSizeLimitMiddleware)
 
 # Exception handler to ensure CORS headers on error responses
 @app.exception_handler(HTTPException)
@@ -488,7 +621,8 @@ async def send_message(conversation_id: str, request: SendMessageRequest, user: 
 
 
 @app.post("/api/conversations/{conversation_id}/message/stream")
-async def send_message_stream(conversation_id: str, request: SendMessageRequest, user: dict = Depends(get_current_user)):
+@limiter.limit("20/minute;100/hour")  # Rate limit: 20 council queries/min, 100/hour per user
+async def send_message_stream(request: Request, conversation_id: str, body: SendMessageRequest, user: dict = Depends(get_current_user)):
     """
     Send a message and stream the 3-stage council process.
     Returns Server-Sent Events as each stage completes.
@@ -532,18 +666,18 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest,
             print(f"[STREAM] Starting event_generator for conversation {conversation_id}", flush=True)
 
             # Add user message with user_id
-            storage.add_user_message(conversation_id, request.content, user_id, access_token=access_token)
+            storage.add_user_message(conversation_id, body.content, user_id, access_token=access_token)
             print(f"[STREAM] User message saved", flush=True)
 
             # Process image attachments if provided
-            enhanced_query = request.content
-            if request.attachment_ids:
-                print(f"[STREAM] Processing {len(request.attachment_ids)} image attachments", flush=True)
-                yield f"data: {json.dumps({'type': 'image_analysis_start', 'count': len(request.attachment_ids)})}\n\n"
+            enhanced_query = body.content
+            if body.attachment_ids:
+                print(f"[STREAM] Processing {len(body.attachment_ids)} image attachments", flush=True)
+                yield f"data: {json.dumps({'type': 'image_analysis_start', 'count': len(body.attachment_ids)})}\n\n"
 
                 # Download all images
                 images = []
-                for attachment_id in request.attachment_ids:
+                for attachment_id in body.attachment_ids:
                     image_data = await attachments.download_attachment(
                         user_id=user_id,
                         access_token=access_token,
@@ -556,8 +690,8 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest,
                 # Analyze images with vision model
                 if images:
                     print(f"[STREAM] Analyzing {len(images)} images with vision model", flush=True)
-                    image_analysis = await image_analyzer.analyze_images(images, request.content)
-                    enhanced_query = image_analyzer.format_query_with_images(request.content, image_analysis)
+                    image_analysis = await image_analyzer.analyze_images(images, body.content)
+                    enhanced_query = image_analyzer.format_query_with_images(body.content, image_analysis)
                     print(f"[STREAM] Image analysis complete, query enhanced", flush=True)
 
                     # Send the image analysis to frontend so user can see what the council receives
@@ -568,13 +702,13 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest,
             # Start title generation in parallel (don't await yet)
             title_task = None
             if is_first_message:
-                title_task = asyncio.create_task(generate_conversation_title(request.content))
+                title_task = asyncio.create_task(generate_conversation_title(body.content))
 
             # Resolve company UUID for knowledge base lookup
             company_uuid = None
-            if request.business_id:
+            if body.business_id:
                 try:
-                    company_uuid = storage.resolve_company_id(request.business_id, access_token)
+                    company_uuid = storage.resolve_company_id(body.business_id, access_token)
                     print(f"[STREAM] Resolved company_uuid: {company_uuid}", flush=True)
                 except Exception as e:
                     print(f"[STREAM] Could not resolve company_uuid: {e}", flush=True)
@@ -590,11 +724,11 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest,
             # independent responses. Each council query should be a clean slate.
             async for event in stage1_stream_responses(
                 enhanced_query,  # Use enhanced query with image analysis
-                business_id=request.business_id,
-                department_id=request.department,
-                role_id=request.role,
+                business_id=body.business_id,
+                department_id=body.department,
+                role_id=body.role,
                 conversation_history=None,  # Intentionally None - keep Stage 1 isolated
-                project_id=request.project_id,
+                project_id=body.project_id,
                 access_token=access_token,
                 company_uuid=company_uuid
             ):
@@ -617,7 +751,7 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest,
             stage2_results = []
             label_to_model = {}
             aggregate_rankings = []
-            async for event in stage2_stream_rankings(enhanced_query, stage1_results, business_id=request.business_id):
+            async for event in stage2_stream_rankings(enhanced_query, stage1_results, business_id=body.business_id):
                 if event['type'] == 'stage2_token':
                     yield f"data: {json.dumps(event)}\n\n"
                 elif event['type'] == 'stage2_model_complete':
@@ -637,8 +771,8 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest,
                 enhanced_query,  # Use enhanced query with image analysis
                 stage1_results,
                 stage2_results,
-                business_id=request.business_id,
-                project_id=request.project_id,
+                business_id=body.business_id,
+                project_id=body.project_id,
                 access_token=access_token,
                 company_uuid=company_uuid
             ):
@@ -657,8 +791,8 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest,
                 yield f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
 
             # Update department on first message
-            if is_first_message and request.department:
-                storage.update_conversation_department(conversation_id, request.department, access_token=access_token)
+            if is_first_message and body.department:
+                storage.update_conversation_department(conversation_id, body.department, access_token=access_token)
 
             # Save complete assistant message with metadata
             storage.add_assistant_message(
@@ -684,6 +818,24 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest,
                     aggregate_rankings=aggregate_rankings
                 )
 
+            # Log consultation activity (audit trail for all council consultations)
+            if company_uuid:
+                try:
+                    # Use the generated title or truncate the question
+                    consultation_title = title if title_task and title else (body.content[:80] + "..." if len(body.content) > 80 else body.content)
+                    await company_router.log_activity(
+                        company_id=company_uuid,
+                        event_type="consultation",
+                        title=f"Consulted: {consultation_title}",
+                        description=None,  # Don't store full question in activity
+                        department_id=body.department,
+                        related_id=None,  # No related_id until saved as decision
+                        related_type="conversation",
+                        conversation_id=conversation_id
+                    )
+                except Exception as e:
+                    print(f"[ACTIVITY] Failed to log consultation: {e}", flush=True)
+
             # Send completion event
             yield f"data: {json.dumps({'type': 'complete'})}\n\n"
 
@@ -707,7 +859,8 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest,
 
 
 @app.post("/api/conversations/{conversation_id}/chat/stream")
-async def chat_with_chairman(conversation_id: str, request: ChatRequest, user: dict = Depends(get_current_user)):
+@limiter.limit("60/minute;300/hour")  # Rate limit: 60 chat messages/min, 300/hour per user
+async def chat_with_chairman(request: Request, conversation_id: str, body: ChatRequest, user: dict = Depends(get_current_user)):
     """
     Send a follow-up chat message and stream a response from the Chairman only.
     Used for iterating on council advice without running full deliberation.
@@ -763,19 +916,19 @@ async def chat_with_chairman(conversation_id: str, request: ChatRequest, user: d
             # Add the new user message to history
             history.append({
                 "role": "user",
-                "content": request.content
+                "content": body.content
             })
 
             # Also save the user message to storage with user_id
-            storage.add_user_message(conversation_id, request.content, user_id, access_token=access_token)
+            storage.add_user_message(conversation_id, body.content, user_id, access_token=access_token)
 
             yield f"data: {json.dumps({'type': 'chat_start'})}\n\n"
 
             # Resolve company UUID for knowledge base lookup
             company_uuid = None
-            if request.business_id:
+            if body.business_id:
                 try:
-                    company_uuid = storage.resolve_company_id(request.business_id, access_token)
+                    company_uuid = storage.resolve_company_id(body.business_id, access_token)
                 except Exception:
                     pass  # Non-critical, continue without knowledge
 
@@ -783,9 +936,9 @@ async def chat_with_chairman(conversation_id: str, request: ChatRequest, user: d
             full_content = ""
             async for event in chat_stream_response(
                 history,
-                business_id=request.business_id,
-                department_id=request.department_id,
-                project_id=request.project_id,
+                business_id=body.business_id,
+                department_id=body.department_id,
+                project_id=body.project_id,
                 access_token=access_token,
                 company_uuid=company_uuid
             ):
@@ -1252,7 +1405,7 @@ async def get_curator_history(conversation_id: str, user: dict = Depends(get_cur
         raise
     except Exception as e:
         print(f"[CURATOR ERROR] get_curator_history failed: {type(e).__name__}: {e}", flush=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise SecureHTTPException.internal_error(str(e))
 
 
 @app.get("/api/context/{business_id}/last-updated")
@@ -1270,7 +1423,7 @@ async def get_context_last_updated(business_id: str, user: dict = Depends(get_cu
         # Try loading the full context
         context_file = curator.CONTEXTS_DIR / business_id / "context.md"
         if not context_file.exists():
-            raise HTTPException(status_code=404, detail="Business context not found")
+            raise HTTPException(status_code=404, detail="Resource not found")
         content = context_file.read_text(encoding='utf-8')
 
     last_updated = curator.extract_last_updated(content)
@@ -1362,7 +1515,7 @@ async def create_project(
         import traceback
         print(f"[CREATE_PROJECT_ENDPOINT] ERROR: {type(e).__name__}: {e}", flush=True)
         print(f"[CREATE_PROJECT_ENDPOINT] Traceback:\n{traceback.format_exc()}", flush=True)
-        raise HTTPException(status_code=500, detail=f"Failed to create project: {str(e)}")
+        raise SecureHTTPException.internal_error(f"Failed to create project: {str(e)}")
 
 
 ## NOTE: create_project_from_decision endpoint is in backend/routers/company.py
@@ -1376,7 +1529,7 @@ async def get_project(project_id: str, user: dict = Depends(get_current_user)):
     project = storage.get_project(project_id, access_token)
 
     if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
+        raise HTTPException(status_code=404, detail="Resource not found")
 
     return {"project": project}
 
@@ -1404,14 +1557,14 @@ async def update_project(
         )
 
         if not result:
-            raise HTTPException(status_code=404, detail="Project not found")
+            raise HTTPException(status_code=404, detail="Resource not found")
 
         return {"project": result}
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         print(f"[ERROR] Failed to update project: {type(e).__name__}: {e}", flush=True)
-        raise HTTPException(status_code=500, detail=f"Failed to update project: {str(e)}")
+        raise SecureHTTPException.internal_error(f"Failed to update project: {str(e)}")
 
 
 @app.post("/api/projects/{project_id}/touch")
@@ -1427,13 +1580,25 @@ async def delete_project(project_id: str, user: dict = Depends(get_current_user)
     """Delete a project permanently."""
     access_token = user.get("access_token")
     try:
-        success = storage.delete_project(project_id, access_token)
-        if not success:
+        deleted_project = storage.delete_project(project_id, access_token)
+        if not deleted_project:
             raise HTTPException(status_code=404, detail="Project not found or could not be deleted")
+
+        # Log activity for deleted project
+        if deleted_project.get("company_id"):
+            await company_router.log_activity(
+                company_id=deleted_project["company_id"],
+                event_type="project",
+                title=f"Deleted: {deleted_project.get('name', 'Project')}",
+                description="Project was permanently deleted",
+                related_id=project_id,
+                related_type="project"
+            )
+
         return {"success": True}
     except Exception as e:
         print(f"[ERROR] Failed to delete project: {type(e).__name__}: {e}", flush=True)
-        raise HTTPException(status_code=500, detail=f"Failed to delete project: {str(e)}")
+        raise SecureHTTPException.internal_error(f"Failed to delete project: {str(e)}")
 
 
 @app.get("/api/companies/{company_id}/projects/stats")
@@ -1511,7 +1676,7 @@ MARKDOWN:"""
             else:
                 raise HTTPException(status_code=500, detail="Failed to get AI response")
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"AI polish failed: {str(e)}")
+            raise SecureHTTPException.internal_error(f"AI polish failed: {str(e)}")
 
     # Field-specific prompts for better context
     field_prompts = {
@@ -1557,7 +1722,7 @@ Polished version:"""
         else:
             raise HTTPException(status_code=500, detail="Failed to get AI response")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"AI polish failed: {str(e)}")
+        raise SecureHTTPException.internal_error(f"AI polish failed: {str(e)}")
 
 
 # Billing endpoints
@@ -1607,7 +1772,7 @@ async def create_checkout(request: CheckoutRequest, user: dict = Depends(get_cur
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create checkout: {str(e)}")
+        raise SecureHTTPException.internal_error(f"Failed to create checkout: {str(e)}")
 
 
 @app.post("/api/billing/portal")
@@ -1622,7 +1787,7 @@ async def create_billing_portal(request: BillingPortalRequest, user: dict = Depe
         )
         return result
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to create portal: {str(e)}")
+        raise SecureHTTPException.internal_error(f"Failed to create portal: {str(e)}")
 
 
 @app.post("/api/billing/webhook")
@@ -1663,7 +1828,7 @@ async def get_profile(user: dict = Depends(get_current_user)):
         }
     except Exception as e:
         print(f"[PROFILE ERROR] get_profile failed: {type(e).__name__}: {e}", flush=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise SecureHTTPException.internal_error(str(e))
 
 
 @app.put("/api/profile")
@@ -1687,7 +1852,7 @@ async def update_profile(request: ProfileUpdateRequest, user: dict = Depends(get
         raise
     except Exception as e:
         print(f"[PROFILE ERROR] update_profile failed: {type(e).__name__}: {e}", flush=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise SecureHTTPException.internal_error(str(e))
 
 
 # ============================================
@@ -1737,7 +1902,7 @@ async def upload_attachment(
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         print(f"[ATTACHMENTS ERROR] upload failed: {type(e).__name__}: {e}", flush=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise SecureHTTPException.internal_error(str(e))
 
 
 @app.get("/api/attachments/{attachment_id}")
@@ -1754,7 +1919,7 @@ async def get_attachment(
         )
 
         if not result:
-            raise HTTPException(status_code=404, detail="Attachment not found")
+            raise HTTPException(status_code=404, detail="Resource not found")
 
         return result
 
@@ -1762,7 +1927,7 @@ async def get_attachment(
         raise
     except Exception as e:
         print(f"[ATTACHMENTS ERROR] get failed: {type(e).__name__}: {e}", flush=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise SecureHTTPException.internal_error(str(e))
 
 
 @app.get("/api/attachments/{attachment_id}/url")
@@ -1779,7 +1944,7 @@ async def get_attachment_url(
         )
 
         if not url:
-            raise HTTPException(status_code=404, detail="Attachment not found")
+            raise HTTPException(status_code=404, detail="Resource not found")
 
         return {"signed_url": url}
 
@@ -1787,7 +1952,7 @@ async def get_attachment_url(
         raise
     except Exception as e:
         print(f"[ATTACHMENTS ERROR] get_url failed: {type(e).__name__}: {e}", flush=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise SecureHTTPException.internal_error(str(e))
 
 
 @app.delete("/api/attachments/{attachment_id}")
@@ -1804,7 +1969,7 @@ async def delete_attachment(
         )
 
         if not success:
-            raise HTTPException(status_code=404, detail="Attachment not found")
+            raise HTTPException(status_code=404, detail="Resource not found")
 
         return {"success": True}
 
@@ -1812,7 +1977,7 @@ async def delete_attachment(
         raise
     except Exception as e:
         print(f"[ATTACHMENTS ERROR] delete failed: {type(e).__name__}: {e}", flush=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise SecureHTTPException.internal_error(str(e))
 
 
 # Mock mode endpoints
@@ -1985,7 +2150,7 @@ async def create_knowledge_entry(
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         print(f"[KNOWLEDGE ERROR] create failed: {type(e).__name__}: {e}", flush=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise SecureHTTPException.internal_error(str(e))
 
 
 @app.get("/api/knowledge/{company_id}")
@@ -2021,7 +2186,7 @@ async def get_knowledge_entries(
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         print(f"[KNOWLEDGE ERROR] get failed: {type(e).__name__}: {e}", flush=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise SecureHTTPException.internal_error(str(e))
 
 
 @app.get("/api/conversations/{conversation_id}/knowledge-count")
@@ -2045,7 +2210,7 @@ async def get_knowledge_count_for_conversation(
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         print(f"[KNOWLEDGE ERROR] get count failed: {type(e).__name__}: {e}", flush=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise SecureHTTPException.internal_error(str(e))
 
 
 @app.get("/api/conversations/{conversation_id}/linked-project")
@@ -2122,7 +2287,7 @@ async def get_conversation_linked_project(
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         print(f"[KNOWLEDGE ERROR] get linked project failed: {type(e).__name__}: {e}", flush=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise SecureHTTPException.internal_error(str(e))
 
 
 @app.get("/api/conversations/{conversation_id}/decision")
@@ -2198,7 +2363,7 @@ async def get_conversation_decision(
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         print(f"[CONV-DECISION ERROR] failed: {type(e).__name__}: {e}", flush=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise SecureHTTPException.internal_error(str(e))
 
 
 @app.patch("/api/knowledge/{entry_id}")
@@ -2220,7 +2385,7 @@ async def update_knowledge_entry(
         raise HTTPException(status_code=404, detail="Entry not found or access denied")
     except Exception as e:
         print(f"[KNOWLEDGE ERROR] update failed: {type(e).__name__}: {e}", flush=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise SecureHTTPException.internal_error(str(e))
 
 
 @app.delete("/api/knowledge/{entry_id}")
@@ -2237,10 +2402,10 @@ async def delete_knowledge_entry(
         )
         if success:
             return {"success": True}
-        raise HTTPException(status_code=404, detail="Entry not found")
+        raise HTTPException(status_code=404, detail="Resource not found")
     except Exception as e:
         print(f"[KNOWLEDGE ERROR] delete failed: {type(e).__name__}: {e}", flush=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise SecureHTTPException.internal_error(str(e))
 
 
 class ExtractDecisionRequest(BaseModel):
@@ -3019,7 +3184,7 @@ async def regenerate_project_context(
     project_result = service_client.table("projects").select("*").eq("id", project_id).single().execute()
     if not project_result.data:
         print(f"[REGEN] Project not found: {project_id}", flush=True)
-        raise HTTPException(status_code=404, detail="Project not found")
+        raise HTTPException(status_code=404, detail="Resource not found")
 
     project = project_result.data
     print(f"[REGEN] Got project: {project.get('name')}", flush=True)
@@ -3225,7 +3390,7 @@ async def get_project_report(
         # Get project details
         project = storage.get_project(project_id, access_token)
         if not project:
-            raise HTTPException(status_code=404, detail="Project not found")
+            raise HTTPException(status_code=404, detail="Resource not found")
 
         project_name = project.get('name', 'Untitled Project')
         company_id = project.get('company_id')
@@ -3244,7 +3409,7 @@ async def get_project_report(
         raise
     except Exception as e:
         print(f"[REPORT ERROR] generate failed: {type(e).__name__}: {e}", flush=True)
-        raise HTTPException(status_code=500, detail=str(e))
+        raise SecureHTTPException.internal_error(str(e))
 
 
 # =======================
@@ -3334,13 +3499,13 @@ async def ai_write_assist(
                 continue
 
         # All models failed
-        raise HTTPException(status_code=500, detail=f"All AI models failed. Last error: {last_error}")
+        raise SecureHTTPException.internal_error(f"All AI models failed. Last error: {last_error}")
 
     except HTTPException:
         raise
     except Exception as e:
         print(f"[WRITE-ASSIST ERROR] {type(e).__name__}: {e}", flush=True)
-        raise HTTPException(status_code=500, detail=f"AI assistance failed: {str(e)}")
+        raise SecureHTTPException.internal_error(f"AI assistance failed: {str(e)}")
 
 
 if __name__ == "__main__":

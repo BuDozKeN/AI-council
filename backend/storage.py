@@ -763,21 +763,22 @@ def touch_project_last_accessed(project_id: str, access_token: str) -> bool:
         return False
 
 
-def delete_project(project_id: str, access_token: str) -> bool:
-    """Delete a project by ID."""
+def delete_project(project_id: str, access_token: str) -> Optional[dict]:
+    """Delete a project by ID. Returns the deleted project data or None if failed."""
     if not project_id:
         print(f"[DELETE_PROJECT] No project_id provided", flush=True)
-        return False
+        return None
     try:
         print(f"[DELETE_PROJECT] Starting delete for project: {project_id}", flush=True)
         client = _get_client(access_token)
 
         # First verify the project exists and user has access
-        check_result = client.table("projects").select("id, name, user_id").eq("id", project_id).execute()
+        check_result = client.table("projects").select("id, name, user_id, company_id").eq("id", project_id).execute()
         if not check_result.data:
             print(f"[DELETE_PROJECT] Project not found or no access: {project_id}", flush=True)
-            return False
-        print(f"[DELETE_PROJECT] Found project: {check_result.data[0]}", flush=True)
+            return None
+        project_data = check_result.data[0]
+        print(f"[DELETE_PROJECT] Found project: {project_data}", flush=True)
 
         # Unlink any knowledge_entries that reference this project
         unlink_result = client.table("knowledge_entries")\
@@ -797,15 +798,15 @@ def delete_project(project_id: str, access_token: str) -> bool:
         verify_result = client.table("projects").select("id").eq("id", project_id).execute()
         if verify_result.data:
             print(f"[DELETE_PROJECT] WARNING: Project still exists after delete! RLS may be blocking.", flush=True)
-            return False
+            return None
 
         print(f"[DELETE_PROJECT] SUCCESS: Project {project_id} deleted", flush=True)
-        return True
+        return project_data
     except Exception as e:
         import traceback
         print(f"[DELETE_PROJECT] Failed to delete project: {e}", flush=True)
         print(f"[DELETE_PROJECT] Traceback: {traceback.format_exc()}", flush=True)
-        return False
+        return None
 
 
 def get_projects_with_stats(

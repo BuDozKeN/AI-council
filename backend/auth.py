@@ -4,6 +4,7 @@ from fastapi import HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional
 from .database import get_supabase
+from .security import log_security_event
 
 # HTTP Bearer security scheme
 security = HTTPBearer(auto_error=False)
@@ -25,9 +26,10 @@ async def get_current_user(
         HTTPException 401 if token is missing or invalid
     """
     if not credentials:
+        log_security_event("AUTH_FAILURE", details={"reason": "missing_token"}, severity="WARNING")
         raise HTTPException(
             status_code=401,
-            detail="Missing authentication token",
+            detail="Authentication required",
             headers={"WWW-Authenticate": "Bearer"}
         )
 
@@ -39,9 +41,10 @@ async def get_current_user(
         user_response = supabase.auth.get_user(token)
 
         if not user_response or not user_response.user:
+            log_security_event("AUTH_FAILURE", details={"reason": "invalid_token"}, severity="WARNING")
             raise HTTPException(
                 status_code=401,
-                detail="Invalid authentication token",
+                detail="Authentication required",
                 headers={"WWW-Authenticate": "Bearer"}
             )
 
@@ -53,10 +56,12 @@ async def get_current_user(
 
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
+        # Don't expose internal error details
+        log_security_event("AUTH_FAILURE", details={"reason": "verification_error"}, severity="WARNING")
         raise HTTPException(
             status_code=401,
-            detail=f"Authentication failed: {str(e)}",
+            detail="Authentication required",
             headers={"WWW-Authenticate": "Bearer"}
         )
 

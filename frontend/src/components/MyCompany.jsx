@@ -9,6 +9,7 @@ import { StatusSelect } from './ui/StatusSelect';
 import { SortSelect } from './ui/SortSelect';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Spinner } from './ui/Spinner';
+import { Skeleton } from './ui/Skeleton';
 import { AIWriteAssist } from './ui/AIWriteAssist';
 import { Building2, Bookmark, FolderKanban, CheckCircle, Archive, RotateCcw, ExternalLink, Trash2, Sparkles, PenLine, RefreshCw, Users, BookOpen, BarChart3, Lightbulb, ClipboardList } from 'lucide-react';
 import { getDeptColor } from '../lib/colors';
@@ -18,7 +19,13 @@ import {
   AddPlaybookModal,
   ViewProjectModal,
   ViewPlaybookModal,
-  PromoteDecisionModal
+  PromoteDecisionModal,
+  ConfirmModal,
+  AlertModal,
+  ViewDepartmentModal,
+  ViewRoleModal,
+  ViewCompanyContextModal,
+  ViewDecisionModal
 } from './mycompany/modals';
 import './MyCompany.css';
 
@@ -67,11 +74,11 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
   const [playbookTagFilter, setPlaybookTagFilter] = useState('all');
   const [expandedTypes, setExpandedTypes] = useState({}); // Track which types are expanded beyond 5
 
-  // Activity pagination and filter state
-  const [activityDateFilter, setActivityDateFilter] = useState('7'); // '1' = today, '7' = week, '30' = month, 'all'
+  // Activity pagination state
   const [activityLimit, setActivityLimit] = useState(20);
   const [activityHasMore, setActivityHasMore] = useState(false);
   const [activityLoadingMore, setActivityLoadingMore] = useState(false);
+  const [activityLoaded, setActivityLoaded] = useState(false); // Track if activity has been fetched at least once
 
   // Projects filter state
   const [projectStatusFilter, setProjectStatusFilter] = useState('active'); // 'active', 'completed', 'archived', 'all'
@@ -129,14 +136,17 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
           break;
         }
         case 'activity': {
-          // Load activity with pagination - request one extra to check if more exist
-          const activityData = await api.getCompanyActivity(companyId, {
-            limit: activityLimit + 1,
-            days: activityDateFilter === 'all' ? null : parseInt(activityDateFilter)
-          });
+          // Load activity and projects in parallel (need projects for click navigation)
+          const [activityData, projectsData] = await Promise.all([
+            api.getCompanyActivity(companyId, { limit: activityLimit + 1 }),
+            api.listProjectsWithStats(companyId, { status: null, includeArchived: true })
+          ]);
           const logs = activityData.logs || [];
           setActivityHasMore(logs.length > activityLimit);
           setActivityLogs(logs.slice(0, activityLimit));
+          setProjects(projectsData.projects || []);
+          setProjectsLoaded(true);
+          setActivityLoaded(true); // Mark activity as loaded
           break;
         }
         case 'projects': {
@@ -176,6 +186,7 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
     setActivityLogs([]);
     setProjects([]);
     setProjectsLoaded(false); // Reset loaded flag so we show loading state for new company
+    setActivityLoaded(false); // Reset activity loaded flag
     // Reset activity pagination
     setActivityLimit(20);
     setActivityHasMore(false);
@@ -792,14 +803,10 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
   };
 
   const renderProjects = () => {
-    // Show loading state until we've fetched at least once - prevents flash of "No projects"
-    if (!projectsLoaded || (loading && projects.length === 0)) {
-      return (
-        <div className="mc-empty">
-          <Spinner size="lg" variant="brand" />
-          <p className="mc-empty-title">Loading projects...</p>
-        </div>
-      );
+    // Note: Skeleton loading is shown by parent when loading=true
+    // This catches edge case where projectsLoaded is false after loading completes
+    if (!projectsLoaded && !loading) {
+      return null; // Let skeleton handle loading state
     }
 
     if (projects.length === 0) {
@@ -1249,26 +1256,81 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
   };
 
   // Handle clicking on activity item to view related content
-  const handleActivityClick = (log) => {
+  const handleActivityClick = async (log) => {
     if (!log.related_id || !log.related_type) return;
+
+    // Helper to show "not found" message
+    const showNotFound = (type) => {
+      setAlertModal({
+        title: 'Item Not Found',
+        message: `This ${type} may have been deleted or is no longer available.`,
+        variant: 'info'
+      });
+    };
 
     switch (log.related_type) {
       case 'playbook':
         // Find the playbook and open it
-        const playbook = playbooks.find(p => p.id === log.related_id);
+        let playbook = playbooks.find(p => p.id === log.related_id);
         if (playbook) {
           setEditingItem({ type: 'playbook', data: playbook });
         } else {
-          // Load playbooks tab and try to find it
-          setActiveTab('playbooks');
+          // Playbook not in current list - try to fetch it directly (could be archived)
+          try {
+            const fetchedPlaybook = await api.getPlaybook(companyId, log.related_id);
+            if (fetchedPlaybook) {
+              setEditingItem({ type: 'playbook', data: fetchedPlaybook });
+            } else {
+              // 404 - playbook was deleted
+              showNotFound('playbook');
+            }
+          } catch (err) {
+            console.error('Failed to fetch playbook:', err);
+            showNotFound('playbook');
+          }
         }
         break;
       case 'decision':
-        const decision = decisions.find(d => d.id === log.related_id);
-        if (decision) {
-          setEditingItem({ type: 'decision', data: decision });
+        // Always fetch from API to ensure complete data (local list may have stale/incomplete records)
+        try {
+          const fetchedDecision = await api.getDecision(companyId, log.related_id);
+          if (fetchedDecision) {
+            // If decision is linked to a project, go directly to the project
+            if (fetchedDecision.project_id) {
+              const linkedProject = projects.find(p => p.id === fetchedDecision.project_id);
+              if (linkedProject) {
+                setEditingItem({ type: 'project', data: linkedProject });
+              } else {
+                // Project not in list - open decision modal as fallback
+                setEditingItem({ type: 'decision', data: fetchedDecision });
+              }
+            } else {
+              setEditingItem({ type: 'decision', data: fetchedDecision });
+            }
+          } else {
+            // 404 - decision was deleted or doesn't exist
+            showNotFound('decision');
+          }
+        } catch (err) {
+          console.error('Failed to fetch decision:', err);
+          showNotFound('decision');
+        }
+        break;
+      case 'project':
+        // Find the project and open it
+        let project = projects.find(p => p.id === log.related_id);
+        if (project) {
+          setEditingItem({ type: 'project', data: project });
         } else {
-          setActiveTab('decisions');
+          // Project not in list - could be archived or deleted
+          // TODO: Add api.getProject() for archived projects
+          showNotFound('project');
+        }
+        break;
+      case 'conversation':
+        // Consultation - navigate to the conversation
+        if (log.conversation_id && onNavigateToConversation) {
+          onNavigateToConversation(log.conversation_id, 'activity');
         }
         break;
       case 'department':
@@ -1286,11 +1348,27 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
 
   const renderActivity = () => {
     const EVENT_LABELS = {
+      consultation: 'Consultation',  // Council consultation (may not be saved)
       decision: 'Decision',
       playbook: 'Playbook',
+      project: 'Project',
       role: 'Role Change',
       department: 'Department',
       council_session: 'Council Session'
+    };
+
+    // Labels and colors for promoted_to_type
+    const PROMOTED_TYPE_LABELS = {
+      sop: 'SOP',
+      framework: 'FRAMEWORK',
+      policy: 'POLICY',
+      project: 'PROJECT'
+    };
+    const PROMOTED_TYPE_COLORS = {
+      sop: { bg: '#fef3c7', text: '#d97706' },        // Amber
+      framework: { bg: '#dbeafe', text: '#2563eb' },   // Blue
+      policy: { bg: '#ede9fe', text: '#7c3aed' },      // Violet
+      project: { bg: '#d1fae5', text: '#059669' }      // Emerald
     };
 
     // Group logs by date
@@ -1323,7 +1401,8 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
       minute: '2-digit'
     });
 
-    if (activityLogs.length === 0) {
+    // Only show empty state if data has been loaded (not during initial load)
+    if (activityLogs.length === 0 && activityLoaded) {
       return (
         <div className="mc-empty">
           <ClipboardList className="mc-empty-icon" size={48} />
@@ -1335,10 +1414,17 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
       );
     }
 
+    // If not loaded yet and no logs, return null (skeleton will be shown by parent)
+    if (activityLogs.length === 0 && !activityLoaded) {
+      return null;
+    }
+
     // Event type colors for dots
     const EVENT_COLORS = {
+      consultation: '#6366f1', // Indigo - council consultations
       decision: '#22c55e',    // Green
       playbook: '#3b82f6',    // Blue
+      project: '#14b8a6',     // Teal
       role: '#8b5cf6',        // Purple
       department: '#f59e0b',  // Amber
       council_session: '#10b981', // Emerald
@@ -1352,12 +1438,13 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
       saved: { bg: '#eff6ff', text: '#2563eb', border: '#bfdbfe' },    // Blue
       created: { bg: '#ecfdf5', text: '#059669', border: '#a7f3d0' },  // Green
       updated: { bg: '#fefce8', text: '#ca8a04', border: '#fef08a' },  // Yellow
-      archived: { bg: '#f5f5f4', text: '#78716c', border: '#d6d3d1' }  // Gray
+      archived: { bg: '#f5f5f4', text: '#78716c', border: '#d6d3d1' }, // Gray
+      consulted: { bg: '#eef2ff', text: '#4f46e5', border: '#c7d2fe' } // Indigo
     };
 
     // Parse action from title (e.g., "Deleted: Title" -> { action: "Deleted", cleanTitle: "Title" })
     const parseTitle = (title) => {
-      const match = title?.match(/^(Deleted|Promoted|Saved|Created|Updated|Archived):\s*(.+)$/i);
+      const match = title?.match(/^(Deleted|Promoted|Saved|Created|Updated|Archived|Consulted):\s*(.+)$/i);
       if (match) {
         return { action: match[1], cleanTitle: match[2] };
       }
@@ -1369,10 +1456,7 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
       setActivityLoadingMore(true);
       try {
         const newLimit = activityLimit + 20;
-        const activityData = await api.getCompanyActivity(companyId, {
-          limit: newLimit + 1,
-          days: activityDateFilter === 'all' ? null : parseInt(activityDateFilter)
-        });
+        const activityData = await api.getCompanyActivity(companyId, { limit: newLimit + 1 });
         const logs = activityData.logs || [];
         setActivityHasMore(logs.length > newLimit);
         setActivityLogs(logs.slice(0, newLimit));
@@ -1384,48 +1468,10 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
       }
     };
 
-    // Handle date filter change
-    const handleDateFilterChange = async (newFilter) => {
-      setActivityDateFilter(newFilter);
-      setActivityLimit(20); // Reset to initial limit
-      setLoading(true);
-      try {
-        const activityData = await api.getCompanyActivity(companyId, {
-          limit: 21,
-          days: newFilter === 'all' ? null : parseInt(newFilter)
-        });
-        const logs = activityData.logs || [];
-        setActivityHasMore(logs.length > 20);
-        setActivityLogs(logs.slice(0, 20));
-      } catch (err) {
-        console.error('Failed to filter activity:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const dateFilterLabels = {
-      '1': 'Today',
-      '7': 'Last 7 days',
-      '30': 'Last 30 days',
-      'all': 'All time'
-    };
-
     return (
       <div className="mc-activity">
         <div className="mc-activity-header">
           <span>{activityLogs.length} events</span>
-          <div className="mc-activity-filters">
-            {Object.entries(dateFilterLabels).map(([value, label]) => (
-              <button
-                key={value}
-                className={`mc-filter-chip ${activityDateFilter === value ? 'active' : ''}`}
-                onClick={() => handleDateFilterChange(value)}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
         </div>
 
         {Object.entries(groupedLogs).map(([date, logs]) => (
@@ -1433,16 +1479,27 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
             <h4 className="mc-group-title">{date}</h4>
             <div className="mc-elegant-list">
               {logs.map(log => {
-                const isClickable = log.related_id && log.related_type;
                 const dotColor = EVENT_COLORS[log.event_type] || EVENT_COLORS.default;
-                const { action, cleanTitle } = parseTitle(log.title);
+                const { action: parsedAction, cleanTitle } = parseTitle(log.title);
+                // If promoted_to_type is set, show "Promoted" instead of the parsed action (e.g., "Saved")
+                const action = log.promoted_to_type ? 'Promoted' : parsedAction;
                 const actionColors = action ? ACTION_COLORS[action.toLowerCase()] : null;
+                const isDeleted = parsedAction?.toLowerCase() === 'deleted';
+
+                // Deleted items are never clickable (the item no longer exists)
+                // For other items, check if we have related_id and related_type
+                // Consultations are clickable if they have a conversation_id
+                const isClickable = !isDeleted && (
+                  (log.related_id && log.related_type) ||
+                  (log.related_type === 'conversation' && log.conversation_id)
+                );
 
                 return (
                   <div
                     key={log.id}
-                    className={`mc-elegant-row ${isClickable ? '' : 'no-hover'}`}
+                    className={`mc-elegant-row ${isClickable ? '' : 'no-hover'} ${isDeleted ? 'deleted-item' : ''}`}
                     onClick={isClickable ? () => handleActivityClick(log) : undefined}
+                    title={isDeleted ? 'This item has been deleted' : undefined}
                   >
                     {/* Event type indicator */}
                     <div
@@ -1455,9 +1512,22 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
                       <span className="mc-elegant-title">{cleanTitle}</span>
                       {/* Badges row: Type badge + Action badge */}
                       <div className="mc-activity-badges">
-                        <span className="mc-elegant-badge activity-type" style={{ background: `${dotColor}20`, color: dotColor }}>
-                          {EVENT_LABELS[log.event_type] || log.event_type}
-                        </span>
+                        {/* Use promoted_to_type if available (SOP, FRAMEWORK, POLICY, PROJECT), else fall back to event_type */}
+                        {log.promoted_to_type && PROMOTED_TYPE_LABELS[log.promoted_to_type] ? (
+                          <span
+                            className="mc-elegant-badge activity-type"
+                            style={{
+                              background: PROMOTED_TYPE_COLORS[log.promoted_to_type]?.bg || '#f1f5f9',
+                              color: PROMOTED_TYPE_COLORS[log.promoted_to_type]?.text || '#64748b'
+                            }}
+                          >
+                            {PROMOTED_TYPE_LABELS[log.promoted_to_type]}
+                          </span>
+                        ) : (
+                          <span className="mc-elegant-badge activity-type" style={{ background: `${dotColor}20`, color: dotColor }}>
+                            {EVENT_LABELS[log.event_type] || log.event_type}
+                          </span>
+                        )}
                         {action && actionColors && (
                           <span
                             className="mc-elegant-badge activity-action"
@@ -1469,9 +1539,9 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
                       </div>
                     </div>
 
-                    {/* Time + Actions */}
-                    <div className="mc-elegant-actions">
-                      {log.conversation_id && onNavigateToConversation && (
+                    {/* Source link on hover */}
+                    {log.conversation_id && onNavigateToConversation && (
+                      <div className="mc-elegant-actions">
                         <button
                           className="mc-text-btn source"
                           onClick={(e) => {
@@ -1479,11 +1549,10 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
                             onNavigateToConversation(log.conversation_id, 'activity');
                           }}
                         >
-                          Source
+                          View source
                         </button>
-                      )}
-                      <span className="mc-activity-time">{formatTime(log.created_at)}</span>
-                    </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -2094,10 +2163,112 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
 
         {/* Content */}
         <div className="mc-content">
-          {loading ? (
-            <div className="mc-loading">
-              <Spinner size="xl" variant="brand" />
-              <p>Loading...</p>
+          {/* Show skeleton when loading OR when tab-specific data hasn't been fetched yet */}
+          {loading || (activeTab === 'activity' && !activityLoaded) || (activeTab === 'projects' && !projectsLoaded) ? (
+            <div className="mc-skeleton-container">
+              {/* Skeleton loader based on active tab */}
+              {activeTab === 'projects' && (
+                <>
+                  {/* Stats row skeleton */}
+                  <div className="mc-skeleton-stats">
+                    {[1,2,3,4].map(i => (
+                      <Skeleton key={i} width={140} height={80} style={{ borderRadius: 12 }} />
+                    ))}
+                  </div>
+                  {/* Filter bar skeleton */}
+                  <div className="mc-skeleton-filters">
+                    <Skeleton width={120} height={36} />
+                    <Skeleton width={150} height={36} />
+                    <Skeleton width={100} height={36} style={{ marginLeft: 'auto' }} />
+                  </div>
+                  {/* Project rows skeleton */}
+                  <div className="mc-skeleton-list">
+                    {[1,2,3,4,5].map(i => (
+                      <div key={i} className="mc-skeleton-row">
+                        <Skeleton variant="circular" width={10} height={10} />
+                        <Skeleton width="40%" height={16} />
+                        <Skeleton width={70} height={24} style={{ borderRadius: 12 }} />
+                        <Skeleton width={60} height={14} style={{ marginLeft: 'auto' }} />
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+              {activeTab === 'playbooks' && (
+                <>
+                  <div className="mc-skeleton-stats">
+                    {[1,2,3,4].map(i => (
+                      <Skeleton key={i} width={140} height={80} style={{ borderRadius: 12 }} />
+                    ))}
+                  </div>
+                  <div className="mc-skeleton-list">
+                    {[1,2,3,4,5].map(i => (
+                      <div key={i} className="mc-skeleton-row">
+                        <Skeleton variant="circular" width={8} height={8} />
+                        <Skeleton width="35%" height={16} />
+                        <Skeleton width={80} height={24} style={{ borderRadius: 12 }} />
+                        <Skeleton width={60} height={24} style={{ borderRadius: 12 }} />
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+              {activeTab === 'decisions' && (
+                <>
+                  <div className="mc-skeleton-filters">
+                    <Skeleton width={140} height={36} />
+                    <Skeleton width={200} height={36} />
+                  </div>
+                  <div className="mc-skeleton-list">
+                    {[1,2,3,4].map(i => (
+                      <div key={i} className="mc-skeleton-row">
+                        <Skeleton variant="circular" width={8} height={8} />
+                        <Skeleton width="50%" height={16} />
+                        <Skeleton width={70} height={24} style={{ borderRadius: 12 }} />
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+              {activeTab === 'activity' && (
+                <>
+                  <div className="mc-skeleton-filters">
+                    <Skeleton width={80} height={14} />
+                    <div style={{ display: 'flex', gap: 8, marginLeft: 'auto' }}>
+                      {[1,2,3,4].map(i => (
+                        <Skeleton key={i} width={80} height={28} style={{ borderRadius: 16 }} />
+                      ))}
+                    </div>
+                  </div>
+                  <div className="mc-skeleton-list">
+                    {[1,2,3,4,5,6].map(i => (
+                      <div key={i} className="mc-skeleton-row">
+                        <Skeleton variant="circular" width={8} height={8} />
+                        <Skeleton width="45%" height={16} />
+                        <Skeleton width={70} height={22} style={{ borderRadius: 12 }} />
+                        <Skeleton width={50} height={22} style={{ borderRadius: 12 }} />
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
+              {(activeTab === 'overview' || activeTab === 'team') && (
+                <>
+                  <div className="mc-skeleton-stats">
+                    {[1,2,3].map(i => (
+                      <Skeleton key={i} width={200} height={100} style={{ borderRadius: 12 }} />
+                    ))}
+                  </div>
+                  <div className="mc-skeleton-list">
+                    {[1,2,3].map(i => (
+                      <div key={i} className="mc-skeleton-row">
+                        <Skeleton width="60%" height={18} />
+                        <Skeleton width={100} height={14} style={{ marginLeft: 'auto' }} />
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           ) : error ? (
             <div className="mc-error">
@@ -2155,634 +2326,5 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
         )}
       </div>
     </div>
-  );
-}
-
-// Edit Company Context Modal - starts in edit mode when triggered from Edit button
-function ViewCompanyContextModal({ data, companyName, onClose, onSave, initialEditing = true, fullscreen = false }) {
-  const [isEditing, setIsEditing] = useState(initialEditing);
-  const [editedContext, setEditedContext] = useState(data.context_md || '');
-  const [saving, setSaving] = useState(false);
-
-  const content = data.context_md || '';
-
-  const handleSave = async () => {
-    if (onSave) {
-      setSaving(true);
-      try {
-        await onSave({ context_md: editedContext });
-        setIsEditing(false);
-      } catch (err) {
-        // Error handled by parent
-      }
-      setSaving(false);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setIsEditing(false);
-    setEditedContext(content);
-  };
-
-  return (
-    <AppModal
-      isOpen={true}
-      onClose={onClose}
-      size={fullscreen ? 'full' : 'lg'}
-      title="Company Context"
-      description="This context is injected into every AI Council conversation."
-      contentClassName="mc-modal-no-padding"
-    >
-      <div className="mc-modal-body">
-
-        {/* Content Section - Preview by default, markdown when editing */}
-        <div className="mc-content-section">
-          {isEditing ? (
-            <div className="mc-edit-full">
-              <AIWriteAssist
-                context="company-context"
-                value={editedContext}
-                onSuggestion={setEditedContext}
-                additionalContext={companyName ? `Company: ${companyName}` : ''}
-              >
-                <textarea
-                  className="mc-edit-textarea-full"
-                  value={editedContext}
-                  onChange={(e) => setEditedContext(e.target.value)}
-                  rows={20}
-                  autoFocus
-                  placeholder="Enter your company context here...
-
-Include:
-- Mission and vision
-- Company stage and goals
-- Budget and constraints
-- Key decisions and policies
-- Team structure
-- Any other important context for the AI Council"
-                />
-              </AIWriteAssist>
-            </div>
-          ) : (
-            <div className="mc-content-preview">
-              {content ? (
-                <MarkdownViewer content={content} skipCleanup={true} />
-              ) : (
-                <p className="mc-no-content">No company context yet. Click Edit to add context.</p>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <AppModal.Footer>
-        {isEditing ? (
-          <>
-            <button className="app-modal-btn app-modal-btn-secondary" onClick={handleCancelEdit} disabled={saving}>
-              Cancel
-            </button>
-            <button className="app-modal-btn app-modal-btn-primary" onClick={handleSave} disabled={saving}>
-              {saving ? 'Saving...' : 'Save Changes'}
-            </button>
-          </>
-        ) : (
-          <>
-            {onSave && (
-              <button className="app-modal-btn app-modal-btn-secondary" onClick={() => setIsEditing(true)}>
-                <svg viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                </svg>
-                Edit
-              </button>
-            )}
-            <button className="app-modal-btn app-modal-btn-primary" onClick={onClose}>Done</button>
-          </>
-        )}
-      </AppModal.Footer>
-    </AppModal>
-  );
-}
-
-// View Decision Modal
-function ViewDecisionModal({ decision, departments = [], playbooks = [], projects = [], onClose, onPromote, onViewProject, onNavigateToConversation }) {
-  const [copied, setCopied] = useState(false);
-
-  // Copy decision content (not including user question)
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(decision.content || '');
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  };
-
-  // Format date as "December 12, 2025" - works for US and EU
-  const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  };
-
-  // Get linked playbook (source of truth for promoted decisions)
-  const linkedPlaybook = decision.promoted_to_id && playbooks.length > 0
-    ? playbooks.find(p => p.id === decision.promoted_to_id)
-    : null;
-
-  // Get linked project (if decision was saved as part of a project)
-  const linkedProject = decision.project_id && projects.length > 0
-    ? projects.find(p => p.id === decision.project_id)
-    : null;
-
-  // Decision is "promoted" if it's either a playbook OR a project
-  const isAlreadyPromoted = decision.is_promoted || decision.project_id;
-
-  // Get type from linked playbook (always use playbook as source of truth)
-  const getTypeLabel = () => {
-    const typeLabels = {
-      sop: 'SOP',
-      framework: 'Framework',
-      policy: 'Policy'
-    };
-    if (linkedPlaybook) {
-      return typeLabels[linkedPlaybook.doc_type] || null;
-    }
-    return null;
-  };
-
-  // Get the actual type value for CSS class
-  const getTypeValue = () => {
-    return linkedPlaybook ? linkedPlaybook.doc_type : null;
-  };
-
-  // Get departments from linked playbook (source of truth)
-  const getPlaybookDepts = () => {
-    if (!linkedPlaybook) return [];
-
-    // Collect all departments the playbook belongs to
-    const deptIds = new Set();
-    if (linkedPlaybook.department_id) deptIds.add(linkedPlaybook.department_id);
-    if (linkedPlaybook.linked_departments) {
-      linkedPlaybook.linked_departments.forEach(ld => {
-        if (ld.department_id) deptIds.add(ld.department_id);
-      });
-    }
-
-    // Map to department objects
-    return Array.from(deptIds)
-      .map(id => departments.find(d => d.id === id))
-      .filter(Boolean);
-  };
-
-  const typeLabel = getTypeLabel();
-  const typeValue = getTypeValue();
-  const playbookDepts = getPlaybookDepts();
-
-  return (
-    <AppModal isOpen={true} onClose={onClose} title={decision.title} size="lg">
-      {/* User question - show AI summary if available, fall back to raw question */}
-      {(decision.question_summary || decision.user_question) && (
-        <div className="mc-decision-question">
-          <span className="mc-decision-question-label">Question:</span>
-          <p className="mc-decision-question-text">{decision.question_summary || decision.user_question}</p>
-        </div>
-      )}
-
-      <div className="mc-decision-meta">
-        {/* Show project link if decision is linked to a project */}
-        {linkedProject ? (
-          <div className="mc-promoted-info-row">
-            <span className="mc-promoted-label project">
-              <FolderKanban size={14} className="icon" />
-              Project
-            </span>
-            <button
-              className="mc-project-link-btn"
-              onClick={() => onViewProject && onViewProject(linkedProject.id)}
-            >
-              {linkedProject.name} →
-            </button>
-          </div>
-        ) : decision.is_promoted ? (
-          <div className="mc-promoted-info-row">
-            <span className="mc-promoted-label">
-              <span className="icon">✓</span>
-              Playbook
-            </span>
-            {typeLabel && (
-              <span className={`mc-type-badge ${typeValue}`}>
-                {typeLabel}
-              </span>
-            )}
-            {playbookDepts.length > 0 && playbookDepts.map(dept => {
-              const color = getDeptColor(dept.id);
-              return (
-                <span
-                  key={dept.id}
-                  className="mc-dept-badge"
-                  style={{ background: color.bg, color: color.text, borderColor: color.border }}
-                >
-                  {dept.name}
-                </span>
-              );
-            })}
-            {playbookDepts.length === 0 && (
-              <span className="mc-scope-badge company-wide">Company-wide</span>
-            )}
-          </div>
-        ) : (
-          <span className="mc-pending-label">Saved decision</span>
-        )}
-        <span className="mc-date">
-          {formatDate(decision.created_at)}
-        </span>
-      </div>
-      {decision.tags && decision.tags.length > 0 && (
-        <div className="mc-tags">
-          {decision.tags.map(tag => (
-            <span key={tag} className="mc-tag">{tag}</span>
-          ))}
-        </div>
-      )}
-      <div className="mc-decision-content">
-        {/* Floating copy button - icon only, matches Stage3 */}
-        <button
-          className={`mc-content-copy-btn ${copied ? 'copied' : ''}`}
-          onClick={handleCopy}
-          title="Copy council response"
-        >
-          {copied ? (
-            <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-          ) : (
-            <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
-            </svg>
-          )}
-        </button>
-        <MarkdownViewer content={decision.content || ''} />
-
-        {/* Source link - at the bottom of the content */}
-        {decision.source_conversation_id && !decision.source_conversation_id.startsWith('temp-') && onNavigateToConversation && (
-          <button
-            className="mc-decision-source-link"
-            onClick={() => {
-              // Pass response_index to scroll to the correct response in multi-turn conversations
-              onNavigateToConversation(decision.source_conversation_id, 'decisions', decision.response_index || 0);
-            }}
-          >
-            <ExternalLink size={14} />
-            View original conversation →
-          </button>
-        )}
-      </div>
-      <AppModal.Footer>
-        {/* Only show Promote to Playbook if NOT already a playbook AND NOT linked to a project */}
-        {!isAlreadyPromoted && onPromote && (
-          <button
-            className="mc-btn primary"
-            onClick={() => onPromote(decision)}
-          >
-            <Bookmark size={14} className="mc-btn-icon" />
-            Promote to Playbook
-          </button>
-        )}
-        <button className="mc-btn" onClick={onClose}>
-          Close
-        </button>
-      </AppModal.Footer>
-    </AppModal>
-  );
-}
-
-// View Department Modal - Preview-first UX with clean design
-function ViewDepartmentModal({ department, onClose, onSave }) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedContext, setEditedContext] = useState(department.context_md || '');
-  const [saving, setSaving] = useState(false);
-
-  const content = department.context_md || '';
-  const deptColor = getDeptColor(department.id);
-
-  const handleSave = async () => {
-    if (onSave) {
-      setSaving(true);
-      try {
-        await onSave(department.id, { context_md: editedContext });
-        setIsEditing(false);
-      } catch (err) {
-        // Error handled by parent
-      }
-      setSaving(false);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setIsEditing(false);
-    setEditedContext(content);
-  };
-
-  return (
-    <AppModal
-      isOpen={true}
-      onClose={onClose}
-      size="lg"
-      badge="DEPARTMENT"
-      badgeStyle={{ background: deptColor.bg, color: deptColor.text }}
-      title={department.name}
-      titleExtra={`${department.roles?.length || 0} roles`}
-      description={department.description}
-      contentClassName="mc-modal-no-padding"
-    >
-      <div className="mc-modal-body">
-
-        {/* Content Section - Preview by default, markdown when editing */}
-        <div className="mc-content-section">
-          {isEditing ? (
-            <div className="mc-edit-full">
-              <AIWriteAssist
-                context="department-description"
-                value={editedContext}
-                onSuggestion={setEditedContext}
-                additionalContext={department.name ? `Department: ${department.name}` : ''}
-              >
-                <textarea
-                  className="mc-edit-textarea-full"
-                  value={editedContext}
-                  onChange={(e) => setEditedContext(e.target.value)}
-                  rows={15}
-                  autoFocus
-                  placeholder="Enter the context documentation for this department..."
-                />
-              </AIWriteAssist>
-            </div>
-          ) : (
-            <div className="mc-content-preview">
-              {content ? (
-                <MarkdownViewer content={content} skipCleanup={true} />
-              ) : (
-                <p className="mc-no-content">No department context yet. Click Edit to add context.</p>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <AppModal.Footer>
-        {isEditing ? (
-          <>
-            <button className="app-modal-btn app-modal-btn-secondary" onClick={handleCancelEdit} disabled={saving}>
-              Cancel
-            </button>
-            <button className="app-modal-btn app-modal-btn-primary" onClick={handleSave} disabled={saving}>
-              {saving ? 'Saving...' : 'Save Changes'}
-            </button>
-          </>
-        ) : (
-          <>
-            {onSave && (
-              <button className="app-modal-btn app-modal-btn-secondary" onClick={() => setIsEditing(true)}>
-                <svg viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                </svg>
-                Edit
-              </button>
-            )}
-            <button className="app-modal-btn app-modal-btn-primary" onClick={onClose}>Done</button>
-          </>
-        )}
-      </AppModal.Footer>
-    </AppModal>
-  );
-}
-
-// Confirmation Modal - Unified style for archive/delete confirmations
-function ConfirmModal({
-  title,
-  message,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
-  variant = 'warning', // 'warning' (amber), 'danger' (red), 'info' (purple/brand)
-  onConfirm,
-  onCancel,
-  processing = false
-}) {
-  const isDanger = variant === 'danger';
-  const isInfo = variant === 'info';
-
-  // Icon based on variant
-  const renderIcon = () => {
-    if (isDanger) {
-      // Trash icon for danger
-      return (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" />
-        </svg>
-      );
-    } else if (isInfo) {
-      // Sparkles icon for AI/info
-      return (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M12 3v1m0 16v1m-9-9h1m16 0h1m-2.636-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
-        </svg>
-      );
-    } else {
-      // Warning triangle for warning
-      return (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-      );
-    }
-  };
-
-  const iconClass = isDanger ? 'danger' : isInfo ? 'info' : 'warning';
-  const buttonClass = isDanger ? 'danger' : isInfo ? 'primary' : 'warning';
-
-  return (
-    <AppModal isOpen={true} onClose={onCancel} title={title} size="sm">
-      <div className={`mc-confirm-icon ${iconClass}`}>
-        {renderIcon()}
-      </div>
-      <p className="mc-confirm-message">{message}</p>
-      <AppModal.Footer>
-        <button
-          type="button"
-          className="app-modal-btn app-modal-btn-secondary"
-          onClick={onCancel}
-          disabled={processing}
-        >
-          {cancelText}
-        </button>
-        <button
-          type="button"
-          className={`app-modal-btn ${buttonClass === 'danger' ? 'app-modal-btn-danger-sm' : buttonClass === 'warning' ? 'app-modal-btn-primary' : 'app-modal-btn-primary'}`}
-          onClick={onConfirm}
-          disabled={processing}
-        >
-          {processing ? (
-            <>
-              <Spinner size="sm" variant="muted" />
-              Processing...
-            </>
-          ) : (
-            confirmText
-          )}
-        </button>
-      </AppModal.Footer>
-    </AppModal>
-  );
-}
-
-// Alert Modal - For success/error messages (replaces browser alert())
-function AlertModal({
-  title,
-  message,
-  variant = 'success', // 'success', 'error', 'info'
-  onClose
-}) {
-  const iconMap = {
-    success: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-        <polyline points="22 4 12 14.01 9 11.01" />
-      </svg>
-    ),
-    error: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <circle cx="12" cy="12" r="10" />
-        <line x1="12" y1="8" x2="12" y2="12" />
-        <line x1="12" y1="16" x2="12.01" y2="16" />
-      </svg>
-    ),
-    info: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <circle cx="12" cy="12" r="10" />
-        <line x1="12" y1="16" x2="12" y2="12" />
-        <line x1="12" y1="8" x2="12.01" y2="8" />
-      </svg>
-    )
-  };
-
-  return (
-    <AppModal isOpen={true} onClose={onClose} title={title} size="sm">
-      <div className={`mc-alert-icon ${variant}`}>
-        {iconMap[variant]}
-      </div>
-      <p className="mc-alert-message">{message}</p>
-      <AppModal.Footer>
-        <button
-          type="button"
-          className={`app-modal-btn ${variant === 'error' ? 'app-modal-btn-danger-sm' : 'app-modal-btn-primary'}`}
-          onClick={onClose}
-        >
-          OK
-        </button>
-      </AppModal.Footer>
-    </AppModal>
-  );
-}
-
-// View Role Modal - Preview-first UX with clean design
-function ViewRoleModal({ role, onClose, onSave }) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedPrompt, setEditedPrompt] = useState(role.system_prompt || '');
-  const [saving, setSaving] = useState(false);
-
-  const content = role.system_prompt || '';
-  // Get department color if we have a department ID
-  const deptColor = role.departmentId ? getDeptColor(role.departmentId) : { bg: '#f3f4f6', text: '#6b7280' };
-
-  const handleSave = async () => {
-    if (onSave) {
-      setSaving(true);
-      await onSave(role.id, role.departmentId, { system_prompt: editedPrompt });
-      setSaving(false);
-      setIsEditing(false);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setIsEditing(false);
-    setEditedPrompt(content);
-  };
-
-  return (
-    <AppModal
-      isOpen={true}
-      onClose={onClose}
-      size="lg"
-      badge="ROLE"
-      badgeVariant="purple"
-      title={role.name}
-      titleExtra={role.departmentName}
-      description={role.title}
-      contentClassName="mc-modal-no-padding"
-    >
-      <div className="mc-modal-body">
-
-        {/* Content Section - Preview by default, markdown when editing */}
-        <div className="mc-content-section">
-          {isEditing ? (
-            <div className="mc-edit-full">
-              <AIWriteAssist
-                context="role-prompt"
-                value={editedPrompt}
-                onSuggestion={setEditedPrompt}
-                additionalContext={role.name ? `Role: ${role.name}${role.title ? ` (${role.title})` : ''}` : ''}
-              >
-                <textarea
-                  className="mc-edit-textarea-full"
-                  value={editedPrompt}
-                  onChange={(e) => setEditedPrompt(e.target.value)}
-                  rows={15}
-                  autoFocus
-                  placeholder="Enter the system prompt for this role..."
-                />
-              </AIWriteAssist>
-            </div>
-          ) : (
-            <div className="mc-content-preview">
-              {content ? (
-                <MarkdownViewer content={content} skipCleanup={true} />
-              ) : (
-                <p className="mc-no-content">No system prompt yet. Click Edit to add one.</p>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <AppModal.Footer>
-        {isEditing ? (
-          <>
-            <button className="app-modal-btn app-modal-btn-secondary" onClick={handleCancelEdit} disabled={saving}>
-              Cancel
-            </button>
-            <button className="app-modal-btn app-modal-btn-primary" onClick={handleSave} disabled={saving}>
-              {saving ? 'Saving...' : 'Save Changes'}
-            </button>
-          </>
-        ) : (
-          <>
-            {onSave && (
-              <button className="app-modal-btn app-modal-btn-secondary" onClick={() => setIsEditing(true)}>
-                <svg viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                </svg>
-                Edit
-              </button>
-            )}
-            <button className="app-modal-btn app-modal-btn-primary" onClick={onClose}>Done</button>
-          </>
-        )}
-      </AppModal.Footer>
-    </AppModal>
   );
 }

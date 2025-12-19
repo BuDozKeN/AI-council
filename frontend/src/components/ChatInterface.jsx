@@ -211,7 +211,7 @@ export default function ChatInterface({
   };
 
   return (
-    <div className="chat-interface">
+    <main id="main-content" className="chat-interface" aria-label="Chat interface">
       {/* Back to My Company floating button - shows when navigating from Source */}
       {returnToMyCompanyTab && onReturnToMyCompany && (
         <button
@@ -772,6 +772,6 @@ export default function ChatInterface({
           />
         );
       })()}
-    </div>
+    </main>
   );
 }

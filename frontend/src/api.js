@@ -1720,6 +1720,22 @@ export const api = {
   },
 
   /**
+   * Get a single playbook by ID.
+   * @param {string} companyId - Company ID
+   * @param {string} playbookId - Playbook ID
+   * @returns {Promise<Object>} Playbook with content
+   */
+  async getPlaybook(companyId, playbookId) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/company/${companyId}/playbooks/${playbookId}`, { headers });
+    if (!response.ok) {
+      if (response.status === 404) return null;
+      throw new Error('Failed to get playbook');
+    }
+    return response.json();
+  },
+
+  /**
    * Create a new playbook.
    * @param {string} companyId - Company ID
    * @param {Object} playbook - Playbook data {title, doc_type, content, department_id}
@@ -1796,6 +1812,23 @@ export const api = {
       throw new Error('Failed to get decisions');
     }
     return response.json();
+  },
+
+  /**
+   * Get a single decision by ID.
+   * @param {string} companyId - Company ID
+   * @param {string} decisionId - Decision ID
+   * @returns {Promise<Object|null>} Decision or null if not found
+   */
+  async getDecision(companyId, decisionId) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions/${decisionId}`, { headers });
+    if (!response.ok) {
+      if (response.status === 404) return null;
+      throw new Error('Failed to get decision');
+    }
+    const data = await response.json();
+    return data.decision;  // Unwrap from {decision: ...} wrapper
   },
 
   /**

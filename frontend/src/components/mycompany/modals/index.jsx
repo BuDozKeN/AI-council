@@ -18,6 +18,12 @@ import { DOC_TYPES } from '../constants';
 export { ViewProjectModal } from './ViewProjectModal';
 export { ViewPlaybookModal } from './ViewPlaybookModal';
 export { PromoteDecisionModal } from './PromoteDecisionModal';
+export { ConfirmModal } from './ConfirmModal';
+export { AlertModal } from './AlertModal';
+export { ViewDepartmentModal } from './ViewDepartmentModal';
+export { ViewRoleModal } from './ViewRoleModal';
+export { ViewCompanyContextModal } from './ViewCompanyContextModal';
+export { ViewDecisionModal } from './ViewDecisionModal';
 
 /**
  * Modal for adding a new department

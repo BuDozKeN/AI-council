@@ -120,7 +120,9 @@ export default function Sidebar({
   user,
   onSignOut,
   sortBy = 'date',
-  onSortByChange
+  onSortByChange,
+  isMobileOpen = false,
+  onMobileClose
 }) {
   const [filter, setFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -328,7 +330,16 @@ export default function Sidebar({
   const totalConversations = conversations.length;
 
   return (
-    <div className="sidebar">
+    <aside className={`sidebar ${isMobileOpen ? 'mobile-open' : ''}`} aria-label="Conversation history">
+      {/* Mobile close button */}
+      <div className="sidebar-mobile-close">
+        <button onClick={onMobileClose} aria-label="Close menu">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
       <div className="sidebar-header">
         <Button
           onClick={onNewConversation}
@@ -672,6 +683,6 @@ export default function Sidebar({
           </button>
         </AppModal.Footer>
       </AppModal>
-    </div>
+    </aside>
   );
 }

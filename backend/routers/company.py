@@ -11,22 +11,52 @@ Per Council recommendation: ALL data comes from Supabase database.
 The filesystem (councils/organisations/) is deprecated for runtime use.
 """
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Path
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional, List, Annotated
 from datetime import datetime
 import re
+import uuid
 from functools import lru_cache
 import time
 
 from ..auth import get_current_user
 from ..database import get_supabase_with_auth, get_supabase_service
+from ..security import SecureHTTPException, log_security_event
 
 
 router = APIRouter(prefix="/api/company", tags=["company"])
 
 # UUID pattern for validation
 UUID_PATTERN = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', re.I)
+
+# =============================================================================
+# SECURITY: Input validation for path parameters
+# =============================================================================
+# Pattern allows UUIDs and safe slugs (alphanumeric, underscore, hyphen)
+SAFE_ID_PATTERN = r'^[a-zA-Z0-9_-]+$'
+
+
+def validate_path_id(value: str, field_name: str = "id") -> str:
+    """
+    Validate that a path parameter contains only safe characters.
+    Prevents path traversal and injection attacks.
+    """
+    if not value or not re.match(SAFE_ID_PATTERN, value):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid {field_name}: must contain only letters, numbers, underscores, and hyphens"
+        )
+    return value
+
+
+# Annotated types for validated path parameters
+ValidCompanyId = Annotated[str, Path(pattern=SAFE_ID_PATTERN, description="Company ID (UUID or slug)")]
+ValidDeptId = Annotated[str, Path(pattern=SAFE_ID_PATTERN, description="Department ID")]
+ValidRoleId = Annotated[str, Path(pattern=SAFE_ID_PATTERN, description="Role ID")]
+ValidPlaybookId = Annotated[str, Path(pattern=SAFE_ID_PATTERN, description="Playbook ID")]
+ValidDecisionId = Annotated[str, Path(pattern=SAFE_ID_PATTERN, description="Decision ID")]
+ValidProjectId = Annotated[str, Path(pattern=SAFE_ID_PATTERN, description="Project ID")]
 
 # In-memory cache for company slug → UUID mapping (TTL: 5 minutes)
 _company_uuid_cache = {}
@@ -140,6 +170,52 @@ def get_service_client():
     if not client:
         raise HTTPException(status_code=500, detail="Service client not configured")
     return client
+
+
+def verify_company_access(client, company_uuid: str, user: dict) -> bool:
+    """
+    Verify that the authenticated user has access to the specified company.
+
+    Access is granted if:
+    1. User owns the company (companies.user_id = user.id)
+    2. User has department access to the company (user_department_access table)
+
+    Args:
+        client: Supabase service client
+        company_uuid: The company UUID to check access for
+        user: The authenticated user dict from get_current_user
+
+    Returns:
+        True if user has access, raises HTTPException otherwise
+    """
+    user_id = user.get('id') if isinstance(user, dict) else user.id
+
+    # Check if user owns the company
+    owner_result = client.table("companies") \
+        .select("id") \
+        .eq("id", company_uuid) \
+        .eq("user_id", user_id) \
+        .execute()
+
+    if owner_result.data:
+        return True
+
+    # Check if user has department access to this company
+    access_result = client.table("user_department_access") \
+        .select("id") \
+        .eq("company_id", company_uuid) \
+        .eq("user_id", user_id) \
+        .execute()
+
+    if access_result.data:
+        return True
+
+    # No access - log and raise 403
+    raise SecureHTTPException.access_denied(
+        user_id=user_id,
+        resource_type="company",
+        resource_id=company_uuid
+    )
 
 
 async def auto_regenerate_project_context(project_id: str, user: dict) -> bool:
@@ -314,7 +390,7 @@ def resolve_company_id(client, company_id: str) -> str:
     # Cache miss - look up by slug
     result = client.table("companies").select("id").eq("slug", company_id).single().execute()
     if not result.data:
-        raise HTTPException(status_code=404, detail=f"Company not found: {company_id}")
+        raise HTTPException(status_code=404, detail="Resource not found")
 
     # Store in cache
     uuid = result.data["id"]
@@ -649,7 +725,7 @@ SUMMARY:
 # ============================================
 
 @router.get("/{company_id}/overview")
-async def get_company_overview(company_id: str, user=Depends(get_current_user)):
+async def get_company_overview(company_id: ValidCompanyId, user=Depends(get_current_user)):
     """
     Get company overview with stats from DATABASE.
     Returns company info + counts of departments, roles, playbooks, decisions.
@@ -665,7 +741,10 @@ async def get_company_overview(company_id: str, user=Depends(get_current_user)):
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail=f"Company not found: {company_id}")
+        raise HTTPException(status_code=404, detail="Resource not found")
+
+    # SECURITY: Verify user has access to this company
+    verify_company_access(client, company_uuid, user)
 
     # Get company details from database
     company_result = client.table("companies") \
@@ -675,7 +754,7 @@ async def get_company_overview(company_id: str, user=Depends(get_current_user)):
         .execute()
 
     if not company_result.data:
-        raise HTTPException(status_code=404, detail=f"Company not found: {company_id}")
+        raise HTTPException(status_code=404, detail="Resource not found")
 
     company_data = company_result.data
 
@@ -730,7 +809,7 @@ class CompanyContextUpdate(BaseModel):
 
 
 @router.put("/{company_id}/context")
-async def update_company_context(company_id: str, data: CompanyContextUpdate, user=Depends(get_current_user)):
+async def update_company_context(company_id: ValidCompanyId, data: CompanyContextUpdate, user=Depends(get_current_user)):
     """
     Update the company context markdown.
     This is the master context document containing mission, goals, strategy, etc.
@@ -746,7 +825,10 @@ async def update_company_context(company_id: str, data: CompanyContextUpdate, us
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail=f"Company not found: {company_id}")
+        raise HTTPException(status_code=404, detail="Resource not found")
+
+    # SECURITY: Verify user has access to this company
+    verify_company_access(client, company_uuid, user)
 
     # Update the company's context_md
     result = client.table("companies") \
@@ -757,7 +839,7 @@ async def update_company_context(company_id: str, data: CompanyContextUpdate, us
         .execute()
 
     if not result.data:
-        raise HTTPException(status_code=404, detail="Company not found")
+        raise HTTPException(status_code=404, detail="Resource not found")
 
     return {"company": result.data[0]}
 
@@ -767,7 +849,7 @@ async def update_company_context(company_id: str, data: CompanyContextUpdate, us
 # ============================================
 
 @router.get("/{company_id}/team")
-async def get_team(company_id: str, user=Depends(get_current_user)):
+async def get_team(company_id: ValidCompanyId, user=Depends(get_current_user)):
     """
     Get all departments with their roles from DATABASE.
     Returns hierarchical structure: departments → roles.
@@ -783,7 +865,10 @@ async def get_team(company_id: str, user=Depends(get_current_user)):
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail=f"Company not found: {company_id}")
+        raise HTTPException(status_code=404, detail="Resource not found")
+
+    # SECURITY: Verify user has access to this company
+    verify_company_access(client, company_uuid, user)
 
     # Get departments from database
     dept_result = client.table("departments") \
@@ -843,7 +928,7 @@ async def get_team(company_id: str, user=Depends(get_current_user)):
 
 
 @router.post("/{company_id}/departments")
-async def create_department(company_id: str, data: DepartmentCreate, user=Depends(get_current_user)):
+async def create_department(company_id: ValidCompanyId, data: DepartmentCreate, user=Depends(get_current_user)):
     """Create a new department."""
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
@@ -874,7 +959,7 @@ async def create_department(company_id: str, data: DepartmentCreate, user=Depend
 
 
 @router.put("/{company_id}/departments/{dept_id}")
-async def update_department(company_id: str, dept_id: str, data: DepartmentUpdate, user=Depends(get_current_user)):
+async def update_department(company_id: ValidCompanyId, dept_id: ValidDeptId, data: DepartmentUpdate, user=Depends(get_current_user)):
     """Update a department."""
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
@@ -889,13 +974,13 @@ async def update_department(company_id: str, dept_id: str, data: DepartmentUpdat
         .execute()
 
     if not result.data:
-        raise HTTPException(status_code=404, detail="Department not found")
+        raise HTTPException(status_code=404, detail="Resource not found")
 
     return {"department": result.data[0]}
 
 
 @router.post("/{company_id}/departments/{dept_id}/roles")
-async def create_role(company_id: str, dept_id: str, data: RoleCreate, user=Depends(get_current_user)):
+async def create_role(company_id: ValidCompanyId, dept_id: ValidDeptId, data: RoleCreate, user=Depends(get_current_user)):
     """Create a new role in a department."""
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
@@ -928,7 +1013,7 @@ async def create_role(company_id: str, dept_id: str, data: RoleCreate, user=Depe
 
 
 @router.put("/{company_id}/departments/{dept_id}/roles/{role_id}")
-async def update_role(company_id: str, dept_id: str, role_id: str, data: RoleUpdate, user=Depends(get_current_user)):
+async def update_role(company_id: ValidCompanyId, dept_id: ValidDeptId, role_id: ValidRoleId, data: RoleUpdate, user=Depends(get_current_user)):
     """Update a role."""
     client = get_client(user)
 
@@ -942,13 +1027,13 @@ async def update_role(company_id: str, dept_id: str, role_id: str, data: RoleUpd
         .execute()
 
     if not result.data:
-        raise HTTPException(status_code=404, detail="Role not found")
+        raise HTTPException(status_code=404, detail="Resource not found")
 
     return {"role": result.data[0]}
 
 
 @router.get("/{company_id}/departments/{dept_id}/roles/{role_id}")
-async def get_role(company_id: str, dept_id: str, role_id: str, user=Depends(get_current_user)):
+async def get_role(company_id: ValidCompanyId, dept_id: ValidDeptId, role_id: ValidRoleId, user=Depends(get_current_user)):
     """Get a single role with full details including system prompt."""
     client = get_client(user)
 
@@ -960,7 +1045,7 @@ async def get_role(company_id: str, dept_id: str, role_id: str, user=Depends(get
         .execute()
 
     if not result.data:
-        raise HTTPException(status_code=404, detail="Role not found")
+        raise HTTPException(status_code=404, detail="Resource not found")
 
     return {"role": result.data}
 
@@ -1128,8 +1213,63 @@ async def get_playbook_tags(company_id: str, user=Depends(get_current_user)):
     return {"tags": predefined_tags}
 
 
+@router.get("/{company_id}/playbooks/{playbook_id}")
+async def get_playbook(company_id: ValidCompanyId, playbook_id: str, user=Depends(get_current_user)):
+    """Get a single playbook with its current version content."""
+    client = get_client(user)
+    company_uuid = resolve_company_id(client, company_id)
+
+    # Validate playbook_id is a valid UUID
+    try:
+        uuid.UUID(playbook_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid playbook ID format")
+
+    # Get the playbook document
+    doc_result = client.table("org_documents") \
+        .select("*") \
+        .eq("id", playbook_id) \
+        .eq("company_id", company_uuid) \
+        .single() \
+        .execute()
+
+    if not doc_result.data:
+        raise HTTPException(status_code=404, detail="Playbook not found")
+
+    doc = doc_result.data
+
+    # Get current version content
+    version_result = client.table("org_document_versions") \
+        .select("content, version") \
+        .eq("document_id", playbook_id) \
+        .eq("is_current", True) \
+        .single() \
+        .execute()
+
+    content = ""
+    version = 1
+    if version_result.data:
+        content = version_result.data.get("content", "")
+        version = version_result.data.get("version", 1)
+
+    return {
+        "id": doc["id"],
+        "title": doc.get("title"),
+        "doc_type": doc.get("doc_type"),
+        "slug": doc.get("slug"),
+        "summary": doc.get("summary"),
+        "content": content,
+        "version": version,
+        "department_id": doc.get("department_id"),
+        "auto_inject": doc.get("auto_inject", False),
+        "tags": doc.get("tags", []),
+        "created_at": doc.get("created_at"),
+        "updated_at": doc.get("updated_at")
+    }
+
+
 @router.post("/{company_id}/playbooks")
-async def create_playbook(company_id: str, data: PlaybookCreate, user=Depends(get_current_user)):
+async def create_playbook(company_id: ValidCompanyId, data: PlaybookCreate, user=Depends(get_current_user)):
     """
     Create a new playbook with initial version.
     Supports tags and multi-department visibility.
@@ -1201,7 +1341,7 @@ async def create_playbook(company_id: str, data: PlaybookCreate, user=Depends(ge
 
 
 @router.put("/{company_id}/playbooks/{playbook_id}")
-async def update_playbook(company_id: str, playbook_id: str, data: PlaybookUpdate, user=Depends(get_current_user)):
+async def update_playbook(company_id: ValidCompanyId, playbook_id: ValidPlaybookId, data: PlaybookUpdate, user=Depends(get_current_user)):
     """
     Update a playbook - creates a new version if content changed.
     Also supports updating tags and multi-department visibility.
@@ -1218,7 +1358,7 @@ async def update_playbook(company_id: str, playbook_id: str, data: PlaybookUpdat
         .execute()
 
     if not doc_result.data:
-        raise HTTPException(status_code=404, detail="Playbook not found")
+        raise HTTPException(status_code=404, detail="Resource not found")
 
     # Get current version separately
     version_result = client.table("org_document_versions") \
@@ -1318,7 +1458,7 @@ async def update_playbook(company_id: str, playbook_id: str, data: PlaybookUpdat
 
 
 @router.delete("/{company_id}/playbooks/{playbook_id}")
-async def delete_playbook(company_id: str, playbook_id: str, user=Depends(get_current_user)):
+async def delete_playbook(company_id: ValidCompanyId, playbook_id: ValidPlaybookId, user=Depends(get_current_user)):
     """
     Delete a playbook permanently.
     Also removes associated versions and department mappings.
@@ -1335,7 +1475,7 @@ async def delete_playbook(company_id: str, playbook_id: str, user=Depends(get_cu
         .execute()
 
     if not existing.data:
-        raise HTTPException(status_code=404, detail="Playbook not found")
+        raise HTTPException(status_code=404, detail="Resource not found")
 
     playbook_title = existing.data.get("title", "Playbook")
 
@@ -1359,12 +1499,14 @@ async def delete_playbook(company_id: str, playbook_id: str, user=Depends(get_cu
         .eq("id", playbook_id) \
         .execute()
 
-    # Log activity
+    # Log activity with related_id for tracking
     await log_activity(
         company_id=company_uuid,
         event_type="playbook",
         title=f"Deleted: {playbook_title}",
-        description="Playbook was permanently deleted"
+        description="Playbook was permanently deleted",
+        related_id=playbook_id,
+        related_type="playbook"
     )
 
     return {"success": True, "message": f"Playbook '{playbook_title}' deleted"}
@@ -1398,6 +1540,9 @@ async def get_decisions(
     except HTTPException:
         # Company not in database yet - return empty decisions
         return {"decisions": [], "departments": []}
+
+    # SECURITY: Verify user has access to this company
+    verify_company_access(service_client, company_uuid, user)
 
     # Fetch departments for name lookup using service client (bypasses RLS)
     dept_result = service_client.table("departments") \
@@ -1465,7 +1610,7 @@ async def get_decisions(
 
 
 @router.post("/{company_id}/decisions")
-async def create_decision(company_id: str, data: DecisionCreate, user=Depends(get_current_user)):
+async def create_decision(company_id: ValidCompanyId, data: DecisionCreate, user=Depends(get_current_user)):
     """
     Save a new decision from a council session.
     Now stores in knowledge_entries table for unified knowledge management.
@@ -1580,7 +1725,7 @@ async def create_decision(company_id: str, data: DecisionCreate, user=Depends(ge
 
 
 @router.post("/{company_id}/decisions/{decision_id}/promote")
-async def promote_decision(company_id: str, decision_id: str, data: PromoteDecision, user=Depends(get_current_user)):
+async def promote_decision(company_id: ValidCompanyId, decision_id: ValidDecisionId, data: PromoteDecision, user=Depends(get_current_user)):
     """
     Promote a decision (knowledge entry) to a playbook (SOP/framework/policy).
     Creates a new playbook pre-filled with the decision content.
@@ -1604,7 +1749,7 @@ async def promote_decision(company_id: str, decision_id: str, data: PromoteDecis
         .execute()
 
     if not decision.data:
-        raise HTTPException(status_code=404, detail="Decision not found")
+        raise HTTPException(status_code=404, detail="Resource not found")
 
     # Validate doc_type
     if data.doc_type not in ['sop', 'framework', 'policy']:
@@ -1674,7 +1819,7 @@ async def promote_decision(company_id: str, decision_id: str, data: PromoteDecis
     playbook["content"] = content
     playbook["version"] = 1
 
-    # Log activity - include conversation_id if decision has one
+    # Log activity - include conversation_id and promoted_to_type for tracking
     await log_activity(
         company_id=company_uuid,
         event_type="playbook",
@@ -1683,7 +1828,8 @@ async def promote_decision(company_id: str, decision_id: str, data: PromoteDecis
         department_id=decision.data.get("department_id"),
         related_id=doc_id,
         related_type="playbook",
-        conversation_id=decision.data.get("source_conversation_id")
+        conversation_id=decision.data.get("source_conversation_id"),
+        promoted_to_type=data.doc_type  # sop, framework, or policy
     )
 
     return {
@@ -1694,24 +1840,31 @@ async def promote_decision(company_id: str, decision_id: str, data: PromoteDecis
 
 
 @router.get("/{company_id}/decisions/{decision_id}")
-async def get_decision(company_id: str, decision_id: str, user=Depends(get_current_user)):
+async def get_decision(company_id: ValidCompanyId, decision_id: ValidDecisionId, user=Depends(get_current_user)):
     """Get a single decision (knowledge entry)."""
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
 
-    result = client.table("knowledge_entries") \
-        .select("*") \
-        .eq("id", decision_id) \
-        .eq("company_id", company_uuid) \
-        .eq("is_active", True) \
-        .single() \
-        .execute()
+    # Query without single/maybe_single to avoid exceptions on 0 rows
+    try:
+        result = client.table("knowledge_entries") \
+            .select("*") \
+            .eq("id", decision_id) \
+            .eq("company_id", company_uuid) \
+            .eq("is_active", True) \
+            .execute()
+    except Exception as e:
+        # Handle any database errors
+        raise HTTPException(status_code=404, detail="Resource not found")
 
-    if not result.data:
-        raise HTTPException(status_code=404, detail="Decision not found")
+    # Check if we got any results
+    if not result.data or len(result.data) == 0:
+        raise HTTPException(status_code=404, detail="Resource not found")
+
+    # Get the first (and should be only) result
+    entry = result.data[0]
 
     # Transform to expected format
-    entry = result.data
     # Use body_md if available, fall back to summary for legacy data
     body_md = entry.get("body_md", "")
     content = body_md if body_md else entry.get("summary", "")
@@ -1745,7 +1898,7 @@ async def get_decision(company_id: str, decision_id: str, user=Depends(get_curre
 
 
 @router.post("/{company_id}/decisions/{decision_id}/archive")
-async def archive_decision(company_id: str, decision_id: str, user=Depends(get_current_user)):
+async def archive_decision(company_id: ValidCompanyId, decision_id: ValidDecisionId, user=Depends(get_current_user)):
     """
     Archive (soft delete) a decision.
     Sets is_active=False rather than permanently deleting.
@@ -1769,7 +1922,7 @@ async def archive_decision(company_id: str, decision_id: str, user=Depends(get_c
         .execute()
 
     if not check.data:
-        raise HTTPException(status_code=404, detail="Decision not found")
+        raise HTTPException(status_code=404, detail="Resource not found")
 
     project_id = check.data.get("project_id")
 
@@ -1840,7 +1993,7 @@ async def link_decision_to_project(company_id: str, decision_id: str, data: Link
         .execute()
 
     if not decision.data:
-        raise HTTPException(status_code=404, detail="Decision not found")
+        raise HTTPException(status_code=404, detail="Resource not found")
 
     # Verify project exists
     project = user_client.table("projects") \
@@ -1851,7 +2004,7 @@ async def link_decision_to_project(company_id: str, decision_id: str, data: Link
         .execute()
 
     if not project.data:
-        raise HTTPException(status_code=404, detail="Project not found")
+        raise HTTPException(status_code=404, detail="Resource not found")
 
     # Update decision with project_id and mark as promoted to project
     result = service_client.table("knowledge_entries") \
@@ -1868,6 +2021,19 @@ async def link_decision_to_project(company_id: str, decision_id: str, data: Link
 
     # Sync project department_ids with decision's departments
     _sync_project_departments_internal(data.project_id)
+
+    # Log activity for linking decision to project
+    await log_activity(
+        company_id=company_uuid,
+        event_type="project",
+        title=f"Promoted: {decision.data.get('title', 'Decision')}",
+        description=f"Linked to project: {project.data.get('name')}",
+        department_id=decision.data.get("department_id"),
+        related_id=data.project_id,
+        related_type="project",
+        conversation_id=decision.data.get("source_conversation_id"),
+        promoted_to_type="project"
+    )
 
     return {
         "success": True,
@@ -1903,7 +2069,7 @@ async def create_project_from_decision(company_id: str, decision_id: str, data: 
         .execute()
 
     if not decision.data:
-        raise HTTPException(status_code=404, detail="Decision not found")
+        raise HTTPException(status_code=404, detail="Resource not found")
 
     # Use decision's department_ids if none provided
     dept_ids = data.department_ids
@@ -2070,6 +2236,19 @@ CONTENT RULES:
         .eq("id", decision_id) \
         .execute()
 
+    # Log activity for creating project from decision
+    await log_activity(
+        company_id=company_uuid,
+        event_type="project",
+        title=f"Promoted: {decision.data.get('title', 'Decision')}",
+        description=f"Created project: {data.name}",
+        department_id=decision.data.get("department_id"),
+        related_id=project_id,
+        related_type="project",
+        conversation_id=decision.data.get("source_conversation_id"),
+        promoted_to_type="project"
+    )
+
     return {
         "success": True,
         "project": project_result.data[0],
@@ -2100,6 +2279,9 @@ async def get_project_decisions(
         print(f"[GET_PROJECT_DECISIONS] Failed to resolve company", flush=True)
         return {"decisions": [], "project": None}
 
+    # SECURITY: Verify user has access to this company
+    verify_company_access(service_client, company_uuid, user)
+
     # Verify project exists and belongs to company
     project_result = service_client.table("projects") \
         .select("id, name, description, status, created_at") \
@@ -2110,7 +2292,7 @@ async def get_project_decisions(
 
     if not project_result.data:
         print(f"[GET_PROJECT_DECISIONS] Project not found", flush=True)
-        raise HTTPException(status_code=404, detail="Project not found")
+        raise HTTPException(status_code=404, detail="Resource not found")
 
     print(f"[GET_PROJECT_DECISIONS] Found project: {project_result.data.get('name')}", flush=True)
 
@@ -2241,7 +2423,7 @@ async def sync_project_departments(company_id: str, project_id: str, user=Depend
         .execute()
 
     if not project_check.data:
-        raise HTTPException(status_code=404, detail="Project not found")
+        raise HTTPException(status_code=404, detail="Resource not found")
 
     updated_dept_ids = _sync_project_departments_internal(project_id)
 
@@ -2253,7 +2435,7 @@ async def sync_project_departments(company_id: str, project_id: str, user=Depend
 
 
 @router.delete("/{company_id}/decisions/{decision_id}")
-async def delete_decision(company_id: str, decision_id: str, user=Depends(get_current_user)):
+async def delete_decision(company_id: ValidCompanyId, decision_id: ValidDecisionId, user=Depends(get_current_user)):
     """
     Permanently delete a decision.
     Uses service client to bypass RLS on knowledge_entries table.
@@ -2274,7 +2456,7 @@ async def delete_decision(company_id: str, decision_id: str, user=Depends(get_cu
         .execute()
 
     if not check.data:
-        raise HTTPException(status_code=404, detail="Decision not found")
+        raise HTTPException(status_code=404, detail="Resource not found")
 
     decision_title = check.data.get("title", "Decision")
 
@@ -2283,6 +2465,16 @@ async def delete_decision(company_id: str, decision_id: str, user=Depends(get_cu
         .delete() \
         .eq("id", decision_id) \
         .execute()
+
+    # Log activity for deleted decision
+    await log_activity(
+        company_id=company_uuid,
+        event_type="decision",
+        title=f"Deleted: {decision_title}",
+        description="Decision was permanently deleted",
+        related_id=decision_id,
+        related_type="decision"
+    )
 
     return {"success": True, "message": f"Decision '{decision_title}' deleted"}
 
@@ -2317,7 +2509,7 @@ async def generate_decision_summary(
         .execute()
 
     if not result.data:
-        raise HTTPException(status_code=404, detail="Decision not found")
+        raise HTTPException(status_code=404, detail="Resource not found")
 
     existing_summary = result.data.get("decision_summary")
 
@@ -2357,7 +2549,7 @@ async def get_activity_logs(
     Optional filter by event_type (decision, playbook, role, department, council_session).
     Optional filter by days (1 = today, 7 = last week, 30 = last month).
 
-    Returns logs with lightweight playbook/decision IDs for click navigation.
+    Automatically filters out orphaned entries (referencing deleted items).
     """
     # Use service client for read operations
     client = get_service_client()
@@ -2367,11 +2559,17 @@ async def get_activity_logs(
     except HTTPException:
         return {"logs": [], "playbook_ids": [], "decision_ids": []}
 
+    # SECURITY: Verify user has access to this company
+    verify_company_access(client, company_uuid, user)
+
+    # Fetch more than requested to account for filtering orphans
+    fetch_limit = limit * 2
+
     query = client.table("activity_logs") \
         .select("*") \
         .eq("company_id", company_uuid) \
         .order("created_at", desc=True) \
-        .limit(limit)
+        .limit(fetch_limit)
 
     if event_type:
         query = query.eq("event_type", event_type)
@@ -2383,9 +2581,117 @@ async def get_activity_logs(
         query = query.gte("created_at", cutoff)
 
     result = query.execute()
-    logs = result.data or []
+    all_logs = result.data or []
 
-    # Extract unique related IDs for navigation (lightweight - just IDs, not full objects)
+    # Collect IDs to check for existence (batch queries for efficiency)
+    decision_ids_to_check = set()
+    playbook_ids_to_check = set()
+    project_ids_to_check = set()
+
+    for log in all_logs:
+        related_id = log.get("related_id")
+        related_type = log.get("related_type")
+        if related_id and related_type:
+            if related_type == "decision":
+                decision_ids_to_check.add(related_id)
+            elif related_type == "playbook":
+                playbook_ids_to_check.add(related_id)
+            elif related_type == "project":
+                project_ids_to_check.add(related_id)
+
+    # Batch check existence
+    existing_decisions = set()
+    existing_playbooks = set()
+    existing_projects = set()
+
+    # Also fetch promoted_to_type to enrich activity logs with current state
+    decision_promoted_types = {}
+    if decision_ids_to_check:
+        try:
+            result = client.table("knowledge_entries") \
+                .select("id, promoted_to_type, project_id") \
+                .in_("id", list(decision_ids_to_check)) \
+                .eq("is_active", True) \
+                .execute()
+            for r in (result.data or []):
+                existing_decisions.add(r["id"])
+                # Set promoted_to_type - prefer stored value, fall back to 'project' if has project_id
+                if r.get("promoted_to_type"):
+                    decision_promoted_types[r["id"]] = r["promoted_to_type"]
+                elif r.get("project_id"):
+                    decision_promoted_types[r["id"]] = "project"
+        except Exception as e:
+            print(f"Warning: Failed to check decisions: {e}")
+            existing_decisions = decision_ids_to_check  # Assume all exist on error
+
+    if playbook_ids_to_check:
+        try:
+            # Correct table is org_documents, not playbooks
+            result = client.table("org_documents") \
+                .select("id") \
+                .in_("id", list(playbook_ids_to_check)) \
+                .eq("is_active", True) \
+                .execute()
+            existing_playbooks = {r["id"] for r in (result.data or [])}
+        except Exception as e:
+            print(f"Warning: Failed to check playbooks: {e}")
+            existing_playbooks = playbook_ids_to_check
+
+    if project_ids_to_check:
+        try:
+            result = client.table("projects") \
+                .select("id") \
+                .in_("id", list(project_ids_to_check)) \
+                .execute()
+            existing_projects = {r["id"] for r in (result.data or [])}
+        except Exception as e:
+            print(f"Warning: Failed to check projects: {e}")
+            existing_projects = project_ids_to_check
+
+    # Filter out orphaned logs and enrich with current state
+    valid_logs = []
+    orphaned_ids = []
+    for log in all_logs:
+        related_id = log.get("related_id")
+        related_type = log.get("related_type")
+
+        # Keep logs without related items (e.g., general events)
+        if not related_id or not related_type:
+            valid_logs.append(log)
+            continue
+
+        # Check if related item exists
+        exists = True
+        if related_type == "decision":
+            exists = related_id in existing_decisions
+            # Enrich with current promoted_to_type (decision may have been promoted since activity was logged)
+            if exists and related_id in decision_promoted_types:
+                log = {**log, "promoted_to_type": decision_promoted_types[related_id]}
+        elif related_type == "playbook":
+            exists = related_id in existing_playbooks
+        elif related_type == "project":
+            exists = related_id in existing_projects
+            # For project-type activities, ensure promoted_to_type is set
+            if exists and not log.get("promoted_to_type"):
+                log = {**log, "promoted_to_type": "project"}
+
+        if exists:
+            valid_logs.append(log)
+        else:
+            orphaned_ids.append(log["id"])
+
+    # Auto-cleanup orphaned logs in background (don't wait)
+    if orphaned_ids:
+        try:
+            for log_id in orphaned_ids:
+                client.table("activity_logs").delete().eq("id", log_id).execute()
+        except Exception as e:
+            print(f"Warning: Failed to auto-cleanup orphaned logs: {e}")
+
+    # Return only up to the requested limit
+    logs = valid_logs[:limit]
+
+    # Extract unique related IDs for navigation
     playbook_ids = list(set(
         log["related_id"] for log in logs
         if log.get("related_type") == "playbook" and log.get("related_id")
@@ -2398,6 +2704,91 @@ async def get_activity_logs(
     return {"logs": logs, "playbook_ids": playbook_ids, "decision_ids": decision_ids}
 
 
+@router.delete("/{company_id}/activity/cleanup")
+async def cleanup_orphaned_activity_logs(company_id: str, user=Depends(get_current_user)):
+    """
+    Remove activity log entries that reference non-existent items.
+    This helps clean up the Activity tab when referenced items have been deleted.
+    """
+    client = get_service_client()
+
+    try:
+        company_uuid = resolve_company_id(client, company_id)
+    except HTTPException:
+        return {"deleted_count": 0, "message": "Company not found"}
+
+    # SECURITY: Verify user has access to this company
+    verify_company_access(client, company_uuid, user)
+
+    # Get all activity logs for this company
+    logs_result = client.table("activity_logs") \
+        .select("id, related_id, related_type") \
+        .eq("company_id", company_uuid) \
+        .execute()
+
+    logs = logs_result.data or []
+    orphaned_ids = []
+
+    for log in logs:
+        related_id = log.get("related_id")
+        related_type = log.get("related_type")
+
+        # Skip logs without related items
+        if not related_id or not related_type:
+            continue
+
+        # Check if the related item exists
+        exists = False
+        try:
+            if related_type == "decision":
+                result = client.table("knowledge_entries") \
+                    .select("id") \
+                    .eq("id", related_id) \
+                    .eq("is_active", True) \
+                    .execute()
+                exists = len(result.data) > 0 if result.data else False
+            elif related_type == "playbook":
+                # Correct table is org_documents, not playbooks
+                result = client.table("org_documents") \
+                    .select("id") \
+                    .eq("id", related_id) \
+                    .eq("is_active", True) \
+                    .execute()
+                exists = len(result.data) > 0 if result.data else False
+            elif related_type == "project":
+                result = client.table("projects") \
+                    .select("id") \
+                    .eq("id", related_id) \
+                    .execute()
+                exists = len(result.data) > 0 if result.data else False
+            else:
+                # Unknown type - keep the log
+                exists = True
+        except Exception as e:
+            # If check fails, keep the log to be safe
+            print(f"Warning: Failed to check existence for {related_type}/{related_id}: {e}")
+            exists = True
+
+        if not exists:
+            orphaned_ids.append(log["id"])
+
+    # Delete orphaned logs
+    deleted_count = 0
+    if orphaned_ids:
+        for log_id in orphaned_ids:
+            try:
+                client.table("activity_logs").delete().eq("id", log_id).execute()
+                deleted_count += 1
+            except Exception as e:
+                print(f"Warning: Failed to delete activity log {log_id}: {e}")
+
+    return {
+        "deleted_count": deleted_count,
+        "total_checked": len(logs),
+        "message": f"Cleaned up {deleted_count} orphaned activity logs"
+    }
+
+
 async def log_activity(
     company_id: str,
     event_type: str,
@@ -2407,7 +2798,8 @@ async def log_activity(
     related_id: Optional[str] = None,
     related_type: Optional[str] = None,
     conversation_id: Optional[str] = None,
-    message_id: Optional[str] = None
+    message_id: Optional[str] = None,
+    promoted_to_type: Optional[str] = None
 ):
     """
     Helper function to log an activity event.
@@ -2420,24 +2812,31 @@ async def log_activity(
         description: Optional longer description
         department_id: Optional department UUID
         related_id: Optional UUID of related entity
-        related_type: Optional type of related entity
+        related_type: Optional type of related entity (playbook, decision, project)
         conversation_id: Optional UUID of source conversation (for tracing back to council discussion)
         message_id: Optional UUID of specific message in conversation
+        promoted_to_type: Optional type promoted to (sop, framework, policy, project)
     """
     client = get_service_client()
 
+    data = {
+        "company_id": company_id,
+        "event_type": event_type,
+        "title": title,
+        "description": description,
+        "department_id": department_id,
+        "related_id": related_id,
+        "related_type": related_type,
+        "conversation_id": conversation_id,
+        "message_id": message_id
+    }
+
+    # Only add promoted_to_type if provided (avoids null constraint issues)
+    if promoted_to_type:
+        data["promoted_to_type"] = promoted_to_type
+
     try:
-        client.table("activity_logs").insert({
-            "company_id": company_id,
-            "event_type": event_type,
-            "title": title,
-            "description": description,
-            "department_id": department_id,
-            "related_id": related_id,
-            "related_type": related_type,
-            "conversation_id": conversation_id,
-            "message_id": message_id
-        }).execute()
+        client.table("activity_logs").insert(data).execute()
     except Exception as e:
         # Don't fail the main operation if logging fails
         print(f"Warning: Failed to log activity: {e}")

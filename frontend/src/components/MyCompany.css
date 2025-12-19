@@ -428,6 +428,47 @@
   margin: 0;
 }
 
+/* =============================================================================
+   Skeleton Loading States - Modern shimmer placeholders
+   ============================================================================= */
+
+.mc-skeleton-container {
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.mc-skeleton-stats {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.mc-skeleton-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.mc-skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--color-bg-primary);
+  border-radius: 12px;
+  padding: 8px;
+}
+
+.mc-skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 8px;
+}
+
 .mc-error {
   background: linear-gradient(135deg, var(--color-red-50) 0%, var(--color-bg-primary) 100%);
   border-radius: var(--radius-lg);
@@ -1419,26 +1460,51 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
   margin-bottom: 20px;
   font-size: 0.875rem;
   color: var(--color-gray-500);
 }
 
+.mc-cleanup-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--color-slate-100);
+  color: var(--color-slate-600);
+  border: 1px solid var(--color-slate-200);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-cleanup-btn:hover:not(:disabled) {
+  background: var(--color-slate-200);
+  border-color: var(--color-slate-300);
+}
+
+.mc-cleanup-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .mc-activity-filters {
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 
 .mc-filter-chip {
-  padding: 5px 12px;
-  font-size: 12px;
+  padding: 6px 14px;
+  font-size: 13px;
   font-weight: 500;
-  border: 1px solid var(--color-slate-200);
-  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-300);
+  background: white;
   color: var(--color-slate-600);
-  border-radius: 16px;
+  border-radius: 20px;
   cursor: pointer;
   transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 .mc-filter-chip:hover {
@@ -3637,6 +3703,20 @@
 
 .mc-elegant-row.no-hover:hover {
   background: var(--color-bg-primary);
+}
+
+/* Deleted items in Activity - visual indication they're gone */
+.mc-elegant-row.deleted-item {
+  opacity: 0.6;
+}
+
+.mc-elegant-row.deleted-item .mc-elegant-title {
+  text-decoration: line-through;
+  color: var(--color-text-secondary);
+}
+
+.mc-elegant-row.deleted-item .mc-event-dot {
+  opacity: 0.4;
 }
 
 /* Delete animation for decisions */

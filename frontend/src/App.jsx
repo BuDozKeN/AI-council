@@ -61,6 +61,7 @@ function App() {
   const [originalQuery, setOriginalQuery] = useState('');
   const [isTriageLoading, setIsTriageLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false); // Image upload in progress
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const abortControllerRef = useRef(null);
   const skipNextLoadRef = useRef(false); // Skip loadConversation when transitioning from temp to real
   const hasLoadedInitialData = useRef(false); // Prevent repeated API calls on mount
@@ -1144,15 +1145,49 @@ function App() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
-      <div className="beta-banner">
+      {/* Skip to main content link for accessibility */}
+      <a href="#main-content" className="sr-only focus:not-sr-only">
+        Skip to main content
+      </a>
+
+      <div className="beta-banner" role="banner">
         BETA - You're testing an early version. Feedback welcome!
       </div>
+
+      {/* Mobile hamburger menu button */}
+      <button
+        className="mobile-menu-btn"
+        onClick={() => setIsMobileSidebarOpen(true)}
+        aria-label="Open menu"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+
+      {/* Mobile overlay backdrop */}
+      <div
+        className={`sidebar-overlay ${isMobileSidebarOpen ? 'visible' : ''}`}
+        onClick={() => setIsMobileSidebarOpen(false)}
+        aria-hidden="true"
+      />
+
       <div className="app">
         <Sidebar
           conversations={conversations}
           currentConversationId={currentConversationId}
-          onSelectConversation={handleSelectConversation}
-          onNewConversation={handleNewConversation}
+          onSelectConversation={(id) => {
+            handleSelectConversation(id);
+            setIsMobileSidebarOpen(false); // Close mobile sidebar on selection
+          }}
+          onNewConversation={() => {
+            handleNewConversation();
+            setIsMobileSidebarOpen(false); // Close mobile sidebar on new conversation
+          }}
+          isMobileOpen={isMobileSidebarOpen}
+          onMobileClose={() => setIsMobileSidebarOpen(false)}
           onOpenLeaderboard={() => {
             setReturnToMyCompanyTab(null); // Clear return state - user is navigating elsewhere
             setIsLeaderboardOpen(true);
