@@ -35,8 +35,13 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [businesses, setBusinesses] = useState([]);
   const [selectedBusiness, setSelectedBusiness] = useState(null);
-  const [selectedDepartment, setSelectedDepartment] = useState(null); // null = no department selected
-  const [selectedRole, setSelectedRole] = useState(null); // null = general council, or specific role
+  const [selectedDepartment, setSelectedDepartment] = useState(null); // null = no department selected (legacy)
+  const [selectedRole, setSelectedRole] = useState(null); // null = general council, or specific role (legacy)
+  // Multi-select support
+  const [selectedDepartments, setSelectedDepartments] = useState([]); // Array of department UUIDs
+  const [selectedRoles, setSelectedRoles] = useState([]); // Array of role UUIDs
+  const [availablePlaybooks, setAvailablePlaybooks] = useState([]); // All playbooks for company
+  const [selectedPlaybooks, setSelectedPlaybooks] = useState([]); // Array of playbook UUIDs
   const [selectedChannel, setSelectedChannel] = useState(null);
   const [selectedStyle, setSelectedStyle] = useState(null);
   const [projects, setProjects] = useState([]); // Projects for selected company
@@ -80,12 +85,30 @@ function App() {
     return currentBusiness.departments;
   }, [currentBusiness]);
 
-  // Get roles for the selected department (if any)
+  // Get roles for the selected department (if any) - legacy single-select
   const availableRoles = useMemo(() => {
     if (!selectedDepartment || !availableDepartments) return [];
     const dept = availableDepartments.find((d) => d.id === selectedDepartment);
     return dept?.roles || [];
   }, [availableDepartments, selectedDepartment]);
+
+  // Get ALL roles from all departments (for multi-select)
+  const allRoles = useMemo(() => {
+    if (!availableDepartments) return [];
+    const roles = [];
+    for (const dept of availableDepartments) {
+      if (dept.roles) {
+        for (const role of dept.roles) {
+          roles.push({
+            ...role,
+            departmentId: dept.id,
+            departmentName: dept.name,
+          });
+        }
+      }
+    }
+    return roles;
+  }, [availableDepartments]);
 
   // Get channels for the selected department (if any)
   const availableChannels = useMemo(() => {
@@ -156,6 +179,27 @@ function App() {
       }
     };
     loadProjects();
+
+    // Load playbooks for the selected business
+    const loadPlaybooks = async () => {
+      if (selectedBusiness) {
+        try {
+          const result = await api.getCompanyPlaybooks(selectedBusiness);
+          const loadedPlaybooks = result.playbooks || [];
+          setAvailablePlaybooks(loadedPlaybooks);
+          // Clear selection when company changes
+          setSelectedPlaybooks([]);
+        } catch (error) {
+          console.error('Failed to load playbooks:', error);
+          setAvailablePlaybooks([]);
+          setSelectedPlaybooks([]);
+        }
+      } else {
+        setAvailablePlaybooks([]);
+        setSelectedPlaybooks([]);
+      }
+    };
+    loadPlaybooks();
     // Note: Only depend on selectedBusiness, NOT businesses array
     // The businesses array changing should not trigger selection resets
   }, [selectedBusiness]);
@@ -671,6 +715,10 @@ function App() {
       // If useDepartmentContext is false, pass null for department
       const effectiveBusinessId = useCompanyContext ? selectedBusiness : null;
       const effectiveDepartment = useDepartmentContext ? selectedDepartment : null;
+      // Multi-select: pass arrays if they have values
+      const effectiveDepartments = useDepartmentContext && selectedDepartments.length > 0 ? selectedDepartments : null;
+      const effectiveRoles = selectedRoles.length > 0 ? selectedRoles : null;
+      const effectivePlaybooks = selectedPlaybooks.length > 0 ? selectedPlaybooks : null;
       await api.sendMessageStream(conversationId, content, (eventType, event) => {
         switch (eventType) {
           case 'stage1_start':
@@ -978,6 +1026,9 @@ function App() {
         businessId: effectiveBusinessId,
         department: effectiveDepartment,
         role: selectedRole,
+        departments: effectiveDepartments,  // Multi-select support
+        roles: effectiveRoles,              // Multi-select support
+        playbooks: effectivePlaybooks,      // Playbook IDs to inject
         projectId: selectedProject,
         attachmentIds: attachmentIds,  // Pass uploaded image attachment IDs
         signal: abortControllerRef.current?.signal,
@@ -1041,6 +1092,10 @@ function App() {
       // Build context based on toggles
       const effectiveBusinessId = useCompanyContext ? selectedBusiness : null;
       const effectiveDepartmentId = useDepartmentContext ? selectedDepartment : null;
+      // Multi-select: pass arrays if they have values
+      const effectiveDepartmentIds = useDepartmentContext && selectedDepartments.length > 0 ? selectedDepartments : null;
+      const effectiveRoleIds = selectedRoles.length > 0 ? selectedRoles : null;
+      const effectivePlaybookIds = selectedPlaybooks.length > 0 ? selectedPlaybooks : null;
 
       await api.sendChatStream(currentConversationId, content, (eventType, event) => {
         switch (eventType) {
@@ -1117,6 +1172,9 @@ function App() {
       }, {
         businessId: effectiveBusinessId,
         departmentId: effectiveDepartmentId,
+        departmentIds: effectiveDepartmentIds,  // Multi-select support
+        roleIds: effectiveRoleIds,              // Multi-select support
+        playbookIds: effectivePlaybookIds,      // Playbook IDs to inject
         projectId: selectedProject,
         signal: abortControllerRef.current?.signal,
       });
@@ -1231,6 +1289,17 @@ function App() {
         departments={availableDepartments}
         selectedDepartment={selectedDepartment}
         onSelectDepartment={setSelectedDepartment}
+        // Multi-select support
+        selectedDepartments={selectedDepartments}
+        onSelectDepartments={setSelectedDepartments}
+        allRoles={allRoles}
+        selectedRoles={selectedRoles}
+        onSelectRoles={setSelectedRoles}
+        // Playbooks
+        playbooks={availablePlaybooks}
+        selectedPlaybooks={selectedPlaybooks}
+        onSelectPlaybooks={setSelectedPlaybooks}
+        // Legacy single-select
         roles={availableRoles}
         selectedRole={selectedRole}
         onSelectRole={setSelectedRole}

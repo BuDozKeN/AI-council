@@ -2,16 +2,30 @@
  * ContextBar - Company/department/project selectors for new conversations
  *
  * Shows context selection options when starting a new conversation.
+ * Supports multi-select for departments and roles.
  * Extracted from ChatInterface.jsx for better maintainability.
  */
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { MultiDepartmentSelect } from '../ui/MultiDepartmentSelect';
+import { MultiRoleSelect } from '../ui/MultiRoleSelect';
+import { MultiPlaybookSelect } from '../ui/MultiPlaybookSelect';
 
 export function ContextBar({
   businesses = [],
   selectedBusiness,
   onSelectBusiness,
   departments = [],
+  selectedDepartments = [],  // Changed to array
+  onSelectDepartments,       // Changed to handle array
+  allRoles = [],             // All roles from all departments
+  selectedRoles = [],        // Changed to array
+  onSelectRoles,             // Changed to handle array
+  // Playbooks
+  playbooks = [],
+  selectedPlaybooks = [],
+  onSelectPlaybooks,
+  // Legacy single-select props (for backwards compatibility)
   selectedDepartment,
   onSelectDepartment,
   roles = [],
@@ -33,6 +47,8 @@ export function ContextBar({
   onToggleDepartmentContext,
   isLoading
 }) {
+  // Determine if we're using multi-select mode
+  const useMultiSelect = onSelectDepartments && onSelectRoles;
   if (businesses.length === 0) return null;
 
   return (
@@ -105,60 +121,115 @@ export function ContextBar({
             </button>
           </div>
 
-          {/* Department selector */}
+          {/* Department selector - Multi-select or Single-select based on mode */}
           {departments.length > 0 && (
             <>
-              <Select
-                value={selectedDepartment || '__none__'}
-                onValueChange={(v) => onSelectDepartment(v === '__none__' ? null : v)}
-                disabled={isLoading}
-              >
-                <SelectTrigger className="context-select-trigger department-select-trigger">
-                  <SelectValue placeholder="General Council" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__none__">General Council</SelectItem>
-                  {departments.map((dept) => (
-                    <SelectItem key={dept.id} value={dept.id}>
-                      {dept.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {useMultiSelect ? (
+                // Multi-select mode
+                <>
+                  <MultiDepartmentSelect
+                    value={selectedDepartments}
+                    onValueChange={onSelectDepartments}
+                    departments={departments}
+                    disabled={isLoading}
+                    placeholder="Select departments..."
+                    className="context-multi-select"
+                  />
 
-              {/* Role selector - show when department has roles */}
-              {selectedDepartment && roles.length > 0 && (
-                <Select
-                  value={selectedRole || '__none__'}
-                  onValueChange={(v) => onSelectRole(v === '__none__' ? null : v)}
-                  disabled={isLoading}
-                >
-                  <SelectTrigger className="context-select-trigger role-select-trigger">
-                    <SelectValue placeholder={`All ${departments.find(d => d.id === selectedDepartment)?.name || 'Department'} Roles`} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="__none__">All {departments.find(d => d.id === selectedDepartment)?.name || 'Department'} Roles</SelectItem>
-                    {roles.map((role) => (
-                      <SelectItem key={role.id} value={role.id}>
-                        {role.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+                  {/* Role multi-select - show all roles from company */}
+                  {allRoles.length > 0 && (
+                    <MultiRoleSelect
+                      value={selectedRoles}
+                      onValueChange={onSelectRoles}
+                      roles={allRoles}
+                      disabled={isLoading}
+                      placeholder="Select roles..."
+                      className="context-multi-select"
+                    />
+                  )}
 
-              {/* Department Context toggle */}
-              {selectedDepartment && (
-                <button
-                  type="button"
-                  className={`context-pill ${useDepartmentContext ? 'active' : ''}`}
-                  onClick={() => onToggleDepartmentContext(!useDepartmentContext)}
-                  disabled={isLoading}
-                  title="Toggle department-specific context (department knowledge)"
-                >
-                  <span className="pill-icon">{useDepartmentContext ? '✓' : '○'}</span>
-                  <span className="pill-text">Department</span>
-                </button>
+                  {/* Playbook multi-select */}
+                  {playbooks.length > 0 && onSelectPlaybooks && (
+                    <MultiPlaybookSelect
+                      value={selectedPlaybooks}
+                      onValueChange={onSelectPlaybooks}
+                      playbooks={playbooks}
+                      disabled={isLoading}
+                      placeholder="Select playbooks..."
+                      className="context-multi-select"
+                    />
+                  )}
+
+                  {/* Department Context toggle */}
+                  {selectedDepartments.length > 0 && (
+                    <button
+                      type="button"
+                      className={`context-pill ${useDepartmentContext ? 'active' : ''}`}
+                      onClick={() => onToggleDepartmentContext(!useDepartmentContext)}
+                      disabled={isLoading}
+                      title="Toggle department-specific context (department knowledge)"
+                    >
+                      <span className="pill-icon">{useDepartmentContext ? '✓' : '○'}</span>
+                      <span className="pill-text">Dept Context</span>
+                    </button>
+                  )}
+                </>
+              ) : (
+                // Legacy single-select mode
+                <>
+                  <Select
+                    value={selectedDepartment || '__none__'}
+                    onValueChange={(v) => onSelectDepartment(v === '__none__' ? null : v)}
+                    disabled={isLoading}
+                  >
+                    <SelectTrigger className="context-select-trigger department-select-trigger">
+                      <SelectValue placeholder="General Council" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="__none__">General Council</SelectItem>
+                      {departments.map((dept) => (
+                        <SelectItem key={dept.id} value={dept.id}>
+                          {dept.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* Role selector - show when department has roles */}
+                  {selectedDepartment && roles.length > 0 && (
+                    <Select
+                      value={selectedRole || '__none__'}
+                      onValueChange={(v) => onSelectRole(v === '__none__' ? null : v)}
+                      disabled={isLoading}
+                    >
+                      <SelectTrigger className="context-select-trigger role-select-trigger">
+                        <SelectValue placeholder={`All ${departments.find(d => d.id === selectedDepartment)?.name || 'Department'} Roles`} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__none__">All {departments.find(d => d.id === selectedDepartment)?.name || 'Department'} Roles</SelectItem>
+                        {roles.map((role) => (
+                          <SelectItem key={role.id} value={role.id}>
+                            {role.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+
+                  {/* Department Context toggle */}
+                  {selectedDepartment && (
+                    <button
+                      type="button"
+                      className={`context-pill ${useDepartmentContext ? 'active' : ''}`}
+                      onClick={() => onToggleDepartmentContext(!useDepartmentContext)}
+                      disabled={isLoading}
+                      title="Toggle department-specific context (department knowledge)"
+                    >
+                      <span className="pill-icon">{useDepartmentContext ? '✓' : '○'}</span>
+                      <span className="pill-text">Department</span>
+                    </button>
+                  )}
+                </>
               )}
             </>
           )}

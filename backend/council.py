@@ -61,7 +61,8 @@ async def stage1_stream_responses(
     department_uuid: Optional[str] = None,
     # Multi-select support (new)
     department_ids: Optional[List[str]] = None,
-    role_ids: Optional[List[str]] = None
+    role_ids: Optional[List[str]] = None,
+    playbook_ids: Optional[List[str]] = None
 ) -> AsyncGenerator[Dict[str, Any], None]:
     """
     Stage 1 with streaming: Collect individual responses from all council models,
@@ -79,6 +80,7 @@ async def stage1_stream_responses(
         access_token: User's JWT access token for RLS authentication
         department_ids: Optional list of department UUIDs for multi-select
         role_ids: Optional list of role UUIDs for multi-select
+        playbook_ids: Optional list of playbook UUIDs to inject
 
     Yields:
         Dicts with 'type' (token/complete), 'model', and 'content'/'response'
@@ -97,7 +99,8 @@ async def stage1_stream_responses(
         company_uuid=company_uuid,
         department_uuid=department_uuid,
         department_ids=department_ids,
-        role_ids=role_ids
+        role_ids=role_ids,
+        playbook_ids=playbook_ids
     )
     if system_prompt:
         messages.append({"role": "system", "content": system_prompt})
@@ -362,7 +365,8 @@ async def stage3_stream_synthesis(
     department_uuid: Optional[str] = None,
     # Multi-select support (new)
     department_ids: Optional[List[str]] = None,
-    role_ids: Optional[List[str]] = None
+    role_ids: Optional[List[str]] = None,
+    playbook_ids: Optional[List[str]] = None
 ) -> AsyncGenerator[Dict[str, Any], None]:
     """
     Stage 3 with streaming: Chairman synthesizes final response,
@@ -371,6 +375,7 @@ async def stage3_stream_synthesis(
     Args:
         project_id: Optional project ID to load project-specific context
         access_token: User's JWT access token for RLS authentication
+        playbook_ids: Optional list of playbook UUIDs to inject
 
     Yields:
         Dicts with event type and data
@@ -416,7 +421,8 @@ Provide a clear, well-reasoned final answer that represents the council's collec
         company_uuid=company_uuid,
         department_uuid=department_uuid,
         department_ids=department_ids,
-        role_ids=role_ids
+        role_ids=role_ids,
+        playbook_ids=playbook_ids
     )
     if system_prompt:
         messages.append({"role": "system", "content": system_prompt})
@@ -822,7 +828,8 @@ async def chat_stream_response(
     department_uuid: Optional[str] = None,
     # Multi-select support (new)
     department_ids: Optional[List[str]] = None,
-    role_ids: Optional[List[str]] = None
+    role_ids: Optional[List[str]] = None,
+    playbook_ids: Optional[List[str]] = None
 ) -> AsyncGenerator[Dict[str, Any], None]:
     """
     Stream a chat response from the Chairman model only.
@@ -838,6 +845,7 @@ async def chat_stream_response(
         department_uuid: Supabase department UUID for knowledge lookup
         department_ids: Optional list of department UUIDs for multi-select
         role_ids: Optional list of role UUIDs for multi-select
+        playbook_ids: Optional list of playbook UUIDs to inject
 
     Yields:
         Dicts with 'type' (chat_token/chat_complete/chat_error) and 'content'/'model'
@@ -853,7 +861,8 @@ async def chat_stream_response(
         company_uuid=company_uuid,
         department_uuid=department_uuid,
         department_ids=department_ids,
-        role_ids=role_ids
+        role_ids=role_ids,
+        playbook_ids=playbook_ids
     )
 
     # Add a chat-specific system prompt prefix

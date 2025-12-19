@@ -163,15 +163,17 @@ export const api = {
    * @param {function} onEvent - Callback function for each event: (eventType, data) => void
    * @param {object} options - Context options
    * @param {string|null} options.businessId - Optional business context ID
-   * @param {string|null} options.department - Optional department for leaderboard tracking
-   * @param {string|null} options.role - Optional role for persona injection (e.g., 'cto', 'head-of-ai-people-culture')
+   * @param {string|null} options.department - Optional single department (legacy)
+   * @param {string|null} options.role - Optional single role (legacy)
+   * @param {string[]|null} options.departments - Optional array of department UUIDs for multi-select
+   * @param {string[]|null} options.roles - Optional array of role UUIDs for multi-select
    * @param {string|null} options.projectId - Optional project ID for project-specific context
    * @param {string[]|null} options.attachmentIds - Optional list of attachment IDs (images to analyze)
    * @param {AbortSignal} options.signal - Optional AbortSignal for cancellation
    * @returns {Promise<void>}
    */
   async sendMessageStream(conversationId, content, onEvent, options = {}) {
-    const { businessId = null, department = 'standard', role = null, projectId = null, attachmentIds = null, signal = null } = options;
+    const { businessId = null, department = 'standard', role = null, departments = null, roles = null, playbooks = null, projectId = null, attachmentIds = null, signal = null } = options;
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/message/stream`,
@@ -183,6 +185,9 @@ export const api = {
           business_id: businessId,
           department,
           role,
+          departments,  // Multi-select support
+          roles,        // Multi-select support
+          playbooks,    // Playbook IDs to inject
           project_id: projectId,
           attachment_ids: attachmentIds,
         }),
@@ -245,13 +250,15 @@ export const api = {
    * @param {function} onEvent - Callback function for each event: (eventType, data) => void
    * @param {object} options - Context options
    * @param {string|null} options.businessId - Optional business context ID
-   * @param {string|null} options.departmentId - Optional department context ID
+   * @param {string|null} options.departmentId - Optional single department (legacy)
+   * @param {string[]|null} options.departmentIds - Optional array of department UUIDs for multi-select
+   * @param {string[]|null} options.roleIds - Optional array of role UUIDs for multi-select
    * @param {string|null} options.projectId - Optional project ID for project-specific context
    * @param {AbortSignal} options.signal - Optional AbortSignal for cancellation
    * @returns {Promise<void>}
    */
   async sendChatStream(conversationId, content, onEvent, options = {}) {
-    const { businessId = null, departmentId = null, projectId = null, signal = null } = options;
+    const { businessId = null, departmentId = null, departmentIds = null, roleIds = null, playbookIds = null, projectId = null, signal = null } = options;
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/chat/stream`,
@@ -262,6 +269,9 @@ export const api = {
           content,
           business_id: businessId,
           department_id: departmentId,
+          department_ids: departmentIds,  // Multi-select support
+          role_ids: roleIds,              // Multi-select support
+          playbook_ids: playbookIds,      // Playbook IDs to inject
           project_id: projectId,
         }),
         signal,

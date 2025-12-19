@@ -81,6 +81,12 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
   const [activityLoadingMore, setActivityLoadingMore] = useState(false);
   const [activityLoaded, setActivityLoaded] = useState(false); // Track if activity has been fetched at least once
 
+  // Tab-specific loaded flags (to show skeleton until first fetch completes)
+  const [overviewLoaded, setOverviewLoaded] = useState(false);
+  const [teamLoaded, setTeamLoaded] = useState(false);
+  const [playbooksLoaded, setPlaybooksLoaded] = useState(false);
+  const [decisionsLoaded, setDecisionsLoaded] = useState(false);
+
   // Projects filter state
   const [projectStatusFilter, setProjectStatusFilter] = useState('active'); // 'active', 'completed', 'archived', 'all'
   const [projectDeptFilter, setProjectDeptFilter] = useState([]); // Array of department IDs for multi-select
@@ -104,11 +110,13 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
         case 'overview': {
           const data = await api.getCompanyOverview(companyId);
           setOverview(data);
+          setOverviewLoaded(true);
           break;
         }
         case 'team': {
           const data = await api.getCompanyTeam(companyId);
           setDepartments(data.departments || []);
+          setTeamLoaded(true);
           break;
         }
         case 'playbooks': {
@@ -119,6 +127,7 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
           if (playbooksData.departments) {
             setDepartments(playbooksData.departments.map(d => ({ ...d, roles: [] })));
           }
+          setPlaybooksLoaded(true);
           break;
         }
         case 'decisions': {
@@ -134,6 +143,7 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
           if (decisionsData.departments) {
             setDepartments(decisionsData.departments.map(d => ({ ...d, roles: [] })));
           }
+          setDecisionsLoaded(true);
           break;
         }
         case 'activity': {
@@ -186,8 +196,13 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
     setDecisions([]);
     setActivityLogs([]);
     setProjects([]);
-    setProjectsLoaded(false); // Reset loaded flag so we show loading state for new company
-    setActivityLoaded(false); // Reset activity loaded flag
+    // Reset all loaded flags so we show skeleton state for new company
+    setOverviewLoaded(false);
+    setTeamLoaded(false);
+    setPlaybooksLoaded(false);
+    setDecisionsLoaded(false);
+    setProjectsLoaded(false);
+    setActivityLoaded(false);
     // Reset activity pagination
     setActivityLimit(20);
     setActivityHasMore(false);
@@ -997,7 +1012,13 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
         {/* Content */}
         <div className="mc-content">
           {/* Show skeleton when loading OR when tab-specific data hasn't been fetched yet */}
-          {loading || (activeTab === 'activity' && !activityLoaded) || (activeTab === 'projects' && !projectsLoaded) ? (
+          {loading ||
+           (activeTab === 'overview' && !overviewLoaded) ||
+           (activeTab === 'team' && !teamLoaded) ||
+           (activeTab === 'playbooks' && !playbooksLoaded) ||
+           (activeTab === 'decisions' && !decisionsLoaded) ||
+           (activeTab === 'projects' && !projectsLoaded) ||
+           (activeTab === 'activity' && !activityLoaded) ? (
             <div className="mc-skeleton-container">
               {/* Skeleton loader based on active tab */}
               {activeTab === 'projects' && (

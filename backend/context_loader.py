@@ -471,7 +471,8 @@ def get_system_prompt_with_context(
     department_uuid: Optional[str] = None,
     # Multi-select support (new)
     department_ids: Optional[List[str]] = None,
-    role_ids: Optional[List[str]] = None
+    role_ids: Optional[List[str]] = None,
+    playbook_ids: Optional[List[str]] = None
 ) -> Optional[str]:
     """
     Generate a system prompt that includes business, project, and department context.
@@ -491,6 +492,7 @@ def get_system_prompt_with_context(
         department_uuid: Supabase department UUID for knowledge lookup
         department_ids: Optional list of department UUIDs for multi-select
         role_ids: Optional list of role UUIDs for multi-select
+        playbook_ids: Optional list of playbook UUIDs to inject
 
     Returns:
         System prompt string with all context, or None if no context found
@@ -677,12 +679,44 @@ Focus on aspects relevant to your role. Be practical and actionable.
                 system_prompt += f"\n=== END {dept_name.upper()} DEPARTMENT ===\n"
 
     # NOTE: Auto-injection of knowledge entries, playbooks, and decisions has been DISABLED.
-    # Users should explicitly select what context they want included via:
-    # - Company context (selected by user)
-    # - Department context (selected by user)
-    # - Role context (selected by user)
-    # - Project context (selected by user)
-    # No automatic injection of previous decisions or playbooks - keeps conversations isolated and clean.
+    # But we DO support EXPLICIT playbook selection - users opt-in to specific playbooks.
+
+    # Inject explicitly selected playbooks
+    if playbook_ids:
+        client = get_supabase_service()
+        if client:
+            playbook_count = 0
+            for playbook_id in playbook_ids:
+                try:
+                    # Get playbook info
+                    doc_result = client.table("org_documents").select(
+                        "id, title, doc_type, summary"
+                    ).eq("id", playbook_id).eq("is_active", True).execute()
+
+                    if doc_result.data:
+                        doc = doc_result.data[0]
+                        doc_title = doc.get("title", "Playbook")
+                        doc_type = doc.get("doc_type", "document").upper()
+
+                        # Get current version content
+                        version_result = client.table("org_document_versions").select(
+                            "content"
+                        ).eq("document_id", playbook_id).eq("is_current", True).execute()
+
+                        if version_result.data and version_result.data[0].get("content"):
+                            content = version_result.data[0]["content"]
+                            content = truncate_to_limit(content, MAX_SECTION_CHARS // 3, f"{doc_type} content")
+
+                            system_prompt += f"\n=== {doc_type}: {doc_title.upper()} ===\n\n"
+                            system_prompt += content
+                            system_prompt += f"\n\n=== END {doc_type} ===\n"
+                            playbook_count += 1
+                            print(f"[CONTEXT DEBUG] Injected playbook: {doc_title} ({len(content)} chars)", flush=True)
+                except Exception as e:
+                    print(f"[CONTEXT WARNING] Failed to load playbook {playbook_id}: {e}", flush=True)
+
+            if playbook_count > 0:
+                print(f"[CONTEXT] Injected {playbook_count} playbook(s)", flush=True)
 
     system_prompt += """
 When responding:

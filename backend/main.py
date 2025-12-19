@@ -405,6 +405,7 @@ class SendMessageRequest(BaseModel):
     # Multi-select support (new)
     departments: Optional[List[str]] = None  # Multiple department UUIDs
     roles: Optional[List[str]] = None  # Multiple role UUIDs
+    playbooks: Optional[List[str]] = None  # Playbook UUIDs to inject
 
 
 class ChatRequest(BaseModel):
@@ -416,6 +417,7 @@ class ChatRequest(BaseModel):
     # Multi-select support (new)
     department_ids: Optional[List[str]] = None  # Multiple department UUIDs
     role_ids: Optional[List[str]] = None  # Multiple role UUIDs
+    playbook_ids: Optional[List[str]] = None  # Playbook UUIDs to inject
 
 
 class CreateKnowledgeRequest(BaseModel):
@@ -740,7 +742,8 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
                 access_token=access_token,
                 company_uuid=company_uuid,
                 department_ids=body.departments,  # Multi-select support
-                role_ids=body.roles  # Multi-select support
+                role_ids=body.roles,  # Multi-select support
+                playbook_ids=body.playbooks  # Playbook IDs to inject
             ):
                 if event['type'] == 'stage1_token':
                     # Stream individual tokens
@@ -786,7 +789,8 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
                 access_token=access_token,
                 company_uuid=company_uuid,
                 department_ids=body.departments,  # Multi-select support
-                role_ids=body.roles  # Multi-select support
+                role_ids=body.roles,  # Multi-select support
+                playbook_ids=body.playbooks  # Playbook IDs to inject
             ):
                 if event['type'] == 'stage3_token':
                     yield f"data: {json.dumps(event)}\n\n"
@@ -952,7 +956,10 @@ async def chat_with_chairman(request: Request, conversation_id: str, body: ChatR
                 department_id=body.department_id,
                 project_id=body.project_id,
                 access_token=access_token,
-                company_uuid=company_uuid
+                company_uuid=company_uuid,
+                department_ids=body.department_ids,  # Multi-select support
+                role_ids=body.role_ids,  # Multi-select support
+                playbook_ids=body.playbook_ids  # Playbook IDs to inject
             ):
                 if event['type'] == 'chat_token':
                     full_content += event['content']

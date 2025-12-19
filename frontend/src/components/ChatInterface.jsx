@@ -27,6 +27,17 @@ export default function ChatInterface({
   departments = [],
   selectedDepartment,
   onSelectDepartment,
+  // Multi-select support
+  selectedDepartments = [],
+  onSelectDepartments,
+  allRoles = [],
+  selectedRoles = [],
+  onSelectRoles,
+  // Playbooks
+  playbooks = [],
+  selectedPlaybooks = [],
+  onSelectPlaybooks,
+  // Legacy single-select
   roles = [],
   selectedRole,
   onSelectRole,
@@ -292,6 +303,17 @@ export default function ChatInterface({
               departments={departments}
               selectedDepartment={selectedDepartment}
               onSelectDepartment={onSelectDepartment}
+              // Multi-select support
+              selectedDepartments={selectedDepartments}
+              onSelectDepartments={onSelectDepartments}
+              allRoles={allRoles}
+              selectedRoles={selectedRoles}
+              onSelectRoles={onSelectRoles}
+              // Playbooks
+              playbooks={playbooks}
+              selectedPlaybooks={selectedPlaybooks}
+              onSelectPlaybooks={onSelectPlaybooks}
+              // Legacy single-select
               roles={roles}
               selectedRole={selectedRole}
               onSelectRole={onSelectRole}
