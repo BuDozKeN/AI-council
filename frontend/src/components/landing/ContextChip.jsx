@@ -17,6 +17,7 @@ import './ContextChip.css';
 export function ContextChip({
   displayText = 'Smart Auto',
   isSmartAuto = true,
+  smartAutoHint = null, // Shows last-used context when in Smart Auto mode
   businesses = [],
   selectedBusiness,
   onSelectBusiness,
@@ -33,7 +34,6 @@ export function ContextChip({
   selectedPlaybooks = [],
   onSelectPlaybooks,
   userPreferences,
-  onUpdatePreferences,
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -60,6 +60,14 @@ export function ContextChip({
     setIsOpen(false);
   };
 
+  // Display text with Smart Auto hint
+  const getDisplayWithHint = () => {
+    if (isSmartAuto && smartAutoHint) {
+      return `Smart Auto · ${smartAutoHint}`;
+    }
+    return displayText;
+  };
+
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
@@ -70,7 +78,7 @@ export function ContextChip({
             <Building2 className="context-chip-icon" size={14} />
           )}
           <span className="context-chip-label">Using:</span>
-          <span className="context-chip-value">{displayText}</span>
+          <span className="context-chip-value">{getDisplayWithHint()}</span>
           <ChevronDown className="context-chip-chevron" size={14} />
         </button>
       </PopoverTrigger>

@@ -11,6 +11,7 @@ import Login from './components/Login';
 import MyCompany from './components/MyCompany';
 import { useAuth } from './AuthContext';
 import { api, setTokenGetter } from './api';
+import { userPreferencesApi } from './supabase';
 import './App.css';
 
 // Default departments when no company is selected or company has no departments
@@ -68,6 +69,7 @@ function App() {
   const [isUploading, setIsUploading] = useState(false); // Image upload in progress
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [landingChatMode, setLandingChatMode] = useState('council'); // 'chat' or 'council' for landing hero
+  const [userPreferences, setUserPreferences] = useState(null); // Smart Auto context persistence
   const abortControllerRef = useRef(null);
   const skipNextLoadRef = useRef(false); // Skip loadConversation when transitioning from temp to real
   const hasLoadedInitialData = useRef(false); // Prevent repeated API calls on mount
@@ -229,13 +231,69 @@ function App() {
     }
   }, [selectedDepartment]);
 
+  // Save context preferences when they change (debounced)
+  const savePrefsTimeoutRef = useRef(null);
+  useEffect(() => {
+    // Don't save if not authenticated or still loading initial data
+    if (!isAuthenticated || !hasLoadedInitialData.current) return;
+    // Don't save if no business selected (nothing to save)
+    if (!selectedBusiness) return;
+
+    // Debounce saves to avoid too many writes
+    if (savePrefsTimeoutRef.current) {
+      clearTimeout(savePrefsTimeoutRef.current);
+    }
+
+    savePrefsTimeoutRef.current = setTimeout(() => {
+      userPreferencesApi.saveLastUsed({
+        companyId: selectedBusiness,
+        departmentIds: selectedDepartments,
+        roleIds: selectedRoles,
+        projectId: selectedProject,
+        playbookIds: selectedPlaybooks,
+      }).then((saved) => {
+        if (saved) {
+          setUserPreferences(saved);
+        }
+      });
+    }, 1000); // 1 second debounce
+
+    return () => {
+      if (savePrefsTimeoutRef.current) {
+        clearTimeout(savePrefsTimeoutRef.current);
+      }
+    };
+  }, [isAuthenticated, selectedBusiness, selectedDepartments, selectedRoles, selectedProject, selectedPlaybooks]);
+
   // Define functions BEFORE useEffect hooks that reference them
   const loadBusinesses = async () => {
     try {
       const bizList = await api.listBusinesses();
       setBusinesses(bizList);
-      // Auto-select first business if available
-      if (bizList.length > 0 && !selectedBusiness) {
+
+      // Load user preferences for Smart Auto
+      const prefs = await userPreferencesApi.get();
+      setUserPreferences(prefs);
+
+      // Apply saved preferences or default to first business
+      if (prefs?.last_company_id && bizList.some(b => b.id === prefs.last_company_id)) {
+        // Use saved company from preferences
+        setSelectedBusiness(prefs.last_company_id);
+        // Apply saved department/role selections
+        if (prefs.last_department_ids?.length > 0) {
+          setSelectedDepartments(prefs.last_department_ids);
+        }
+        if (prefs.last_role_ids?.length > 0) {
+          setSelectedRoles(prefs.last_role_ids);
+        }
+        if (prefs.last_project_id) {
+          setSelectedProject(prefs.last_project_id);
+        }
+        if (prefs.last_playbook_ids?.length > 0) {
+          setSelectedPlaybooks(prefs.last_playbook_ids);
+        }
+      } else if (bizList.length > 0 && !selectedBusiness) {
+        // No saved preferences, default to first business
         setSelectedBusiness(bizList[0].id);
       }
     } catch (error) {
@@ -1336,6 +1394,7 @@ function App() {
               onChatModeChange={setLandingChatMode}
               onSubmit={handleLandingSubmit}
               isLoading={isLoading}
+              userPreferences={userPreferences}
             />
           </motion.div>
         ) : (

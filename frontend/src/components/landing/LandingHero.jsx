@@ -104,6 +104,14 @@ export function LandingHero({
     textareaRef.current?.focus();
   };
 
+  // Get Smart Auto hint text (shows last-used context when no explicit selection)
+  const getSmartAutoHint = () => {
+    if (!userPreferences?.last_company_id) return null;
+    const company = businesses.find(b => b.id === userPreferences.last_company_id);
+    if (!company) return null;
+    return company.name;
+  };
+
   // Get current context display text
   const getContextDisplayText = () => {
     if (!selectedBusiness) return 'Smart Auto';
@@ -239,6 +247,7 @@ export function LandingHero({
             <ContextChip
               displayText={getContextDisplayText()}
               isSmartAuto={!selectedBusiness}
+              smartAutoHint={getSmartAutoHint()}
               businesses={businesses}
               selectedBusiness={selectedBusiness}
               onSelectBusiness={onSelectBusiness}
@@ -255,7 +264,6 @@ export function LandingHero({
               selectedPlaybooks={selectedPlaybooks}
               onSelectPlaybooks={onSelectPlaybooks}
               userPreferences={userPreferences}
-              onUpdatePreferences={onUpdatePreferences}
             />
           </motion.div>
         </motion.form>
