@@ -21,12 +21,11 @@ const DEFAULT_DEPARTMENTS = [
 function App() {
   const { user, loading: authLoading, signOut, isAuthenticated, needsPasswordReset, getAccessToken } = useAuth();
 
-  // Set up API token getter when auth is available
-  useEffect(() => {
-    if (getAccessToken) {
-      setTokenGetter(getAccessToken);
-    }
-  }, [getAccessToken]);
+  // Set up API token getter synchronously when auth is available
+  // This must happen before any API calls, so we do it outside useEffect
+  if (getAccessToken) {
+    setTokenGetter(getAccessToken);
+  }
 
   const [conversations, setConversations] = useState([]);
   const [hasMoreConversations, setHasMoreConversations] = useState(true);
