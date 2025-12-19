@@ -244,6 +244,115 @@
     --blue-300: #93c5fd;
     --blue-400: #60a5fa;
     --indigo-300: #a5b4fc;
+
+    /* ===== STAGE-SPECIFIC SEMANTIC TOKENS ===== */
+
+    /* Stage 1 - Individual Responses (Blue theme - Exploration) */
+    --stage1-bg-gradient-start: #eff6ff;
+    --stage1-bg-gradient-end: #dbeafe;
+    --stage1-border: #3b82f6;
+    --stage1-border-accent: #3b82f6;
+    --stage1-shadow-color: rgba(59, 130, 246, 0.1);
+    --stage1-text-primary: #1e40af;
+    --stage1-text-secondary: #2563eb;
+    --stage1-badge-bg: #dbeafe;
+    --stage1-badge-text: #1e40af;
+
+    /* Stage 2 - Peer Rankings (Amber theme - Evaluation) */
+    --stage2-bg-gradient-start: #fffbeb;
+    --stage2-bg-gradient-end: #fef3c7;
+    --stage2-border: #f59e0b;
+    --stage2-border-accent: #f59e0b;
+    --stage2-shadow-color: rgba(245, 158, 11, 0.1);
+    --stage2-text-primary: #92400e;
+    --stage2-text-secondary: #d97706;
+    --stage2-badge-bg: #fef3c7;
+    --stage2-badge-text: #92400e;
+    --stage2-verdict-bg-start: #fef3c7;
+    --stage2-verdict-bg-end: #fde68a;
+    --stage2-verdict-border: #f59e0b;
+    --stage2-podium-bg: #ffffff;
+    --stage2-podium-border: #fde68a;
+    --stage2-winner-accent: #f59e0b;
+
+    /* Stage 3 - Final Answer (Emerald theme - Decision) */
+    --stage3-bg-gradient-start: #ecfdf5;
+    --stage3-bg-gradient-end: #d1fae5;
+    --stage3-border: #10b981;
+    --stage3-border-accent: #10b981;
+    --stage3-shadow-color: rgba(16, 185, 129, 0.15);
+    --stage3-text-primary: #065f46;
+    --stage3-text-secondary: #059669;
+    --stage3-badge-bg: #d1fae5;
+    --stage3-badge-text: #065f46;
+    --stage3-ribbon-bg-start: #10b981;
+    --stage3-ribbon-bg-end: #059669;
+    --stage3-ribbon-text: #ffffff;
+    --stage3-save-bg: #f9fafb;
+    --stage3-save-btn-bg-start: #10b981;
+    --stage3-save-btn-bg-end: #059669;
+    --stage3-save-btn-shadow: rgba(16, 185, 129, 0.25);
+    --stage3-success-bg-start: #d1fae5;
+    --stage3-success-bg-end: #a7f3d0;
+    --stage3-success-border: #10b981;
+
+    /* ===== MODEL PERSONA TOKENS ===== */
+
+    /* GPT-4o - Teal/Green */
+    --model-gpt4o-color: #10a37f;
+    --model-gpt4o-bg: #e6f7f4;
+    --model-gpt4o-border: #10a37f;
+
+    /* Claude - Purple */
+    --model-claude-color: #8b5cf6;
+    --model-claude-bg: #f3e8ff;
+    --model-claude-border: #8b5cf6;
+
+    /* Gemini - Blue */
+    --model-gemini-color: #4285f4;
+    --model-gemini-bg: #e8f0fe;
+    --model-gemini-border: #4285f4;
+
+    /* Llama - Orange */
+    --model-llama-color: #ff6b35;
+    --model-llama-bg: #fff4e6;
+    --model-llama-border: #ff6b35;
+
+    /* Mistral - Indigo */
+    --model-mistral-color: #6366f1;
+    --model-mistral-bg: #eef2ff;
+    --model-mistral-border: #6366f1;
+
+    /* DeepSeek - Cyan */
+    --model-deepseek-color: #06b6d4;
+    --model-deepseek-bg: #ecfeff;
+    --model-deepseek-border: #06b6d4;
+
+    /* Generic fallback */
+    --model-default-color: #6b7280;
+    --model-default-bg: #f3f4f6;
+    --model-default-border: #d1d5db;
+
+    /* ===== COMPONENT-SPECIFIC TOKENS ===== */
+
+    /* Model tabs */
+    --model-tab-bg: #ffffff;
+    --model-tab-border: #e5e7eb;
+    --model-tab-hover-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --model-tab-active-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    --model-tab-check-bg: #10b981;
+    --model-tab-check-text: #ffffff;
+
+    /* Trophy/Podium */
+    --trophy-gold: #fbbf24;
+    --trophy-silver: #d1d5db;
+    --trophy-bronze: #f97316;
+    --podium-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --podium-hover-scale: 1.05;
+
+    /* Skeleton loaders */
+    --skeleton-bg: #f3f4f6;
+    --skeleton-highlight: #e5e7eb;
   }
   .dark {
     --background: 0 0% 3.9%;
