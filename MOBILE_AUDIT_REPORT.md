@@ -19,8 +19,33 @@ Your AI-Council app has **basic mobile responsiveness** but falls short of being
 - ❌ No landscape orientation support
 - ❌ Missing touch gesture patterns
 - ❌ Performance concerns for long conversations
+- ❌ No native-feeling interactions (bottom sheets, spring animations, etc.)
 
-**Mobile Readiness Score: 6/10**
+**Mobile Readiness Score: 6/10 → Target: 10/10**
+
+---
+
+## 📋 WHAT THIS REPORT COVERS
+
+This comprehensive audit includes **4 implementation phases**:
+
+**Phase 1-3 (Weeks 1-3):** Fix all broken layouts and responsive issues → **9/10 mobile readiness**
+- Responsive sidebar, modals, and inputs
+- Landscape orientation support
+- Performance optimization
+- Basic touch gestures
+
+**Phase 4 (Weeks 4-5):** Perplexity-level UX/UI polish → **10/10 mobile readiness**
+- Bottom sheet patterns (iOS/Android native feel)
+- Enhanced swipe gestures (edge detection, dismiss)
+- Pull-to-refresh with visual feedback
+- Spring physics animations
+- Glass morphism effects
+- Skeleton loading states
+- Mobile-optimized typography and spacing
+- Smooth scrolling and transitions
+
+**By completing all 4 phases, your app will be indistinguishable from a native Perplexity mobile app.**
 
 ---
 
@@ -644,26 +669,1054 @@ const handlers = useSwipeable({
 
 ---
 
-## 📊 PRIORITY MATRIX
+### Phase 4: Perplexity UX/UI Polish (100% Mobile-First Experience)
 
-| Priority | Issue | Impact | Effort | ROI |
-|----------|-------|--------|--------|-----|
-| 🔴 P0 | Sidebar fixed width | HIGH | LOW | ⭐⭐⭐⭐⭐ |
-| 🔴 P0 | MyCompany modal mobile | HIGH | HIGH | ⭐⭐⭐⭐⭐ |
-| 🔴 P0 | Chat input squashed | HIGH | MEDIUM | ⭐⭐⭐⭐ |
-| 🔴 P0 | Landscape orientation | MEDIUM | MEDIUM | ⭐⭐⭐⭐ |
-| 🟡 P1 | Settings modal squeeze | MEDIUM | LOW | ⭐⭐⭐ |
-| 🟡 P1 | Image preview responsive | LOW | LOW | ⭐⭐⭐ |
-| 🟡 P1 | Virtual scrolling | MEDIUM | HIGH | ⭐⭐⭐ |
-| 🟡 P1 | Landing page polish | LOW | LOW | ⭐⭐ |
-| 🟢 P2 | Touch gestures | LOW | MEDIUM | ⭐⭐ |
-| 🟢 P2 | Touch target sizes | LOW | LOW | ⭐⭐ |
+**Goal:** Transform from "responsive" to "indistinguishable from a native mobile app"
+
+This phase takes you from **95% → 100%** Perplexity-style mobile UX/UI. These are pure visual and interaction polish items, no features.
+
+---
+
+#### Fix 4.1: Bottom Sheet Pattern (Replace Center Modals)
+
+**Current Problem:**
+- Modals appear center-screen (desktop pattern)
+- On mobile, feels unnatural and blocks context
+- Perplexity uses iOS-style bottom sheets that slide up from bottom
+
+**File:** `/frontend/src/components/ui/BottomSheet.jsx` (CREATE NEW)
+
+**Implementation:**
+```jsx
+import * as Dialog from '@radix-ui/react-dialog';
+import { motion, AnimatePresence } from 'framer-motion';
+
+export function BottomSheet({ children, isOpen, onClose, title }) {
+  return (
+    <Dialog.Root open={isOpen} onOpenChange={onClose}>
+      <AnimatePresence>
+        {isOpen && (
+          <Dialog.Portal forceMount>
+            {/* Backdrop */}
+            <Dialog.Overlay asChild>
+              <motion.div
+                className="bottom-sheet-overlay"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              />
+            </Dialog.Overlay>
+
+            {/* Bottom sheet content */}
+            <Dialog.Content asChild>
+              <motion.div
+                className="bottom-sheet-content"
+                initial={{ y: '100%' }}
+                animate={{ y: 0 }}
+                exit={{ y: '100%' }}
+                transition={{
+                  type: 'spring',
+                  damping: 30,
+                  stiffness: 300
+                }}
+              >
+                {/* Drag handle */}
+                <div className="bottom-sheet-handle" />
+
+                {/* Header */}
+                <div className="bottom-sheet-header">
+                  <Dialog.Title>{title}</Dialog.Title>
+                  <Dialog.Close className="bottom-sheet-close">×</Dialog.Close>
+                </div>
+
+                {/* Body */}
+                <div className="bottom-sheet-body">
+                  {children}
+                </div>
+              </motion.div>
+            </Dialog.Content>
+          </Dialog.Portal>
+        )}
+      </AnimatePresence>
+    </Dialog.Root>
+  );
+}
+```
+
+**CSS:** `/frontend/src/components/ui/BottomSheet.css`
+```css
+.bottom-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+}
+
+.bottom-sheet-content {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--color-bg-primary);
+  border-radius: 20px 20px 0 0;
+  max-height: 90vh;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 -4px 32px rgba(0, 0, 0, 0.2);
+}
+
+.bottom-sheet-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--color-border);
+  border-radius: 2px;
+  margin: 12px auto 8px;
+  flex-shrink: 0;
+}
+
+.bottom-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.bottom-sheet-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bottom-sheet-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  background: var(--color-bg-tertiary);
+  border: none;
+  cursor: pointer;
+}
+
+/* Only use bottom sheet on mobile */
+@media (min-width: 769px) {
+  .bottom-sheet-content {
+    position: relative;
+    bottom: auto;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    border-radius: 12px;
+    max-width: 600px;
+    max-height: 80vh;
+  }
+
+  .bottom-sheet-handle {
+    display: none;
+  }
+}
+```
+
+**Refactor Components:**
+- MyCompany modal → BottomSheet on mobile
+- Settings modal → BottomSheet on mobile
+- Context selector popover → BottomSheet on mobile
+
+**Impact:**
+- Feels like native iOS/Android apps
+- Thumb-reachable drag handle
+- Natural swiping motion
+- Preserves context (can see chat behind)
+- Spring physics feels premium
+
+---
+
+#### Fix 4.2: Enhanced Swipe Gestures
+
+**Current Problem:**
+- Basic swipe-to-open sidebar (Phase 3)
+- No swipe-to-close bottom sheets
+- No swipe-to-dismiss messages
+- No edge swipe detection
+
+**File:** `/frontend/src/hooks/useSwipeGestures.js` (CREATE NEW)
+
+**Implementation:**
+```jsx
+import { useSwipeable } from 'react-swipeable';
+import { useState, useCallback } from 'react';
+
+export function useSwipeGestures({
+  onSwipeLeft,
+  onSwipeRight,
+  onSwipeDown,
+  threshold = 50,
+  edgeOnly = false
+}) {
+  const [touchStart, setTouchStart] = useState(null);
+
+  const handlers = useSwipeable({
+    onSwipedLeft: (eventData) => {
+      if (edgeOnly && touchStart?.x > 50) return;
+      onSwipeLeft?.(eventData);
+    },
+    onSwipedRight: (eventData) => {
+      if (edgeOnly && touchStart?.x > 50) return;
+      onSwipeRight?.(eventData);
+    },
+    onSwipedDown: (eventData) => {
+      onSwipeDown?.(eventData);
+    },
+    onTouchStartOrOnMouseDown: (eventData) => {
+      if (eventData.event.touches?.[0]) {
+        setTouchStart({
+          x: eventData.event.touches[0].clientX,
+          y: eventData.event.touches[0].clientY
+        });
+      }
+    },
+    trackMouse: false,
+    delta: threshold,
+    preventScrollOnSwipe: false,
+  });
+
+  return handlers;
+}
+```
+
+**Usage in App.jsx:**
+```jsx
+const swipeHandlers = useSwipeGestures({
+  onSwipeRight: () => setIsMobileSidebarOpen(true),
+  onSwipeLeft: () => setIsMobileSidebarOpen(false),
+  edgeOnly: true,  // Only from left edge
+  threshold: 100
+});
+
+return <div {...swipeHandlers} className="app-wrapper">
+```
+
+**Usage in BottomSheet:**
+```jsx
+const swipeHandlers = useSwipeGestures({
+  onSwipeDown: onClose,
+  threshold: 80
+});
+
+<div {...swipeHandlers} className="bottom-sheet-content">
+```
+
+**Impact:**
+- Edge swipe to open sidebar (iOS pattern)
+- Swipe down to dismiss bottom sheets
+- Feels native and responsive
+- Reduces reliance on buttons
+
+---
+
+#### Fix 4.3: Pull-to-Refresh Visual Feedback
+
+**Current Problem:**
+- No pull-to-refresh gesture
+- Refreshing conversations requires button tap
+
+**File:** `/frontend/src/components/chat/PullToRefresh.jsx` (CREATE NEW)
+
+**Implementation:**
+```jsx
+import { useState, useRef } from 'react';
+import { motion, useMotionValue, useTransform } from 'framer-motion';
+
+export function PullToRefresh({ onRefresh, children }) {
+  const [isPulling, setIsPulling] = useState(false);
+  const containerRef = useRef(null);
+  const y = useMotionValue(0);
+  const opacity = useTransform(y, [0, 100], [0, 1]);
+  const rotate = useTransform(y, [0, 100], [0, 360]);
+
+  const handlePanStart = (event, info) => {
+    const scrollTop = containerRef.current?.scrollTop || 0;
+    if (scrollTop === 0) {
+      setIsPulling(true);
+    }
+  };
+
+  const handlePan = (event, info) => {
+    if (!isPulling) return;
+    const newY = Math.max(0, Math.min(info.offset.y, 120));
+    y.set(newY);
+  };
+
+  const handlePanEnd = async (event, info) => {
+    if (!isPulling) return;
+    setIsPulling(false);
+
+    if (y.get() > 80) {
+      // Trigger refresh
+      await onRefresh();
+    }
+
+    y.set(0);
+  };
+
+  return (
+    <div ref={containerRef} className="pull-to-refresh-container">
+      {/* Refresh indicator */}
+      <motion.div
+        className="pull-refresh-indicator"
+        style={{ opacity }}
+      >
+        <motion.div
+          className="refresh-spinner"
+          style={{ rotate }}
+        >
+          ↻
+        </motion.div>
+        <span>Pull to refresh</span>
+      </motion.div>
+
+      {/* Content */}
+      <motion.div
+        drag="y"
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={{ top: 0.2, bottom: 0 }}
+        onPanStart={handlePanStart}
+        onPan={handlePan}
+        onPanEnd={handlePanEnd}
+        style={{ y }}
+      >
+        {children}
+      </motion.div>
+    </div>
+  );
+}
+```
+
+**CSS:**
+```css
+.pull-to-refresh-container {
+  position: relative;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.pull-refresh-indicator {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  z-index: 10;
+}
+
+.refresh-spinner {
+  font-size: 24px;
+  color: var(--color-brand-primary);
+}
+```
+
+**Impact:**
+- Native mobile gesture
+- Visual feedback during pull
+- Satisfying interaction
+- Matches iOS/Android patterns
+
+---
+
+#### Fix 4.4: Micro-Interactions & Spring Animations
+
+**Current Problem:**
+- Basic CSS transitions
+- No spring physics
+- Feels stiff and digital
+- Missing haptic-like feedback
+
+**File:** `/frontend/src/styles/animations.css` (CREATE NEW)
+
+**Spring Transitions:**
+```css
+/* Replace all transition: 0.2s ease with spring-like curves */
+.button,
+.sidebar,
+.modal,
+.bottom-sheet {
+  transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition-duration: 0.4s;
+}
+
+/* Hover states with scale */
+.button:hover {
+  transform: scale(1.02);
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.button:active {
+  transform: scale(0.98);
+  transition: transform 0.1s ease-out;
+}
+
+/* Message bubble entrance */
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message {
+  animation: messageSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Context chip pop */
+.context-chip {
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.context-chip:active {
+  transform: scale(0.95);
+}
+
+/* Loading pulse with spring */
+@keyframes springPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.loading-dot {
+  animation: springPulse 1s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+}
+```
+
+**Framer Motion Enhancements:**
+
+**In ChatInterface.jsx:**
+```jsx
+import { motion, AnimatePresence } from 'framer-motion';
+
+// Animate message appearance
+<AnimatePresence>
+  {messages.map((message, i) => (
+    <motion.div
+      key={message.id}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      transition={{
+        type: 'spring',
+        damping: 25,
+        stiffness: 300,
+        delay: i * 0.05  // Stagger
+      }}
+    >
+      {/* message content */}
+    </motion.div>
+  ))}
+</AnimatePresence>
+```
+
+**Impact:**
+- Bouncy, organic feel
+- iOS-like spring physics
+- Premium interaction quality
+- Reduced perceived latency
+
+---
+
+#### Fix 4.5: Visual Density & Spacing Optimization
+
+**Current Problem:**
+- Desktop spacing (20px, 24px) on mobile
+- Feels spacious but wastes screen real estate
+- Perplexity uses tighter, content-focused spacing
+
+**File:** `/frontend/src/styles/mobile-spacing.css` (CREATE NEW)
+
+**Mobile-Optimized Spacing:**
+```css
+/* Tighter spacing on mobile */
+@media (max-width: 768px) {
+  /* Reduce gaps */
+  .landing-hero {
+    gap: 16px;  /* was 24px */
+  }
+
+  .message-group {
+    margin-bottom: 20px;  /* was 32px */
+  }
+
+  .input-form {
+    padding: 12px 16px;  /* was 20px 24px */
+    gap: 10px;  /* was 16px */
+  }
+
+  /* Compact headers */
+  .modal-header,
+  .sidebar-header,
+  .context-bar {
+    padding: 10px 16px;  /* was 16px 24px */
+  }
+
+  /* Tighter button padding */
+  .button {
+    padding: 8px 14px;  /* was 12px 20px */
+    font-size: 14px;  /* was 15px */
+  }
+
+  /* Compact list items */
+  .conversation-item,
+  .company-list-item {
+    padding: 10px 12px;  /* was 14px 16px */
+    gap: 10px;  /* was 12px */
+  }
+
+  /* Reduce typography scale */
+  h1 { font-size: 24px; }  /* was 32px */
+  h2 { font-size: 20px; }  /* was 24px */
+  h3 { font-size: 18px; }  /* was 20px */
+  body { font-size: 15px; }  /* was 16px */
+  small { font-size: 13px; }  /* was 14px */
+}
+
+/* Even tighter on small phones */
+@media (max-width: 400px) {
+  .input-form {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .message-group {
+    margin-bottom: 16px;
+  }
+
+  .landing-hero {
+    gap: 12px;
+  }
+}
+```
+
+**Visual Hierarchy Refinement:**
+```css
+/* Perplexity-style subtle hierarchy */
+@media (max-width: 768px) {
+  /* Reduce contrast for less important text */
+  .message-label,
+  .timestamp,
+  .secondary-text {
+    opacity: 0.6;  /* was 0.7 */
+    font-size: 13px;  /* was 14px */
+  }
+
+  /* Increase contrast for primary content */
+  .message-content,
+  .user-message {
+    color: var(--color-text-primary);
+    font-weight: 450;  /* slightly heavier */
+  }
+
+  /* Subtle borders instead of heavy ones */
+  .border,
+  .divider {
+    border-color: rgba(0, 0, 0, 0.06);  /* lighter */
+  }
+}
+```
+
+**Impact:**
+- More content visible per screen
+- Cleaner, less cluttered
+- Matches Perplexity's density
+- Still touch-friendly (44px targets maintained)
+
+---
+
+#### Fix 4.6: Advanced Blur & Glass Effects
+
+**Current Problem:**
+- Basic backdrop-filter used inconsistently
+- No layered glass morphism
+- Feels flat
+
+**File:** Update existing CSS files
+
+**Mobile Glass Morphism:**
+```css
+@media (max-width: 768px) {
+  /* Floating input bar glass effect */
+  .input-form {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Dark mode variant */
+  [data-theme="dark"] .input-form {
+    background: rgba(20, 20, 20, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Context bar floating pill */
+  .context-bar {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(16px);
+    border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+  }
+
+  /* Modal overlay gradient blur */
+  .bottom-sheet-overlay,
+  .modal-overlay {
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.3),
+      rgba(0, 0, 0, 0.5)
+    );
+    backdrop-filter: blur(8px) brightness(0.9);
+  }
+
+  /* Sidebar glass when over content */
+  .sidebar.mobile-open {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(24px);
+    box-shadow: 4px 0 32px rgba(0, 0, 0, 0.15);
+  }
+}
+```
+
+**Impact:**
+- Premium, modern aesthetic
+- Depth and layering
+- Matches iOS design language
+- Perplexity-quality polish
+
+---
+
+#### Fix 4.7: Skeleton Loading States
+
+**Current Problem:**
+- Generic loading spinners
+- No content placeholders
+- Jarring when content appears
+
+**File:** `/frontend/src/components/ui/Skeleton.jsx` (CREATE NEW)
+
+**Implementation:**
+```jsx
+import { motion } from 'framer-motion';
+
+export function Skeleton({ variant = 'text', className = '' }) {
+  const variants = {
+    text: 'skeleton-text',
+    circle: 'skeleton-circle',
+    rect: 'skeleton-rect',
+  };
+
+  return (
+    <motion.div
+      className={`skeleton ${variants[variant]} ${className}`}
+      initial={{ opacity: 0.5 }}
+      animate={{ opacity: [0.5, 0.8, 0.5] }}
+      transition={{
+        duration: 1.5,
+        repeat: Infinity,
+        ease: 'easeInOut'
+      }}
+    />
+  );
+}
+
+// Message skeleton
+export function MessageSkeleton() {
+  return (
+    <div className="message-skeleton">
+      <Skeleton variant="circle" className="avatar-skeleton" />
+      <div className="message-skeleton-content">
+        <Skeleton variant="text" style={{ width: '40%' }} />
+        <Skeleton variant="text" style={{ width: '90%' }} />
+        <Skeleton variant="text" style={{ width: '75%' }} />
+      </div>
+    </div>
+  );
+}
+```
+
+**CSS:**
+```css
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-secondary) 0%,
+    var(--color-bg-tertiary) 50%,
+    var(--color-bg-secondary) 100%
+  );
+  background-size: 200% 100%;
+  border-radius: 8px;
+}
+
+.skeleton-text {
+  height: 16px;
+  margin: 6px 0;
+  border-radius: 4px;
+}
+
+.skeleton-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.skeleton-rect {
+  width: 100%;
+  height: 120px;
+}
+
+.message-skeleton {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+}
+
+.message-skeleton-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.avatar-skeleton {
+  flex-shrink: 0;
+}
+```
+
+**Usage in MessageList.jsx:**
+```jsx
+{isLoading && (
+  <>
+    <MessageSkeleton />
+    <MessageSkeleton />
+    <MessageSkeleton />
+  </>
+)}
+```
+
+**Impact:**
+- Reduced perceived loading time
+- Content-aware placeholders
+- Smooth transition to real content
+- Professional loading experience
+
+---
+
+#### Fix 4.8: Smooth Scroll Behavior
+
+**Current Problem:**
+- Instant scroll jumps
+- No momentum scrolling feel
+- Scroll-to-bottom not smooth
+
+**File:** `/frontend/src/styles/scroll.css` (CREATE NEW)
+
+**Implementation:**
+```css
+/* Enable smooth scrolling globally */
+html {
+  scroll-behavior: smooth;
+}
+
+/* iOS-style momentum scrolling */
+.messages-container,
+.sidebar,
+.bottom-sheet-body,
+.modal-body {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Hide scrollbars on mobile (iOS pattern) */
+@media (max-width: 768px) {
+  .messages-container::-webkit-scrollbar,
+  .sidebar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .messages-container,
+  .sidebar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+}
+
+/* Snap scrolling for image galleries */
+.image-preview-container {
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+}
+
+.image-preview-item {
+  scroll-snap-align: center;
+}
+
+/* Smooth scroll with easing */
+@media (prefers-reduced-motion: no-preference) {
+  * {
+    scroll-behavior: smooth;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto;
+  }
+}
+```
+
+**JavaScript Enhancement in MessageList.jsx:**
+```jsx
+// Smooth scroll to bottom on new message
+const scrollToBottom = () => {
+  messagesEndRef.current?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'end'
+  });
+};
+
+useEffect(() => {
+  scrollToBottom();
+}, [messages]);
+```
+
+**Impact:**
+- Buttery smooth scrolling
+- Native app feel
+- Respect reduced-motion preferences
+- iOS momentum scrolling
+
+---
+
+#### Fix 4.9: Typography Refinement
+
+**Current Problem:**
+- Desktop typography on mobile
+- Not optimized for readability on small screens
+- Missing mobile font scaling
+
+**File:** `/frontend/src/styles/typography-mobile.css` (CREATE NEW)
+
+**Mobile Typography System:**
+```css
+@media (max-width: 768px) {
+  /* Optimize for mobile readability */
+  :root {
+    --font-size-xs: 12px;
+    --font-size-sm: 13px;
+    --font-size-base: 15px;  /* Slightly smaller than desktop 16px */
+    --font-size-lg: 17px;
+    --font-size-xl: 20px;
+    --font-size-2xl: 24px;
+
+    --line-height-tight: 1.3;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.6;
+
+    --font-weight-normal: 400;
+    --font-weight-medium: 450;  /* iOS-style medium */
+    --font-weight-semibold: 600;
+  }
+
+  /* Message text optimized for mobile reading */
+  .message-content {
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-relaxed);
+    letter-spacing: -0.01em;  /* Tighter tracking */
+  }
+
+  /* Headings with proper hierarchy */
+  .landing-headline {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--line-height-tight);
+    letter-spacing: -0.02em;
+  }
+
+  /* Labels and secondary text */
+  .message-label,
+  .timestamp,
+  .caption {
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-normal);
+    font-weight: var(--font-weight-normal);
+    color: var(--color-text-secondary);
+  }
+
+  /* Button text */
+  .button {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: -0.005em;
+  }
+
+  /* Code blocks */
+  code, pre {
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-normal);
+  }
+}
+
+/* Extra small phones need even tighter typography */
+@media (max-width: 400px) {
+  :root {
+    --font-size-base: 14px;
+    --font-size-2xl: 22px;
+  }
+}
+
+/* Enable iOS text size adjustment */
+body {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+```
+
+**Impact:**
+- Better readability on small screens
+- Consistent visual hierarchy
+- Matches iOS typography patterns
+- Professional polish
+
+---
+
+#### Fix 4.10: Color Transitions & Theme Switching
+
+**Current Problem:**
+- Instant theme switch (jarring)
+- No smooth color transitions
+- Missing ambient color accents
+
+**File:** Update `/frontend/src/styles/tailwind.css`
+
+**Smooth Theme Transitions:**
+```css
+/* Smooth transitions for all theme changes */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 0.2s;
+  transition-timing-function: ease-out;
+}
+
+/* Exception for animations and transforms */
+.no-theme-transition {
+  transition-property: transform, opacity;
+}
+
+/* Ambient glow for primary actions */
+@media (max-width: 768px) {
+  .button-primary {
+    box-shadow:
+      0 2px 8px rgba(var(--color-brand-rgb), 0.15),
+      0 0 20px rgba(var(--color-brand-rgb), 0.08);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .button-primary:active {
+    box-shadow:
+      0 1px 4px rgba(var(--color-brand-rgb), 0.2),
+      0 0 12px rgba(var(--color-brand-rgb), 0.12);
+  }
+
+  /* Gradient accents on scroll */
+  .messages-container::before {
+    content: '';
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(
+      to bottom,
+      var(--color-bg-primary),
+      transparent
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .messages-container::after {
+    content: '';
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(
+      to top,
+      var(--color-bg-primary),
+      transparent
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+}
+```
+
+**Impact:**
+- Smooth theme switching
+- Premium glow effects
+- Ambient lighting cues
+- Polished transitions
+
+---
+
+## 📊 UPDATED PRIORITY MATRIX (Including Phase 4)
+
+| Priority | Phase | Issue | Impact | Effort | ROI |
+|----------|-------|-------|--------|--------|-----|
+| 🔴 P0 | 1 | Sidebar fixed width | HIGH | LOW | ⭐⭐⭐⭐⭐ |
+| 🔴 P0 | 1 | MyCompany modal mobile | HIGH | HIGH | ⭐⭐⭐⭐⭐ |
+| 🔴 P0 | 1 | Chat input squashed | HIGH | MEDIUM | ⭐⭐⭐⭐ |
+| 🔴 P0 | 1 | Landscape orientation | MEDIUM | MEDIUM | ⭐⭐⭐⭐ |
+| 🟡 P1 | 2 | Settings modal squeeze | MEDIUM | LOW | ⭐⭐⭐ |
+| 🟡 P1 | 2 | Image preview responsive | LOW | LOW | ⭐⭐⭐ |
+| 🟡 P1 | 2 | Virtual scrolling | MEDIUM | HIGH | ⭐⭐⭐ |
+| 🟡 P1 | 2 | Landing page polish | LOW | LOW | ⭐⭐ |
+| 🟢 P2 | 3 | Touch gestures (basic) | LOW | MEDIUM | ⭐⭐ |
+| 🟢 P2 | 3 | Touch target sizes | LOW | LOW | ⭐⭐ |
+| 🟣 P3 | 4 | Bottom sheet pattern | MEDIUM | HIGH | ⭐⭐⭐⭐ |
+| 🟣 P3 | 4 | Enhanced swipe gestures | LOW | MEDIUM | ⭐⭐⭐ |
+| 🟣 P3 | 4 | Pull-to-refresh | LOW | MEDIUM | ⭐⭐⭐ |
+| 🟣 P3 | 4 | Micro-interactions | MEDIUM | MEDIUM | ⭐⭐⭐⭐ |
+| 🟣 P3 | 4 | Visual density optimization | MEDIUM | LOW | ⭐⭐⭐⭐ |
+| 🟣 P3 | 4 | Glass effects & blur | LOW | LOW | ⭐⭐⭐ |
+| 🟣 P3 | 4 | Skeleton loading states | MEDIUM | MEDIUM | ⭐⭐⭐⭐ |
+| 🟣 P3 | 4 | Smooth scroll behavior | LOW | LOW | ⭐⭐⭐ |
+| 🟣 P3 | 4 | Typography refinement | LOW | LOW | ⭐⭐⭐ |
+| 🟣 P3 | 4 | Color transitions | LOW | LOW | ⭐⭐ |
 
 ---
 
 ## 🎯 EXPECTED OUTCOMES AFTER FIXES
 
-### Before Fixes:
+### Before Any Fixes:
 - 🟡 6/10 mobile readiness
 - Horizontal scrolling on small phones
 - Cramped MyCompany modal
@@ -671,32 +1724,93 @@ const handlers = useSwipeable({
 - Input takes too much space
 - Some elements feel "desktop-y"
 
-### After Fixes:
+### After Phase 1-3 (Phases 1-3):
 - 🟢 9/10 mobile readiness
-- Buttery smooth on all screen sizes
-- MyCompany usable on tablets/phones
-- Landscape mode optimized
-- Chat feels like native messaging app
-- Touch-friendly throughout
-- Performance optimized for long chats
-- Swipe gestures for native feel
+- ✅ No breaking layouts on any device
+- ✅ MyCompany usable on tablets/phones
+- ✅ Landscape mode optimized
+- ✅ Chat input properly sized
+- ✅ Touch-friendly throughout
+- ✅ Performance optimized for long chats
+- ✅ Basic swipe gestures working
+- ⚠️ Still feels like "responsive web app"
+
+### After Phase 4 (Perplexity UX/UI Polish):
+- 🟢 **10/10 mobile readiness - PERFECT PERPLEXITY PARITY**
+- ✨ **Feels indistinguishable from native iOS/Android app**
+- ✨ Bottom sheets instead of modals (iOS pattern)
+- ✨ Edge swipe gestures (open sidebar, dismiss sheets)
+- ✨ Pull-to-refresh with visual feedback
+- ✨ Spring physics animations (bouncy, organic)
+- ✨ Tighter visual density (more content visible)
+- ✨ Glass morphism effects (premium aesthetic)
+- ✨ Skeleton loading states (reduced perceived latency)
+- ✨ Buttery smooth scrolling with momentum
+- ✨ Mobile-optimized typography
+- ✨ Smooth theme transitions with ambient glow
+- 🎯 **Users will think it's a native app, not a website**
 
 ---
 
 ## 🏗️ IMPLEMENTATION STRATEGY
 
-### Week 1: Critical Fixes (P0)
+### Week 1: Critical Fixes (Phase 1 - P0)
 **Day 1-2:** Sidebar responsive width + landscape support
 **Day 3-5:** MyCompany modal mobile optimization (biggest task)
 **Day 6-7:** Chat input optimization + testing
+**Outcome:** App works on all devices, no breaking layouts
 
-### Week 2: Moderate Fixes (P1)
+### Week 2: Moderate Fixes (Phase 2 - P1)
 **Day 1-2:** Settings modal + image previews
 **Day 3-5:** Virtual scrolling implementation + performance testing
+**Outcome:** Better performance and polished details
 
-### Week 3: Polish & Testing (P2)
+### Week 3: Basic Gestures (Phase 3 - P2)
 **Day 1-2:** Touch gestures + target sizes
 **Day 3-5:** Cross-device testing (iOS, Android, tablets)
+**Outcome:** Touch-friendly, basic mobile patterns working
+
+**🎯 Milestone: 9/10 Mobile Readiness - Responsive & Functional**
+
+---
+
+### Week 4-5: Perplexity UX/UI Polish (Phase 4 - P3)
+
+**Day 1-2: Bottom Sheets & Swipe Gestures**
+- Create BottomSheet component with spring animations
+- Implement useSwipeGestures hook with edge detection
+- Refactor MyCompany + Settings to use bottom sheets on mobile
+- Add swipe-down to dismiss functionality
+**Outcome:** Native iOS/Android sheet behavior
+
+**Day 3: Pull-to-Refresh & Skeleton States**
+- Implement PullToRefresh component with Framer Motion
+- Create Skeleton component variants (text, circle, rect)
+- Add MessageSkeleton to ChatInterface
+- Add loading placeholders throughout app
+**Outcome:** Professional loading states, native refresh gesture
+
+**Day 4-5: Micro-Interactions & Visual Polish**
+- Create animations.css with spring curves
+- Add Framer Motion to message animations
+- Implement glass morphism effects on input/modals
+- Add smooth scroll behavior
+**Outcome:** Bouncy, organic animations everywhere
+
+**Day 6: Spacing & Typography**
+- Create mobile-spacing.css with optimized padding/gaps
+- Create typography-mobile.css with mobile font system
+- Tighten visual hierarchy and density
+**Outcome:** More content visible, better readability
+
+**Day 7: Final Polish & Testing**
+- Add color transition system
+- Implement ambient glow effects
+- Test all animations on real devices
+- Fine-tune spring physics parameters
+**Outcome:** Pixel-perfect polish
+
+**🎯 Milestone: 10/10 Mobile Readiness - Perplexity-Level UX/UI**
 
 ### Testing Devices/Viewports:
 - iPhone SE (375×667) - Small phone
@@ -835,12 +1949,24 @@ After implementing fixes, test:
 ❌ Don't skip real device testing
 ❌ Don't add mobile fixes without desktop testing
 
-### Think About:
+### Phase 4 Recommendations (100% Perplexity UX/UI):
+✅ Implement bottom sheets for native feel
+✅ Add enhanced swipe gestures (edge detection, dismiss)
+✅ Pull-to-refresh for natural mobile interaction
+✅ Spring physics animations for premium feel
+✅ Optimize visual density (tighter spacing)
+✅ Glass morphism effects for depth
+✅ Skeleton loading states everywhere
+✅ Smooth scroll with momentum
+✅ Mobile typography system
+✅ Smooth color transitions
+
+### Future Considerations (Beyond Mobile UI):
 💭 Progressive Web App (PWA) features
 💭 Offline support
 💭 Mobile notifications
 💭 App-like install experience
-💭 Gesture-based navigation
+💭 Haptic feedback integration
 
 ---
 
@@ -869,11 +1995,34 @@ If you implement these fixes and encounter issues:
 
 ---
 
-**Report Status:** ✅ Complete
-**Next Steps:** Implement Phase 1 fixes and test
-**Estimated Total Effort:** 2-3 weeks for all phases
-**Quick Wins Effort:** <1 hour for immediate improvements
+**Report Status:** ✅ Complete (Updated with Phase 4)
+**Next Steps:**
+1. Implement Phase 1 (Week 1) - Critical responsive fixes
+2. Implement Phase 2 (Week 2) - Performance and polish
+3. Implement Phase 3 (Week 3) - Basic gestures
+4. Implement Phase 4 (Week 4-5) - **100% Perplexity UX/UI parity**
+
+**Estimated Total Effort:**
+- **Phases 1-3:** 3 weeks (gets you to 9/10 mobile readiness)
+- **Phase 4:** 1.5-2 weeks (gets you to 10/10 - perfect Perplexity UX/UI)
+- **Total:** 4.5-5 weeks for complete transformation
+- **Quick Wins:** <1 hour for immediate improvements (do first!)
+
+**Mobile Readiness Progression:**
+- Current: 6/10 (broken on mobile)
+- After Phase 1-3: 9/10 (responsive and functional)
+- After Phase 4: **10/10 (indistinguishable from native Perplexity mobile app)**
 
 ---
 
-*This report is your roadmap to mobile excellence. Start with the quick wins, tackle critical fixes, and your app will feel like a native mobile experience. Good luck, Mobile God!* 🚀📱
+## 🎯 FINAL SUMMARY
+
+This report provides a **complete roadmap** to transform your AI-Council app from a desktop-first webapp to a **pixel-perfect Perplexity-style mobile experience**.
+
+**Phase 1-3** fixes all the broken layouts and makes your app properly responsive. You'll go from unusable on mobile to fully functional.
+
+**Phase 4** takes you from "responsive web app" to "wait, is this a native app?" It adds all the premium UX/UI polish that makes Perplexity feel so good: bottom sheets, spring animations, glass morphism, pull-to-refresh, skeleton states, and more.
+
+Start with the **Quick Wins** (50 minutes), then tackle the phases in order. Test on real devices throughout. By the end, users won't be able to tell your app from a native iOS/Android app.
+
+*Good luck, Mobile God! You're about to create something that feels truly native.* 🚀📱✨
