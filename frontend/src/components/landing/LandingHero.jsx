@@ -73,6 +73,18 @@ export function LandingHero({
     textareaRef.current?.focus();
   }, []);
 
+  // Global keyboard shortcut: Cmd+K / Ctrl+K to focus input
+  useEffect(() => {
+    const handleGlobalKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        textareaRef.current?.focus();
+      }
+    };
+    document.addEventListener('keydown', handleGlobalKeyDown);
+    return () => document.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
+
   const handleSubmit = (e) => {
     e?.preventDefault();
     if (input.trim() && !isLoading && onSubmit) {
@@ -94,7 +106,7 @@ export function LandingHero({
 
   // Get current context display text
   const getContextDisplayText = () => {
-    if (!selectedBusiness) return 'General Council';
+    if (!selectedBusiness) return 'Smart Auto';
 
     const company = businesses.find(b => b.id === selectedBusiness);
     const companyName = company?.name || 'Company';
@@ -155,6 +167,21 @@ export function LandingHero({
               maxRows={6}
               disabled={isLoading}
             />
+
+            {/* Keyboard shortcut hint */}
+            <AnimatePresence>
+              {!input.trim() && !isLoading && (
+                <motion.kbd
+                  className="omni-bar-kbd"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  ⌘K
+                </motion.kbd>
+              )}
+            </AnimatePresence>
 
             <AnimatePresence>
               {showSubmitButton && (
