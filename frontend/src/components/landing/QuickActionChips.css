@@ -1,0 +1,54 @@
+/* QuickActionChips - Action-oriented quick prompts */
+
+.quick-action-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  max-width: 600px;
+}
+
+.quick-action-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.quick-action-chip:hover {
+  background: var(--color-bg-primary);
+  border-color: var(--color-brand-primary);
+  color: var(--color-brand-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.quick-action-icon {
+  color: var(--color-text-tertiary);
+  transition: color 0.2s ease;
+}
+
+.quick-action-chip:hover .quick-action-icon {
+  color: var(--color-brand-primary);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .quick-action-chips {
+    gap: 6px;
+  }
+
+  .quick-action-chip {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}

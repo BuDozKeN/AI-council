@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from './components/Sidebar';
 import ChatInterface from './components/ChatInterface';
+import { LandingHero } from './components/landing';
 import Leaderboard from './components/Leaderboard';
 import Settings from './components/Settings';
 import ProjectModal from './components/ProjectModal';
@@ -67,6 +68,7 @@ function App() {
   const [isTriageLoading, setIsTriageLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false); // Image upload in progress
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [landingChatMode, setLandingChatMode] = useState('council'); // 'chat' or 'council' for landing hero
   const abortControllerRef = useRef(null);
   const skipNextLoadRef = useRef(false); // Skip loadConversation when transitioning from temp to real
   const hasLoadedInitialData = useRef(false); // Prevent repeated API calls on mount
@@ -122,6 +124,15 @@ function App() {
     if (!currentBusiness || !currentBusiness.styles) return [];
     return currentBusiness.styles;
   }, [currentBusiness]);
+
+  // Determine if we should show the landing hero (Perplexity-style)
+  // Show when: authenticated, has a temp conversation with no messages
+  const showLandingHero = useMemo(() => {
+    if (!isAuthenticated || needsPasswordReset) return false;
+    if (!currentConversation) return false;
+    // Show landing when it's a temp conversation with no messages
+    return currentConversation.isTemp && currentConversation.messages?.length === 0;
+  }, [isAuthenticated, needsPasswordReset, currentConversation]);
 
   // When business changes, reset department/channel/style/project to defaults and load projects
   // Track the previous business to avoid resetting on initial load
@@ -1196,6 +1207,23 @@ function App() {
     }
   };
 
+  // Handle submit from Landing Hero
+  // This routes to the appropriate handler based on mode selection
+  const handleLandingSubmit = (content, mode = 'council') => {
+    if (!content.trim()) return;
+
+    // The landing uses the same handlers as the chat interface
+    // Mode determines if we go to full council or quick chat
+    if (mode === 'chat') {
+      // For quick mode on first message, we still need to create conversation first
+      // so we route through handleSendMessage which handles temp->real transition
+      handleSendMessage(content, null);
+    } else {
+      // Full council mode
+      handleSendMessage(content, null);
+    }
+  };
+
   return (
     <motion.div
       className="app-wrapper"
@@ -1277,126 +1305,173 @@ function App() {
             loadConversations({ sortBy: newSort, offset: 0 });
           }}
         />
-      <ChatInterface
-        conversation={currentConversation}
-        onSendMessage={handleSendMessage}
-        onSendChatMessage={handleSendChatMessage}
-        onStopGeneration={handleStopGeneration}
-        isLoading={isLoading}
-        businesses={businesses}
-        selectedBusiness={selectedBusiness}
-        onSelectBusiness={setSelectedBusiness}
-        departments={availableDepartments}
-        selectedDepartment={selectedDepartment}
-        onSelectDepartment={setSelectedDepartment}
-        // Multi-select support
-        selectedDepartments={selectedDepartments}
-        onSelectDepartments={setSelectedDepartments}
-        allRoles={allRoles}
-        selectedRoles={selectedRoles}
-        onSelectRoles={setSelectedRoles}
-        // Playbooks
-        playbooks={availablePlaybooks}
-        selectedPlaybooks={selectedPlaybooks}
-        onSelectPlaybooks={setSelectedPlaybooks}
-        // Legacy single-select
-        roles={availableRoles}
-        selectedRole={selectedRole}
-        onSelectRole={setSelectedRole}
-        channels={availableChannels}
-        selectedChannel={selectedChannel}
-        onSelectChannel={setSelectedChannel}
-        styles={availableStyles}
-        selectedStyle={selectedStyle}
-        onSelectStyle={setSelectedStyle}
-        // Projects
-        projects={projects}
-        selectedProject={selectedProject}
-        onSelectProject={(projectId) => {
-          setSelectedProject(projectId);
-          // Touch project to update last_accessed_at for sorting
-          if (projectId) {
-            api.touchProject(projectId).catch(err => {
-              console.error('Failed to touch project:', err);
-            });
-          }
-        }}
-        onOpenProjectModal={(context) => {
-          setProjectModalContext(context || null);
-          setIsProjectModalOpen(true);
-        }}
-        onProjectCreated={(newProject) => {
-          // Add to projects list so it appears in dropdown immediately
-          setProjects((prev) => [...prev, newProject]);
-        }}
-        // Independent context toggles
-        useCompanyContext={useCompanyContext}
-        onToggleCompanyContext={setUseCompanyContext}
-        useDepartmentContext={useDepartmentContext}
-        onToggleDepartmentContext={setUseDepartmentContext}
-        // Triage props
-        triageState={triageState}
-        originalQuestion={originalQuery}
-        isTriageLoading={isTriageLoading}
-        onTriageRespond={handleTriageRespond}
-        onTriageSkip={handleTriageSkip}
-        onTriageProceed={handleTriageProceed}
-        // Upload progress
-        isUploading={isUploading}
-        // Knowledge Base navigation (now part of My Company)
-        onViewKnowledgeBase={() => {
-          // Clear return-to-company state - user is opening it fresh
-          setReturnToMyCompanyTab(null);
-          setMyCompanyPromoteDecision(null);
-          setIsMyCompanyOpen(true);
-        }}
-        // Scroll target - for navigating from decision source
-        scrollToStage3={scrollToStage3}
-        scrollToResponseIndex={scrollToResponseIndex}
-        onScrollToStage3Complete={() => {
-          setScrollToStage3(false);
-          setScrollToResponseIndex(null);
-        }}
-        // Decision/Playbook/Project navigation - open My Company to appropriate tab
-        onViewDecision={(decisionId, type = 'decision', targetId = null) => {
-          // Clear return-to-company state - user is taking a new action
-          setReturnToMyCompanyTab(null);
-          setMyCompanyPromoteDecision(null);
 
-          if (type === 'playbook' && targetId) {
-            setMyCompanyInitialTab('playbooks');
-            setMyCompanyInitialPlaybookId(targetId);
-            setMyCompanyInitialDecisionId(null);
-            setMyCompanyInitialProjectId(null);
-          } else if (type === 'project' && targetId) {
-            // Navigate to projects tab with specific project and auto-open it
-            setMyCompanyInitialTab('projects');
-            setMyCompanyInitialDecisionId(null);
-            setMyCompanyInitialPlaybookId(null);
-            setMyCompanyInitialProjectId(targetId);
-            // Also select the project in the main app for context
-            setSelectedProject(targetId);
-          } else {
-            setMyCompanyInitialTab('decisions');
-            setMyCompanyInitialDecisionId(decisionId);
-            setMyCompanyInitialPlaybookId(null);
-            setMyCompanyInitialProjectId(null);
-          }
-          setIsMyCompanyOpen(true);
-        }}
-        // Return to My Company button (after navigating from source)
-        returnToMyCompanyTab={returnToMyCompanyTab}
-        returnPromoteDecision={myCompanyPromoteDecision}
-        onReturnToMyCompany={(tab) => {
-          setReturnToMyCompanyTab(null); // Clear the return state
-          setMyCompanyInitialTab(tab);
-          setMyCompanyInitialDecisionId(null);
-          setMyCompanyInitialPlaybookId(null);
-          setMyCompanyInitialProjectId(null);
-          // Don't clear myCompanyPromoteDecision here - let MyCompany use it to re-open modal
-          setIsMyCompanyOpen(true);
-        }}
-      />
+      {/* Main content area - Landing Hero or Chat Interface */}
+      <AnimatePresence mode="wait">
+        {showLandingHero ? (
+          <motion.div
+            key="landing"
+            className="main-content-landing"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            <LandingHero
+              businesses={businesses}
+              selectedBusiness={selectedBusiness}
+              onSelectBusiness={setSelectedBusiness}
+              departments={availableDepartments}
+              selectedDepartments={selectedDepartments}
+              onSelectDepartments={setSelectedDepartments}
+              allRoles={allRoles}
+              selectedRoles={selectedRoles}
+              onSelectRoles={setSelectedRoles}
+              projects={projects}
+              selectedProject={selectedProject}
+              onSelectProject={setSelectedProject}
+              playbooks={availablePlaybooks}
+              selectedPlaybooks={selectedPlaybooks}
+              onSelectPlaybooks={setSelectedPlaybooks}
+              chatMode={landingChatMode}
+              onChatModeChange={setLandingChatMode}
+              onSubmit={handleLandingSubmit}
+              isLoading={isLoading}
+            />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="chat"
+            className="main-content-chat"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <ChatInterface
+              conversation={currentConversation}
+              onSendMessage={handleSendMessage}
+              onSendChatMessage={handleSendChatMessage}
+              onStopGeneration={handleStopGeneration}
+              isLoading={isLoading}
+              businesses={businesses}
+              selectedBusiness={selectedBusiness}
+              onSelectBusiness={setSelectedBusiness}
+              departments={availableDepartments}
+              selectedDepartment={selectedDepartment}
+              onSelectDepartment={setSelectedDepartment}
+              // Multi-select support
+              selectedDepartments={selectedDepartments}
+              onSelectDepartments={setSelectedDepartments}
+              allRoles={allRoles}
+              selectedRoles={selectedRoles}
+              onSelectRoles={setSelectedRoles}
+              // Playbooks
+              playbooks={availablePlaybooks}
+              selectedPlaybooks={selectedPlaybooks}
+              onSelectPlaybooks={setSelectedPlaybooks}
+              // Legacy single-select
+              roles={availableRoles}
+              selectedRole={selectedRole}
+              onSelectRole={setSelectedRole}
+              channels={availableChannels}
+              selectedChannel={selectedChannel}
+              onSelectChannel={setSelectedChannel}
+              styles={availableStyles}
+              selectedStyle={selectedStyle}
+              onSelectStyle={setSelectedStyle}
+              // Projects
+              projects={projects}
+              selectedProject={selectedProject}
+              onSelectProject={(projectId) => {
+                setSelectedProject(projectId);
+                // Touch project to update last_accessed_at for sorting
+                if (projectId) {
+                  api.touchProject(projectId).catch(err => {
+                    console.error('Failed to touch project:', err);
+                  });
+                }
+              }}
+              onOpenProjectModal={(context) => {
+                setProjectModalContext(context || null);
+                setIsProjectModalOpen(true);
+              }}
+              onProjectCreated={(newProject) => {
+                // Add to projects list so it appears in dropdown immediately
+                setProjects((prev) => [...prev, newProject]);
+              }}
+              // Independent context toggles
+              useCompanyContext={useCompanyContext}
+              onToggleCompanyContext={setUseCompanyContext}
+              useDepartmentContext={useDepartmentContext}
+              onToggleDepartmentContext={setUseDepartmentContext}
+              // Triage props
+              triageState={triageState}
+              originalQuestion={originalQuery}
+              isTriageLoading={isTriageLoading}
+              onTriageRespond={handleTriageRespond}
+              onTriageSkip={handleTriageSkip}
+              onTriageProceed={handleTriageProceed}
+              // Upload progress
+              isUploading={isUploading}
+              // Knowledge Base navigation (now part of My Company)
+              onViewKnowledgeBase={() => {
+                // Clear return-to-company state - user is opening it fresh
+                setReturnToMyCompanyTab(null);
+                setMyCompanyPromoteDecision(null);
+                setIsMyCompanyOpen(true);
+              }}
+              // Scroll target - for navigating from decision source
+              scrollToStage3={scrollToStage3}
+              scrollToResponseIndex={scrollToResponseIndex}
+              onScrollToStage3Complete={() => {
+                setScrollToStage3(false);
+                setScrollToResponseIndex(null);
+              }}
+              // Decision/Playbook/Project navigation - open My Company to appropriate tab
+              onViewDecision={(decisionId, type = 'decision', targetId = null) => {
+                // Clear return-to-company state - user is taking a new action
+                setReturnToMyCompanyTab(null);
+                setMyCompanyPromoteDecision(null);
+
+                if (type === 'playbook' && targetId) {
+                  setMyCompanyInitialTab('playbooks');
+                  setMyCompanyInitialPlaybookId(targetId);
+                  setMyCompanyInitialDecisionId(null);
+                  setMyCompanyInitialProjectId(null);
+                } else if (type === 'project' && targetId) {
+                  // Navigate to projects tab with specific project and auto-open it
+                  setMyCompanyInitialTab('projects');
+                  setMyCompanyInitialDecisionId(null);
+                  setMyCompanyInitialPlaybookId(null);
+                  setMyCompanyInitialProjectId(targetId);
+                  // Also select the project in the main app for context
+                  setSelectedProject(targetId);
+                } else {
+                  setMyCompanyInitialTab('decisions');
+                  setMyCompanyInitialDecisionId(decisionId);
+                  setMyCompanyInitialPlaybookId(null);
+                  setMyCompanyInitialProjectId(null);
+                }
+                setIsMyCompanyOpen(true);
+              }}
+              // Return to My Company button (after navigating from source)
+              returnToMyCompanyTab={returnToMyCompanyTab}
+              returnPromoteDecision={myCompanyPromoteDecision}
+              onReturnToMyCompany={(tab) => {
+                setReturnToMyCompanyTab(null); // Clear the return state
+                setMyCompanyInitialTab(tab);
+                setMyCompanyInitialDecisionId(null);
+                setMyCompanyInitialPlaybookId(null);
+                setMyCompanyInitialProjectId(null);
+                // Don't clear myCompanyPromoteDecision here - let MyCompany use it to re-open modal
+                setIsMyCompanyOpen(true);
+              }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <Leaderboard
         isOpen={isLeaderboardOpen}
         onClose={() => setIsLeaderboardOpen(false)}
