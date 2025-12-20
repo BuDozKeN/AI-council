@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from typing import Optional, Dict, Any, List
 from .config import STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, SUBSCRIPTION_TIERS
 from .database import get_supabase, get_supabase_with_auth, get_supabase_service
+from .security import log_billing_event, mask_email
 
 
 def _get_client(access_token: Optional[str] = None):
@@ -112,7 +113,7 @@ def get_or_create_stripe_customer(user_id: str, email: str, access_token: Option
             metadata={"user_id": user_id}
         )
         customer_id = customer.id
-        print(f"[Stripe] Created customer for {email}: {customer_id}")
+        log_billing_event("Customer created", user_id=user_id)
 
     # Store in user profile (upsert)
     supabase.table('user_profiles').upsert({
@@ -348,17 +349,15 @@ def handle_webhook_event(payload: bytes, sig_header: str) -> Dict[str, Any]:
     event_type = event["type"]
     data = event["data"]["object"]
 
-    print(f"[Stripe Webhook] Received: {event_type}")
+    log_billing_event(f"Webhook received: {event_type}")
 
     # Use service role client to bypass RLS for webhook operations
     # The anon client fails because RLS policies require auth.uid() = user_id
     # and webhooks have no authenticated user context
     supabase = get_supabase_service()
     if not supabase:
-        print("[Stripe Webhook] ERROR: SUPABASE_SERVICE_KEY not configured - cannot update user_profiles")
+        log_billing_event("Webhook error: service key not configured", status="error")
         return {"success": False, "error": "Service key not configured"}
-
-    print(f"[Stripe Webhook] Using service role client for database operations")
 
     if event_type == "checkout.session.completed":
         # Subscription started via checkout
@@ -374,7 +373,7 @@ def handle_webhook_event(payload: bytes, sig_header: str) -> Dict[str, Any]:
                 'queries_used_this_period': 0,
                 'updated_at': datetime.utcnow().isoformat() + 'Z'
             }, on_conflict='user_id').execute()
-            print(f"[Stripe] User {user_id} subscribed to {tier_id}")
+            log_billing_event("Subscription started", user_id=user_id, tier=tier_id, status="active")
 
     elif event_type == "customer.subscription.updated":
         # Subscription changed (upgrade/downgrade/renewal)
@@ -396,7 +395,7 @@ def handle_webhook_event(payload: bytes, sig_header: str) -> Dict[str, Any]:
                 update_data['subscription_period_end'] = datetime.fromtimestamp(period_end).isoformat() + 'Z'
 
             supabase.table('user_profiles').upsert(update_data, on_conflict='user_id').execute()
-            print(f"[Stripe] Subscription updated for {user_id}: {status}")
+            log_billing_event("Subscription updated", user_id=user_id, tier=tier_id, status=status)
 
     elif event_type == "customer.subscription.deleted":
         # Subscription cancelled
@@ -410,7 +409,7 @@ def handle_webhook_event(payload: bytes, sig_header: str) -> Dict[str, Any]:
                 'stripe_subscription_id': None,
                 'updated_at': datetime.utcnow().isoformat() + 'Z'
             }, on_conflict='user_id').execute()
-            print(f"[Stripe] Subscription cancelled for {user_id}")
+            log_billing_event("Subscription cancelled", user_id=user_id, tier="free", status="cancelled")
 
     elif event_type == "invoice.paid":
         # Payment successful - reset usage counter for new period
@@ -429,7 +428,7 @@ def handle_webhook_event(payload: bytes, sig_header: str) -> Dict[str, Any]:
                     ).isoformat() + 'Z',
                     'updated_at': datetime.utcnow().isoformat() + 'Z'
                 }, on_conflict='user_id').execute()
-                print(f"[Stripe] Reset usage for {user_id} on invoice payment")
+                log_billing_event("Usage reset on invoice payment", user_id=user_id)
 
     elif event_type == "invoice.payment_failed":
         # Payment failed
@@ -444,7 +443,7 @@ def handle_webhook_event(payload: bytes, sig_header: str) -> Dict[str, Any]:
                     'subscription_status': 'past_due',
                     'updated_at': datetime.utcnow().isoformat() + 'Z'
                 }, on_conflict='user_id').execute()
-                print(f"[Stripe] Payment failed for {user_id}")
+                log_billing_event("Payment failed", user_id=user_id, status="past_due")
 
     return {"success": True, "event_type": event_type}
 

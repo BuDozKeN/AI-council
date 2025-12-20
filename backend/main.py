@@ -20,9 +20,9 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
 try:
-    from .security import SecureHTTPException, log_security_event, get_client_ip
+    from .security import SecureHTTPException, log_security_event, get_client_ip, log_app_event
 except ImportError:
-    from security import SecureHTTPException, log_security_event, get_client_ip
+    from security import SecureHTTPException, log_security_event, get_client_ip, log_app_event
 
 
 def get_user_identifier(request: Request) -> str:
@@ -101,21 +101,30 @@ app = FastAPI(title="LLM Council API")
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# CORS origins list
-CORS_ORIGINS = [
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "http://localhost:5175",
-    "http://localhost:5176",
-    "http://localhost:5177",
-    "http://localhost:5178",
-    "http://localhost:5179",
-    "http://localhost:5180",
-    "http://localhost:5181",
-    "http://localhost:5182",
-    "http://localhost:3000",
-    "https://ai-council-three.vercel.app",
-]
+# CORS origins - load from environment or use defaults
+# In production, set CORS_ORIGINS env var to comma-separated list of allowed origins
+import os as _os
+
+_cors_env = _os.environ.get("CORS_ORIGINS", "")
+if _cors_env:
+    # Production: use explicit origins from environment
+    CORS_ORIGINS = [origin.strip() for origin in _cors_env.split(",") if origin.strip()]
+else:
+    # Development: include localhost origins
+    CORS_ORIGINS = [
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "http://localhost:5175",
+        "http://localhost:5176",
+        "http://localhost:5177",
+        "http://localhost:5178",
+        "http://localhost:5179",
+        "http://localhost:5180",
+        "http://localhost:5181",
+        "http://localhost:5182",
+        "http://localhost:3000",
+        "https://ai-council-three.vercel.app",
+    ]
 
 # =============================================================================
 # SECURITY: Request size limit middleware
@@ -188,6 +197,9 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
             "accelerometer=(), camera=(), geolocation=(), gyroscope=(), "
             "magnetometer=(), microphone=(), payment=(), usb=()"
         )
+
+        # HSTS - enforce HTTPS for 1 year, include subdomains
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
 
         return response
 
@@ -387,7 +399,7 @@ Today's date: {today_date}"""
 @app.get("/health")
 async def health_check():
     """Health check endpoint to verify deployment."""
-    return {"status": "healthy", "version": "2025-12-09-v15-profile-debug"}
+    return {"status": "healthy"}
 
 class CreateConversationRequest(BaseModel):
     """Request to create a new conversation."""
@@ -1839,9 +1851,8 @@ class ProfileUpdateRequest(BaseModel):
 async def get_profile(user: dict = Depends(get_current_user)):
     """Get current user's profile."""
     try:
-        print(f"[PROFILE] Getting profile for user: {user['id']}", flush=True)
+        log_app_event("PROFILE", "Fetching profile", user_id=user['id'])
         profile = storage.get_user_profile(user["id"], user.get("access_token"))
-        print(f"[PROFILE] Got profile: {profile}", flush=True)
         return profile or {
             "display_name": "",
             "company": "",
@@ -1849,7 +1860,7 @@ async def get_profile(user: dict = Depends(get_current_user)):
             "bio": "",
         }
     except Exception as e:
-        print(f"[PROFILE ERROR] get_profile failed: {type(e).__name__}: {e}", flush=True)
+        log_app_event("PROFILE", f"Get profile failed: {type(e).__name__}", user_id=user['id'], level="ERROR")
         raise SecureHTTPException.internal_error(str(e))
 
 
@@ -1857,23 +1868,22 @@ async def get_profile(user: dict = Depends(get_current_user)):
 async def update_profile(request: ProfileUpdateRequest, user: dict = Depends(get_current_user)):
     """Update current user's profile."""
     try:
-        print(f"[PROFILE] Updating profile for user: {user['id']}", flush=True)
+        log_app_event("PROFILE", "Updating profile", user_id=user['id'])
         profile_data = {
             "display_name": request.display_name,
             "company": request.company,
             "phone": request.phone,
             "bio": request.bio,
         }
-        print(f"[PROFILE] Profile data: {profile_data}", flush=True)
         result = storage.update_user_profile(user["id"], profile_data, user.get("access_token"))
-        print(f"[PROFILE] Update result: {result}", flush=True)
         if not result:
             raise HTTPException(status_code=500, detail="Failed to update profile - storage returned None")
+        log_app_event("PROFILE", "Profile updated successfully", user_id=user['id'])
         return {"success": True, "profile": result}
     except HTTPException:
         raise
     except Exception as e:
-        print(f"[PROFILE ERROR] update_profile failed: {type(e).__name__}: {e}", flush=True)
+        log_app_event("PROFILE", f"Update profile failed: {type(e).__name__}", user_id=user['id'], level="ERROR")
         raise SecureHTTPException.internal_error(str(e))
 
 
@@ -2009,8 +2019,8 @@ class MockModeRequest(BaseModel):
 
 
 @app.get("/api/settings/mock-mode")
-async def get_mock_mode():
-    """Get current mock mode status."""
+async def get_mock_mode(user: dict = Depends(get_current_user)):
+    """Get current mock mode status. Requires authentication."""
     from . import openrouter
     # Return the runtime value from openrouter (the actual flag being used)
     return {
@@ -2020,9 +2030,9 @@ async def get_mock_mode():
 
 
 @app.post("/api/settings/mock-mode")
-async def set_mock_mode(request: MockModeRequest):
+async def set_mock_mode(request: MockModeRequest, user: dict = Depends(get_current_user)):
     """
-    Toggle mock mode on/off at runtime.
+    Toggle mock mode on/off at runtime. Requires authentication.
     Note: This changes the in-memory setting only.
     For persistent changes, update MOCK_LLM in .env and restart.
     """
@@ -2062,8 +2072,8 @@ class CachingModeRequest(BaseModel):
 
 
 @app.get("/api/settings/caching-mode")
-async def get_caching_mode():
-    """Get current prompt caching status."""
+async def get_caching_mode(user: dict = Depends(get_current_user)):
+    """Get current prompt caching status. Requires authentication."""
     from . import openrouter
     return {
         "enabled": config.ENABLE_PROMPT_CACHING,
@@ -2072,9 +2082,9 @@ async def get_caching_mode():
 
 
 @app.post("/api/settings/caching-mode")
-async def set_caching_mode(request: CachingModeRequest):
+async def set_caching_mode(request: CachingModeRequest, user: dict = Depends(get_current_user)):
     """
-    Toggle prompt caching on/off at runtime.
+    Toggle prompt caching on/off at runtime. Requires authentication.
     Note: This changes the in-memory setting only.
     For persistent changes, update ENABLE_PROMPT_CACHING in .env and restart.
     """
@@ -2201,7 +2211,8 @@ async def get_knowledge_entries(
             status=status,
             search=search,
             limit=limit,
-            access_token=access_token
+            access_token=access_token,
+            user_id=user["id"]  # SECURITY: Pass user_id for access verification
         )
         return {"entries": entries}
     except ValueError as e:
@@ -3060,9 +3071,9 @@ Remember: The context_md should be a complete, standalone document. Respond only
         try:
             access_token = user.get("access_token")
             user_id = user.get('id')
-            print(f"[MERGE] user_id={user_id}, has_access_token={bool(access_token)}", flush=True)
+            log_app_event("MERGE", "Starting merge", user_id=user_id, has_token=bool(access_token))
             if not user_id:
-                print(f"[MERGE] WARNING: user_id is None! User object: {user}", flush=True)
+                log_app_event("MERGE", "WARNING: user_id is None", level="WARNING")
             if access_token:
                 from .database import get_supabase_with_auth
                 client = get_supabase_with_auth(access_token)
@@ -3071,9 +3082,9 @@ Remember: The context_md should be a complete, standalone document. Respond only
                 from .routers.company import resolve_company_id
                 try:
                     company_uuid = resolve_company_id(client, request.company_id)
-                    print(f"[MERGE] Resolved company_id '{request.company_id}' to UUID: {company_uuid}", flush=True)
+                    log_app_event("MERGE", "Resolved company_id", resource_id=company_uuid)
                 except Exception as resolve_err:
-                    print(f"[MERGE] Failed to resolve company_id: {resolve_err}", flush=True)
+                    log_app_event("MERGE", f"Failed to resolve company_id: {type(resolve_err).__name__}", level="WARNING")
                     company_uuid = request.company_id  # Fall back to original value
 
                 # Build title for the decision
@@ -3086,12 +3097,10 @@ Remember: The context_md should be a complete, standalone document. Respond only
 
                 # Create the decision record in knowledge_entries
                 # Use department_ids if provided, otherwise fall back to single department_id
-                print(f"[MERGE] Received department_id={request.department_id}, department_ids={request.department_ids}", flush=True)
                 dept_ids = request.department_ids if request.department_ids else (
                     [request.department_id] if request.department_id and request.department_id != "all" else []
                 )
                 primary_dept_id = dept_ids[0] if dept_ids else None
-                print(f"[MERGE] Resolved dept_ids={dept_ids}, primary_dept_id={primary_dept_id}", flush=True)
 
                 insert_data = {
                     "company_id": company_uuid,  # Use resolved UUID, not potentially slug
@@ -3112,39 +3121,33 @@ Remember: The context_md should be a complete, standalone document. Respond only
                     "created_by": user_id,
                     "tags": []
                 }
-                print(f"[MERGE] Saving decision with project_id={project_id}, company_uuid={company_uuid}, departments={dept_ids}, created_by={user_id}", flush=True)
+                log_app_event("MERGE", "Saving decision", user_id=user_id, resource_id=project_id)
 
                 try:
                     result = client.table("knowledge_entries").insert(insert_data).execute()
                     if result.data and len(result.data) > 0:
                         saved_decision_id = result.data[0].get("id")
-                        print(f"[MERGE] SUCCESS! Saved decision to knowledge_entries: {saved_decision_id}", flush=True)
+                        log_app_event("MERGE", "Decision saved", resource_id=saved_decision_id)
 
                         # Generate summary immediately at save time (not on-demand)
                         # This avoids burning tokens every time the user views the decision
                         try:
                             from .routers.company import generate_decision_summary_internal
-                            print(f"[MERGE] Generating summary for decision: {saved_decision_id}, company_uuid: {company_uuid}", flush=True)
                             summary_result = await generate_decision_summary_internal(
                                 saved_decision_id,
                                 company_uuid  # Use resolved UUID
                             )
-                            print(f"[MERGE] Summary result: {summary_result}", flush=True)
                             if summary_result.get('title'):
-                                print(f"[MERGE] Summary generated - title: {summary_result.get('title')[:50]}...", flush=True)
+                                log_app_event("MERGE", "Summary generated", resource_id=saved_decision_id)
                             else:
-                                print(f"[MERGE] WARNING: No title in summary result!", flush=True)
+                                log_app_event("MERGE", "No title in summary result", resource_id=saved_decision_id, level="WARNING")
                         except Exception as summary_err:
-                            import traceback
-                            print(f"[MERGE] Failed to generate summary (non-fatal): {summary_err}", flush=True)
-                            print(f"[MERGE] Traceback: {traceback.format_exc()}", flush=True)
+                            log_app_event("MERGE", f"Summary generation failed (non-fatal): {type(summary_err).__name__}", level="WARNING")
                             # Don't fail the merge just because summary generation failed
                     else:
-                        print(f"[MERGE] WARNING: Insert returned no data. Result: {result}", flush=True)
+                        log_app_event("MERGE", "Insert returned no data", level="WARNING")
                 except Exception as insert_err:
-                    import traceback
-                    print(f"[MERGE] ERROR inserting decision: {insert_err}", flush=True)
-                    print(f"[MERGE] Insert traceback: {traceback.format_exc()}", flush=True)
+                    log_app_event("MERGE", f"Error inserting decision: {type(insert_err).__name__}", level="ERROR")
                     # Don't re-raise - let the merge succeed even if saving fails
 
                 # Sync ALL decision departments to project's department_ids

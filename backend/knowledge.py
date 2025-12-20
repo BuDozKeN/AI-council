@@ -2,6 +2,7 @@
 
 from typing import Optional, List, Dict, Any
 from .database import get_supabase, get_supabase_service
+from .security import verify_user_company_access, verify_user_entry_access, log_security_event
 
 
 def create_knowledge_entry(
@@ -35,8 +36,18 @@ def create_knowledge_entry(
         auto_inject: If True, this entry will be automatically included in council context
         scope: Visibility level - 'company' (all), 'department' (specific), 'project' (specific)
         tags: List of tags for categorization
+
+    Returns:
+        The created entry dict, or None if access denied or error
     """
-    client = get_supabase_service()  # Use service for insert to bypass RLS for now
+    # SECURITY: Verify user has access to the target company
+    if not verify_user_company_access(user_id, company_id):
+        log_security_event("CREATE_BLOCKED", user_id=user_id,
+                          resource_type="knowledge_entry", resource_id=company_id,
+                          severity="WARNING")
+        return None
+
+    client = get_supabase_service()
 
     data = {
         "company_id": company_id,
@@ -76,10 +87,22 @@ def get_knowledge_entries(
     status: Optional[str] = "active",
     search: Optional[str] = None,
     limit: int = 50,
-    access_token: Optional[str] = None
+    access_token: Optional[str] = None,
+    user_id: Optional[str] = None
 ) -> List[Dict[str, Any]]:
-    """Get knowledge entries for a company with filtering options."""
-    client = get_supabase_service()  # Use service for read to bypass RLS for now
+    """Get knowledge entries for a company with filtering options.
+
+    Args:
+        user_id: If provided, verifies user has access to the company (recommended for security)
+    """
+    # SECURITY: Verify user has access to the company if user_id provided
+    if user_id and not verify_user_company_access(user_id, company_id):
+        log_security_event("READ_BLOCKED", user_id=user_id,
+                          resource_type="knowledge_entries", resource_id=company_id,
+                          severity="WARNING")
+        return []
+
+    client = get_supabase_service()
 
     query = (client
         .table("knowledge_entries")
@@ -245,7 +268,18 @@ def update_knowledge_entry(
     updates: Dict[str, Any],
     access_token: Optional[str] = None
 ) -> Optional[Dict[str, Any]]:
-    """Update a knowledge entry with the provided fields."""
+    """Update a knowledge entry with the provided fields.
+
+    Returns:
+        The updated entry dict, or None if access denied or entry not found
+    """
+    # SECURITY: Verify user has access to this entry's company
+    if not verify_user_entry_access(user_id, entry_id, "knowledge_entries"):
+        log_security_event("UPDATE_BLOCKED", user_id=user_id,
+                          resource_type="knowledge_entry", resource_id=entry_id,
+                          severity="WARNING")
+        return None
+
     client = get_supabase_service()
 
     # Filter out None values and empty updates
@@ -285,7 +319,18 @@ def deactivate_knowledge_entry(
     user_id: str,
     access_token: Optional[str] = None
 ) -> bool:
-    """Soft delete a knowledge entry."""
+    """Soft delete a knowledge entry.
+
+    Returns:
+        True if deleted successfully, False if access denied or entry not found
+    """
+    # SECURITY: Verify user has access to this entry's company
+    if not verify_user_entry_access(user_id, entry_id, "knowledge_entries"):
+        log_security_event("DELETE_BLOCKED", user_id=user_id,
+                          resource_type="knowledge_entry", resource_id=entry_id,
+                          severity="WARNING")
+        return False
+
     client = get_supabase_service()
 
     result = (client

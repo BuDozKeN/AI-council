@@ -63,8 +63,13 @@ def log_security_event(
 
     if details:
         # Don't log sensitive details
+        sensitive_keys = (
+            'password', 'token', 'secret', 'key',
+            'api_key', 'apikey', 'access_token', 'refresh_token',
+            'authorization', 'credential', 'credentials', 'private_key'
+        )
         safe_details = {k: v for k, v in details.items()
-                       if k not in ('password', 'token', 'secret', 'key')}
+                       if k.lower() not in sensitive_keys}
         log_data["details"] = safe_details
 
     message = f"{event_type} | user={masked_user} | resource={resource_type}:{masked_resource}"
@@ -85,21 +90,34 @@ def mask_id(id_value: str) -> str:
 
 
 def get_client_ip(request: Request) -> str:
-    """Extract client IP from request, handling proxies."""
-    # Check for forwarded headers (common with load balancers)
-    forwarded = request.headers.get("X-Forwarded-For")
-    if forwarded:
-        # Take the first IP (original client)
-        return forwarded.split(",")[0].strip()
+    """Extract client IP from request, handling proxies securely.
 
-    real_ip = request.headers.get("X-Real-IP")
-    if real_ip:
-        return real_ip
+    Only trusts X-Forwarded-For from known proxy IPs to prevent spoofing.
+    Configure TRUSTED_PROXIES env var with comma-separated IPs of your load balancers.
+    """
+    import os
 
-    # Fall back to direct connection
-    if request.client:
-        return request.client.host
-    return "unknown"
+    # Get direct connection IP first
+    direct_ip = request.client.host if request.client else "unknown"
+
+    # Load trusted proxy IPs from environment (e.g., your load balancer IPs)
+    # Default includes loopback for local development
+    trusted_proxies_str = os.environ.get("TRUSTED_PROXIES", "127.0.0.1,::1")
+    trusted_proxies = {ip.strip() for ip in trusted_proxies_str.split(",") if ip.strip()}
+
+    # Only trust forwarded headers if request comes from a known proxy
+    if direct_ip in trusted_proxies:
+        forwarded = request.headers.get("X-Forwarded-For")
+        if forwarded:
+            # Take the first IP (original client)
+            return forwarded.split(",")[0].strip()
+
+        real_ip = request.headers.get("X-Real-IP")
+        if real_ip:
+            return real_ip
+
+    # Fall back to direct connection IP
+    return direct_ip
 
 
 # =============================================================================
@@ -256,3 +274,206 @@ def validate_safe_string(value: str, max_length: int = 1000) -> bool:
     if '\x00' in value:  # Null byte injection
         return False
     return True
+
+
+# =============================================================================
+# GDPR/HIPAA COMPLIANT LOGGING
+# =============================================================================
+# Application logger that automatically masks PII
+
+app_logger = logging.getLogger("app")
+app_logger.setLevel(logging.INFO)
+
+if not app_logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter(
+        '[APP] %(asctime)s - %(levelname)s - %(name)s - %(message)s'
+    ))
+    app_logger.addHandler(handler)
+
+
+def mask_email(email: Optional[str]) -> str:
+    """Mask email for GDPR/HIPAA compliant logging. Shows domain only."""
+    if not email or '@' not in email:
+        return "***@***.***"
+    _, domain = email.rsplit('@', 1)
+    return f"***@{domain}"
+
+
+def mask_pii(value: Optional[str], show_chars: int = 4) -> str:
+    """Mask any PII value, showing only first few characters."""
+    if not value:
+        return "****"
+    if len(value) <= show_chars:
+        return "****"
+    return f"{value[:show_chars]}..."
+
+
+def log_billing_event(
+    event: str,
+    user_id: Optional[str] = None,
+    tier: Optional[str] = None,
+    status: Optional[str] = None,
+    details: Optional[Dict[str, Any]] = None
+):
+    """
+    Log billing events in a GDPR/HIPAA compliant way.
+    User IDs and emails are masked automatically.
+    """
+    masked_user = mask_id(user_id) if user_id else "unknown"
+
+    msg_parts = [f"[Billing] {event}"]
+    if masked_user != "unknown":
+        msg_parts.append(f"user={masked_user}")
+    if tier:
+        msg_parts.append(f"tier={tier}")
+    if status:
+        msg_parts.append(f"status={status}")
+
+    app_logger.info(" | ".join(msg_parts))
+
+
+def log_app_event(
+    component: str,
+    event: str,
+    user_id: Optional[str] = None,
+    resource_id: Optional[str] = None,
+    level: str = "INFO",
+    **kwargs
+):
+    """
+    Log application events in a GDPR/HIPAA compliant way.
+    All IDs are automatically masked.
+
+    Usage:
+        log_app_event("STREAM", "Message saved", user_id=user_id)
+        log_app_event("PROJECT", "Created", user_id=user_id, resource_id=project_id)
+    """
+    masked_user = mask_id(user_id) if user_id else None
+    masked_resource = mask_id(resource_id) if resource_id else None
+
+    msg_parts = [f"[{component}] {event}"]
+    if masked_user:
+        msg_parts.append(f"user={masked_user}")
+    if masked_resource:
+        msg_parts.append(f"resource={masked_resource}")
+
+    # Add any additional kwargs (non-PII only)
+    for key, value in kwargs.items():
+        if key.lower() not in ('email', 'password', 'token', 'secret', 'key', 'access_token'):
+            msg_parts.append(f"{key}={value}")
+
+    message = " | ".join(msg_parts)
+
+    if level == "WARNING":
+        app_logger.warning(message)
+    elif level == "ERROR":
+        app_logger.error(message)
+    elif level == "DEBUG":
+        app_logger.debug(message)
+    else:
+        app_logger.info(message)
+
+
+# =============================================================================
+# ACCESS VERIFICATION (Multi-tenant security)
+# =============================================================================
+
+def verify_user_company_access(user_id: str, company_id: str) -> bool:
+    """
+    Verify that a user has access to a specific company.
+
+    Access is granted if:
+    1. User owns the company (companies.user_id = user_id)
+    2. User has department access to the company (user_department_access table)
+
+    Args:
+        user_id: The authenticated user's ID
+        company_id: The company UUID to check access for
+
+    Returns:
+        True if user has access, False otherwise
+    """
+    from .database import get_supabase_service
+
+    client = get_supabase_service()
+    if not client:
+        log_security_event("ACCESS_CHECK_FAILED", user_id=user_id,
+                          details={"reason": "service_client_unavailable"}, severity="ERROR")
+        return False
+
+    try:
+        # Check if user owns the company
+        owner_result = client.table("companies") \
+            .select("id") \
+            .eq("id", company_id) \
+            .eq("user_id", user_id) \
+            .execute()
+
+        if owner_result.data:
+            return True
+
+        # Check if user has department access to this company
+        access_result = client.table("user_department_access") \
+            .select("id") \
+            .eq("company_id", company_id) \
+            .eq("user_id", user_id) \
+            .execute()
+
+        if access_result.data:
+            return True
+
+        # No access found
+        log_security_event("ACCESS_DENIED", user_id=user_id,
+                          resource_type="company", resource_id=company_id,
+                          severity="WARNING")
+        return False
+
+    except Exception as e:
+        log_security_event("ACCESS_CHECK_FAILED", user_id=user_id,
+                          details={"error": str(e)}, severity="ERROR")
+        return False
+
+
+def verify_user_entry_access(user_id: str, entry_id: str, table_name: str = "knowledge_entries") -> Optional[str]:
+    """
+    Verify that a user has access to a specific entry by checking its company ownership.
+
+    Args:
+        user_id: The authenticated user's ID
+        entry_id: The entry UUID to check
+        table_name: The table containing the entry (default: knowledge_entries)
+
+    Returns:
+        The company_id if user has access, None otherwise
+    """
+    from .database import get_supabase_service
+
+    client = get_supabase_service()
+    if not client:
+        return None
+
+    try:
+        # Get the entry's company_id
+        entry_result = client.table(table_name) \
+            .select("company_id") \
+            .eq("id", entry_id) \
+            .execute()
+
+        if not entry_result.data:
+            return None
+
+        company_id = entry_result.data[0].get("company_id")
+        if not company_id:
+            return None
+
+        # Verify user has access to this company
+        if verify_user_company_access(user_id, company_id):
+            return company_id
+
+        return None
+
+    except Exception as e:
+        log_security_event("ENTRY_ACCESS_CHECK_FAILED", user_id=user_id,
+                          resource_id=entry_id, details={"error": str(e)}, severity="ERROR")
+        return None

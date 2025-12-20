@@ -3,6 +3,7 @@
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from .database import get_supabase, get_supabase_with_auth, get_supabase_service
+from .security import log_app_event
 
 # Default company ID for AxCouncil (cached after first lookup)
 _default_company_id: Optional[str] = None
@@ -929,7 +930,7 @@ def get_user_profile(user_id: str, access_token: Optional[str] = None) -> Option
             return result.data[0]
         return None
     except Exception as e:
-        print(f"Error getting user profile: {e}", flush=True)
+        log_app_event("STORAGE", f"Error getting user profile: {type(e).__name__}", user_id=user_id, level="ERROR")
         return None
 
 
@@ -970,5 +971,5 @@ def update_user_profile(user_id: str, profile_data: Dict[str, Any], access_token
 
         return result.data[0] if result.data else None
     except Exception as e:
-        print(f"Error updating user profile: {e}", flush=True)
+        log_app_event("STORAGE", f"Error updating user profile: {type(e).__name__}", user_id=user_id, level="ERROR")
         return None

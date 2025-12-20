@@ -22,7 +22,7 @@ import time
 
 from ..auth import get_current_user
 from ..database import get_supabase_with_auth, get_supabase_service
-from ..security import SecureHTTPException, log_security_event
+from ..security import SecureHTTPException, log_security_event, log_app_event
 
 
 router = APIRouter(prefix="/api/company", tags=["company"])
@@ -842,6 +842,125 @@ async def update_company_context(company_id: ValidCompanyId, data: CompanyContex
         raise HTTPException(status_code=404, detail="Resource not found")
 
     return {"company": result.data[0]}
+
+
+class CompanyContextMergeRequest(BaseModel):
+    """Request to merge new info into company context."""
+    existing_context: str
+    question: str  # The knowledge gap question
+    answer: str    # User's answer to the question
+
+
+@router.post("/{company_id}/context/merge")
+async def merge_company_context(
+    company_id: ValidCompanyId,
+    request: CompanyContextMergeRequest,
+    user=Depends(get_current_user)
+):
+    """
+    Intelligently merge new context information into existing company context.
+
+    Uses AI to take the user's answer to a knowledge gap question and
+    incorporate it into the existing company context in the appropriate section.
+    """
+    from ..openrouter import query_model, MOCK_LLM
+    from ..personas import WRITE_ASSIST_PERSONAS
+
+    client = get_service_client()
+
+    # Resolve company UUID from slug
+    try:
+        company_uuid = resolve_company_id(client, company_id)
+    except HTTPException:
+        raise HTTPException(status_code=404, detail="Resource not found")
+
+    # SECURITY: Verify user has access to this company
+    verify_company_access(client, company_uuid, user)
+
+    existing = request.existing_context or ""
+    question = request.question
+    answer = request.answer
+
+    # Handle mock mode
+    if MOCK_LLM:
+        print("[MOCK] Returning mock merged company context", flush=True)
+        merged = existing + f"\n\n## Additional Information\n\n**{question}**\n{answer}"
+        # Save the merged context
+        client.table("companies").update({
+            "context_md": merged
+        }).eq("id", company_uuid).execute()
+        return {"merged_context": merged}
+
+    # Get the company-context persona prompt
+    persona = WRITE_ASSIST_PERSONAS.get("company-context", {})
+    system_prompt = persona.get("prompt", "You are a helpful business writer.")
+
+    # Build merge prompt
+    merge_prompt = f"""{system_prompt}
+
+You are merging new information into an existing company context document.
+
+## EXISTING COMPANY CONTEXT:
+{existing if existing else "(No existing context yet)"}
+
+## NEW INFORMATION TO ADD:
+
+The user was asked: "{question}"
+Their answer: "{answer}"
+
+## YOUR TASK:
+
+1. Integrate this new information into the existing context
+2. Place it in the most appropriate section (or create one if needed)
+3. Maintain the existing structure and formatting
+4. Don't duplicate information - merge intelligently
+5. Keep the document well-organized and professional
+
+## EXPECTED STRUCTURE (use these sections as appropriate):
+- Company Overview (what you do, stage, size)
+- Mission & Vision
+- Current Goals & Priorities
+- Constraints (budget, resources, timeline)
+- Key Policies & Standards
+
+Return ONLY the complete updated company context document in markdown format.
+Do not include any explanation or commentary - just the document."""
+
+    # Use a fast model for merging
+    models = ["anthropic/claude-3-5-haiku-20241022", "openai/gpt-4o-mini"]
+
+    merged = None
+    last_error = None
+
+    for model in models:
+        try:
+            result = await query_model(
+                model=model,
+                messages=[{"role": "user", "content": merge_prompt}],
+                max_tokens=4000,
+                timeout=30.0
+            )
+
+            if result and result.get("content"):
+                merged = result["content"].strip()
+                print(f"[MERGE_CONTEXT] Successfully merged with {model}", flush=True)
+                break
+        except Exception as e:
+            last_error = str(e)
+            print(f"[MERGE_CONTEXT] {model} failed: {e}", flush=True)
+            continue
+
+    if merged is None:
+        # Fallback: simple append
+        print(f"[MERGE_CONTEXT] All models failed, using fallback. Last error: {last_error}", flush=True)
+        merged = existing + f"\n\n## Additional Information\n\n**{question}**\n{answer}"
+
+    # Save the merged context
+    client.table("companies").update({
+        "context_md": merged
+    }).eq("id", company_uuid).execute()
+
+    return {"merged_context": merged}
 
 
 # ============================================
@@ -1740,6 +1859,9 @@ async def promote_decision(company_id: ValidCompanyId, decision_id: ValidDecisio
     user_client = get_client(user)
     company_uuid = resolve_company_id(user_client, company_id)
 
+    # SECURITY: Verify user has access to this company
+    verify_company_access(service_client, company_uuid, user)
+
     # Get the knowledge entry (decision) - using service client to bypass RLS
     decision = service_client.table("knowledge_entries") \
         .select("*") \
@@ -1912,6 +2034,9 @@ async def archive_decision(company_id: ValidCompanyId, decision_id: ValidDecisio
     user_client = get_client(user)
     company_uuid = resolve_company_id(user_client, company_id)
 
+    # SECURITY: Verify user has access to this company
+    verify_company_access(service_client, company_uuid, user)
+
     # Verify decision exists and belongs to company, get project_id for sync
     check = service_client.table("knowledge_entries") \
         .select("id, project_id, department_ids") \
@@ -1982,6 +2107,9 @@ async def link_decision_to_project(company_id: str, decision_id: str, data: Link
     service_client = get_supabase_service()
     user_client = get_client(user)
     company_uuid = resolve_company_id(user_client, company_id)
+
+    # SECURITY: Verify user has access to this company
+    verify_company_access(service_client, company_uuid, user)
 
     # Verify decision exists
     decision = service_client.table("knowledge_entries") \
@@ -2059,6 +2187,9 @@ async def create_project_from_decision(company_id: str, decision_id: str, data: 
     user_client = get_client(user)
     company_uuid = resolve_company_id(user_client, company_id)
 
+    # SECURITY: Verify user has access to this company
+    verify_company_access(service_client, company_uuid, user)
+
     # Verify decision exists
     decision = service_client.table("knowledge_entries") \
         .select("*") \
@@ -2079,12 +2210,11 @@ async def create_project_from_decision(company_id: str, decision_id: str, data: 
             dept_ids = [decision.data.get("department_id")]
 
     # Get user_id properly (user can be dict or object)
-    print(f"[CREATE_PROJECT] user type: {type(user)}, user: {user}", flush=True)
     if isinstance(user, dict):
         user_id = user.get('id') or user.get('sub')
     else:
         user_id = getattr(user, 'id', None) or getattr(user, 'sub', None)
-    print(f"[CREATE_PROJECT] resolved user_id: {user_id}", flush=True)
+    log_app_event("CREATE_PROJECT", "Starting project creation", user_id=user_id)
 
     if not user_id:
         raise HTTPException(status_code=401, detail="Could not determine user ID from authentication")
@@ -2099,10 +2229,6 @@ async def create_project_from_decision(company_id: str, decision_id: str, data: 
         ""
     )
     user_question = decision.data.get("user_question") or decision.data.get("title") or ""
-
-    print(f"[CREATE_PROJECT] Decision data keys: {list(decision.data.keys())}", flush=True)
-    print(f"[CREATE_PROJECT] decision_content length: {len(decision_content)}", flush=True)
-    print(f"[CREATE_PROJECT] user_question: {user_question[:100] if user_question else 'None'}", flush=True)
     project_name = data.name
 
     context_md = ""
@@ -2115,7 +2241,6 @@ async def create_project_from_decision(company_id: str, decision_id: str, data: 
         import json as json_module
 
         if not MOCK_LLM and decision_content:
-            print(f"[CREATE_PROJECT] Generating context with Sarah for: {project_name}", flush=True)
 
             # Get Sarah persona from database
             persona = await get_db_persona_with_fallback('sarah')
@@ -2447,6 +2572,9 @@ async def delete_decision(company_id: ValidCompanyId, decision_id: ValidDecision
     user_client = get_client(user)
     company_uuid = resolve_company_id(user_client, company_id)
 
+    # SECURITY: Verify user has access to this company
+    verify_company_access(service_client, company_uuid, user)
+
     # Verify decision exists and belongs to company
     check = service_client.table("knowledge_entries") \
         .select("id, title") \
@@ -2499,6 +2627,9 @@ async def generate_decision_summary(
     # Still need user client to resolve company
     user_client = get_client(user)
     company_uuid = resolve_company_id(user_client, company_id)
+
+    # SECURITY: Verify user has access to this company
+    verify_company_access(service_client, company_uuid, user)
 
     # Check if we already have a good cached summary
     result = service_client.table("knowledge_entries") \
