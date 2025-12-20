@@ -1,6 +1,6 @@
 .stage3 {
-  background: var(--color-success-light);
-  border-color: var(--color-success-border);
+  background: linear-gradient(135deg, var(--stage3-bg-gradient-start) 0%, var(--stage3-bg-gradient-end) 100%);
+  border-color: var(--stage3-border);
 }
 
 /* Collapsible styles */
@@ -42,18 +42,23 @@
 
 .final-response {
   background: var(--color-bg-primary);
-  padding: 20px;
-  border-radius: var(--radius-md);
+  padding: 24px 28px;
+  border-radius: 12px;
   border: 1px solid var(--color-success-border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04), 0 2px 6px rgba(0, 0, 0, 0.02);
+  position: relative;
 }
 
-/* Sticky copy button - floats at top-right of final-response */
-.sticky-copy-btn {
-  position: sticky;
-  top: 8px;
-  float: right;
-  z-index: var(--z-sticky);
-  margin-left: 8px;
+/* Premium paper effect for chairman synthesis */
+.final-response::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #10b981 0%, #059669 50%, #047857 100%);
+  border-radius: 12px 12px 0 0;
 }
 
 .chairman-label {
@@ -64,11 +69,15 @@
   font-weight: 600;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .chairman-info {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 /* Copy button */
@@ -809,5 +818,350 @@
   background: var(--color-bg-primary);
   border-color: var(--color-purple-600);
   color: var(--color-purple-600);
+}
+
+/* ===== DARK MODE ===== */
+/* Stage3 uses CSS variables from tailwind.css which are redefined in .dark context */
+
+.dark .stage3 .stage-title.clickable:hover {
+  color: var(--stage3-text-primary);
+}
+
+.dark .stage3 .collapse-arrow {
+  color: var(--color-text-muted);
+}
+
+.dark .stage3 .collapsed-summary {
+  color: var(--color-text-secondary);
+}
+
+.dark .stage3 .kb-saved-badge {
+  background: var(--color-success-light);
+  color: var(--stage3-text-primary);
+}
+
+.dark .final-response {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-lg);
+}
+
+.dark .final-response::before {
+  background: linear-gradient(90deg, var(--color-success) 0%, var(--color-success-dark) 50%, var(--color-emerald-700) 100%);
+}
+
+.dark .chairman-label {
+  color: var(--stage3-text-primary);
+}
+
+.dark .final-text {
+  color: var(--color-text-primary);
+}
+
+.dark .copy-btn {
+  border-color: var(--color-border);
+  color: var(--stage3-text-primary);
+}
+
+.dark .copy-btn:hover {
+  background: var(--color-success-light);
+}
+
+.dark .stage3 .code-block-wrapper {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border);
+}
+
+.dark .stage3 .code-block-wrapper .code-language {
+  color: var(--color-text-tertiary);
+}
+
+.dark .stage3 .code-block-wrapper .copy-code-btn {
+  border-color: var(--color-border);
+  color: var(--stage3-text-primary);
+}
+
+.dark .stage3 .code-block-wrapper .copy-code-btn:hover {
+  background: var(--color-success-light);
+}
+
+.dark .stage3 .code-block-wrapper pre {
+  background: var(--color-bg-primary);
+}
+
+.dark .stage3 .code-block-wrapper code {
+  color: var(--color-emerald-400);
+}
+
+.dark .stage3 .inline-code {
+  background: var(--overlay-shimmer);
+}
+
+.dark .stage3 .complete-badge {
+  background: var(--color-success-light);
+  color: var(--stage3-text-primary);
+}
+
+.dark .stage3 .error-badge {
+  background: var(--color-warning-light);
+  color: var(--color-warning);
+}
+
+.dark .stage3 .thinking-badge {
+  background: var(--color-warning-light);
+  color: var(--color-warning);
+}
+
+.dark .stage3 .thinking-message {
+  background: linear-gradient(135deg, var(--color-bg-tertiary) 0%, var(--color-success-light) 100%);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .stage3-actions {
+  border-top-color: var(--color-border);
+}
+
+.dark .save-options-group {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .save-dept-trigger {
+  color: var(--color-text-secondary);
+}
+
+.dark .save-dept-trigger:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.dark .save-divider {
+  background: var(--color-border);
+}
+
+.dark .save-type-pill {
+  color: var(--color-text-secondary);
+}
+
+.dark .save-project-pill {
+  color: var(--color-text-secondary);
+}
+
+.dark .save-project-pill:hover:not(:disabled) {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.dark .save-project-pill.has-project {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.3);
+  color: var(--color-violet-400);
+}
+
+.dark .save-status-group {
+  background: linear-gradient(135deg, var(--color-success-light) 0%, var(--color-success-light) 100%);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.dark .save-status-text {
+  color: var(--stage3-text-primary);
+}
+
+.dark .save-status-text svg {
+  color: var(--stage3-text-primary);
+}
+
+.dark .save-view-link {
+  color: var(--color-brand-primary);
+}
+
+.dark .save-view-link:hover {
+  color: var(--blue-300);
+}
+
+/* Dark mode save dropdown (portal) */
+.dark .save-project-dropdown-portal {
+  background: var(--color-bg-secondary) !important;
+  border-color: var(--color-border) !important;
+  box-shadow: var(--shadow-modal) !important;
+}
+
+.dark .save-project-dropdown-header {
+  background: var(--color-bg-primary);
+  border-bottom-color: var(--color-border);
+  color: var(--color-text-tertiary);
+}
+
+.dark .save-project-option {
+  border-bottom-color: var(--color-border);
+}
+
+.dark .save-project-option:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .save-project-option.selected {
+  background: rgba(139, 92, 246, 0.2);
+}
+
+.dark .save-project-option-name {
+  color: var(--color-text-primary);
+}
+
+.dark .save-project-option.selected .save-project-option-name {
+  color: var(--color-violet-400);
+}
+
+.dark .save-project-option-desc {
+  color: var(--color-text-tertiary);
+}
+
+.dark .save-project-create {
+  border-top-color: var(--color-border);
+  background: var(--color-bg-primary);
+}
+
+.dark .save-project-create-btn {
+  border-color: var(--color-text-muted);
+  color: var(--color-text-tertiary);
+}
+
+.dark .save-project-create-btn:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-violet-400);
+  color: var(--color-violet-400);
+}
+
+/* =============================================================================
+   MOBILE RESPONSIVE STYLES
+   ============================================================================= */
+
+@media (max-width: 640px) {
+  /* Stage3 container padding */
+  .stage3 {
+    padding: 12px;
+  }
+
+  .final-response {
+    padding: 16px;
+  }
+
+  /* Table overflow fix - scrollable wrapper approach */
+  .final-text,
+  .prose {
+    /* Allow content to overflow and scroll */
+    max-width: 100%;
+  }
+
+  /* Make table wrapper scrollable horizontally */
+  .final-text table,
+  .prose table {
+    display: table;
+    width: max-content;
+    min-width: 100%;
+    border-collapse: collapse;
+  }
+
+  /* Wrap tables in a scrollable container via CSS */
+  .final-response {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .final-text th,
+  .final-text td,
+  .prose th,
+  .prose td {
+    padding: 8px 10px !important;
+    font-size: 13px !important;
+    white-space: nowrap;
+  }
+
+  /* First column can wrap text */
+  .final-text td:first-child,
+  .prose td:first-child {
+    white-space: normal;
+    min-width: 100px;
+    max-width: 150px;
+  }
+
+  /* Save toolbar - stack vertically on mobile */
+  .save-toolbar-unified {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  /* Options group - allow wrapping on mobile */
+  .save-options-group {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 4px;
+    padding: 6px;
+  }
+
+  /* Hide dividers on mobile for cleaner look */
+  .save-divider {
+    display: none;
+  }
+
+  /* Type pills - smaller on mobile */
+  .save-type-pills {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .save-type-pill {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+
+  /* Save action button - full width on mobile */
+  .save-action-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Save status group */
+  .save-status-group {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* Department trigger compact on mobile */
+  .save-dept-trigger {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+
+  /* Project pill compact */
+  .save-project-pill {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+}
+
+/* Even smaller screens */
+@media (max-width: 400px) {
+  .final-response {
+    padding: 12px;
+  }
+
+  .save-options-group {
+    padding: 4px;
+  }
+
+  .save-type-pill {
+    padding: 4px 6px;
+    font-size: 10px;
+  }
+
+  .save-type-pill svg {
+    width: 12px;
+    height: 12px;
+  }
 }
 

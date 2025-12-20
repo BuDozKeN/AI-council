@@ -6,28 +6,37 @@
 
 import { useState, useEffect } from 'react';
 import { api } from '../../api';
+import { useAuth } from '../../AuthContext';
 
 // Dev mode flag - set to true to show developer controls
 export const DEV_MODE = typeof window !== 'undefined' && localStorage.getItem('devMode') === 'true';
 
 /**
  * Hook to fetch and manage mock mode state
+ * Only fetches when user is authenticated to avoid 401 errors
  */
 export function useMockMode() {
+  const { isAuthenticated } = useAuth();
   const [mockMode, setMockMode] = useState(null);
   const [isToggling, setIsToggling] = useState(false);
 
   useEffect(() => {
+    // Only fetch if authenticated
+    if (!isAuthenticated) {
+      setMockMode(null);
+      return;
+    }
+
     api.getMockMode()
       .then(result => setMockMode(result.enabled))
       .catch(err => {
         console.error('Failed to get mock mode:', err);
         setMockMode(false);
       });
-  }, []);
+  }, [isAuthenticated]);
 
   const toggle = async () => {
-    if (isToggling || mockMode === null) return;
+    if (isToggling || mockMode === null || !isAuthenticated) return;
     setIsToggling(true);
     try {
       const result = await api.setMockMode(!mockMode);
@@ -44,22 +53,30 @@ export function useMockMode() {
 
 /**
  * Hook to fetch and manage prompt caching state
+ * Only fetches when user is authenticated to avoid 401 errors
  */
 export function useCachingMode() {
+  const { isAuthenticated } = useAuth();
   const [cachingMode, setCachingMode] = useState(null);
   const [isToggling, setIsToggling] = useState(false);
 
   useEffect(() => {
+    // Only fetch if authenticated
+    if (!isAuthenticated) {
+      setCachingMode(null);
+      return;
+    }
+
     api.getCachingMode()
       .then(result => setCachingMode(result.enabled))
       .catch(err => {
         console.error('Failed to get caching mode:', err);
         setCachingMode(false);
       });
-  }, []);
+  }, [isAuthenticated]);
 
   const toggle = async () => {
-    if (isToggling || cachingMode === null) return;
+    if (isToggling || cachingMode === null || !isAuthenticated) return;
     setIsToggling(true);
     try {
       const result = await api.setCachingMode(!cachingMode);

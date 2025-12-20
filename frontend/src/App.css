@@ -112,16 +112,24 @@
   flex-direction: column;
   min-width: 0;
   overflow: hidden;
+  /* GPU acceleration for smooth transitions */
+  will-change: transform, opacity;
+  transform-origin: center top;
 }
 
 .main-content-landing {
   /* Landing takes full width when shown */
   position: relative;
+  /* Smooth backdrop for transition */
+  background: var(--color-bg-secondary);
 }
 
 .main-content-chat {
   /* Chat interface layout */
   height: 100%;
+  /* Subtle backdrop blur during entrance */
+  backdrop-filter: blur(0px);
+  transition: backdrop-filter 0.3s ease;
 }
 
 /* Hide sidebar when showing landing on mobile */

@@ -837,6 +837,20 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
             # Increment query usage after successful council run
             billing.increment_query_usage(user_id, access_token=access_token)
 
+            # Log usage event for analytics (privacy: no user_id tracked)
+            if company_uuid:
+                try:
+                    await company_router.log_usage_event(
+                        company_id=company_uuid,
+                        event_type="council_session",
+                        tokens_input=0,  # TODO: Track actual tokens when OpenRouter returns them
+                        tokens_output=0,
+                        model_used="council",  # Multi-model council session
+                        session_id=conversation_id
+                    )
+                except Exception as e:
+                    print(f"[USAGE] Failed to log usage event: {e}", flush=True)
+
             # Record rankings to leaderboard
             if aggregate_rankings:
                 leaderboard.record_session_rankings(
@@ -3067,6 +3081,7 @@ Remember: The context_md should be a complete, standalone document. Respond only
 
     # After successfully generating the merged content, optionally save the decision
     saved_decision_id = None
+    decision_save_error = None  # Track any save errors to return to frontend
     if request.save_decision and request.company_id:
         try:
             access_token = user.get("access_token")
@@ -3074,7 +3089,10 @@ Remember: The context_md should be a complete, standalone document. Respond only
             log_app_event("MERGE", "Starting merge", user_id=user_id, has_token=bool(access_token))
             if not user_id:
                 log_app_event("MERGE", "WARNING: user_id is None", level="WARNING")
-            if access_token:
+            if not access_token:
+                log_app_event("MERGE", "ERROR: No access token - cannot save decision", level="ERROR")
+                decision_save_error = "Authentication required to save decision"
+            else:
                 from .database import get_supabase_with_auth
                 client = get_supabase_with_auth(access_token)
 
@@ -3146,8 +3164,10 @@ Remember: The context_md should be a complete, standalone document. Respond only
                             # Don't fail the merge just because summary generation failed
                     else:
                         log_app_event("MERGE", "Insert returned no data", level="WARNING")
+                        decision_save_error = "Database insert returned no data"
                 except Exception as insert_err:
-                    log_app_event("MERGE", f"Error inserting decision: {type(insert_err).__name__}", level="ERROR")
+                    log_app_event("MERGE", f"Error inserting decision: {type(insert_err).__name__}: {str(insert_err)}", level="ERROR")
+                    decision_save_error = f"Database error: {str(insert_err)}"
                     # Don't re-raise - let the merge succeed even if saving fails
 
                 # Sync ALL decision departments to project's department_ids
@@ -3168,12 +3188,16 @@ Remember: The context_md should be a complete, standalone document. Respond only
                         print(f"[MERGE] Failed to sync departments to project (non-fatal): {dept_err}", flush=True)
 
         except Exception as save_err:
-            print(f"[MERGE] Failed to save decision (non-fatal): {save_err}", flush=True)
+            log_app_event("MERGE", f"Failed to save decision (non-fatal): {type(save_err).__name__}: {str(save_err)}", level="ERROR")
+            decision_save_error = f"Save failed: {str(save_err)}"
             # Don't fail the merge just because saving failed
 
     response = {"merged": merged}
     if saved_decision_id:
         response["saved_decision_id"] = saved_decision_id
+    if decision_save_error:
+        response["decision_save_error"] = decision_save_error
+        log_app_event("MERGE", f"Returning with save error: {decision_save_error}", level="WARNING")
 
     return response
 

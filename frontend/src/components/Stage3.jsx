@@ -5,7 +5,8 @@ import remarkGfm from 'remark-gfm';
 import { api } from '../api';
 import { MultiDepartmentSelect } from './ui/MultiDepartmentSelect';
 import { Spinner } from './ui/Spinner';
-import { Bookmark, FileText, Layers, ScrollText, FolderKanban, ChevronDown, Plus } from 'lucide-react';
+import { CopyButton } from './ui/CopyButton';
+import { Bookmark, FileText, Layers, ScrollText, FolderKanban, ChevronDown, Plus, Sparkles } from 'lucide-react';
 import './Stage3.css';
 
 // Minimum interval between decision status checks (ms)
@@ -18,41 +19,9 @@ const DOC_TYPES = [
   { value: 'policy', label: 'Policy', icon: FileText }
 ];
 
-// Copy button component
-function CopyButton({ text, label = 'Copy' }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = async (e) => {
-    e.stopPropagation();
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  };
-
-  return (
-    <button className={`copy-btn ${copied ? 'copied' : ''}`} onClick={handleCopy} title={label}>
-      {copied ? (
-        <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="20 6 9 17 4 12" />
-        </svg>
-      ) : (
-        <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-        </svg>
-      )}
-    </button>
-  );
-}
-
 // Custom code block renderer with copy button
 // Only shows header with copy button for actual code blocks (multi-line or has language)
 function CodeBlock({ children, className }) {
-  const [copied, setCopied] = useState(false);
   const code = String(children).replace(/\n$/, '');
   const language = className?.replace('language-', '') || '';
 
@@ -62,16 +31,6 @@ function CodeBlock({ children, className }) {
   // - Is longer than 60 characters
   const isActualCodeBlock = language || code.includes('\n') || code.length > 60;
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  };
-
   // For short single-line code without language, render as inline code (not a block)
   if (!isActualCodeBlock) {
     return <code className="inline-code">{children}</code>;
@@ -80,18 +39,7 @@ function CodeBlock({ children, className }) {
   return (
     <div className="code-block-wrapper">
       {language && <span className="code-language">{language}</span>}
-      <button className={`copy-code-btn ${copied ? 'copied' : ''}`} onClick={handleCopy} title="Copy code">
-        {copied ? (
-          <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-        ) : (
-          <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-          </svg>
-        )}
-      </button>
+      <CopyButton text={code} size="sm" position="absolute" />
       <pre className={className}>
         <code>{children}</code>
       </pre>
@@ -135,6 +83,7 @@ export default function Stage3({
   const containerRef = useRef(null);
   const lastDecisionCheck = useRef(0); // Throttle all decision status checks
   const isCheckingDecision = useRef(false); // Prevent concurrent checks
+  const lastSyncedProjectId = useRef(null); // Prevent duplicate project syncs
 
   // Unified decision status check - throttled and deduped
   const checkDecisionStatus = useCallback(async (force = false) => {
@@ -212,6 +161,7 @@ export default function Stage3({
       setSelectedDocType('');
       lastDecisionCheck.current = 0;
       isCheckingDecision.current = false;
+      lastSyncedProjectId.current = null; // Reset project sync guard
     }
   }, [conversationId, responseIndex]); // Only reset when conversation or response index changes (not other props)
 
@@ -232,9 +182,16 @@ export default function Stage3({
   // Fetch full project data when project is selected (needed for context_md)
   // Also sync the department selector to match the project's department
   useEffect(() => {
-    if (selectedProjectId && selectedProjectId !== fullProjectData?.id) {
+    // Guard against duplicate syncs - only fetch if we haven't already synced this project
+    if (selectedProjectId && lastSyncedProjectId.current !== selectedProjectId) {
+      // Mark as syncing BEFORE the async call to prevent race conditions
+      lastSyncedProjectId.current = selectedProjectId;
+
       api.getProject(selectedProjectId)
         .then(data => {
+          // Double-check we're still on the same project (user might have changed selection)
+          if (lastSyncedProjectId.current !== selectedProjectId) return;
+
           const project = data.project || data;
           setFullProjectData(project);
           // Sync department selector to project's departments (multi-department support)
@@ -250,6 +207,7 @@ export default function Stage3({
         .catch(err => console.error('Failed to load project:', err));
     } else if (!selectedProjectId) {
       setFullProjectData(null);
+      lastSyncedProjectId.current = null;
     }
   }, [selectedProjectId]);
 
@@ -442,11 +400,22 @@ export default function Stage3({
         // Get the saved decision ID from the response
         // Backend returns 'saved_decision_id' not 'decision_id'
         const decisionId = mergeResult?.saved_decision_id;
+        const saveError = mergeResult?.decision_save_error;
         console.log('[Stage3] saved_decision_id from response:', decisionId);
+        if (saveError) {
+          console.error('[Stage3] Backend reported save error:', saveError);
+        }
         if (decisionId) {
           setSavedDecisionId(decisionId);
+          setSaveState('saved');
+        } else {
+          // Decision failed to save (backend returned an error or no ID)
+          // This can happen if auth token is missing or DB insert fails
+          console.error('[Stage3] Merge succeeded but decision was NOT saved - no decision ID returned');
+          console.error('[Stage3] mergeResult:', mergeResult);
+          const errorMsg = saveError || 'Decision was not saved. Please try again.';
+          throw new Error(errorMsg);
         }
-        setSaveState('saved');
       } else {
         console.log('[Stage3] No project selected, saving as standalone decision');
         // No project - just save as decision
@@ -543,7 +512,8 @@ export default function Stage3({
     return (
       <div className="stage stage3">
         <h3 className="stage-title">
-          Council Decision
+          <Sparkles className="h-5 w-5 text-amber-500 flex-shrink-0" />
+          <span className="font-semibold tracking-tight">Council Synthesis</span>
           {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
         </h3>
         <div className="final-response">
@@ -570,7 +540,8 @@ export default function Stage3({
     <div ref={containerRef} className={`stage stage3 ${isCollapsed ? 'collapsed' : ''}`}>
       <h3 className="stage-title clickable" onClick={toggleCollapsed}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
-        Council Decision
+        <Sparkles className="h-5 w-5 text-amber-500 flex-shrink-0" />
+        <span className="font-semibold tracking-tight">Council Synthesis</span>
         {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
         {isCollapsed && savedDecisionId && (
           <span className="collapsed-summary">
@@ -581,12 +552,6 @@ export default function Stage3({
 
       {!isCollapsed && (
         <div className="final-response">
-          {/* Sticky copy button - always visible */}
-          {isComplete && (
-            <div className="sticky-copy-btn">
-              <CopyButton text={displayText} label="Copy full response" />
-            </div>
-          )}
           <div className="chairman-label">
             <span className="chairman-info">
               Chairman: {shortModelName}
@@ -594,33 +559,39 @@ export default function Stage3({
               {isComplete && <span className="complete-badge">Complete</span>}
               {hasError && <span className="error-badge">Error</span>}
             </span>
+            {/* Copy button - inline with label */}
+            {isComplete && displayText && (
+              <CopyButton text={displayText} size="sm" />
+            )}
           </div>
-        <div className={`final-text markdown-content ${hasError ? 'error-text' : ''}`}>
+        <div className={`final-text ${hasError ? 'error-text' : ''}`}>
           {hasError ? (
             <p className="empty-message">{displayText || 'An error occurred while generating the synthesis.'}</p>
           ) : (
             <>
-              <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
-                components={{
-                  // Override pre to render our CodeBlock wrapper
-                  pre({ children, node }) {
-                    // Extract the code element's props
-                    const codeElement = node?.children?.[0];
-                    const className = codeElement?.properties?.className?.[0] || '';
-                    const codeContent = codeElement?.children?.[0]?.value || '';
-                    return <CodeBlock className={className}>{codeContent}</CodeBlock>;
-                  },
-                  // For inline code only (not wrapped in pre)
-                  code({ node, className, children, ...props }) {
-                    // If this code is inside a pre, let pre handle it
-                    // Otherwise render as inline code
-                    return <code className={className} {...props}>{children}</code>;
-                  }
-                }}
-              >
-                {displayText}
-              </ReactMarkdown>
+              <article className="prose prose-slate prose-lg max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:tracking-tight prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-p:leading-relaxed prose-li:my-1 prose-code:before:content-none prose-code:after:content-none prose-code:bg-slate-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-emerald-700 prose-pre:bg-slate-50 prose-pre:border prose-pre:border-slate-200">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    // Override pre to render our CodeBlock wrapper
+                    pre({ children, node }) {
+                      // Extract the code element's props
+                      const codeElement = node?.children?.[0];
+                      const className = codeElement?.properties?.className?.[0] || '';
+                      const codeContent = codeElement?.children?.[0]?.value || '';
+                      return <CodeBlock className={className}>{codeContent}</CodeBlock>;
+                    },
+                    // For inline code only (not wrapped in pre)
+                    code({ node, className, children, ...props }) {
+                      // If this code is inside a pre, let pre handle it
+                      // Otherwise render as inline code
+                      return <code className={className} {...props}>{children}</code>;
+                    }
+                  }}
+                >
+                  {displayText}
+                </ReactMarkdown>
+              </article>
               {isStreaming && <span className="cursor">▊</span>}
             </>
           )}

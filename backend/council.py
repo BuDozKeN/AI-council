@@ -406,6 +406,11 @@ Your task as Chairman is to synthesize all of this information into a single, co
 - The peer rankings and what they reveal about response quality
 - Any patterns of agreement or disagreement
 
+KNOWLEDGE GAP REPORTING:
+If any council members noted missing context, or you identify gaps that affected the quality of advice, output:
+[GAP: brief description of missing information]
+This helps the user add business context to improve future queries.
+
 Provide a clear, well-reasoned final answer that represents the council's collective wisdom:"""
 
     # Build messages with optional contexts
@@ -616,6 +621,11 @@ Your task as Chairman is to synthesize all of this information into a single, co
 - The individual responses and their insights
 - The peer rankings and what they reveal about response quality
 - Any patterns of agreement or disagreement
+
+KNOWLEDGE GAP REPORTING:
+If any council members noted missing context, or you identify gaps that affected the quality of advice, output:
+[GAP: brief description of missing information]
+This helps the user add business context to improve future queries.
 
 Provide a clear, well-reasoned final answer that represents the council's collective wisdom:"""
 

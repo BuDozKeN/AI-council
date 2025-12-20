@@ -1,0 +1,347 @@
+/**
+ * OmniBar - Unified input styles
+ *
+ * Premium input component used across landing and in-app contexts.
+ */
+
+.omni-bar-wrapper {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* Mode toggle for landing variant */
+.omni-mode-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 12px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  border-radius: 12px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.omni-mode-btn {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary, #64748b);
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.omni-mode-btn:hover {
+  color: var(--color-text-primary, #1e293b);
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.omni-mode-btn.active {
+  background: white;
+  color: var(--color-brand-primary, #f59e0b);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Main omni-bar container - glass morphism effect */
+.omni-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 1px 4px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: all 0.25s ease;
+}
+
+.omni-bar:focus-within {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: var(--color-brand-primary, #f59e0b);
+  box-shadow:
+    0 4px 24px rgba(245, 158, 11, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.omni-bar-wrapper.has-content .omni-bar {
+  border-color: var(--color-brand-primary, #f59e0b);
+}
+
+.omni-bar-wrapper.is-loading .omni-bar {
+  opacity: 0.8;
+}
+
+/* Landing variant - larger, more prominent glass effect */
+.omni-bar-landing .omni-bar {
+  padding: 16px 20px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.08),
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.omni-bar-landing .omni-bar:focus-within {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow:
+    0 8px 40px rgba(245, 158, 11, 0.12),
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.omni-bar-landing .omni-bar-input {
+  font-size: 16px;
+}
+
+/* Compact variant - smaller for follow-up messages */
+.omni-bar-compact .omni-bar {
+  padding: 10px 14px;
+  border-radius: 12px;
+}
+
+.omni-bar-compact .omni-bar-input {
+  font-size: 14px;
+}
+
+/* Attach button */
+.omni-attach-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary, #64748b);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.omni-attach-btn:hover:not(:disabled) {
+  background: var(--color-slate-100, #f1f5f9);
+  color: var(--color-text-primary, #1e293b);
+}
+
+.omni-attach-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Input textarea */
+.omni-bar-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--color-text-primary, #1e293b);
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+  min-height: 24px;
+}
+
+.omni-bar-input::placeholder {
+  color: var(--color-text-muted, #94a3b8);
+}
+
+.omni-bar-input:disabled {
+  opacity: 0.7;
+}
+
+/* Keyboard shortcut hint */
+.omni-bar-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  background: var(--color-slate-100, #f1f5f9);
+  border: 1px solid var(--color-slate-200, #e2e8f0);
+  border-radius: 6px;
+  font-size: 11px;
+  font-family: monospace;
+  color: var(--color-text-secondary, #64748b);
+  flex-shrink: 0;
+}
+
+/* Submit/Stop button */
+.omni-bar-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+.omni-bar-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+.omni-bar-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.omni-bar-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Stop button variant */
+.omni-bar-stop {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.omni-bar-stop:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+/* Compact variant submit button */
+.omni-bar-compact .omni-bar-submit {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+
+/* Landing variant submit button */
+.omni-bar-landing .omni-bar-submit {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .omni-bar-wrapper {
+    max-width: 100%;
+  }
+
+  .omni-bar {
+    padding: 10px 12px;
+    border-radius: 14px;
+  }
+
+  .omni-bar-landing .omni-bar {
+    padding: 12px 14px;
+    border-radius: 16px;
+  }
+
+  .omni-bar-input {
+    font-size: 16px; /* Prevent iOS zoom */
+  }
+
+  .omni-mode-toggle {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .omni-mode-btn {
+    flex: 1;
+  }
+}
+
+/* ===== DARK MODE ===== */
+.dark .omni-bar {
+  background: var(--glass-bg, rgba(30, 41, 59, 0.85));
+  border-color: var(--glass-border, rgba(51, 65, 85, 0.6));
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    0 1px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.dark .omni-bar:focus-within {
+  background: var(--glass-bg-focus, rgba(30, 41, 59, 0.95));
+  border-color: var(--color-brand-primary, #60a5fa);
+  box-shadow:
+    0 4px 24px rgba(96, 165, 250, 0.2),
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.dark .omni-bar-landing .omni-bar {
+  background: var(--glass-bg, rgba(30, 41, 59, 0.75));
+  border-color: var(--glass-border, rgba(51, 65, 85, 0.5));
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 2px 8px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.dark .omni-bar-landing .omni-bar:focus-within {
+  background: var(--glass-bg-focus, rgba(30, 41, 59, 0.9));
+  box-shadow:
+    0 8px 40px rgba(96, 165, 250, 0.15),
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.dark .omni-bar-input {
+  color: var(--color-text-primary, #f1f5f9);
+}
+
+.dark .omni-bar-input::placeholder {
+  color: var(--color-text-tertiary, #64748b);
+}
+
+.dark .omni-attach-btn {
+  color: var(--color-text-secondary, #94a3b8);
+}
+
+.dark .omni-attach-btn:hover:not(:disabled) {
+  background: var(--color-bg-hover, #334155);
+  color: var(--color-text-primary, #f1f5f9);
+}
+
+.dark .omni-bar-kbd {
+  background: var(--color-bg-tertiary, #334155);
+  border-color: var(--color-border, #334155);
+  color: var(--color-text-secondary, #94a3b8);
+}
+
+.dark .omni-mode-toggle {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: var(--color-border, #334155);
+}
+
+.dark .omni-mode-btn {
+  color: var(--color-text-secondary, #94a3b8);
+}
+
+.dark .omni-mode-btn:hover {
+  color: var(--color-text-primary, #f1f5f9);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dark .omni-mode-btn.active {
+  background: var(--color-bg-tertiary, #334155);
+  color: var(--color-brand-primary, #60a5fa);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}

@@ -1,0 +1,120 @@
+/**
+ * CopyButton - Unified copy button styles
+ *
+ * Icon-only button with smooth checkmark feedback animation.
+ * Supports inline, sticky, and absolute positioning.
+ */
+
+.copy-btn-unified {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-primary);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.copy-btn-unified:hover {
+  border-color: var(--color-brand-primary);
+  color: var(--color-brand-primary);
+  background: var(--color-brand-primary-light);
+}
+
+.copy-btn-unified:active {
+  transform: scale(0.95);
+}
+
+.copy-btn-unified.copied {
+  border-color: var(--color-success);
+  color: var(--color-success);
+  background: var(--color-success-light);
+}
+
+/* Icon sizing */
+.copy-btn-icon {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.15s ease;
+}
+
+.copy-btn-unified.copied .copy-btn-icon {
+  animation: copy-success 0.3s ease;
+}
+
+@keyframes copy-success {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Size variants */
+.copy-btn-sm {
+  padding: 4px;
+}
+
+.copy-btn-sm .copy-btn-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.copy-btn-md {
+  padding: 6px;
+}
+
+.copy-btn-lg {
+  padding: 8px;
+}
+
+.copy-btn-lg .copy-btn-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* Position variants */
+.copy-btn-sticky {
+  position: sticky;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  float: right;
+  margin-left: auto;
+}
+
+.copy-btn-absolute {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+}
+
+/* Dark mode */
+.dark .copy-btn-unified {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .copy-btn-unified:hover {
+  border-color: var(--color-brand-primary);
+  color: var(--color-brand-primary);
+  background: var(--color-info-light);
+}
+
+.dark .copy-btn-unified.copied {
+  border-color: var(--color-success);
+  color: var(--stage3-text-primary);
+  background: var(--color-success-light);
+}

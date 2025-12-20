@@ -9,11 +9,16 @@ import ProjectModal from './components/ProjectModal';
 import Triage from './components/Triage';
 import Login from './components/Login';
 import MyCompany from './components/MyCompany';
+import { DeliberationDemo } from './components/deliberation';
 import { useAuth } from './AuthContext';
 import { api, setTokenGetter } from './api';
 import { userPreferencesApi } from './supabase';
 import { useGlobalSwipe } from './hooks';
 import './App.css';
+
+// Check for demo mode via URL parameter
+const urlParams = new URLSearchParams(window.location.search);
+const DEMO_MODE = urlParams.get('demo');
 
 // Default departments when no company is selected or company has no departments
 const DEFAULT_DEPARTMENTS = [
@@ -396,12 +401,25 @@ function App() {
         // via the useEffect that watches selectedBusiness
         await loadBusinesses();
 
-        // Check for conversation ID in URL parameters
+        // Check for URL parameters
         const urlParams = new URLSearchParams(window.location.search);
+
+        // Support for conversation ID in URL
         const conversationId = urlParams.get('conversation');
         if (conversationId) {
           // Load the specific conversation from URL
           setCurrentConversationId(conversationId);
+          // Clean up URL without reload
+          window.history.replaceState({}, '', window.location.pathname);
+        }
+
+        // Support for question parameter - auto-starts a council run
+        // This enables the hero → app flow: /app?question=How%20should%20I...
+        const initialQuestion = urlParams.get('question');
+        if (initialQuestion && !conversationId) {
+          // Store the question to be processed after businesses are loaded
+          // We need to wait for the temp conversation to be created
+          window.__pendingQuestion = decodeURIComponent(initialQuestion);
           // Clean up URL without reload
           window.history.replaceState({}, '', window.location.pathname);
         }
@@ -428,6 +446,21 @@ function App() {
     }
   }, [isAuthenticated, needsPasswordReset, currentConversationId]);
 
+  // Process pending question from URL parameter
+  // This auto-starts a council run when navigating with ?question=...
+  useEffect(() => {
+    if (window.__pendingQuestion && currentConversation?.isTemp && selectedBusiness) {
+      const question = window.__pendingQuestion;
+      delete window.__pendingQuestion; // Clear it so we don't process twice
+
+      // Auto-submit the question to start the council run
+      // Small delay to ensure UI is ready
+      setTimeout(() => {
+        handleSendMessage(question, null);
+      }, 100);
+    }
+  }, [currentConversation, selectedBusiness]);
+
   // Load conversation details when selected (skip temp conversations)
   useEffect(() => {
     if (currentConversationId && !currentConversationId.startsWith('temp-')) {
@@ -439,6 +472,11 @@ function App() {
       loadConversation(currentConversationId);
     }
   }, [currentConversationId]);
+
+  // Demo mode - show deliberation demo without auth
+  if (DEMO_MODE === 'deliberation') {
+    return <DeliberationDemo />;
+  }
 
   // Show loading while checking auth
   if (authLoading) {
@@ -798,6 +836,10 @@ function App() {
       const effectiveRoles = selectedRoles.length > 0 ? selectedRoles : null;
       const effectivePlaybooks = selectedPlaybooks.length > 0 ? selectedPlaybooks : null;
       await api.sendMessageStream(conversationId, content, (eventType, event) => {
+        // Debug: Log all SSE events
+        if (eventType.includes('error') || eventType.includes('Error')) {
+          console.error('[SSE Event]', eventType, event);
+        }
         switch (eventType) {
           case 'stage1_start':
             setCurrentConversation((prev) => {
@@ -858,6 +900,7 @@ function App() {
 
           case 'stage1_model_error':
             // Handle model error (IMMUTABLE)
+            console.error(`[Stage1 Error] Model ${event.model}:`, event.error);
             setCurrentConversation((prev) => {
               const model = event.model;
               const messages = prev.messages.map((msg, idx) =>
@@ -1374,15 +1417,23 @@ function App() {
         />
 
       {/* Main content area - Landing Hero or Chat Interface */}
+      {/* Transition: Landing slides up and fades out while chat slides up from below */}
       <AnimatePresence mode="wait">
         {showLandingHero ? (
           <motion.div
             key="landing"
             className="main-content-landing"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{
+              opacity: 0,
+              y: -60,
+              scale: 0.96,
+            }}
+            transition={{
+              duration: 0.5,
+              ease: [0.32, 0.72, 0, 1], // Custom easing for smooth feel
+            }}
           >
             <LandingHero
               businesses={businesses}
@@ -1411,10 +1462,14 @@ function App() {
           <motion.div
             key="chat"
             className="main-content-chat"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0, y: 40, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{
+              duration: 0.5,
+              ease: [0.32, 0.72, 0, 1],
+              delay: 0.1, // Slight delay so landing clears first
+            }}
           >
             <ChatInterface
               conversation={currentConversation}

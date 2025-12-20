@@ -73,17 +73,12 @@ Keep it concise but comprehensive:`,
     emptyHint: 'Just type what you know about the project',
   },
   'company-context': {
-    instruction: `Take what I wrote and turn it into a clear company overview with sections for:
-- Company Overview (what you do, stage, size)
-- Mission & Vision
-- Current Goals & Priorities
-- Constraints (budget, resources, timeline)
-- Key Policies & Standards
-
-This context will be used by AI advisors, so be specific:`,
+    instruction: `Take what I wrote and turn it into a clear, well-organized answer.
+Keep my original meaning but make it sound professional and complete.
+If I only gave a few words, expand them into a proper sentence or two.`,
     placeholder: 'Tell us about your company...',
-    buttonText: 'Expand this for me',
-    emptyHint: 'Just type what you know about your company',
+    buttonText: 'Write it nicely for me',
+    emptyHint: 'Just type what you know',
   },
   'department-description': {
     instruction: 'Write a clear 1-2 sentence description of what this department does based on:',
@@ -117,9 +112,9 @@ Based on this role:`,
 - Common mistakes to avoid
 
 Make it easy to follow:`,
-    placeholder: 'Describe what you want documented...',
-    buttonText: 'Write it for me',
-    emptyHint: 'Just describe what you want - AI will write the steps',
+    placeholder: 'Describe what you need (e.g., "how we onboard new customers")...',
+    buttonText: 'Let AI write this',
+    emptyHint: 'Type a brief description - AI will write the full document',
   },
   'decision-title': {
     instruction: 'Generate a clear, searchable title for this decision (format: "[Action] [Subject] [Context]"):',
@@ -160,6 +155,7 @@ Make it easy to follow:`,
  * @param {string} value - Current input value
  * @param {function} onSuggestion - Called with AI suggestion
  * @param {string} [additionalContext] - Extra context for the AI (e.g., company name)
+ * @param {string} [buttonLabel] - Override the default button text
  * @param {boolean} [disabled] - Disable the assist button
  * @param {React.ReactNode} [children] - Wrap an existing input
  * @param {string} [className] - Additional CSS class
@@ -170,6 +166,7 @@ export function AIWriteAssist({
   value = '',
   onSuggestion,
   additionalContext = '',
+  buttonLabel = null, // Override default button text
   playbookType = null, // For playbook content: 'sop', 'framework', 'policy'
   disabled = false,
   children,
@@ -183,6 +180,7 @@ export function AIWriteAssist({
 
   const config = CONTEXT_PROMPTS[context] || CONTEXT_PROMPTS.generic;
   const hasContent = value && value.trim().length > 0;
+  const displayButtonText = buttonLabel || config.buttonText;
 
   const handleAssist = useCallback(async () => {
     if (!hasContent || loading) return;
@@ -241,14 +239,14 @@ export function AIWriteAssist({
             className="ai-assist-btn"
             onClick={handleAssist}
             disabled={disabled || loading || !hasContent}
-            title={hasContent ? config.buttonText : config.emptyHint}
+            title={hasContent ? displayButtonText : config.emptyHint}
           >
             {loading ? (
               <Spinner size="sm" />
             ) : (
               <>
                 <span className="ai-assist-icon">✨</span>
-                <span className="ai-assist-text">{config.buttonText}</span>
+                <span className="ai-assist-text">{displayButtonText}</span>
               </>
             )}
           </button>
@@ -294,14 +292,14 @@ export function AIWriteAssist({
         className="ai-assist-btn"
         onClick={handleAssist}
         disabled={disabled || loading || !hasContent}
-        title={hasContent ? config.buttonText : config.emptyHint}
+        title={hasContent ? displayButtonText : config.emptyHint}
       >
         {loading ? (
           <Spinner size="sm" />
         ) : (
           <>
             <span className="ai-assist-icon">✨</span>
-            <span className="ai-assist-text">{config.buttonText}</span>
+            <span className="ai-assist-text">{displayButtonText}</span>
           </>
         )}
       </button>

@@ -1,61 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Spinner } from './ui/Spinner';
+import { CopyButton } from './ui/CopyButton';
+import { Activity, CheckCircle2, AlertCircle, StopCircle, ChevronDown, ChevronUp, Copy, Check, X } from 'lucide-react';
 import './Stage1.css';
 
-// Copy button component
-function CopyButton({ text }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = async (e) => {
-    e.stopPropagation();
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  };
-
-  return (
-    <button className={`copy-btn ${copied ? 'copied' : ''}`} onClick={handleCopy} title="Copy response">
-      {copied ? (
-        <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="20 6 9 17 4 12" />
-        </svg>
-      ) : (
-        <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-        </svg>
-      )}
-    </button>
-  );
-}
-
 // Custom code block renderer with copy button
-// Only shows header with copy button for actual code blocks (multi-line or has language)
 function CodeBlock({ children, className }) {
-  const [copied, setCopied] = useState(false);
   const code = String(children).replace(/\n$/, '');
   const language = className?.replace('language-', '') || '';
 
-  // Only show header with copy button for actual code blocks
   const isActualCodeBlock = language || code.includes('\n') || code.length > 60;
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  };
-
-  // For short single-line code without language, render as inline code (not a block)
   if (!isActualCodeBlock) {
     return <code className="inline-code">{children}</code>;
   }
@@ -63,18 +21,7 @@ function CodeBlock({ children, className }) {
   return (
     <div className="code-block-wrapper">
       {language && <span className="code-language">{language}</span>}
-      <button className={`copy-code-btn ${copied ? 'copied' : ''}`} onClick={handleCopy} title="Copy code">
-        {copied ? (
-          <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-        ) : (
-          <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-          </svg>
-        )}
-      </button>
+      <CopyButton text={code} size="sm" position="absolute" />
       <pre className={className}>
         <code>{children}</code>
       </pre>
@@ -82,30 +29,199 @@ function CodeBlock({ children, className }) {
   );
 }
 
+// Individual model card in the grid
+function ModelCard({ data, isComplete: globalComplete, onExpand, isExpanded }) {
+  const cardRef = useRef(null);
+  const touchStartRef = useRef(null);
+  const shortName = data.model.split('/')[1] || data.model;
+
+  // Truncate response for preview (first ~150 chars)
+  const previewText = data.response?.slice(0, 200) || '';
+  const hasMore = data.response?.length > 200;
+
+  // Scroll into view when expanded
+  useEffect(() => {
+    if (isExpanded && cardRef.current) {
+      setTimeout(() => {
+        cardRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 100);
+    }
+  }, [isExpanded]);
+
+  // Swipe-to-dismiss for expanded cards on mobile
+  const handleTouchStart = useCallback((e) => {
+    if (!isExpanded) return;
+    const touch = e.touches[0];
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
+  }, [isExpanded]);
+
+  const handleTouchEnd = useCallback((e) => {
+    if (!isExpanded || !touchStartRef.current) return;
+    const touch = e.changedTouches[0];
+    const deltaY = touch.clientY - touchStartRef.current.y;
+    const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
+    const deltaTime = Date.now() - touchStartRef.current.time;
+
+    // Swipe down to dismiss (>80px, mostly vertical, <400ms)
+    if (deltaY > 80 && deltaY > deltaX && deltaTime < 400) {
+      e.stopPropagation();
+      onExpand(null);
+    }
+    touchStartRef.current = null;
+  }, [isExpanded, onExpand]);
+
+  // Build CSS class list
+  const cardClasses = [
+    'model-card',
+    data.isStreaming && 'streaming',
+    (data.hasError || data.isEmpty) && 'error',
+    isExpanded && 'expanded',
+  ].filter(Boolean).join(' ');
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onExpand(isExpanded ? null : data.model);
+    }
+    if (e.key === 'Escape' && isExpanded) {
+      e.preventDefault();
+      onExpand(null);
+    }
+  };
+
+  return (
+    <motion.div
+      ref={cardRef}
+      layout
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.2 }}
+      className={cardClasses}
+      onClick={() => onExpand(isExpanded ? null : data.model)}
+      onKeyDown={handleKeyDown}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      tabIndex={0}
+      role="article"
+      aria-expanded={isExpanded}
+      aria-label={`${shortName} response${data.isStreaming ? ', generating' : data.isComplete ? ', complete' : ''}`}
+    >
+      {/* Header */}
+      <div className="model-card-header">
+        <div className="model-card-header-left">
+          {/* Status indicator */}
+          {data.isStreaming && (
+            <span className="status-dot">
+              <span className="status-dot-ping"></span>
+              <span className="status-dot-core"></span>
+            </span>
+          )}
+          {data.isComplete && !data.isEmpty && !data.isStreaming && (
+            <CheckCircle2 style={{ width: 14, height: 14, color: '#16a34a' }} />
+          )}
+          {data.isStopped && (
+            <StopCircle style={{ width: 14, height: 14, color: '#94a3b8' }} />
+          )}
+          {(data.hasError || data.isEmpty) && (
+            <AlertCircle style={{ width: 14, height: 14, color: '#f59e0b' }} />
+          )}
+
+          <span className="model-card-name">{shortName}</span>
+        </div>
+
+        {/* Copy button (when expanded) + Expand/collapse */}
+        <div className="model-card-header-right">
+          {isExpanded && data.isComplete && !data.isEmpty && data.response && (
+            <CopyButton text={data.response} size="sm" />
+          )}
+          {data.response && (
+            <button
+              className="expand-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                onExpand(isExpanded ? null : data.model);
+              }}
+              aria-label={isExpanded ? 'Collapse response' : 'Expand response'}
+            >
+              {isExpanded ? (
+                <X style={{ width: 16, height: 16 }} />
+              ) : (
+                <ChevronDown style={{ width: 16, height: 16 }} />
+              )}
+            </button>
+          )}
+        </div>
+
+        {/* Swipe indicator for mobile - only when expanded */}
+        {isExpanded && (
+          <div className="swipe-indicator" aria-hidden="true">
+            <div className="swipe-handle" />
+          </div>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className={`model-card-content ${isExpanded ? '' : 'truncated'}`}>
+        {data.isEmpty ? (
+          <p className="model-card-empty">No response</p>
+        ) : data.hasError ? (
+          <p className="model-card-error">{data.response || 'Error occurred'}</p>
+        ) : isExpanded ? (
+          // Full content when expanded
+          <div className="prose prose-sm prose-slate max-w-none">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                pre({ children, node }) {
+                  const codeElement = node?.children?.[0];
+                  const className = codeElement?.properties?.className?.[0] || '';
+                  const codeContent = codeElement?.children?.[0]?.value || '';
+                  return <CodeBlock className={className}>{codeContent}</CodeBlock>;
+                },
+                code({ node, className, children, ...props }) {
+                  return <code className={className} {...props}>{children}</code>;
+                }
+              }}
+            >
+              {data.response || ''}
+            </ReactMarkdown>
+          </div>
+        ) : (
+          // Preview text when collapsed
+          <div className="model-card-preview">
+            {previewText}
+            {hasMore && <span style={{ color: '#94a3b8' }}>...</span>}
+            {data.isStreaming && <span className="model-card-cursor" />}
+          </div>
+        )}
+      </div>
+
+    </motion.div>
+  );
+}
+
 export default function Stage1({ responses, streaming, isLoading, stopped, isComplete, defaultCollapsed = false, conversationTitle, imageAnalysis }) {
-  const [activeTab, setActiveTab] = useState(0);
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
+  const [expandedModel, setExpandedModel] = useState(null);
 
   // Build display data from either streaming or final responses
   const displayData = [];
 
   if (streaming && Object.keys(streaming).length > 0) {
-    // Use streaming data
     Object.entries(streaming).forEach(([model, data]) => {
-      // If stopped, models that weren't complete become "stopped" not "streaming"
       const wasStopped = stopped && !data.complete;
       displayData.push({
         model,
         response: data.text,
-        isStreaming: !data.complete && !stopped, // Only streaming if not stopped
+        isStreaming: !data.complete && !stopped,
         isComplete: data.complete && !data.error,
         hasError: data.error,
         isEmpty: data.complete && !data.text && !data.error,
-        isStopped: wasStopped, // New: mark as stopped
+        isStopped: wasStopped,
       });
     });
   } else if (responses && responses.length > 0) {
-    // Use final responses
     responses.forEach((resp) => {
       displayData.push({
         model: resp.model,
@@ -119,21 +235,16 @@ export default function Stage1({ responses, streaming, isLoading, stopped, isCom
     });
   }
 
-  // Check if all models are complete (for collapsible state)
+  // Check if all models are complete
   const allComplete = displayData.length > 0 && displayData.every(d => d.isComplete || d.isStopped || d.hasError);
-
-  // Auto-select first tab with content
-  useEffect(() => {
-    if (displayData.length > 0 && activeTab >= displayData.length) {
-      setActiveTab(0);
-    }
-  }, [displayData.length, activeTab]);
+  const streamingCount = displayData.filter(d => d.isStreaming).length;
+  const completedCount = displayData.filter(d => d.isComplete && !d.isEmpty).length;
+  const totalCount = displayData.length;
 
   // Track if user has manually toggled
   const [userToggled, setUserToggled] = useState(false);
 
   // Auto-collapse when complete (only if user hasn't manually toggled)
-  // IMPORTANT: This hook must be before any early returns to maintain consistent hook order
   useEffect(() => {
     if (isComplete && allComplete && !isCollapsed && !userToggled) {
       setIsCollapsed(true);
@@ -148,12 +259,12 @@ export default function Stage1({ responses, streaming, isLoading, stopped, isCom
   if (displayData.length === 0 && isLoading) {
     return (
       <div className="stage stage1">
-        <h3 className="stage-title">
-          Council Responses
+        <h3 className="stage-title flex items-center gap-2">
+          <Activity className="h-5 w-5 text-blue-500 animate-pulse" />
+          <span className="font-semibold tracking-tight">Independent Responses</span>
           {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
         </h3>
 
-        {/* Show image analysis even during loading state */}
         {imageAnalysis && (
           <div className="image-analysis-section">
             <details className="image-analysis-details" open>
@@ -179,26 +290,30 @@ export default function Stage1({ responses, streaming, isLoading, stopped, isCom
     );
   }
 
-  const activeData = displayData[activeTab] || displayData[0];
-
   const toggleCollapsed = () => {
     setUserToggled(true);
     setIsCollapsed(!isCollapsed);
   };
 
-  // Summary for collapsed state
-  const completedCount = displayData.filter(d => d.isComplete && !d.isEmpty).length;
-  const totalCount = displayData.length;
-
   return (
     <div className={`stage stage1 ${isCollapsed ? 'collapsed' : ''}`}>
       <h3 className="stage-title clickable" onClick={toggleCollapsed}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
-        Council Responses
+        {streamingCount > 0 ? (
+          <Activity className="h-5 w-5 text-blue-500 animate-pulse flex-shrink-0" />
+        ) : (
+          <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
+        )}
+        <span className="font-semibold tracking-tight">Independent Responses</span>
         {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
         {isCollapsed && (
           <span className="collapsed-summary">
             {completedCount}/{totalCount} models responded
+          </span>
+        )}
+        {!isCollapsed && streamingCount > 0 && (
+          <span className="ml-auto text-xs text-blue-600 font-medium animate-pulse">
+            {streamingCount} generating...
           </span>
         )}
       </h3>
@@ -223,68 +338,19 @@ export default function Stage1({ responses, streaming, isLoading, stopped, isCom
             </div>
           )}
 
-          <div className="tabs">
-            {displayData.map((data, index) => (
-              <button
-                key={data.model}
-                className={`tab ${activeTab === index ? 'active' : ''} ${data.isStreaming ? 'streaming' : ''} ${data.hasError || data.isEmpty ? 'error' : ''} ${data.isComplete && !data.isEmpty ? 'complete' : ''} ${data.isStopped ? 'stopped' : ''}`}
-                onClick={() => setActiveTab(index)}
-              >
-                {data.isStreaming && <span className="status-icon streaming-dot" title="Generating..."></span>}
-                {data.isStopped && <span className="status-icon stopped-icon" title="Stopped">■</span>}
-                {data.isComplete && !data.isEmpty && <span className="status-icon complete-icon" title="Complete">✓</span>}
-                {(data.hasError || data.isEmpty) && <span className="status-icon error-icon" title={data.hasError ? 'Error' : 'No response'}>⚠</span>}
-                {data.model.split('/')[1] || data.model}
-              </button>
-            ))}
-          </div>
-
-          <div className="tab-content">
-            <div className="model-name">
-              <span className="model-info">
-                {activeData.model}
-                {activeData.isStreaming && <span className="typing-indicator">●</span>}
-                {activeData.isStopped && <span className="stopped-badge">Stopped</span>}
-                {activeData.isComplete && !activeData.isEmpty && <span className="complete-badge">Complete</span>}
-                {activeData.isEmpty && <span className="error-badge">No Response</span>}
-                {activeData.hasError && <span className="error-badge">Error</span>}
-              </span>
-              {activeData.isComplete && !activeData.isEmpty && activeData.response && (
-                <CopyButton text={activeData.response} />
-              )}
-            </div>
-            <div className={`response-text markdown-content ${activeData.hasError || activeData.isEmpty ? 'error-text' : ''}`}>
-              {activeData.isEmpty ? (
-                <p className="empty-message">This model did not return a response.</p>
-              ) : activeData.hasError ? (
-                <p className="empty-message">{activeData.response || 'An error occurred while generating the response.'}</p>
-              ) : (
-                <>
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      // Override pre to render our CodeBlock wrapper
-                      pre({ children, node }) {
-                        // Extract the code element's props
-                        const codeElement = node?.children?.[0];
-                        const className = codeElement?.properties?.className?.[0] || '';
-                        const codeContent = codeElement?.children?.[0]?.value || '';
-                        return <CodeBlock className={className}>{codeContent}</CodeBlock>;
-                      },
-                      // For inline code only (not wrapped in pre)
-                      code({ node, className, children, ...props }) {
-                        // If this code is inside a pre, let pre handle it
-                        // Otherwise render as inline code
-                        return <code className={className} {...props}>{children}</code>;
-                      }
-                    }}
-                  >
-                    {activeData.response || ''}
-                  </ReactMarkdown>
-                  {activeData.isStreaming && <span className="cursor">▊</span>}
-                </>
-              )}
-            </div>
+          {/* Living Feed Grid - shows all models simultaneously */}
+          <div className={`model-grid ${expandedModel ? 'has-expanded' : ''}`}>
+            <AnimatePresence mode="popLayout">
+              {displayData.map((data) => (
+                <ModelCard
+                  key={data.model}
+                  data={data}
+                  isComplete={isComplete}
+                  isExpanded={expandedModel === data.model}
+                  onExpand={setExpandedModel}
+                />
+              ))}
+            </AnimatePresence>
           </div>
         </>
       )}

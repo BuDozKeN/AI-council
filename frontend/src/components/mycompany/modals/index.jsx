@@ -7,8 +7,8 @@
 
 import { useState } from 'react';
 import { AppModal } from '../../ui/AppModal';
-import { DepartmentSelect } from '../../ui/DepartmentSelect';
 import { AIWriteAssist } from '../../ui/AIWriteAssist';
+import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { Spinner } from '../../ui/Spinner';
 import { Bookmark } from 'lucide-react';
 import { getPlaybookTypeColor } from '../../../lib/colors';
@@ -153,12 +153,14 @@ export function AddPlaybookModal({ onSave, onClose, saving, departments = [] }) 
   const [title, setTitle] = useState('');
   const [docType, setDocType] = useState('sop');
   const [content, setContent] = useState('');
-  const [departmentId, setDepartmentId] = useState('');
+  const [selectedDepts, setSelectedDepts] = useState([]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) return;
-    onSave(title.trim(), docType, content.trim(), departmentId || null);
+    // First selected department becomes owner, rest are additional
+    const [primaryDept, ...additionalDepts] = selectedDepts;
+    onSave(title.trim(), docType, content.trim(), primaryDept || null, additionalDepts);
   };
 
   return (
@@ -176,14 +178,12 @@ export function AddPlaybookModal({ onSave, onClose, saving, departments = [] }) 
           />
         </div>
         <div className="mc-form-unified">
-          <label className="mc-label-unified">Department</label>
-          <DepartmentSelect
-            value={departmentId || 'all'}
-            onValueChange={(val) => setDepartmentId(val === 'all' ? '' : val)}
+          <label className="mc-label-unified">Departments</label>
+          <MultiDepartmentSelect
+            value={selectedDepts}
+            onValueChange={setSelectedDepts}
             departments={departments}
-            includeAll={true}
-            allLabel="Company-wide (All Departments)"
-            className="mc-dept-select-modal"
+            placeholder="Company-wide (all departments)"
           />
         </div>
         <div className="mc-form-unified">
@@ -223,7 +223,7 @@ export function AddPlaybookModal({ onSave, onClose, saving, departments = [] }) 
           >
             <textarea
               className="mc-input-unified mc-textarea-unified"
-              placeholder="Write your playbook content..."
+              placeholder="Describe what you need (e.g., &quot;how we onboard customers&quot;) - AI will write the full document for you..."
               value={content}
               onChange={e => setContent(e.target.value)}
               rows={10}
@@ -247,7 +247,7 @@ export function AddPlaybookModal({ onSave, onClose, saving, departments = [] }) 
             ) : (
               <>
                 <Bookmark className="h-4 w-4" />
-                Create Playbook
+                Create {DOC_TYPES.find(t => t.value === docType)?.label || 'Playbook'}
               </>
             )}
           </button>

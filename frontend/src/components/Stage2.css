@@ -1,5 +1,101 @@
 .stage2 {
-  background: var(--color-bg-secondary);
+  background: linear-gradient(135deg, var(--stage2-bg-gradient-start) 0%, var(--stage2-bg-gradient-end) 100%);
+  border-color: var(--stage2-border);
+}
+
+/* Accordion wrapper */
+.stage2-accordion {
+  border: none;
+}
+
+.stage2-accordion-item {
+  border: none;
+}
+
+/* Accordion trigger */
+.stage2-trigger {
+  padding: 0;
+  font-weight: inherit;
+  text-decoration: none !important;
+}
+
+.stage2-trigger:hover {
+  text-decoration: none !important;
+}
+
+.stage2-trigger-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.stage2-icon {
+  flex-shrink: 0;
+}
+
+.stage2-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.stage2-summary {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  background: rgba(139, 92, 246, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.stage2-winner {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: linear-gradient(135deg, var(--color-amber-100) 0%, var(--color-amber-200) 100%);
+  color: var(--color-amber-700);
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Accordion content */
+.stage2-content {
+  padding-top: 16px;
+}
+
+.stage2-section-title {
+  margin: 20px 0 8px 0;
+  color: var(--color-purple-600);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.stage2-section-title:first-of-type {
+  margin-top: 0;
+}
+
+/* Inline copy button */
+.copy-btn-inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.copy-btn-inline:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-brand-primary);
+  color: var(--color-brand-primary);
 }
 
 .stage2 h4 {
@@ -338,3 +434,103 @@
 }
 
 /* Spinner styles removed - now using unified <Spinner /> component */
+
+/* ===== DARK MODE ===== */
+/* Stage2 uses CSS variables from tailwind.css which are redefined in .dark context */
+
+.dark .stage2-title {
+  color: var(--color-text-primary);
+}
+
+.dark .stage2-summary {
+  background: rgba(139, 92, 246, 0.2);
+  color: var(--stage2-text-primary);
+}
+
+.dark .stage2-winner {
+  background: linear-gradient(135deg, var(--color-warning-light) 0%, var(--color-warning-light) 100%);
+  color: var(--color-warning);
+}
+
+.dark .stage2-section-title {
+  color: var(--color-violet-400);
+}
+
+.dark .stage-description {
+  color: var(--color-text-secondary);
+}
+
+.dark .stage2 .tabs {
+  border-bottom-color: var(--color-border);
+}
+
+.dark .stage2 .tab {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .stage2 .tab:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.dark .stage2 .tab.active {
+  background: var(--color-bg-primary);
+  border-color: var(--stage2-border);
+  color: var(--color-violet-400);
+}
+
+.dark .stage2 .tab-content {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border);
+}
+
+.dark .stage2 .ranking-model {
+  color: var(--color-text-tertiary);
+}
+
+.dark .stage2 .ranking-content {
+  color: var(--color-text-primary);
+}
+
+.dark .aggregate-rankings {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.dark .aggregate-item {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .aggregate-item:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .rank-position {
+  color: var(--color-violet-400);
+}
+
+.dark .rank-model {
+  color: var(--color-text-primary);
+}
+
+.dark .rank-score {
+  color: var(--color-success);
+}
+
+.dark .rank-count {
+  color: var(--color-text-tertiary);
+}
+
+.dark .copy-btn-inline {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .copy-btn-inline:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-brand-primary);
+  color: var(--color-brand-primary);
+}

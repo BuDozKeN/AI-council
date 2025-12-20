@@ -244,6 +244,73 @@
     --blue-300: #93c5fd;
     --blue-400: #60a5fa;
     --indigo-300: #a5b4fc;
+
+    /* ===== DELIBERATION VIEW TOKENS ===== */
+
+    /* Stage-specific colors */
+    --stage1-bg-gradient-start: #eff6ff;
+    --stage1-bg-gradient-end: #dbeafe;
+    --stage1-border: #93c5fd;
+    --stage1-text-primary: #1e40af;
+    --stage1-shadow-color: rgba(59, 130, 246, 0.15);
+
+    --stage2-bg-gradient-start: #faf5ff;
+    --stage2-bg-gradient-end: #f3e8ff;
+    --stage2-border: #e9d5ff;
+    --stage2-text-primary: #7c3aed;
+    --stage2-shadow-color: rgba(139, 92, 246, 0.15);
+
+    --stage3-bg-gradient-start: #ecfdf5;
+    --stage3-bg-gradient-end: #d1fae5;
+    --stage3-border: #6ee7b7;
+    --stage3-text-primary: #065f46;
+    --stage3-shadow-color: rgba(16, 185, 129, 0.15);
+
+    /* Avatar states */
+    --avatar-waiting-bg: #f9fafb;
+    --avatar-waiting-border: #e5e7eb;
+    --avatar-thinking-bg: #eff6ff;
+    --avatar-thinking-border: #3b82f6;
+    --avatar-thinking-ring: rgba(59, 130, 246, 0.2);
+    --avatar-complete-bg: #ecfdf5;
+    --avatar-complete-border: #10b981;
+    --avatar-reviewing-bg: #fffbeb;
+    --avatar-reviewing-border: #f59e0b;
+    --avatar-reviewing-ring: rgba(245, 158, 11, 0.2);
+
+    /* Thinking stream */
+    --thinking-stream-bg: #1e293b;
+    --thinking-stream-border: #334155;
+    --thinking-stream-text: #94a3b8;
+    --thinking-stream-cursor: #3b82f6;
+
+    /* Insight cards */
+    --insight-gap-bg: #fef3c7;
+    --insight-gap-border: #f59e0b;
+    --insight-gap-text: #92400e;
+    --insight-gap-button-bg: #fffbeb;
+    --insight-gap-button-hover: #fef3c7;
+
+    --insight-consensus-bg: #d1fae5;
+    --insight-consensus-border: #10b981;
+    --insight-consensus-text: #065f46;
+
+    --insight-tension-bg: #fee2e2;
+    --insight-tension-border: #ef4444;
+    --insight-tension-text: #991b1b;
+
+    --insight-context-bg: #dbeafe;
+    --insight-context-border: #3b82f6;
+    --insight-context-text: #1e40af;
+
+    /* Stage progress */
+    --stage-progress-bg: #e5e7eb;
+    --stage-progress-complete: #10b981;
+    --stage-progress-text: #6b7280;
+
+    /* Overlays */
+    --overlay-bg: rgba(255, 255, 255, 0.95);
+    --overlay-shimmer: rgba(255, 255, 255, 0.4);
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -270,6 +337,76 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+    /* ===== DARK MODE COLOR TOKENS ===== */
+
+    /* Text colors */
+    --color-text-primary: #f1f5f9;
+    --color-text-secondary: #94a3b8;
+    --color-text-tertiary: #64748b;
+    --color-text-muted: #475569;
+    --color-text-inverse: #0f172a;
+
+    /* Background colors */
+    --color-bg-primary: #0f172a;
+    --color-bg-secondary: #1e293b;
+    --color-bg-tertiary: #334155;
+    --color-bg-hover: #334155;
+    --color-bg-active: #475569;
+
+    /* Border colors */
+    --color-border: #334155;
+    --color-border-light: #1e293b;
+    --color-border-dark: #475569;
+    --color-border-muted: #334155;
+
+    /* Brand colors - slightly brighter for dark mode */
+    --color-brand-primary: #60a5fa;
+    --color-brand-primary-hover: #3b82f6;
+    --color-brand-primary-light: rgba(59, 130, 246, 0.15);
+
+    /* Semantic colors - adjusted for dark */
+    --color-success-light: rgba(16, 185, 129, 0.15);
+    --color-error-light: rgba(239, 68, 68, 0.15);
+    --color-warning-light: rgba(245, 158, 11, 0.15);
+    --color-info-light: rgba(59, 130, 246, 0.15);
+
+    /* Slate scale - inverted */
+    --color-slate-50: #1e293b;
+    --color-slate-100: #334155;
+    --color-slate-200: #475569;
+    --color-slate-300: #64748b;
+    --color-slate-500: #94a3b8;
+    --color-slate-600: #cbd5e1;
+    --color-slate-700: #e2e8f0;
+    --color-slate-800: #f1f5f9;
+
+    /* Stage colors - dark variants */
+    --stage1-bg-gradient-start: #1e293b;
+    --stage1-bg-gradient-end: #0f172a;
+    --stage1-border: #3b82f6;
+    --stage1-text-primary: #93c5fd;
+
+    --stage2-bg-gradient-start: #1e293b;
+    --stage2-bg-gradient-end: #0f172a;
+    --stage2-border: #8b5cf6;
+    --stage2-text-primary: #c4b5fd;
+    --stage2-shadow-color: rgba(139, 92, 246, 0.25);
+
+    --stage3-bg-gradient-start: #1e293b;
+    --stage3-bg-gradient-end: #0f172a;
+    --stage3-border: #10b981;
+    --stage3-text-primary: #6ee7b7;
+
+    /* Overlays - dark variants */
+    --overlay-bg: rgba(15, 23, 42, 0.95);
+    --overlay-shimmer: rgba(255, 255, 255, 0.05);
+
+    /* Glass morphism - dark mode */
+    --glass-bg: rgba(30, 41, 59, 0.85);
+    --glass-bg-focus: rgba(30, 41, 59, 0.95);
+    --glass-border: rgba(51, 65, 85, 0.6);
+    --glass-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   }
 }
 

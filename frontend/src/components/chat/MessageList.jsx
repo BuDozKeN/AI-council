@@ -4,13 +4,41 @@
  * Handles rendering of the message history including Stage1, Stage2, Stage3
  * components for council responses and chat-only responses.
  * Extracted from ChatInterface.jsx for better maintainability.
+ *
+ * Uses framer-motion spring animations for smooth message appearance.
  */
 
+import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import Stage1 from '../Stage1';
 import Stage2 from '../Stage2';
 import Stage3 from '../Stage3';
+
+// Spring animation config for message bubbles
+const messageVariants = {
+  hidden: {
+    opacity: 0,
+    y: 20,
+    scale: 0.95,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 400,
+      damping: 30,
+      mass: 0.8,
+    },
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.95,
+    transition: { duration: 0.15 },
+  },
+};
 
 export function MessageList({
   messages = [],
@@ -25,20 +53,38 @@ export function MessageList({
   onViewDecision
 }) {
   return (
-    <>
+    <AnimatePresence mode="popLayout">
       {messages.map((msg, index) => (
-        <div key={index} className="message-group">
+        <motion.div
+          key={`msg-${index}-${msg.role}`}
+          className="message-group"
+          variants={messageVariants}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          layout
+        >
           {msg.role === 'user' ? (
-            <div className="user-message">
+            <motion.div
+              className="user-message"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+            >
               <div className="message-label">You</div>
               <div className="message-content">
                 <div className="markdown-content">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ) : (
-            <div className="assistant-message">
+            <motion.div
+              className="assistant-message"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 35, delay: 0.05 }}
+            >
               <div className="message-label">
                 {msg.isChat ? 'AI Advisor' : 'AI Council'}
               </div>
@@ -124,10 +170,10 @@ export function MessageList({
                   )}
                 </>
               )}
-            </div>
+            </motion.div>
           )}
-        </div>
+        </motion.div>
       ))}
-    </>
+    </AnimatePresence>
   );
 }

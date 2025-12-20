@@ -51,6 +51,70 @@
   outline-offset: 2px;
 }
 
+/* Enhanced focus styles for interactive elements */
+button:focus-visible,
+[role="button"]:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--color-brand-primary, #f97316);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15);
+}
+
+/* Card focus styles */
+.model-card:focus-visible,
+[role="article"]:focus-visible {
+  outline: 2px solid var(--color-brand-primary, #f97316);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15);
+}
+
+/* Input focus styles */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+  border-color: var(--color-brand-primary, #f97316);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+}
+
+/* Tab/pill focus styles */
+.tab:focus-visible,
+.mode-btn-landing:focus-visible,
+.mode-btn-compact:focus-visible,
+.dept-pill-compact:focus-visible,
+.role-pill-compact:focus-visible {
+  outline: 2px solid var(--color-brand-primary, #f97316);
+  outline-offset: 1px;
+  z-index: 1;
+}
+
+/* Remove focus outline for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Dark mode focus styles */
+.dark button:focus-visible,
+.dark [role="button"]:focus-visible,
+.dark a:focus-visible {
+  outline-color: #60a5fa;
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.2);
+}
+
+.dark .model-card:focus-visible,
+.dark [role="article"]:focus-visible {
+  outline-color: #60a5fa;
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.2);
+}
+
+.dark input:focus-visible,
+.dark textarea:focus-visible,
+.dark select:focus-visible {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -165,4 +229,50 @@ body {
 
 .markdown-content tr:hover {
   background: var(--color-brand-primary-light);
+}
+
+/* Responsive table wrapper for mobile */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 12px 0;
+}
+
+.table-wrapper table {
+  margin: 0;
+}
+
+/* Mobile table improvements */
+@media (max-width: 640px) {
+  .markdown-content table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
+
+  .markdown-content th,
+  .markdown-content td {
+    padding: 8px 10px;
+    font-size: 0.85em;
+    min-width: 80px;
+  }
+
+  .markdown-content th:first-child,
+  .markdown-content td:first-child {
+    position: sticky;
+    left: 0;
+    background: var(--color-bg-primary);
+    z-index: 1;
+    box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
+  }
+
+  .markdown-content tr:nth-child(even) td:first-child {
+    background: var(--color-bg-secondary);
+  }
+
+  .markdown-content th:first-child {
+    background: var(--color-bg-tertiary);
+  }
 }

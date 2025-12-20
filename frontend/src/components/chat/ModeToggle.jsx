@@ -1,9 +1,28 @@
 /**
- * ModeToggle - Chat/council mode selector with department/role pills
+ * ModeToggle - Chat/council mode selector with department and role selection
  *
- * Shows mode toggle for follow-up messages and context toggles.
- * Extracted from ChatInterface.jsx for better maintainability.
+ * Shows mode toggle, color-coded department pills, and role pills for Full Council.
+ * On mobile, departments and roles use Radix Select components for cleaner UX.
  */
+
+import { useState, useEffect } from 'react';
+import { DepartmentSelect } from '../ui/DepartmentSelect';
+import { RoleSelect } from '../ui/RoleSelect';
+import { getDeptColor } from '../../lib/colors';
+
+// Check if we're on mobile
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  return isMobile;
+};
 
 export function ModeToggle({
   chatMode,
@@ -15,74 +34,144 @@ export function ModeToggle({
   selectedRole,
   onSelectRole,
   selectedBusiness,
-  useCompanyContext,
-  onToggleCompanyContext,
-  useDepartmentContext,
-  onToggleDepartmentContext,
   isLoading
 }) {
+  const isMobile = useIsMobile();
+
+  // Get selected department name for display (used in desktop pills)
+  const selectedDeptName = departments.find(d => d.id === selectedDepartment)?.name || 'General';
+
+  // Mobile: use Radix Select components for departments and roles
+  if (isMobile) {
+    return (
+      <div className={`mode-toggle-bar mobile ${isLoading ? 'disabled' : ''}`}>
+        <div className="mode-toggle-compact">
+          <button
+            type="button"
+            className={`mode-btn-compact ${chatMode === 'chat' ? 'active' : ''}`}
+            onClick={() => !isLoading && onChatModeChange('chat')}
+            disabled={isLoading}
+          >
+            Quick
+          </button>
+          <button
+            type="button"
+            className={`mode-btn-compact ${chatMode === 'council' ? 'active' : ''}`}
+            onClick={() => !isLoading && onChatModeChange('council')}
+            disabled={isLoading}
+          >
+            Council
+          </button>
+        </div>
+
+        {/* Mobile: Radix Select components for council mode */}
+        {chatMode === 'council' && selectedBusiness && departments.length > 0 && (
+          <div className="mobile-selectors">
+            {/* Department selector - color-coded with Radix */}
+            <DepartmentSelect
+              value={selectedDepartment || 'all'}
+              onValueChange={(val) => onSelectDepartment(val === 'all' ? null : val)}
+              departments={departments}
+              includeAll={true}
+              allLabel="General"
+              disabled={isLoading}
+              compact={true}
+              className="mobile-dept-select"
+            />
+
+            {/* Role selector - only when department selected */}
+            {selectedDepartment && roles.length > 0 && (
+              <RoleSelect
+                value={selectedRole || 'all'}
+                onValueChange={(val) => onSelectRole(val === 'all' ? null : val)}
+                roles={roles}
+                includeAll={true}
+                allLabel="All Roles"
+                disabled={isLoading}
+                compact={true}
+                className="mobile-role-select"
+              />
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Desktop: use pills
   return (
     <div className={`mode-toggle-bar ${isLoading ? 'disabled' : ''}`}>
-      <span className="mode-label">Reply mode:</span>
-      <div className="mode-buttons">
+      <div className="mode-toggle-compact">
         <button
           type="button"
-          className={`mode-btn ${chatMode === 'chat' ? 'active' : ''}`}
+          className={`mode-btn-compact ${chatMode === 'chat' ? 'active' : ''}`}
           onClick={() => !isLoading && onChatModeChange('chat')}
           disabled={isLoading}
           title="Quick follow-up with the Chairman (faster)"
         >
-          <span className="mode-btn-icon">💬</span>
-          Quick Chat
+          Quick
         </button>
         <button
           type="button"
-          className={`mode-btn ${chatMode === 'council' ? 'active' : ''}`}
+          className={`mode-btn-compact ${chatMode === 'council' ? 'active' : ''}`}
           onClick={() => !isLoading && onChatModeChange('council')}
           disabled={isLoading}
           title="Full council deliberation with all 5 AI models"
         >
-          <span className="mode-btn-icon">👥</span>
           Full Council
         </button>
       </div>
 
-      {/* Department pills - only show when Full Council is selected and company has departments */}
+      {/* Department pills - color-coded */}
       {chatMode === 'council' && selectedBusiness && departments.length > 0 && (
-        <div className="department-pills">
+        <div className="department-pills-compact">
           <button
             type="button"
-            className={`dept-pill ${!selectedDepartment ? 'active' : ''}`}
+            className={`dept-pill-compact ${!selectedDepartment ? 'active' : ''}`}
             onClick={() => !isLoading && onSelectDepartment(null)}
             disabled={isLoading}
             title="Consult the general council"
+            style={!selectedDepartment ? {
+              background: getDeptColor('General').bg,
+              borderColor: getDeptColor('General').border,
+              color: getDeptColor('General').text,
+            } : undefined}
           >
             General
           </button>
-          {departments.map((dept) => (
-            <button
-              key={dept.id}
-              type="button"
-              className={`dept-pill ${selectedDepartment === dept.id ? 'active' : ''}`}
-              onClick={() => !isLoading && onSelectDepartment(dept.id)}
-              disabled={isLoading}
-              title={`Consult the ${dept.name} council`}
-            >
-              {dept.name}
-            </button>
-          ))}
+          {departments.map((dept) => {
+            const colors = getDeptColor(dept.name);
+            const isActive = selectedDepartment === dept.id;
+            return (
+              <button
+                key={dept.id}
+                type="button"
+                className={`dept-pill-compact ${isActive ? 'active' : ''}`}
+                onClick={() => !isLoading && onSelectDepartment(dept.id)}
+                disabled={isLoading}
+                title={`Consult the ${dept.name} council`}
+                style={isActive ? {
+                  background: colors.bg,
+                  borderColor: colors.border,
+                  color: colors.text,
+                } : undefined}
+              >
+                {dept.name}
+              </button>
+            );
+          })}
         </div>
       )}
 
-      {/* Role pills - only show when Full Council, department is selected, and department has roles */}
+      {/* Role pills - show when department is selected and has roles */}
       {chatMode === 'council' && selectedDepartment && roles.length > 0 && (
-        <div className="role-pills">
+        <div className="role-pills-compact">
           <button
             type="button"
-            className={`role-pill ${!selectedRole ? 'active' : ''}`}
+            className={`role-pill-compact ${!selectedRole ? 'active' : ''}`}
             onClick={() => !isLoading && onSelectRole(null)}
             disabled={isLoading}
-            title={`Consult all ${departments.find(d => d.id === selectedDepartment)?.name || 'department'} roles`}
+            title={`Consult all ${selectedDeptName || 'department'} roles`}
           >
             All Roles
           </button>
@@ -90,43 +179,14 @@ export function ModeToggle({
             <button
               key={role.id}
               type="button"
-              className={`role-pill ${selectedRole === role.id ? 'active' : ''}`}
+              className={`role-pill-compact ${selectedRole === role.id ? 'active' : ''}`}
               onClick={() => !isLoading && onSelectRole(role.id)}
               disabled={isLoading}
-              title={`Consult the ${role.name} council`}
+              title={`Consult the ${role.name}`}
             >
               {role.name}
             </button>
           ))}
-        </div>
-      )}
-
-      {/* Context toggles - show when Full Council mode is selected and a business is selected */}
-      {chatMode === 'council' && selectedBusiness && (
-        <div className="context-toggles-row">
-          <span className="context-label">Context:</span>
-          <button
-            type="button"
-            className={`context-toggle-btn ${useCompanyContext ? 'active' : ''}`}
-            onClick={() => !isLoading && onToggleCompanyContext(!useCompanyContext)}
-            disabled={isLoading}
-            title="Toggle company-wide context (main company knowledge)"
-          >
-            <span className="toggle-icon">{useCompanyContext ? '✓' : '○'}</span>
-            Company
-          </button>
-          {selectedDepartment && (
-            <button
-              type="button"
-              className={`context-toggle-btn ${useDepartmentContext ? 'active' : ''}`}
-              onClick={() => !isLoading && onToggleDepartmentContext(!useDepartmentContext)}
-              disabled={isLoading}
-              title="Toggle department-specific context (department knowledge)"
-            >
-              <span className="toggle-icon">{useDepartmentContext ? '✓' : '○'}</span>
-              {departments.find(d => d.id === selectedDepartment)?.name || 'Department'}
-            </button>
-          )}
         </div>
       )}
     </div>

@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Spinner } from './ui/Spinner';
 import { Skeleton } from './ui/Skeleton';
 import { AIWriteAssist } from './ui/AIWriteAssist';
-import { Building2, Bookmark, FolderKanban, CheckCircle, Archive, RotateCcw, ExternalLink, Trash2, Sparkles, PenLine, RefreshCw, Users, BookOpen, BarChart3, Lightbulb, ClipboardList } from 'lucide-react';
+import { Building2, Bookmark, FolderKanban, CheckCircle, Archive, RotateCcw, ExternalLink, Trash2, Sparkles, PenLine, RefreshCw, Users, UserPlus, BookOpen, BarChart3, Lightbulb, ClipboardList } from 'lucide-react';
 import { getDeptColor } from '../lib/colors';
 import {
   AddDepartmentModal,
@@ -27,7 +27,8 @@ import {
   ViewCompanyContextModal,
   ViewDecisionModal
 } from './mycompany/modals';
-import { ActivityTab, OverviewTab, TeamTab, PlaybooksTab, ProjectsTab, DecisionsTab } from './mycompany/tabs';
+import { ActivityTab, OverviewTab, TeamTab, MembersTab, PlaybooksTab, ProjectsTab, DecisionsTab } from './mycompany/tabs';
+import { useAuth } from '../AuthContext';
 import './MyCompany.css';
 
 /**
@@ -40,6 +41,7 @@ import './MyCompany.css';
  * - Decisions: Saved council outputs with "promote to playbook" feature
  */
 export default function MyCompany({ companyId, companyName, allCompanies = [], onSelectCompany, onClose, onNavigateToConversation, initialTab = 'overview', initialDecisionId = null, initialPlaybookId = null, initialProjectId = null, initialPromoteDecision = null, onConsumePromoteDecision = null }) {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState(initialTab);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -664,7 +666,7 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
   };
 
   // Handle add playbook
-  const handleAddPlaybook = async (title, docType, content, departmentId) => {
+  const handleAddPlaybook = async (title, docType, content, departmentId, additionalDepartments = []) => {
     setSaving(true);
     try {
       // Generate slug from title
@@ -674,7 +676,8 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
         slug,
         doc_type: docType,
         content,
-        department_id: departmentId || null
+        department_id: departmentId || null,
+        additional_departments: additionalDepartments
       });
       await loadData();
       setShowAddForm(null);
@@ -992,6 +995,7 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
           {[
             { id: 'overview', label: 'Overview', Icon: BarChart3, tooltip: 'Company summary: see your stats, description, and company context at a glance' },
             { id: 'team', label: 'Team', Icon: Users, tooltip: 'Your departments and roles: manage the structure of your organization' },
+            { id: 'members', label: 'Members', Icon: UserPlus, tooltip: 'Manage company members: add team members, assign roles, view usage' },
             { id: 'projects', label: 'Projects', Icon: FolderKanban, tooltip: 'Organize your work: group related council sessions and track progress' },
             { id: 'playbooks', label: 'Playbooks', Icon: BookOpen, tooltip: 'Your knowledge library: SOPs, frameworks, and policies the AI council uses' },
             { id: 'decisions', label: 'Decisions', Icon: Lightbulb, tooltip: 'Saved council outputs: review, archive, or promote decisions to playbooks' },
@@ -1149,6 +1153,12 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
                   onAddRole={(deptId) => setShowAddForm({ type: 'role', deptId })}
                   onViewDepartment={(dept) => setEditingItem({ type: 'department', data: dept })}
                   onViewRole={(role) => setEditingItem({ type: 'role', data: role })}
+                />
+              )}
+              {activeTab === 'members' && (
+                <MembersTab
+                  companyId={companyId}
+                  currentUserId={user?.id}
                 />
               )}
               {activeTab === 'projects' && (

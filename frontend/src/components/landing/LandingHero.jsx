@@ -3,25 +3,16 @@
  *
  * Intent-first design: single input, minimal cognitive load, maximum clarity.
  * User types their question first, context is secondary.
+ * Now uses shared OmniBar component for visual consistency with in-app experience.
  */
 
-import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import TextareaAutosize from 'react-textarea-autosize';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { AuroraBackground } from '../ui/aurora-background';
+import { OmniBar } from '../shared';
 import { ContextChip } from './ContextChip';
 import { QuickActionChips } from './QuickActionChips';
 import './LandingHero.css';
-
-// Rotating placeholder examples
-const PLACEHOLDER_EXAMPLES = [
-  "How should I price my SaaS product?",
-  "Draft a response to this customer complaint...",
-  "What's the best approach to entering a new market?",
-  "Review this contract for potential risks...",
-  "Help me plan a product launch strategy",
-  "How do I handle a difficult employee situation?",
-];
 
 export function LandingHero({
   // Context state
@@ -51,57 +42,9 @@ export function LandingHero({
   isLoading = false,
 }) {
   const [input, setInput] = useState('');
-  const [placeholderIndex, setPlaceholderIndex] = useState(0);
-  const [showSubmitButton, setShowSubmitButton] = useState(false);
-  const textareaRef = useRef(null);
-
-  // Rotate placeholder text
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setPlaceholderIndex((prev) => (prev + 1) % PLACEHOLDER_EXAMPLES.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Show submit button when user starts typing
-  useEffect(() => {
-    setShowSubmitButton(input.trim().length > 0);
-  }, [input]);
-
-  // Focus textarea on mount
-  useEffect(() => {
-    textareaRef.current?.focus();
-  }, []);
-
-  // Global keyboard shortcut: Cmd+K / Ctrl+K to focus input
-  useEffect(() => {
-    const handleGlobalKeyDown = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        textareaRef.current?.focus();
-      }
-    };
-    document.addEventListener('keydown', handleGlobalKeyDown);
-    return () => document.removeEventListener('keydown', handleGlobalKeyDown);
-  }, []);
-
-  const handleSubmit = (e) => {
-    e?.preventDefault();
-    if (input.trim() && !isLoading && onSubmit) {
-      onSubmit(input.trim(), chatMode);
-    }
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit();
-    }
-  };
 
   const handleQuickAction = (prompt) => {
     setInput(prompt);
-    textareaRef.current?.focus();
   };
 
   // Get Smart Auto hint text (shows last-used context when no explicit selection)
@@ -155,95 +98,53 @@ export function LandingHero({
           </h1>
         </motion.div>
 
-        {/* Omni-bar */}
-        <motion.form
+        {/* Shared OmniBar Component */}
+        <motion.div
           className="omni-bar-container"
-          onSubmit={handleSubmit}
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2, duration: 0.4 }}
         >
-          <div className={`omni-bar ${input.trim() ? 'has-content' : ''} ${isLoading ? 'is-loading' : ''}`}>
-            <TextareaAutosize
-              ref={textareaRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={PLACEHOLDER_EXAMPLES[placeholderIndex]}
-              className="omni-bar-input"
-              minRows={1}
-              maxRows={6}
-              disabled={isLoading}
-            />
+          <OmniBar
+            value={input}
+            onChange={setInput}
+            onSubmit={onSubmit}
+            isLoading={isLoading}
+            chatMode={chatMode}
+            onChatModeChange={onChatModeChange}
+            variant="landing"
+            showModeToggle={false}
+            showImageButton={false}
+            showShortcutHint={true}
+            autoFocus={true}
+          />
 
-            {/* Keyboard shortcut hint */}
-            <AnimatePresence>
-              {!input.trim() && !isLoading && (
-                <motion.kbd
-                  className="omni-bar-kbd"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15 }}
-                >
-                  ⌘K
-                </motion.kbd>
-              )}
-            </AnimatePresence>
-
-            <AnimatePresence>
-              {showSubmitButton && (
-                <motion.button
-                  type="submit"
-                  className="omni-bar-submit"
-                  disabled={isLoading || !input.trim()}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.15 }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {isLoading ? (
-                    <svg className="omni-bar-spinner" viewBox="0 0 24 24">
-                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" fill="none" strokeDasharray="32" strokeLinecap="round" />
-                    </svg>
-                  ) : (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                  )}
-                </motion.button>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Controls row */}
+          {/* Controls row: Mode toggle (left) + Context chip (right) */}
           <motion.div
             className="omni-bar-controls"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.3 }}
           >
-            {/* Mode toggle */}
+            {/* Mode toggle - left side */}
             <div className="mode-toggle-landing">
               <button
                 type="button"
                 className={`mode-btn-landing ${chatMode === 'chat' ? 'active' : ''}`}
-                onClick={() => onChatModeChange?.('chat')}
+                onClick={() => onChatModeChange('chat')}
               >
                 Quick
               </button>
               <button
                 type="button"
                 className={`mode-btn-landing ${chatMode === 'council' ? 'active' : ''}`}
-                onClick={() => onChatModeChange?.('council')}
+                onClick={() => onChatModeChange('council')}
               >
                 Full Council
               </button>
             </div>
 
-            {/* Context chip */}
+            {/* Context chip - right side */}
             <ContextChip
               displayText={getContextDisplayText()}
               isSmartAuto={!selectedBusiness}
@@ -266,7 +167,7 @@ export function LandingHero({
               userPreferences={userPreferences}
             />
           </motion.div>
-        </motion.form>
+        </motion.div>
 
         {/* Quick action chips */}
         <motion.div

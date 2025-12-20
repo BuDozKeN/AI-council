@@ -1,0 +1,170 @@
+/**
+ * RoleSelect Styles
+ * Consistent with DepartmentSelect for unified dropdown experience
+ */
+
+/* Trigger button */
+.role-select-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-slate-500);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+/* When a role is selected */
+.role-select-trigger.has-selection {
+  background: var(--color-brand-primary-light);
+  color: var(--color-brand-primary);
+  border: 1px solid var(--color-brand-primary);
+}
+
+.role-select-trigger.has-selection:hover {
+  opacity: 0.9;
+}
+
+.role-select-trigger:hover:not(.has-selection) {
+  background: var(--color-bg-primary);
+  color: var(--color-gray-700);
+}
+
+.role-select-trigger:focus {
+  outline: none;
+}
+
+.role-select-trigger:focus:not(.has-selection) {
+  background: var(--color-bg-primary);
+}
+
+.role-select-trigger[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Dropdown content - Design System compliant */
+.role-select-content {
+  position: relative;
+  z-index: var(--z-modal-dropdown, 9999);
+  max-height: 300px;
+  min-width: 8rem;
+  overflow: hidden;
+  border-radius: var(--radius-lg, 12px);
+  border: 1px solid var(--color-gray-200, #e5e7eb);
+  background: var(--color-bg-primary, white);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure proper z-index */
+[data-radix-popper-content-wrapper]:has(.role-select-content) {
+  z-index: var(--z-modal-dropdown, 9999);
+}
+
+/* Animation */
+@keyframes dropdownIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.role-select-content[data-side="bottom"] {
+  transform-origin: top;
+  animation: dropdownIn 0.15s ease-out;
+}
+
+.role-select-content[data-side="top"] {
+  transform-origin: bottom;
+  animation: dropdownIn 0.15s ease-out;
+}
+
+/* Viewport */
+.role-select-viewport {
+  padding: 8px;
+  min-width: var(--radix-select-trigger-width);
+}
+
+/* Individual items */
+.role-select-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+  cursor: pointer;
+  user-select: none;
+  align-items: center;
+  border-radius: var(--radius-md, 8px);
+  padding: 10px 12px;
+  padding-right: 36px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-gray-700, #374151);
+  outline: none;
+  transition: all 0.1s ease;
+}
+
+/* Hover state */
+.role-select-item[data-highlighted] {
+  background: var(--color-brand-primary-light, #fff7ed);
+}
+
+/* Selected/checked state */
+.role-select-item[data-state="checked"] {
+  background: var(--color-brand-primary-light, #fff7ed);
+  color: var(--color-brand-primary, #f97316);
+}
+
+/* Disabled state */
+.role-select-item[data-disabled] {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Checkmark indicator */
+.role-select-item-indicator {
+  position: absolute;
+  right: 12px;
+  display: flex;
+  height: 16px;
+  width: 16px;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-brand-primary, #f97316);
+}
+
+/* Dark mode */
+.dark .role-select-trigger {
+  color: var(--color-gray-400);
+}
+
+.dark .role-select-trigger:hover:not(.has-selection) {
+  background: var(--color-bg-secondary);
+  color: var(--color-gray-200);
+}
+
+.dark .role-select-content {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-gray-700);
+}
+
+.dark .role-select-item {
+  color: var(--color-gray-300);
+}
+
+.dark .role-select-item[data-highlighted] {
+  background: var(--color-gray-700);
+}
+
+.dark .role-select-item[data-state="checked"] {
+  background: var(--color-brand-primary-light);
+  color: var(--color-brand-primary);
+}

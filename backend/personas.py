@@ -437,7 +437,12 @@ Structure your synthesis as:
 - Risks and mitigations (what to watch for)
 - Dissenting views (important disagreements)
 
-Be decisive while acknowledging complexity."""
+Be decisive while acknowledging complexity.
+
+KNOWLEDGE GAP REPORTING:
+If any council members noted missing context, or you identify gaps that affected the quality of advice, output:
+[GAP: brief description of missing information]
+This helps the user understand what business context would improve future queries."""
     },
 
     "title_generator": {

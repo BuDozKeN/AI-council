@@ -2,8 +2,230 @@
   margin: 24px 0;
   padding: 20px;
   background: var(--color-bg-secondary);
-  border-radius: var(--radius-md);
+  border-radius: 12px;
   border: 1px solid var(--color-border);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.stage.stage1 {
+  background: linear-gradient(135deg, var(--stage1-bg-gradient-start) 0%, var(--stage1-bg-gradient-end) 100%);
+  border-color: var(--stage1-border);
+}
+
+/* Living Feed Grid - shows all models simultaneously */
+.stage1 .model-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 12px;
+}
+
+@media (min-width: 768px) {
+  .stage1 .model-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .stage1 .model-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* When a card is expanded, show single column */
+.stage1 .model-grid.has-expanded {
+  grid-template-columns: 1fr;
+}
+
+/* Model card styles */
+.stage1 .model-card {
+  padding: 12px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-slate-200);
+  background: var(--color-bg-primary);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.stage1 .model-card:hover {
+  border-color: var(--color-slate-300);
+  box-shadow: var(--shadow-sm);
+}
+
+.stage1 .model-card.streaming {
+  border-color: var(--stage1-border);
+  background: linear-gradient(135deg, var(--stage1-bg-gradient-start) 0%, var(--stage1-bg-gradient-end) 100%);
+  box-shadow: 0 0 0 1px var(--stage1-shadow-color);
+}
+
+.stage1 .model-card.error {
+  border-color: var(--stage2-border);
+  background: linear-gradient(135deg, var(--stage2-bg-gradient-start) 0%, var(--stage2-bg-gradient-end) 100%);
+}
+
+.stage1 .model-card.expanded {
+  grid-column: 1 / -1;
+  border-color: var(--color-blue-500);
+  box-shadow: 0 4px 12px var(--stage1-shadow-color);
+  max-height: 500px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Model card header */
+.stage1 .model-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.stage1 .model-card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stage1 .model-card-name {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-slate-500);
+  letter-spacing: 0.05em;
+}
+
+/* Status indicators */
+.stage1 .status-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+}
+
+.stage1 .status-dot-ping {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #4ade80;
+  opacity: 0.75;
+  animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.stage1 .status-dot-core {
+  position: relative;
+  display: inline-flex;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+}
+
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* Header right - copy + expand buttons */
+.stage1 .model-card-header-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Expand button */
+.stage1 .expand-btn {
+  padding: 4px;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--color-slate-500);
+  transition: all 0.15s ease;
+}
+
+.stage1 .expand-btn:hover {
+  background: var(--color-slate-100);
+  color: var(--color-slate-600);
+}
+
+/* Card content */
+.stage1 .model-card-content {
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.5;
+}
+
+/* Expanded card content - scrollable */
+.stage1 .model-card.expanded .model-card-content {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 400px;
+  padding-right: 8px;
+}
+
+/* Custom scrollbar for expanded content */
+.stage1 .model-card.expanded .model-card-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.stage1 .model-card.expanded .model-card-content::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.stage1 .model-card.expanded .model-card-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.stage1 .model-card.expanded .model-card-content::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.stage1 .model-card-content.truncated {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.stage1 .model-card-preview {
+  font-family: 'SF Mono', Monaco, monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #64748b;
+}
+
+.stage1 .model-card-cursor {
+  display: inline-block;
+  width: 6px;
+  height: 16px;
+  background: #3b82f6;
+  margin-left: 2px;
+  animation: blink 1s infinite;
+}
+
+/* Copy footer */
+.stage1 .model-card-footer {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Error/empty states */
+.stage1 .model-card-empty {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.stage1 .model-card-error {
+  color: #d97706;
+  font-style: italic;
 }
 
 .stage-title {
@@ -35,6 +257,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 50%;
+}
+
+/* Hide topic on mobile - saves space */
+@media (max-width: 640px) {
+  .stage-topic {
+    display: none;
+  }
 }
 
 .collapse-arrow {
@@ -439,4 +668,164 @@
   border: none;
   border-top: 1px solid var(--color-border);
   margin: 16px 0;
+}
+
+/* ===== DARK MODE ===== */
+/* Stage1 uses CSS variables from tailwind.css which are redefined in .dark context */
+
+.dark .stage.stage1 {
+  background: linear-gradient(135deg, var(--stage1-bg-gradient-start) 0%, var(--stage1-bg-gradient-end) 100%);
+  border-color: var(--color-border);
+}
+
+.dark .stage1 .model-card {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .stage1 .model-card:hover {
+  border-color: var(--color-border-dark);
+  box-shadow: var(--shadow-md);
+}
+
+.dark .stage1 .model-card.streaming {
+  border-color: var(--stage1-border);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, var(--color-bg-secondary) 100%);
+  box-shadow: 0 0 0 1px var(--color-info-light);
+}
+
+.dark .stage1 .model-card.error {
+  border-color: var(--color-warning);
+  background: linear-gradient(135deg, var(--color-warning-light) 0%, var(--color-bg-secondary) 100%);
+}
+
+.dark .stage1 .model-card.expanded {
+  border-color: var(--stage1-border);
+  box-shadow: 0 4px 12px var(--stage1-shadow-color);
+}
+
+.dark .stage1 .model-card-name {
+  color: var(--color-text-secondary);
+}
+
+.dark .stage1 .model-card-content {
+  color: var(--color-slate-600);
+}
+
+.dark .stage1 .model-card-preview {
+  color: var(--color-text-secondary);
+}
+
+.dark .stage1 .expand-btn {
+  color: var(--color-text-tertiary);
+}
+
+.dark .stage1 .expand-btn:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.dark .stage1 .model-card-footer {
+  border-top-color: var(--color-border);
+}
+
+/* Dark mode scrollbar */
+.dark .stage1 .model-card.expanded .model-card-content::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+.dark .stage1 .model-card.expanded .model-card-content::-webkit-scrollbar-thumb {
+  background: var(--color-text-muted);
+}
+
+.dark .stage1 .model-card.expanded .model-card-content::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
+}
+
+/* Dark mode code blocks */
+.dark .stage1 .code-block-wrapper {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border);
+}
+
+.dark .stage1 .code-block-wrapper .code-language {
+  color: var(--color-text-tertiary);
+}
+
+.dark .stage1 .code-block-wrapper .copy-code-btn {
+  border-color: var(--color-border);
+  color: var(--color-brand-primary);
+}
+
+.dark .stage1 .code-block-wrapper .copy-code-btn:hover {
+  background: var(--color-info-light);
+}
+
+.dark .stage1 .code-block-wrapper pre {
+  background: var(--color-bg-primary);
+}
+
+.dark .stage1 .code-block-wrapper code {
+  color: var(--color-text-primary);
+}
+
+.dark .stage1 .inline-code {
+  background: var(--overlay-shimmer);
+}
+
+/* ===== SWIPE INDICATOR FOR MOBILE ===== */
+.swipe-indicator {
+  display: none;
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  padding: 4px;
+}
+
+.swipe-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--color-slate-300);
+  border-radius: 2px;
+  transition: background 0.15s ease;
+}
+
+/* Show swipe indicator only on mobile for expanded cards */
+@media (max-width: 768px) {
+  .stage1 .model-card.expanded {
+    position: relative;
+  }
+
+  .stage1 .model-card.expanded .swipe-indicator {
+    display: block;
+  }
+
+  .stage1 .model-card.expanded .model-card-header {
+    padding-top: 16px; /* Make room for swipe indicator */
+  }
+}
+
+/* Dark mode swipe handle */
+.dark .swipe-handle {
+  background: var(--color-text-muted);
+}
+
+/* Touch feedback - visual hint that card can be swiped */
+@media (hover: none) and (pointer: coarse) {
+  .stage1 .model-card.expanded .swipe-handle {
+    animation: swipe-hint 2s ease-in-out 1s 1;
+  }
+}
+
+@keyframes swipe-hint {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(4px);
+    opacity: 0.6;
+  }
 }

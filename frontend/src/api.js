@@ -643,7 +643,8 @@ export const api = {
    * @returns {Promise<{enabled: boolean, scenario: string}>}
    */
   async getMockMode() {
-    const response = await fetch(`${API_BASE}/api/settings/mock-mode`);
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/settings/mock-mode`, { headers });
     if (!response.ok) {
       throw new Error('Failed to get mock mode status');
     }
@@ -656,11 +657,10 @@ export const api = {
    * @returns {Promise<{success: boolean, enabled: boolean, message: string}>}
    */
   async setMockMode(enabled) {
+    const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/settings/mock-mode`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({ enabled }),
     });
     if (!response.ok) {
@@ -674,7 +674,8 @@ export const api = {
    * @returns {Promise<{enabled: boolean, supported_models: string[]}>}
    */
   async getCachingMode() {
-    const response = await fetch(`${API_BASE}/api/settings/caching-mode`);
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/settings/caching-mode`, { headers });
     if (!response.ok) {
       throw new Error('Failed to get caching mode status');
     }
@@ -687,11 +688,10 @@ export const api = {
    * @returns {Promise<{success: boolean, enabled: boolean, message: string}>}
    */
   async setCachingMode(enabled) {
+    const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/settings/caching-mode`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({ enabled }),
     });
     if (!response.ok) {
@@ -2066,6 +2066,130 @@ export const api = {
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Failed to get AI suggestion' }));
       throw new Error(error.detail || 'Failed to get AI suggestion');
+    }
+    return response.json();
+  },
+
+  /**
+   * Merge new context into existing company context using AI.
+   * Takes the user's answer to a knowledge gap question and intelligently
+   * merges it into the existing company context.
+   *
+   * @param {Object} params
+   * @param {string} params.companyId - Company ID
+   * @param {string} params.existingContext - Current company context markdown
+   * @param {string} params.question - The knowledge gap question that was asked
+   * @param {string} params.answer - The user's answer to the question
+   * @returns {Promise<{merged_context: string}>} The merged context
+   */
+  async mergeCompanyContext({ companyId, existingContext, question, answer }) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/company/${companyId}/context/merge`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        existing_context: existingContext,
+        question,
+        answer,
+      }),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to merge context' }));
+      throw new Error(error.detail || 'Failed to merge context');
+    }
+    return response.json();
+  },
+
+  // ===== TEAM MEMBERS =====
+
+  /**
+   * Get all members of a company.
+   * @param {string} companyId - Company ID
+   * @returns {Promise<{members: Array}>} List of company members with roles
+   */
+  async getCompanyMembers(companyId) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/company/${companyId}/members`, { headers });
+    if (!response.ok) {
+      throw new Error('Failed to get company members');
+    }
+    return response.json();
+  },
+
+  /**
+   * Add a new member to the company.
+   * @param {string} companyId - Company ID
+   * @param {string} email - Email of the user to add
+   * @param {string} role - Role to assign ('admin' or 'member')
+   * @returns {Promise<{member: Object, message: string}>}
+   */
+  async addCompanyMember(companyId, email, role = 'member') {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/company/${companyId}/members`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ email, role }),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to add member' }));
+      throw new Error(error.detail || 'Failed to add member');
+    }
+    return response.json();
+  },
+
+  /**
+   * Update a member's role.
+   * @param {string} companyId - Company ID
+   * @param {string} memberId - Member ID
+   * @param {string} role - New role ('admin' or 'member')
+   * @returns {Promise<{member: Object, message: string}>}
+   */
+  async updateCompanyMember(companyId, memberId, role) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/company/${companyId}/members/${memberId}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ role }),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to update member' }));
+      throw new Error(error.detail || 'Failed to update member');
+    }
+    return response.json();
+  },
+
+  /**
+   * Remove a member from the company.
+   * @param {string} companyId - Company ID
+   * @param {string} memberId - Member ID
+   * @returns {Promise<{message: string}>}
+   */
+  async removeCompanyMember(companyId, memberId) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/company/${companyId}/members/${memberId}`, {
+      method: 'DELETE',
+      headers,
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to remove member' }));
+      throw new Error(error.detail || 'Failed to remove member');
+    }
+    return response.json();
+  },
+
+  // ===== USAGE TRACKING =====
+
+  /**
+   * Get usage statistics for the company.
+   * Only owners and admins can view this.
+   * @param {string} companyId - Company ID
+   * @returns {Promise<{usage: Object}>} Usage statistics
+   */
+  async getCompanyUsage(companyId) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/company/${companyId}/usage`, { headers });
+    if (!response.ok) {
+      throw new Error('Failed to get company usage');
     }
     return response.json();
   },

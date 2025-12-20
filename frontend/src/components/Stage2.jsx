@@ -2,38 +2,9 @@ import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Spinner } from './ui/Spinner';
+import { CopyButton } from './ui/CopyButton';
+import { Users, Trophy, CheckCircle2 } from 'lucide-react';
 import './Stage2.css';
-
-// Copy button component
-function CopyButton({ text }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = async (e) => {
-    e.stopPropagation();
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  };
-
-  return (
-    <button className={`copy-btn ${copied ? 'copied' : ''}`} onClick={handleCopy} title="Copy response">
-      {copied ? (
-        <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="20 6 9 17 4 12" />
-        </svg>
-      ) : (
-        <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-        </svg>
-      )}
-    </button>
-  );
-}
 
 function deAnonymizeText(text, labelToModel) {
   if (!labelToModel) return text;
@@ -47,7 +18,7 @@ function deAnonymizeText(text, labelToModel) {
   return result;
 }
 
-export default function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoading, isComplete, defaultCollapsed = false, conversationTitle }) {
+export default function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoading, isComplete, defaultCollapsed = true, conversationTitle }) {
   const [activeTab, setActiveTab] = useState(0);
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [userToggled, setUserToggled] = useState(false);
@@ -65,7 +36,7 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
         isComplete: data.complete && !data.error,
         hasError: data.error,
         isEmpty: data.complete && !data.text && !data.error,
-        parsed_ranking: null, // Can't parse until complete
+        parsed_ranking: null,
       });
     });
   } else if (rankings && rankings.length > 0) {
@@ -83,8 +54,9 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
     });
   }
 
-  // Check if all models are complete (for collapsible state)
+  // Check if all models are complete
   const allComplete = displayData.every(d => d.isComplete || d.hasError);
+  const streamingCount = displayData.filter(d => d.isStreaming).length;
 
   // Auto-select first tab with content
   useEffect(() => {
@@ -93,8 +65,7 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
     }
   }, [displayData.length, activeTab]);
 
-  // Auto-collapse when complete (only if user hasn't manually toggled)
-  // This hook MUST be called before any early returns to maintain consistent hook order
+  // Auto-collapse when all complete (if user hasn't manually toggled)
   useEffect(() => {
     if (isComplete && allComplete && !isCollapsed && !userToggled) {
       setIsCollapsed(true);
@@ -111,7 +82,8 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
     return (
       <div className="stage stage2">
         <h3 className="stage-title">
-          Peer Review
+          <Users className="h-5 w-5 text-violet-500 flex-shrink-0" />
+          <span className="font-semibold tracking-tight">Anonymised Peer Review</span>
           {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
         </h3>
         <div className="stage-loading">
@@ -124,16 +96,11 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
 
   const activeData = displayData[activeTab] || displayData[0];
 
-  const toggleCollapsed = () => {
-    setUserToggled(true);
-    setIsCollapsed(!isCollapsed);
-  };
-
-  // Summary for collapsed state
+  // Summary stats
   const completedCount = displayData.filter(d => d.isComplete && !d.isEmpty).length;
   const totalCount = displayData.length;
 
-  // Get winner from aggregate rankings (first item is the winner)
+  // Get winner from aggregate rankings
   const winner = aggregateRankings && aggregateRankings.length > 0
     ? (aggregateRankings[0].model.split('/')[1] || aggregateRankings[0].model)
     : null;
@@ -141,28 +108,39 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
     ? aggregateRankings[0].average_rank.toFixed(1)
     : null;
 
+  const toggleCollapsed = () => {
+    setUserToggled(true);
+    setIsCollapsed(!isCollapsed);
+  };
+
   return (
     <div className={`stage stage2 ${isCollapsed ? 'collapsed' : ''}`}>
       <h3 className="stage-title clickable" onClick={toggleCollapsed}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
-        Peer Review
+        {streamingCount > 0 ? (
+          <Users className="h-5 w-5 text-violet-500 animate-pulse flex-shrink-0" />
+        ) : (
+          <CheckCircle2 className="h-5 w-5 text-violet-600 flex-shrink-0" />
+        )}
+        <span className="font-semibold tracking-tight">Anonymised Peer Review</span>
         {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
-        {isCollapsed && (
-          <span className="collapsed-summary">
-            {completedCount}/{totalCount} reviews
-            {winner && <span className="winner-badge">Winner: {winner} (avg: {winnerAvg})</span>}
+
+        {/* Summary badge - always visible */}
+        <span className="stage2-summary">
+          {completedCount}/{totalCount} reviews
+        </span>
+
+        {/* Winner badge - only when collapsed or always? */}
+        {winner && (
+          <span className="stage2-winner">
+            <Trophy style={{ width: 14, height: 14 }} />
+            {winner} (avg: {winnerAvg})
           </span>
         )}
       </h3>
 
       {!isCollapsed && (
-        <>
-          <h4>Raw Evaluations</h4>
-          <p className="stage-description">
-            Each model evaluated all responses (anonymized as Response A, B, C, etc.) and provided rankings.
-            Below, model names are shown in <strong>bold</strong> for readability, but the original evaluation used anonymous labels.
-          </p>
-
+        <div className="stage2-content">
           <div className="tabs">
             {displayData.map((data, index) => (
               <button
@@ -188,7 +166,7 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
                 {activeData.hasError && <span className="error-badge">Error</span>}
               </span>
               {activeData.isComplete && !activeData.isEmpty && activeData.ranking && (
-                <CopyButton text={activeData.ranking} />
+                <CopyButton text={activeData.ranking} size="sm" />
               )}
             </div>
             <div className={`ranking-content markdown-content ${activeData.hasError || activeData.isEmpty ? 'error-text' : ''}`}>
@@ -225,7 +203,7 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
 
           {aggregateRankings && aggregateRankings.length > 0 && (
             <div className="aggregate-rankings">
-              <h4>Aggregate Rankings (Street Cred)</h4>
+              <h4 className="stage2-section-title">Aggregate Rankings (Street Cred)</h4>
               <p className="stage-description">
                 Combined results across all peer evaluations (lower score is better):
               </p>
@@ -247,7 +225,7 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
               </div>
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );

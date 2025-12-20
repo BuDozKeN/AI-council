@@ -3871,6 +3871,29 @@
   opacity: 0.9;
 }
 
+/* Department chips container for create modal */
+.mc-dept-chips-create {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+/* Field hint text */
+.mc-field-hint {
+  font-size: 0.75rem;
+  color: var(--color-gray-500);
+  margin: 4px 0 0 0;
+}
+
+/* Company-wide indicator */
+.mc-company-wide-hint {
+  font-size: 0.75rem;
+  color: var(--color-blue-600);
+  margin-top: 8px;
+  font-style: italic;
+}
+
 /* ============================================
    PLAYBOOK LIST IMPROVEMENTS
    ============================================ */
@@ -6433,6 +6456,267 @@
   .mc-dept-desc,
   .mc-project-desc {
     font-size: 0.75rem;
+  }
+}
+
+/* ============================================================================
+   MEMBERS TAB - Team Members Management
+   ============================================================================ */
+
+.mc-members {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mc-members-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.mc-members-count {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+/* Add Member Form */
+.mc-add-member-form {
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mc-form-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mc-form-row .mc-input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.mc-form-row .mc-select {
+  width: 120px;
+}
+
+.mc-form-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-danger);
+  font-size: 0.8125rem;
+}
+
+.mc-form-hint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Members List */
+.mc-members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mc-member-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-subtle);
+  transition: all 0.15s ease;
+}
+
+.mc-member-row:hover {
+  border-color: var(--color-border-default);
+  background: var(--color-bg-hover);
+}
+
+.mc-member-row.current {
+  background: var(--color-bg-accent);
+  border-color: var(--color-primary);
+}
+
+.mc-member-role {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-secondary);
+}
+
+.mc-member-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mc-member-name {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+}
+
+.mc-member-role-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.mc-member-joined {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.mc-member-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mc-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-icon-btn:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.mc-icon-btn.promote:hover {
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.mc-icon-btn.demote:hover {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.mc-icon-btn.danger:hover {
+  color: var(--color-danger);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Usage Section */
+.mc-usage-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.mc-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 16px 0;
+}
+
+.mc-usage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.mc-usage-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.mc-usage-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.mc-usage-label {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* Loading and Error states */
+.mc-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px;
+  color: var(--color-text-secondary);
+}
+
+.mc-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: var(--radius-md);
+  color: var(--color-danger);
+}
+
+/* Mobile responsiveness for Members */
+@media (max-width: 640px) {
+  .mc-form-row {
+    flex-direction: column;
+  }
+
+  .mc-form-row .mc-input,
+  .mc-form-row .mc-select {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .mc-member-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .mc-member-joined {
+    flex-basis: 100%;
+    order: 3;
+    margin-left: 44px;
+  }
+
+  .mc-usage-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 

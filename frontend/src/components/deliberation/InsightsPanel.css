@@ -1,0 +1,330 @@
+.insights-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.insights-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.insights-title-icon {
+  color: var(--color-brand-primary);
+  flex-shrink: 0;
+}
+
+.insights-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
+  background: var(--color-brand-primary-light);
+  color: var(--color-brand-primary);
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.insights-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Insight card base */
+.insight-card {
+  border-radius: var(--radius-lg);
+  border: 2px solid;
+  padding: 16px;
+  animation: insightSlideIn 0.3s ease-out;
+}
+
+@keyframes insightSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Type-specific styling using design tokens */
+.insight-gap {
+  background: var(--insight-gap-bg);
+  border-color: var(--insight-gap-border);
+}
+
+.insight-consensus {
+  background: var(--insight-consensus-bg);
+  border-color: var(--insight-consensus-border);
+}
+
+.insight-tension {
+  background: var(--insight-tension-bg);
+  border-color: var(--insight-tension-border);
+}
+
+.insight-context {
+  background: var(--insight-context-bg);
+  border-color: var(--insight-context-border);
+}
+
+/* Insight card content */
+.insight-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.insight-icon {
+  flex-shrink: 0;
+}
+
+.insight-gap .insight-icon {
+  color: var(--insight-gap-text);
+}
+
+.insight-consensus .insight-icon {
+  color: var(--insight-consensus-text);
+}
+
+.insight-tension .insight-icon {
+  color: var(--insight-tension-text);
+}
+
+.insight-context .insight-icon {
+  color: var(--insight-context-text);
+}
+
+.insight-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.insight-gap .insight-label {
+  color: var(--insight-gap-text);
+}
+
+.insight-consensus .insight-label {
+  color: var(--insight-consensus-text);
+}
+
+.insight-tension .insight-label {
+  color: var(--insight-tension-text);
+}
+
+.insight-context .insight-label {
+  color: var(--insight-context-text);
+}
+
+/* Model icon in header (for gap cards) */
+.insight-model-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--model-color, #6366f1);
+  color: white;
+  flex-shrink: 0;
+}
+
+.insight-model-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Explanation text - why we're asking */
+.insight-explanation {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin: 0 0 8px 0;
+  line-height: 1.5;
+}
+
+/* The question/gap content - more prominent */
+.insight-question {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  margin: 0 0 12px 0;
+  font-weight: 500;
+  font-style: italic;
+  padding-left: 12px;
+  border-left: 3px solid var(--insight-gap-border);
+}
+
+/* Benefit section - what they get for answering */
+.insight-benefit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: rgba(34, 197, 94, 0.08);
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+}
+
+.insight-benefit .benefit-icon {
+  color: #22c55e;
+  flex-shrink: 0;
+}
+
+.insight-benefit span {
+  font-size: 12px;
+  color: #15803d;
+  line-height: 1.4;
+}
+
+.insight-source {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin: 0 0 6px 0;
+  font-weight: 500;
+}
+
+.insight-content {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  margin: 0;
+  font-style: italic;
+}
+
+/* Action button (for knowledge gaps) */
+.insight-action-btn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px 16px;
+  background: var(--insight-gap-button-bg);
+  border: 1px solid var(--insight-gap-border);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--insight-gap-text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.insight-action-btn:hover:not(:disabled) {
+  background: var(--insight-gap-button-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.insight-action-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.insight-action-btn.added {
+  background: var(--insight-consensus-bg);
+  border-color: var(--insight-consensus-border);
+  color: var(--insight-consensus-text);
+}
+
+/* Empty state */
+.insights-panel-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  background: var(--color-bg-secondary);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  text-align: center;
+}
+
+.insights-panel-empty .empty-icon {
+  margin-bottom: 12px;
+  opacity: 0.5;
+  color: var(--color-text-muted);
+}
+
+.insights-panel-empty .empty-text {
+  font-size: 15px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  margin: 0 0 4px 0;
+}
+
+.insights-panel-empty .empty-subtext {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Scrollbar */
+.insights-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.insights-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.insights-panel::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+.insights-panel::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-dark);
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .insights-panel {
+    max-height: 400px;
+  }
+
+  .insights-panel-empty {
+    min-height: 200px;
+    padding: 24px 16px;
+  }
+
+  .insights-panel-empty .empty-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .insights-panel-empty .empty-text {
+    font-size: 13px;
+  }
+
+  .insight-card {
+    padding: 12px;
+  }
+
+  .insight-label {
+    font-size: 10px;
+  }
+
+  .insight-content {
+    font-size: 12px;
+  }
+
+  .insight-action-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}
