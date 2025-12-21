@@ -81,25 +81,45 @@ STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
 
-# Subscription tiers configuration (placeholder pricing - update as needed)
-# These will be created in Stripe if they don't exist
+# =============================================================================
+# SUBSCRIPTION TIERS CONFIGURATION
+# =============================================================================
+# IMPORTANT: Daily limits protect against runaway API costs.
+# Even "unlimited" tiers have daily caps to prevent abuse and cost overruns.
+#
+# Cost math (approximate):
+# - Each council query = 5 models × ~4K tokens avg = ~20K tokens
+# - At ~$0.01/1K tokens blended rate = ~$0.20 per query
+# - Enterprise at $99/month can afford ~495 queries before losing money
+# - Daily cap of 50 = max 1,500/month = $300 cost = still losing money but capped
+#
+# Adjust these caps based on actual API costs from your OpenRouter dashboard.
+# =============================================================================
 SUBSCRIPTION_TIERS = {
     "free": {
         "name": "Free",
         "price_monthly": 0,
         "queries_per_month": 5,
+        "queries_per_day": 5,  # Daily cap (same as monthly for free)
         "features": ["Basic council queries", "Standard response time"],
     },
     "pro": {
         "name": "Pro",
         "price_monthly": 2900,  # $29.00 in cents
         "queries_per_month": 100,
+        "queries_per_day": 20,  # ~5 days of heavy use max
         "features": ["100 council queries/month", "Priority response", "Knowledge curator"],
     },
     "enterprise": {
         "name": "Enterprise",
         "price_monthly": 9900,  # $99.00 in cents
-        "queries_per_month": -1,  # Unlimited
-        "features": ["Unlimited queries", "Priority support", "Custom departments", "API access"],
+        "queries_per_month": 1000,  # Changed from -1 to prevent runaway costs
+        "queries_per_day": 100,  # Generous daily cap, but still protected
+        "features": ["1000 queries/month", "Priority support", "Custom departments", "API access"],
     },
 }
+
+# Global safety caps (override individual tier settings if needed)
+# Set via environment to adjust without code changes
+MAX_QUERIES_PER_DAY = int(os.getenv("MAX_QUERIES_PER_DAY", "200"))  # Absolute daily max
+MAX_TOKENS_PER_QUERY = int(os.getenv("MAX_TOKENS_PER_QUERY", "32000"))  # Context limit

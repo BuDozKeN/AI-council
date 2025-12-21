@@ -837,14 +837,32 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
             # Increment query usage after successful council run
             billing.increment_query_usage(user_id, access_token=access_token)
 
+            # Estimate token usage for cost tracking
+            # Rough estimation: ~4 chars per token (industry standard approximation)
+            # More accurate would require OpenRouter's usage API, but this works for budgeting
+            total_output_chars = 0
+            for result in stage1_results:
+                total_output_chars += len(result.get('response', ''))
+            for result in stage2_results:
+                total_output_chars += len(result.get('ranking_response', ''))
+            total_output_chars += len(stage3_result) if stage3_result else 0
+
+            # System prompt + user query estimate (rough)
+            estimated_input_chars = len(body.content) + 2000  # 2000 for avg system prompt
+            estimated_tokens_input = estimated_input_chars // 4
+            estimated_tokens_output = total_output_chars // 4
+
+            # Record token usage for user billing
+            billing.record_token_usage(user_id, estimated_tokens_input, estimated_tokens_output)
+
             # Log usage event for analytics (privacy: no user_id tracked)
             if company_uuid:
                 try:
                     await company_router.log_usage_event(
                         company_id=company_uuid,
                         event_type="council_session",
-                        tokens_input=0,  # TODO: Track actual tokens when OpenRouter returns them
-                        tokens_output=0,
+                        tokens_input=estimated_tokens_input,
+                        tokens_output=estimated_tokens_output,
                         model_used="council",  # Multi-model council session
                         session_id=conversation_id
                     )

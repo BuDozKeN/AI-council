@@ -165,9 +165,17 @@ async def query_model(
         data = response.json()
         message = data['choices'][0]['message']
 
+        # Extract usage data for cost tracking
+        usage = data.get('usage', {})
+
         return {
             'content': message.get('content'),
-            'reasoning_details': message.get('reasoning_details')
+            'reasoning_details': message.get('reasoning_details'),
+            'usage': {
+                'prompt_tokens': usage.get('prompt_tokens', 0),
+                'completion_tokens': usage.get('completion_tokens', 0),
+                'total_tokens': usage.get('total_tokens', 0)
+            }
         }
 
     except httpx.TimeoutException as e:
@@ -245,8 +253,7 @@ async def query_model_stream(
                     error_body = await response.aread()
                     error_text = error_body.decode('utf-8')[:1000]
                     print(f"[HTTP ERROR] Model {model}: Status {response.status_code} - {error_text}", flush=True)
-                    if response.status_code == 400:
-                        print(f"[400 DEBUG] {model}: This often means context too long, invalid request format, or model-specific restrictions", flush=True)
+                    # 400 errors typically mean context too long or invalid request
                     yield f"[Error: Status {response.status_code}]"
                     return
 
@@ -351,9 +358,7 @@ async def query_model_stream(
 
             print(f"[HTTP ERROR] Model {model}: {error_msg} - {error_detail}", flush=True)
 
-            # For 400 errors, also log what might be wrong
-            if e.response.status_code == 400:
-                print(f"[400 DEBUG] {model}: This is often caused by: context too long, invalid characters, or model-specific restrictions", flush=True)
+            # 400 errors typically mean context too long or invalid request
 
             yield f"[Error: {error_msg}]"
             return

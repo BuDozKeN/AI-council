@@ -272,42 +272,133 @@ def check_can_query(user_id: str, access_token: Optional[str] = None) -> Dict[st
             "remaining": 0
         }
 
-    # Unlimited queries
-    if subscription["queries_limit"] == -1:
-        return {
-            "can_query": True,
-            "reason": None,
-            "remaining": -1  # Unlimited
-        }
+    # Get tier-specific limits
+    tier = subscription.get("tier", "free")
+    tier_config = SUBSCRIPTION_TIERS.get(tier, SUBSCRIPTION_TIERS["free"])
+    monthly_limit = tier_config.get("queries_per_month", 5)
+    daily_limit = tier_config.get("queries_per_day", 5)
 
-    # Check usage
-    remaining = subscription["queries_limit"] - subscription["queries_used"]
-    if remaining <= 0:
-        return {
-            "can_query": False,
-            "reason": f"Monthly query limit reached ({subscription['queries_limit']} queries). Upgrade to continue.",
-            "remaining": 0
-        }
+    # Check monthly usage
+    if monthly_limit > 0:
+        remaining = monthly_limit - subscription["queries_used"]
+        if remaining <= 0:
+            return {
+                "can_query": False,
+                "reason": f"Monthly query limit reached ({monthly_limit} queries). Upgrade to continue.",
+                "remaining": 0
+            }
+
+    remaining_monthly = monthly_limit - subscription["queries_used"] if monthly_limit > 0 else -1
 
     return {
         "can_query": True,
         "reason": None,
-        "remaining": remaining
+        "remaining": remaining_monthly,
+        "daily_limit": daily_limit,
+        "monthly_limit": monthly_limit
+    }
+
+
+def check_and_increment_usage(user_id: str, access_token: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Atomically check usage limits and increment counters if allowed.
+    This is the preferred method for production use - combines check and increment
+    in a single atomic operation to prevent race conditions.
+
+    Args:
+        user_id: Supabase user ID
+        access_token: User's JWT access token for RLS authentication
+
+    Returns:
+        Dict with allowed (bool), reason (str if false), queries_today, queries_this_period
+    """
+    subscription = get_user_subscription(user_id, access_token=access_token)
+
+    # Check subscription status first
+    if subscription["status"] not in ("active", "trialing"):
+        return {
+            "allowed": False,
+            "reason": "Subscription is not active",
+            "queries_today": 0,
+            "queries_this_period": 0
+        }
+
+    # Get tier-specific limits
+    tier = subscription.get("tier", "free")
+    tier_config = SUBSCRIPTION_TIERS.get(tier, SUBSCRIPTION_TIERS["free"])
+    monthly_limit = tier_config.get("queries_per_month", 5)
+    daily_limit = tier_config.get("queries_per_day", 5)
+
+    # Try atomic database function
+    supabase = get_supabase_service()
+    if supabase:
+        try:
+            result = supabase.rpc('check_and_increment_usage', {
+                'p_user_id': user_id,
+                'p_daily_limit': daily_limit,
+                'p_monthly_limit': monthly_limit
+            }).execute()
+
+            if result.data and len(result.data) > 0:
+                row = result.data[0]
+                return {
+                    "allowed": row.get("allowed", False),
+                    "reason": row.get("reason"),
+                    "queries_today": row.get("queries_today", 0),
+                    "queries_this_period": row.get("queries_this_period", 0),
+                    "daily_remaining": row.get("daily_remaining", 0),
+                    "monthly_remaining": row.get("monthly_remaining", 0)
+                }
+        except Exception as e:
+            log_billing_event(f"Atomic check_and_increment failed: {e}", status="warning")
+
+    # Fallback: non-atomic check (less safe but functional)
+    check_result = check_can_query(user_id, access_token)
+    if not check_result.get("can_query"):
+        return {
+            "allowed": False,
+            "reason": check_result.get("reason"),
+            "queries_today": 0,
+            "queries_this_period": subscription.get("queries_used", 0)
+        }
+
+    # If allowed, increment (non-atomic fallback)
+    new_count = increment_query_usage(user_id, access_token)
+    return {
+        "allowed": True,
+        "reason": None,
+        "queries_today": 0,  # Unknown in fallback mode
+        "queries_this_period": new_count
     }
 
 
 def increment_query_usage(user_id: str, access_token: Optional[str] = None) -> int:
     """
-    Increment the query usage counter for a user.
+    Atomically increment the query usage counter for a user.
     Returns the new count.
+
+    Uses database function to prevent race conditions where concurrent
+    requests could both read the same count and increment to the same value.
 
     Args:
         user_id: Supabase user ID
         access_token: User's JWT access token for RLS authentication
     """
-    supabase = _get_client(access_token)
+    # Use service client for RPC calls (more reliable)
+    supabase = get_supabase_service()
 
-    # Get current count
+    if supabase:
+        try:
+            # Use atomic database function
+            result = supabase.rpc('increment_query_usage', {'p_user_id': user_id}).execute()
+            if result.data and len(result.data) > 0:
+                return result.data[0].get('new_count', 1)
+        except Exception as e:
+            # Log but don't fail - fall back to non-atomic method
+            log_billing_event(f"Atomic increment failed, using fallback: {e}", status="warning")
+
+    # Fallback: non-atomic increment (only if RPC fails)
+    supabase = _get_client(access_token)
     result = supabase.table('user_profiles').select('queries_used_this_period').eq('user_id', user_id).execute()
 
     current = 0
@@ -316,7 +407,6 @@ def increment_query_usage(user_id: str, access_token: Optional[str] = None) -> i
 
     new_count = current + 1
 
-    # Upsert profile with incremented count
     supabase.table('user_profiles').upsert({
         'user_id': user_id,
         'queries_used_this_period': new_count,
@@ -324,6 +414,34 @@ def increment_query_usage(user_id: str, access_token: Optional[str] = None) -> i
     }, on_conflict='user_id').execute()
 
     return new_count
+
+
+def record_token_usage(user_id: str, tokens_input: int, tokens_output: int) -> bool:
+    """
+    Record token usage for cost tracking.
+
+    Args:
+        user_id: Supabase user ID
+        tokens_input: Number of input tokens used
+        tokens_output: Number of output tokens generated
+
+    Returns:
+        True if recorded successfully, False otherwise
+    """
+    supabase = get_supabase_service()
+    if not supabase:
+        return False
+
+    try:
+        supabase.rpc('record_token_usage', {
+            'p_user_id': user_id,
+            'p_tokens_input': tokens_input,
+            'p_tokens_output': tokens_output
+        }).execute()
+        return True
+    except Exception as e:
+        log_billing_event(f"Failed to record token usage: {e}", status="warning")
+        return False
 
 
 def handle_webhook_event(payload: bytes, sig_header: str) -> Dict[str, Any]:

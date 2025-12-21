@@ -515,8 +515,8 @@ def get_system_prompt_with_context(
     elif department_id:
         all_department_ids = [department_id]
 
-    # Debug log what parameters we received
-    print(f"[CONTEXT] Building system prompt - roles: {all_role_ids}, departments: {all_department_ids}, business_id: {business_id}", flush=True)
+    # Log context building (non-debug, useful for monitoring)
+    # print(f"[CONTEXT] Building system prompt - roles: {all_role_ids}, departments: {all_department_ids}, business_id: {business_id}", flush=True)
 
     # Resolve company UUID if we only have business_id (slug)
     if not company_uuid and business_id:
@@ -531,7 +531,6 @@ def get_system_prompt_with_context(
 
     # Load company context from database
     company_context = load_company_context_from_db(company_uuid or business_id)
-    print(f"[CONTEXT DEBUG] Raw company_context length: {len(company_context) if company_context else 0} chars", flush=True)
 
     if not company_context:
         return None
@@ -542,10 +541,9 @@ def get_system_prompt_with_context(
         info = load_role_prompt_from_db(rid)
         if info:
             role_infos.append(info)
-            print(f"[CONTEXT DEBUG] Loaded role: {info.get('name')}, system_prompt length: {len(info.get('system_prompt', ''))} chars", flush=True)
 
     if not role_infos:
-        print(f"[CONTEXT DEBUG] No roles provided - using generic AI advisor prompt", flush=True)
+        pass  # No roles provided - using generic AI advisor prompt
 
     # Build the system prompt based on role selection
     if len(role_infos) > 1:
@@ -624,7 +622,6 @@ Focus on aspects relevant to your role. Be practical and actionable.
     # Inject project context if project_id is provided
     if project_id and access_token:
         project_context = storage.get_project_context(project_id, access_token)
-        print(f"[CONTEXT DEBUG] Project context length: {len(project_context) if project_context else 0} chars", flush=True)
         if project_context:
             project = storage.get_project(project_id, access_token)
             project_name = project.get('name', 'Current Project') if project else 'Current Project'
@@ -648,7 +645,6 @@ Focus on aspects relevant to your role. Be practical and actionable.
 
         for dept_id in all_department_ids:
             dept_context = load_department_context_from_db(dept_id)
-            print(f"[CONTEXT DEBUG] Department {dept_id} context length: {len(dept_context) if dept_context else 0} chars", flush=True)
 
             if dept_context:
                 # Get department name
@@ -711,7 +707,6 @@ Focus on aspects relevant to your role. Be practical and actionable.
                             system_prompt += content
                             system_prompt += f"\n\n=== END {doc_type} ===\n"
                             playbook_count += 1
-                            print(f"[CONTEXT DEBUG] Injected playbook: {doc_title} ({len(content)} chars)", flush=True)
                 except Exception as e:
                     print(f"[CONTEXT WARNING] Failed to load playbook {playbook_id}: {e}", flush=True)
 
