@@ -2922,7 +2922,7 @@ async def log_activity(
         company_id: Company UUID
         event_type: Type of event (decision, playbook, role, department, council_session)
         title: Short title for the activity (clean, no action prefix)
-        action: Explicit action type (saved, promoted, deleted, created, updated, archived, consulted)
+        action: Explicit action type (saved, promoted, deleted, created, updated, archived)
         description: Optional longer description
         department_id: Optional department UUID
         related_id: Optional UUID of related entity

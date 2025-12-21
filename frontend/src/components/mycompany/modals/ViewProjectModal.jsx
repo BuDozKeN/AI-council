@@ -111,6 +111,9 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
   // Copy context state
   const [contextCopied, setContextCopied] = useState(false);
 
+  // Track if we've already synced departments (prevent multiple syncs causing flicker)
+  const hasSyncedDepts = useRef(false);
+
   // Check if a summary is garbage and needs regeneration
   // NOTE: New decisions get summaries at save time (in merge endpoint).
   // This check is only for LEGACY decisions saved before that feature was added.
@@ -288,22 +291,25 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
   // Sync project departments from all decisions when modal opens
   // This ensures the department badges are up-to-date from all decisions
   useEffect(() => {
-    if (companyId && project.id && !isEditing) {
-      console.log('[ViewProjectModal] Syncing departments on modal open for project:', project.id);
+    // Only sync once per modal open to prevent flicker from multiple re-renders
+    if (companyId && project.id && !isEditing && !hasSyncedDepts.current) {
+      hasSyncedDepts.current = true;
       api.syncProjectDepartments(companyId, project.id)
         .then(syncResult => {
-          console.log('[ViewProjectModal] Sync result:', syncResult);
-          // Update local project state with synced department_ids
+          // Only update if departments actually changed
           if (syncResult?.department_ids) {
-            console.log('[ViewProjectModal] Updating editedDepartmentIds to:', syncResult.department_ids);
-            setProject(prev => ({
-              ...prev,
-              department_ids: syncResult.department_ids
-            }));
-            setEditedDepartmentIds(syncResult.department_ids);
-            // Also update parent projects list so dashboard shows correct departments
-            if (onProjectUpdate) {
-              onProjectUpdate(project.id, { department_ids: syncResult.department_ids });
+            const currentIds = JSON.stringify(editedDepartmentIds.sort());
+            const newIds = JSON.stringify(syncResult.department_ids.sort());
+            if (currentIds !== newIds) {
+              setProject(prev => ({
+                ...prev,
+                department_ids: syncResult.department_ids
+              }));
+              setEditedDepartmentIds(syncResult.department_ids);
+              // Also update parent projects list so dashboard shows correct departments
+              if (onProjectUpdate) {
+                onProjectUpdate(project.id, { department_ids: syncResult.department_ids });
+              }
             }
           }
         })

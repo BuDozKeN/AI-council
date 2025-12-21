@@ -160,7 +160,7 @@
 }
 
 .stage1 .llm-status-badge.error {
-  background: #f59e0b;
+  background: #dc2626;
   color: white;
 }
 
@@ -384,6 +384,97 @@
 
 .stage.collapsed .stage-title {
   margin-bottom: 0;
+}
+
+/* =============================================================================
+   MODEL SUMMARY PILLS - Collapsed view showing provider groups
+   ============================================================================= */
+
+.stage1 .model-summary-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.stage1 .model-summary-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  transition: all 0.2s ease;
+}
+
+.stage1 .model-summary-pill.complete {
+  border-color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.stage1 .model-summary-pill.streaming {
+  border-color: var(--color-info);
+  background: var(--color-info-light);
+}
+
+.stage1 .model-summary-pill.error {
+  border-color: #dc2626;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.stage1 .model-summary-pill .pill-error {
+  color: #dc2626;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.stage1 .model-summary-pill .pill-check {
+  color: var(--color-success);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.stage1 .model-summary-pill .pill-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.stage1 .model-summary-pill .pill-label {
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Dark mode pills */
+.dark .stage1 .model-summary-pill {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .stage1 .model-summary-pill.complete {
+  border-color: var(--color-success);
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.dark .stage1 .model-summary-pill.streaming {
+  border-color: var(--color-info);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.dark .stage1 .model-summary-pill.error {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+}
+
+.dark .stage1 .model-summary-pill .pill-error {
+  color: #ef4444;
 }
 
 .tabs {
@@ -623,8 +714,8 @@
   display: inline-block;
   margin-left: 8px;
   padding: 2px 6px;
-  background: var(--color-warning-light);
-  color: var(--color-accent-hover);
+  background: #fef2f2;
+  color: #dc2626;
   border-radius: var(--radius-sm);
   font-size: 10px;
   font-weight: 600;

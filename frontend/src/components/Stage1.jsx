@@ -98,12 +98,14 @@ function CodeBlock({ children, className }) {
 const ModelCard = memo(function ModelCard({ data, isComplete: globalComplete, onExpand, isExpanded }) {
   const cardRef = useRef(null);
   const touchStartRef = useRef(null);
-  const shortName = data.model.split('/')[1] || data.model;
 
   // Get model persona and icon path
   const persona = getModelPersona(data.model);
   const iconPath = getModelIconPath(data.model);
   const modelColor = persona.color;
+  // Display friendly brand name, show specific model on hover
+  const displayName = persona.providerLabel || persona.shortName;
+  const tooltipName = persona.fullName;
 
   // Clean preview text - strip markdown and truncate
   const cleanText = stripMarkdown(data.response || '');
@@ -176,18 +178,18 @@ const ModelCard = memo(function ModelCard({ data, isComplete: globalComplete, on
       tabIndex={0}
       role="article"
       aria-expanded={isExpanded}
-      aria-label={`${shortName} response${data.isStreaming ? ', generating' : data.isComplete ? ', complete' : ''}`}
+      aria-label={`${displayName} response${data.isStreaming ? ', generating' : data.isComplete ? ', complete' : ''}`}
     >
       {/* Header */}
       <div className="model-card-header">
         <div className="model-card-header-left">
           {/* LLM Icon with status indicator */}
-          <div className="llm-icon-wrapper" style={{ '--model-color': modelColor }}>
+          <div className="llm-icon-wrapper" style={{ '--model-color': modelColor }} title={tooltipName}>
             {iconPath ? (
-              <img src={iconPath} alt={persona.shortName} className="llm-icon" />
+              <img src={iconPath} alt={displayName} className="llm-icon" />
             ) : (
               <span className="llm-icon-fallback" style={{ background: modelColor }}>
-                {shortName.charAt(0)}
+                {displayName.charAt(0)}
               </span>
             )}
             {/* Status badge overlay */}
@@ -213,7 +215,7 @@ const ModelCard = memo(function ModelCard({ data, isComplete: globalComplete, on
             )}
           </div>
 
-          <span className="model-card-name">{shortName}</span>
+          <span className="model-card-name" title={tooltipName}>{displayName}</span>
         </div>
 
         {/* Copy button (when expanded) + Expand/collapse */}
@@ -395,6 +397,27 @@ export default function Stage1({ responses, streaming, isLoading, stopped, isCom
     setIsCollapsed(!isCollapsed);
   };
 
+  // Group models by provider for collapsed summary
+  const providerGroups = displayData.reduce((acc, data) => {
+    const persona = getModelPersona(data.model);
+    const provider = persona.provider || 'other';
+    if (!acc[provider]) {
+      acc[provider] = {
+        label: persona.providerLabel || provider.toUpperCase(),
+        iconPath: getModelIconPath(data.model),
+        models: [],
+        allComplete: true,
+        hasStreaming: false,
+        hasError: false,
+      };
+    }
+    acc[provider].models.push(data);
+    if (data.isStreaming) acc[provider].hasStreaming = true;
+    if (data.hasError || data.isEmpty) acc[provider].hasError = true;
+    if (!data.isComplete || data.isEmpty) acc[provider].allComplete = false;
+    return acc;
+  }, {});
+
   return (
     <div className={`stage stage1 ${isCollapsed ? 'collapsed' : ''}`}>
       <h3 className="stage-title clickable" onClick={toggleCollapsed}>
@@ -406,17 +429,31 @@ export default function Stage1({ responses, streaming, isLoading, stopped, isCom
         )}
         <span className="font-semibold tracking-tight">Step 1: Gathering Expert Opinions</span>
         {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
-        {isCollapsed && (
-          <span className="collapsed-summary">
-            {completedCount}/{totalCount} experts responded
-          </span>
-        )}
-        {!isCollapsed && streamingCount > 0 && (
-          <span className="ml-auto text-xs text-blue-600 font-medium animate-pulse">
-            {streamingCount} generating...
-          </span>
-        )}
       </h3>
+
+      {/* Collapsed model summary - provider pills */}
+      {isCollapsed && displayData.length > 0 && (
+        <div className="model-summary-pills">
+          {Object.entries(providerGroups).map(([provider, group]) => (
+            <span
+              key={provider}
+              className={`model-summary-pill ${group.allComplete ? 'complete' : ''} ${group.hasStreaming ? 'streaming' : ''} ${group.hasError ? 'error' : ''}`}
+              title={group.hasError ? `${group.label} encountered an error` : group.allComplete ? `${group.label} completed` : `${group.label} in progress`}
+            >
+              {group.allComplete && !group.hasError && (
+                <span className="pill-check">✓</span>
+              )}
+              {group.hasError && (
+                <span className="pill-error">✕</span>
+              )}
+              {group.iconPath && (
+                <img src={group.iconPath} alt="" className="pill-icon" />
+              )}
+              <span className="pill-label">{group.label}</span>
+            </span>
+          ))}
+        </div>
+      )}
 
       {!isCollapsed && (
         <>

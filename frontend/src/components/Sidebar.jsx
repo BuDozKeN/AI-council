@@ -99,8 +99,8 @@ export default function Sidebar({
     handleExpandedAreaLeave,
   } = useHoverExpansion({ isPinned });
 
-  // Derived state
-  const isExpanded = isPinned || hoveredIcon !== null;
+  // Derived state - mobile open always shows expanded content
+  const isExpanded = isPinned || hoveredIcon !== null || isMobileOpen;
 
   // Toggle pin state
   const togglePin = useCallback(() => {
@@ -321,16 +321,6 @@ export default function Sidebar({
       className={sidebarClasses}
       aria-label="Conversation history"
     >
-      {/* Mobile close button */}
-      <div className="sidebar-mobile-close">
-        <button onClick={onMobileClose} aria-label="Close menu">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-      </div>
-
       {/* Header with New Chat and Pin toggle */}
       <div className="sidebar-header">
         {isExpanded ? (

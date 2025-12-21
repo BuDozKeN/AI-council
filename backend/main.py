@@ -867,24 +867,6 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
                     aggregate_rankings=aggregate_rankings
                 )
 
-            # Log consultation activity (audit trail for all council consultations)
-            if company_uuid:
-                try:
-                    # Use the generated title or truncate the question
-                    consultation_title = title if title_task and title else (body.content[:80] + "..." if len(body.content) > 80 else body.content)
-                    await company_router.log_activity(
-                        company_id=company_uuid,
-                        event_type="consultation",
-                        title=f"Consulted: {consultation_title}",
-                        description=None,  # Don't store full question in activity
-                        department_id=body.department,
-                        related_id=None,  # No related_id until saved as decision
-                        related_type="conversation",
-                        conversation_id=conversation_id
-                    )
-                except Exception as e:
-                    print(f"[ACTIVITY] Failed to log consultation: {e}", flush=True)
-
             # Send completion event
             yield f"data: {json.dumps({'type': 'complete'})}\n\n"
 

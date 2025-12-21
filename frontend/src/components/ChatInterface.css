@@ -58,27 +58,29 @@
   gap: 6px;
   padding: 10px 14px;
   margin-bottom: 12px;
-  /* Use same background as LandingHero for consistency */
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
+  /* Semi-transparent background with blur for glass effect */
+  background: rgba(249, 250, 251, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: var(--radius-lg);
   font-size: 12px;
   color: var(--color-text-secondary);
-  /* Sticky - stays visible just below beta bar */
+  /* Sticky - stays visible at top */
   position: sticky;
   top: 4px;
   z-index: 50; /* Higher than content elements like badges */
   /* Shadow to separate from content below */
   box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.06),
-    0 6px 16px rgba(0, 0, 0, 0.1);
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    0 6px 16px rgba(0, 0, 0, 0.08);
 }
 
 /* Dark mode context indicator - matches LandingHero dark mode */
 .dark .context-indicator,
 [data-theme="dark"] .context-indicator {
-  background: var(--color-bg-secondary);
-  border-color: var(--color-border);
+  background: rgba(30, 30, 35, 0.85);
+  border-color: rgba(255, 255, 255, 0.1);
   box-shadow:
     0 2px 6px rgba(0, 0, 0, 0.2),
     0 8px 24px rgba(0, 0, 0, 0.35);

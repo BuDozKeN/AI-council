@@ -17,6 +17,17 @@ export const PROVIDER_COLORS = {
   unknown: '#6b7280'      // Gray (fallback)
 };
 
+// Provider labels for collapsed summary pills
+export const PROVIDER_LABELS = {
+  openai: 'GPT',
+  anthropic: 'Claude',
+  google: 'Gemini',
+  xai: 'Grok',
+  deepseek: 'DeepSeek',
+  council: 'Council',
+  unknown: 'AI'
+};
+
 export const MODEL_PERSONAS = {
   // OpenAI Models
   'gpt-4': {
@@ -98,6 +109,13 @@ export const MODEL_PERSONAS = {
     tagline: 'Latest Generation',
     provider: 'anthropic'
   },
+  'claude-opus-4.5': {
+    color: PROVIDER_COLORS.anthropic,
+    shortName: 'Opus 4.5',
+    fullName: 'Claude Opus 4.5',
+    tagline: 'Most Capable',
+    provider: 'anthropic'
+  },
 
   // Google Models
   'gemini-pro': {
@@ -121,12 +139,40 @@ export const MODEL_PERSONAS = {
     tagline: 'Speed Champion',
     provider: 'google'
   },
+  'gemini-2.5-pro': {
+    color: PROVIDER_COLORS.google,
+    shortName: 'Gemini 2.5',
+    fullName: 'Gemini 2.5 Pro',
+    tagline: 'Advanced Reasoning',
+    provider: 'google'
+  },
+  'gemini-2.5-flash': {
+    color: PROVIDER_COLORS.google,
+    shortName: 'Gemini 2.5',
+    fullName: 'Gemini 2.5 Flash',
+    tagline: 'Fast & Smart',
+    provider: 'google'
+  },
+  'gemini-3-pro-preview': {
+    color: PROVIDER_COLORS.google,
+    shortName: 'Gemini 3',
+    fullName: 'Gemini 3 Pro Preview',
+    tagline: 'Next Generation',
+    provider: 'google'
+  },
 
   // xAI Models
   'grok-2': {
     color: PROVIDER_COLORS.xai,
-    shortName: 'Grok 2',
+    shortName: 'Grok',
     fullName: 'Grok 2',
+    tagline: 'Bold Innovator',
+    provider: 'xai'
+  },
+  'grok-4': {
+    color: PROVIDER_COLORS.xai,
+    shortName: 'Grok',
+    fullName: 'Grok 4',
     tagline: 'Bold Innovator',
     provider: 'xai'
   },
@@ -169,29 +215,40 @@ const DEFAULT_PERSONA = {
 /**
  * Get persona configuration for a model
  * @param {string} modelId - The model identifier
- * @returns {Object} Persona configuration
+ * @returns {Object} Persona configuration with providerLabel
  */
 export function getModelPersona(modelId) {
-  if (!modelId) return DEFAULT_PERSONA;
+  if (!modelId) return { ...DEFAULT_PERSONA, providerLabel: PROVIDER_LABELS[DEFAULT_PERSONA.provider] };
 
   // Try exact match first
   if (MODEL_PERSONAS[modelId]) {
-    return MODEL_PERSONAS[modelId];
+    const persona = MODEL_PERSONAS[modelId];
+    return { ...persona, providerLabel: PROVIDER_LABELS[persona.provider] || persona.provider.toUpperCase() };
+  }
+
+  // Extract model name from provider/model format (e.g., 'x-ai/grok-4' → 'grok-4')
+  const modelName = modelId.includes('/') ? modelId.split('/')[1] : modelId;
+  const lowerModelName = modelName.toLowerCase();
+
+  // Try exact match on model name part
+  if (MODEL_PERSONAS[modelName]) {
+    const persona = MODEL_PERSONAS[modelName];
+    return { ...persona, providerLabel: PROVIDER_LABELS[persona.provider] || persona.provider.toUpperCase() };
   }
 
   // Try partial match (e.g., 'gpt-4-turbo-preview' → 'gpt-4-turbo')
-  const lowerModelId = modelId.toLowerCase();
   for (const [key, persona] of Object.entries(MODEL_PERSONAS)) {
-    if (lowerModelId.includes(key.toLowerCase())) {
-      return persona;
+    if (lowerModelName.includes(key.toLowerCase())) {
+      return { ...persona, providerLabel: PROVIDER_LABELS[persona.provider] || persona.provider.toUpperCase() };
     }
   }
 
   // Return default with dynamic name
   return {
     ...DEFAULT_PERSONA,
-    shortName: modelId.split('-')[0].toUpperCase(),
-    fullName: modelId
+    shortName: modelName.split('-')[0].toUpperCase(),
+    fullName: modelId,
+    providerLabel: PROVIDER_LABELS[DEFAULT_PERSONA.provider]
   };
 }
 

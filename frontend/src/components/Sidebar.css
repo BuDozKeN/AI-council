@@ -73,41 +73,38 @@
   }
 }
 
-/* Mobile close button */
+/* Mobile layout adjustments */
 @media (max-width: 768px) {
-  .sidebar-mobile-close {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--sidebar-border);
-  }
-
-  .sidebar-mobile-close button {
-    width: 32px;
-    height: 32px;
-    border: none;
-    border-radius: 6px;
-    background: var(--sidebar-hover-bg);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--sidebar-text-secondary);
-    transition: all 0.15s ease;
-  }
-
-  .sidebar-mobile-close button:hover {
-    background: var(--sidebar-active-bg);
-    color: var(--sidebar-text-primary);
-  }
-}
-
-@media (min-width: 769px) {
-  .sidebar-mobile-close {
+  /* Hide icon rail on mobile - show expanded content instead */
+  .sidebar .sidebar-icon-rail {
     display: none;
   }
+
+  /* Hide pin toggle on mobile - not relevant */
+  .sidebar .sidebar-pin-btn {
+    display: none;
+  }
+
+  /* Expanded panel takes full width on mobile */
+  .sidebar .sidebar-expanded-panel {
+    border-left: none;
+  }
+
+  /* Main content is column layout on mobile */
+  .sidebar .sidebar-main {
+    flex-direction: column;
+  }
+
+  /* Header takes full width with New Chat button */
+  .sidebar .sidebar-header {
+    padding: 12px 16px;
+  }
+
+  .sidebar .sidebar-new-btn {
+    flex: 1;
+  }
 }
+
 
 /* =============================================================================
    SIDEBAR HEADER

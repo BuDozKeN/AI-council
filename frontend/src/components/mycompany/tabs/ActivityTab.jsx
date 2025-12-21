@@ -9,13 +9,11 @@ import { ClipboardList } from 'lucide-react';
 
 // Constants for activity display
 const EVENT_LABELS = {
-  consultation: 'Consultation',
   decision: 'Decision',
   playbook: 'Playbook',
   project: 'Project',
   role: 'Role Change',
-  department: 'Department',
-  council_session: 'Council Session'
+  department: 'Department'
 };
 
 const PROMOTED_TYPE_LABELS = {
@@ -33,13 +31,11 @@ const PROMOTED_TYPE_COLORS = {
 };
 
 const EVENT_COLORS = {
-  consultation: '#6366f1',
   decision: '#22c55e',
   playbook: '#3b82f6',
   project: '#14b8a6',
   role: '#8b5cf6',
   department: '#f59e0b',
-  council_session: '#10b981',
   default: '#64748b'
 };
 
@@ -49,8 +45,7 @@ const ACTION_COLORS = {
   saved: { bg: '#eff6ff', text: '#2563eb', border: '#bfdbfe' },
   created: { bg: '#ecfdf5', text: '#059669', border: '#a7f3d0' },
   updated: { bg: '#fefce8', text: '#ca8a04', border: '#fef08a' },
-  archived: { bg: '#f5f5f4', text: '#78716c', border: '#d6d3d1' },
-  consulted: { bg: '#eef2ff', text: '#4f46e5', border: '#c7d2fe' }
+  archived: { bg: '#f5f5f4', text: '#78716c', border: '#d6d3d1' }
 };
 
 // Group logs by date (Today, Yesterday, or formatted date)

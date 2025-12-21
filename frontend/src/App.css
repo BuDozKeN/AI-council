@@ -10,17 +10,6 @@
   overflow: hidden;
 }
 
-.beta-banner {
-  background: linear-gradient(90deg, var(--color-accent-amber), var(--color-accent-dark));
-  color: var(--color-text-inverse);
-  text-align: center;
-  padding: 8px 16px;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  flex-shrink: 0;
-}
-
 .app {
   display: flex;
   flex: 1;
@@ -32,33 +21,62 @@
     sans-serif;
 }
 
-/* Mobile hamburger menu button */
-.mobile-menu-btn {
+/* Sidebar edge indicator - subtle arrow hint to open sidebar */
+.sidebar-edge-indicator {
   display: none;
   position: fixed;
-  top: 48px; /* Below beta banner */
-  left: 12px;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
   z-index: 1001;
-  width: 40px;
-  height: 40px;
+  width: 20px;
+  height: 60px;
   border: none;
-  border-radius: 8px;
-  background: var(--color-bg-primary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 0 12px 12px 0;
+  background: rgba(0, 0, 0, 0.08);
   cursor: pointer;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
+  padding: 0;
 }
 
-.mobile-menu-btn:hover {
-  background: var(--color-bg-secondary);
+.sidebar-edge-indicator:hover {
+  width: 28px;
+  background: rgba(0, 0, 0, 0.15);
 }
 
-.mobile-menu-btn svg {
-  width: 24px;
-  height: 24px;
+.sidebar-edge-indicator:active {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.sidebar-edge-indicator svg {
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-secondary);
+  opacity: 0.6;
+  transition: all 0.25s ease;
+}
+
+.sidebar-edge-indicator:hover svg {
+  opacity: 1;
   color: var(--color-text-primary);
+}
+
+/* Dark mode edge indicator */
+.dark .sidebar-edge-indicator,
+[data-theme="dark"] .sidebar-edge-indicator {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.dark .sidebar-edge-indicator:hover,
+[data-theme="dark"] .sidebar-edge-indicator:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.dark .sidebar-edge-indicator:active,
+[data-theme="dark"] .sidebar-edge-indicator:active {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* Mobile overlay backdrop */
@@ -78,8 +96,14 @@
 
 /* Mobile responsive styles */
 @media (max-width: 768px) {
-  .mobile-menu-btn {
+  .sidebar-edge-indicator {
     display: flex;
+  }
+
+  /* Hide edge indicator when sidebar is open */
+  .sidebar-edge-indicator.hidden {
+    opacity: 0;
+    pointer-events: none;
   }
 
   .sidebar-overlay {
@@ -89,11 +113,6 @@
 
   .sidebar-overlay.visible {
     pointer-events: auto;
-  }
-
-  .beta-banner {
-    font-size: 11px;
-    padding: 6px 12px;
   }
 }
 
