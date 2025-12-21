@@ -6,17 +6,47 @@ import { api } from '../api';
 import { MultiDepartmentSelect } from './ui/MultiDepartmentSelect';
 import { Spinner } from './ui/Spinner';
 import { CopyButton } from './ui/CopyButton';
-import { Bookmark, FileText, Layers, ScrollText, FolderKanban, ChevronDown, Plus, Sparkles } from 'lucide-react';
+import { Bookmark, FileText, Layers, ScrollText, FolderKanban, ChevronDown, Plus, Sparkles, CheckCircle2 } from 'lucide-react';
+import { getModelPersona } from '../config/modelPersonas';
 import './Stage3.css';
 
 // Minimum interval between decision status checks (ms)
 const DECISION_CHECK_THROTTLE = 5000;
 
+// Provider icon paths
+const PROVIDER_ICON_PATH = {
+  anthropic: '/icons/anthropic.svg',
+  openai: '/icons/openai.svg',
+  google: '/icons/gemini.svg',
+  xai: '/icons/grok.svg',
+  deepseek: '/icons/deepseek.svg',
+};
+
+// Get icon path for a model
+function getModelIconPath(modelId) {
+  if (!modelId) return null;
+
+  const persona = getModelPersona(modelId);
+  if (persona.provider && PROVIDER_ICON_PATH[persona.provider]) {
+    return PROVIDER_ICON_PATH[persona.provider];
+  }
+
+  // Fallback pattern matching
+  const lowerModel = modelId.toLowerCase();
+  if (lowerModel.includes('gpt') || lowerModel.includes('o1')) return '/icons/openai.svg';
+  if (lowerModel.includes('claude') || lowerModel.includes('opus') || lowerModel.includes('sonnet') || lowerModel.includes('haiku')) return '/icons/anthropic.svg';
+  if (lowerModel.includes('gemini')) return '/icons/gemini.svg';
+  if (lowerModel.includes('grok')) return '/icons/grok.svg';
+  if (lowerModel.includes('deepseek')) return '/icons/deepseek.svg';
+
+  return null;
+}
+
 // Playbook type definitions with icons
 const DOC_TYPES = [
-  { value: 'sop', label: 'SOP', icon: ScrollText },
-  { value: 'framework', label: 'Framework', icon: Layers },
-  { value: 'policy', label: 'Policy', icon: FileText }
+  { value: 'sop', label: 'SOP', icon: ScrollText, description: 'Standard Operating Procedure - step-by-step instructions' },
+  { value: 'framework', label: 'Framework', icon: Layers, description: 'Framework - guidelines and best practices' },
+  { value: 'policy', label: 'Policy', icon: FileText, description: 'Policy - rules and requirements' }
 ];
 
 // Custom code block renderer with copy button
@@ -81,6 +111,8 @@ export default function Stage3({
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const projectButtonRef = useRef(null);
   const containerRef = useRef(null);
+  const finalResponseRef = useRef(null);
+  const [floatingCopyPos, setFloatingCopyPos] = useState(null); // { top, right } for floating copy button
   const lastDecisionCheck = useRef(0); // Throttle all decision status checks
   const isCheckingDecision = useRef(false); // Prevent concurrent checks
   const lastSyncedProjectId = useRef(null); // Prevent duplicate project syncs
@@ -497,8 +529,44 @@ export default function Stage3({
   const isStreaming = streaming && !streaming.complete;
   const hasError = streaming?.error;
   const chairmanModel = finalResponse?.model || streaming?.model || 'google/gemini-3-pro-preview';
-  const shortModelName = chairmanModel.split('/')[1] || chairmanModel;
+  const chairmanIconPath = getModelIconPath(chairmanModel);
   const isComplete = !isStreaming && !hasError && displayText;
+
+  // Floating copy button - show when header copy button is scrolled out of view
+  useEffect(() => {
+    if (!isComplete || !displayText || !finalResponseRef.current || isCollapsed) {
+      setFloatingCopyPos(null);
+      return;
+    }
+
+    const messagesContainer = document.querySelector('.messages-container');
+    if (!messagesContainer) return;
+
+    const handleScroll = () => {
+      const responseRect = finalResponseRef.current?.getBoundingClientRect();
+      if (!responseRect) return;
+
+      // Check if we've scrolled past the header (first ~50px of the response)
+      // and if the response is still in view
+      const headerScrolledOut = responseRect.top < 80; // Header is above viewport
+      const responseStillVisible = responseRect.bottom > 120; // Bottom still in view
+
+      if (headerScrolledOut && responseStillVisible) {
+        // Show floating button positioned at top-right of the visible area
+        setFloatingCopyPos({
+          top: 80, // Below context bar
+          right: window.innerWidth - responseRect.right + 16
+        });
+      } else {
+        setFloatingCopyPos(null);
+      }
+    };
+
+    messagesContainer.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // Initial check
+
+    return () => messagesContainer.removeEventListener('scroll', handleScroll);
+  }, [isComplete, displayText, isCollapsed]);
 
   const toggleCollapsed = () => {
     setIsCollapsed(!isCollapsed);
@@ -514,14 +582,10 @@ export default function Stage3({
           {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
         </h3>
         <div className="final-response">
-          <div className="chairman-label">
-            Lead Expert: {shortModelName}
-            <span className="thinking-badge">Thinking<span className="thinking-dots"><span>.</span><span>.</span><span>.</span></span></span>
-          </div>
           <div className="thinking-container">
             <div className="thinking-message">
-              <span className="thinking-icon">🧠</span>
-              <span>Combining all expert opinions into one best answer...</span>
+              <Spinner size="sm" />
+              <span>Combining expert opinions...</span>
             </div>
           </div>
         </div>
@@ -548,21 +612,24 @@ export default function Stage3({
       </h3>
 
       {!isCollapsed && (
-        <div className="final-response">
-          <div className="chairman-label">
-            <span className="chairman-info">
-              Lead Expert: {shortModelName}
+        <div className="final-response" ref={finalResponseRef}>
+          {/* Header row: Chairman LLM icon + status + copy button */}
+          <div className="stage3-header-row">
+            <div className="chairman-indicator">
+              {chairmanIconPath && (
+                <img src={chairmanIconPath} alt="" className="chairman-icon" />
+              )}
               {isStreaming && <span className="typing-indicator">●</span>}
-              {isComplete && <span className="complete-badge">Done</span>}
+              {isComplete && <CheckCircle2 className="h-4 w-4 text-green-600" />}
               {hasError && <span className="error-badge">Error</span>}
-            </span>
-          </div>
-          {/* Content wrapper with sticky copy button outside the box */}
-          <div className="final-content-wrapper">
-            {/* Copy button - sticky, floats to the right outside the content */}
+            </div>
+            {/* Copy button - inline in header */}
             {isComplete && displayText && (
-              <CopyButton text={displayText} size="sm" className="stage3-copy-btn" />
+              <CopyButton text={displayText} size="sm" className="stage3-copy-btn stage3-header-copy" />
             )}
+          </div>
+          {/* Content wrapper */}
+          <div className="final-content-wrapper">
             <div className={`final-text ${hasError ? 'error-text' : ''}`}>
           {hasError ? (
             <p className="empty-message">{displayText || 'An error occurred while generating the synthesis.'}</p>
@@ -585,6 +652,14 @@ export default function Stage3({
                       // If this code is inside a pre, let pre handle it
                       // Otherwise render as inline code
                       return <code className={className} {...props}>{children}</code>;
+                    },
+                    // Wrap tables in scrollable container for mobile
+                    table({ children, ...props }) {
+                      return (
+                        <div className="table-scroll-wrapper">
+                          <table {...props}>{children}</table>
+                        </div>
+                      );
                     }
                   }}
                 >
@@ -627,6 +702,7 @@ export default function Stage3({
                   disabled={saveState !== 'idle'}
                   placeholder="Departments"
                   className="save-dept-trigger"
+                  title="Tag this answer with relevant departments"
                 />
 
                 {/* Divider */}
@@ -648,7 +724,7 @@ export default function Stage3({
                       setShowProjectDropdown(!showProjectDropdown);
                     }}
                     disabled={saveState === 'saving' || saveState === 'promoting'}
-                    title={currentProject ? `Linked to: ${currentProject.name}` : 'Select project'}
+                    title={currentProject ? `Linked to: ${currentProject.name}` : 'Link this answer to a project for easy access later'}
                   >
                     <FolderKanban className="h-3.5 w-3.5" />
                     <span>{currentProject ? currentProject.name : 'Project'}</span>
@@ -733,8 +809,8 @@ export default function Stage3({
                 {/* Divider */}
                 <div className="save-divider" />
 
-                {/* Type selector pills */}
-                <div className="save-type-pills">
+                {/* Type selector pills - optional classification */}
+                <div className="save-type-pills" title="Optionally classify as a document type">
                   {DOC_TYPES.map(type => {
                     const Icon = type.icon;
                     const isSaved = saveState === 'saved' || saveState === 'promoted';
@@ -745,7 +821,7 @@ export default function Stage3({
                         className={`save-type-pill ${type.value} ${isSelected ? 'selected' : ''} ${isSaved && isSelected ? 'saved' : ''}`}
                         onClick={() => !isSaved && setSelectedDocType(isSelected ? '' : type.value)}
                         disabled={saveState === 'saving' || saveState === 'promoting'}
-                        title={isSaved && isSelected ? `Saved as ${type.label}` : `Save as ${type.label}`}
+                        title={isSaved && isSelected ? `Saved as ${type.label}` : type.description}
                       >
                         <Icon className="h-3.5 w-3.5" />
                         <span>{type.label}</span>
@@ -794,20 +870,20 @@ export default function Stage3({
                   onClick={selectedDocType ? handleSaveAndPromote : handleSaveForLater}
                   disabled={saveState === 'saving' || saveState === 'promoting'}
                   title={currentProject
-                    ? 'Save this decision and merge into the project context'
+                    ? 'Save this answer and add it to your project'
                     : selectedDocType
                       ? `Save as ${DOC_TYPES.find(t => t.value === selectedDocType)?.label} to your knowledge base`
-                      : 'Save to your knowledge base for later'}
+                      : 'Save this answer to access it later from My Company'}
                 >
                   {(saveState === 'saving' || saveState === 'promoting') ? (
                     <>
                       <Spinner size="sm" variant="muted" />
-                      <span>{currentProject ? 'Saving...' : 'Saving...'}</span>
+                      <span>Saving...</span>
                     </>
                   ) : (
                     <>
                       <Bookmark className="h-4 w-4" />
-                      <span>{currentProject ? `Save to ${currentProject.name}` : 'Save Decision'}</span>
+                      <span>{currentProject ? `Save to ${currentProject.name}` : 'Save Answer'}</span>
                     </>
                   )}
                 </button>
@@ -816,6 +892,22 @@ export default function Stage3({
           </div>
         )}
         </div>
+      )}
+
+      {/* Floating copy button - appears when scrolling through long content */}
+      {floatingCopyPos && createPortal(
+        <div
+          className="stage3-floating-copy"
+          style={{
+            position: 'fixed',
+            top: floatingCopyPos.top,
+            right: floatingCopyPos.right,
+            zIndex: 100
+          }}
+        >
+          <CopyButton text={displayText} size="sm" className="stage3-copy-btn" />
+        </div>,
+        document.body
       )}
     </div>
   );

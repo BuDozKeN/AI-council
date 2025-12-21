@@ -61,23 +61,31 @@
   border-radius: 12px 12px 0 0;
 }
 
-.chairman-label {
-  color: var(--color-success-dark);
-  font-size: 12px;
-  font-family: monospace;
-  margin-bottom: 12px;
-  font-weight: 600;
+/* Header row - contains chairman icon and copy button */
+.stage3-header-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+/* Copy button in header - pushed to right */
+.stage3-header-copy {
+  margin-left: auto;
+}
+
+/* Chairman indicator - compact icon display */
+.chairman-indicator {
+  display: flex;
+  align-items: center;
   gap: 8px;
 }
 
-.chairman-info {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 6px;
+.chairman-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  border-radius: 4px;
 }
 
 /* Copy button - legacy class */
@@ -109,36 +117,51 @@
 }
 
 /* Stage3-specific copy button - subtle green theme */
-/* Sticky button inside the final-response box */
 .stage3-copy-btn.copy-btn-unified {
-  position: sticky;
-  top: 100px; /* Below the context indicator bar */
-  float: right;
-  margin-left: 12px;
-  margin-bottom: 8px;
-  z-index: 40;
-  border-color: var(--color-success-border);
-  color: var(--color-success-dark);
-  background: var(--color-success-light);
-}
-
-/* Mobile: adjust sticky position */
-@media (max-width: 768px) {
-  .stage3-copy-btn.copy-btn-unified {
-    top: 80px;
-  }
+  border-color: var(--color-success-border, #86efac);
+  color: var(--color-success, #22c55e);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .stage3-copy-btn.copy-btn-unified:hover {
-  border-color: var(--color-success);
-  color: var(--color-success-dark);
-  background: var(--color-success-light);
+  border-color: var(--color-success, #22c55e);
+  color: var(--color-success-dark, #16a34a);
+  background: var(--color-success-light, #dcfce7);
 }
 
 .stage3-copy-btn.copy-btn-unified.copied {
-  border-color: var(--color-success);
-  color: var(--color-success-dark);
-  background: var(--color-success-light);
+  border-color: var(--color-success, #22c55e);
+  color: var(--color-success, #22c55e);
+  background: var(--color-success-light, #dcfce7);
+}
+
+/* Mobile: smaller copy button */
+@media (max-width: 768px) {
+  .stage3-header-copy {
+    padding: 4px 8px;
+  }
+}
+
+/* Floating copy button - appears when scrolling */
+.stage3-floating-copy {
+  animation: floatIn 0.2s ease-out;
+}
+
+.stage3-floating-copy .stage3-copy-btn {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Code block with copy button - light theme to match Stage3 */
@@ -888,6 +911,7 @@
   background: linear-gradient(90deg, var(--color-success) 0%, var(--color-success-dark) 50%, var(--color-emerald-700) 100%);
 }
 
+
 .dark .chairman-label {
   color: var(--stage3-text-primary);
 }
@@ -905,23 +929,24 @@
   background: var(--color-success-light);
 }
 
-/* Dark mode Stage3 copy button - subtle style */
+/* Dark mode Stage3 copy button - subtle green style */
 .dark .stage3-copy-btn.copy-btn-unified {
-  border-color: var(--color-success-border);
-  color: var(--stage3-text-primary);
-  background: var(--color-success-light);
+  border-color: rgba(34, 197, 94, 0.3);
+  color: var(--color-success, #22c55e);
+  background: rgba(30, 30, 30, 0.95);
+  backdrop-filter: blur(4px);
 }
 
 .dark .stage3-copy-btn.copy-btn-unified:hover {
-  border-color: var(--color-success);
-  color: var(--stage3-text-primary);
-  background: var(--color-success-light);
+  border-color: var(--color-success, #22c55e);
+  color: var(--color-success, #22c55e);
+  background: rgba(34, 197, 94, 0.15);
 }
 
 .dark .stage3-copy-btn.copy-btn-unified.copied {
-  border-color: var(--color-success);
-  color: var(--stage3-text-primary);
-  background: var(--color-success-light);
+  border-color: var(--color-success, #22c55e);
+  color: var(--color-success, #22c55e);
+  background: rgba(34, 197, 94, 0.2);
 }
 
 .dark .stage3 .code-block-wrapper {
@@ -1094,6 +1119,54 @@
    MOBILE RESPONSIVE STYLES
    ============================================================================= */
 
+/* =============================================================================
+   TABLE SCROLL WRAPPER - Isolates table scrolling from page scroll
+   ============================================================================= */
+
+.table-scroll-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 16px 0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  /* Prevent touch events from propagating to parent */
+  overscroll-behavior-x: contain;
+}
+
+.table-scroll-wrapper table {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  width: max-content;
+  min-width: 100%;
+}
+
+/* Show scrollbar hint on mobile */
+@media (max-width: 768px) {
+  .table-scroll-wrapper {
+    /* Subtle shadow to indicate scrollable content */
+    background:
+      linear-gradient(to right, white 30%, rgba(255,255,255,0)),
+      linear-gradient(to right, rgba(255,255,255,0), white 70%) 100% 0,
+      linear-gradient(to right, rgba(0,0,0,.08), rgba(0,0,0,0)),
+      linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,.08)) 100% 0;
+    background-repeat: no-repeat;
+    background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
+    background-attachment: local, local, scroll, scroll;
+  }
+
+  .dark .table-scroll-wrapper {
+    background:
+      linear-gradient(to right, var(--color-bg-secondary) 30%, rgba(0,0,0,0)),
+      linear-gradient(to right, rgba(0,0,0,0), var(--color-bg-secondary) 70%) 100% 0,
+      linear-gradient(to right, rgba(255,255,255,.05), rgba(0,0,0,0)),
+      linear-gradient(to right, rgba(0,0,0,0), rgba(255,255,255,.05)) 100% 0;
+    background-repeat: no-repeat;
+    background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
+    background-attachment: local, local, scroll, scroll;
+  }
+}
+
 @media (max-width: 640px) {
   /* Stage3 container padding */
   .stage3 {
@@ -1102,42 +1175,20 @@
 
   .final-response {
     padding: 16px;
+    /* Remove overflow from container - tables have their own scroll wrapper */
+    overflow-x: visible;
   }
 
-  /* Table overflow fix - scrollable wrapper approach */
-  .final-text,
-  .prose {
-    /* Allow content to overflow and scroll */
-    max-width: 100%;
-  }
-
-  /* Make table wrapper scrollable horizontally */
-  .final-text table,
-  .prose table {
-    display: table;
-    width: max-content;
-    min-width: 100%;
-    border-collapse: collapse;
-  }
-
-  /* Wrap tables in a scrollable container via CSS */
-  .final-response {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .final-text th,
-  .final-text td,
-  .prose th,
-  .prose td {
+  /* Table cells - prevent wrapping */
+  .table-scroll-wrapper th,
+  .table-scroll-wrapper td {
     padding: 8px 10px !important;
     font-size: 13px !important;
     white-space: nowrap;
   }
 
-  /* First column can wrap text */
-  .final-text td:first-child,
-  .prose td:first-child {
+  /* First column can wrap text for readability */
+  .table-scroll-wrapper td:first-child {
     white-space: normal;
     min-width: 100px;
     max-width: 150px;
@@ -1178,6 +1229,8 @@
   .save-action-btn {
     width: 100%;
     justify-content: center;
+    padding: 12px 16px;
+    font-size: 14px;
   }
 
   /* Save status group */

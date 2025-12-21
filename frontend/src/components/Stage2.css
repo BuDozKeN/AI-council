@@ -40,36 +40,22 @@
   color: var(--color-text-primary);
 }
 
-.stage2-summary {
-  margin-left: auto;
-  font-size: 12px;
-  font-weight: 400;
-  color: var(--color-text-muted);
-  background: rgba(139, 92, 246, 0.1);
-  padding: 2px 8px;
-  border-radius: 10px;
-}
-
+/* Winner badge - compact trophy + icon only */
 .stage2-winner {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 2px 8px;
+  gap: 4px;
+  margin-left: auto;
+  padding: 4px 8px;
   background: linear-gradient(135deg, var(--color-amber-100) 0%, var(--color-amber-200) 100%);
   color: var(--color-amber-700);
   border-radius: 10px;
-  font-size: 12px;
-  font-weight: 500;
 }
 
 .stage2-winner .winner-model-icon {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   object-fit: contain;
-}
-
-.stage2-winner .winner-avg {
-  font-weight: 600;
 }
 
 /* Accordion content */
@@ -143,14 +129,14 @@
 .aggregate-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .aggregate-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px;
+  gap: 10px;
+  padding: 8px 12px;
   background: var(--color-bg-primary);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-blue-200);
@@ -159,22 +145,24 @@
 .rank-position {
   color: var(--color-blue-600);
   font-weight: 700;
-  font-size: 16px;
-  min-width: 35px;
+  font-size: 14px;
+  min-width: 28px;
 }
 
 .rank-model {
   flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   color: var(--color-text-primary);
-  font-family: monospace;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
 }
 
 .rank-score {
   color: var(--color-text-secondary);
   font-size: 13px;
-  font-family: monospace;
+  font-weight: 600;
 }
 
 .stage2 .tabs {
@@ -185,6 +173,9 @@
 }
 
 .stage2 .tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 8px 16px;
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border-dark);
@@ -193,6 +184,101 @@
   cursor: pointer;
   font-size: 14px;
   transition: all 0.2s;
+}
+
+/* Icon wrapper with status badge - matches Stage 1 pattern exactly */
+.stage2 .tab .tab-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-bg-secondary, #f8fafc);
+  border: 2px solid var(--color-border, #e2e8f0);
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.stage2 .tab.complete .tab-icon-wrapper {
+  border-color: var(--color-success, #22c55e);
+}
+
+.stage2 .tab.error .tab-icon-wrapper {
+  border-color: var(--color-error, #ef4444);
+}
+
+.stage2 .tab.streaming .tab-icon-wrapper {
+  border-color: var(--color-info, #3b82f6);
+}
+
+.stage2 .tab .tab-model-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  object-fit: contain;
+}
+
+/* Status badge overlay - positioned bottom-right like Stage 1 */
+.stage2 .tab .tab-status-badge {
+  position: absolute;
+  bottom: -3px;
+  right: -3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: bold;
+  border: 2px solid var(--color-bg-primary, white);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+.stage2 .tab .tab-status-badge.complete {
+  background: #16a34a; /* Match Stage 1 green */
+  color: white;
+  animation: badge-pop 0.3s ease-out;
+}
+
+@keyframes badge-pop {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.stage2 .tab .tab-status-badge.error {
+  background: #dc2626; /* Red for errors - clear visual distinction */
+  color: white;
+}
+
+.stage2 .tab .tab-status-badge.streaming {
+  background: #3b82f6; /* Match Stage 1 blue */
+}
+
+.stage2 .tab .tab-status-ping {
+  width: 6px;
+  height: 6px;
+  background: white;
+  border-radius: 50%;
+  animation: pulse 1s infinite;
+}
+
+/* Error tabs show red X instead of green checkmark */
+.stage2 .tab.error {
+  border-color: var(--color-error, #ef4444);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.stage2 .tab.error .complete-icon {
+  display: none; /* Never show checkmark for errors */
+}
+
+.stage2 .tab.error .error-icon {
+  color: var(--color-error, #ef4444);
 }
 
 .stage2 .tab:hover {
@@ -230,6 +316,22 @@
 .stage2 .model-info {
   display: flex;
   align-items: center;
+  gap: 6px;
+}
+
+.stage2 .model-info-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  object-fit: contain;
+}
+
+.stage2 .rank-model-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  object-fit: contain;
+  margin-right: 4px;
 }
 
 /* Copy button */
@@ -306,6 +408,86 @@
   margin-bottom: 0;
 }
 
+/* =============================================================================
+   MODEL SUMMARY PILLS - Collapsed view showing provider groups
+   Matches Stage 1's collapsed summary style
+   ============================================================================= */
+
+.model-summary-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.model-summary-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  transition: all 0.2s ease;
+}
+
+.model-summary-pill.complete {
+  border-color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.model-summary-pill.streaming {
+  border-color: var(--color-info);
+  background: var(--color-info-light);
+}
+
+.model-summary-pill.error {
+  border-color: var(--color-warning);
+  background: var(--color-warning-light);
+}
+
+.model-summary-pill .pill-check {
+  color: var(--color-success);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.model-summary-pill .pill-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.model-summary-pill .pill-label {
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Dark mode pills */
+.dark .model-summary-pill {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .model-summary-pill.complete {
+  border-color: var(--color-success);
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.dark .model-summary-pill.streaming {
+  border-color: var(--color-info);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.dark .model-summary-pill.error {
+  border-color: var(--color-warning);
+  background: rgba(245, 158, 11, 0.1);
+}
+
 .ranking-content {
   color: var(--color-text-primary);
   line-height: 1.6;
@@ -340,30 +522,7 @@
   font-size: 12px;
 }
 
-/* Streaming styles */
-.stage2 .status-icon {
-  margin-right: 6px;
-  font-size: 12px;
-}
-
-.stage2 .streaming-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  background: var(--color-success);
-  border-radius: 50%;
-  animation: pulse 1s infinite;
-}
-
-.stage2 .complete-icon {
-  color: var(--color-success);
-  font-weight: bold;
-}
-
-.stage2 .error-icon {
-  color: var(--color-warning);
-}
-
+/* Pulse animation for streaming badge */
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
@@ -374,8 +533,8 @@
 }
 
 .stage2 .tab.error {
-  border-color: var(--color-warning);
-  color: var(--color-accent-hover);
+  border-color: #dc2626;
+  color: #991b1b;
 }
 
 .stage2 .tab.streaming {
@@ -405,8 +564,8 @@
   display: inline-block;
   margin-left: 8px;
   padding: 2px 6px;
-  background: var(--color-warning-light);
-  color: var(--color-accent-hover);
+  background: #fef2f2;
+  color: #dc2626;
   border-radius: var(--radius-sm);
   font-size: 10px;
   font-weight: 600;
@@ -450,11 +609,6 @@
 
 .dark .stage2-title {
   color: var(--color-text-primary);
-}
-
-.dark .stage2-summary {
-  background: rgba(139, 92, 246, 0.2);
-  color: var(--stage2-text-primary);
 }
 
 .dark .stage2-winner {
@@ -543,4 +697,64 @@
   background: var(--color-bg-tertiary);
   border-color: var(--color-brand-primary);
   color: var(--color-brand-primary);
+}
+
+/* =============================================================================
+   TABLE SCROLL WRAPPER - Isolates table scrolling from page scroll
+   ============================================================================= */
+
+.stage2 .table-scroll-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 12px 0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  /* Prevent touch events from propagating to parent */
+  overscroll-behavior-x: contain;
+}
+
+.stage2 .table-scroll-wrapper table {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  width: max-content;
+  min-width: 100%;
+}
+
+/* Mobile: scroll shadows to hint at scrollable content */
+@media (max-width: 768px) {
+  .stage2 .table-scroll-wrapper {
+    background:
+      linear-gradient(to right, white 30%, rgba(255,255,255,0)),
+      linear-gradient(to right, rgba(255,255,255,0), white 70%) 100% 0,
+      linear-gradient(to right, rgba(0,0,0,.08), rgba(0,0,0,0)),
+      linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,.08)) 100% 0;
+    background-repeat: no-repeat;
+    background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
+    background-attachment: local, local, scroll, scroll;
+  }
+
+  .dark .stage2 .table-scroll-wrapper {
+    background:
+      linear-gradient(to right, var(--color-bg-primary) 30%, rgba(0,0,0,0)),
+      linear-gradient(to right, rgba(0,0,0,0), var(--color-bg-primary) 70%) 100% 0,
+      linear-gradient(to right, rgba(255,255,255,.05), rgba(0,0,0,0)),
+      linear-gradient(to right, rgba(0,0,0,0), rgba(255,255,255,.05)) 100% 0;
+    background-repeat: no-repeat;
+    background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
+    background-attachment: local, local, scroll, scroll;
+  }
+
+  .stage2 .table-scroll-wrapper th,
+  .stage2 .table-scroll-wrapper td {
+    padding: 8px 10px !important;
+    font-size: 13px !important;
+    white-space: nowrap;
+  }
+
+  .stage2 .table-scroll-wrapper td:first-child {
+    white-space: normal;
+    min-width: 80px;
+    max-width: 120px;
+  }
 }

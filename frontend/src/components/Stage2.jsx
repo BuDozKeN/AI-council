@@ -40,10 +40,11 @@ function deAnonymizeText(text, labelToModel) {
   if (!labelToModel) return text;
 
   let result = text;
-  // Replace each "Response X" with the actual model name
+  // Replace each "Response X" with the friendly brand name (e.g., "Gemini", "Claude")
   Object.entries(labelToModel).forEach(([label, model]) => {
-    const modelShortName = model.split('/')[1] || model;
-    result = result.replace(new RegExp(label, 'g'), `**${modelShortName}**`);
+    const persona = getModelPersona(model);
+    const displayName = persona.providerLabel || persona.shortName;
+    result = result.replace(new RegExp(label, 'g'), `**${displayName}**`);
   });
   return result;
 }
@@ -149,6 +150,7 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
     ? aggregateRankings[0].model
     : null;
   const winnerIconPath = winnerModel ? getModelIconPath(winnerModel) : null;
+  const winnerPersona = winnerModel ? getModelPersona(winnerModel) : null;
   const winnerAvg = aggregateRankings && aggregateRankings.length > 0
     ? aggregateRankings[0].average_rank.toFixed(1)
     : null;
@@ -170,14 +172,12 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
         <span className="font-semibold tracking-tight">Step 2: Cross-checking Answers</span>
         {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
 
-        {/* Summary badge - always visible */}
-        <span className="stage2-summary">
-          {completedCount}/{totalCount} reviews
-        </span>
-
-        {/* Winner badge with model icon */}
+        {/* Winner badge - just trophy + icon, details on hover */}
         {winnerModel && (
-          <span className="stage2-winner">
+          <span
+            className="stage2-winner"
+            title={`Winner: ${winnerPersona?.fullName || winnerDisplayName} — Voted #1 by ${aggregateRankings?.length || 5} AI experts with avg score ${winnerAvg} (1 = best)`}
+          >
             <Trophy style={{ width: 14, height: 14 }} />
             {winnerIconPath && (
               <img
@@ -186,34 +186,54 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
                 className="winner-model-icon"
               />
             )}
-            <span className="winner-avg">(avg: {winnerAvg})</span>
           </span>
         )}
       </h3>
 
+
       {!isCollapsed && (
         <div className="stage2-content">
           <div className="tabs">
-            {displayData.map((data, index) => (
-              <button
-                key={data.model}
-                className={`tab ${activeTab === index ? 'active' : ''} ${data.isStreaming ? 'streaming' : ''} ${data.hasError || data.isEmpty ? 'error' : ''} ${data.isComplete && !data.isEmpty ? 'complete' : ''}`}
-                onClick={() => setActiveTab(index)}
-              >
-                {data.isStreaming && <span className="status-icon streaming-dot" title="Generating..."></span>}
-                {data.isComplete && !data.isEmpty && <span className="status-icon complete-icon" title="Complete">✓</span>}
-                {(data.hasError || data.isEmpty) && <span className="status-icon error-icon" title={data.hasError ? 'Error' : 'No response'}>⚠</span>}
-                {data.model.split('/')[1] || data.model}
-              </button>
-            ))}
+            {displayData.map((data, index) => {
+              const persona = getModelPersona(data.model);
+              const iconPath = getModelIconPath(data.model);
+              const displayName = persona.providerLabel || persona.shortName;
+              return (
+                <button
+                  key={data.model}
+                  className={`tab ${activeTab === index ? 'active' : ''} ${data.isStreaming ? 'streaming' : ''} ${data.hasError || data.isEmpty ? 'error' : ''} ${data.isComplete && !data.isEmpty ? 'complete' : ''}`}
+                  onClick={() => setActiveTab(index)}
+                  title={persona.fullName}
+                >
+                  {/* Icon with status badge overlay - matches Stage 1 */}
+                  <span className="tab-icon-wrapper">
+                    {iconPath && <img src={iconPath} alt="" className="tab-model-icon" />}
+                    {data.isStreaming && <span className="tab-status-badge streaming"><span className="tab-status-ping"></span></span>}
+                    {data.isComplete && !data.isEmpty && !data.hasError && <span className="tab-status-badge complete">✓</span>}
+                    {(data.hasError || data.isEmpty) && <span className="tab-status-badge error">✕</span>}
+                  </span>
+                  {displayName}
+                </button>
+              );
+            })}
           </div>
 
           <div className="tab-content">
             <div className="ranking-model">
-              <span className="model-info">
-                {activeData.model}
+              <span className="model-info" title={getModelPersona(activeData.model).fullName}>
+                {(() => {
+                  const iconPath = getModelIconPath(activeData.model);
+                  const persona = getModelPersona(activeData.model);
+                  const displayName = persona.providerLabel || persona.shortName;
+                  return (
+                    <>
+                      {iconPath && <img src={iconPath} alt="" className="model-info-icon" />}
+                      {displayName}
+                    </>
+                  );
+                })()}
                 {activeData.isStreaming && <span className="typing-indicator">●</span>}
-                {activeData.isComplete && !activeData.isEmpty && <span className="complete-badge">Complete</span>}
+                {activeData.isComplete && !activeData.isEmpty && <span className="complete-badge">Done</span>}
                 {activeData.isEmpty && <span className="error-badge">No Response</span>}
                 {activeData.hasError && <span className="error-badge">Error</span>}
               </span>
@@ -228,7 +248,19 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
                 <p className="empty-message">{activeData.ranking || 'An error occurred while generating the evaluation.'}</p>
               ) : (
                 <>
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      // Wrap tables in scrollable container for mobile
+                      table({ children, ...props }) {
+                        return (
+                          <div className="table-scroll-wrapper">
+                            <table {...props}>{children}</table>
+                          </div>
+                        );
+                      }
+                    }}
+                  >
                     {deAnonymizeText(activeData.ranking || '', labelToModel)}
                   </ReactMarkdown>
                   {activeData.isStreaming && <span className="cursor">▊</span>}
@@ -239,15 +271,18 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
             {activeData.parsed_ranking &&
              activeData.parsed_ranking.length > 0 && (
               <div className="parsed-ranking">
-                <strong>Extracted Ranking:</strong>
+                <strong>Ranking order:</strong>
                 <ol>
-                  {activeData.parsed_ranking.map((label, i) => (
-                    <li key={i}>
-                      {labelToModel && labelToModel[label]
-                        ? labelToModel[label].split('/')[1] || labelToModel[label]
-                        : label}
-                    </li>
-                  ))}
+                  {activeData.parsed_ranking.map((label, i) => {
+                    const model = labelToModel && labelToModel[label];
+                    const persona = model ? getModelPersona(model) : null;
+                    const displayName = persona ? (persona.providerLabel || persona.shortName) : label;
+                    return (
+                      <li key={i} title={persona?.fullName}>
+                        {displayName}
+                      </li>
+                    );
+                  })}
                 </ol>
               </div>
             )}
@@ -255,25 +290,28 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
 
           {aggregateRankings && aggregateRankings.length > 0 && (
             <div className="aggregate-rankings">
-              <h4 className="stage2-section-title">Aggregate Rankings (Street Cred)</h4>
-              <p className="stage-description">
-                Combined results across all peer evaluations (lower score is better):
-              </p>
+              <h4 className="stage2-section-title">Final Rankings</h4>
               <div className="aggregate-list">
-                {aggregateRankings.map((agg, index) => (
-                  <div key={index} className="aggregate-item">
-                    <span className="rank-position">#{index + 1}</span>
-                    <span className="rank-model">
-                      {agg.model.split('/')[1] || agg.model}
-                    </span>
-                    <span className="rank-score">
-                      Avg: {agg.average_rank.toFixed(2)}
-                    </span>
-                    <span className="rank-count">
-                      (by {agg.rankings_count}/{aggregateRankings.length} judges)
-                    </span>
-                  </div>
-                ))}
+                {aggregateRankings.map((agg, index) => {
+                  const persona = getModelPersona(agg.model);
+                  const iconPath = getModelIconPath(agg.model);
+                  const displayName = persona.providerLabel || persona.shortName;
+                  const totalVoters = aggregateRankings.length;
+                  return (
+                    <div
+                      key={index}
+                      className="aggregate-item"
+                      title={`${persona.fullName} - Average rank: ${agg.average_rank.toFixed(1)} (${agg.rankings_count} of ${totalVoters} experts voted). Lower is better - #1 is the top answer.`}
+                    >
+                      <span className="rank-position">#{index + 1}</span>
+                      <span className="rank-model">
+                        {iconPath && <img src={iconPath} alt="" className="rank-model-icon" />}
+                        {displayName}
+                      </span>
+                      <span className="rank-score">{agg.average_rank.toFixed(1)}</span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
