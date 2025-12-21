@@ -289,7 +289,7 @@ const ModelCard = memo(function ModelCard({ data, isComplete: globalComplete, on
   );
 });
 
-export default function Stage1({ responses, streaming, isLoading, stopped, isComplete, defaultCollapsed = false, conversationTitle, imageAnalysis }) {
+function Stage1({ responses, streaming, isLoading, stopped, isComplete, defaultCollapsed = false, conversationTitle, imageAnalysis }) {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [expandedModel, setExpandedModel] = useState(null);
 
@@ -494,3 +494,6 @@ export default function Stage1({ responses, streaming, isLoading, stopped, isCom
     </div>
   );
 }
+
+// Memoize to prevent re-renders when parent state changes but Stage1 props don't
+export default memo(Stage1);

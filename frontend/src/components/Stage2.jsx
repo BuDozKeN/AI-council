@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, memo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Spinner } from './ui/Spinner';
@@ -49,7 +49,7 @@ function deAnonymizeText(text, labelToModel) {
   return result;
 }
 
-export default function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoading, isComplete, defaultCollapsed = true, conversationTitle }) {
+function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoading, isComplete, defaultCollapsed = true, conversationTitle }) {
   const [activeTab, setActiveTab] = useState(0);
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [userToggled, setUserToggled] = useState(false);
@@ -320,3 +320,6 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
     </div>
   );
 }
+
+// Memoize to prevent re-renders when parent state changes but Stage2 props don't
+export default memo(Stage2);

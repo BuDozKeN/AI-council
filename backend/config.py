@@ -1,6 +1,7 @@
 """Configuration for the LLM Council."""
 
 import os
+import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -9,6 +10,29 @@ env_path = Path('.env')
 if not env_path.exists():
     env_path = Path('..') / '.env'
 load_dotenv(env_path, override=True)
+
+
+# =============================================================================
+# ENVIRONMENT VALIDATION
+# =============================================================================
+def validate_config():
+    """Validate required environment variables at startup."""
+    required = [
+        'OPENROUTER_API_KEY',
+        'SUPABASE_URL',
+        'SUPABASE_SERVICE_ROLE_KEY',
+    ]
+    missing = [k for k in required if not os.getenv(k)]
+    if missing:
+        print(f"[CONFIG] ERROR: Missing required environment variables: {missing}", file=sys.stderr)
+        print("[CONFIG] Please check your .env file or environment configuration.", file=sys.stderr)
+        # Don't exit - allow graceful degradation for local dev without all services
+        # raise SystemExit(1)
+
+
+# Run validation at import time
+validate_config()
+
 
 # OpenRouter API key
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")

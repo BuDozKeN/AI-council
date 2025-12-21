@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { createPortal } from 'react-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -82,7 +82,7 @@ function CodeBlock({ children, className }) {
   );
 }
 
-export default function Stage3({
+function Stage3({
   finalResponse,
   streaming,
   isLoading,
@@ -986,3 +986,6 @@ export default function Stage3({
     </div>
   );
 }
+
+// Memoize to prevent re-renders when parent state changes but Stage3 props don't
+export default memo(Stage3);
