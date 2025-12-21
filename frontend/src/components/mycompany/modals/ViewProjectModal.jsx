@@ -296,11 +296,12 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
       hasSyncedDepts.current = true;
       api.syncProjectDepartments(companyId, project.id)
         .then(syncResult => {
-          // Only update if departments actually changed
+          // Only update if departments actually changed (use spread to avoid mutating)
           if (syncResult?.department_ids) {
-            const currentIds = JSON.stringify(editedDepartmentIds.sort());
-            const newIds = JSON.stringify(syncResult.department_ids.sort());
+            const currentIds = JSON.stringify([...editedDepartmentIds].sort());
+            const newIds = JSON.stringify([...syncResult.department_ids].sort());
             if (currentIds !== newIds) {
+              // Batch updates to minimize re-renders
               setProject(prev => ({
                 ...prev,
                 department_ids: syncResult.department_ids
@@ -314,7 +315,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
           }
         })
         .catch(err => {
-          console.log('[ViewProjectModal] Dept sync failed:', err.message);
+          // Silent fail - departments will just show what's already there
         });
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -689,23 +690,25 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                   <div className="mc-content-preview">
                     {content ? (
                       <>
-                        {/* Floating copy button - matches Stage3/timeline style */}
-                        <button
-                          className={`mc-timeline-copy-btn ${contextCopied ? 'copied' : ''}`}
-                          onClick={handleCopyContext}
-                          title="Copy project context"
-                        >
-                          {contextCopied ? (
-                            <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                              <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                          ) : (
-                            <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
-                            </svg>
-                          )}
-                        </button>
+                        {/* Sticky copy button container */}
+                        <div className="mc-timeline-copy-container">
+                          <button
+                            className={`mc-timeline-copy-btn ${contextCopied ? 'copied' : ''}`}
+                            onClick={handleCopyContext}
+                            title="Copy project context"
+                          >
+                            {contextCopied ? (
+                              <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                              </svg>
+                            ) : (
+                              <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                              </svg>
+                            )}
+                          </button>
+                        </div>
                         <MarkdownViewer content={content} skipCleanup={true} />
                       </>
                     ) : (
