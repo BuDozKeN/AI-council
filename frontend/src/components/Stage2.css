@@ -53,13 +53,23 @@
 .stage2-winner {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   padding: 2px 8px;
   background: linear-gradient(135deg, var(--color-amber-100) 0%, var(--color-amber-200) 100%);
   color: var(--color-amber-700);
   border-radius: 10px;
   font-size: 12px;
   font-weight: 500;
+}
+
+.stage2-winner .winner-model-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.stage2-winner .winner-avg {
+  font-weight: 600;
 }
 
 /* Accordion content */

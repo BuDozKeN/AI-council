@@ -80,7 +80,7 @@
   gap: 6px;
 }
 
-/* Copy button */
+/* Copy button - legacy class */
 .copy-btn {
   display: inline-flex;
   align-items: center;
@@ -101,6 +101,44 @@
 .copy-icon {
   width: 14px;
   height: 14px;
+}
+
+/* Content wrapper - contains the content */
+.final-content-wrapper {
+  position: relative;
+}
+
+/* Stage3-specific copy button - subtle green theme */
+/* Sticky button inside the final-response box */
+.stage3-copy-btn.copy-btn-unified {
+  position: sticky;
+  top: 100px; /* Below the context indicator bar */
+  float: right;
+  margin-left: 12px;
+  margin-bottom: 8px;
+  z-index: 40;
+  border-color: var(--color-success-border);
+  color: var(--color-success-dark);
+  background: var(--color-success-light);
+}
+
+/* Mobile: adjust sticky position */
+@media (max-width: 768px) {
+  .stage3-copy-btn.copy-btn-unified {
+    top: 80px;
+  }
+}
+
+.stage3-copy-btn.copy-btn-unified:hover {
+  border-color: var(--color-success);
+  color: var(--color-success-dark);
+  background: var(--color-success-light);
+}
+
+.stage3-copy-btn.copy-btn-unified.copied {
+  border-color: var(--color-success);
+  color: var(--color-success-dark);
+  background: var(--color-success-light);
 }
 
 /* Code block with copy button - light theme to match Stage3 */
@@ -864,6 +902,25 @@
 }
 
 .dark .copy-btn:hover {
+  background: var(--color-success-light);
+}
+
+/* Dark mode Stage3 copy button - subtle style */
+.dark .stage3-copy-btn.copy-btn-unified {
+  border-color: var(--color-success-border);
+  color: var(--stage3-text-primary);
+  background: var(--color-success-light);
+}
+
+.dark .stage3-copy-btn.copy-btn-unified:hover {
+  border-color: var(--color-success);
+  color: var(--stage3-text-primary);
+  background: var(--color-success-light);
+}
+
+.dark .stage3-copy-btn.copy-btn-unified.copied {
+  border-color: var(--color-success);
+  color: var(--stage3-text-primary);
   background: var(--color-success-light);
 }
 

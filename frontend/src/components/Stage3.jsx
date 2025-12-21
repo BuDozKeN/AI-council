@@ -194,14 +194,10 @@ export default function Stage3({
 
           const project = data.project || data;
           setFullProjectData(project);
-          // Sync department selector to project's departments (multi-department support)
+          // Sync department selector to project's departments
           if (project.department_ids?.length > 0) {
             console.log('[Stage3] Syncing departments to project:', project.department_ids);
             setSelectedDeptIds(project.department_ids);
-          } else if (project.department_id) {
-            // Fallback to single department_id for older projects
-            console.log('[Stage3] Syncing department to project (legacy):', project.department_id);
-            setSelectedDeptIds([project.department_id]);
           }
         })
         .catch(err => console.error('Failed to load project:', err));
@@ -261,11 +257,9 @@ export default function Stage3({
           if (decision.project_id) {
             setSelectedProjectId(decision.project_id);
           }
-          // Restore departments from decision (prefer department_ids array, fallback to single department_id)
+          // Restore departments from decision
           if (decision.department_ids?.length > 0) {
             setSelectedDeptIds(decision.department_ids);
-          } else if (decision.department_id) {
-            setSelectedDeptIds([decision.department_id]);
           }
           // Restore doc type if saved
           if (decision.doc_type) {
@@ -370,6 +364,7 @@ export default function Stage3({
 
       if (selectedProjectId && projectToUse) {
         console.log('[Stage3] Merging decision into project:', selectedProjectId, 'departments:', selectedDeptIds);
+        console.log('[Stage3] Calling mergeDecisionIntoProject API... (this may take 10-30s due to AI processing)');
 
         const mergeResult = await api.mergeDecisionIntoProject(
           selectedProjectId,
@@ -387,7 +382,7 @@ export default function Stage3({
           }
         );
 
-        console.log('[Stage3] Merge result:', mergeResult);
+        console.log('[Stage3] Merge result received:', JSON.stringify(mergeResult, null, 2));
 
         // Update project context with merged content
         if (mergeResult?.merged?.context_md) {
@@ -423,7 +418,7 @@ export default function Stage3({
           title: getTitle(),
           content: displayText,
           user_question: userQuestion || null,  // Store what the user asked for context
-          department_id: selectedDeptIds.length > 0 ? selectedDeptIds[0] : null,
+          department_ids: selectedDeptIds,  // Use canonical array field
           source_conversation_id: conversationId?.startsWith('temp-') ? null : conversationId,
           response_index: responseIndex,  // Track which response in the conversation this is
           project_id: selectedProjectId || null,
@@ -440,9 +435,11 @@ export default function Stage3({
         setSaveState('saved');
       }
     } catch (err) {
-      console.error('Failed to save decision:', err);
+      console.error('[Stage3] Failed to save decision:', err);
+      console.error('[Stage3] Error details:', err.message, err.stack);
       setSaveState('error');
-      setTimeout(() => setSaveState('idle'), 3000);
+      // Keep error visible longer so user can see it
+      setTimeout(() => setSaveState('idle'), 5000);
     }
   };
 
@@ -457,7 +454,7 @@ export default function Stage3({
       const saveResult = await api.createCompanyDecision(companyId, {
         title: getTitle(),
         content: displayText,
-        department_id: selectedDeptIds.length > 0 ? selectedDeptIds[0] : null,
+        department_ids: selectedDeptIds,  // Use canonical array field
         source_conversation_id: conversationId?.startsWith('temp-') ? null : conversationId,
         project_id: selectedProjectId || null,
         tags: []
@@ -476,7 +473,7 @@ export default function Stage3({
       const promoteResult = await api.promoteDecisionToPlaybook(companyId, decisionId, {
         doc_type: selectedDocType,
         title: getTitle(),
-        department_id: selectedDeptIds.length > 0 ? selectedDeptIds[0] : null
+        department_ids: selectedDeptIds  // Use canonical array field
       });
 
       console.log('Promote result:', promoteResult);
@@ -559,12 +556,14 @@ export default function Stage3({
               {isComplete && <span className="complete-badge">Complete</span>}
               {hasError && <span className="error-badge">Error</span>}
             </span>
-            {/* Copy button - inline with label */}
-            {isComplete && displayText && (
-              <CopyButton text={displayText} size="sm" />
-            )}
           </div>
-        <div className={`final-text ${hasError ? 'error-text' : ''}`}>
+          {/* Content wrapper with sticky copy button outside the box */}
+          <div className="final-content-wrapper">
+            {/* Copy button - sticky, floats to the right outside the content */}
+            {isComplete && displayText && (
+              <CopyButton text={displayText} size="sm" className="stage3-copy-btn" />
+            )}
+            <div className={`final-text ${hasError ? 'error-text' : ''}`}>
           {hasError ? (
             <p className="empty-message">{displayText || 'An error occurred while generating the synthesis.'}</p>
           ) : (
@@ -596,6 +595,7 @@ export default function Stage3({
             </>
           )}
         </div>
+          </div>
         {isComplete && companyId && (
           <div className="stage3-actions">
             {/* Error state */}

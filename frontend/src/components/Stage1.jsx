@@ -1,11 +1,76 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Spinner } from './ui/Spinner';
 import { CopyButton } from './ui/CopyButton';
-import { Activity, CheckCircle2, AlertCircle, StopCircle, ChevronDown, ChevronUp, Copy, Check, X } from 'lucide-react';
+import { Activity, CheckCircle2, AlertCircle, StopCircle, ChevronDown, X, Check } from 'lucide-react';
+import { getModelPersona } from '../config/modelPersonas';
 import './Stage1.css';
+
+// Map provider to icon file path
+const PROVIDER_ICON_PATH = {
+  anthropic: '/icons/anthropic.svg',
+  openai: '/icons/openai.svg',
+  google: '/icons/gemini.svg',
+  xai: '/icons/grok.svg',
+  deepseek: '/icons/deepseek.svg',
+};
+
+// Get icon path for a model - with fallback pattern matching
+function getModelIconPath(modelId) {
+  if (!modelId) return null;
+
+  const persona = getModelPersona(modelId);
+  if (persona.provider && PROVIDER_ICON_PATH[persona.provider]) {
+    return PROVIDER_ICON_PATH[persona.provider];
+  }
+
+  // Fallback: match common model name patterns
+  const lowerModel = modelId.toLowerCase();
+  if (lowerModel.includes('gpt') || lowerModel.includes('o1')) return '/icons/openai.svg';
+  if (lowerModel.includes('claude') || lowerModel.includes('opus') || lowerModel.includes('sonnet') || lowerModel.includes('haiku')) return '/icons/anthropic.svg';
+  if (lowerModel.includes('gemini')) return '/icons/gemini.svg';
+  if (lowerModel.includes('grok')) return '/icons/grok.svg';
+  if (lowerModel.includes('deepseek')) return '/icons/deepseek.svg';
+
+  return null;
+}
+
+// Strip markdown formatting for clean preview text
+function stripMarkdown(text) {
+  if (!text) return '';
+
+  return text
+    // Remove headers (# ## ### etc)
+    .replace(/^#{1,6}\s+/gm, '')
+    // Remove bold **text** or __text__
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/__(.+?)__/g, '$1')
+    // Remove italic *text* or _text_
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/_(.+?)_/g, '$1')
+    // Remove inline code `code`
+    .replace(/`([^`]+)`/g, '$1')
+    // Remove code blocks ```code```
+    .replace(/```[\s\S]*?```/g, '')
+    // Remove links [text](url) -> text
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    // Remove images ![alt](url)
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1')
+    // Remove blockquotes >
+    .replace(/^>\s+/gm, '')
+    // Remove horizontal rules ---
+    .replace(/^-{3,}$/gm, '')
+    // Remove bullet points - or * at start
+    .replace(/^[\-\*]\s+/gm, '')
+    // Remove numbered lists 1. 2. etc
+    .replace(/^\d+\.\s+/gm, '')
+    // Remove extra whitespace/newlines
+    .replace(/\n+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 
 // Custom code block renderer with copy button
 function CodeBlock({ children, className }) {
@@ -29,15 +94,21 @@ function CodeBlock({ children, className }) {
   );
 }
 
-// Individual model card in the grid
-function ModelCard({ data, isComplete: globalComplete, onExpand, isExpanded }) {
+// Individual model card in the grid - memoized to prevent re-renders when other cards update
+const ModelCard = memo(function ModelCard({ data, isComplete: globalComplete, onExpand, isExpanded }) {
   const cardRef = useRef(null);
   const touchStartRef = useRef(null);
   const shortName = data.model.split('/')[1] || data.model;
 
-  // Truncate response for preview (first ~150 chars)
-  const previewText = data.response?.slice(0, 200) || '';
-  const hasMore = data.response?.length > 200;
+  // Get model persona and icon path
+  const persona = getModelPersona(data.model);
+  const iconPath = getModelIconPath(data.model);
+  const modelColor = persona.color;
+
+  // Clean preview text - strip markdown and truncate
+  const cleanText = stripMarkdown(data.response || '');
+  const previewText = cleanText.slice(0, 200);
+  const hasMore = cleanText.length > 200;
 
   // Scroll into view when expanded
   useEffect(() => {
@@ -110,22 +181,37 @@ function ModelCard({ data, isComplete: globalComplete, onExpand, isExpanded }) {
       {/* Header */}
       <div className="model-card-header">
         <div className="model-card-header-left">
-          {/* Status indicator */}
-          {data.isStreaming && (
-            <span className="status-dot">
-              <span className="status-dot-ping"></span>
-              <span className="status-dot-core"></span>
-            </span>
-          )}
-          {data.isComplete && !data.isEmpty && !data.isStreaming && (
-            <CheckCircle2 style={{ width: 14, height: 14, color: '#16a34a' }} />
-          )}
-          {data.isStopped && (
-            <StopCircle style={{ width: 14, height: 14, color: '#94a3b8' }} />
-          )}
-          {(data.hasError || data.isEmpty) && (
-            <AlertCircle style={{ width: 14, height: 14, color: '#f59e0b' }} />
-          )}
+          {/* LLM Icon with status indicator */}
+          <div className="llm-icon-wrapper" style={{ '--model-color': modelColor }}>
+            {iconPath ? (
+              <img src={iconPath} alt={persona.shortName} className="llm-icon" />
+            ) : (
+              <span className="llm-icon-fallback" style={{ background: modelColor }}>
+                {shortName.charAt(0)}
+              </span>
+            )}
+            {/* Status badge overlay */}
+            {data.isStreaming && (
+              <span className="llm-status-badge streaming">
+                <span className="llm-status-ping"></span>
+              </span>
+            )}
+            {data.isComplete && !data.isEmpty && !data.isStreaming && (
+              <span className="llm-status-badge complete">
+                <Check size={10} strokeWidth={3} />
+              </span>
+            )}
+            {data.isStopped && (
+              <span className="llm-status-badge stopped">
+                <StopCircle size={8} />
+              </span>
+            )}
+            {(data.hasError || data.isEmpty) && (
+              <span className="llm-status-badge error">
+                <AlertCircle size={8} />
+              </span>
+            )}
+          </div>
 
           <span className="model-card-name">{shortName}</span>
         </div>
@@ -199,7 +285,7 @@ function ModelCard({ data, isComplete: globalComplete, onExpand, isExpanded }) {
 
     </motion.div>
   );
-}
+});
 
 export default function Stage1({ responses, streaming, isLoading, stopped, isComplete, defaultCollapsed = false, conversationTitle, imageAnalysis }) {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);

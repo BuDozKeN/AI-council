@@ -4,7 +4,37 @@ import remarkGfm from 'remark-gfm';
 import { Spinner } from './ui/Spinner';
 import { CopyButton } from './ui/CopyButton';
 import { Users, Trophy, CheckCircle2 } from 'lucide-react';
+import { getModelPersona } from '../config/modelPersonas';
 import './Stage2.css';
+
+// Provider icon paths (same as Stage1)
+const PROVIDER_ICON_PATH = {
+  anthropic: '/icons/anthropic.svg',
+  openai: '/icons/openai.svg',
+  google: '/icons/gemini.svg',
+  xai: '/icons/grok.svg',
+  deepseek: '/icons/deepseek.svg',
+};
+
+// Get icon path for a model - with fallback pattern matching
+function getModelIconPath(modelId) {
+  if (!modelId) return null;
+
+  const persona = getModelPersona(modelId);
+  if (persona.provider && PROVIDER_ICON_PATH[persona.provider]) {
+    return PROVIDER_ICON_PATH[persona.provider];
+  }
+
+  // Fallback: match common model name patterns
+  const lowerModel = modelId.toLowerCase();
+  if (lowerModel.includes('gpt') || lowerModel.includes('o1')) return '/icons/openai.svg';
+  if (lowerModel.includes('claude') || lowerModel.includes('opus') || lowerModel.includes('sonnet') || lowerModel.includes('haiku')) return '/icons/anthropic.svg';
+  if (lowerModel.includes('gemini')) return '/icons/gemini.svg';
+  if (lowerModel.includes('grok')) return '/icons/grok.svg';
+  if (lowerModel.includes('deepseek')) return '/icons/deepseek.svg';
+
+  return null;
+}
 
 function deAnonymizeText(text, labelToModel) {
   if (!labelToModel) return text;
@@ -101,9 +131,10 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
   const totalCount = displayData.length;
 
   // Get winner from aggregate rankings
-  const winner = aggregateRankings && aggregateRankings.length > 0
-    ? (aggregateRankings[0].model.split('/')[1] || aggregateRankings[0].model)
+  const winnerModel = aggregateRankings && aggregateRankings.length > 0
+    ? aggregateRankings[0].model
     : null;
+  const winnerIconPath = winnerModel ? getModelIconPath(winnerModel) : null;
   const winnerAvg = aggregateRankings && aggregateRankings.length > 0
     ? aggregateRankings[0].average_rank.toFixed(1)
     : null;
@@ -130,11 +161,18 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
           {completedCount}/{totalCount} reviews
         </span>
 
-        {/* Winner badge - only when collapsed or always? */}
-        {winner && (
+        {/* Winner badge with model icon */}
+        {winnerModel && (
           <span className="stage2-winner">
             <Trophy style={{ width: 14, height: 14 }} />
-            {winner} (avg: {winnerAvg})
+            {winnerIconPath && (
+              <img
+                src={winnerIconPath}
+                alt=""
+                className="winner-model-icon"
+              />
+            )}
+            <span className="winner-avg">(avg: {winnerAvg})</span>
           </span>
         )}
       </h3>
