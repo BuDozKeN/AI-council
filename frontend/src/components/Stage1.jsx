@@ -294,27 +294,41 @@ export default function Stage1({ responses, streaming, isLoading, stopped, isCom
   // Build display data from either streaming or final responses
   const displayData = [];
 
+  // Helper to detect if response text looks like an error message
+  const textLooksLikeError = (text) => {
+    if (!text) return false;
+    const lower = text.toLowerCase();
+    return lower.includes('[error:') ||
+           lower.includes('status 429') ||
+           lower.includes('rate limit') ||
+           lower.includes('api error') ||
+           lower.includes('timeout') ||
+           lower.includes('service unavailable');
+  };
+
   if (streaming && Object.keys(streaming).length > 0) {
     Object.entries(streaming).forEach(([model, data]) => {
       const wasStopped = stopped && !data.complete;
+      const hasTextError = textLooksLikeError(data.text);
       displayData.push({
         model,
         response: data.text,
         isStreaming: !data.complete && !stopped,
-        isComplete: data.complete && !data.error,
-        hasError: data.error,
+        isComplete: data.complete && !data.error && !hasTextError,
+        hasError: data.error || hasTextError,
         isEmpty: data.complete && !data.text && !data.error,
         isStopped: wasStopped,
       });
     });
   } else if (responses && responses.length > 0) {
     responses.forEach((resp) => {
+      const hasTextError = textLooksLikeError(resp.response);
       displayData.push({
         model: resp.model,
         response: resp.response,
         isStreaming: false,
-        isComplete: true,
-        hasError: false,
+        isComplete: !hasTextError,
+        hasError: hasTextError,
         isEmpty: !resp.response,
         isStopped: false,
       });
@@ -347,7 +361,7 @@ export default function Stage1({ responses, streaming, isLoading, stopped, isCom
       <div className="stage stage1">
         <h3 className="stage-title flex items-center gap-2">
           <Activity className="h-5 w-5 text-blue-500 animate-pulse" />
-          <span className="font-semibold tracking-tight">Independent Responses</span>
+          <span className="font-semibold tracking-tight">Step 1: Gathering Expert Opinions</span>
           {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
         </h3>
 
@@ -390,11 +404,11 @@ export default function Stage1({ responses, streaming, isLoading, stopped, isCom
         ) : (
           <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
         )}
-        <span className="font-semibold tracking-tight">Independent Responses</span>
+        <span className="font-semibold tracking-tight">Step 1: Gathering Expert Opinions</span>
         {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
         {isCollapsed && (
           <span className="collapsed-summary">
-            {completedCount}/{totalCount} models responded
+            {completedCount}/{totalCount} experts responded
           </span>
         )}
         {!isCollapsed && streamingCount > 0 && (

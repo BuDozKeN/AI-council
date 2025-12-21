@@ -510,18 +510,18 @@ export default function Stage3({
       <div className="stage stage3">
         <h3 className="stage-title">
           <Sparkles className="h-5 w-5 text-amber-500 flex-shrink-0" />
-          <span className="font-semibold tracking-tight">Council Synthesis</span>
+          <span className="font-semibold tracking-tight">Step 3: Final Recommendation</span>
           {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
         </h3>
         <div className="final-response">
           <div className="chairman-label">
-            Chairman: {shortModelName}
+            Lead Expert: {shortModelName}
             <span className="thinking-badge">Thinking<span className="thinking-dots"><span>.</span><span>.</span><span>.</span></span></span>
           </div>
           <div className="thinking-container">
             <div className="thinking-message">
               <span className="thinking-icon">🧠</span>
-              <span>Analyzing all council responses and peer rankings to synthesize the final answer...</span>
+              <span>Combining all expert opinions into one best answer...</span>
             </div>
           </div>
         </div>
@@ -538,11 +538,11 @@ export default function Stage3({
       <h3 className="stage-title clickable" onClick={toggleCollapsed}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
         <Sparkles className="h-5 w-5 text-amber-500 flex-shrink-0" />
-        <span className="font-semibold tracking-tight">Council Synthesis</span>
+        <span className="font-semibold tracking-tight">Step 3: Final Recommendation</span>
         {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
         {isCollapsed && savedDecisionId && (
           <span className="collapsed-summary">
-            <span className="kb-saved-badge">Decision saved</span>
+            <span className="kb-saved-badge">Saved</span>
           </span>
         )}
       </h3>
@@ -551,9 +551,9 @@ export default function Stage3({
         <div className="final-response">
           <div className="chairman-label">
             <span className="chairman-info">
-              Chairman: {shortModelName}
+              Lead Expert: {shortModelName}
               {isStreaming && <span className="typing-indicator">●</span>}
-              {isComplete && <span className="complete-badge">Complete</span>}
+              {isComplete && <span className="complete-badge">Done</span>}
               {hasError && <span className="error-badge">Error</span>}
             </span>
           </div>

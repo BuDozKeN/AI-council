@@ -56,15 +56,28 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
   // Build display data from either streaming or final rankings
   const displayData = [];
 
+  // Helper to detect if response text looks like an error message
+  const textLooksLikeError = (text) => {
+    if (!text) return false;
+    const lower = text.toLowerCase();
+    return lower.includes('[error:') ||
+           lower.includes('status 429') ||
+           lower.includes('rate limit') ||
+           lower.includes('api error') ||
+           lower.includes('timeout') ||
+           lower.includes('service unavailable');
+  };
+
   if (streaming && Object.keys(streaming).length > 0) {
     // Use streaming data
     Object.entries(streaming).forEach(([model, data]) => {
+      const hasTextError = textLooksLikeError(data.text);
       displayData.push({
         model,
         ranking: data.text,
         isStreaming: !data.complete,
-        isComplete: data.complete && !data.error,
-        hasError: data.error,
+        isComplete: data.complete && !data.error && !hasTextError,
+        hasError: data.error || hasTextError,
         isEmpty: data.complete && !data.text && !data.error,
         parsed_ranking: null,
       });
@@ -72,12 +85,13 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
   } else if (rankings && rankings.length > 0) {
     // Use final rankings
     rankings.forEach((rank) => {
+      const hasTextError = textLooksLikeError(rank.ranking);
       displayData.push({
         model: rank.model,
         ranking: rank.ranking,
         isStreaming: false,
-        isComplete: true,
-        hasError: false,
+        isComplete: !hasTextError,
+        hasError: hasTextError,
         isEmpty: !rank.ranking,
         parsed_ranking: rank.parsed_ranking,
       });
@@ -113,12 +127,12 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
       <div className="stage stage2">
         <h3 className="stage-title">
           <Users className="h-5 w-5 text-violet-500 flex-shrink-0" />
-          <span className="font-semibold tracking-tight">Anonymised Peer Review</span>
+          <span className="font-semibold tracking-tight">Step 2: Cross-checking Answers</span>
           {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
         </h3>
         <div className="stage-loading">
           <Spinner size="md" />
-          <span>Waiting for peer evaluations...</span>
+          <span>Experts are reviewing each other's answers...</span>
         </div>
       </div>
     );
@@ -153,7 +167,7 @@ export default function Stage2({ rankings, streaming, labelToModel, aggregateRan
         ) : (
           <CheckCircle2 className="h-5 w-5 text-violet-600 flex-shrink-0" />
         )}
-        <span className="font-semibold tracking-tight">Anonymised Peer Review</span>
+        <span className="font-semibold tracking-tight">Step 2: Cross-checking Answers</span>
         {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
 
         {/* Summary badge - always visible */}
