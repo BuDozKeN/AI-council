@@ -132,30 +132,29 @@ async def stage1_stream_responses(
             print(f"[STAGE1 TASK ERROR] {model}: {type(e).__name__}: {e}", flush=True)
             await queue.put({"type": "stage1_model_error", "model": model, "error": str(e)})
 
-    # Start all model streams with staggered delays to avoid rate limiting
-    # While waiting between starts, process and yield any events from already-started models
+    # Start all model streams with minimal staggering to avoid rate limiting
+    # Reduced from 2s to 0.3s per model - still prevents rate limits but much faster
     print(f"[STAGE1] Starting {len(COUNCIL_MODELS)} models: {COUNCIL_MODELS}", flush=True)
     tasks = []
     completed_count = 0
     total_models = len(COUNCIL_MODELS)
+    STAGGER_DELAY = 0.3  # seconds between model starts (reduced from 2.0)
 
     for i, model in enumerate(COUNCIL_MODELS):
         print(f"[STAGE1] Creating task for {model}", flush=True)
         tasks.append(asyncio.create_task(stream_single_model(model)))
 
         if i < total_models - 1:
-            # Wait 2s before starting next model, but yield events during the wait
-            print(f"[STAGE1] Waiting 2s before starting {COUNCIL_MODELS[i+1]}...", flush=True)
-            wait_end = asyncio.get_event_loop().time() + 2.0
-            while asyncio.get_event_loop().time() < wait_end:
+            # Brief stagger to avoid rate limits, yield events during the wait
+            stagger_end = asyncio.get_event_loop().time() + STAGGER_DELAY
+            while asyncio.get_event_loop().time() < stagger_end:
                 try:
-                    # Short timeout to check for events frequently
                     event = await asyncio.wait_for(queue.get(), timeout=0.05)
                     yield event
                     if event['type'] in ('stage1_model_complete', 'stage1_model_error'):
                         completed_count += 1
                 except asyncio.TimeoutError:
-                    pass  # No event yet, continue waiting
+                    pass
 
     print(f"[STAGE1] All {total_models} tasks created, waiting for remaining results...", flush=True)
 

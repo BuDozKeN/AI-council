@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
 import { supabase } from './supabase';
 import { setUserContext, clearUserContext } from './utils/sentry';
 
@@ -58,43 +58,43 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email, password) => {
+  const signUp = useCallback(async (email, password) => {
     if (!supabase) throw new Error('Supabase not configured');
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) throw error;
     return data;
-  };
+  }, []);
 
-  const signIn = async (email, password) => {
+  const signIn = useCallback(async (email, password) => {
     if (!supabase) throw new Error('Supabase not configured');
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
     return data;
-  };
+  }, []);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     if (!supabase) throw new Error('Supabase not configured');
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
-  };
+  }, []);
 
-  const resetPassword = async (email) => {
+  const resetPassword = useCallback(async (email) => {
     if (!supabase) throw new Error('Supabase not configured');
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: window.location.origin,
     });
     if (error) throw error;
-  };
+  }, []);
 
-  const updatePassword = async (newPassword) => {
+  const updatePassword = useCallback(async (newPassword) => {
     if (!supabase) throw new Error('Supabase not configured');
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     if (error) throw error;
     // Clear the password reset flag after successful update
     setNeedsPasswordReset(false);
-  };
+  }, []);
 
-  const getAccessToken = async () => {
+  const getAccessToken = useCallback(async () => {
     if (!supabase) return null;
 
     // First try to get the current session
@@ -122,9 +122,9 @@ export function AuthProvider({ children }) {
     }
 
     return null;
-  };
+  }, []);
 
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = useCallback(async () => {
     if (!supabase) throw new Error('Supabase not configured');
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -134,9 +134,10 @@ export function AuthProvider({ children }) {
     });
     if (error) throw error;
     return data;
-  };
+  }, []);
 
-  const value = {
+  // Memoize context value to prevent unnecessary re-renders of all consumers
+  const value = useMemo(() => ({
     user,
     loading,
     authEvent,
@@ -149,7 +150,7 @@ export function AuthProvider({ children }) {
     updatePassword,
     getAccessToken,
     isAuthenticated: !!user,
-  };
+  }), [user, loading, authEvent, needsPasswordReset, signUp, signIn, signInWithGoogle, signOut, resetPassword, updatePassword, getAccessToken]);
 
   return (
     <AuthContext.Provider value={value}>

@@ -2,6 +2,7 @@
 
 from fastapi import FastAPI, HTTPException, Depends, File, UploadFile, Form, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import StreamingResponse, Response
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional
@@ -69,8 +70,6 @@ try:
     from .auth import get_current_user
     from . import leaderboard
     from . import triage
-    from . import curator
-    from . import org_sync
     from . import config
     from . import billing
     from . import attachments
@@ -85,8 +84,6 @@ except ImportError:
     from auth import get_current_user
     import leaderboard
     import triage
-    import curator
-    import org_sync
     import config
     import billing
     import attachments
@@ -215,6 +212,10 @@ app.add_middleware(
     expose_headers=["Content-Disposition"],  # Allow frontend to read filename header
 )
 
+# Add GZip compression for responses > 1KB
+# Compresses JSON responses for significant bandwidth savings
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
 # Add security headers middleware
 app.add_middleware(SecurityHeadersMiddleware)
 
@@ -275,7 +276,7 @@ async def _auto_synthesize_project_context(project_id: str, user: dict) -> bool:
 
         # Get ALL decisions for this project
         decisions_result = service_client.table("knowledge_entries") \
-            .select("id, title, body_md, summary, created_at, department_id") \
+            .select("id, title, content, created_at, department_ids") \
             .eq("project_id", project_id) \
             .eq("is_active", True) \
             .order("created_at", desc=False) \
@@ -311,7 +312,9 @@ async def _auto_synthesize_project_context(project_id: str, user: dict) -> bool:
         for i, d in enumerate(decisions, 1):
             date_str = d.get("created_at", "")[:10] if d.get("created_at") else "Unknown date"
             title = d.get("title", "Untitled")
-            content = d.get("summary") or (d.get("body_md", "")[:1000] + "..." if len(d.get("body_md", "")) > 1000 else d.get("body_md", ""))
+            content = d.get("content", "")
+            if len(content) > 1000:
+                content = content[:1000] + "..."
             decisions_summary += f"\n### Decision {i}: {title} ({date_str})\n{content}\n"
 
         today_date = datetime.now().strftime("%B %d, %Y")
@@ -697,17 +700,21 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
                 print(f"[STREAM] Processing {len(body.attachment_ids)} image attachments", flush=True)
                 yield f"data: {json.dumps({'type': 'image_analysis_start', 'count': len(body.attachment_ids)})}\n\n"
 
-                # Download all images
-                images = []
-                for attachment_id in body.attachment_ids:
-                    image_data = await attachments.download_attachment(
+                # Download all images in parallel for better performance
+                async def download_single(attachment_id):
+                    return await attachments.download_attachment(
                         user_id=user_id,
                         access_token=access_token,
                         attachment_id=attachment_id,
                     )
-                    if image_data:
-                        images.append(image_data)
-                        print(f"[STREAM] Downloaded image: {image_data['name']}", flush=True)
+
+                download_results = await asyncio.gather(
+                    *[download_single(aid) for aid in body.attachment_ids],
+                    return_exceptions=True
+                )
+                images = [img for img in download_results if img and not isinstance(img, Exception)]
+                for img in images:
+                    print(f"[STREAM] Downloaded image: {img['name']}", flush=True)
 
                 # Analyze images with vision model
                 if images:
@@ -1317,164 +1324,6 @@ async def export_conversation_markdown(conversation_id: str, user: dict = Depend
     )
 
 
-# Curator endpoints
-class CurateRequest(BaseModel):
-    """Request to analyze a conversation for knowledge updates."""
-    business_id: str
-    department_id: Optional[str] = None
-
-
-class ApplySuggestionRequest(BaseModel):
-    """Request to apply a curator suggestion."""
-    business_id: str
-    suggestion: Dict[str, Any]
-
-
-@app.post("/api/conversations/{conversation_id}/curate")
-async def curate_conversation(conversation_id: str, request: CurateRequest, user: dict = Depends(get_current_user)):
-    """
-    Analyze a conversation and suggest updates to the business context (must be owner).
-    Returns a list of suggestions with section info, current text, and proposed updates.
-    """
-    access_token = user.get("access_token")
-    conversation = storage.get_conversation(conversation_id, access_token=access_token)
-    if conversation is None:
-        raise HTTPException(status_code=404, detail="Conversation not found")
-
-    # Verify ownership
-    if conversation.get("user_id") and conversation.get("user_id") != user["id"]:
-        raise HTTPException(status_code=403, detail="Access denied")
-
-    result = await curator.analyze_conversation_for_updates(
-        conversation=conversation,
-        business_id=request.business_id,
-        department_id=request.department_id
-    )
-
-    return result
-
-
-@app.post("/api/context/apply-suggestion")
-async def apply_context_suggestion(request: ApplySuggestionRequest):
-    """
-    Apply an accepted suggestion to the business context file.
-    Updates the specified section and refreshes the 'Last Updated' date.
-    """
-    result = curator.apply_suggestion(
-        business_id=request.business_id,
-        suggestion=request.suggestion
-    )
-
-    if not result.get('success'):
-        raise HTTPException(status_code=400, detail=result.get('message', 'Failed to apply suggestion'))
-
-    return result
-
-
-@app.get("/api/context/{business_id}/section/{section_name}")
-async def get_context_section(business_id: str, section_name: str, department: Optional[str] = None, user: dict = Depends(get_current_user)):
-    """Get the full content of a specific section in the business context.
-    Requires authentication.
-
-    Args:
-        business_id: The business folder name
-        section_name: The section heading to find
-        department: Optional department ID to look in department-specific context
-    """
-    # Validate path parameters to prevent traversal attacks
-    validate_safe_id(business_id, "business_id")
-    if department:
-        validate_safe_id(department, "department")
-
-    content = curator.get_section_content(business_id, section_name, department)
-    if content is None:
-        # Return empty content instead of 404 - this is expected for new sections
-        return {"section": section_name, "content": "", "exists": False}
-    return {"section": section_name, "content": content, "exists": True}
-
-
-class SaveCuratorRunRequest(BaseModel):
-    """Request to record a curator run."""
-    business_id: str
-    suggestions_count: int
-    accepted_count: int
-    rejected_count: int
-
-
-@app.post("/api/conversations/{conversation_id}/curator-history")
-async def save_curator_run(conversation_id: str, request: SaveCuratorRunRequest, user: dict = Depends(get_current_user)):
-    """
-    Record that the curator was run on this conversation (must be owner).
-    Stores when it was run and the results.
-    """
-    access_token = user.get("access_token")
-    conversation = storage.get_conversation(conversation_id, access_token=access_token)
-    if conversation is None:
-        raise HTTPException(status_code=404, detail="Conversation not found")
-
-    # Verify ownership
-    if conversation.get("user_id") and conversation.get("user_id") != user["id"]:
-        raise HTTPException(status_code=403, detail="Access denied")
-
-    storage.save_curator_run(
-        conversation_id=conversation_id,
-        business_id=request.business_id,
-        suggestions_count=request.suggestions_count,
-        accepted_count=request.accepted_count,
-        rejected_count=request.rejected_count,
-        access_token=access_token
-    )
-
-    return {"success": True}
-
-
-@app.get("/api/conversations/{conversation_id}/curator-history")
-async def get_curator_history(conversation_id: str, user: dict = Depends(get_current_user)):
-    """
-    Get curator run history for a conversation (must be owner).
-    Returns list of previous curator runs with timestamps and results.
-    """
-    try:
-        access_token = user.get("access_token")
-        conversation = storage.get_conversation(conversation_id, access_token=access_token)
-        if conversation is None:
-            raise HTTPException(status_code=404, detail="Conversation not found")
-
-        # Verify ownership
-        if conversation.get("user_id") and conversation.get("user_id") != user["id"]:
-            raise HTTPException(status_code=403, detail="Access denied")
-
-        history = storage.get_curator_history(conversation_id, access_token=access_token)
-        return {"history": history or []}
-    except HTTPException:
-        raise
-    except Exception as e:
-        print(f"[CURATOR ERROR] get_curator_history failed: {type(e).__name__}: {e}", flush=True)
-        raise SecureHTTPException.internal_error(str(e))
-
-
-@app.get("/api/context/{business_id}/last-updated")
-async def get_context_last_updated(business_id: str, user: dict = Depends(get_current_user)):
-    """
-    Get the last updated date from a business context file.
-    Used for smart curator history comparison.
-    Requires authentication.
-    """
-    # Validate path parameters to prevent traversal attacks
-    validate_safe_id(business_id, "business_id")
-
-    content = curator.get_section_content(business_id, "")
-    if content is None:
-        # Try loading the full context
-        context_file = curator.CONTEXTS_DIR / business_id / "context.md"
-        if not context_file.exists():
-            raise HTTPException(status_code=404, detail="Resource not found")
-        content = context_file.read_text(encoding='utf-8')
-
-    last_updated = curator.extract_last_updated(content)
-    return {"last_updated": last_updated}
-
-
 # ============================================
 # PROJECTS API
 # ============================================
@@ -1608,8 +1457,10 @@ async def update_project(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        print(f"[ERROR] Failed to update project: {type(e).__name__}: {e}", flush=True)
-        raise SecureHTTPException.internal_error(f"Failed to update project: {str(e)}")
+        # Encode error message safely to avoid charmap issues on Windows
+        err_msg = str(e).encode('ascii', 'replace').decode('ascii')
+        print(f"[ERROR] Failed to update project: {type(e).__name__}: {err_msg}", flush=True)
+        raise SecureHTTPException.internal_error(f"Failed to update project: {err_msg}")
 
 
 @app.post("/api/projects/{project_id}/touch")
@@ -2174,9 +2025,10 @@ async def create_knowledge_entry(
             await company_router.log_activity(
                 company_id=company_uuid,
                 event_type="decision",
-                title=f"Saved: {request.title}",
+                action="saved",
+                title=request.title,
                 description=request.summary[:200] if request.summary else None,
-                department_id=department_uuid,  # Use resolved UUID, not slug
+                department_id=department_uuid,
                 related_id=result.get("id"),
                 related_type="decision",
                 conversation_id=request.source_conversation_id
@@ -3114,35 +2966,34 @@ Remember: The context_md should be a complete, standalone document. Respond only
                         decision_title = "Council Decision"
 
                 # Create the decision record in knowledge_entries
-                # Use department_ids if provided, otherwise fall back to single department_id
+                # Use department_ids array only
                 dept_ids = request.department_ids if request.department_ids else (
                     [request.department_id] if request.department_id and request.department_id != "all" else []
                 )
-                primary_dept_id = dept_ids[0] if dept_ids else None
 
                 insert_data = {
                     "company_id": company_uuid,  # Use resolved UUID, not potentially slug
                     "title": decision_title,
-                    "body_md": request.decision_content,  # Full council response (stored in body_md column)
-                    "summary": question[:500] if question else "Council decision",  # Required field - will be replaced by AI summary
-                    # Don't set decision_summary - let it be generated on-demand with proper AI summary
+                    "content": request.decision_content,  # Full council response
+                    "question": question,  # Original user question
                     "scope": "project",  # Always project scope when merging into a project
-                    "department_id": primary_dept_id,  # Primary department for backwards compat
-                    "department_ids": dept_ids if dept_ids else None,  # All departments
+                    "department_ids": dept_ids if dept_ids else [],  # All departments
                     "project_id": project_id,
                     "source_conversation_id": request.conversation_id if request.conversation_id and not request.conversation_id.startswith("temp-") else None,
                     "response_index": request.response_index,
                     "auto_inject": False,
-                    "user_question": question,
                     "category": "technical_decision",
                     "is_active": True,
                     "created_by": user_id,
                     "tags": []
                 }
                 log_app_event("MERGE", "Saving decision", user_id=user_id, resource_id=project_id)
+                print(f"[MERGE] Insert data keys: {list(insert_data.keys())}", flush=True)
+                print(f"[MERGE] company_id={insert_data.get('company_id')}, project_id={insert_data.get('project_id')}", flush=True)
 
                 try:
                     result = client.table("knowledge_entries").insert(insert_data).execute()
+                    print(f"[MERGE] Insert result: data={bool(result.data)}, count={len(result.data) if result.data else 0}", flush=True)
                     if result.data and len(result.data) > 0:
                         saved_decision_id = result.data[0].get("id")
                         log_app_event("MERGE", "Decision saved", resource_id=saved_decision_id)
@@ -3244,7 +3095,7 @@ async def regenerate_project_context(
     # Get ALL decisions for this project (use service client to bypass RLS on knowledge_entries)
     print(f"[REGEN] About to query decisions...", flush=True)
     decisions_result = service_client.table("knowledge_entries") \
-        .select("id, title, body_md, summary, user_question, decision_summary, created_at, department_id") \
+        .select("id, title, content, question, content_summary, created_at, department_ids") \
         .eq("project_id", project_id) \
         .eq("is_active", True) \
         .order("created_at", desc=False) \
@@ -3291,13 +3142,14 @@ async def regenerate_project_context(
     for i, d in enumerate(decisions, 1):
         date_str = d.get("created_at", "")[:10] if d.get("created_at") else "Unknown date"
         title = d.get("title", "Untitled")
-        user_question = d.get("user_question", "")
-        # Use summary (full council response) if available, otherwise truncate body_md
-        content = d.get("summary") or (d.get("body_md", "")[:2000] + "..." if len(d.get("body_md", "")) > 2000 else d.get("body_md", ""))
+        question = d.get("question", "")
+        # Use content field, truncate if too long
+        content_raw = d.get("content", "")
+        content = content_raw[:2000] + "..." if len(content_raw) > 2000 else content_raw
 
         decisions_summary += f"\n### Decision {i}: {title} ({date_str})\n"
-        if user_question:
-            decisions_summary += f"**Question asked:** {user_question}\n\n"
+        if question:
+            decisions_summary += f"**Question asked:** {question}\n\n"
         decisions_summary += f"{content}\n"
 
     today_date = datetime.now().strftime("%B %d, %Y")

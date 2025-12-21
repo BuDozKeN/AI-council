@@ -9,15 +9,16 @@
  * Extracted from MyCompany.jsx for better maintainability.
  */
 
+import { useMemo } from 'react';
 import { CheckCircle } from 'lucide-react';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { getDeptColor } from '../../../lib/colors';
 
 // Helper to get a clean, short title from decision
 function getDecisionDisplayTitle(decision) {
-  // If we have an AI-generated summary, extract first sentence as title
-  if (decision.decision_summary) {
-    const firstSentence = decision.decision_summary.split(/[.!?]/)[0];
+  // If we have an AI-generated content_summary, extract first sentence as title
+  if (decision.content_summary) {
+    const firstSentence = decision.content_summary.split(/[.!?]/)[0];
     if (firstSentence && firstSentence.length > 10 && firstSentence.length < 100) {
       return firstSentence.trim();
     }
@@ -46,35 +47,41 @@ export function DecisionsTab({
   onDeleteDecision,
   onNavigateToConversation
 }) {
-  // Only show pending (not promoted) decisions
-  // Also exclude decisions that belong to a project (project_id set = promoted to project)
-  const pendingDecisions = decisions.filter(d => !d.is_promoted && !d.project_id);
+  // Memoized pending decisions (not promoted)
+  const pendingDecisions = useMemo(() =>
+    decisions.filter(d => !d.promoted_to_id && !d.project_id),
+    [decisions]
+  );
 
-  // Apply filters
-  let filteredDecisions = pendingDecisions;
+  // Memoized filtered decisions
+  const filteredDecisions = useMemo(() => {
+    let filtered = pendingDecisions;
 
-  // Department filter
-  if (decisionDeptFilter.length > 0) {
-    filteredDecisions = filteredDecisions.filter(d => {
-      const deptIds = d.department_ids?.length > 0 ? d.department_ids : (d.department_id ? [d.department_id] : []);
-      return deptIds.some(id => decisionDeptFilter.includes(id));
-    });
-  }
+    // Department filter
+    if (decisionDeptFilter.length > 0) {
+      filtered = filtered.filter(d => {
+        const deptIds = d.department_ids || [];
+        return deptIds.some(id => decisionDeptFilter.includes(id));
+      });
+    }
 
-  // Keyword search (title + content + user_question)
-  if (decisionSearch.trim()) {
-    const searchLower = decisionSearch.toLowerCase().trim();
-    filteredDecisions = filteredDecisions.filter(d => {
-      const title = (d.title || '').toLowerCase();
-      const content = (d.content || d.summary || '').toLowerCase();
-      const userQuestion = (d.user_question || '').toLowerCase();
-      const decisionSummary = (d.decision_summary || '').toLowerCase();
-      return title.includes(searchLower) ||
-             content.includes(searchLower) ||
-             userQuestion.includes(searchLower) ||
-             decisionSummary.includes(searchLower);
-    });
-  }
+    // Keyword search (title + content + question)
+    if (decisionSearch.trim()) {
+      const searchLower = decisionSearch.toLowerCase().trim();
+      filtered = filtered.filter(d => {
+        const title = (d.title || '').toLowerCase();
+        const content = (d.content || '').toLowerCase();
+        const question = (d.question || '').toLowerCase();
+        const contentSummary = (d.content_summary || '').toLowerCase();
+        return title.includes(searchLower) ||
+               content.includes(searchLower) ||
+               question.includes(searchLower) ||
+               contentSummary.includes(searchLower);
+      });
+    }
+
+    return filtered;
+  }, [pendingDecisions, decisionDeptFilter, decisionSearch]);
 
   // Empty state - no decisions at all
   if (pendingDecisions.length === 0) {
@@ -177,7 +184,7 @@ export function DecisionsTab({
                   <span className="mc-elegant-title">{displayTitle}</span>
                   <div className="mc-elegant-badges">
                     {/* Department badges */}
-                    {(decision.department_ids?.length > 0 ? decision.department_ids : (decision.department_id ? [decision.department_id] : [])).map(deptId => {
+                    {(decision.department_ids || []).map(deptId => {
                       const dept = departments.find(d => d.id === deptId);
                       if (!dept) return null;
                       const color = getDeptColor(deptId);

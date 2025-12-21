@@ -53,15 +53,6 @@ const ACTION_COLORS = {
   consulted: { bg: '#eef2ff', text: '#4f46e5', border: '#c7d2fe' }
 };
 
-// Parse action from title (e.g., "Deleted: Title" -> { action: "Deleted", cleanTitle: "Title" })
-function parseTitle(title) {
-  const match = title?.match(/^(Deleted|Promoted|Saved|Created|Updated|Archived|Consulted):\s*(.+)$/i);
-  if (match) {
-    return { action: match[1], cleanTitle: match[2] };
-  }
-  return { action: null, cleanTitle: title };
-}
-
 // Group logs by date (Today, Yesterday, or formatted date)
 function groupLogsByDate(logs) {
   return logs.reduce((groups, log) => {
@@ -130,11 +121,11 @@ export function ActivityTab({
           <div className="mc-elegant-list">
             {logs.map(log => {
               const dotColor = EVENT_COLORS[log.event_type] || EVENT_COLORS.default;
-              const { action: parsedAction, cleanTitle } = parseTitle(log.title);
-              // If promoted_to_type is set, show "Promoted" instead of the parsed action
-              const action = log.promoted_to_type ? 'Promoted' : parsedAction;
+              // Use explicit action column from database (no more title parsing)
+              const action = log.promoted_to_type ? 'Promoted' : log.action;
               const actionColors = action ? ACTION_COLORS[action.toLowerCase()] : null;
-              const isDeleted = parsedAction?.toLowerCase() === 'deleted';
+              const isDeleted = log.action?.toLowerCase() === 'deleted';
+              const cleanTitle = log.title;
 
               // Deleted items are never clickable (the item no longer exists)
               // For other items, check if we have related_id and related_type

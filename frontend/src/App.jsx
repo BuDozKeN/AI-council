@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from './components/Sidebar';
 import ChatInterface from './components/ChatInterface';
@@ -15,6 +15,10 @@ import { api, setTokenGetter } from './api';
 import { userPreferencesApi } from './supabase';
 import { useGlobalSwipe } from './hooks';
 import './App.css';
+
+// Simple unique ID generator for message keys
+let messageIdCounter = 0;
+const generateMessageId = () => `msg-${Date.now()}-${++messageIdCounter}`;
 
 // Check for demo mode via URL parameter
 const urlParams = new URLSearchParams(window.location.search);
@@ -318,7 +322,7 @@ function App() {
 
   const CONVERSATIONS_PAGE_SIZE = 10; // Reduced for faster initial load
 
-  const loadConversations = async (options = {}) => {
+  const loadConversations = useCallback(async (options = {}) => {
     try {
       const limit = options.limit || CONVERSATIONS_PAGE_SIZE;
       const sortBy = options.sortBy || conversationSortBy;
@@ -350,23 +354,23 @@ function App() {
       console.error('Failed to load conversations:', error);
       return [];
     }
-  };
+  }, [conversationSortBy, selectedBusiness]);
 
   // Handler for Load More button
-  const handleLoadMoreConversations = async (currentOffset, searchQuery = '') => {
+  const handleLoadMoreConversations = useCallback(async (currentOffset, searchQuery = '') => {
     return loadConversations({
       offset: currentOffset,
       search: searchQuery || undefined
     });
-  };
+  }, [loadConversations]);
 
   // Handler for search
-  const handleSearchConversations = async (searchQuery) => {
+  const handleSearchConversations = useCallback(async (searchQuery) => {
     return loadConversations({
       offset: 0,
       search: searchQuery || undefined
     });
-  };
+  }, [loadConversations]);
 
   const loadConversation = async (id) => {
     try {
@@ -376,6 +380,155 @@ function App() {
       console.error('Failed to load conversation:', error);
     }
   };
+
+  // Conversation action handlers - must be defined before early returns
+  const handleNewConversation = useCallback(() => {
+    const tempId = `temp-${Date.now()}`;
+    const tempConv = {
+      id: tempId,
+      created_at: new Date().toISOString(),
+      title: 'New Conversation',
+      messages: [],
+      isTemp: true,
+    };
+    setCurrentConversationId(tempId);
+    setCurrentConversation(tempConv);
+    setSelectedProject(null);
+    setReturnToMyCompanyTab(null);
+    setMyCompanyPromoteDecision(null);
+  }, []);
+
+  const handleSelectConversation = useCallback((id) => {
+    setCurrentConversationId(id);
+    setSelectedProject(null);
+    setReturnToMyCompanyTab(null);
+    setMyCompanyPromoteDecision(null);
+  }, []);
+
+  const handleArchiveConversation = useCallback(async (id, archived) => {
+    try {
+      await api.archiveConversation(id, archived);
+      setConversations((prev) =>
+        prev.map((conv) =>
+          conv.id === id ? { ...conv, is_archived: archived } : conv
+        )
+      );
+    } catch (error) {
+      console.error('Failed to archive conversation:', error);
+    }
+  }, []);
+
+  const handleStarConversation = useCallback(async (id, starred) => {
+    setConversations((prev) => {
+      const updated = prev.map((conv) =>
+        conv.id === id ? { ...conv, is_starred: starred } : conv
+      );
+      return updated.sort((a, b) => {
+        if (a.is_starred && !b.is_starred) return -1;
+        if (!a.is_starred && b.is_starred) return 1;
+        return b.message_count - a.message_count;
+      });
+    });
+    try {
+      await api.starConversation(id, starred);
+    } catch (error) {
+      console.error('Failed to star conversation:', error);
+      setConversations((prev) => {
+        const reverted = prev.map((conv) =>
+          conv.id === id ? { ...conv, is_starred: !starred } : conv
+        );
+        return reverted.sort((a, b) => {
+          if (a.is_starred && !b.is_starred) return -1;
+          if (!a.is_starred && b.is_starred) return 1;
+          return b.message_count - a.message_count;
+        });
+      });
+    }
+  }, []);
+
+  const handleDeleteConversation = useCallback(async (id) => {
+    try {
+      await api.deleteConversation(id);
+      setConversations((prev) => prev.filter((conv) => conv.id !== id));
+      setCurrentConversationId((currentId) => {
+        if (currentId === id) {
+          setCurrentConversation(null);
+          return null;
+        }
+        return currentId;
+      });
+    } catch (error) {
+      console.error('Failed to delete conversation:', error);
+    }
+  }, []);
+
+  const handleBulkDeleteConversations = useCallback(async (ids) => {
+    try {
+      const result = await api.bulkDeleteConversations(ids);
+      setConversations((prev) => prev.filter((conv) => !result.deleted.includes(conv.id)));
+      setCurrentConversationId((currentId) => {
+        if (result.deleted.includes(currentId)) {
+          setCurrentConversation(null);
+          return null;
+        }
+        return currentId;
+      });
+      return result;
+    } catch (error) {
+      console.error('Failed to bulk delete conversations:', error);
+      throw error;
+    }
+  }, []);
+
+  const handleRenameConversation = useCallback(async (id, title) => {
+    try {
+      await api.renameConversation(id, title);
+      setConversations((prev) =>
+        prev.map((conv) =>
+          conv.id === id ? { ...conv, title } : conv
+        )
+      );
+      setCurrentConversation((prev) =>
+        prev && prev.id === id ? { ...prev, title } : prev
+      );
+    } catch (error) {
+      console.error('Failed to rename conversation:', error);
+    }
+  }, []);
+
+  // Memoized Sidebar handlers to prevent unnecessary re-renders
+  const handleSidebarSelectConversation = useCallback((id) => {
+    handleSelectConversation(id);
+    setIsMobileSidebarOpen(false);
+  }, [handleSelectConversation]);
+
+  const handleSidebarNewConversation = useCallback(() => {
+    handleNewConversation();
+    setIsMobileSidebarOpen(false);
+  }, [handleNewConversation]);
+
+  const handleMobileClose = useCallback(() => setIsMobileSidebarOpen(false), []);
+
+  const handleOpenLeaderboard = useCallback(() => {
+    setReturnToMyCompanyTab(null);
+    setIsLeaderboardOpen(true);
+  }, []);
+
+  const handleOpenSettings = useCallback(() => {
+    setReturnToMyCompanyTab(null);
+    setIsSettingsOpen(true);
+  }, []);
+
+  const handleOpenMyCompany = useCallback(() => {
+    setReturnToMyCompanyTab(null);
+    setMyCompanyPromoteDecision(null);
+    setIsMyCompanyOpen(true);
+  }, []);
+
+  const handleSortByChange = useCallback((newSort) => {
+    setConversationSortBy(newSort);
+    loadConversations({ sortBy: newSort, offset: 0 });
+  }, [loadConversations]);
 
   // Reset loaded flag when user logs out
   useEffect(() => {
@@ -503,141 +656,6 @@ function App() {
       </AnimatePresence>
     );
   }
-
-  const handleNewConversation = () => {
-    // Create a temporary conversation in memory only - don't persist until first message
-    const tempId = `temp-${Date.now()}`;
-    const tempConv = {
-      id: tempId,
-      created_at: new Date().toISOString(),
-      title: 'New Conversation',
-      messages: [],
-      isTemp: true, // Mark as temporary/unsaved
-    };
-
-    // Don't add to conversations list (it would show 0 messages)
-    // Just set it as the current conversation
-    setCurrentConversationId(tempId);
-    setCurrentConversation(tempConv);
-
-    // Reset project selection for new conversation
-    setSelectedProject(null);
-
-    // Clear return-to-company state - user has started a new action
-    setReturnToMyCompanyTab(null);
-    setMyCompanyPromoteDecision(null);
-  };
-
-  const handleSelectConversation = (id) => {
-    setCurrentConversationId(id);
-
-    // Reset project selection - each conversation may have its own linked project
-    // Stage3 will load the correct project from the backend for this conversation
-    setSelectedProject(null);
-
-    // Clear return-to-company state - user has started a new action
-    setReturnToMyCompanyTab(null);
-    setMyCompanyPromoteDecision(null);
-  };
-
-  const handleArchiveConversation = async (id, archived) => {
-    try {
-      await api.archiveConversation(id, archived);
-      // Update the conversations list
-      setConversations((prev) =>
-        prev.map((conv) =>
-          conv.id === id ? { ...conv, is_archived: archived } : conv
-        )
-      );
-    } catch (error) {
-      console.error('Failed to archive conversation:', error);
-    }
-  };
-
-  const handleStarConversation = async (id, starred) => {
-    // Optimistic update - update UI immediately for responsiveness
-    setConversations((prev) => {
-      const updated = prev.map((conv) =>
-        conv.id === id ? { ...conv, is_starred: starred } : conv
-      );
-      // Re-sort: starred first, then by message count
-      return updated.sort((a, b) => {
-        if (a.is_starred && !b.is_starred) return -1;
-        if (!a.is_starred && b.is_starred) return 1;
-        return b.message_count - a.message_count;
-      });
-    });
-
-    // Sync with backend (revert on error)
-    try {
-      await api.starConversation(id, starred);
-    } catch (error) {
-      console.error('Failed to star conversation:', error);
-      // Revert the optimistic update on error
-      setConversations((prev) => {
-        const reverted = prev.map((conv) =>
-          conv.id === id ? { ...conv, is_starred: !starred } : conv
-        );
-        return reverted.sort((a, b) => {
-          if (a.is_starred && !b.is_starred) return -1;
-          if (!a.is_starred && b.is_starred) return 1;
-          return b.message_count - a.message_count;
-        });
-      });
-    }
-  };
-
-  const handleDeleteConversation = async (id) => {
-    try {
-      await api.deleteConversation(id);
-      // Remove from conversations list
-      setConversations((prev) => prev.filter((conv) => conv.id !== id));
-      // If we deleted the current conversation, clear the selection
-      if (currentConversationId === id) {
-        setCurrentConversationId(null);
-        setCurrentConversation(null);
-      }
-    } catch (error) {
-      console.error('Failed to delete conversation:', error);
-    }
-  };
-
-  const handleBulkDeleteConversations = async (ids) => {
-    try {
-      const result = await api.bulkDeleteConversations(ids);
-      // Remove deleted conversations from the list
-      setConversations((prev) => prev.filter((conv) => !result.deleted.includes(conv.id)));
-      // If current conversation was deleted, clear selection
-      if (result.deleted.includes(currentConversationId)) {
-        setCurrentConversationId(null);
-        setCurrentConversation(null);
-      }
-      return result;
-    } catch (error) {
-      console.error('Failed to bulk delete conversations:', error);
-      throw error;
-    }
-  };
-
-  const handleRenameConversation = async (id, title) => {
-    try {
-      await api.renameConversation(id, title);
-      // Update the conversations list
-      setConversations((prev) =>
-        prev.map((conv) =>
-          conv.id === id ? { ...conv, title } : conv
-        )
-      );
-      // Also update current conversation if it's the one being renamed
-      if (currentConversationId === id) {
-        setCurrentConversation((prev) =>
-          prev ? { ...prev, title } : prev
-        );
-      }
-    } catch (error) {
-      console.error('Failed to rename conversation:', error);
-    }
-  };
 
   // Triage handlers
   const handleStartTriage = async (content) => {
@@ -798,7 +816,7 @@ function App() {
 
     try {
       // Optimistically add user message to UI
-      const userMessage = { role: 'user', content };
+      const userMessage = { id: generateMessageId(), role: 'user', content };
       setCurrentConversation((prev) => ({
         ...prev,
         messages: [...prev.messages, userMessage],
@@ -807,6 +825,7 @@ function App() {
       // Create a partial assistant message that will be updated progressively
       // Start with stage1 loading = true immediately so user sees "Waiting for models..." right away
       const assistantMessage = {
+        id: generateMessageId(),
         role: 'assistant',
         stage1: null,
         stage1Streaming: {}, // Track streaming text per model: { 'model-id': { text: '', complete: false } }
@@ -1183,7 +1202,7 @@ function App() {
 
     try {
       // Optimistically add user message to UI
-      const userMessage = { role: 'user', content };
+      const userMessage = { id: generateMessageId(), role: 'user', content };
       setCurrentConversation((prev) => ({
         ...prev,
         messages: [...prev.messages, userMessage],
@@ -1191,6 +1210,7 @@ function App() {
 
       // Create a partial assistant message for chat response
       const assistantMessage = {
+        id: generateMessageId(),
         role: 'assistant',
         stage1: [],
         stage2: [],
@@ -1374,30 +1394,13 @@ function App() {
         <Sidebar
           conversations={conversations}
           currentConversationId={currentConversationId}
-          onSelectConversation={(id) => {
-            handleSelectConversation(id);
-            setIsMobileSidebarOpen(false); // Close mobile sidebar on selection
-          }}
-          onNewConversation={() => {
-            handleNewConversation();
-            setIsMobileSidebarOpen(false); // Close mobile sidebar on new conversation
-          }}
+          onSelectConversation={handleSidebarSelectConversation}
+          onNewConversation={handleSidebarNewConversation}
           isMobileOpen={isMobileSidebarOpen}
-          onMobileClose={() => setIsMobileSidebarOpen(false)}
-          onOpenLeaderboard={() => {
-            setReturnToMyCompanyTab(null); // Clear return state - user is navigating elsewhere
-            setIsLeaderboardOpen(true);
-          }}
-          onOpenSettings={() => {
-            setReturnToMyCompanyTab(null); // Clear return state - user is navigating elsewhere
-            setIsSettingsOpen(true);
-          }}
-          onOpenMyCompany={() => {
-            // Clear return-to-company state - user is opening it fresh
-            setReturnToMyCompanyTab(null);
-            setMyCompanyPromoteDecision(null);
-            setIsMyCompanyOpen(true);
-          }}
+          onMobileClose={handleMobileClose}
+          onOpenLeaderboard={handleOpenLeaderboard}
+          onOpenSettings={handleOpenSettings}
+          onOpenMyCompany={handleOpenMyCompany}
           onArchiveConversation={handleArchiveConversation}
           onStarConversation={handleStarConversation}
           onDeleteConversation={handleDeleteConversation}
@@ -1410,10 +1413,7 @@ function App() {
           user={user}
           onSignOut={signOut}
           sortBy={conversationSortBy}
-          onSortByChange={(newSort) => {
-            setConversationSortBy(newSort);
-            loadConversations({ sortBy: newSort, offset: 0 });
-          }}
+          onSortByChange={handleSortByChange}
         />
 
       {/* Main content area - Landing Hero or Chat Interface */}
@@ -1602,6 +1602,7 @@ function App() {
       <Settings
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
+        companyId={selectedBusiness}
       />
       {isProjectModalOpen && selectedBusiness && (
         <ProjectModal

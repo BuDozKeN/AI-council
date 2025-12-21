@@ -1,21 +1,30 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Spinner } from './ui/Spinner';
-import { Plus } from 'lucide-react';
+import { Plus, PanelLeftClose, PanelLeft, History, Search, Settings, Building2, LogOut, Trophy } from 'lucide-react';
 import {
   useMockMode,
   useCachingMode,
+  useHoverExpansion,
   SearchBar,
   FilterSortBar,
   ConversationGroup,
+  VirtualizedConversationList,
   SidebarFooter,
   BulkActionBar,
-  DeleteModal
+  DeleteModal,
+  SidebarIconButton
 } from './sidebar/index.jsx';
 import { usePullToRefresh } from '../hooks';
 import { PullToRefreshIndicator } from './ui/PullToRefresh';
 import './Sidebar.css';
 
+/**
+ * Perplexity-style collapsible sidebar with three states:
+ * - collapsed: 64px icon rail
+ * - hovered: temporarily expanded on hover
+ * - pinned: permanently expanded
+ */
 export default function Sidebar({
   conversations,
   currentConversationId,
@@ -42,6 +51,16 @@ export default function Sidebar({
   onMobileClose,
   onRefresh,
 }) {
+  // Sidebar state: 'collapsed' | 'hovered' | 'pinned'
+  const [sidebarState, setSidebarState] = useState(() => {
+    // Load saved preference from localStorage
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('sidebar-pinned');
+      return saved === 'true' ? 'pinned' : 'collapsed';
+    }
+    return 'collapsed';
+  });
+
   const [filter, setFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedGroups, setExpandedGroups] = useState({});
@@ -53,10 +72,47 @@ export default function Sidebar({
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
   const searchTimeoutRef = useRef(null);
+  const sidebarRef = useRef(null);
+
+  // Cleanup timeout on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Mode toggles
   const { mockMode, isToggling: isTogglingMock, toggle: toggleMockMode } = useMockMode();
   const { cachingMode, isToggling: isTogglingCaching, toggle: toggleCachingMode } = useCachingMode();
+
+  // Derived state
+  const isPinned = sidebarState === 'pinned';
+
+  // Hover expansion behavior (uses CSS tokens for timing)
+  const {
+    hoveredIcon,
+    handleIconHover,
+    handleIconLeave,
+    handleExpandedAreaEnter,
+    handleExpandedAreaLeave,
+  } = useHoverExpansion({ isPinned });
+
+  // Derived state
+  const isExpanded = isPinned || hoveredIcon !== null;
+
+  // Toggle pin state
+  const togglePin = useCallback(() => {
+    const newState = isPinned ? 'collapsed' : 'pinned';
+    setSidebarState(newState);
+
+    // Save preference to localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sidebar-pinned', newState === 'pinned' ? 'true' : 'false');
+    }
+  }, [isPinned]);
+
 
   // Pull to refresh (mobile only)
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
@@ -217,7 +273,7 @@ export default function Sidebar({
     setExpandedGroups(prev => ({ ...prev, [groupId]: !prev[groupId] }));
   };
 
-  const isExpanded = (groupId) => {
+  const isGroupExpanded = (groupId) => {
     if (expandedGroups[groupId] !== undefined) {
       return expandedGroups[groupId];
     }
@@ -227,8 +283,44 @@ export default function Sidebar({
   const totalConversations = conversations.length;
   const searchResultCount = filteredBySearch.active.length + filteredBySearch.archived.length;
 
+  // Use virtualization for large lists (> 30 conversations)
+  const useVirtualization = totalConversations > 30;
+  const listContainerRef = useRef(null);
+  const [listHeight, setListHeight] = useState(400);
+
+  // Update list height when container resizes
+  useEffect(() => {
+    if (!useVirtualization || !listContainerRef.current) return;
+
+    const updateHeight = () => {
+      if (listContainerRef.current) {
+        setListHeight(listContainerRef.current.clientHeight);
+      }
+    };
+
+    updateHeight();
+    const resizeObserver = new ResizeObserver(updateHeight);
+    resizeObserver.observe(listContainerRef.current);
+
+    return () => resizeObserver.disconnect();
+  }, [useVirtualization]);
+
+  // Determine visual state for CSS
+  const visualState = isPinned ? 'pinned' : (hoveredIcon ? 'hovered' : 'collapsed');
+
+  // Build sidebar CSS classes
+  const sidebarClasses = [
+    'sidebar',
+    `sidebar--${visualState}`,
+    isMobileOpen ? 'mobile-open' : '',
+  ].filter(Boolean).join(' ');
+
   return (
-    <aside className={`sidebar ${isMobileOpen ? 'mobile-open' : ''}`} aria-label="Conversation history">
+    <aside
+      ref={sidebarRef}
+      className={sidebarClasses}
+      aria-label="Conversation history"
+    >
       {/* Mobile close button */}
       <div className="sidebar-mobile-close">
         <button onClick={onMobileClose} aria-label="Close menu">
@@ -239,134 +331,250 @@ export default function Sidebar({
         </button>
       </div>
 
+      {/* Header with New Chat and Pin toggle */}
       <div className="sidebar-header">
-        <Button
-          onClick={onNewConversation}
-          className="w-full h-9 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-sm font-medium"
-        >
-          <Plus className="h-4 w-4 mr-1.5" />
-          New Chat
-        </Button>
+        {isExpanded ? (
+          <>
+            <Button
+              onClick={onNewConversation}
+              className="sidebar-new-btn"
+            >
+              <Plus className="h-4 w-4" />
+              <span className="sidebar-btn-text">New Chat</span>
+            </Button>
+            <button
+              onClick={togglePin}
+              className="sidebar-pin-btn"
+              title={isPinned ? 'Collapse sidebar' : 'Pin sidebar open'}
+              aria-label={isPinned ? 'Collapse sidebar' : 'Pin sidebar open'}
+            >
+              {isPinned ? (
+                <PanelLeftClose className="h-4 w-4" />
+              ) : (
+                <PanelLeft className="h-4 w-4" />
+              )}
+            </button>
+          </>
+        ) : (
+          <SidebarIconButton
+            icon={<Plus className="h-5 w-5" />}
+            title="New Chat"
+            onClick={onNewConversation}
+            isPrimary
+          />
+        )}
       </div>
 
-      {/* Search Input */}
-      {(totalConversations > 0 || searchQuery) && (
-        <SearchBar
-          searchQuery={searchQuery}
-          onSearchChange={handleSearchChange}
-          onClear={handleSearchClear}
-          isSearching={isSearching}
-          resultCount={searchResultCount}
-        />
-      )}
-
-      {/* Filter and Sort Dropdowns */}
-      {(totalConversations > 0 || searchQuery) && (
-        <FilterSortBar
-          filter={filter}
-          onFilterChange={setFilter}
-          sortBy={sortBy}
-          onSortByChange={onSortByChange}
-          departments={departments}
-          groupedConversations={groupedConversations}
-          activeCount={filteredBySearch.active.length}
-          archivedCount={filteredBySearch.archived.length}
-        />
-      )}
-
-      <div className="conversation-list" ref={pullToRefreshRef} style={{ position: 'relative' }}>
-        {/* Pull to refresh indicator (mobile) */}
-        <PullToRefreshIndicator
-          pullDistance={pullDistance}
-          threshold={80}
-          isRefreshing={isRefreshing}
-          progress={progress}
-        />
-
-        {searchQuery && searchResultCount === 0 ? (
-          <div className="no-conversations">
-            <span className="no-conv-icon">🔍</span>
-            No results for "{searchQuery}"
-          </div>
-        ) : totalConversations === 0 ? (
-          <div className="no-conversations">
-            <span className="no-conv-icon">💬</span>
-            <span>No conversations yet</span>
-            <span className="no-conv-hint">Click "New" to start</span>
-          </div>
-        ) : filter === 'archived' && filteredBySearch.archived.length === 0 ? (
-          <div className="no-conversations">
-            <span className="no-conv-icon">📦</span>
-            No archived conversations
-          </div>
-        ) : filter !== 'archived' && filteredBySearch.active.length === 0 ? (
-          <div className="no-conversations">No active conversations</div>
-        ) : (
-          Object.entries(filteredGroups).map(([groupId, group]) => (
-            <ConversationGroup
-              key={groupId}
-              groupId={groupId}
-              groupName={group?.name}
-              conversations={group?.conversations || []}
-              isExpanded={isExpanded(groupId)}
-              onToggleExpand={toggleGroup}
-              currentConversationId={currentConversationId}
-              selectedIds={selectedIds}
-              editingId={editingId}
-              editingTitle={editingTitle}
-              onSelectConversation={onSelectConversation}
-              onStartEdit={handleStartEdit}
-              onEditTitleChange={setEditingTitle}
-              onSaveEdit={handleSaveEdit}
-              onCancelEdit={handleCancelEdit}
-              onToggleSelection={toggleSelection}
-              onStarConversation={onStarConversation}
-              onArchiveConversation={onArchiveConversation}
-              onDeleteConversation={setDeleteConfirm}
+      {/* Main content area - uses flex layout */}
+      <div className="sidebar-main">
+        {/* Icon rail - always visible when not pinned */}
+        {!isPinned && (
+          <div
+            className="sidebar-icon-rail"
+            onMouseEnter={handleExpandedAreaEnter}
+            onMouseLeave={handleExpandedAreaLeave}
+          >
+            {/* History - hover to see conversations */}
+            <SidebarIconButton
+              icon={<History className="h-5 w-5" />}
+              title={`History (${totalConversations})`}
+              onClick={togglePin}
+              onMouseEnter={() => totalConversations > 0 && handleIconHover('history')}
+              onMouseLeave={handleIconLeave}
+              isActive={hoveredIcon === 'history'}
+              disabled={totalConversations === 0}
+              badge={totalConversations > 0 ? totalConversations : undefined}
             />
-          ))
+
+            {/* Leaderboard - if available */}
+            {onOpenLeaderboard && (
+              <SidebarIconButton
+                icon={<Trophy className="h-5 w-5" />}
+                title="Leaderboard"
+                onClick={onOpenLeaderboard}
+              />
+            )}
+          </div>
         )}
 
-        {/* Load More Button */}
-        {onLoadMore && hasMoreConversations && totalConversations > 0 && !searchQuery && (
-          <button
-            className="load-more-btn"
-            onClick={handleLoadMore}
-            disabled={isLoadingMore}
+        {/* Expanded panel - slides out on hover or when pinned */}
+        {isExpanded && (
+          <div
+            className="sidebar-expanded-panel"
+            onMouseEnter={handleExpandedAreaEnter}
+            onMouseLeave={handleExpandedAreaLeave}
           >
-            {isLoadingMore ? (
-              <>
-                <Spinner size="sm" variant="muted" />
-                Loading...
-              </>
-            ) : (
-              'Load More Conversations'
+            {/* Search and Filter controls */}
+            {(totalConversations > 0 || searchQuery) && (
+              <div className="sidebar-panel-controls">
+                <SearchBar
+                  searchQuery={searchQuery}
+                  onSearchChange={handleSearchChange}
+                  onClear={handleSearchClear}
+                  isSearching={isSearching}
+                  resultCount={searchResultCount}
+                />
+                <FilterSortBar
+                  filter={filter}
+                  onFilterChange={setFilter}
+                  sortBy={sortBy}
+                  onSortByChange={onSortByChange}
+                  departments={departments}
+                  groupedConversations={groupedConversations}
+                  activeCount={filteredBySearch.active.length}
+                  archivedCount={filteredBySearch.archived.length}
+                />
+              </div>
             )}
-          </button>
+
+            {/* Pull to refresh indicator (mobile) */}
+            <PullToRefreshIndicator
+              pullDistance={pullDistance}
+              threshold={80}
+              isRefreshing={isRefreshing}
+              progress={progress}
+            />
+
+            {/* Conversation List */}
+            <div className="conversation-list" ref={(el) => { pullToRefreshRef.current = el; listContainerRef.current = el; }}>
+              {searchQuery && searchResultCount === 0 ? (
+                <div className="no-conversations">
+                  <span className="no-conv-icon">🔍</span>
+                  No results for "{searchQuery}"
+                </div>
+              ) : totalConversations === 0 ? (
+                <div className="no-conversations">
+                  <span className="no-conv-icon">💬</span>
+                  <span>No conversations yet</span>
+                  <span className="no-conv-hint">Click "New" to start</span>
+                </div>
+              ) : filter === 'archived' && filteredBySearch.archived.length === 0 ? (
+                <div className="no-conversations">
+                  <span className="no-conv-icon">📦</span>
+                  No archived conversations
+                </div>
+              ) : filter !== 'archived' && filteredBySearch.active.length === 0 ? (
+                <div className="no-conversations">No active conversations</div>
+              ) : useVirtualization ? (
+                <VirtualizedConversationList
+                  filteredGroups={filteredGroups}
+                  expandedGroups={expandedGroups}
+                  groupedConversations={groupedConversations}
+                  currentConversationId={currentConversationId}
+                  selectedIds={selectedIds}
+                  editingId={editingId}
+                  editingTitle={editingTitle}
+                  onSelectConversation={onSelectConversation}
+                  onStartEdit={handleStartEdit}
+                  onEditTitleChange={setEditingTitle}
+                  onSaveEdit={handleSaveEdit}
+                  onCancelEdit={handleCancelEdit}
+                  onToggleSelection={toggleSelection}
+                  onStarConversation={onStarConversation}
+                  onArchiveConversation={onArchiveConversation}
+                  onDeleteConversation={setDeleteConfirm}
+                  onToggleGroup={toggleGroup}
+                  height={listHeight}
+                />
+              ) : (
+                Object.entries(filteredGroups).map(([groupId, group]) => (
+                  <ConversationGroup
+                    key={groupId}
+                    groupId={groupId}
+                    groupName={group?.name}
+                    conversations={group?.conversations || []}
+                    isExpanded={isGroupExpanded(groupId)}
+                    onToggleExpand={toggleGroup}
+                    currentConversationId={currentConversationId}
+                    selectedIds={selectedIds}
+                    editingId={editingId}
+                    editingTitle={editingTitle}
+                    onSelectConversation={onSelectConversation}
+                    onStartEdit={handleStartEdit}
+                    onEditTitleChange={setEditingTitle}
+                    onSaveEdit={handleSaveEdit}
+                    onCancelEdit={handleCancelEdit}
+                    onToggleSelection={toggleSelection}
+                    onStarConversation={onStarConversation}
+                    onArchiveConversation={onArchiveConversation}
+                    onDeleteConversation={setDeleteConfirm}
+                  />
+                ))
+              )}
+
+              {/* Load More Button */}
+              {onLoadMore && hasMoreConversations && totalConversations > 0 && !searchQuery && (
+                <button
+                  className="load-more-btn"
+                  onClick={handleLoadMore}
+                  disabled={isLoadingMore}
+                >
+                  {isLoadingMore ? (
+                    <>
+                      <Spinner size="sm" variant="muted" />
+                      Loading...
+                    </>
+                  ) : (
+                    'Load More'
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
         )}
       </div>
 
       {/* Multi-select action bar */}
-      <BulkActionBar
-        selectedCount={selectedIds.size}
-        isDeleting={isDeleting}
-        onClearSelection={clearSelection}
-        onBulkDelete={handleBulkDelete}
-      />
+      {isExpanded && (
+        <BulkActionBar
+          selectedCount={selectedIds.size}
+          isDeleting={isDeleting}
+          onClearSelection={clearSelection}
+          onBulkDelete={handleBulkDelete}
+        />
+      )}
 
-      {/* User Footer */}
-      <SidebarFooter
-        user={user}
-        mockMode={mockMode}
-        isTogglingMock={isTogglingMock}
-        onToggleMockMode={toggleMockMode}
-        cachingMode={cachingMode}
-        isTogglingCaching={isTogglingCaching}
-        onToggleCachingMode={toggleCachingMode}
-        onOpenMyCompany={onOpenMyCompany}
-        onOpenSettings={onOpenSettings}
-        onSignOut={onSignOut}
-      />
+      {/* Footer with user info and actions */}
+      {isExpanded ? (
+        <SidebarFooter
+          user={user}
+          mockMode={mockMode}
+          isTogglingMock={isTogglingMock}
+          onToggleMockMode={toggleMockMode}
+          cachingMode={cachingMode}
+          isTogglingCaching={isTogglingCaching}
+          onToggleCachingMode={toggleCachingMode}
+          onOpenMyCompany={onOpenMyCompany}
+          onOpenSettings={onOpenSettings}
+          onSignOut={onSignOut}
+          onMouseEnter={handleExpandedAreaEnter}
+          onMouseLeave={handleExpandedAreaLeave}
+        />
+      ) : (
+        // Collapsed footer - icon buttons only
+        // Keep expanded when hovering over footer icons
+        <div
+          className="sidebar-footer sidebar-footer--collapsed"
+          onMouseEnter={handleExpandedAreaEnter}
+          onMouseLeave={handleExpandedAreaLeave}
+        >
+          <SidebarIconButton
+            icon={<Building2 className="h-4 w-4" />}
+            title="My Company"
+            onClick={onOpenMyCompany}
+          />
+          <SidebarIconButton
+            icon={<Settings className="h-4 w-4" />}
+            title="Settings"
+            onClick={onOpenSettings}
+          />
+          <SidebarIconButton
+            icon={<LogOut className="h-4 w-4" />}
+            title="Sign Out"
+            onClick={onSignOut}
+          />
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       <DeleteModal

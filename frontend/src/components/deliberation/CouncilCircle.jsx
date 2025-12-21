@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { getModelPersona } from '../../config/modelPersonas';
 import { getProviderIcon } from '../icons';
 import { MODEL_STATES } from './types';
@@ -54,9 +55,9 @@ function getStatusIndicator(state) {
 }
 
 /**
- * Individual council avatar
+ * Individual council avatar - memoized to prevent unnecessary re-renders
  */
-function CouncilAvatar({ modelId, state, position }) {
+const CouncilAvatar = memo(function CouncilAvatar({ modelId, state, position }) {
   const persona = getModelPersona(modelId);
   const ProviderIcon = getProviderIcon(persona.provider);
   const stateClass = getStateClass(state);
@@ -81,7 +82,7 @@ function CouncilAvatar({ modelId, state, position }) {
       )}
     </div>
   );
-}
+});
 
 /**
  * Chairman avatar (appears in Stage 3)

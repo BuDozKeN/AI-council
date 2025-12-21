@@ -111,6 +111,17 @@ export default function ChatInterface({
     return '';
   }, [conversation?.messages]);
 
+  // Get first user question for context indicator
+  const firstUserQuestion = useMemo(() => {
+    const messages = conversation?.messages || [];
+    for (let i = 0; i < messages.length; i++) {
+      if (messages[i].role === 'user') {
+        return messages[i].content;
+      }
+    }
+    return '';
+  }, [conversation?.messages]);
+
   // Deliberation state hook (currently disabled in render, but keeping hook for future use)
   const deliberation = useDeliberationState({
     stage1Streaming: lastMessage?.stage1Streaming || {},
@@ -252,8 +263,8 @@ export default function ChatInterface({
       )}
 
       <div className="messages-container" ref={messagesContainerRef} onScroll={handleScroll}>
-        {/* Persistent Context Indicator */}
-        {selectedBusiness && hasMessages && (
+        {/* Persistent Context Indicator - shows question + context */}
+        {hasMessages && (
           <ContextIndicator
             businesses={businesses}
             selectedBusiness={selectedBusiness}
@@ -263,6 +274,8 @@ export default function ChatInterface({
             selectedDepartment={selectedDepartment}
             roles={roles}
             selectedRole={selectedRole}
+            question={firstUserQuestion}
+            conversationTitle={conversation?.title}
           />
         )}
 

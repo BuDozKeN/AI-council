@@ -1,0 +1,166 @@
+/**
+ * useModalState - Consolidated state management for modals
+ *
+ * Reduces the number of useState calls in App.jsx by grouping
+ * modal-related state into a single reducer.
+ */
+
+import { useReducer, useCallback } from 'react';
+
+const initialState = {
+  // Modal open states
+  isLeaderboardOpen: false,
+  isSettingsOpen: false,
+  isProjectModalOpen: false,
+  isMyCompanyOpen: false,
+
+  // Project modal context
+  projectModalContext: null,
+
+  // MyCompany navigation state
+  myCompanyInitialTab: 'overview',
+  myCompanyInitialDecisionId: null,
+  myCompanyInitialPlaybookId: null,
+  myCompanyInitialProjectId: null,
+  myCompanyPromoteDecision: null,
+
+  // Return navigation
+  returnToMyCompanyTab: null,
+  scrollToStage3: false,
+  scrollToResponseIndex: null,
+};
+
+function modalReducer(state, action) {
+  switch (action.type) {
+    case 'OPEN_LEADERBOARD':
+      return { ...state, isLeaderboardOpen: true };
+
+    case 'CLOSE_LEADERBOARD':
+      return { ...state, isLeaderboardOpen: false };
+
+    case 'OPEN_SETTINGS':
+      return { ...state, isSettingsOpen: true };
+
+    case 'CLOSE_SETTINGS':
+      return { ...state, isSettingsOpen: false };
+
+    case 'OPEN_PROJECT_MODAL':
+      return {
+        ...state,
+        isProjectModalOpen: true,
+        projectModalContext: action.payload || null,
+      };
+
+    case 'CLOSE_PROJECT_MODAL':
+      return {
+        ...state,
+        isProjectModalOpen: false,
+        projectModalContext: null,
+      };
+
+    case 'OPEN_MY_COMPANY':
+      return {
+        ...state,
+        isMyCompanyOpen: true,
+        myCompanyInitialTab: action.payload?.tab || 'overview',
+        myCompanyInitialDecisionId: action.payload?.decisionId || null,
+        myCompanyInitialPlaybookId: action.payload?.playbookId || null,
+        myCompanyInitialProjectId: action.payload?.projectId || null,
+      };
+
+    case 'CLOSE_MY_COMPANY':
+      return {
+        ...state,
+        isMyCompanyOpen: false,
+        myCompanyInitialTab: 'overview',
+        myCompanyInitialDecisionId: null,
+        myCompanyInitialPlaybookId: null,
+        myCompanyInitialProjectId: null,
+      };
+
+    case 'SET_MY_COMPANY_PROMOTE_DECISION':
+      return { ...state, myCompanyPromoteDecision: action.payload };
+
+    case 'SET_RETURN_TO_MY_COMPANY_TAB':
+      return { ...state, returnToMyCompanyTab: action.payload };
+
+    case 'SET_SCROLL_STATE':
+      return {
+        ...state,
+        scrollToStage3: action.payload?.scrollToStage3 ?? state.scrollToStage3,
+        scrollToResponseIndex: action.payload?.scrollToResponseIndex ?? state.scrollToResponseIndex,
+      };
+
+    case 'CLEAR_SCROLL_STATE':
+      return {
+        ...state,
+        scrollToStage3: false,
+        scrollToResponseIndex: null,
+      };
+
+    case 'CLEAR_RETURN_STATE':
+      return {
+        ...state,
+        returnToMyCompanyTab: null,
+        myCompanyPromoteDecision: null,
+      };
+
+    case 'RESET':
+      return initialState;
+
+    default:
+      return state;
+  }
+}
+
+export function useModalState() {
+  const [state, dispatch] = useReducer(modalReducer, initialState);
+
+  // Memoized action creators
+  const openLeaderboard = useCallback(() => dispatch({ type: 'OPEN_LEADERBOARD' }), []);
+  const closeLeaderboard = useCallback(() => dispatch({ type: 'CLOSE_LEADERBOARD' }), []);
+
+  const openSettings = useCallback(() => dispatch({ type: 'OPEN_SETTINGS' }), []);
+  const closeSettings = useCallback(() => dispatch({ type: 'CLOSE_SETTINGS' }), []);
+
+  const openProjectModal = useCallback((context) =>
+    dispatch({ type: 'OPEN_PROJECT_MODAL', payload: context }), []);
+  const closeProjectModal = useCallback(() => dispatch({ type: 'CLOSE_PROJECT_MODAL' }), []);
+
+  const openMyCompany = useCallback((options) =>
+    dispatch({ type: 'OPEN_MY_COMPANY', payload: options }), []);
+  const closeMyCompany = useCallback(() => dispatch({ type: 'CLOSE_MY_COMPANY' }), []);
+
+  const setMyCompanyPromoteDecision = useCallback((decision) =>
+    dispatch({ type: 'SET_MY_COMPANY_PROMOTE_DECISION', payload: decision }), []);
+
+  const setReturnToMyCompanyTab = useCallback((tab) =>
+    dispatch({ type: 'SET_RETURN_TO_MY_COMPANY_TAB', payload: tab }), []);
+
+  const setScrollState = useCallback((scrollState) =>
+    dispatch({ type: 'SET_SCROLL_STATE', payload: scrollState }), []);
+
+  const clearScrollState = useCallback(() => dispatch({ type: 'CLEAR_SCROLL_STATE' }), []);
+
+  const clearReturnState = useCallback(() => dispatch({ type: 'CLEAR_RETURN_STATE' }), []);
+
+  return {
+    // State
+    ...state,
+
+    // Actions
+    openLeaderboard,
+    closeLeaderboard,
+    openSettings,
+    closeSettings,
+    openProjectModal,
+    closeProjectModal,
+    openMyCompany,
+    closeMyCompany,
+    setMyCompanyPromoteDecision,
+    setReturnToMyCompanyTab,
+    setScrollState,
+    clearScrollState,
+    clearReturnState,
+  };
+}

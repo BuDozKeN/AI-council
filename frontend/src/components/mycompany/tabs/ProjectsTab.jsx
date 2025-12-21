@@ -9,6 +9,7 @@
  * Extracted from MyCompany.jsx for better maintainability.
  */
 
+import { useMemo } from 'react';
 import { FolderKanban, CheckCircle, Archive, RotateCcw, Trash2 } from 'lucide-react';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { SortSelect } from '../../ui/SortSelect';
@@ -56,6 +57,47 @@ export function ProjectsTab({
   onRestoreProject,
   onDeleteProject
 }) {
+  // Memoized stats - only recalculate when projects change
+  // Must be before any early returns to satisfy React hooks rules
+  const stats = useMemo(() => ({
+    active: projects.filter(p => p.status === 'active').length,
+    completed: projects.filter(p => p.status === 'completed').length,
+    archived: projects.filter(p => p.status === 'archived').length,
+    totalDecisions: projects.reduce((sum, p) => sum + (p.decision_count || 0), 0)
+  }), [projects]);
+
+  // Memoized filtering and sorting
+  const sortedProjects = useMemo(() => {
+    // Filter by status
+    let filtered = projects;
+    if (projectStatusFilter !== 'all') {
+      filtered = filtered.filter(p => p.status === projectStatusFilter);
+    }
+
+    // Filter by department (multi-select)
+    if (projectDeptFilter.length > 0) {
+      filtered = filtered.filter(p =>
+        (p.department_ids || []).some(id => projectDeptFilter.includes(id))
+      );
+    }
+
+    // Sort projects
+    return [...filtered].sort((a, b) => {
+      switch (projectSortBy) {
+        case 'name':
+          return (a.name || '').localeCompare(b.name || '');
+        case 'created':
+          return new Date(b.created_at) - new Date(a.created_at);
+        case 'decisions':
+          return (b.decision_count || 0) - (a.decision_count || 0);
+        case 'updated':
+        default:
+          return new Date(b.last_accessed_at || b.updated_at || b.created_at) -
+                 new Date(a.last_accessed_at || a.updated_at || a.created_at);
+      }
+    });
+  }, [projects, projectStatusFilter, projectDeptFilter, projectSortBy]);
+
   // Show nothing during initial load (skeleton handled by parent)
   if (!projectsLoaded && !loading) {
     return null;
@@ -74,49 +116,9 @@ export function ProjectsTab({
     );
   }
 
-  // Calculate stats from ALL projects (for display in stat cards)
-  const allActiveProjects = projects.filter(p => p.status === 'active');
-  const allCompletedProjects = projects.filter(p => p.status === 'completed');
-  const allArchivedProjects = projects.filter(p => p.status === 'archived');
-  const totalDecisions = projects.reduce((sum, p) => sum + (p.decision_count || 0), 0);
-
-  // Client-side filtering
-  let filteredProjects = projects;
-
-  // Filter by status
-  if (projectStatusFilter !== 'all') {
-    filteredProjects = filteredProjects.filter(p => p.status === projectStatusFilter);
-  }
-
-  // Filter by department (multi-select)
-  if (projectDeptFilter.length > 0) {
-    filteredProjects = filteredProjects.filter(p =>
-      projectDeptFilter.includes(p.department_id) ||
-      p.department_ids?.some(id => projectDeptFilter.includes(id))
-    );
-  }
-
-  // Sort projects
-  const sortedProjects = [...filteredProjects].sort((a, b) => {
-    switch (projectSortBy) {
-      case 'name':
-        return (a.name || '').localeCompare(b.name || '');
-      case 'created':
-        return new Date(b.created_at) - new Date(a.created_at);
-      case 'decisions':
-        return (b.decision_count || 0) - (a.decision_count || 0);
-      case 'updated':
-      default:
-        return new Date(b.last_accessed_at || b.updated_at || b.created_at) -
-               new Date(a.last_accessed_at || a.updated_at || a.created_at);
-    }
-  });
-
   // Project row component
   const renderProjectRow = (project) => {
-    const deptIds = project.department_ids?.length > 0
-      ? project.department_ids
-      : project.department_id ? [project.department_id] : [];
+    const deptIds = project.department_ids || [];
     const deptNames = project.department_names || [];
     const isFading = fadingProjectId === project.id;
 
@@ -232,7 +234,7 @@ export function ProjectsTab({
           onClick={() => onStatusFilterChange && onStatusFilterChange(projectStatusFilter === 'active' ? 'all' : 'active')}
           style={{ cursor: 'pointer' }}
         >
-          <div className="mc-stat-value" style={{ color: '#1d4ed8' }}>{allActiveProjects.length}</div>
+          <div className="mc-stat-value" style={{ color: '#1d4ed8' }}>{stats.active}</div>
           <div className="mc-stat-label">Active</div>
         </div>
         <div
@@ -240,7 +242,7 @@ export function ProjectsTab({
           onClick={() => onStatusFilterChange && onStatusFilterChange(projectStatusFilter === 'completed' ? 'all' : 'completed')}
           style={{ cursor: 'pointer' }}
         >
-          <div className="mc-stat-value" style={{ color: '#15803d' }}>{allCompletedProjects.length}</div>
+          <div className="mc-stat-value" style={{ color: '#15803d' }}>{stats.completed}</div>
           <div className="mc-stat-label">Completed</div>
         </div>
         <div
@@ -248,11 +250,11 @@ export function ProjectsTab({
           onClick={() => onStatusFilterChange && onStatusFilterChange(projectStatusFilter === 'archived' ? 'all' : 'archived')}
           style={{ cursor: 'pointer' }}
         >
-          <div className="mc-stat-value" style={{ color: '#6b7280' }}>{allArchivedProjects.length}</div>
+          <div className="mc-stat-value" style={{ color: '#6b7280' }}>{stats.archived}</div>
           <div className="mc-stat-label">Archived</div>
         </div>
         <div className="mc-stat-card">
-          <div className="mc-stat-value" style={{ color: '#b45309' }}>{totalDecisions}</div>
+          <div className="mc-stat-value" style={{ color: '#b45309' }}>{stats.totalDecisions}</div>
           <div className="mc-stat-label">Decisions</div>
         </div>
       </div>

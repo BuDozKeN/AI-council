@@ -3,10 +3,18 @@ import { useAuth } from '../AuthContext';
 import { api } from '../api';
 import { AdaptiveModal } from './ui/AdaptiveModal';
 import { Skeleton } from './ui/Skeleton';
-import { User, CreditCard } from 'lucide-react';
+import { Spinner } from './ui/Spinner';
+import { User, CreditCard, Users, Crown, Shield, UserIcon, Plus, Trash2, ChevronUp, ChevronDown, BarChart3, AlertCircle } from 'lucide-react';
 import './Settings.css';
 
-export default function Settings({ isOpen, onClose }) {
+// Role configuration for display
+const ROLE_CONFIG = {
+  owner: { label: 'Owner', icon: Crown, color: '#f59e0b', description: 'Full control' },
+  admin: { label: 'Admin', icon: Shield, color: '#3b82f6', description: 'Manage members' },
+  member: { label: 'Member', icon: UserIcon, color: '#6b7280', description: 'View & contribute' }
+};
+
+export default function Settings({ isOpen, onClose, companyId }) {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
 
@@ -28,6 +36,18 @@ export default function Settings({ isOpen, onClose }) {
   const [checkoutLoading, setCheckoutLoading] = useState(null);
   const [billingError, setBillingError] = useState(null);
 
+  // Team state
+  const [members, setMembers] = useState([]);
+  const [usage, setUsage] = useState(null);
+  const [teamLoading, setTeamLoading] = useState(true);
+  const [teamError, setTeamError] = useState(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [newRole, setNewRole] = useState('member');
+  const [addError, setAddError] = useState(null);
+  const [addingMember, setAddingMember] = useState(false);
+  const [memberActionLoading, setMemberActionLoading] = useState(null);
+
   // Load profile on mount
   useEffect(() => {
     if (isOpen && user) {
@@ -35,6 +55,13 @@ export default function Settings({ isOpen, onClose }) {
       loadBillingData();
     }
   }, [isOpen, user]);
+
+  // Load team data when team tab is active
+  useEffect(() => {
+    if (isOpen && activeTab === 'team' && companyId) {
+      loadTeamData();
+    }
+  }, [isOpen, activeTab, companyId]);
 
   const loadProfile = async () => {
     try {
@@ -119,6 +146,79 @@ export default function Settings({ isOpen, onClose }) {
     }
   };
 
+  // Team functions
+  const loadTeamData = async () => {
+    if (!companyId) return;
+    try {
+      setTeamLoading(true);
+      setTeamError(null);
+
+      const membersResult = await api.getCompanyMembers(companyId);
+      setMembers(membersResult.members || []);
+
+      // Try to load usage (may fail if not admin)
+      try {
+        const usageResult = await api.getCompanyUsage(companyId);
+        setUsage(usageResult.usage);
+      } catch {
+        setUsage(null);
+      }
+    } catch (err) {
+      setTeamError(err.message);
+    } finally {
+      setTeamLoading(false);
+    }
+  };
+
+  const handleAddMember = async (e) => {
+    e.preventDefault();
+    if (!newEmail.trim() || !companyId) return;
+
+    try {
+      setAddingMember(true);
+      setAddError(null);
+      await api.addCompanyMember(companyId, newEmail.trim(), newRole);
+      await loadTeamData();
+      setNewEmail('');
+      setNewRole('member');
+      setShowAddForm(false);
+    } catch (err) {
+      setAddError(err.message);
+    } finally {
+      setAddingMember(false);
+    }
+  };
+
+  const handleChangeRole = async (memberId, role) => {
+    try {
+      setMemberActionLoading(memberId);
+      await api.updateCompanyMember(companyId, memberId, role);
+      await loadTeamData();
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setMemberActionLoading(null);
+    }
+  };
+
+  const handleRemoveMember = async (memberId, memberRole) => {
+    if (!confirm(`Remove this ${memberRole} from the team?`)) return;
+    try {
+      setMemberActionLoading(memberId);
+      await api.removeCompanyMember(companyId, memberId);
+      await loadTeamData();
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setMemberActionLoading(null);
+    }
+  };
+
+  // Derived state
+  const currentMember = members.find(m => m.user_id === user?.id);
+  const currentUserRole = currentMember?.role || 'member';
+  const canManageMembers = ['owner', 'admin'].includes(currentUserRole);
+
   const currentTier = subscription?.tier || 'free';
   const queriesUsed = subscription?.queries_used || 0;
   const queriesLimit = subscription?.queries_limit || 5;
@@ -161,6 +261,61 @@ export default function Settings({ isOpen, onClose }) {
           </div>
           <div className="form-actions">
             <Skeleton width={120} height={40} />
+          </div>
+        </div>
+      </div>
+    </>
+  );
+
+  // Team skeleton - matches exact structure of loaded content to prevent layout shift
+  const TeamSkeleton = () => (
+    <>
+      {/* Team Members Card Skeleton - mirrors actual card structure */}
+      <div className="settings-card">
+        <div className="card-header">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <Skeleton width={120} height={16} /> {/* h3: "Team Members" */}
+              <Skeleton width={70} height={13} style={{ marginTop: 4 }} /> {/* p: "X members" */}
+            </div>
+            <Skeleton width={115} height={36} style={{ borderRadius: 6 }} /> {/* Add Member button */}
+          </div>
+        </div>
+        <div className="card-body">
+          <div className="members-list">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="member-row">
+                <div className="member-role-icon">
+                  <Skeleton variant="circular" width={18} height={18} />
+                </div>
+                <div className="member-info">
+                  <Skeleton width={80} height={14} /> {/* member-name */}
+                  <Skeleton width={50} height={12} style={{ marginTop: 2 }} /> {/* role label */}
+                </div>
+                <Skeleton width={110} height={12} /> {/* member-joined */}
+                <div className="member-actions">
+                  <Skeleton width={28} height={28} style={{ borderRadius: 4 }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Usage Statistics Skeleton */}
+      <div className="settings-card">
+        <div className="card-header">
+          <Skeleton width={130} height={16} /> {/* h3: "Usage Statistics" */}
+          <Skeleton width={200} height={13} style={{ marginTop: 4 }} /> {/* p description */}
+        </div>
+        <div className="card-body">
+          <div className="usage-grid">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="usage-stat">
+                <Skeleton width={40} height={24} /> {/* usage-value */}
+                <Skeleton width={90} height={12} style={{ marginTop: 4 }} /> {/* usage-label */}
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -235,6 +390,15 @@ export default function Settings({ isOpen, onClose }) {
               <CreditCard size={18} className="tab-icon" />
               Billing
             </button>
+            {companyId && (
+              <button
+                className={`settings-tab ${activeTab === 'team' ? 'active' : ''}`}
+                onClick={() => setActiveTab('team')}
+              >
+                <Users size={18} className="tab-icon" />
+                Team
+              </button>
+            )}
           </div>
 
           {/* Tab content */}
@@ -440,6 +604,188 @@ export default function Settings({ isOpen, onClose }) {
                     )}
 
                     <p className="stripe-note">Secure payments powered by Stripe</p>
+                  </>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'team' && companyId && (
+              <div className="team-content">
+                {teamLoading ? (
+                  <TeamSkeleton />
+                ) : teamError ? (
+                  <div className="settings-card">
+                    <div className="card-body" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, gap: 12, color: 'var(--color-danger)' }}>
+                      <AlertCircle size={20} />
+                      <span>{teamError}</span>
+                      <button className="btn-outline" onClick={loadTeamData}>Retry</button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Team Members Card */}
+                    <div className="settings-card">
+                      <div className="card-header">
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <div>
+                            <h3>Team Members</h3>
+                            <p>{members.length} {members.length === 1 ? 'member' : 'members'}</p>
+                          </div>
+                          {canManageMembers && (
+                            <button
+                              className="btn-primary"
+                              onClick={() => setShowAddForm(!showAddForm)}
+                              style={{ display: 'flex', alignItems: 'center', gap: 6 }}
+                            >
+                              <Plus size={16} />
+                              Add Member
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="card-body">
+                        {/* Add member form */}
+                        {showAddForm && (
+                          <form onSubmit={handleAddMember} className="add-member-form">
+                            <div className="form-row">
+                              <input
+                                type="email"
+                                placeholder="Email address"
+                                value={newEmail}
+                                onChange={(e) => setNewEmail(e.target.value)}
+                                className="form-input"
+                                autoFocus
+                              />
+                              <select
+                                value={newRole}
+                                onChange={(e) => setNewRole(e.target.value)}
+                                className="form-select"
+                              >
+                                <option value="member">Member</option>
+                                <option value="admin">Admin</option>
+                              </select>
+                              <button type="submit" className="btn-primary" disabled={addingMember || !newEmail.trim()}>
+                                {addingMember ? <Spinner size={14} /> : 'Add'}
+                              </button>
+                              <button type="button" className="btn-outline" onClick={() => setShowAddForm(false)}>
+                                Cancel
+                              </button>
+                            </div>
+                            {addError && (
+                              <div className="form-error">
+                                <AlertCircle size={14} />
+                                {addError}
+                              </div>
+                            )}
+                            <p className="form-hint">User must have an existing account to be added.</p>
+                          </form>
+                        )}
+
+                        {/* Members list */}
+                        <div className="members-list">
+                          {members.map(member => {
+                            const roleConfig = ROLE_CONFIG[member.role] || ROLE_CONFIG.member;
+                            const RoleIcon = roleConfig.icon;
+                            const isCurrentUser = member.user_id === user?.id;
+                            const isLoading = memberActionLoading === member.id;
+
+                            const canModify = canManageMembers && !isCurrentUser && member.role !== 'owner';
+                            const canPromote = canModify && currentUserRole === 'owner' && member.role === 'member';
+                            const canDemote = canModify && currentUserRole === 'owner' && member.role === 'admin';
+                            const canRemove = canModify && (currentUserRole === 'owner' || (currentUserRole === 'admin' && member.role === 'member'));
+
+                            return (
+                              <div key={member.id} className={`member-row ${isCurrentUser ? 'current' : ''}`}>
+                                <div className="member-role-icon" style={{ color: roleConfig.color }}>
+                                  <RoleIcon size={18} />
+                                </div>
+                                <div className="member-info">
+                                  <span className="member-name">
+                                    {isCurrentUser ? 'You' : `User ${member.user_id.slice(0, 8)}...`}
+                                  </span>
+                                  <span className="member-role-label" style={{ color: roleConfig.color }}>
+                                    {roleConfig.label}
+                                  </span>
+                                </div>
+                                <div className="member-joined">
+                                  Joined {new Date(member.joined_at || member.created_at).toLocaleDateString()}
+                                </div>
+                                {isLoading ? (
+                                  <div className="member-actions">
+                                    <Spinner size={16} />
+                                  </div>
+                                ) : (
+                                  <div className="member-actions">
+                                    {canPromote && (
+                                      <button
+                                        className="icon-btn promote"
+                                        onClick={() => handleChangeRole(member.id, 'admin')}
+                                        title="Promote to Admin"
+                                      >
+                                        <ChevronUp size={16} />
+                                      </button>
+                                    )}
+                                    {canDemote && (
+                                      <button
+                                        className="icon-btn demote"
+                                        onClick={() => handleChangeRole(member.id, 'member')}
+                                        title="Demote to Member"
+                                      >
+                                        <ChevronDown size={16} />
+                                      </button>
+                                    )}
+                                    {canRemove && (
+                                      <button
+                                        className="icon-btn danger"
+                                        onClick={() => handleRemoveMember(member.id, member.role)}
+                                        title="Remove from team"
+                                      >
+                                        <Trash2 size={16} />
+                                      </button>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Usage Statistics (for owners/admins) */}
+                    {usage && (
+                      <div className="settings-card">
+                        <div className="card-header">
+                          <h3>Usage Statistics</h3>
+                          <p>Council usage for your organization</p>
+                        </div>
+                        <div className="card-body">
+                          <div className="usage-grid">
+                            <div className="usage-stat">
+                              <span className="usage-value">{usage.sessions_this_month}</span>
+                              <span className="usage-label">Sessions this month</span>
+                            </div>
+                            <div className="usage-stat">
+                              <span className="usage-value">{usage.total_sessions}</span>
+                              <span className="usage-label">Total sessions</span>
+                            </div>
+                            <div className="usage-stat">
+                              <span className="usage-value">
+                                {((usage.tokens_this_month_input + usage.tokens_this_month_output) / 1000).toFixed(1)}k
+                              </span>
+                              <span className="usage-label">Tokens this month</span>
+                            </div>
+                            <div className="usage-stat">
+                              <span className="usage-value">
+                                {((usage.total_tokens_input + usage.total_tokens_output) / 1000).toFixed(1)}k
+                              </span>
+                              <span className="usage-label">Total tokens</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </>
                 )}
               </div>

@@ -2,6 +2,7 @@
 
 from datetime import datetime
 from typing import List, Dict, Any, Optional
+from functools import lru_cache
 from .database import get_supabase_service
 
 
@@ -44,6 +45,75 @@ def record_session_rankings(
         print(f"[LEADERBOARD] Error recording rankings: {e}", flush=True)
 
 
+def _aggregate_leaderboard_data(data: List[Dict]) -> List[Dict[str, Any]]:
+    """
+    Efficient single-pass aggregation of ranking data.
+
+    Args:
+        data: List of ranking rows from database
+
+    Returns:
+        Sorted leaderboard list
+    """
+    if not data:
+        return []
+
+    # Single pass: collect all stats
+    model_stats: Dict[str, Dict] = {}
+    conversation_rankings: Dict[str, List] = {}
+
+    for row in data:
+        model = row['model']
+        conv_id = row['conversation_id']
+        avg_rank = float(row['average_rank'])
+
+        # Initialize model stats
+        if model not in model_stats:
+            model_stats[model] = {
+                "total_rank": 0.0,
+                "count": 0,
+                "conversations": set(),
+                "wins": 0
+            }
+
+        # Accumulate stats
+        model_stats[model]["total_rank"] += avg_rank
+        model_stats[model]["count"] += 1
+        model_stats[model]["conversations"].add(conv_id)
+
+        # Track rankings per conversation for win calculation
+        if conv_id not in conversation_rankings:
+            conversation_rankings[conv_id] = []
+        conversation_rankings[conv_id].append((model, avg_rank))
+
+    # Count wins: lowest average_rank in each conversation
+    for conv_id, rankings in conversation_rankings.items():
+        if rankings:
+            # Find minimum rank model
+            winner = min(rankings, key=lambda x: x[1])[0]
+            if winner in model_stats:
+                model_stats[winner]["wins"] += 1
+
+    # Build final leaderboard
+    leaderboard = []
+    for model, stats in model_stats.items():
+        sessions = len(stats["conversations"])
+        if sessions > 0:
+            avg_rank = stats["total_rank"] / stats["count"]
+            win_rate = (stats["wins"] / sessions) * 100
+            leaderboard.append({
+                "model": model,
+                "avg_rank": round(avg_rank, 2),
+                "sessions": sessions,
+                "wins": stats["wins"],
+                "win_rate": round(win_rate, 1)
+            })
+
+    # Sort by avg_rank (lower is better)
+    leaderboard.sort(key=lambda x: x["avg_rank"])
+    return leaderboard
+
+
 def get_overall_leaderboard() -> List[Dict[str, Any]]:
     """
     Get the overall leaderboard sorted by average rank (lower is better).
@@ -54,67 +124,12 @@ def get_overall_leaderboard() -> List[Dict[str, Any]]:
     supabase = get_supabase_service()
 
     try:
-        # Get all rankings
-        result = supabase.table('model_rankings').select('*').execute()
+        # Only select needed columns (not *)
+        result = supabase.table('model_rankings').select(
+            'model, conversation_id, average_rank'
+        ).execute()
 
-        if not result.data:
-            return []
-
-        # Aggregate by model
-        model_stats = {}
-
-        # Group by conversation to determine wins
-        conversation_rankings = {}
-        for row in result.data:
-            conv_id = row['conversation_id']
-            if conv_id not in conversation_rankings:
-                conversation_rankings[conv_id] = []
-            conversation_rankings[conv_id].append(row)
-
-        # Calculate stats per model
-        for row in result.data:
-            model = row['model']
-            if model not in model_stats:
-                model_stats[model] = {
-                    "total_rank": 0,
-                    "sessions": 0,
-                    "wins": 0
-                }
-            model_stats[model]["total_rank"] += float(row['average_rank'])
-            model_stats[model]["sessions"] += 1
-
-        # Count wins (lowest average_rank in each conversation)
-        for conv_id, rankings in conversation_rankings.items():
-            if rankings:
-                # Sort by average_rank, lowest wins
-                sorted_rankings = sorted(rankings, key=lambda x: float(x['average_rank']))
-                winner_model = sorted_rankings[0]['model']
-                if winner_model in model_stats:
-                    model_stats[winner_model]["wins"] += 1
-
-        # Build leaderboard
-        leaderboard = []
-        for model, stats in model_stats.items():
-            if stats["sessions"] > 0:
-                # Each conversation counts as 1 session per model
-                # Divide sessions by number of times this model appeared
-                unique_sessions = len(set(
-                    row['conversation_id'] for row in result.data if row['model'] == model
-                ))
-                avg_rank = stats["total_rank"] / stats["sessions"]
-                win_rate = (stats["wins"] / unique_sessions) * 100 if unique_sessions > 0 else 0
-                leaderboard.append({
-                    "model": model,
-                    "avg_rank": round(avg_rank, 2),
-                    "sessions": unique_sessions,
-                    "wins": stats["wins"],
-                    "win_rate": round(win_rate, 1)
-                })
-
-        # Sort by avg_rank (lower is better)
-        leaderboard.sort(key=lambda x: x["avg_rank"])
-
-        return leaderboard
+        return _aggregate_leaderboard_data(result.data or [])
 
     except Exception as e:
         print(f"[LEADERBOARD] Error getting overall leaderboard: {e}", flush=True)
@@ -134,63 +149,12 @@ def get_department_leaderboard(department: str) -> List[Dict[str, Any]]:
     supabase = get_supabase_service()
 
     try:
-        # Get rankings for this department
-        result = supabase.table('model_rankings').select('*').eq('department', department).execute()
+        # Only select needed columns with department filter
+        result = supabase.table('model_rankings').select(
+            'model, conversation_id, average_rank'
+        ).eq('department', department).execute()
 
-        if not result.data:
-            return []
-
-        # Aggregate by model
-        model_stats = {}
-
-        # Group by conversation to determine wins
-        conversation_rankings = {}
-        for row in result.data:
-            conv_id = row['conversation_id']
-            if conv_id not in conversation_rankings:
-                conversation_rankings[conv_id] = []
-            conversation_rankings[conv_id].append(row)
-
-        # Calculate stats per model
-        for row in result.data:
-            model = row['model']
-            if model not in model_stats:
-                model_stats[model] = {
-                    "total_rank": 0,
-                    "sessions": 0,
-                    "wins": 0
-                }
-            model_stats[model]["total_rank"] += float(row['average_rank'])
-            model_stats[model]["sessions"] += 1
-
-        # Count wins
-        for conv_id, rankings in conversation_rankings.items():
-            if rankings:
-                sorted_rankings = sorted(rankings, key=lambda x: float(x['average_rank']))
-                winner_model = sorted_rankings[0]['model']
-                if winner_model in model_stats:
-                    model_stats[winner_model]["wins"] += 1
-
-        # Build leaderboard
-        leaderboard = []
-        for model, stats in model_stats.items():
-            if stats["sessions"] > 0:
-                unique_sessions = len(set(
-                    row['conversation_id'] for row in result.data if row['model'] == model
-                ))
-                avg_rank = stats["total_rank"] / stats["sessions"]
-                win_rate = (stats["wins"] / unique_sessions) * 100 if unique_sessions > 0 else 0
-                leaderboard.append({
-                    "model": model,
-                    "avg_rank": round(avg_rank, 2),
-                    "sessions": unique_sessions,
-                    "wins": stats["wins"],
-                    "win_rate": round(win_rate, 1)
-                })
-
-        leaderboard.sort(key=lambda x: x["avg_rank"])
-
-        return leaderboard
+        return _aggregate_leaderboard_data(result.data or [])
 
     except Exception as e:
         print(f"[LEADERBOARD] Error getting department leaderboard: {e}", flush=True)
@@ -207,27 +171,48 @@ def _is_uuid_like(value: str) -> bool:
     return bool(uuid_pattern.match(value))
 
 
-def _resolve_department_name(supabase, dept_id: str) -> str:
+def _resolve_department_names_batch(supabase, dept_ids: List[str]) -> Dict[str, str]:
     """
-    Resolve a department ID (UUID) to its display name.
-    Returns the original value if not a UUID or not found.
+    Batch resolve department IDs to display names.
+
+    Args:
+        supabase: Supabase client
+        dept_ids: List of department IDs (may include UUIDs and legacy names)
+
+    Returns:
+        Dict mapping dept_id to display_name
     """
-    if not _is_uuid_like(dept_id):
-        return dept_id
+    result = {}
+    uuid_ids = []
 
-    try:
-        result = supabase.table('departments').select('name').eq('id', dept_id).execute()
-        if result.data and len(result.data) > 0:
-            return result.data[0]['name']
-    except Exception as e:
-        print(f"[LEADERBOARD] Error resolving department name for {dept_id}: {e}", flush=True)
+    for dept_id in dept_ids:
+        if _is_uuid_like(dept_id):
+            uuid_ids.append(dept_id)
+        else:
+            # Not a UUID, use as-is
+            result[dept_id] = dept_id
 
-    return dept_id
+    if uuid_ids:
+        try:
+            # Single batch query for all UUIDs
+            dept_result = supabase.table('departments').select('id, name').in_('id', uuid_ids).execute()
+            for row in (dept_result.data or []):
+                result[row['id']] = row['name']
+        except Exception as e:
+            print(f"[LEADERBOARD] Error batch resolving department names: {e}", flush=True)
+
+        # Fall back to ID for any not found
+        for uuid_id in uuid_ids:
+            if uuid_id not in result:
+                result[uuid_id] = uuid_id
+
+    return result
 
 
 def get_all_department_leaderboards() -> Dict[str, List[Dict[str, Any]]]:
     """
     Get leaderboards for all departments.
+    Optimized to fetch all data in one query and aggregate in Python.
 
     Returns:
         Dict mapping department name to leaderboard list
@@ -235,20 +220,33 @@ def get_all_department_leaderboards() -> Dict[str, List[Dict[str, Any]]]:
     supabase = get_supabase_service()
 
     try:
-        # Get distinct departments
-        result = supabase.table('model_rankings').select('department').execute()
+        # Fetch all ranking data in one query
+        result = supabase.table('model_rankings').select(
+            'model, conversation_id, average_rank, department'
+        ).execute()
 
         if not result.data:
             return {}
 
-        departments = set(row['department'] for row in result.data)
+        # Group data by department
+        dept_data: Dict[str, List] = {}
+        all_dept_ids = set()
 
-        # Build result with resolved department names
+        for row in result.data:
+            dept = row['department']
+            all_dept_ids.add(dept)
+            if dept not in dept_data:
+                dept_data[dept] = []
+            dept_data[dept].append(row)
+
+        # Batch resolve department names
+        name_map = _resolve_department_names_batch(supabase, list(all_dept_ids))
+
+        # Build leaderboards using aggregation helper
         leaderboards = {}
-        for dept in departments:
-            display_name = _resolve_department_name(supabase, dept)
-            # Use the original dept ID for querying, but display_name as the key
-            leaderboards[display_name] = get_department_leaderboard(dept)
+        for dept_id, rows in dept_data.items():
+            display_name = name_map.get(dept_id, dept_id)
+            leaderboards[display_name] = _aggregate_leaderboard_data(rows)
 
         return leaderboards
 

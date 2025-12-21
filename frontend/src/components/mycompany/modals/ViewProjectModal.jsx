@@ -89,10 +89,9 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
   const [editedDescription, setEditedDescription] = useState(project.description || '');
   const [editedContext, setEditedContext] = useState(project.context_md || '');
   const [editedStatus, setEditedStatus] = useState(project.status || 'active');
-  // Use department_ids array (with fallback to single department_id for backwards compatibility)
+  // Use department_ids array
   const [editedDepartmentIds, setEditedDepartmentIds] = useState(
-    project.department_ids?.length > 0 ? project.department_ids :
-    project.department_id ? [project.department_id] : []
+    project.department_ids || []
   );
   const [saving, setSaving] = useState(false);
   const [isEditingName, setIsEditingName] = useState(isNew);
@@ -141,10 +140,10 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
     // LEGACY FALLBACK: Only regenerate for old decisions without proper summaries
     // New decisions get summaries at save time, so this should rarely trigger
     const decision = projectDecisions.find(d => d.id === decisionId);
-    const needsRegeneration = decision && decision.user_question && isGarbageSummary(decision.decision_summary);
+    const needsRegeneration = decision && decision.question && isGarbageSummary(decision.content_summary);
 
     if (needsRegeneration) {
-      console.log('[ViewProjectModal] Legacy decision needs summary:', decisionId, 'current:', decision.decision_summary);
+      console.log('[ViewProjectModal] Legacy decision needs summary:', decisionId, 'current:', decision.content_summary);
       setGeneratingSummaryId(decisionId);
       try {
         const result = await api.generateDecisionSummary(companyId, decisionId);
@@ -154,7 +153,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
           setProjectDecisions(prev => prev.map(d =>
             d.id === decisionId ? {
               ...d,
-              decision_summary: result.summary || d.decision_summary,
+              content_summary: result.summary || d.content_summary,
               title: result.title || d.title
             } : d
           ));
@@ -381,10 +380,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
     setEditedDescription(project.description || '');
     setEditedContext(project.context_md || '');
     setEditedStatus(project.status || 'active');
-    setEditedDepartmentIds(
-      project.department_ids?.length > 0 ? project.department_ids :
-      project.department_id ? [project.department_id] : []
-    );
+    setEditedDepartmentIds(project.department_ids || []);
   };
 
   // Copy context to clipboard
@@ -754,8 +750,8 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                                 <h4 className="mc-timeline-title">{decision.title}</h4>
                                 <div className="mc-timeline-title-badges">
                                   {/* Show multiple department badges if available */}
-                                  {(decision.department_names?.length > 0 ? decision.department_names : (decision.department_name ? [decision.department_name] : [])).map((deptName, idx) => {
-                                    const deptId = decision.department_ids?.[idx] || decision.department_id;
+                                  {(decision.department_names || []).map((deptName, idx) => {
+                                    const deptId = decision.department_ids?.[idx];
                                     return (
                                       <span
                                         key={deptId || idx}
@@ -803,9 +799,9 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                                     <Spinner size="sm" variant="brand" />
                                     <span>Generating summary...</span>
                                   </div>
-                                ) : decision.decision_summary ? (
+                                ) : decision.content_summary ? (
                                   <div className="mc-timeline-summary">
-                                    <MarkdownViewer content={decision.decision_summary} skipCleanup={true} />
+                                    <MarkdownViewer content={decision.content_summary} skipCleanup={true} />
                                   </div>
                                 ) : null}
 

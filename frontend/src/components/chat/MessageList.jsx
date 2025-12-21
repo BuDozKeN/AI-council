@@ -56,7 +56,7 @@ export function MessageList({
     <AnimatePresence mode="popLayout">
       {messages.map((msg, index) => (
         <motion.div
-          key={`msg-${index}-${msg.role}`}
+          key={msg.id || `msg-${index}-${msg.role}`}
           className="message-group"
           variants={messageVariants}
           initial="hidden"

@@ -17,12 +17,19 @@ export function SidebarFooter({
   onToggleCachingMode,
   onOpenMyCompany,
   onOpenSettings,
-  onSignOut
+  onSignOut,
+  // Hover handlers to keep panel open when hovering footer
+  onMouseEnter,
+  onMouseLeave
 }) {
   if (!user) return null;
 
   return (
-    <div className="sidebar-footer">
+    <div
+      className="sidebar-footer"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
       {/* Mode Toggles - Dev only */}
       {DEV_MODE && (
         <div className="mode-toggle-section">

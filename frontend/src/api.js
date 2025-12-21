@@ -1531,16 +1531,37 @@ export const api = {
       console.log('[API] mergeDecisionIntoProject body:', JSON.stringify(body, null, 2));
     }
 
-    const response = await fetch(`${API_BASE}/api/projects/${projectId}/merge-decision`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body),
-    });
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ detail: 'Failed to merge decision' }));
-      throw new Error(error.detail || 'Failed to merge decision');
+    // Use AbortController for timeout (60s for AI processing)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
+
+    try {
+      console.log('[API] Starting merge-decision request...');
+      const response = await fetch(`${API_BASE}/api/projects/${projectId}/merge-decision`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      console.log('[API] merge-decision response status:', response.status);
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ detail: 'Failed to merge decision' }));
+        console.error('[API] merge-decision error:', error);
+        throw new Error(error.detail || 'Failed to merge decision');
+      }
+      const result = await response.json();
+      console.log('[API] merge-decision success, saved_decision_id:', result.saved_decision_id);
+      return result;
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (err.name === 'AbortError') {
+        console.error('[API] merge-decision request timed out after 60s');
+        throw new Error('Request timed out. The AI merge is taking too long. Please try again.');
+      }
+      throw err;
     }
-    return response.json();
   },
 
   // ============================================

@@ -178,7 +178,8 @@ def verify_company_access(client, company_uuid: str, user: dict) -> bool:
 
     Access is granted if:
     1. User owns the company (companies.user_id = user.id)
-    2. User has department access to the company (user_department_access table)
+    2. User is a member of the company (company_members table)
+    3. User has department access to the company (user_department_access table - legacy)
 
     Args:
         client: Supabase service client
@@ -200,7 +201,17 @@ def verify_company_access(client, company_uuid: str, user: dict) -> bool:
     if owner_result.data:
         return True
 
-    # Check if user has department access to this company
+    # Check if user is a member of this company (multi-user system)
+    member_result = client.table("company_members") \
+        .select("id") \
+        .eq("company_id", company_uuid) \
+        .eq("user_id", user_id) \
+        .execute()
+
+    if member_result.data:
+        return True
+
+    # Check if user has department access to this company (legacy)
     access_result = client.table("user_department_access") \
         .select("id") \
         .eq("company_id", company_uuid) \
@@ -245,7 +256,7 @@ async def auto_regenerate_project_context(project_id: str, user: dict) -> bool:
 
     # Get ALL decisions for this project
     decisions_result = service_client.table("knowledge_entries") \
-        .select("id, title, body_md, summary, created_at, department_id") \
+        .select("id, title, content, created_at, department_ids") \
         .eq("project_id", project_id) \
         .eq("is_active", True) \
         .order("created_at", desc=False) \
@@ -281,7 +292,10 @@ async def auto_regenerate_project_context(project_id: str, user: dict) -> bool:
     for i, d in enumerate(decisions, 1):
         date_str = d.get("created_at", "")[:10] if d.get("created_at") else "Unknown date"
         title = d.get("title", "Untitled")
-        content = d.get("summary") or (d.get("body_md", "")[:1000] + "..." if len(d.get("body_md", "")) > 1000 else d.get("body_md", ""))
+        content = d.get("content", "")
+        # Truncate long content for LLM context
+        if len(content) > 1000:
+            content = content[:1000] + "..."
         decisions_summary += f"\n### Decision {i}: {title} ({date_str})\n{content}\n"
 
     today_date = datetime.now().strftime("%B %d, %Y")
@@ -425,9 +439,8 @@ async def generate_decision_summary_internal(
         service_client = get_service_client()
 
     # Get the decision with conversation info AND content (council response)
-    # Note: The council response is stored in body_md, not content
     result = service_client.table("knowledge_entries") \
-        .select("id, user_question, body_md, title, summary, decision_summary, source_conversation_id, response_index, created_at") \
+        .select("id, question, content, title, content_summary, source_conversation_id, response_index, created_at") \
         .eq("id", decision_id) \
         .eq("company_id", company_uuid) \
         .single() \
@@ -437,9 +450,8 @@ async def generate_decision_summary_internal(
         return {"summary": "Decision not found", "title": "Unknown", "cached": False}
 
     decision = result.data
-    user_question = decision.get("user_question", "")
-    # Council response can be in body_md (new) or summary (legacy/standalone decisions)
-    council_response = decision.get("body_md", "") or decision.get("summary", "")
+    user_question = decision.get("question", "")
+    council_response = decision.get("content", "")
     conversation_id = decision.get("source_conversation_id")
     response_index = decision.get("response_index", 0) or 0
 
@@ -452,7 +464,7 @@ async def generate_decision_summary_internal(
     if conversation_id and response_index > 0:
         try:
             prior_result = service_client.table("knowledge_entries") \
-                .select("user_question, body_md, decision_summary, title, response_index") \
+                .select("question, content, content_summary, title, response_index") \
                 .eq("source_conversation_id", conversation_id) \
                 .eq("company_id", company_uuid) \
                 .lt("response_index", response_index) \
@@ -463,10 +475,10 @@ async def generate_decision_summary_internal(
                 prior_items = []
                 for prior in prior_result.data:
                     idx = prior.get("response_index", 0) or 0
-                    prior_q = prior.get("user_question", "")
+                    prior_q = prior.get("question", "")
                     prior_title = prior.get("title", "")
-                    prior_response = prior.get("body_md", "")
-                    prior_summary = prior.get("decision_summary", "")
+                    prior_response = prior.get("content", "")
+                    prior_summary = prior.get("content_summary", "")
 
                     item = f"### Decision #{idx + 1}: {prior_title}\n"
                     item += f"**User asked:** {prior_q}\n"
@@ -1679,42 +1691,39 @@ async def get_decisions(
         .eq("is_active", True)
 
     if search:
-        # Search in title and summary
-        query = query.or_(f"title.ilike.%{search}%,summary.ilike.%{search}%")
+        # Search in title and content
+        query = query.or_(f"title.ilike.%{search}%,content.ilike.%{search}%")
 
     result = query.order("created_at", desc=True).limit(limit).execute()
 
     # Transform to expected format for frontend compatibility
     decisions = []
     for entry in result.data or []:
-        dept_id = entry.get("department_id")
-        dept_ids = entry.get("department_ids") or ([dept_id] if dept_id else [])
-        dept_info = dept_map.get(dept_id, {}) if dept_id else {}
-
-        # Use body_md if available, fall back to summary for legacy data
-        body_md = entry.get("body_md", "")
-        content = body_md if body_md else entry.get("summary", "")
+        dept_ids = entry.get("department_ids") or []
+        # Get first department for display name (backwards compat)
+        first_dept_id = dept_ids[0] if dept_ids else None
+        dept_info = dept_map.get(first_dept_id, {}) if first_dept_id else {}
 
         decisions.append({
             "id": entry.get("id"),
             "title": entry.get("title"),
-            "content": content,  # Full council response from body_md (with summary fallback)
-            "user_question": entry.get("user_question", ""),  # Raw user question for context
-            "question_summary": entry.get("question_summary", ""),  # AI-summarized question
-            "decision_summary": entry.get("decision_summary", ""),  # AI-generated summary
+            "content": entry.get("content", ""),
+            "question": entry.get("question", ""),
+            "question_summary": entry.get("question_summary", ""),
+            "content_summary": entry.get("content_summary", ""),
             "tags": entry.get("tags", []),
             "category": entry.get("category"),
-            "department_id": dept_id,  # Primary for backwards compat
-            "department_ids": dept_ids,  # All departments (multi-department support)
-            "department_name": dept_info.get("name"),  # Embedded for display
-            "department_slug": dept_info.get("slug"),  # Embedded for filtering
+            "department_ids": dept_ids,
+            "department_name": dept_info.get("name"),
+            "department_slug": dept_info.get("slug"),
             "project_id": entry.get("project_id"),
-            "is_promoted": entry.get("is_promoted", False),
+            "is_promoted": bool(entry.get("promoted_to_id") or entry.get("project_id")),  # Derived
             "promoted_to_id": entry.get("promoted_to_id"),
-            "promoted_to_type": entry.get("promoted_to_type"),  # sop/framework/policy
-            "promoted_by_name": entry.get("promoted_by_name"),  # Who promoted it
-            "promoted_at": entry.get("promoted_at"),  # When it was promoted
+            "promoted_to_type": entry.get("promoted_to_type"),
+            "promoted_by_name": entry.get("promoted_by_name"),
+            "promoted_at": entry.get("promoted_at"),
             "source_conversation_id": entry.get("source_conversation_id"),
+            "response_index": entry.get("response_index"),
             "created_at": entry.get("created_at"),
             "updated_at": entry.get("updated_at"),
             "scope": entry.get("scope", "department"),
@@ -1740,23 +1749,22 @@ async def create_decision(company_id: ValidCompanyId, data: DecisionCreate, user
     # Get user_id for created_by field
     user_id = user.get('id') if isinstance(user, dict) else user.id
 
-    # Build insert data
+    # Build insert data with canonical column names
     insert_data = {
         "company_id": company_uuid,
-        "department_id": data.department_id,
+        "department_ids": [data.department_id] if data.department_id else [],
         "title": data.title,
-        "body_md": data.content,  # Full council response in body_md (primary field)
-        "summary": data.content,  # Also in summary for backwards compatibility
-        "decision_summary": data.decision_summary,  # Brief summary for quick scanning
-        "category": "technical_decision",  # Default category
+        "content": data.content,
+        "question": data.user_question,
+        "content_summary": data.decision_summary,
+        "category": "technical_decision",
         "source_conversation_id": data.source_conversation_id,
         "source_message_id": data.source_message_id,
         "tags": data.tags,
         "created_by": user_id,
         "is_active": True,
-        "scope": "project" if data.project_id else "department",  # Project-scoped if linked
-        "auto_inject": False,  # User can enable later
-        "user_question": data.user_question  # Store the original question
+        "scope": "project" if data.project_id else "department",
+        "auto_inject": False,
     }
 
     # Add project_id if provided (links decision to project timeline)
@@ -1796,31 +1804,28 @@ async def create_decision(company_id: ValidCompanyId, data: DecisionCreate, user
     except Exception as e:
         print(f"[CREATE_DECISION] Summary generation failed (non-fatal): {e}", flush=True)
 
-    # Use body_md if available, fall back to summary for legacy data
-    body_md = entry.get("body_md", "")
-    content = body_md if body_md else entry.get("summary", "")
-
     decision = {
         "id": decision_id,
-        "title": ai_title,  # Use AI-generated title
-        "content": content,  # Full council response from body_md (with summary fallback)
-        "decision_summary": entry.get("decision_summary"),
-        "question_summary": entry.get("question_summary"),  # AI-summarized question
-        "user_question": entry.get("user_question"),
+        "title": ai_title,
+        "content": entry.get("content", ""),
+        "content_summary": entry.get("content_summary"),
+        "question_summary": entry.get("question_summary"),
+        "question": entry.get("question"),
         "tags": entry.get("tags", []),
         "category": entry.get("category"),
-        "department_id": entry.get("department_id"),
+        "department_ids": entry.get("department_ids", []),
         "project_id": entry.get("project_id"),
         "source_conversation_id": entry.get("source_conversation_id"),
         "created_at": entry.get("created_at"),
         "council_type": entry.get("council_type")
     }
 
-    # Log activity with AI-generated title (not raw question)
+    # Log activity with explicit action field (no title prefix)
     await log_activity(
         company_id=company_uuid,
         event_type="decision",
-        title=f"Saved: {ai_title}",
+        action="saved",
+        title=ai_title,
         description=data.content[:200] if data.content else None,
         department_id=data.department_id,
         related_id=decision_id,
@@ -1900,17 +1905,21 @@ async def promote_decision(company_id: ValidCompanyId, decision_id: ValidDecisio
         suffix += 1
         slug = f"{base_slug}-{suffix}"
 
-    # Get content from knowledge entry (use summary as content)
-    content = decision.data.get("summary", "") or decision.data.get("body_md", "") or ""
+    # Get content from knowledge entry
+    content = decision.data.get("content", "")
+
+    # Get first department from decision for playbook
+    decision_dept_ids = decision.data.get("department_ids") or []
+    first_dept_id = decision_dept_ids[0] if decision_dept_ids else None
 
     # Create the playbook (user_client for org_documents)
     doc_result = user_client.table("org_documents").insert({
         "company_id": company_uuid,
-        "department_id": decision.data.get("department_id"),
+        "department_id": first_dept_id,
         "doc_type": data.doc_type,
         "title": data.title,
         "slug": slug,
-        "summary": data.summary or decision.data.get("summary", ""),
+        "summary": data.summary or decision.data.get("content_summary", ""),
         "auto_inject": True
     }).execute()
 
@@ -1930,9 +1939,8 @@ async def promote_decision(company_id: ValidCompanyId, decision_id: ValidDecisio
         "created_by": user.get('id') if isinstance(user, dict) else user.id
     }).execute()
 
-    # Mark the decision as promoted
+    # Mark the decision as promoted (is_promoted derived from promoted_to_id)
     service_client.table("knowledge_entries").update({
-        "is_promoted": True,
         "promoted_to_id": doc_id,
         "promoted_to_type": data.doc_type
     }).eq("id", decision_id).execute()
@@ -1945,13 +1953,14 @@ async def promote_decision(company_id: ValidCompanyId, decision_id: ValidDecisio
     await log_activity(
         company_id=company_uuid,
         event_type="playbook",
-        title=f"Promoted: {data.title}",
+        action="promoted",
+        title=data.title,
         description=f"Promoted from decision: {decision.data['title']}",
-        department_id=decision.data.get("department_id"),
+        department_id=decision.data.get("department_ids", [None])[0] if decision.data.get("department_ids") else None,
         related_id=doc_id,
         related_type="playbook",
         conversation_id=decision.data.get("source_conversation_id"),
-        promoted_to_type=data.doc_type  # sop, framework, or policy
+        promoted_to_type=data.doc_type
     )
 
     return {
@@ -1987,28 +1996,24 @@ async def get_decision(company_id: ValidCompanyId, decision_id: ValidDecisionId,
     entry = result.data[0]
 
     # Transform to expected format
-    # Use body_md if available, fall back to summary for legacy data
-    body_md = entry.get("body_md", "")
-    content = body_md if body_md else entry.get("summary", "")
-
     decision = {
         "id": entry.get("id"),
         "title": entry.get("title"),
-        "content": content,  # Full council response from body_md (with summary fallback)
-        "user_question": entry.get("user_question", ""),  # Raw user question for context
-        "question_summary": entry.get("question_summary", ""),  # AI-summarized question
-        "decision_summary": entry.get("decision_summary", ""),  # AI-generated summary
+        "content": entry.get("content", ""),
+        "question": entry.get("question", ""),
+        "question_summary": entry.get("question_summary", ""),
+        "content_summary": entry.get("content_summary", ""),
         "tags": entry.get("tags", []),
         "category": entry.get("category"),
-        "department_id": entry.get("department_id"),
-        "department_ids": entry.get("department_ids") or ([entry.get("department_id")] if entry.get("department_id") else []),
+        "department_ids": entry.get("department_ids") or [],
         "project_id": entry.get("project_id"),
-        "is_promoted": entry.get("is_promoted", False),
+        "is_promoted": bool(entry.get("promoted_to_id") or entry.get("project_id")),
         "promoted_to_id": entry.get("promoted_to_id"),
-        "promoted_to_type": entry.get("promoted_to_type"),  # sop/framework/policy
-        "promoted_by_name": entry.get("promoted_by_name"),  # Who promoted it
-        "promoted_at": entry.get("promoted_at"),  # When it was promoted
+        "promoted_to_type": entry.get("promoted_to_type"),
+        "promoted_by_name": entry.get("promoted_by_name"),
+        "promoted_at": entry.get("promoted_at"),
         "source_conversation_id": entry.get("source_conversation_id"),
+        "response_index": entry.get("response_index"),
         "created_at": entry.get("created_at"),
         "updated_at": entry.get("updated_at"),
         "scope": entry.get("scope", "department"),
@@ -2065,7 +2070,7 @@ async def archive_decision(company_id: ValidCompanyId, decision_id: ValidDecisio
         try:
             # Get all remaining active decisions for this project
             remaining = service_client.table("knowledge_entries") \
-                .select("department_ids, department_id") \
+                .select("department_ids") \
                 .eq("project_id", project_id) \
                 .eq("is_active", True) \
                 .execute()
@@ -2077,10 +2082,6 @@ async def archive_decision(company_id: ValidCompanyId, decision_id: ValidDecisio
                 for did in dept_ids:
                     if did:
                         all_dept_ids.add(did)
-                # Also check legacy department_id field
-                legacy_dept = decision.get("department_id")
-                if legacy_dept and legacy_dept not in all_dept_ids:
-                    all_dept_ids.add(legacy_dept)
 
             # Update project's department_ids
             service_client.table("projects") \
@@ -2134,11 +2135,10 @@ async def link_decision_to_project(company_id: str, decision_id: str, data: Link
     if not project.data:
         raise HTTPException(status_code=404, detail="Resource not found")
 
-    # Update decision with project_id and mark as promoted to project
+    # Update decision with project_id (is_promoted derived from project_id)
     result = service_client.table("knowledge_entries") \
         .update({
             "project_id": data.project_id,
-            "is_promoted": True,
             "promoted_to_type": "project"
         }) \
         .eq("id", decision_id) \
@@ -2151,12 +2151,14 @@ async def link_decision_to_project(company_id: str, decision_id: str, data: Link
     _sync_project_departments_internal(data.project_id)
 
     # Log activity for linking decision to project
+    dept_ids = decision.data.get("department_ids") or []
     await log_activity(
         company_id=company_uuid,
         event_type="project",
-        title=f"Promoted: {decision.data.get('title', 'Decision')}",
+        action="promoted",
+        title=decision.data.get('title', 'Decision'),
         description=f"Linked to project: {project.data.get('name')}",
-        department_id=decision.data.get("department_id"),
+        department_id=dept_ids[0] if dept_ids else None,
         related_id=data.project_id,
         related_type="project",
         conversation_id=decision.data.get("source_conversation_id"),
@@ -2206,8 +2208,6 @@ async def create_project_from_decision(company_id: str, decision_id: str, data: 
     dept_ids = data.department_ids
     if not dept_ids:
         dept_ids = decision.data.get("department_ids") or []
-        if not dept_ids and decision.data.get("department_id"):
-            dept_ids = [decision.data.get("department_id")]
 
     # Get user_id properly (user can be dict or object)
     if isinstance(user, dict):
@@ -2220,15 +2220,8 @@ async def create_project_from_decision(company_id: str, decision_id: str, data: 
         raise HTTPException(status_code=401, detail="Could not determine user ID from authentication")
 
     # Generate project context using Sarah
-    # Try multiple fields where content might be stored
-    decision_content = (
-        decision.data.get("summary") or  # Full council response (most common)
-        decision.data.get("decision_summary") or  # Structured decision
-        decision.data.get("body_md") or  # Manual entry
-        decision.data.get("content") or  # Legacy field
-        ""
-    )
-    user_question = decision.data.get("user_question") or decision.data.get("title") or ""
+    decision_content = decision.data.get("content") or ""
+    user_question = decision.data.get("question") or decision.data.get("title") or ""
     project_name = data.name
 
     context_md = ""
@@ -2340,10 +2333,9 @@ CONTENT RULES:
         "description": description,
         "context_md": context_md if context_md else None,
         "status": "active",
-        "department_ids": dept_ids if dept_ids else None,
-        "department_id": dept_ids[0] if dept_ids else None,  # Legacy field
+        "department_ids": dept_ids if dept_ids else [],
         "source_conversation_id": decision.data.get("source_conversation_id"),
-        "source": "council"  # Mark as created from council decision
+        "source": "council"
     }).execute()
 
     if not project_result.data:
@@ -2355,19 +2347,20 @@ CONTENT RULES:
     service_client.table("knowledge_entries") \
         .update({
             "project_id": project_id,
-            "is_promoted": True,
             "promoted_to_type": "project"
         }) \
         .eq("id", decision_id) \
         .execute()
 
     # Log activity for creating project from decision
+    dept_ids = decision.data.get("department_ids") or []
     await log_activity(
         company_id=company_uuid,
         event_type="project",
-        title=f"Promoted: {decision.data.get('title', 'Decision')}",
+        action="promoted",
+        title=decision.data.get('title', 'Decision'),
         description=f"Created project: {data.name}",
-        department_id=decision.data.get("department_id"),
+        department_id=dept_ids[0] if dept_ids else None,
         related_id=project_id,
         related_type="project",
         conversation_id=decision.data.get("source_conversation_id"),
@@ -2443,43 +2436,35 @@ async def get_project_decisions(
     # Transform decisions to expected format
     decisions = []
     for entry in decisions_result.data or []:
-        dept_id = entry.get("department_id")
-        dept_ids = entry.get("department_ids") or ([dept_id] if dept_id else [])
-        dept_info = dept_map.get(dept_id, {}) if dept_id else {}
+        dept_ids = entry.get("department_ids") or []
+        first_dept_id = dept_ids[0] if dept_ids else None
+        dept_info = dept_map.get(first_dept_id, {}) if first_dept_id else {}
 
-        # Build list of department info for all departments
+        # Build list of department names
         dept_names = []
         for did in dept_ids:
             d = dept_map.get(did, {})
             if d.get("name"):
                 dept_names.append(d.get("name"))
 
-        # Debug: log what's in the database
-        body_md = entry.get("body_md", "")
-        summary = entry.get("summary", "")
-        print(f"[DECISION] id={entry.get('id')[:8]}... body_md={len(body_md) if body_md else 0} chars, summary={len(summary) if summary else 0} chars", flush=True)
-
-        # Use body_md if available, fall back to summary for legacy data
-        content = body_md if body_md else summary
-
         decisions.append({
             "id": entry.get("id"),
             "title": entry.get("title"),
-            "content": content,  # Full council response from body_md (with summary fallback)
-            "decision_summary": entry.get("decision_summary"),  # Clean prose summary for display
-            "user_question": entry.get("user_question"),  # The original question (may be raw)
+            "content": entry.get("content", ""),
+            "content_summary": entry.get("content_summary"),
+            "question": entry.get("question"),
+            "question_summary": entry.get("question_summary"),
             "tags": entry.get("tags", []),
             "category": entry.get("category"),
-            "department_id": dept_id,  # Primary for backwards compat
-            "department_ids": dept_ids,  # All departments
-            "department_name": dept_info.get("name"),  # Primary for backwards compat
-            "department_names": dept_names,  # All department names
+            "department_ids": dept_ids,
+            "department_name": dept_info.get("name"),
+            "department_names": dept_names,
             "department_slug": dept_info.get("slug"),
             "source_conversation_id": entry.get("source_conversation_id"),
-            "response_index": entry.get("response_index"),  # For linking to specific response in multi-turn
+            "response_index": entry.get("response_index"),
             "created_at": entry.get("created_at"),
             "council_type": entry.get("council_type"),
-            "is_promoted": entry.get("is_promoted", False),
+            "is_promoted": bool(entry.get("promoted_to_id") or entry.get("project_id")),
             "promoted_to_id": entry.get("promoted_to_id")
         })
 
@@ -2499,7 +2484,7 @@ def _sync_project_departments_internal(project_id: str):
 
     # Get all active decisions for this project
     decisions_result = service_client.table("knowledge_entries") \
-        .select("department_ids, department_id") \
+        .select("department_ids") \
         .eq("project_id", project_id) \
         .eq("is_active", True) \
         .execute()
@@ -2513,10 +2498,6 @@ def _sync_project_departments_internal(project_id: str):
         for did in dept_ids:
             if did:
                 all_dept_ids.add(did)
-        # Also check legacy department_id field
-        legacy_dept = decision.get("department_id")
-        if legacy_dept and legacy_dept not in all_dept_ids:
-            all_dept_ids.add(legacy_dept)
 
     # Update project's department_ids
     updated_dept_ids = list(all_dept_ids) if all_dept_ids else None
@@ -2924,6 +2905,7 @@ async def log_activity(
     company_id: str,
     event_type: str,
     title: str,
+    action: str = "created",
     description: Optional[str] = None,
     department_id: Optional[str] = None,
     related_id: Optional[str] = None,
@@ -2939,7 +2921,8 @@ async def log_activity(
     Args:
         company_id: Company UUID
         event_type: Type of event (decision, playbook, role, department, council_session)
-        title: Short title for the activity
+        title: Short title for the activity (clean, no action prefix)
+        action: Explicit action type (saved, promoted, deleted, created, updated, archived, consulted)
         description: Optional longer description
         department_id: Optional department UUID
         related_id: Optional UUID of related entity
@@ -2953,6 +2936,7 @@ async def log_activity(
     data = {
         "company_id": company_id,
         "event_type": event_type,
+        "action": action,
         "title": title,
         "description": description,
         "department_id": department_id,

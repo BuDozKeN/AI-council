@@ -263,8 +263,8 @@ async def download_attachment(
     """
     client = get_supabase_with_auth(access_token)
 
-    # Get attachment record (RLS ensures user owns it)
-    result = client.table("attachments").select("*").eq("id", attachment_id).execute()
+    # Get only needed columns (RLS ensures user owns it)
+    result = client.table("attachments").select("id, storage_path, file_type, file_name").eq("id", attachment_id).execute()
 
     if not result.data:
         return None
@@ -308,8 +308,10 @@ async def get_attachment_data(
     """
     client = get_supabase_with_auth(access_token)
 
-    # Get attachment record (RLS ensures user owns it)
-    result = client.table("attachments").select("*").eq("id", attachment_id).execute()
+    # Get only needed columns (RLS ensures user owns it)
+    result = client.table("attachments").select(
+        "id, file_name, file_type, file_size, storage_path, created_at"
+    ).eq("id", attachment_id).execute()
 
     if not result.data:
         return None

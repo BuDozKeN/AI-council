@@ -4,9 +4,82 @@
  * Extracted from Sidebar.jsx for better maintainability.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { api } from '../../api';
 import { useAuth } from '../../AuthContext';
+
+// Timing constants - kept in sync with CSS tokens in tailwind.css
+// These are the JS equivalents of --sidebar-hover-delay and --sidebar-collapse-delay
+const SIDEBAR_HOVER_DELAY = 100;
+const SIDEBAR_COLLAPSE_DELAY = 300;
+
+/**
+ * Hook to manage hover expansion behavior for sidebar icons
+ * Encapsulates timeout logic for entering/leaving hover states
+ *
+ * @param {Object} options
+ * @param {boolean} options.isPinned - Whether sidebar is pinned open
+ * @param {number} options.hoverDelay - Delay before expanding (default: 150ms)
+ * @param {number} options.collapseDelay - Delay before collapsing (default: 200ms)
+ */
+export function useHoverExpansion({ isPinned = false, hoverDelay = SIDEBAR_HOVER_DELAY, collapseDelay = SIDEBAR_COLLAPSE_DELAY } = {}) {
+  const [hoveredIcon, setHoveredIcon] = useState(null);
+  const timeoutRef = useRef(null);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  // Clear any pending timeout
+  const clearPendingTimeout = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  }, []);
+
+  // Handle hover on specific icon
+  const handleIconHover = useCallback((iconName) => {
+    clearPendingTimeout();
+    timeoutRef.current = setTimeout(() => {
+      setHoveredIcon(iconName);
+    }, hoverDelay);
+  }, [clearPendingTimeout, hoverDelay]);
+
+  // Handle leaving an icon
+  const handleIconLeave = useCallback(() => {
+    clearPendingTimeout();
+    timeoutRef.current = setTimeout(() => {
+      setHoveredIcon(null);
+    }, collapseDelay);
+  }, [clearPendingTimeout, collapseDelay]);
+
+  // Keep expanded while mouse is in the expanded area
+  const handleExpandedAreaEnter = useCallback(() => {
+    clearPendingTimeout();
+  }, [clearPendingTimeout]);
+
+  // Start collapsing when leaving expanded area (unless pinned)
+  const handleExpandedAreaLeave = useCallback(() => {
+    if (!isPinned) {
+      clearPendingTimeout();
+      timeoutRef.current = setTimeout(() => {
+        setHoveredIcon(null);
+      }, hoverDelay);
+    }
+  }, [isPinned, clearPendingTimeout, hoverDelay]);
+
+  return {
+    hoveredIcon,
+    handleIconHover,
+    handleIconLeave,
+    handleExpandedAreaEnter,
+    handleExpandedAreaLeave,
+  };
+}
 
 // Dev mode flag - set to true to show developer controls
 export const DEV_MODE = typeof window !== 'undefined' && localStorage.getItem('devMode') === 'true';

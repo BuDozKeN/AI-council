@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { api } from '../api';
 import MarkdownViewer from './MarkdownViewer';
 import ProjectModal from './ProjectModal';
@@ -11,25 +11,34 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Spinner } from './ui/Spinner';
 import { Skeleton } from './ui/Skeleton';
 import { AIWriteAssist } from './ui/AIWriteAssist';
-import { Building2, Bookmark, FolderKanban, CheckCircle, Archive, RotateCcw, ExternalLink, Trash2, Sparkles, PenLine, RefreshCw, Users, UserPlus, BookOpen, BarChart3, Lightbulb, ClipboardList } from 'lucide-react';
+import { Building2, Bookmark, FolderKanban, CheckCircle, Archive, RotateCcw, ExternalLink, Trash2, Sparkles, PenLine, RefreshCw, Users, BookOpen, BarChart3, Lightbulb, ClipboardList } from 'lucide-react';
 import { getDeptColor } from '../lib/colors';
+// Eagerly load small/simple modals
 import {
   AddDepartmentModal,
   AddRoleModal,
   AddPlaybookModal,
-  ViewProjectModal,
-  ViewPlaybookModal,
-  PromoteDecisionModal,
   ConfirmModal,
   AlertModal,
-  ViewDepartmentModal,
-  ViewRoleModal,
-  ViewCompanyContextModal,
-  ViewDecisionModal
 } from './mycompany/modals';
-import { ActivityTab, OverviewTab, TeamTab, MembersTab, PlaybooksTab, ProjectsTab, DecisionsTab } from './mycompany/tabs';
-import { useAuth } from '../AuthContext';
+// Lazy load large/complex modals to reduce initial bundle size
+const ViewProjectModal = lazy(() => import('./mycompany/modals/ViewProjectModal').then(m => ({ default: m.ViewProjectModal })));
+const ViewPlaybookModal = lazy(() => import('./mycompany/modals/ViewPlaybookModal').then(m => ({ default: m.ViewPlaybookModal })));
+const PromoteDecisionModal = lazy(() => import('./mycompany/modals/PromoteDecisionModal').then(m => ({ default: m.PromoteDecisionModal })));
+const ViewDepartmentModal = lazy(() => import('./mycompany/modals/ViewDepartmentModal').then(m => ({ default: m.ViewDepartmentModal })));
+const ViewRoleModal = lazy(() => import('./mycompany/modals/ViewRoleModal').then(m => ({ default: m.ViewRoleModal })));
+const ViewCompanyContextModal = lazy(() => import('./mycompany/modals/ViewCompanyContextModal').then(m => ({ default: m.ViewCompanyContextModal })));
+const ViewDecisionModal = lazy(() => import('./mycompany/modals/ViewDecisionModal').then(m => ({ default: m.ViewDecisionModal })));
+
+import { ActivityTab, OverviewTab, TeamTab, PlaybooksTab, ProjectsTab, DecisionsTab } from './mycompany/tabs';
 import './MyCompany.css';
+
+// Loading fallback for lazy-loaded modals
+const ModalLoadingFallback = () => (
+  <div className="modal-loading-fallback" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+    <Spinner size="lg" />
+  </div>
+);
 
 /**
  * My Company - Unified interface for company management
@@ -41,7 +50,6 @@ import './MyCompany.css';
  * - Decisions: Saved council outputs with "promote to playbook" feature
  */
 export default function MyCompany({ companyId, companyName, allCompanies = [], onSelectCompany, onClose, onNavigateToConversation, initialTab = 'overview', initialDecisionId = null, initialPlaybookId = null, initialProjectId = null, initialPromoteDecision = null, onConsumePromoteDecision = null }) {
-  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState(initialTab);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -276,8 +284,8 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
     api.getCompanyDecisions(companyId)
       .then(data => {
         const allDecisions = data.decisions || [];
-        // Pending = not promoted AND not linked to a project
-        const pending = allDecisions.filter(d => !d.is_promoted && !d.project_id);
+        // Pending = not promoted (has promoted_to_id) AND not linked to a project
+        const pending = allDecisions.filter(d => !d.promoted_to_id && !d.project_id);
         setPendingDecisionsCount(pending.length);
       })
       .catch(err => {
@@ -289,8 +297,8 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
   // Update count when decisions change (e.g., after promoting)
   useEffect(() => {
     if (decisions.length > 0 || activeTab === 'decisions') {
-      // Pending = not promoted AND not linked to a project
-      const pending = decisions.filter(d => !d.is_promoted && !d.project_id);
+      // Pending = not promoted (has promoted_to_id) AND not linked to a project
+      const pending = decisions.filter(d => !d.promoted_to_id && !d.project_id);
       setPendingDecisionsCount(pending.length);
     }
   }, [decisions, activeTab]);
@@ -467,9 +475,7 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
         await api.promoteDecisionToPlaybook(companyId, promoteModal.id, {
           doc_type: docType,
           title: title || promoteModal.title,
-          // Support both single department_id (backwards compat) and array
-          department_id: departmentIds?.[0] || promoteModal.department_id,
-          department_ids: departmentIds?.length > 0 ? departmentIds : null
+          department_ids: departmentIds || []  // Use canonical array field
         });
       }
       setPromoteModal(null);
@@ -671,13 +677,16 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
     try {
       // Generate slug from title
       const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      // Combine primary and additional departments into single array
+      const allDeptIds = departmentId
+        ? [departmentId, ...(additionalDepartments || [])]
+        : (additionalDepartments || []);
       await api.createCompanyPlaybook(companyId, {
         title,
         slug,
         doc_type: docType,
         content,
-        department_id: departmentId || null,
-        additional_departments: additionalDepartments
+        department_ids: allDeptIds  // Use canonical array field
       });
       await loadData();
       setShowAddForm(null);
@@ -799,126 +808,147 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
     return null;
   };
 
-  // Render view/edit modals
+  // Render view/edit modals (lazy-loaded modals are wrapped in Suspense)
   const renderEditingModal = () => {
     if (!editingItem) return null;
 
+    // Wrap lazy-loaded modals in Suspense
+    const LazyWrapper = ({ children }) => (
+      <Suspense fallback={<ModalLoadingFallback />}>
+        {children}
+      </Suspense>
+    );
+
     if (editingItem.type === 'company-context') {
       return (
-        <ViewCompanyContextModal
-          data={editingItem.data}
-          companyName={companyName}
-          onClose={() => setEditingItem(null)}
-          onSave={handleUpdateCompanyContext}
-        />
+        <LazyWrapper>
+          <ViewCompanyContextModal
+            data={editingItem.data}
+            companyName={companyName}
+            onClose={() => setEditingItem(null)}
+            onSave={handleUpdateCompanyContext}
+          />
+        </LazyWrapper>
       );
     }
 
     if (editingItem.type === 'company-context-view') {
       return (
-        <ViewCompanyContextModal
-          data={editingItem.data}
-          companyName={companyName}
-          onClose={() => setEditingItem(null)}
-          onSave={handleUpdateCompanyContext}
-          initialEditing={false}
-          fullscreen={true}
-        />
+        <LazyWrapper>
+          <ViewCompanyContextModal
+            data={editingItem.data}
+            companyName={companyName}
+            onClose={() => setEditingItem(null)}
+            onSave={handleUpdateCompanyContext}
+            initialEditing={false}
+            fullscreen={true}
+          />
+        </LazyWrapper>
       );
     }
 
     if (editingItem.type === 'department') {
       return (
-        <ViewDepartmentModal
-          department={editingItem.data}
-          onClose={() => setEditingItem(null)}
-          onSave={handleUpdateDepartment}
-        />
+        <LazyWrapper>
+          <ViewDepartmentModal
+            department={editingItem.data}
+            onClose={() => setEditingItem(null)}
+            onSave={handleUpdateDepartment}
+          />
+        </LazyWrapper>
       );
     }
 
     if (editingItem.type === 'role') {
       return (
-        <ViewRoleModal
-          role={editingItem.data}
-          onClose={() => setEditingItem(null)}
-          onSave={handleUpdateRole}
-        />
+        <LazyWrapper>
+          <ViewRoleModal
+            role={editingItem.data}
+            onClose={() => setEditingItem(null)}
+            onSave={handleUpdateRole}
+          />
+        </LazyWrapper>
       );
     }
 
     if (editingItem.type === 'playbook') {
       return (
-        <ViewPlaybookModal
-          playbook={editingItem.data}
-          departments={departments}
-          onClose={() => setEditingItem(null)}
-          onSave={handleUpdatePlaybook}
-          startEditing={editingItem.startEditing || false}
-        />
+        <LazyWrapper>
+          <ViewPlaybookModal
+            playbook={editingItem.data}
+            departments={departments}
+            onClose={() => setEditingItem(null)}
+            onSave={handleUpdatePlaybook}
+            startEditing={editingItem.startEditing || false}
+          />
+        </LazyWrapper>
       );
     }
 
     if (editingItem.type === 'decision') {
       return (
-        <ViewDecisionModal
-          decision={editingItem.data}
-          departments={departments}
-          playbooks={playbooks}
-          projects={projects}
-          onClose={() => setEditingItem(null)}
-          onPromote={(decision) => {
-            setEditingItem(null); // Close view modal
-            setPromoteModal(decision); // Open promote modal
-          }}
-          onViewProject={(projectId) => {
-            setEditingItem(null); // Close decision modal
-            const project = projects.find(p => p.id === projectId);
-            if (project) {
-              setEditingItem({ type: 'project', data: project });
-            }
-          }}
-          onNavigateToConversation={(conversationId, source, responseIndex) => {
-            setEditingItem(null); // Close modal
-            if (onNavigateToConversation) {
-              onNavigateToConversation(conversationId, source, responseIndex);
-            }
-          }}
-        />
+        <LazyWrapper>
+          <ViewDecisionModal
+            decision={editingItem.data}
+            departments={departments}
+            playbooks={playbooks}
+            projects={projects}
+            onClose={() => setEditingItem(null)}
+            onPromote={(decision) => {
+              setEditingItem(null); // Close view modal
+              setPromoteModal(decision); // Open promote modal
+            }}
+            onViewProject={(projectId) => {
+              setEditingItem(null); // Close decision modal
+              const project = projects.find(p => p.id === projectId);
+              if (project) {
+                setEditingItem({ type: 'project', data: project });
+              }
+            }}
+            onNavigateToConversation={(conversationId, source, responseIndex) => {
+              setEditingItem(null); // Close modal
+              if (onNavigateToConversation) {
+                onNavigateToConversation(conversationId, source, responseIndex);
+              }
+            }}
+          />
+        </LazyWrapper>
       );
     }
 
     if (editingItem.type === 'project') {
       return (
-        <ViewProjectModal
-          project={editingItem.data}
-          companyId={companyId}
-          departments={departments}
-          onClose={() => setEditingItem(null)}
-          onSave={handleUpdateProject}
-          onNavigateToConversation={onNavigateToConversation}
-          onProjectUpdate={(projectId, updates) => {
-            // Update project in the list with new department_ids from sync
-            setProjects(prev => prev.map(p =>
-              p.id === projectId ? { ...p, ...updates } : p
-            ));
-          }}
-          onStatusChange={async (projectId, newStatus) => {
-            // Handle status changes from modal (complete, archive, restore)
-            await api.updateProject(projectId, { status: newStatus });
-            setProjects(prev => prev.map(p =>
-              p.id === projectId ? { ...p, status: newStatus } : p
-            ));
-            // Close modal after status change
-            setEditingItem(null);
-          }}
-          onDelete={async (projectId) => {
-            // Handle delete from modal
-            await api.deleteProject(projectId);
-            setProjects(prev => prev.filter(p => p.id !== projectId));
-            setEditingItem(null);
-          }}
-        />
+        <LazyWrapper>
+          <ViewProjectModal
+            project={editingItem.data}
+            companyId={companyId}
+            departments={departments}
+            onClose={() => setEditingItem(null)}
+            onSave={handleUpdateProject}
+            onNavigateToConversation={onNavigateToConversation}
+            onProjectUpdate={(projectId, updates) => {
+              // Update project in the list with new department_ids from sync
+              setProjects(prev => prev.map(p =>
+                p.id === projectId ? { ...p, ...updates } : p
+              ));
+            }}
+            onStatusChange={async (projectId, newStatus) => {
+              // Handle status changes from modal (complete, archive, restore)
+              await api.updateProject(projectId, { status: newStatus });
+              setProjects(prev => prev.map(p =>
+                p.id === projectId ? { ...p, status: newStatus } : p
+              ));
+              // Close modal after status change
+              setEditingItem(null);
+            }}
+            onDelete={async (projectId) => {
+              // Handle delete from modal
+              await api.deleteProject(projectId);
+              setProjects(prev => prev.filter(p => p.id !== projectId));
+              setEditingItem(null);
+            }}
+          />
+        </LazyWrapper>
       );
     }
 
@@ -995,7 +1025,6 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
           {[
             { id: 'overview', label: 'Overview', Icon: BarChart3, tooltip: 'Company summary: see your stats, description, and company context at a glance' },
             { id: 'team', label: 'Team', Icon: Users, tooltip: 'Your departments and roles: manage the structure of your organization' },
-            { id: 'members', label: 'Members', Icon: UserPlus, tooltip: 'Manage company members: add team members, assign roles, view usage' },
             { id: 'projects', label: 'Projects', Icon: FolderKanban, tooltip: 'Organize your work: group related council sessions and track progress' },
             { id: 'playbooks', label: 'Playbooks', Icon: BookOpen, tooltip: 'Your knowledge library: SOPs, frameworks, and policies the AI council uses' },
             { id: 'decisions', label: 'Decisions', Icon: Lightbulb, tooltip: 'Saved council outputs: review, archive, or promote decisions to playbooks' },
@@ -1155,12 +1184,6 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
                   onViewRole={(role) => setEditingItem({ type: 'role', data: role })}
                 />
               )}
-              {activeTab === 'members' && (
-                <MembersTab
-                  companyId={companyId}
-                  currentUserId={user?.id}
-                />
-              )}
               {activeTab === 'projects' && (
                 <ProjectsTab
                   projects={projects}
@@ -1235,24 +1258,26 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
 
         {/* Promote Decision Modal */}
         {promoteModal && (
-          <PromoteDecisionModal
-            decision={promoteModal}
-            departments={departments}
-            projects={projects}
-            companyId={companyId}
-            onPromote={handleConfirmPromote}
-            onClose={() => setPromoteModal(null)}
-            saving={saving}
-            onViewSource={(convId) => {
-              // Store the decision so we can re-open the modal when returning
-              const decisionToRestore = promoteModal;
-              setPromoteModal(null);
-              if (onNavigateToConversation) {
-                // Pass the decision object as 3rd argument to restore modal on return
-                onNavigateToConversation(convId, 'decisions', decisionToRestore);
-              }
-            }}
-          />
+          <Suspense fallback={<ModalLoadingFallback />}>
+            <PromoteDecisionModal
+              decision={promoteModal}
+              departments={departments}
+              projects={projects}
+              companyId={companyId}
+              onPromote={handleConfirmPromote}
+              onClose={() => setPromoteModal(null)}
+              saving={saving}
+              onViewSource={(convId) => {
+                // Store the decision so we can re-open the modal when returning
+                const decisionToRestore = promoteModal;
+                setPromoteModal(null);
+                if (onNavigateToConversation) {
+                  // Pass the decision object as 3rd argument to restore modal on return
+                  onNavigateToConversation(convId, 'decisions', decisionToRestore);
+                }
+              }}
+            />
+          </Suspense>
         )}
 
         {confirmModal && (

@@ -60,8 +60,8 @@ export function ViewDecisionModal({
     ? projects.find(p => p.id === decision.project_id)
     : null;
 
-  // Decision is "promoted" if it's either a playbook OR a project
-  const isAlreadyPromoted = decision.is_promoted || decision.project_id;
+  // Decision is "promoted" if it has promoted_to_id OR is linked to a project
+  const isAlreadyPromoted = decision.promoted_to_id || decision.project_id;
 
   // Get type from linked playbook OR decision's promoted_to_type
   // Decision.promoted_to_type is set when promoted (sop/framework/policy/project)
@@ -107,10 +107,10 @@ export function ViewDecisionModal({
   return (
     <AppModal isOpen={true} onClose={onClose} title={decision.title} size="lg">
       {/* User question - show AI summary if available, fall back to raw question */}
-      {(decision.question_summary || decision.user_question) && (
+      {(decision.question_summary || decision.question) && (
         <div className="mc-decision-question">
           <span className="mc-decision-question-label">Question:</span>
-          <p className="mc-decision-question-text">{decision.question_summary || decision.user_question}</p>
+          <p className="mc-decision-question-text">{decision.question_summary || decision.question}</p>
         </div>
       )}
 
@@ -129,7 +129,7 @@ export function ViewDecisionModal({
               {linkedProject.name} →
             </button>
           </div>
-        ) : decision.is_promoted ? (
+        ) : decision.promoted_to_id ? (
           <div className="mc-promoted-info-row">
             <span className="mc-promoted-label">
               <span className="icon">✓</span>

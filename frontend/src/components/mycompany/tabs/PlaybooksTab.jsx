@@ -10,6 +10,7 @@
  * Extracted from MyCompany.jsx for better maintainability.
  */
 
+import { useMemo } from 'react';
 import { BookOpen } from 'lucide-react';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { getDeptColor } from '../../../lib/colors';
@@ -43,28 +44,37 @@ export function PlaybooksTab({
   onArchivePlaybook,
   onDeletePlaybook
 }) {
-  // Calculate stats from ALL playbooks (for stat cards)
-  const allSops = playbooks.filter(p => p.doc_type === 'sop');
-  const allFrameworks = playbooks.filter(p => p.doc_type === 'framework');
-  const allPolicies = playbooks.filter(p => p.doc_type === 'policy');
+  // Memoize stats to prevent recalculation on every render
+  const stats = useMemo(() => ({
+    sops: playbooks.filter(p => p.doc_type === 'sop').length,
+    frameworks: playbooks.filter(p => p.doc_type === 'framework').length,
+    policies: playbooks.filter(p => p.doc_type === 'policy').length,
+  }), [playbooks]);
 
-  // Filter playbooks based on filters (client-side)
-  const filteredPlaybooks = playbooks
-    .filter(pb => {
-      const matchesType = playbookTypeFilter === 'all' || pb.doc_type === playbookTypeFilter;
-      // Multi-select department filter
-      const matchesDept = playbookDeptFilter.length === 0 ||
-        playbookDeptFilter.includes(pb.department_id) ||
-        (pb.additional_departments || []).some(id => playbookDeptFilter.includes(id));
-      return matchesType && matchesDept;
-    })
-    .sort((a, b) => a.title.localeCompare(b.title)); // Alphabetical order
+  // Memoize filtered and grouped playbooks
+  const { filteredPlaybooks, groupedPlaybooks } = useMemo(() => {
+    const filtered = playbooks
+      .filter(pb => {
+        const matchesType = playbookTypeFilter === 'all' || pb.doc_type === playbookTypeFilter;
+        const matchesDept = playbookDeptFilter.length === 0 ||
+          playbookDeptFilter.includes(pb.department_id) ||
+          (pb.additional_departments || []).some(id => playbookDeptFilter.includes(id));
+        return matchesType && matchesDept;
+      })
+      .sort((a, b) => a.title.localeCompare(b.title));
 
-  // Group filtered playbooks by type
-  const groupedPlaybooks = DOC_TYPES.reduce((acc, type) => {
-    acc[type] = filteredPlaybooks.filter(p => p.doc_type === type);
-    return acc;
-  }, {});
+    const grouped = DOC_TYPES.reduce((acc, type) => {
+      acc[type] = filtered.filter(p => p.doc_type === type);
+      return acc;
+    }, {});
+
+    return { filteredPlaybooks: filtered, groupedPlaybooks: grouped };
+  }, [playbooks, playbookTypeFilter, playbookDeptFilter]);
+
+  // For backward compatibility with stat card rendering
+  const allSops = { length: stats.sops };
+  const allFrameworks = { length: stats.frameworks };
+  const allPolicies = { length: stats.policies };
 
   if (playbooks.length === 0) {
     return (

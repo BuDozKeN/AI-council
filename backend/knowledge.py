@@ -9,9 +9,9 @@ def create_knowledge_entry(
     user_id: str,
     company_id: str,
     title: str,
-    summary: str,
+    summary: str,  # Legacy: maps to content
     category: str,
-    department_id: Optional[str] = None,
+    department_id: Optional[str] = None,  # Legacy: single department
     role_id: Optional[str] = None,
     project_id: Optional[str] = None,
     source_conversation_id: Optional[str] = None,
@@ -22,13 +22,16 @@ def create_knowledge_entry(
     decision_text: Optional[str] = None,
     reasoning: Optional[str] = None,
     status: str = "active",
-    # Framework/SOP fields
-    body_md: Optional[str] = None,
+    # Content fields
+    body_md: Optional[str] = None,  # Legacy: prefer content
+    content: Optional[str] = None,  # Canonical content field
+    question: Optional[str] = None,  # Original user question
     version: str = "v1",
     # New consolidation fields
     auto_inject: bool = False,
     scope: str = "department",  # 'company', 'department', 'project'
-    tags: Optional[List[str]] = None
+    tags: Optional[List[str]] = None,
+    department_ids: Optional[List[str]] = None  # Canonical departments
 ) -> Optional[Dict[str, Any]]:
     """Create a new knowledge entry with structured decision fields.
 
@@ -49,14 +52,21 @@ def create_knowledge_entry(
 
     client = get_supabase_service()
 
+    # Use canonical department_ids array
+    dept_ids = department_ids if department_ids else ([department_id] if department_id else [])
+
+    # Use canonical content field, fall back to body_md or summary
+    canonical_content = content or body_md or summary or ""
+
     data = {
         "company_id": company_id,
-        "department_id": department_id,
+        "department_ids": dept_ids,  # Canonical: use array
         "role_id": role_id,
         "project_id": project_id,
         "category": category,
         "title": title,
-        "summary": summary,
+        "content": canonical_content,  # Canonical: single content field
+        "question": question,  # Original user question
         "source_conversation_id": source_conversation_id,
         "source_message_id": source_message_id,
         "created_by": user_id,
@@ -66,8 +76,7 @@ def create_knowledge_entry(
         "decision_text": decision_text,
         "reasoning": reasoning,
         "status": status,
-        # Framework/SOP fields
-        "body_md": body_md,
+        # Version
         "version": version,
         # Consolidation fields
         "auto_inject": auto_inject,
@@ -120,8 +129,9 @@ def get_knowledge_entries(
     if project_id:
         query = query.eq("project_id", project_id)
     elif department_id:
-        # Get entries for specific department OR company-wide (NULL department)
-        query = query.or_(f"department_id.eq.{department_id},department_id.is.null")
+        # Get entries that include this department in their department_ids array
+        # Uses PostgreSQL array containment operator
+        query = query.contains("department_ids", [department_id])
 
     # Filter by category
     if category:

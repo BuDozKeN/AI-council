@@ -7,17 +7,12 @@ Now uses Supabase database for all context:
 """
 
 from typing import Optional, List, Dict, Any
-from pathlib import Path
 import re
 
 from . import storage
 from . import knowledge
 from .database import get_supabase_service
-
-
-# Legacy path constant for backwards compatibility with curator.py
-# Note: This folder is DEPRECATED - all context now comes from Supabase
-CONTEXTS_DIR = Path(__file__).parent.parent / "councils" / "organisations"
+from .utils.cache import company_cache, cache_key
 
 
 # UUID v4 regex pattern for validation
@@ -212,6 +207,33 @@ def get_company_departments(company_id: str) -> List[Dict[str, Any]]:
     except Exception as e:
         print(f"Error loading departments from DB: {e}")
         return []
+
+
+async def get_company_departments_cached(company_id: str) -> List[Dict[str, Any]]:
+    """
+    Get all departments for a company with caching (5 minute TTL).
+
+    Args:
+        company_id: The company UUID
+
+    Returns:
+        List of department dicts with id, name, slug, description
+    """
+    key = cache_key("deps", company_id)
+
+    # Try cache first
+    cached = await company_cache.get(key)
+    if cached is not None:
+        return cached
+
+    # Cache miss - fetch from database
+    departments = get_company_departments(company_id)
+
+    # Cache the result
+    if departments:
+        await company_cache.set(key, departments)
+
+    return departments
 
 
 def get_department_roles(department_id: str) -> List[Dict[str, Any]]:

@@ -25,16 +25,13 @@ export function PromoteDecisionModal({ decision, departments, projects = [], com
   const hasExistingProject = !!decision?.project_id;
   const [docType, setDocType] = useState(hasExistingProject ? 'project' : 'sop');
   const [title, setTitle] = useState(decision?.title || '');
-  // Initialize with decision's department_ids or fall back to single department_id
-  const initialDeptIds = decision?.department_ids?.length > 0
-    ? decision.department_ids
-    : (decision?.department_id ? [decision.department_id] : []);
-  const [departmentIds, setDepartmentIds] = useState(initialDeptIds);
+  // Initialize with decision's department_ids
+  const [departmentIds, setDepartmentIds] = useState(decision?.department_ids || []);
   // For project selection - pre-select if decision already has a project
   const [selectedProjectId, setSelectedProjectId] = useState(decision?.project_id || '');
 
-  // Summary state - use decision_summary (Sarah's AI summary) if available
-  const [summary, setSummary] = useState(decision?.decision_summary || '');
+  // Summary state - use content_summary (AI summary) if available
+  const [summary, setSummary] = useState(decision?.content_summary || '');
   const [generatingSummary, setGeneratingSummary] = useState(false);
   const [summaryExpanded, setSummaryExpanded] = useState(false);
 
@@ -55,7 +52,7 @@ export function PromoteDecisionModal({ decision, departments, projects = [], com
 
   // Auto-generate summary if missing and we have companyId
   useEffect(() => {
-    if (!summary && decision?.user_question && companyId && decision?.id) {
+    if (!summary && decision?.question && companyId && decision?.id) {
       // Don't auto-generate - let user trigger it if they want
       // This avoids unnecessary API calls
     }

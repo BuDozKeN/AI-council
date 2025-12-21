@@ -508,75 +508,6 @@ def delete_conversation(conversation_id: str, access_token: Optional[str] = None
     return True
 
 
-def save_curator_run(
-    conversation_id: str,
-    business_id: str,
-    suggestions_count: int,
-    accepted_count: int,
-    rejected_count: int,
-    access_token: Optional[str] = None
-):
-    """
-    Record that the curator was run on this conversation.
-
-    Args:
-        conversation_id: Conversation identifier
-        business_id: Business context that was analyzed
-        suggestions_count: Total suggestions generated
-        accepted_count: Number of suggestions accepted
-        rejected_count: Number of suggestions rejected
-        access_token: User's JWT access token for RLS authentication
-    """
-    supabase = _get_client(access_token)
-    now = datetime.utcnow().isoformat() + 'Z'
-
-    # Get current conversation
-    result = supabase.table('conversations').select('curator_history').eq('id', conversation_id).execute()
-
-    if not result.data:
-        raise ValueError(f"Conversation {conversation_id} not found")
-
-    curator_history = result.data[0].get('curator_history') or []
-    curator_history.append({
-        "analyzed_at": now,
-        "business_id": business_id,
-        "suggestions_count": suggestions_count,
-        "accepted_count": accepted_count,
-        "rejected_count": rejected_count
-    })
-
-    supabase.table('conversations').update({
-        'curator_history': curator_history,
-        'updated_at': now
-    }).eq('id', conversation_id).execute()
-
-
-def get_curator_history(conversation_id: str, access_token: Optional[str] = None) -> Optional[List[Dict[str, Any]]]:
-    """
-    Get curator run history for a conversation.
-
-    Args:
-        conversation_id: Conversation identifier
-        access_token: User's JWT access token for RLS authentication
-
-    Returns:
-        List of curator run records or None if conversation not found
-    """
-    supabase = _get_client(access_token)
-
-    try:
-        result = supabase.table('conversations').select('curator_history').eq('id', conversation_id).execute()
-
-        if not result.data:
-            return None
-
-        return result.data[0].get('curator_history') or []
-    except Exception as e:
-        # Column may not exist yet - return empty list
-        print(f"[STORAGE] curator_history query failed: {e}", flush=True)
-        return []
-
-
 # ============================================
 # PROJECT FUNCTIONS
 # ============================================
@@ -653,14 +584,13 @@ def create_project(
         "context_md": context_md,
         "source": source
     }
-    # Handle department assignment - prefer department_ids array if provided
+    # Handle department assignment - use department_ids array only
     if department_ids and len(department_ids) > 0:
         insert_data["department_ids"] = department_ids
-        # Also set legacy department_id to first department for backwards compatibility
-        insert_data["department_id"] = department_ids[0]
     elif department_id:
-        insert_data["department_id"] = department_id
         insert_data["department_ids"] = [department_id]
+    else:
+        insert_data["department_ids"] = []
 
     if source_conversation_id:
         insert_data["source_conversation_id"] = source_conversation_id
@@ -722,25 +652,23 @@ def update_project(
             raise ValueError(f"Invalid status: {status}")
         update_data["status"] = status
 
-    # Handle department assignment - prefer department_ids array if provided
+    # Handle department assignment - use department_ids array only
     if department_ids is not None:
         update_data["department_ids"] = department_ids if department_ids else []
-        # Also set legacy department_id to first department for backwards compatibility
-        update_data["department_id"] = department_ids[0] if department_ids else None
     elif department_id is not None:
-        # Legacy single department update
-        update_data["department_id"] = department_id if department_id else None
         update_data["department_ids"] = [department_id] if department_id else []
 
     if source_conversation_id is not None:
         update_data["source_conversation_id"] = source_conversation_id if source_conversation_id else None
 
-    print(f"[UPDATE_PROJECT] update_data={update_data}", flush=True)
+    # Log summary (truncate context_md to avoid encoding issues on Windows)
+    log_data = {k: (v[:100] + '...' if k == 'context_md' and v and len(v) > 100 else v) for k, v in update_data.items()}
+    print(f"[UPDATE_PROJECT] update_data keys={list(update_data.keys())}, context_md_len={len(update_data.get('context_md', '') or '')}", flush=True)
     result = client.table("projects")\
         .update(update_data)\
         .eq("id", project_id)\
         .execute()
-    print(f"[UPDATE_PROJECT] result.data={result.data}", flush=True)
+    print(f"[UPDATE_PROJECT] result success={bool(result.data)}", flush=True)
     return result.data[0] if result.data else None
 
 
@@ -830,7 +758,7 @@ def get_projects_with_stats(
         client = _get_client(access_token)
 
         query = client.table("projects")\
-            .select("id, name, description, status, created_at, updated_at, last_accessed_at, context_md, department_id, department_ids")\
+            .select("id, name, description, status, created_at, updated_at, last_accessed_at, context_md, department_ids")\
             .eq("company_id", company_uuid)
 
         if status_filter:
@@ -852,28 +780,15 @@ def get_projects_with_stats(
 
         # Enrich projects with decision counts and department names
         for project in projects:
-            # Add department info - support both single department_id and array department_ids
             dept_ids = project.get("department_ids") or []
-            dept_id = project.get("department_id")
 
             # Build list of department names from department_ids array
-            if dept_ids and len(dept_ids) > 0:
-                project["department_names"] = [
-                    dept_map[did].get("name") for did in dept_ids
-                    if did in dept_map
-                ]
-                # Also set department_name to first one for backwards compatibility
-                if project["department_names"]:
-                    project["department_name"] = project["department_names"][0]
-                else:
-                    project["department_name"] = None
-            # Fallback to single department_id for old projects
-            elif dept_id and dept_id in dept_map:
-                project["department_name"] = dept_map[dept_id].get("name")
-                project["department_names"] = [dept_map[dept_id].get("name")]
-            else:
-                project["department_name"] = None
-                project["department_names"] = []
+            project["department_names"] = [
+                dept_map[did].get("name") for did in dept_ids
+                if did in dept_map
+            ]
+            # Set department_name to first one for backwards compat
+            project["department_name"] = project["department_names"][0] if project["department_names"] else None
 
             # Get decision count and first decision's user question (for "what was asked")
             try:
@@ -884,16 +799,16 @@ def get_projects_with_stats(
                     .execute()
                 project["decision_count"] = count_result.count or 0
 
-                # Get the first decision's user_question (the question that created this project)
+                # Get the first decision's question (the question that created this project)
                 first_decision = client.table("knowledge_entries")\
-                    .select("user_question")\
+                    .select("question")\
                     .eq("project_id", project["id"])\
                     .eq("is_active", True)\
                     .order("created_at", desc=False)\
                     .limit(1)\
                     .execute()
                 if first_decision.data and len(first_decision.data) > 0:
-                    project["source_question"] = first_decision.data[0].get("user_question")
+                    project["source_question"] = first_decision.data[0].get("question")
                 else:
                     project["source_question"] = None
             except Exception:

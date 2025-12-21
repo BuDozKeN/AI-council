@@ -332,16 +332,16 @@ export default function SaveKnowledgeModal({
       const payload = {
         company_id: companyId,
         title: title.trim(),
-        summary: effectiveSummary,
+        content: effectiveSummary,  // Use canonical content field
         category,
-        department_id: department,
+        department_ids: department ? [department] : [],  // Use canonical array field
         project_id: projectId || null,
         source_conversation_id: conversationId || null,
         problem_statement: problemStatement.trim() || null,
         decision_text: decisionText.trim(),
         reasoning: reasoning.trim() || null,
         status: 'active',
-        // NEW: Knowledge consolidation fields
+        // Knowledge consolidation fields
         auto_inject: autoInject,
         scope: effectiveScope,
         tags: tags.length > 0 ? tags : null,
