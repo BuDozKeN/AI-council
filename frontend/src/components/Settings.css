@@ -8,6 +8,8 @@
 .settings-content {
   display: flex;
   flex: 1;
+  /* Fixed height prevents modal from changing size between tabs */
+  height: 480px;
   min-height: 480px;
   overflow: hidden;
 }
@@ -57,13 +59,15 @@
   flex: 1;
   padding: 24px;
   overflow-y: auto;
+  /* Fixed height to prevent layout shift between tabs */
+  min-height: 400px;
 }
 
 .profile-content,
 .billing-content,
 .team-content {
   width: 100%; /* Fill entire panel width */
-  min-height: 400px; /* Prevent layout shift between tabs */
+  /* Content fills the panel, panel controls min-height */
 }
 
 .loading-state {
@@ -427,6 +431,9 @@
 
   .settings-content {
     flex-direction: column;
+    /* On mobile, allow content to grow but maintain minimum */
+    height: auto;
+    min-height: 400px;
   }
 
   .settings-sidebar {
@@ -437,12 +444,20 @@
     padding: 12px;
     display: flex;
     gap: 8px;
+    /* Fixed height for tabs row on mobile */
+    flex-shrink: 0;
   }
 
   .settings-tab {
     flex: 1;
     justify-content: center;
     margin-bottom: 0;
+  }
+
+  .settings-panel {
+    /* Fill remaining space on mobile */
+    flex: 1;
+    min-height: 350px;
   }
 
   .plans-grid {

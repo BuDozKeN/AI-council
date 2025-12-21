@@ -60,3 +60,45 @@ This document guides AI agents (GitHub Copilot, Claude, Cursor, etc.) on how to 
 *   **Legacy Code**: `councils/` folder is for reference/seeding only.
 *   **Async/Await**: The entire backend is async. Ensure DB calls are awaited.
 *   **CORS**: Configured in `backend/main.py`. If adding a new frontend port, update `CORS_ORIGINS`.
+
+## 5. Performance Optimizations
+
+### Backend Performance
+
+#### Connection Pooling (`backend/database.py`)
+*   Supabase clients are cached by token hash with TTL-based expiration.
+*   Configuration: `POOL_MAX_SIZE=100`, `POOL_TTL=300s`, `POOL_CLEANUP_INTERVAL=60s`.
+*   Use `get_supabase_with_auth(token)` for user-authenticated operations - it reuses clients.
+*   Thread-safe via `threading.Lock()`.
+
+#### GZip Compression (`backend/main.py`)
+*   All responses > 1000 bytes are GZip compressed.
+*   Added via `GZipMiddleware(minimum_size=1000)`.
+
+#### In-Memory Caching (`backend/utils/cache.py`)
+*   `TTLCache` class for frequently accessed data.
+*   Pre-configured caches: `user_cache` (60s), `company_cache` (300s), `settings_cache` (30s).
+*   Use `@cached(cache_instance, key_fn)` decorator for easy caching.
+
+### Frontend Performance
+
+#### State Management (`frontend/src/hooks/useModalState.js`)
+*   Modal-related state consolidated into single `useReducer` hook.
+*   Reduces re-renders by grouping related state updates.
+*   Actions: `openLeaderboard`, `closeLeaderboard`, `openSettings`, `closeSettings`, `openProjectModal`, `closeProjectModal`, `openMyCompany`, `closeMyCompany`, etc.
+
+#### List Virtualization (`frontend/src/components/sidebar/VirtualizedConversationList.jsx`)
+*   Uses `react-window` (v2) for rendering only visible sidebar items.
+*   Only activates when conversation count > 30.
+*   Handles mixed row heights (group headers vs conversation items).
+
+#### Memoization Patterns
+*   Heavy computations in tabs (ProjectsTab, DecisionsTab) wrapped in `useMemo`.
+*   Components that receive object/array props use `React.memo`.
+*   Always place `useMemo`/`useCallback` BEFORE any early returns in components.
+
+### Performance Guidelines for New Code
+1.  **Backend**: Use `@cached` decorator for DB queries that don't need real-time data.
+2.  **Frontend**: Wrap expensive computations in `useMemo`, event handlers in `useCallback`.
+3.  **Lists**: Consider virtualization for lists > 50 items.
+4.  **State**: Group related state into reducers when > 5 related useState calls.

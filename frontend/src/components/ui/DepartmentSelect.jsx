@@ -1,6 +1,8 @@
 /**
  * DepartmentSelect - A Select component with department color support
  *
+ * Uses Radix Select for desktop and BottomSheet for mobile.
+ *
  * This component wraps the base Select and adds:
  * - Department-specific colors on hover
  * - Consistent styling across the app
@@ -22,7 +24,11 @@ import * as SelectPrimitive from '@radix-ui/react-select';
 import { Building2, Check, ChevronDown } from 'lucide-react';
 import { getDeptColor } from '../../lib/colors';
 import { cn } from '../../lib/utils';
+import { BottomSheet } from './BottomSheet';
 import './DepartmentSelect.css';
+
+// Check if we're on mobile/tablet for bottom sheet vs dropdown
+const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
 
 // Custom SelectItem with department color support
 const DepartmentSelectItem = React.forwardRef(({
@@ -69,6 +75,8 @@ export function DepartmentSelect({
   showIcon = true,
   compact = false,
 }) {
+  const [open, setOpen] = React.useState(false);
+
   // Get display name and color for current value
   const selectedDept = value && value !== 'all' ? departments.find(d => d.id === value) : null;
   const selectedColor = selectedDept ? getDeptColor(selectedDept.id) : null;
@@ -88,6 +96,70 @@ export function DepartmentSelect({
     borderColor: selectedColor.border,
   } : {};
 
+  const handleSelect = (deptValue) => {
+    onValueChange(deptValue);
+    setOpen(false);
+  };
+
+  // Build items list for mobile
+  const allItems = [
+    ...(includeAll ? [{ id: 'all', name: allLabel }] : []),
+    ...departments
+  ];
+
+  // Mobile: use BottomSheet
+  if (isMobileDevice()) {
+    return (
+      <>
+        <button
+          className={cn("dept-select-trigger", selectedColor && "has-selection", className)}
+          disabled={disabled}
+          onClick={() => setOpen(true)}
+          style={triggerStyle}
+          type="button"
+        >
+          {showIcon && <Building2 className="h-3.5 w-3.5" />}
+          <span>{getDisplayName()}</span>
+          <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
+        </button>
+
+        <BottomSheet
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          title="Select Department"
+        >
+          <div className="dept-select-list-mobile">
+            {allItems.map(dept => {
+              const isSelected = (dept.id === 'all' && (!value || value === 'all')) ||
+                               (dept.id === value);
+              const colors = getDeptColor(dept.id === 'all' ? null : dept.id);
+              return (
+                <button
+                  key={dept.id}
+                  className={cn("dept-select-item-mobile", isSelected && "selected")}
+                  onClick={() => handleSelect(dept.id)}
+                  style={{
+                    '--dept-bg': colors.bg,
+                    '--dept-text': colors.text,
+                    '--radio-checked-bg': colors.text,
+                    '--radio-checked-border': colors.text
+                  }}
+                  type="button"
+                >
+                  <div className={cn("dept-select-radio", isSelected && "checked")}>
+                    {isSelected && <Check className="h-3 w-3" />}
+                  </div>
+                  <span className="dept-select-item-label">{dept.name}</span>
+                </button>
+              );
+            })}
+          </div>
+        </BottomSheet>
+      </>
+    );
+  }
+
+  // Desktop: use Radix Select
   return (
     <SelectPrimitive.Root value={value || 'all'} onValueChange={onValueChange} disabled={disabled}>
       <SelectPrimitive.Trigger

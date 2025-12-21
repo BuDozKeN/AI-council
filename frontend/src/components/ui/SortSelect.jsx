@@ -1,6 +1,7 @@
 /**
  * SortSelect - A Select component for sorting options
  *
+ * Uses Radix Select for desktop and BottomSheet for mobile.
  * Matches the DepartmentSelect/StatusSelect design system.
  */
 
@@ -8,7 +9,11 @@ import * as React from 'react';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import { Check, ChevronDown, ArrowUpDown } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { BottomSheet } from './BottomSheet';
 import './SortSelect.css';
+
+// Check if we're on mobile/tablet for bottom sheet vs dropdown
+const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
 
 // Sort option definitions
 const sortOptions = [
@@ -46,8 +51,58 @@ export function SortSelect({
   className,
   options = sortOptions,
 }) {
+  const [open, setOpen] = React.useState(false);
   const selectedOption = options.find(o => o.value === value) || options[0];
 
+  const handleSelect = (optionValue) => {
+    onValueChange(optionValue);
+    setOpen(false);
+  };
+
+  // Mobile: use BottomSheet
+  if (isMobileDevice()) {
+    return (
+      <>
+        <button
+          className={cn("sort-select-trigger", className)}
+          disabled={disabled}
+          onClick={() => setOpen(true)}
+          type="button"
+        >
+          <ArrowUpDown className="h-3.5 w-3.5" />
+          <span>{selectedOption.label}</span>
+          <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
+        </button>
+
+        <BottomSheet
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          title="Sort By"
+        >
+          <div className="sort-select-list-mobile">
+            {options.map(option => {
+              const isSelected = option.value === value;
+              return (
+                <button
+                  key={option.value}
+                  className={cn("sort-select-item-mobile", isSelected && "selected")}
+                  onClick={() => handleSelect(option.value)}
+                  type="button"
+                >
+                  <div className={cn("sort-select-radio", isSelected && "checked")}>
+                    {isSelected && <Check className="h-3 w-3" />}
+                  </div>
+                  <span className="sort-select-item-label">{option.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </BottomSheet>
+      </>
+    );
+  }
+
+  // Desktop: use Radix Select
   return (
     <SelectPrimitive.Root value={value} onValueChange={onValueChange} disabled={disabled}>
       <SelectPrimitive.Trigger

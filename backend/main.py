@@ -207,8 +207,15 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,  # Use explicit allowlist, not "*"
     allow_credentials=True,  # Safe with explicit origins
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=[
+        "Authorization",
+        "Content-Type",
+        "Accept",
+        "Origin",
+        "X-Requested-With",
+        "Cache-Control",
+    ],
     expose_headers=["Content-Disposition"],  # Allow frontend to read filename header
 )
 
@@ -240,6 +247,30 @@ async def cors_exception_handler(request: Request, exc: HTTPException):
         headers=headers
     )
 
+
+# General exception handler for unhandled errors (ensures CORS headers on 500s)
+@app.exception_handler(Exception)
+async def general_exception_handler(request: Request, exc: Exception):
+    from fastapi.responses import JSONResponse
+    import traceback
+
+    # Log the full error for debugging
+    print(f"[ERROR] Unhandled exception: {type(exc).__name__}: {exc}", flush=True)
+    traceback.print_exc()
+
+    origin = request.headers.get("origin", "")
+    headers = {}
+    if origin in CORS_ORIGINS:
+        headers = {
+            "Access-Control-Allow-Origin": origin,
+            "Access-Control-Allow-Credentials": "true",
+        }
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error"},
+        headers=headers
+    )
+
 # Include routers
 app.include_router(company_router.router)
 
@@ -251,6 +282,7 @@ async def _auto_synthesize_project_context(project_id: str, user: dict) -> bool:
 
     This runs in the background so the save response returns immediately.
     Uses the single 'sarah' persona for consistent output.
+    Includes a 2-minute timeout to prevent hanging requests.
     """
     from .openrouter import query_model, MOCK_LLM
     from .database import get_supabase_service
@@ -261,66 +293,68 @@ async def _auto_synthesize_project_context(project_id: str, user: dict) -> bool:
     print(f"[AUTO-SYNTH] Background task started for project {project_id}", flush=True)
 
     try:
-        service_client = get_supabase_service()
-        if not service_client:
-            print("[AUTO-SYNTH] No service client available", flush=True)
-            return False
+        # Wrap entire operation in timeout to prevent hanging
+        async with asyncio.timeout(120):  # 2 minute timeout
+            service_client = get_supabase_service()
+            if not service_client:
+                print("[AUTO-SYNTH] No service client available", flush=True)
+                return False
 
-        # Get project details
-        project_result = service_client.table("projects").select("*").eq("id", project_id).single().execute()
-        if not project_result.data:
-            print(f"[AUTO-SYNTH] Project not found: {project_id}", flush=True)
-            return False
+            # Get project details
+            project_result = service_client.table("projects").select("*").eq("id", project_id).single().execute()
+            if not project_result.data:
+                print(f"[AUTO-SYNTH] Project not found: {project_id}", flush=True)
+                return False
 
-        project = project_result.data
+            project = project_result.data
 
-        # Get ALL decisions for this project
-        decisions_result = service_client.table("knowledge_entries") \
-            .select("id, title, content, created_at, department_ids") \
-            .eq("project_id", project_id) \
-            .eq("is_active", True) \
-            .order("created_at", desc=False) \
-            .execute()
+            # Get ALL decisions for this project
+            decisions_result = service_client.table("knowledge_entries") \
+                .select("id, title, content, created_at, department_ids") \
+                .eq("project_id", project_id) \
+                .eq("is_active", True) \
+                .order("created_at", desc=False) \
+                .execute()
 
-        decisions = decisions_result.data or []
+            decisions = decisions_result.data or []
 
-        if not decisions:
-            print(f"[AUTO-SYNTH] No decisions for project {project_id}", flush=True)
-            return False
+            if not decisions:
+                print(f"[AUTO-SYNTH] No decisions for project {project_id}", flush=True)
+                return False
 
-        print(f"[AUTO-SYNTH] Found {len(decisions)} decisions to synthesize", flush=True)
+            print(f"[AUTO-SYNTH] Found {len(decisions)} decisions to synthesize", flush=True)
 
-        # Handle mock mode
-        if MOCK_LLM:
-            print("[AUTO-SYNTH] MOCK mode - creating simple context", flush=True)
-            mock_context = f"# {project.get('name', 'Project')}\n\n{project.get('description', '')}\n\n## Key Decisions\n\nAuto-synthesized from {len(decisions)} decisions."
-            service_client.table("projects").update({
-                "context_md": mock_context,
-                "updated_at": datetime.now().isoformat()
-            }).eq("id", project_id).execute()
-            return True
+            # Handle mock mode
+            if MOCK_LLM:
+                print("[AUTO-SYNTH] MOCK mode - creating simple context", flush=True)
+                mock_context = f"# {project.get('name', 'Project')}\n\n{project.get('description', '')}\n\n## Key Decisions\n\nAuto-synthesized from {len(decisions)} decisions."
+                service_client.table("projects").update({
+                    "context_md": mock_context,
+                    "updated_at": datetime.now().isoformat()
+                }).eq("id", project_id).execute()
+                return True
 
-        # Get the ONE Sarah persona from database
-        persona = await get_db_persona_with_fallback('sarah')
-        system_prompt = persona.get('system_prompt', '')
-        models = persona.get('model_preferences', ['google/gemini-2.0-flash-001', 'openai/gpt-4o'])
-        if isinstance(models, str):
-            models = json.loads(models)
+            # Get the ONE Sarah persona from database
+            persona = await get_db_persona_with_fallback('sarah')
+            system_prompt = persona.get('system_prompt', '')
+            models = persona.get('model_preferences', ['google/gemini-2.0-flash-001', 'openai/gpt-4o'])
+            if isinstance(models, str):
+                models = json.loads(models)
 
-        # Build decisions summary for LLM
-        decisions_summary = ""
-        for i, d in enumerate(decisions, 1):
-            date_str = d.get("created_at", "")[:10] if d.get("created_at") else "Unknown date"
-            title = d.get("title", "Untitled")
-            content = d.get("content", "")
-            if len(content) > 1000:
-                content = content[:1000] + "..."
-            decisions_summary += f"\n### Decision {i}: {title} ({date_str})\n{content}\n"
+            # Build decisions summary for LLM
+            decisions_summary = ""
+            for i, d in enumerate(decisions, 1):
+                date_str = d.get("created_at", "")[:10] if d.get("created_at") else "Unknown date"
+                title = d.get("title", "Untitled")
+                content = d.get("content", "")
+                if len(content) > 1000:
+                    content = content[:1000] + "..."
+                decisions_summary += f"\n### Decision {i}: {title} ({date_str})\n{content}\n"
 
-        today_date = datetime.now().strftime("%B %d, %Y")
+            today_date = datetime.now().strftime("%B %d, %Y")
 
-        # Task-specific user prompt (Sarah's personality comes from system_prompt)
-        user_prompt = f"""Create a CLEAN, WELL-ORGANIZED project document.
+            # Task-specific user prompt (Sarah's personality comes from system_prompt)
+            user_prompt = f"""Create a CLEAN, WELL-ORGANIZED project document.
 
 ## THE PROJECT
 - Name: {project.get('name', 'Unknown Project')}
@@ -345,57 +379,77 @@ Return valid JSON:
 
 Today's date: {today_date}"""
 
-        messages = [
-            {"role": "system", "content": system_prompt + "\n\nRespond only with valid JSON."},
-            {"role": "user", "content": user_prompt}
-        ]
+            messages = [
+                {"role": "system", "content": system_prompt + "\n\nRespond only with valid JSON."},
+                {"role": "user", "content": user_prompt}
+            ]
 
-        result_data = None
-        for model in models:
-            try:
-                print(f"[AUTO-SYNTH] Trying model: {model}", flush=True)
-                result = await query_model(model=model, messages=messages)
+            result_data = None
+            for model in models:
+                try:
+                    print(f"[AUTO-SYNTH] Trying model: {model}", flush=True)
+                    result = await query_model(model=model, messages=messages)
 
-                if result and result.get('content'):
-                    content = result['content']
-                    # Clean up markdown code blocks
-                    if content.startswith('```'):
-                        content = content.split('```')[1]
-                        if content.startswith('json'):
-                            content = content[4:]
-                    if '```' in content:
-                        content = content.split('```')[0]
-                    content = content.strip()
+                    if result and result.get('content'):
+                        content = result['content']
+                        # Clean up markdown code blocks
+                        if content.startswith('```'):
+                            content = content.split('```')[1]
+                            if content.startswith('json'):
+                                content = content[4:]
+                        if '```' in content:
+                            content = content.split('```')[0]
+                        content = content.strip()
 
-                    try:
-                        result_data = json.loads(content)
-                        print(f"[AUTO-SYNTH] Success with {model}", flush=True)
-                        break
-                    except json.JSONDecodeError as e:
-                        print(f"[AUTO-SYNTH] JSON parse error from {model}: {e}", flush=True)
-                        continue
-            except Exception as e:
-                print(f"[AUTO-SYNTH] {model} failed: {e}", flush=True)
-                continue
+                        try:
+                            result_data = json.loads(content)
+                            print(f"[AUTO-SYNTH] Success with {model}", flush=True)
+                            break
+                        except json.JSONDecodeError as e:
+                            print(f"[AUTO-SYNTH] JSON parse error from {model}: {e}", flush=True)
+                            continue
+                except Exception as e:
+                    print(f"[AUTO-SYNTH] {model} failed: {e}", flush=True)
+                    continue
 
-        if result_data is None:
-            print(f"[AUTO-SYNTH] All models failed", flush=True)
-            return False
+            if result_data is None:
+                print(f"[AUTO-SYNTH] All models failed", flush=True)
+                return False
 
-        new_context = result_data.get("context_md", "")
+            new_context = result_data.get("context_md", "")
 
-        # Update the project with new context
-        service_client.table("projects").update({
-            "context_md": new_context,
-            "updated_at": datetime.now().isoformat()
-        }).eq("id", project_id).execute()
+            # Update the project with new context
+            service_client.table("projects").update({
+                "context_md": new_context,
+                "updated_at": datetime.now().isoformat()
+            }).eq("id", project_id).execute()
 
-        print(f"[AUTO-SYNTH] Updated project context with {len(decisions)} decisions", flush=True)
-        return True
+            print(f"[AUTO-SYNTH] Updated project context with {len(decisions)} decisions", flush=True)
+            return True
 
+    except asyncio.TimeoutError:
+        print(f"[AUTO-SYNTH] Timeout after 120s for project {project_id}", flush=True)
+        return False
     except Exception as e:
         print(f"[AUTO-SYNTH] Background task failed: {e}", flush=True)
         return False
+
+
+# =============================================================================
+# APPLICATION LIFECYCLE
+# =============================================================================
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Clean up resources on application shutdown."""
+    # Close the shared HTTP client to prevent connection leaks
+    try:
+        from .openrouter import _http_client
+    except ImportError:
+        from openrouter import _http_client
+
+    if _http_client and not _http_client.is_closed:
+        await _http_client.aclose()
+        print("[SHUTDOWN] HTTP client closed", flush=True)
 
 
 # Health check endpoint
@@ -730,8 +784,23 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
 
             # Start title generation in parallel (don't await yet)
             title_task = None
+            title_emitted = False  # Track if we've already sent the title
             if is_first_message:
                 title_task = asyncio.create_task(generate_conversation_title(body.content))
+
+            # Helper to check and emit title as soon as it's ready
+            async def check_and_emit_title():
+                nonlocal title_emitted
+                if title_task and not title_emitted and title_task.done():
+                    try:
+                        title = title_task.result()
+                        storage.update_conversation_title(conversation_id, title, access_token=access_token)
+                        title_emitted = True
+                        return f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
+                    except Exception as e:
+                        print(f"[STREAM] Title generation error: {e}", flush=True)
+                        title_emitted = True  # Don't retry on error
+                return None
 
             # Resolve company UUID for knowledge base lookup
             company_uuid = None
@@ -764,6 +833,11 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
                 role_ids=body.roles,  # Multi-select support
                 playbook_ids=body.playbooks  # Playbook IDs to inject
             ):
+                # Check if title is ready and emit early
+                title_event = await check_and_emit_title()
+                if title_event:
+                    yield title_event
+
                 if event['type'] == 'stage1_token':
                     # Stream individual tokens
                     yield f"data: {json.dumps(event)}\n\n"
@@ -784,6 +858,11 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
             label_to_model = {}
             aggregate_rankings = []
             async for event in stage2_stream_rankings(enhanced_query, stage1_results, business_id=body.business_id):
+                # Check if title is ready and emit early
+                title_event = await check_and_emit_title()
+                if title_event:
+                    yield title_event
+
                 if event['type'] == 'stage2_token':
                     yield f"data: {json.dumps(event)}\n\n"
                 elif event['type'] == 'stage2_model_complete':
@@ -811,6 +890,11 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
                 role_ids=body.roles,  # Multi-select support
                 playbook_ids=body.playbooks  # Playbook IDs to inject
             ):
+                # Check if title is ready and emit early
+                title_event = await check_and_emit_title()
+                if title_event:
+                    yield title_event
+
                 if event['type'] == 'stage3_token':
                     yield f"data: {json.dumps(event)}\n\n"
                 elif event['type'] == 'stage3_error':
@@ -819,11 +903,14 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
                     stage3_result = event['data']
                     yield f"data: {json.dumps({'type': 'stage3_complete', 'data': stage3_result})}\n\n"
 
-            # Wait for title generation if it was started
-            if title_task:
-                title = await title_task
-                storage.update_conversation_title(conversation_id, title, access_token=access_token)
-                yield f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
+            # Final check for title if not emitted yet (fallback)
+            if title_task and not title_emitted:
+                try:
+                    title = await title_task
+                    storage.update_conversation_title(conversation_id, title, access_token=access_token)
+                    yield f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
+                except Exception as e:
+                    print(f"[STREAM] Title generation failed: {e}", flush=True)
 
             # Update department on first message
             if is_first_message and body.department:
@@ -1028,18 +1115,20 @@ class TriageContinueRequest(BaseModel):
 
 
 @app.post("/api/triage/analyze")
-async def analyze_triage(request: TriageRequest):
+@limiter.limit("30/minute")  # Rate limit: 30 triage requests/min per user
+async def analyze_triage(request: Request, body: TriageRequest, user: dict = Depends(get_current_user)):
     """
     Analyze a user's question for the 4 required constraints.
     Returns whether ready to proceed or what questions to ask.
+    Requires authentication to prevent API abuse.
     """
     # Load business context if specified
     business_context = None
-    if request.business_id:
-        business_context = load_business_context(request.business_id)
+    if body.business_id:
+        business_context = load_business_context(body.business_id)
 
     result = await triage.analyze_for_triage(
-        request.content,
+        body.content,
         business_context=business_context
     )
 
@@ -1047,18 +1136,20 @@ async def analyze_triage(request: TriageRequest):
 
 
 @app.post("/api/triage/continue")
-async def continue_triage_conversation(request: TriageContinueRequest):
+@limiter.limit("30/minute")  # Rate limit: 30 triage requests/min per user
+async def continue_triage_conversation(request: Request, body: TriageContinueRequest, user: dict = Depends(get_current_user)):
     """
     Continue triage conversation with user's additional information.
+    Requires authentication to prevent API abuse.
     """
     business_context = None
-    if request.business_id:
-        business_context = load_business_context(request.business_id)
+    if body.business_id:
+        business_context = load_business_context(body.business_id)
 
     result = await triage.continue_triage(
-        original_query=request.original_query,
-        previous_constraints=request.previous_constraints,
-        user_response=request.user_response,
+        original_query=body.original_query,
+        previous_constraints=body.previous_constraints,
+        user_response=body.user_response,
         business_context=business_context
     )
 
@@ -1182,21 +1273,24 @@ async def bulk_delete_conversations(request: BulkDeleteRequest, user: dict = Dep
     return {"deleted": deleted, "failed": failed, "deleted_count": len(deleted)}
 
 
-# Leaderboard endpoints
+# Leaderboard endpoints (require auth to protect internal model information)
 @app.get("/api/leaderboard")
-async def get_leaderboard_summary():
+@limiter.limit("60/minute")  # Rate limit leaderboard to prevent scraping
+async def get_leaderboard_summary(request: Request, user: dict = Depends(get_current_user)):
     """Get full leaderboard summary with overall and per-department rankings."""
     return leaderboard.get_leaderboard_summary()
 
 
 @app.get("/api/leaderboard/overall")
-async def get_overall_leaderboard():
+@limiter.limit("60/minute")  # Rate limit leaderboard to prevent scraping
+async def get_overall_leaderboard(request: Request, user: dict = Depends(get_current_user)):
     """Get overall model leaderboard across all sessions."""
     return leaderboard.get_overall_leaderboard()
 
 
 @app.get("/api/leaderboard/department/{department}")
-async def get_department_leaderboard(department: str):
+@limiter.limit("60/minute")  # Rate limit leaderboard to prevent scraping
+async def get_department_leaderboard(request: Request, department: str, user: dict = Depends(get_current_user)):
     """Get leaderboard for a specific department."""
     return leaderboard.get_department_leaderboard(department)
 

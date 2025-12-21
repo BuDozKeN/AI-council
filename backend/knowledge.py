@@ -2,7 +2,7 @@
 
 from typing import Optional, List, Dict, Any
 from .database import get_supabase, get_supabase_service
-from .security import verify_user_company_access, verify_user_entry_access, log_security_event
+from .security import verify_user_company_access, verify_user_entry_access, log_security_event, escape_sql_like_pattern
 
 
 def create_knowledge_entry(
@@ -139,7 +139,8 @@ def get_knowledge_entries(
 
     # Search in title, problem_statement, and decision_text
     if search:
-        search_pattern = f"%{search}%"
+        escaped_search = escape_sql_like_pattern(search)
+        search_pattern = f"%{escaped_search}%"
         query = query.or_(
             f"title.ilike.{search_pattern},"
             f"problem_statement.ilike.{search_pattern},"

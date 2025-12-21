@@ -132,13 +132,13 @@ async def stage1_stream_responses(
             print(f"[STAGE1 TASK ERROR] {model}: {type(e).__name__}: {e}", flush=True)
             await queue.put({"type": "stage1_model_error", "model": model, "error": str(e)})
 
-    # Start all model streams with minimal staggering to avoid rate limiting
-    # Reduced from 2s to 0.3s per model - still prevents rate limits but much faster
+    # Start all model streams with staggered delays to avoid rate limiting
+    # 0.8s stagger provides balance between speed and avoiding 429 errors (especially from Grok)
     print(f"[STAGE1] Starting {len(COUNCIL_MODELS)} models: {COUNCIL_MODELS}", flush=True)
     tasks = []
     completed_count = 0
     total_models = len(COUNCIL_MODELS)
-    STAGGER_DELAY = 0.3  # seconds between model starts (reduced from 2.0)
+    STAGGER_DELAY = 0.8  # seconds between model starts (increased from 0.3 to avoid Grok 429s)
 
     for i, model in enumerate(COUNCIL_MODELS):
         print(f"[STAGE1] Creating task for {model}", flush=True)

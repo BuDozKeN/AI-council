@@ -233,6 +233,22 @@ The application follows a consistent design system documented in [`docs/design/`
 - `POST /knowledge` - Save decision from council
 - `PUT /knowledge/{id}/archive` - Archive a decision
 
+## Performance
+
+The application includes several performance optimizations:
+
+### Backend
+- **Connection Pooling**: Supabase clients are cached by token hash (5-minute TTL)
+- **GZip Compression**: Responses > 1KB are compressed automatically
+- **In-Memory Caching**: TTL-based caches for user, company, and settings data
+
+### Frontend
+- **List Virtualization**: Sidebar uses `react-window` for large conversation lists (>30 items)
+- **State Consolidation**: Modal state managed via `useReducer` to reduce re-renders
+- **Memoization**: Heavy computations wrapped in `useMemo`
+
+See [.github/copilot-instructions.md](.github/copilot-instructions.md#5-performance-optimizations) for implementation details.
+
 ## Development & AI Tools
 
 This project is optimized for AI-assisted development.

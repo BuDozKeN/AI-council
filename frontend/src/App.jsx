@@ -13,7 +13,7 @@ import { DeliberationDemo } from './components/deliberation';
 import { useAuth } from './AuthContext';
 import { api, setTokenGetter } from './api';
 import { userPreferencesApi } from './supabase';
-import { useGlobalSwipe } from './hooks';
+import { useGlobalSwipe, useModalState } from './hooks';
 import './App.css';
 
 // Simple unique ID generator for message keys
@@ -59,19 +59,36 @@ function App() {
   const [selectedProject, setSelectedProject] = useState(null); // Selected project ID
   const [useCompanyContext, setUseCompanyContext] = useState(true); // Whether to use company context
   const [useDepartmentContext, setUseDepartmentContext] = useState(true); // Whether to use department context
-  const [isLeaderboardOpen, setIsLeaderboardOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
-  const [projectModalContext, setProjectModalContext] = useState(null); // { userQuestion, councilResponse } for pre-fill
-  const [isMyCompanyOpen, setIsMyCompanyOpen] = useState(false);
-  const [myCompanyInitialTab, setMyCompanyInitialTab] = useState('overview');
-  const [myCompanyInitialDecisionId, setMyCompanyInitialDecisionId] = useState(null);
-  const [myCompanyInitialPlaybookId, setMyCompanyInitialPlaybookId] = useState(null);
-  const [myCompanyInitialProjectId, setMyCompanyInitialProjectId] = useState(null);
-  const [myCompanyPromoteDecision, setMyCompanyPromoteDecision] = useState(null); // Decision object to open in Promote modal on return
-  const [scrollToStage3, setScrollToStage3] = useState(false); // When navigating from decision source, scroll to Stage 3
-  const [scrollToResponseIndex, setScrollToResponseIndex] = useState(null); // Specific response index to scroll to in multi-turn
-  const [returnToMyCompanyTab, setReturnToMyCompanyTab] = useState(null); // Tab to return to after viewing source (e.g., 'decisions', 'activity')
+  // Consolidated modal state (replaces 13 useState calls)
+  const {
+    isLeaderboardOpen,
+    isSettingsOpen,
+    isProjectModalOpen,
+    projectModalContext,
+    isMyCompanyOpen,
+    myCompanyInitialTab,
+    myCompanyInitialDecisionId,
+    myCompanyInitialPlaybookId,
+    myCompanyInitialProjectId,
+    myCompanyPromoteDecision,
+    scrollToStage3,
+    scrollToResponseIndex,
+    returnToMyCompanyTab,
+    // Actions
+    openLeaderboard,
+    closeLeaderboard,
+    openSettings,
+    closeSettings,
+    openProjectModal,
+    closeProjectModal,
+    openMyCompany,
+    closeMyCompany,
+    resetMyCompanyInitial,
+    setMyCompanyPromoteDecision,
+    navigateToConversation,
+    clearScrollState,
+    clearReturnState,
+  } = useModalState();
   // Triage state
   const [triageState, setTriageState] = useState(null); // null, 'analyzing', or triage result object
   const [originalQuery, setOriginalQuery] = useState('');
@@ -81,6 +98,16 @@ function App() {
   const [landingChatMode, setLandingChatMode] = useState('council'); // 'chat' or 'council' for landing hero
   const [userPreferences, setUserPreferences] = useState(null); // Smart Auto context persistence
   const abortControllerRef = useRef(null);
+
+  // Cleanup streaming connections on unmount to prevent resource leaks
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+    };
+  }, []);
 
   // Mobile swipe gesture to open sidebar from left edge
   useGlobalSwipe({
@@ -394,16 +421,14 @@ function App() {
     setCurrentConversationId(tempId);
     setCurrentConversation(tempConv);
     setSelectedProject(null);
-    setReturnToMyCompanyTab(null);
-    setMyCompanyPromoteDecision(null);
-  }, []);
+    clearReturnState();
+  }, [clearReturnState]);
 
   const handleSelectConversation = useCallback((id) => {
     setCurrentConversationId(id);
     setSelectedProject(null);
-    setReturnToMyCompanyTab(null);
-    setMyCompanyPromoteDecision(null);
-  }, []);
+    clearReturnState();
+  }, [clearReturnState]);
 
   const handleArchiveConversation = useCallback(async (id, archived) => {
     try {
@@ -510,20 +535,16 @@ function App() {
   const handleMobileClose = useCallback(() => setIsMobileSidebarOpen(false), []);
 
   const handleOpenLeaderboard = useCallback(() => {
-    setReturnToMyCompanyTab(null);
-    setIsLeaderboardOpen(true);
-  }, []);
+    openLeaderboard();
+  }, [openLeaderboard]);
 
   const handleOpenSettings = useCallback(() => {
-    setReturnToMyCompanyTab(null);
-    setIsSettingsOpen(true);
-  }, []);
+    openSettings();
+  }, [openSettings]);
 
   const handleOpenMyCompany = useCallback(() => {
-    setReturnToMyCompanyTab(null);
-    setMyCompanyPromoteDecision(null);
-    setIsMyCompanyOpen(true);
-  }, []);
+    openMyCompany({ clearPromoteDecision: true });
+  }, [openMyCompany]);
 
   const handleSortByChange = useCallback((newSort) => {
     setConversationSortBy(newSort);
@@ -1106,8 +1127,15 @@ function App() {
             break;
 
           case 'title_complete':
-            // Reload conversations to get updated title
-            loadConversations();
+            // Title updated - update in-place instead of full reload
+            // The 'complete' event will follow shortly and do a full refresh if needed
+            if (event.title) {
+              setConversations((prev) =>
+                prev.map((conv) =>
+                  conv.id === conversationId ? { ...conv, title: event.title } : conv
+                )
+              );
+            }
             break;
 
           case 'complete':
@@ -1510,8 +1538,7 @@ function App() {
                 }
               }}
               onOpenProjectModal={(context) => {
-                setProjectModalContext(context || null);
-                setIsProjectModalOpen(true);
+                openProjectModal(context);
               }}
               onProjectCreated={(newProject) => {
                 // Add to projects list so it appears in dropdown immediately
@@ -1533,56 +1560,32 @@ function App() {
               isUploading={isUploading}
               // Knowledge Base navigation (now part of My Company)
               onViewKnowledgeBase={() => {
-                // Clear return-to-company state - user is opening it fresh
-                setReturnToMyCompanyTab(null);
-                setMyCompanyPromoteDecision(null);
-                setIsMyCompanyOpen(true);
+                openMyCompany({ clearPromoteDecision: true });
               }}
               // Scroll target - for navigating from decision source
               scrollToStage3={scrollToStage3}
               scrollToResponseIndex={scrollToResponseIndex}
               onScrollToStage3Complete={() => {
-                setScrollToStage3(false);
-                setScrollToResponseIndex(null);
+                clearScrollState();
               }}
               // Decision/Playbook/Project navigation - open My Company to appropriate tab
               onViewDecision={(decisionId, type = 'decision', targetId = null) => {
-                // Clear return-to-company state - user is taking a new action
-                setReturnToMyCompanyTab(null);
-                setMyCompanyPromoteDecision(null);
-
                 if (type === 'playbook' && targetId) {
-                  setMyCompanyInitialTab('playbooks');
-                  setMyCompanyInitialPlaybookId(targetId);
-                  setMyCompanyInitialDecisionId(null);
-                  setMyCompanyInitialProjectId(null);
+                  openMyCompany({ tab: 'playbooks', playbookId: targetId, clearPromoteDecision: true });
                 } else if (type === 'project' && targetId) {
-                  // Navigate to projects tab with specific project and auto-open it
-                  setMyCompanyInitialTab('projects');
-                  setMyCompanyInitialDecisionId(null);
-                  setMyCompanyInitialPlaybookId(null);
-                  setMyCompanyInitialProjectId(targetId);
+                  openMyCompany({ tab: 'projects', projectId: targetId, clearPromoteDecision: true });
                   // Also select the project in the main app for context
                   setSelectedProject(targetId);
                 } else {
-                  setMyCompanyInitialTab('decisions');
-                  setMyCompanyInitialDecisionId(decisionId);
-                  setMyCompanyInitialPlaybookId(null);
-                  setMyCompanyInitialProjectId(null);
+                  openMyCompany({ tab: 'decisions', decisionId, clearPromoteDecision: true });
                 }
-                setIsMyCompanyOpen(true);
               }}
               // Return to My Company button (after navigating from source)
               returnToMyCompanyTab={returnToMyCompanyTab}
               returnPromoteDecision={myCompanyPromoteDecision}
               onReturnToMyCompany={(tab) => {
-                setReturnToMyCompanyTab(null); // Clear the return state
-                setMyCompanyInitialTab(tab);
-                setMyCompanyInitialDecisionId(null);
-                setMyCompanyInitialPlaybookId(null);
-                setMyCompanyInitialProjectId(null);
                 // Don't clear myCompanyPromoteDecision here - let MyCompany use it to re-open modal
-                setIsMyCompanyOpen(true);
+                openMyCompany({ tab });
               }}
             />
           </motion.div>
@@ -1591,11 +1594,11 @@ function App() {
 
       <Leaderboard
         isOpen={isLeaderboardOpen}
-        onClose={() => setIsLeaderboardOpen(false)}
+        onClose={closeLeaderboard}
       />
       <Settings
         isOpen={isSettingsOpen}
-        onClose={() => setIsSettingsOpen(false)}
+        onClose={closeSettings}
         companyId={selectedBusiness}
       />
       {isProjectModalOpen && selectedBusiness && (
@@ -1603,10 +1606,7 @@ function App() {
           companyId={selectedBusiness}
           departments={availableDepartments}
           initialContext={projectModalContext}
-          onClose={() => {
-            setIsProjectModalOpen(false);
-            setProjectModalContext(null);
-          }}
+          onClose={closeProjectModal}
           onProjectCreated={(newProject) => {
             // Add to projects list and select it
             setProjects((prev) => [...prev, newProject]);
@@ -1621,26 +1621,11 @@ function App() {
           allCompanies={businesses}
           onSelectCompany={(newCompanyId) => {
             setSelectedBusiness(newCompanyId);
-            // Reset to Overview tab when switching companies
-            setMyCompanyInitialTab('overview');
-            setMyCompanyInitialDecisionId(null);
-            setMyCompanyInitialPlaybookId(null);
-            setMyCompanyInitialProjectId(null);
+            resetMyCompanyInitial();
           }}
-          onClose={() => {
-            setIsMyCompanyOpen(false);
-            // Reset to defaults for next open
-            setMyCompanyInitialTab('overview');
-            setMyCompanyInitialDecisionId(null);
-            setMyCompanyInitialPlaybookId(null);
-            setMyCompanyInitialProjectId(null);
-            setMyCompanyPromoteDecision(null);
-          }}
+          onClose={closeMyCompany}
           onNavigateToConversation={(conversationId, fromTab, responseIndex = null) => {
-            setIsMyCompanyOpen(false);
-            setScrollToStage3(true); // Scroll to Stage 3 when coming from decision source
-            setScrollToResponseIndex(responseIndex); // Scroll to specific response in multi-turn
-            setReturnToMyCompanyTab(fromTab || null); // Remember which tab to return to
+            navigateToConversation(fromTab, responseIndex);
             setCurrentConversationId(conversationId);
           }}
           initialTab={myCompanyInitialTab}

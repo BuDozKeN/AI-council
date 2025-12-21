@@ -45,5 +45,11 @@ export default defineConfig({
     chunkSizeWarningLimit: 500,
     // Enable source maps for production debugging (optional, remove if not needed)
     sourcemap: false,
+    // SECURITY: Remove console.log statements in production builds
+    // This prevents sensitive information from appearing in browser console
+    minify: 'esbuild',
+    esbuildOptions: {
+      drop: ['console', 'debugger'],
+    },
   },
 })

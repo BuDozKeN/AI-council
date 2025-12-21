@@ -185,7 +185,7 @@ async def query_model_stream(
     model: str,
     messages: List[Dict[str, str]],
     timeout: float = 120.0,
-    max_retries: int = 2
+    max_retries: int = 3
 ) -> AsyncGenerator[str, None]:
     """
     Query a single model via OpenRouter API with streaming.
@@ -288,8 +288,9 @@ async def query_model_stream(
                                 )
                                 if is_retryable and retries < max_retries:
                                     should_retry = True
-                                    wait_time = (retries + 1) * 3  # 3s, 6s backoff
-                                    print(f"[RETRY] {model}: Will retry in {wait_time}s...", flush=True)
+                                    # Use exponential backoff: 5s, 10s (longer for rate limits)
+                                    wait_time = (retries + 1) * 5
+                                    print(f"[RETRY] {model}: Rate limited, will retry in {wait_time}s...", flush=True)
                                     await asyncio.sleep(wait_time)
                                     break  # Break inner loop to retry
                                 yield f"[Error: {error_msg}]"

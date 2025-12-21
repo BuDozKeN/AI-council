@@ -33,13 +33,21 @@ const initialState = {
 function modalReducer(state, action) {
   switch (action.type) {
     case 'OPEN_LEADERBOARD':
-      return { ...state, isLeaderboardOpen: true };
+      return {
+        ...state,
+        isLeaderboardOpen: true,
+        returnToMyCompanyTab: null,
+      };
 
     case 'CLOSE_LEADERBOARD':
       return { ...state, isLeaderboardOpen: false };
 
     case 'OPEN_SETTINGS':
-      return { ...state, isSettingsOpen: true };
+      return {
+        ...state,
+        isSettingsOpen: true,
+        returnToMyCompanyTab: null,
+      };
 
     case 'CLOSE_SETTINGS':
       return { ...state, isSettingsOpen: false };
@@ -62,6 +70,8 @@ function modalReducer(state, action) {
       return {
         ...state,
         isMyCompanyOpen: true,
+        returnToMyCompanyTab: null,
+        myCompanyPromoteDecision: action.payload?.clearPromoteDecision ? null : state.myCompanyPromoteDecision,
         myCompanyInitialTab: action.payload?.tab || 'overview',
         myCompanyInitialDecisionId: action.payload?.decisionId || null,
         myCompanyInitialPlaybookId: action.payload?.playbookId || null,
@@ -76,6 +86,17 @@ function modalReducer(state, action) {
         myCompanyInitialDecisionId: null,
         myCompanyInitialPlaybookId: null,
         myCompanyInitialProjectId: null,
+        myCompanyPromoteDecision: null,
+      };
+
+    case 'RESET_MY_COMPANY_INITIAL':
+      // Reset to overview without closing - used when switching companies
+      return {
+        ...state,
+        myCompanyInitialTab: 'overview',
+        myCompanyInitialDecisionId: null,
+        myCompanyInitialPlaybookId: null,
+        myCompanyInitialProjectId: null,
       };
 
     case 'SET_MY_COMPANY_PROMOTE_DECISION':
@@ -84,11 +105,14 @@ function modalReducer(state, action) {
     case 'SET_RETURN_TO_MY_COMPANY_TAB':
       return { ...state, returnToMyCompanyTab: action.payload };
 
-    case 'SET_SCROLL_STATE':
+    case 'NAVIGATE_TO_CONVERSATION':
+      // Close MyCompany and set up return state
       return {
         ...state,
-        scrollToStage3: action.payload?.scrollToStage3 ?? state.scrollToStage3,
-        scrollToResponseIndex: action.payload?.scrollToResponseIndex ?? state.scrollToResponseIndex,
+        isMyCompanyOpen: false,
+        scrollToStage3: true,
+        scrollToResponseIndex: action.payload?.responseIndex ?? null,
+        returnToMyCompanyTab: action.payload?.fromTab || null,
       };
 
     case 'CLEAR_SCROLL_STATE':
@@ -117,32 +141,44 @@ export function useModalState() {
   const [state, dispatch] = useReducer(modalReducer, initialState);
 
   // Memoized action creators
-  const openLeaderboard = useCallback(() => dispatch({ type: 'OPEN_LEADERBOARD' }), []);
-  const closeLeaderboard = useCallback(() => dispatch({ type: 'CLOSE_LEADERBOARD' }), []);
+  const openLeaderboard = useCallback(() =>
+    dispatch({ type: 'OPEN_LEADERBOARD' }), []);
 
-  const openSettings = useCallback(() => dispatch({ type: 'OPEN_SETTINGS' }), []);
-  const closeSettings = useCallback(() => dispatch({ type: 'CLOSE_SETTINGS' }), []);
+  const closeLeaderboard = useCallback(() =>
+    dispatch({ type: 'CLOSE_LEADERBOARD' }), []);
+
+  const openSettings = useCallback(() =>
+    dispatch({ type: 'OPEN_SETTINGS' }), []);
+
+  const closeSettings = useCallback(() =>
+    dispatch({ type: 'CLOSE_SETTINGS' }), []);
 
   const openProjectModal = useCallback((context) =>
     dispatch({ type: 'OPEN_PROJECT_MODAL', payload: context }), []);
-  const closeProjectModal = useCallback(() => dispatch({ type: 'CLOSE_PROJECT_MODAL' }), []);
+
+  const closeProjectModal = useCallback(() =>
+    dispatch({ type: 'CLOSE_PROJECT_MODAL' }), []);
 
   const openMyCompany = useCallback((options) =>
     dispatch({ type: 'OPEN_MY_COMPANY', payload: options }), []);
-  const closeMyCompany = useCallback(() => dispatch({ type: 'CLOSE_MY_COMPANY' }), []);
+
+  const closeMyCompany = useCallback(() =>
+    dispatch({ type: 'CLOSE_MY_COMPANY' }), []);
+
+  const resetMyCompanyInitial = useCallback(() =>
+    dispatch({ type: 'RESET_MY_COMPANY_INITIAL' }), []);
 
   const setMyCompanyPromoteDecision = useCallback((decision) =>
     dispatch({ type: 'SET_MY_COMPANY_PROMOTE_DECISION', payload: decision }), []);
 
-  const setReturnToMyCompanyTab = useCallback((tab) =>
-    dispatch({ type: 'SET_RETURN_TO_MY_COMPANY_TAB', payload: tab }), []);
+  const navigateToConversation = useCallback((fromTab, responseIndex) =>
+    dispatch({ type: 'NAVIGATE_TO_CONVERSATION', payload: { fromTab, responseIndex } }), []);
 
-  const setScrollState = useCallback((scrollState) =>
-    dispatch({ type: 'SET_SCROLL_STATE', payload: scrollState }), []);
+  const clearScrollState = useCallback(() =>
+    dispatch({ type: 'CLEAR_SCROLL_STATE' }), []);
 
-  const clearScrollState = useCallback(() => dispatch({ type: 'CLEAR_SCROLL_STATE' }), []);
-
-  const clearReturnState = useCallback(() => dispatch({ type: 'CLEAR_RETURN_STATE' }), []);
+  const clearReturnState = useCallback(() =>
+    dispatch({ type: 'CLEAR_RETURN_STATE' }), []);
 
   return {
     // State
@@ -157,9 +193,9 @@ export function useModalState() {
     closeProjectModal,
     openMyCompany,
     closeMyCompany,
+    resetMyCompanyInitial,
     setMyCompanyPromoteDecision,
-    setReturnToMyCompanyTab,
-    setScrollState,
+    navigateToConversation,
     clearScrollState,
     clearReturnState,
   };

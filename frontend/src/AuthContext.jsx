@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
+import { createContext, useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { supabase } from './supabase';
 import { setUserContext, clearUserContext } from './utils/sentry';
 
@@ -11,6 +11,9 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [authEvent, setAuthEvent] = useState(null); // Track auth events like PASSWORD_RECOVERY
   const [needsPasswordReset, setNeedsPasswordReset] = useState(false); // Persist password reset state
+
+  // Mutex to prevent concurrent token refresh race conditions
+  const refreshingPromiseRef = useRef(null);
 
   useEffect(() => {
     if (!supabase) {
@@ -108,8 +111,23 @@ export function AuthProvider({ children }) {
 
       if (expiresAt && expiresAt - now < 60) {
         // Token is expired or about to expire, refresh it
-        const { data: refreshData } = await supabase.auth.refreshSession();
-        return refreshData?.session?.access_token ?? session.access_token;
+        // Use mutex to prevent concurrent refresh race conditions
+        if (refreshingPromiseRef.current) {
+          // Another refresh is already in progress, wait for it
+          return refreshingPromiseRef.current;
+        }
+
+        // Start a new refresh and store the promise
+        refreshingPromiseRef.current = (async () => {
+          try {
+            const { data: refreshData } = await supabase.auth.refreshSession();
+            return refreshData?.session?.access_token ?? session.access_token;
+          } finally {
+            refreshingPromiseRef.current = null;
+          }
+        })();
+
+        return refreshingPromiseRef.current;
       }
 
       return session.access_token;
@@ -117,8 +135,21 @@ export function AuthProvider({ children }) {
 
     // No session, try to refresh in case there's a valid refresh token
     if (!session && !error) {
-      const { data: refreshData } = await supabase.auth.refreshSession();
-      return refreshData?.session?.access_token ?? null;
+      // Use mutex for this refresh path as well
+      if (refreshingPromiseRef.current) {
+        return refreshingPromiseRef.current;
+      }
+
+      refreshingPromiseRef.current = (async () => {
+        try {
+          const { data: refreshData } = await supabase.auth.refreshSession();
+          return refreshData?.session?.access_token ?? null;
+        } finally {
+          refreshingPromiseRef.current = null;
+        }
+      })();
+
+      return refreshingPromiseRef.current;
     }
 
     return null;

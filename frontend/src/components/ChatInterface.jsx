@@ -2,8 +2,6 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import Triage from './Triage';
 import ImageUpload from './ImageUpload';
 import CouncilProgressCapsule from './CouncilProgressCapsule';
-import { DeliberationView } from './deliberation';
-import { useDeliberationState } from '../hooks';
 import { Spinner } from './ui/Spinner';
 import { MessageSkeletonGroup } from './ui/Skeleton';
 import {
@@ -89,28 +87,6 @@ export default function ChatInterface({
   const messagesContainerRef = useRef(null);
   const userHasScrolledUp = useRef(false);
 
-  // Get last assistant message for deliberation state
-  const lastMessage = useMemo(() => {
-    const messages = conversation?.messages || [];
-    for (let i = messages.length - 1; i >= 0; i--) {
-      if (messages[i].role === 'assistant') {
-        return messages[i];
-      }
-    }
-    return null;
-  }, [conversation?.messages]);
-
-  // Get last user question for deliberation view
-  const lastUserQuestion = useMemo(() => {
-    const messages = conversation?.messages || [];
-    for (let i = messages.length - 1; i >= 0; i--) {
-      if (messages[i].role === 'user') {
-        return messages[i].content;
-      }
-    }
-    return '';
-  }, [conversation?.messages]);
-
   // Get first user question for context indicator
   const firstUserQuestion = useMemo(() => {
     const messages = conversation?.messages || [];
@@ -121,16 +97,6 @@ export default function ChatInterface({
     }
     return '';
   }, [conversation?.messages]);
-
-  // Deliberation state hook (currently disabled in render, but keeping hook for future use)
-  const deliberation = useDeliberationState({
-    stage1Streaming: lastMessage?.stage1Streaming || {},
-    stage2Streaming: lastMessage?.stage2Streaming || {},
-    stage3Streaming: lastMessage?.stage3Streaming || null,
-    loading: lastMessage?.loading || {},
-    userQuestion: lastUserQuestion,
-    contextKeywords: []
-  });
 
   // Image upload hook
   const imageUpload = ImageUpload({
@@ -320,28 +286,6 @@ export default function ChatInterface({
             onViewDecision={onViewDecision}
           />
         ) : null}
-
-        {/* Deliberation View - DISABLED: was conflicting with Stage1/2/3 components
-            TODO: To enable, need to hide Stage1/2/3 in MessageList when deliberation is active
-        {deliberation.shouldShowDeliberationView && !lastMessage?.isChat && (
-          <DeliberationView
-            question={deliberation.question}
-            currentStage={deliberation.currentStage}
-            modelStates={deliberation.modelStates}
-            streamingContent={deliberation.streamingContent}
-            activeModel={deliberation.activeModel}
-            insights={deliberation.insights}
-            completedModels={deliberation.completedModels}
-            totalModels={deliberation.totalModels}
-            onAddContext={deliberation.onAddContext}
-            onStop={onStopGeneration}
-            showTransition={deliberation.showTransition}
-            previousStage={deliberation.previousStage}
-            companyName={selectedBusiness?.name || ''}
-            departments={departments}
-          />
-        )}
-        */}
 
         {/* Loading indicator during initial setup */}
         {isLoading && hasMessages && (() => {

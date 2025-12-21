@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from .database import get_supabase, get_supabase_with_auth, get_supabase_service
-from .security import log_app_event
+from .security import log_app_event, escape_sql_like_pattern, verify_user_company_access, log_security_event
 
 # Default company ID for AxCouncil (cached after first lookup)
 _default_company_id: Optional[str] = None
@@ -272,7 +272,8 @@ def list_conversations(
 
     # Apply search filter if provided (case-insensitive title search)
     if search:
-        query = query.ilike('title', f'%{search}%')
+        escaped_search = escape_sql_like_pattern(search)
+        query = query.ilike('title', f'%{escaped_search}%')
 
     # Order: starred first (descending so True comes first), then by updated_at (recent first)
     # We fetch limit + 20 to allow for filtering out empty conversations and sorting
@@ -559,23 +560,28 @@ def create_project(
     access_token: Optional[str] = None
 ) -> Optional[Dict[str, Any]]:
     """Create a new project."""
-    print(f"[CREATE_PROJECT] Starting: company={company_id_or_slug}, name={name}", flush=True)
+    log_app_event("PROJECT", "Create started", user_id=user_id, name=name)
 
     # Resolve slug to UUID if needed
     try:
         company_uuid = resolve_company_id(company_id_or_slug, access_token)
-        print(f"[CREATE_PROJECT] Resolved company_uuid={company_uuid}", flush=True)
     except Exception as e:
-        print(f"[CREATE_PROJECT] ERROR resolving company: {type(e).__name__}: {e}", flush=True)
+        log_app_event("PROJECT", f"Error resolving company: {type(e).__name__}", user_id=user_id, level="ERROR")
         raise
 
-    # Use service client to bypass RLS - user auth is validated by the endpoint
+    # SECURITY: Verify user has access to the target company before creating
+    if not verify_user_company_access(user_id, company_uuid):
+        log_security_event("CREATE_BLOCKED", user_id=user_id,
+                          resource_type="project", resource_id=company_uuid,
+                          severity="WARNING")
+        return None
+
+    # Use service client to bypass RLS - access already verified above
     client = get_supabase_service()
-    print(f"[CREATE_PROJECT] service_client={client is not None}", flush=True)
     if not client:
         # Fall back to user client if service key not configured
-        print("[CREATE_PROJECT] WARNING: No service client, falling back to user client", flush=True)
         client = _get_client(access_token)
+
     insert_data = {
         "company_id": company_uuid,
         "user_id": user_id,
@@ -595,13 +601,12 @@ def create_project(
     if source_conversation_id:
         insert_data["source_conversation_id"] = source_conversation_id
 
-    print(f"[CREATE_PROJECT] Inserting: {insert_data}", flush=True)
     try:
         result = client.table("projects").insert(insert_data).execute()
-        print(f"[CREATE_PROJECT] Insert result: {result.data}", flush=True)
+        log_app_event("PROJECT", "Created successfully", user_id=user_id, resource_id=result.data[0]["id"] if result.data else None)
         return result.data[0] if result.data else None
     except Exception as e:
-        print(f"[CREATE_PROJECT] ERROR inserting: {type(e).__name__}: {e}", flush=True)
+        log_app_event("PROJECT", f"Create failed: {type(e).__name__}", user_id=user_id, level="ERROR")
         raise
 
 
@@ -627,16 +632,32 @@ def update_project(
     status: Optional[str] = None,
     department_id: Optional[str] = None,
     department_ids: Optional[List[str]] = None,
-    source_conversation_id: Optional[str] = None
+    source_conversation_id: Optional[str] = None,
+    user_id: Optional[str] = None  # Required for security verification
 ) -> Optional[Dict[str, Any]]:
     """Update a project's fields."""
-    # Use service client to bypass RLS - user auth is validated by the endpoint
+    # Use service client to bypass RLS
     client = get_supabase_service()
-    print(f"[UPDATE_PROJECT] project_id={project_id}, service_client={client is not None}", flush=True)
     if not client:
         # Fall back to user client if service key not configured
-        print("[UPDATE_PROJECT] WARNING: No service client, falling back to user client", flush=True)
         client = _get_client(access_token)
+
+    # SECURITY: Verify user has access to this project's company
+    if user_id:
+        # Get project's company_id first
+        project_check = client.table("projects").select("company_id, user_id").eq("id", project_id).execute()
+        if not project_check.data:
+            log_security_event("UPDATE_BLOCKED", user_id=user_id,
+                              resource_type="project", resource_id=project_id,
+                              details={"reason": "project_not_found"}, severity="WARNING")
+            return None
+
+        project_company_id = project_check.data[0].get("company_id")
+        if not verify_user_company_access(user_id, project_company_id):
+            log_security_event("UPDATE_BLOCKED", user_id=user_id,
+                              resource_type="project", resource_id=project_id,
+                              severity="WARNING")
+            return None
 
     # Build update payload with only provided fields
     now = datetime.utcnow().isoformat() + 'Z'
@@ -661,14 +682,14 @@ def update_project(
     if source_conversation_id is not None:
         update_data["source_conversation_id"] = source_conversation_id if source_conversation_id else None
 
-    # Log summary (truncate context_md to avoid encoding issues on Windows)
-    log_data = {k: (v[:100] + '...' if k == 'context_md' and v and len(v) > 100 else v) for k, v in update_data.items()}
-    print(f"[UPDATE_PROJECT] update_data keys={list(update_data.keys())}, context_md_len={len(update_data.get('context_md', '') or '')}", flush=True)
     result = client.table("projects")\
         .update(update_data)\
         .eq("id", project_id)\
         .execute()
-    print(f"[UPDATE_PROJECT] result success={bool(result.data)}", flush=True)
+
+    if result.data:
+        log_app_event("PROJECT", "Updated", user_id=user_id, resource_id=project_id)
+
     return result.data[0] if result.data else None
 
 

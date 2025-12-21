@@ -33,9 +33,14 @@ export function BottomSheet({
     const content = contentRef.current;
     if (!content) return;
 
+    // Don't interfere with button clicks
+    const touchTarget = e.target;
+    if (touchTarget.closest('button, a, [role="button"], input, textarea, select')) {
+      return;
+    }
+
     // Only track if we're at the top of scroll or touching the handle
     const isAtTop = content.scrollTop <= 0;
-    const touchTarget = e.target;
     const isHandle = touchTarget.closest('.bottom-sheet-handle');
 
     if (isAtTop || isHandle) {
@@ -128,6 +133,10 @@ export function BottomSheet({
                     )}
                   </div>
                 )}
+                {/* Visually hidden description for accessibility */}
+                <Dialog.Description className="sr-only">
+                  {title ? `${title} dialog` : 'Dialog content'}
+                </Dialog.Description>
 
                 {/* Body */}
                 <div className="bottom-sheet-body">

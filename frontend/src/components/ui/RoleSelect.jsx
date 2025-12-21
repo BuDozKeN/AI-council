@@ -1,6 +1,8 @@
 /**
  * RoleSelect - A Select component for single role selection
  *
+ * Uses Radix Select for desktop and BottomSheet for mobile.
+ *
  * Usage:
  * <RoleSelect
  *   value={selectedRoleId}
@@ -16,7 +18,11 @@ import * as React from 'react';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import { User, Check, ChevronDown } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { BottomSheet } from './BottomSheet';
 import './RoleSelect.css';
+
+// Check if we're on mobile/tablet for bottom sheet vs dropdown
+const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
 
 // Custom SelectItem for roles
 const RoleSelectItem = React.forwardRef(({
@@ -52,6 +58,8 @@ export function RoleSelect({
   showIcon = true,
   compact = false,
 }) {
+  const [open, setOpen] = React.useState(false);
+
   // Get display name for current value
   const selectedRole = value && value !== 'all' ? roles.find(r => r.id === value) : null;
 
@@ -63,6 +71,62 @@ export function RoleSelect({
     return compact ? selectedRole.name.split(' ')[0] : selectedRole.name;
   };
 
+  const handleSelect = (roleValue) => {
+    onValueChange(roleValue);
+    setOpen(false);
+  };
+
+  // Build items list for mobile
+  const allItems = [
+    ...(includeAll ? [{ id: 'all', name: allLabel }] : []),
+    ...roles
+  ];
+
+  // Mobile: use BottomSheet
+  if (isMobileDevice()) {
+    return (
+      <>
+        <button
+          className={cn("role-select-trigger", selectedRole && "has-selection", className)}
+          disabled={disabled}
+          onClick={() => setOpen(true)}
+          type="button"
+        >
+          {showIcon && <User className="h-3.5 w-3.5" />}
+          <span>{getDisplayName()}</span>
+          <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
+        </button>
+
+        <BottomSheet
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          title="Select Role"
+        >
+          <div className="role-select-list-mobile">
+            {allItems.map(role => {
+              const isSelected = (role.id === 'all' && (!value || value === 'all')) ||
+                               (role.id === value);
+              return (
+                <button
+                  key={role.id}
+                  className={cn("role-select-item-mobile", isSelected && "selected")}
+                  onClick={() => handleSelect(role.id)}
+                  type="button"
+                >
+                  <div className={cn("role-select-radio", isSelected && "checked")}>
+                    {isSelected && <Check className="h-3 w-3" />}
+                  </div>
+                  <span className="role-select-item-label">{role.name}</span>
+                </button>
+              );
+            })}
+          </div>
+        </BottomSheet>
+      </>
+    );
+  }
+
+  // Desktop: use Radix Select
   return (
     <SelectPrimitive.Root value={value || 'all'} onValueChange={onValueChange} disabled={disabled}>
       <SelectPrimitive.Trigger

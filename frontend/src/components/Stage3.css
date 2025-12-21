@@ -1179,6 +1179,40 @@
     overflow-x: visible;
   }
 
+  /* Typography - readable on mobile */
+  .final-text {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  /* Copy button - proper touch target */
+  .stage3-header-copy,
+  .copy-btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 10px;
+  }
+
+  .copy-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Code blocks - edge to edge for more space */
+  .code-block-wrapper {
+    margin-left: -16px;
+    margin-right: -16px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  .code-block-wrapper .copy-code-btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 10px;
+  }
+
   /* Table cells - prevent wrapping */
   .table-scroll-wrapper th,
   .table-scroll-wrapper td {
@@ -1194,84 +1228,299 @@
     max-width: 150px;
   }
 
-  /* Save toolbar - stack vertically on mobile */
+  /* ===========================================
+     SAVE TOOLBAR - Mobile-first vertical stack
+     =========================================== */
+
   .save-toolbar-unified {
     flex-direction: column;
     align-items: stretch;
-    gap: 10px;
+    gap: 12px;
+    width: 100%;
   }
 
-  /* Options group - allow wrapping on mobile */
+  /* Options group - vertical layout on mobile */
   .save-options-group {
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    gap: 4px;
-    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+    padding: 12px;
+    background: var(--color-slate-50);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-lg);
   }
 
-  /* Hide dividers on mobile for cleaner look */
+  /* Hide dividers on mobile - using vertical spacing instead */
   .save-divider {
     display: none;
   }
 
-  /* Type pills - smaller on mobile */
+  /* Department trigger - full width, proper touch target */
+  .save-dept-trigger {
+    width: 100%;
+    min-height: 48px;
+    justify-content: space-between;
+    padding: 12px 16px;
+    font-size: 15px;
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-md);
+  }
+
+  /* Project pill - full width, proper touch target */
+  .save-project-pill {
+    width: 100%;
+    min-height: 48px;
+    justify-content: space-between;
+    padding: 12px 16px;
+    font-size: 15px;
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-md);
+    max-width: none;
+  }
+
+  .save-project-pill span {
+    max-width: none;
+  }
+
+  .save-project-pill.has-project {
+    background: var(--color-purple-50);
+    border-color: var(--color-purple-200);
+  }
+
+  /* Type pills - horizontal row that can wrap */
   .save-type-pills {
+    display: flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: 8px;
+    width: 100%;
   }
 
   .save-type-pill {
-    padding: 5px 8px;
-    font-size: 11px;
+    flex: 1;
+    min-width: calc(33% - 6px);
+    min-height: 44px;
+    justify-content: center;
+    padding: 10px 12px;
+    font-size: 13px;
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-primary);
   }
 
-  /* Save action button - full width on mobile */
+  .save-type-pill.selected {
+    border-width: 2px;
+  }
+
+  /* Save action button - prominent CTA, full width */
   .save-action-btn {
     width: 100%;
+    min-height: 56px;
     justify-content: center;
-    padding: 12px 16px;
-    font-size: 14px;
+    padding: 16px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: var(--radius-lg);
   }
 
-  /* Save status group */
+  /* Save status group - full width */
   .save-status-group {
     width: 100%;
+    min-height: 48px;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 12px;
+    padding: 12px 16px;
   }
 
-  /* Department trigger compact on mobile */
-  .save-dept-trigger {
-    padding: 5px 8px;
-    font-size: 12px;
+  .save-status-text {
+    font-size: 15px;
   }
 
-  /* Project pill compact */
-  .save-project-pill {
-    padding: 5px 8px;
-    font-size: 12px;
+  .save-view-link {
+    font-size: 15px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+  }
+
+  /* Access button - full width if shown */
+  .save-access-btn {
+    width: 100%;
+    min-height: 48px;
+    justify-content: center;
+    font-size: 15px;
   }
 }
 
-/* Even smaller screens */
+/* ===========================================
+   Mobile BottomSheet project list styles
+   =========================================== */
+
+.save-project-list-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.save-project-option-mobile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  min-height: 56px;
+  padding: 14px 16px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+  /* Ensure proper mobile touch handling */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(139, 92, 246, 0.2);
+  user-select: none;
+}
+
+.save-project-option-mobile:hover {
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+}
+
+.save-project-option-mobile:active {
+  background: var(--color-slate-100);
+  transform: scale(0.98);
+}
+
+.save-project-option-mobile.selected {
+  background: var(--color-purple-50);
+  border-color: var(--color-purple-300);
+  border-width: 2px;
+}
+
+.save-project-option-mobile .save-project-option-name {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.save-project-option-mobile.selected .save-project-option-name {
+  color: var(--color-purple-700);
+  font-weight: 600;
+}
+
+.save-project-option-mobile .save-project-option-desc {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin-top: 4px;
+}
+
+.save-project-create-btn-mobile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 52px;
+  margin-top: 8px;
+  padding: 14px 16px;
+  background: var(--color-bg-primary);
+  border: 2px dashed var(--color-purple-300);
+  border-radius: var(--radius-lg);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-purple-600);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  /* Ensure proper mobile touch handling */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(139, 92, 246, 0.2);
+  user-select: none;
+}
+
+.save-project-create-btn-mobile:hover {
+  background: var(--color-purple-50);
+  border-color: var(--color-purple-400);
+}
+
+.save-project-create-btn-mobile:active {
+  background: var(--color-purple-100);
+  transform: scale(0.98);
+}
+
+/* Dark mode mobile bottom sheet */
+.dark .save-project-option-mobile {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .save-project-option-mobile:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .save-project-option-mobile.selected {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: var(--color-violet-500);
+}
+
+.dark .save-project-option-mobile .save-project-option-name {
+  color: var(--color-text-primary);
+}
+
+.dark .save-project-option-mobile.selected .save-project-option-name {
+  color: var(--color-violet-400);
+}
+
+.dark .save-project-create-btn-mobile {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-violet-500);
+  color: var(--color-violet-400);
+}
+
+.dark .save-project-create-btn-mobile:hover {
+  background: rgba(139, 92, 246, 0.1);
+}
+
+/* Even smaller screens (iPhone SE, etc) */
 @media (max-width: 400px) {
+  .stage3 {
+    padding: 10px;
+  }
+
   .final-response {
     padding: 12px;
   }
 
+  /* Maintain touch targets even on small screens */
   .save-options-group {
-    padding: 4px;
+    padding: 10px;
+    gap: 6px;
+  }
+
+  .save-dept-trigger,
+  .save-project-pill {
+    min-height: 44px;
+    padding: 10px 14px;
+    font-size: 14px;
   }
 
   .save-type-pill {
-    padding: 4px 6px;
-    font-size: 10px;
+    min-height: 44px;
+    padding: 8px 10px;
+    font-size: 12px;
   }
 
   .save-type-pill svg {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
+  }
+
+  .save-action-btn {
+    min-height: 52px;
+    font-size: 15px;
   }
 }
 

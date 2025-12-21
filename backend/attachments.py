@@ -10,6 +10,9 @@ BUCKET_NAME = "attachments"
 ALLOWED_MIME_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"]
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
+# Allowed file extensions (must match ALLOWED_MIME_TYPES)
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
 # Magic bytes for image file validation
 # These are the first few bytes that identify file types
 IMAGE_MAGIC_BYTES = {
@@ -92,7 +95,17 @@ async def upload_attachment(
         raise ValueError(f"File content does not match claimed type '{file_type}'")
 
     # Generate unique file path: user_id/uuid.extension
-    file_ext = file_name.split('.')[-1] if '.' in file_name else 'png'
+    # SECURITY: Validate and whitelist file extension
+    file_ext = file_name.split('.')[-1].lower() if '.' in file_name else 'png'
+    if file_ext not in ALLOWED_EXTENSIONS:
+        # Fall back to extension based on MIME type for safety
+        mime_to_ext = {
+            'image/png': 'png',
+            'image/jpeg': 'jpg',
+            'image/webp': 'webp',
+            'image/gif': 'gif'
+        }
+        file_ext = mime_to_ext.get(file_type, 'png')
     unique_id = str(uuid.uuid4())
     storage_path = f"{user_id}/{unique_id}.{file_ext}"
 

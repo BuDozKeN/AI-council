@@ -22,7 +22,7 @@ import time
 
 from ..auth import get_current_user
 from ..database import get_supabase_with_auth, get_supabase_service
-from ..security import SecureHTTPException, log_security_event, log_app_event
+from ..security import SecureHTTPException, log_security_event, log_app_event, escape_sql_like_pattern
 
 
 router = APIRouter(prefix="/api/company", tags=["company"])
@@ -1691,8 +1691,9 @@ async def get_decisions(
         .eq("is_active", True)
 
     if search:
-        # Search in title and content
-        query = query.or_(f"title.ilike.%{search}%,content.ilike.%{search}%")
+        # Search in title and content (escape special SQL LIKE characters)
+        escaped_search = escape_sql_like_pattern(search)
+        query = query.or_(f"title.ilike.%{escaped_search}%,content.ilike.%{escaped_search}%")
 
     result = query.order("created_at", desc=True).limit(limit).execute()
 
@@ -3267,7 +3268,7 @@ async def get_company_usage(company_id: ValidCompanyId, user=Depends(get_current
 
     Returns aggregate data only - no user-level breakdown (privacy by design).
     """
-    from datetime import datetime, timedelta
+    from datetime import datetime
 
     client = get_service_client()
 
@@ -3279,38 +3280,65 @@ async def get_company_usage(company_id: ValidCompanyId, user=Depends(get_current
     # Check if user is owner or admin
     current_user_id = user.get('id') if isinstance(user, dict) else user.id
 
-    my_membership = client.table("company_members") \
-        .select("role") \
-        .eq("company_id", company_uuid) \
-        .eq("user_id", current_user_id) \
-        .single() \
-        .execute()
+    try:
+        my_membership = client.table("company_members") \
+            .select("role") \
+            .eq("company_id", company_uuid) \
+            .eq("user_id", current_user_id) \
+            .maybe_single() \
+            .execute()
 
-    if not my_membership.data or my_membership.data["role"] not in ["owner", "admin"]:
-        raise HTTPException(status_code=403, detail="Only owners and admins can view usage")
+        if not my_membership.data or my_membership.data["role"] not in ["owner", "admin"]:
+            raise HTTPException(status_code=403, detail="Only owners and admins can view usage")
+    except HTTPException:
+        raise
+    except Exception:
+        # company_members table might not exist yet, fall back to owner check
+        try:
+            company_check = client.table("companies") \
+                .select("user_id") \
+                .eq("id", company_uuid) \
+                .maybe_single() \
+                .execute()
+            if not company_check.data or company_check.data.get("user_id") != current_user_id:
+                raise HTTPException(status_code=403, detail="Only owners and admins can view usage")
+        except HTTPException:
+            raise
+        except Exception:
+            raise HTTPException(status_code=403, detail="Only owners and admins can view usage")
 
-    # Get all-time usage
-    all_time = client.table("usage_events") \
-        .select("id, tokens_input, tokens_output") \
-        .eq("company_id", company_uuid) \
-        .execute()
+    # Get usage data - handle case where usage_events table might not exist
+    try:
+        # Get all-time usage
+        all_time = client.table("usage_events") \
+            .select("id, tokens_input, tokens_output") \
+            .eq("company_id", company_uuid) \
+            .execute()
 
-    total_sessions = len(all_time.data) if all_time.data else 0
-    total_input = sum(e.get("tokens_input", 0) or 0 for e in (all_time.data or []))
-    total_output = sum(e.get("tokens_output", 0) or 0 for e in (all_time.data or []))
+        total_sessions = len(all_time.data) if all_time.data else 0
+        total_input = sum(e.get("tokens_input", 0) or 0 for e in (all_time.data or []))
+        total_output = sum(e.get("tokens_output", 0) or 0 for e in (all_time.data or []))
 
-    # Get this month's usage
-    first_of_month = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        # Get this month's usage
+        first_of_month = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
-    this_month = client.table("usage_events") \
-        .select("id, tokens_input, tokens_output") \
-        .eq("company_id", company_uuid) \
-        .gte("created_at", first_of_month.isoformat()) \
-        .execute()
+        this_month = client.table("usage_events") \
+            .select("id, tokens_input, tokens_output") \
+            .eq("company_id", company_uuid) \
+            .gte("created_at", first_of_month.isoformat()) \
+            .execute()
 
-    month_sessions = len(this_month.data) if this_month.data else 0
-    month_input = sum(e.get("tokens_input", 0) or 0 for e in (this_month.data or []))
-    month_output = sum(e.get("tokens_output", 0) or 0 for e in (this_month.data or []))
+        month_sessions = len(this_month.data) if this_month.data else 0
+        month_input = sum(e.get("tokens_input", 0) or 0 for e in (this_month.data or []))
+        month_output = sum(e.get("tokens_output", 0) or 0 for e in (this_month.data or []))
+    except Exception:
+        # usage_events table might not exist yet - return zeros
+        total_sessions = 0
+        total_input = 0
+        total_output = 0
+        month_sessions = 0
+        month_input = 0
+        month_output = 0
 
     return {
         "usage": {

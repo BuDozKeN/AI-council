@@ -1,6 +1,8 @@
 /**
  * StatusSelect - A Select component for project status selection
  *
+ * Uses Radix Select for desktop and BottomSheet for mobile.
+ *
  * This component matches the DepartmentSelect design system:
  * - 12px border-radius on dropdown
  * - 8px border-radius on items
@@ -20,7 +22,11 @@ import * as React from 'react';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import { Check, ChevronDown, Circle, CheckCircle2, Archive, Layers } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { BottomSheet } from './BottomSheet';
 import './StatusSelect.css';
+
+// Check if we're on mobile/tablet for bottom sheet vs dropdown
+const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
 
 // Status color definitions
 const statusColors = {
@@ -64,6 +70,8 @@ const statusLabels = {
   archived: 'Archived',
 };
 
+const statusOptions = ['all', 'active', 'completed', 'archived'];
+
 // Custom SelectItem matching DepartmentSelectItem pattern
 const StatusSelectItem = React.forwardRef(({
   className,
@@ -103,6 +111,7 @@ export function StatusSelect({
   disabled = false,
   className,
 }) {
+  const [open, setOpen] = React.useState(false);
   const colors = statusColors[value] || statusColors.active;
   const Icon = statusIcons[value] || Circle;
 
@@ -113,6 +122,69 @@ export function StatusSelect({
     borderColor: colors.border,
   };
 
+  const handleSelect = (statusValue) => {
+    onValueChange(statusValue);
+    setOpen(false);
+  };
+
+  // Mobile: use BottomSheet
+  if (isMobileDevice()) {
+    return (
+      <>
+        <button
+          className={cn("status-select-trigger", className)}
+          disabled={disabled}
+          onClick={() => setOpen(true)}
+          style={triggerStyle}
+          type="button"
+        >
+          <Icon className="h-3.5 w-3.5" />
+          <span>{statusLabels[value] || value}</span>
+          <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
+        </button>
+
+        <BottomSheet
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          title="Filter by Status"
+        >
+          <div className="status-select-list-mobile">
+            {statusOptions.map(status => {
+              const isSelected = status === value;
+              const statusColor = statusColors[status];
+              const StatusIcon = statusIcons[status];
+              return (
+                <button
+                  key={status}
+                  className={cn("status-select-item-mobile", isSelected && "selected")}
+                  onClick={() => handleSelect(status)}
+                  style={{
+                    '--status-bg': statusColor.bg,
+                    '--status-text': statusColor.text,
+                  }}
+                  type="button"
+                >
+                  <div
+                    className={cn("status-select-radio", isSelected && "checked")}
+                    style={{
+                      '--radio-checked-bg': statusColor.text,
+                      '--radio-checked-border': statusColor.text
+                    }}
+                  >
+                    {isSelected && <Check className="h-3 w-3" />}
+                  </div>
+                  <StatusIcon className="h-4 w-4" style={{ color: statusColor.text }} />
+                  <span className="status-select-item-label">{statusLabels[status]}</span>
+                </button>
+              );
+            })}
+          </div>
+        </BottomSheet>
+      </>
+    );
+  }
+
+  // Desktop: use Radix Select
   return (
     <SelectPrimitive.Root value={value} onValueChange={onValueChange} disabled={disabled}>
       <SelectPrimitive.Trigger

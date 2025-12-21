@@ -276,6 +276,38 @@ def validate_safe_string(value: str, max_length: int = 1000) -> bool:
     return True
 
 
+def escape_sql_like_pattern(search: str, max_length: int = 100) -> str:
+    """
+    Escape special SQL LIKE pattern characters for safe use in ilike queries.
+
+    This prevents:
+    1. Wildcard injection (%, _) that could cause expensive full-table scans
+    2. Overly long search strings that could impact performance
+
+    Args:
+        search: The user-provided search string
+        max_length: Maximum allowed length (default 100)
+
+    Returns:
+        Escaped and length-limited search string
+    """
+    if not search:
+        return ""
+
+    # Limit length to prevent DoS via long search strings
+    search = search[:max_length]
+
+    # Escape SQL LIKE special characters
+    # % matches any sequence of characters
+    # _ matches any single character
+    # \ is the escape character itself
+    search = search.replace('\\', '\\\\')  # Escape backslash first
+    search = search.replace('%', '\\%')
+    search = search.replace('_', '\\_')
+
+    return search
+
+
 # =============================================================================
 # GDPR/HIPAA COMPLIANT LOGGING
 # =============================================================================

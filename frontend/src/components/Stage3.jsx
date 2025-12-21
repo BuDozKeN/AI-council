@@ -6,9 +6,14 @@ import { api } from '../api';
 import { MultiDepartmentSelect } from './ui/MultiDepartmentSelect';
 import { Spinner } from './ui/Spinner';
 import { CopyButton } from './ui/CopyButton';
+import { BottomSheet } from './ui/BottomSheet';
 import { Bookmark, FileText, Layers, ScrollText, FolderKanban, ChevronDown, Plus, Sparkles, CheckCircle2 } from 'lucide-react';
 import { getModelPersona } from '../config/modelPersonas';
 import './Stage3.css';
+
+// Check if we're on mobile/tablet (for bottom sheet vs dropdown)
+// Use 768px to include tablets like iPad Mini
+const isMobileDevice = () => window.innerWidth <= 768;
 
 // Minimum interval between decision status checks (ms)
 const DECISION_CHECK_THROTTLE = 5000;
@@ -731,7 +736,76 @@ export default function Stage3({
                     <ChevronDown className="h-3 w-3" />
                   </button>
 
-                  {showProjectDropdown && createPortal(
+                  {/* Mobile: BottomSheet, Desktop: Portal dropdown */}
+                  {showProjectDropdown && isMobileDevice() ? (
+                    <BottomSheet
+                      isOpen={showProjectDropdown}
+                      onClose={() => setShowProjectDropdown(false)}
+                      title="Select Project"
+                    >
+                      <div className="save-project-list-mobile">
+                        {/* No project option */}
+                        <button
+                          type="button"
+                          className={`save-project-option-mobile ${!selectedProjectId ? 'selected' : ''}`}
+                          onClick={() => {
+                            setSelectedProjectId(null);
+                            onSelectProject && onSelectProject(null);
+                            setShowProjectDropdown(false);
+                          }}
+                        >
+                          <span className="save-project-option-name">No Project</span>
+                          <span className="save-project-option-desc">Save without linking to a project</span>
+                        </button>
+                        {/* Active projects */}
+                        {projects.filter(p => p.status === 'active').map(project => (
+                          <button
+                            type="button"
+                            key={project.id}
+                            className={`save-project-option-mobile ${selectedProjectId === project.id ? 'selected' : ''}`}
+                            onClick={() => {
+                              setSelectedProjectId(project.id);
+                              onSelectProject && onSelectProject(project.id);
+                              setShowProjectDropdown(false);
+                            }}
+                          >
+                            <span className="save-project-option-name">{project.name}</span>
+                            {project.description && (
+                              <span className="save-project-option-desc">{project.description}</span>
+                            )}
+                          </button>
+                        ))}
+                        {/* Create new project */}
+                        {onCreateProject && (
+                          <button
+                            type="button"
+                            className="save-project-create-btn-mobile"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              // Close BottomSheet first, then open modal after animation completes
+                              // This prevents Radix Dialog conflicts between BottomSheet and ProjectModal
+                              setShowProjectDropdown(false);
+                              setTimeout(() => {
+                                onCreateProject({
+                                  userQuestion,
+                                  councilResponse: displayText,
+                                  departmentIds: selectedDeptIds
+                                });
+                              }, 250);
+                            }}
+                            onTouchEnd={(e) => {
+                              // Ensure touch events trigger on mobile
+                              e.stopPropagation();
+                            }}
+                          >
+                            <Plus className="h-4 w-4" />
+                            <span>Create New Project</span>
+                          </button>
+                        )}
+                      </div>
+                    </BottomSheet>
+                  ) : showProjectDropdown && createPortal(
                     <div
                       className="save-project-dropdown-portal"
                       style={{

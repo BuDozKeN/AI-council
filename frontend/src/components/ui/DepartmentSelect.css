@@ -150,3 +150,78 @@
   justify-content: center;
   color: var(--dept-checked-text, var(--color-emerald-600));
 }
+
+/* =============================================================================
+   MOBILE BOTTOM SHEET STYLES
+   ============================================================================= */
+
+/* Mobile list container in BottomSheet */
+.dept-select-list-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+}
+
+/* Mobile item - larger touch targets */
+.dept-select-item-mobile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 56px;
+  padding: 14px 16px;
+  border: none;
+  background: var(--color-bg-secondary);
+  border-radius: 12px;
+  font-size: 16px;
+  color: var(--color-gray-700);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.dept-select-item-mobile:active {
+  background: var(--color-gray-200);
+  transform: scale(0.98);
+}
+
+.dept-select-item-mobile.selected {
+  background: var(--dept-bg, var(--color-gray-100));
+  color: var(--dept-text, var(--color-gray-700));
+}
+
+/* Radio indicator for single select */
+.dept-select-radio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--color-gray-300);
+  border-radius: 50%;
+  background: var(--color-bg-primary);
+  transition: all 0.1s ease;
+  flex-shrink: 0;
+}
+
+.dept-select-radio.checked {
+  background: var(--radio-checked-bg, var(--color-gray-600));
+  border-color: var(--radio-checked-border, var(--color-gray-600));
+  color: var(--color-text-inverse);
+}
+
+/* Item label */
+.dept-select-item-mobile .dept-select-item-label {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* Mobile trigger improvements */
+@media (max-width: 640px) {
+  .dept-select-trigger {
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: 15px;
+  }
+}
