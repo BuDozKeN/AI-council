@@ -813,8 +813,9 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
 
                                 {/* Council's response with copy button */}
                                 <div className="mc-timeline-answer">
-                                  <button
-                                    className="mc-timeline-copy-btn"
+                                  <div className="mc-timeline-copy-container">
+                                    <button
+                                      className="mc-timeline-copy-btn"
                                     onClick={async (e) => {
                                       e.stopPropagation();
                                       const btn = e.target.closest('.mc-timeline-copy-btn');
@@ -843,10 +844,11 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                                       <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
                                     </svg>
-                                    <svg className="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{display: 'none'}}>
-                                      <polyline points="20 6 9 17 4 12" />
-                                    </svg>
-                                  </button>
+                                      <svg className="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{display: 'none'}}>
+                                        <polyline points="20 6 9 17 4 12" />
+                                      </svg>
+                                    </button>
+                                  </div>
                                   <MarkdownViewer content={decision.content || ''} skipCleanup={true} />
                                 </div>
 
