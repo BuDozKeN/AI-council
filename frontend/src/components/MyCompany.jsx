@@ -14,8 +14,8 @@ import { AIWriteAssist } from './ui/AIWriteAssist';
 import { PullToRefreshIndicator } from './ui/PullToRefreshIndicator';
 import { Building2, Bookmark, FolderKanban, CheckCircle, Archive, RotateCcw, ExternalLink, Trash2, Sparkles, PenLine, RefreshCw, Users, BookOpen, BarChart3, Lightbulb, ClipboardList } from 'lucide-react';
 import { getDeptColor } from '../lib/colors';
-import { usePullToRefresh } from '../hooks';
-import { hapticLight, hapticSuccess } from '../lib/haptics';
+import { usePullToRefresh, useSwipeGesture } from '../hooks';
+import { hapticLight, hapticSuccess, hapticMedium } from '../lib/haptics';
 // Eagerly load small/simple modals
 import {
   AddDepartmentModal,
@@ -182,6 +182,21 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
   } = usePullToRefresh({
     onRefresh: handleRefresh,
     threshold: 80,
+    enabled: true,
+  });
+
+  // Swipe gesture to close panel (swipe down or swipe right from edge)
+  const handleSwipeClose = useCallback(() => {
+    hapticMedium();
+    onClose?.();
+  }, [onClose]);
+
+  const panelSwipeRef = useSwipeGesture({
+    onSwipeDown: handleSwipeClose,
+    onSwipeRight: handleSwipeClose,
+    threshold: 80,
+    edgeOnly: true, // Only trigger on edge swipes (prevents accidental closes)
+    edgeWidth: 40,
     enabled: true,
   });
 
@@ -1049,7 +1064,7 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
 
   return (
     <div className="mc-overlay" onClick={onClose}>
-      <div className="mc-panel" onClick={e => e.stopPropagation()}>
+      <div className="mc-panel" ref={panelSwipeRef} onClick={e => e.stopPropagation()}>
         {/* Header */}
         <header className="mc-header">
           <div className="mc-header-content">

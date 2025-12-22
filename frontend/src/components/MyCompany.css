@@ -65,6 +65,9 @@
     0 25px 50px rgba(0, 0, 0, 0.12);
   overflow: hidden;
   animation: mc-panel-slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  /* Prevent browser back gesture from triggering on horizontal swipes */
+  overscroll-behavior-x: contain;
+  touch-action: pan-y pinch-zoom;
 }
 
 @keyframes mc-panel-slide-up {
