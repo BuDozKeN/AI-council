@@ -12,8 +12,11 @@
 import { useMemo } from 'react';
 import { CheckCircle } from 'lucide-react';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
+import { ScrollableContent } from '../../ui/ScrollableContent';
 import { getDeptColor } from '../../../lib/colors';
 import { formatDateCompact } from '../../../lib/dateUtils';
+
+// Note: ScrollableContent provides sticky copy button + scroll-to-top for lists
 
 // Helper to get a clean, short title from decision
 function getDecisionDisplayTitle(decision) {
@@ -156,7 +159,6 @@ export function DecisionsTab({
       {/* Empty state for filtered results */}
       {filteredDecisions.length === 0 && (
         <div className="mc-empty">
-          <div className="mc-empty-icon">🔍</div>
           <p className="mc-empty-title">No matching decisions</p>
           <p className="mc-empty-hint">
             Try adjusting your search or department filter.
@@ -164,80 +166,82 @@ export function DecisionsTab({
         </div>
       )}
 
-      {/* Decision list */}
+      {/* Decision list with scroll-to-top */}
       {filteredDecisions.length > 0 && (
-        <div className="mc-elegant-list">
-          {filteredDecisions.map(decision => {
-            const isDeleting = deletingDecisionId === decision.id;
-            const displayTitle = getDecisionDisplayTitle(decision);
+        <ScrollableContent className="mc-decisions-list">
+          <div className="mc-elegant-list">
+            {filteredDecisions.map(decision => {
+              const isDeleting = deletingDecisionId === decision.id;
+              const displayTitle = getDecisionDisplayTitle(decision);
 
-            return (
-              <div
-                key={decision.id}
-                className={`mc-elegant-row mc-decision-row ${isDeleting ? 'deleting' : ''}`}
-                onClick={() => !isDeleting && onPromoteDecision && onPromoteDecision(decision)}
-              >
-                {/* Status indicator - amber for pending */}
-                <div className="mc-status-dot draft" />
+              return (
+                <div
+                  key={decision.id}
+                  className={`mc-elegant-row mc-decision-row ${isDeleting ? 'deleting' : ''}`}
+                  onClick={() => !isDeleting && onPromoteDecision && onPromoteDecision(decision)}
+                >
+                  {/* Status indicator - amber for pending */}
+                  <div className="mc-status-dot draft" />
 
-                {/* Main content - title + badges */}
-                <div className="mc-elegant-content">
-                  <span className="mc-elegant-title">{displayTitle}</span>
-                  <div className="mc-elegant-badges">
-                    {/* Department badges */}
-                    {(decision.department_ids || []).map(deptId => {
-                      const dept = departments.find(d => d.id === deptId);
-                      if (!dept) return null;
-                      const color = getDeptColor(deptId);
-                      return (
-                        <span
-                          key={deptId}
-                          className="mc-elegant-dept"
-                          style={{
-                            background: color.bg,
-                            color: color.text
-                          }}
+                  {/* Main content - title + badges */}
+                  <div className="mc-elegant-content">
+                    <span className="mc-elegant-title">{displayTitle}</span>
+                    <div className="mc-elegant-badges">
+                      {/* Department badges */}
+                      {(decision.department_ids || []).map(deptId => {
+                        const dept = departments.find(d => d.id === deptId);
+                        if (!dept) return null;
+                        const color = getDeptColor(deptId);
+                        return (
+                          <span
+                            key={deptId}
+                            className="mc-elegant-dept"
+                            style={{
+                              background: color.bg,
+                              color: color.text
+                            }}
+                          >
+                            {dept.name}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Right side: Date (fades on hover) + Actions (appear on hover) */}
+                  <div className="mc-elegant-right">
+                    <span className="mc-elegant-date">
+                      {formatDateCompact(decision.created_at)}
+                    </span>
+                    <div className="mc-elegant-actions">
+                      {decision.source_conversation_id && !decision.source_conversation_id.startsWith('temp-') && onNavigateToConversation && (
+                        <button
+                          className="mc-text-btn source"
+                          onClick={(e) => { e.stopPropagation(); onNavigateToConversation(decision.source_conversation_id, 'decisions'); }}
+                          title="View original conversation"
                         >
-                          {dept.name}
-                        </span>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Right side: Date (fades on hover) + Actions (appear on hover) */}
-                <div className="mc-elegant-right">
-                  <span className="mc-elegant-date">
-                    {formatDateCompact(decision.created_at)}
-                  </span>
-                  <div className="mc-elegant-actions">
-                    {decision.source_conversation_id && !decision.source_conversation_id.startsWith('temp-') && onNavigateToConversation && (
+                          Source
+                        </button>
+                      )}
                       <button
-                        className="mc-text-btn source"
-                        onClick={(e) => { e.stopPropagation(); onNavigateToConversation(decision.source_conversation_id, 'decisions'); }}
-                        title="View original conversation"
+                        className="mc-text-btn promote"
+                        onClick={(e) => { e.stopPropagation(); onPromoteDecision && onPromoteDecision(decision); }}
                       >
-                        Source
+                        Promote
                       </button>
-                    )}
-                    <button
-                      className="mc-text-btn promote"
-                      onClick={(e) => { e.stopPropagation(); onPromoteDecision && onPromoteDecision(decision); }}
-                    >
-                      Promote
-                    </button>
-                    <button
-                      className="mc-text-btn delete"
-                      onClick={(e) => { e.stopPropagation(); onDeleteDecision && onDeleteDecision(decision); }}
-                    >
-                      Delete
-                    </button>
+                      <button
+                        className="mc-text-btn delete"
+                        onClick={(e) => { e.stopPropagation(); onDeleteDecision && onDeleteDecision(decision); }}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        </ScrollableContent>
       )}
     </div>
   );

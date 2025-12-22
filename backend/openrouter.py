@@ -2,10 +2,53 @@
 
 import httpx
 import json
+import contextvars
 from typing import List, Dict, Any, Optional, AsyncGenerator
 from .config import OPENROUTER_API_KEY, OPENROUTER_API_URL
 from .config import MOCK_LLM as _MOCK_LLM_INITIAL
 from .config import ENABLE_PROMPT_CACHING, CACHE_SUPPORTED_MODELS
+
+# Context variable for per-request API key override (BYOK)
+# This allows setting the API key at the request level without threading it through all functions
+_request_api_key: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar('request_api_key', default=None)
+
+
+def set_request_api_key(key: Optional[str]) -> contextvars.Token:
+    """
+    Set the API key for the current async context (for BYOK support).
+    Returns a token that can be used to reset the value.
+
+    Usage:
+        token = set_request_api_key(user_key)
+        try:
+            # All openrouter calls in this context will use user_key
+            await query_model(...)
+        finally:
+            reset_request_api_key(token)
+    """
+    return _request_api_key.set(key)
+
+
+def reset_request_api_key(token: contextvars.Token):
+    """Reset the API key to its previous value using the token from set_request_api_key."""
+    _request_api_key.reset(token)
+
+
+def get_effective_api_key(explicit_key: Optional[str] = None) -> str:
+    """
+    Get the API key to use for a request.
+
+    Priority:
+    1. Explicitly passed key (function parameter)
+    2. Context variable key (set via set_request_api_key)
+    3. System key (OPENROUTER_API_KEY from environment)
+    """
+    if explicit_key:
+        return explicit_key
+    context_key = _request_api_key.get()
+    if context_key:
+        return context_key
+    return OPENROUTER_API_KEY
 
 # Module-level mock mode flag (can be changed at runtime via API)
 MOCK_LLM = _MOCK_LLM_INITIAL
@@ -120,7 +163,8 @@ def convert_to_cached_messages(
 async def query_model(
     model: str,
     messages: List[Dict[str, str]],
-    timeout: float = 120.0
+    timeout: float = 120.0,
+    api_key: Optional[str] = None
 ) -> Optional[Dict[str, Any]]:
     """
     Query a single model via OpenRouter API.
@@ -129,6 +173,7 @@ async def query_model(
         model: OpenRouter model identifier (e.g., "openai/gpt-4o")
         messages: List of message dicts with 'role' and 'content'
         timeout: Request timeout in seconds
+        api_key: Optional API key override (for BYOK). Uses system key if not provided.
 
     Returns:
         Response dict with 'content' and optional 'reasoning_details', or None if failed
@@ -138,8 +183,10 @@ async def query_model(
         return await generate_mock_response(model, messages)
 
     # === REAL API CALL ===
+    # Use provided API key, context variable, or fall back to system key
+    effective_key = get_effective_api_key(api_key)
     headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Authorization": f"Bearer {effective_key}",
         "Content-Type": "application/json",
     }
 
@@ -185,7 +232,8 @@ async def query_model_stream(
     model: str,
     messages: List[Dict[str, str]],
     timeout: float = 120.0,
-    max_retries: int = 3
+    max_retries: int = 3,
+    api_key: Optional[str] = None
 ) -> AsyncGenerator[str, None]:
     """
     Query a single model via OpenRouter API with streaming.
@@ -195,6 +243,7 @@ async def query_model_stream(
         messages: List of message dicts with 'role' and 'content'
         timeout: Request timeout in seconds
         max_retries: Number of retries for overloaded/rate-limited errors
+        api_key: Optional API key override (for BYOK). Uses system key if not provided.
 
     Yields:
         Text chunks as they arrive from the model
@@ -208,8 +257,10 @@ async def query_model_stream(
     # === REAL API CALL ===
     import asyncio
 
+    # Use provided API key, context variable, or fall back to system key
+    effective_key = get_effective_api_key(api_key)
     headers = {
-        "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+        "Authorization": f"Bearer {effective_key}",
         "Content-Type": "application/json",
     }
 
@@ -382,7 +433,8 @@ async def query_model_stream(
 
 async def query_models_parallel(
     models: List[str],
-    messages: List[Dict[str, str]]
+    messages: List[Dict[str, str]],
+    api_key: Optional[str] = None
 ) -> Dict[str, Optional[Dict[str, Any]]]:
     """
     Query multiple models in parallel.
@@ -390,6 +442,7 @@ async def query_models_parallel(
     Args:
         models: List of OpenRouter model identifiers
         messages: List of message dicts to send to each model
+        api_key: Optional API key override (for BYOK). Uses system key if not provided.
 
     Returns:
         Dict mapping model identifier to response dict (or None if failed)
@@ -397,7 +450,7 @@ async def query_models_parallel(
     import asyncio
 
     # Create tasks for all models
-    tasks = [query_model(model, messages) for model in models]
+    tasks = [query_model(model, messages, api_key=api_key) for model in models]
 
     # Wait for all to complete
     responses = await asyncio.gather(*tasks)

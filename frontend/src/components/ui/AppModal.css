@@ -445,6 +445,57 @@
     padding: 16px;
     gap: 8px;
   }
+
+  /* Footer with actions - stack on mobile */
+  .app-modal-footer-with-actions {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  .app-modal-footer-left {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .app-modal-footer-right {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Buttons - full width on mobile */
+  .app-modal-btn {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+
+  .app-modal-btn-action {
+    min-height: 44px;
+    padding: 10px 14px;
+    flex: 1;
+    justify-content: center;
+  }
+
+  /* Inline confirm - stack buttons */
+  .app-modal-confirm-inline {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .app-modal-confirm-inline span {
+    width: 100%;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .app-modal-confirm-inline button {
+    flex: 1;
+    min-width: 80px;
+  }
 }
 
 /* ===========================================
@@ -565,5 +616,106 @@
   .app-modal-xl .app-modal-header,
   .app-modal-full .app-modal-header {
     padding-top: calc(16px + env(safe-area-inset-top, 0px));
+  }
+}
+
+/* ===========================================
+   Copy Button - Sticky top-right inside modal body
+   =========================================== */
+
+.app-modal-copy-btn {
+  position: sticky;
+  top: 0;
+  float: right;
+  margin-left: 8px;
+  margin-bottom: 8px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-primary, #fff);
+  border: 1px solid var(--color-slate-200, #e2e8f0);
+  border-radius: 6px;
+  color: var(--color-slate-500, #64748b);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  opacity: 0.7;
+  z-index: 5;
+}
+
+.app-modal-copy-btn:hover {
+  opacity: 1;
+  color: var(--color-slate-700, #334155);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.app-modal-copy-btn:active {
+  transform: scale(0.95);
+}
+
+.app-modal-copy-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.app-modal-copy-btn.copied {
+  color: var(--color-green-600, #16a34a);
+  border-color: var(--color-green-200, #bbf7d0);
+  background: var(--color-green-50, #f0fdf4);
+}
+
+/* ===========================================
+   Scroll to Top Button - Absolute bottom-right
+   =========================================== */
+
+.app-modal-scroll-top-btn {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-primary, #fff);
+  border: 1px solid var(--color-slate-200, #e2e8f0);
+  border-radius: 50%;
+  color: var(--color-slate-500, #64748b);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  opacity: 0.7;
+  z-index: 10;
+}
+
+.app-modal-scroll-top-btn:hover {
+  opacity: 1;
+  color: var(--color-slate-700, #334155);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.app-modal-scroll-top-btn:active {
+  transform: scale(0.95);
+}
+
+.app-modal-scroll-top-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Mobile - slightly larger for touch */
+@media (max-width: 640px) {
+  .app-modal-copy-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .app-modal-scroll-top-btn {
+    bottom: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
   }
 }

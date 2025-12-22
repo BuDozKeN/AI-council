@@ -386,7 +386,7 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
                 ) : (
                   <>
                     <Check className="pm-btn-icon" />
-                    <span>Save Project</span>
+                    <span>Save</span>
                   </>
                 )}
               </button>

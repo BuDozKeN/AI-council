@@ -177,6 +177,86 @@
   background: var(--color-slate-500);
 }
 
+/* Copy button - sticky top-right inside content */
+.thinking-stream-copy-btn {
+  position: sticky;
+  top: 4px;
+  float: right;
+  margin-left: 8px;
+  margin-bottom: 8px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-primary, #fff);
+  border: 1px solid var(--color-slate-200, #e2e8f0);
+  border-radius: 6px;
+  color: var(--color-slate-500, #64748b);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  opacity: 0.7;
+  z-index: 5;
+}
+
+.thinking-stream-copy-btn:hover {
+  opacity: 1;
+  color: var(--color-slate-700, #334155);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.thinking-stream-copy-btn:active {
+  transform: scale(0.95);
+}
+
+.thinking-stream-copy-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.thinking-stream-copy-btn.copied {
+  color: var(--color-green-600, #16a34a);
+  border-color: var(--color-green-200, #bbf7d0);
+  background: var(--color-green-50, #f0fdf4);
+}
+
+/* Scroll to top - absolute bottom-right */
+.thinking-stream-scroll-top-btn {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-primary, #fff);
+  border: 1px solid var(--color-slate-200, #e2e8f0);
+  border-radius: 50%;
+  color: var(--color-slate-500, #64748b);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  opacity: 0.7;
+  z-index: 10;
+}
+
+.thinking-stream-scroll-top-btn:hover {
+  opacity: 1;
+  color: var(--color-slate-700, #334155);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.thinking-stream-scroll-top-btn:active {
+  transform: scale(0.95);
+}
+
+.thinking-stream-scroll-top-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
 /* Mobile adjustments */
 @media (max-width: 768px) {
   .thinking-stream-container {
@@ -215,5 +295,17 @@
   .thinking-text {
     font-size: 11px;
     line-height: 1.5;
+  }
+
+  .thinking-stream-copy-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .thinking-stream-scroll-top-btn {
+    bottom: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
   }
 }

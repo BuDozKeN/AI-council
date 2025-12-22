@@ -4,13 +4,14 @@
  * Extracted from MyCompany.jsx for better maintainability.
  */
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { api } from '../../../api';
 import MarkdownViewer from '../../MarkdownViewer';
 import { AppModal } from '../../ui/AppModal';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { Spinner } from '../../ui/Spinner';
 import { AIWriteAssist } from '../../ui/AIWriteAssist';
+import { FloatingContextActions } from '../../ui/FloatingContextActions';
 import { Bookmark, CheckCircle, Archive, RotateCcw, ExternalLink, Trash2, Sparkles, PenLine } from 'lucide-react';
 import { getDeptColor } from '../../../lib/colors';
 import { truncateText } from '../../../lib/utils';
@@ -74,7 +75,7 @@ function AlertModal({
   );
 }
 
-export function ViewProjectModal({ project: initialProject, companyId, departments = [], onClose, onSave, isNew = false, onNavigateToConversation, onProjectUpdate, onStatusChange, onDelete }) {
+export function ViewProjectModal({ project: initialProject, companyId, departments = [], initialExpandedDecisionId = null, onConsumeInitialDecision, onClose, onSave, isNew = false, onNavigateToConversation, onProjectUpdate, onStatusChange, onDelete }) {
   // Local project state that can be updated after save
   const [project, setProject] = useState(initialProject);
 
@@ -97,23 +98,24 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
   const [saving, setSaving] = useState(false);
   const [isEditingName, setIsEditingName] = useState(isNew);
 
-  // Tab state for Context vs Decisions
-  const [activeTab, setActiveTab] = useState('context'); // 'context' | 'decisions'
+  // Tab state for Context vs Decisions - default to decisions if returning to a specific decision
+  const [activeTab, setActiveTab] = useState(initialExpandedDecisionId ? 'decisions' : 'context'); // 'context' | 'decisions'
 
   // Decisions timeline state
   const [projectDecisions, setProjectDecisions] = useState([]);
   const [loadingDecisions, setLoadingDecisions] = useState(false);
   const [expandedDecisionId, setExpandedDecisionId] = useState(null);
+  const hasExpandedInitialDecision = useRef(false); // Track if we've auto-expanded the initial decision
   const [generatingSummaryId, setGeneratingSummaryId] = useState(null);
 
   // Regenerate context state
   const [regenerating, setRegenerating] = useState(false);
 
-  // Copy context state
-  const [contextCopied, setContextCopied] = useState(false);
+  // Scroll ref for modal body
+  const modalBodyRef = useRef(null);
 
-  // Track if we've already synced departments (prevent multiple syncs causing flicker)
-  const hasSyncedDepts = useRef(false);
+  // Track which project we've synced departments for (prevent multiple syncs causing flicker)
+  const syncedProjectId = useRef(null);
 
   // Check if a summary is garbage and needs regeneration
   // NOTE: New decisions get summaries at save time (in merge endpoint).
@@ -292,9 +294,10 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
   // Sync project departments from all decisions when modal opens
   // This ensures the department badges are up-to-date from all decisions
   useEffect(() => {
-    // Only sync once per modal open to prevent flicker from multiple re-renders
-    if (companyId && project.id && !isEditing && !hasSyncedDepts.current) {
-      hasSyncedDepts.current = true;
+    // Only sync once per project to prevent flicker from multiple re-renders
+    // Uses project ID as key so different projects get synced, but same project doesn't re-sync
+    if (companyId && project.id && !isEditing && syncedProjectId.current !== project.id) {
+      syncedProjectId.current = project.id;
       api.syncProjectDepartments(companyId, project.id)
         .then(syncResult => {
           // Only update if departments actually changed (use spread to avoid mutating)
@@ -338,6 +341,28 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
         });
     }
   }, [activeTab, companyId, project.id, projectDecisions.length]);
+
+  // Auto-expand the initial decision when returning from source conversation
+  useEffect(() => {
+    if (
+      initialExpandedDecisionId &&
+      !hasExpandedInitialDecision.current &&
+      projectDecisions.length > 0 &&
+      !loadingDecisions
+    ) {
+      // Find the decision to expand
+      const decisionExists = projectDecisions.some(d => d.id === initialExpandedDecisionId);
+      if (decisionExists) {
+        console.log('[ViewProjectModal] Auto-expanding decision:', initialExpandedDecisionId);
+        setExpandedDecisionId(initialExpandedDecisionId);
+        hasExpandedInitialDecision.current = true;
+        // Consume the initial decision ID so it won't re-expand on future opens
+        if (onConsumeInitialDecision) {
+          onConsumeInitialDecision();
+        }
+      }
+    }
+  }, [initialExpandedDecisionId, projectDecisions, loadingDecisions, onConsumeInitialDecision]);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -391,17 +416,6 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
     setEditedDepartmentIds(project.department_ids || []);
   };
 
-  // Copy context to clipboard
-  const handleCopyContext = async () => {
-    try {
-      await navigator.clipboard.writeText(content || '');
-      setContextCopied(true);
-      setTimeout(() => setContextCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  };
-
   return (
     <AppModal
       isOpen={true}
@@ -444,7 +458,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
           </button>
         </div>
 
-        <div className="mc-modal-body">
+        <div className="mc-modal-body" ref={modalBodyRef}>
           {/* Status, Department and info row */}
           <div className="mc-project-meta-row">
             {/* Status badge - shown in both view and edit modes (status changed via footer actions) */}
@@ -688,34 +702,13 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                     </AIWriteAssist>
                   </div>
                 ) : (
-                  <div className="mc-content-preview">
+                  <FloatingContextActions copyText={content || null} className="no-border">
                     {content ? (
-                      <>
-                        {/* Sticky copy button container */}
-                        <div className="mc-timeline-copy-container">
-                          <button
-                            className={`mc-timeline-copy-btn ${contextCopied ? 'copied' : ''}`}
-                            onClick={handleCopyContext}
-                            title="Copy project context"
-                          >
-                            {contextCopied ? (
-                              <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                              </svg>
-                            ) : (
-                              <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
-                              </svg>
-                            )}
-                          </button>
-                        </div>
-                        <MarkdownViewer content={content} skipCleanup={true} />
-                      </>
+                      <MarkdownViewer content={content} skipCleanup={true} />
                     ) : (
                       <p className="mc-no-content">No project context yet. Click Edit to add context that will be included in all council sessions for this project.</p>
                     )}
-                  </div>
+                  </FloatingContextActions>
                 )}
               </div>
             </>
@@ -863,7 +856,8 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                                       // So decisionIndex 0 → response_index 1, decisionIndex 1 → response_index 3, etc.
                                       const inferredIndex = decision.response_index ?? (decisionIndex * 2 + 1);
                                       console.log('[ViewProjectModal] Navigating to conversation:', decision.source_conversation_id, 'response_index:', inferredIndex, '(stored:', decision.response_index, ', inferred from decisionIndex:', decisionIndex, ')');
-                                      onNavigateToConversation(decision.source_conversation_id, 'projects', inferredIndex);
+                                      // Pass project ID and decision ID so "Back to Project" returns to this exact decision
+                                      onNavigateToConversation(decision.source_conversation_id, 'projects', inferredIndex, project.id, decision.id);
                                     }}
                                   >
                                     View original conversation →
@@ -880,6 +874,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
               )}
             </div>
           )}
+
         </div>
 
         <div className="app-modal-footer-with-actions">

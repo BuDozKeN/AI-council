@@ -7,6 +7,7 @@
 
 import { ClipboardList } from 'lucide-react';
 import { formatDateGroup } from '../../../lib/dateUtils';
+import { ScrollableContent } from '../../ui/ScrollableContent';
 
 // Constants for activity display
 const EVENT_LABELS = {
@@ -94,104 +95,106 @@ export function ActivityTab({
         <span>{activityLogs.length} events</span>
       </div>
 
-      {Object.entries(groupedLogs).map(([date, logs]) => (
-        <div key={date} className="mc-activity-group">
-          <h4 className="mc-group-title">{date}</h4>
-          <div className="mc-elegant-list">
-            {logs.map(log => {
-              const dotColor = EVENT_COLORS[log.event_type] || EVENT_COLORS.default;
-              // Use explicit action column from database (no more title parsing)
-              const action = log.promoted_to_type ? 'Promoted' : log.action;
-              const actionColors = action ? ACTION_COLORS[action.toLowerCase()] : null;
-              const isDeleted = log.action?.toLowerCase() === 'deleted';
-              const cleanTitle = log.title;
+      <ScrollableContent className="mc-activity-list">
+        {Object.entries(groupedLogs).map(([date, logs]) => (
+          <div key={date} className="mc-activity-group">
+            <h4 className="mc-group-title">{date}</h4>
+            <div className="mc-elegant-list">
+              {logs.map(log => {
+                const dotColor = EVENT_COLORS[log.event_type] || EVENT_COLORS.default;
+                // Use explicit action column from database (no more title parsing)
+                const action = log.promoted_to_type ? 'Promoted' : log.action;
+                const actionColors = action ? ACTION_COLORS[action.toLowerCase()] : null;
+                const isDeleted = log.action?.toLowerCase() === 'deleted';
+                const cleanTitle = log.title;
 
-              // Deleted items are never clickable (the item no longer exists)
-              // For other items, check if we have related_id and related_type
-              // Consultations are clickable if they have a conversation_id
-              const isClickable = !isDeleted && (
-                (log.related_id && log.related_type) ||
-                (log.related_type === 'conversation' && log.conversation_id)
-              );
+                // Deleted items are never clickable (the item no longer exists)
+                // For other items, check if we have related_id and related_type
+                // Consultations are clickable if they have a conversation_id
+                const isClickable = !isDeleted && (
+                  (log.related_id && log.related_type) ||
+                  (log.related_type === 'conversation' && log.conversation_id)
+                );
 
-              return (
-                <div
-                  key={log.id}
-                  className={`mc-elegant-row ${isClickable ? '' : 'no-hover'} ${isDeleted ? 'deleted-item' : ''}`}
-                  onClick={isClickable && onActivityClick ? () => onActivityClick(log) : undefined}
-                  title={isDeleted ? 'This item has been deleted' : undefined}
-                >
-                  {/* Event type indicator */}
+                return (
                   <div
-                    className="mc-event-dot"
-                    style={{ background: dotColor }}
-                  />
+                    key={log.id}
+                    className={`mc-elegant-row ${isClickable ? '' : 'no-hover'} ${isDeleted ? 'deleted-item' : ''}`}
+                    onClick={isClickable && onActivityClick ? () => onActivityClick(log) : undefined}
+                    title={isDeleted ? 'This item has been deleted' : undefined}
+                  >
+                    {/* Event type indicator */}
+                    <div
+                      className="mc-event-dot"
+                      style={{ background: dotColor }}
+                    />
 
-                  {/* Main content */}
-                  <div className="mc-elegant-content mc-activity-content-wrap">
-                    <span className="mc-elegant-title">{cleanTitle}</span>
-                    {/* Badges row: Type badge + Action badge */}
-                    <div className="mc-activity-badges">
-                      {/* Use promoted_to_type if available, else fall back to event_type */}
-                      {log.promoted_to_type && PROMOTED_TYPE_LABELS[log.promoted_to_type] ? (
-                        <span
-                          className="mc-elegant-badge activity-type"
-                          style={{
-                            background: PROMOTED_TYPE_COLORS[log.promoted_to_type]?.bg || '#f1f5f9',
-                            color: PROMOTED_TYPE_COLORS[log.promoted_to_type]?.text || '#64748b'
+                    {/* Main content */}
+                    <div className="mc-elegant-content mc-activity-content-wrap">
+                      <span className="mc-elegant-title">{cleanTitle}</span>
+                      {/* Badges row: Type badge + Action badge */}
+                      <div className="mc-activity-badges">
+                        {/* Use promoted_to_type if available, else fall back to event_type */}
+                        {log.promoted_to_type && PROMOTED_TYPE_LABELS[log.promoted_to_type] ? (
+                          <span
+                            className="mc-elegant-badge activity-type"
+                            style={{
+                              background: PROMOTED_TYPE_COLORS[log.promoted_to_type]?.bg || '#f1f5f9',
+                              color: PROMOTED_TYPE_COLORS[log.promoted_to_type]?.text || '#64748b'
+                            }}
+                          >
+                            {PROMOTED_TYPE_LABELS[log.promoted_to_type]}
+                          </span>
+                        ) : (
+                          <span className="mc-elegant-badge activity-type" style={{ background: `${dotColor}20`, color: dotColor }}>
+                            {EVENT_LABELS[log.event_type] || log.event_type}
+                          </span>
+                        )}
+                        {action && actionColors && (
+                          <span
+                            className="mc-elegant-badge activity-action"
+                            style={{ background: actionColors.bg, color: actionColors.text }}
+                          >
+                            {action}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Source link on hover */}
+                    {log.conversation_id && onNavigateToConversation && (
+                      <div className="mc-elegant-actions">
+                        <button
+                          className="mc-text-btn source"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onNavigateToConversation(log.conversation_id, 'activity');
                           }}
                         >
-                          {PROMOTED_TYPE_LABELS[log.promoted_to_type]}
-                        </span>
-                      ) : (
-                        <span className="mc-elegant-badge activity-type" style={{ background: `${dotColor}20`, color: dotColor }}>
-                          {EVENT_LABELS[log.event_type] || log.event_type}
-                        </span>
-                      )}
-                      {action && actionColors && (
-                        <span
-                          className="mc-elegant-badge activity-action"
-                          style={{ background: actionColors.bg, color: actionColors.text }}
-                        >
-                          {action}
-                        </span>
-                      )}
-                    </div>
+                          View source
+                        </button>
+                      </div>
+                    )}
                   </div>
-
-                  {/* Source link on hover */}
-                  {log.conversation_id && onNavigateToConversation && (
-                    <div className="mc-elegant-actions">
-                      <button
-                        className="mc-text-btn source"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onNavigateToConversation(log.conversation_id, 'activity');
-                        }}
-                      >
-                        View source
-                      </button>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
 
-      {/* Load more button */}
-      {activityHasMore && (
-        <div className="mc-load-more-container">
-          <button
-            className="mc-load-more-btn"
-            onClick={onLoadMore}
-            disabled={activityLoadingMore}
-          >
-            {activityLoadingMore ? 'Loading...' : 'Load more'}
-          </button>
-        </div>
-      )}
+        {/* Load more button */}
+        {activityHasMore && (
+          <div className="mc-load-more-container">
+            <button
+              className="mc-load-more-btn"
+              onClick={onLoadMore}
+              disabled={activityLoadingMore}
+            >
+              {activityLoadingMore ? 'Loading...' : 'Load more'}
+            </button>
+          </div>
+        )}
+      </ScrollableContent>
     </div>
   );
 }

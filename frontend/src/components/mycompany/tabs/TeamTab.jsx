@@ -11,6 +11,7 @@
 
 import { Users } from 'lucide-react';
 import { getDeptColor } from '../../../lib/colors';
+import { ScrollableContent } from '../../ui/ScrollableContent';
 
 export function TeamTab({
   departments = [],
@@ -50,98 +51,100 @@ export function TeamTab({
         </button>
       </div>
 
-      <div className="mc-elegant-list">
-        {departments.map(dept => {
-          const deptColors = getDeptColor(dept.id);
-          const isExpanded = expandedDept === dept.id;
+      <ScrollableContent className="mc-team-list">
+        <div className="mc-elegant-list">
+          {departments.map(dept => {
+            const deptColors = getDeptColor(dept.id);
+            const isExpanded = expandedDept === dept.id;
 
-          return (
-            <div key={dept.id} className="mc-dept-container">
-              <div
-                className={`mc-elegant-row mc-dept-row ${isExpanded ? 'expanded' : ''}`}
-                onClick={() => onExpandDept && onExpandDept(isExpanded ? null : dept.id)}
-              >
-                {/* Department color indicator */}
+            return (
+              <div key={dept.id} className="mc-dept-container">
                 <div
-                  className="mc-dept-indicator"
-                  style={{ background: deptColors.text }}
-                />
+                  className={`mc-elegant-row mc-dept-row ${isExpanded ? 'expanded' : ''}`}
+                  onClick={() => onExpandDept && onExpandDept(isExpanded ? null : dept.id)}
+                >
+                  {/* Department color indicator */}
+                  <div
+                    className="mc-dept-indicator"
+                    style={{ background: deptColors.text }}
+                  />
 
-                {/* Main content */}
-                <div className="mc-elegant-content">
-                  <span className="mc-elegant-title">{dept.name}</span>
-                  <span className="mc-elegant-meta">{dept.roles?.length || 0} roles</span>
-                </div>
+                  {/* Main content */}
+                  <div className="mc-elegant-content">
+                    <span className="mc-elegant-title">{dept.name}</span>
+                    <span className="mc-elegant-meta">{dept.roles?.length || 0} roles</span>
+                  </div>
 
-                {/* Expand icon */}
-                <div className="mc-elegant-actions">
-                  <span className={`mc-expand-chevron ${isExpanded ? 'expanded' : ''}`}>
-                    ›
-                  </span>
-                </div>
-              </div>
-
-              {/* Expanded content */}
-              {isExpanded && (
-                <div className="mc-dept-expanded-content">
-                  {/* Department context button */}
-                  <button
-                    className="mc-context-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onViewDepartment && onViewDepartment(dept);
-                    }}
-                  >
-                    <span className="mc-context-icon">📄</span>
-                    <span>View Context</span>
-                    {dept.context_md && (
-                      <span className="mc-context-size">{Math.round(dept.context_md.length / 1000)}k</span>
-                    )}
-                  </button>
-
-                  {/* Roles list */}
-                  <div className="mc-roles-section">
-                    <div className="mc-roles-header">
-                      <span className="mc-roles-label">Roles</span>
-                      <button
-                        className="mc-text-btn add"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onAddRole && onAddRole(dept.id);
-                        }}
-                      >
-                        + Add
-                      </button>
-                    </div>
-
-                    {dept.roles && dept.roles.length > 0 ? (
-                      <div className="mc-roles-list">
-                        {dept.roles.map(role => (
-                          <div
-                            key={role.id}
-                            className="mc-role-row"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onViewRole && onViewRole({ ...role, departmentName: dept.name, departmentId: dept.id });
-                            }}
-                          >
-                            <span className="mc-role-name">{role.name}</span>
-                            {role.title && (
-                              <span className="mc-role-title">{role.title}</span>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="mc-no-roles">No roles defined</p>
-                    )}
+                  {/* Expand icon */}
+                  <div className="mc-elegant-actions">
+                    <span className={`mc-expand-chevron ${isExpanded ? 'expanded' : ''}`}>
+                      ›
+                    </span>
                   </div>
                 </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+
+                {/* Expanded content */}
+                {isExpanded && (
+                  <div className="mc-dept-expanded-content">
+                    {/* Department context button */}
+                    <button
+                      className="mc-context-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onViewDepartment && onViewDepartment(dept);
+                      }}
+                    >
+                      <span className="mc-context-icon">📄</span>
+                      <span>View Context</span>
+                      {dept.context_md && (
+                        <span className="mc-context-size">{Math.round(dept.context_md.length / 1000)}k</span>
+                      )}
+                    </button>
+
+                    {/* Roles list */}
+                    <div className="mc-roles-section">
+                      <div className="mc-roles-header">
+                        <span className="mc-roles-label">Roles</span>
+                        <button
+                          className="mc-text-btn add"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onAddRole && onAddRole(dept.id);
+                          }}
+                        >
+                          + Add
+                        </button>
+                      </div>
+
+                      {dept.roles && dept.roles.length > 0 ? (
+                        <div className="mc-roles-list">
+                          {dept.roles.map(role => (
+                            <div
+                              key={role.id}
+                              className="mc-role-row"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onViewRole && onViewRole({ ...role, departmentName: dept.name, departmentId: dept.id });
+                              }}
+                            >
+                              <span className="mc-role-name">{role.name}</span>
+                              {role.title && (
+                                <span className="mc-role-title">{role.title}</span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="mc-no-roles">No roles defined</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </ScrollableContent>
     </div>
   );
 }

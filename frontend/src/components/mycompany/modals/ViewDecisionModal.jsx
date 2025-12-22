@@ -11,8 +11,8 @@
  * Extracted from MyCompany.jsx for better maintainability.
  */
 
-import { useState } from 'react';
 import { AppModal } from '../../ui/AppModal';
+import { FloatingContextActions } from '../../ui/FloatingContextActions';
 import MarkdownViewer from '../../MarkdownViewer';
 import { Bookmark, FolderKanban, ExternalLink } from 'lucide-react';
 import { getDeptColor } from '../../../lib/colors';
@@ -28,20 +28,6 @@ export function ViewDecisionModal({
   onViewProject,
   onNavigateToConversation
 }) {
-  const [copied, setCopied] = useState(false);
-
-  // Copy decision content (not including user question)
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(decision.content || '');
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  };
-
-
   // Get linked playbook (source of truth for promoted decisions)
   const linkedPlaybook = decision.promoted_to_id && playbooks.length > 0
     ? playbooks.find(p => p.id === decision.promoted_to_id)
@@ -163,38 +149,23 @@ export function ViewDecisionModal({
         </div>
       )}
       <div className="mc-decision-content">
-        {/* Floating copy button - icon only, matches Stage3 */}
-        <button
-          className={`mc-content-copy-btn ${copied ? 'copied' : ''}`}
-          onClick={handleCopy}
-          title="Copy council response"
-        >
-          {copied ? (
-            <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12" />
-            </svg>
-          ) : (
-            <svg className="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
-            </svg>
-          )}
-        </button>
-        <MarkdownViewer content={decision.content || ''} />
+        <FloatingContextActions copyText={decision.content || ''} className="no-border">
+          <MarkdownViewer content={decision.content || ''} />
 
-        {/* Source link - at the bottom of the content */}
-        {decision.source_conversation_id && !decision.source_conversation_id.startsWith('temp-') && onNavigateToConversation && (
-          <button
-            className="mc-decision-source-link"
-            onClick={() => {
-              // Pass response_index to scroll to the correct response in multi-turn conversations
-              onNavigateToConversation(decision.source_conversation_id, 'decisions', decision.response_index || 0);
-            }}
-          >
-            <ExternalLink size={14} />
-            View original conversation →
-          </button>
-        )}
+          {/* Source link - at the bottom of the content */}
+          {decision.source_conversation_id && !decision.source_conversation_id.startsWith('temp-') && onNavigateToConversation && (
+            <button
+              className="mc-decision-source-link"
+              onClick={() => {
+                // Pass response_index to scroll to the correct response in multi-turn conversations
+                onNavigateToConversation(decision.source_conversation_id, 'decisions', decision.response_index || 0);
+              }}
+            >
+              <ExternalLink size={14} />
+              View original conversation →
+            </button>
+          )}
+        </FloatingContextActions>
       </div>
       <AppModal.Footer>
         {/* Only show Promote to Playbook if NOT already a playbook AND NOT linked to a project */}

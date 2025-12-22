@@ -99,7 +99,9 @@ function Stage3({
   onSelectProject,  // Callback to select/change project
   onCreateProject,  // Callback to create a new project
 }) {
-  const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
+  // Detect mobile - no collapsing on mobile for frictionless UX
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+  const [isCollapsed, setIsCollapsed] = useState(isMobile ? false : defaultCollapsed);
   const [saveState, setSaveState] = useState('idle'); // 'idle' | 'saving' | 'saved' | 'promoting' | 'promoted' | 'error'
   const [savedDecisionId, setSavedDecisionId] = useState(null); // ID of saved decision
   const [promotedPlaybookId, setPromotedPlaybookId] = useState(null); // ID of promoted playbook
@@ -121,6 +123,7 @@ function Stage3({
   const lastDecisionCheck = useRef(0); // Throttle all decision status checks
   const isCheckingDecision = useRef(false); // Prevent concurrent checks
   const lastSyncedProjectId = useRef(null); // Prevent duplicate project syncs
+  const initialFetchKey = useRef(null); // Track which conversation+responseIndex we've fetched for
 
   // Unified decision status check - throttled and deduped
   const checkDecisionStatus = useCallback(async (force = false) => {
@@ -199,6 +202,7 @@ function Stage3({
       lastDecisionCheck.current = 0;
       isCheckingDecision.current = false;
       lastSyncedProjectId.current = null; // Reset project sync guard
+      initialFetchKey.current = null; // Allow re-fetch for new conversation
     }
   }, [conversationId, responseIndex]); // Only reset when conversation or response index changes (not other props)
 
@@ -230,6 +234,14 @@ function Stage3({
           if (lastSyncedProjectId.current !== selectedProjectId) return;
 
           const project = data.project || data;
+          // Handle deleted project - API returns null/empty for deleted projects
+          if (!project || !project.id) {
+            console.log('[Stage3] Project was deleted, clearing selectedProjectId:', selectedProjectId);
+            setSelectedProjectId(null);
+            setFullProjectData(null);
+            lastSyncedProjectId.current = null;
+            return;
+          }
           setFullProjectData(project);
           // Sync department selector to project's departments
           if (project.department_ids?.length > 0) {
@@ -237,7 +249,13 @@ function Stage3({
             setSelectedDeptIds(project.department_ids);
           }
         })
-        .catch(err => console.error('Failed to load project:', err));
+        .catch(err => {
+          console.error('[Stage3] Failed to load project (may be deleted):', err);
+          // Clear the invalid project reference
+          setSelectedProjectId(null);
+          setFullProjectData(null);
+          lastSyncedProjectId.current = null;
+        });
     } else if (!selectedProjectId) {
       setFullProjectData(null);
       lastSyncedProjectId.current = null;
@@ -281,18 +299,43 @@ function Stage3({
   useEffect(() => {
     if (!conversationId || !companyId || conversationId.startsWith('temp-')) return;
 
+    // Prevent duplicate fetches for the same conversation+responseIndex
+    // This handles React StrictMode double-mounting and tab switching
+    const fetchKey = `${conversationId}:${responseIndex}`;
+    if (initialFetchKey.current === fetchKey) {
+      return; // Already fetched for this conversation+responseIndex
+    }
+    initialFetchKey.current = fetchKey;
+
+    console.log(`[Stage3:${responseIndex}] Initial load - checking for existing decision. conversationId=${conversationId}, companyId=${companyId}`);
+
     // Only fetch decision status for THIS specific response (by responseIndex)
     // Don't fetch linked-project - that's conversation-level and causes cross-talk between Stage3 instances
     api.getConversationDecision(conversationId, companyId, responseIndex)
       .then(decisionData => {
+        console.log(`[Stage3:${responseIndex}] getConversationDecision response:`, decisionData);
         if (decisionData?.decision) {
           const decision = decisionData.decision;
-          console.log(`[Stage3:${responseIndex}] Found existing decision:`, decision.id);
+          console.log(`[Stage3:${responseIndex}] Found existing decision:`, {
+            id: decision.id,
+            project_id: decision.project_id,
+            department_ids: decision.department_ids
+          });
           setSavedDecisionId(decision.id);
           setSaveState('saved');
           // Restore all saved state from THIS decision
+          // Only restore project_id if the project still exists in the projects list
           if (decision.project_id) {
-            setSelectedProjectId(decision.project_id);
+            // Check if project still exists (wasn't deleted)
+            // If projects list is empty (still loading), optimistically set it -
+            // the fetch useEffect will clear it if project doesn't exist
+            const projectExists = projects.length === 0 || projects.some(p => p.id === decision.project_id);
+            if (projectExists) {
+              console.log(`[Stage3:${responseIndex}] Restoring project_id:`, decision.project_id);
+              setSelectedProjectId(decision.project_id);
+            } else {
+              console.log(`[Stage3:${responseIndex}] Project was deleted, not restoring project_id:`, decision.project_id);
+            }
           }
           // Restore departments from decision
           if (decision.department_ids?.length > 0) {
@@ -302,11 +345,15 @@ function Stage3({
           if (decision.doc_type) {
             setSelectedDocType(decision.doc_type);
           }
+        } else {
+          console.log(`[Stage3:${responseIndex}] No existing decision found`);
         }
         // Update last check time since we just fetched
         lastDecisionCheck.current = Date.now();
       })
-      .catch(() => null);
+      .catch(err => {
+        console.error(`[Stage3:${responseIndex}] Error checking decision:`, err);
+      });
   }, [conversationId, companyId, responseIndex]);
 
   // Re-check decision status when tab becomes visible or component scrolls into view
@@ -363,11 +410,13 @@ function Stage3({
   // Save as Decision only (for later promotion)
   // If a project is selected, also merge into project context
   const handleSaveForLater = async () => {
-    console.log('[Stage3] handleSaveForLater called:', {
+    console.log('[Stage3] handleSaveForLater CALLED:', {
       companyId,
       saveState,
       savedDecisionId,
       selectedProjectId,
+      responseIndex,
+      conversationId,
       currentProject: currentProject ? { id: currentProject.id, name: currentProject.name, hasContextMd: !!currentProject.context_md } : null,
       fullProjectData: fullProjectData ? { id: fullProjectData.id, name: fullProjectData.name } : null
     });
@@ -388,15 +437,36 @@ function Stage3({
       // If project selected, merge decision into project context AND save decision
       // Note: currentProject might be null if full data hasn't loaded yet - fetch it if needed
       let projectToUse = currentProject;
+      console.log('[Stage3] handleSaveForLater - projectToUse check:', {
+        currentProject: currentProject ? { id: currentProject.id, name: currentProject.name } : null,
+        selectedProjectId,
+        projectToUse: projectToUse ? { id: projectToUse.id, name: projectToUse.name } : null
+      });
+
       if (selectedProjectId && !projectToUse) {
-        console.log('[Stage3] Project selected but no current data, fetching...');
+        console.log('[Stage3] Project selected but no current data, fetching project:', selectedProjectId);
         try {
           const data = await api.getProject(selectedProjectId);
+          console.log('[Stage3] Fetched project data:', data);
           projectToUse = data.project || data;
+          console.log('[Stage3] projectToUse after fetch:', projectToUse ? { id: projectToUse.id, name: projectToUse.name, hasContextMd: !!projectToUse.context_md } : null);
           setFullProjectData(projectToUse);
         } catch (err) {
           console.error('[Stage3] Failed to fetch project:', err);
         }
+      }
+
+      // IMPORTANT: After fetch attempt, check again and create fallback if needed
+      if (!projectToUse && selectedProjectId) {
+        console.warn('[Stage3] Project data not available, creating minimal project object for merge');
+        // Try to get project name from the projects list for better UX
+        const projectFromList = projects.find(p => p.id === selectedProjectId);
+        // Create minimal project object so the merge API is still called with correct project_id
+        projectToUse = {
+          id: selectedProjectId,
+          name: projectFromList?.name || 'Project',  // Fallback name for UI
+          context_md: ''  // Empty context - backend will handle this
+        };
       }
 
       if (selectedProjectId && projectToUse) {
@@ -440,6 +510,12 @@ function Stage3({
         if (decisionId) {
           setSavedDecisionId(decisionId);
           setSaveState('saved');
+          // Ensure fullProjectData is set so "View in Project" link works
+          // This handles the fallback case where we created a minimal project object
+          if (projectToUse && (!fullProjectData || fullProjectData.id !== selectedProjectId)) {
+            console.log('[Stage3] Updating fullProjectData after save:', projectToUse.id);
+            setFullProjectData(projectToUse);
+          }
         } else {
           // Decision failed to save (backend returned an error or no ID)
           // This can happen if auth token is missing or DB insert fails
@@ -482,27 +558,102 @@ function Stage3({
 
   // Save AND promote to playbook in one step
   const handleSaveAndPromote = async () => {
-    if (!companyId || !selectedDocType || saveState === 'saving' || saveState === 'promoting') return;
+    console.log('[Stage3] handleSaveAndPromote CALLED:', {
+      companyId,
+      selectedDocType,
+      saveState,
+      selectedProjectId,
+      responseIndex,
+      conversationId
+    });
+
+    if (!companyId || !selectedDocType || saveState === 'saving' || saveState === 'promoting') {
+      console.log('[Stage3] handleSaveAndPromote - early return due to guard condition');
+      return;
+    }
 
     setSaveState('promoting');
     try {
-      // Step 1: Save as decision first
-      console.log('Saving decision...');
-      const saveResult = await api.createCompanyDecision(companyId, {
-        title: getTitle(),
-        content: displayText,
-        department_ids: selectedDeptIds,  // Use canonical array field
-        source_conversation_id: conversationId?.startsWith('temp-') ? null : conversationId,
-        project_id: selectedProjectId || null,
-        tags: []
-      });
+      let decisionId = null;
 
-      console.log('Save result:', saveResult);
-      const decisionId = saveResult?.decision?.id || saveResult?.id;
-      if (!decisionId) {
-        console.error('No decision ID in response:', saveResult);
-        throw new Error('No decision ID returned');
+      // Step 1: Save as decision - use merge if project is selected
+      if (selectedProjectId) {
+        console.log('[Stage3] handleSaveAndPromote - saving with project merge, projectId:', selectedProjectId);
+
+        // Get project data for merge
+        let projectToUse = currentProject;
+        if (!projectToUse) {
+          try {
+            const data = await api.getProject(selectedProjectId);
+            projectToUse = data.project || data;
+          } catch (err) {
+            console.error('[Stage3] Failed to fetch project:', err);
+          }
+        }
+
+        // Fallback if project data unavailable
+        if (!projectToUse) {
+          const projectFromList = projects.find(p => p.id === selectedProjectId);
+          projectToUse = {
+            id: selectedProjectId,
+            name: projectFromList?.name || 'Project',
+            context_md: ''
+          };
+        }
+
+        // Merge decision into project
+        const mergeResult = await api.mergeDecisionIntoProject(
+          selectedProjectId,
+          projectToUse.context_md || '',
+          displayText,
+          userQuestion || conversationTitle || '',
+          {
+            saveDecision: true,
+            companyId,
+            conversationId: conversationId?.startsWith('temp-') ? null : conversationId,
+            responseIndex,
+            decisionTitle: getTitle(),
+            departmentId: selectedDeptIds.length > 0 ? selectedDeptIds[0] : null,
+            departmentIds: selectedDeptIds
+          }
+        );
+
+        // Update project context
+        if (mergeResult?.merged?.context_md) {
+          await api.updateProject(selectedProjectId, {
+            context_md: mergeResult.merged.context_md
+          });
+        }
+
+        decisionId = mergeResult?.saved_decision_id;
+        if (!decisionId) {
+          throw new Error(mergeResult?.decision_save_error || 'Decision was not saved');
+        }
+
+        // Update fullProjectData for UI
+        if (projectToUse && (!fullProjectData || fullProjectData.id !== selectedProjectId)) {
+          setFullProjectData(projectToUse);
+        }
+      } else {
+        // No project - save as standalone decision
+        console.log('[Stage3] handleSaveAndPromote - saving without project');
+        const saveResult = await api.createCompanyDecision(companyId, {
+          title: getTitle(),
+          content: displayText,
+          department_ids: selectedDeptIds,
+          source_conversation_id: conversationId?.startsWith('temp-') ? null : conversationId,
+          project_id: null,
+          tags: []
+        });
+
+        decisionId = saveResult?.decision?.id || saveResult?.id;
+        if (!decisionId) {
+          console.error('No decision ID in response:', saveResult);
+          throw new Error('No decision ID returned');
+        }
       }
+
+      console.log('[Stage3] Decision saved with ID:', decisionId);
       setSavedDecisionId(decisionId);
 
       // Step 2: Immediately promote to playbook
@@ -537,13 +688,26 @@ function Stage3({
   const chairmanIconPath = getModelIconPath(chairmanModel);
   const isComplete = !isStreaming && !hasError && displayText;
 
-  // Floating copy button - show when header copy button is scrolled out of view
+  // Floating copy button - on mobile always show sticky, on desktop show when scrolled
   useEffect(() => {
     if (!isComplete || !displayText || !finalResponseRef.current || isCollapsed) {
       setFloatingCopyPos(null);
       return;
     }
 
+    // On mobile: always show the floating copy button when content is complete
+    if (isMobile) {
+      const responseRect = finalResponseRef.current?.getBoundingClientRect();
+      if (responseRect) {
+        setFloatingCopyPos({
+          top: 80, // Below context bar
+          right: 16 // Fixed right margin on mobile
+        });
+      }
+      return; // No scroll listener needed on mobile - always show
+    }
+
+    // On desktop: show when header copy button is scrolled out of view
     const messagesContainer = document.querySelector('.messages-container');
     if (!messagesContainer) return;
 
@@ -571,10 +735,13 @@ function Stage3({
     handleScroll(); // Initial check
 
     return () => messagesContainer.removeEventListener('scroll', handleScroll);
-  }, [isComplete, displayText, isCollapsed]);
+  }, [isComplete, displayText, isCollapsed, isMobile]);
 
   const toggleCollapsed = () => {
-    setIsCollapsed(!isCollapsed);
+    // Only allow collapsing on desktop
+    if (!isMobile) {
+      setIsCollapsed(!isCollapsed);
+    }
   };
 
   // Show thinking state if stage3 is loading but no streaming data yet
@@ -604,8 +771,12 @@ function Stage3({
 
   return (
     <div ref={containerRef} className={`stage stage3 ${isCollapsed ? 'collapsed' : ''}`}>
-      <h3 className="stage-title clickable" onClick={toggleCollapsed}>
-        <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
+      <h3
+        className={`stage-title ${!isMobile ? 'clickable' : ''}`}
+        onClick={!isMobile ? toggleCollapsed : undefined}
+      >
+        {/* Hide collapse arrow on mobile */}
+        {!isMobile && <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>}
         <Sparkles className="h-5 w-5 text-amber-500 flex-shrink-0" />
         <span className="font-semibold tracking-tight">Step 3: Final Recommendation</span>
         {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
@@ -628,8 +799,8 @@ function Stage3({
               {isComplete && <CheckCircle2 className="h-4 w-4 text-green-600" />}
               {hasError && <span className="error-badge">Error</span>}
             </div>
-            {/* Copy button - inline in header */}
-            {isComplete && displayText && (
+            {/* Copy button - inline in header (desktop only, mobile uses floating) */}
+            {isComplete && displayText && !isMobile && (
               <CopyButton text={displayText} size="sm" className="stage3-copy-btn stage3-header-copy" />
             )}
           </div>

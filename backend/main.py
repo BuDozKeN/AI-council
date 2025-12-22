@@ -77,6 +77,7 @@ try:
     from . import knowledge
     from . import model_registry
     from .routers import company as company_router
+    from .routers import settings as settings_router
 except ImportError:
     import storage
     from council import run_full_council, generate_conversation_title, stage1_collect_responses, stage1_stream_responses, stage2_collect_rankings, stage2_stream_rankings, stage3_synthesize_final, stage3_stream_synthesis, calculate_aggregate_rankings, chat_stream_response
@@ -91,6 +92,7 @@ except ImportError:
     import knowledge
     import model_registry
     from routers import company as company_router
+    from routers import settings as settings_router
 
 app = FastAPI(title="LLM Council API")
 
@@ -249,6 +251,27 @@ async def cors_exception_handler(request: Request, exc: HTTPException):
 
 
 # General exception handler for unhandled errors (ensures CORS headers on 500s)
+from pydantic import ValidationError as PydanticValidationError
+from fastapi.exceptions import RequestValidationError
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    from fastapi.responses import JSONResponse
+    # Log validation errors for debugging
+    print(f"[VALIDATION ERROR] {request.url.path}: {exc.errors()}", flush=True)
+    origin = request.headers.get("origin", "")
+    headers = {}
+    if origin in CORS_ORIGINS:
+        headers = {
+            "Access-Control-Allow-Origin": origin,
+            "Access-Control-Allow-Credentials": "true",
+        }
+    return JSONResponse(
+        status_code=422,
+        content={"detail": exc.errors()},
+        headers=headers
+    )
+
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
     from fastapi.responses import JSONResponse
@@ -273,6 +296,7 @@ async def general_exception_handler(request: Request, exc: Exception):
 
 # Include routers
 app.include_router(company_router.router)
+app.include_router(settings_router.router)
 
 
 async def _auto_synthesize_project_context(project_id: str, user: dict) -> bool:
@@ -741,8 +765,21 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
     # independent responses. Each council query operates in isolation.
 
     async def event_generator():
+        # Import BYOK support
+        from .openrouter import set_request_api_key, reset_request_api_key
+        from .byok import get_user_api_key
+
+        api_key_token = None
         try:
             print(f"[STREAM] Starting event_generator for conversation {conversation_id}", flush=True)
+
+            # Get user's BYOK key if available
+            user_api_key = await get_user_api_key(user_id)
+            if user_api_key:
+                api_key_token = set_request_api_key(user_api_key)
+                print(f"[STREAM] Using user's BYOK key", flush=True)
+            else:
+                print(f"[STREAM] Using system API key", flush=True)
 
             # Add user message with user_id
             storage.add_user_message(conversation_id, body.content, user_id, access_token=access_token)
@@ -963,6 +1000,10 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
             error_details = traceback.format_exc()
             print(f"[STREAM ERROR] Exception in event_generator: {e}\n{error_details}", flush=True)
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+        finally:
+            # Reset BYOK context
+            if api_key_token:
+                reset_request_api_key(api_key_token)
 
     return StreamingResponse(
         event_generator(),
@@ -1011,7 +1052,17 @@ async def chat_with_chairman(request: Request, conversation_id: str, body: ChatR
     user_id = user["id"]
 
     async def event_generator():
+        # Import BYOK support
+        from .openrouter import set_request_api_key, reset_request_api_key
+        from .byok import get_user_api_key
+
+        api_key_token = None
         try:
+            # Get user's BYOK key if available
+            user_api_key = await get_user_api_key(user_id)
+            if user_api_key:
+                api_key_token = set_request_api_key(user_api_key)
+
             # Build conversation history from existing messages
             history = []
 
@@ -1086,6 +1137,10 @@ async def chat_with_chairman(request: Request, conversation_id: str, body: ChatR
 
         except Exception as e:
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+        finally:
+            # Reset BYOK context
+            if api_key_token:
+                reset_request_api_key(api_key_token)
 
     return StreamingResponse(
         event_generator(),
@@ -2320,7 +2375,7 @@ async def get_conversation_decision(
         # Only select specific fields that we know exist to avoid column errors
         try:
             result = service_client.table("knowledge_entries") \
-                .select("id, title, summary, project_id, department_id, created_at, response_index") \
+                .select("id, title, project_id, department_ids, created_at, response_index") \
                 .eq("company_id", company_uuid) \
                 .eq("source_conversation_id", conversation_id) \
                 .eq("response_index", response_index) \
@@ -2332,15 +2387,16 @@ async def get_conversation_decision(
             return {"decision": None}
 
         if result.data and result.data[0]:
-            print(f"[CONV-DECISION] Found decision with response_index={response_index}: {result.data[0]['id']}", flush=True)
-            return {"decision": result.data[0]}
+            decision = result.data[0]
+            print(f"[CONV-DECISION] Found decision with response_index={response_index}: id={decision['id']}, project_id={decision.get('project_id')}", flush=True)
+            return {"decision": decision}
 
         # Legacy fallback: For the first assistant message (index 1), also check for decisions
         # saved before response_index was added (they have NULL response_index)
         if response_index == 1:
             try:
                 legacy_result = service_client.table("knowledge_entries") \
-                    .select("id, title, summary, project_id, department_id, created_at, response_index") \
+                    .select("id, title, project_id, department_ids, created_at, response_index") \
                     .eq("company_id", company_uuid) \
                     .eq("source_conversation_id", conversation_id) \
                     .is_("response_index", "null") \
@@ -2350,8 +2406,9 @@ async def get_conversation_decision(
                     .execute()
 
                 if legacy_result.data and legacy_result.data[0]:
-                    print(f"[CONV-DECISION] Found legacy decision (no response_index): {legacy_result.data[0]['id']}", flush=True)
-                    return {"decision": legacy_result.data[0]}
+                    decision = legacy_result.data[0]
+                    print(f"[CONV-DECISION] Found legacy decision (no response_index): id={decision['id']}, project_id={decision.get('project_id')}", flush=True)
+                    return {"decision": decision}
             except Exception as legacy_err:
                 print(f"[CONV-DECISION] Legacy query failed: {legacy_err}", flush=True)
 
@@ -2872,13 +2929,13 @@ class MergeDecisionRequest(BaseModel):
     user_question: str = ""
     # Optional fields for also saving the decision to knowledge_entries (audit trail)
     save_decision: bool = False
-    company_id: str = None
-    conversation_id: str = None
-    response_index: int = None
-    decision_title: str = None
-    department_id: str = None  # Primary department (backwards compat)
-    department_ids: List[str] = None  # All selected departments
-    council_type: str = None  # e.g., "CTO Council", "Legal", "Board"
+    company_id: Optional[str] = None
+    conversation_id: Optional[str] = None
+    response_index: Optional[int] = None
+    decision_title: Optional[str] = None
+    department_id: Optional[str] = None  # Primary department (backwards compat)
+    department_ids: Optional[List[str]] = None  # All selected departments
+    council_type: Optional[str] = None  # e.g., "CTO Council", "Legal", "Board"
 
 
 @app.post("/api/projects/{project_id}/merge-decision")
@@ -2894,6 +2951,13 @@ async def merge_decision_into_project(
     """
     from .openrouter import query_model, MOCK_LLM
     from .personas import get_db_persona_with_fallback
+
+    # Debug logging
+    print(f"[merge-decision] project_id={project_id}", flush=True)
+    print(f"[merge-decision] save_decision={request.save_decision}, company_id={request.company_id}", flush=True)
+    print(f"[merge-decision] conversation_id={request.conversation_id}, response_index={request.response_index}", flush=True)
+    print(f"[merge-decision] existing_context length={len(request.existing_context) if request.existing_context else 0}", flush=True)
+    print(f"[merge-decision] decision_content length={len(request.decision_content) if request.decision_content else 0}", flush=True)
 
     # Handle mock mode
     if MOCK_LLM:

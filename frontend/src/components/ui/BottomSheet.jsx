@@ -13,7 +13,7 @@ import './BottomSheet.css';
  * @param {Function} props.onClose - Callback when sheet should close
  * @param {string} props.title - Title shown in header
  * @param {React.ReactNode} props.children - Content to render in sheet
- * @param {boolean} props.showCloseButton - Whether to show the X close button (default: true)
+ * @param {boolean} props.showCloseButton - Whether to show the X close button (default: false)
  * @param {string} props.className - Additional CSS class for customization
  */
 export function BottomSheet({
@@ -21,7 +21,7 @@ export function BottomSheet({
   onClose,
   title,
   children,
-  showCloseButton = true,
+  showCloseButton = false, // Hidden by default - tap outside or swipe down to close
   className = '',
 }) {
   const contentRef = useRef(null);
@@ -80,7 +80,7 @@ export function BottomSheet({
       <AnimatePresence>
         {isOpen && (
           <Dialog.Portal forceMount>
-            {/* Backdrop */}
+            {/* Backdrop - click to dismiss */}
             <Dialog.Overlay asChild>
               <motion.div
                 className="bottom-sheet-overlay"
@@ -88,6 +88,7 @@ export function BottomSheet({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
+                onClick={onClose}
               />
             </Dialog.Overlay>
 

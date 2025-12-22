@@ -1,0 +1,191 @@
+/**
+ * FloatingContextActions - Styles for copy and scroll-to-top buttons
+ *
+ * These buttons are positioned relative to the content area they wrap,
+ * not the entire modal. This ensures they stay properly aligned with
+ * the scrollable content preview area.
+ */
+
+.floating-context-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  /* Container for the absolute scroll-to-top button */
+}
+
+.floating-context-content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Inherit styling from parent (.mc-content-preview) */
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-gray-100);
+  border-radius: 8px;
+  padding: 20px;
+  min-height: 200px;
+  max-height: 400px;
+}
+
+/* ===========================================
+   Copy Button - Sticky top-right inside scrollable content
+   Uses float to stay on the right without affecting layout
+   =========================================== */
+
+.floating-copy-btn {
+  position: sticky;
+  top: 0;
+  float: right;
+  margin-left: 12px;
+  margin-bottom: 8px;
+  /* Pull into padding area */
+  margin-top: -4px;
+  margin-right: -4px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-primary, #fff);
+  border: 1px solid var(--color-slate-200, #e2e8f0);
+  border-radius: 6px;
+  color: var(--color-slate-500, #64748b);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  opacity: 0.85;
+  z-index: 5;
+}
+
+.floating-copy-btn:hover {
+  opacity: 1;
+  color: var(--color-slate-700, #334155);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: scale(1.05);
+}
+
+.floating-copy-btn:active {
+  transform: scale(0.95);
+}
+
+.floating-copy-btn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.floating-copy-btn.copied {
+  color: var(--color-green-600, #16a34a);
+  border-color: var(--color-green-300, #86efac);
+  background: var(--color-green-50, #f0fdf4);
+  opacity: 1;
+}
+
+/* ===========================================
+   Scroll to Top Button - Absolute bottom-right of wrapper
+   =========================================== */
+
+.floating-scroll-top-btn {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-primary, #fff);
+  border: 1px solid var(--color-slate-200, #e2e8f0);
+  border-radius: 50%;
+  color: var(--color-slate-500, #64748b);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: all 0.2s ease;
+  opacity: 0.85;
+  z-index: 10;
+  /* Animation on appear */
+  animation: floating-btn-appear 0.2s ease-out;
+}
+
+@keyframes floating-btn-appear {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 0.85;
+    transform: translateY(0);
+  }
+}
+
+.floating-scroll-top-btn:hover {
+  opacity: 1;
+  color: var(--color-slate-700, #334155);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  transform: scale(1.1);
+}
+
+.floating-scroll-top-btn:active {
+  transform: scale(0.95);
+}
+
+.floating-scroll-top-btn svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* ===========================================
+   Mobile - larger touch targets
+   =========================================== */
+
+@media (max-width: 768px) {
+  .floating-copy-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .floating-copy-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .floating-scroll-top-btn {
+    bottom: 10px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+  }
+
+  .floating-scroll-top-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .floating-context-content {
+    max-height: 350px;
+  }
+}
+
+/* ===========================================
+   Variants for different contexts
+   =========================================== */
+
+/* Full height variant (no max-height limit) */
+.floating-context-wrapper.full-height .floating-context-content {
+  max-height: none;
+}
+
+/* No border variant - inherits parent styling (.mc-content-preview, .mc-content-section, etc.) */
+.floating-context-wrapper.no-border .floating-context-content {
+  border: 1px solid var(--color-gray-100, #f3f4f6);
+  border-radius: 8px;
+  padding: 20px;
+  background: var(--color-bg-primary, #fff);
+}
+
+/* Compact variant (smaller min-height) */
+.floating-context-wrapper.compact .floating-context-content {
+  min-height: 120px;
+  max-height: 300px;
+}

@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
+import { Copy, Check, ChevronUp } from 'lucide-react';
 import { getModelPersona } from '../../config/modelPersonas';
 import { getProviderIcon } from '../icons';
 import './ThinkingStream.css';
@@ -13,6 +14,31 @@ export function ThinkingStream({ content, activeModel, isStreaming }) {
   const streamRef = useRef(null);
   const persona = activeModel ? getModelPersona(activeModel) : null;
   const ProviderIcon = persona ? getProviderIcon(persona.provider) : null;
+  const [copied, setCopied] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const SCROLL_THRESHOLD = 150;
+
+  // Copy handler
+  const handleCopy = useCallback(async () => {
+    if (!content) return;
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  }, [content]);
+
+  // Scroll to top handler
+  const scrollToTop = useCallback(() => {
+    streamRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  // Handle scroll for scroll-to-top button visibility
+  const handleScroll = useCallback((e) => {
+    setShowScrollTop(e.target.scrollTop > SCROLL_THRESHOLD);
+  }, []);
 
   // Auto-scroll to bottom as new content streams in
   useEffect(() => {
@@ -49,7 +75,18 @@ export function ThinkingStream({ content, activeModel, isStreaming }) {
         </div>
       )}
 
-      <div ref={streamRef} className="thinking-stream-content">
+      <div ref={streamRef} className="thinking-stream-content" onScroll={handleScroll}>
+        {/* Copy button - sticky top-right inside content */}
+        {content && (
+          <button
+            className={`thinking-stream-copy-btn ${copied ? 'copied' : ''}`}
+            onClick={handleCopy}
+            title={copied ? 'Copied!' : 'Copy thinking content'}
+            aria-label={copied ? 'Copied to clipboard' : 'Copy to clipboard'}
+          >
+            {copied ? <Check size={14} /> : <Copy size={14} />}
+          </button>
+        )}
         <pre className="thinking-text">{content}</pre>
         {isStreaming && <span className="thinking-cursor">█</span>}
       </div>
@@ -59,6 +96,17 @@ export function ThinkingStream({ content, activeModel, isStreaming }) {
         <div className="thinking-progress">
           <div className="thinking-progress-bar" />
         </div>
+      )}
+
+      {/* Scroll to top - absolute bottom-right */}
+      {showScrollTop && (
+        <button
+          className="thinking-stream-scroll-top-btn"
+          onClick={scrollToTop}
+          aria-label="Scroll to top"
+        >
+          <ChevronUp size={18} />
+        </button>
       )}
     </div>
   );

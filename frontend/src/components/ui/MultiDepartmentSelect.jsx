@@ -15,7 +15,7 @@
 
 import * as React from 'react';
 import * as Popover from '@radix-ui/react-popover';
-import { Building2, Check, ChevronDown, X } from 'lucide-react';
+import { Building2, Check, ChevronDown } from 'lucide-react';
 import { getDeptColor } from '../../lib/colors';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from './BottomSheet';
@@ -48,46 +48,36 @@ export function MultiDepartmentSelect({
     }
   };
 
-  const removeDepartment = (e, deptId) => {
-    e.stopPropagation();
-    onValueChange(value.filter(id => id !== deptId));
-  };
-
-  // Shared trigger content
+  // Compact trigger content - shows count or single dept name
   const triggerContent = (
     <>
       <Building2 className="h-3.5 w-3.5 shrink-0" />
 
       {selectedDepts.length === 0 ? (
         <span className="multi-dept-placeholder">{placeholder}</span>
+      ) : selectedDepts.length === 1 ? (
+        // Single department: show name with color dot
+        <span className="multi-dept-single">
+          <span
+            className="multi-dept-dot"
+            style={{ background: getDeptColor(selectedDepts[0].id).text }}
+          />
+          {selectedDepts[0].name}
+        </span>
       ) : (
-        <div className="multi-dept-badges">
-          {selectedDepts.map(dept => {
-            const colors = getDeptColor(dept.id);
-            return (
+        // Multiple departments: show count with color dots
+        <span className="multi-dept-count">
+          <span className="multi-dept-dots">
+            {selectedDepts.slice(0, 3).map(dept => (
               <span
                 key={dept.id}
-                className="multi-dept-badge"
-                style={{
-                  background: colors.bg,
-                  color: colors.text,
-                  borderColor: colors.border
-                }}
-              >
-                {dept.name}
-                <span
-                  className="multi-dept-badge-remove"
-                  onClick={(e) => removeDepartment(e, dept.id)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => e.key === 'Enter' && removeDepartment(e, dept.id)}
-                >
-                  <X className="h-3 w-3" />
-                </span>
-              </span>
-            );
-          })}
-        </div>
+                className="multi-dept-dot"
+                style={{ background: getDeptColor(dept.id).text }}
+              />
+            ))}
+          </span>
+          {selectedDepts.length} depts
+        </span>
       )}
 
       <ChevronDown className="h-4 w-4 opacity-50 shrink-0 ml-auto" />

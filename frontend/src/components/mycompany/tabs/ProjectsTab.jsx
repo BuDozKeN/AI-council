@@ -13,6 +13,7 @@ import { useMemo } from 'react';
 import { FolderKanban, CheckCircle, Archive, RotateCcw, Trash2, Plus } from 'lucide-react';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { SortSelect } from '../../ui/SortSelect';
+import { ScrollableContent } from '../../ui/ScrollableContent';
 import { formatRelativeDate } from '../../../lib/dateUtils';
 import { getDeptColor } from '../../../lib/colors';
 
@@ -285,8 +286,8 @@ export function ProjectsTab({
         </button>
       </div>
 
-      {/* Projects list */}
-      <div className="mc-projects-list">
+      {/* Projects list with scroll-to-top */}
+      <ScrollableContent className="mc-projects-list">
         {sortedProjects.length === 0 ? (
           <div className="mc-empty-filtered">
             No projects match your filters
@@ -294,7 +295,7 @@ export function ProjectsTab({
         ) : (
           sortedProjects.map(renderProjectRow)
         )}
-      </div>
+      </ScrollableContent>
 
       {/* FAB - Mobile only (visible via CSS) */}
       <button

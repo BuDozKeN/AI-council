@@ -51,16 +51,18 @@ export function ModeToggle({
             className={`mode-btn-compact ${chatMode === 'chat' ? 'active' : ''}`}
             onClick={() => !isLoading && onChatModeChange('chat')}
             disabled={isLoading}
+            title="Quick response from one AI"
           >
-            Quick
+            <span className="mode-label">Quick</span>
           </button>
           <button
             type="button"
             className={`mode-btn-compact ${chatMode === 'council' ? 'active' : ''}`}
             onClick={() => !isLoading && onChatModeChange('council')}
             disabled={isLoading}
+            title="Full council deliberation with 5 AI models"
           >
-            Council
+            <span className="mode-label">Council</span>
           </button>
         </div>
 
@@ -107,9 +109,9 @@ export function ModeToggle({
           className={`mode-btn-compact ${chatMode === 'chat' ? 'active' : ''}`}
           onClick={() => !isLoading && onChatModeChange('chat')}
           disabled={isLoading}
-          title="Quick follow-up with the Chairman (faster)"
+          title="Quick follow-up with the Chairman"
         >
-          Quick
+          <span className="mode-label">Quick</span>
         </button>
         <button
           type="button"
@@ -118,7 +120,7 @@ export function ModeToggle({
           disabled={isLoading}
           title="Full council deliberation with all 5 AI models"
         >
-          Full Council
+          <span className="mode-label">Full Council</span>
         </button>
       </div>
 

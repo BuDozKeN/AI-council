@@ -540,12 +540,17 @@ def get_projects(company_id_or_slug: str, access_token: str) -> List[Dict[str, A
 def get_project(project_id: str, access_token: str) -> Optional[Dict[str, Any]]:
     """Get a single project by ID."""
     client = _get_client(access_token)
-    result = client.table("projects")\
-        .select("*")\
-        .eq("id", project_id)\
-        .single()\
-        .execute()
-    return result.data if result.data else None
+    try:
+        # Use limit(1) instead of single() to avoid exception on 0 rows
+        result = client.table("projects")\
+            .select("*")\
+            .eq("id", project_id)\
+            .limit(1)\
+            .execute()
+        return result.data[0] if result.data else None
+    except Exception as e:
+        print(f"[STORAGE] get_project failed for {project_id}: {type(e).__name__}: {e}", flush=True)
+        return None
 
 
 def create_project(
@@ -616,12 +621,17 @@ def get_project_context(project_id: str, access_token: str) -> Optional[str]:
     if not project_id:
         return None
     client = _get_client(access_token)
-    result = client.table("projects")\
-        .select("context_md")\
-        .eq("id", project_id)\
-        .single()\
-        .execute()
-    return result.data.get("context_md") if result.data else None
+    try:
+        # Use limit(1) instead of single() to avoid exception on 0 rows (deleted project)
+        result = client.table("projects")\
+            .select("context_md")\
+            .eq("id", project_id)\
+            .limit(1)\
+            .execute()
+        return result.data[0].get("context_md") if result.data else None
+    except Exception as e:
+        print(f"[STORAGE] get_project_context failed for {project_id}: {type(e).__name__}", flush=True)
+        return None
 
 
 def update_project(
@@ -743,7 +753,9 @@ def delete_project(project_id: str, access_token: str) -> Optional[dict]:
             .delete()\
             .eq("id", project_id)\
             .execute()
-        print(f"[DELETE_PROJECT] Delete result: {delete_result.data}", flush=True)
+        # Don't print full result - context_md may contain emojis that crash Windows console
+        deleted_count = len(delete_result.data or [])
+        print(f"[DELETE_PROJECT] Delete result: {deleted_count} row(s) deleted", flush=True)
 
         # Verify deletion actually happened
         verify_result = client.table("projects").select("id").eq("id", project_id).execute()

@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import { AppModal } from '../../ui/AppModal';
 import { AIWriteAssist } from '../../ui/AIWriteAssist';
+import { FloatingContextActions } from '../../ui/FloatingContextActions';
 import MarkdownViewer from '../../MarkdownViewer';
 import { getDeptColor } from '../../../lib/colors';
 
@@ -71,13 +72,13 @@ export function ViewDepartmentModal({ department, onClose, onSave }) {
               </AIWriteAssist>
             </div>
           ) : (
-            <div className="mc-content-preview">
+            <FloatingContextActions copyText={content || null} className="no-border">
               {content ? (
                 <MarkdownViewer content={content} skipCleanup={true} />
               ) : (
                 <p className="mc-no-content">No department context yet. Click Edit to add context.</p>
               )}
-            </div>
+            </FloatingContextActions>
           )}
         </div>
       </div>

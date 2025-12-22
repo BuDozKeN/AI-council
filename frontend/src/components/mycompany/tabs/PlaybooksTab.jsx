@@ -13,6 +13,7 @@
 import { useMemo } from 'react';
 import { BookOpen, Plus } from 'lucide-react';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
+import { ScrollableContent } from '../../ui/ScrollableContent';
 import { getDeptColor } from '../../../lib/colors';
 
 const DOC_TYPES = ['sop', 'framework', 'policy'];
@@ -151,115 +152,121 @@ export function PlaybooksTab({
         </button>
       </div>
 
-      {filteredPlaybooks.length === 0 ? (
-        <div className="mc-empty-filtered">
-          No playbooks match your filters
-        </div>
-      ) : (
-        DOC_TYPES.map(type => {
-          const docs = groupedPlaybooks[type];
-          if (docs.length === 0) return null;
+      {/* Playbooks list with scroll-to-top */}
+      <ScrollableContent className="mc-playbooks-list">
+        {filteredPlaybooks.length === 0 ? (
+          <div className="mc-empty-filtered">
+            No playbooks match your filters
+          </div>
+        ) : (
+          DOC_TYPES.map(type => {
+            const docs = groupedPlaybooks[type];
+            if (docs.length === 0) return null;
 
-          const MAX_VISIBLE = 5;
-          const isExpanded = expandedTypes[type];
-          const visibleDocs = isExpanded ? docs : docs.slice(0, MAX_VISIBLE);
-          const hasMore = docs.length > MAX_VISIBLE;
+            const MAX_VISIBLE = 5;
+            const isExpanded = expandedTypes[type];
+            const visibleDocs = isExpanded ? docs : docs.slice(0, MAX_VISIBLE);
+            const hasMore = docs.length > MAX_VISIBLE;
 
-          return (
-            <div key={type} className="mc-playbook-group">
-              <h4 className="mc-group-title">
-                {TYPE_LABELS[type]}
-                <span className="mc-group-count">({docs.length})</span>
-              </h4>
-              <div className="mc-elegant-list">
-                {visibleDocs.map(doc => {
-                  // Use embedded department name (or fallback to lookup for backwards compat)
-                  const dept = doc.department_name
-                    ? { id: doc.department_id, name: doc.department_name, slug: doc.department_slug }
-                    : departments.find(d => d.id === doc.department_id);
-                  // Find additional department names
-                  const additionalDepts = (doc.additional_departments || [])
-                    .map(deptId => departments.find(d => d.id === deptId))
-                    .filter(Boolean);
+            return (
+              <div key={type} className="mc-playbook-group">
+                <h4 className="mc-group-title">
+                  {TYPE_LABELS[type]}
+                  <span className="mc-group-count">({docs.length})</span>
+                </h4>
+                <div className="mc-elegant-list">
+                  {visibleDocs.map(doc => {
+                    // Use embedded department name (or fallback to lookup for backwards compat)
+                    const dept = doc.department_name
+                      ? { id: doc.department_id, name: doc.department_name, slug: doc.department_slug }
+                      : departments.find(d => d.id === doc.department_id);
+                    // Find additional department names
+                    const additionalDepts = (doc.additional_departments || [])
+                      .map(deptId => departments.find(d => d.id === deptId))
+                      .filter(Boolean);
 
-                  // All departments for this playbook
-                  const allDepts = [dept, ...additionalDepts].filter(Boolean);
+                    // All departments for this playbook
+                    const allDepts = [dept, ...additionalDepts].filter(Boolean);
 
-                  const typeLabel = TYPE_SHORT_LABELS[doc.doc_type] || doc.doc_type;
+                    const typeLabel = TYPE_SHORT_LABELS[doc.doc_type] || doc.doc_type;
 
-                  return (
-                    <div
-                      key={doc.id}
-                      className="mc-elegant-row"
-                      onClick={() => onViewPlaybook && onViewPlaybook(doc)}
-                    >
-                      {/* Type indicator dot */}
-                      <div className={`mc-type-dot ${doc.doc_type}`} />
+                    return (
+                      <div
+                        key={doc.id}
+                        className="mc-elegant-row"
+                        onClick={() => onViewPlaybook && onViewPlaybook(doc)}
+                      >
+                        {/* Type indicator dot */}
+                        <div className={`mc-type-dot ${doc.doc_type}`} />
 
-                      {/* Main content */}
-                      <div className="mc-elegant-content">
-                        <span className="mc-elegant-title">{doc.title}</span>
+                        {/* Main content */}
+                        <div className="mc-elegant-content">
+                          <span className="mc-elegant-title">{doc.title}</span>
 
-                        {/* Department badges */}
-                        {allDepts.map(d => {
-                          const color = getDeptColor(d.id);
-                          return (
-                            <span
-                              key={d.id}
-                              className="mc-elegant-dept"
-                              style={{
-                                background: color.bg,
-                                color: color.text
-                              }}
-                            >
-                              {d.name}
-                            </span>
-                          );
-                        })}
-                        {allDepts.length === 0 && (
-                          <span className="mc-elegant-dept mc-elegant-dept-none">
-                            Company-wide
-                          </span>
-                        )}
+                          {/* Badges row - departments + type */}
+                          <div className="mc-elegant-badges">
+                            {/* Department badges */}
+                            {allDepts.map(d => {
+                              const color = getDeptColor(d.id);
+                              return (
+                                <span
+                                  key={d.id}
+                                  className="mc-elegant-dept"
+                                  style={{
+                                    background: color.bg,
+                                    color: color.text
+                                  }}
+                                >
+                                  {d.name}
+                                </span>
+                              );
+                            })}
+                            {allDepts.length === 0 && (
+                              <span className="mc-elegant-dept mc-elegant-dept-none">
+                                Company-wide
+                              </span>
+                            )}
 
-                        {/* Type badge */}
-                        <span className={`mc-elegant-badge ${doc.doc_type}`}>{typeLabel}</span>
+                            {/* Type badge */}
+                            <span className={`mc-elegant-badge ${doc.doc_type}`}>{typeLabel}</span>
+                          </div>
+                        </div>
+
+                        {/* Actions on hover - Archive and Delete */}
+                        <div className="mc-elegant-actions">
+                          <button
+                            className="mc-text-btn archive"
+                            onClick={(e) => { e.stopPropagation(); onArchivePlaybook && onArchivePlaybook(doc); }}
+                            title="Archive playbook"
+                          >
+                            Archive
+                          </button>
+                          <button
+                            className="mc-text-btn delete"
+                            onClick={(e) => { e.stopPropagation(); onDeletePlaybook && onDeletePlaybook(doc); }}
+                            title="Delete playbook"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </div>
-
-                      {/* Actions on hover - Archive and Delete */}
-                      <div className="mc-elegant-actions">
-                        <button
-                          className="mc-text-btn archive"
-                          onClick={(e) => { e.stopPropagation(); onArchivePlaybook && onArchivePlaybook(doc); }}
-                          title="Archive playbook"
-                        >
-                          Archive
-                        </button>
-                        <button
-                          className="mc-text-btn delete"
-                          onClick={(e) => { e.stopPropagation(); onDeletePlaybook && onDeletePlaybook(doc); }}
-                          title="Delete playbook"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
+                {/* Load more / Show less button */}
+                {hasMore && (
+                  <button
+                    className="mc-load-more-btn"
+                    onClick={() => onExpandedTypesChange && onExpandedTypesChange(prev => ({ ...prev, [type]: !prev[type] }))}
+                  >
+                    {isExpanded ? `Show less` : `Load more (${docs.length - MAX_VISIBLE} more)`}
+                  </button>
+                )}
               </div>
-              {/* Load more / Show less button */}
-              {hasMore && (
-                <button
-                  className="mc-load-more-btn"
-                  onClick={() => onExpandedTypesChange && onExpandedTypesChange(prev => ({ ...prev, [type]: !prev[type] }))}
-                >
-                  {isExpanded ? `Show less` : `Load more (${docs.length - MAX_VISIBLE} more)`}
-                </button>
-              )}
-            </div>
-          );
-        })
-      )}
+            );
+          })
+        )}
+      </ScrollableContent>
 
       {/* FAB - Mobile only (visible via CSS) */}
       <button

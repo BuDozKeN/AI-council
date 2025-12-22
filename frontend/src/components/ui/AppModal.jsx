@@ -1,7 +1,7 @@
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden"
-import { X } from "lucide-react"
+import { X, ChevronUp, Copy, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 import "./AppModal.css"
 
@@ -46,9 +46,39 @@ const AppModal = React.forwardRef(({
   headerClassName,
   contentClassName,
   bodyMinHeight,
+  showScrollTop = true, // Show scroll-to-top button when scrolled
+  scrollThreshold = 150, // px scrolled before button appears
+  copyText = null, // If provided, shows floating copy button
   ...props
 }, ref) => {
   const bodyStyle = bodyMinHeight ? { minHeight: bodyMinHeight } : undefined
+  const bodyRef = React.useRef(null)
+  const [showScrollButton, setShowScrollButton] = React.useState(false)
+  const [copied, setCopied] = React.useState(false)
+
+  // Handle scroll detection
+  const handleScroll = React.useCallback((e) => {
+    if (showScrollTop) {
+      setShowScrollButton(e.target.scrollTop > scrollThreshold)
+    }
+  }, [showScrollTop, scrollThreshold])
+
+  // Scroll to top handler
+  const scrollToTop = React.useCallback(() => {
+    bodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
+
+  // Copy handler
+  const handleCopy = React.useCallback(async () => {
+    if (!copyText) return
+    try {
+      await navigator.clipboard.writeText(copyText)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy:', err)
+    }
+  }, [copyText])
 
   return (
     <DialogPrimitive.Root open={isOpen} onOpenChange={(open) => !open && onClose?.()}>
@@ -118,9 +148,36 @@ const AppModal = React.forwardRef(({
           )}
 
           {/* Body */}
-          <div className={cn("app-modal-body", contentClassName)} style={bodyStyle}>
+          <div
+            ref={bodyRef}
+            className={cn("app-modal-body", contentClassName)}
+            style={bodyStyle}
+            onScroll={handleScroll}
+          >
+            {/* Copy button - sticky top-right inside body */}
+            {copyText && (
+              <button
+                className={cn("app-modal-copy-btn", copied && "copied")}
+                onClick={handleCopy}
+                title={copied ? 'Copied!' : 'Copy content'}
+                aria-label={copied ? 'Copied to clipboard' : 'Copy to clipboard'}
+              >
+                {copied ? <Check size={14} /> : <Copy size={14} />}
+              </button>
+            )}
             {children}
           </div>
+
+          {/* Scroll to top - absolute bottom-right, aligned with copy */}
+          {showScrollTop && showScrollButton && (
+            <button
+              className="app-modal-scroll-top-btn"
+              onClick={scrollToTop}
+              aria-label="Scroll to top"
+            >
+              <ChevronUp size={18} />
+            </button>
+          )}
         </DialogPrimitive.Content>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>

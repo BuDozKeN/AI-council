@@ -48,16 +48,295 @@
   transform: rotate(180deg);
 }
 
-/* Popover content */
-.context-popover {
-  width: 360px;
+/* =============================================================================
+   DESKTOP POPOVER - Compact with playbooks collapsed
+   ============================================================================= */
+
+.context-popover-desktop {
+  width: 340px;
+  max-height: 500px;
   padding: 0;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Wrapper for entire desktop content */
+.context-desktop-wrapper {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Sticky header - Company always visible */
+.context-desktop-header {
+  padding: 12px 14px;
+  background: var(--color-bg-primary);
+  border-bottom: 1px solid var(--color-border-light);
+  flex-shrink: 0;
+}
+
+/* Scrollable content area below header */
+.context-desktop-content {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 100px;
+  max-height: 320px;
+}
+
+/* Fixed footer - Apply button always visible */
+.context-desktop-footer {
+  padding: 12px 14px;
+  background: var(--color-bg-primary);
+  border-top: 1px solid var(--color-border-light);
+  flex-shrink: 0;
+}
+
+/* Desktop field (label + content) */
+.context-desktop-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.context-desktop-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Desktop select trigger */
+.context-desktop-select {
+  height: 34px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 13px;
+  padding: 0 10px;
+}
+
+.context-desktop-select:hover {
+  border-color: var(--color-border-dark);
+}
+
+.context-desktop-select:focus {
+  border-color: var(--color-brand-primary);
+  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.1);
+}
+
+.context-desktop-select-icon {
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+  margin-right: 6px;
+}
+
+/* Multi-select chips container */
+.context-desktop-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* Generic chip style */
+.context-desktop-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 8px;
+  background: var(--chip-bg, var(--color-bg-secondary));
+  border: 1px solid var(--chip-border, var(--color-border));
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--chip-text, var(--color-text-secondary));
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.context-desktop-chip:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+.context-desktop-chip.selected {
+  background: var(--chip-bg, var(--color-brand-primary-light));
+  border-color: var(--chip-border, var(--color-brand-primary));
+  color: var(--chip-text, var(--color-brand-primary));
+}
+
+.context-desktop-chip svg {
+  flex-shrink: 0;
+}
+
+/* Role chip colors */
+.context-desktop-chip.role.selected {
+  --chip-bg: var(--color-indigo-50, #eef2ff);
+  --chip-border: var(--color-indigo-400, #818cf8);
+  --chip-text: var(--color-indigo-600, #4f46e5);
+}
+
+/* Playbook chips by type */
+.context-desktop-chip.playbook.framework.selected {
+  --chip-bg: rgba(139, 92, 246, 0.1);
+  --chip-border: #8b5cf6;
+  --chip-text: #7c3aed;
+}
+
+.context-desktop-chip.playbook.sop.selected {
+  --chip-bg: rgba(245, 158, 11, 0.1);
+  --chip-border: #f59e0b;
+  --chip-text: #d97706;
+}
+
+.context-desktop-chip.playbook.policy.selected {
+  --chip-bg: rgba(59, 130, 246, 0.1);
+  --chip-border: #3b82f6;
+  --chip-text: #2563eb;
+}
+
+/* Truncate long chip text */
+.chip-truncate {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* More button toggle for playbooks */
+.context-desktop-more-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 10px;
+  background: transparent;
+  border: 1px dashed var(--color-border);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.context-desktop-more-btn:hover {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-secondary);
+}
+
+.context-desktop-more-btn.expanded {
+  background: var(--color-bg-secondary);
+  border-style: solid;
+  border-color: var(--color-brand-primary);
+  color: var(--color-text-primary);
+}
+
+.context-desktop-more-btn span:first-of-type {
+  flex: 1;
+  text-align: left;
+}
+
+.context-desktop-more-chevron {
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.context-desktop-more-chevron.rotated {
+  transform: rotate(90deg);
+}
+
+/* Playbooks grouped section */
+.context-desktop-playbooks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 4px;
+  animation: slideInSection 0.15s ease-out;
+}
+
+@keyframes slideInSection {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.context-desktop-pb-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.context-desktop-pb-type {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.context-desktop-pb-type svg {
+  opacity: 0.7;
+}
+
+.context-desktop-pb-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* Desktop apply button - in fixed footer */
+.context-desktop-apply-btn {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, var(--color-brand-primary) 0%, var(--color-brand-primary-hover) 100%);
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.context-desktop-apply-btn:hover {
+  background: linear-gradient(135deg, var(--color-brand-primary-hover) 0%, var(--color-info) 100%);
+  transform: translateY(-1px);
+}
+
+/* Old popover styles - keep for backward compatibility */
+.context-popover {
+  width: 340px;
+  padding: 0;
+  max-height: 70vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Sections */
 .context-section {
-  padding: 12px 16px;
+  padding: 10px 14px;
   border-bottom: 1px solid var(--color-border-light);
 }
 
@@ -324,8 +603,8 @@
 /* Apply button */
 .context-apply-btn {
   display: block;
-  width: calc(100% - 32px);
-  margin: 0 16px 16px;
+  width: calc(100% - 28px);
+  margin: 12px 14px 14px;
   padding: 10px 16px;
   background: linear-gradient(135deg, var(--color-brand-primary) 0%, var(--color-brand-primary-hover) 100%);
   border: none;
@@ -335,6 +614,10 @@
   color: white;
   cursor: pointer;
   transition: all 0.2s ease;
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
 }
 
 .context-apply-btn:hover {
@@ -348,4 +631,553 @@
     width: calc(100vw - 32px);
     max-width: 360px;
   }
+}
+
+/* =============================================================================
+   MOBILE BOTTOM SHEET STYLES
+   ============================================================================= */
+
+/* Mobile content wrapper */
+.context-mobile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* =============================================================================
+   SEE MORE TOGGLE - Projects & Playbooks
+   ============================================================================= */
+
+.context-see-more-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: calc(100% - 28px);
+  padding: 10px 14px;
+  margin: 8px 14px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.context-see-more-btn:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-primary);
+}
+
+.context-see-more-btn.expanded {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-brand-primary);
+  color: var(--color-text-primary);
+}
+
+.context-see-more-btn:active {
+  transform: scale(0.98);
+}
+
+.context-see-more-btn span:first-of-type {
+  flex: 1;
+  text-align: left;
+}
+
+/* Mobile version - full width within bottom sheet */
+.context-see-more-btn-mobile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 16px;
+  margin: 8px 0;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.context-see-more-btn-mobile:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+.context-see-more-btn-mobile.expanded {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-brand-primary);
+  color: var(--color-text-primary);
+}
+
+.context-see-more-btn-mobile:active {
+  transform: scale(0.98);
+}
+
+.context-see-more-btn-mobile span:first-of-type {
+  flex: 1;
+  text-align: left;
+}
+
+/* Badge for selection count */
+.context-more-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: var(--color-brand-primary);
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+}
+
+/* Chevron rotation */
+.context-see-more-chevron {
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.context-see-more-chevron.rotated {
+  transform: rotate(90deg);
+}
+
+/* Expanded content container */
+.context-more-content {
+  animation: slideInSection 0.2s ease-out;
+  padding-top: 8px;
+}
+
+/* Slide-in animation for expanded sections */
+@keyframes slideInSection {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile sections */
+.context-section-mobile {
+  padding: 0 0 16px 0;
+  animation: slideInSection 0.25s ease-out;
+}
+
+.context-section-title-mobile {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 12px 0;
+}
+
+/* Mobile company buttons */
+.context-companies-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.context-company-btn-mobile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--color-bg-secondary);
+  border: 2px solid var(--color-border);
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.context-company-btn-mobile:active {
+  transform: scale(0.98);
+}
+
+.context-company-btn-mobile.active {
+  background: var(--color-brand-primary-light);
+  border-color: var(--color-brand-primary);
+}
+
+.context-company-btn-mobile svg {
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+}
+
+.context-company-btn-mobile.active svg {
+  color: var(--color-brand-primary);
+}
+
+.context-company-btn-mobile span {
+  flex: 1;
+}
+
+/* =============================================================================
+   MOBILE HORIZONTAL CHIP STRIPS - Instagram-like scrollable chips
+   ============================================================================= */
+
+/* Horizontal scrollable chip strip container */
+.context-chip-strip {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 4px 0 8px 0;
+  margin: 0 -4px;
+  padding-left: 4px;
+  padding-right: 4px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  /* Hide scrollbar but keep functionality */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.context-chip-strip::-webkit-scrollbar {
+  display: none;
+}
+
+/* Individual chip in the strip */
+.context-strip-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--chip-bg, var(--color-bg-secondary));
+  border: 2px solid var(--chip-border, var(--color-border));
+  border-radius: 20px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--chip-text, var(--color-text-secondary));
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  /* Touch-friendly size */
+  min-height: 44px;
+}
+
+.context-strip-chip:active {
+  transform: scale(0.96);
+}
+
+/* Selected state for department chips (uses CSS vars from JSX) */
+.context-strip-chip.selected {
+  background: var(--chip-bg);
+  border-color: var(--chip-border);
+  color: var(--chip-text);
+  font-weight: 600;
+}
+
+/* Company chip colors */
+.context-strip-chip.company {
+  --chip-bg: var(--color-bg-secondary);
+  --chip-border: var(--color-border);
+  --chip-text: var(--color-text-secondary);
+}
+
+.context-strip-chip.company.selected {
+  --chip-bg: var(--color-brand-primary-light, #e0f2fe);
+  --chip-border: var(--color-brand-primary, #0ea5e9);
+  --chip-text: var(--color-brand-primary-hover, #0284c7);
+}
+
+/* Role chip colors */
+.context-strip-chip.role {
+  --chip-bg: var(--color-bg-secondary);
+  --chip-border: var(--color-border);
+  --chip-text: var(--color-text-secondary);
+}
+
+.context-strip-chip.role.selected {
+  --chip-bg: var(--color-indigo-50, #eef2ff);
+  --chip-border: var(--color-indigo-400, #818cf8);
+  --chip-text: var(--color-indigo-600, #4f46e5);
+}
+
+/* Project chip colors */
+.context-strip-chip.project {
+  --chip-bg: var(--color-bg-secondary);
+  --chip-border: var(--color-border);
+  --chip-text: var(--color-text-secondary);
+}
+
+.context-strip-chip.project.selected {
+  --chip-bg: var(--color-amber-50, #fffbeb);
+  --chip-border: var(--color-amber-400, #fbbf24);
+  --chip-text: var(--color-amber-600, #d97706);
+}
+
+/* Playbook chip colors - by type */
+.context-strip-chip.playbook {
+  --chip-bg: var(--color-bg-secondary);
+  --chip-border: var(--color-border);
+  --chip-text: var(--color-text-secondary);
+}
+
+/* Frameworks - Purple */
+.context-strip-chip.playbook.framework.selected {
+  --chip-bg: rgba(139, 92, 246, 0.1);
+  --chip-border: #8b5cf6;
+  --chip-text: #7c3aed;
+}
+
+/* SOPs - Amber */
+.context-strip-chip.playbook.sop.selected {
+  --chip-bg: rgba(245, 158, 11, 0.1);
+  --chip-border: #f59e0b;
+  --chip-text: #d97706;
+}
+
+/* Policies - Blue */
+.context-strip-chip.playbook.policy.selected {
+  --chip-bg: rgba(59, 130, 246, 0.1);
+  --chip-border: #3b82f6;
+  --chip-text: #2563eb;
+}
+
+/* Check icon inside chips */
+.strip-chip-check {
+  flex-shrink: 0;
+  margin-left: 2px;
+}
+
+/* Icon inside chips */
+.context-strip-chip svg:first-child {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.context-strip-chip.selected svg:first-child {
+  opacity: 1;
+}
+
+/* Chip text truncation for long names */
+.chip-text {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* "More" chip style */
+.context-strip-chip.more {
+  --chip-bg: transparent;
+  --chip-border: var(--color-border);
+  --chip-text: var(--color-text-tertiary);
+  border-style: dashed;
+}
+
+.context-strip-chip.more:hover {
+  --chip-border: var(--color-border-dark);
+  --chip-text: var(--color-text-secondary);
+}
+
+/* =============================================================================
+   PLAYBOOK GROUPS
+   ============================================================================= */
+
+.context-playbook-group {
+  margin-bottom: 12px;
+}
+
+.context-playbook-group:last-child {
+  margin-bottom: 0;
+}
+
+.context-playbook-type-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  padding-left: 4px;
+}
+
+.context-playbook-type-label svg {
+  opacity: 0.7;
+}
+
+/* =============================================================================
+   ELASTIC BOUNCE SCROLL
+   ============================================================================= */
+
+/* iOS-style elastic bounce at scroll boundaries */
+.context-chip-strip {
+  /* Enable overscroll behavior for elastic effect */
+  overscroll-behavior-x: contain;
+}
+
+/* Fade edges to indicate more content */
+.context-chip-strip::before,
+.context-chip-strip::after {
+  content: '';
+  position: sticky;
+  flex-shrink: 0;
+  width: 20px;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Note: Fade edges would require additional wrapper - keeping it simple for now */
+
+/* Mobile apply button */
+.context-apply-btn-mobile {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--color-brand-primary) 0%, var(--color-brand-primary-hover) 100%);
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.context-apply-btn-mobile:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+/* =============================================================================
+   DESKTOP CHIP SELECTORS (replacing nested popovers)
+   ============================================================================= */
+
+/* Department chips - desktop */
+.context-dept-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.context-dept-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.context-dept-chip:hover {
+  background: var(--dept-bg, var(--color-bg-tertiary));
+  border-color: var(--dept-text, var(--color-border-dark));
+}
+
+.context-dept-chip.selected {
+  background: var(--dept-bg, var(--color-brand-primary-light));
+  border-color: var(--dept-text, var(--color-brand-primary));
+  color: var(--dept-text, var(--color-brand-primary));
+}
+
+.context-dept-chip svg {
+  flex-shrink: 0;
+}
+
+/* Role chips - desktop */
+.context-role-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 120px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.context-role-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 8px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.context-role-chip:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+.context-role-chip.selected {
+  background: var(--color-indigo-50);
+  border-color: var(--color-indigo-400);
+  color: var(--color-indigo-600);
+}
+
+.context-role-chip svg {
+  flex-shrink: 0;
+}
+
+/* Playbook chips - desktop */
+.context-playbook-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.context-playbook-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.context-playbook-chip:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+.context-playbook-chip.selected {
+  background: var(--color-emerald-50);
+  border-color: var(--color-emerald-400);
+  color: var(--color-emerald-600);
+}
+
+.context-playbook-chip svg {
+  flex-shrink: 0;
 }

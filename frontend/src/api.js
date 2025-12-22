@@ -1536,21 +1536,31 @@ export const api = {
    */
   async mergeDecisionIntoProject(projectId, existingContext, decisionContent, userQuestion = '', options = {}) {
     const headers = await getAuthHeaders();
+    // Ensure required fields are never undefined (would cause Pydantic validation error)
     const body = {
-      existing_context: existingContext,
-      decision_content: decisionContent,
-      user_question: userQuestion,
+      existing_context: existingContext || '',
+      decision_content: decisionContent || '',
+      user_question: userQuestion || '',
     };
+    console.log('[API] mergeDecisionIntoProject called:', {
+      projectId,
+      existingContextLength: existingContext?.length ?? 'undefined',
+      decisionContentLength: decisionContent?.length ?? 'undefined',
+      userQuestion: userQuestion?.substring(0, 50) ?? 'undefined',
+      options: Object.keys(options)
+    });
 
     // Optional: save decision to knowledge_entries for audit trail
     if (options.saveDecision) {
       body.save_decision = true;
-      body.company_id = options.companyId;
-      body.conversation_id = options.conversationId;
-      body.response_index = options.responseIndex;
-      body.decision_title = options.decisionTitle;
-      body.department_id = options.departmentId;  // Primary department (backwards compat)
-      body.department_ids = options.departmentIds;  // All selected departments
+      body.company_id = options.companyId || null;
+      body.conversation_id = options.conversationId || null;
+      body.response_index = typeof options.responseIndex === 'number' ? options.responseIndex : null;
+      body.decision_title = options.decisionTitle || null;
+      body.department_id = options.departmentId || null;  // Primary department (backwards compat)
+      body.department_ids = Array.isArray(options.departmentIds) && options.departmentIds.length > 0
+        ? options.departmentIds
+        : null;  // All selected departments
       console.log('[API] mergeDecisionIntoProject body:', JSON.stringify(body, null, 2));
     }
 
@@ -1571,8 +1581,13 @@ export const api = {
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({ detail: 'Failed to merge decision' }));
-        console.error('[API] merge-decision error:', error);
-        throw new Error(error.detail || 'Failed to merge decision');
+        console.error('[API] merge-decision error:', JSON.stringify(error, null, 2));
+        console.error('[API] merge-decision status:', response.status);
+        // Pydantic validation errors come as array of objects with loc, msg, type
+        const errorMsg = Array.isArray(error.detail)
+          ? error.detail.map(e => `${e.loc?.join('.')}: ${e.msg}`).join('; ')
+          : (error.detail || 'Failed to merge decision');
+        throw new Error(errorMsg);
       }
       const result = await response.json();
       console.log('[API] merge-decision success, saved_decision_id:', result.saved_decision_id);
@@ -2234,6 +2249,123 @@ export const api = {
     const response = await fetch(`${API_BASE}/api/company/${companyId}/usage`, { headers });
     if (!response.ok) {
       throw new Error('Failed to get company usage');
+    }
+    return response.json();
+  },
+
+  // ===== BYOK (Bring Your Own Key) =====
+
+  /**
+   * Get the status of the user's OpenRouter API key.
+   * @returns {Promise<{status: string, masked_key?: string, is_valid: boolean}>}
+   */
+  async getOpenRouterKeyStatus() {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/settings/openrouter-key`, { headers });
+    if (!response.ok) {
+      throw new Error('Failed to get API key status');
+    }
+    return response.json();
+  },
+
+  /**
+   * Save the user's OpenRouter API key.
+   * Key is validated before saving.
+   * @param {string} key - The OpenRouter API key
+   * @returns {Promise<{status: string, masked_key: string, is_valid: boolean}>}
+   */
+  async saveOpenRouterKey(key) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/settings/openrouter-key`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ key }),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to save API key' }));
+      throw new Error(error.detail || 'Failed to save API key');
+    }
+    return response.json();
+  },
+
+  /**
+   * Delete the user's OpenRouter API key.
+   * @returns {Promise<{status: string}>}
+   */
+  async deleteOpenRouterKey() {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/settings/openrouter-key`, {
+      method: 'DELETE',
+      headers,
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete API key');
+    }
+    return response.json();
+  },
+
+  /**
+   * Test the user's stored OpenRouter API key.
+   * @returns {Promise<{status: string, masked_key: string, is_valid: boolean, is_active: boolean}>}
+   */
+  async testOpenRouterKey() {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/settings/openrouter-key/test`, {
+      method: 'POST',
+      headers,
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to test API key' }));
+      throw new Error(error.detail || 'Failed to test API key');
+    }
+    return response.json();
+  },
+
+  /**
+   * Toggle the is_active status of the user's OpenRouter API key.
+   * @returns {Promise<{status: string, masked_key: string, is_valid: boolean, is_active: boolean}>}
+   */
+  async toggleOpenRouterKey() {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/settings/openrouter-key/toggle`, {
+      method: 'POST',
+      headers,
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to toggle API key' }));
+      throw new Error(error.detail || 'Failed to toggle API key');
+    }
+    return response.json();
+  },
+
+  /**
+   * Get all user settings including BYOK status.
+   * @returns {Promise<{default_mode: string, has_api_key: boolean, api_key_status?: Object}>}
+   */
+  async getUserSettings() {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/settings`, { headers });
+    if (!response.ok) {
+      throw new Error('Failed to get user settings');
+    }
+    return response.json();
+  },
+
+  /**
+   * Update user settings.
+   * @param {object} updates - Fields to update
+   * @param {string} [updates.default_mode] - 'quick' or 'full_council'
+   * @returns {Promise<Object>} Updated settings
+   */
+  async updateUserSettings(updates) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/settings`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify(updates),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to update user settings');
     }
     return response.json();
   },

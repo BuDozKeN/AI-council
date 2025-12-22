@@ -8,6 +8,7 @@
 import { useState } from 'react';
 import { AppModal } from '../../ui/AppModal';
 import { AIWriteAssist } from '../../ui/AIWriteAssist';
+import { FloatingContextActions } from '../../ui/FloatingContextActions';
 import MarkdownViewer from '../../MarkdownViewer';
 
 export function ViewCompanyContextModal({ data, companyName, onClose, onSave, initialEditing = true, fullscreen = false }) {
@@ -75,13 +76,13 @@ Include:
               </AIWriteAssist>
             </div>
           ) : (
-            <div className="mc-content-preview">
+            <FloatingContextActions copyText={content || null} className="no-border">
               {content ? (
                 <MarkdownViewer content={content} skipCleanup={true} />
               ) : (
                 <p className="mc-no-content">No company context yet. Click Edit to add context.</p>
               )}
-            </div>
+            </FloatingContextActions>
           )}
         </div>
       </div>

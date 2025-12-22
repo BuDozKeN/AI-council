@@ -144,13 +144,69 @@
   }
 }
 
-/* Floating copy button - appears when scrolling */
+/* Floating copy button - appears when scrolling (desktop) or always (mobile) */
 .stage3-floating-copy {
   animation: floatIn 0.2s ease-out;
 }
 
 .stage3-floating-copy .stage3-copy-btn {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+}
+
+/* Mobile: compact floating copy button - minimal footprint */
+@media (max-width: 768px) {
+  .stage3-floating-copy {
+    position: fixed !important;
+  }
+
+  .stage3-floating-copy .stage3-copy-btn {
+    /* Smaller but still touch-friendly (44px minimum) */
+    padding: 10px;
+    min-width: 44px;
+    min-height: 44px;
+    /* Subtle styling - not too prominent */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-success-border);
+    color: var(--color-success-dark);
+  }
+
+  .stage3-floating-copy .stage3-copy-btn:active {
+    background: var(--color-success-light);
+    transform: scale(0.95);
+  }
+
+  .stage3-floating-copy .stage3-copy-btn.copied {
+    background: var(--color-success-light);
+    border-color: var(--color-success);
+  }
+
+  /* Icon size - compact */
+  .stage3-floating-copy .stage3-copy-btn .copy-btn-icon {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* Dark mode floating copy button on mobile */
+@media (max-width: 768px) {
+  .dark .stage3-floating-copy .stage3-copy-btn {
+    background: var(--color-bg-secondary);
+    border-color: rgba(34, 197, 94, 0.3);
+    color: var(--color-success);
+  }
+
+  .dark .stage3-floating-copy .stage3-copy-btn:active {
+    background: rgba(34, 197, 94, 0.15);
+  }
+
+  .dark .stage3-floating-copy .stage3-copy-btn.copied {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: var(--color-success);
+  }
 }
 
 @keyframes floatIn {

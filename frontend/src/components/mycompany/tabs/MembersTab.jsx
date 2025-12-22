@@ -19,6 +19,7 @@ import { useState, useEffect } from 'react';
 import { api } from '../../../api';
 import { Users, Crown, Shield, User, Plus, Trash2, ChevronUp, ChevronDown, BarChart3, AlertCircle } from 'lucide-react';
 import { Spinner } from '../../ui/Spinner';
+import { ScrollableContent } from '../../ui/ScrollableContent';
 
 // Role hierarchy for display
 const ROLE_CONFIG = {
@@ -208,83 +209,85 @@ export function MembersTab({
         </form>
       )}
 
-      {/* Members list */}
-      <div className="mc-members-list">
-        {members.map(member => {
-          const roleConfig = ROLE_CONFIG[member.role] || ROLE_CONFIG.member;
-          const RoleIcon = roleConfig.icon;
-          const isCurrentUser = member.user_id === currentUserId;
-          const isLoading = actionLoading === member.id;
+      {/* Members list with scroll-to-top */}
+      <ScrollableContent className="mc-members-list-wrapper">
+        <div className="mc-members-list">
+          {members.map(member => {
+            const roleConfig = ROLE_CONFIG[member.role] || ROLE_CONFIG.member;
+            const RoleIcon = roleConfig.icon;
+            const isCurrentUser = member.user_id === currentUserId;
+            const isLoading = actionLoading === member.id;
 
-          // Can this member be modified?
-          const canModify = canManageMembers && !isCurrentUser && member.role !== 'owner';
-          const canPromote = canModify && currentRole === 'owner' && member.role === 'member';
-          const canDemote = canModify && currentRole === 'owner' && member.role === 'admin';
-          const canRemove = canModify && (currentRole === 'owner' || (currentRole === 'admin' && member.role === 'member'));
+            // Can this member be modified?
+            const canModify = canManageMembers && !isCurrentUser && member.role !== 'owner';
+            const canPromote = canModify && currentRole === 'owner' && member.role === 'member';
+            const canDemote = canModify && currentRole === 'owner' && member.role === 'admin';
+            const canRemove = canModify && (currentRole === 'owner' || (currentRole === 'admin' && member.role === 'member'));
 
-          return (
-            <div key={member.id} className={`mc-member-row ${isCurrentUser ? 'current' : ''}`}>
-              {/* Role badge */}
-              <div className="mc-member-role" style={{ color: roleConfig.color }}>
-                <RoleIcon size={18} />
-              </div>
-
-              {/* User info */}
-              <div className="mc-member-info">
-                <span className="mc-member-name">
-                  {/* TODO: Display email when we have user lookup */}
-                  {isCurrentUser ? 'You' : `User ${member.user_id.slice(0, 8)}...`}
-                </span>
-                <span className="mc-member-role-label" style={{ color: roleConfig.color }}>
-                  {roleConfig.label}
-                </span>
-              </div>
-
-              {/* Joined date */}
-              <div className="mc-member-joined">
-                Joined {formatDate(member.joined_at || member.created_at)}
-              </div>
-
-              {/* Actions */}
-              {isLoading ? (
-                <div className="mc-member-actions">
-                  <Spinner size={16} />
+            return (
+              <div key={member.id} className={`mc-member-row ${isCurrentUser ? 'current' : ''}`}>
+                {/* Role badge */}
+                <div className="mc-member-role" style={{ color: roleConfig.color }}>
+                  <RoleIcon size={18} />
                 </div>
-              ) : (
-                <div className="mc-member-actions">
-                  {canPromote && (
-                    <button
-                      className="mc-icon-btn promote"
-                      onClick={() => handleChangeRole(member.id, 'admin')}
-                      title="Promote to Admin"
-                    >
-                      <ChevronUp size={16} />
-                    </button>
-                  )}
-                  {canDemote && (
-                    <button
-                      className="mc-icon-btn demote"
-                      onClick={() => handleChangeRole(member.id, 'member')}
-                      title="Demote to Member"
-                    >
-                      <ChevronDown size={16} />
-                    </button>
-                  )}
-                  {canRemove && (
-                    <button
-                      className="mc-icon-btn danger"
-                      onClick={() => handleRemoveMember(member.id, member.role)}
-                      title="Remove from team"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  )}
+
+                {/* User info */}
+                <div className="mc-member-info">
+                  <span className="mc-member-name">
+                    {/* TODO: Display email when we have user lookup */}
+                    {isCurrentUser ? 'You' : `User ${member.user_id.slice(0, 8)}...`}
+                  </span>
+                  <span className="mc-member-role-label" style={{ color: roleConfig.color }}>
+                    {roleConfig.label}
+                  </span>
                 </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
+
+                {/* Joined date */}
+                <div className="mc-member-joined">
+                  Joined {formatDate(member.joined_at || member.created_at)}
+                </div>
+
+                {/* Actions */}
+                {isLoading ? (
+                  <div className="mc-member-actions">
+                    <Spinner size={16} />
+                  </div>
+                ) : (
+                  <div className="mc-member-actions">
+                    {canPromote && (
+                      <button
+                        className="mc-icon-btn promote"
+                        onClick={() => handleChangeRole(member.id, 'admin')}
+                        title="Promote to Admin"
+                      >
+                        <ChevronUp size={16} />
+                      </button>
+                    )}
+                    {canDemote && (
+                      <button
+                        className="mc-icon-btn demote"
+                        onClick={() => handleChangeRole(member.id, 'member')}
+                        title="Demote to Member"
+                      >
+                        <ChevronDown size={16} />
+                      </button>
+                    )}
+                    {canRemove && (
+                      <button
+                        className="mc-icon-btn danger"
+                        onClick={() => handleRemoveMember(member.id, member.role)}
+                        title="Remove from team"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </ScrollableContent>
 
       {/* Usage statistics (for owners/admins) */}
       {usage && (

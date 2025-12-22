@@ -22,10 +22,13 @@ const initialState = {
   myCompanyInitialDecisionId: null,
   myCompanyInitialPlaybookId: null,
   myCompanyInitialProjectId: null,
+  myCompanyInitialProjectDecisionId: null, // Decision ID to expand when opening a project
   myCompanyPromoteDecision: null,
 
   // Return navigation
   returnToMyCompanyTab: null,
+  returnToProjectId: null,      // Project ID to reopen when returning from source conversation
+  returnToDecisionId: null,     // Decision ID to expand when returning to project
   scrollToStage3: false,
   scrollToResponseIndex: null,
 };
@@ -71,11 +74,14 @@ function modalReducer(state, action) {
         ...state,
         isMyCompanyOpen: true,
         returnToMyCompanyTab: null,
+        returnToProjectId: null,
+        returnToDecisionId: null,
         myCompanyPromoteDecision: action.payload?.clearPromoteDecision ? null : state.myCompanyPromoteDecision,
         myCompanyInitialTab: action.payload?.tab || 'overview',
         myCompanyInitialDecisionId: action.payload?.decisionId || null,
         myCompanyInitialPlaybookId: action.payload?.playbookId || null,
         myCompanyInitialProjectId: action.payload?.projectId || null,
+        myCompanyInitialProjectDecisionId: action.payload?.projectDecisionId || null,
       };
 
     case 'CLOSE_MY_COMPANY':
@@ -86,6 +92,7 @@ function modalReducer(state, action) {
         myCompanyInitialDecisionId: null,
         myCompanyInitialPlaybookId: null,
         myCompanyInitialProjectId: null,
+        myCompanyInitialProjectDecisionId: null,
         myCompanyPromoteDecision: null,
       };
 
@@ -97,6 +104,7 @@ function modalReducer(state, action) {
         myCompanyInitialDecisionId: null,
         myCompanyInitialPlaybookId: null,
         myCompanyInitialProjectId: null,
+        myCompanyInitialProjectDecisionId: null,
       };
 
     case 'SET_MY_COMPANY_PROMOTE_DECISION':
@@ -113,6 +121,8 @@ function modalReducer(state, action) {
         scrollToStage3: true,
         scrollToResponseIndex: action.payload?.responseIndex ?? null,
         returnToMyCompanyTab: action.payload?.fromTab || null,
+        returnToProjectId: action.payload?.projectId || null,
+        returnToDecisionId: action.payload?.decisionId || null,
       };
 
     case 'CLEAR_SCROLL_STATE':
@@ -133,6 +143,8 @@ function modalReducer(state, action) {
       return {
         ...state,
         returnToMyCompanyTab: null,
+        returnToProjectId: null,
+        returnToDecisionId: null,
         myCompanyPromoteDecision: null,
       };
 
@@ -178,8 +190,8 @@ export function useModalState() {
   const setMyCompanyPromoteDecision = useCallback((decision) =>
     dispatch({ type: 'SET_MY_COMPANY_PROMOTE_DECISION', payload: decision }), []);
 
-  const navigateToConversation = useCallback((fromTab, responseIndex) =>
-    dispatch({ type: 'NAVIGATE_TO_CONVERSATION', payload: { fromTab, responseIndex } }), []);
+  const navigateToConversation = useCallback((fromTab, responseIndex, projectId = null, decisionId = null) =>
+    dispatch({ type: 'NAVIGATE_TO_CONVERSATION', payload: { fromTab, responseIndex, projectId, decisionId } }), []);
 
   const clearScrollState = useCallback(() =>
     dispatch({ type: 'CLEAR_SCROLL_STATE' }), []);

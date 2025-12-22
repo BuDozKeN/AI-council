@@ -76,6 +76,8 @@ export default function ChatInterface({
   onScrollToStage3Complete,
   // Return to My Company (after viewing source)
   returnToMyCompanyTab,
+  returnToProjectId,
+  returnToDecisionId,
   onReturnToMyCompany,
   // Initial loading state (for conversation fetch)
   isLoadingConversation = false,
@@ -143,7 +145,7 @@ export default function ChatInterface({
     if (scrollToStage3) {
       userHasScrolledUp.current = true;
 
-      // Wait for DOM to render the messages
+      // Wait for DOM to fully render (animations need time)
       const timer = setTimeout(() => {
         let targetElement = null;
 
@@ -167,13 +169,14 @@ export default function ChatInterface({
         }
 
         if (targetElement) {
-          targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // Use instant scroll for snappy, frictionless UX
+          targetElement.scrollIntoView({ behavior: 'instant', block: 'start' });
         }
 
         if (onScrollToStage3Complete) {
           onScrollToStage3Complete();
         }
-      }, 100);
+      }, 150);
 
       return () => clearTimeout(timer);
     }
@@ -183,6 +186,56 @@ export default function ChatInterface({
       scrollToBottom();
     }
   }, [scrollToStage3, scrollToResponseIndex, conversation, onScrollToStage3Complete]);
+
+  // Auto-scroll during streaming - only if user hasn't scrolled up
+  // Track the streaming text length to detect content changes
+  const lastMsg = conversation?.messages?.[conversation?.messages?.length - 1];
+  const streamingTextLength = useMemo(() => {
+    if (!lastMsg || lastMsg.role !== 'assistant') return 0;
+
+    // Calculate total streaming content length across all stages
+    let length = 0;
+
+    // Stage 1: sum of all model responses
+    if (lastMsg.stage1Streaming) {
+      Object.values(lastMsg.stage1Streaming).forEach(response => {
+        if (typeof response === 'string') length += response.length;
+        else if (response?.text) length += response.text.length;
+      });
+    }
+
+    // Stage 2: sum of all model rankings
+    if (lastMsg.stage2Streaming) {
+      Object.values(lastMsg.stage2Streaming).forEach(ranking => {
+        if (typeof ranking === 'string') length += ranking.length;
+        else if (ranking?.text) length += ranking.text.length;
+      });
+    }
+
+    // Stage 3: final response text
+    if (lastMsg.stage3Streaming?.text) {
+      length += lastMsg.stage3Streaming.text.length;
+    }
+
+    return length;
+  }, [lastMsg]);
+
+  useEffect(() => {
+    // Skip if user has intentionally scrolled up
+    if (userHasScrolledUp.current) return;
+
+    if (!lastMsg || lastMsg.role !== 'assistant') return;
+
+    // Check if any stage is actively streaming
+    const isStreaming = lastMsg.loading?.stage1 || lastMsg.loading?.stage2 || lastMsg.loading?.stage3;
+    if (!isStreaming) return;
+
+    // Scroll to bottom during streaming
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
+  }, [streamingTextLength, lastMsg]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -247,7 +300,7 @@ export default function ChatInterface({
       {returnToMyCompanyTab && onReturnToMyCompany && (
         <button
           className="back-to-company-btn"
-          onClick={() => onReturnToMyCompany(returnToMyCompanyTab)}
+          onClick={() => onReturnToMyCompany(returnToMyCompanyTab, returnToProjectId, returnToDecisionId)}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M19 12H5M12 19l-7-7 7-7" />

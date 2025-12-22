@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
+import { useState, useEffect, useCallback, useRef, lazy, Suspense, useMemo } from 'react';
 import { api } from '../api';
 import MarkdownViewer from './MarkdownViewer';
 import ProjectModal from './ProjectModal';
@@ -12,7 +12,7 @@ import { Spinner } from './ui/Spinner';
 import { Skeleton } from './ui/Skeleton';
 import { AIWriteAssist } from './ui/AIWriteAssist';
 import { PullToRefreshIndicator } from './ui/PullToRefreshIndicator';
-import { Building2, Bookmark, FolderKanban, CheckCircle, Archive, RotateCcw, ExternalLink, Trash2, Sparkles, PenLine, RefreshCw, Users, BookOpen, BarChart3, Lightbulb, ClipboardList } from 'lucide-react';
+import { Building2, Bookmark, FolderKanban, CheckCircle, Archive, RotateCcw, ExternalLink, Trash2, Sparkles, PenLine, RefreshCw, Users, BookOpen, BarChart3, Lightbulb, ClipboardList, ChevronDown } from 'lucide-react';
 import { getDeptColor } from '../lib/colors';
 import { usePullToRefresh, useSwipeGesture } from '../hooks';
 import { hapticLight, hapticSuccess, hapticMedium } from '../lib/haptics';
@@ -52,7 +52,7 @@ const ModalLoadingFallback = () => (
  * - Playbooks: SOPs, frameworks, policies
  * - Decisions: Saved council outputs with "promote to playbook" feature
  */
-export default function MyCompany({ companyId, companyName, allCompanies = [], onSelectCompany, onClose, onNavigateToConversation, initialTab = 'overview', initialDecisionId = null, initialPlaybookId = null, initialProjectId = null, initialPromoteDecision = null, onConsumePromoteDecision = null }) {
+export default function MyCompany({ companyId, companyName, allCompanies = [], onSelectCompany, onClose, onNavigateToConversation, initialTab = 'overview', initialDecisionId = null, initialPlaybookId = null, initialProjectId = null, initialProjectDecisionId = null, initialPromoteDecision = null, onConsumePromoteDecision = null }) {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -75,6 +75,7 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
   const [highlightedDecisionId, setHighlightedDecisionId] = useState(initialDecisionId);
   const [highlightedPlaybookId, setHighlightedPlaybookId] = useState(initialPlaybookId);
   const [highlightedProjectId, setHighlightedProjectId] = useState(initialProjectId);
+  const [initialProjectDecisionToExpand, setInitialProjectDecisionToExpand] = useState(initialProjectDecisionId);
   const [confirmModal, setConfirmModal] = useState(null); // { type, item, title, message, confirmText, variant }
   const [alertModal, setAlertModal] = useState(null); // { title, message, variant } - replaces browser alert()
   const [deletingDecisionId, setDeletingDecisionId] = useState(null); // ID of decision being deleted (for animation)
@@ -199,6 +200,29 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
     edgeWidth: 40,
     enabled: true,
   });
+
+  // ESC key to close
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        hapticLight();
+        onClose?.();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  // Header click to close (but not on interactive elements)
+  const handleHeaderClick = useCallback((e) => {
+    // Don't close if clicking on interactive elements
+    const target = e.target;
+    if (target.closest('button, [role="combobox"], [role="listbox"], select, input')) {
+      return;
+    }
+    hapticLight();
+    onClose?.();
+  }, [onClose]);
 
   // Load data based on active tab
   const loadData = useCallback(async () => {
@@ -1015,6 +1039,8 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
             project={editingItem.data}
             companyId={companyId}
             departments={departments}
+            initialExpandedDecisionId={initialProjectDecisionToExpand}
+            onConsumeInitialDecision={() => setInitialProjectDecisionToExpand(null)}
             onClose={() => setEditingItem(null)}
             onSave={handleUpdateProject}
             onNavigateToConversation={onNavigateToConversation}
@@ -1065,8 +1091,13 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
   return (
     <div className="mc-overlay" onClick={onClose}>
       <div className="mc-panel" ref={panelSwipeRef} onClick={e => e.stopPropagation()}>
-        {/* Header */}
-        <header className="mc-header">
+        {/* Header - Click anywhere to dismiss (except interactive elements) */}
+        <header className="mc-header mc-header-dismissible" onClick={handleHeaderClick} role="button" tabIndex={0} aria-label="Click to close, or press Escape">
+          {/* Dismiss hint indicator */}
+          <div className="mc-dismiss-hint">
+            <ChevronDown size={16} />
+            <span>tap to close</span>
+          </div>
           <div className="mc-header-content">
             {/* Title with company name inline */}
             <div className="mc-title-row">

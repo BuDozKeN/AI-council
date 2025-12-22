@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import { Copy, Check } from 'lucide-react';
 import { captureError } from '../utils/sentry';
 
 /**
@@ -11,7 +12,8 @@ class ErrorBoundary extends Component {
     this.state = {
       hasError: false,
       error: null,
-      errorInfo: null
+      errorInfo: null,
+      copied: false
     };
   }
 
@@ -41,6 +43,25 @@ class ErrorBoundary extends Component {
     window.location.href = '/';
   };
 
+  handleCopyError = async () => {
+    const errorText = this.getErrorText();
+    if (!errorText) return;
+
+    try {
+      await navigator.clipboard.writeText(errorText);
+      this.setState({ copied: true });
+      setTimeout(() => this.setState({ copied: false }), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
+  getErrorText = () => {
+    const { error, errorInfo } = this.state;
+    if (!error) return '';
+    return `${error.toString()}${errorInfo?.componentStack || ''}`;
+  };
+
   render() {
     if (this.state.hasError) {
       // Custom fallback UI
@@ -57,10 +78,11 @@ class ErrorBoundary extends Component {
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                style={{ display: 'block' }}
               >
                 <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
+                <line x1="12" y1="7" x2="12" y2="13" />
+                <circle cx="12" cy="16.5" r="0.5" fill="#f97316" stroke="none" />
               </svg>
             </div>
 
@@ -89,10 +111,23 @@ class ErrorBoundary extends Component {
             {import.meta.env.DEV && this.state.error && (
               <details style={styles.details}>
                 <summary style={styles.summary}>Error Details (Dev Only)</summary>
-                <pre style={styles.errorText}>
-                  {this.state.error.toString()}
-                  {this.state.errorInfo?.componentStack}
-                </pre>
+                <div style={styles.errorContainer}>
+                  <button
+                    onClick={this.handleCopyError}
+                    style={styles.copyButton}
+                    title={this.state.copied ? 'Copied!' : 'Copy error details'}
+                  >
+                    {this.state.copied ? (
+                      <Check size={14} color="#10b981" />
+                    ) : (
+                      <Copy size={14} color="#6b7280" />
+                    )}
+                  </button>
+                  <pre style={styles.errorText}>
+                    {this.state.error.toString()}
+                    {this.state.errorInfo?.componentStack}
+                  </pre>
+                </div>
               </details>
             )}
           </div>
@@ -126,6 +161,9 @@ const styles = {
   },
   iconContainer: {
     marginBottom: '24px',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: '24px',
@@ -178,17 +216,38 @@ const styles = {
     fontSize: '14px',
     marginBottom: '8px',
   },
+  errorContainer: {
+    position: 'relative',
+  },
+  copyButton: {
+    position: 'absolute',
+    top: '8px',
+    right: '8px',
+    width: '28px',
+    height: '28px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#ffffff',
+    border: '1px solid #e5e7eb',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    transition: 'all 0.2s ease',
+    zIndex: 1,
+  },
   errorText: {
     backgroundColor: '#fef2f2',
     border: '1px solid #fecaca',
     borderRadius: '8px',
     padding: '16px',
+    paddingRight: '44px',
     fontSize: '12px',
     color: '#991b1b',
     overflow: 'auto',
     maxHeight: '200px',
     whiteSpace: 'pre-wrap',
     wordBreak: 'break-word',
+    margin: 0,
   },
 };
 

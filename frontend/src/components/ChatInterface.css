@@ -898,6 +898,10 @@
 }
 
 .mode-btn-compact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
   padding: 8px 16px;
   border: none;
   border-radius: var(--radius-full);
@@ -909,6 +913,17 @@
   transition: all 0.2s ease;
 }
 
+.mode-btn-compact .mode-label {
+  line-height: 1;
+}
+
+.mode-btn-compact .mode-cost {
+  font-size: 10px;
+  font-weight: 400;
+  opacity: 0.7;
+  line-height: 1;
+}
+
 .mode-btn-compact:hover {
   color: var(--color-text-primary);
 }
@@ -917,6 +932,11 @@
   background: white;
   color: var(--color-brand-primary);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.mode-btn-compact.active .mode-cost {
+  color: var(--color-brand-primary);
+  opacity: 0.8;
 }
 
 .mode-btn-compact:disabled {

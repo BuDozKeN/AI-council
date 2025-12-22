@@ -136,7 +136,7 @@ class DecisionCreate(BaseModel):
     tags: List[str] = []
     council_type: Optional[str] = None  # e.g., "CTO Council", "Legal Council", "Board"
     user_question: Optional[str] = None  # The original question that triggered this decision
-    decision_summary: Optional[str] = None  # Brief summary for quick scanning
+    content_summary: Optional[str] = None  # Brief summary for quick scanning (maps to content_summary column)
 
 
 class PromoteDecision(BaseModel):
@@ -695,8 +695,8 @@ SUMMARY:
             generated_summary = content
 
         if generated_summary or generated_question_summary:
-            # Save title, question_summary, and decision_summary in the database
-            update_data = {"decision_summary": generated_summary}
+            # Save title, question_summary, and content_summary in the database
+            update_data = {"content_summary": generated_summary}
 
             if generated_title and generated_title != decision.get("title"):
                 update_data["title"] = generated_title
@@ -1757,7 +1757,7 @@ async def create_decision(company_id: ValidCompanyId, data: DecisionCreate, user
         "title": data.title,
         "content": data.content,
         "question": data.user_question,
-        "content_summary": data.decision_summary,
+        "content_summary": data.content_summary,
         "category": "technical_decision",
         "source_conversation_id": data.source_conversation_id,
         "source_message_id": data.source_message_id,
@@ -2615,7 +2615,7 @@ async def generate_decision_summary(
 
     # Check if we already have a good cached summary
     result = service_client.table("knowledge_entries") \
-        .select("id, title, decision_summary") \
+        .select("id, title, content_summary") \
         .eq("id", decision_id) \
         .eq("company_id", company_uuid) \
         .single() \
@@ -2624,7 +2624,7 @@ async def generate_decision_summary(
     if not result.data:
         raise HTTPException(status_code=404, detail="Resource not found")
 
-    existing_summary = result.data.get("decision_summary")
+    existing_summary = result.data.get("content_summary")
 
     # Check if existing summary is good (not garbage, not too short, not truncated)
     garbage_summaries = [

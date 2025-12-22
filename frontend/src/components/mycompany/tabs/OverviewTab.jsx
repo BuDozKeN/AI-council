@@ -11,6 +11,7 @@
 
 import { Building2 } from 'lucide-react';
 import MarkdownViewer from '../../MarkdownViewer';
+import { ScrollableContent } from '../../ui/ScrollableContent';
 import { formatDate } from '../../../lib/dateUtils';
 
 // Parse metadata from context markdown (Last Updated, Version)
@@ -30,8 +31,8 @@ function parseContextMetadata(contextMd) {
 export function OverviewTab({
   overview,
   companyName,
-  onEditContext,
-  onViewContext
+  onEditContext
+  // onViewContext - reserved for future use
 }) {
   if (!overview) {
     return (
@@ -102,26 +103,12 @@ export function OverviewTab({
         </div>
       </div>
 
-      {/* Context content */}
-      <div className="mc-context-section">
-        <div className="mc-context-section-header">
-          <h3>Document Preview</h3>
-          {contextMd && (
-            <button
-              className="mc-expand-btn"
-              onClick={() => onViewContext && onViewContext({
-                id: overview.company?.id,
-                context_md: contextMd
-              })}
-              title="Expand"
-            >
-              <svg viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M3 4a1 1 0 011-1h4a1 1 0 010 2H5.414l4.293 4.293a1 1 0 01-1.414 1.414L4 6.414V9a1 1 0 01-2 0V4zm9 1a1 1 0 011-1h4a1 1 0 011 1v5a1 1 0 11-2 0V6.414l-4.293 4.293a1 1 0 01-1.414-1.414L14.586 5H12a1 1 0 01-1-1zm-9 10a1 1 0 011-1h2.586l4.293-4.293a1 1 0 011.414 1.414L8.414 15H11a1 1 0 110 2H4a1 1 0 01-1-1v-5z" clipRule="evenodd" />
-              </svg>
-            </button>
-          )}
-        </div>
-        <div className="mc-context-content">
+      {/* Context content with copy + scroll-to-top */}
+      <div className="mc-context-section mc-context-section--compact">
+        <ScrollableContent
+          className="mc-context-content"
+          copyText={contextMd || null}
+        >
           {contextMd ? (
             <MarkdownViewer content={contextMd} />
           ) : (
@@ -130,7 +117,7 @@ export function OverviewTab({
               <p className="mc-empty-hint">Click "Edit Context" above to add your company's mission, goals, strategy, and other important information that the AI Council should know.</p>
             </div>
           )}
-        </div>
+        </ScrollableContent>
       </div>
     </div>
   );

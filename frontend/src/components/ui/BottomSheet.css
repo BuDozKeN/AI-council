@@ -5,10 +5,11 @@
 .bottom-sheet-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   z-index: var(--z-modal, 1000);
+  cursor: pointer; /* Tap anywhere outside to dismiss */
 }
 
 .bottom-sheet-content {

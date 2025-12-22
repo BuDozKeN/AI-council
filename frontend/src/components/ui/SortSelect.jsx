@@ -15,12 +15,12 @@ import './SortSelect.css';
 // Check if we're on mobile/tablet for bottom sheet vs dropdown
 const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
 
-// Sort option definitions
+// Sort option definitions - compact labels for filters
 const sortOptions = [
-  { value: 'updated', label: 'Last Updated' },
-  { value: 'created', label: 'Date Created' },
-  { value: 'name', label: 'Name' },
-  { value: 'decisions', label: 'Most Decisions' },
+  { value: 'updated', label: 'Latest' },
+  { value: 'created', label: 'Newest' },
+  { value: 'name', label: 'A-Z' },
+  { value: 'decisions', label: 'Decisions' },
 ];
 
 // Custom SelectItem

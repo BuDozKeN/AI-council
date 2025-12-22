@@ -21,6 +21,16 @@ import './App.css';
 let messageIdCounter = 0;
 const generateMessageId = () => `msg-${Date.now()}-${++messageIdCounter}`;
 
+// Generate an initial title from user's message (before AI generates one)
+const generateInitialTitle = (content, maxLength = 60) => {
+  if (!content) return 'New Conversation';
+  const cleaned = content.trim().replace(/\s+/g, ' ');
+  if (cleaned.length <= maxLength) return cleaned;
+  const truncated = cleaned.substring(0, maxLength);
+  const lastSpace = truncated.lastIndexOf(' ');
+  return (lastSpace > maxLength * 0.7 ? truncated.substring(0, lastSpace) : truncated) + '...';
+};
+
 // Check for demo mode via URL parameter
 const urlParams = new URLSearchParams(window.location.search);
 const DEMO_MODE = urlParams.get('demo');
@@ -72,10 +82,13 @@ function App() {
     myCompanyInitialDecisionId,
     myCompanyInitialPlaybookId,
     myCompanyInitialProjectId,
+    myCompanyInitialProjectDecisionId,
     myCompanyPromoteDecision,
     scrollToStage3,
     scrollToResponseIndex,
     returnToMyCompanyTab,
+    returnToProjectId,
+    returnToDecisionId,
     // Actions
     openLeaderboard,
     closeLeaderboard,
@@ -238,7 +251,14 @@ function App() {
       if (projectsResult.status === 'fulfilled') {
         const loadedProjects = projectsResult.value.projects || [];
         setProjects(loadedProjects);
-        // Don't auto-select - user must explicitly choose a project
+        // Validate selectedProject - clear if it no longer exists (was deleted)
+        setSelectedProject(prev => {
+          if (prev && !loadedProjects.some(p => p.id === prev)) {
+            console.log('[App] Clearing selectedProject - project no longer exists:', prev);
+            return null;
+          }
+          return prev;
+        });
       } else {
         console.error('Failed to load projects:', projectsResult.reason);
         setProjects([]);
@@ -426,10 +446,13 @@ function App() {
   }, [clearReturnState]);
 
   const handleSelectConversation = useCallback((id) => {
+    // Set loading state BEFORE clearing conversation to prevent welcome screen flash
+    setIsLoadingConversation(true);
     // Clear current conversation to show loading state
     setCurrentConversation(null);
     setCurrentConversationId(id);
-    setSelectedProject(null);
+    // DON'T clear selectedProject - let user's project selection persist across conversations
+    // The project context is still relevant when switching between conversations
     clearReturnState();
     // Scroll to Stage 3 (final response) when selecting a conversation
     setScrollToStage3();
@@ -652,6 +675,11 @@ function App() {
   }, [handleNewConversation]);
 
   const handleMobileClose = useCallback(() => setIsMobileSidebarOpen(false), []);
+
+  // Pull-to-refresh handler for sidebar
+  const handleRefreshConversations = useCallback(async () => {
+    await loadConversations({ offset: 0 });
+  }, [loadConversations]);
 
   const handleOpenLeaderboard = useCallback(() => {
     openLeaderboard();
@@ -934,17 +962,24 @@ function App() {
         // We're already managing the conversation state via streaming
         skipNextLoadRef.current = true;
 
-        // Update our state with the real conversation ID
-        setCurrentConversationId(conversationId);
-        setCurrentConversation((prev) => ({
-          ...prev,
-          id: conversationId,
-          isTemp: false,
-        }));
+        // Generate initial title from user's message immediately
+        const initialTitle = generateInitialTitle(content);
 
-        // Add to conversations list now that it will have a message
+        // Update our state with the real conversation ID and initial title
+        setCurrentConversationId(conversationId);
+        setCurrentConversation((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            id: conversationId,
+            isTemp: false,
+            title: initialTitle, // Set title immediately so header shows user's question
+          };
+        });
+
+        // Add to conversations list with user's question as initial title
         setConversations((prev) => [
-          { id: conversationId, created_at: newConv.created_at, message_count: 0, title: 'New Conversation' },
+          { id: conversationId, created_at: newConv.created_at, message_count: 0, title: initialTitle },
           ...prev,
         ]);
       } catch (error) {
@@ -957,10 +992,13 @@ function App() {
     try {
       // Optimistically add user message to UI
       const userMessage = { id: generateMessageId(), role: 'user', content };
-      setCurrentConversation((prev) => ({
-        ...prev,
-        messages: [...prev.messages, userMessage],
-      }));
+      setCurrentConversation((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          messages: [...prev.messages, userMessage],
+        };
+      });
 
       // Create a partial assistant message that will be updated progressively
       // Start with stage1 loading = true immediately so user sees "Waiting for models..." right away
@@ -980,10 +1018,13 @@ function App() {
       };
 
       // Add the partial assistant message
-      setCurrentConversation((prev) => ({
-        ...prev,
-        messages: [...prev.messages, assistantMessage],
-      }));
+      setCurrentConversation((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          messages: [...prev.messages, assistantMessage],
+        };
+      });
 
       // Send message with streaming (with business/department context if enabled)
       // If useCompanyContext is false, pass null for businessId
@@ -1002,6 +1043,7 @@ function App() {
         switch (eventType) {
           case 'stage1_start':
             setCurrentConversation((prev) => {
+              if (!prev?.messages) return prev;
               const messages = prev.messages.map((msg, idx) =>
                 idx === prev.messages.length - 1
                   ? { ...msg, loading: { ...msg.loading, stage1: true }, stage1Streaming: {} }
@@ -1015,6 +1057,7 @@ function App() {
             // Append token to the specific model's streaming text (IMMUTABLE)
             // Force new array reference to ensure React detects the change
             setCurrentConversation((prev) => {
+              if (!prev?.messages) return prev;
               const model = event.model;
               const messages = [...prev.messages];
               const lastIdx = messages.length - 1;
@@ -1039,6 +1082,7 @@ function App() {
           case 'stage1_model_complete':
             // Mark a single model as complete (IMMUTABLE)
             setCurrentConversation((prev) => {
+              if (!prev?.messages) return prev;
               const model = event.model;
               const messages = prev.messages.map((msg, idx) => {
                 if (idx !== prev.messages.length - 1) return msg;
@@ -1061,6 +1105,7 @@ function App() {
             // Handle model error (IMMUTABLE)
             console.error(`[Stage1 Error] Model ${event.model}:`, event.error);
             setCurrentConversation((prev) => {
+              if (!prev?.messages) return prev;
               const model = event.model;
               const messages = prev.messages.map((msg, idx) =>
                 idx === prev.messages.length - 1
@@ -1079,6 +1124,7 @@ function App() {
 
           case 'stage1_complete':
             setCurrentConversation((prev) => {
+              if (!prev?.messages) return prev;
               const messages = prev.messages.map((msg, idx) =>
                 idx === prev.messages.length - 1
                   ? { ...msg, stage1: event.data, loading: { ...msg.loading, stage1: false } }
@@ -1090,6 +1136,7 @@ function App() {
 
           case 'stage2_start':
             setCurrentConversation((prev) => {
+              if (!prev?.messages) return prev;
               const messages = prev.messages.map((msg, idx) =>
                 idx === prev.messages.length - 1
                   ? { ...msg, loading: { ...msg.loading, stage2: true }, stage2Streaming: {} }
@@ -1103,6 +1150,7 @@ function App() {
             // Append token to the specific model's stage2 streaming text (IMMUTABLE)
             // Force new array reference to ensure React detects the change
             setCurrentConversation((prev) => {
+              if (!prev?.messages) return prev;
               const model = event.model;
               const messages = [...prev.messages];
               const lastIdx = messages.length - 1;
@@ -1127,6 +1175,7 @@ function App() {
           case 'stage2_model_complete':
             // Mark a single model's stage2 evaluation as complete (IMMUTABLE)
             setCurrentConversation((prev) => {
+              if (!prev?.messages) return prev;
               const model = event.model;
               const messages = prev.messages.map((msg, idx) => {
                 if (idx !== prev.messages.length - 1) return msg;
@@ -1148,6 +1197,7 @@ function App() {
           case 'stage2_model_error':
             // Handle stage2 model error (IMMUTABLE)
             setCurrentConversation((prev) => {
+              if (!prev?.messages) return prev;
               const model = event.model;
               const messages = prev.messages.map((msg, idx) =>
                 idx === prev.messages.length - 1
@@ -1166,6 +1216,7 @@ function App() {
 
           case 'stage2_complete':
             setCurrentConversation((prev) => {
+              if (!prev?.messages) return prev;
               const messages = prev.messages.map((msg, idx) =>
                 idx === prev.messages.length - 1
                   ? {
@@ -1182,6 +1233,7 @@ function App() {
 
           case 'stage3_start':
             setCurrentConversation((prev) => {
+              if (!prev?.messages) return prev;
               const messages = prev.messages.map((msg, idx) =>
                 idx === prev.messages.length - 1
                   ? { ...msg, loading: { ...msg.loading, stage3: true }, stage3Streaming: { text: '', complete: false } }
@@ -1195,6 +1247,7 @@ function App() {
             // Append token to stage3 streaming text (IMMUTABLE)
             // Force new array reference to ensure React detects the change
             setCurrentConversation((prev) => {
+              if (!prev?.messages) return prev;
               const messages = [...prev.messages];
               const lastIdx = messages.length - 1;
               if (lastIdx >= 0) {
@@ -1215,6 +1268,7 @@ function App() {
           case 'stage3_error':
             // Handle stage3 error (IMMUTABLE)
             setCurrentConversation((prev) => {
+              if (!prev?.messages) return prev;
               const messages = prev.messages.map((msg, idx) =>
                 idx === prev.messages.length - 1
                   ? {
@@ -1229,6 +1283,7 @@ function App() {
 
           case 'stage3_complete':
             setCurrentConversation((prev) => {
+              if (!prev?.messages) return prev;
               const messages = prev.messages.map((msg, idx) =>
                 idx === prev.messages.length - 1
                   ? {
@@ -1246,14 +1301,19 @@ function App() {
             break;
 
           case 'title_complete':
-            // Title updated - update in-place instead of full reload
-            // The 'complete' event will follow shortly and do a full refresh if needed
+            // Title updated - update both sidebar and current conversation
             if (event.title) {
+              // Update sidebar list
               setConversations((prev) =>
                 prev.map((conv) =>
                   conv.id === conversationId ? { ...conv, title: event.title } : conv
                 )
               );
+              // Update current conversation so header shows AI-generated title
+              setCurrentConversation((prev) => {
+                if (!prev || prev.id !== conversationId) return prev;
+                return { ...prev, title: event.title };
+              });
             }
             break;
 
@@ -1295,6 +1355,7 @@ function App() {
             if (event.analysis) {
               // Store the image analysis in the message so it can be displayed
               setCurrentConversation((prev) => {
+                if (!prev?.messages) return prev;
                 const lastIdx = prev.messages.length - 1;
                 const messages = prev.messages.map((msg, idx) =>
                   idx === lastIdx
@@ -1329,10 +1390,13 @@ function App() {
       }
       console.error('Failed to send message:', error);
       // Remove optimistic messages on error
-      setCurrentConversation((prev) => ({
-        ...prev,
-        messages: prev.messages.slice(0, -2),
-      }));
+      setCurrentConversation((prev) => {
+        if (!prev?.messages) return prev;
+        return {
+          ...prev,
+          messages: prev.messages.slice(0, -2),
+        };
+      });
       setIsLoading(false);
     } finally {
       abortControllerRef.current = null;
@@ -1350,10 +1414,13 @@ function App() {
     try {
       // Optimistically add user message to UI
       const userMessage = { id: generateMessageId(), role: 'user', content };
-      setCurrentConversation((prev) => ({
-        ...prev,
-        messages: [...prev.messages, userMessage],
-      }));
+      setCurrentConversation((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          messages: [...prev.messages, userMessage],
+        };
+      });
 
       // Create a partial assistant message for chat response
       const assistantMessage = {
@@ -1372,10 +1439,13 @@ function App() {
       };
 
       // Add the partial assistant message
-      setCurrentConversation((prev) => ({
-        ...prev,
-        messages: [...prev.messages, assistantMessage],
-      }));
+      setCurrentConversation((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          messages: [...prev.messages, assistantMessage],
+        };
+      });
 
       // Build context based on toggles
       const effectiveBusinessId = useCompanyContext ? selectedBusiness : null;
@@ -1394,6 +1464,7 @@ function App() {
           case 'chat_token':
             // Append token to streaming text
             setCurrentConversation((prev) => {
+              if (!prev?.messages) return prev;
               const messages = prev.messages.map((msg, idx) => {
                 if (idx !== prev.messages.length - 1) return msg;
                 const currentStreaming = msg.stage3Streaming || { text: '', complete: false };
@@ -1415,6 +1486,7 @@ function App() {
 
           case 'chat_complete':
             setCurrentConversation((prev) => {
+              if (!prev?.messages) return prev;
               const messages = prev.messages.map((msg, idx) =>
                 idx === prev.messages.length - 1
                   ? {
@@ -1436,6 +1508,7 @@ function App() {
           case 'error':
             console.error('Chat stream error:', event.message);
             setCurrentConversation((prev) => {
+              if (!prev?.messages) return prev;
               const messages = prev.messages.map((msg, idx) =>
                 idx === prev.messages.length - 1
                   ? {
@@ -1474,10 +1547,13 @@ function App() {
       }
       console.error('Failed to send chat message:', error);
       // Remove optimistic messages on error
-      setCurrentConversation((prev) => ({
-        ...prev,
-        messages: prev.messages.slice(0, -2),
-      }));
+      setCurrentConversation((prev) => {
+        if (!prev?.messages) return prev;
+        return {
+          ...prev,
+          messages: prev.messages.slice(0, -2),
+        };
+      });
       setIsLoading(false);
     } finally {
       abortControllerRef.current = null;
@@ -1556,6 +1632,7 @@ function App() {
           sortBy={conversationSortBy}
           onSortByChange={handleSortByChange}
           onUpdateConversationDepartment={handleUpdateConversationDepartment}
+          onRefresh={handleRefreshConversations}
         />
 
       {/* Main content area - Landing Hero or Chat Interface */}
@@ -1702,10 +1779,13 @@ function App() {
               }}
               // Return to My Company button (after navigating from source)
               returnToMyCompanyTab={returnToMyCompanyTab}
+              returnToProjectId={returnToProjectId}
+              returnToDecisionId={returnToDecisionId}
               returnPromoteDecision={myCompanyPromoteDecision}
-              onReturnToMyCompany={(tab) => {
+              onReturnToMyCompany={(tab, projectId, decisionId) => {
                 // Don't clear myCompanyPromoteDecision here - let MyCompany use it to re-open modal
-                openMyCompany({ tab });
+                // If returning to a specific project/decision, pass those IDs
+                openMyCompany({ tab, projectId, projectDecisionId: decisionId });
               }}
               // Loading state for conversation fetch
               isLoadingConversation={isLoadingConversation}
@@ -1745,15 +1825,21 @@ function App() {
             setSelectedBusiness(newCompanyId);
             resetMyCompanyInitial();
           }}
-          onClose={closeMyCompany}
-          onNavigateToConversation={(conversationId, fromTab, responseIndex = null) => {
-            navigateToConversation(fromTab, responseIndex);
+          onClose={() => {
+            closeMyCompany();
+            // Return to landing page (not a specific conversation)
+            setCurrentConversation(null);
+            setCurrentConversationId(null);
+          }}
+          onNavigateToConversation={(conversationId, fromTab, responseIndex = null, projectId = null, decisionId = null) => {
+            navigateToConversation(fromTab, responseIndex, projectId, decisionId);
             setCurrentConversationId(conversationId);
           }}
           initialTab={myCompanyInitialTab}
           initialDecisionId={myCompanyInitialDecisionId}
           initialPlaybookId={myCompanyInitialPlaybookId}
           initialProjectId={myCompanyInitialProjectId}
+          initialProjectDecisionId={myCompanyInitialProjectDecisionId}
           initialPromoteDecision={myCompanyPromoteDecision}
           onConsumePromoteDecision={() => setMyCompanyPromoteDecision(null)}
         />

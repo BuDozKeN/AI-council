@@ -1,0 +1,128 @@
+/**
+ * ScrollableContent - Scrollable wrapper with copy and scroll-to-top buttons
+ *
+ * Centralized component - use this for ANY scrollable content area that needs:
+ * - Copy button (sticky top-right inside content)
+ * - Scroll-to-top button (absolute bottom-right, appears after scrolling)
+ *
+ * Neither button covers the scrollbar.
+ */
+
+.scrollable-content-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  flex: 1;
+  /* Ensure this wrapper doesn't grow beyond parent */
+  overflow: hidden;
+}
+
+.scrollable-content-inner {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Constrain height to enable scroll detection */
+  min-height: 0;
+}
+
+/* ===========================================
+   Copy Button - Sticky top-right inside scrollable content
+   =========================================== */
+
+.scrollable-copy-btn {
+  position: sticky;
+  top: 8px;
+  float: right;
+  margin-left: 8px;
+  margin-bottom: 8px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-primary, #fff);
+  border: 1px solid var(--color-slate-200, #e2e8f0);
+  border-radius: 6px;
+  color: var(--color-slate-500, #64748b);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  opacity: 0.7;
+  z-index: 5;
+}
+
+.scrollable-copy-btn:hover {
+  opacity: 1;
+  color: var(--color-slate-700, #334155);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.scrollable-copy-btn:active {
+  transform: scale(0.95);
+}
+
+.scrollable-copy-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.scrollable-copy-btn.copied {
+  color: var(--color-green-600, #16a34a);
+  border-color: var(--color-green-200, #bbf7d0);
+  background: var(--color-green-50, #f0fdf4);
+}
+
+/* ===========================================
+   Scroll to Top Button - Absolute bottom-right, aligned with copy
+   =========================================== */
+
+.scrollable-scroll-top-btn {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-primary, #fff);
+  border: 1px solid var(--color-slate-200, #e2e8f0);
+  border-radius: 50%;
+  color: var(--color-slate-500, #64748b);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  opacity: 0.7;
+  z-index: 10;
+}
+
+.scrollable-scroll-top-btn:hover {
+  opacity: 1;
+  color: var(--color-slate-700, #334155);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.scrollable-scroll-top-btn:active {
+  transform: scale(0.95);
+}
+
+.scrollable-scroll-top-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Mobile - slightly larger for touch */
+@media (max-width: 768px) {
+  .scrollable-copy-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .scrollable-scroll-top-btn {
+    bottom: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+  }
+}

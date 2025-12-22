@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import MarkdownViewer from '../../MarkdownViewer';
 import { AppModal } from '../../ui/AppModal';
+import { FloatingContextActions } from '../../ui/FloatingContextActions';
 import { getDeptColor } from '../../../lib/colors';
 import smartTextToMarkdown from '../../../lib/smartTextToMarkdown';
 
@@ -237,13 +238,13 @@ export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave,
               />
             </div>
           ) : (
-            <div className="mc-content-preview">
+            <FloatingContextActions copyText={content || null} className="no-border">
               {content ? (
                 <MarkdownViewer content={content} skipCleanup={true} />
               ) : (
                 <p className="mc-no-content">No content yet. Click Edit to add content.</p>
               )}
-            </div>
+            </FloatingContextActions>
           )}
         </div>
       </div>

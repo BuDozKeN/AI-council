@@ -93,6 +93,71 @@
   overflow: visible; /* Allow dropdown to extend beyond header */
 }
 
+/* Dismissible header - click anywhere to close */
+.mc-header-dismissible {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.mc-header-dismissible:hover {
+  background: linear-gradient(135deg, var(--color-slate-800) 0%, var(--color-slate-700) 100%);
+}
+
+.mc-header-dismissible:active {
+  background: linear-gradient(135deg, var(--color-slate-700) 0%, var(--color-slate-600) 100%);
+}
+
+/* Dismiss hint - shows "tap to close" on hover/focus */
+.mc-dismiss-hint {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.mc-dismiss-hint svg {
+  animation: bounce-down 1.5s ease-in-out infinite;
+}
+
+@keyframes bounce-down {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(2px); }
+}
+
+/* Show hint on hover */
+.mc-header-dismissible:hover .mc-dismiss-hint,
+.mc-header-dismissible:focus .mc-dismiss-hint {
+  opacity: 1;
+}
+
+/* On mobile, always show hint briefly then fade */
+@media (max-width: 768px) {
+  .mc-dismiss-hint {
+    animation: hint-pulse 3s ease-in-out 1;
+  }
+
+  @keyframes hint-pulse {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+}
+
 /* Subtle pattern overlay */
 .mc-header::before {
   content: '';
@@ -292,25 +357,32 @@
 .mc-close-btn {
   position: relative;
   z-index: var(--z-base);
-  background: rgba(var(--color-white-rgb, 255, 255, 255), 0.08);
-  border: 1px solid rgba(var(--color-white-rgb, 255, 255, 255), 0.1);
-  font-size: 20px;
+  background: transparent;
+  border: none;
+  font-size: 18px;
   cursor: pointer;
-  color: rgba(var(--color-white-rgb, 255, 255, 255), 0.8);
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-lg);
+  color: rgba(var(--color-white-rgb, 255, 255, 255), 0.4);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
+  opacity: 0.6;
 }
 
 .mc-close-btn:hover {
-  background: rgba(var(--color-white-rgb, 255, 255, 255), 0.15);
-  border-color: rgba(var(--color-white-rgb, 255, 255, 255), 0.2);
-  color: var(--color-text-inverse);
-  transform: scale(1.05);
+  background: rgba(var(--color-white-rgb, 255, 255, 255), 0.1);
+  color: rgba(var(--color-white-rgb, 255, 255, 255), 0.9);
+  opacity: 1;
+}
+
+/* Hide X button on mobile - dismiss hint is more prominent */
+@media (max-width: 768px) {
+  .mc-close-btn {
+    display: none;
+  }
 }
 
 /* Tabs - Modern pill/segment design */
@@ -380,9 +452,43 @@
 .mc-content {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
+  /* CRITICAL: overflow:hidden forces children to scroll, not this container */
+  /* This enables ScrollableContent's onScroll to fire properly */
+  overflow: hidden;
   padding: 24px;
   background: var(--color-bg-primary);
+  /* Enable flex for child tabs to fill height */
+  display: flex;
+  flex-direction: column;
+}
+
+/* All tab containers should fill available space and constrain to parent height */
+.mc-content > .mc-projects,
+.mc-content > .mc-playbooks,
+.mc-content > .mc-decisions,
+.mc-content > .mc-team,
+.mc-content > .mc-members,
+.mc-content > .mc-activity,
+.mc-content > .mc-overview {
+  flex: 1 1 0;
+  min-height: 0;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ScrollableContent list wrappers - fill remaining space */
+.mc-playbooks-list,
+.mc-decisions-list,
+.mc-team-list,
+.mc-members-list-wrapper,
+.mc-activity-list,
+.mc-projects-list {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Custom scrollbar for content */
@@ -503,38 +609,36 @@
   box-shadow: 0 4px 12px rgba(var(--color-orange-500-rgb, 249, 115, 22), 0.35);
 }
 
+/* Modern minimal empty states - no illustrations, just clean text */
 .mc-empty {
-  background: linear-gradient(135deg, var(--color-slate-50) 0%, var(--color-bg-primary) 100%);
+  background: transparent;
   border-radius: var(--radius-lg);
-  margin: 20px;
-  border: 1px dashed var(--color-slate-200);
+  padding: 48px 24px;
+  margin: 0;
+  border: none;
 }
 
+/* Hide emoji/icon elements - we use text only now */
 .mc-empty-icon {
-  font-size: 48px;
-  margin-bottom: 12px;
-  opacity: 0.9;
+  display: none;
 }
 
 .mc-empty-icon-svg {
-  color: var(--color-emerald-500);
-  margin-bottom: 16px;
-  opacity: 0.85;
+  display: none;
 }
 
 .mc-empty-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--color-slate-800);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-slate-500);
   margin: 0;
-  letter-spacing: -0.01em;
 }
 
 .mc-empty-hint {
-  color: var(--color-slate-500);
-  margin: 8px 0 20px;
-  max-width: 320px;
-  font-size: 0.875rem;
+  color: var(--color-slate-400);
+  margin: 6px 0 16px;
+  max-width: 280px;
+  font-size: 13px;
   line-height: 1.5;
 }
 
@@ -610,21 +714,21 @@
 
 .mc-empty-context {
   text-align: center;
-  padding: 48px 24px;
-  color: var(--color-slate-500);
+  padding: 40px 24px;
+  color: var(--color-slate-400);
 }
 
 .mc-empty-context .mc-empty-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--color-slate-600);
-  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-slate-500);
+  margin-bottom: 6px;
 }
 
 .mc-empty-context .mc-empty-hint {
-  font-size: 0.9375rem;
+  font-size: 13px;
   color: var(--color-slate-400);
-  max-width: 400px;
+  max-width: 320px;
   margin: 0 auto;
 }
 
@@ -752,6 +856,74 @@
 .mc-expand-btn svg {
   width: 14px;
   height: 14px;
+}
+
+/* Compact context section - no header, fills remaining space in Overview */
+.mc-context-section--compact {
+  position: relative;
+  border: none;
+  background: transparent;
+  /* CRITICAL: flex to fill remaining space in .mc-overview */
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mc-context-section--compact .mc-context-content {
+  position: relative;
+  border-top: none;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-slate-100);
+  background: var(--color-gray-50);
+  /* CRITICAL: flex to fill parent, overflow hidden forces child to scroll */
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ScrollableContent wrapper - fill the .mc-context-content */
+.mc-context-section--compact .mc-context-content .scrollable-content-wrapper {
+  flex: 1;
+  min-height: 0;
+}
+
+/* When using ScrollableContent wrapper, inner div handles scrolling and padding */
+.mc-context-section--compact .mc-context-content .scrollable-content-inner {
+  padding: 20px 24px;
+}
+
+/* Legacy: Scroll-to-top FAB for non-ScrollableContent usage */
+.mc-scroll-top-fab {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  border-radius: 50%;
+  color: var(--color-slate-400);
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  opacity: 0.7;
+  z-index: 10;
+}
+
+.mc-scroll-top-fab:hover {
+  opacity: 1;
+  color: var(--color-slate-600);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.mc-scroll-top-fab:active {
+  transform: scale(0.9);
 }
 
 .mc-context-content {
@@ -1544,6 +1716,8 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  flex: 1;
+  min-height: 0;
 }
 
 .mc-activity-item {
@@ -1664,6 +1838,56 @@
 .mc-modal-body {
   padding: 22px;
   overflow-y: auto;
+  position: relative; /* Needed for button positioning context */
+  height: 550px; /* Fixed height for consistent tabs - content scrolls within */
+}
+
+/* Scroll to top button for modal body */
+.mc-modal-scroll-top {
+  position: sticky;
+  bottom: 16px;
+  left: calc(100% - 52px); /* Position from right edge */
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-primary, #fff);
+  border: 1px solid var(--color-slate-200, #e2e8f0);
+  border-radius: 50%;
+  color: var(--color-slate-500, #64748b);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: all 0.2s ease;
+  opacity: 0.9;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.mc-modal-scroll-top:hover {
+  opacity: 1;
+  color: var(--color-slate-700, #334155);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  transform: translateY(-2px);
+}
+
+.mc-modal-scroll-top:active {
+  transform: scale(0.95);
+}
+
+.mc-modal-scroll-top svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Mobile - larger touch target */
+@media (max-width: 640px) {
+  .mc-modal-scroll-top {
+    width: 40px;
+    height: 40px;
+    bottom: 12px;
+    left: calc(100% - 56px);
+  }
 }
 
 /* Form Groups */
@@ -5021,6 +5245,8 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  flex: 1;
+  min-height: 0;
 }
 
 /* Stats row - left aligned, horizontal, compact */
@@ -5080,15 +5306,14 @@
   gap: 8px;
 }
 
-/* Empty filtered state */
+/* Empty filtered state - minimal, no borders */
 .mc-empty-filtered {
-  padding: 24px;
+  padding: 40px 24px;
   text-align: center;
-  color: var(--color-slate-500);
+  color: var(--color-slate-400);
   font-size: 14px;
-  background: var(--color-slate-50);
-  border-radius: 8px;
-  border: 1px dashed var(--color-slate-200);
+  background: transparent;
+  border: none;
 }
 
 .mc-projects-section {
@@ -5105,7 +5330,7 @@
   padding: 0 4px;
 }
 
-/* Projects list container */
+/* Projects list container - flex to fill available space */
 .mc-projects-list {
   display: flex;
   flex-direction: column;
@@ -5114,6 +5339,8 @@
   border-radius: 8px;
   padding: 4px;
   border: 1px solid var(--color-slate-200);
+  flex: 1;
+  min-height: 0;
 }
 
 /* Compact project row */
@@ -5832,22 +6059,27 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 48px 24px;
+  padding: 40px 24px;
   text-align: center;
 }
 
+/* Hide icon in empty decisions */
+.mc-empty-decisions .mc-empty-icon {
+  display: none;
+}
+
 .mc-empty-decisions .mc-empty-title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
-  color: var(--color-gray-700);
-  margin: 0 0 8px 0;
+  color: var(--color-slate-500);
+  margin: 0 0 6px 0;
 }
 
 .mc-empty-decisions .mc-empty-hint {
   font-size: 13px;
-  color: var(--color-gray-500);
+  color: var(--color-slate-400);
   margin: 0;
-  max-width: 300px;
+  max-width: 280px;
 }
 
 .mc-decisions-timeline {
@@ -6336,36 +6568,86 @@
     justify-content: center;
   }
 
+  /* Hero section - stack vertically on mobile */
   .mc-overview-hero {
-    padding: 12px;
-    gap: 12px;
+    flex-direction: column;
+    padding: 16px;
+    gap: 16px;
   }
 
   .mc-overview-title {
     font-size: 1.125rem;
+    margin-bottom: 6px;
   }
 
-  .mc-stats-grid {
-    grid-template-columns: 1fr;
+  .mc-overview-description {
+    font-size: 0.8125rem;
+    line-height: 1.5;
+  }
+
+  /* Meta row: inline items with button at end */
+  .mc-overview-meta {
+    flex-wrap: wrap;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .mc-meta-item {
+    align-items: flex-start;
+  }
+
+  .mc-meta-label {
+    font-size: 0.625rem;
+  }
+
+  .mc-meta-value {
+    font-size: 0.875rem;
+  }
+
+  /* Edit Context button - full width on mobile */
+  .mc-overview-hero .mc-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 16px;
+    font-size: 0.875rem;
+    margin-top: 4px;
+  }
+
+  /* Hide stats on Overview tab - not actionable, wastes mobile space */
+  /* Users can see counts when they tap into each tab */
+  .mc-overview .mc-stats-grid {
+    display: none;
+  }
+
+  /* Context section - compact padding on mobile */
+  .mc-context-section--compact .mc-context-content .scrollable-content-inner {
+    padding: 16px;
+  }
+
+  /* Keep stats on Projects/Playbooks/Decisions where they're clickable filters */
+  .mc-projects .mc-stats-grid,
+  .mc-playbooks .mc-stats-grid,
+  .mc-decisions .mc-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 6px;
   }
 
   .mc-stat-card {
-    padding: 12px;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    text-align: left;
+    padding: 10px 12px;
+    text-align: center;
+  }
+
+  .mc-stat-card::before {
+    height: 2px;
   }
 
   .mc-stat-value {
     font-size: 1.25rem;
-    order: 1;
   }
 
   .mc-stat-label {
-    font-size: 0.75rem;
-    order: 0;
+    font-size: 0.6875rem;
   }
 
   .mc-tabs {
@@ -6418,14 +6700,90 @@
     font-size: 14px;
   }
 
-  /* Timeline items */
+  /* Timeline items - mobile-friendly layout */
   .mc-timeline-item {
-    padding: 12px;
+    padding: 8px 0;
   }
 
   .mc-timeline-header {
     flex-wrap: wrap;
     gap: 8px;
+    padding: 12px;
+  }
+
+  /* Timeline title row - stack on mobile */
+  .mc-timeline-title-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .mc-timeline-title {
+    width: 100%;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  /* Badges row - full width, wrap */
+  .mc-timeline-title-badges {
+    width: 100%;
+    margin-left: 0;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .mc-timeline-dept-badge,
+  .mc-timeline-iteration-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+
+  .mc-timeline-date {
+    font-size: 11px;
+  }
+
+  .mc-timeline-chevron {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .mc-timeline-chevron.expanded {
+    transform: translateY(-50%) rotate(180deg);
+  }
+
+  /* Expanded body - better mobile padding */
+  .mc-timeline-body {
+    padding: 12px;
+  }
+
+  .mc-timeline-answer {
+    padding: 12px;
+  }
+
+  .mc-timeline-summary {
+    padding: 10px 12px;
+    margin-bottom: 10px;
+  }
+
+  /* Source link - full width button */
+  .mc-timeline-source-link {
+    width: 100%;
+    justify-content: center;
+    padding: 12px;
+    min-height: 44px;
+  }
+
+  /* Project modal tabs - larger touch targets */
+  .mc-project-tabs {
+    gap: 4px;
+  }
+
+  .mc-project-tab {
+    min-height: 44px;
+    padding: 10px 16px;
+    font-size: 14px;
   }
 
   /* Promote modal */
@@ -6842,6 +7200,55 @@
   .mc-header {
     order: 1;
   }
+
+  /* Add drag handle indicator at top of panel (swipe down to close) */
+  .mc-panel::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.5); /* White for dark header */
+    border-radius: 2px;
+    z-index: 200;
+  }
+
+  /* Adjust header padding to account for drag handle */
+  .mc-header {
+    padding-top: 20px;
+    padding-bottom: 12px;
+  }
+
+  /* Compact header on mobile */
+  .mc-header h1 {
+    font-size: 1rem;
+  }
+
+  .mc-title-suffix {
+    font-size: 0.75rem;
+  }
+
+  /* Hide company switcher label, show icon only */
+  .mc-company-switcher {
+    margin-top: 4px;
+  }
+
+  /* Make close button smaller on mobile */
+  .mc-close-btn {
+    font-size: 1.25rem;
+  }
+
+  /* Prevent browser back gesture */
+  .mc-panel {
+    overscroll-behavior: contain;
+    touch-action: pan-y pinch-zoom;
+  }
+
+  .mc-overlay {
+    overscroll-behavior: contain;
+  }
 }
 
 /* ===========================================
@@ -6999,43 +7406,51 @@
    =========================================== */
 
 @media (max-width: 640px) {
-  /* Stack filters vertically */
+  /* Filters row on mobile - horizontal scroll or wrap */
   .mc-projects-filters {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-
-  .mc-filters-left {
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
     gap: 8px;
   }
 
-  /* Full-width filter dropdowns */
-  .mc-filters-left > * {
-    width: 100%;
+  .mc-filters-left {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
   }
 
-  /* New button goes full width on mobile */
+  /* Filter dropdowns shrink to content */
+  .mc-filters-left > * {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: 100%;
+  }
+
+  /* Hide "New" button - FAB is used instead */
   .mc-projects-filters .mc-btn-clean {
-    width: 100%;
-    justify-content: center;
+    display: none;
   }
 
   /* Playbooks filters */
   .mc-playbooks-header {
-    flex-direction: column;
-    gap: 12px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   /* Decisions filters */
   .mc-decisions-filters {
-    flex-direction: column;
-    gap: 10px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   .mc-decisions-filters > * {
-    width: 100%;
+    flex: 0 0 auto;
+    width: auto;
   }
 }
 
@@ -7133,9 +7548,9 @@
     border-radius: 4px;
   }
 
-  /* Empty states: CTA in thumb zone */
+  /* Empty states: compact on mobile */
   .mc-empty {
-    padding: 40px 20px 80px;
+    padding: 32px 16px;
   }
 
   .mc-empty-cta {
@@ -7310,6 +7725,321 @@
 
   .mc-stat-value {
     font-size: 1.25rem;
+  }
+}
+
+/* ===========================================
+   MOBILE-SIMPLIFIED LIST VIEWS
+   Clean, scannable rows without clutter
+   =========================================== */
+
+@media (max-width: 768px) {
+  /* ========== PROJECTS TAB - MOBILE ========== */
+
+  /* Project row: clean card-like appearance */
+  .mc-project-row-compact {
+    flex-wrap: wrap;
+    padding: 14px 16px;
+    background: var(--color-bg-primary);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Hide hover actions on mobile - tap opens detail view */
+  .mc-project-row-compact .mc-project-actions {
+    display: none !important;
+  }
+
+  /* Always show meta on mobile (no hover state) */
+  .mc-project-row-compact .mc-project-meta {
+    display: flex !important;
+    margin-left: auto;
+  }
+
+  /* Title group: allow name to wrap, limit badges */
+  .mc-project-title-group {
+    flex: 1;
+    min-width: 0;
+    flex-wrap: wrap;
+    gap: 6px;
+    row-gap: 4px;
+  }
+
+  .mc-project-name {
+    width: 100%;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.3;
+    margin-bottom: 2px;
+  }
+
+  /* Show max 2 department badges on mobile */
+  .mc-project-dept-badge {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+
+  .mc-project-dept-badge:nth-child(n+4) {
+    display: none;
+  }
+
+  /* Meta: compact right-aligned */
+  .mc-project-meta {
+    flex-shrink: 0;
+    gap: 6px;
+  }
+
+  .mc-project-decision-count {
+    font-size: 13px;
+    min-width: 20px;
+  }
+
+  .mc-project-time {
+    font-size: 12px;
+    color: var(--color-text-tertiary);
+  }
+
+  /* Status dot: slightly larger for visibility */
+  .mc-project-row-compact .mc-status-dot {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+  }
+
+  /* ========== PLAYBOOKS TAB - MOBILE ========== */
+
+  /* Playbook group headers */
+  .mc-playbook-group {
+    margin-bottom: 20px;
+  }
+
+  .mc-group-title {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-tertiary);
+    margin-bottom: 10px;
+    padding: 0 4px;
+  }
+
+  .mc-group-count {
+    font-size: 12px;
+    font-weight: 400;
+  }
+
+  /* Playbook rows: simplified cards */
+  .mc-elegant-row {
+    flex-wrap: wrap;
+    padding: 14px 16px;
+    background: var(--color-bg-primary);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    row-gap: 8px;
+  }
+
+  /* Hide action buttons on mobile - tap opens detail */
+  .mc-elegant-row .mc-elegant-actions {
+    display: none !important;
+  }
+
+  /* Activity tab: SHOW source link on mobile - important for navigation */
+  .mc-activity .mc-elegant-row .mc-elegant-actions {
+    display: flex !important;
+    position: static;
+    opacity: 1;
+    background: transparent;
+    padding-left: 0;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  /* Activity source button styling on mobile */
+  .mc-activity .mc-text-btn.source {
+    font-size: 12px;
+    padding: 6px 10px;
+    background: var(--color-blue-50, #eff6ff);
+    border-radius: 6px;
+    color: var(--color-blue-600, #2563eb);
+    font-weight: 500;
+  }
+
+  /* Content layout - column on mobile for clean stacking */
+  .mc-elegant-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  /* Title: full width, truncated */
+  .mc-elegant-title {
+    width: 100%;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Badges row: horizontal, left-aligned under title */
+  .mc-elegant-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+
+  /* Department badges: smaller */
+  .mc-elegant-dept {
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  /* Show max 2 department badges */
+  .mc-elegant-dept:nth-of-type(n+3) {
+    display: none;
+  }
+
+  /* Type badge: subtle */
+  .mc-elegant-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  /* Hide type dot on mobile - badge is enough */
+  .mc-elegant-row .mc-type-dot {
+    display: none;
+  }
+
+  /* ========== DECISIONS TAB - MOBILE ========== */
+
+  /* Decisions row: clean card */
+  .mc-decision-row {
+    flex-wrap: wrap;
+    padding: 14px 16px;
+    background: var(--color-bg-primary);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    row-gap: 8px;
+  }
+
+  /* Hide all action buttons on mobile */
+  .mc-decision-row .mc-elegant-actions,
+  .mc-decision-row .mc-elegant-right .mc-elegant-actions {
+    display: none !important;
+  }
+
+  /* Show date, hide it when it would show actions */
+  .mc-decision-row .mc-elegant-date {
+    display: block !important;
+    opacity: 1 !important;
+  }
+
+  /* Right side: just the date */
+  .mc-decision-row .mc-elegant-right {
+    display: flex;
+    align-items: center;
+    min-width: auto;
+  }
+
+  /* Content area */
+  .mc-decision-row .mc-elegant-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Title styling */
+  .mc-decision-row .mc-elegant-title {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.3;
+    margin-bottom: 4px;
+  }
+
+  /* Badges wrap */
+  .mc-decision-row .mc-elegant-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  /* Status dot: visible on left */
+  .mc-decision-row .mc-status-dot {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    margin-right: 4px;
+  }
+
+  /* ========== COMMON LIST IMPROVEMENTS ========== */
+
+  /* Remove border between items when using cards */
+  .mc-elegant-list,
+  .mc-projects-list {
+    padding: 0;
+    background: transparent;
+    border: none;
+    gap: 0;
+  }
+
+  /* Search input: larger on mobile */
+  .mc-search-input-wrapper {
+    height: 48px;
+  }
+
+  .mc-search-input {
+    height: 100%;
+    font-size: 16px; /* Prevent iOS zoom */
+  }
+
+  /* Filter row: more breathing room */
+  .mc-decisions-filters,
+  .mc-projects-filters {
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  /* Empty filtered state */
+  .mc-empty-filtered {
+    padding: 32px 16px;
+  }
+}
+
+/* Dark mode adjustments for mobile cards */
+@media (max-width: 768px) {
+  .dark .mc-project-row-compact,
+  .dark .mc-elegant-row,
+  .dark .mc-decision-row {
+    background: var(--color-bg-secondary);
+    border-color: var(--color-border);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+
+  .dark .mc-project-row-compact:active,
+  .dark .mc-elegant-row:active,
+  .dark .mc-decision-row:active {
+    background: var(--color-bg-tertiary);
+  }
+}
+
+/* Active/tap state for mobile cards */
+@media (max-width: 768px) {
+  .mc-project-row-compact:active,
+  .mc-elegant-row:active,
+  .mc-decision-row:active {
+    background: var(--color-slate-100);
+    transform: scale(0.99);
   }
 }
 
