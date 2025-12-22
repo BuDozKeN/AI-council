@@ -210,6 +210,17 @@ export default function ChatInterface({
     }
   };
 
+  // Loading conversation - show council loader
+  if (!conversation && isLoadingConversation) {
+    return (
+      <main id="main-content" className="chat-interface" aria-label="Chat interface">
+        <div className="council-loader-overlay">
+          <CouncilLoader text="Loading conversation..." />
+        </div>
+      </main>
+    );
+  }
+
   // No conversation - show welcome state
   if (!conversation) {
     return <WelcomeState />;

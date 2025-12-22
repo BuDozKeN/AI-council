@@ -1,0 +1,57 @@
+/* Pull to Refresh Indicator */
+
+.pull-refresh-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.pull-refresh-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--color-bg-primary);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  color: var(--color-indigo-600);
+}
+
+.pull-refresh-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.pull-refresh-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-slate-600);
+  background: var(--color-bg-primary);
+  padding: 4px 12px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.pull-refresh-indicator.refreshing .pull-refresh-icon {
+  color: var(--color-indigo-600);
+}
+
+.pull-refresh-indicator.refreshing .pull-refresh-text {
+  color: var(--color-indigo-600);
+}
+
+/* Hide on desktop */
+@media (min-width: 769px) {
+  .pull-refresh-indicator {
+    display: none;
+  }
+}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
 import { api } from '../api';
 import MarkdownViewer from './MarkdownViewer';
 import ProjectModal from './ProjectModal';
@@ -11,8 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Spinner } from './ui/Spinner';
 import { Skeleton } from './ui/Skeleton';
 import { AIWriteAssist } from './ui/AIWriteAssist';
+import { PullToRefreshIndicator } from './ui/PullToRefreshIndicator';
 import { Building2, Bookmark, FolderKanban, CheckCircle, Archive, RotateCcw, ExternalLink, Trash2, Sparkles, PenLine, RefreshCw, Users, BookOpen, BarChart3, Lightbulb, ClipboardList } from 'lucide-react';
 import { getDeptColor } from '../lib/colors';
+import { usePullToRefresh } from '../hooks';
+import { hapticLight, hapticSuccess } from '../lib/haptics';
 // Eagerly load small/simple modals
 import {
   AddDepartmentModal,
@@ -107,6 +110,80 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
   // Decisions filter state
   const [decisionDeptFilter, setDecisionDeptFilter] = useState([]); // Array of department IDs
   const [decisionSearch, setDecisionSearch] = useState(''); // Keyword search
+
+  // Pull-to-refresh handler
+  const handleRefresh = useCallback(async () => {
+    hapticLight();
+    // Reset the loaded flag for current tab to show fresh data
+    switch (activeTab) {
+      case 'overview': setOverviewLoaded(false); break;
+      case 'team': setTeamLoaded(false); break;
+      case 'playbooks': setPlaybooksLoaded(false); break;
+      case 'decisions': setDecisionsLoaded(false); break;
+      case 'projects': setProjectsLoaded(false); break;
+      case 'activity': setActivityLoaded(false); break;
+    }
+    // Reload data
+    setLoading(true);
+    try {
+      // We need to call loadData but it's defined below, so we'll do inline fetch
+      switch (activeTab) {
+        case 'overview': {
+          const data = await api.getCompanyOverview(companyId);
+          setOverview(data);
+          setOverviewLoaded(true);
+          break;
+        }
+        case 'team': {
+          const depts = await api.getCompanyDepartments(companyId);
+          setDepartments(depts || []);
+          setTeamLoaded(true);
+          break;
+        }
+        case 'playbooks': {
+          const pbs = await api.getCompanyPlaybooks(companyId);
+          setPlaybooks(pbs || []);
+          setPlaybooksLoaded(true);
+          break;
+        }
+        case 'decisions': {
+          const decs = await api.getCompanyDecisions(companyId);
+          setDecisions(decs || []);
+          setDecisionsLoaded(true);
+          break;
+        }
+        case 'projects': {
+          const projs = await api.getProjects(companyId);
+          setProjects(projs || []);
+          setProjectsLoaded(true);
+          break;
+        }
+        case 'activity': {
+          const logs = await api.getCompanyActivity(companyId, activityLimit);
+          setActivityLogs(logs || []);
+          setActivityHasMore((logs || []).length >= activityLimit);
+          setActivityLoaded(true);
+          break;
+        }
+      }
+      hapticSuccess();
+    } finally {
+      setLoading(false);
+    }
+  }, [activeTab, companyId, activityLimit]);
+
+  // Pull-to-refresh hook
+  const {
+    ref: contentRef,
+    isPulling,
+    pullDistance,
+    isRefreshing,
+    progress: pullProgress,
+  } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    threshold: 80,
+    enabled: true,
+  });
 
   // Load data based on active tab
   const loadData = useCallback(async () => {
@@ -1033,7 +1110,7 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
             <button
               key={tab.id}
               className={`mc-tab ${activeTab === tab.id ? 'active' : ''}`}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => { hapticLight(); setActiveTab(tab.id); }}
               title={tab.tooltip}
             >
               <tab.Icon size={16} className="mc-tab-icon" />
@@ -1043,7 +1120,14 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
         </nav>
 
         {/* Content */}
-        <div className="mc-content">
+        <div className="mc-content" ref={contentRef}>
+          {/* Pull to refresh indicator */}
+          <PullToRefreshIndicator
+            progress={pullProgress}
+            isRefreshing={isRefreshing}
+            pullDistance={pullDistance}
+          />
+
           {/* Show skeleton when loading OR when tab-specific data hasn't been fetched yet */}
           {loading ||
            (activeTab === 'overview' && !overviewLoaded) ||

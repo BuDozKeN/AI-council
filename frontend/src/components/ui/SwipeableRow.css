@@ -1,0 +1,127 @@
+/* SwipeableRow - iOS-style swipeable list item */
+
+.swipeable-row-container {
+  position: relative;
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+.swipeable-row-content {
+  position: relative;
+  z-index: 2;
+  background: var(--color-bg-primary);
+  cursor: grab;
+}
+
+.swipeable-row-content:active {
+  cursor: grabbing;
+}
+
+/* Action buttons container */
+.swipeable-row-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: stretch;
+  z-index: 1;
+}
+
+/* Individual action button */
+.swipeable-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 70px;
+  padding: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+  color: white;
+  transition: transform 0.15s ease;
+}
+
+.swipeable-action:active {
+  transform: scale(0.95);
+}
+
+.swipeable-action svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Action variants */
+.swipeable-action.default {
+  background: var(--color-slate-500);
+}
+
+.swipeable-action.primary {
+  background: var(--color-indigo-600);
+}
+
+.swipeable-action.success {
+  background: var(--color-green-600);
+}
+
+.swipeable-action.warning {
+  background: var(--color-amber-500);
+}
+
+.swipeable-action.danger {
+  background: var(--color-red-600);
+}
+
+.swipeable-action.archive {
+  background: var(--color-slate-600);
+}
+
+.swipeable-action.promote {
+  background: var(--color-emerald-600);
+}
+
+/* Simple non-swipeable row fallback */
+.swipeable-row {
+  position: relative;
+}
+
+/* On desktop, hide swipe functionality */
+@media (min-width: 769px) {
+  .swipeable-row-container {
+    overflow: visible;
+  }
+
+  .swipeable-row-content {
+    cursor: pointer;
+  }
+
+  .swipeable-row-actions {
+    display: none;
+  }
+}
+
+/* Touch device hint - subtle indicator that row is swipeable */
+@media (hover: none) {
+  .swipeable-row-container:first-child::after {
+    content: '';
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 24px;
+    background: var(--color-slate-300);
+    border-radius: 2px;
+    opacity: 0;
+    animation: swipe-hint-fade 3s ease-in-out infinite;
+    animation-delay: 1s;
+  }
+
+  @keyframes swipe-hint-fade {
+    0%, 100% { opacity: 0; }
+    20%, 80% { opacity: 0.4; }
+  }
+}
