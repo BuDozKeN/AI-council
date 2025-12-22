@@ -3,7 +3,7 @@ import Triage from './Triage';
 import ImageUpload from './ImageUpload';
 import CouncilProgressCapsule from './CouncilProgressCapsule';
 import { Spinner } from './ui/Spinner';
-import { MessageSkeletonGroup } from './ui/Skeleton';
+import { CouncilLoader } from './ui/CouncilLoader';
 import {
   WelcomeState,
   ConversationEmptyState,
@@ -281,9 +281,11 @@ export default function ChatInterface({
           />
         )}
 
-        {/* Show skeleton while loading conversation */}
+        {/* Show council loader while loading conversation */}
         {isLoadingConversation && !hasMessages && (
-          <MessageSkeletonGroup count={3} />
+          <div className="council-loader-overlay">
+            <CouncilLoader text="Loading conversation..." />
+          </div>
         )}
 
         {/* Show empty state only when no triage and no messages */}

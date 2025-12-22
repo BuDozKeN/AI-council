@@ -10,7 +10,7 @@
  */
 
 import { useMemo } from 'react';
-import { FolderKanban, CheckCircle, Archive, RotateCcw, Trash2 } from 'lucide-react';
+import { FolderKanban, CheckCircle, Archive, RotateCcw, Trash2, Plus } from 'lucide-react';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { SortSelect } from '../../ui/SortSelect';
 import { formatRelativeDate } from '../../../lib/dateUtils';
@@ -295,6 +295,15 @@ export function ProjectsTab({
           sortedProjects.map(renderProjectRow)
         )}
       </div>
+
+      {/* FAB - Mobile only (visible via CSS) */}
+      <button
+        className="mc-fab"
+        onClick={onAddProject}
+        aria-label="Create new project"
+      >
+        <Plus />
+      </button>
     </div>
   );
 }

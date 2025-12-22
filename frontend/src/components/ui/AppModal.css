@@ -446,3 +446,124 @@
     gap: 8px;
   }
 }
+
+/* ===========================================
+   Mobile Bottom Sheet Behavior (≤768px)
+   Transform centered modals into bottom sheets
+   =========================================== */
+
+@media (max-width: 768px) {
+  /* Modal slides up from bottom like iOS/Android */
+  .app-modal-content {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: none;
+    width: 100%;
+    max-width: none;
+    border-radius: 20px 20px 0 0;
+    max-height: calc(95vh - env(safe-area-inset-top, 0px));
+    animation: app-modal-slide-up 250ms ease-out;
+  }
+
+  .app-modal-content[data-state="closed"] {
+    animation: app-modal-slide-down 200ms ease-in;
+  }
+
+  /* Add drag handle for bottom sheet */
+  .app-modal-content::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 4px;
+    background: var(--color-slate-300, #cbd5e1);
+    border-radius: 2px;
+    z-index: 10;
+  }
+
+  /* Header adjusts for drag handle */
+  .app-modal-header {
+    padding-top: 24px;
+  }
+
+  /* Footer respects safe area */
+  .app-modal-footer,
+  .app-modal-footer-with-actions {
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Full-size modals take more space on mobile */
+  .app-modal-full {
+    max-height: calc(100vh - env(safe-area-inset-top, 20px));
+    height: calc(100vh - env(safe-area-inset-top, 20px));
+    border-radius: 20px 20px 0 0;
+  }
+
+  /* Close button gets 44px touch target */
+  .app-modal-close {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Footer buttons get 44px touch target */
+  .app-modal-btn {
+    min-height: 44px;
+    padding: 12px 20px;
+  }
+}
+
+/* Slide up animation for bottom sheet */
+@keyframes app-modal-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes app-modal-slide-down {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+
+/* Very small phones - full screen modal */
+@media (max-width: 480px) {
+  .app-modal-content {
+    border-radius: 16px 16px 0 0;
+  }
+
+  .app-modal-lg,
+  .app-modal-xl,
+  .app-modal-full {
+    max-height: calc(100vh - env(safe-area-inset-top, 0px));
+    border-radius: 0;
+  }
+
+  .app-modal-lg::before,
+  .app-modal-xl::before,
+  .app-modal-full::before {
+    display: none; /* No drag handle for full-screen */
+  }
+
+  .app-modal-lg .app-modal-header,
+  .app-modal-xl .app-modal-header,
+  .app-modal-full .app-modal-header {
+    padding-top: calc(16px + env(safe-area-inset-top, 0px));
+  }
+}

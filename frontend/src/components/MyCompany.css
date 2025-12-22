@@ -6754,3 +6754,559 @@
   }
 }
 
+/* ============================================================================
+   MOBILE-FIRST OVERHAUL - P0 Critical Fixes
+   ============================================================================
+
+   Key changes:
+   1. Bottom navigation tabs (thumb zone)
+   2. Always-visible actions (no hover dependency)
+   3. 44px minimum touch targets
+   4. Safe area handling for notched devices
+   5. Touch-friendly patterns
+   ============================================================================ */
+
+/* ===========================================
+   P0-1: BOTTOM NAVIGATION TABS (≤768px)
+   Move tabs from mid-screen to bottom for thumb reach
+   =========================================== */
+
+@media (max-width: 768px) {
+  /* Restructure panel layout for bottom nav */
+  .mc-panel {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Move tabs to bottom */
+  .mc-tabs {
+    order: 3; /* After content */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: var(--color-bg-primary);
+    border-top: 1px solid var(--color-slate-200);
+    border-bottom: none;
+    padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px)) 8px;
+    justify-content: space-around;
+    gap: 0;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Tab style: icon + label stacked (iOS tab bar style) */
+  .mc-tab {
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px 12px;
+    min-width: 56px;
+    min-height: 50px;
+    border-radius: var(--radius-md);
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Show labels on bottom nav */
+  .mc-tab-label {
+    display: block;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+
+  .mc-tab-icon {
+    font-size: 20px;
+  }
+
+  /* Active state for bottom nav */
+  .mc-tab.active {
+    background: var(--color-orange-50);
+    color: var(--color-orange-600);
+  }
+
+  .mc-tab.active::after {
+    display: none; /* Remove underline indicator */
+  }
+
+  /* Add padding to content to account for fixed bottom nav */
+  .mc-content {
+    padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+    order: 2;
+  }
+
+  /* Header stays at top */
+  .mc-header {
+    order: 1;
+  }
+}
+
+/* ===========================================
+   P0-2: ALWAYS-VISIBLE ACTIONS ON TOUCH DEVICES
+   No hover = must show actions always
+   =========================================== */
+
+/* Touch devices: show actions always */
+@media (hover: none), (max-width: 768px) {
+  /* Elegant list row actions - always visible */
+  .mc-elegant-actions {
+    opacity: 1;
+    position: relative;
+    right: auto;
+    top: auto;
+    transform: none;
+    background: transparent;
+    padding-left: 0;
+  }
+
+  /* Date stays visible alongside actions */
+  .mc-elegant-row:hover .mc-elegant-date {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Compact row actions */
+  .mc-row-actions {
+    opacity: 1;
+  }
+
+  /* Elegant right side: stack date and actions */
+  .mc-elegant-right {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    min-width: auto;
+  }
+
+  .mc-elegant-date {
+    font-size: 11px;
+  }
+
+  /* Make action buttons more touch-friendly */
+  .mc-text-btn {
+    padding: 10px 14px;
+    font-size: 13px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Icon buttons need 44px touch target */
+  .mc-icon-btn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* ===========================================
+   P0-3: 44px MINIMUM TOUCH TARGETS
+   Apple HIG / Material Design compliance
+   =========================================== */
+
+@media (max-width: 768px) {
+  /* List rows need adequate touch targets */
+  .mc-elegant-row {
+    min-height: 56px;
+    padding: 14px 16px;
+  }
+
+  .mc-compact-row {
+    min-height: 52px;
+    padding: 12px 14px;
+  }
+
+  /* Project rows */
+  .mc-project-row {
+    min-height: 56px;
+    padding: 14px 16px;
+  }
+
+  /* Activity rows */
+  .mc-activity-row,
+  .mc-timeline-item {
+    min-height: 52px;
+  }
+
+  /* All buttons - enforce 44px minimum */
+  .mc-btn,
+  .mc-btn-clean,
+  .mc-action-btn,
+  .mc-text-btn,
+  button[class*="mc-"] {
+    min-height: 44px;
+  }
+
+  /* Filter pills */
+  .mc-stat-pill {
+    min-height: 44px;
+    padding: 10px 14px;
+  }
+
+  /* Close button in header */
+  .mc-close-btn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Tab touch targets */
+  .mc-tab {
+    min-width: 56px;
+    min-height: 56px;
+  }
+}
+
+/* ===========================================
+   P0-4: SAFE AREA HANDLING
+   For notched devices (iPhone X+, Android)
+   =========================================== */
+
+@supports (padding: env(safe-area-inset-bottom)) {
+  @media (max-width: 768px) {
+    /* Bottom nav respects safe area */
+    .mc-tabs {
+      padding-bottom: calc(8px + env(safe-area-inset-bottom));
+    }
+
+    /* Panel height accounts for safe areas */
+    .mc-panel {
+      height: calc(100vh - env(safe-area-inset-top, 0px));
+      padding-top: env(safe-area-inset-top, 0px);
+    }
+
+    /* Modal content safe area */
+    .app-modal-content {
+      max-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 40px);
+    }
+
+    /* Floating action buttons */
+    .mc-fab {
+      bottom: calc(80px + env(safe-area-inset-bottom));
+    }
+  }
+}
+
+/* ===========================================
+   P0-5: FILTER STACKING ON MOBILE
+   Prevent horizontal overflow
+   =========================================== */
+
+@media (max-width: 640px) {
+  /* Stack filters vertically */
+  .mc-projects-filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .mc-filters-left {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* Full-width filter dropdowns */
+  .mc-filters-left > * {
+    width: 100%;
+  }
+
+  /* New button goes full width on mobile */
+  .mc-projects-filters .mc-btn-clean {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Playbooks filters */
+  .mc-playbooks-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* Decisions filters */
+  .mc-decisions-filters {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .mc-decisions-filters > * {
+    width: 100%;
+  }
+}
+
+/* ===========================================
+   P0-6: SKELETON LOADERS - Mobile-aware
+   =========================================== */
+
+@media (max-width: 768px) {
+  .mc-skeleton-stats {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mc-skeleton-stats > * {
+    width: 100% !important;
+    height: 60px !important;
+  }
+
+  .mc-skeleton-row {
+    min-height: 52px;
+  }
+}
+
+/* ===========================================
+   ADDITIONAL MOBILE POLISH
+   =========================================== */
+
+@media (max-width: 768px) {
+  /* Stats grid: horizontal scroll cards */
+  .mc-projects-stats {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+    margin: 0 -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .mc-projects-stats::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mc-stat-pill {
+    flex-shrink: 0;
+  }
+
+  /* Elegant list on mobile */
+  .mc-elegant-list {
+    padding: 2px;
+    border-radius: 10px;
+  }
+
+  .mc-elegant-row {
+    border-radius: 8px;
+    gap: 10px;
+  }
+
+  /* Content area more room for text */
+  .mc-elegant-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .mc-elegant-title {
+    font-size: 15px;
+    -webkit-line-clamp: 2;
+  }
+
+  /* Badges wrap nicely */
+  .mc-elegant-badges {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  /* Department badges: limit visible, show +N */
+  .mc-dept-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    max-width: 100%;
+  }
+
+  .mc-dept-badges > *:nth-child(n+3) {
+    display: none;
+  }
+
+  .mc-dept-badges-overflow {
+    display: inline-flex;
+    font-size: 10px;
+    padding: 2px 6px;
+    background: var(--color-slate-200);
+    color: var(--color-slate-600);
+    border-radius: 4px;
+  }
+
+  /* Empty states: CTA in thumb zone */
+  .mc-empty {
+    padding: 40px 20px 80px;
+  }
+
+  .mc-empty-cta {
+    position: fixed;
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    right: 16px;
+    z-index: 99;
+  }
+}
+
+/* ===========================================
+   FLOATING ACTION BUTTON (FAB)
+   Primary creation action in thumb zone
+   =========================================== */
+
+.mc-fab {
+  display: none; /* Hidden on desktop */
+}
+
+@media (max-width: 768px) {
+  .mc-fab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    right: 16px;
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, var(--color-indigo-600) 0%, var(--color-indigo-700) 100%);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    box-shadow:
+      0 4px 12px rgba(99, 102, 241, 0.4),
+      0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    z-index: 98;
+    transition: all 0.2s ease;
+  }
+
+  .mc-fab:hover {
+    transform: scale(1.05);
+    box-shadow:
+      0 6px 16px rgba(99, 102, 241, 0.5),
+      0 3px 6px rgba(0, 0, 0, 0.15);
+  }
+
+  .mc-fab:active {
+    transform: scale(0.95);
+  }
+
+  .mc-fab svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Hide the inline "New" button when FAB is shown */
+  .mc-projects-filters .mc-btn-clean.primary,
+  .mc-playbooks-header .mc-btn-clean.primary {
+    display: none;
+  }
+}
+
+/* ===========================================
+   PULL TO REFRESH INDICATOR (CSS prep)
+   =========================================== */
+
+.mc-pull-indicator {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100%);
+  padding: 12px;
+  transition: transform 0.2s ease;
+}
+
+.mc-pull-indicator.visible {
+  transform: translateX(-50%) translateY(0);
+}
+
+.mc-pull-indicator svg {
+  width: 24px;
+  height: 24px;
+  color: var(--color-slate-400);
+}
+
+.mc-pull-indicator.refreshing svg {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ===========================================
+   SWIPE HINT (visual cue for swipeable items)
+   =========================================== */
+
+@media (max-width: 768px) {
+  .mc-swipe-hint {
+    position: absolute;
+    right: -4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 32px;
+    background: var(--color-slate-300);
+    border-radius: 2px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .mc-elegant-row:first-child .mc-swipe-hint {
+    opacity: 0.5;
+    animation: swipe-hint 2s ease-in-out infinite;
+  }
+
+  @keyframes swipe-hint {
+    0%, 100% { transform: translateY(-50%) translateX(0); }
+    50% { transform: translateY(-50%) translateX(-4px); }
+  }
+}
+
+/* ===========================================
+   LANDSCAPE MODE OPTIMIZATIONS
+   =========================================== */
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .mc-panel {
+    height: 100vh;
+    border-radius: 0;
+  }
+
+  /* Bottom nav becomes more compact in landscape */
+  .mc-tabs {
+    padding: 6px 16px;
+  }
+
+  .mc-tab {
+    flex-direction: row;
+    gap: 6px;
+    min-height: 40px;
+    padding: 6px 12px;
+  }
+
+  .mc-tab-label {
+    font-size: 11px;
+  }
+
+  .mc-tab-icon {
+    font-size: 16px;
+  }
+
+  /* More horizontal space for content */
+  .mc-content {
+    padding: 12px 24px;
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Stats in a row in landscape */
+  .mc-stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .mc-stat-card {
+    padding: 10px;
+  }
+
+  .mc-stat-value {
+    font-size: 1.25rem;
+  }
+}
+

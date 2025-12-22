@@ -11,7 +11,7 @@
  */
 
 import { useMemo } from 'react';
-import { BookOpen } from 'lucide-react';
+import { BookOpen, Plus } from 'lucide-react';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { getDeptColor } from '../../../lib/colors';
 
@@ -260,6 +260,15 @@ export function PlaybooksTab({
           );
         })
       )}
+
+      {/* FAB - Mobile only (visible via CSS) */}
+      <button
+        className="mc-fab"
+        onClick={onAddPlaybook}
+        aria-label="Create new playbook"
+      >
+        <Plus />
+      </button>
     </div>
   );
 }

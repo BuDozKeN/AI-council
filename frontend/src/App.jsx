@@ -44,6 +44,7 @@ function App() {
   const [conversationSortBy, setConversationSortBy] = useState('date'); // 'date' or 'activity'
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [currentConversation, setCurrentConversation] = useState(null);
+  const [isLoadingConversation, setIsLoadingConversation] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [businesses, setBusinesses] = useState([]);
   const [selectedBusiness, setSelectedBusiness] = useState(null);
@@ -398,10 +399,13 @@ function App() {
 
   const loadConversation = async (id) => {
     try {
+      setIsLoadingConversation(true);
       const conv = await api.getConversation(id);
       setCurrentConversation(conv);
     } catch (error) {
       console.error('Failed to load conversation:', error);
+    } finally {
+      setIsLoadingConversation(false);
     }
   };
 
@@ -422,6 +426,8 @@ function App() {
   }, [clearReturnState]);
 
   const handleSelectConversation = useCallback((id) => {
+    // Clear current conversation to show loading state
+    setCurrentConversation(null);
     setCurrentConversationId(id);
     setSelectedProject(null);
     clearReturnState();
@@ -1701,6 +1707,8 @@ function App() {
                 // Don't clear myCompanyPromoteDecision here - let MyCompany use it to re-open modal
                 openMyCompany({ tab });
               }}
+              // Loading state for conversation fetch
+              isLoadingConversation={isLoadingConversation}
             />
           </motion.div>
         )}
