@@ -124,36 +124,42 @@ export default function ChatInterface({
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Only auto-scroll if user hasn't scrolled up
-  useEffect(() => {
-    if (!userHasScrolledUp.current && !scrollToStage3) {
-      scrollToBottom();
+  // Scroll to the last Stage 3 response
+  const scrollToLastStage3 = () => {
+    const allStage3Elements = messagesContainerRef.current?.querySelectorAll('.stage3');
+    if (allStage3Elements && allStage3Elements.length > 0) {
+      const targetElement = allStage3Elements[allStage3Elements.length - 1];
+      targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return true;
     }
-  }, [conversation, scrollToStage3]);
+    return false;
+  };
 
-  // Scroll to Stage 3 when navigating from decision source
+  // Handle scroll when conversation loads or changes
   useEffect(() => {
-    if (scrollToStage3 && conversation?.messages?.length > 0) {
+    if (!conversation?.messages?.length) return;
+
+    // If scrollToStage3 is requested, scroll to the last Stage 3
+    if (scrollToStage3) {
       userHasScrolledUp.current = true;
 
+      // Wait for DOM to render the messages
       const timer = setTimeout(() => {
         let targetElement = null;
 
         if (scrollToResponseIndex !== null && scrollToResponseIndex !== undefined) {
+          // Scroll to a specific response index
           const allMessageGroups = messagesContainerRef.current?.querySelectorAll('.message-group');
           if (allMessageGroups && allMessageGroups.length > scrollToResponseIndex) {
             const messageGroup = allMessageGroups[scrollToResponseIndex];
             targetElement = messageGroup?.querySelector('.stage3') ||
                            messageGroup?.querySelector('.chat-response') ||
                            messageGroup;
-          } else {
-            const allStage3Elements = messagesContainerRef.current?.querySelectorAll('.stage3');
-            if (allStage3Elements && allStage3Elements.length > 0) {
-              targetElement = allStage3Elements[allStage3Elements.length - 1];
-            }
           }
-        } else {
-          // No specific index - scroll to the last (most recent) stage3
+        }
+
+        // Fallback: scroll to the last Stage 3
+        if (!targetElement) {
           const allStage3Elements = messagesContainerRef.current?.querySelectorAll('.stage3');
           if (allStage3Elements && allStage3Elements.length > 0) {
             targetElement = allStage3Elements[allStage3Elements.length - 1];
@@ -163,11 +169,18 @@ export default function ChatInterface({
         if (targetElement) {
           targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
+
         if (onScrollToStage3Complete) {
           onScrollToStage3Complete();
         }
-      }, 300);
+      }, 100);
+
       return () => clearTimeout(timer);
+    }
+
+    // Default behavior: scroll to bottom only if user hasn't scrolled up
+    if (!userHasScrolledUp.current) {
+      scrollToBottom();
     }
   }, [scrollToStage3, scrollToResponseIndex, conversation, onScrollToStage3Complete]);
 
