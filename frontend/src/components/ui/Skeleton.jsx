@@ -111,4 +111,33 @@ const MessageSkeletonGroup = ({ count = 3, ...props }) => (
 
 MessageSkeletonGroup.displayName = "MessageSkeletonGroup"
 
-export { Skeleton, SkeletonText, MessageSkeleton, MessageSkeletonGroup }
+/**
+ * ConversationSkeleton - Loading placeholder for sidebar conversation items
+ */
+const ConversationSkeleton = ({ ...props }) => (
+  <div className="skeleton-conversation" {...props}>
+    <div className="skeleton-conversation-content">
+      <Skeleton className="skeleton-conversation-title" />
+      <Skeleton className="skeleton-conversation-meta" />
+    </div>
+  </div>
+)
+
+ConversationSkeleton.displayName = "ConversationSkeleton"
+
+/**
+ * ConversationSkeletonGroup - Multiple conversation skeletons for sidebar loading
+ *
+ * @param {number} count - Number of skeletons to show (default: 5)
+ */
+const ConversationSkeletonGroup = ({ count = 5, ...props }) => (
+  <div className="skeleton-conversation-group" {...props}>
+    {Array.from({ length: count }).map((_, i) => (
+      <ConversationSkeleton key={i} />
+    ))}
+  </div>
+)
+
+ConversationSkeletonGroup.displayName = "ConversationSkeletonGroup"
+
+export { Skeleton, SkeletonText, MessageSkeleton, MessageSkeletonGroup, ConversationSkeleton, ConversationSkeletonGroup }

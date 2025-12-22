@@ -2,16 +2,26 @@
  * ConversationItem - Individual conversation row with hover actions
  *
  * Extracted from Sidebar.jsx for better maintainability.
+ * Features:
+ * - Keyboard navigation support (data-conversation-id for scroll-into-view)
+ * - ARIA roles for accessibility
+ * - Pencil icon for rename (replaces hidden double-click)
+ * - Memoized for performance
  */
 
-import { useRef, useEffect } from 'react';
-import { Star, Trash2, Archive, ArchiveRestore, Square, CheckSquare } from 'lucide-react';
+import { useRef, useEffect, memo, useCallback } from 'react';
+import { Star, Trash2, Archive, ArchiveRestore, Square, CheckSquare, Pencil, GripVertical } from 'lucide-react';
 import { getRelativeTime } from './hooks';
+import { formatDateTime } from '../../lib/dateUtils';
 
-export function ConversationItem({
+// Long-press duration in ms (industry standard is ~500ms)
+const LONG_PRESS_DURATION = 500;
+
+export const ConversationItem = memo(function ConversationItem({
   conversation,
   isActive,
   isSelected,
+  isFocused,
   isEditing,
   editingTitle,
   onSelect,
@@ -22,9 +32,17 @@ export function ConversationItem({
   onToggleSelection,
   onStar,
   onArchive,
-  onDelete
+  onDelete,
+  onContextMenu,
+  // Drag and drop props
+  dragHandlers,
+  isDragging,
 }) {
   const editInputRef = useRef(null);
+  const itemRef = useRef(null);
+  const longPressTimer = useRef(null);
+  const touchStartPos = useRef(null);
+  const longPressTriggered = useRef(false);
 
   useEffect(() => {
     if (isEditing && editInputRef.current) {
@@ -32,6 +50,76 @@ export function ConversationItem({
       editInputRef.current.select();
     }
   }, [isEditing]);
+
+  // Long-press handlers for mobile context menu
+  const handleTouchStart = useCallback((e) => {
+    // Reset flag
+    longPressTriggered.current = false;
+
+    // Capture touch position immediately (before the event object is recycled)
+    const touchX = e.touches[0].clientX;
+    const touchY = e.touches[0].clientY;
+    const target = e.target;
+
+    // Store initial touch position to detect scrolling
+    touchStartPos.current = { x: touchX, y: touchY };
+
+    longPressTimer.current = setTimeout(() => {
+      longPressTriggered.current = true;
+      if (onContextMenu) {
+        // Create a synthetic event with captured touch position
+        const syntheticEvent = {
+          preventDefault: () => {},
+          stopPropagation: () => {},
+          clientX: touchX,
+          clientY: touchY,
+          target: target,
+        };
+        onContextMenu(syntheticEvent, conversation);
+        // Vibrate on supported devices for haptic feedback
+        if (navigator.vibrate) {
+          navigator.vibrate(50);
+        }
+      }
+      longPressTimer.current = null;
+    }, LONG_PRESS_DURATION);
+  }, [conversation, onContextMenu]);
+
+  const handleTouchMove = useCallback((e) => {
+    // Cancel long-press if user is scrolling (moved more than 10px)
+    if (longPressTimer.current && touchStartPos.current) {
+      const touch = e.touches[0];
+      const deltaX = Math.abs(touch.clientX - touchStartPos.current.x);
+      const deltaY = Math.abs(touch.clientY - touchStartPos.current.y);
+      if (deltaX > 10 || deltaY > 10) {
+        clearTimeout(longPressTimer.current);
+        longPressTimer.current = null;
+      }
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (longPressTimer.current) {
+        clearTimeout(longPressTimer.current);
+      }
+    };
+  }, []);
+
+  // Scroll into view when focused via keyboard
+  useEffect(() => {
+    if (isFocused && itemRef.current) {
+      itemRef.current.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  }, [isFocused]);
 
   const handleEditKeyDown = (e) => {
     if (e.key === 'Enter') {
@@ -42,15 +130,51 @@ export function ConversationItem({
     }
   };
 
+  const relativeTime = conversation.last_updated ? getRelativeTime(conversation.last_updated) : null;
+  const absoluteTime = conversation.last_updated ? formatDateTime(conversation.last_updated) : null;
+
   return (
     <div
-      className={`conversation-item ${isActive ? 'active' : ''} ${conversation.is_archived ? 'archived' : ''} ${conversation.is_starred ? 'starred' : ''} ${isSelected ? 'selected' : ''}`}
+      ref={itemRef}
+      role="option"
+      aria-selected={isActive}
+      aria-label={`${conversation.title || 'New Conversation'}${conversation.is_starred ? ', starred' : ''}${conversation.is_archived ? ', archived' : ''}`}
+      data-conversation-id={conversation.id}
+      tabIndex={isFocused ? 0 : -1}
+      className={`conversation-item ${isActive ? 'active' : ''} ${conversation.is_archived ? 'archived' : ''} ${conversation.is_starred ? 'starred' : ''} ${isSelected ? 'selected' : ''} ${isFocused ? 'focused' : ''} ${isDragging ? 'dragging' : ''}`}
       onClick={() => {
-        if (!isEditing) {
+        // Don't select if long-press was triggered (context menu was opened)
+        if (!isEditing && !longPressTriggered.current) {
+          onSelect(conversation.id);
+        }
+        // Reset the flag
+        longPressTriggered.current = false;
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' && !isEditing) {
+          e.preventDefault();
           onSelect(conversation.id);
         }
       }}
+      onContextMenu={(e) => {
+        if (onContextMenu) {
+          onContextMenu(e, conversation);
+        }
+      }}
+      // Mobile long-press support
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
+      // Drag and drop handlers
+      {...dragHandlers}
     >
+      {/* Drag handle - visible on hover */}
+      {dragHandlers && (
+        <div className="drag-handle" aria-hidden="true">
+          <GripVertical size={14} />
+        </div>
+      )}
       {/* Main content - title and metadata */}
       <div className="conversation-content">
         {isEditing ? (
@@ -64,17 +188,11 @@ export function ConversationItem({
               onBlur={onSaveEdit}
               onClick={(e) => e.stopPropagation()}
               className="title-edit-input"
+              aria-label="Edit conversation title"
             />
           </div>
         ) : (
-          <div
-            className="conversation-title"
-            onDoubleClick={(e) => {
-              e.stopPropagation();
-              onStartEdit(conversation);
-            }}
-            title="Double-click to rename"
-          >
+          <div className="conversation-title">
             {conversation.is_starred && <Star size={12} className="title-star" fill="currentColor" />}
             {conversation.is_archived && <span className="archived-badge">Archived</span>}
             {conversation.title || 'New Conversation'}
@@ -82,20 +200,36 @@ export function ConversationItem({
         )}
         <div className="conversation-meta">
           {conversation.message_count} messages
-          {conversation.last_updated && (
-            <span className="conversation-time"> · {getRelativeTime(conversation.last_updated)}</span>
+          {relativeTime && (
+            <span
+              className="conversation-time"
+              title={absoluteTime}
+            >
+              {' '}· {relativeTime}
+            </span>
           )}
         </div>
       </div>
 
       {/* Hover action bar */}
-      <div className="hover-actions">
+      <div className="hover-actions" role="group" aria-label="Conversation actions">
         <button
           className={`hover-action-btn ${isSelected ? 'active' : ''}`}
           onClick={(e) => onToggleSelection(conversation.id, e)}
-          title={isSelected ? 'Deselect' : 'Select'}
+          aria-label={isSelected ? 'Deselect conversation' : 'Select conversation'}
+          aria-pressed={isSelected}
         >
           {isSelected ? <CheckSquare size={14} /> : <Square size={14} />}
+        </button>
+        <button
+          className="hover-action-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            onStartEdit(conversation, e);
+          }}
+          aria-label="Rename conversation"
+        >
+          <Pencil size={14} />
         </button>
         <button
           className={`hover-action-btn ${conversation.is_starred ? 'starred' : ''}`}
@@ -103,7 +237,8 @@ export function ConversationItem({
             e.stopPropagation();
             onStar(conversation.id, !conversation.is_starred);
           }}
-          title={conversation.is_starred ? 'Unstar' : 'Star'}
+          aria-label={conversation.is_starred ? 'Remove star' : 'Add star'}
+          aria-pressed={conversation.is_starred}
         >
           <Star size={14} fill={conversation.is_starred ? 'currentColor' : 'none'} />
         </button>
@@ -113,7 +248,7 @@ export function ConversationItem({
             e.stopPropagation();
             onArchive(conversation.id, !conversation.is_archived);
           }}
-          title={conversation.is_archived ? 'Unarchive' : 'Archive'}
+          aria-label={conversation.is_archived ? 'Unarchive conversation' : 'Archive conversation'}
         >
           {conversation.is_archived ? <ArchiveRestore size={14} /> : <Archive size={14} />}
         </button>
@@ -123,11 +258,11 @@ export function ConversationItem({
             e.stopPropagation();
             onDelete(conversation.id);
           }}
-          title="Delete"
+          aria-label="Delete conversation"
         >
           <Trash2 size={14} />
         </button>
       </div>
     </div>
   );
-}
+});

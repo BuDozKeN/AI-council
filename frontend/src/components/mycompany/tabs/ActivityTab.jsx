@@ -6,6 +6,7 @@
  */
 
 import { ClipboardList } from 'lucide-react';
+import { formatDateGroup } from '../../../lib/dateUtils';
 
 // Constants for activity display
 const EVENT_LABELS = {
@@ -51,24 +52,7 @@ const ACTION_COLORS = {
 // Group logs by date (Today, Yesterday, or formatted date)
 function groupLogsByDate(logs) {
   return logs.reduce((groups, log) => {
-    const date = new Date(log.created_at);
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    let dateKey;
-    if (date.toDateString() === today.toDateString()) {
-      dateKey = 'Today';
-    } else if (date.toDateString() === yesterday.toDateString()) {
-      dateKey = 'Yesterday';
-    } else {
-      dateKey = date.toLocaleDateString('en-US', {
-        weekday: 'long',
-        month: 'short',
-        day: 'numeric'
-      });
-    }
-
+    const dateKey = formatDateGroup(log.created_at);
     if (!groups[dateKey]) groups[dateKey] = [];
     groups[dateKey].push(log);
     return groups;

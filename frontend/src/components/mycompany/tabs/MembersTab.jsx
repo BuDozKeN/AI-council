@@ -13,6 +13,8 @@
  * - No email sending yet - manual addition only
  */
 
+import { formatDate } from '../../../lib/dateUtils';
+
 import { useState, useEffect } from 'react';
 import { api } from '../../../api';
 import { Users, Crown, Shield, User, Plus, Trash2, ChevronUp, ChevronDown, BarChart3, AlertCircle } from 'lucide-react';
@@ -240,7 +242,7 @@ export function MembersTab({
 
               {/* Joined date */}
               <div className="mc-member-joined">
-                Joined {new Date(member.joined_at || member.created_at).toLocaleDateString()}
+                Joined {formatDate(member.joined_at || member.created_at)}
               </div>
 
               {/* Actions */}

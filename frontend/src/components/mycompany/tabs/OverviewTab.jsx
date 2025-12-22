@@ -11,6 +11,7 @@
 
 import { Building2 } from 'lucide-react';
 import MarkdownViewer from '../../MarkdownViewer';
+import { formatDate } from '../../../lib/dateUtils';
 
 // Parse metadata from context markdown (Last Updated, Version)
 function parseContextMetadata(contextMd) {
@@ -20,19 +21,8 @@ function parseContextMetadata(contextMd) {
   const lastUpdatedMatch = contextMd.match(/\*\*Last Updated:\*\*\s*(\d{4}-\d{2}-\d{2})/);
   const versionMatch = contextMd.match(/\*\*Version:\*\*\s*([\d.]+)/);
 
-  // Format date as "December 16, 2025" (works for US and EU readers)
-  let formattedDate = null;
-  if (lastUpdatedMatch) {
-    const date = new Date(lastUpdatedMatch[1] + 'T00:00:00');
-    formattedDate = date.toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  }
-
   return {
-    lastUpdated: formattedDate,
+    lastUpdated: lastUpdatedMatch ? formatDate(lastUpdatedMatch[1] + 'T00:00:00') : null,
     version: versionMatch ? versionMatch[1] : null
   };
 }

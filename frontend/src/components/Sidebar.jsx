@@ -12,11 +12,15 @@ import {
   VirtualizedConversationList,
   SidebarFooter,
   BulkActionBar,
-  DeleteModal,
-  SidebarIconButton
+  SidebarIconButton,
+  ConversationContextMenu,
+  useContextMenu,
 } from './sidebar/index.jsx';
-import { usePullToRefresh } from '../hooks';
+import { ConversationSkeletonGroup } from './ui/Skeleton';
+import { usePullToRefresh, useKeyboardShortcuts, useListNavigation, useDragAndDrop } from '../hooks';
 import { PullToRefreshIndicator } from './ui/PullToRefresh';
+import { toast } from './ui/sonner';
+import { api } from '../api';
 import './Sidebar.css';
 
 /**
@@ -50,6 +54,8 @@ export default function Sidebar({
   isMobileOpen = false,
   onMobileClose,
   onRefresh,
+  isLoading = false, // New prop for initial loading state
+  onUpdateConversationDepartment, // Optional callback for department changes
 }) {
   // Sidebar state: 'collapsed' | 'hovered' | 'pinned'
   const [sidebarState, setSidebarState] = useState(() => {
@@ -64,15 +70,50 @@ export default function Sidebar({
   const [filter, setFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedGroups, setExpandedGroups] = useState({});
-  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  // Note: deleteConfirm modal removed - optimistic delete with undo toast is used instead
   const [editingId, setEditingId] = useState(null);
   const [editingTitle, setEditingTitle] = useState('');
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
+  const [focusedConversationId, setFocusedConversationId] = useState(null);
   const searchTimeoutRef = useRef(null);
+  const searchInputRef = useRef(null);
   const sidebarRef = useRef(null);
+  const loadMoreRef = useRef(null);
+
+  // Context menu for right-click actions
+  const contextMenu = useContextMenu();
+
+  // Drag and drop for moving conversations between departments
+  const handleDragDrop = useCallback(async (conversationId, targetDepartment, conversation) => {
+    // Optimistically update UI (parent will handle via callback)
+    if (onUpdateConversationDepartment) {
+      onUpdateConversationDepartment(conversationId, targetDepartment);
+    }
+
+    // Persist to backend
+    try {
+      await api.updateConversationDepartment(conversationId, targetDepartment);
+      toast.success(`Moved to ${targetDepartment}`);
+    } catch (error) {
+      console.error('Failed to update department:', error);
+      toast.error('Failed to move conversation');
+      // Revert optimistic update
+      if (onUpdateConversationDepartment && conversation.department) {
+        onUpdateConversationDepartment(conversationId, conversation.department);
+      }
+    }
+  }, [onUpdateConversationDepartment]);
+
+  const {
+    draggedItem,
+    dragOverTarget,
+    isDragging,
+    getDragHandlers,
+    getDropHandlers,
+  } = useDragAndDrop({ onDrop: handleDragDrop });
 
   // Cleanup timeout on unmount to prevent memory leaks
   useEffect(() => {
@@ -162,7 +203,7 @@ export default function Sidebar({
       searchTimeoutRef.current = setTimeout(async () => {
         await onSearch(value.trim());
         setIsSearching(false);
-      }, 500);
+      }, 300); // Reduced from 500ms for snappier feel
     } else if (onSearch && !value.trim()) {
       onSearch('');
     }
@@ -237,6 +278,59 @@ export default function Sidebar({
     };
   }, [activeConversations, archivedConversations, searchQuery]);
 
+  // Flat list of all visible conversations for keyboard navigation
+  const flatConversationList = useMemo(() => {
+    const list = [];
+    const convsToShow = filter === 'archived' ? filteredBySearch.archived : filteredBySearch.active;
+    convsToShow.forEach(conv => list.push(conv));
+    return list;
+  }, [filter, filteredBySearch]);
+
+  // List navigation for keyboard support
+  const {
+    getFocusedId,
+    navigateUp,
+    navigateDown,
+    selectCurrent,
+  } = useListNavigation({
+    items: flatConversationList,
+    currentId: currentConversationId,
+    onSelect: onSelectConversation,
+    enabled: isExpanded && !editingId,
+  });
+
+  // Update focused ID when navigating
+  useEffect(() => {
+    const focusedId = getFocusedId();
+    setFocusedConversationId(focusedId);
+  }, [getFocusedId]);
+
+  // Global keyboard shortcuts
+  useKeyboardShortcuts({
+    onFocusSearch: useCallback(() => {
+      searchInputRef.current?.focus();
+    }, []),
+    onNewConversation,
+    onNavigateUp: navigateUp,
+    onNavigateDown: navigateDown,
+    onSelectCurrent: selectCurrent,
+    onDeleteCurrent: useCallback(() => {
+      const focusedId = getFocusedId();
+      if (focusedId) {
+        onDeleteConversation(focusedId);
+      }
+    }, [getFocusedId, onDeleteConversation]),
+    onEscape: useCallback(() => {
+      if (searchQuery) {
+        setSearchQuery('');
+        if (onSearch) onSearch('');
+      } else if (isMobileOpen && onMobileClose) {
+        onMobileClose();
+      }
+    }, [searchQuery, onSearch, isMobileOpen, onMobileClose]),
+    enabled: isExpanded,
+  });
+
   // Group conversations by department
   const groupedConversations = useMemo(() => {
     const groups = {};
@@ -283,8 +377,8 @@ export default function Sidebar({
   const totalConversations = conversations.length;
   const searchResultCount = filteredBySearch.active.length + filteredBySearch.archived.length;
 
-  // Use virtualization for large lists (> 30 conversations)
-  const useVirtualization = totalConversations > 30;
+  // Use virtualization for large lists (> 20 conversations for consistency)
+  const useVirtualization = totalConversations > 20;
   const listContainerRef = useRef(null);
   const [listHeight, setListHeight] = useState(400);
 
@@ -304,6 +398,23 @@ export default function Sidebar({
 
     return () => resizeObserver.disconnect();
   }, [useVirtualization]);
+
+  // Infinite scroll - auto-load more when reaching bottom
+  useEffect(() => {
+    if (!loadMoreRef.current || !onLoadMore || !hasMoreConversations || isLoadingMore || searchQuery) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoadingMore) {
+          handleLoadMore();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(loadMoreRef.current);
+    return () => observer.disconnect();
+  }, [onLoadMore, hasMoreConversations, isLoadingMore, searchQuery]);
 
   // Determine visual state for CSS
   const visualState = isPinned ? 'pinned' : (hoveredIcon ? 'hovered' : 'collapsed');
@@ -398,6 +509,7 @@ export default function Sidebar({
             {(totalConversations > 0 || searchQuery) && (
               <div className="sidebar-panel-controls">
                 <SearchBar
+                  ref={searchInputRef}
                   searchQuery={searchQuery}
                   onSearchChange={handleSearchChange}
                   onClear={handleSearchClear}
@@ -427,7 +539,10 @@ export default function Sidebar({
 
             {/* Conversation List */}
             <div className="conversation-list" ref={(el) => { pullToRefreshRef.current = el; listContainerRef.current = el; }}>
-              {searchQuery && searchResultCount === 0 ? (
+              {/* Skeleton loading state */}
+              {isLoading && totalConversations === 0 ? (
+                <ConversationSkeletonGroup count={5} />
+              ) : searchQuery && searchResultCount === 0 ? (
                 <div className="no-conversations">
                   <span className="no-conv-icon">🔍</span>
                   No results for "{searchQuery}"
@@ -451,6 +566,7 @@ export default function Sidebar({
                   expandedGroups={expandedGroups}
                   groupedConversations={groupedConversations}
                   currentConversationId={currentConversationId}
+                  focusedConversationId={focusedConversationId}
                   selectedIds={selectedIds}
                   editingId={editingId}
                   editingTitle={editingTitle}
@@ -462,8 +578,9 @@ export default function Sidebar({
                   onToggleSelection={toggleSelection}
                   onStarConversation={onStarConversation}
                   onArchiveConversation={onArchiveConversation}
-                  onDeleteConversation={setDeleteConfirm}
+                  onDeleteConversation={onDeleteConversation}
                   onToggleGroup={toggleGroup}
+                  onContextMenu={contextMenu.open}
                   height={listHeight}
                 />
               ) : (
@@ -476,6 +593,7 @@ export default function Sidebar({
                     isExpanded={isGroupExpanded(groupId)}
                     onToggleExpand={toggleGroup}
                     currentConversationId={currentConversationId}
+                    focusedConversationId={focusedConversationId}
                     selectedIds={selectedIds}
                     editingId={editingId}
                     editingTitle={editingTitle}
@@ -487,27 +605,27 @@ export default function Sidebar({
                     onToggleSelection={toggleSelection}
                     onStarConversation={onStarConversation}
                     onArchiveConversation={onArchiveConversation}
-                    onDeleteConversation={setDeleteConfirm}
+                    onDeleteConversation={onDeleteConversation}
+                    onContextMenu={contextMenu.open}
+                    // Drag and drop props
+                    dropHandlers={getDropHandlers(groupId)}
+                    isDropTarget={dragOverTarget === groupId}
+                    getDragHandlers={getDragHandlers}
+                    draggedItemId={draggedItem?.id}
                   />
                 ))
               )}
 
-              {/* Load More Button */}
+              {/* Infinite scroll trigger - replaces Load More button */}
               {onLoadMore && hasMoreConversations && totalConversations > 0 && !searchQuery && (
-                <button
-                  className="load-more-btn"
-                  onClick={handleLoadMore}
-                  disabled={isLoadingMore}
-                >
-                  {isLoadingMore ? (
-                    <>
+                <div ref={loadMoreRef} className="load-more-trigger">
+                  {isLoadingMore && (
+                    <div className="load-more-spinner">
                       <Spinner size="sm" variant="muted" />
-                      Loading...
-                    </>
-                  ) : (
-                    'Load More'
+                      <span>Loading more...</span>
+                    </div>
                   )}
-                </button>
+                </div>
               )}
             </div>
           </div>
@@ -566,14 +684,17 @@ export default function Sidebar({
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
-      <DeleteModal
-        isOpen={!!deleteConfirm}
-        onClose={() => setDeleteConfirm(null)}
-        onConfirm={() => {
-          onDeleteConversation(deleteConfirm);
-          setDeleteConfirm(null);
-        }}
+      {/* Right-click context menu */}
+      <ConversationContextMenu
+        isOpen={contextMenu.isOpen}
+        position={contextMenu.position}
+        conversation={contextMenu.contextData}
+        onClose={contextMenu.close}
+        onRename={handleStartEdit}
+        onStar={onStarConversation}
+        onArchive={onArchiveConversation}
+        onDelete={onDeleteConversation}
+        onExport={onExportConversation}
       />
     </aside>
   );

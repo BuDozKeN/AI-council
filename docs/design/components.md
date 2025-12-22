@@ -185,6 +185,158 @@ import { ErrorState } from '@/components/ui/ErrorState';
 
 ---
 
+## Sidebar
+
+**Location:** `frontend/src/components/sidebar/`
+
+The conversation history sidebar with virtualized list, search, filtering, and mobile support.
+
+### Sub-components
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| `ConversationItem` | `ConversationItem.jsx` | Individual conversation row with hover actions |
+| `ConversationContextMenu` | `ConversationContextMenu.jsx` | Right-click context menu for conversation actions |
+| `VirtualizedConversationList` | `VirtualizedConversationList.jsx` | Performance-optimized list using react-window |
+
+### Features
+
+- **Search & Filters:** Search conversations, filter by starred/archived, sort by date/title
+- **Virtualization:** Uses react-window for performance with large conversation lists
+- **Keyboard Navigation:** Arrow keys navigate, Enter selects, Escape clears search
+- **Inline Actions:** Star, archive, rename, delete on hover (desktop)
+- **Mobile Long-press:** 500ms long-press triggers context menu (industry standard)
+- **Drag and Drop:** Drag conversations between department groups (desktop only)
+
+### Mobile Behavior
+
+On screens < 768px:
+- Inline hover actions are hidden
+- Long-press (500ms) opens context menu with all actions
+- Haptic feedback via `navigator.vibrate()` on supported devices
+- Touch scroll detection cancels long-press if user moves > 10px
+
+### Context Menu Actions
+
+| Action | Description |
+|--------|-------------|
+| Rename | Inline edit of conversation title |
+| Star/Unstar | Toggle star status |
+| Archive/Unarchive | Toggle archive status |
+| Export | Download conversation as file |
+| Delete | Remove with undo toast |
+
+### Delete Behavior
+
+Deletion uses optimistic UI with undo:
+1. Conversation removed immediately from UI
+2. Toast appears with "Undo" button (5s timeout)
+3. If undone, conversation restored; otherwise deleted from backend
+
+### Drag and Drop
+
+Move conversations between department groups by dragging:
+1. Hover over a conversation to reveal the drag handle (grip icon on left)
+2. Drag the conversation - it tilts slightly (-2deg) and becomes semi-transparent for visual feedback
+3. Drag over a different department group - target highlights with blue dashed outline
+4. Drop to move - department updates optimistically with backend sync via `PATCH /api/conversations/{id}/department`
+5. Group counts update immediately to reflect the change
+
+**Visual Effects:**
+- Dragging item: `rotate(-2deg) scale(1.02)`, 70% opacity, elevated shadow
+- Drop target: Blue dashed outline with subtle background highlight
+
+**Implementation:**
+- Hook: `useDragAndDrop` in `frontend/src/hooks/useDragAndDrop.js`
+- CSS: `.conversation-item.dragging` and `.conversation-group.drop-target` in `Sidebar.css`
+- Backend: `PATCH /api/conversations/{id}/department` endpoint
+
+**Note:** Drag and drop is disabled on mobile (< 768px). Use context menu instead.
+
+---
+
+## Skeleton Components
+
+**File:** `frontend/src/components/ui/Skeleton.jsx`
+
+Placeholder loading states that match content dimensions.
+
+### Usage
+
+```jsx
+import { Skeleton } from '@/components/ui/Skeleton';
+
+// Basic rectangle
+<Skeleton className="h-4 w-[200px]" />
+
+// Circle (avatar)
+<Skeleton className="h-12 w-12 rounded-full" />
+
+// Card placeholder
+<div className="space-y-2">
+  <Skeleton className="h-4 w-[250px]" />
+  <Skeleton className="h-4 w-[200px]" />
+</div>
+```
+
+### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `className` | `string` | - | Width, height, and shape classes |
+
+### Styling
+
+Uses CSS animation for shimmer effect. Inherits rounded corners from className.
+
+---
+
+## Toast Notifications
+
+**File:** `frontend/src/components/ui/sonner.jsx`
+
+Toast notifications using the sonner library with dark mode support.
+
+### Usage
+
+```jsx
+import { toast } from '@/components/ui/sonner';
+
+// Success
+toast.success('Changes saved');
+
+// Error
+toast.error('Failed to save');
+
+// With undo action
+toast('Conversation deleted', {
+  action: {
+    label: 'Undo',
+    onClick: () => restoreConversation(id),
+  },
+});
+
+// Custom duration
+toast.success('Copied!', { duration: 2000 });
+```
+
+### Configuration
+
+The `<Toaster />` component is placed in App.jsx:
+- Position: bottom-right
+- Theme: auto-detects dark mode from document class
+- Styling: Uses CSS variables for theme consistency
+
+### Common Patterns
+
+| Pattern | Use Case |
+|---------|----------|
+| `toast.success()` | Successful operations |
+| `toast.error()` | Failed operations |
+| `toast()` with action | Destructive actions with undo |
+
+---
+
 ## Creating New Components
 
 When creating a new reusable UI component:

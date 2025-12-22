@@ -482,6 +482,29 @@ export const api = {
   },
 
   /**
+   * Update the department of a conversation.
+   * Used for drag-and-drop to move conversations between departments.
+   * @param {string} conversationId - The conversation ID
+   * @param {string} department - The target department ID/slug
+   * @returns {Promise<{success: boolean, department: string}>}
+   */
+  async updateConversationDepartment(conversationId, department) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE}/api/conversations/${conversationId}/department`,
+      {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ department }),
+      }
+    );
+    if (!response.ok) {
+      throw new Error('Failed to update conversation department');
+    }
+    return response.json();
+  },
+
+  /**
    * Permanently delete a conversation.
    * @param {string} conversationId - The conversation ID
    */

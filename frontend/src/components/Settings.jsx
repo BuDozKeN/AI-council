@@ -5,6 +5,8 @@ import { AdaptiveModal } from './ui/AdaptiveModal';
 import { Skeleton } from './ui/Skeleton';
 import { Spinner } from './ui/Spinner';
 import { User, CreditCard, Users, Crown, Shield, UserIcon, Plus, Trash2, ChevronUp, ChevronDown, BarChart3, AlertCircle } from 'lucide-react';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from './ui/select';
+import { formatDate } from '../lib/dateUtils';
 import './Settings.css';
 
 // Role configuration for display
@@ -657,14 +659,15 @@ export default function Settings({ isOpen, onClose, companyId }) {
                                 className="form-input"
                                 autoFocus
                               />
-                              <select
-                                value={newRole}
-                                onChange={(e) => setNewRole(e.target.value)}
-                                className="form-select"
-                              >
-                                <option value="member">Member</option>
-                                <option value="admin">Admin</option>
-                              </select>
+                              <Select value={newRole} onValueChange={setNewRole}>
+                                <SelectTrigger className="form-select">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="member">Member</SelectItem>
+                                  <SelectItem value="admin">Admin</SelectItem>
+                                </SelectContent>
+                              </Select>
                               <button type="submit" className="btn-primary" disabled={addingMember || !newEmail.trim()}>
                                 {addingMember ? <Spinner size={14} /> : 'Add'}
                               </button>
@@ -709,7 +712,7 @@ export default function Settings({ isOpen, onClose, companyId }) {
                                   </span>
                                 </div>
                                 <div className="member-joined">
-                                  Joined {new Date(member.joined_at || member.created_at).toLocaleDateString()}
+                                  Joined {formatDate(member.joined_at || member.created_at)}
                                 </div>
                                 {isLoading ? (
                                   <div className="member-actions">

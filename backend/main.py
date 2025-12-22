@@ -1178,6 +1178,28 @@ async def rename_conversation(conversation_id: str, request: RenameRequest, user
     return {"success": True, "title": request.title}
 
 
+# Department update endpoint
+class DepartmentUpdateRequest(BaseModel):
+    """Request to update a conversation's department."""
+    department: str
+
+
+@app.patch("/api/conversations/{conversation_id}/department")
+async def update_conversation_department(conversation_id: str, request: DepartmentUpdateRequest, user: dict = Depends(get_current_user)):
+    """Update the department of a conversation (must be owner). Used for drag-and-drop reordering."""
+    access_token = user.get("access_token")
+    conversation = storage.get_conversation(conversation_id, access_token=access_token)
+    if conversation is None:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+
+    # Verify ownership
+    if conversation.get("user_id") and conversation.get("user_id") != user["id"]:
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    storage.update_conversation_department(conversation_id, request.department, access_token=access_token)
+    return {"success": True, "department": request.department}
+
+
 # Star/Archive/Delete endpoints
 class StarRequest(BaseModel):
     """Request to star/unstar a conversation."""

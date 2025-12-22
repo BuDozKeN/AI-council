@@ -16,6 +16,7 @@ import { AppModal } from '../../ui/AppModal';
 import MarkdownViewer from '../../MarkdownViewer';
 import { Bookmark, FolderKanban, ExternalLink } from 'lucide-react';
 import { getDeptColor } from '../../../lib/colors';
+import { formatDate } from '../../../lib/dateUtils';
 
 export function ViewDecisionModal({
   decision,
@@ -40,15 +41,6 @@ export function ViewDecisionModal({
     }
   };
 
-  // Format date as "December 12, 2025" - works for US and EU
-  const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric'
-    });
-  };
 
   // Get linked playbook (source of truth for promoted decisions)
   const linkedPlaybook = decision.promoted_to_id && playbooks.length > 0

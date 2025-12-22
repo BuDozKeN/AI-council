@@ -13,6 +13,7 @@ import { useMemo } from 'react';
 import { FolderKanban, CheckCircle, Archive, RotateCcw, Trash2 } from 'lucide-react';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { SortSelect } from '../../ui/SortSelect';
+import { formatRelativeDate } from '../../../lib/dateUtils';
 import { getDeptColor } from '../../../lib/colors';
 
 // Format relative time for project timestamps
@@ -29,7 +30,7 @@ function formatRelativeTime(dateStr) {
   if (diffMins < 60) return `${diffMins}m ago`;
   if (diffHours < 24) return `${diffHours}h ago`;
   if (diffDays < 7) return `${diffDays}d ago`;
-  return date.toLocaleDateString();
+  return formatRelativeDate(date);
 }
 
 export function ProjectsTab({

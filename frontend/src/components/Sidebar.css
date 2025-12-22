@@ -582,25 +582,33 @@
 .group-header {
   display: flex;
   align-items: center;
-  padding: 6px 16px;
-  margin: 0;
+  padding: 8px 12px;
+  margin: 8px 8px 4px 8px;
   cursor: pointer;
   user-select: none;
   transition: all 0.15s ease;
-  border-radius: 0;
+  border-radius: var(--radius-md);
+  gap: 6px;
 }
 
 .group-header:hover {
-  background: transparent;
+  background: var(--sidebar-hover-bg);
+}
+
+.group-header:active {
+  background: var(--sidebar-active-bg);
 }
 
 .chevron {
-  font-size: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
   color: var(--sidebar-text-muted);
-  margin-right: 8px;
-  transition: transform 0.15s ease;
-  display: inline-block;
-  width: 10px;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 10px;
+  flex-shrink: 0;
 }
 
 .chevron.expanded {
@@ -609,20 +617,30 @@
 
 .group-name {
   flex: 1;
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: 600;
   color: var(--sidebar-text-muted);
-  text-transform: none;
-  letter-spacing: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .group-count {
-  font-size: 11px;
+  font-size: 10px;
+  font-weight: 500;
   color: var(--sidebar-text-muted);
-  background: transparent;
-  padding: 0;
-  border-radius: 0;
-  font-weight: 400;
+  background: var(--sidebar-hover-bg);
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.group-header:hover .group-count {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.dark .group-header:hover .group-count {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* =============================================================================
@@ -643,7 +661,7 @@
   border-radius: 6px;
   border: none;
   cursor: pointer;
-  transition: background 0.12s ease;
+  transition: background 0.12s ease, transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
   gap: 8px;
 }
 
@@ -659,6 +677,12 @@
   flex: 1;
   min-width: 0;
   overflow: hidden;
+  transition: max-width 0.15s ease;
+}
+
+/* On hover, shrink content to make room for actions */
+.conversation-item:hover .conversation-content {
+  max-width: calc(100% - 120px); /* Reserve space for 4 action buttons (~30px each) */
 }
 
 .conversation-title {
@@ -732,10 +756,30 @@
   font-size: 14px;
 }
 
-/* Selected styling */
+/* Selected styling (multi-select for bulk actions) - distinct from active */
 .conversation-item.selected {
-  background: var(--sidebar-active-bg);
-  border-left: 3px solid var(--sidebar-active-border);
+  background: rgba(59, 130, 246, 0.08); /* Blue tint for selection */
+  border-left: 3px solid #3b82f6; /* Blue border */
+  padding-left: 13px;
+}
+
+.conversation-item.selected .conversation-title {
+  color: var(--sidebar-text-primary);
+}
+
+/* When both selected AND active, show selected state takes visual priority */
+.conversation-item.selected.active {
+  background: rgba(59, 130, 246, 0.12);
+  border-left: 3px solid #3b82f6;
+}
+
+/* Dark mode selected styling */
+.dark .conversation-item.selected {
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.dark .conversation-item.selected.active {
+  background: rgba(59, 130, 246, 0.2);
 }
 
 /* =============================================================================
@@ -744,25 +788,29 @@
 
 .hover-actions {
   position: absolute;
-  right: 8px;
+  right: 4px;
   top: 50%;
   transform: translateY(-50%);
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 0;
   opacity: 0;
   transition: opacity 0.15s ease;
-  background: linear-gradient(90deg, transparent 0%, var(--sidebar-bg) 30%);
-  padding: 4px 4px 4px 20px;
+  /* Clean background - no overlap since content shrinks on hover */
+  background: transparent;
+  padding: 2px;
   border-radius: var(--radius-md);
 }
 
-.conversation-item:hover .hover-actions {
+.conversation-item:hover .hover-actions,
+.conversation-item.focused .hover-actions {
   opacity: 1;
 }
 
-.conversation-item.active .hover-actions {
-  background: linear-gradient(90deg, transparent 0%, var(--sidebar-active-bg) 30%);
+/* Keyboard focus state styling */
+.conversation-item.focused {
+  outline: 2px solid var(--sidebar-active-border);
+  outline-offset: -2px;
 }
 
 .hover-action-btn {
@@ -799,6 +847,121 @@
 .hover-action-btn.danger:hover {
   background: rgba(239, 68, 68, 0.2);
   color: #f87171;
+}
+
+/* =============================================================================
+   MOBILE TOUCH TARGET FIXES (P0)
+   ============================================================================= */
+
+@media (max-width: 768px) {
+  /* Mobile conversation items - compact, clean design */
+  .conversation-item {
+    padding: 10px 12px;
+    margin: 1px 0;
+    flex-wrap: nowrap;
+    /* Allow custom long-press handling, prevent text selection on hold */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Full width for content on mobile - override hover shrink rule */
+  .conversation-item .conversation-content,
+  .conversation-item:hover .conversation-content,
+  .conversation-item:active .conversation-content {
+    max-width: 100% !important;
+  }
+
+  /* Touch feedback - subtle highlight on press */
+  .conversation-item:active {
+    background: var(--sidebar-hover-bg);
+  }
+
+  /* HIDE all hover actions on mobile - use long-press context menu instead */
+  /* This follows standard mobile UX patterns (Slack, Discord, WhatsApp) */
+  .hover-actions {
+    display: none !important;
+  }
+
+  /* Show starred indicator inline for starred conversations */
+  .conversation-item.starred .title-star {
+    display: inline-flex;
+    margin-left: 4px;
+  }
+
+  /* Make bulk action buttons touch-friendly */
+  .bulk-cancel-btn,
+  .bulk-delete-btn {
+    min-height: 44px;
+    padding: 10px 16px;
+  }
+
+  /* Make filter/sort triggers touch-friendly */
+  .filter-select-trigger,
+  .sort-select-trigger {
+    min-height: 44px !important;
+    height: 44px !important;
+  }
+
+  /* Make search input touch-friendly */
+  .search-input {
+    min-height: 44px;
+    padding: 12px 32px 12px 34px;
+  }
+
+  /* Make load more button touch-friendly */
+  .load-more-btn {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+
+  /* Make group headers touch-friendly */
+  .group-header {
+    min-height: 44px;
+    padding: 10px 12px;
+    margin: 12px 8px 6px 8px;
+  }
+
+  .group-name {
+    font-size: 12px;
+  }
+
+  .group-count {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+
+  /* Firefox scrollbar support */
+  .conversation-list {
+    scrollbar-width: thin;
+    scrollbar-color: var(--sidebar-scrollbar-thumb) var(--sidebar-scrollbar-track);
+  }
+}
+
+/* =============================================================================
+   INFINITE SCROLL TRIGGER
+   ============================================================================= */
+
+.load-more-trigger {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+
+.load-more-spinner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--sidebar-text-muted);
+}
+
+/* Firefox scrollbar support (global) */
+.conversation-list {
+  scrollbar-width: thin;
+  scrollbar-color: var(--sidebar-scrollbar-thumb) var(--sidebar-scrollbar-track);
 }
 
 /* =============================================================================
@@ -1247,5 +1410,85 @@
   .sidebar {
     width: 240px !important;
     max-width: 240px !important;
+  }
+}
+
+/* =============================================================================
+   DRAG AND DROP
+   ============================================================================= */
+
+/* Drag handle - visible on hover, before the content */
+.drag-handle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 100%;
+  color: var(--sidebar-text-muted);
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  flex-shrink: 0;
+  margin-left: -4px;
+}
+
+.conversation-item:hover .drag-handle {
+  display: flex;
+  opacity: 0.5;
+}
+
+.conversation-item:hover .drag-handle:hover {
+  opacity: 1;
+  color: var(--sidebar-text-primary);
+}
+
+/* Dragging state - tilt effect with transparency for visual feedback */
+.conversation-item.dragging {
+  opacity: 0.7;
+  background: var(--sidebar-hover-bg);
+  cursor: grabbing;
+  transform: rotate(-2deg) scale(1.02);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+}
+
+.conversation-item.dragging .drag-handle {
+  display: flex;
+  opacity: 1;
+  cursor: grabbing;
+}
+
+/* Drop target - highlight the group when dragging over */
+.conversation-group.drop-target {
+  background: rgba(59, 130, 246, 0.08);
+  border-radius: var(--radius-md);
+  outline: 2px dashed rgba(59, 130, 246, 0.4);
+  outline-offset: -2px;
+}
+
+.conversation-group.drop-target .group-header {
+  background: rgba(59, 130, 246, 0.12);
+}
+
+/* Dark mode drop target */
+.dark .conversation-group.drop-target {
+  background: rgba(59, 130, 246, 0.15);
+  outline-color: rgba(59, 130, 246, 0.5);
+}
+
+.dark .conversation-group.drop-target .group-header {
+  background: rgba(59, 130, 246, 0.2);
+}
+
+/* Dark mode dragging - stronger shadow for visibility */
+.dark .conversation-item.dragging {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Hide drag handle on mobile (use long-press instead) */
+@media (max-width: 768px) {
+  .drag-handle {
+    display: none !important;
   }
 }

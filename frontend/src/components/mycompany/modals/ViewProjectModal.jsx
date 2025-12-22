@@ -14,6 +14,7 @@ import { AIWriteAssist } from '../../ui/AIWriteAssist';
 import { Bookmark, CheckCircle, Archive, RotateCcw, ExternalLink, Trash2, Sparkles, PenLine } from 'lucide-react';
 import { getDeptColor } from '../../../lib/colors';
 import { truncateText } from '../../../lib/utils';
+import { formatDateShort, formatDateCompact } from '../../../lib/dateUtils';
 
 /**
  * Simple alert modal for success/error messages within ViewProjectModal
@@ -501,12 +502,12 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
               <div className="mc-project-timestamps">
                 {project.created_at && (
                   <span className="mc-timestamp">
-                    {new Date(project.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    {formatDateShort(project.created_at)}
                   </span>
                 )}
                 {project.updated_at && project.updated_at !== project.created_at && (
                   <span className="mc-timestamp">
-                    Updated {new Date(project.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    Updated {formatDateCompact(project.updated_at)}
                   </span>
                 )}
               </div>
@@ -782,11 +783,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                                     </span>
                                   )}
                                   <span className="mc-timeline-date">
-                                    {new Date(decision.created_at).toLocaleDateString('en-US', {
-                                      month: 'short',
-                                      day: 'numeric',
-                                      year: 'numeric'
-                                    })}
+                                    {formatDateShort(decision.created_at)}
                                   </span>
                                   <svg
                                     className={`mc-timeline-chevron ${expandedDecisionId === decision.id ? 'expanded' : ''}`}

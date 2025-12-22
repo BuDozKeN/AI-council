@@ -34,6 +34,8 @@ var(--z-toast)          /* 1200 - Toast notifications */
 | `frontend/src/styles/tailwind.css` | CSS variable definitions (tokens) |
 | `frontend/src/lib/colors.js` | Department and playbook color utilities |
 | `frontend/src/components/ui/Spinner.jsx` | Unified loading spinner |
+| `frontend/src/components/ui/sonner.jsx` | Toast notifications |
+| `frontend/src/components/sidebar/` | Conversation sidebar components |
 
 ## Contributing
 

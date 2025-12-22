@@ -14,3 +14,4 @@ export { SidebarFooter } from './SidebarFooter';
 export { BulkActionBar } from './BulkActionBar';
 export { DeleteModal } from './DeleteModal';
 export { SidebarIconButton } from './SidebarIconButton';
+export { ConversationContextMenu, useContextMenu } from './ConversationContextMenu';

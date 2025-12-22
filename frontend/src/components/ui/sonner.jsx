@@ -1,16 +1,22 @@
 "use client";
-import { useTheme } from "next-themes"
-import { Toaster as Sonner } from "sonner"
+import { Toaster as Sonner, toast } from "sonner"
 
+/**
+ * Toast component using sonner library
+ * Provides notifications with optional undo actions
+ */
 const Toaster = ({
   ...props
 }) => {
-  const { theme = "system" } = useTheme()
+  // Detect theme from document class (dark mode support)
+  const isDark = typeof document !== 'undefined' &&
+    document.documentElement.classList.contains('dark');
 
   return (
     <Sonner
-      theme={theme}
+      theme={isDark ? 'dark' : 'light'}
       className="toaster group"
+      position="bottom-right"
       toastOptions={{
         classNames: {
           toast:
@@ -26,4 +32,4 @@ const Toaster = ({
   );
 }
 
-export { Toaster }
+export { Toaster, toast }

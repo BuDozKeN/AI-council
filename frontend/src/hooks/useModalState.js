@@ -122,6 +122,13 @@ function modalReducer(state, action) {
         scrollToResponseIndex: null,
       };
 
+    case 'SET_SCROLL_TO_STAGE3':
+      return {
+        ...state,
+        scrollToStage3: true,
+        scrollToResponseIndex: null,
+      };
+
     case 'CLEAR_RETURN_STATE':
       return {
         ...state,
@@ -177,6 +184,9 @@ export function useModalState() {
   const clearScrollState = useCallback(() =>
     dispatch({ type: 'CLEAR_SCROLL_STATE' }), []);
 
+  const setScrollToStage3 = useCallback(() =>
+    dispatch({ type: 'SET_SCROLL_TO_STAGE3' }), []);
+
   const clearReturnState = useCallback(() =>
     dispatch({ type: 'CLEAR_RETURN_STATE' }), []);
 
@@ -197,6 +207,7 @@ export function useModalState() {
     setMyCompanyPromoteDecision,
     navigateToConversation,
     clearScrollState,
+    setScrollToStage3,
     clearReturnState,
   };
 }

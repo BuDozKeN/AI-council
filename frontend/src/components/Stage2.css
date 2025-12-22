@@ -50,6 +50,7 @@
   background: linear-gradient(135deg, var(--color-amber-100) 0%, var(--color-amber-200) 100%);
   color: var(--color-amber-700);
   border-radius: 10px;
+  flex-shrink: 0;
 }
 
 .stage2-winner .winner-model-icon {
@@ -364,6 +365,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: nowrap;
 }
 
 .stage2 .stage-title.clickable {
@@ -773,6 +775,44 @@
     padding-top: 12px;
   }
 
+  /* Stage title - ensure single line on mobile */
+  .stage2 .stage-title {
+    gap: 6px;
+  }
+
+  /* Scale down the title icon slightly */
+  .stage2 .stage-title > svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  /* Hide conversation title topic on mobile to save space */
+  .stage2 .stage-topic {
+    display: none;
+  }
+
+  /* Collapse arrow - smaller */
+  .stage2 .collapse-arrow {
+    font-size: 10px;
+  }
+
+  /* Winner badge - more compact on mobile with smaller icons */
+  .stage2-winner {
+    padding: 3px 5px;
+    gap: 3px;
+    border-radius: 8px;
+  }
+
+  .stage2-winner svg {
+    width: 12px !important;
+    height: 12px !important;
+  }
+
+  .stage2-winner .winner-model-icon {
+    width: 14px;
+    height: 14px;
+  }
+
   /* Tabs - horizontal scroll with proper touch targets */
   .stage2 .tabs {
     display: flex;
@@ -956,6 +996,39 @@
 @media (max-width: 400px) {
   .stage2 {
     padding: 10px;
+  }
+
+  /* Ultra compact title for tiny screens - scale icons, keep full text */
+  .stage2 .stage-title {
+    gap: 4px;
+  }
+
+  /* Scale down the title icon */
+  .stage2 .stage-title > svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+
+  /* Collapse arrow smaller */
+  .stage2 .collapse-arrow {
+    font-size: 8px;
+  }
+
+  /* Winner badge - compact with smaller icons */
+  .stage2-winner {
+    padding: 2px 4px;
+    gap: 2px;
+    border-radius: 6px;
+  }
+
+  .stage2-winner svg {
+    width: 10px !important;
+    height: 10px !important;
+  }
+
+  .stage2-winner .winner-model-icon {
+    width: 12px;
+    height: 12px;
   }
 
   .stage2 .tab {

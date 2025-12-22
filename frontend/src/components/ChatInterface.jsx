@@ -153,7 +153,11 @@ export default function ChatInterface({
             }
           }
         } else {
-          targetElement = messagesContainerRef.current?.querySelector('.stage3');
+          // No specific index - scroll to the last (most recent) stage3
+          const allStage3Elements = messagesContainerRef.current?.querySelectorAll('.stage3');
+          if (allStage3Elements && allStage3Elements.length > 0) {
+            targetElement = allStage3Elements[allStage3Elements.length - 1];
+          }
         }
 
         if (targetElement) {

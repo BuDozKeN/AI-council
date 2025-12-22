@@ -102,7 +102,15 @@ export function useSwipeGesture({
 
 /**
  * Global swipe hook - attaches to document/body for app-wide gestures
- * Used for edge swipes to open sidebar
+ * Used for edge swipes to open sidebar and anywhere swipes to close
+ *
+ * @param {Object} options - Configuration options
+ * @param {Function} options.onSwipeRight - Callback for swipe right (requires left edge)
+ * @param {Function} options.onSwipeLeft - Callback for swipe left (anywhere, not just edge)
+ * @param {number} options.edgeWidth - Width of edge zone for opening (default: 30)
+ * @param {number} options.threshold - Minimum swipe distance (default: 80)
+ * @param {boolean} options.enabled - Whether the hook is active (default: true)
+ * @param {boolean} options.requireEdgeForClose - Require right edge for close (default: false)
  */
 export function useGlobalSwipe({
   onSwipeRight,
@@ -110,6 +118,7 @@ export function useGlobalSwipe({
   edgeWidth = 30,
   threshold = 80,
   enabled = true,
+  requireEdgeForClose = false,
 } = {}) {
   const touchStartRef = useRef(null);
 
@@ -152,9 +161,11 @@ export function useGlobalSwipe({
         if (deltaX > 0 && isFromLeftEdge) {
           // Swipe right from left edge - open sidebar
           onSwipeRight?.();
-        } else if (deltaX < 0 && isFromRightEdge) {
-          // Swipe left from right edge
-          onSwipeLeft?.();
+        } else if (deltaX < 0) {
+          // Swipe left - close sidebar (from anywhere or edge only based on config)
+          if (!requireEdgeForClose || isFromRightEdge) {
+            onSwipeLeft?.();
+          }
         }
       }
 
@@ -169,7 +180,7 @@ export function useGlobalSwipe({
       document.removeEventListener('touchstart', handleTouchStart);
       document.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [enabled, edgeWidth, threshold, onSwipeRight, onSwipeLeft]);
+  }, [enabled, edgeWidth, threshold, onSwipeRight, onSwipeLeft, requireEdgeForClose]);
 }
 
 export default useSwipeGesture;

@@ -2,19 +2,26 @@
  * SearchBar - Search input for conversations
  *
  * Extracted from Sidebar.jsx for better maintainability.
+ * Supports Cmd+K global shortcut via external ref.
  */
 
-import { useRef } from 'react';
+import { useRef, forwardRef, useImperativeHandle } from 'react';
 import { Spinner } from '../ui/Spinner';
 
-export function SearchBar({
+export const SearchBar = forwardRef(function SearchBar({
   searchQuery,
   onSearchChange,
   onClear,
   isSearching,
   resultCount
-}) {
-  const searchInputRef = useRef(null);
+}, ref) {
+  const inputRef = useRef(null);
+
+  // Expose focus method to parent
+  useImperativeHandle(ref, () => ({
+    focus: () => inputRef.current?.focus(),
+    blur: () => inputRef.current?.blur(),
+  }));
 
   return (
     <div className="sidebar-search">
@@ -24,9 +31,11 @@ export function SearchBar({
           <path d="M21 21l-4.35-4.35" />
         </svg>
         <input
-          ref={searchInputRef}
+          ref={inputRef}
           type="text"
-          placeholder="Search conversations..."
+          placeholder="Search conversations... (⌘K)"
+          aria-label="Search conversations"
+          aria-describedby={searchQuery ? "search-results-count" : undefined}
           value={searchQuery}
           onChange={onSearchChange}
           onKeyDown={(e) => {
@@ -42,18 +51,24 @@ export function SearchBar({
             className="search-clear"
             onClick={() => {
               onClear();
-              searchInputRef.current?.focus();
+              inputRef.current?.focus();
             }}
+            aria-label="Clear search"
           >
             ×
           </button>
         )}
       </div>
       {searchQuery && (
-        <div className="search-results-count">
+        <div
+          id="search-results-count"
+          className="search-results-count"
+          role="status"
+          aria-live="polite"
+        >
           {resultCount} result{resultCount !== 1 ? 's' : ''}
         </div>
       )}
     </div>
   );
-}
+});

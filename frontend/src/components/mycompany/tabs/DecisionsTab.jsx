@@ -13,6 +13,7 @@ import { useMemo } from 'react';
 import { CheckCircle } from 'lucide-react';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { getDeptColor } from '../../../lib/colors';
+import { formatDateCompact } from '../../../lib/dateUtils';
 
 // Helper to get a clean, short title from decision
 function getDecisionDisplayTitle(decision) {
@@ -207,10 +208,7 @@ export function DecisionsTab({
                 {/* Right side: Date (fades on hover) + Actions (appear on hover) */}
                 <div className="mc-elegant-right">
                   <span className="mc-elegant-date">
-                    {new Date(decision.created_at).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric'
-                    })}
+                    {formatDateCompact(decision.created_at)}
                   </span>
                   <div className="mc-elegant-actions">
                     {decision.source_conversation_id && !decision.source_conversation_id.startsWith('temp-') && onNavigateToConversation && (

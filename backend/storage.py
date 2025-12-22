@@ -276,8 +276,13 @@ def list_conversations(
         query = query.ilike('title', f'%{escaped_search}%')
 
     # Order: starred first (descending so True comes first), then by updated_at (recent first)
-    # We fetch limit + 20 to allow for filtering out empty conversations and sorting
-    query = query.order('is_starred', desc=True).order('updated_at', desc=True).range(offset, offset + limit + 20)
+    # Note: For "activity" sort, we still need to re-sort non-starred by message count in Python
+    # since Supabase can't sort by aggregated count in the same query
+    query = query.order('is_starred', desc=True).order('updated_at', desc=True)
+
+    # Fetch limit + 1 to check if there are more (minimal over-fetch)
+    # We add a small buffer (+5) to account for potential 0-message conversations being filtered
+    query = query.range(offset, offset + limit + 5)
 
     result = query.execute()
 
@@ -302,22 +307,18 @@ def list_conversations(
             "department": conv.get('department', 'standard')
         })
 
-    # Separate starred and non-starred
-    starred = [c for c in conversations if c['is_starred']]
-    non_starred = [c for c in conversations if not c['is_starred']]
-
-    # Sort starred always by date (most recent first)
-    starred.sort(key=lambda c: c['last_updated'], reverse=True)
-
-    # Sort non-starred based on sort_by preference
+    # Only re-sort if using "activity" sort mode (by message count)
+    # For "date" mode, the DB ordering is already correct
     if sort_by == "activity":
-        # Sort by message count (most messages first), then by date
-        non_starred.sort(key=lambda c: (c['message_count'], c['last_updated']), reverse=True)
-    else:
-        # Default: sort by date (most recent first)
-        non_starred.sort(key=lambda c: c['last_updated'], reverse=True)
+        # Separate starred and non-starred
+        starred = [c for c in conversations if c['is_starred']]
+        non_starred = [c for c in conversations if not c['is_starred']]
 
-    conversations = starred + non_starred
+        # Starred stay sorted by date (already correct from DB)
+        # Non-starred sort by message count (most messages first), then by date
+        non_starred.sort(key=lambda c: (c['message_count'], c['last_updated']), reverse=True)
+
+        conversations = starred + non_starred
 
     # Check if there are more conversations
     has_more = len(conversations) > limit

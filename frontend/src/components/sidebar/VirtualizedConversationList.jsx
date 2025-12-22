@@ -3,9 +3,12 @@
  *
  * Uses react-window for virtualization to only render visible items.
  * Handles both group headers and conversation items in a flat list.
+ * Features:
+ * - ARIA roles for accessibility
+ * - Keyboard navigation support via focusedConversationId
  */
 
-import { memo, useMemo, useCallback } from 'react';
+import { memo, useMemo } from 'react';
 import { List } from 'react-window';
 import { ConversationItem } from './ConversationItem';
 
@@ -52,18 +55,30 @@ function flattenGroups(filteredGroups, expandedGroups, groupedConversations) {
 }
 
 /**
- * Memoized group header component
+ * Memoized group header component with ARIA support
  */
 const GroupHeader = memo(function GroupHeader({ groupId, groupName, count, isExpanded, onToggle, style }) {
+  const regionId = `group-${groupId}`;
+
   return (
     <div
       className="group-header"
+      role="button"
+      tabIndex={0}
+      aria-expanded={isExpanded}
+      aria-controls={regionId}
       onClick={() => onToggle(groupId)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onToggle(groupId);
+        }
+      }}
       style={style}
     >
-      <span className={`chevron ${isExpanded ? 'expanded' : ''}`}>›</span>
+      <span className={`chevron ${isExpanded ? 'expanded' : ''}`} aria-hidden="true">›</span>
       <span className="group-name">{groupName}</span>
-      <span className="group-count">{count}</span>
+      <span className="group-count" aria-label={`${count} conversations`}>{count}</span>
     </div>
   );
 });
@@ -75,6 +90,7 @@ const Row = memo(function Row({ index, style, data }) {
   const {
     items,
     currentConversationId,
+    focusedConversationId,
     selectedIds,
     editingId,
     editingTitle,
@@ -88,6 +104,7 @@ const Row = memo(function Row({ index, style, data }) {
     onArchiveConversation,
     onDeleteConversation,
     onToggleGroup,
+    onContextMenu,
   } = data;
 
   const item = items[index];
@@ -112,6 +129,7 @@ const Row = memo(function Row({ index, style, data }) {
       <ConversationItem
         conversation={conv}
         isActive={conv.id === currentConversationId}
+        isFocused={conv.id === focusedConversationId}
         isSelected={selectedIds.has(conv.id)}
         isEditing={editingId === conv.id}
         editingTitle={editingTitle}
@@ -124,6 +142,7 @@ const Row = memo(function Row({ index, style, data }) {
         onStar={onStarConversation}
         onArchive={onArchiveConversation}
         onDelete={onDeleteConversation}
+        onContextMenu={onContextMenu}
       />
     </div>
   );
@@ -145,6 +164,7 @@ export function VirtualizedConversationList({
   expandedGroups,
   groupedConversations,
   currentConversationId,
+  focusedConversationId,
   selectedIds,
   editingId,
   editingTitle,
@@ -158,6 +178,7 @@ export function VirtualizedConversationList({
   onArchiveConversation,
   onDeleteConversation,
   onToggleGroup,
+  onContextMenu,
   height = 400,
   width = '100%',
 }) {
@@ -174,6 +195,7 @@ export function VirtualizedConversationList({
   const itemData = useMemo(() => ({
     items,
     currentConversationId,
+    focusedConversationId,
     selectedIds,
     editingId,
     editingTitle,
@@ -187,9 +209,11 @@ export function VirtualizedConversationList({
     onArchiveConversation,
     onDeleteConversation,
     onToggleGroup,
+    onContextMenu,
   }), [
     items,
     currentConversationId,
+    focusedConversationId,
     selectedIds,
     editingId,
     editingTitle,
@@ -203,6 +227,7 @@ export function VirtualizedConversationList({
     onArchiveConversation,
     onDeleteConversation,
     onToggleGroup,
+    onContextMenu,
   ]);
 
   // For small lists, render without virtualization
