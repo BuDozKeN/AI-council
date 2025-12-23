@@ -42,7 +42,22 @@
   flex: 1;
 }
 
-/* Selected playbook badges container */
+/* Single playbook - show title */
+.multi-playbook-single {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Multiple playbooks - show count */
+.multi-playbook-count {
+  flex: 1;
+  color: var(--color-gray-600);
+}
+
+/* Selected playbook badges container (legacy) */
 .multi-playbook-badges {
   display: flex;
   flex-wrap: wrap;
@@ -180,10 +195,10 @@
 /* Individual item */
 .multi-playbook-item {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
   width: 100%;
-  padding: 10px 12px;
+  padding: 8px 12px;
   border: none;
   background: transparent;
   border-radius: var(--radius-md);
@@ -209,7 +224,6 @@
   justify-content: center;
   width: 18px;
   height: 18px;
-  margin-top: 2px;
   border: 2px solid var(--color-gray-300);
   border-radius: var(--radius-sm);
   background: var(--color-bg-primary);
@@ -223,31 +237,14 @@
   color: var(--color-text-inverse);
 }
 
-/* Item info container */
-.multi-playbook-item-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
 /* Item label */
 .multi-playbook-item-label {
   font-weight: 500;
+  flex: 1;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-/* Item description */
-.multi-playbook-item-desc {
-  font-size: 12px;
-  color: var(--color-gray-500);
-  line-height: 1.3;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
 }
 
 /* =============================================================================
@@ -293,11 +290,11 @@
 /* Mobile item - larger touch targets */
 .multi-playbook-item-mobile {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 14px;
   width: 100%;
-  min-height: 56px;
-  padding: 14px 16px;
+  min-height: 48px;
+  padding: 12px 16px;
   border: none;
   background: var(--color-bg-secondary);
   border-radius: 12px;
@@ -320,22 +317,12 @@
 .multi-playbook-item-mobile .multi-playbook-checkbox {
   width: 22px;
   height: 22px;
-  margin-top: 2px;
   border-radius: 6px;
-}
-
-.multi-playbook-item-mobile .multi-playbook-item-info {
-  gap: 4px;
 }
 
 .multi-playbook-item-mobile .multi-playbook-item-label {
   font-size: 16px;
   font-weight: 500;
-}
-
-.multi-playbook-item-mobile .multi-playbook-item-desc {
-  font-size: 14px;
-  -webkit-line-clamp: 3;
 }
 
 /* Mobile trigger improvements */

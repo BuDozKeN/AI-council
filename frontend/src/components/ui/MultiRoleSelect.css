@@ -42,7 +42,22 @@
   flex: 1;
 }
 
-/* Selected role badges container */
+/* Single role - show name */
+.multi-role-single {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Multiple roles - show count */
+.multi-role-count {
+  flex: 1;
+  color: var(--color-gray-600);
+}
+
+/* Selected role badges container (legacy - kept for desktop if needed) */
 .multi-role-badges {
   display: flex;
   flex-wrap: wrap;
