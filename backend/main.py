@@ -50,6 +50,7 @@ limiter = Limiter(key_func=get_user_identifier)
 # =============================================================================
 # Prevent path traversal and injection attacks by validating IDs
 SAFE_ID_PATTERN = re.compile(r'^[a-zA-Z0-9_-]+$')
+UUID_PATTERN = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', re.IGNORECASE)
 
 def validate_safe_id(value: str, field_name: str = "id") -> str:
     """
@@ -62,6 +63,34 @@ def validate_safe_id(value: str, field_name: str = "id") -> str:
             detail=f"Invalid {field_name}: must contain only letters, numbers, underscores, and hyphens"
         )
     return value
+
+
+def validate_uuid(value: str, field_name: str = "id") -> str:
+    """
+    Validate that a value is a properly formatted UUID.
+    SECURITY: Prevents SQL injection and NoSQL injection via malformed IDs.
+    """
+    if not value or not UUID_PATTERN.match(value):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid {field_name}: must be a valid UUID"
+        )
+    return value
+
+
+# FastAPI dependency for UUID path parameters
+def ValidUUID(field_name: str = "id"):
+    """
+    Create a FastAPI dependency for validating UUID path parameters.
+
+    Usage:
+        @app.get("/api/items/{item_id}")
+        async def get_item(item_id: str = Depends(ValidUUID("item_id"))):
+            ...
+    """
+    def validator(value: str) -> str:
+        return validate_uuid(value, field_name)
+    return validator
 
 try:
     from . import storage
@@ -276,10 +305,24 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 async def general_exception_handler(request: Request, exc: Exception):
     from fastapi.responses import JSONResponse
     import traceback
+    import hashlib
 
-    # Log the full error for debugging
-    print(f"[ERROR] Unhandled exception: {type(exc).__name__}: {exc}", flush=True)
-    traceback.print_exc()
+    # Generate a reference ID for this error (for support tickets)
+    error_ref = hashlib.sha256(
+        f"{datetime.utcnow().isoformat()}{type(exc).__name__}{str(exc)}".encode()
+    ).hexdigest()[:8].upper()
+
+    # Log the full error for debugging (server-side only)
+    # SECURITY: Full traceback only goes to logs, never to client
+    print(f"[ERROR] ref={error_ref} Unhandled exception: {type(exc).__name__}: {exc}", flush=True)
+
+    # Only print full traceback in development
+    environment = os.getenv("ENVIRONMENT", "development")
+    if environment != "production":
+        traceback.print_exc()
+    else:
+        # In production, log just enough to debug without exposing internals
+        print(f"[ERROR] ref={error_ref} path={request.url.path} method={request.method}", flush=True)
 
     origin = request.headers.get("origin", "")
     headers = {}
@@ -288,9 +331,11 @@ async def general_exception_handler(request: Request, exc: Exception):
             "Access-Control-Allow-Origin": origin,
             "Access-Control-Allow-Credentials": "true",
         }
+
+    # Return generic error with reference ID (no internal details)
     return JSONResponse(
         status_code=500,
-        content={"detail": "Internal server error"},
+        content={"detail": f"An error occurred. Reference: {error_ref}"},
         headers=headers
     )
 
@@ -1574,6 +1619,7 @@ async def create_project(
 @app.get("/api/projects/{project_id}")
 async def get_project(project_id: str, user: dict = Depends(get_current_user)):
     """Get a single project."""
+    validate_uuid(project_id, "project_id")  # SECURITY: Validate UUID format
     access_token = user.get("access_token")
     project = storage.get_project(project_id, access_token)
 
@@ -1590,6 +1636,7 @@ async def update_project(
     user: dict = Depends(get_current_user)
 ):
     """Update a project's name, description, context, or status."""
+    validate_uuid(project_id, "project_id")  # SECURITY: Validate UUID format
     access_token = user.get("access_token")
 
     try:
@@ -1629,6 +1676,7 @@ async def touch_project(project_id: str, user: dict = Depends(get_current_user))
 @app.delete("/api/projects/{project_id}")
 async def delete_project(project_id: str, user: dict = Depends(get_current_user)):
     """Delete a project permanently."""
+    validate_uuid(project_id, "project_id")  # SECURITY: Validate UUID format
     access_token = user.get("access_token")
     try:
         deleted_project = storage.delete_project(project_id, access_token)
@@ -1975,6 +2023,7 @@ async def get_attachment(
     user: dict = Depends(get_current_user),
 ):
     """Get attachment metadata and a fresh signed URL."""
+    validate_uuid(attachment_id, "attachment_id")  # SECURITY: Validate UUID format
     try:
         result = await attachments.get_attachment_data(
             user_id=user["id"],
@@ -2000,6 +2049,7 @@ async def get_attachment_url(
     user: dict = Depends(get_current_user),
 ):
     """Get a fresh signed URL for an attachment."""
+    validate_uuid(attachment_id, "attachment_id")  # SECURITY: Validate UUID format
     try:
         url = await attachments.get_attachment_url(
             user_id=user["id"],
@@ -2025,6 +2075,7 @@ async def delete_attachment(
     user: dict = Depends(get_current_user),
 ):
     """Delete an attachment."""
+    validate_uuid(attachment_id, "attachment_id")  # SECURITY: Validate UUID format
     try:
         success = await attachments.delete_attachment(
             user_id=user["id"],
@@ -2450,6 +2501,7 @@ async def update_knowledge_entry(
     user: dict = Depends(get_current_user)
 ):
     """Update a knowledge entry."""
+    validate_uuid(entry_id, "entry_id")  # SECURITY: Validate UUID format
     try:
         result = knowledge.update_knowledge_entry(
             entry_id=entry_id,
@@ -2471,6 +2523,7 @@ async def delete_knowledge_entry(
     user: dict = Depends(get_current_user)
 ):
     """Soft delete a knowledge entry."""
+    validate_uuid(entry_id, "entry_id")  # SECURITY: Validate UUID format
     try:
         success = knowledge.deactivate_knowledge_entry(
             entry_id=entry_id,
@@ -2980,6 +3033,7 @@ async def merge_decision_into_project(
     Uses the 'sarah' persona from the database for consistent documentation style.
     Does NOT replace - it merges and updates.
     """
+    validate_uuid(project_id, "project_id")  # SECURITY: Validate UUID format
     from .openrouter import query_model, MOCK_LLM
     from .personas import get_db_persona_with_fallback
 
@@ -3087,7 +3141,8 @@ Remember: The context_md should be a complete, standalone document. Respond only
                     content = json_match.group(1).strip()
                 else:
                     # No code block - try to find JSON object directly
-                    json_obj_match = re.search(r'\{[\s\S]*\}', content)
+                    # SECURITY: Use lazy quantifier to prevent ReDoS on malformed input
+                    json_obj_match = re.search(r'\{[\s\S]*?\}', content)
                     if json_obj_match:
                         content = json_obj_match.group(0)
                     else:
@@ -3262,6 +3317,7 @@ async def regenerate_project_context(
     - Previous merges failed and appended garbage
     - User wants a fresh synthesis of all decisions
     """
+    validate_uuid(project_id, "project_id")  # SECURITY: Validate UUID format
     from .openrouter import query_model, MOCK_LLM
     from .database import get_supabase_service
     from .personas import get_db_persona_with_fallback
@@ -3483,6 +3539,7 @@ async def get_project_report(
     Returns structured data that can be rendered as HTML/PDF.
     Client-friendly - no mention of AI Council or internal tooling.
     """
+    validate_uuid(project_id, "project_id")  # SECURITY: Validate UUID format
     try:
         access_token = user.get("access_token")
 
