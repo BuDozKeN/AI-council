@@ -298,17 +298,40 @@ def check_can_query(user_id: str, access_token: Optional[str] = None) -> Dict[st
 
 def increment_query_usage(user_id: str, access_token: Optional[str] = None) -> int:
     """
-    Increment the query usage counter for a user.
+    Increment the query usage counter for a user using atomic database operation.
     Returns the new count.
+
+    SECURITY: Uses PostgreSQL function for atomic increment to prevent race
+    conditions where concurrent requests could bypass query limits.
 
     Args:
         user_id: Supabase user ID
         access_token: User's JWT access token for RLS authentication
     """
-    supabase = _get_client(access_token)
+    # Use service client for RPC call (function handles its own security)
+    supabase = get_supabase_service()
+    if not supabase:
+        log_billing_event("Increment failed: service client unavailable", user_id=user_id, status="error")
+        return 0
 
-    # Get current count
-    result = supabase.table('user_profiles').select('queries_used_this_period').eq('user_id', user_id).execute()
+    try:
+        # Call atomic increment function in database
+        # This is a single atomic operation that cannot race
+        result = supabase.rpc('increment_query_usage', {'p_user_id': user_id}).execute()
+
+        if result.data is not None:
+            return result.data
+
+        # Fallback if function doesn't exist yet (migration not applied)
+        log_billing_event("Atomic increment unavailable, using fallback", user_id=user_id, status="warning")
+    except Exception as e:
+        # Function might not exist yet, fall back to non-atomic version
+        log_billing_event(f"Atomic increment failed: {type(e).__name__}", user_id=user_id, status="warning")
+
+    # Fallback: non-atomic increment (only used if migration not applied)
+    # This maintains backwards compatibility during deployment
+    supabase_client = _get_client(access_token)
+    result = supabase_client.table('user_profiles').select('queries_used_this_period').eq('user_id', user_id).execute()
 
     current = 0
     if result.data:
@@ -316,8 +339,7 @@ def increment_query_usage(user_id: str, access_token: Optional[str] = None) -> i
 
     new_count = current + 1
 
-    # Upsert profile with incremented count
-    supabase.table('user_profiles').upsert({
+    supabase_client.table('user_profiles').upsert({
         'user_id': user_id,
         'queries_used_this_period': new_count,
         'updated_at': datetime.utcnow().isoformat() + 'Z'

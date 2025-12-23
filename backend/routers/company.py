@@ -2586,6 +2586,11 @@ async def delete_decision(company_id: ValidCompanyId, decision_id: ValidDecision
         related_type="decision"
     )
 
+    # SECURITY: Log decision deletion for audit trail
+    current_user_id = user.get('id') if isinstance(user, dict) else user.id
+    log_app_event("DECISION_DELETED", "Decision permanently deleted",
+                  user_id=current_user_id, resource_id=decision_id)
+
     return {"success": True, "message": f"Decision '{decision_title}' deleted"}
 
 
@@ -3056,6 +3061,9 @@ async def add_company_member(company_id: ValidCompanyId, data: MemberInvite, use
         .execute()
 
     if not my_membership.data or my_membership.data["role"] not in ["owner", "admin"]:
+        log_security_event("ACCESS_DENIED", user_id=current_user_id,
+                          resource_type="company_members", resource_id=company_uuid,
+                          details={"action": "add_member"}, severity="WARNING")
         raise HTTPException(status_code=403, detail="Only owners and admins can add members")
 
     # Validate role
@@ -3102,6 +3110,11 @@ async def add_company_member(company_id: ValidCompanyId, data: MemberInvite, use
         title=f"Added new {data.role}",
         description=f"Added user as {data.role}"
     )
+
+    # SECURITY: Log member addition for audit trail
+    log_app_event("MEMBER_ADDED", "New member added to company",
+                  user_id=current_user_id, resource_id=company_uuid,
+                  role=data.role)
 
     return {"member": result.data[0], "message": f"Member added successfully as {data.role}"}
 
@@ -3209,6 +3222,9 @@ async def remove_company_member(company_id: ValidCompanyId, member_id: str, user
         .execute()
 
     if not my_membership.data or my_membership.data["role"] not in ["owner", "admin"]:
+        log_security_event("ACCESS_DENIED", user_id=current_user_id,
+                          resource_type="company_members", resource_id=company_uuid,
+                          details={"action": "remove_member"}, severity="WARNING")
         raise HTTPException(status_code=403, detail="Only owners and admins can remove members")
 
     my_role = my_membership.data["role"]
@@ -3249,6 +3265,11 @@ async def remove_company_member(company_id: ValidCompanyId, member_id: str, user
         title=f"Removed {target_role}",
         description=f"Member with role {target_role} was removed"
     )
+
+    # SECURITY: Log member removal for audit trail
+    log_app_event("MEMBER_REMOVED", "Member removed from company",
+                  user_id=current_user_id, resource_id=company_uuid,
+                  target_role=target_role)
 
     return {"message": "Member removed successfully"}
 
