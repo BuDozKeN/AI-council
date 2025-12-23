@@ -5,7 +5,11 @@
 import { logger } from './utils/logger';
 
 const log = logger.scope('API');
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+// In development, use relative URLs so Vite's proxy handles CORS
+// In production, use the full URL from environment
+const API_BASE = import.meta.env.PROD
+  ? (import.meta.env.VITE_API_URL || 'http://localhost:8000')
+  : '';
 
 // Token getter function - set by the app to provide auth tokens
 let getAccessToken = null;

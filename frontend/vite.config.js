@@ -13,6 +13,24 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: false, // Will use next available if 5173 is taken
+    proxy: {
+      // Proxy API requests to backend - bypasses CORS in development
+      '/api': {
+        target: 'http://localhost:8001',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy, options) => {
+          proxy.on('proxyReq', (proxyReq, req, res) => {
+            // Log proxy requests for debugging
+            console.log('[Proxy]', req.method, req.url, '-> Authorization:', req.headers.authorization ? 'present' : 'missing');
+          });
+        },
+      },
+      '/health': {
+        target: 'http://localhost:8001',
+        changeOrigin: true,
+      },
+    },
   },
   build: {
     // Optimize chunk sizes for better caching and load performance
