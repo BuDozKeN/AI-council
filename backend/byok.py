@@ -44,7 +44,8 @@ async def get_user_api_key(user_id: str) -> Optional[str]:
         if not result.data.get("is_active", True):
             return None
 
-        return decrypt_api_key(result.data["encrypted_key"])
+        # SECURITY: Use per-user derived key for decryption
+        return decrypt_api_key(result.data["encrypted_key"], user_id=user_id)
 
     except Exception as e:
         print(f"[BYOK] Error fetching key for user {user_id}: {e}")

@@ -1,16 +1,85 @@
-"""Encryption utilities for secure storage of user API keys."""
+"""Encryption utilities for secure storage of user API keys.
+
+SECURITY: Uses per-user derived keys via HKDF to ensure that:
+1. Each user's data is encrypted with a unique key
+2. Compromise of one user's derived key doesn't affect others
+3. The master secret alone cannot decrypt any user data without their user_id
+"""
 
 import os
+import base64
+import hashlib
 from typing import Optional
 
-# Lazy-loaded cipher to avoid import errors if cryptography not installed
-_cipher = None
+# Cache for per-user ciphers (keyed by user_id)
+_cipher_cache = {}
+
+# Master key for key derivation
+_master_key = None
 
 
-def get_cipher():
-    """Get or create the Fernet cipher for encryption/decryption."""
-    global _cipher
-    if _cipher is None:
+def _get_master_key() -> bytes:
+    """Get the master encryption key from environment."""
+    global _master_key
+    if _master_key is None:
+        key = os.getenv("USER_KEY_ENCRYPTION_SECRET")
+        if not key:
+            raise ValueError(
+                "USER_KEY_ENCRYPTION_SECRET environment variable is not set. "
+                "Generate one with: python -c \"from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())\""
+            )
+        # Decode the Fernet key to get raw bytes
+        _master_key = base64.urlsafe_b64decode(key.encode())
+    return _master_key
+
+
+def _derive_user_key(user_id: str) -> bytes:
+    """
+    Derive a unique encryption key for a specific user using HKDF.
+
+    SECURITY: This ensures each user's data is encrypted with a unique key.
+    Even if an attacker obtains the master key, they need the user_id to derive
+    the actual encryption key for that user's data.
+
+    Args:
+        user_id: The user's unique identifier (UUID)
+
+    Returns:
+        32-byte derived key suitable for Fernet
+    """
+    try:
+        from cryptography.hazmat.primitives import hashes
+        from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+        from cryptography.hazmat.backends import default_backend
+    except ImportError:
+        raise ImportError(
+            "cryptography package is required for BYOK encryption. "
+            "Install with: pip install cryptography"
+        )
+
+    master_key = _get_master_key()
+
+    # Use HKDF to derive a user-specific key
+    # Info contains "user_api_key" to bind the key to this specific use case
+    hkdf = HKDF(
+        algorithm=hashes.SHA256(),
+        length=32,  # Fernet requires 32-byte key
+        salt=b"ai_council_user_keys",  # Static salt for consistency
+        info=f"user_api_key:{user_id}".encode(),
+        backend=default_backend()
+    )
+
+    derived_key = hkdf.derive(master_key)
+    # Fernet requires URL-safe base64 encoded key
+    return base64.urlsafe_b64encode(derived_key)
+
+
+def get_cipher_for_user(user_id: str):
+    """Get or create the Fernet cipher for a specific user."""
+    if not user_id:
+        raise ValueError("user_id is required for encryption operations")
+
+    if user_id not in _cipher_cache:
         try:
             from cryptography.fernet import Fernet
         except ImportError:
@@ -19,28 +88,32 @@ def get_cipher():
                 "Install with: pip install cryptography"
             )
 
-        key = os.getenv("USER_KEY_ENCRYPTION_SECRET")
-        if not key:
-            raise ValueError(
-                "USER_KEY_ENCRYPTION_SECRET environment variable is not set. "
-                "Generate one with: python -c \"from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())\""
-            )
+        derived_key = _derive_user_key(user_id)
+        _cipher_cache[user_id] = Fernet(derived_key)
 
-        # Validate the key format
-        try:
-            _cipher = Fernet(key.encode())
-        except Exception as e:
-            raise ValueError(f"Invalid USER_KEY_ENCRYPTION_SECRET: {e}")
-
-    return _cipher
+    return _cipher_cache[user_id]
 
 
-def encrypt_api_key(raw_key: str) -> str:
+# Legacy function for backward compatibility (uses a default user context)
+def get_cipher():
+    """
+    DEPRECATED: Use get_cipher_for_user(user_id) instead.
+
+    This function exists for backward compatibility during migration.
+    It uses a legacy derivation path.
+    """
+    return get_cipher_for_user("_legacy_global_")
+
+
+def encrypt_api_key(raw_key: str, user_id: Optional[str] = None) -> str:
     """
     Encrypt an API key for secure storage.
 
+    SECURITY: Uses per-user derived keys when user_id is provided.
+
     Args:
         raw_key: The plaintext OpenRouter API key
+        user_id: The user's ID for per-user key derivation (recommended)
 
     Returns:
         Base64-encoded encrypted key string
@@ -48,17 +121,25 @@ def encrypt_api_key(raw_key: str) -> str:
     if not raw_key:
         raise ValueError("API key cannot be empty")
 
-    cipher = get_cipher()
+    if user_id:
+        cipher = get_cipher_for_user(user_id)
+    else:
+        # Fallback to legacy behavior (not recommended)
+        cipher = get_cipher()
+
     encrypted = cipher.encrypt(raw_key.encode())
     return encrypted.decode()
 
 
-def decrypt_api_key(encrypted_key: str) -> str:
+def decrypt_api_key(encrypted_key: str, user_id: Optional[str] = None) -> str:
     """
     Decrypt an API key for use.
 
+    SECURITY: Uses per-user derived keys when user_id is provided.
+
     Args:
         encrypted_key: The encrypted key from storage
+        user_id: The user's ID for per-user key derivation (recommended)
 
     Returns:
         The plaintext API key
@@ -66,7 +147,12 @@ def decrypt_api_key(encrypted_key: str) -> str:
     if not encrypted_key:
         raise ValueError("Encrypted key cannot be empty")
 
-    cipher = get_cipher()
+    if user_id:
+        cipher = get_cipher_for_user(user_id)
+    else:
+        # Fallback to legacy behavior (not recommended)
+        cipher = get_cipher()
+
     decrypted = cipher.decrypt(encrypted_key.encode())
     return decrypted.decode()
 

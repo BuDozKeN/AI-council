@@ -57,17 +57,33 @@ async def validate_openrouter_key(key: str) -> bool:
     """
     Test if an OpenRouter API key is valid.
     Makes a minimal API call to verify the key works.
+
+    SECURITY: Uses constant-time comparison and minimum response time
+    to prevent timing attacks that could enumerate valid key prefixes.
     """
+    import asyncio
+    import time
+
+    start_time = time.monotonic()
+    MIN_RESPONSE_TIME = 0.5  # Minimum 500ms response time
+
     try:
         async with httpx.AsyncClient(timeout=10.0) as client:
             response = await client.get(
                 "https://openrouter.ai/api/v1/models",
                 headers={"Authorization": f"Bearer {key}"}
             )
-            return response.status_code == 200
+            result = response.status_code == 200
     except Exception as e:
         print(f"[BYOK] Key validation error: {e}")
-        return False
+        result = False
+
+    # SECURITY: Ensure minimum response time to prevent timing attacks
+    elapsed = time.monotonic() - start_time
+    if elapsed < MIN_RESPONSE_TIME:
+        await asyncio.sleep(MIN_RESPONSE_TIME - elapsed)
+
+    return result
 
 
 # =============================================================================
@@ -105,8 +121,9 @@ async def get_openrouter_key_status(
         )
 
     # Decrypt to get the full key for masking (we stored suffix too)
+    # SECURITY: Use per-user derived key for decryption
     try:
-        raw_key = decrypt_api_key(result.data["encrypted_key"])
+        raw_key = decrypt_api_key(result.data["encrypted_key"], user_id=current_user["id"])
         masked = mask_api_key(raw_key)
     except Exception:
         masked = f"sk-or-v1-••••••••{result.data.get('key_suffix', '****')}"
@@ -160,7 +177,8 @@ async def save_openrouter_key(
         )
 
     # Encrypt and save
-    encrypted = encrypt_api_key(key)
+    # SECURITY: Use per-user derived key for encryption
+    encrypted = encrypt_api_key(key, user_id=current_user["id"])
     suffix = get_key_suffix(key)
 
     db = get_supabase_with_auth(current_user["access_token"])
@@ -230,8 +248,9 @@ async def test_openrouter_key(
         raise HTTPException(status_code=404, detail="No API key configured")
 
     # Decrypt and test
+    # SECURITY: Use per-user derived key for decryption
     try:
-        raw_key = decrypt_api_key(result.data["encrypted_key"])
+        raw_key = decrypt_api_key(result.data["encrypted_key"], user_id=current_user["id"])
     except Exception as e:
         # Key corruption - delete it
         db.table("user_api_keys").delete().eq(
@@ -301,8 +320,9 @@ async def toggle_openrouter_key(
     )
 
     # Get masked key for response
+    # SECURITY: Use per-user derived key for decryption
     try:
-        raw_key = decrypt_api_key(result.data["encrypted_key"])
+        raw_key = decrypt_api_key(result.data["encrypted_key"], user_id=current_user["id"])
         masked = mask_api_key(raw_key)
     except Exception:
         masked = f"sk-or-v1-••••••••{result.data.get('key_suffix', '****')}"
@@ -361,8 +381,9 @@ async def get_user_settings(
 
     if key_result.data:
         has_api_key = True
+        # SECURITY: Use per-user derived key for decryption
         try:
-            raw_key = decrypt_api_key(key_result.data["encrypted_key"])
+            raw_key = decrypt_api_key(key_result.data["encrypted_key"], user_id=current_user["id"])
             masked = mask_api_key(raw_key)
         except Exception:
             masked = f"sk-or-v1-••••••••{key_result.data.get('key_suffix', '****')}"

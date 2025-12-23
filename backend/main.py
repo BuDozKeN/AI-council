@@ -1932,9 +1932,21 @@ async def upload_attachment(
     Returns:
         Attachment metadata including signed URL
     """
+    # SECURITY: Streaming file size validation - prevents memory exhaustion
+    MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
     try:
-        # Read file content
-        file_data = await file.read()
+        # Read file in chunks to validate size before loading fully into memory
+        chunks = []
+        total_size = 0
+        async for chunk in file:
+            total_size += len(chunk)
+            if total_size > MAX_FILE_SIZE:
+                raise HTTPException(
+                    status_code=413,
+                    detail=f"File too large. Maximum size is {MAX_FILE_SIZE // (1024*1024)}MB"
+                )
+            chunks.append(chunk)
+        file_data = b''.join(chunks)
 
         # Upload to storage
         result = await attachments.upload_attachment(
@@ -2050,21 +2062,30 @@ async def get_mock_mode(user: dict = Depends(get_current_user)):
 
 
 @app.post("/api/settings/mock-mode")
-async def set_mock_mode(request: MockModeRequest, user: dict = Depends(get_current_user)):
+async def set_mock_mode(mock_request: MockModeRequest, user: dict = Depends(get_current_user)):
     """
     Toggle mock mode on/off at runtime. Requires authentication.
+    SECURITY: Only allowed in development environment.
     Note: This changes the in-memory setting only.
     For persistent changes, update MOCK_LLM in .env and restart.
     """
-    import importlib
+    import os
     from . import openrouter
 
+    # SECURITY: Only allow mock mode toggle in development
+    environment = os.getenv("ENVIRONMENT", "development")
+    if environment == "production":
+        raise HTTPException(
+            status_code=403,
+            detail="Mock mode cannot be toggled in production environment"
+        )
+
     # Update the config module
-    config.MOCK_LLM = request.enabled
+    config.MOCK_LLM = mock_request.enabled
 
     # Reload the openrouter module to pick up the change
     # This ensures the mock intercepts are properly set
-    if request.enabled:
+    if mock_request.enabled:
         # Import mock functions if enabling
         try:
             from .mock_llm import generate_mock_response, generate_mock_response_stream
@@ -2081,7 +2102,7 @@ async def set_mock_mode(request: MockModeRequest, user: dict = Depends(get_curre
     return {
         "success": True,
         "enabled": openrouter.MOCK_LLM,
-        "message": f"Mock mode {'enabled' if request.enabled else 'disabled'}"
+        "message": f"Mock mode {'enabled' if mock_request.enabled else 'disabled'}"
     }
 
 
