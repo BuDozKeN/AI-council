@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException, Depends, File, UploadFile, Form, Que
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import StreamingResponse, Response
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional
 from fastapi import Request
 import uuid
@@ -489,11 +489,11 @@ class CreateConversationRequest(BaseModel):
 
 class SendMessageRequest(BaseModel):
     """Request to send a message in a conversation."""
-    content: str
-    business_id: Optional[str] = None
-    department: Optional[str] = "standard"  # Legacy: single department
-    role: Optional[str] = None  # Legacy: single role ID for persona injection
-    project_id: Optional[str] = None  # Project ID for project-specific context
+    content: str = Field(..., max_length=50000)  # ~12K tokens max
+    business_id: Optional[str] = Field(None, max_length=100)
+    department: Optional[str] = Field("standard", max_length=100)  # Legacy: single department
+    role: Optional[str] = Field(None, max_length=100)  # Legacy: single role ID for persona injection
+    project_id: Optional[str] = Field(None, max_length=100)  # Project ID for project-specific context
     attachment_ids: Optional[List[str]] = None  # Optional list of attachment IDs (images to analyze)
     # Multi-select support (new)
     departments: Optional[List[str]] = None  # Multiple department UUIDs
@@ -503,10 +503,10 @@ class SendMessageRequest(BaseModel):
 
 class ChatRequest(BaseModel):
     """Request to send a chat message (Chairman only, no full council)."""
-    content: str
-    business_id: Optional[str] = None
-    department_id: Optional[str] = None  # Legacy: single department
-    project_id: Optional[str] = None  # Project ID for project-specific context
+    content: str = Field(..., max_length=50000)  # ~12K tokens max
+    business_id: Optional[str] = Field(None, max_length=100)
+    department_id: Optional[str] = Field(None, max_length=100)  # Legacy: single department
+    project_id: Optional[str] = Field(None, max_length=100)  # Project ID for project-specific context
     # Multi-select support (new)
     department_ids: Optional[List[str]] = None  # Multiple department UUIDs
     role_ids: Optional[List[str]] = None  # Multiple role UUIDs
@@ -515,26 +515,26 @@ class ChatRequest(BaseModel):
 
 class CreateKnowledgeRequest(BaseModel):
     """Request to create a knowledge entry with structured decision fields."""
-    company_id: str
-    title: str
-    summary: str  # Kept for backwards compatibility
-    category: str  # technical_decision, ux_pattern, feature, policy, process, role, framework, sop
-    department_id: Optional[str] = None
-    role_id: Optional[str] = None
-    project_id: Optional[str] = None
-    source_conversation_id: Optional[str] = None
-    source_message_id: Optional[str] = None   # Specific message ID for precise linking
+    company_id: str = Field(..., max_length=100)
+    title: str = Field(..., max_length=500)
+    summary: str = Field(..., max_length=10000)  # Kept for backwards compatibility
+    category: str = Field(..., max_length=50)  # technical_decision, ux_pattern, feature, policy, process, role, framework, sop
+    department_id: Optional[str] = Field(None, max_length=100)
+    role_id: Optional[str] = Field(None, max_length=100)
+    project_id: Optional[str] = Field(None, max_length=100)
+    source_conversation_id: Optional[str] = Field(None, max_length=100)
+    source_message_id: Optional[str] = Field(None, max_length=100)   # Specific message ID for precise linking
     # Structured decision fields
-    problem_statement: Optional[str] = None  # What problem/question led to this
-    decision_text: Optional[str] = None       # The actual decision made
-    reasoning: Optional[str] = None           # Why this decision was made
-    status: str = "active"                    # active, superseded, archived
+    problem_statement: Optional[str] = Field(None, max_length=10000)  # What problem/question led to this
+    decision_text: Optional[str] = Field(None, max_length=10000)       # The actual decision made
+    reasoning: Optional[str] = Field(None, max_length=10000)           # Why this decision was made
+    status: str = Field("active", max_length=20)                    # active, superseded, archived
     # Framework/SOP support
-    body_md: Optional[str] = None             # Long-form markdown content for SOPs/Frameworks
-    version: str = "v1"                       # Version tracking (v1, v2, etc.)
+    body_md: Optional[str] = Field(None, max_length=100000)             # Long-form markdown content for SOPs/Frameworks
+    version: str = Field("v1", max_length=20)                       # Version tracking (v1, v2, etc.)
     # Knowledge consolidation fields (new)
     auto_inject: bool = False                 # Auto-inject into future council context
-    scope: str = "department"                 # Visibility: company, department, project
+    scope: str = Field("department", max_length=20)                 # Visibility: company, department, project
     tags: Optional[List[str]] = None          # Tags for categorization
 
 
@@ -584,8 +584,10 @@ async def root():
 
 @app.get("/api/businesses")
 async def get_businesses(user: dict = Depends(get_current_user)):
-    """List all available business contexts. Requires authentication."""
-    return list_available_businesses()
+    """List available business contexts for the authenticated user."""
+    # SECURITY: Only return companies the user has access to
+    user_id = user.get("id")
+    return list_available_businesses(user_id=user_id)
 
 
 @app.get("/api/conversations")
@@ -2464,8 +2466,8 @@ async def delete_knowledge_entry(
 
 class ExtractDecisionRequest(BaseModel):
     """Request to extract decision from council response."""
-    user_question: str
-    council_response: str  # The Stage 3 chairman synthesis
+    user_question: str = Field(..., max_length=10000)
+    council_response: str = Field(..., max_length=50000)  # The Stage 3 chairman synthesis
 
 
 @app.post("/api/knowledge/extract")
@@ -2622,8 +2624,8 @@ RULES:
 
 class ExtractProjectRequest(BaseModel):
     """Request to extract project details from council response."""
-    user_question: str
-    council_response: str
+    user_question: str = Field(..., max_length=10000)
+    council_response: str = Field(..., max_length=50000)
 
 
 @app.post("/api/projects/extract")
@@ -2784,8 +2786,8 @@ Respond ONLY with this JSON (no markdown code blocks, just the JSON):
 
 class StructureContextRequest(BaseModel):
     """Request to structure free-form project description."""
-    free_text: str
-    project_name: str = ""
+    free_text: str = Field(..., max_length=50000)
+    project_name: str = Field("", max_length=200)
 
 
 @app.post("/api/projects/structure-context")
@@ -2930,18 +2932,18 @@ CONTENT RULES:
 
 class MergeDecisionRequest(BaseModel):
     """Request to merge a decision into project context."""
-    existing_context: str
-    decision_content: str
-    user_question: str = ""
+    existing_context: str = Field(..., max_length=100000)
+    decision_content: str = Field(..., max_length=50000)
+    user_question: str = Field("", max_length=10000)
     # Optional fields for also saving the decision to knowledge_entries (audit trail)
     save_decision: bool = False
-    company_id: Optional[str] = None
-    conversation_id: Optional[str] = None
+    company_id: Optional[str] = Field(None, max_length=100)
+    conversation_id: Optional[str] = Field(None, max_length=100)
     response_index: Optional[int] = None
-    decision_title: Optional[str] = None
-    department_id: Optional[str] = None  # Primary department (backwards compat)
+    decision_title: Optional[str] = Field(None, max_length=500)
+    department_id: Optional[str] = Field(None, max_length=100)  # Primary department (backwards compat)
     department_ids: Optional[List[str]] = None  # All selected departments
-    council_type: Optional[str] = None  # e.g., "CTO Council", "Legal", "Board"
+    council_type: Optional[str] = Field(None, max_length=100)  # e.g., "CTO Council", "Legal", "Board"
 
 
 @app.post("/api/projects/{project_id}/merge-decision")
@@ -3494,9 +3496,9 @@ async def get_project_report(
 
 class AIWriteAssistRequest(BaseModel):
     """Request for AI writing assistance."""
-    prompt: str
-    context: str = "generic"  # Context type determines persona
-    playbook_type: str = None  # For playbook content: "sop", "framework", "policy"
+    prompt: str = Field(..., max_length=50000)
+    context: str = Field("generic", max_length=50)  # Context type determines persona
+    playbook_type: Optional[str] = Field(None, max_length=50)  # For playbook content: "sop", "framework", "policy"
 
 
 @app.post("/api/ai/write-assist")

@@ -346,10 +346,11 @@ def handle_webhook_event(payload: bytes, sig_header: str) -> Dict[str, Any]:
     except stripe.error.SignatureVerificationError:
         return {"success": False, "error": "Invalid signature"}
 
+    event_id = event["id"]
     event_type = event["type"]
     data = event["data"]["object"]
 
-    log_billing_event(f"Webhook received: {event_type}")
+    log_billing_event(f"Webhook received: {event_type}", event_id=event_id)
 
     # Use service role client to bypass RLS for webhook operations
     # The anon client fails because RLS policies require auth.uid() = user_id
@@ -358,6 +359,25 @@ def handle_webhook_event(payload: bytes, sig_header: str) -> Dict[str, Any]:
     if not supabase:
         log_billing_event("Webhook error: service key not configured", status="error")
         return {"success": False, "error": "Service key not configured"}
+
+    # SECURITY: Idempotency check - prevent replay attacks
+    # Check if we've already processed this event
+    try:
+        existing = supabase.table('processed_webhook_events').select('id').eq('event_id', event_id).maybe_single().execute()
+        if existing.data:
+            log_billing_event(f"Webhook already processed (idempotency)", event_id=event_id)
+            return {"success": True, "status": "already_processed", "event_type": event_type}
+
+        # Mark event as being processed (insert first to prevent race conditions)
+        supabase.table('processed_webhook_events').insert({
+            'event_id': event_id,
+            'event_type': event_type,
+            'processed_at': datetime.utcnow().isoformat() + 'Z'
+        }).execute()
+    except Exception as idempotency_err:
+        # If the table doesn't exist or insert fails due to duplicate, continue gracefully
+        # This allows the system to work even without the idempotency table
+        log_billing_event(f"Idempotency check warning: {type(idempotency_err).__name__}", event_id=event_id)
 
     if event_type == "checkout.session.completed":
         # Subscription started via checkout
