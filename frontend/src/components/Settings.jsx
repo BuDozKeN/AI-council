@@ -495,6 +495,7 @@ export default function Settings({ isOpen, onClose, companyId }) {
       title="Settings"
       size="xl"
       contentClassName="settings-modal-body"
+      showCloseButton={true}
     >
       {/* Content */}
       <div className="settings-content">

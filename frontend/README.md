@@ -1,16 +1,54 @@
-# React + Vite
+# AxCouncil Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + Vite frontend for the AxCouncil AI council application.
 
-Currently, two official plugins are available:
+## Mobile Navigation
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Mobile navigation uses a combination of visible back buttons and swipe gestures.
 
-## React Compiler
+### Components
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| `MobileHeader` | `src/components/ui/MobileHeader.jsx` | Reusable header with back button, hidden on desktop (>768px) |
+| `useSwipeBack` | `src/hooks/useSwipeBack.js` | iOS-style swipe-from-left-edge gesture hook |
 
-## Expanding the ESLint configuration
+### How It Works
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **ChatInterface**: Shows `MobileHeader` on mobile when viewing a conversation. Back button opens sidebar.
+- **MyCompany**: Has a dedicated back button (`.mc-mobile-back-btn`) visible only on mobile. Hides "tap to close" hint when button is present.
+- **Settings**: Uses `AdaptiveModal` with `showCloseButton={true}` for visible close on mobile.
+- **Leaderboard**: Uses `AdaptiveModal` (becomes BottomSheet on mobile) with close button.
+
+### Swipe Gestures
+
+- **Global**: Swipe right from left edge opens sidebar, swipe left closes it (`App.jsx` via `useGlobalSwipe`)
+- **MyCompany**: Swipe down or swipe right from edge closes modal
+- **BottomSheet**: Swipe down >100px dismisses
+
+### Touch Targets
+
+All mobile buttons use 44x44px minimum touch targets per Apple HIG / WCAG 2.5.5.
+
+---
+
+## Development
+
+```bash
+npm install
+npm run dev
+```
+
+## Build
+
+```bash
+npm run build
+```
+
+## Tech Stack
+
+- React + Vite
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) for Fast Refresh
+- Radix UI for accessible components
+- Framer Motion for animations
+- lucide-react for icons
