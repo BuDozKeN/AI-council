@@ -1,6 +1,6 @@
 # Security Documentation
 
-Last Updated: 2025-12-20 (commit e84360e)
+Last Updated: 2025-12-24 (commits 51b5a34, 88efe1d, 1ae8772)
 
 ## Overview
 
@@ -100,21 +100,116 @@ The following fields are automatically masked in logs:
 
 ### Path Parameter Validation
 
-All path parameters are validated against safe patterns:
+All UUID path parameters are validated:
 
 ```python
-SAFE_ID_PATTERN = r'^[a-zA-Z0-9_-]+$'
+UUID_PATTERN = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', re.IGNORECASE)
 
-ValidCompanyId = Annotated[str, Path(pattern=SAFE_ID_PATTERN)]
+def validate_uuid(value: str, param_name: str) -> str:
+    if not UUID_PATTERN.match(value):
+        raise HTTPException(status_code=400, detail=f"Invalid {param_name} format")
+    return value
 ```
 
-This prevents path traversal and injection attacks.
+This prevents SQL/NoSQL injection via malformed IDs.
+
+### Request Body Validation
+
+All Pydantic models enforce max length on text fields:
+
+```python
+class MessageRequest(BaseModel):
+    content: str = Field(..., max_length=50000)
+```
+
+Length limits:
+- Message content: 50,000 chars
+- Knowledge entries: 10,000-100,000 chars
+- Project context: 100,000 chars
 
 ### File Upload Validation
 
 - Allowed MIME types: images, PDFs, common documents
-- File size limits enforced
+- Streaming file size limit: 10MB
 - Filename sanitization
+
+---
+
+## Rate Limiting
+
+AI-heavy endpoints are rate limited to prevent credit drain attacks:
+
+| Endpoint | Limit |
+|----------|-------|
+| `/api/knowledge/extract` | 10/min, 50/hour |
+| `/api/projects/extract` | 10/min, 50/hour |
+| `/api/projects/structure-context` | 10/min, 50/hour |
+| `/api/projects/{id}/merge-decision` | 5/min, 30/hour |
+| `/api/projects/{id}/regenerate-context` | 3/min, 15/hour |
+| `/api/ai/write-assist` | 15/min, 100/hour |
+
+---
+
+## BYOK (Bring Your Own Key) Security
+
+User API keys are encrypted with per-user derived keys:
+
+1. Master key stored in `USER_KEY_ENCRYPTION_SECRET` environment variable
+2. Per-user key derived via HKDF-SHA256 with user_id in info field
+3. Keys encrypted with Fernet symmetric encryption
+
+This ensures compromise of one user's key doesn't affect others.
+
+### Timing Attack Prevention
+
+Key validation endpoints use constant-time responses (500ms minimum) to prevent timing-based key enumeration.
+
+---
+
+## Billing & Webhook Security
+
+### Atomic Query Increment
+
+Query usage is incremented atomically via PostgreSQL function to prevent race conditions:
+
+```sql
+CREATE OR REPLACE FUNCTION increment_query_usage(p_user_id UUID)
+RETURNS INTEGER AS $$
+-- Uses INSERT ... ON CONFLICT for atomic increment
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+```
+
+### Webhook Idempotency
+
+Stripe webhooks are deduplicated via `processed_webhook_events` table to prevent replay attacks.
+
+---
+
+## Production Error Handling
+
+In production, stack traces are suppressed and replaced with reference IDs:
+
+```json
+{"detail": "An error occurred. Reference: AB12CD34"}
+```
+
+Internal errors are logged with full details for debugging.
+
+---
+
+## Database Security
+
+### Function Search Path
+
+All SECURITY DEFINER functions include `SET search_path = ''` to prevent search path injection attacks.
+
+### Migrations Applied
+
+| Migration | Purpose |
+|-----------|---------|
+| `20251224000000_webhook_idempotency.sql` | Webhook replay protection |
+| `20251224100000_fix_function_search_paths.sql` | Function security hardening |
+| `20251224110000_atomic_query_increment.sql` | Race condition prevention |
 
 ---
 
@@ -122,6 +217,10 @@ This prevents path traversal and injection attacks.
 
 | Date | Commit | Summary |
 |------|--------|---------|
+| 2025-12-24 | 1ae8772 | Atomic query increment, UUID validation, production error handling, ReDoS fix, audit logging |
+| 2025-12-24 | 88efe1d | BYOK per-user HKDF keys, timing attack prevention, streaming file validation, mock mode restriction |
+| 2025-12-24 | 51b5a34 | Rate limits on AI endpoints, webhook idempotency, input length validation, multi-tenant access control |
+| 2025-12-22 | - | Service role key audit (see SECURITY_AUDIT.md) |
 | 2025-12-20 | e84360e | Fixed unauthenticated admin endpoints, RLS bypass, X-Forwarded-For spoofing |
 
 ---
