@@ -2469,8 +2469,10 @@ class ExtractDecisionRequest(BaseModel):
 
 
 @app.post("/api/knowledge/extract")
+@limiter.limit("10/minute;50/hour")  # Rate limit: AI-heavy endpoint
 async def extract_decision_from_response(
-    request: ExtractDecisionRequest,
+    request: Request,
+    extract_request: ExtractDecisionRequest,
     user: dict = Depends(get_current_user)
 ):
     """
@@ -2504,8 +2506,8 @@ async def extract_decision_from_response(
 
     # Create a focused prompt for decision extraction
     # CRITICAL: Only use clean user content, truncated to prevent prompt bloat
-    user_question = request.user_question[:3000] if request.user_question else ""
-    council_response = request.council_response[:5000] if request.council_response else ""
+    user_question = extract_request.user_question[:3000] if extract_request.user_question else ""
+    council_response = extract_request.council_response[:5000] if extract_request.council_response else ""
 
     extraction_prompt = f"""Extract and REWRITE the key decision into SHORT, CLEAN business language.
 
@@ -2594,7 +2596,7 @@ RULES:
             except json.JSONDecodeError as e:
                 print(f"[EXTRACT] JSON parse error, using fallback: {e}", flush=True)
                 # AI returned invalid JSON - use fallback
-                fallback = extract_knowledge_fallback(request.user_question, request.council_response)
+                fallback = extract_knowledge_fallback(extract_request.user_question, extract_request.council_response)
                 return {
                     "success": True,
                     "extracted": fallback
@@ -2602,7 +2604,7 @@ RULES:
         else:
             # No response from AI - use fallback
             print("[EXTRACT] No AI response, using fallback", flush=True)
-            fallback = extract_knowledge_fallback(request.user_question, request.council_response)
+            fallback = extract_knowledge_fallback(extract_request.user_question, extract_request.council_response)
             return {
                 "success": True,
                 "extracted": fallback
@@ -2611,7 +2613,7 @@ RULES:
     except Exception as e:
         # AI failed (rate limit, network error, etc.) - use fallback
         print(f"[EXTRACT] AI failed ({type(e).__name__}: {e}), using fallback", flush=True)
-        fallback = extract_knowledge_fallback(request.user_question, request.council_response)
+        fallback = extract_knowledge_fallback(extract_request.user_question, extract_request.council_response)
         return {
             "success": True,
             "extracted": fallback
@@ -2625,8 +2627,10 @@ class ExtractProjectRequest(BaseModel):
 
 
 @app.post("/api/projects/extract")
+@limiter.limit("10/minute;50/hour")  # Rate limit: AI-heavy endpoint
 async def extract_project_from_response(
-    request: ExtractProjectRequest,
+    request: Request,
+    extract_request: ExtractProjectRequest,
     user: dict = Depends(get_current_user)
 ):
     """
@@ -2636,7 +2640,7 @@ async def extract_project_from_response(
 
     IMPORTANT: Always returns clean, readable data - either from AI or fallback.
     """
-    print(f"[PROJECT EXTRACT] Called with question: {request.user_question[:100]}...", flush=True)
+    print(f"[PROJECT EXTRACT] Called with question: {extract_request.user_question[:100]}...", flush=True)
     from .openrouter import query_model, MOCK_LLM
     from .knowledge_fallback import extract_project_fallback
     from .personas import get_db_persona_with_fallback
@@ -2658,8 +2662,8 @@ async def extract_project_from_response(
     system_prompt = persona.get('system_prompt', '')
 
     # Truncate inputs to prevent prompt bloat
-    user_question = request.user_question[:3000] if request.user_question else ""
-    council_response = request.council_response[:5000] if request.council_response else ""
+    user_question = extract_request.user_question[:3000] if extract_request.user_question else ""
+    council_response = extract_request.council_response[:5000] if extract_request.council_response else ""
 
     # Task-specific user prompt (persona's style comes from system_prompt)
     extraction_prompt = f"""## TASK: Extract project name and description from a council discussion
@@ -2754,7 +2758,7 @@ Respond ONLY with this JSON (no markdown code blocks, just the JSON):
             except json.JSONDecodeError as e:
                 print(f"[PROJECT EXTRACT] JSON parse error, using fallback: {e}", flush=True)
                 # AI returned invalid JSON - use fallback
-                fallback = extract_project_fallback(request.user_question, request.council_response)
+                fallback = extract_project_fallback(extract_request.user_question, extract_request.council_response)
                 return {
                     "success": True,
                     "extracted": fallback
@@ -2762,7 +2766,7 @@ Respond ONLY with this JSON (no markdown code blocks, just the JSON):
         else:
             # No response from AI - use fallback
             print("[PROJECT EXTRACT] No AI response, using fallback", flush=True)
-            fallback = extract_project_fallback(request.user_question, request.council_response)
+            fallback = extract_project_fallback(extract_request.user_question, extract_request.council_response)
             return {
                 "success": True,
                 "extracted": fallback
@@ -2771,7 +2775,7 @@ Respond ONLY with this JSON (no markdown code blocks, just the JSON):
     except Exception as e:
         # AI failed (rate limit, network error, etc.) - use fallback
         print(f"[PROJECT EXTRACT] AI failed ({type(e).__name__}: {e}), using fallback", flush=True)
-        fallback = extract_project_fallback(request.user_question, request.council_response)
+        fallback = extract_project_fallback(extract_request.user_question, extract_request.council_response)
         return {
             "success": True,
             "extracted": fallback
@@ -2785,8 +2789,10 @@ class StructureContextRequest(BaseModel):
 
 
 @app.post("/api/projects/structure-context")
+@limiter.limit("10/minute;50/hour")  # Rate limit: AI-heavy endpoint
 async def structure_project_context(
-    request: StructureContextRequest,
+    request: Request,
+    structure_request: StructureContextRequest,
     user: dict = Depends(get_current_user)
 ):
     """
@@ -2801,17 +2807,17 @@ async def structure_project_context(
     if MOCK_LLM:
         print("[MOCK] Returning mock structure context", flush=True)
         from .knowledge_fallback import _short_title
-        mock_title = request.project_name or _short_title(request.free_text, max_words=4)
+        mock_title = structure_request.project_name or _short_title(structure_request.free_text, max_words=4)
         return {
             "structured": {
-                "context_md": f"Objective\n{request.free_text[:300]}\n\nGoals\n- Define clear metrics\n- Track progress",
-                "description": request.free_text[:150],
+                "context_md": f"Objective\n{structure_request.free_text[:300]}\n\nGoals\n- Define clear metrics\n- Track progress",
+                "description": structure_request.free_text[:150],
                 "suggested_name": mock_title
             }
         }
 
-    project_name = request.project_name.strip() if request.project_name else ""
-    free_text = request.free_text[:5000] if request.free_text else ""
+    project_name = structure_request.project_name.strip() if structure_request.project_name else ""
+    free_text = structure_request.free_text[:5000] if structure_request.free_text else ""
 
     # Get Sarah persona from database (with hardcoded fallback)
     persona = await get_db_persona_with_fallback('sarah')
@@ -2939,9 +2945,11 @@ class MergeDecisionRequest(BaseModel):
 
 
 @app.post("/api/projects/{project_id}/merge-decision")
+@limiter.limit("5/minute;30/hour")  # Rate limit: AI-heavy endpoint (more expensive)
 async def merge_decision_into_project(
+    request: Request,
     project_id: str,
-    request: MergeDecisionRequest,
+    merge_request: MergeDecisionRequest,
     user: dict = Depends(get_current_user)
 ):
     """
@@ -2954,17 +2962,17 @@ async def merge_decision_into_project(
 
     # Debug logging
     print(f"[merge-decision] project_id={project_id}", flush=True)
-    print(f"[merge-decision] save_decision={request.save_decision}, company_id={request.company_id}", flush=True)
-    print(f"[merge-decision] conversation_id={request.conversation_id}, response_index={request.response_index}", flush=True)
-    print(f"[merge-decision] existing_context length={len(request.existing_context) if request.existing_context else 0}", flush=True)
-    print(f"[merge-decision] decision_content length={len(request.decision_content) if request.decision_content else 0}", flush=True)
+    print(f"[merge-decision] save_decision={merge_request.save_decision}, company_id={merge_request.company_id}", flush=True)
+    print(f"[merge-decision] conversation_id={merge_request.conversation_id}, response_index={merge_request.response_index}", flush=True)
+    print(f"[merge-decision] existing_context length={len(merge_request.existing_context) if merge_request.existing_context else 0}", flush=True)
+    print(f"[merge-decision] decision_content length={len(merge_request.decision_content) if merge_request.decision_content else 0}", flush=True)
 
     # Handle mock mode
     if MOCK_LLM:
         print("[MOCK] Returning mock merge result", flush=True)
         return {
             "merged": {
-                "context_md": request.existing_context + "\n\n## Recent Decision\nKey learning from council discussion.",
+                "context_md": merge_request.existing_context + "\n\n## Recent Decision\nKey learning from council discussion.",
                 "summary": "Added insights from recent council decision",
                 "changes": "- Added new section on Recent Decision"
             }
@@ -2975,9 +2983,9 @@ async def merge_decision_into_project(
     system_prompt = persona.get('system_prompt', '')
 
     # Increase limits for better context handling
-    existing = request.existing_context[:10000] if request.existing_context else ""
-    decision = request.decision_content[:8000] if request.decision_content else ""
-    question = request.user_question[:2000] if request.user_question else ""
+    existing = merge_request.existing_context[:10000] if merge_request.existing_context else ""
+    decision = merge_request.decision_content[:8000] if merge_request.decision_content else ""
+    question = merge_request.user_question[:2000] if merge_request.user_question else ""
 
     from datetime import datetime
     today_date = datetime.now().strftime("%B %d, %Y")
@@ -3096,7 +3104,7 @@ Remember: The context_md should be a complete, standalone document. Respond only
     # After successfully generating the merged content, optionally save the decision
     saved_decision_id = None
     decision_save_error = None  # Track any save errors to return to frontend
-    if request.save_decision and request.company_id:
+    if merge_request.save_decision and merge_request.company_id:
         try:
             access_token = user.get("access_token")
             user_id = user.get('id')
@@ -3113,14 +3121,14 @@ Remember: The context_md should be a complete, standalone document. Respond only
                 # Resolve company_id to UUID (it might be a slug)
                 from .routers.company import resolve_company_id
                 try:
-                    company_uuid = resolve_company_id(client, request.company_id)
+                    company_uuid = resolve_company_id(client, merge_request.company_id)
                     log_app_event("MERGE", "Resolved company_id", resource_id=company_uuid)
                 except Exception as resolve_err:
                     log_app_event("MERGE", f"Failed to resolve company_id: {type(resolve_err).__name__}", level="WARNING")
-                    company_uuid = request.company_id  # Fall back to original value
+                    company_uuid = merge_request.company_id  # Fall back to original value
 
                 # Build title for the decision
-                decision_title = request.decision_title
+                decision_title = merge_request.decision_title
                 if not decision_title:
                     if question:
                         decision_title = f"Decision: {question[:50]}..." if len(question) > 50 else f"Decision: {question}"
@@ -3129,20 +3137,20 @@ Remember: The context_md should be a complete, standalone document. Respond only
 
                 # Create the decision record in knowledge_entries
                 # Use department_ids array only
-                dept_ids = request.department_ids if request.department_ids else (
-                    [request.department_id] if request.department_id and request.department_id != "all" else []
+                dept_ids = merge_request.department_ids if merge_request.department_ids else (
+                    [merge_request.department_id] if merge_request.department_id and merge_request.department_id != "all" else []
                 )
 
                 insert_data = {
                     "company_id": company_uuid,  # Use resolved UUID, not potentially slug
                     "title": decision_title,
-                    "content": request.decision_content,  # Full council response
+                    "content": merge_request.decision_content,  # Full council response
                     "question": question,  # Original user question
                     "scope": "project",  # Always project scope when merging into a project
                     "department_ids": dept_ids if dept_ids else [],  # All departments
                     "project_id": project_id,
-                    "source_conversation_id": request.conversation_id if request.conversation_id and not request.conversation_id.startswith("temp-") else None,
-                    "response_index": request.response_index,
+                    "source_conversation_id": merge_request.conversation_id if merge_request.conversation_id and not merge_request.conversation_id.startswith("temp-") else None,
+                    "response_index": merge_request.response_index,
                     "auto_inject": False,
                     "category": "technical_decision",
                     "is_active": True,
@@ -3216,7 +3224,9 @@ Remember: The context_md should be a complete, standalone document. Respond only
 
 
 @app.post("/api/projects/{project_id}/regenerate-context")
+@limiter.limit("3/minute;15/hour")  # Rate limit: expensive AI operation
 async def regenerate_project_context(
+    request: Request,
     project_id: str,
     user: dict = Depends(get_current_user)
 ):
@@ -3490,8 +3500,10 @@ class AIWriteAssistRequest(BaseModel):
 
 
 @app.post("/api/ai/write-assist")
+@limiter.limit("15/minute;100/hour")  # Rate limit: AI-heavy endpoint
 async def ai_write_assist(
-    request: AIWriteAssistRequest,
+    request: Request,
+    write_request: AIWriteAssistRequest,
     user: dict = Depends(get_current_user)
 ):
     """
@@ -3506,17 +3518,17 @@ async def ai_write_assist(
 
     # Handle mock mode
     if MOCK_LLM:
-        print(f"[MOCK] AI Write Assist - context: {request.context}", flush=True)
+        print(f"[MOCK] AI Write Assist - context: {write_request.context}", flush=True)
         return {
-            "suggestion": f"[AI Suggestion for {request.context}]\n\nThis is a mock response. In production, the AI would improve your text based on the context type."
+            "suggestion": f"[AI Suggestion for {write_request.context}]\n\nThis is a mock response. In production, the AI would improve your text based on the context type."
         }
 
-    prompt = request.prompt[:10000] if request.prompt else ""
+    prompt = write_request.prompt[:10000] if write_request.prompt else ""
     if not prompt.strip():
         raise HTTPException(status_code=400, detail="Prompt cannot be empty")
 
     # Get persona from database (for playbooks) or hardcoded fallback
-    persona_data = await get_write_assist_persona_async(request.context, request.playbook_type)
+    persona_data = await get_write_assist_persona_async(write_request.context, write_request.playbook_type)
     persona_prompt = persona_data["system_prompt"]
     model_preferences = persona_data["model_preferences"]
 
@@ -3524,7 +3536,7 @@ async def ai_write_assist(
     if isinstance(model_preferences, str):
         model_preferences = json_module.loads(model_preferences)
 
-    type_label = request.playbook_type.upper() if request.playbook_type else request.context
+    type_label = write_request.playbook_type.upper() if write_request.playbook_type else write_request.context
 
     # Build system prompt with formatting rules
     system_prompt = build_system_prompt(persona_prompt, include_formatting=True)
@@ -3540,7 +3552,7 @@ async def ai_write_assist(
         last_error = None
         for model_to_use in model_preferences:
             try:
-                print(f"[WRITE-ASSIST] context={request.context}, type={type_label}, model={model_to_use}", flush=True)
+                print(f"[WRITE-ASSIST] context={write_request.context}, type={type_label}, model={model_to_use}", flush=True)
 
                 result = await query_model(
                     model=model_to_use,
