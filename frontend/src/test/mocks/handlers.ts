@@ -7,7 +7,9 @@
 
 import { http, HttpResponse } from 'msw';
 
-const API_BASE = 'http://localhost:8080';
+// Use the same API base as the app, but default to test port
+// In tests, import.meta.env is not available so we use a sensible default
+const API_BASE = 'http://localhost:8000';
 
 // Mock data
 export const mockBusinesses = [
