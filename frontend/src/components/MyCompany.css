@@ -8043,3 +8043,44 @@
   }
 }
 
+/* ============================================================================
+   MOBILE NAVIGATION - Back Button
+   ============================================================================ */
+
+/* Mobile back button - only visible on mobile */
+.mc-mobile-back-btn {
+  display: none; /* Hidden by default (desktop) */
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+  flex-shrink: 0;
+  margin-right: 12px;
+}
+
+.mc-mobile-back-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mc-mobile-back-btn:active {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(0.98);
+}
+
+/* Show on mobile, hide dismiss hint */
+@media (max-width: 768px) {
+  .mc-mobile-back-btn {
+    display: flex;
+  }
+
+  .mc-dismiss-hint {
+    display: none;
+  }
+}
+
