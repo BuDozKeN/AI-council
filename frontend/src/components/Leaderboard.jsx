@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../api';
-import { AppModal } from './ui/AppModal';
+import { AdaptiveModal } from './ui/AdaptiveModal';
 import { Skeleton } from './ui/Skeleton';
 import './Leaderboard.css';
 
@@ -50,13 +50,14 @@ export default function Leaderboard({ isOpen, onClose }) {
   const totalSessions = leaderboardData?.overall?.total_sessions || 0;
 
   return (
-    <AppModal
+    <AdaptiveModal
       isOpen={isOpen}
       onClose={onClose}
       title="Model Leaderboard"
       size="lg"
       headerClassName="app-modal-header-gradient"
       bodyMinHeight="520px"
+      showCloseButton={true}
     >
       {isLoading ? (
         <div className="leaderboard-skeleton">
@@ -180,6 +181,6 @@ export default function Leaderboard({ isOpen, onClose }) {
           </div>
         </>
       )}
-    </AppModal>
+    </AdaptiveModal>
   );
 }

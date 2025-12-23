@@ -1789,6 +1789,8 @@ function App() {
               }}
               // Loading state for conversation fetch
               isLoadingConversation={isLoadingConversation}
+              // Mobile sidebar toggle
+              onOpenSidebar={() => setIsMobileSidebarOpen(true)}
             />
           </motion.div>
         )}

@@ -12,7 +12,7 @@ import { Spinner } from './ui/Spinner';
 import { Skeleton } from './ui/Skeleton';
 import { AIWriteAssist } from './ui/AIWriteAssist';
 import { PullToRefreshIndicator } from './ui/PullToRefreshIndicator';
-import { Building2, Bookmark, FolderKanban, CheckCircle, Archive, RotateCcw, ExternalLink, Trash2, Sparkles, PenLine, RefreshCw, Users, BookOpen, BarChart3, Lightbulb, ClipboardList, ChevronDown } from 'lucide-react';
+import { Building2, Bookmark, FolderKanban, CheckCircle, Archive, RotateCcw, ExternalLink, Trash2, Sparkles, PenLine, RefreshCw, Users, BookOpen, BarChart3, Lightbulb, ClipboardList, ChevronDown, ChevronLeft } from 'lucide-react';
 import { getDeptColor } from '../lib/colors';
 import { usePullToRefresh, useSwipeGesture } from '../hooks';
 import { hapticLight, hapticSuccess, hapticMedium } from '../lib/haptics';
@@ -1093,7 +1093,19 @@ export default function MyCompany({ companyId, companyName, allCompanies = [], o
       <div className="mc-panel" ref={panelSwipeRef} onClick={e => e.stopPropagation()}>
         {/* Header - Click anywhere to dismiss (except interactive elements) */}
         <header className="mc-header mc-header-dismissible" onClick={handleHeaderClick} role="button" tabIndex={0} aria-label="Click to close, or press Escape">
-          {/* Dismiss hint indicator */}
+          {/* Mobile back button - only show on mobile */}
+          <button
+            className="mc-mobile-back-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            aria-label="Close My Company"
+          >
+            <ChevronLeft size={20} />
+          </button>
+
+          {/* Dismiss hint indicator - hide on mobile when back button is present */}
           <div className="mc-dismiss-hint">
             <ChevronDown size={16} />
             <span>tap to close</span>
