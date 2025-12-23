@@ -610,7 +610,7 @@
   width: 100%;
   min-width: 0; /* Prevent flex overflow with long content */
   padding: 14px;
-  padding-left: 44px; /* Space for inline image button */
+  padding-right: 40px; /* Space for inline image button on right */
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border-dark);
   border-radius: var(--radius-md);
@@ -884,33 +884,45 @@
   gap: 12px;
   padding: 8px 0;
   min-height: 40px; /* Prevent layout shift */
+  flex-wrap: wrap;
+}
+
+/* Multi-select container for departments, roles, playbooks */
+.mode-toggle-selectors {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mode-toggle-select {
+  min-width: 120px;
+  max-width: 200px;
 }
 
 /* Compact mode toggle - clean pill style for follow-ups */
 .mode-toggle-compact {
   display: flex;
-  gap: 4px;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(8px);
+  gap: 2px;
+  background: var(--color-bg-tertiary);
   border-radius: var(--radius-full);
-  padding: 4px;
+  padding: 3px;
   border: 1px solid var(--color-border);
 }
 
 .mode-btn-compact {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: 8px 16px;
+  justify-content: center;
+  padding: 6px 14px;
   border: none;
   border-radius: var(--radius-full);
   background: transparent;
   font-size: 13px;
   font-weight: 500;
-  color: var(--color-text-secondary);
+  color: var(--color-text-tertiary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .mode-btn-compact .mode-label {
@@ -924,14 +936,16 @@
   line-height: 1;
 }
 
-.mode-btn-compact:hover {
-  color: var(--color-text-primary);
+.mode-btn-compact:hover:not(.active) {
+  color: var(--color-text-secondary);
+  background: rgba(0, 0, 0, 0.03);
 }
 
 .mode-btn-compact.active {
-  background: white;
-  color: var(--color-brand-primary);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
 }
 
 .mode-btn-compact.active .mode-cost {
@@ -1295,7 +1309,7 @@
   .message-input {
     min-height: 56px;
     padding: 12px;
-    padding-left: 40px;
+    padding-right: 36px;
     font-size: 16px; /* Prevents iOS zoom on focus */
   }
 
@@ -1340,7 +1354,7 @@
   .message-input {
     min-height: 44px;
     padding: 10px;
-    padding-left: 36px;
+    padding-right: 32px;
   }
 
   .send-button,
@@ -1454,6 +1468,18 @@
   flex-direction: column;
   gap: 10px;
   align-items: stretch;
+}
+
+/* Multi-select selectors on mobile */
+.mode-toggle-bar.mobile .mode-toggle-selectors {
+  width: 100%;
+  gap: 8px;
+}
+
+.mode-toggle-bar.mobile .mode-toggle-select {
+  flex: 1;
+  min-width: calc(50% - 4px);
+  max-width: none;
 }
 
 .mobile-selectors {

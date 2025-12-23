@@ -250,6 +250,38 @@
   margin-top: 8px;
 }
 
+/* Modern select trigger for company switcher */
+.mc-company-select-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 14px;
+  font-weight: 500;
+  min-width: 140px;
+  height: auto;
+}
+
+.mc-company-select-trigger:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.mc-company-select-trigger:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
+}
+
+.mc-company-select-trigger svg {
+  opacity: 0.8;
+}
+
 .mc-company-dropdown-btn {
   display: inline-flex;
   align-items: center;
@@ -2691,7 +2723,7 @@
     width: 100%;
     max-width: none;
     height: 95vh;
-    border-radius: var(--radius-full) var(--radius-full) 0 0;
+    border-radius: 16px 16px 0 0;
     animation: mc-panel-slide-up-mobile 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
@@ -2734,9 +2766,9 @@
     font-size: 1.25rem;
   }
 
+  /* Hide stats grid on mobile - takes up space, not interactive */
   .mc-stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
+    display: none;
   }
 
   .mc-stat-card {
@@ -4027,6 +4059,28 @@
   background: var(--color-blue-50);
 }
 
+/* Compact source icon button - used in Activity tab */
+.mc-source-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.mc-source-icon-btn:hover {
+  background: var(--color-blue-50);
+  color: var(--color-blue-500);
+}
+
 /* ============================================
    SHARED GROUP TITLE STYLING
    ============================================ */
@@ -4210,7 +4264,7 @@
   font-size: 13px;
   font-weight: 500;
   color: var(--color-gray-700);
-  background: var(--color-slate-50);
+  background: var(--color-bg-primary);
   transition: all 0.15s ease;
 }
 
@@ -6624,30 +6678,46 @@
     padding: 16px;
   }
 
-  /* Keep stats on Projects/Playbooks/Decisions where they're clickable filters */
+  /* Compact horizontal filter pills on mobile for Projects/Playbooks/Decisions */
   .mc-projects .mc-stats-grid,
   .mc-playbooks .mc-stats-grid,
   .mc-decisions .mc-stats-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-wrap: wrap;
     gap: 6px;
+    margin-bottom: 8px;
   }
 
-  .mc-stat-card {
-    padding: 10px 12px;
-    text-align: center;
+  .mc-projects .mc-stat-card,
+  .mc-playbooks .mc-stat-card,
+  .mc-decisions .mc-stat-card {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    text-align: left;
   }
 
-  .mc-stat-card::before {
-    height: 2px;
+  .mc-projects .mc-stat-card::before,
+  .mc-playbooks .mc-stat-card::before,
+  .mc-decisions .mc-stat-card::before {
+    display: none;
   }
 
-  .mc-stat-value {
-    font-size: 1.25rem;
+  .mc-projects .mc-stat-value,
+  .mc-playbooks .mc-stat-value,
+  .mc-decisions .mc-stat-value {
+    font-size: 0.875rem;
+    font-weight: 600;
   }
 
-  .mc-stat-label {
-    font-size: 0.6875rem;
+  .mc-projects .mc-stat-label,
+  .mc-playbooks .mc-stat-label,
+  .mc-decisions .mc-stat-label {
+    font-size: 0.75rem;
+    margin-top: 0;
   }
 
   .mc-tabs {
@@ -6834,13 +6904,7 @@
     padding: 6px 8px;
   }
 
-  .mc-stat-card {
-    padding: 10px;
-  }
-
-  .mc-stat-value {
-    font-size: 1.125rem;
-  }
+  /* Stats pills already compact from 768px breakpoint */
 
   /* Reduce text sizes */
   .mc-dept-title,
@@ -8061,7 +8125,6 @@
   border-radius: 8px;
   transition: background 0.15s ease;
   flex-shrink: 0;
-  margin-right: 12px;
 }
 
 .mc-mobile-back-btn:hover {
@@ -8073,13 +8136,41 @@
   transform: scale(0.98);
 }
 
-/* Show on mobile, hide dismiss hint */
+/* Show on mobile, position back button, keep company switcher */
 @media (max-width: 768px) {
   .mc-mobile-back-btn {
     display: flex;
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
   }
 
   .mc-dismiss-hint {
+    display: none;
+  }
+
+  /* Mobile header layout - stack vertically, center content */
+  .mc-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding-top: 20px;
+  }
+
+  /* Hide title row on mobile, just show company switcher */
+  .mc-title-row {
+    display: none;
+  }
+
+  /* Company switcher takes center stage on mobile */
+  .mc-company-switcher {
+    order: -1;
+  }
+
+  /* Hide desktop close button on mobile (use back button instead) */
+  .mc-close-btn {
     display: none;
   }
 }

@@ -1,0 +1,675 @@
+import { useState, useEffect, useCallback } from 'react';
+import { api } from '../api';
+import { Skeleton } from './ui/Skeleton';
+import { PullToRefreshIndicator } from './ui/PullToRefreshIndicator';
+import { usePullToRefresh, useSwipeGesture } from '../hooks';
+import { hapticLight, hapticSuccess, hapticMedium } from '../lib/haptics';
+
+// Extracted components
+import { MyCompanyHeader } from './mycompany/MyCompanyHeader';
+import { MyCompanyTabs } from './mycompany/MyCompanyTabs';
+import {
+  AddFormModal,
+  EditingModal,
+  PromoteModal,
+  ConfirmActionModal,
+} from './mycompany/MyCompanyModals';
+
+import { ActivityTab, OverviewTab, TeamTab, PlaybooksTab, ProjectsTab, DecisionsTab } from './mycompany/tabs';
+import './MyCompany.css';
+import { logger } from '../utils/logger';
+
+// Import hooks
+import {
+  useCompanyData,
+  useProjectActions,
+  useDecisionActions,
+  useActivityData,
+  usePlaybookFilter,
+  useProjectFilter,
+  useDecisionFilter,
+  usePendingDecisions,
+} from './mycompany/hooks';
+
+const log = logger.scope('MyCompany');
+
+/**
+ * My Company - Unified interface for company management
+ */
+export default function MyCompany({
+  companyId,
+  companyName,
+  allCompanies = [],
+  onSelectCompany,
+  onClose,
+  onNavigateToConversation,
+  initialTab = 'overview',
+  initialDecisionId = null,
+  initialPlaybookId = null,
+  initialProjectId = null,
+  initialProjectDecisionId = null,
+  initialPromoteDecision = null,
+  onConsumePromoteDecision = null
+}) {
+  // Core UI state
+  const [activeTab, setActiveTab] = useState(initialTab);
+  const [expandedDept, setExpandedDept] = useState(null);
+  const [editingItem, setEditingItem] = useState(null);
+  const [showAddForm, setShowAddForm] = useState(null);
+  const [saving, setSaving] = useState(false);
+  const [confirmModal, setConfirmModal] = useState(null);
+
+  // Highlight states for auto-opening items
+  const [highlightedDecisionId, setHighlightedDecisionId] = useState(initialDecisionId);
+  const [highlightedPlaybookId, setHighlightedPlaybookId] = useState(initialPlaybookId);
+  const [highlightedProjectId, setHighlightedProjectId] = useState(initialProjectId);
+  const [initialProjectDecisionToExpand, setInitialProjectDecisionToExpand] = useState(initialProjectDecisionId);
+
+  // Filter hooks
+  const playbookFilters = usePlaybookFilter();
+  const projectFilters = useProjectFilter();
+  const decisionFilters = useDecisionFilter();
+
+  // Data hook
+  const companyData = useCompanyData({
+    companyId,
+    activeTab,
+    activityLimit: 20,
+  });
+
+  // Activity pagination hook
+  const activityData = useActivityData({
+    companyId,
+    setActivityLogs: companyData.setActivityLogs,
+    activityHasMore: companyData.activityHasMore,
+    setActivityHasMore: companyData.setActivityHasMore,
+  });
+
+  // Project actions hook
+  const projectActions = useProjectActions({
+    setProjects: companyData.setProjects,
+    loadData: companyData.loadData,
+  });
+
+  // Decision actions hook
+  const decisionActions = useDecisionActions({
+    companyId,
+    setDecisions: companyData.setDecisions,
+    setProjects: companyData.setProjects,
+    loadData: companyData.loadData,
+    setActiveTab,
+    setHighlightedProjectId,
+  });
+
+  // Pending decisions count for header indicator
+  const pendingDecisionsCount = usePendingDecisions({
+    companyId,
+    decisions: companyData.decisions,
+    activeTab,
+  });
+
+  // Pull-to-refresh handler
+  const handleRefresh = useCallback(async () => {
+    hapticLight();
+    companyData.resetTabLoaded(activeTab);
+    companyData.setLoading(true);
+    await companyData.loadData();
+    hapticSuccess();
+  }, [activeTab, companyData]);
+
+  // Pull-to-refresh hook
+  const {
+    ref: contentRef,
+    pullDistance,
+    isRefreshing,
+    progress: pullProgress,
+  } = usePullToRefresh({
+    onRefresh: handleRefresh,
+    threshold: 80,
+    enabled: true,
+  });
+
+  // Swipe gesture to close panel
+  const handleSwipeClose = useCallback(() => {
+    hapticMedium();
+    onClose?.();
+  }, [onClose]);
+
+  const panelSwipeRef = useSwipeGesture({
+    onSwipeDown: handleSwipeClose,
+    onSwipeRight: handleSwipeClose,
+    threshold: 80,
+    edgeOnly: true,
+    edgeWidth: 40,
+    enabled: true,
+  });
+
+  // ESC key to close
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        hapticLight();
+        onClose?.();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  // Header click to close (but not on interactive elements)
+  const handleHeaderClick = useCallback((e) => {
+    if (e.target.closest('button, [role="combobox"], [role="listbox"], select, input')) {
+      return;
+    }
+    hapticLight();
+    onClose?.();
+  }, [onClose]);
+
+  // Auto-open modals for highlighted items (syncing external prop to internal state)
+  useEffect(() => {
+    if (highlightedDecisionId && companyData.decisions.length > 0 && activeTab === 'decisions') {
+      const decision = companyData.decisions.find(d => d.id === highlightedDecisionId);
+      if (decision && !editingItem) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: syncing external prop to internal state
+        setEditingItem({ type: 'decision', data: decision });
+        setHighlightedDecisionId(null);
+      }
+    }
+  }, [highlightedDecisionId, companyData.decisions, activeTab, editingItem]);
+
+  useEffect(() => {
+    if (highlightedPlaybookId && companyData.playbooks.length > 0 && activeTab === 'playbooks') {
+      const playbook = companyData.playbooks.find(p => p.id === highlightedPlaybookId);
+      if (playbook && !editingItem) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: syncing external prop to internal state
+        setEditingItem({ type: 'playbook', data: playbook });
+        setHighlightedPlaybookId(null);
+      }
+    }
+  }, [highlightedPlaybookId, companyData.playbooks, activeTab, editingItem]);
+
+  useEffect(() => {
+    if (highlightedProjectId && companyData.projects.length > 0 && activeTab === 'projects' && companyData.departments.length > 0) {
+      const project = companyData.projects.find(p => p.id === highlightedProjectId);
+      if (project && !editingItem) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: syncing external prop to internal state
+        setEditingItem({ type: 'project', data: project });
+        setHighlightedProjectId(null);
+      }
+    }
+  }, [highlightedProjectId, companyData.projects, activeTab, editingItem, companyData.departments.length]);
+
+  // Auto-open Promote modal if returning from Source view
+  useEffect(() => {
+    if (initialPromoteDecision && !decisionActions.promoteModal) {
+      decisionActions.setPromoteModal(initialPromoteDecision);
+      if (onConsumePromoteDecision) {
+        onConsumePromoteDecision();
+      }
+    }
+  }, [initialPromoteDecision, onConsumePromoteDecision, decisionActions]);
+
+  // Generate slug from name
+  const generateSlug = (name) => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+  };
+
+  // Count stats
+  const totalRoles = companyData.departments.reduce((sum, dept) => sum + (dept.roles?.length || 0), 0);
+
+  // Handle opening project details/edit modal
+  const handleProjectClick = (project) => {
+    setEditingItem({ type: 'project', data: project });
+  };
+
+  // Handle clicking on activity item
+  const handleActivityClick = async (activityLog) => {
+    if (!activityLog.related_id || !activityLog.related_type) return;
+
+    const showNotFound = (type) => {
+      log.warn(`${type} not found`, { related_id: activityLog.related_id });
+    };
+
+    switch (activityLog.related_type) {
+      case 'playbook': {
+        const playbook = companyData.playbooks.find(p => p.id === activityLog.related_id);
+        if (playbook) {
+          setEditingItem({ type: 'playbook', data: playbook });
+        } else {
+          try {
+            const fetchedPlaybook = await api.getPlaybook(companyId, activityLog.related_id);
+            if (fetchedPlaybook) {
+              setEditingItem({ type: 'playbook', data: fetchedPlaybook });
+            } else {
+              showNotFound('playbook');
+            }
+          } catch {
+            showNotFound('playbook');
+          }
+        }
+        break;
+      }
+      case 'decision': {
+        try {
+          const fetchedDecision = await api.getDecision(companyId, activityLog.related_id);
+          if (fetchedDecision) {
+            if (fetchedDecision.project_id) {
+              const linkedProject = companyData.projects.find(p => p.id === fetchedDecision.project_id);
+              if (linkedProject) {
+                setEditingItem({ type: 'project', data: linkedProject });
+              } else {
+                setEditingItem({ type: 'decision', data: fetchedDecision });
+              }
+            } else {
+              setEditingItem({ type: 'decision', data: fetchedDecision });
+            }
+          } else {
+            showNotFound('decision');
+          }
+        } catch {
+          showNotFound('decision');
+        }
+        break;
+      }
+      case 'project': {
+        const project = companyData.projects.find(p => p.id === activityLog.related_id);
+        if (project) {
+          setEditingItem({ type: 'project', data: project });
+        } else {
+          showNotFound('project');
+        }
+        break;
+      }
+      case 'conversation':
+        if (activityLog.conversation_id && onNavigateToConversation) {
+          onNavigateToConversation(activityLog.conversation_id, 'activity');
+        }
+        break;
+      case 'department':
+        setActiveTab('team');
+        setExpandedDept(activityLog.related_id);
+        break;
+      case 'role':
+        setActiveTab('team');
+        break;
+    }
+  };
+
+  // Playbook actions
+  const handleArchivePlaybook = (playbook) => {
+    setConfirmModal({
+      type: 'archivePlaybook',
+      item: playbook,
+      title: 'Archive Playbook',
+      message: `Are you sure you want to archive "${playbook.title}"? It will be hidden from the list but can be restored later.`,
+      confirmText: 'Archive',
+      variant: 'warning'
+    });
+  };
+
+  const handleDeletePlaybook = (playbook) => {
+    setConfirmModal({
+      type: 'deletePlaybook',
+      item: playbook,
+      title: 'Delete Playbook',
+      message: `Are you sure you want to permanently delete "${playbook.title}"? This action cannot be undone.`,
+      confirmText: 'Delete',
+      variant: 'danger'
+    });
+  };
+
+  const handleConfirmAction = async () => {
+    if (!confirmModal) return;
+    setSaving(true);
+    try {
+      switch (confirmModal.type) {
+        case 'archivePlaybook':
+          await api.updatePlaybook(companyId, confirmModal.item.id, { status: 'archived' });
+          break;
+        case 'deletePlaybook':
+          await api.deletePlaybook(companyId, confirmModal.item.id);
+          break;
+      }
+      await companyData.loadData();
+      setConfirmModal(null);
+    } catch (err) {
+      log.error(`Failed to ${confirmModal.type}`, { error: err });
+    }
+    setSaving(false);
+  };
+
+  // CRUD handlers
+  const handleAddDepartment = async (name, description) => {
+    setSaving(true);
+    try {
+      await api.createCompanyDepartment(companyId, { name, slug: generateSlug(name), description });
+      await companyData.loadData();
+      setShowAddForm(null);
+    } catch (err) {
+      log.error('Failed to create department', { error: err });
+    }
+    setSaving(false);
+  };
+
+  const handleAddRole = async (deptId, name, title) => {
+    setSaving(true);
+    try {
+      await api.createCompanyRole(companyId, deptId, { name, slug: generateSlug(name), title });
+      await companyData.loadData();
+      setShowAddForm(null);
+    } catch (err) {
+      log.error('Failed to create role', { error: err });
+    }
+    setSaving(false);
+  };
+
+  const handleAddPlaybook = async (title, docType, content, departmentId, additionalDepartments = []) => {
+    setSaving(true);
+    try {
+      const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      const allDeptIds = departmentId ? [departmentId, ...(additionalDepartments || [])] : (additionalDepartments || []);
+      await api.createCompanyPlaybook(companyId, { title, slug, doc_type: docType, content, department_ids: allDeptIds });
+      await companyData.loadData();
+      setShowAddForm(null);
+    } catch (err) {
+      log.error('Failed to create playbook', { error: err });
+    }
+    setSaving(false);
+  };
+
+  const handleUpdateRole = async (roleId, deptId, updates) => {
+    try {
+      await api.updateCompanyRole(companyId, deptId, roleId, updates);
+      await companyData.loadData();
+      setEditingItem(null);
+    } catch (err) {
+      log.error('Failed to update role', { error: err });
+      throw err;
+    }
+  };
+
+  const handleUpdateDepartment = async (deptId, updates) => {
+    try {
+      await api.updateCompanyDepartment(companyId, deptId, updates);
+      await companyData.loadData();
+      setEditingItem(null);
+    } catch (err) {
+      log.error('Failed to update department', { error: err });
+      throw err;
+    }
+  };
+
+  const handleUpdateCompanyContext = async (updates) => {
+    try {
+      await api.updateCompanyContext(companyId, updates);
+      await companyData.loadData();
+      setEditingItem(null);
+    } catch (err) {
+      log.error('Failed to update company context', { error: err });
+      throw err;
+    }
+  };
+
+  const handleUpdatePlaybook = async (playbookId, updates) => {
+    try {
+      await api.updateCompanyPlaybook(companyId, playbookId, updates);
+      await companyData.loadData();
+      setEditingItem(null);
+    } catch (err) {
+      log.error('Failed to update playbook', { error: err });
+      throw err;
+    }
+  };
+
+  // Check if showing skeleton
+  const showSkeleton = companyData.loading || !companyData.isTabLoaded(activeTab);
+
+  // Render skeleton based on tab
+  const renderSkeleton = () => (
+    <div className="mc-skeleton-container">
+      {(activeTab === 'projects' || activeTab === 'playbooks') && (
+        <>
+          <div className="mc-skeleton-stats">
+            {[1,2,3,4].map(i => <Skeleton key={i} width={140} height={80} style={{ borderRadius: 12 }} />)}
+          </div>
+          <div className="mc-skeleton-filters">
+            <Skeleton width={120} height={36} />
+            <Skeleton width={150} height={36} />
+            <Skeleton width={100} height={36} style={{ marginLeft: 'auto' }} />
+          </div>
+          <div className="mc-skeleton-list">
+            {[1,2,3,4,5].map(i => (
+              <div key={i} className="mc-skeleton-row">
+                <Skeleton variant="circular" width={10} height={10} />
+                <Skeleton width="40%" height={16} />
+                <Skeleton width={70} height={24} style={{ borderRadius: 12 }} />
+                <Skeleton width={60} height={14} style={{ marginLeft: 'auto' }} />
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+      {activeTab === 'decisions' && (
+        <>
+          <div className="mc-skeleton-filters">
+            <Skeleton width={140} height={36} />
+            <Skeleton width={200} height={36} />
+          </div>
+          <div className="mc-skeleton-list">
+            {[1,2,3,4].map(i => (
+              <div key={i} className="mc-skeleton-row">
+                <Skeleton variant="circular" width={8} height={8} />
+                <Skeleton width="50%" height={16} />
+                <Skeleton width={70} height={24} style={{ borderRadius: 12 }} />
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+      {activeTab === 'activity' && (
+        <>
+          <div className="mc-skeleton-filters">
+            <Skeleton width={80} height={14} />
+            <div style={{ display: 'flex', gap: 8, marginLeft: 'auto' }}>
+              {[1,2,3,4].map(i => <Skeleton key={i} width={80} height={28} style={{ borderRadius: 16 }} />)}
+            </div>
+          </div>
+          <div className="mc-skeleton-list">
+            {[1,2,3,4,5,6].map(i => (
+              <div key={i} className="mc-skeleton-row">
+                <Skeleton variant="circular" width={8} height={8} />
+                <Skeleton width="45%" height={16} />
+                <Skeleton width={70} height={22} style={{ borderRadius: 12 }} />
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+      {(activeTab === 'overview' || activeTab === 'team') && (
+        <>
+          <div className="mc-skeleton-stats">
+            {[1,2,3].map(i => <Skeleton key={i} width={200} height={100} style={{ borderRadius: 12 }} />)}
+          </div>
+          <div className="mc-skeleton-list">
+            {[1,2,3].map(i => (
+              <div key={i} className="mc-skeleton-row">
+                <Skeleton width="60%" height={18} />
+                <Skeleton width={100} height={14} style={{ marginLeft: 'auto' }} />
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+
+  return (
+    <div className="mc-overlay" onClick={onClose}>
+      <div className="mc-panel" ref={panelSwipeRef} onClick={e => e.stopPropagation()}>
+        <MyCompanyHeader
+          companyName={companyName}
+          companyId={companyId}
+          allCompanies={allCompanies}
+          pendingDecisionsCount={pendingDecisionsCount}
+          onSelectCompany={onSelectCompany}
+          onClose={onClose}
+          onHeaderClick={handleHeaderClick}
+        />
+
+        <MyCompanyTabs activeTab={activeTab} onTabChange={setActiveTab} />
+
+        {/* Content */}
+        <div className="mc-content" ref={contentRef}>
+          <PullToRefreshIndicator progress={pullProgress} isRefreshing={isRefreshing} pullDistance={pullDistance} />
+
+          {showSkeleton ? renderSkeleton() : companyData.error ? (
+            <div className="mc-error">
+              <p>{companyData.error}</p>
+              <button onClick={companyData.loadData}>Retry</button>
+            </div>
+          ) : (
+            <>
+              {activeTab === 'overview' && (
+                <OverviewTab
+                  overview={companyData.overview}
+                  companyName={companyName}
+                  onEditContext={(data) => setEditingItem({ type: 'company-context', data })}
+                  onViewContext={(data) => setEditingItem({ type: 'company-context-view', data })}
+                />
+              )}
+              {activeTab === 'team' && (
+                <TeamTab
+                  departments={companyData.departments}
+                  totalRoles={totalRoles}
+                  expandedDept={expandedDept}
+                  onExpandDept={setExpandedDept}
+                  onAddDepartment={() => setShowAddForm('department')}
+                  onAddRole={(deptId) => setShowAddForm({ type: 'role', deptId })}
+                  onViewDepartment={(dept) => setEditingItem({ type: 'department', data: dept })}
+                  onViewRole={(role) => setEditingItem({ type: 'role', data: role })}
+                />
+              )}
+              {activeTab === 'projects' && (
+                <ProjectsTab
+                  projects={companyData.projects}
+                  departments={companyData.departments}
+                  projectsLoaded={companyData.projectsLoaded}
+                  loading={companyData.loading}
+                  projectStatusFilter={projectFilters.projectStatusFilter}
+                  projectDeptFilter={projectFilters.projectDeptFilter}
+                  projectSortBy={projectFilters.projectSortBy}
+                  fadingProjectId={projectActions.fadingProjectId}
+                  confirmingDeleteProjectId={projectActions.confirmingDeleteProjectId}
+                  onStatusFilterChange={projectFilters.setProjectStatusFilter}
+                  onDeptFilterChange={projectFilters.setProjectDeptFilter}
+                  onSortByChange={projectFilters.setProjectSortBy}
+                  onConfirmingDeleteChange={projectActions.setConfirmingDeleteProjectId}
+                  onAddProject={() => setEditingItem({ type: 'new_project', data: {} })}
+                  onProjectClick={handleProjectClick}
+                  onCompleteProject={projectActions.handleCompleteProject}
+                  onArchiveProject={projectActions.handleArchiveProject}
+                  onRestoreProject={projectActions.handleRestoreProject}
+                  onDeleteProject={projectActions.handleDeleteProject}
+                />
+              )}
+              {activeTab === 'playbooks' && (
+                <PlaybooksTab
+                  playbooks={companyData.playbooks}
+                  departments={companyData.departments}
+                  playbookTypeFilter={playbookFilters.playbookTypeFilter}
+                  playbookDeptFilter={playbookFilters.playbookDeptFilter}
+                  expandedTypes={playbookFilters.expandedTypes}
+                  onTypeFilterChange={playbookFilters.setPlaybookTypeFilter}
+                  onDeptFilterChange={playbookFilters.setPlaybookDeptFilter}
+                  onExpandedTypesChange={playbookFilters.setExpandedTypes}
+                  onAddPlaybook={() => setShowAddForm('playbook')}
+                  onViewPlaybook={(doc) => setEditingItem({ type: 'playbook', data: doc })}
+                  onArchivePlaybook={handleArchivePlaybook}
+                  onDeletePlaybook={handleDeletePlaybook}
+                />
+              )}
+              {activeTab === 'decisions' && (
+                <DecisionsTab
+                  decisions={companyData.decisions}
+                  departments={companyData.departments}
+                  decisionDeptFilter={decisionFilters.decisionDeptFilter}
+                  decisionSearch={decisionFilters.decisionSearch}
+                  deletingDecisionId={decisionActions.deletingDecisionId}
+                  onDeptFilterChange={decisionFilters.setDecisionDeptFilter}
+                  onSearchChange={decisionFilters.setDecisionSearch}
+                  onPromoteDecision={decisionActions.handlePromoteDecision}
+                  onDeleteDecision={decisionActions.handleDeleteDecision}
+                  onNavigateToConversation={onNavigateToConversation}
+                />
+              )}
+              {activeTab === 'activity' && (
+                <ActivityTab
+                  activityLogs={companyData.activityLogs}
+                  activityLoaded={companyData.activityLoaded}
+                  activityHasMore={companyData.activityHasMore}
+                  activityLoadingMore={activityData.activityLoadingMore}
+                  onActivityClick={handleActivityClick}
+                  onLoadMore={activityData.handleLoadMoreActivity}
+                  onNavigateToConversation={onNavigateToConversation}
+                />
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Modals */}
+        <AddFormModal
+          showAddForm={showAddForm}
+          saving={saving}
+          departments={companyData.departments}
+          onAddDepartment={handleAddDepartment}
+          onAddRole={handleAddRole}
+          onAddPlaybook={handleAddPlaybook}
+          onClose={() => setShowAddForm(null)}
+        />
+
+        <EditingModal
+          editingItem={editingItem}
+          companyId={companyId}
+          companyName={companyName}
+          departments={companyData.departments}
+          playbooks={companyData.playbooks}
+          projects={companyData.projects}
+          initialProjectDecisionToExpand={initialProjectDecisionToExpand}
+          projectActions={projectActions}
+          decisionActions={decisionActions}
+          onClose={() => setEditingItem(null)}
+          onConsumeInitialDecision={() => setInitialProjectDecisionToExpand(null)}
+          onUpdateCompanyContext={handleUpdateCompanyContext}
+          onUpdateDepartment={handleUpdateDepartment}
+          onUpdateRole={handleUpdateRole}
+          onUpdatePlaybook={handleUpdatePlaybook}
+          onNavigateToConversation={onNavigateToConversation}
+          onSetProjects={companyData.setProjects}
+        />
+
+        <PromoteModal
+          promoteModal={decisionActions.promoteModal}
+          departments={companyData.departments}
+          projects={companyData.projects}
+          companyId={companyId}
+          saving={decisionActions.saving}
+          decisionActions={decisionActions}
+          onNavigateToConversation={onNavigateToConversation}
+        />
+
+        <ConfirmActionModal
+          confirmModal={confirmModal}
+          saving={saving}
+          onConfirm={handleConfirmAction}
+          onCancel={() => setConfirmModal(null)}
+        />
+      </div>
+    </div>
+  );
+}

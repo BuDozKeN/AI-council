@@ -194,39 +194,40 @@
   background: rgba(74, 144, 226, 0.05);
 }
 
-/* Image attachment button - inline inside textarea */
+/* Image attachment button - inline inside textarea (right side, subtle) */
 .attach-image-btn-inline {
   position: absolute;
-  bottom: 8px;
-  left: 8px;
+  bottom: 10px;
+  right: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
   border: none;
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.9);
-  color: var(--color-text-tertiary);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-quaternary);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   padding: 0;
   z-index: var(--z-base);
+  opacity: 0.5;
 }
 
 .attach-image-btn-inline:hover:not(:disabled) {
-  color: var(--color-brand-primary);
-  background: var(--color-brand-primary-light);
+  color: var(--color-text-secondary);
+  opacity: 1;
 }
 
 .attach-image-btn-inline:disabled {
-  opacity: 0.4;
+  opacity: 0.25;
   cursor: not-allowed;
 }
 
 .attach-image-btn-inline svg {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
 /* Images in user messages */
@@ -276,12 +277,17 @@
     max-height: 120px;
   }
 
-  /* Attach button touch target */
+  /* Attach button touch target - keep subtle on mobile */
   .attach-image-btn-inline {
-    width: 36px;
-    height: 36px;
-    min-width: 44px;
-    min-height: 44px;
+    width: 28px;
+    height: 28px;
+    bottom: 12px;
+    right: 12px;
+  }
+
+  .attach-image-btn-inline svg {
+    width: 16px;
+    height: 16px;
   }
 }
 

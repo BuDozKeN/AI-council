@@ -1291,20 +1291,20 @@
   .save-toolbar-unified {
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
+    gap: 8px;
     width: 100%;
   }
 
-  /* Options group - vertical layout on mobile */
+  /* Options group - compact vertical layout on mobile */
   .save-options-group {
     display: flex;
     flex-direction: column;
     width: 100%;
-    gap: 8px;
-    padding: 12px;
+    gap: 6px;
+    padding: 10px;
     background: var(--color-slate-50);
     border: 1px solid var(--color-slate-200);
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-md);
   }
 
   /* Hide dividers on mobile - using vertical spacing instead */
@@ -1312,25 +1312,27 @@
     display: none;
   }
 
-  /* Department trigger - full width, proper touch target */
+  /* Department trigger - compact, full width */
   .save-dept-trigger {
     width: 100%;
-    min-height: 48px;
-    justify-content: space-between;
-    padding: 12px 16px;
-    font-size: 15px;
+    min-height: 40px;
+    justify-content: flex-start;
+    gap: 6px;
+    padding: 8px 12px;
+    font-size: 14px;
     background: var(--color-bg-primary);
     border: 1px solid var(--color-slate-200);
     border-radius: var(--radius-md);
   }
 
-  /* Project pill - full width, proper touch target */
+  /* Project pill - compact, full width */
   .save-project-pill {
     width: 100%;
-    min-height: 48px;
-    justify-content: space-between;
-    padding: 12px 16px;
-    font-size: 15px;
+    min-height: 40px;
+    justify-content: flex-start;
+    gap: 6px;
+    padding: 8px 12px;
+    font-size: 14px;
     background: var(--color-bg-primary);
     border: 1px solid var(--color-slate-200);
     border-radius: var(--radius-md);
@@ -1346,21 +1348,21 @@
     border-color: var(--color-purple-200);
   }
 
-  /* Type pills - horizontal row that can wrap */
+  /* Type pills - compact horizontal row */
   .save-type-pills {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+    flex-wrap: nowrap;
+    gap: 6px;
     width: 100%;
   }
 
   .save-type-pill {
     flex: 1;
-    min-width: calc(33% - 6px);
-    min-height: 44px;
+    min-width: 0;
+    min-height: 36px;
     justify-content: center;
-    padding: 10px 12px;
-    font-size: 13px;
+    padding: 6px 8px;
+    font-size: 12px;
     border: 1px solid var(--color-slate-200);
     border-radius: var(--radius-md);
     background: var(--color-bg-primary);
@@ -1370,45 +1372,45 @@
     border-width: 2px;
   }
 
-  /* Save action button - prominent CTA, full width */
+  /* Save action button - compact CTA, full width */
   .save-action-btn {
     width: 100%;
-    min-height: 56px;
+    min-height: 44px;
     justify-content: center;
-    padding: 16px 20px;
-    font-size: 16px;
+    padding: 10px 16px;
+    font-size: 15px;
     font-weight: 600;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-md);
   }
 
-  /* Save status group - full width */
+  /* Save status group - compact */
   .save-status-group {
     width: 100%;
-    min-height: 48px;
+    min-height: 40px;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 12px;
-    padding: 12px 16px;
-  }
-
-  .save-status-text {
-    font-size: 15px;
-  }
-
-  .save-view-link {
-    font-size: 15px;
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
+    gap: 8px;
     padding: 8px 12px;
   }
 
-  /* Access button - full width if shown */
+  .save-status-text {
+    font-size: 14px;
+  }
+
+  .save-view-link {
+    font-size: 14px;
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+  }
+
+  /* Access button - compact, full width */
   .save-access-btn {
     width: 100%;
-    min-height: 48px;
+    min-height: 40px;
     justify-content: center;
-    font-size: 15px;
+    font-size: 14px;
   }
 }
 
@@ -1419,7 +1421,7 @@
 .save-project-list-mobile {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .save-project-option-mobile {
@@ -1427,11 +1429,11 @@
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
-  min-height: 56px;
-  padding: 14px 16px;
+  min-height: 48px;
+  padding: 10px 14px;
   background: var(--color-bg-primary);
   border: 1px solid var(--color-slate-200);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   cursor: pointer;
   text-align: left;
   transition: all 0.15s ease;
@@ -1458,7 +1460,7 @@
 }
 
 .save-project-option-mobile .save-project-option-name {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
   color: var(--color-text-primary);
 }
@@ -1469,24 +1471,24 @@
 }
 
 .save-project-option-mobile .save-project-option-desc {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--color-text-secondary);
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .save-project-create-btn-mobile {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
-  min-height: 52px;
-  margin-top: 8px;
-  padding: 14px 16px;
+  min-height: 44px;
+  margin-top: 6px;
+  padding: 10px 14px;
   background: var(--color-bg-primary);
   border: 2px dashed var(--color-purple-300);
-  border-radius: var(--radius-lg);
-  font-size: 15px;
+  border-radius: var(--radius-md);
+  font-size: 14px;
   font-weight: 500;
   color: var(--color-purple-600);
   cursor: pointer;
