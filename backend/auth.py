@@ -57,7 +57,6 @@ async def get_current_user(
     except HTTPException:
         raise
     except Exception:
-        # Don't expose internal error details
         log_security_event("AUTH_FAILURE", details={"reason": "verification_error"}, severity="WARNING")
         raise HTTPException(
             status_code=401,
