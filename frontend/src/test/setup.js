@@ -2,6 +2,7 @@
  * Vitest setup file
  *
  * This file runs before each test file.
+ * MSW server setup is handled per-test-file for better isolation.
  */
 
 import '@testing-library/jest-dom';

@@ -56,20 +56,61 @@ def truncate_to_limit(text: str, max_chars: int, label: str = "") -> str:
     return truncated + warning
 
 
-def list_available_businesses() -> List[Dict[str, Any]]:
+def list_available_businesses(user_id: Optional[str] = None) -> List[Dict[str, Any]]:
     """
     List available businesses/companies from Supabase.
     Returns list of company objects with id, name, slug, and departments.
+
+    SECURITY: If user_id is provided, only returns companies the user has access to.
+    This is determined by:
+    1. User owns the company (companies.user_id = user_id)
+    2. User has department access (via user_department_access table)
+
+    Args:
+        user_id: Optional user ID to filter accessible companies
+
+    Returns:
+        List of company objects the user can access
     """
     client = get_supabase_service()
     if not client:
         return []
 
     try:
-        # Get companies with their departments
-        result = client.table("companies").select(
-            "id, name, slug, departments(id, name, slug, roles(id, name, slug))"
-        ).execute()
+        if user_id:
+            # SECURITY: Filter to only companies user has access to
+            # First get companies user owns
+            owned_result = client.table("companies").select(
+                "id, name, slug, departments(id, name, slug, roles(id, name, slug))"
+            ).eq("user_id", user_id).execute()
+
+            # Then get companies user has department access to
+            dept_access_result = client.table("user_department_access").select(
+                "departments!inner(company_id)"
+            ).eq("user_id", user_id).execute()
+
+            # Extract unique company IDs from department access
+            accessible_company_ids = set()
+            for row in dept_access_result.data or []:
+                if row.get("departments") and row["departments"].get("company_id"):
+                    accessible_company_ids.add(row["departments"]["company_id"])
+
+            # Add owned companies
+            for row in owned_result.data or []:
+                accessible_company_ids.add(row["id"])
+
+            # Now fetch full details for accessible companies
+            if not accessible_company_ids:
+                return []
+
+            result = client.table("companies").select(
+                "id, name, slug, departments(id, name, slug, roles(id, name, slug))"
+            ).in_("id", list(accessible_company_ids)).execute()
+        else:
+            # No user filter - return all (legacy behavior for internal use)
+            result = client.table("companies").select(
+                "id, name, slug, departments(id, name, slug, roles(id, name, slug))"
+            ).execute()
 
         companies = []
         for row in result.data:
