@@ -4,7 +4,15 @@
  * Common reusable hooks for gestures, keyboard, modals, and deliberation state.
  */
 
-// Hooks
+// TanStack Query hooks
+export * from './queries';
+
+// App-level state hooks
+export { useMessageStreaming } from './useMessageStreaming';
+export { useBulkConversationActions } from './useBulkConversationActions';
+export { useTriage } from './useTriage';
+
+// Gesture and UI Hooks
 export { useSwipeGesture, useGlobalSwipe } from './useSwipeGesture';
 export { usePullToRefresh } from './usePullToRefresh';
 export { useLongPress } from './useLongPress';
@@ -47,3 +55,10 @@ export type {
   DropHandlers,
   UseDragAndDropReturn,
 } from './useDragAndDrop';
+export type {
+  StreamingContext,
+  ConversationState,
+  UseMessageStreamingOptions,
+} from './useMessageStreaming';
+export type { UseBulkConversationActionsOptions } from './useBulkConversationActions';
+export type { UseTriageOptions } from './useTriage';
