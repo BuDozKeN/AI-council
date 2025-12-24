@@ -113,5 +113,5 @@
   align-items: center;
   justify-content: center;
   background: var(--color-bg-primary);
-  z-index: 10;
+  z-index: var(--z-elevated);
 }

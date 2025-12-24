@@ -203,7 +203,7 @@
   font-weight: 400;
   border-radius: var(--radius-sm);
   white-space: nowrap;
-  z-index: 100;
+  z-index: var(--z-dropdown);
   margin-bottom: 4px;
 }
 

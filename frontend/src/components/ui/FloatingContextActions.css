@@ -54,7 +54,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
   opacity: 0.85;
-  z-index: 5;
+  z-index: var(--z-raised);
 }
 
 .floating-copy-btn:hover {
@@ -102,7 +102,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   transition: all 0.2s ease;
   opacity: 0.85;
-  z-index: 10;
+  z-index: var(--z-elevated);
   /* Animation on appear */
   animation: floating-btn-appear 0.2s ease-out;
 }

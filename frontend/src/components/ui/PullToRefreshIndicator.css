@@ -10,7 +10,7 @@
   justify-content: center;
   gap: 8px;
   padding: 12px;
-  z-index: 50;
+  z-index: var(--z-sticky);
   pointer-events: none;
 }
 
