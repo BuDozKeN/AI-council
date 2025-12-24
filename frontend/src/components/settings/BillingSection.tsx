@@ -1,20 +1,21 @@
 import { Skeleton } from '../ui/Skeleton';
 import { Button } from '../ui/button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
 import { useBilling } from './hooks/useBilling';
 
 const BillingSkeleton = () => (
   <>
     {/* Usage Card Skeleton */}
-    <div className="settings-card">
-      <div className="card-header">
+    <Card className="settings-card">
+      <CardHeader>
         <Skeleton width={120} height={20} />
         <Skeleton width={240} height={14} className="mt-2" />
-      </div>
-      <div className="card-body">
+      </CardHeader>
+      <CardContent>
         <Skeleton height={10} className="rounded" />
         <Skeleton width={200} height={14} className="mt-2.5" />
-      </div>
-    </div>
+      </CardContent>
+    </Card>
 
     {/* Plans Skeleton */}
     <div className="plans-section">
@@ -68,12 +69,12 @@ export function BillingSection({ isOpen }) {
       )}
 
       {/* Usage Card */}
-      <div className="settings-card">
-        <div className="card-header">
-          <h3>Current Usage</h3>
-          <p>Your council queries this billing period</p>
-        </div>
-        <div className="card-body">
+      <Card className="settings-card">
+        <CardHeader>
+          <CardTitle>Current Usage</CardTitle>
+          <CardDescription>Your council queries this billing period</CardDescription>
+        </CardHeader>
+        <CardContent>
           <div className="usage-bar">
             <div
               className="usage-fill"
@@ -88,8 +89,8 @@ export function BillingSection({ isOpen }) {
               : `${queriesUsed} / ${queriesLimit} queries this month`
             }
           </p>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Plans */}
       <div className="plans-section">
@@ -151,8 +152,8 @@ export function BillingSection({ isOpen }) {
 
       {/* Manage Subscription */}
       {currentTier !== 'free' && (
-        <div className="settings-card manage-card">
-          <div className="manage-content">
+        <Card className="settings-card manage-card">
+          <CardContent className="manage-content">
             <div>
               <p className="manage-title">Manage your subscription</p>
               <p className="manage-desc">Update payment method, view invoices, or cancel</p>
@@ -164,8 +165,8 @@ export function BillingSection({ isOpen }) {
             >
               {checkoutLoading === 'manage' ? 'Loading...' : 'Manage Billing'}
             </Button>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
 
       <p className="stripe-note">Secure payments powered by Stripe</p>
