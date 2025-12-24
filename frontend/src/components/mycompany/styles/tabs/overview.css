@@ -152,11 +152,26 @@
   letter-spacing: -0.02em;
 }
 
+/* Semantic stat value colors */
+.mc-stat-value.active { color: var(--color-blue-700); }
+.mc-stat-value.completed { color: var(--color-green-700); }
+.mc-stat-value.archived { color: var(--color-gray-500); }
+.mc-stat-value.decisions { color: var(--color-amber-700); }
+.mc-stat-value.total { color: var(--color-emerald-600); }
+.mc-stat-value.sops { color: var(--color-blue-700); }
+.mc-stat-value.frameworks { color: var(--color-amber-700); }
+.mc-stat-value.policies { color: var(--color-violet-700); }
+
 .mc-stat-label {
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--color-slate-500);
   margin-top: 4px;
+}
+
+/* Clickable stat cards */
+.mc-stat-card.clickable {
+  cursor: pointer;
 }
 
 /* ============================================================================

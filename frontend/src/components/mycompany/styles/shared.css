@@ -316,11 +316,17 @@
   font-size: 13px;
 }
 
-/* Icon button */
-.mc-btn-icon {
+/* Icon button (full button) */
+.mc-btn-icon-only {
   padding: 8px;
   min-width: 36px;
   min-height: 36px;
+}
+
+/* Icon inside button */
+.mc-btn-icon {
+  flex-shrink: 0;
+  margin-right: 4px;
 }
 
 /* ============================================================================

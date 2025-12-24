@@ -419,7 +419,7 @@ function App() {
   // Show blank screen while checking auth (auth is fast, avoids flicker)
   // Use bg-secondary to match landing page background
   if (authLoading) {
-    return <div className="app" style={{ background: 'var(--color-bg-secondary)' }} />;
+    return <div className="app app-loading" />;
   }
 
   // Show login if not authenticated OR if user needs to reset password

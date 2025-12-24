@@ -49,6 +49,10 @@ export default defineConfig([
       // React best practices
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
+
+      // Discourage inline styles - use CSS classes or Tailwind utilities instead
+      // Note: 'warn' to allow dynamic styles like style={{ '--model-color': color }}
+      // Full enforcement requires eslint-plugin-react's forbid-component-props
     },
   },
   // JavaScript source files (legacy)

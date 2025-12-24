@@ -366,7 +366,7 @@
   cursor: pointer;
   transition: all 0.15s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  z-index: 10;
+  z-index: var(--z-elevated);
   margin-left: 12px;
   margin-bottom: 8px;
 }

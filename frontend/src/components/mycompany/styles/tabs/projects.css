@@ -1020,7 +1020,7 @@
   position: sticky;
   top: 0;
   float: right;
-  z-index: 10;
+  z-index: var(--z-elevated);
   margin-left: 12px;
   margin-bottom: 8px;
 }

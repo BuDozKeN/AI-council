@@ -12,15 +12,15 @@
   border: none;
 }
 
-/* Accordion trigger */
-.stage2-trigger {
+/* Accordion trigger - use higher specificity to override Radix defaults */
+.stage2-accordion .stage2-trigger {
   padding: 0;
   font-weight: inherit;
-  text-decoration: none !important;
+  text-decoration: none;
 }
 
-.stage2-trigger:hover {
-  text-decoration: none !important;
+.stage2-accordion .stage2-trigger:hover {
+  text-decoration: none;
 }
 
 .stage2-trigger-content {
@@ -747,10 +747,10 @@
     background-attachment: local, local, scroll, scroll;
   }
 
-  .stage2 .table-scroll-wrapper th,
-  .stage2 .table-scroll-wrapper td {
-    padding: 8px 10px !important;
-    font-size: 13px !important;
+  .stage2-content .table-scroll-wrapper th,
+  .stage2-content .table-scroll-wrapper td {
+    padding: 8px 10px;
+    font-size: 13px;
     white-space: nowrap;
   }
 
@@ -781,9 +781,9 @@
   }
 
   /* Scale down the title icon slightly */
-  .stage2 .stage-title > svg {
-    width: 16px !important;
-    height: 16px !important;
+  .stage2-header .stage-title > svg {
+    width: 16px;
+    height: 16px;
   }
 
   /* Hide conversation title topic on mobile to save space */
@@ -803,9 +803,9 @@
     border-radius: 8px;
   }
 
-  .stage2-winner svg {
-    width: 12px !important;
-    height: 12px !important;
+  .stage2 .stage2-winner svg {
+    width: 12px;
+    height: 12px;
   }
 
   .stage2-winner .winner-model-icon {
@@ -1004,9 +1004,9 @@
   }
 
   /* Scale down the title icon */
-  .stage2 .stage-title > svg {
-    width: 14px !important;
-    height: 14px !important;
+  .stage2-header .stage-title > svg {
+    width: 14px;
+    height: 14px;
   }
 
   /* Collapse arrow smaller */
@@ -1021,9 +1021,9 @@
     border-radius: 6px;
   }
 
-  .stage2-winner svg {
-    width: 10px !important;
-    height: 10px !important;
+  .stage2 .stage2-winner svg {
+    width: 10px;
+    height: 10px;
   }
 
   .stage2-winner .winner-model-icon {

@@ -439,7 +439,7 @@
     position: fixed;
     bottom: calc(80px + env(safe-area-inset-bottom, 0px));
     right: 16px;
-    z-index: 99;
+    z-index: var(--z-sticky);
   }
 }
 
@@ -470,7 +470,7 @@
       0 4px 12px rgba(99, 102, 241, 0.4),
       0 2px 4px rgba(0, 0, 0, 0.1);
     cursor: pointer;
-    z-index: 98;
+    z-index: var(--z-overlay);
     transition: all 0.2s ease;
   }
 

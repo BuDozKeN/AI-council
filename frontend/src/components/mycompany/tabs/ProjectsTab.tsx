@@ -232,31 +232,28 @@ export function ProjectsTab({
       {/* Stats grid - same style as Overview tab */}
       <div className="mc-stats-grid">
         <div
-          className={`mc-stat-card ${projectStatusFilter === 'active' ? 'selected' : ''}`}
+          className={`mc-stat-card clickable ${projectStatusFilter === 'active' ? 'selected' : ''}`}
           onClick={() => onStatusFilterChange && onStatusFilterChange(projectStatusFilter === 'active' ? 'all' : 'active')}
-          style={{ cursor: 'pointer' }}
         >
-          <div className="mc-stat-value" style={{ color: '#1d4ed8' }}>{stats.active}</div>
+          <div className="mc-stat-value active">{stats.active}</div>
           <div className="mc-stat-label">Active</div>
         </div>
         <div
-          className={`mc-stat-card ${projectStatusFilter === 'completed' ? 'selected' : ''}`}
+          className={`mc-stat-card clickable ${projectStatusFilter === 'completed' ? 'selected' : ''}`}
           onClick={() => onStatusFilterChange && onStatusFilterChange(projectStatusFilter === 'completed' ? 'all' : 'completed')}
-          style={{ cursor: 'pointer' }}
         >
-          <div className="mc-stat-value" style={{ color: '#15803d' }}>{stats.completed}</div>
+          <div className="mc-stat-value completed">{stats.completed}</div>
           <div className="mc-stat-label">Completed</div>
         </div>
         <div
-          className={`mc-stat-card ${projectStatusFilter === 'archived' ? 'selected' : ''}`}
+          className={`mc-stat-card clickable ${projectStatusFilter === 'archived' ? 'selected' : ''}`}
           onClick={() => onStatusFilterChange && onStatusFilterChange(projectStatusFilter === 'archived' ? 'all' : 'archived')}
-          style={{ cursor: 'pointer' }}
         >
-          <div className="mc-stat-value" style={{ color: '#6b7280' }}>{stats.archived}</div>
+          <div className="mc-stat-value archived">{stats.archived}</div>
           <div className="mc-stat-label">Archived</div>
         </div>
         <div className="mc-stat-card">
-          <div className="mc-stat-value" style={{ color: '#b45309' }}>{stats.totalDecisions}</div>
+          <div className="mc-stat-value decisions">{stats.totalDecisions}</div>
           <div className="mc-stat-label">Decisions</div>
         </div>
       </div>
@@ -279,9 +276,7 @@ export function ProjectsTab({
           className="mc-btn-clean primary"
           onClick={onAddProject}
         >
-          <svg style={{ width: '14px', height: '14px', marginRight: '4px' }} viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-          </svg>
+          <Plus size={14} className="mc-btn-icon" />
           New Project
         </button>
       </div>
