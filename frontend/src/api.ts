@@ -11,22 +11,93 @@ const API_BASE = import.meta.env.PROD
   ? (import.meta.env.VITE_API_URL || 'http://localhost:8000')
   : '';
 
+// =============================================================================
+// Type Definitions
+// =============================================================================
+
+type TokenGetter = (() => Promise<string | null>) | null;
+
+export interface ListConversationsOptions {
+  limit?: number;
+  offset?: number;
+  search?: string;
+  includeArchived?: boolean;
+  sortBy?: 'date' | 'activity';
+  companyId?: string | null;
+}
+
+export interface SendMessageStreamOptions {
+  businessId?: string | null;
+  department?: string | null;
+  role?: string | null;
+  departments?: string[] | null;
+  roles?: string[] | null;
+  playbooks?: string[] | null;
+  projectId?: string | null;
+  attachmentIds?: string[] | null;
+  signal?: AbortSignal | null;
+}
+
+export interface ChatStreamOptions {
+  businessId?: string | null;
+  departmentId?: string | null;
+  departmentIds?: string[] | null;
+  roleIds?: string[] | null;
+  playbookIds?: string[] | null;
+  projectId?: string | null;
+  signal?: AbortSignal | null;
+}
+
+export interface ListDecisionsOptions {
+  departmentId?: string | null;
+  projectId?: string | null;
+  category?: string | null;
+  status?: string | null;
+  search?: string | null;
+  limit?: number | null;
+}
+
+export interface ListActivityOptions {
+  limit?: number;
+  eventType?: string | null;
+  days?: number | null;
+}
+
+export interface ContextWriteAssistOptions {
+  playbookType?: string | null;
+}
+
+export interface SaveDecisionOptions {
+  saveDecision?: boolean;
+  companyId?: string;
+  conversationId?: string;
+  responseIndex?: number;
+  decisionTitle?: string;
+  departmentId?: string | null;
+  departmentIds?: string[] | null;
+}
+
+export type SSEEventCallback = (eventType: string, data: Record<string, unknown>) => void;
+
+// =============================================================================
+// Token Management
+// =============================================================================
+
 // Token getter function - set by the app to provide auth tokens
-let getAccessToken = null;
+let getAccessToken: TokenGetter = null;
 
 /**
  * Set the function that retrieves the access token.
- * @param {function} getter - Async function that returns the access token
  */
-export const setTokenGetter = (getter) => {
+export const setTokenGetter = (getter: TokenGetter): void => {
   getAccessToken = getter;
 };
 
 /**
  * Get headers including Authorization if token is available.
  */
-const getAuthHeaders = async () => {
-  const headers = {
+const getAuthHeaders = async (): Promise<Record<string, string>> => {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
   if (getAccessToken) {
@@ -64,7 +135,7 @@ export const api = {
    * @param {string} options.sortBy - Sort order: "date" (most recent first) or "activity" (most messages first)
    * @param {string} options.companyId - Optional company ID to filter conversations by
    */
-  async listConversations({ limit = 20, offset = 0, search = '', includeArchived = false, sortBy = 'date', companyId = null } = {}) {
+  async listConversations({ limit = 20, offset = 0, search = '', includeArchived = false, sortBy = 'date', companyId = null }: ListConversationsOptions = {}) {
     const headers = await getAuthHeaders();
     const params = new URLSearchParams();
     params.set('limit', limit.toString());
@@ -179,7 +250,7 @@ export const api = {
    * @param {AbortSignal} options.signal - Optional AbortSignal for cancellation
    * @returns {Promise<void>}
    */
-  async sendMessageStream(conversationId, content, onEvent, options = {}) {
+  async sendMessageStream(conversationId: string, content: string, onEvent: SSEEventCallback, options: SendMessageStreamOptions = {}) {
     const { businessId = null, department = 'standard', role = null, departments = null, roles = null, playbooks = null, projectId = null, attachmentIds = null, signal = null } = options;
     const headers = await getAuthHeaders();
     const response = await fetch(
@@ -206,6 +277,9 @@ export const api = {
       throw new Error('Failed to send message');
     }
 
+    if (!response.body) {
+      throw new Error('Response body is null');
+    }
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = ''; // Buffer for incomplete SSE events
@@ -241,7 +315,7 @@ export const api = {
         }
       }
     } catch (e) {
-      if (e.name === 'AbortError') {
+      if (e instanceof Error && e.name === 'AbortError') {
         onEvent('cancelled', { message: 'Request was cancelled' });
       } else {
         throw e;
@@ -264,7 +338,7 @@ export const api = {
    * @param {AbortSignal} options.signal - Optional AbortSignal for cancellation
    * @returns {Promise<void>}
    */
-  async sendChatStream(conversationId, content, onEvent, options = {}) {
+  async sendChatStream(conversationId: string, content: string, onEvent: SSEEventCallback, options: ChatStreamOptions = {}) {
     const { businessId = null, departmentId = null, departmentIds = null, roleIds = null, playbookIds = null, projectId = null, signal = null } = options;
     const headers = await getAuthHeaders();
     const response = await fetch(
@@ -289,6 +363,9 @@ export const api = {
       throw new Error('Failed to send chat message');
     }
 
+    if (!response.body) {
+      throw new Error('Response body is null');
+    }
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
@@ -320,7 +397,7 @@ export const api = {
         }
       }
     } catch (e) {
-      if (e.name === 'AbortError') {
+      if (e instanceof Error && e.name === 'AbortError') {
         onEvent('cancelled', { message: 'Request was cancelled' });
       } else {
         throw e;
@@ -1008,7 +1085,7 @@ export const api = {
    * @param {boolean} options.includeArchived - Include archived projects
    * @returns {Promise<{projects: Array}>}
    */
-  async listProjectsWithStats(companyId, options = {}) {
+  async listProjectsWithStats(companyId: string, options: { status?: string; includeArchived?: boolean } = {}) {
     const headers = await getAuthHeaders();
     const params = new URLSearchParams();
     if (options.status) params.append('status', options.status);
@@ -1191,7 +1268,7 @@ export const api = {
    * @param {number|null} messageIndex - Optional message index within the conversation
    * @returns {Promise<{id: string, file_name: string, file_type: string, file_size: number, storage_path: string, signed_url: string}>}
    */
-  async uploadAttachment(file, conversationId = null, messageIndex = null) {
+  async uploadAttachment(file: File, conversationId: string | null = null, messageIndex: number | null = null) {
     const token = getAccessToken ? await getAccessToken() : null;
 
     const formData = new FormData();
@@ -1302,7 +1379,7 @@ export const api = {
    * @param {number} options.limit - Max entries to return
    * @returns {Promise<{entries: Array}>}
    */
-  async getKnowledgeEntries(companyId, options = {}) {
+  async getKnowledgeEntries(companyId: string, options: ListDecisionsOptions = {}) {
     const headers = await getAuthHeaders();
     const params = new URLSearchParams();
     if (options.departmentId) params.append('department_id', options.departmentId);
@@ -1445,7 +1522,7 @@ export const api = {
       { headers }
     );
     if (!response.ok) {
-      const error = new Error('Failed to get conversation decision');
+      const error = new Error('Failed to get conversation decision') as Error & { status?: number };
       error.status = response.status;
       throw error;
     }
@@ -1465,7 +1542,7 @@ export const api = {
    *   - extracted.category: One of technical_decision, ux_pattern, feature, policy, process
    *   - extracted.department: One of technology, ux, marketing, operations, strategy, finance, hr, general
    */
-  async extractDecision(userQuestion, councilResponse) {
+  async extractDecision(userQuestion: string, councilResponse: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/knowledge/extract`, {
       method: 'POST',
@@ -1489,7 +1566,7 @@ export const api = {
    * @param {string} councilResponse - The Stage 3 chairman synthesis
    * @returns {Promise<{success: boolean, extracted: {name: string, description: string}, error: string}>}
    */
-  async extractProject(userQuestion, councilResponse) {
+  async extractProject(userQuestion: string, councilResponse: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/projects/extract`, {
       method: 'POST',
@@ -1516,7 +1593,7 @@ export const api = {
    *   - structured.suggested_name: Suggested project name (if not provided)
    *   - structured.sections: Array of {title, content} for preview
    */
-  async structureProjectContext(freeText, projectName = '') {
+  async structureProjectContext(freeText: string, projectName: string = '') {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/projects/structure-context`, {
       method: 'POST',
@@ -1544,10 +1621,10 @@ export const api = {
    *   - merged.summary: Brief summary of what was learned
    *   - merged.changes: Description of changes made
    */
-  async mergeDecisionIntoProject(projectId, existingContext, decisionContent, userQuestion = '', options = {}) {
+  async mergeDecisionIntoProject(projectId: string, existingContext: string, decisionContent: string, userQuestion: string = '', options: SaveDecisionOptions = {}) {
     const headers = await getAuthHeaders();
     // Ensure required fields are never undefined (would cause Pydantic validation error)
-    const body = {
+    const body: Record<string, unknown> = {
       existing_context: existingContext || '',
       decision_content: decisionContent || '',
       user_question: userQuestion || '',
@@ -1603,7 +1680,7 @@ export const api = {
       return result;
     } catch (err) {
       clearTimeout(timeoutId);
-      if (err.name === 'AbortError') {
+      if (err instanceof Error && err.name === 'AbortError') {
         log.error('merge-decision request timed out after 60s');
         throw new Error('Request timed out. The AI merge is taking too long. Please try again.');
       }
@@ -2096,13 +2173,13 @@ export const api = {
    * @param {string} eventType - Optional filter by event type
    * @returns {Promise<{logs: Array}>}
    */
-  async getCompanyActivity(companyId, options = {}) {
+  async getCompanyActivity(companyId: string, options: ListActivityOptions = {}) {
     const { limit = 50, eventType = null, days = null } = options;
     const headers = await getAuthHeaders();
     const params = new URLSearchParams();
-    if (limit) params.append('limit', limit);
+    if (limit) params.append('limit', String(limit));
     if (eventType) params.append('event_type', eventType);
-    if (days) params.append('days', days);
+    if (days) params.append('days', String(days));
     const queryString = params.toString() ? `?${params.toString()}` : '';
     const response = await fetch(`${API_BASE}/api/company/${companyId}/activity${queryString}`, { headers });
     if (!response.ok) {
@@ -2120,9 +2197,9 @@ export const api = {
    * @param {string} [params.playbookType] - For playbook content: 'sop', 'framework', or 'policy'
    * @returns {Promise<{suggestion: string}>} AI-generated suggestion
    */
-  async aiWriteAssist({ prompt, context, playbookType }) {
+  async aiWriteAssist({ prompt, context, playbookType }: { prompt: string; context: string; playbookType?: string }) {
     const headers = await getAuthHeaders();
-    const body = { prompt, context };
+    const body: Record<string, string> = { prompt, context };
     if (playbookType) {
       body.playbook_type = playbookType;
     }

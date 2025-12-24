@@ -1,8 +1,8 @@
 """Knowledge base for storing council decisions and patterns."""
 
 from typing import Optional, List, Dict, Any
-from .database import get_supabase, get_supabase_service
-from .security import verify_user_company_access, verify_user_entry_access, log_security_event, escape_sql_like_pattern
+from .database import get_supabase, get_supabase_service, get_supabase_with_auth
+from .security import verify_user_company_access, verify_user_entry_access, log_security_event, log_app_event, escape_sql_like_pattern
 
 
 def create_knowledge_entry(
@@ -43,7 +43,38 @@ def create_knowledge_entry(
     Returns:
         The created entry dict, or None if access denied or error
     """
-    # SECURITY: Verify user has access to the target company
+    # Use canonical department_ids array
+    dept_ids = department_ids if department_ids else ([department_id] if department_id else [])
+
+    # Use RLS-authenticated client if access_token is available
+    if access_token:
+        client = get_supabase_with_auth(access_token)
+        # Try using the SECURITY DEFINER function for atomic access check + insert
+        try:
+            result = client.rpc("create_knowledge_entry_safe", {
+                "p_company_id": company_id,
+                "p_user_id": user_id,
+                "p_title": title,
+                "p_content": content or body_md or summary or "",
+                "p_category": category,
+                "p_department_ids": dept_ids,
+                "p_project_id": project_id,
+                "p_auto_inject": auto_inject,
+                "p_scope": scope,
+                "p_tags": tags or []
+            }).execute()
+
+            if result.data:
+                log_app_event("KNOWLEDGE", "Created via safe function", user_id=user_id)
+                return result.data
+
+        except Exception as e:
+            # Fallback to direct insert if function not available
+            if "function" not in str(e).lower():
+                log_app_event("KNOWLEDGE", f"Safe function failed: {e}", user_id=user_id, level="WARNING")
+            # Continue to fallback below
+
+    # SECURITY: Verify user has access to the target company (for fallback path)
     if not verify_user_company_access(user_id, company_id):
         log_security_event("CREATE_BLOCKED", user_id=user_id,
                           resource_type="knowledge_entry", resource_id=company_id,
@@ -51,9 +82,6 @@ def create_knowledge_entry(
         return None
 
     client = get_supabase_service()
-
-    # Use canonical department_ids array
-    dept_ids = department_ids if department_ids else ([department_id] if department_id else [])
 
     # Use canonical content field, fall back to body_md or summary
     canonical_content = content or body_md or summary or ""

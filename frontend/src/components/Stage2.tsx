@@ -159,7 +159,7 @@ function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoadin
   };
 
   return (
-    <div className={`stage stage2 ${isCollapsed ? 'collapsed' : ''}`}>
+    <div className={`stage stage2 ${isCollapsed ? 'collapsed' : ''}`} data-stage="stage2">
       <h3 className="stage-title clickable" onClick={toggleCollapsed}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
         {streamingCount > 0 ? (

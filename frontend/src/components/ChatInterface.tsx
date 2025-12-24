@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
+import { ArrowUp } from 'lucide-react';
 import Triage from './Triage';
 import ImageUpload from './ImageUpload';
 import CouncilProgressCapsule from './CouncilProgressCapsule';
@@ -12,7 +13,7 @@ import {
   ContextBar,
   ModeToggle,
   MessageList,
-  ChatInput
+  ChatInput,
 } from './chat';
 import './ChatInterface.css';
 import './ImageUpload.css';
@@ -88,6 +89,7 @@ export default function ChatInterface({
   const [input, setInput] = useState('');
   const [chatMode, setChatMode] = useState('chat');
   const [attachedImages, setAttachedImages] = useState([]);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const userHasScrolledUp = useRef(false);
@@ -120,13 +122,22 @@ export default function ChatInterface({
     return container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
   };
 
-  // Handle user scroll - track if they've scrolled up
+  // Handle user scroll - track if they've scrolled up and show/hide scroll-to-top
   const handleScroll = () => {
     userHasScrolledUp.current = !isNearBottom();
+    const container = messagesContainerRef.current;
+    if (container) {
+      // Show scroll-to-top button when scrolled down more than 300px
+      setShowScrollTop(container.scrollTop > 300);
+    }
   };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const scrollToTop = () => {
+    messagesContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Scroll to the last Stage 3 response (unused for now, kept for potential future use)
@@ -397,6 +408,18 @@ export default function ChatInterface({
         })()}
 
         <div ref={messagesEndRef} />
+
+        {/* Floating scroll-to-top button - inside messages container */}
+        {showScrollTop && (
+          <button
+            className="scroll-to-top-fab"
+            onClick={scrollToTop}
+            title="Scroll to top"
+            aria-label="Scroll to top"
+          >
+            <ArrowUp size={20} />
+          </button>
+        )}
       </div>
 
       {/* Input form when no triage active */}

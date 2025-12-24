@@ -298,8 +298,7 @@ async def download_attachment(
             "name": attachment["file_name"],
             "id": attachment["id"],
         }
-    except Exception as e:
-        print(f"[ATTACHMENTS ERROR] download failed: {type(e).__name__}: {e}", flush=True)
+    except Exception:
         return None
 
 

@@ -1871,7 +1871,7 @@
   padding: 22px;
   overflow-y: auto;
   position: relative; /* Needed for button positioning context */
-  height: 550px; /* Fixed height for consistent tabs - content scrolls within */
+  max-height: 60vh; /* Limit height, content scrolls if needed */
 }
 
 /* Scroll to top button for modal body */

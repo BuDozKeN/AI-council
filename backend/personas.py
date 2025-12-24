@@ -547,9 +547,6 @@ async def get_write_assist_persona_async(
                     "system_prompt": db_persona.get("system_prompt", ""),
                     "model_preferences": model_prefs
                 }
-            else:
-                print(f"[PERSONAS] WARNING: DB persona '{persona_key}' not found, using hardcoded fallback", flush=True)
-
     # Fallback to hardcoded personas
     if context == "playbook-content" and playbook_type:
         persona = WRITE_ASSIST_PERSONAS.get(playbook_type, WRITE_ASSIST_PERSONAS["sop"])
@@ -672,8 +669,8 @@ async def get_db_persona(
                 persona = result.data[0]
                 _db_persona_cache[cache_key] = (persona, now)
                 return persona
-        except Exception as rpc_err:
-            print(f"[PERSONAS] RPC failed, trying direct query: {rpc_err}", flush=True)
+        except Exception:
+            pass  # Fall through to direct query
 
         # Fallback: Direct query if RPC fails
         if company_id:
@@ -705,8 +702,7 @@ async def get_db_persona(
 
         return None
 
-    except Exception as e:
-        print(f"[PERSONAS] Error fetching persona '{persona_key}': {e}", flush=True)
+    except Exception:
         return None
 
 
@@ -734,9 +730,7 @@ async def get_db_persona_with_fallback(
     if persona:
         return persona
 
-    # Persona not found - log warning and return basic assistant
-    # This should only happen if database is misconfigured
-    print(f"[PERSONAS] WARNING: Persona '{persona_key}' not found in database!", flush=True)
+    # Persona not found - return basic assistant fallback
     return {
         'name': 'Assistant',
         'system_prompt': 'You are a helpful assistant.',
@@ -793,7 +787,6 @@ async def query_with_persona(
 
     # Handle mock mode
     if MOCK_LLM:
-        print(f"[PERSONAS] MOCK mode for persona '{persona_key}'", flush=True)
         return {"content": f"[MOCK] Response from {persona.get('name', persona_key)}"}
 
     # Build messages
@@ -803,24 +796,14 @@ async def query_with_persona(
     ]
 
     # Try each model in order
-    last_error = None
     for model in models:
         try:
-            print(f"[PERSONAS] Trying {persona_key} with model: {model}", flush=True)
             result = await query_model(model=model, messages=messages)
 
             if result and result.get('content'):
-                print(f"[PERSONAS] Success with {model}", flush=True)
                 return result
-            else:
-                last_error = f"No response from {model}"
-                print(f"[PERSONAS] {last_error}", flush=True)
-                continue
 
-        except Exception as e:
-            last_error = f"{model} failed: {type(e).__name__}: {e}"
-            print(f"[PERSONAS] {last_error}", flush=True)
+        except Exception:
             continue
 
-    print(f"[PERSONAS] All models failed for '{persona_key}'. Last error: {last_error}", flush=True)
     return None

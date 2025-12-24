@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, memo } from 'react';
-import { createPortal } from 'react-dom';
 import { Sparkles } from 'lucide-react';
 import { Spinner } from '../ui/Spinner';
 import { CopyButton } from '../ui/CopyButton';
@@ -59,12 +58,9 @@ function Stage3({
   onSelectProject,
   onCreateProject,
 }) {
-  // Detect mobile
-  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
-  const [isCollapsed, setIsCollapsed] = useState(isMobile ? false : defaultCollapsed);
+  const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [departments, setDepartments] = useState([]);
   const [fullProjectData, setFullProjectData] = useState(null);
-  const [floatingCopyPos, setFloatingCopyPos] = useState(null);
 
   const containerRef = useRef(null);
   const finalResponseRef = useRef(null);
@@ -218,55 +214,8 @@ function Stage3({
   const chairmanIconPath = getModelIconPath(chairmanModel);
   const isComplete = !isStreaming && !hasError && displayText;
 
-  // Floating copy button
-  useEffect(() => {
-    if (!isComplete || !displayText || !finalResponseRef.current || isCollapsed) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: syncing position with DOM state
-      setFloatingCopyPos(null);
-      return;
-    }
-
-    if (isMobile) {
-      const responseRect = finalResponseRef.current?.getBoundingClientRect();
-      if (responseRect) {
-        setFloatingCopyPos({
-          top: 80,
-          right: 16
-        });
-      }
-      return;
-    }
-
-    const messagesContainer = document.querySelector('.messages-container');
-    if (!messagesContainer) return;
-
-    const handleScroll = () => {
-      const responseRect = finalResponseRef.current?.getBoundingClientRect();
-      if (!responseRect) return;
-
-      const headerScrolledOut = responseRect.top < 80;
-      const responseStillVisible = responseRect.bottom > 120;
-
-      if (headerScrolledOut && responseStillVisible) {
-        setFloatingCopyPos({
-          top: 80,
-          right: window.innerWidth - responseRect.right + 16
-        });
-      } else {
-        setFloatingCopyPos(null);
-      }
-    };
-
-    messagesContainer.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-
-    return () => messagesContainer.removeEventListener('scroll', handleScroll);
-  }, [isComplete, displayText, isCollapsed, isMobile]);
-
   const toggleCollapsed = () => {
-    if (!isMobile) {
-      setIsCollapsed(!isCollapsed);
-    }
+    setIsCollapsed(!isCollapsed);
   };
 
   // Show thinking state
@@ -295,12 +244,12 @@ function Stage3({
   }
 
   return (
-    <div ref={containerRef} className={`stage stage3 ${isCollapsed ? 'collapsed' : ''}`}>
+    <div ref={containerRef} className={`stage stage3 ${isCollapsed ? 'collapsed' : ''}`} data-stage="stage3">
       <h3
-        className={`stage-title ${!isMobile ? 'clickable' : ''}`}
-        onClick={!isMobile ? toggleCollapsed : undefined}
+        className="stage-title clickable"
+        onClick={toggleCollapsed}
       >
-        {!isMobile && <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>}
+        <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
         <Sparkles className="h-5 w-5 text-amber-500 flex-shrink-0" />
         <span className="font-semibold tracking-tight">Step 3: Final Recommendation</span>
         {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
@@ -313,13 +262,19 @@ function Stage3({
 
       {!isCollapsed && (
         <div className="final-response" ref={finalResponseRef}>
+          {/* Sticky copy button - stays inside Stage 3 */}
+          {isComplete && displayText && (
+            <div className="stage3-sticky-copy">
+              <CopyButton text={displayText} size="sm" className="stage3-copy-btn" />
+            </div>
+          )}
+
           <Stage3Content
             displayText={displayText}
             hasError={hasError}
             isStreaming={isStreaming}
             isComplete={isComplete}
             chairmanIconPath={chairmanIconPath}
-            isMobile={isMobile}
           />
 
           {isComplete && companyId && (
@@ -348,22 +303,6 @@ function Stage3({
             />
           )}
         </div>
-      )}
-
-      {/* Floating copy button */}
-      {floatingCopyPos && createPortal(
-        <div
-          className="stage3-floating-copy"
-          style={{
-            position: 'fixed',
-            top: floatingCopyPos.top,
-            right: floatingCopyPos.right,
-            zIndex: 100
-          }}
-        >
-          <CopyButton text={displayText} size="sm" className="stage3-copy-btn" />
-        </div>,
-        document.body
       )}
     </div>
   );

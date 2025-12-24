@@ -286,8 +286,7 @@ from fastapi.exceptions import RequestValidationError
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     from fastapi.responses import JSONResponse
-    # Log validation errors for debugging
-    print(f"[VALIDATION ERROR] {request.url.path}: {exc.errors()}", flush=True)
+    log_app_event("VALIDATION", f"Validation error on {request.url.path}", level="WARNING", errors=str(exc.errors())[:200])
     origin = request.headers.get("origin", "")
     headers = {}
     if origin in CORS_ORIGINS:
@@ -312,17 +311,13 @@ async def general_exception_handler(request: Request, exc: Exception):
         f"{datetime.utcnow().isoformat()}{type(exc).__name__}{str(exc)}".encode()
     ).hexdigest()[:8].upper()
 
-    # Log the full error for debugging (server-side only)
-    # SECURITY: Full traceback only goes to logs, never to client
-    print(f"[ERROR] ref={error_ref} Unhandled exception: {type(exc).__name__}: {exc}", flush=True)
+    # Log the error for debugging (server-side only)
+    log_app_event("ERROR", f"Unhandled exception: {type(exc).__name__}", level="ERROR", ref=error_ref, path=request.url.path)
 
     # Only print full traceback in development
     environment = os.getenv("ENVIRONMENT", "development")
     if environment != "production":
         traceback.print_exc()
-    else:
-        # In production, log just enough to debug without exposing internals
-        print(f"[ERROR] ref={error_ref} path={request.url.path} method={request.method}", flush=True)
 
     origin = request.headers.get("origin", "")
     headers = {}
@@ -359,20 +354,16 @@ async def _auto_synthesize_project_context(project_id: str, user: dict) -> bool:
     from datetime import datetime
     import json
 
-    print(f"[AUTO-SYNTH] Background task started for project {project_id}", flush=True)
-
     try:
         # Wrap entire operation in timeout to prevent hanging
         async with asyncio.timeout(120):  # 2 minute timeout
             service_client = get_supabase_service()
             if not service_client:
-                print("[AUTO-SYNTH] No service client available", flush=True)
                 return False
 
             # Get project details
             project_result = service_client.table("projects").select("*").eq("id", project_id).single().execute()
             if not project_result.data:
-                print(f"[AUTO-SYNTH] Project not found: {project_id}", flush=True)
                 return False
 
             project = project_result.data
@@ -388,14 +379,10 @@ async def _auto_synthesize_project_context(project_id: str, user: dict) -> bool:
             decisions = decisions_result.data or []
 
             if not decisions:
-                print(f"[AUTO-SYNTH] No decisions for project {project_id}", flush=True)
                 return False
-
-            print(f"[AUTO-SYNTH] Found {len(decisions)} decisions to synthesize", flush=True)
 
             # Handle mock mode
             if MOCK_LLM:
-                print("[AUTO-SYNTH] MOCK mode - creating simple context", flush=True)
                 mock_context = f"# {project.get('name', 'Project')}\n\n{project.get('description', '')}\n\n## Key Decisions\n\nAuto-synthesized from {len(decisions)} decisions."
                 service_client.table("projects").update({
                     "context_md": mock_context,
@@ -456,7 +443,6 @@ Today's date: {today_date}"""
             result_data = None
             for model in models:
                 try:
-                    print(f"[AUTO-SYNTH] Trying model: {model}", flush=True)
                     result = await query_model(model=model, messages=messages)
 
                     if result and result.get('content'):
@@ -472,17 +458,13 @@ Today's date: {today_date}"""
 
                         try:
                             result_data = json.loads(content)
-                            print(f"[AUTO-SYNTH] Success with {model}", flush=True)
                             break
-                        except json.JSONDecodeError as e:
-                            print(f"[AUTO-SYNTH] JSON parse error from {model}: {e}", flush=True)
+                        except json.JSONDecodeError:
                             continue
-                except Exception as e:
-                    print(f"[AUTO-SYNTH] {model} failed: {e}", flush=True)
+                except Exception:
                     continue
 
             if result_data is None:
-                print(f"[AUTO-SYNTH] All models failed", flush=True)
                 return False
 
             new_context = result_data.get("context_md", "")
@@ -493,14 +475,11 @@ Today's date: {today_date}"""
                 "updated_at": datetime.now().isoformat()
             }).eq("id", project_id).execute()
 
-            print(f"[AUTO-SYNTH] Updated project context with {len(decisions)} decisions", flush=True)
             return True
 
     except asyncio.TimeoutError:
-        print(f"[AUTO-SYNTH] Timeout after 120s for project {project_id}", flush=True)
         return False
-    except Exception as e:
-        print(f"[AUTO-SYNTH] Background task failed: {e}", flush=True)
+    except Exception:
         return False
 
 
@@ -518,7 +497,6 @@ async def shutdown_event():
 
     if _http_client and not _http_client.is_closed:
         await _http_client.aclose()
-        print("[SHUTDOWN] HTTP client closed", flush=True)
 
 
 # Health check endpoint
@@ -666,8 +644,6 @@ async def list_conversations(
         sort_by=sort_by,
         company_id=company_id
     )
-    elapsed = time.time() - start
-    print(f"[PERF] list_conversations took {elapsed:.2f}s for {len(result['conversations'])} conversations (limit={limit}, offset={offset}, sort_by={sort_by})", flush=True)
     return result
 
 
@@ -687,11 +663,7 @@ async def create_conversation(request: CreateConversationRequest, user: dict = D
 @app.get("/api/conversations/{conversation_id}", response_model=Conversation)
 async def get_conversation(conversation_id: str, user: dict = Depends(get_current_user)):
     """Get a specific conversation with all its messages (must be owner)."""
-    import time
-    start = time.time()
     conversation = storage.get_conversation(conversation_id, access_token=user.get("access_token"))
-    elapsed = time.time() - start
-    print(f"[PERF] get_conversation took {elapsed:.2f}s", flush=True)
     if conversation is None:
         raise HTTPException(status_code=404, detail="Conversation not found")
     # Verify ownership
@@ -818,24 +790,17 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
 
         api_key_token = None
         try:
-            print(f"[STREAM] Starting event_generator for conversation {conversation_id}", flush=True)
-
             # Get user's BYOK key if available
             user_api_key = await get_user_api_key(user_id)
             if user_api_key:
                 api_key_token = set_request_api_key(user_api_key)
-                print(f"[STREAM] Using user's BYOK key", flush=True)
-            else:
-                print(f"[STREAM] Using system API key", flush=True)
 
             # Add user message with user_id
             storage.add_user_message(conversation_id, body.content, user_id, access_token=access_token)
-            print(f"[STREAM] User message saved", flush=True)
 
             # Process image attachments if provided
             enhanced_query = body.content
             if body.attachment_ids:
-                print(f"[STREAM] Processing {len(body.attachment_ids)} image attachments", flush=True)
                 yield f"data: {json.dumps({'type': 'image_analysis_start', 'count': len(body.attachment_ids)})}\n\n"
 
                 # Download all images in parallel for better performance
@@ -851,15 +816,11 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
                     return_exceptions=True
                 )
                 images = [img for img in download_results if img and not isinstance(img, Exception)]
-                for img in images:
-                    print(f"[STREAM] Downloaded image: {img['name']}", flush=True)
 
                 # Analyze images with vision model
                 if images:
-                    print(f"[STREAM] Analyzing {len(images)} images with vision model", flush=True)
                     image_analysis = await image_analyzer.analyze_images(images, body.content)
                     enhanced_query = image_analyzer.format_query_with_images(body.content, image_analysis)
-                    print(f"[STREAM] Image analysis complete, query enhanced", flush=True)
 
                     # Send the image analysis to frontend so user can see what the council receives
                     yield f"data: {json.dumps({'type': 'image_analysis_complete', 'analyzed': len(images), 'analysis': image_analysis})}\n\n"
@@ -881,8 +842,7 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
                         storage.update_conversation_title(conversation_id, title, access_token=access_token)
                         title_emitted = True
                         return f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
-                    except Exception as e:
-                        print(f"[STREAM] Title generation error: {e}", flush=True)
+                    except Exception:
                         title_emitted = True  # Don't retry on error
                 return None
 
@@ -891,15 +851,12 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
             if body.business_id:
                 try:
                     company_uuid = storage.resolve_company_id(body.business_id, access_token)
-                    print(f"[STREAM] Resolved company_uuid: {company_uuid}", flush=True)
-                except Exception as e:
-                    print(f"[STREAM] Could not resolve company_uuid: {e}", flush=True)
+                except Exception:
+                    pass  # Proceed without company context
 
             # Stage 1: Collect responses with streaming
-            print(f"[STREAM] Emitting stage1_start", flush=True)
             yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
             stage1_results = []
-            print(f"[STREAM] Starting stage1_stream_responses", flush=True)
             # NOTE: Do NOT pass conversation_history to Stage 1!
             # Previous chairman synthesis responses contain "Chairman's Synthesis" language
             # that causes Stage 1 models to mimic the synthesis format instead of providing
@@ -993,8 +950,8 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
                     title = await title_task
                     storage.update_conversation_title(conversation_id, title, access_token=access_token)
                     yield f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
-                except Exception as e:
-                    print(f"[STREAM] Title generation failed: {e}", flush=True)
+                except Exception:
+                    pass  # Title generation is non-critical
 
             # Update department on first message
             if is_first_message and body.department:
@@ -1026,8 +983,8 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
                         model_used="council",  # Multi-model council session
                         session_id=conversation_id
                     )
-                except Exception as e:
-                    print(f"[USAGE] Failed to log usage event: {e}", flush=True)
+                except Exception:
+                    pass  # Usage logging is non-critical
 
             # Record rankings to leaderboard
             if aggregate_rankings:
@@ -1042,10 +999,8 @@ async def send_message_stream(request: Request, conversation_id: str, body: Send
             yield f"data: {json.dumps({'type': 'complete'})}\n\n"
 
         except Exception as e:
-            # Send error event with full traceback
-            import traceback
-            error_details = traceback.format_exc()
-            print(f"[STREAM ERROR] Exception in event_generator: {e}\n{error_details}", flush=True)
+            # Send error event
+            log_app_event("STREAM", "Exception in event_generator", level="ERROR")
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
         finally:
             # Reset BYOK context
@@ -1563,10 +1518,8 @@ async def list_projects(company_id: str, user: dict = Depends(get_current_user))
     try:
         projects = storage.get_projects(company_id, access_token)
         return {"projects": projects}
-    except Exception as e:
-        # Log error but return empty list to not break the app
-        # Projects feature is new and may have DB/RLS issues
-        print(f"[ERROR] Failed to list projects: {e}", flush=True)
+    except Exception:
+        # Return empty list to not break the app
         return {"projects": []}
 
 
@@ -1579,9 +1532,6 @@ async def create_project(
     """Create a new project."""
     access_token = user.get("access_token")
     user_id = user.get("id")
-
-    print(f"[CREATE_PROJECT_ENDPOINT] company_id={company_id}, user_id={user_id}, name={project.name}", flush=True)
-    print(f"[CREATE_PROJECT_ENDPOINT] project data: name={project.name}, desc={project.description[:50] if project.description else None}, dept_ids={project.department_ids}, source={project.source}", flush=True)
 
     try:
         result = storage.create_project(
@@ -1598,17 +1548,12 @@ async def create_project(
         )
 
         if not result:
-            print(f"[CREATE_PROJECT_ENDPOINT] No result returned from storage.create_project", flush=True)
             raise HTTPException(status_code=500, detail="Failed to create project - no result returned")
 
-        print(f"[CREATE_PROJECT_ENDPOINT] Success! project_id={result.get('id')}", flush=True)
         return {"project": result}
     except HTTPException:
         raise
     except Exception as e:
-        import traceback
-        print(f"[CREATE_PROJECT_ENDPOINT] ERROR: {type(e).__name__}: {e}", flush=True)
-        print(f"[CREATE_PROJECT_ENDPOINT] Traceback:\n{traceback.format_exc()}", flush=True)
         raise SecureHTTPException.internal_error(f"Failed to create project: {str(e)}")
 
 
@@ -1661,7 +1606,6 @@ async def update_project(
     except Exception as e:
         # Encode error message safely to avoid charmap issues on Windows
         err_msg = str(e).encode('ascii', 'replace').decode('ascii')
-        print(f"[ERROR] Failed to update project: {type(e).__name__}: {err_msg}", flush=True)
         raise SecureHTTPException.internal_error(f"Failed to update project: {err_msg}")
 
 
@@ -1696,7 +1640,6 @@ async def delete_project(project_id: str, user: dict = Depends(get_current_user)
 
         return {"success": True}
     except Exception as e:
-        print(f"[ERROR] Failed to delete project: {type(e).__name__}: {e}", flush=True)
         raise SecureHTTPException.internal_error(f"Failed to delete project: {str(e)}")
 
 
@@ -1724,7 +1667,6 @@ async def list_projects_with_stats(
         )
         return {"projects": projects}
     except Exception as e:
-        print(f"[ERROR] Failed to list projects with stats: {e}", flush=True)
         return {"projects": []}
 
 
@@ -2010,10 +1952,8 @@ async def upload_attachment(
         return result
 
     except ValueError as e:
-        print(f"[ATTACHMENTS ERROR] upload ValueError: {e}", flush=True)
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        print(f"[ATTACHMENTS ERROR] upload failed: {type(e).__name__}: {e}", flush=True)
         raise SecureHTTPException.internal_error(str(e))
 
 
@@ -2039,7 +1979,6 @@ async def get_attachment(
     except HTTPException:
         raise
     except Exception as e:
-        print(f"[ATTACHMENTS ERROR] get failed: {type(e).__name__}: {e}", flush=True)
         raise SecureHTTPException.internal_error(str(e))
 
 
@@ -2065,7 +2004,6 @@ async def get_attachment_url(
     except HTTPException:
         raise
     except Exception as e:
-        print(f"[ATTACHMENTS ERROR] get_url failed: {type(e).__name__}: {e}", flush=True)
         raise SecureHTTPException.internal_error(str(e))
 
 
@@ -2091,7 +2029,6 @@ async def delete_attachment(
     except HTTPException:
         raise
     except Exception as e:
-        print(f"[ATTACHMENTS ERROR] delete failed: {type(e).__name__}: {e}", flush=True)
         raise SecureHTTPException.internal_error(str(e))
 
 
@@ -2143,12 +2080,10 @@ async def set_mock_mode(mock_request: MockModeRequest, user: dict = Depends(get_
             openrouter.MOCK_LLM = True
             openrouter.generate_mock_response = generate_mock_response
             openrouter.generate_mock_response_stream = generate_mock_response_stream
-            print("[MOCK] Mock mode ENABLED via API", flush=True)
         except ImportError as e:
             return {"success": False, "error": f"Failed to load mock module: {e}"}
     else:
         openrouter.MOCK_LLM = False
-        print("[MOCK] Mock mode DISABLED via API", flush=True)
 
     return {
         "success": True,
@@ -2184,13 +2119,6 @@ async def set_caching_mode(request: CachingModeRequest, user: dict = Depends(get
 
     # Update the config module
     config.ENABLE_PROMPT_CACHING = request.enabled
-
-    # Update openrouter module to use new setting
-    # The convert_to_cached_messages function reads from config directly
-    if request.enabled:
-        print("[CACHE] Prompt caching ENABLED via API", flush=True)
-    else:
-        print("[CACHE] Prompt caching DISABLED via API", flush=True)
 
     return {
         "success": True,
@@ -2274,7 +2202,6 @@ async def create_knowledge_entry(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        print(f"[KNOWLEDGE ERROR] create failed: {type(e).__name__}: {e}", flush=True)
         raise SecureHTTPException.internal_error(str(e))
 
 
@@ -2311,7 +2238,6 @@ async def get_knowledge_entries(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        print(f"[KNOWLEDGE ERROR] get failed: {type(e).__name__}: {e}", flush=True)
         raise SecureHTTPException.internal_error(str(e))
 
 
@@ -2335,7 +2261,6 @@ async def get_knowledge_count_for_conversation(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        print(f"[KNOWLEDGE ERROR] get count failed: {type(e).__name__}: {e}", flush=True)
         raise SecureHTTPException.internal_error(str(e))
 
 
@@ -2357,17 +2282,11 @@ async def get_conversation_linked_project(
         service_client = get_supabase_service()
         access_token = user.get("access_token")
 
-        # DEBUG: Check if service client exists
-        print(f"[LINKED-PROJECT] Service client: {service_client is not None}", flush=True)
         if service_client is None:
-            print("[LINKED-PROJECT] ERROR: Service client is None! SUPABASE_SERVICE_KEY may not be set.", flush=True)
             return {"project": None}
 
         # Resolve company_id if it's a slug
         company_uuid = storage.resolve_company_id(company_id, access_token)
-
-        # DEBUG: logging to trace linked project lookup
-        print(f"[LINKED-PROJECT] Looking for conversation_id={conversation_id}, company={company_uuid}", flush=True)
 
         # First, check if a project was created directly from this conversation
         project_result = service_client.table("projects") \
@@ -2377,10 +2296,7 @@ async def get_conversation_linked_project(
             .limit(1) \
             .execute()
 
-        print(f"[LINKED-PROJECT] Projects query result: {project_result.data}", flush=True)
-
         if project_result.data and project_result.data[0]:
-            print(f"[LINKED-PROJECT] Found project via source_conversation_id: {project_result.data[0]}", flush=True)
             return {"project": project_result.data[0]}
 
         # Second, check for knowledge entries from this conversation linked to a project
@@ -2412,7 +2328,6 @@ async def get_conversation_linked_project(
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        print(f"[KNOWLEDGE ERROR] get linked project failed: {type(e).__name__}: {e}", flush=True)
         raise SecureHTTPException.internal_error(str(e))
 
 
@@ -2433,20 +2348,15 @@ async def get_conversation_decision(
         access_token = user.get("access_token")
 
         if service_client is None:
-            print("[CONV-DECISION] ERROR: Service client is None!", flush=True)
             return {"decision": None}
 
         # Resolve company_id if it's a slug
         try:
             company_uuid = storage.resolve_company_id(company_id, access_token)
-        except Exception as resolve_err:
-            print(f"[CONV-DECISION] Failed to resolve company_id: {resolve_err}", flush=True)
+        except Exception:
             return {"decision": None}
 
-        print(f"[CONV-DECISION] Looking for conversation_id={conversation_id}, company={company_uuid}, response_index={response_index}", flush=True)
-
         # Find decision by conversation_id and response_index
-        # Only select specific fields that we know exist to avoid column errors
         try:
             result = service_client.table("knowledge_entries") \
                 .select("id, title, project_id, department_ids, created_at, response_index") \
@@ -2456,14 +2366,11 @@ async def get_conversation_decision(
                 .eq("is_active", True) \
                 .limit(1) \
                 .execute()
-        except Exception as query_err:
-            print(f"[CONV-DECISION] Query failed: {type(query_err).__name__}: {query_err}", flush=True)
+        except Exception:
             return {"decision": None}
 
         if result.data and result.data[0]:
-            decision = result.data[0]
-            print(f"[CONV-DECISION] Found decision with response_index={response_index}: id={decision['id']}, project_id={decision.get('project_id')}", flush=True)
-            return {"decision": decision}
+            return {"decision": result.data[0]}
 
         # Legacy fallback: For the first assistant message (index 1), also check for decisions
         # saved before response_index was added (they have NULL response_index)
@@ -2480,17 +2387,14 @@ async def get_conversation_decision(
                     .execute()
 
                 if legacy_result.data and legacy_result.data[0]:
-                    decision = legacy_result.data[0]
-                    print(f"[CONV-DECISION] Found legacy decision (no response_index): id={decision['id']}, project_id={decision.get('project_id')}", flush=True)
-                    return {"decision": decision}
-            except Exception as legacy_err:
-                print(f"[CONV-DECISION] Legacy query failed: {legacy_err}", flush=True)
+                    return {"decision": legacy_result.data[0]}
+            except Exception:
+                pass
 
         return {"decision": None}
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        print(f"[CONV-DECISION ERROR] failed: {type(e).__name__}: {e}", flush=True)
         raise SecureHTTPException.internal_error(str(e))
 
 
@@ -2513,7 +2417,6 @@ async def update_knowledge_entry(
             return result
         raise HTTPException(status_code=404, detail="Entry not found or access denied")
     except Exception as e:
-        print(f"[KNOWLEDGE ERROR] update failed: {type(e).__name__}: {e}", flush=True)
         raise SecureHTTPException.internal_error(str(e))
 
 
@@ -2534,7 +2437,6 @@ async def delete_knowledge_entry(
             return {"success": True}
         raise HTTPException(status_code=404, detail="Resource not found")
     except Exception as e:
-        print(f"[KNOWLEDGE ERROR] delete failed: {type(e).__name__}: {e}", flush=True)
         raise SecureHTTPException.internal_error(str(e))
 
 
@@ -2566,7 +2468,6 @@ async def extract_decision_from_response(
 
     # Handle mock mode - return a reasonable mock extraction
     if MOCK_LLM:
-        print("[MOCK] Returning mock knowledge extraction response", flush=True)
         return {
             "success": True,
             "extracted": {
@@ -2669,8 +2570,7 @@ RULES:
                     "success": True,
                     "extracted": extracted
                 }
-            except json.JSONDecodeError as e:
-                print(f"[EXTRACT] JSON parse error, using fallback: {e}", flush=True)
+            except json.JSONDecodeError:
                 # AI returned invalid JSON - use fallback
                 fallback = extract_knowledge_fallback(extract_request.user_question, extract_request.council_response)
                 return {
@@ -2679,16 +2579,14 @@ RULES:
                 }
         else:
             # No response from AI - use fallback
-            print("[EXTRACT] No AI response, using fallback", flush=True)
             fallback = extract_knowledge_fallback(extract_request.user_question, extract_request.council_response)
             return {
                 "success": True,
                 "extracted": fallback
             }
 
-    except Exception as e:
-        # AI failed (rate limit, network error, etc.) - use fallback
-        print(f"[EXTRACT] AI failed ({type(e).__name__}: {e}), using fallback", flush=True)
+    except Exception:
+        # AI failed - use fallback
         fallback = extract_knowledge_fallback(extract_request.user_question, extract_request.council_response)
         return {
             "success": True,
@@ -2716,14 +2614,12 @@ async def extract_project_from_response(
 
     IMPORTANT: Always returns clean, readable data - either from AI or fallback.
     """
-    print(f"[PROJECT EXTRACT] Called with question: {extract_request.user_question[:100]}...", flush=True)
     from .openrouter import query_model, MOCK_LLM
     from .knowledge_fallback import extract_project_fallback
     from .personas import get_db_persona_with_fallback
 
     # Handle mock mode
     if MOCK_LLM:
-        print("[MOCK] Returning mock project extraction", flush=True)
         return {
             "success": True,
             "extracted": {
@@ -2831,8 +2727,7 @@ Respond ONLY with this JSON (no markdown code blocks, just the JSON):
                     "success": True,
                     "extracted": extracted
                 }
-            except json.JSONDecodeError as e:
-                print(f"[PROJECT EXTRACT] JSON parse error, using fallback: {e}", flush=True)
+            except json.JSONDecodeError:
                 # AI returned invalid JSON - use fallback
                 fallback = extract_project_fallback(extract_request.user_question, extract_request.council_response)
                 return {
@@ -2841,16 +2736,14 @@ Respond ONLY with this JSON (no markdown code blocks, just the JSON):
                 }
         else:
             # No response from AI - use fallback
-            print("[PROJECT EXTRACT] No AI response, using fallback", flush=True)
             fallback = extract_project_fallback(extract_request.user_question, extract_request.council_response)
             return {
                 "success": True,
                 "extracted": fallback
             }
 
-    except Exception as e:
-        # AI failed (rate limit, network error, etc.) - use fallback
-        print(f"[PROJECT EXTRACT] AI failed ({type(e).__name__}: {e}), using fallback", flush=True)
+    except Exception:
+        # AI failed - use fallback
         fallback = extract_project_fallback(extract_request.user_question, extract_request.council_response)
         return {
             "success": True,
@@ -2881,7 +2774,6 @@ async def structure_project_context(
 
     # Handle mock mode
     if MOCK_LLM:
-        print("[MOCK] Returning mock structure context", flush=True)
         from .knowledge_fallback import _short_title
         mock_title = structure_request.project_name or _short_title(structure_request.free_text, max_words=4)
         return {
@@ -2956,7 +2848,6 @@ CONTENT RULES:
 
     for model in models:
         try:
-            print(f"[STRUCTURE] Trying model: {model}", flush=True)
             result = await query_model(model=model, messages=messages)
 
             if result and result.get('content'):
@@ -2976,23 +2867,15 @@ CONTENT RULES:
                     if not structured.get('suggested_name') or structured.get('suggested_name') == 'New Project':
                         from .knowledge_fallback import _short_title
                         structured['suggested_name'] = _short_title(free_text, max_words=4)
-                    print(f"[STRUCTURE] Success with {model}", flush=True)
                     return {"structured": structured}
-                except json.JSONDecodeError as e:
-                    last_error = f"JSON parse error from {model}: {e}"
-                    print(f"[STRUCTURE] {last_error}", flush=True)
+                except json.JSONDecodeError:
                     continue
             else:
-                last_error = f"No response from {model}"
-                print(f"[STRUCTURE] {last_error}", flush=True)
                 continue
-        except Exception as e:
-            last_error = f"{model} failed: {type(e).__name__}: {e}"
-            print(f"[STRUCTURE] {last_error}", flush=True)
+        except Exception:
             continue
 
     # All models failed - use fallback
-    print(f"[STRUCTURE] All models failed. Last error: {last_error}", flush=True)
     from .knowledge_fallback import _short_title
     fallback_title = project_name or _short_title(free_text, max_words=4)
     return {
@@ -3037,16 +2920,8 @@ async def merge_decision_into_project(
     from .openrouter import query_model, MOCK_LLM
     from .personas import get_db_persona_with_fallback
 
-    # Debug logging
-    print(f"[merge-decision] project_id={project_id}", flush=True)
-    print(f"[merge-decision] save_decision={merge_request.save_decision}, company_id={merge_request.company_id}", flush=True)
-    print(f"[merge-decision] conversation_id={merge_request.conversation_id}, response_index={merge_request.response_index}", flush=True)
-    print(f"[merge-decision] existing_context length={len(merge_request.existing_context) if merge_request.existing_context else 0}", flush=True)
-    print(f"[merge-decision] decision_content length={len(merge_request.decision_content) if merge_request.decision_content else 0}", flush=True)
-
     # Handle mock mode
     if MOCK_LLM:
-        print("[MOCK] Returning mock merge result", flush=True)
         return {
             "merged": {
                 "context_md": merge_request.existing_context + "\n\n## Recent Decision\nKey learning from council discussion.",
@@ -3129,18 +3004,15 @@ Remember: The context_md should be a complete, standalone document. Respond only
 
     for model, timeout in MERGE_MODELS:
         try:
-            print(f"[MERGE] Trying model: {model} (timeout: {timeout}s)", flush=True)
             result = await query_model(model=model, messages=messages, timeout=timeout)
 
             if result and result.get('content'):
                 content = result['content']
                 # Clean up markdown code blocks if present - more robust extraction
-                # Try to extract JSON from markdown code block first
                 json_match = re.search(r'```(?:json)?\s*([\s\S]*?)```', content)
                 if json_match:
                     content = json_match.group(1).strip()
                 else:
-                    # No code block - try to find JSON object directly
                     # SECURITY: Use lazy quantifier to prevent ReDoS on malformed input
                     json_obj_match = re.search(r'\{[\s\S]*?\}', content)
                     if json_obj_match:
@@ -3151,25 +3023,17 @@ Remember: The context_md should be a complete, standalone document. Respond only
                 import json
                 try:
                     merged = json.loads(content)
-                    print(f"[MERGE] Success with {model}", flush=True)
-                    break  # Success! Exit the loop
-                except json.JSONDecodeError as e:
-                    last_error = f"JSON parse error from {model}: {e}"
-                    print(f"[MERGE] {last_error}. Content preview: {content[:200]}...", flush=True)
-                    continue  # Try next model
+                    break  # Success!
+                except json.JSONDecodeError:
+                    continue
             else:
-                last_error = f"No response from {model}"
-                print(f"[MERGE] {last_error}", flush=True)
-                continue  # Try next model
+                continue
 
-        except Exception as e:
-            last_error = f"{model} failed: {type(e).__name__}: {e}"
-            print(f"[MERGE] {last_error}", flush=True)
-            continue  # Try next model
+        except Exception:
+            continue
 
-    # If all models failed, use minimal fallback (don't append garbage)
+    # If all models failed, use minimal fallback
     if merged is None:
-        print(f"[MERGE] All models failed. Last error: {last_error}", flush=True)
         # Instead of appending duplicate content, just return the existing context unchanged
         # with an error message so the user knows to retry
         merged = {
@@ -3236,12 +3100,9 @@ Remember: The context_md should be a complete, standalone document. Respond only
                     "tags": []
                 }
                 log_app_event("MERGE", "Saving decision", user_id=user_id, resource_id=project_id)
-                print(f"[MERGE] Insert data keys: {list(insert_data.keys())}", flush=True)
-                print(f"[MERGE] company_id={insert_data.get('company_id')}, project_id={insert_data.get('project_id')}", flush=True)
 
                 try:
                     result = client.table("knowledge_entries").insert(insert_data).execute()
-                    print(f"[MERGE] Insert result: data={bool(result.data)}, count={len(result.data) if result.data else 0}", flush=True)
                     if result.data and len(result.data) > 0:
                         saved_decision_id = result.data[0].get("id")
                         log_app_event("MERGE", "Decision saved", resource_id=saved_decision_id)
@@ -3281,10 +3142,8 @@ Remember: The context_md should be a complete, standalone document. Respond only
                             if not new_dept_ids.issubset(current_dept_ids):
                                 updated_dept_ids = list(current_dept_ids | new_dept_ids)
                                 client.table("projects").update({"department_ids": updated_dept_ids}).eq("id", project_id).execute()
-                                added = new_dept_ids - current_dept_ids
-                                print(f"[MERGE] Added departments {added} to project {project_id}", flush=True)
-                    except Exception as dept_err:
-                        print(f"[MERGE] Failed to sync departments to project (non-fatal): {dept_err}", flush=True)
+                    except Exception:
+                        pass  # Non-fatal department sync
 
         except Exception as save_err:
             log_app_event("MERGE", f"Failed to save decision (non-fatal): {type(save_err).__name__}: {str(save_err)}", level="ERROR")
@@ -3324,27 +3183,20 @@ async def regenerate_project_context(
     from datetime import datetime
     import json
 
-    print(f"[REGEN] Starting regenerate-context for project {project_id}", flush=True)
-
     access_token = user.get("access_token")
     if not access_token:
-        print(f"[REGEN] No access token", flush=True)
         raise HTTPException(status_code=401, detail="Authentication required")
 
     # Get project details - use service client to bypass RLS issues
     service_client = get_supabase_service()
 
-    print(f"[REGEN] Fetching project {project_id}", flush=True)
     project_result = service_client.table("projects").select("*").eq("id", project_id).single().execute()
     if not project_result.data:
-        print(f"[REGEN] Project not found: {project_id}", flush=True)
         raise HTTPException(status_code=404, detail="Resource not found")
 
     project = project_result.data
-    print(f"[REGEN] Got project: {project.get('name')}", flush=True)
 
-    # Get ALL decisions for this project (use service client to bypass RLS on knowledge_entries)
-    print(f"[REGEN] About to query decisions...", flush=True)
+    # Get ALL decisions for this project
     decisions_result = service_client.table("knowledge_entries") \
         .select("id, title, content, question, content_summary, created_at, department_ids") \
         .eq("project_id", project_id) \
@@ -3354,9 +3206,6 @@ async def regenerate_project_context(
 
     decisions = decisions_result.data or []
     existing_context = project.get("context_md", "")
-
-    print(f"[REGEN] Found {len(decisions)} decisions for project", flush=True)
-    print(f"[REGEN] Existing context length: {len(existing_context) if existing_context else 0} chars", flush=True)
 
     # If no decisions AND no existing context, nothing to enhance
     if not decisions and not existing_context:
@@ -3369,7 +3218,6 @@ async def regenerate_project_context(
 
     # Handle mock mode
     if MOCK_LLM:
-        print("[MOCK] Returning mock regenerated context", flush=True)
         if decisions:
             mock_context = f"# {project.get('name', 'Project')}\n\n{project.get('description', '')}\n\n## Key Decisions\n\nRegenerated from {len(decisions)} decisions."
         else:
@@ -3473,7 +3321,6 @@ Today's date: {today_date}"""
 
     for model in models:
         try:
-            print(f"[REGEN] Trying model: {model}", flush=True)
             result = await query_model(model=model, messages=messages)
 
             if result and result.get('content'):
@@ -3489,20 +3336,15 @@ Today's date: {today_date}"""
 
                 try:
                     result_data = json.loads(content)
-                    print(f"[REGEN] Success with {model}", flush=True)
                     break
                 except json.JSONDecodeError as e:
-                    last_error = f"JSON parse error from {model}: {e}"
-                    print(f"[REGEN] {last_error}", flush=True)
+                    last_error = f"JSON parse error: {e}"
                     continue
             else:
-                last_error = f"No response from {model}"
-                print(f"[REGEN] {last_error}", flush=True)
                 continue
 
         except Exception as e:
-            last_error = f"{model} failed: {type(e).__name__}: {e}"
-            print(f"[REGEN] {last_error}", flush=True)
+            last_error = f"{type(e).__name__}: {e}"
             continue
 
     if result_data is None:
@@ -3564,7 +3406,6 @@ async def get_project_report(
     except HTTPException:
         raise
     except Exception as e:
-        print(f"[REPORT ERROR] generate failed: {type(e).__name__}: {e}", flush=True)
         raise SecureHTTPException.internal_error(str(e))
 
 
@@ -3598,7 +3439,6 @@ async def ai_write_assist(
 
     # Handle mock mode
     if MOCK_LLM:
-        print(f"[MOCK] AI Write Assist - context: {write_request.context}", flush=True)
         return {
             "suggestion": f"[AI Suggestion for {write_request.context}]\n\nThis is a mock response. In production, the AI would improve your text based on the context type."
         }
@@ -3632,8 +3472,6 @@ async def ai_write_assist(
         last_error = None
         for model_to_use in model_preferences:
             try:
-                print(f"[WRITE-ASSIST] context={write_request.context}, type={type_label}, model={model_to_use}", flush=True)
-
                 result = await query_model(
                     model=model_to_use,
                     messages=messages
@@ -3642,27 +3480,21 @@ async def ai_write_assist(
                 if result and result.get('content'):
                     # Strip any remaining markdown artifacts
                     suggestion = result['content'].strip()
-                    # Remove common markdown patterns
                     suggestion = suggestion.replace('**', '').replace('__', '')
                     suggestion = suggestion.replace('```', '').replace('`', '')
                     return {"suggestion": suggestion}
                 else:
-                    last_error = f"No response from {model_to_use}"
-                    print(f"[WRITE-ASSIST] {last_error}", flush=True)
                     continue
 
-            except Exception as model_err:
-                last_error = f"{model_to_use} failed: {type(model_err).__name__}: {model_err}"
-                print(f"[WRITE-ASSIST] {last_error}", flush=True)
+            except Exception:
                 continue
 
         # All models failed
-        raise SecureHTTPException.internal_error(f"All AI models failed. Last error: {last_error}")
+        raise SecureHTTPException.internal_error("All AI models failed")
 
     except HTTPException:
         raise
     except Exception as e:
-        print(f"[WRITE-ASSIST ERROR] {type(e).__name__}: {e}", flush=True)
         raise SecureHTTPException.internal_error(f"AI assistance failed: {str(e)}")
 
 

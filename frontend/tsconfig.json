@@ -15,12 +15,15 @@
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* Linting - relaxed for migration */
+    /* Linting - strict mode */
     "strict": true,
-    "noImplicitAny": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false,
+    "noImplicitAny": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
 
     /* Allow JS files during migration */
     "allowJs": true,

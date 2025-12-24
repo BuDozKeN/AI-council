@@ -99,7 +99,6 @@ Appears to be informational/instructional content.
 async def _mock_analyze_image(image_name: str) -> str:
     """Generate a mock image analysis for testing."""
     await asyncio.sleep(random.uniform(MOCK_DELAY_MIN, MOCK_DELAY_MAX))
-    print(f"[MOCK IMAGE ANALYSIS] Analyzing: {image_name}", flush=True)
     return random.choice(MOCK_IMAGE_DESCRIPTIONS)
 
 
@@ -185,8 +184,7 @@ async def analyze_image(
             content = data['choices'][0]['message'].get('content', '')
             return content
 
-    except Exception as e:
-        print(f"[IMAGE ANALYSIS ERROR] {type(e).__name__}: {e}", flush=True)
+    except Exception:
         return None
 
 

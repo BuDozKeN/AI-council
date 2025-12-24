@@ -243,12 +243,29 @@ export function getModelPersona(modelId) {
     }
   }
 
-  // Return default with dynamic name
+  // Detect provider from model ID for unknown models
+  const lowerModelId = modelId.toLowerCase();
+  let detectedProvider = 'unknown';
+  if (lowerModelId.includes('openai') || lowerModelId.includes('gpt') || lowerModelId.includes('o1')) {
+    detectedProvider = 'openai';
+  } else if (lowerModelId.includes('anthropic') || lowerModelId.includes('claude')) {
+    detectedProvider = 'anthropic';
+  } else if (lowerModelId.includes('google') || lowerModelId.includes('gemini')) {
+    detectedProvider = 'google';
+  } else if (lowerModelId.includes('x-ai') || lowerModelId.includes('grok')) {
+    detectedProvider = 'xai';
+  } else if (lowerModelId.includes('deepseek')) {
+    detectedProvider = 'deepseek';
+  }
+
+  // Return default with dynamic name and detected provider
   return {
     ...DEFAULT_PERSONA,
     shortName: modelName.split('-')[0].toUpperCase(),
     fullName: modelId,
-    providerLabel: PROVIDER_LABELS[DEFAULT_PERSONA.provider]
+    provider: detectedProvider,
+    color: PROVIDER_COLORS[detectedProvider],
+    providerLabel: PROVIDER_LABELS[detectedProvider]
   };
 }
 
