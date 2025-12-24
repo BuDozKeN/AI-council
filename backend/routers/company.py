@@ -242,14 +242,13 @@ async def auto_regenerate_project_context(project_id: str, user: dict) -> bool:
     from datetime import datetime
     import json
 
-    print(f"[AUTO-SYNTH] Regenerating context for project {project_id}", flush=True)
+    log_app_event("AUTO_SYNTH", "Regenerating context", resource_id=project_id)
 
     service_client = get_service_client()
 
     # Get project details
     project_result = service_client.table("projects").select("*").eq("id", project_id).single().execute()
     if not project_result.data:
-        print(f"[AUTO-SYNTH] Project not found: {project_id}", flush=True)
         return False
 
     project = project_result.data
@@ -265,14 +264,10 @@ async def auto_regenerate_project_context(project_id: str, user: dict) -> bool:
     decisions = decisions_result.data or []
 
     if not decisions:
-        print(f"[AUTO-SYNTH] No decisions for project {project_id}", flush=True)
         return False
-
-    print(f"[AUTO-SYNTH] Found {len(decisions)} decisions to synthesize", flush=True)
 
     # Handle mock mode
     if MOCK_LLM:
-        print("[AUTO-SYNTH] MOCK mode - skipping AI synthesis", flush=True)
         mock_context = f"# {project.get('name', 'Project')}\n\n{project.get('description', '')}\n\n## Key Decisions\n\nAuto-synthesized from {len(decisions)} decisions."
         service_client.table("projects").update({
             "context_md": mock_context,
@@ -336,7 +331,6 @@ Today's date: {today_date}"""
 
     for model in models:
         try:
-            print(f"[AUTO-SYNTH] Trying model: {model}", flush=True)
             result = await query_model(model=model, messages=messages)
 
             if result and result.get('content'):
@@ -352,23 +346,19 @@ Today's date: {today_date}"""
 
                 try:
                     result_data = json.loads(content)
-                    print(f"[AUTO-SYNTH] Success with {model}", flush=True)
                     break
-                except json.JSONDecodeError as e:
-                    last_error = f"JSON parse error from {model}: {e}"
-                    print(f"[AUTO-SYNTH] {last_error}", flush=True)
+                except json.JSONDecodeError:
+                    last_error = f"JSON parse error from {model}"
                     continue
             else:
                 last_error = f"No response from {model}"
-                print(f"[AUTO-SYNTH] {last_error}", flush=True)
                 continue
         except Exception as e:
-            last_error = f"{model} failed: {type(e).__name__}: {e}"
-            print(f"[AUTO-SYNTH] {last_error}", flush=True)
+            last_error = f"{model} failed: {type(e).__name__}"
             continue
 
     if result_data is None:
-        print(f"[AUTO-SYNTH] All models failed. Last error: {last_error}", flush=True)
+        log_app_event("AUTO_SYNTH", f"All models failed: {last_error}", resource_id=project_id, level="ERROR")
         return False
 
     new_context = result_data.get("context_md", "")
@@ -379,7 +369,6 @@ Today's date: {today_date}"""
         "updated_at": datetime.now().isoformat()
     }).eq("id", project_id).execute()
 
-    print(f"[AUTO-SYNTH] Updated project context with {len(decisions)} decisions incorporated", flush=True)
     return True
 
 
@@ -429,11 +418,9 @@ async def generate_decision_summary_internal(
 
     Returns: {"summary": str, "title": str, "cached": bool}
     """
-    print(f"[SUMMARY] generate_decision_summary_internal called with decision_id={decision_id}, company_uuid={company_uuid}", flush=True)
 
     from ..openrouter import query_model, MOCK_LLM
     from ..personas import get_db_persona_with_fallback
-    print(f"[SUMMARY] MOCK_LLM={MOCK_LLM}", flush=True)
 
     if service_client is None:
         service_client = get_service_client()
@@ -492,7 +479,7 @@ async def generate_decision_summary_internal(
                 if prior_items:
                     prior_context = "\n\n".join(prior_items)
         except Exception as e:
-            print(f"[SUMMARY] Failed to fetch prior decisions: {e}", flush=True)
+            pass  # Non-critical: proceed without prior context
 
     # Handle mock mode
     if MOCK_LLM:
@@ -660,7 +647,6 @@ SUMMARY:
         )
 
         content = response.get("content", "").strip() if response else ""
-        print(f"[SUMMARY] Response: {content[:300]}...", flush=True)
 
         # Parse the response - extract TITLE, QUESTION_SUMMARY, and SUMMARY
         generated_title = decision.get("title")
@@ -700,18 +686,14 @@ SUMMARY:
 
             if generated_title and generated_title != decision.get("title"):
                 update_data["title"] = generated_title
-                print(f"[SUMMARY] Updating title to: '{generated_title[:50]}...'", flush=True)
 
             if generated_question_summary:
                 update_data["question_summary"] = generated_question_summary
-                print(f"[SUMMARY] Question summary: '{generated_question_summary[:100]}...'", flush=True)
 
-            print(f"[SUMMARY] Saving to database: {list(update_data.keys())}", flush=True)
-            update_result = service_client.table("knowledge_entries") \
+            service_client.table("knowledge_entries") \
                 .update(update_data) \
                 .eq("id", decision_id) \
                 .execute()
-            print(f"[SUMMARY] Database update result: {len(update_result.data) if update_result.data else 0} rows", flush=True)
 
             return {
                 "summary": generated_summary,
@@ -720,14 +702,12 @@ SUMMARY:
                 "cached": False
             }
         else:
-            print(f"[SUMMARY] No summary generated, falling back to available content", flush=True)
+            # No summary generated, fallback to available content
             fallback = user_question[:300] if user_question else (council_response[:300] if council_response else "No content available")
             return {"summary": fallback, "title": decision.get("title"), "cached": False}
 
     except Exception as e:
-        import traceback
-        print(f"[SUMMARY] Failed to generate summary: {e}", flush=True)
-        print(f"[SUMMARY] Traceback: {traceback.format_exc()}", flush=True)
+        # Summary generation failed, return fallback
         fallback = user_question[:300] if user_question else (council_response[:300] if council_response else "No content available")
         return {"summary": fallback, "title": decision.get("title"), "cached": False}
 
@@ -895,7 +875,6 @@ async def merge_company_context(
 
     # Handle mock mode
     if MOCK_LLM:
-        print("[MOCK] Returning mock merged company context", flush=True)
         merged = existing + f"\n\n## Additional Information\n\n**{question}**\n{answer}"
         # Save the merged context
         client.table("companies").update({
@@ -955,16 +934,13 @@ Do not include any explanation or commentary - just the document."""
 
             if result and result.get("content"):
                 merged = result["content"].strip()
-                print(f"[MERGE_CONTEXT] Successfully merged with {model}", flush=True)
                 break
         except Exception as e:
             last_error = str(e)
-            print(f"[MERGE_CONTEXT] {model} failed: {e}", flush=True)
             continue
 
     if merged is None:
-        # Fallback: simple append
-        print(f"[MERGE_CONTEXT] All models failed, using fallback. Last error: {last_error}", flush=True)
+        # Fallback: simple append when AI merge fails
         merged = existing + f"\n\n## Additional Information\n\n**{question}**\n{answer}"
 
     # Save the merged context
@@ -1538,23 +1514,21 @@ async def update_playbook(company_id: ValidCompanyId, playbook_id: ValidPlaybook
         }).execute()
 
     # Update additional departments if provided (replace all)
-    # Use service client to bypass RLS for junction table operations
+    # RLS allows modifications for company owners
     if data.additional_departments is not None:
-        service_client = get_supabase_service()
-        if service_client:
-            # Delete all existing mappings
-            service_client.table("org_document_departments") \
-                .delete() \
-                .eq("document_id", playbook_id) \
-                .execute()
+        # Delete all existing mappings
+        client.table("org_document_departments") \
+            .delete() \
+            .eq("document_id", playbook_id) \
+            .execute()
 
-            # Insert new mappings
-            if data.additional_departments:
-                dept_mappings = [
-                    {"document_id": playbook_id, "department_id": dept_id}
-                    for dept_id in data.additional_departments
-                ]
-                service_client.table("org_document_departments").insert(dept_mappings).execute()
+        # Insert new mappings
+        if data.additional_departments:
+            dept_mappings = [
+                {"document_id": playbook_id, "department_id": dept_id}
+                for dept_id in data.additional_departments
+            ]
+            client.table("org_document_departments").insert(dept_mappings).execute()
 
     # Fetch updated document
     updated_doc = client.table("org_documents") \
@@ -1611,12 +1585,11 @@ async def delete_playbook(company_id: ValidCompanyId, playbook_id: ValidPlaybook
     playbook_title = existing.data.get("title", "Playbook")
 
     # Delete department mappings first (foreign key constraint)
-    service_client = get_supabase_service()
-    if service_client:
-        service_client.table("org_document_departments") \
-            .delete() \
-            .eq("document_id", playbook_id) \
-            .execute()
+    # RLS allows deletion for company owners
+    client.table("org_document_departments") \
+        .delete() \
+        .eq("document_id", playbook_id) \
+        .execute()
 
     # Delete versions
     client.table("org_document_versions") \
@@ -1793,7 +1766,6 @@ async def create_decision(company_id: ValidCompanyId, data: DecisionCreate, user
     # This ensures the decision has proper metadata before we log activity
     ai_title = data.title  # fallback to raw title
     try:
-        print(f"[CREATE_DECISION] Generating AI summary for decision {decision_id}", flush=True)
         summary_result = await generate_decision_summary_internal(
             decision_id=decision_id,
             company_uuid=company_uuid,
@@ -1801,9 +1773,8 @@ async def create_decision(company_id: ValidCompanyId, data: DecisionCreate, user
         )
         if summary_result.get("title"):
             ai_title = summary_result["title"]
-            print(f"[CREATE_DECISION] AI generated title: {ai_title}", flush=True)
-    except Exception as e:
-        print(f"[CREATE_DECISION] Summary generation failed (non-fatal): {e}", flush=True)
+    except Exception:
+        pass  # Summary generation failed, use original title
 
     decision = {
         "id": decision_id,
@@ -1839,12 +1810,9 @@ async def create_decision(company_id: ValidCompanyId, data: DecisionCreate, user
     context_updated = False
     if data.project_id:
         try:
-            print(f"[AUTO-SYNTH] Starting auto-synthesis for project {data.project_id}", flush=True)
             context_updated = await auto_regenerate_project_context(data.project_id, user)
-            print(f"[AUTO-SYNTH] Auto-synthesis completed: {context_updated}", flush=True)
-        except Exception as e:
-            # Non-fatal - decision was saved, just log the error
-            print(f"[AUTO-SYNTH] Failed to auto-regenerate context (non-fatal): {e}", flush=True)
+        except Exception:
+            pass  # Non-fatal - decision was saved successfully
 
     return {"decision": decision, "context_updated": context_updated}
 
@@ -1855,21 +1823,15 @@ async def promote_decision(company_id: ValidCompanyId, decision_id: ValidDecisio
     Promote a decision (knowledge entry) to a playbook (SOP/framework/policy).
     Creates a new playbook pre-filled with the decision content.
 
-    Uses service client for knowledge_entries to bypass RLS.
+    Uses RLS-authenticated client - access control enforced by database policies.
     """
     import re
-    # Use service client for knowledge_entries (bypasses RLS)
-    service_client = get_supabase_service()
+    # Use RLS-authenticated client (access control enforced by RLS policies)
+    client = get_client(user)
+    company_uuid = resolve_company_id(client, company_id)
 
-    # User client for company resolution and other tables
-    user_client = get_client(user)
-    company_uuid = resolve_company_id(user_client, company_id)
-
-    # SECURITY: Verify user has access to this company
-    verify_company_access(service_client, company_uuid, user)
-
-    # Get the knowledge entry (decision) - using service client to bypass RLS
-    decision = service_client.table("knowledge_entries") \
+    # Get the knowledge entry (decision) - RLS ensures user has access
+    decision = client.table("knowledge_entries") \
         .select("*") \
         .eq("id", decision_id) \
         .eq("company_id", company_uuid) \
@@ -1892,7 +1854,7 @@ async def promote_decision(company_id: ValidCompanyId, decision_id: ValidDecisio
     slug = base_slug
     suffix = 1
     while True:
-        existing = user_client.table("org_documents") \
+        existing = client.table("org_documents") \
             .select("id") \
             .eq("company_id", company_uuid) \
             .eq("doc_type", data.doc_type) \
@@ -1913,8 +1875,8 @@ async def promote_decision(company_id: ValidCompanyId, decision_id: ValidDecisio
     decision_dept_ids = decision.data.get("department_ids") or []
     first_dept_id = decision_dept_ids[0] if decision_dept_ids else None
 
-    # Create the playbook (user_client for org_documents)
-    doc_result = user_client.table("org_documents").insert({
+    # Create the playbook
+    doc_result = client.table("org_documents").insert({
         "company_id": company_uuid,
         "department_id": first_dept_id,
         "doc_type": data.doc_type,
@@ -1929,8 +1891,8 @@ async def promote_decision(company_id: ValidCompanyId, decision_id: ValidDecisio
 
     doc_id = doc_result.data[0]["id"]
 
-    # Create initial version with decision content (user_client for versions)
-    user_client.table("org_document_versions").insert({
+    # Create initial version with decision content
+    client.table("org_document_versions").insert({
         "document_id": doc_id,
         "version": 1,
         "content": content,
@@ -1940,8 +1902,8 @@ async def promote_decision(company_id: ValidCompanyId, decision_id: ValidDecisio
         "created_by": user.get('id') if isinstance(user, dict) else user.id
     }).execute()
 
-    # Mark the decision as promoted (is_promoted derived from promoted_to_id)
-    service_client.table("knowledge_entries").update({
+    # Mark the decision as promoted (RLS allows update since user created it or is company owner)
+    client.table("knowledge_entries").update({
         "promoted_to_id": doc_id,
         "promoted_to_type": data.doc_type
     }).eq("id", decision_id).execute()
@@ -2031,20 +1993,16 @@ async def archive_decision(company_id: ValidCompanyId, decision_id: ValidDecisio
     Archive (soft delete) a decision.
     Sets is_active=False rather than permanently deleting.
     Uses POST instead of DELETE for better compatibility.
-    Uses service client to bypass RLS on knowledge_entries table.
+
+    Uses RLS-authenticated client - access control enforced by database policies.
     """
-    # Use service client for knowledge_entries (bypasses RLS)
-    service_client = get_supabase_service()
-
-    # Still need user client to resolve company
-    user_client = get_client(user)
-    company_uuid = resolve_company_id(user_client, company_id)
-
-    # SECURITY: Verify user has access to this company
-    verify_company_access(service_client, company_uuid, user)
+    # Use RLS-authenticated client (access control enforced by RLS policies)
+    client = get_client(user)
+    company_uuid = resolve_company_id(client, company_id)
 
     # Verify decision exists and belongs to company, get project_id for sync
-    check = service_client.table("knowledge_entries") \
+    # RLS ensures user can only see decisions they have access to
+    check = client.table("knowledge_entries") \
         .select("id, project_id, department_ids") \
         .eq("id", decision_id) \
         .eq("company_id", company_uuid) \
@@ -2057,8 +2015,8 @@ async def archive_decision(company_id: ValidCompanyId, decision_id: ValidDecisio
 
     project_id = check.data.get("project_id")
 
-    # Soft delete by setting is_active=False
-    result = service_client.table("knowledge_entries") \
+    # Soft delete by setting is_active=False (RLS allows update for creator/owner)
+    result = client.table("knowledge_entries") \
         .update({"is_active": False}) \
         .eq("id", decision_id) \
         .execute()
@@ -2070,7 +2028,7 @@ async def archive_decision(company_id: ValidCompanyId, decision_id: ValidDecisio
     if project_id:
         try:
             # Get all remaining active decisions for this project
-            remaining = service_client.table("knowledge_entries") \
+            remaining = client.table("knowledge_entries") \
                 .select("department_ids") \
                 .eq("project_id", project_id) \
                 .eq("is_active", True) \
@@ -2085,13 +2043,13 @@ async def archive_decision(company_id: ValidCompanyId, decision_id: ValidDecisio
                         all_dept_ids.add(did)
 
             # Update project's department_ids
-            service_client.table("projects") \
+            client.table("projects") \
                 .update({"department_ids": list(all_dept_ids) if all_dept_ids else None}) \
                 .eq("id", project_id) \
                 .execute()
         except Exception as e:
             # Log but don't fail the archive operation
-            print(f"Warning: Failed to sync project departments after archive: {e}")
+            log_app_event("ARCHIVE_SYNC_WARNING", details={"project_id": project_id, "error": str(e)})
 
     return {"success": True, "message": "Decision archived"}
 
@@ -2105,16 +2063,14 @@ async def link_decision_to_project(company_id: str, decision_id: str, data: Link
     """
     Link a decision to an existing project.
     Updates the decision's project_id and syncs department_ids.
+
+    Uses RLS-authenticated client - access control enforced by database policies.
     """
-    service_client = get_supabase_service()
-    user_client = get_client(user)
-    company_uuid = resolve_company_id(user_client, company_id)
+    client = get_client(user)
+    company_uuid = resolve_company_id(client, company_id)
 
-    # SECURITY: Verify user has access to this company
-    verify_company_access(service_client, company_uuid, user)
-
-    # Verify decision exists
-    decision = service_client.table("knowledge_entries") \
+    # Verify decision exists - RLS ensures user has access
+    decision = client.table("knowledge_entries") \
         .select("*") \
         .eq("id", decision_id) \
         .eq("company_id", company_uuid) \
@@ -2126,7 +2082,7 @@ async def link_decision_to_project(company_id: str, decision_id: str, data: Link
         raise HTTPException(status_code=404, detail="Resource not found")
 
     # Verify project exists
-    project = user_client.table("projects") \
+    project = client.table("projects") \
         .select("id, name, department_ids") \
         .eq("id", data.project_id) \
         .eq("company_id", company_uuid) \
@@ -2136,8 +2092,8 @@ async def link_decision_to_project(company_id: str, decision_id: str, data: Link
     if not project.data:
         raise HTTPException(status_code=404, detail="Resource not found")
 
-    # Update decision with project_id (is_promoted derived from project_id)
-    result = service_client.table("knowledge_entries") \
+    # Update decision with project_id (RLS allows update for creator/owner)
+    result = client.table("knowledge_entries") \
         .update({
             "project_id": data.project_id,
             "promoted_to_type": "project"
@@ -2185,16 +2141,14 @@ async def create_project_from_decision(company_id: str, decision_id: str, data: 
     Create a new project from a decision.
     Creates the project and links the decision to it.
     Uses Sarah (Project Manager persona) to generate project context from the decision.
+
+    Uses RLS-authenticated client - access control enforced by database policies.
     """
-    service_client = get_supabase_service()
-    user_client = get_client(user)
-    company_uuid = resolve_company_id(user_client, company_id)
+    client = get_client(user)
+    company_uuid = resolve_company_id(client, company_id)
 
-    # SECURITY: Verify user has access to this company
-    verify_company_access(service_client, company_uuid, user)
-
-    # Verify decision exists
-    decision = service_client.table("knowledge_entries") \
+    # Verify decision exists - RLS ensures user has access
+    decision = client.table("knowledge_entries") \
         .select("*") \
         .eq("id", decision_id) \
         .eq("company_id", company_uuid) \
@@ -2297,7 +2251,6 @@ CONTENT RULES:
             # Try each model
             for model in models[:2]:  # Try first 2 models max
                 try:
-                    print(f"[CREATE_PROJECT] Trying model: {model}", flush=True)
                     result = await query_model(model=model, messages=messages)
 
                     if result and result.get('content'):
@@ -2315,19 +2268,16 @@ CONTENT RULES:
                         context_md = structured.get('context_md', '')
                         if structured.get('description'):
                             description = structured['description']
-                        print(f"[CREATE_PROJECT] Successfully generated context with {model}", flush=True)
                         break
-                except Exception as e:
-                    print(f"[CREATE_PROJECT] Model {model} failed: {e}", flush=True)
+                except Exception:
                     continue
-    except Exception as e:
-        print(f"[CREATE_PROJECT] Failed to generate context with Sarah: {e}", flush=True)
+    except Exception:
         # Fall back to using decision summary as context
         if decision_content:
             context_md = f"## Overview\n\n{decision_content[:2000]}"
 
     # Create the project with generated context
-    project_result = user_client.table("projects").insert({
+    project_result = client.table("projects").insert({
         "company_id": company_uuid,
         "user_id": user_id,
         "name": data.name,
@@ -2344,8 +2294,8 @@ CONTENT RULES:
 
     project_id = project_result.data[0]["id"]
 
-    # Update decision with project_id and mark as promoted to project
-    service_client.table("knowledge_entries") \
+    # Update decision with project_id and mark as promoted to project (RLS allows update)
+    client.table("knowledge_entries") \
         .update({
             "project_id": project_id,
             "promoted_to_type": "project"
@@ -2385,24 +2335,19 @@ async def get_project_decisions(
     """
     Get all decisions linked to a specific project, ordered by date (timeline view).
     Returns decisions as dated entries for project history tracking.
+
+    Uses RLS-authenticated client - access control enforced by database policies.
     """
-    print(f"[GET_PROJECT_DECISIONS] company_id={company_id}, project_id={project_id}", flush=True)
-    service_client = get_service_client()
-    user_client = get_client(user)
+    client = get_client(user)
 
     # Resolve company UUID
     try:
-        company_uuid = resolve_company_id(user_client, company_id)
-        print(f"[GET_PROJECT_DECISIONS] Resolved company_uuid={company_uuid}", flush=True)
+        company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        print(f"[GET_PROJECT_DECISIONS] Failed to resolve company", flush=True)
         return {"decisions": [], "project": None}
 
-    # SECURITY: Verify user has access to this company
-    verify_company_access(service_client, company_uuid, user)
-
-    # Verify project exists and belongs to company
-    project_result = service_client.table("projects") \
+    # Verify project exists and belongs to company - RLS ensures access
+    project_result = client.table("projects") \
         .select("id, name, description, status, created_at") \
         .eq("id", project_id) \
         .eq("company_id", company_uuid) \
@@ -2410,13 +2355,11 @@ async def get_project_decisions(
         .execute()
 
     if not project_result.data:
-        print(f"[GET_PROJECT_DECISIONS] Project not found", flush=True)
         raise HTTPException(status_code=404, detail="Resource not found")
 
-    print(f"[GET_PROJECT_DECISIONS] Found project: {project_result.data.get('name')}", flush=True)
-
     # Get all decisions for this project, ordered by created_at (timeline)
-    decisions_result = service_client.table("knowledge_entries") \
+    # RLS ensures user can only see decisions they have access to
+    decisions_result = client.table("knowledge_entries") \
         .select("*") \
         .eq("company_id", company_uuid) \
         .eq("project_id", project_id) \
@@ -2425,10 +2368,8 @@ async def get_project_decisions(
         .limit(limit) \
         .execute()
 
-    print(f"[GET_PROJECT_DECISIONS] Found {len(decisions_result.data or [])} decisions", flush=True)
-
     # Get departments for name lookup
-    dept_result = service_client.table("departments") \
+    dept_result = client.table("departments") \
         .select("id, name, slug") \
         .eq("company_id", company_uuid) \
         .execute()
@@ -2490,8 +2431,6 @@ def _sync_project_departments_internal(project_id: str):
         .eq("is_active", True) \
         .execute()
 
-    print(f"[SYNC] Found {len(decisions_result.data or [])} decisions for project {project_id}", flush=True)
-
     # Collect unique department_ids from all decisions
     all_dept_ids = set()
     for decision in (decisions_result.data or []):
@@ -2502,7 +2441,6 @@ def _sync_project_departments_internal(project_id: str):
 
     # Update project's department_ids
     updated_dept_ids = list(all_dept_ids) if all_dept_ids else None
-    print(f"[SYNC] Updating project {project_id} with department_ids={updated_dept_ids}", flush=True)
     service_client.table("projects") \
         .update({"department_ids": updated_dept_ids}) \
         .eq("id", project_id) \
@@ -2545,20 +2483,15 @@ async def sync_project_departments(company_id: str, project_id: str, user=Depend
 async def delete_decision(company_id: ValidCompanyId, decision_id: ValidDecisionId, user=Depends(get_current_user)):
     """
     Permanently delete a decision.
-    Uses service client to bypass RLS on knowledge_entries table.
+
+    Uses RLS-authenticated client - access control enforced by database policies.
     """
-    # Use service client for knowledge_entries (bypasses RLS)
-    service_client = get_supabase_service()
+    # Use RLS-authenticated client (access control enforced by RLS policies)
+    client = get_client(user)
+    company_uuid = resolve_company_id(client, company_id)
 
-    # Still need user client to resolve company
-    user_client = get_client(user)
-    company_uuid = resolve_company_id(user_client, company_id)
-
-    # SECURITY: Verify user has access to this company
-    verify_company_access(service_client, company_uuid, user)
-
-    # Verify decision exists and belongs to company
-    check = service_client.table("knowledge_entries") \
+    # Verify decision exists and belongs to company - RLS ensures access
+    check = client.table("knowledge_entries") \
         .select("id, title") \
         .eq("id", decision_id) \
         .eq("company_id", company_uuid) \
@@ -2570,8 +2503,8 @@ async def delete_decision(company_id: ValidCompanyId, decision_id: ValidDecision
 
     decision_title = check.data.get("title", "Decision")
 
-    # Permanently delete the decision
-    result = service_client.table("knowledge_entries") \
+    # Permanently delete the decision (RLS allows delete for creator/owner)
+    result = client.table("knowledge_entries") \
         .delete() \
         .eq("id", decision_id) \
         .execute()
@@ -2607,19 +2540,15 @@ async def generate_decision_summary(
 
     This endpoint is for on-demand regeneration (e.g., if user wants to refresh).
     New decisions should have summaries generated at save time.
+
+    Uses RLS-authenticated client - access control enforced by database policies.
     """
-    # Use service client for knowledge_entries (bypasses RLS)
-    service_client = get_supabase_service()
+    # Use RLS-authenticated client (access control enforced by RLS policies)
+    client = get_client(user)
+    company_uuid = resolve_company_id(client, company_id)
 
-    # Still need user client to resolve company
-    user_client = get_client(user)
-    company_uuid = resolve_company_id(user_client, company_id)
-
-    # SECURITY: Verify user has access to this company
-    verify_company_access(service_client, company_uuid, user)
-
-    # Check if we already have a good cached summary
-    result = service_client.table("knowledge_entries") \
+    # Check if we already have a good cached summary - RLS ensures access
+    result = client.table("knowledge_entries") \
         .select("id, title, content_summary") \
         .eq("id", decision_id) \
         .eq("company_id", company_uuid) \
@@ -2646,7 +2575,8 @@ async def generate_decision_summary(
         if not is_garbage and not is_too_short and not is_truncated:
             return {"summary": existing_summary, "title": result.data.get("title"), "cached": True}
 
-    # Generate new summary using the internal function
+    # Generate new summary using the internal function (needs service client for writes)
+    service_client = get_service_client()
     return await generate_decision_summary_internal(decision_id, company_uuid, service_client)
 
 
@@ -2738,8 +2668,7 @@ async def get_activity_logs(
                     decision_promoted_types[r["id"]] = r["promoted_to_type"]
                 elif r.get("project_id"):
                     decision_promoted_types[r["id"]] = "project"
-        except Exception as e:
-            print(f"Warning: Failed to check decisions: {e}")
+        except Exception:
             existing_decisions = decision_ids_to_check  # Assume all exist on error
 
     if playbook_ids_to_check:
@@ -2751,8 +2680,7 @@ async def get_activity_logs(
                 .eq("is_active", True) \
                 .execute()
             existing_playbooks = {r["id"] for r in (result.data or [])}
-        except Exception as e:
-            print(f"Warning: Failed to check playbooks: {e}")
+        except Exception:
             existing_playbooks = playbook_ids_to_check
 
     if project_ids_to_check:
@@ -2762,8 +2690,7 @@ async def get_activity_logs(
                 .in_("id", list(project_ids_to_check)) \
                 .execute()
             existing_projects = {r["id"] for r in (result.data or [])}
-        except Exception as e:
-            print(f"Warning: Failed to check projects: {e}")
+        except Exception:
             existing_projects = project_ids_to_check
 
     # Filter out orphaned logs and enrich with current state
@@ -2803,8 +2730,8 @@ async def get_activity_logs(
         try:
             for log_id in orphaned_ids:
                 client.table("activity_logs").delete().eq("id", log_id).execute()
-        except Exception as e:
-            print(f"Warning: Failed to auto-cleanup orphaned logs: {e}")
+        except Exception:
+            pass  # Non-critical cleanup
 
     # Return only up to the requested limit
     logs = valid_logs[:limit]
@@ -2882,9 +2809,8 @@ async def cleanup_orphaned_activity_logs(company_id: str, user=Depends(get_curre
             else:
                 # Unknown type - keep the log
                 exists = True
-        except Exception as e:
+        except Exception:
             # If check fails, keep the log to be safe
-            print(f"Warning: Failed to check existence for {related_type}/{related_id}: {e}")
             exists = True
 
         if not exists:
@@ -2897,8 +2823,8 @@ async def cleanup_orphaned_activity_logs(company_id: str, user=Depends(get_curre
             try:
                 client.table("activity_logs").delete().eq("id", log_id).execute()
                 deleted_count += 1
-            except Exception as e:
-                print(f"Warning: Failed to delete activity log {log_id}: {e}")
+            except Exception:
+                pass  # Continue cleaning other logs
 
     return {
         "deleted_count": deleted_count,
@@ -2958,9 +2884,8 @@ async def log_activity(
 
     try:
         client.table("activity_logs").insert(data).execute()
-    except Exception as e:
-        # Don't fail the main operation if logging fails
-        print(f"Warning: Failed to log activity: {e}")
+    except Exception:
+        pass  # Don't fail the main operation if logging fails
 
 
 # ============================================
@@ -3411,6 +3336,5 @@ async def log_usage_event(
 
     try:
         client.table("usage_events").insert(data).execute()
-    except Exception as e:
-        # Don't fail the main operation if logging fails
-        print(f"Warning: Failed to log usage event: {e}")
+    except Exception:
+        pass  # Don't fail the main operation if logging fails

@@ -2,24 +2,54 @@
  * ContextIndicator - Shows current context and question during conversation
  *
  * Displays the user's question (AI-summarized) and context pills.
- * Sticky header so user always knows what they're looking at.
- * Extracted from ChatInterface.jsx for better maintainability.
+ * Always visible sticky header - NOT collapsible.
  */
+
+import { MessageCircleQuestion } from 'lucide-react';
 
 /**
  * Truncate and clean up a question for display
- * @param {string} question - The original question
- * @param {number} maxLength - Maximum length before truncation
  */
-function summarizeQuestion(question, maxLength = 80) {
+function summarizeQuestion(question: string | undefined, maxLength = 80): string | null {
   if (!question) return null;
-  // Clean up whitespace
   const cleaned = question.trim().replace(/\s+/g, ' ');
   if (cleaned.length <= maxLength) return cleaned;
-  // Truncate at word boundary
   const truncated = cleaned.substring(0, maxLength);
   const lastSpace = truncated.lastIndexOf(' ');
   return (lastSpace > maxLength * 0.7 ? truncated.substring(0, lastSpace) : truncated) + '...';
+}
+
+interface Business {
+  id: string;
+  name: string;
+}
+
+interface Project {
+  id: string;
+  name: string;
+}
+
+interface Department {
+  id: string;
+  name: string;
+}
+
+interface Role {
+  id: string;
+  name: string;
+}
+
+interface ContextIndicatorProps {
+  businesses?: Business[];
+  selectedBusiness?: string;
+  projects?: Project[];
+  selectedProject?: string;
+  departments?: Department[];
+  selectedDepartment?: string;
+  roles?: Role[];
+  selectedRole?: string;
+  question?: string;
+  conversationTitle?: string;
 }
 
 export function ContextIndicator({
@@ -31,26 +61,20 @@ export function ContextIndicator({
   selectedDepartment,
   roles = [],
   selectedRole,
-  // New: the user's question
   question,
-  // Conversation title (AI-generated summary) - preferred over raw question
-  conversationTitle
-}) {
+  conversationTitle,
+}: ContextIndicatorProps) {
   if (!selectedBusiness && !question && !conversationTitle) return null;
 
-  // Prefer the AI-generated conversation title over the raw question
-  // The title is what shows in the sidebar and is more concise
   const displayQuestion = conversationTitle || summarizeQuestion(question);
 
   return (
-    <div className="context-indicator">
-      {/* Question line - what the user asked */}
-      {displayQuestion && (
-        <div className="context-indicator-question">
-          <span className="context-question-icon">Q</span>
-          <span className="context-question-text">{displayQuestion}</span>
-        </div>
-      )}
+    <div className="context-indicator" data-stage="question">
+      {/* Question line */}
+      <div className="context-indicator-question">
+        <MessageCircleQuestion className="context-question-icon" size={14} />
+        <span className="context-question-text">{displayQuestion || 'Question'}</span>
+      </div>
 
       {/* Context pills - company, project, department, role */}
       {selectedBusiness && (

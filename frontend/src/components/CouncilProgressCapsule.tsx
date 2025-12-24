@@ -1,3 +1,4 @@
+import { getModelPersona } from '../config/modelPersonas';
 import './CouncilProgressCapsule.css';
 
 /**
@@ -5,16 +6,10 @@ import './CouncilProgressCapsule.css';
  * A user should be able to tell their friend "Gemini and Claude are thinking" not "Stage 1 in progress"
  */
 
-// Friendly names for models (strip the provider prefix)
+// Get friendly display name from centralized model personas
 const getFriendlyName = (modelId) => {
-  const names = {
-    'google/gemini-3-pro-preview': 'Gemini',
-    'openai/gpt-5.1': 'GPT',
-    'anthropic/claude-opus-4.5': 'Claude',
-    'x-ai/grok-4': 'Grok',
-    'deepseek/deepseek-chat-v3-0324': 'DeepSeek',
-  };
-  return names[modelId] || modelId.split('/').pop()?.split('-')[0] || 'AI';
+  const persona = getModelPersona(modelId);
+  return persona.providerLabel || persona.shortName;
 };
 
 export default function CouncilProgressCapsule({

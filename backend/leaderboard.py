@@ -41,8 +41,8 @@ def record_session_rankings(
 
     try:
         supabase.table('model_rankings').insert(records).execute()
-    except Exception as e:
-        print(f"[LEADERBOARD] Error recording rankings: {e}", flush=True)
+    except Exception:
+        pass  # Non-critical - rankings can be skipped
 
 
 def _aggregate_leaderboard_data(data: List[Dict]) -> List[Dict[str, Any]]:
@@ -131,8 +131,7 @@ def get_overall_leaderboard() -> List[Dict[str, Any]]:
 
         return _aggregate_leaderboard_data(result.data or [])
 
-    except Exception as e:
-        print(f"[LEADERBOARD] Error getting overall leaderboard: {e}", flush=True)
+    except Exception:
         return []
 
 
@@ -156,8 +155,7 @@ def get_department_leaderboard(department: str) -> List[Dict[str, Any]]:
 
         return _aggregate_leaderboard_data(result.data or [])
 
-    except Exception as e:
-        print(f"[LEADERBOARD] Error getting department leaderboard: {e}", flush=True)
+    except Exception:
         return []
 
 
@@ -198,8 +196,8 @@ def _resolve_department_names_batch(supabase, dept_ids: List[str]) -> Dict[str, 
             dept_result = supabase.table('departments').select('id, name').in_('id', uuid_ids).execute()
             for row in (dept_result.data or []):
                 result[row['id']] = row['name']
-        except Exception as e:
-            print(f"[LEADERBOARD] Error batch resolving department names: {e}", flush=True)
+        except Exception:
+            pass  # Fall back to UUID IDs
 
         # Fall back to ID for any not found
         for uuid_id in uuid_ids:
@@ -250,8 +248,7 @@ def get_all_department_leaderboards() -> Dict[str, List[Dict[str, Any]]]:
 
         return leaderboards
 
-    except Exception as e:
-        print(f"[LEADERBOARD] Error getting all department leaderboards: {e}", flush=True)
+    except Exception:
         return {}
 
 

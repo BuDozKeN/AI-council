@@ -117,31 +117,23 @@ async def stage1_stream_responses(
 
     async def stream_single_model(model: str):
         """Stream tokens from a single model and put events on the queue."""
-        print(f"[STAGE1 TASK START] {model}: Task started", flush=True)
         content = ""
-        chunk_count = 0
         try:
             async for chunk in query_model_stream(model, messages):
-                chunk_count += 1
                 content += chunk
                 await queue.put({"type": "stage1_token", "model": model, "content": chunk})
-            print(f"[STAGE1 TASK DONE] {model}: Received {chunk_count} chunks, {len(content)} chars", flush=True)
             model_content[model] = content
             await queue.put({"type": "stage1_model_complete", "model": model, "response": content})
         except Exception as e:
-            print(f"[STAGE1 TASK ERROR] {model}: {type(e).__name__}: {e}", flush=True)
             await queue.put({"type": "stage1_model_error", "model": model, "error": str(e)})
 
     # Start all model streams with staggered delays to avoid rate limiting
-    # 0.8s stagger provides balance between speed and avoiding 429 errors (especially from Grok)
-    print(f"[STAGE1] Starting {len(COUNCIL_MODELS)} models: {COUNCIL_MODELS}", flush=True)
     tasks = []
     completed_count = 0
     total_models = len(COUNCIL_MODELS)
-    STAGGER_DELAY = 0.8  # seconds between model starts (increased from 0.3 to avoid Grok 429s)
+    STAGGER_DELAY = 0.8  # seconds between model starts
 
     for i, model in enumerate(COUNCIL_MODELS):
-        print(f"[STAGE1] Creating task for {model}", flush=True)
         tasks.append(asyncio.create_task(stream_single_model(model)))
 
         if i < total_models - 1:
@@ -155,8 +147,6 @@ async def stage1_stream_responses(
                         completed_count += 1
                 except asyncio.TimeoutError:
                     pass
-
-    print(f"[STAGE1] All {total_models} tasks created, waiting for remaining results...", flush=True)
 
     # Continue processing events until all models complete
     while completed_count < total_models:
@@ -269,35 +259,26 @@ Now provide your evaluation and ranking:"""
 
     async def stream_single_model(model: str):
         """Stream tokens from a single model and put events on the queue."""
-        print(f"[STAGE2 TASK START] {model}: Task started", flush=True)
         content = ""
-        chunk_count = 0
         try:
             async for chunk in query_model_stream(model, messages):
-                chunk_count += 1
                 content += chunk
                 await queue.put({"type": "stage2_token", "model": model, "content": chunk})
-            print(f"[STAGE2 TASK DONE] {model}: Received {chunk_count} chunks, {len(content)} chars", flush=True)
             model_content[model] = content
             await queue.put({"type": "stage2_model_complete", "model": model, "ranking": content})
         except Exception as e:
-            print(f"[STAGE2 TASK ERROR] {model}: {type(e).__name__}: {e}", flush=True)
             await queue.put({"type": "stage2_model_error", "model": model, "error": str(e)})
 
-    # Start all model streams with staggered delays to avoid rate limiting
-    # While waiting between starts, process and yield any events from already-started models
-    print(f"[STAGE2] Starting {len(COUNCIL_MODELS)} models: {COUNCIL_MODELS}", flush=True)
+    # Start all model streams with staggered delays
     tasks = []
     completed_count = 0
     total_models = len(COUNCIL_MODELS)
 
     for i, model in enumerate(COUNCIL_MODELS):
-        print(f"[STAGE2] Creating task for {model}", flush=True)
         tasks.append(asyncio.create_task(stream_single_model(model)))
 
         if i < total_models - 1:
             # Wait 2s before starting next model, but yield events during the wait
-            print(f"[STAGE2] Waiting 2s before starting {COUNCIL_MODELS[i+1]}...", flush=True)
             wait_end = asyncio.get_event_loop().time() + 2.0
             while asyncio.get_event_loop().time() < wait_end:
                 try:
@@ -308,8 +289,6 @@ Now provide your evaluation and ranking:"""
                         completed_count += 1
                 except asyncio.TimeoutError:
                     pass  # No event yet, continue waiting
-
-    print(f"[STAGE2] All {total_models} tasks created, waiting for remaining results...", flush=True)
 
     # Continue processing events until all models complete
     while completed_count < total_models:
@@ -438,44 +417,32 @@ Provide a clear, well-reasoned final answer that represents the council's collec
     final_content = ""
 
     for chairman_index, chairman_model in enumerate(CHAIRMAN_MODELS):
-        print(f"[STAGE3] Trying chairman {chairman_index + 1}/{len(CHAIRMAN_MODELS)}: {chairman_model}", flush=True)
-
         content = ""
-        chunk_count = 0
         had_error = False
 
         try:
             async for chunk in query_model_stream(chairman_model, messages):
                 # Check if this is an error message
                 if chunk.startswith("[Error:"):
-                    print(f"[STAGE3] Chairman {chairman_model} returned error: {chunk}", flush=True)
                     had_error = True
-                    # Try next chairman
                     break
 
-                chunk_count += 1
                 content += chunk
                 yield {"type": "stage3_token", "model": chairman_model, "content": chunk}
 
-            if not had_error and content and len(content) > 50:  # Successful response
-                print(f"[STAGE3] Chairman {chairman_model} succeeded: {chunk_count} chunks, {len(content)} chars", flush=True)
+            if not had_error and content and len(content) > 50:
                 successful_chairman = chairman_model
                 final_content = content
                 break
-            elif not had_error:
-                print(f"[STAGE3] Chairman {chairman_model} returned insufficient content ({len(content)} chars), trying next...", flush=True)
 
         except Exception as e:
-            print(f"[STAGE3 ERROR] Chairman {chairman_model}: {type(e).__name__}: {e}", flush=True)
             yield {"type": "stage3_error", "model": chairman_model, "error": str(e)}
 
         # If not the last chairman, notify we're trying fallback
         if chairman_index < len(CHAIRMAN_MODELS) - 1:
-            print(f"[STAGE3] Falling back to next chairman...", flush=True)
             yield {"type": "stage3_fallback", "failed_model": chairman_model, "next_model": CHAIRMAN_MODELS[chairman_index + 1]}
 
     if not successful_chairman:
-        print(f"[STAGE3] All chairmen failed!", flush=True)
         final_content = "[Error: All chairman models failed. Please try again.]"
         successful_chairman = CHAIRMAN_MODELS[0]  # Report as primary for consistency
 
@@ -744,8 +711,6 @@ async def generate_conversation_title(user_query: str) -> str:
     Returns:
         A short title (3-5 words)
     """
-    print(f"[TITLE] Starting title generation for query: {user_query[:50]}...", flush=True)
-
     title_prompt = f"""Generate a very short title (3-5 words maximum) that summarizes the following question.
 The title should be concise and descriptive. Do not use quotes or punctuation in the title.
 
@@ -757,15 +722,12 @@ Title:"""
 
     # Get title generator model from registry
     title_model = await get_primary_model('title_generator') or 'google/gemini-2.5-flash'
-    print(f"[TITLE] Calling {title_model}...", flush=True)
     response = await query_model(title_model, messages, timeout=30.0)
 
     if response is None:
         # Fallback to a generic title
-        print(f"[TITLE] Model returned None - using fallback title", flush=True)
         return "New Conversation"
 
-    print(f"[TITLE] Got response: {response}", flush=True)
     title = response.get('content', 'New Conversation').strip()
 
     # Clean up the title - remove quotes, limit length
@@ -892,7 +854,6 @@ Be helpful, concise, and reference the previous discussion when relevant. You do
     final_content = ""
 
     for chairman in CHAIRMAN_MODELS:
-        print(f"[CHAT] Trying chairman: {chairman}", flush=True)
         try:
             content = ""
             async for chunk in query_model_stream(chairman, messages):
@@ -900,17 +861,14 @@ Be helpful, concise, and reference the previous discussion when relevant. You do
                 yield {"type": "chat_token", "content": chunk, "model": chairman}
 
             if content:
-                print(f"[CHAT] {chairman} succeeded with {len(content)} chars", flush=True)
                 final_content = content
                 successful_chairman = chairman
                 break
-        except Exception as e:
-            print(f"[CHAT] {chairman} failed: {e}", flush=True)
-            yield {"type": "chat_error", "model": chairman, "error": str(e)}
+        except Exception:
+            yield {"type": "chat_error", "model": chairman, "error": "Model unavailable"}
             continue
 
     if not successful_chairman:
-        print(f"[CHAT] All chairmen failed!", flush=True)
         final_content = "[Error: All models failed. Please try again.]"
         successful_chairman = CHAIRMAN_MODELS[0]
 

@@ -74,8 +74,7 @@ async def validate_openrouter_key(key: str) -> bool:
                 headers={"Authorization": f"Bearer {key}"}
             )
             result = response.status_code == 200
-    except Exception as e:
-        print(f"[BYOK] Key validation error: {e}")
+    except Exception:
         result = False
 
     # SECURITY: Ensure minimum response time to prevent timing attacks
@@ -105,8 +104,7 @@ async def get_openrouter_key_status(
         result = db.table("user_api_keys").select(
             "encrypted_key, key_suffix, is_valid, is_active"
         ).eq("user_id", current_user["id"]).maybe_single().execute()
-    except Exception as e:
-        print(f"[BYOK] Error fetching key status: {e}")
+    except Exception:
         return OpenRouterKeyResponse(
             status="not_connected",
             is_valid=False,
@@ -240,8 +238,7 @@ async def test_openrouter_key(
         result = db.table("user_api_keys").select(
             "encrypted_key, key_suffix, is_active"
         ).eq("user_id", current_user["id"]).maybe_single().execute()
-    except Exception as e:
-        print(f"[BYOK] Error fetching key for test: {e}")
+    except Exception:
         raise HTTPException(status_code=500, detail="Database error")
 
     if not result.data:
@@ -299,8 +296,7 @@ async def toggle_openrouter_key(
         result = db.table("user_api_keys").select(
             "encrypted_key, key_suffix, is_valid, is_active"
         ).eq("user_id", current_user["id"]).maybe_single().execute()
-    except Exception as e:
-        print(f"[BYOK] Error fetching key for toggle: {e}")
+    except Exception:
         raise HTTPException(status_code=500, detail="Database error")
 
     if not result.data:
@@ -359,8 +355,7 @@ async def get_user_settings(
         settings_result = db.table("user_settings").select(
             "default_mode"
         ).eq("user_id", current_user["id"]).maybe_single().execute()
-    except Exception as e:
-        print(f"[BYOK] Error fetching settings: {e}")
+    except Exception:
         settings_result = type('obj', (object,), {'data': None})()
 
     default_mode = "full_council"
@@ -372,8 +367,7 @@ async def get_user_settings(
         key_result = db.table("user_api_keys").select(
             "encrypted_key, key_suffix, is_valid, is_active"
         ).eq("user_id", current_user["id"]).maybe_single().execute()
-    except Exception as e:
-        print(f"[BYOK] Error fetching API key: {e}")
+    except Exception:
         key_result = type('obj', (object,), {'data': None})()
 
     api_key_status = None

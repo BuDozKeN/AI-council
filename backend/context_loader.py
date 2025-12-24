@@ -122,8 +122,7 @@ def list_available_businesses(user_id: Optional[str] = None) -> List[Dict[str, A
             })
 
         return companies
-    except Exception as e:
-        print(f"Error listing businesses: {e}")
+    except Exception:
         return []
 
 
@@ -161,8 +160,7 @@ def load_company_context_from_db(company_id: str) -> Optional[str]:
             return result.data[0]["context_md"]
 
         return None
-    except Exception as e:
-        print(f"Error loading company context from DB: {e}")
+    except Exception:
         return None
 
 
@@ -192,8 +190,7 @@ def load_department_context_from_db(department_id: str) -> Optional[str]:
             return result.data[0]["context_md"]
 
         return None
-    except Exception as e:
-        print(f"Error loading department context from DB: {e}")
+    except Exception:
         return None
 
 
@@ -223,8 +220,7 @@ def load_role_prompt_from_db(role_id: str) -> Optional[Dict[str, Any]]:
             return result.data[0]
 
         return None
-    except Exception as e:
-        print(f"Error loading role prompt from DB: {e}")
+    except Exception:
         return None
 
 
@@ -245,8 +241,7 @@ def get_company_departments(company_id: str) -> List[Dict[str, Any]]:
     try:
         result = client.table("departments").select("id, name, slug, description, context_md").eq("company_id", company_id).execute()
         return result.data or []
-    except Exception as e:
-        print(f"Error loading departments from DB: {e}")
+    except Exception:
         return []
 
 
@@ -294,8 +289,7 @@ def get_department_roles(department_id: str) -> List[Dict[str, Any]]:
     try:
         result = client.table("roles").select("id, name, slug, description").eq("department_id", department_id).execute()
         return result.data or []
-    except Exception as e:
-        print(f"Error loading roles from DB: {e}")
+    except Exception:
         return []
 
 
@@ -354,8 +348,7 @@ def get_playbooks_for_context(
 
         return playbooks
 
-    except Exception as e:
-        print(f"Warning: Failed to load playbooks: {e}")
+    except Exception:
         return []
 
 
@@ -404,8 +397,7 @@ def get_decisions_for_context(
 
         return formatted
 
-    except Exception as e:
-        print(f"Warning: Failed to load injectable knowledge: {e}")
+    except Exception:
         return []
 
 
@@ -630,9 +622,6 @@ def get_system_prompt_with_context(
     elif department_id:
         all_department_ids = [department_id]
 
-    # Debug log what parameters we received
-    print(f"[CONTEXT] Building system prompt - roles: {all_role_ids}, departments: {all_department_ids}, business_id: {business_id}", flush=True)
-
     # Resolve company UUID if we only have business_id (slug)
     if not company_uuid and business_id:
         client = get_supabase_service()
@@ -646,7 +635,6 @@ def get_system_prompt_with_context(
 
     # Load company context from database
     company_context = load_company_context_from_db(company_uuid or business_id)
-    print(f"[CONTEXT DEBUG] Raw company_context length: {len(company_context) if company_context else 0} chars", flush=True)
 
     if not company_context:
         return None
@@ -657,10 +645,6 @@ def get_system_prompt_with_context(
         info = load_role_prompt_from_db(rid)
         if info:
             role_infos.append(info)
-            print(f"[CONTEXT DEBUG] Loaded role: {info.get('name')}, system_prompt length: {len(info.get('system_prompt', ''))} chars", flush=True)
-
-    if not role_infos:
-        print(f"[CONTEXT DEBUG] No roles provided - using generic AI advisor prompt", flush=True)
 
     # Build the system prompt based on role selection
     if len(role_infos) > 1:
@@ -739,7 +723,6 @@ Focus on aspects relevant to your role. Be practical and actionable.
     # Inject project context if project_id is provided
     if project_id and access_token:
         project_context = storage.get_project_context(project_id, access_token)
-        print(f"[CONTEXT DEBUG] Project context length: {len(project_context) if project_context else 0} chars", flush=True)
         if project_context:
             project = storage.get_project(project_id, access_token)
             project_name = project.get('name', 'Current Project') if project else 'Current Project'
@@ -763,7 +746,6 @@ Focus on aspects relevant to your role. Be practical and actionable.
 
         for dept_id in all_department_ids:
             dept_context = load_department_context_from_db(dept_id)
-            print(f"[CONTEXT DEBUG] Department {dept_id} context length: {len(dept_context) if dept_context else 0} chars", flush=True)
 
             if dept_context:
                 # Get department name
@@ -826,12 +808,8 @@ Focus on aspects relevant to your role. Be practical and actionable.
                             system_prompt += content
                             system_prompt += f"\n\n=== END {doc_type} ===\n"
                             playbook_count += 1
-                            print(f"[CONTEXT DEBUG] Injected playbook: {doc_title} ({len(content)} chars)", flush=True)
-                except Exception as e:
-                    print(f"[CONTEXT WARNING] Failed to load playbook {playbook_id}: {e}", flush=True)
-
-            if playbook_count > 0:
-                print(f"[CONTEXT] Injected {playbook_count} playbook(s)", flush=True)
+                except Exception:
+                    pass  # Skip failed playbook loads silently
 
     system_prompt += """
 When responding:
@@ -882,11 +860,7 @@ these as actionable prompts to add context for future queries.
 
     # Final length check - ensure total context doesn't exceed safe limits
     if len(system_prompt) > MAX_CONTEXT_CHARS:
-        print(f"[CONTEXT WARNING] System prompt is {len(system_prompt):,} chars (~{estimate_tokens(system_prompt):,} tokens). Truncating to {MAX_CONTEXT_CHARS:,} chars.", flush=True)
         system_prompt = truncate_to_limit(system_prompt, MAX_CONTEXT_CHARS, "total context")
-
-    # Log final context size for debugging
-    print(f"[CONTEXT] Final system prompt: {len(system_prompt):,} chars (~{estimate_tokens(system_prompt):,} tokens)", flush=True)
 
     return system_prompt
 

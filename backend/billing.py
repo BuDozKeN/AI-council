@@ -64,7 +64,6 @@ def get_or_create_stripe_products() -> Dict[str, Dict[str, str]]:
                 metadata={"tier_id": tier_id}
             )
             product_map[tier_id] = product.id
-            print(f"[Stripe] Created product for {tier_id}: {product.id}")
 
         # Create price if needed
         if tier_id not in price_map:
@@ -76,7 +75,6 @@ def get_or_create_stripe_products() -> Dict[str, Dict[str, str]]:
                 metadata={"tier_id": tier_id}
             )
             price_map[tier_id] = price.id
-            print(f"[Stripe] Created price for {tier_id}: {price.id}")
 
         _stripe_products[tier_id] = product_map[tier_id]
         _stripe_prices[tier_id] = price_map[tier_id]

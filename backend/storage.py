@@ -95,7 +95,6 @@ def resolve_department_id(
         return result.data[0]['id']
 
     # Not found - return None rather than raising (department is optional)
-    print(f"Warning: Department not found: {department_id_or_slug} in company {company_id}")
     return None
 
 
@@ -528,12 +527,8 @@ def get_projects(company_id_or_slug: str, access_token: str) -> List[Dict[str, A
             .eq("status", "active")\
             .order("created_at", desc=True)\
             .execute()
-        # Note: removed debug print - it crashes on Windows with Unicode characters
         return result.data if result.data else []
-    except Exception as e:
-        # Encode error message safely for Windows console
-        error_msg = str(e).encode('ascii', 'replace').decode('ascii')
-        print(f"[STORAGE ERROR] get_projects failed: {type(e).__name__}: {error_msg}", flush=True)
+    except Exception:
         raise
 
 
@@ -548,8 +543,7 @@ def get_project(project_id: str, access_token: str) -> Optional[Dict[str, Any]]:
             .limit(1)\
             .execute()
         return result.data[0] if result.data else None
-    except Exception as e:
-        print(f"[STORAGE] get_project failed for {project_id}: {type(e).__name__}: {e}", flush=True)
+    except Exception:
         return None
 
 
@@ -575,44 +569,69 @@ def create_project(
         log_app_event("PROJECT", f"Error resolving company: {type(e).__name__}", user_id=user_id, level="ERROR")
         raise
 
-    # SECURITY: Verify user has access to the target company before creating
-    if not verify_user_company_access(user_id, company_uuid):
-        log_security_event("CREATE_BLOCKED", user_id=user_id,
-                          resource_type="project", resource_id=company_uuid,
-                          severity="WARNING")
+    # Use RLS-authenticated client - the database will enforce access control
+    # via the create_project_safe SECURITY DEFINER function or RLS policies
+    client = _get_client(access_token) if access_token else get_supabase_service()
+    if not client:
+        log_app_event("PROJECT", "No client available", user_id=user_id, level="ERROR")
         return None
 
-    # Use service client to bypass RLS - access already verified above
-    client = get_supabase_service()
-    if not client:
-        # Fall back to user client if service key not configured
-        client = _get_client(access_token)
-
-    insert_data = {
-        "company_id": company_uuid,
-        "user_id": user_id,
-        "name": name,
-        "description": description,
-        "context_md": context_md,
-        "source": source
-    }
     # Handle department assignment - use department_ids array only
+    dept_ids_array = []
     if department_ids and len(department_ids) > 0:
-        insert_data["department_ids"] = department_ids
+        dept_ids_array = department_ids
     elif department_id:
-        insert_data["department_ids"] = [department_id]
-    else:
-        insert_data["department_ids"] = []
-
-    if source_conversation_id:
-        insert_data["source_conversation_id"] = source_conversation_id
+        dept_ids_array = [department_id]
 
     try:
-        result = client.table("projects").insert(insert_data).execute()
-        log_app_event("PROJECT", "Created successfully", user_id=user_id, resource_id=result.data[0]["id"] if result.data else None)
-        return result.data[0] if result.data else None
+        # Try using the SECURITY DEFINER function for atomic access check + insert
+        result = client.rpc("create_project_safe", {
+            "p_company_id": company_uuid,
+            "p_user_id": user_id,
+            "p_name": name,
+            "p_description": description,
+            "p_context_md": context_md,
+            "p_department_ids": dept_ids_array,
+            "p_source": source,
+            "p_source_conversation_id": source_conversation_id
+        }).execute()
+
+        if result.data:
+            log_app_event("PROJECT", "Created successfully via safe function", user_id=user_id, resource_id=result.data.get("id"))
+            return result.data
+        else:
+            log_app_event("PROJECT", "Create returned no data", user_id=user_id, level="WARNING")
+            return None
+
     except Exception as e:
-        log_app_event("PROJECT", f"Create failed: {type(e).__name__}", user_id=user_id, level="ERROR")
+        # Fallback to direct insert with access verification if function not available
+        if "function" in str(e).lower() or "does not exist" in str(e).lower():
+            log_app_event("PROJECT", "Falling back to direct insert (function not available)", user_id=user_id)
+
+            # SECURITY: Verify user has access to the target company before creating
+            if not verify_user_company_access(user_id, company_uuid):
+                log_security_event("CREATE_BLOCKED", user_id=user_id,
+                                  resource_type="project", resource_id=company_uuid,
+                                  severity="WARNING")
+                return None
+
+            insert_data = {
+                "company_id": company_uuid,
+                "user_id": user_id,
+                "name": name,
+                "description": description,
+                "context_md": context_md,
+                "source": source,
+                "department_ids": dept_ids_array
+            }
+            if source_conversation_id:
+                insert_data["source_conversation_id"] = source_conversation_id
+
+            result = client.table("projects").insert(insert_data).execute()
+            log_app_event("PROJECT", "Created successfully via fallback", user_id=user_id, resource_id=result.data[0]["id"] if result.data else None)
+            return result.data[0] if result.data else None
+
+        log_app_event("PROJECT", f"Create failed: {type(e).__name__}: {e}", user_id=user_id, level="ERROR")
         raise
 
 
@@ -629,8 +648,7 @@ def get_project_context(project_id: str, access_token: str) -> Optional[str]:
             .limit(1)\
             .execute()
         return result.data[0].get("context_md") if result.data else None
-    except Exception as e:
-        print(f"[STORAGE] get_project_context failed for {project_id}: {type(e).__name__}", flush=True)
+    except Exception:
         return None
 
 
@@ -646,29 +664,18 @@ def update_project(
     source_conversation_id: Optional[str] = None,
     user_id: Optional[str] = None  # Required for security verification
 ) -> Optional[Dict[str, Any]]:
-    """Update a project's fields."""
-    # Use service client to bypass RLS
-    client = get_supabase_service()
+    """Update a project's fields.
+
+    Uses RLS-authenticated client - access control enforced by database policies.
+    """
+    # Use RLS-authenticated client - database enforces access control
+    client = _get_client(access_token) if access_token else get_supabase_service()
     if not client:
-        # Fall back to user client if service key not configured
-        client = _get_client(access_token)
+        log_app_event("PROJECT", "No client available for update", user_id=user_id, level="ERROR")
+        return None
 
-    # SECURITY: Verify user has access to this project's company
-    if user_id:
-        # Get project's company_id first
-        project_check = client.table("projects").select("company_id, user_id").eq("id", project_id).execute()
-        if not project_check.data:
-            log_security_event("UPDATE_BLOCKED", user_id=user_id,
-                              resource_type="project", resource_id=project_id,
-                              details={"reason": "project_not_found"}, severity="WARNING")
-            return None
-
-        project_company_id = project_check.data[0].get("company_id")
-        if not verify_user_company_access(user_id, project_company_id):
-            log_security_event("UPDATE_BLOCKED", user_id=user_id,
-                              resource_type="project", resource_id=project_id,
-                              severity="WARNING")
-            return None
+    # RLS will block access if user doesn't have permission
+    # The update will simply return no rows if access is denied
 
     # Build update payload with only provided fields
     now = datetime.utcnow().isoformat() + 'Z'
@@ -705,70 +712,59 @@ def update_project(
 
 
 def touch_project_last_accessed(project_id: str, access_token: str) -> bool:
-    """Update last_accessed_at to now for a project."""
+    """Update last_accessed_at to now for a project.
+
+    Uses RLS-authenticated client - access control enforced by database policies.
+    """
     if not project_id:
         return False
     try:
-        # Use service client to bypass RLS - user auth is validated by the endpoint
-        client = get_supabase_service()
+        # Use RLS-authenticated client
+        client = _get_client(access_token) if access_token else get_supabase_service()
         if not client:
-            client = _get_client(access_token)
+            return False
         now = datetime.utcnow().isoformat() + 'Z'
         client.table("projects")\
             .update({"last_accessed_at": now})\
             .eq("id", project_id)\
             .execute()
         return True
-    except Exception as e:
-        print(f"[STORAGE] Failed to touch project last_accessed: {e}", flush=True)
+    except Exception:
         return False
 
 
 def delete_project(project_id: str, access_token: str) -> Optional[dict]:
     """Delete a project by ID. Returns the deleted project data or None if failed."""
     if not project_id:
-        print(f"[DELETE_PROJECT] No project_id provided", flush=True)
         return None
     try:
-        print(f"[DELETE_PROJECT] Starting delete for project: {project_id}", flush=True)
         client = _get_client(access_token)
 
         # First verify the project exists and user has access
         check_result = client.table("projects").select("id, name, user_id, company_id").eq("id", project_id).execute()
         if not check_result.data:
-            print(f"[DELETE_PROJECT] Project not found or no access: {project_id}", flush=True)
             return None
         project_data = check_result.data[0]
-        print(f"[DELETE_PROJECT] Found project: {project_data}", flush=True)
 
         # Unlink any knowledge_entries that reference this project
-        unlink_result = client.table("knowledge_entries")\
+        client.table("knowledge_entries")\
             .update({"project_id": None})\
             .eq("project_id", project_id)\
             .execute()
-        print(f"[DELETE_PROJECT] Unlinked {len(unlink_result.data or [])} knowledge entries", flush=True)
 
         # Delete the project
-        delete_result = client.table("projects")\
+        client.table("projects")\
             .delete()\
             .eq("id", project_id)\
             .execute()
-        # Don't print full result - context_md may contain emojis that crash Windows console
-        deleted_count = len(delete_result.data or [])
-        print(f"[DELETE_PROJECT] Delete result: {deleted_count} row(s) deleted", flush=True)
 
         # Verify deletion actually happened
         verify_result = client.table("projects").select("id").eq("id", project_id).execute()
         if verify_result.data:
-            print(f"[DELETE_PROJECT] WARNING: Project still exists after delete! RLS may be blocking.", flush=True)
-            return None
+            return None  # RLS may be blocking delete
 
-        print(f"[DELETE_PROJECT] SUCCESS: Project {project_id} deleted", flush=True)
         return project_data
-    except Exception as e:
-        import traceback
-        print(f"[DELETE_PROJECT] Failed to delete project: {e}", flush=True)
-        print(f"[DELETE_PROJECT] Traceback: {traceback.format_exc()}", flush=True)
+    except Exception:
         return None
 
 
@@ -850,9 +846,7 @@ def get_projects_with_stats(
                 project["source_question"] = None
 
         return projects
-    except Exception as e:
-        error_msg = str(e).encode('ascii', 'replace').decode('ascii')
-        print(f"[STORAGE ERROR] get_projects_with_stats failed: {type(e).__name__}: {error_msg}", flush=True)
+    except Exception:
         raise
 
 

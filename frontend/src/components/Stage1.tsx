@@ -419,7 +419,7 @@ function Stage1({ responses, streaming, isLoading, stopped, isComplete, defaultC
   }, {});
 
   return (
-    <div className={`stage stage1 ${isCollapsed ? 'collapsed' : ''}`}>
+    <div className={`stage stage1 ${isCollapsed ? 'collapsed' : ''}`} data-stage="stage1">
       <h3 className="stage-title clickable" onClick={toggleCollapsed}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
         {streamingCount > 0 ? (

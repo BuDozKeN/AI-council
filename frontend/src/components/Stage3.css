@@ -144,68 +144,78 @@
   }
 }
 
-/* Floating copy button - appears when scrolling (desktop) or always (mobile) */
-.stage3-floating-copy {
-  animation: floatIn 0.2s ease-out;
+/* Sticky copy button - stays inside Stage 3 container */
+.stage3-sticky-copy {
+  position: sticky;
+  top: 60px; /* Below the context indicator */
+  float: right;
+  margin-left: 8px;
+  margin-bottom: -32px; /* Pull content up */
+  z-index: 10;
 }
 
-.stage3-floating-copy .stage3-copy-btn {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
+.stage3-sticky-copy .stage3-copy-btn {
+  width: 32px;
+  height: 32px;
+  padding: 6px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+  color: var(--color-text-tertiary);
+  opacity: 0.6;
+  transition: all 0.2s ease;
 }
 
-/* Mobile: compact floating copy button - minimal footprint */
+.stage3-sticky-copy .stage3-copy-btn:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--color-text-secondary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.stage3-sticky-copy .stage3-copy-btn:active {
+  transform: scale(0.95);
+}
+
+.stage3-sticky-copy .stage3-copy-btn .copy-btn-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Dark mode */
+.dark .stage3-sticky-copy .stage3-copy-btn,
+[data-theme="dark"] .stage3-sticky-copy .stage3-copy-btn {
+  background: rgba(40, 40, 45, 0.6);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: var(--color-text-tertiary);
+}
+
+.dark .stage3-sticky-copy .stage3-copy-btn:hover,
+[data-theme="dark"] .stage3-sticky-copy .stage3-copy-btn:hover {
+  background: rgba(50, 50, 55, 0.8);
+  color: var(--color-text-secondary);
+}
+
+/* Mobile - same subtle styling */
 @media (max-width: 768px) {
-  .stage3-floating-copy {
-    position: fixed !important;
+  .stage3-sticky-copy {
+    top: 50px;
+    margin-bottom: -28px;
   }
 
-  .stage3-floating-copy .stage3-copy-btn {
-    /* Smaller but still touch-friendly (44px minimum) */
-    padding: 10px;
-    min-width: 44px;
-    min-height: 44px;
-    /* Subtle styling - not too prominent */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    border-radius: 10px;
-    background: var(--color-bg-primary);
-    border: 1px solid var(--color-success-border);
-    color: var(--color-success-dark);
+  .stage3-sticky-copy .stage3-copy-btn {
+    width: 28px;
+    height: 28px;
+    padding: 5px;
+    opacity: 0.5;
   }
 
-  .stage3-floating-copy .stage3-copy-btn:active {
-    background: var(--color-success-light);
-    transform: scale(0.95);
-  }
-
-  .stage3-floating-copy .stage3-copy-btn.copied {
-    background: var(--color-success-light);
-    border-color: var(--color-success);
-  }
-
-  /* Icon size - compact */
-  .stage3-floating-copy .stage3-copy-btn .copy-btn-icon {
-    width: 18px;
-    height: 18px;
-  }
-}
-
-/* Dark mode floating copy button on mobile */
-@media (max-width: 768px) {
-  .dark .stage3-floating-copy .stage3-copy-btn {
-    background: var(--color-bg-secondary);
-    border-color: rgba(34, 197, 94, 0.3);
-    color: var(--color-success);
-  }
-
-  .dark .stage3-floating-copy .stage3-copy-btn:active {
-    background: rgba(34, 197, 94, 0.15);
-  }
-
-  .dark .stage3-floating-copy .stage3-copy-btn.copied {
-    background: rgba(34, 197, 94, 0.2);
-    border-color: var(--color-success);
+  .stage3-sticky-copy .stage3-copy-btn .copy-btn-icon {
+    width: 14px;
+    height: 14px;
   }
 }
 

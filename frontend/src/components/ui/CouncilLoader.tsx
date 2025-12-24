@@ -6,24 +6,17 @@
  */
 
 import { useState, useEffect } from 'react';
-import {
-  ClaudeIcon,
-  ChatGPTIcon,
-  GeminiIcon,
-  GrokIcon,
-  DeepSeekIcon,
-} from '../icons/BrandIcons';
-import { PROVIDER_COLORS } from '../../config/modelPersonas';
+import { getProviderIcon } from '../icons';
+import { PROVIDER_COLORS, PROVIDER_LABELS } from '../../config/modelPersonas';
 import './CouncilLoader.css';
 
-// Council members in display order
-const COUNCIL_MEMBERS = [
-  { icon: ChatGPTIcon, color: PROVIDER_COLORS.openai, name: 'GPT' },
-  { icon: ClaudeIcon, color: PROVIDER_COLORS.anthropic, name: 'Claude' },
-  { icon: GeminiIcon, color: PROVIDER_COLORS.google, name: 'Gemini' },
-  { icon: GrokIcon, color: PROVIDER_COLORS.xai, name: 'Grok' },
-  { icon: DeepSeekIcon, color: PROVIDER_COLORS.deepseek, name: 'DeepSeek' },
-];
+// Council members derived from centralized config
+const COUNCIL_PROVIDERS = ['openai', 'anthropic', 'google', 'xai', 'deepseek'];
+const COUNCIL_MEMBERS = COUNCIL_PROVIDERS.map(provider => ({
+  icon: getProviderIcon(provider),
+  color: PROVIDER_COLORS[provider],
+  name: PROVIDER_LABELS[provider],
+}));
 
 export function CouncilLoader({
   size = 'medium',

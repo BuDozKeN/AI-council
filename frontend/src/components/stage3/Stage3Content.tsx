@@ -35,7 +35,6 @@ function Stage3Content({
   isStreaming,
   isComplete,
   chairmanIconPath,
-  isMobile
 }) {
   return (
     <>
@@ -49,10 +48,6 @@ function Stage3Content({
           {isComplete && <CheckCircle2 className="h-4 w-4 text-green-600" />}
           {hasError && <span className="error-badge">Error</span>}
         </div>
-        {/* Copy button - inline in header (desktop only, mobile uses floating) */}
-        {isComplete && displayText && !isMobile && (
-          <CopyButton text={displayText} size="sm" className="stage3-copy-btn stage3-header-copy" />
-        )}
       </div>
 
       {/* Content wrapper */}

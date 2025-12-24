@@ -122,8 +122,8 @@ async def get_models(role: str, company_id: Optional[str] = None) -> List[str]:
             result = query.is_('company_id', 'null').execute()
             if result.data and len(result.data) > 0:
                 return [row['model_id'] for row in result.data]
-    except Exception as e:
-        print(f"[MODEL_REGISTRY] Database fetch failed, using fallback: {e}", flush=True)
+    except Exception:
+        pass  # Fall through to hardcoded fallback
 
     # Fallback to hardcoded
     return FALLBACK_MODELS.get(role, [])

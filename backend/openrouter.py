@@ -76,13 +76,6 @@ generate_mock_response_stream = None
 
 if MOCK_LLM:
     from .mock_llm import generate_mock_response, generate_mock_response_stream
-    print("[MOCK] MOCK MODE ENABLED - No real API calls will be made", flush=True)
-
-# Log caching status on startup
-if ENABLE_PROMPT_CACHING:
-    print("[CACHE] PROMPT CACHING ENABLED - cache_control will be added to supported models", flush=True)
-else:
-    print("[CACHE] Prompt caching DISABLED - using standard message format", flush=True)
 
 
 def convert_to_cached_messages(
@@ -140,7 +133,6 @@ def convert_to_cached_messages(
                     }
                 ]
             })
-            print(f"[CACHE] Added cache_control to system message for {model} ({len(content)} chars)", flush=True)
         elif role == "user" and isinstance(content, str) and content:
             # Keep user messages in multipart format for consistency
             # but without cache_control (dynamic content)
@@ -217,14 +209,11 @@ async def query_model(
             'reasoning_details': message.get('reasoning_details')
         }
 
-    except httpx.TimeoutException as e:
-        print(f"[TIMEOUT] Model {model}: Request timed out after {timeout}s", flush=True)
+    except httpx.TimeoutException:
         return None
-    except httpx.HTTPStatusError as e:
-        print(f"[HTTP ERROR] Model {model}: Status {e.response.status_code} - {e.response.text[:200]}", flush=True)
+    except httpx.HTTPStatusError:
         return None
-    except Exception as e:
-        print(f"[ERROR] Model {model}: {type(e).__name__}: {e}", flush=True)
+    except Exception:
         return None
 
 
@@ -283,7 +272,6 @@ async def query_model_stream(
     while retries <= max_retries:
         should_retry = False
         try:
-            print(f"[STREAM START] {model}: Connecting..." + (f" (retry {retries})" if retries > 0 else ""), flush=True)
             async with client.stream(
                 "POST",
                 OPENROUTER_API_URL,
@@ -292,43 +280,25 @@ async def query_model_stream(
             ) as response:
                 # Check for HTTP errors BEFORE reading stream - this lets us capture error body
                 if response.status_code >= 400:
-                    # Read the full error response body
-                    error_body = await response.aread()
-                    error_text = error_body.decode('utf-8')[:1000]
-                    print(f"[HTTP ERROR] Model {model}: Status {response.status_code} - {error_text}", flush=True)
-                    if response.status_code == 400:
-                        print(f"[400 DEBUG] {model}: This often means context too long, invalid request format, or model-specific restrictions", flush=True)
                     yield f"[Error: Status {response.status_code}]"
                     return
 
-                print(f"[STREAM CONNECTED] {model}: Status {response.status_code}", flush=True)
-
                 line_count = 0
                 token_count = 0
-                first_data_logged = False
                 finish_reason = None
                 async for line in response.aiter_lines():
                     line_count += 1
                     if line.startswith("data: "):
                         data_str = line[6:]  # Remove "data: " prefix
                         if data_str.strip() == "[DONE]":
-                            done_msg = f"[STREAM DONE] {model}: Received [DONE] after {line_count} lines, {token_count} tokens"
-                            if finish_reason == "length":
-                                done_msg += " [TRUNCATED - hit max_tokens limit!]"
-                            print(done_msg, flush=True)
                             return  # Successfully completed
                         try:
                             data = json.loads(data_str)
-                            # Log first data packet to see structure
-                            if not first_data_logged:
-                                print(f"[STREAM FIRST DATA] {model}: {json.dumps(data)[:500]}", flush=True)
-                                first_data_logged = True
 
                             # Check for error response (Overloaded, rate limit, server errors, etc.)
                             if 'error' in data:
                                 error_msg = data['error'].get('message', 'Unknown error')
                                 error_code = data['error'].get('code', 0)
-                                print(f"[STREAM ERROR RESPONSE] {model}: {error_msg} (code: {error_code})", flush=True)
 
                                 # Retry on overloaded, rate limit, or server errors (500, 503)
                                 is_retryable = (
@@ -341,7 +311,6 @@ async def query_model_stream(
                                     should_retry = True
                                     # Use exponential backoff: 5s, 10s (longer for rate limits)
                                     wait_time = (retries + 1) * 5
-                                    print(f"[RETRY] {model}: Rate limited, will retry in {wait_time}s...", flush=True)
                                     await asyncio.sleep(wait_time)
                                     break  # Break inner loop to retry
                                 yield f"[Error: {error_msg}]"
@@ -369,63 +338,27 @@ async def query_model_stream(
                                 token_count += 1
                                 yield reasoning
                         except json.JSONDecodeError:
-                            print(f"[STREAM JSON ERROR] {model}: Failed to parse: {data_str[:100]}", flush=True)
-                            continue
-
-                if line_count == 0:
-                    print(f"[STREAM EMPTY] {model}: No lines received!", flush=True)
-                elif token_count == 0:
-                    print(f"[STREAM NO TOKENS] {model}: {line_count} lines but 0 tokens!", flush=True)
+                            continue  # Skip malformed JSON lines
 
                 if not should_retry:
                     return  # Done, exit the retry loop
 
-        except httpx.TimeoutException as e:
-            print(f"[TIMEOUT] Model {model}: Streaming timed out after {timeout}s", flush=True)
+        except httpx.TimeoutException:
             yield f"[Error: Timeout after {timeout}s]"
             return
         except httpx.HTTPStatusError as e:
-            error_msg = f"Status {e.response.status_code}"
-            error_detail = "Unknown error"
-            # In streaming mode, try multiple methods to read the error
-            try:
-                # Try to read the response body
-                if hasattr(e.response, '_content') and e.response._content:
-                    error_detail = e.response._content.decode('utf-8')[:500]
-                elif hasattr(e.response, 'content') and e.response.content:
-                    error_detail = e.response.content.decode('utf-8')[:500]
-                else:
-                    # Try async read
-                    error_body = await e.response.aread()
-                    error_detail = error_body.decode('utf-8')[:500]
-            except Exception as read_err:
-                error_detail = f"Could not read error response: {type(read_err).__name__}"
-
-            print(f"[HTTP ERROR] Model {model}: {error_msg} - {error_detail}", flush=True)
-
-            # For 400 errors, also log what might be wrong
-            if e.response.status_code == 400:
-                print(f"[400 DEBUG] {model}: This is often caused by: context too long, invalid characters, or model-specific restrictions", flush=True)
-
-            yield f"[Error: {error_msg}]"
+            yield f"[Error: Status {e.response.status_code}]"
             return
-        except (httpx.ConnectError, httpx.ReadError, httpx.RemoteProtocolError) as e:
+        except (httpx.ConnectError, httpx.ReadError, httpx.RemoteProtocolError):
             # Connection errors are often transient - retry them
-            error_type = type(e).__name__
-            error_str = str(e) if str(e) else f"{error_type} - Connection failed"
-            print(f"[CONNECTION ERROR] Model {model}: {error_type}: {e}", flush=True)
             if retries < max_retries:
-                print(f"[RETRY] Model {model}: Retrying after connection error (attempt {retries + 1}/{max_retries})", flush=True)
                 await asyncio.sleep(2)  # Wait before retry
                 retries += 1
                 continue  # Retry the loop
-            yield f"[Error: {error_str}]"
+            yield "[Error: Connection failed]"
             return
-        except Exception as e:
-            error_type = type(e).__name__
-            error_str = str(e) if str(e) else f"{error_type} - Connection failed"
-            print(f"[ERROR] Model {model}: {error_type}: {e}", flush=True)
-            yield f"[Error: {error_str}]"
+        except Exception:
+            yield "[Error: Request failed]"
             return
 
         retries += 1
