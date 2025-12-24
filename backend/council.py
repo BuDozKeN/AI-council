@@ -379,7 +379,20 @@ STAGE 1 - Individual Responses:
 STAGE 2 - Peer Rankings:
 {stage2_text}
 
-Your task as Chairman is to synthesize all of this information into a single, comprehensive, accurate answer to the user's original question. Consider:
+Your task as Chairman is to synthesize all of this information into a single, comprehensive, accurate answer to the user's original question.
+
+RESPONSE STRUCTURE (follow this format):
+1. **Executive Summary** - Start with 2-3 sentences summarizing the key conclusion/recommendation
+2. **Table of Contents** - Include a brief TOC with markdown anchor links to each section:
+   - [Section Title](#section-title)
+3. **Body Sections** - Use H2 (##) headings for major sections. Suggested structure:
+   - ## Key Insights - What the council agreed on
+   - ## Points of Debate - Where models differed and why
+   - ## Recommendations - Actionable next steps
+   - ## Considerations - Risks, tradeoffs, or caveats
+4. **Conclusion** - Brief closing summary if the response is long
+
+Consider:
 - The individual responses and their insights
 - The peer rankings and what they reveal about response quality
 - Any patterns of agreement or disagreement
@@ -583,7 +596,20 @@ STAGE 1 - Individual Responses:
 STAGE 2 - Peer Rankings:
 {stage2_text}
 
-Your task as Chairman is to synthesize all of this information into a single, comprehensive, accurate answer to the user's original question. Consider:
+Your task as Chairman is to synthesize all of this information into a single, comprehensive, accurate answer to the user's original question.
+
+RESPONSE STRUCTURE (follow this format):
+1. **Executive Summary** - Start with 2-3 sentences summarizing the key conclusion/recommendation
+2. **Table of Contents** - Include a brief TOC with markdown anchor links to each section:
+   - [Section Title](#section-title)
+3. **Body Sections** - Use H2 (##) headings for major sections. Suggested structure:
+   - ## Key Insights - What the council agreed on
+   - ## Points of Debate - Where models differed and why
+   - ## Recommendations - Actionable next steps
+   - ## Considerations - Risks, tradeoffs, or caveats
+4. **Conclusion** - Brief closing summary if the response is long
+
+Consider:
 - The individual responses and their insights
 - The peer rankings and what they reveal about response quality
 - Any patterns of agreement or disagreement

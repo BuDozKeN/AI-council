@@ -297,11 +297,17 @@ def _stage3_content() -> str:
     """Generate Chairman synthesis."""
     return """# Chairman's Synthesis
 
-## Executive Summary
+The council recommends a phased approach with clear success metrics, starting small and iterating based on data. All members agree on the importance of defined guardrails and measurable checkpoints.
 
-After reviewing all council perspectives and peer evaluations, here is the synthesized recommendation:
+## Table of Contents
 
-## Key Areas of Consensus
+- [Key Insights](#key-insights)
+- [Points of Debate](#points-of-debate)
+- [Recommendations](#recommendations)
+- [Considerations](#considerations)
+- [Conclusion](#conclusion)
+
+## Key Insights
 
 The council reached strong agreement on several points:
 
@@ -310,15 +316,15 @@ The council reached strong agreement on several points:
 3. **Define success metrics upfront** - Clear agreement that measurable criteria are essential before proceeding
 4. **Maintain adaptability** - The council values approaches that preserve optionality
 
-## Points of Divergence
+## Points of Debate
 
 There were some differences in emphasis:
 - **Risk tolerance**: Views ranged from conservative (phased rollout) to aggressive (move fast, learn fast)
 - **Technical depth**: Some responses prioritized high-level strategy while others focused on implementation details
 
-## Synthesized Recommendation
+## Recommendations
 
-Based on the collective wisdom of the council, I recommend:
+Based on the collective wisdom of the council:
 
 1. **Define clear success criteria** before beginning (quantitative where possible)
 2. **Start with a limited pilot** to validate core assumptions
@@ -326,7 +332,7 @@ Based on the collective wisdom of the council, I recommend:
 4. **Establish 30/60/90 day checkpoints** with explicit go/no-go criteria
 5. **Maintain optionality** for course correction based on early signals
 
-## Risk Assessment
+## Considerations
 
 | Risk Factor | Likelihood | Impact | Mitigation |
 |-------------|------------|--------|------------|
@@ -334,24 +340,11 @@ Based on the collective wisdom of the council, I recommend:
 | Resource constraints | Low | Medium | Clear prioritization, staged commitment |
 | External dependencies | Variable | Medium | Contingency planning, parallel paths |
 
-## Confidence Level
+**Confidence Level: Moderate-High (75%)** reflecting strong council consensus, well-understood domain, with some uncertainty in external factors.
 
-**Overall Confidence: Moderate-High (75%)**
+## Conclusion
 
-This confidence level reflects:
-- Strong council consensus on approach
-- Well-understood problem domain
-- Some uncertainty in external factors
-
-## Next Steps
-
-1. Align stakeholders on success criteria
-2. Resource the pilot phase
-3. Establish governance and review cadence
-4. Begin execution with checkpoint at Day 30
-
----
-*This synthesis represents the integrated wisdom of the AI Council.*"""
+Align stakeholders on success criteria, resource the pilot phase, establish governance cadence, and begin execution with a checkpoint at Day 30. This synthesis represents the integrated wisdom of the AI Council."""
 
 
 async def generate_mock_response(model: str, messages: List[Dict]) -> Optional[Dict]:

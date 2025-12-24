@@ -256,7 +256,7 @@ export const api = {
     const { businessId = null, department = 'standard', role = null, departments = null, roles = null, playbooks = null, projectId = null, attachmentIds = null, signal = null } = options;
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/conversations/${conversationId}/message/stream`,
+      `${API_BASE}/api/conversations/${conversationId}/messages`,
       {
         method: 'POST',
         headers,
