@@ -1,0 +1,372 @@
+/**
+ * MyCompany Shared Styles
+ * Common utilities, states, and patterns used across tabs
+ */
+
+/* ============================================================================
+   TAB CONTAINER CONSTRAINTS
+   ============================================================================ */
+
+/* All tab containers should fill available space and constrain to parent height */
+.mc-content > .mc-projects,
+.mc-content > .mc-playbooks,
+.mc-content > .mc-decisions,
+.mc-content > .mc-team,
+.mc-content > .mc-members,
+.mc-content > .mc-activity,
+.mc-content > .mc-overview {
+  flex: 1 1 0;
+  min-height: 0;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ScrollableContent list wrappers - fill remaining space */
+.mc-playbooks-list,
+.mc-decisions-list,
+.mc-team-list,
+.mc-members-list-wrapper,
+.mc-activity-list,
+.mc-projects-list {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Custom scrollbar for content */
+.mc-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.mc-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mc-content::-webkit-scrollbar-thumb {
+  background: var(--color-slate-200);
+  border-radius: 4px;
+}
+
+.mc-content::-webkit-scrollbar-thumb:hover {
+  background: var(--color-slate-300);
+}
+
+/* ============================================================================
+   LOADING, ERROR & EMPTY STATES
+   ============================================================================ */
+
+.mc-loading,
+.mc-error,
+.mc-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+}
+
+.mc-loading {
+  gap: 16px;
+}
+
+.mc-loading p {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-slate-500);
+  margin: 0;
+}
+
+/* Skeleton Loading States */
+.mc-skeleton-container {
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.mc-skeleton-stats {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.mc-skeleton-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.mc-skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--color-bg-primary);
+  border-radius: 12px;
+  padding: 8px;
+}
+
+.mc-skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 8px;
+}
+
+.mc-error {
+  background: linear-gradient(135deg, var(--color-red-50) 0%, var(--color-bg-primary) 100%);
+  border-radius: var(--radius-lg);
+  margin: 20px;
+  border: 1px solid var(--color-red-200);
+}
+
+.mc-error p {
+  margin: 0 0 16px 0;
+  color: var(--color-red-800);
+  font-weight: 500;
+}
+
+.mc-error button {
+  padding: 10px 24px;
+  background: linear-gradient(135deg, var(--color-orange-500) 0%, var(--color-orange-400) 100%);
+  color: var(--color-text-inverse);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(var(--color-orange-500-rgb, 249, 115, 22), 0.25);
+}
+
+.mc-error button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(var(--color-orange-500-rgb, 249, 115, 22), 0.35);
+}
+
+/* Modern minimal empty states */
+.mc-empty {
+  background: transparent;
+  border-radius: var(--radius-lg);
+  padding: 48px 24px;
+  margin: 0;
+  border: none;
+}
+
+/* Hide emoji/icon elements */
+.mc-empty-icon,
+.mc-empty-icon-svg {
+  display: none;
+}
+
+.mc-empty-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-slate-500);
+  margin: 0;
+}
+
+.mc-empty-hint {
+  color: var(--color-slate-400);
+  margin: 6px 0 16px;
+  max-width: 280px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ============================================================================
+   FORM ELEMENTS
+   ============================================================================ */
+
+.mc-input,
+.mc-textarea,
+.mc-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-family: inherit;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mc-input:focus,
+.mc-textarea:focus,
+.mc-select:focus {
+  outline: none;
+  border-color: var(--color-brand-primary);
+  box-shadow: 0 0 0 3px var(--color-brand-primary-light);
+}
+
+.mc-input::placeholder,
+.mc-textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+.mc-input:disabled,
+.mc-textarea:disabled,
+.mc-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.mc-textarea {
+  min-height: 100px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+/* Form groups */
+.mc-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mc-form-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.mc-form-hint {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+/* ============================================================================
+   BUTTON SYSTEM
+   ============================================================================ */
+
+.mc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mc-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Primary button */
+.mc-btn-primary {
+  background: linear-gradient(135deg, var(--color-orange-500) 0%, var(--color-orange-400) 100%);
+  color: var(--color-text-inverse);
+  box-shadow: 0 2px 8px rgba(var(--color-orange-500-rgb, 249, 115, 22), 0.25);
+}
+
+.mc-btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(var(--color-orange-500-rgb, 249, 115, 22), 0.35);
+}
+
+/* Secondary button */
+.mc-btn-secondary {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+}
+
+.mc-btn-secondary:hover:not(:disabled) {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-muted);
+}
+
+/* Ghost button */
+.mc-btn-ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+
+.mc-btn-ghost:hover:not(:disabled) {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+}
+
+/* Danger button */
+.mc-btn-danger {
+  background: var(--color-red-500);
+  color: var(--color-text-inverse);
+}
+
+.mc-btn-danger:hover:not(:disabled) {
+  background: var(--color-red-600);
+}
+
+/* Small button variant */
+.mc-btn-sm {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+/* Icon button */
+.mc-btn-icon {
+  padding: 8px;
+  min-width: 36px;
+  min-height: 36px;
+}
+
+/* ============================================================================
+   ACTION BUTTONS (Row actions)
+   ============================================================================ */
+
+.mc-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-action-btn:hover {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+}
+
+.mc-action-btn.view:hover {
+  background: var(--color-slate-100);
+  border-color: var(--color-slate-300);
+  color: var(--color-slate-700);
+}
+
+.mc-action-btn.promote:hover {
+  background: var(--color-orange-50);
+  border-color: var(--color-orange-300);
+  color: var(--color-orange-600);
+}
+
+.mc-action-btn.archive:hover {
+  background: var(--color-red-50);
+  border-color: var(--color-red-300);
+  color: var(--color-red-600);
+}
+
+.mc-action-btn.delete:hover {
+  background: var(--color-red-50);
+  border-color: var(--color-red-300);
+  color: var(--color-red-600);
+}
