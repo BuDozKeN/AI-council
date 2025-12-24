@@ -20,9 +20,13 @@ def validate_config():
     required = [
         'OPENROUTER_API_KEY',
         'SUPABASE_URL',
-        'SUPABASE_SERVICE_ROLE_KEY',
     ]
+    # Check for service key (accept either name for backwards compatibility)
+    has_service_key = os.getenv('SUPABASE_SERVICE_ROLE_KEY') or os.getenv('SUPABASE_SERVICE_KEY')
+
     missing = [k for k in required if not os.getenv(k)]
+    if not has_service_key:
+        missing.append('SUPABASE_SERVICE_ROLE_KEY (or SUPABASE_SERVICE_KEY)')
     if missing:
         print(f"[CONFIG] ERROR: Missing required environment variables: {missing}", file=sys.stderr)
         print("[CONFIG] Please check your .env file or environment configuration.", file=sys.stderr)

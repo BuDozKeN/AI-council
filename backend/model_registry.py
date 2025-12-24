@@ -82,7 +82,7 @@ FALLBACK_MODELS = {
 def _get_supabase_client() -> Optional[Client]:
     """Get Supabase client, or None if not configured."""
     url = os.getenv("SUPABASE_URL")
-    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY")
+    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_SERVICE_KEY")
     if not url or not key:
         return None
     try:
