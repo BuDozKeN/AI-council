@@ -70,7 +70,7 @@
   /* Sticky - stays visible at top with NO gap */
   position: sticky;
   top: 0;
-  z-index: 50; /* Higher than content elements like badges */
+  z-index: var(--z-sticky); /* Higher than content elements like badges */
   /* Subtle shadow */
   box-shadow:
     0 1px 3px rgba(0, 0, 0, 0.04),
@@ -131,7 +131,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-  z-index: 40;
+  z-index: var(--z-overlay);
   opacity: 0.7;
 }
 
@@ -1648,7 +1648,7 @@ button.mobile-role-select {
     transparent 100%
   );
   pointer-events: none;
-  z-index: 1;
+  z-index: var(--z-base);
   margin-bottom: -40px;
 }
 
@@ -1666,6 +1666,6 @@ button.mobile-role-select {
     transparent 100%
   );
   pointer-events: none;
-  z-index: 1;
+  z-index: var(--z-base);
   margin-top: -40px;
 }
