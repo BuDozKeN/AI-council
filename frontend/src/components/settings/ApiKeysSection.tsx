@@ -39,10 +39,10 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }) {
       <Card className="settings-card">
         <CardHeader>
           <Skeleton width={200} height={20} />
-          <Skeleton width={300} height={14} style={{ marginTop: 8 }} />
+          <Skeleton width={300} height={14} className="mt-2" />
         </CardHeader>
         <CardContent>
-          <Skeleton height={40} style={{ marginBottom: 16 }} />
+          <Skeleton height={40} className="mb-4" />
           <Skeleton height={40} />
         </CardContent>
       </Card>

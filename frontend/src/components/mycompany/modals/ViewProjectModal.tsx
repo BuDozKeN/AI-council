@@ -582,7 +582,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                 className={`mc-project-tab ${activeTab === 'context' ? 'active' : ''}`}
                 onClick={() => setActiveTab('context')}
               >
-                <svg style={{ width: '14px', height: '14px' }} viewBox="0 0 20 20" fill="currentColor">
+                <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 110 2H4a1 1 0 010-2zm3 1h6v4H7V5zm6 6H7v2h6v-2z" clipRule="evenodd" />
                 </svg>
                 Context
@@ -846,7 +846,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                                       <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
                                     </svg>
-                                      <svg className="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{display: 'none'}}>
+                                      <svg className="check-icon hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                         <polyline points="20 6 9 17 4 12" />
                                       </svg>
                                     </button>

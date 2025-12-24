@@ -106,7 +106,7 @@ export default function Leaderboard({ isOpen, onClose }) {
           {/* Skeleton legend */}
           <div className="leaderboard-legend">
             <Skeleton width={280} height={14} />
-            <Skeleton width={200} height={14} style={{ marginTop: 4 }} />
+            <Skeleton width={200} height={14} className="mt-1" />
           </div>
         </div>
       ) : error ? (
