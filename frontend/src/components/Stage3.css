@@ -1179,11 +1179,12 @@ h2, h3 {
   color: var(--blue-300);
 }
 
-/* Dark mode save dropdown (portal) */
-.dark .save-project-dropdown-portal {
-  background: var(--color-bg-secondary) !important;
-  border-color: var(--color-border) !important;
-  box-shadow: var(--shadow-modal) !important;
+/* Dark mode save dropdown (portal) - higher specificity for portal */
+.dark .stage3-response .save-project-dropdown-portal,
+.dark[data-theme="dark"] .save-project-dropdown-portal {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-modal);
 }
 
 .dark .save-project-dropdown-header {
@@ -1331,10 +1332,10 @@ h2, h3 {
   }
 
   /* Table cells - prevent wrapping */
-  .table-scroll-wrapper th,
-  .table-scroll-wrapper td {
-    padding: 8px 10px !important;
-    font-size: 13px !important;
+  .stage3-content .table-scroll-wrapper th,
+  .stage3-content .table-scroll-wrapper td {
+    padding: 8px 10px;
+    font-size: 13px;
     white-space: nowrap;
   }
 

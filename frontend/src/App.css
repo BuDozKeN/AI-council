@@ -21,6 +21,11 @@
     sans-serif;
 }
 
+/* Loading state - matches landing page background */
+.app.app-loading {
+  background: var(--color-bg-secondary);
+}
+
 /* Sidebar edge indicator - subtle arrow hint to open sidebar */
 .sidebar-edge-indicator {
   display: none;

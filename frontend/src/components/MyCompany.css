@@ -126,7 +126,7 @@
   opacity: 0;
   transition: opacity 0.2s ease, transform 0.2s ease;
   pointer-events: none;
-  z-index: 10;
+  z-index: var(--z-elevated);
 }
 
 .mc-dismiss-hint svg {
@@ -945,7 +945,7 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
   opacity: 0.7;
-  z-index: 10;
+  z-index: var(--z-elevated);
 }
 
 .mc-scroll-top-fab:hover {
@@ -1892,7 +1892,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
   transition: all 0.2s ease;
   opacity: 0.9;
-  z-index: 10;
+  z-index: var(--z-elevated);
   pointer-events: auto;
 }
 
@@ -2166,7 +2166,7 @@
   cursor: pointer;
   transition: all 0.15s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  z-index: 10;
+  z-index: var(--z-elevated);
   margin-left: 12px;
   margin-bottom: 8px;
 }
@@ -6496,7 +6496,7 @@
   position: sticky;
   top: 0;
   float: right;
-  z-index: 10;
+  z-index: var(--z-elevated);
   margin-left: 12px;
   margin-bottom: 8px;
 }
@@ -7210,7 +7210,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    z-index: 100;
+    z-index: var(--z-dropdown);
     background: var(--color-bg-primary);
     border-top: 1px solid var(--color-slate-200);
     border-bottom: none;
@@ -7621,7 +7621,7 @@
     position: fixed;
     bottom: calc(80px + env(safe-area-inset-bottom, 0px));
     right: 16px;
-    z-index: 99;
+    z-index: var(--z-sticky);
   }
 }
 
@@ -7652,7 +7652,7 @@
       0 4px 12px rgba(99, 102, 241, 0.4),
       0 2px 4px rgba(0, 0, 0, 0.1);
     cursor: pointer;
-    z-index: 98;
+    z-index: var(--z-overlay);
     transition: all 0.2s ease;
   }
 
@@ -8144,7 +8144,7 @@
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    z-index: 10;
+    z-index: var(--z-elevated);
   }
 
   .mc-dismiss-hint {

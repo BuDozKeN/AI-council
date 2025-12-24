@@ -22,7 +22,7 @@ const ViewDecisionModal = lazy(() => import('./modals/ViewDecisionModal').then(m
 
 // Loading fallback for lazy-loaded modals
 const ModalLoadingFallback = () => (
-  <div className="modal-loading-fallback" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+  <div className="modal-loading-fallback flex items-center justify-center p-8">
     <Spinner size="lg" />
   </div>
 );

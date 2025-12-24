@@ -98,35 +98,31 @@ export function PlaybooksTab({
       {/* Stats grid - clickable filters like Projects tab */}
       <div className="mc-stats-grid">
         <div
-          className={`mc-stat-card ${playbookTypeFilter === 'all' ? 'selected' : ''}`}
+          className={`mc-stat-card clickable ${playbookTypeFilter === 'all' ? 'selected' : ''}`}
           onClick={() => onTypeFilterChange && onTypeFilterChange('all')}
-          style={{ cursor: 'pointer' }}
         >
-          <div className="mc-stat-value" style={{ color: '#059669' }}>{playbooks.length}</div>
+          <div className="mc-stat-value total">{playbooks.length}</div>
           <div className="mc-stat-label">Total</div>
         </div>
         <div
-          className={`mc-stat-card ${playbookTypeFilter === 'sop' ? 'selected' : ''}`}
+          className={`mc-stat-card clickable ${playbookTypeFilter === 'sop' ? 'selected' : ''}`}
           onClick={() => onTypeFilterChange && onTypeFilterChange(playbookTypeFilter === 'sop' ? 'all' : 'sop')}
-          style={{ cursor: 'pointer' }}
         >
-          <div className="mc-stat-value" style={{ color: '#1d4ed8' }}>{allSops.length}</div>
+          <div className="mc-stat-value sops">{allSops.length}</div>
           <div className="mc-stat-label">SOPs</div>
         </div>
         <div
-          className={`mc-stat-card ${playbookTypeFilter === 'framework' ? 'selected' : ''}`}
+          className={`mc-stat-card clickable ${playbookTypeFilter === 'framework' ? 'selected' : ''}`}
           onClick={() => onTypeFilterChange && onTypeFilterChange(playbookTypeFilter === 'framework' ? 'all' : 'framework')}
-          style={{ cursor: 'pointer' }}
         >
-          <div className="mc-stat-value" style={{ color: '#b45309' }}>{allFrameworks.length}</div>
+          <div className="mc-stat-value frameworks">{allFrameworks.length}</div>
           <div className="mc-stat-label">Frameworks</div>
         </div>
         <div
-          className={`mc-stat-card ${playbookTypeFilter === 'policy' ? 'selected' : ''}`}
+          className={`mc-stat-card clickable ${playbookTypeFilter === 'policy' ? 'selected' : ''}`}
           onClick={() => onTypeFilterChange && onTypeFilterChange(playbookTypeFilter === 'policy' ? 'all' : 'policy')}
-          style={{ cursor: 'pointer' }}
         >
-          <div className="mc-stat-value" style={{ color: '#6d28d9' }}>{allPolicies.length}</div>
+          <div className="mc-stat-value policies">{allPolicies.length}</div>
           <div className="mc-stat-label">Policies</div>
         </div>
       </div>
@@ -145,9 +141,7 @@ export function PlaybooksTab({
           className="mc-btn-clean primary"
           onClick={onAddPlaybook}
         >
-          <svg style={{ width: '14px', height: '14px', marginRight: '4px' }} viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-          </svg>
+          <Plus size={14} className="mc-btn-icon" />
           New Playbook
         </button>
       </div>

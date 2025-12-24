@@ -111,20 +111,20 @@
   background: var(--color-amber-200);
 }
 
-.rank-col {
+.leaderboard-table .rank-col {
   width: 40px;
-  text-align: center !important;
+  text-align: center;
 }
 
 .model-col {
   font-weight: 500;
 }
 
-.score-col,
-.wins-col,
-.rate-col,
-.sessions-col {
-  text-align: right !important;
+.leaderboard-table .score-col,
+.leaderboard-table .wins-col,
+.leaderboard-table .rate-col,
+.leaderboard-table .sessions-col {
+  text-align: right;
   width: 80px;
 }
 

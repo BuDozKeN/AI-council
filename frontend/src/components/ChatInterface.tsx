@@ -425,10 +425,9 @@ export default function ChatInterface({
       {/* Input form when no triage active */}
       {!triageState && (
         <form
-          className={`input-form ${imageUpload.isDragging ? 'dragging' : ''}`}
+          className={`input-form relative ${imageUpload.isDragging ? 'dragging' : ''}`}
           onSubmit={handleSubmit}
           {...imageUpload.dropZoneProps}
-          style={{ position: 'relative' }}
         >
           {imageUpload.dragOverlay}
           {imageUpload.fileInput}

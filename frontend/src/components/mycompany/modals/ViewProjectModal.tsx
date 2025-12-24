@@ -729,7 +729,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                 </div>
               ) : projectDecisions.length === 0 ? (
                 <div className="mc-empty-decisions">
-                  <Bookmark size={32} className="mc-empty-icon" style={{ color: '#cbd5e1', marginBottom: '12px' }} />
+                  <Bookmark size={32} className="mc-empty-icon text-slate-300 mb-3" />
                   <p className="mc-empty-title">No decisions yet</p>
                   <p className="mc-empty-hint">
                     Save council responses to this project to build a decision timeline.
