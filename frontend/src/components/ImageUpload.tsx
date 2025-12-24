@@ -201,7 +201,7 @@ export default function ImageUpload({
         accept={allowedTypes.join(',')}
         multiple
         onChange={handleFileSelect}
-        style={{ display: 'none' }}
+        className="hidden"
       />
     ),
     // Image preview component

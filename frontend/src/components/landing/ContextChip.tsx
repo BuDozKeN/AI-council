@@ -494,7 +494,7 @@ export function ContextChip({
               {/* Playbooks */}
               {playbooks.length > 0 && (
                 <>
-                  <h4 className="context-section-title-mobile" style={{ marginTop: 16 }}>Playbooks</h4>
+                  <h4 className="context-section-title-mobile mt-4">Playbooks</h4>
                   {/* Frameworks */}
                   {groupedPlaybooks.framework.length > 0 && (
                     <div className="context-playbook-group">
