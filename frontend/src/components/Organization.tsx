@@ -219,18 +219,18 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
     >
       {/* Quick Actions */}
       <div className="org-actions">
-        <button
-          className="org-action-btn primary"
+        <Button
+          variant="default"
           onClick={() => setShowAddDept(true)}
         >
           + Add Department
-        </button>
-        <button
-          className="org-action-btn"
+        </Button>
+        <Button
+          variant="outline"
           onClick={() => onOpenKnowledgeBase && onOpenKnowledgeBase()}
         >
           View SOPs & Policies
-        </button>
+        </Button>
       </div>
 
       {/* Content */}
@@ -243,7 +243,7 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
           ) : error ? (
             <div className="org-error">
               <p>{error}</p>
-              <button onClick={fetchOrganization}>Retry</button>
+              <Button variant="outline" size="sm" onClick={fetchOrganization}>Retry</Button>
             </div>
           ) : departments.length === 0 ? (
             <div className="org-empty">
@@ -252,12 +252,12 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
               <p className="org-empty-hint">
                 Add your first department to start organizing your AI Council
               </p>
-              <button
-                className="org-action-btn primary"
+              <Button
+                variant="default"
                 onClick={() => setShowAddDept(true)}
               >
                 + Add Department
-              </button>
+              </Button>
             </div>
           ) : (
             <div className="org-departments">
@@ -353,31 +353,34 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
                             />
                           </AIWriteAssist>
                           <div className="org-add-form-actions">
-                            <button
-                              className="org-btn secondary"
+                            <Button
+                              variant="outline"
+                              size="sm"
                               onClick={() => {
                                 setShowAddRole(null);
                                 setNewRole({ id: '', name: '', description: '' });
                               }}
                             >
                               Cancel
-                            </button>
-                            <button
-                              className="org-btn primary"
+                            </Button>
+                            <Button
+                              variant="default"
+                              size="sm"
                               onClick={() => handleAddRole(dept.id)}
                               disabled={saving || !newRole.name.trim()}
                             >
                               {saving ? 'Adding...' : 'Add Role'}
-                            </button>
+                            </Button>
                           </div>
                         </div>
                       ) : (
-                        <button
-                          className="org-add-role-btn"
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={() => setShowAddRole(dept.id)}
                         >
                           + Add Role
-                        </button>
+                        </Button>
                       )}
                     </div>
                   )}

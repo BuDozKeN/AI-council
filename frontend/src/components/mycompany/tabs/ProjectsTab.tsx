@@ -11,6 +11,7 @@
 
 import { useMemo } from 'react';
 import { FolderKanban, CheckCircle, Archive, RotateCcw, Trash2, Plus } from 'lucide-react';
+import { Button } from '../../ui/button';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { SortSelect } from '../../ui/SortSelect';
 import { ScrollableContent } from '../../ui/ScrollableContent';
@@ -272,13 +273,14 @@ export function ProjectsTab({
             onValueChange={onSortByChange}
           />
         </div>
-        <button
-          className="mc-btn-clean primary"
+        <Button
+          variant="default"
+          size="sm"
           onClick={onAddProject}
         >
-          <Plus size={14} className="mc-btn-icon" />
+          <Plus size={14} />
           New Project
-        </button>
+        </Button>
       </div>
 
       {/* Projects list with scroll-to-top */}

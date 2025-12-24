@@ -12,6 +12,7 @@
 
 import { useMemo } from 'react';
 import { BookOpen, Plus } from 'lucide-react';
+import { Button } from '../../ui/button';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { ScrollableContent } from '../../ui/ScrollableContent';
 import { getDeptColor } from '../../../lib/colors';
@@ -83,12 +84,12 @@ export function PlaybooksTab({
         <BookOpen size={32} className="mc-empty-icon" />
         <p className="mc-empty-title">No playbooks yet</p>
         <p className="mc-empty-hint">Create SOPs, frameworks, and policies for your AI council</p>
-        <button
-          className="mc-btn primary"
+        <Button
+          variant="default"
           onClick={onAddPlaybook}
         >
           + Create Playbook
-        </button>
+        </Button>
       </div>
     );
   }
@@ -137,13 +138,14 @@ export function PlaybooksTab({
             placeholder="All Depts"
           />
         </div>
-        <button
-          className="mc-btn-clean primary"
+        <Button
+          variant="default"
+          size="sm"
           onClick={onAddPlaybook}
         >
-          <Plus size={14} className="mc-btn-icon" />
+          <Plus size={14} />
           New Playbook
-        </button>
+        </Button>
       </div>
 
       {/* Playbooks list with scroll-to-top */}

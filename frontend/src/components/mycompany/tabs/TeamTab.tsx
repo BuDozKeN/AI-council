@@ -10,6 +10,7 @@
  */
 
 import { Users } from 'lucide-react';
+import { Button } from '../../ui/button';
 import { getDeptColor } from '../../../lib/colors';
 import { ScrollableContent } from '../../ui/ScrollableContent';
 
@@ -29,12 +30,12 @@ export function TeamTab({
         <Users size={32} className="mc-empty-icon" />
         <p className="mc-empty-title">No departments yet</p>
         <p className="mc-empty-hint">Add your first department to organize your AI council</p>
-        <button
-          className="mc-btn primary"
+        <Button
+          variant="default"
           onClick={onAddDepartment}
         >
           + Add Department
-        </button>
+        </Button>
       </div>
     );
   }
@@ -43,12 +44,13 @@ export function TeamTab({
     <div className="mc-team">
       <div className="mc-team-header">
         <span>{departments.length} departments • {totalRoles} roles</span>
-        <button
-          className="mc-btn primary small"
+        <Button
+          variant="default"
+          size="sm"
           onClick={onAddDepartment}
         >
           + Add Department
-        </button>
+        </Button>
       </div>
 
       <ScrollableContent className="mc-team-list">
