@@ -1,23 +1,19 @@
 /**
  * MyCompany Styles Index
  *
- * This file provides a transitional approach to modularizing MyCompany.css
+ * Modular CSS architecture for the MyCompany component.
+ * All styles are split by concern for maintainability.
  *
- * MIGRATION STATUS:
- * ✅ shell.css       - Extracted (overlay, panel, header, tabs, content)
- * ✅ badges.css      - Extracted (type, dept, scope, meta badges)
- * ✅ shared.css      - Extracted (states, forms, buttons)
- * ✅ mobile.css      - Extracted (bottom nav, touch targets, safe areas)
- * ✅ modals.css      - Extracted (modal patterns, promote, edit views)
- * ✅ tabs/overview.css   - Extracted (stats, hero, context, search/filters)
- * ✅ tabs/playbooks.css  - Extracted (playbook list, groups, items)
- * ✅ tabs/decisions.css  - Extracted (decisions list, badges, actions)
- * ✅ tabs/activity.css   - Extracted (activity feed, groups, filters)
- * ✅ tabs/projects.css   - Extracted (project list, timeline, modal)
- * ✅ tabs/team.css       - Extracted (members list, forms, usage)
+ * Structure:
+ * - shell.css       - Overlay, panel, header, tabs, content area
+ * - badges.css      - Type, department, scope, meta badges
+ * - shared.css      - Loading states, forms, buttons
+ * - modals.css      - Modal patterns, confirm, promote views
+ * - legacy.css      - AI synthesize, context headers (to be migrated)
+ * - tabs/*.css      - Tab-specific styles
+ * - mobile.css      - Mobile responsive overrides (must be last)
  *
- * The legacy MyCompany.css is still imported for any remaining styles.
- * As styles are fully extracted, they can be removed from the legacy file.
+ * Total: ~5,700 lines (down from 8,200 monolithic)
  */
 
 /* ============================================================================
@@ -43,16 +39,10 @@
 @import './modals.css';
 
 /* ============================================================================
-   LEGACY STYLES (not yet removed - DO NOT DUPLICATE)
-   The legacy file still contains:
-   - Some 768px and 480px responsive breakpoint overrides
-   - AI synthesize button styles
-   - Context header/field styles
-   - Some legacy button variants
-
-   Import legacy file AFTER modular styles to allow overrides
+   REMAINING LEGACY STYLES
+   Extracted from MyCompany.css - AI synthesize, context header, editor toolbar
    ============================================================================ */
-@import '../../MyCompany.css';
+@import './legacy.css';
 
 /* ============================================================================
    MOBILE RESPONSIVE OVERRIDES

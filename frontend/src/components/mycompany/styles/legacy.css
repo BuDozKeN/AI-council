@@ -1,0 +1,421 @@
+/**
+ * MyCompany Legacy Styles
+ *
+ * Remaining styles from MyCompany.css that haven't been fully extracted
+ * to modular files. These should be migrated to appropriate modules
+ * when those components are refactored.
+ *
+ * Contents:
+ * - Context section styles (Overview tab context display)
+ * - AI Synthesize button and related styles
+ * - Editor toolbar (Format with AI)
+ * - Some field/label styles
+ */
+
+/* ============================================================================
+   CONTEXT SECTION - Used in Overview tab for company context
+   ============================================================================ */
+
+.mc-context-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: var(--color-bg-primary);
+}
+
+.mc-context-section h3 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-slate-800);
+  margin: 0;
+}
+
+.mc-context-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--color-slate-100);
+  background: var(--color-bg-primary);
+}
+
+.mc-context-section-header h3 {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-slate-500);
+  margin: 0;
+}
+
+.mc-expand-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-md);
+  color: var(--color-slate-500);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-expand-btn:hover {
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+  color: var(--color-slate-700);
+}
+
+.mc-expand-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Compact context section - no header, fills remaining space in Overview */
+.mc-context-section--compact {
+  position: relative;
+  border: none;
+  background: transparent;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mc-context-section--compact .mc-context-content {
+  position: relative;
+  border-top: none;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-slate-100);
+  background: var(--color-gray-50);
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.mc-context-section--compact .mc-context-content .scrollable-content-wrapper {
+  flex: 1;
+  min-height: 0;
+}
+
+.mc-context-section--compact .mc-context-content .scrollable-content-inner {
+  padding: 20px 24px;
+}
+
+/* Scroll-to-top FAB */
+.mc-scroll-top-fab {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  border-radius: 50%;
+  color: var(--color-slate-400);
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  opacity: 0.7;
+  z-index: var(--z-elevated);
+}
+
+.mc-scroll-top-fab:hover {
+  opacity: 1;
+  color: var(--color-slate-600);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.mc-scroll-top-fab:active {
+  transform: scale(0.9);
+}
+
+/* ============================================================================
+   FIELD LABELS AND SECTION HEADERS
+   ============================================================================ */
+
+.mc-field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-slate-500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.mc-context-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 12px;
+}
+
+.mc-context-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mc-section-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-gray-700);
+}
+
+.mc-section-hint {
+  font-size: 11px;
+  color: var(--color-slate-400);
+}
+
+.mc-context-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Small button variant for header buttons */
+.mc-btn-clean.small {
+  padding: 6px 12px;
+  font-size: 12px;
+  gap: 5px;
+}
+
+.mc-btn-clean.small svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ============================================================================
+   EDITOR TOOLBAR - Format with AI
+   ============================================================================ */
+
+.mc-editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-slate-100);
+}
+
+.mc-btn-format-ai {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, var(--color-violet-500) 0%, var(--color-violet-700) 100%);
+  color: var(--color-text-inverse);
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 4px rgba(var(--color-violet-500-rgb, 139, 92, 246), 0.2);
+}
+
+.mc-btn-format-ai:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(var(--color-violet-500-rgb, 139, 92, 246), 0.3);
+}
+
+.mc-btn-format-ai:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.mc-btn-format-ai .mc-btn-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.mc-btn-format-ai .mc-btn-icon.spinning {
+  animation: spinner-rotate 1s linear infinite;
+}
+
+.mc-editor-hint {
+  font-size: 12px;
+  color: var(--color-slate-400);
+  font-style: italic;
+}
+
+/* ============================================================================
+   AI RESYNC BUTTON
+   ============================================================================ */
+
+.mc-ai-resync-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-slate-500);
+  background: var(--color-slate-50);
+  border: 1px solid var(--color-slate-200);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.mc-ai-resync-btn:hover:not(:disabled) {
+  background: var(--color-slate-100);
+  color: var(--color-slate-700);
+  border-color: var(--color-slate-300);
+}
+
+.mc-ai-resync-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.mc-ai-resync-btn svg {
+  flex-shrink: 0;
+}
+
+.mc-ai-resync-btn:disabled svg {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================================
+   AI SYNTHESIZE BUTTON (Legacy)
+   ============================================================================ */
+
+.mc-ai-synthesize-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-violet-600);
+  background: linear-gradient(135deg, var(--color-violet-50) 0%, var(--color-violet-100) 100%);
+  border: 1px solid var(--color-violet-300);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.mc-ai-synthesize-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--color-violet-100) 0%, var(--color-violet-200) 100%);
+  color: var(--color-violet-700);
+  border-color: var(--color-violet-400);
+  box-shadow: 0 2px 8px rgba(var(--color-violet-600-rgb, 124, 58, 237), 0.15);
+  transform: translateY(-1px);
+}
+
+.mc-ai-synthesize-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.mc-ai-synthesize-btn svg {
+  flex-shrink: 0;
+}
+
+.mc-ai-synthesize-btn:disabled svg {
+  animation: sparkle-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes sparkle-pulse {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+/* Countdown state */
+.mc-ai-synthesize-btn.countdown {
+  background: linear-gradient(135deg, var(--color-amber-50) 0%, var(--color-amber-100) 100%);
+  border-color: var(--color-amber-400);
+  color: var(--color-amber-700);
+}
+
+.mc-ai-synthesize-btn.countdown:hover {
+  background: linear-gradient(135deg, var(--color-amber-100) 0%, var(--color-amber-200) 100%);
+  border-color: var(--color-amber-500);
+}
+
+.mc-countdown-num {
+  font-weight: 700;
+  font-size: 14px;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* AI Synthesize row in edit mode */
+.mc-ai-synthesize-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, var(--color-purple-50) 0%, var(--color-violet-50) 100%);
+  border: 1px solid var(--color-purple-200);
+  border-radius: 10px;
+}
+
+.mc-ai-synthesize-hint {
+  font-size: 12px;
+  color: var(--color-violet-600);
+  opacity: 0.8;
+}
+
+.mc-ai-synthesize-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.mc-ai-synthesize-info .mc-ai-synthesize-hint {
+  margin: 0;
+}
+
+.mc-ai-synthesize-warning {
+  font-size: 11px;
+  color: var(--color-gray-400);
+  font-weight: 400;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ============================================================================
+   STATUS AND SOURCE BADGES
+   ============================================================================ */
+
+.mc-status-badge {
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.mc-source-badge {
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--color-sky-50);
+  color: var(--color-sky-600);
+  border: 1px solid var(--color-sky-200);
+}
