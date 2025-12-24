@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import { Copy, Check } from 'lucide-react';
+import { Button } from './ui/button';
 import { captureError } from '../utils/sentry';
 import { logger } from '../utils/logger';
 import './ErrorBoundary.css';
@@ -94,18 +95,18 @@ class ErrorBoundary extends Component {
             </p>
 
             <div className="error-boundary-buttons">
-              <button
+              <Button
                 onClick={this.handleReload}
-                className="error-boundary-btn primary"
+                variant="default"
               >
                 Reload Page
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={this.handleGoHome}
-                className="error-boundary-btn secondary"
+                variant="outline"
               >
                 Go to Home
-              </button>
+              </Button>
             </div>
 
             {/* Show error details in development */}

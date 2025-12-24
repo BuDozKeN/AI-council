@@ -17,6 +17,7 @@ import { formatDate } from '../../../lib/dateUtils';
 import { useState, useEffect } from 'react';
 import { api } from '../../../api';
 import { Users, Crown, Shield, User, Plus, Trash2, ChevronUp, ChevronDown, AlertCircle } from 'lucide-react';
+import { Button } from '../../ui/button';
 import { Spinner } from '../../ui/Spinner';
 import { ScrollableContent } from '../../ui/ScrollableContent';
 
@@ -136,7 +137,7 @@ export function MembersTab({
       <div className="mc-error">
         <AlertCircle size={20} />
         <span>{error}</span>
-        <button className="mc-btn secondary small" onClick={loadData}>Retry</button>
+        <Button variant="outline" size="sm" onClick={loadData}>Retry</Button>
       </div>
     );
   }
@@ -150,13 +151,14 @@ export function MembersTab({
           <span>{members.length} {members.length === 1 ? 'member' : 'members'}</span>
         </div>
         {canManageMembers && (
-          <button
-            className="mc-btn primary small"
+          <Button
+            variant="default"
+            size="sm"
             onClick={() => setShowAddForm(!showAddForm)}
           >
             <Plus size={16} />
             Add Member
-          </button>
+          </Button>
         )}
       </div>
 
@@ -180,12 +182,12 @@ export function MembersTab({
               <option value="member">Member</option>
               <option value="admin">Admin</option>
             </select>
-            <button type="submit" className="mc-btn primary" disabled={adding || !newEmail.trim()}>
+            <Button type="submit" variant="default" disabled={adding || !newEmail.trim()}>
               {adding ? <Spinner size={14} /> : 'Add'}
-            </button>
-            <button type="button" className="mc-btn secondary" onClick={() => setShowAddForm(false)}>
+            </Button>
+            <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
               Cancel
-            </button>
+            </Button>
           </div>
           {addError && (
             <div className="mc-form-error">

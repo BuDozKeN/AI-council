@@ -653,34 +653,37 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                   {isEditing ? (
                     /* When editing: Cancel and Save buttons */
                     <>
-                      <button
-                        className="mc-btn-clean secondary small"
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={handleCancelEdit}
                         disabled={saving}
                       >
                         Cancel
-                      </button>
-                      <button
-                        className="mc-btn-clean primary small"
+                      </Button>
+                      <Button
+                        variant="default"
+                        size="sm"
                         onClick={handleSave}
                         disabled={saving}
                       >
                         {saving ? 'Saving...' : 'Save'}
-                      </button>
+                      </Button>
                     </>
                   ) : (
                     /* When viewing: Edit button (AI Enhance is always shown above) */
                     <>
                       {/* Edit button */}
                       {onSave && (
-                        <button
-                          className="mc-btn-clean secondary small"
+                        <Button
+                          variant="outline"
+                          size="sm"
                           onClick={() => setIsEditing(true)}
                           title="Edit project context"
                         >
                           <PenLine size={14} />
                           <span>Edit</span>
-                        </button>
+                        </Button>
                       )}
                     </>
                   )}
