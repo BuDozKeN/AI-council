@@ -13,7 +13,7 @@ import json
 
 from ..auth import get_current_user
 from ..security import SecureHTTPException
-from ..model_registry import model_registry
+from .. import model_registry
 
 # Import rate limiter
 from slowapi import Limiter
