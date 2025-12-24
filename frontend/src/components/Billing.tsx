@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../api';
+import { Button } from './ui/button';
 import { logger } from '../utils/logger';
 import './Billing.css';
 
@@ -148,26 +149,26 @@ export default function Billing({ onClose }) {
 
                 <div className="plan-action">
                   {isCurrentPlan ? (
-                    <button className="plan-btn current" disabled>
+                    <Button variant="outline" disabled>
                       Current Plan
-                    </button>
+                    </Button>
                   ) : isDowngrade ? (
-                    <button
-                      className="plan-btn downgrade"
+                    <Button
+                      variant="outline"
                       onClick={handleManageSubscription}
                       disabled={checkoutLoading !== null}
                       title="Cancel subscription to downgrade to Free"
                     >
                       {checkoutLoading === 'manage' ? 'Loading...' : 'Downgrade'}
-                    </button>
+                    </Button>
                   ) : (
-                    <button
-                      className={`plan-btn ${isUpgrade ? 'upgrade' : ''}`}
+                    <Button
+                      variant={isUpgrade ? 'default' : 'outline'}
                       onClick={() => handleSubscribe(plan.id)}
                       disabled={checkoutLoading !== null}
                     >
                       {checkoutLoading === plan.id ? 'Loading...' : isUpgrade ? 'Upgrade' : 'Subscribe'}
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>
@@ -178,13 +179,13 @@ export default function Billing({ onClose }) {
         {/* Manage Subscription Link */}
         {currentTier !== 'free' && (
           <div className="billing-manage">
-            <button
-              className="manage-link"
+            <Button
+              variant="link"
               onClick={handleManageSubscription}
               disabled={checkoutLoading !== null}
             >
               {checkoutLoading === 'manage' ? 'Loading...' : 'Manage Subscription & Billing'}
-            </button>
+            </Button>
           </div>
         )}
 

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { api } from '../api';
 import { AppModal } from './ui/AppModal';
+import { Button } from './ui/button';
 import { MultiDepartmentSelect } from './ui/MultiDepartmentSelect';
 import MarkdownViewer from './MarkdownViewer';
 import { Spinner } from './ui/Spinner';
@@ -209,41 +210,41 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
 
             {/* Actions */}
             <div className="pm-actions">
-              <button
+              <Button
                 type="button"
-                className="pm-btn-cancel"
+                variant="outline"
                 onClick={onClose}
                 disabled={structuring}
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
-                className="pm-btn-skip"
+                variant="ghost"
                 onClick={handleSkipAI}
                 disabled={structuring}
               >
-                <FileText className="pm-btn-icon-small" />
-                <span>Skip AI</span>
-              </button>
-              <button
+                <FileText size={16} />
+                Skip AI
+              </Button>
+              <Button
                 type="button"
-                className="pm-btn-create"
+                variant="default"
                 onClick={handleProcessWithAI}
                 disabled={structuring || !freeText.trim()}
               >
                 {structuring ? (
                   <>
                     <Spinner size="sm" variant="muted" />
-                    <span>AI Processing...</span>
+                    AI Processing...
                   </>
                 ) : (
                   <>
-                    <Sparkles className="pm-btn-icon" />
-                    <span>Create with AI</span>
+                    <Sparkles size={16} />
+                    Create with AI
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -354,44 +355,44 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
 
             {/* Actions */}
             <div className="pm-actions pm-actions-review">
-              <button
+              <Button
                 type="button"
-                className="pm-btn-back"
+                variant="ghost"
                 onClick={handleBackToEdit}
                 disabled={saving}
                 title="Go back and change your original description"
               >
-                <Edit3 className="pm-btn-icon-small" />
-                <span>Start Over</span>
-              </button>
-              <button
+                <Edit3 size={16} />
+                Start Over
+              </Button>
+              <Button
                 type="button"
-                className="pm-btn-regen"
+                variant="outline"
                 onClick={handleRegenerate}
                 disabled={saving || structuring}
                 title="Ask AI to write this differently"
               >
-                <RefreshCw className={`pm-btn-icon-small ${structuring ? 'pm-spinning' : ''}`} />
-                <span>Try Again</span>
-              </button>
-              <button
+                <RefreshCw size={16} className={structuring ? 'pm-spinning' : ''} />
+                Try Again
+              </Button>
+              <Button
                 type="button"
-                className="pm-btn-create"
+                variant="default"
                 onClick={handleSave}
                 disabled={saving || !editedName.trim()}
               >
                 {saving ? (
                   <>
                     <Spinner size="sm" variant="muted" />
-                    <span>Saving...</span>
+                    Saving...
                   </>
                 ) : (
                   <>
-                    <Check className="pm-btn-icon" />
-                    <span>Save</span>
+                    <Check size={16} />
+                    Save
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -468,41 +469,41 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
 
             {/* Actions */}
             <div className="pm-actions">
-              <button
+              <Button
                 type="button"
-                className="pm-btn-cancel"
+                variant="outline"
                 onClick={onClose}
                 disabled={saving}
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
-                className="pm-btn-back"
+                variant="ghost"
                 onClick={() => setStep('input')}
                 disabled={saving}
               >
-                <Sparkles className="pm-btn-icon-small" />
-                <span>Use AI</span>
-              </button>
-              <button
+                <Sparkles size={16} />
+                Use AI
+              </Button>
+              <Button
                 type="button"
-                className="pm-btn-create"
+                variant="default"
                 onClick={handleSave}
                 disabled={saving || !editedName.trim()}
               >
                 {saving ? (
                   <>
                     <Spinner size="sm" variant="muted" />
-                    <span>Creating...</span>
+                    Creating...
                   </>
                 ) : (
                   <>
-                    <Check className="pm-btn-icon" />
-                    <span>Create Project</span>
+                    <Check size={16} />
+                    Create Project
                   </>
                 )}
-              </button>
+              </Button>
             </div>
           </div>
         )}
