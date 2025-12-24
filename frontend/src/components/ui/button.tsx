@@ -24,31 +24,31 @@ import { cn } from "@/lib/utils"
  * - icon: Square icon-only button
  */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-primary)] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        // Primary - Notion blue
+        // Primary - Uses design tokens
         default:
-          "bg-[#2383e2] text-white shadow-sm hover:bg-[#1a73d4] active:bg-[#1565c0]",
+          "bg-[var(--color-primary)] text-[var(--color-primary-text)] shadow-sm hover:bg-[var(--color-primary-hover)] active:bg-[var(--color-primary-active)]",
         // Secondary - Gray
         secondary:
-          "bg-[#f5f5f5] text-[#37352f] hover:bg-[#ebebeb] active:bg-[#e0e0e0]",
+          "bg-[var(--color-bg-muted)] text-[var(--color-text-default)] hover:bg-[var(--color-bg-emphasis)] active:bg-[var(--color-border-emphasis)]",
         // Outline - Bordered
         outline:
-          "border border-[#e8e8e8] bg-white text-[#37352f] shadow-sm hover:bg-[#fafafa] hover:border-[#d4d4d4]",
+          "border border-[var(--color-border-default)] bg-[var(--color-bg-base)] text-[var(--color-text-default)] shadow-sm hover:bg-[var(--color-bg-subtle)] hover:border-[var(--color-border-emphasis)]",
         // Ghost - Minimal
         ghost:
-          "text-[#37352f] hover:bg-[#f5f5f5] active:bg-[#ebebeb]",
+          "text-[var(--color-text-default)] hover:bg-[var(--color-bg-muted)] active:bg-[var(--color-bg-emphasis)]",
         // Destructive - Red
         destructive:
-          "bg-[#e03e3e] text-white shadow-sm hover:bg-[#c93636] active:bg-[#b02e2e]",
+          "bg-[var(--color-error)] text-[var(--color-error-text)] shadow-sm hover:bg-[var(--color-error-hover)] active:opacity-90",
         // Success - Green
         success:
-          "bg-[#0f7b6c] text-white shadow-sm hover:bg-[#0d6b5e] active:bg-[#0a5a4f]",
+          "bg-[var(--color-success)] text-[var(--color-success-text)] shadow-sm hover:bg-[var(--color-success-hover)] active:opacity-90",
         // Link style
         link:
-          "text-[#2383e2] underline-offset-4 hover:underline",
+          "text-[var(--color-primary)] underline-offset-4 hover:underline",
       },
       size: {
         sm: "h-8 px-3 text-xs rounded-md",
