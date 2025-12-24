@@ -4514,8 +4514,10 @@
 }
 
 /* Department Select in modals - make it look like an input */
-.mc-dept-select-modal {
-  display: flex !important;
+/* Use button element selector for higher specificity over Radix defaults */
+button.mc-dept-select-modal,
+.mc-dept-select-modal[data-radix-collection-item] {
+  display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
@@ -6734,12 +6736,16 @@
     padding: 12px;
   }
 
-  /* Lists and grids become single column */
-  .mc-dept-list,
-  .mc-projects-list,
-  .mc-tech-grid,
-  .mc-decisions-list {
-    grid-template-columns: 1fr !important;
+  /* Lists and grids become single column - use element + class for specificity */
+  .mc-content .mc-dept-list,
+  .mc-content .mc-projects-list,
+  .mc-content .mc-tech-grid,
+  .mc-content .mc-decisions-list,
+  div.mc-dept-list,
+  div.mc-projects-list,
+  div.mc-tech-grid,
+  div.mc-decisions-list {
+    grid-template-columns: 1fr;
     gap: 8px;
   }
 
@@ -7528,9 +7534,10 @@
     gap: 8px;
   }
 
+  .mc-skeleton-stats > div,
   .mc-skeleton-stats > * {
-    width: 100% !important;
-    height: 60px !important;
+    width: 100%;
+    height: 60px;
   }
 
   .mc-skeleton-row {
@@ -7812,13 +7819,16 @@
   }
 
   /* Hide hover actions on mobile - tap opens detail view */
-  .mc-project-row-compact .mc-project-actions {
-    display: none !important;
+  /* Double class selector for specificity over hover states */
+  .mc-project-row-compact.mc-project-row-compact .mc-project-actions,
+  .mc-project-row-compact .mc-project-actions[class] {
+    display: none;
   }
 
   /* Always show meta on mobile (no hover state) */
-  .mc-project-row-compact .mc-project-meta {
-    display: flex !important;
+  .mc-project-row-compact.mc-project-row-compact .mc-project-meta,
+  .mc-project-row-compact .mc-project-meta[class] {
+    display: flex;
     margin-left: auto;
   }
 
@@ -7906,13 +7916,17 @@
   }
 
   /* Hide action buttons on mobile - tap opens detail */
-  .mc-elegant-row .mc-elegant-actions {
-    display: none !important;
+  /* Double class for specificity over hover states */
+  .mc-elegant-row.mc-elegant-row .mc-elegant-actions,
+  .mc-elegant-row .mc-elegant-actions[class] {
+    display: none;
   }
 
   /* Activity tab: SHOW source link on mobile - important for navigation */
-  .mc-activity .mc-elegant-row .mc-elegant-actions {
-    display: flex !important;
+  /* Triple selector to override the hide rule above */
+  .mc-activity .mc-elegant-row.mc-elegant-row .mc-elegant-actions,
+  .mc-activity.mc-activity .mc-elegant-row .mc-elegant-actions {
+    display: flex;
     position: static;
     opacity: 1;
     background: transparent;
@@ -7999,15 +8013,17 @@
   }
 
   /* Hide all action buttons on mobile */
-  .mc-decision-row .mc-elegant-actions,
-  .mc-decision-row .mc-elegant-right .mc-elegant-actions {
-    display: none !important;
+  /* Double class for specificity over hover states */
+  .mc-decision-row.mc-decision-row .mc-elegant-actions,
+  .mc-decision-row.mc-decision-row .mc-elegant-right .mc-elegant-actions {
+    display: none;
   }
 
   /* Show date, hide it when it would show actions */
-  .mc-decision-row .mc-elegant-date {
-    display: block !important;
-    opacity: 1 !important;
+  .mc-decision-row.mc-decision-row .mc-elegant-date,
+  .mc-decision-row .mc-elegant-date[class] {
+    display: block;
+    opacity: 1;
   }
 
   /* Right side: just the date */

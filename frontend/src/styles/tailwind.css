@@ -512,48 +512,52 @@
    ============================================================================ */
 
 @media (max-width: 900px) and (orientation: landscape) {
-  /* Reduce vertical heights in landscape */
-  .input-form {
-    padding: 10px 16px !important;
-    gap: 8px !important;
+  /* Reduce vertical heights in landscape - use higher specificity */
+  .chat-interface .input-form {
+    padding: 10px 16px;
+    gap: 8px;
   }
 
-  .message-input {
-    min-height: 40px !important;
-    max-height: 120px !important;
+  .chat-interface .message-input,
+  textarea.message-input {
+    min-height: 40px;
+    max-height: 120px;
   }
 
   /* Sidebar narrower in landscape */
-  .sidebar {
-    width: 240px !important;
-    max-width: 240px !important;
+  .app-container .sidebar,
+  aside.sidebar {
+    width: 240px;
+    max-width: 240px;
   }
 
   /* Messages container - maximize vertical space */
-  .messages-container {
-    padding: 12px 16px !important;
+  .chat-interface .messages-container {
+    padding: 12px 16px;
   }
 
-  .message-group {
-    margin-bottom: 16px !important;
+  .messages-container .message-group {
+    margin-bottom: 16px;
   }
 
   /* Landing hero - horizontal layout in landscape */
-  .landing-hero {
-    max-width: 90vw !important;
-    gap: 16px !important;
+  .landing-page .landing-hero,
+  section.landing-hero {
+    max-width: 90vw;
+    gap: 16px;
   }
 
   /* Modal optimization - reduce height */
-  .app-modal-content,
-  .mc-panel {
-    max-height: 85vh !important;
+  [data-state="open"].app-modal-content,
+  .modal-overlay .mc-panel {
+    max-height: 85vh;
   }
 
   /* Settings sidebar - horizontal in landscape */
-  .settings-sidebar {
-    flex-direction: row !important;
-    overflow-x: auto !important;
+  .settings-container .settings-sidebar,
+  nav.settings-sidebar {
+    flex-direction: row;
+    overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
@@ -563,38 +567,40 @@
   }
 
   /* Reduce padding on modals */
-  .mc-header,
-  .mc-content {
-    padding: 12px 16px !important;
+  .mc-panel .mc-header,
+  .mc-panel .mc-content {
+    padding: 12px 16px;
   }
 
   /* Context bar stays compact */
-  .context-bar {
-    gap: 6px !important;
+  .chat-interface .context-bar {
+    gap: 6px;
   }
 }
 
 /* iPhone SE landscape specific (568px wide) */
 @media (max-height: 400px) and (orientation: landscape) {
-  .message-input {
-    min-height: 36px !important;
-    max-height: 80px !important;
+  .chat-interface .message-input,
+  textarea.message-input {
+    min-height: 36px;
+    max-height: 80px;
   }
 
-  .send-button,
-  .stop-button {
-    padding: 8px 12px !important;
-    font-size: 12px !important;
+  .input-form button.send-button,
+  .input-form button.stop-button {
+    padding: 8px 12px;
+    font-size: 12px;
   }
 
-  .input-form {
-    padding: 8px 12px !important;
+  .chat-interface .input-form {
+    padding: 8px 12px;
   }
 
-  .mc-panel {
-    height: 100vh !important;
-    max-height: 100vh !important;
-    border-radius: 0 !important;
+  .modal-overlay .mc-panel,
+  [data-state="open"].mc-panel {
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
   }
 }
 
@@ -615,8 +621,9 @@
   /* Icon-only buttons need internal padding */
   button.icon-only,
   .button.icon-only,
+  button.icon-btn,
   .icon-btn {
-    padding: 10px !important;
+    padding: 10px;
   }
 
   /* Ensure adequate spacing between touch targets */
@@ -733,44 +740,54 @@ a,
 
 /* ============================================================================
    VISUAL DENSITY OPTIMIZATION (Mobile)
+   These are utility classes applied to elements that need mobile density.
+   Using double-class specificity to ensure they override component defaults.
    ============================================================================ */
 
 @media (max-width: 768px) {
   /* Tighter spacing on mobile for more content visibility */
-  .gap-tight {
-    gap: 8px !important;
+  .gap-tight.gap-tight {
+    gap: 8px;
   }
 
   /* Compact padding utility */
-  .p-compact {
-    padding: 12px !important;
+  .p-compact.p-compact {
+    padding: 12px;
   }
 
   /* Smaller font for secondary text */
-  .text-secondary,
-  .text-muted {
-    font-size: 13px !important;
+  span.text-secondary,
+  span.text-muted,
+  p.text-secondary,
+  p.text-muted,
+  .text-secondary.text-secondary,
+  .text-muted.text-muted {
+    font-size: 13px;
   }
 
   /* Reduce line height for denser content */
-  .leading-tight-mobile {
-    line-height: 1.4 !important;
+  .leading-tight-mobile.leading-tight-mobile {
+    line-height: 1.4;
   }
 }
 
 @media (max-width: 480px) {
   /* Even tighter on small phones */
-  .gap-tight {
-    gap: 6px !important;
+  .gap-tight.gap-tight {
+    gap: 6px;
   }
 
-  .p-compact {
-    padding: 10px !important;
+  .p-compact.p-compact {
+    padding: 10px;
   }
 
-  .text-secondary,
-  .text-muted {
-    font-size: 12px !important;
+  span.text-secondary,
+  span.text-muted,
+  p.text-secondary,
+  p.text-muted,
+  .text-secondary.text-secondary,
+  .text-muted.text-muted {
+    font-size: 12px;
   }
 }
 
