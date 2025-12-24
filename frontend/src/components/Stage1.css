@@ -139,8 +139,8 @@
 }
 
 .stage1 .llm-status-badge.complete {
-  background: #16a34a;
-  color: white;
+  background: var(--color-success);
+  color: var(--color-text-inverse);
   animation: badge-pop 0.3s ease-out;
 }
 
@@ -151,17 +151,17 @@
 }
 
 .stage1 .llm-status-badge.streaming {
-  background: #3b82f6;
+  background: var(--color-primary);
 }
 
 .stage1 .llm-status-badge.stopped {
-  background: #94a3b8;
-  color: white;
+  background: var(--color-text-muted);
+  color: var(--color-text-inverse);
 }
 
 .stage1 .llm-status-badge.error {
-  background: #dc2626;
-  color: white;
+  background: var(--color-error);
+  color: var(--color-text-inverse);
 }
 
 /* Streaming pulse animation */
@@ -205,7 +205,7 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: #4ade80;
+  background: var(--color-success);
   opacity: 0.75;
   animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
@@ -216,7 +216,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #22c55e;
+  background: var(--color-success);
 }
 
 @keyframes ping {
@@ -252,7 +252,7 @@
 /* Card content */
 .stage1 .model-card-content {
   font-size: 13px;
-  color: #475569;
+  color: var(--color-text-muted);
   line-height: 1.5;
 }
 
@@ -270,17 +270,17 @@
 }
 
 .stage1 .model-card.expanded .model-card-content::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: var(--color-bg-muted);
   border-radius: 3px;
 }
 
 .stage1 .model-card.expanded .model-card-content::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: var(--color-border-emphasis);
   border-radius: 3px;
 }
 
 .stage1 .model-card.expanded .model-card-content::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--color-text-muted);
 }
 
 .stage1 .model-card-content.truncated {
@@ -301,7 +301,7 @@
   display: inline-block;
   width: 6px;
   height: 16px;
-  background: #3b82f6;
+  background: var(--color-primary);
   margin-left: 2px;
   animation: blink 1s infinite;
 }
@@ -310,19 +310,19 @@
 .stage1 .model-card-footer {
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--color-border-muted);
   display: flex;
   justify-content: flex-end;
 }
 
 /* Error/empty states */
 .stage1 .model-card-empty {
-  color: #94a3b8;
+  color: var(--color-text-subtle);
   font-style: italic;
 }
 
 .stage1 .model-card-error {
-  color: #d97706;
+  color: var(--color-warning);
   font-style: italic;
 }
 
@@ -422,13 +422,13 @@
 }
 
 .stage1 .model-summary-pill.error {
-  border-color: #dc2626;
-  background: #fef2f2;
-  color: #991b1b;
+  border-color: var(--color-error);
+  background: var(--color-error-subtle);
+  color: var(--color-error-hover);
 }
 
 .stage1 .model-summary-pill .pill-error {
-  color: #dc2626;
+  color: var(--color-error);
   font-weight: 700;
   font-size: 14px;
 }
@@ -468,13 +468,13 @@
 }
 
 .dark .stage1 .model-summary-pill.error {
-  border-color: #ef4444;
+  border-color: var(--color-error);
   background: rgba(239, 68, 68, 0.15);
-  color: #fca5a5;
+  color: var(--color-error-subtle);
 }
 
 .dark .stage1 .model-summary-pill .pill-error {
-  color: #ef4444;
+  color: var(--color-error);
 }
 
 .tabs {
@@ -714,8 +714,8 @@
   display: inline-block;
   margin-left: 8px;
   padding: 2px 6px;
-  background: #fef2f2;
-  color: #dc2626;
+  background: var(--color-error-subtle);
+  color: var(--color-error);
   border-radius: var(--radius-sm);
   font-size: 10px;
   font-weight: 600;
