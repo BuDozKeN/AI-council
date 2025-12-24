@@ -433,7 +433,7 @@ async def send_message(
             yield f"data: {json.dumps({'type': 'complete'})}\n\n"
 
         except Exception as e:
-            log_app_event("STREAM", "Exception in event_generator", level="ERROR")
+            log_app_event("STREAM: Exception in event_generator", level="ERROR")
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
         finally:
             if api_key_token:

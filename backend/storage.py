@@ -585,7 +585,7 @@ def get_project(project_id: str, access_token: str) -> Optional[Dict[str, Any]]:
             .execute()
         return result.data[0] if result.data else None
     except Exception as e:
-        log_app_event("PROJECT", f"get_project_by_id failed: {type(e).__name__}", resource_id=project_id, level="ERROR")
+        log_app_event(f"PROJECT: get_project_by_id failed: {type(e).__name__}", resource_id=project_id, level="ERROR")
         return None
 
 
@@ -602,20 +602,20 @@ def create_project(
     access_token: Optional[str] = None
 ) -> Optional[Dict[str, Any]]:
     """Create a new project."""
-    log_app_event("PROJECT", "Create started", user_id=user_id, name=name)
+    log_app_event("PROJECT: Create started", user_id=user_id, name=name)
 
     # Resolve slug to UUID if needed
     try:
         company_uuid = resolve_company_id(company_id_or_slug, access_token)
     except Exception as e:
-        log_app_event("PROJECT", f"Error resolving company: {type(e).__name__}", user_id=user_id, level="ERROR")
+        log_app_event(f"PROJECT: Error resolving company: {type(e).__name__}", user_id=user_id, level="ERROR")
         raise
 
     # Use RLS-authenticated client - the database will enforce access control
     # via the create_project_safe SECURITY DEFINER function or RLS policies
     client = _get_client(access_token) if access_token else get_supabase_service()
     if not client:
-        log_app_event("PROJECT", "No client available", user_id=user_id, level="ERROR")
+        log_app_event("PROJECT: No client available", user_id=user_id, level="ERROR")
         return None
 
     # Handle department assignment - use department_ids array only
@@ -639,16 +639,16 @@ def create_project(
         }).execute()
 
         if result.data:
-            log_app_event("PROJECT", "Created successfully via safe function", user_id=user_id, resource_id=result.data.get("id"))
+            log_app_event("PROJECT: Created successfully via safe function", user_id=user_id, resource_id=result.data.get("id"))
             return result.data
         else:
-            log_app_event("PROJECT", "Create returned no data", user_id=user_id, level="WARNING")
+            log_app_event("PROJECT: Create returned no data", user_id=user_id, level="WARNING")
             return None
 
     except Exception as e:
         # Fallback to direct insert with access verification if function not available
         if "function" in str(e).lower() or "does not exist" in str(e).lower():
-            log_app_event("PROJECT", "Falling back to direct insert (function not available)", user_id=user_id)
+            log_app_event("PROJECT: Falling back to direct insert (function not available)", user_id=user_id)
 
             # SECURITY: Verify user has access to the target company before creating
             if not verify_user_company_access(user_id, company_uuid):
@@ -670,10 +670,10 @@ def create_project(
                 insert_data["source_conversation_id"] = source_conversation_id
 
             result = client.table("projects").insert(insert_data).execute()
-            log_app_event("PROJECT", "Created successfully via fallback", user_id=user_id, resource_id=result.data[0]["id"] if result.data else None)
+            log_app_event("PROJECT: Created successfully via fallback", user_id=user_id, resource_id=result.data[0]["id"] if result.data else None)
             return result.data[0] if result.data else None
 
-        log_app_event("PROJECT", f"Create failed: {type(e).__name__}: {e}", user_id=user_id, level="ERROR")
+        log_app_event(f"PROJECT: Create failed: {type(e).__name__}: {e}", user_id=user_id, level="ERROR")
         raise
 
 
@@ -691,7 +691,7 @@ def get_project_context(project_id: str, access_token: str) -> Optional[str]:
             .execute()
         return result.data[0].get("context_md") if result.data else None
     except Exception as e:
-        log_app_event("PROJECT", f"get_project_context failed: {type(e).__name__}", resource_id=project_id, level="ERROR")
+        log_app_event(f"PROJECT: get_project_context failed: {type(e).__name__}", resource_id=project_id, level="ERROR")
         return None
 
 
@@ -714,7 +714,7 @@ def update_project(
     # Use RLS-authenticated client - database enforces access control
     client = _get_client(access_token) if access_token else get_supabase_service()
     if not client:
-        log_app_event("PROJECT", "No client available for update", user_id=user_id, level="ERROR")
+        log_app_event("PROJECT: No client available for update", user_id=user_id, level="ERROR")
         return None
 
     # RLS will block access if user doesn't have permission
@@ -749,7 +749,7 @@ def update_project(
         .execute()
 
     if result.data:
-        log_app_event("PROJECT", "Updated", user_id=user_id, resource_id=project_id)
+        log_app_event("PROJECT: Updated", user_id=user_id, resource_id=project_id)
 
     return result.data[0] if result.data else None
 
@@ -773,7 +773,7 @@ def touch_project_last_accessed(project_id: str, access_token: str) -> bool:
             .execute()
         return True
     except Exception as e:
-        log_app_event("PROJECT", f"touch_project_access failed: {type(e).__name__}", resource_id=project_id, level="ERROR")
+        log_app_event(f"PROJECT: touch_project_access failed: {type(e).__name__}", resource_id=project_id, level="ERROR")
         return False
 
 
@@ -809,7 +809,7 @@ def delete_project(project_id: str, access_token: str) -> Optional[dict]:
 
         return project_data
     except Exception as e:
-        log_app_event("PROJECT", f"delete_project failed: {type(e).__name__}", resource_id=project_id, level="ERROR")
+        log_app_event(f"PROJECT: delete_project failed: {type(e).__name__}", resource_id=project_id, level="ERROR")
         return None
 
 
@@ -918,7 +918,7 @@ def get_user_profile(user_id: str, access_token: Optional[str] = None) -> Option
             return result.data[0]
         return None
     except Exception as e:
-        log_app_event("STORAGE", f"Error getting user profile: {type(e).__name__}", user_id=user_id, level="ERROR")
+        log_app_event(f"STORAGE: Error getting user profile: {type(e).__name__}", user_id=user_id, level="ERROR")
         return None
 
 
@@ -959,5 +959,5 @@ def update_user_profile(user_id: str, profile_data: Dict[str, Any], access_token
 
         return result.data[0] if result.data else None
     except Exception as e:
-        log_app_event("STORAGE", f"Error updating user profile: {type(e).__name__}", user_id=user_id, level="ERROR")
+        log_app_event(f"STORAGE: Error updating user profile: {type(e).__name__}", user_id=user_id, level="ERROR")
         return None

@@ -65,13 +65,13 @@ def create_knowledge_entry(
             }).execute()
 
             if result.data:
-                log_app_event("KNOWLEDGE", "Created via safe function", user_id=user_id)
+                log_app_event("KNOWLEDGE: Created via safe function", user_id=user_id)
                 return result.data
 
         except Exception as e:
             # Fallback to direct insert if function not available
             if "function" not in str(e).lower():
-                log_app_event("KNOWLEDGE", f"Safe function failed: {e}", user_id=user_id, level="WARNING")
+                log_app_event(f"KNOWLEDGE: Safe function failed: {e}", user_id=user_id, level="WARNING")
             # Continue to fallback below
 
     # SECURITY: Verify user has access to the target company (for fallback path)

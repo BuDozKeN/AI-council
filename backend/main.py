@@ -251,7 +251,7 @@ from fastapi.exceptions import RequestValidationError
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    log_app_event("VALIDATION", f"Validation error on {request.url.path}", level="WARNING", errors=str(exc.errors())[:200])
+    log_app_event(f"VALIDATION: Validation error on {request.url.path}", level="WARNING", errors=str(exc.errors())[:200])
     origin = request.headers.get("origin", "")
     headers = {}
     if origin in CORS_ORIGINS:
@@ -275,7 +275,7 @@ async def general_exception_handler(request: Request, exc: Exception):
         f"{datetime.utcnow().isoformat()}{type(exc).__name__}{str(exc)}".encode()
     ).hexdigest()[:8].upper()
 
-    log_app_event("ERROR", f"Unhandled exception: {type(exc).__name__}", level="ERROR", ref=error_ref, path=request.url.path)
+    log_app_event(f"ERROR: Unhandled exception: {type(exc).__name__}", level="ERROR", ref=error_ref, path=request.url.path)
 
     environment = os.getenv("ENVIRONMENT", "development")
     if environment != "production":
