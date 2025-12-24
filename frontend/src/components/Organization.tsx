@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { api } from '../api';
 import { Spinner } from './ui/Spinner';
 import { AppModal } from './ui/AppModal';
+import { Button } from './ui/button';
 import { AlertModal } from './ui/AlertModal';
 import { AIWriteAssist } from './ui/AIWriteAssist';
 import { logger } from '../utils/logger';
@@ -414,16 +415,16 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
             <span className="org-form-hint">Used in URLs and file paths</span>
           </div>
           <AppModal.Footer>
-            <button className="app-modal-btn app-modal-btn-secondary" onClick={() => setShowAddDept(false)} disabled={saving}>
+            <Button variant="outline" onClick={() => setShowAddDept(false)} disabled={saving}>
               Cancel
-            </button>
-            <button
-              className="app-modal-btn app-modal-btn-primary"
+            </Button>
+            <Button
+              variant="default"
               onClick={handleAddDepartment}
               disabled={saving || !newDept.name.trim()}
             >
               {saving ? 'Creating...' : 'Create Department'}
-            </button>
+            </Button>
           </AppModal.Footer>
         </AppModal>
 
@@ -461,16 +462,16 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
                 </AIWriteAssist>
               </div>
               <AppModal.Footer>
-                <button className="app-modal-btn app-modal-btn-secondary" onClick={() => setEditingDept(null)} disabled={saving}>
+                <Button variant="outline" onClick={() => setEditingDept(null)} disabled={saving}>
                   Cancel
-                </button>
-                <button
-                  className="app-modal-btn app-modal-btn-primary"
+                </Button>
+                <Button
+                  variant="default"
                   onClick={handleUpdateDepartment}
                   disabled={saving}
                 >
                   {saving ? 'Saving...' : 'Save Changes'}
-                </button>
+                </Button>
               </AppModal.Footer>
             </>
           )}
@@ -519,16 +520,16 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
                 </AIWriteAssist>
               </div>
               <AppModal.Footer>
-                <button className="app-modal-btn app-modal-btn-secondary" onClick={() => setEditingRole(null)} disabled={saving}>
+                <Button variant="outline" onClick={() => setEditingRole(null)} disabled={saving}>
                   Cancel
-                </button>
-                <button
-                  className="app-modal-btn app-modal-btn-primary"
+                </Button>
+                <Button
+                  variant="default"
                   onClick={handleUpdateRole}
                   disabled={saving}
                 >
                   {saving ? 'Saving...' : 'Save Changes'}
-                </button>
+                </Button>
               </AppModal.Footer>
             </>
           )}
@@ -553,9 +554,9 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
               </div>
               <pre className="org-prompt-content">{viewingRolePrompt.prompt}</pre>
               <AppModal.Footer>
-                <button className="app-modal-btn app-modal-btn-primary" onClick={() => setViewingRolePrompt(null)}>
+                <Button variant="default" onClick={() => setViewingRolePrompt(null)}>
                   Close
-                </button>
+                </Button>
               </AppModal.Footer>
             </>
           )}

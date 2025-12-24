@@ -12,6 +12,7 @@
  */
 
 import { AppModal } from '../../ui/AppModal';
+import { Button } from '../../ui/button';
 import { FloatingContextActions } from '../../ui/FloatingContextActions';
 import MarkdownViewer from '../../MarkdownViewer';
 import { Bookmark, FolderKanban, ExternalLink } from 'lucide-react';
@@ -170,17 +171,14 @@ export function ViewDecisionModal({
       <AppModal.Footer>
         {/* Only show Promote to Playbook if NOT already a playbook AND NOT linked to a project */}
         {!isAlreadyPromoted && onPromote && (
-          <button
-            className="mc-btn primary"
-            onClick={() => onPromote(decision)}
-          >
-            <Bookmark size={14} className="mc-btn-icon" />
+          <Button variant="default" onClick={() => onPromote(decision)}>
+            <Bookmark size={14} />
             Promote to Playbook
-          </button>
+          </Button>
         )}
-        <button className="mc-btn" onClick={onClose}>
+        <Button variant="outline" onClick={onClose}>
           Close
-        </button>
+        </Button>
       </AppModal.Footer>
     </AppModal>
   );

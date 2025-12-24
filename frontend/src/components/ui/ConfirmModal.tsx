@@ -1,5 +1,6 @@
 import * as React from "react"
 import { AppModal } from "./AppModal"
+import { Button } from "./button"
 import { AlertTriangle, Trash2, Info, AlertCircle } from "lucide-react"
 import "./ConfirmModal.css"
 
@@ -68,23 +69,23 @@ function ConfirmModal({
         <p className="confirm-modal-message">{message}</p>
       </div>
       <AppModal.Footer>
-        <button
+        <Button
           type="button"
-          className="app-modal-btn app-modal-btn-secondary"
+          variant="outline"
           onClick={onCancel}
           disabled={isLoading}
         >
           {cancelText}
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
-          className={`app-modal-btn ${variant === 'danger' ? 'app-modal-btn-danger-solid' : 'app-modal-btn-primary'}`}
+          variant={variant === 'danger' ? 'destructive' : 'default'}
           onClick={handleConfirm}
           disabled={isLoading}
           autoFocus
         >
           {isLoading ? 'Processing...' : confirmText}
-        </button>
+        </Button>
       </AppModal.Footer>
     </AppModal>
   )

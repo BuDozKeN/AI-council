@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { api } from '../api';
 import { logger } from '../utils/logger';
 import { AppModal } from './ui/AppModal';
+import { Button } from './ui/button';
 import { Spinner } from './ui/Spinner';
 import { AIWriteAssist } from './ui/AIWriteAssist';
 import './SaveKnowledgeModal.css';
@@ -405,9 +406,9 @@ export default function SaveKnowledgeModal({
                 </span>
               </div>
             </div>
-            <button className="success-dismiss-btn" onClick={() => onClose(true)}>
+            <Button variant="default" onClick={() => onClose(true)}>
               Done
-            </button>
+            </Button>
           </div>
         ) : extracting ? (
           <div className="extracting-message">
@@ -627,22 +628,22 @@ export default function SaveKnowledgeModal({
                           <span className="field-hint">This description helps anyone understand what this project is about</span>
                         </div>
                         <div className="project-preview-actions">
-                          <button
+                          <Button
                             type="button"
-                            className="project-cancel-btn"
+                            variant="outline"
                             onClick={handleCancelProjectPreview}
                             disabled={creatingProject}
                           >
                             Cancel
-                          </button>
-                          <button
+                          </Button>
+                          <Button
                             type="button"
-                            className="project-create-btn"
+                            variant="default"
                             onClick={handleConfirmCreateProject}
                             disabled={creatingProject || !newProjectName.trim()}
                           >
                             {creatingProject ? 'Creating...' : 'Create Project'}
-                          </button>
+                          </Button>
                         </div>
                       </>
                     )}
@@ -750,16 +751,16 @@ export default function SaveKnowledgeModal({
             </div>
 
             <AppModal.Footer>
-              <button className="app-modal-btn app-modal-btn-secondary" onClick={onClose} disabled={saving}>
+              <Button variant="outline" onClick={onClose} disabled={saving}>
                 Cancel
-              </button>
-              <button className="app-modal-btn app-modal-btn-primary" onClick={handleSave} disabled={saving}>
+              </Button>
+              <Button variant="default" onClick={handleSave} disabled={saving}>
                 {saving ? 'Saving...' : (
                   saveMode === 'just_save' ? 'Save' :
                   saveMode === 'remember' ? 'Save & Remember' :
                   'Create Playbook'
                 )}
-              </button>
+              </Button>
             </AppModal.Footer>
           </>
         )}

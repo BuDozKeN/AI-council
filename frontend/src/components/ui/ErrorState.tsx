@@ -1,6 +1,7 @@
 import * as React from "react"
 import { AlertCircle, RefreshCw } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Button } from "./button"
 import "./ErrorState.css"
 
 /**
@@ -35,14 +36,16 @@ const ErrorState = React.forwardRef(({
         <p className="error-state-message">{message}</p>
       )}
       {onRetry && (
-        <button
+        <Button
           type="button"
-          className="error-state-retry"
+          variant="outline"
+          size="sm"
           onClick={onRetry}
+          className="error-state-retry"
         >
           <RefreshCw size={14} />
           {retryLabel}
-        </button>
+        </Button>
       )}
     </div>
   )

@@ -1,6 +1,7 @@
 import { Crown, Shield, UserIcon, Plus, Trash2, ChevronUp, ChevronDown, AlertCircle } from 'lucide-react';
 import { Skeleton } from '../ui/Skeleton';
 import { Spinner } from '../ui/Spinner';
+import { Button } from '../ui/button';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../ui/select';
 import { formatDate } from '../../lib/dateUtils';
 import { useTeam } from './hooks/useTeam';
@@ -99,7 +100,7 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }) {
         <div className="card-body flex items-center justify-center p-6 gap-3 text-red-500">
           <AlertCircle size={20} />
           <span>{teamError}</span>
-          <button className="btn-outline" onClick={loadTeamData}>Retry</button>
+          <Button variant="outline" onClick={loadTeamData}>Retry</Button>
         </div>
       </div>
     );
@@ -116,13 +117,14 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }) {
               <p>{members.length} {members.length === 1 ? 'member' : 'members'}</p>
             </div>
             {canManageMembers && (
-              <button
-                className="btn-primary flex items-center gap-1.5"
+              <Button
+                variant="default"
+                className="flex items-center gap-1.5"
                 onClick={() => setShowAddForm(!showAddForm)}
               >
                 <Plus size={16} />
                 Add Member
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -149,12 +151,12 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }) {
                     <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>
-                <button type="submit" className="btn-primary" disabled={addingMember || !newEmail.trim()}>
+                <Button type="submit" variant="default" disabled={addingMember || !newEmail.trim()}>
                   {addingMember ? <Spinner size={14} /> : 'Add'}
-                </button>
-                <button type="button" className="btn-outline" onClick={() => setShowAddForm(false)}>
+                </Button>
+                <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
                   Cancel
-                </button>
+                </Button>
               </div>
               {addError && (
                 <div className="form-error">

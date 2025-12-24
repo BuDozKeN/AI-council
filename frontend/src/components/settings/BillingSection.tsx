@@ -1,4 +1,5 @@
 import { Skeleton } from '../ui/Skeleton';
+import { Button } from '../ui/button';
 import { useBilling } from './hooks/useBilling';
 
 const BillingSkeleton = () => (
@@ -131,15 +132,15 @@ export function BillingSection({ isOpen }) {
                 </ul>
                 <div className="plan-action">
                   {isCurrentPlan ? (
-                    <button className="btn-outline" disabled>Current Plan</button>
+                    <Button variant="outline" disabled>Current Plan</Button>
                   ) : (
-                    <button
-                      className={isUpgrade ? 'btn-primary' : 'btn-outline'}
+                    <Button
+                      variant={isUpgrade ? 'default' : 'outline'}
                       onClick={() => handleSubscribe(plan.id)}
                       disabled={checkoutLoading !== null}
                     >
                       {checkoutLoading === plan.id ? 'Loading...' : isUpgrade ? 'Upgrade' : 'Select'}
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>
@@ -156,13 +157,13 @@ export function BillingSection({ isOpen }) {
               <p className="manage-title">Manage your subscription</p>
               <p className="manage-desc">Update payment method, view invoices, or cancel</p>
             </div>
-            <button
-              className="btn-outline"
+            <Button
+              variant="outline"
               onClick={handleManageSubscription}
               disabled={checkoutLoading !== null}
             >
               {checkoutLoading === 'manage' ? 'Loading...' : 'Manage Billing'}
-            </button>
+            </Button>
           </div>
         </div>
       )}

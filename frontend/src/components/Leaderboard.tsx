@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../api';
 import { AdaptiveModal } from './ui/AdaptiveModal';
+import { Button } from './ui/button';
 import { Skeleton } from './ui/Skeleton';
 import { logger } from '../utils/logger';
 import './Leaderboard.css';
@@ -118,20 +119,22 @@ export default function Leaderboard({ isOpen, onClose }) {
       ) : (
         <>
           <div className="leaderboard-tabs">
-            <button
-              className={`tab-btn ${selectedDepartment === 'overall' ? 'active' : ''}`}
+            <Button
+              variant={selectedDepartment === 'overall' ? 'default' : 'ghost'}
+              size="sm"
               onClick={() => setSelectedDepartment('overall')}
             >
               Overall
-            </button>
+            </Button>
             {departments.map((dept) => (
-              <button
+              <Button
                 key={dept}
-                className={`tab-btn ${selectedDepartment === dept ? 'active' : ''}`}
+                variant={selectedDepartment === dept ? 'default' : 'ghost'}
+                size="sm"
                 onClick={() => setSelectedDepartment(dept)}
               >
                 {dept.charAt(0).toUpperCase() + dept.slice(1)}
-              </button>
+              </Button>
             ))}
           </div>
 

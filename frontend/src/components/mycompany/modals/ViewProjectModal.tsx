@@ -8,6 +8,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { api } from '../../../api';
 import MarkdownViewer from '../../MarkdownViewer';
 import { AppModal } from '../../ui/AppModal';
+import { Button } from '../../ui/button';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { Spinner } from '../../ui/Spinner';
 import { AIWriteAssist } from '../../ui/AIWriteAssist';
@@ -66,13 +67,13 @@ function AlertModal({
       </div>
       <p className="mc-alert-message">{message}</p>
       <AppModal.Footer>
-        <button
+        <Button
           type="button"
-          className={`app-modal-btn ${variant === 'error' ? 'app-modal-btn-danger-sm' : 'app-modal-btn-primary'}`}
+          variant={variant === 'error' ? 'destructive' : 'default'}
           onClick={onClose}
         >
           OK
-        </button>
+        </Button>
       </AppModal.Footer>
     </AppModal>
   );
@@ -894,8 +895,9 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
               {confirmingAction === 'delete' ? (
                 <div className="app-modal-confirm-inline">
                   <span>Delete this project?</span>
-                  <button
-                    className="app-modal-btn app-modal-btn-sm app-modal-btn-danger-sm"
+                  <Button
+                    variant="destructive"
+                    size="sm"
                     onClick={async () => {
                       setActionLoading(true);
                       try {
@@ -909,21 +911,23 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                     disabled={actionLoading}
                   >
                     {actionLoading ? 'Deleting...' : 'Yes, Delete'}
-                  </button>
-                  <button
-                    className="app-modal-btn app-modal-btn-sm app-modal-btn-secondary"
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => setConfirmingAction(null)}
                     disabled={actionLoading}
                   >
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               ) : (
                 <>
                   {/* Complete button - only for active projects */}
                   {editedStatus === 'active' && (
-                    <button
-                      className="app-modal-btn app-modal-btn-action app-modal-btn-success"
+                    <Button
+                      variant="success"
+                      size="sm"
                       onClick={async () => {
                         setActionLoading(true);
                         try {
@@ -938,12 +942,13 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                     >
                       <CheckCircle size={14} />
                       <span>Complete</span>
-                    </button>
+                    </Button>
                   )}
                   {/* Archive/Restore button */}
                   {editedStatus === 'archived' ? (
-                    <button
-                      className="app-modal-btn app-modal-btn-action app-modal-btn-secondary"
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={async () => {
                         setActionLoading(true);
                         try {
@@ -958,10 +963,11 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                     >
                       <RotateCcw size={14} />
                       <span>Restore</span>
-                    </button>
+                    </Button>
                   ) : (
-                    <button
-                      className="app-modal-btn app-modal-btn-action app-modal-btn-secondary"
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={async () => {
                         setActionLoading(true);
                         try {
@@ -976,18 +982,20 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                     >
                       <Archive size={14} />
                       <span>Archive</span>
-                    </button>
+                    </Button>
                   )}
                   {/* Delete button */}
-                  <button
-                    className="app-modal-btn app-modal-btn-action app-modal-btn-danger"
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => setConfirmingAction('delete')}
                     disabled={actionLoading || saving}
                     title="Delete this project"
+                    className="text-[var(--color-error)] hover:bg-[var(--color-error)]/10"
                   >
                     <Trash2 size={14} />
                     <span>Delete</span>
-                  </button>
+                  </Button>
                 </>
               )}
             </div>

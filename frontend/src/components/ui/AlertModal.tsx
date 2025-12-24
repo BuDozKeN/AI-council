@@ -1,5 +1,6 @@
 import * as React from "react"
 import { AppModal } from "./AppModal"
+import { Button } from "./button"
 import { CheckCircle, AlertCircle, Info, AlertTriangle } from "lucide-react"
 import "./AlertModal.css"
 
@@ -48,14 +49,14 @@ function AlertModal({
         <p className="alert-modal-message">{message}</p>
       </div>
       <AppModal.Footer>
-        <button
+        <Button
           type="button"
-          className={`app-modal-btn ${variant === 'error' ? 'app-modal-btn-danger-sm' : 'app-modal-btn-primary'}`}
+          variant={variant === 'error' ? 'destructive' : 'default'}
           onClick={onClose}
           autoFocus
         >
           {buttonText}
-        </button>
+        </Button>
       </AppModal.Footer>
     </AppModal>
   )
