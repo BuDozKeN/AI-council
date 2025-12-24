@@ -9,6 +9,8 @@ import { useDecisionState } from './hooks/useDecisionState';
 import { useSaveActions } from './hooks/useSaveActions';
 import Stage3Content from './Stage3Content';
 import { Stage3Actions } from './Stage3Actions';
+import { Stage3OutlineSidebar } from './Stage3OutlineSidebar';
+import { Stage3MobileOutline } from './Stage3MobileOutline';
 import '../Stage3.css';
 
 const log = logger.scope('Stage3');
@@ -62,8 +64,8 @@ function Stage3({
   const [departments, setDepartments] = useState([]);
   const [fullProjectData, setFullProjectData] = useState(null);
 
-  const containerRef = useRef(null);
-  const finalResponseRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const finalResponseRef = useRef<HTMLDivElement>(null);
 
   // Use custom hooks for state management
   const {
@@ -92,15 +94,28 @@ function Stage3({
   // Get display text
   const displayText = finalResponse?.response || streaming?.text || '';
 
-  // Generate title
+  // Generate title - clean and format for display
   const getTitle = () => {
+    let title = '';
     if (userQuestion) {
-      const cleaned = userQuestion.trim().replace(/\n+/g, ' ');
-      return cleaned.length > 80 ? `${cleaned.slice(0, 77)}...` : cleaned;
+      title = userQuestion.trim().replace(/\n+/g, ' ');
+    } else if (conversationTitle) {
+      title = conversationTitle;
+    } else if (displayText) {
+      title = displayText.split('\n')[0].slice(0, 100);
+    } else {
+      return 'Council Decision';
     }
-    return conversationTitle ||
-      (displayText.split('\n')[0].slice(0, 100)) ||
-      'Council Decision';
+
+    // Remove common prefixes like "CONTEXT:", "Context:", etc.
+    title = title.replace(/^(context|question|q):\s*/i, '');
+
+    // Truncate if too long
+    if (title.length > 60) {
+      title = title.slice(0, 57) + '...';
+    }
+
+    return title || 'Council Decision';
   };
 
   // Get current project
@@ -262,10 +277,16 @@ function Stage3({
 
       {!isCollapsed && (
         <div className="final-response" ref={finalResponseRef}>
-          {/* Sticky copy button - stays inside Stage 3 */}
-          {isComplete && displayText && (
-            <div className="stage3-sticky-copy">
-              <CopyButton text={displayText} size="sm" className="stage3-copy-btn" />
+          {/* Sticky toolbar - TOC trigger + copy button together */}
+          {isComplete && (
+            <div className="stage3-sticky-toolbar">
+              <Stage3MobileOutline
+                contentRef={finalResponseRef}
+                isStreamingComplete={isComplete}
+              />
+              {displayText && (
+                <CopyButton text={displayText} size="sm" className="stage3-copy-btn" />
+              )}
             </div>
           )}
 
@@ -275,6 +296,14 @@ function Stage3({
             isStreaming={isStreaming}
             isComplete={isComplete}
             chairmanIconPath={chairmanIconPath}
+          />
+
+          {/* Floating TOC - overlays content on the right edge */}
+          <Stage3OutlineSidebar
+            contentRef={finalResponseRef}
+            containerRef={containerRef}
+            isStreamingComplete={isComplete}
+            title={getTitle()}
           />
 
           {isComplete && companyId && (

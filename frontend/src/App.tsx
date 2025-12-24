@@ -100,7 +100,6 @@ function App() {
     currentConversation,
     setCurrentConversation,
     isLoadingConversation,
-    setIsLoadingConversation: _setIsLoadingConversation,
     isLoading,
     setIsLoading,
     skipNextLoadRef,

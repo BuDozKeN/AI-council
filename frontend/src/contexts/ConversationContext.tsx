@@ -2,17 +2,15 @@
 /**
  * ConversationContext - Manages conversation list and current conversation state
  *
- * Extracted from App.jsx to reduce prop drilling.
+ * Now powered by TanStack Query for:
+ * - Automatic caching (5min stale, 30min cache)
+ * - Background refetching
+ * - Optimistic updates with rollback
+ * - DevTools inspection of all queries/mutations
  *
  * Note: The streaming message handlers (handleSendMessage, handleSendToCouncil)
  * remain in App.jsx for now due to their complexity and tight integration with
- * business context. These can be migrated later.
- *
- * State managed:
- * - conversations list
- * - current conversation
- * - loading states
- * - sort/filter options
+ * business context.
  */
 
 import {
@@ -22,14 +20,25 @@ import {
   useCallback,
   useMemo,
   useRef,
+  useEffect,
   type ReactNode,
   type MutableRefObject,
 } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
 import { logger } from '../utils/logger';
 import { toast } from '../components/ui/sonner';
 import { PAGINATION } from '../constants';
-import type { Conversation, ConversationSortBy, LoadingState } from '../types';
+import type { Conversation, ConversationSortBy } from '../types';
+
+// Query key factory for consistent cache management
+export const conversationKeys = {
+  all: ['conversations'] as const,
+  lists: () => [...conversationKeys.all, 'list'] as const,
+  list: (filters: Record<string, unknown>) => [...conversationKeys.lists(), filters] as const,
+  details: () => [...conversationKeys.all, 'detail'] as const,
+  detail: (id: string) => [...conversationKeys.details(), id] as const,
+};
 
 const log = logger.scope('ConversationContext');
 
@@ -39,6 +48,7 @@ interface LoadConversationsOptions {
   sortBy?: ConversationSortBy;
   company_id?: string;
   include_archived?: boolean;
+  search?: string;
 }
 
 interface ConversationContextValue {
@@ -55,12 +65,12 @@ interface ConversationContextValue {
   skipNextLoadRef: MutableRefObject<boolean>;
   abortControllerRef: MutableRefObject<AbortController | null>;
 
-  // Setters (for streaming handlers in App.jsx)
+  // Setters (for streaming handlers in App.tsx)
   setConversations: React.Dispatch<React.SetStateAction<Conversation[]>>;
   setCurrentConversation: React.Dispatch<React.SetStateAction<Conversation | null>>;
   setCurrentConversationId: React.Dispatch<React.SetStateAction<string | null>>;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsLoadingConversation: React.Dispatch<React.SetStateAction<boolean>>;
+  // Note: setIsLoadingConversation removed - now managed by TanStack Query
 
   // Actions
   loadConversations: (options?: LoadConversationsOptions) => Promise<Conversation[]>;
@@ -85,17 +95,15 @@ interface ConversationProviderProps {
 }
 
 export function ConversationProvider({ children }: ConversationProviderProps) {
-  // Conversation list state
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [hasMoreConversations, setHasMoreConversations] = useState<boolean>(true);
-  const [conversationSortBy, setConversationSortBy] = useState<ConversationSortBy>('date');
+  const queryClient = useQueryClient();
 
-  // Current conversation state
+  // Local UI state (not server state)
+  const [conversationSortBy, setConversationSortBy] = useState<ConversationSortBy>('date');
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null);
-  const [isLoadingConversation, setIsLoadingConversation] = useState<boolean>(false);
+  const [paginationOffset, setPaginationOffset] = useState<number>(0);
 
-  // General loading state (for streaming)
+  // General loading state (for streaming - managed by App.tsx)
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Ref to skip loading when transitioning from temp to real
@@ -104,48 +112,112 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
   // Abort controller for cancelling requests
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  // Load conversations with pagination and filtering
-  const loadConversations = useCallback(async (options: LoadConversationsOptions = {}): Promise<Conversation[]> => {
-    try {
-      const limit = options.limit || PAGINATION.CONVERSATIONS_PAGE_SIZE;
-      const sortBy = options.sortBy || conversationSortBy;
-      const result = await api.listConversations({ ...options, limit, sortBy });
+  // ═══════════════════════════════════════════════════════════════════════════
+  // TanStack Query: Conversation List
+  // ═══════════════════════════════════════════════════════════════════════════
+  const listQueryKey = conversationKeys.list({ sortBy: conversationSortBy, offset: paginationOffset });
 
-      const convs: Conversation[] = result.conversations || result;
-      const hasMore = result.has_more !== undefined ? result.has_more : convs.length >= limit;
+  const {
+    data: conversationsData,
+    isLoading: isLoadingList,
+    error: listError,
+  } = useQuery({
+    queryKey: listQueryKey,
+    queryFn: async () => {
+      const limit = PAGINATION.CONVERSATIONS_PAGE_SIZE;
+      const result = await api.listConversations({
+        limit,
+        sortBy: conversationSortBy,
+        offset: paginationOffset
+      });
+      return {
+        conversations: result.conversations || result,
+        hasMore: result.has_more !== undefined ? result.has_more : (result.conversations || result).length >= limit,
+      };
+    },
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
 
-      if (options.offset && options.offset > 0) {
-        // Append to existing (Load More) with deduplication
+  // Merge paginated results into a single list
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [hasMoreConversations, setHasMoreConversations] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (conversationsData) {
+      if (paginationOffset === 0) {
+        setConversations(conversationsData.conversations);
+      } else {
+        // Append with deduplication
         setConversations(prev => {
           const existingIds = new Set(prev.map(c => c.id));
-          const newConvs = convs.filter(c => !existingIds.has(c.id));
+          const newConvs = conversationsData.conversations.filter((c: Conversation) => !existingIds.has(c.id));
           return [...prev, ...newConvs];
         });
-      } else {
-        setConversations(convs);
       }
-
-      setHasMoreConversations(hasMore);
-      return convs;
-    } catch (error) {
-      log.error('Failed to load conversations:', error);
-      return [];
+      setHasMoreConversations(conversationsData.hasMore);
     }
-  }, [conversationSortBy]);
+  }, [conversationsData, paginationOffset]);
 
-  // Load a single conversation
-  const loadConversation = useCallback(async (id: string): Promise<void> => {
-    try {
-      setIsLoadingConversation(true);
-      const conv = await api.getConversation(id);
-      setCurrentConversation(conv);
-    } catch (error) {
-      log.error('Failed to load conversation:', error);
+  // Log errors to Sentry/console
+  useEffect(() => {
+    if (listError) {
+      log.error('Failed to load conversations:', listError);
+    }
+  }, [listError]);
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // TanStack Query: Single Conversation
+  // ═══════════════════════════════════════════════════════════════════════════
+  const shouldFetchConversation = !!currentConversationId && !currentConversationId.startsWith('temp-');
+
+  const {
+    data: fetchedConversation,
+    isLoading: isLoadingConversation,
+    error: conversationError,
+  } = useQuery({
+    queryKey: conversationKeys.detail(currentConversationId || ''),
+    queryFn: () => api.getConversation(currentConversationId!),
+    enabled: shouldFetchConversation,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  // Sync fetched conversation to local state
+  useEffect(() => {
+    if (fetchedConversation && shouldFetchConversation) {
+      setCurrentConversation(fetchedConversation);
+    }
+  }, [fetchedConversation, shouldFetchConversation]);
+
+  useEffect(() => {
+    if (conversationError) {
+      log.error('Failed to load conversation:', conversationError);
       setCurrentConversationId(null);
       toast.error('Failed to load conversation');
-    } finally {
-      setIsLoadingConversation(false);
     }
+  }, [conversationError]);
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Wrapper functions (maintain existing API for components)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // Load conversations - now just triggers refetch or pagination
+  const loadConversations = useCallback(async (options: LoadConversationsOptions = {}): Promise<Conversation[]> => {
+    if (options.offset && options.offset > 0) {
+      setPaginationOffset(options.offset);
+    } else {
+      setPaginationOffset(0);
+      // Invalidate to force refetch
+      await queryClient.invalidateQueries({ queryKey: conversationKeys.lists() });
+    }
+    if (options.sortBy && options.sortBy !== conversationSortBy) {
+      setConversationSortBy(options.sortBy);
+    }
+    return conversations;
+  }, [queryClient, conversations, conversationSortBy]);
+
+  // Load a single conversation - just set the ID, query handles the rest
+  const loadConversation = useCallback(async (id: string): Promise<void> => {
+    setCurrentConversationId(id);
   }, []);
 
   // Create a new temporary conversation
@@ -163,57 +235,128 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
   }, []);
 
   // Select an existing conversation
+  // Note: isLoadingConversation is now managed by the TanStack Query above
   const handleSelectConversation = useCallback((id: string): void => {
-    setIsLoadingConversation(true);
     setCurrentConversation(null);
     setCurrentConversationId(id);
   }, []);
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // TanStack Mutations with Optimistic Updates
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // Archive mutation
+  const archiveMutation = useMutation({
+    mutationFn: ({ id, archived }: { id: string; archived: boolean }) =>
+      api.archiveConversation(id, archived),
+    onMutate: async ({ id, archived }) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: conversationKeys.lists() });
+      // Snapshot
+      const previousConversations = conversations;
+      // Optimistic update
+      setConversations(prev =>
+        prev.map(conv => conv.id === id ? { ...conv, is_archived: archived } : conv)
+      );
+      return { previousConversations };
+    },
+    onError: (err, _, context) => {
+      log.error('Failed to archive conversation:', err);
+      if (context?.previousConversations) {
+        setConversations(context.previousConversations);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: conversationKeys.lists() });
+    },
+  });
+
+  // Star mutation
+  const starMutation = useMutation({
+    mutationFn: ({ id, starred }: { id: string; starred: boolean }) =>
+      api.starConversation(id, starred),
+    onMutate: async ({ id, starred }) => {
+      await queryClient.cancelQueries({ queryKey: conversationKeys.lists() });
+      const previousConversations = conversations;
+      // Optimistic update with sort
+      setConversations(prev => {
+        const updated = prev.map(conv =>
+          conv.id === id ? { ...conv, is_starred: starred } : conv
+        );
+        return updated.sort((a, b) => {
+          if (a.is_starred && !b.is_starred) return -1;
+          if (!a.is_starred && b.is_starred) return 1;
+          return (b.message_count || 0) - (a.message_count || 0);
+        });
+      });
+      return { previousConversations };
+    },
+    onError: (err, _, context) => {
+      log.error('Failed to star conversation:', err);
+      if (context?.previousConversations) {
+        setConversations(context.previousConversations);
+      }
+      toast.error('Failed to star conversation');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: conversationKeys.lists() });
+    },
+  });
+
+  // Rename mutation
+  const renameMutation = useMutation({
+    mutationFn: ({ id, title }: { id: string; title: string }) =>
+      api.renameConversation(id, title),
+    onMutate: async ({ id, title }) => {
+      await queryClient.cancelQueries({ queryKey: conversationKeys.lists() });
+      const previousConversations = conversations;
+      const previousCurrentConversation = currentConversation;
+      // Optimistic update
+      setConversations(prev =>
+        prev.map(conv => conv.id === id ? { ...conv, title } : conv)
+      );
+      setCurrentConversation(prev =>
+        prev && prev.id === id ? { ...prev, title } : prev
+      );
+      return { previousConversations, previousCurrentConversation };
+    },
+    onError: (err, _, context) => {
+      log.error('Failed to rename conversation:', err);
+      if (context?.previousConversations) {
+        setConversations(context.previousConversations);
+      }
+      if (context?.previousCurrentConversation) {
+        setCurrentConversation(context.previousCurrentConversation);
+      }
+      toast.error('Failed to rename conversation');
+    },
+    onSettled: (_, __, { id }) => {
+      queryClient.invalidateQueries({ queryKey: conversationKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: conversationKeys.detail(id) });
+    },
+  });
+
+  // Delete mutation (with undo support)
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => api.deleteConversation(id),
+    onError: (err) => {
+      log.error('Failed to delete conversation:', err);
+      toast.error('Failed to delete conversation');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: conversationKeys.lists() });
+    },
+  });
+
   // Archive/unarchive a conversation
   const handleArchiveConversation = useCallback(async (id: string, archived: boolean): Promise<void> => {
-    try {
-      await api.archiveConversation(id, archived);
-      setConversations(prev =>
-        prev.map(conv =>
-          conv.id === id ? { ...conv, is_archived: archived } : conv
-        )
-      );
-    } catch (error) {
-      log.error('Failed to archive conversation:', error);
-    }
-  }, []);
+    archiveMutation.mutate({ id, archived });
+  }, [archiveMutation]);
 
   // Star/unstar a conversation
   const handleStarConversation = useCallback(async (id: string, starred: boolean): Promise<void> => {
-    // Optimistic update
-    setConversations(prev => {
-      const updated = prev.map(conv =>
-        conv.id === id ? { ...conv, is_starred: starred } : conv
-      );
-      return updated.sort((a, b) => {
-        if (a.is_starred && !b.is_starred) return -1;
-        if (!a.is_starred && b.is_starred) return 1;
-        return b.message_count - a.message_count;
-      });
-    });
-
-    try {
-      await api.starConversation(id, starred);
-    } catch (error) {
-      log.error('Failed to star conversation:', error);
-      // Revert on error
-      setConversations(prev => {
-        const reverted = prev.map(conv =>
-          conv.id === id ? { ...conv, is_starred: !starred } : conv
-        );
-        return reverted.sort((a, b) => {
-          if (a.is_starred && !b.is_starred) return -1;
-          if (!a.is_starred && b.is_starred) return 1;
-          return b.message_count - a.message_count;
-        });
-      });
-    }
-  }, []);
+    starMutation.mutate({ id, starred });
+  }, [starMutation]);
 
   // Delete a conversation with undo
   const handleDeleteConversation = useCallback(async (id: string): Promise<void> => {
@@ -223,7 +366,7 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
     const originalIndex = conversations.findIndex(c => c.id === id);
     const wasCurrentConversation = currentConversationId === id;
 
-    // Optimistic removal
+    // Optimistic removal (local state)
     setConversations(prev => prev.filter(conv => conv.id !== id));
     if (wasCurrentConversation) {
       setCurrentConversation(null);
@@ -250,38 +393,19 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
         },
       },
       duration: 5000,
-      onDismiss: async () => {
+      onDismiss: () => {
         if (!undoClicked) {
-          try {
-            await api.deleteConversation(id);
-          } catch (error) {
-            log.error('Failed to delete conversation:', error);
-            setConversations(prev => {
-              const newList = [...prev];
-              newList.splice(originalIndex, 0, conversationToDelete);
-              return newList;
-            });
-            toast.error('Failed to delete conversation');
-          }
+          // Actually delete via mutation
+          deleteMutation.mutate(id);
         }
       },
     });
-  }, [conversations, currentConversationId]);
+  }, [conversations, currentConversationId, deleteMutation]);
 
   // Rename a conversation
   const handleRenameConversation = useCallback(async (id: string, title: string): Promise<void> => {
-    try {
-      await api.renameConversation(id, title);
-      setConversations(prev =>
-        prev.map(conv => conv.id === id ? { ...conv, title } : conv)
-      );
-      setCurrentConversation(prev =>
-        prev && prev.id === id ? { ...prev, title } : prev
-      );
-    } catch (error) {
-      log.error('Failed to rename conversation:', error);
-    }
-  }, []);
+    renameMutation.mutate({ id, title });
+  }, [renameMutation]);
 
   // Stop generation
   const handleStopGeneration = useCallback((): void => {
@@ -303,16 +427,18 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
     }
   }, []);
 
-  // Refresh conversations
+  // Refresh conversations - invalidate cache to force refetch
   const refreshConversations = useCallback(async (): Promise<void> => {
-    await loadConversations({ offset: 0 });
-  }, [loadConversations]);
+    setPaginationOffset(0);
+    await queryClient.invalidateQueries({ queryKey: conversationKeys.lists() });
+  }, [queryClient]);
 
   // Change sort order
   const handleSortByChange = useCallback((newSort: ConversationSortBy): void => {
+    setPaginationOffset(0);
     setConversationSortBy(newSort);
-    loadConversations({ sortBy: newSort, offset: 0 });
-  }, [loadConversations]);
+    // Query will automatically refetch due to queryKey change
+  }, []);
 
   const value = useMemo((): ConversationContextValue => ({
     // State
@@ -328,12 +454,12 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
     skipNextLoadRef,
     abortControllerRef,
 
-    // Setters (for streaming handlers in App.jsx)
+    // Setters (for streaming handlers in App.tsx)
     setConversations,
     setCurrentConversation,
     setCurrentConversationId,
     setIsLoading,
-    setIsLoadingConversation,
+    // Note: setIsLoadingConversation removed - now managed by TanStack Query
 
     // Actions
     loadConversations,

@@ -99,7 +99,7 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }) {
               <div className="byok-inline">
                 {/* Toast messages */}
                 {(apiKeyError || apiKeySuccess) && (
-                  <div className={`byok-toast ${apiKeyError ? 'error' : 'success'}`}>
+                  <div className={`byok-toast ${apiKeyError ? 'error' : apiKeySuccess?.includes('deactivated') ? 'warning' : 'success'}`}>
                     {apiKeyError ? <XCircle size={12} /> : <CheckCircle size={12} />}
                     <span>{apiKeyError || apiKeySuccess}</span>
                   </div>

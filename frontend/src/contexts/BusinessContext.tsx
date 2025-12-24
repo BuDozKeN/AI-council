@@ -2,7 +2,10 @@
 /**
  * BusinessContext - Manages all business/company-related state
  *
- * Extracted from App.jsx to reduce prop drilling and centralize business logic.
+ * Now powered by TanStack Query for:
+ * - Automatic caching of businesses, projects, and playbooks
+ * - Background refetching when data becomes stale
+ * - DevTools inspection of all queries
  *
  * State managed:
  * - businesses list and selected business
@@ -24,11 +27,21 @@ import {
   useRef,
   type ReactNode,
 } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
 import { userPreferencesApi } from '../supabase';
 import { useAuth } from '../AuthContext';
 import { logger } from '../utils/logger';
 import type { Business, Department, Role, Channel, Style, Playbook, Project, UserPreferences } from '../types';
+
+// Query key factory for consistent cache management
+export const businessKeys = {
+  all: ['businesses'] as const,
+  list: () => [...businessKeys.all, 'list'] as const,
+  detail: (id: string) => [...businessKeys.all, 'detail', id] as const,
+  projects: (companyId: string) => [...businessKeys.all, companyId, 'projects'] as const,
+  playbooks: (companyId: string) => [...businessKeys.all, companyId, 'playbooks'] as const,
+};
 
 const log = logger.scope('BusinessContext');
 
@@ -94,9 +107,9 @@ interface BusinessProviderProps {
 
 export function BusinessProvider({ children }: BusinessProviderProps) {
   const { isAuthenticated } = useAuth();
+  const queryClient = useQueryClient();
 
-  // Core business state
-  const [businesses, setBusinesses] = useState<Business[]>([]);
+  // Core business state (selectedBusiness is local UI state)
   const [selectedBusiness, setSelectedBusiness] = useState<string | null>(null);
 
   // Legacy single-select (for backwards compatibility)
@@ -109,12 +122,10 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
   const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
-  // Playbooks
-  const [availablePlaybooks, setAvailablePlaybooks] = useState<Playbook[]>([]);
+  // Playbook selections (local state)
   const [selectedPlaybooks, setSelectedPlaybooks] = useState<string[]>([]);
 
-  // Projects
-  const [projects, setProjects] = useState<Project[]>([]);
+  // Project selections (local state)
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
 
   // Context toggles
@@ -124,11 +135,82 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
   // User preferences for Smart Auto
   const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null);
 
-  // Loading states
-  const [isLoading, setIsLoading] = useState(false);
-
   // Track initial data load
   const hasLoadedInitialData = useRef(false);
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // TanStack Query: Businesses List
+  // ═══════════════════════════════════════════════════════════════════════════
+  const {
+    data: businesses = [],
+    isLoading: isLoadingBusinesses,
+    error: businessesError,
+  } = useQuery({
+    queryKey: businessKeys.list(),
+    queryFn: () => api.listBusinesses(),
+    enabled: isAuthenticated,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+
+  // Log errors
+  useEffect(() => {
+    if (businessesError) {
+      log.error('Failed to load businesses:', businessesError);
+    }
+  }, [businessesError]);
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // TanStack Query: Projects for selected business
+  // ═══════════════════════════════════════════════════════════════════════════
+  const {
+    data: projectsData,
+    error: projectsError,
+  } = useQuery({
+    queryKey: businessKeys.projects(selectedBusiness || ''),
+    queryFn: () => api.listProjects(selectedBusiness!),
+    enabled: !!selectedBusiness,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const projects = projectsData?.projects || [];
+
+  useEffect(() => {
+    if (projectsError) {
+      log.error('Failed to load projects:', projectsError);
+    }
+  }, [projectsError]);
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // TanStack Query: Playbooks for selected business
+  // ═══════════════════════════════════════════════════════════════════════════
+  const {
+    data: playbooksData,
+    error: playbooksError,
+  } = useQuery({
+    queryKey: businessKeys.playbooks(selectedBusiness || ''),
+    queryFn: () => api.getCompanyPlaybooks(selectedBusiness!),
+    enabled: !!selectedBusiness,
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const availablePlaybooks = playbooksData?.playbooks || [];
+
+  useEffect(() => {
+    if (playbooksError) {
+      log.error('Failed to load playbooks:', playbooksError);
+    }
+  }, [playbooksError]);
+
+  // Combined loading state
+  const isLoading = isLoadingBusinesses;
+
+  // Setter for projects (needed by some components that modify projects locally before cache invalidates)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const setProjects = useCallback((_updater: Project[] | ((prev: Project[]) => Project[])) => {
+    // This is a no-op now since projects come from TanStack Query
+    // Components should call refreshProjects() instead
+    log.debug('setProjects called - use refreshProjects() instead for cache invalidation');
+  }, []);
 
   // Get the currently selected business object
   const currentBusiness = useMemo(() => {
@@ -181,100 +263,68 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
     return currentBusiness.styles;
   }, [currentBusiness]);
 
-  // Load businesses and user preferences
-  const loadBusinesses = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const bizList = await api.listBusinesses();
-      setBusinesses(bizList);
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Initial Load: Apply user preferences when businesses load
+  // ═══════════════════════════════════════════════════════════════════════════
+  useEffect(() => {
+    if (businesses.length > 0 && !hasLoadedInitialData.current) {
+      // Load user preferences and apply them
+      userPreferencesApi.get().then(prefs => {
+        setUserPreferences(prefs);
 
-      // Load user preferences for Smart Auto
-      const prefs = await userPreferencesApi.get();
-      setUserPreferences(prefs);
+        if (prefs?.last_company_id && businesses.some((b: Business) => b.id === prefs.last_company_id)) {
+          setSelectedBusiness(prefs.last_company_id);
+          if (prefs.last_department_ids?.length > 0) {
+            setSelectedDepartments(prefs.last_department_ids);
+          }
+          if (prefs.last_role_ids?.length > 0) {
+            setSelectedRoles(prefs.last_role_ids);
+          }
+          if (prefs.last_project_id) {
+            setSelectedProject(prefs.last_project_id);
+          }
+          if (prefs.last_playbook_ids?.length > 0) {
+            setSelectedPlaybooks(prefs.last_playbook_ids);
+          }
+        } else {
+          setSelectedBusiness(businesses[0].id);
+        }
 
-      // Apply saved preferences or default to first business
-      if (prefs?.last_company_id && bizList.some(b => b.id === prefs.last_company_id)) {
-        setSelectedBusiness(prefs.last_company_id);
-        if (prefs.last_department_ids?.length > 0) {
-          setSelectedDepartments(prefs.last_department_ids);
-        }
-        if (prefs.last_role_ids?.length > 0) {
-          setSelectedRoles(prefs.last_role_ids);
-        }
-        if (prefs.last_project_id) {
-          setSelectedProject(prefs.last_project_id);
-        }
-        if (prefs.last_playbook_ids?.length > 0) {
-          setSelectedPlaybooks(prefs.last_playbook_ids);
-        }
-      } else if (bizList.length > 0) {
-        setSelectedBusiness(bizList[0].id);
-      }
-
-      hasLoadedInitialData.current = true;
-    } catch (error) {
-      log.error('Failed to load businesses:', error);
-    } finally {
-      setIsLoading(false);
+        hasLoadedInitialData.current = true;
+      });
     }
-  }, []);
+  }, [businesses]);
 
-  // Load business data when business changes
+  // Load businesses - now just invalidates cache (TanStack handles the rest)
+  const loadBusinesses = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: businessKeys.list() });
+  }, [queryClient]);
+
+  // Reset selections when business changes
   const prevBusinessRef = useRef<string | null>(selectedBusiness);
   useEffect(() => {
     const businessChanged = prevBusinessRef.current !== selectedBusiness;
     prevBusinessRef.current = selectedBusiness;
 
-    if (businessChanged) {
+    if (businessChanged && selectedBusiness !== null) {
       // Reset selections when business changes
       setSelectedDepartment(null);
       setSelectedChannel(null);
       setSelectedStyle(null);
       setSelectedProject(null);
-      setProjects([]);
+      setSelectedPlaybooks([]);
     }
-
-    const loadBusinessData = async () => {
-      if (!selectedBusiness) {
-        setAvailablePlaybooks([]);
-        setSelectedPlaybooks([]);
-        return;
-      }
-
-      // Load projects and playbooks in parallel
-      const [projectsResult, playbooksResult] = await Promise.allSettled([
-        api.listProjects(selectedBusiness),
-        api.getCompanyPlaybooks(selectedBusiness),
-      ]);
-
-      if (projectsResult.status === 'fulfilled') {
-        const loadedProjects = projectsResult.value.projects || [];
-        setProjects(loadedProjects);
-        // Validate selectedProject
-        setSelectedProject(prev => {
-          if (prev && !loadedProjects.some(p => p.id === prev)) {
-            log.debug('Clearing selectedProject - project no longer exists:', prev);
-            return null;
-          }
-          return prev;
-        });
-      } else {
-        log.error('Failed to load projects:', projectsResult.reason);
-        setProjects([]);
-      }
-
-      if (playbooksResult.status === 'fulfilled') {
-        setAvailablePlaybooks(playbooksResult.value.playbooks || []);
-        setSelectedPlaybooks([]);
-      } else {
-        log.error('Failed to load playbooks:', playbooksResult.reason);
-        setAvailablePlaybooks([]);
-        setSelectedPlaybooks([]);
-      }
-    };
-
-    loadBusinessData();
   }, [selectedBusiness]);
+
+  // Validate selectedProject when projects change
+  useEffect(() => {
+    if (projects.length > 0 && selectedProject) {
+      if (!projects.some((p: Project) => p.id === selectedProject)) {
+        log.debug('Clearing selectedProject - project no longer exists:', selectedProject);
+        setSelectedProject(null);
+      }
+    }
+  }, [projects, selectedProject]);
 
   // Reset role and channel when department changes
   const prevDepartmentRef = useRef<string | null>(selectedDepartment);
@@ -318,27 +368,17 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
     };
   }, [isAuthenticated, selectedBusiness, selectedDepartments, selectedRoles, selectedProject, selectedPlaybooks]);
 
-  // Refresh projects (called after project operations)
+  // Refresh projects - invalidate TanStack cache
   const refreshProjects = useCallback(async () => {
     if (!selectedBusiness) return;
-    try {
-      const result = await api.listProjects(selectedBusiness);
-      setProjects(result.projects || []);
-    } catch (error) {
-      log.error('Failed to refresh projects:', error);
-    }
-  }, [selectedBusiness]);
+    await queryClient.invalidateQueries({ queryKey: businessKeys.projects(selectedBusiness) });
+  }, [selectedBusiness, queryClient]);
 
-  // Refresh playbooks
+  // Refresh playbooks - invalidate TanStack cache
   const refreshPlaybooks = useCallback(async () => {
     if (!selectedBusiness) return;
-    try {
-      const result = await api.getCompanyPlaybooks(selectedBusiness);
-      setAvailablePlaybooks(result.playbooks || []);
-    } catch (error) {
-      log.error('Failed to refresh playbooks:', error);
-    }
-  }, [selectedBusiness]);
+    await queryClient.invalidateQueries({ queryKey: businessKeys.playbooks(selectedBusiness) });
+  }, [selectedBusiness, queryClient]);
 
   // Memoize context value
   const value = useMemo(() => ({
