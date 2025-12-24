@@ -137,8 +137,11 @@
 }
 
 .main-content-landing {
-  /* Landing takes full width when shown */
-  position: relative;
+  /* Landing is positioned absolutely so sidebar doesn't push it */
+  /* This keeps the hero centered on the viewport regardless of sidebar state */
+  position: absolute;
+  inset: 0;
+  z-index: 10;
   /* Smooth backdrop for transition */
   background: var(--color-bg-secondary);
 }
@@ -151,12 +154,9 @@
   transition: backdrop-filter 0.3s ease;
 }
 
-/* Hide sidebar when showing landing on mobile */
+/* Mobile: bump z-index so landing overlays mobile sidebar */
 @media (max-width: 768px) {
   .main-content-landing {
-    /* Full screen on mobile */
-    position: fixed;
-    inset: 0;
     z-index: 100;
   }
 }
