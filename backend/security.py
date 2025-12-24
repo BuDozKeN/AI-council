@@ -366,11 +366,11 @@ def log_billing_event(
 
 
 def log_app_event(
-    component: str,
     event: str,
     user_id: Optional[str] = None,
     resource_id: Optional[str] = None,
     level: str = "INFO",
+    error: Optional[str] = None,
     **kwargs
 ):
     """
@@ -378,17 +378,21 @@ def log_app_event(
     All IDs are automatically masked.
 
     Usage:
-        log_app_event("STREAM", "Message saved", user_id=user_id)
-        log_app_event("PROJECT", "Created", user_id=user_id, resource_id=project_id)
+        log_app_event("context_load_failed", user_id=user_id, error=str(e))
+        log_app_event("project_created", user_id=user_id, resource_id=project_id)
     """
     masked_user = mask_id(user_id) if user_id else None
     masked_resource = mask_id(resource_id) if resource_id else None
 
-    msg_parts = [f"[{component}] {event}"]
+    msg_parts = [f"[APP] {event}"]
     if masked_user:
         msg_parts.append(f"user={masked_user}")
     if masked_resource:
         msg_parts.append(f"resource={masked_resource}")
+    if error:
+        # Truncate error message to avoid log flooding
+        error_msg = str(error)[:200]
+        msg_parts.append(f"error={error_msg}")
 
     # Add any additional kwargs (non-PII only)
     for key, value in kwargs.items():
@@ -405,6 +409,37 @@ def log_app_event(
         app_logger.debug(message)
     else:
         app_logger.info(message)
+
+
+def log_error(
+    operation: str,
+    error: Exception,
+    user_id: Optional[str] = None,
+    resource_id: Optional[str] = None,
+    **kwargs
+):
+    """
+    Log an error with context for debugging.
+    Use this instead of silently swallowing exceptions.
+
+    Usage:
+        try:
+            result = fetch_data()
+        except Exception as e:
+            log_error("fetch_data", e, user_id=user_id)
+            return None  # Graceful fallback
+    """
+    error_type = type(error).__name__
+    error_msg = str(error)[:300]  # Truncate long errors
+
+    log_app_event(
+        f"{operation}_failed",
+        user_id=user_id,
+        resource_id=resource_id,
+        level="ERROR",
+        error=f"{error_type}: {error_msg}",
+        **kwargs
+    )
 
 
 # =============================================================================

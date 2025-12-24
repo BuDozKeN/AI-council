@@ -56,9 +56,13 @@ def truncate_to_limit(text: str, max_chars: int, label: str = "") -> str:
     return truncated + warning
 
 
-def list_available_businesses(user_id: Optional[str] = None) -> List[Dict[str, Any]]:
+def list_available_businesses(
+    user_id: Optional[str] = None,
+    limit: int = 50,
+    offset: int = 0
+) -> Dict[str, Any]:
     """
-    List available businesses/companies from Supabase.
+    List available businesses/companies from Supabase with pagination.
     Returns list of company objects with id, name, slug, and departments.
 
     SECURITY: If user_id is provided, only returns companies the user has access to.
@@ -68,13 +72,22 @@ def list_available_businesses(user_id: Optional[str] = None) -> List[Dict[str, A
 
     Args:
         user_id: Optional user ID to filter accessible companies
+        limit: Maximum number of companies to return (default 50, max 100)
+        offset: Number of companies to skip for pagination (default 0)
 
     Returns:
-        List of company objects the user can access
+        Dict with 'companies' list and 'has_more' boolean for pagination
     """
+    from .security import log_app_event
+
+    # Enforce limits
+    limit = min(limit, 100)  # Max 100 companies per request
+    limit = max(limit, 1)    # Min 1
+
     client = get_supabase_service()
     if not client:
-        return []
+        log_app_event("list_businesses_failed", reason="no_client")
+        return {"companies": [], "has_more": False}
 
     try:
         if user_id:
@@ -99,21 +112,37 @@ def list_available_businesses(user_id: Optional[str] = None) -> List[Dict[str, A
             for row in owned_result.data or []:
                 accessible_company_ids.add(row["id"])
 
-            # Now fetch full details for accessible companies
+            # Now fetch full details for accessible companies with pagination
             if not accessible_company_ids:
-                return []
+                return {"companies": [], "has_more": False}
+
+            # Convert to list for pagination
+            accessible_list = list(accessible_company_ids)
+
+            # Apply pagination to company IDs first
+            paginated_ids = accessible_list[offset:offset + limit + 1]  # +1 to check has_more
+
+            if not paginated_ids:
+                return {"companies": [], "has_more": False}
 
             result = client.table("companies").select(
                 "id, name, slug, departments(id, name, slug, roles(id, name, slug))"
-            ).in_("id", list(accessible_company_ids)).execute()
+            ).in_("id", paginated_ids[:limit]).execute()  # Only fetch limit, not +1
+
+            has_more = len(paginated_ids) > limit
         else:
-            # No user filter - return all (legacy behavior for internal use)
+            # No user filter - return all with pagination (internal use only)
             result = client.table("companies").select(
                 "id, name, slug, departments(id, name, slug, roles(id, name, slug))"
-            ).execute()
+            ).range(offset, offset + limit).execute()
+
+            # Check if there are more
+            has_more = len(result.data or []) == limit + 1
+            if has_more and result.data:
+                result.data = result.data[:limit]
 
         companies = []
-        for row in result.data:
+        for row in result.data or []:
             companies.append({
                 "id": row["id"],
                 "name": row.get("name", row.get("slug", "Unknown")),
@@ -121,9 +150,11 @@ def list_available_businesses(user_id: Optional[str] = None) -> List[Dict[str, A
                 "departments": row.get("departments", [])
             })
 
-        return companies
-    except Exception:
-        return []
+        return {"companies": companies, "has_more": has_more}
+
+    except Exception as e:
+        log_app_event("list_businesses_error", error=str(e))
+        return {"companies": [], "has_more": False}
 
 
 def load_business_context(business_id: str) -> Optional[str]:
@@ -144,8 +175,11 @@ def load_company_context_from_db(company_id: str) -> Optional[str]:
     Returns:
         The context_md content, or None if not found
     """
+    from .security import log_error
+
     client = get_supabase_service()
     if not client:
+        log_app_event("load_company_context", level="WARNING", reason="no_client")
         return None
 
     try:
@@ -160,7 +194,8 @@ def load_company_context_from_db(company_id: str) -> Optional[str]:
             return result.data[0]["context_md"]
 
         return None
-    except Exception:
+    except Exception as e:
+        log_error("load_company_context", e, resource_id=company_id)
         return None
 
 
@@ -174,6 +209,8 @@ def load_department_context_from_db(department_id: str) -> Optional[str]:
     Returns:
         The context_md content, or None if not found
     """
+    from .security import log_error
+
     client = get_supabase_service()
     if not client:
         return None
@@ -190,7 +227,8 @@ def load_department_context_from_db(department_id: str) -> Optional[str]:
             return result.data[0]["context_md"]
 
         return None
-    except Exception:
+    except Exception as e:
+        log_error("load_department_context", e, resource_id=department_id)
         return None
 
 
@@ -220,7 +258,8 @@ def load_role_prompt_from_db(role_id: str) -> Optional[Dict[str, Any]]:
             return result.data[0]
 
         return None
-    except Exception:
+    except Exception as e:
+        log_error("get_role_by_id", e, resource_id=role_id)
         return None
 
 
@@ -241,7 +280,8 @@ def get_company_departments(company_id: str) -> List[Dict[str, Any]]:
     try:
         result = client.table("departments").select("id, name, slug, description, context_md").eq("company_id", company_id).execute()
         return result.data or []
-    except Exception:
+    except Exception as e:
+        log_error("get_company_departments", e, resource_id=company_id)
         return []
 
 
@@ -289,7 +329,8 @@ def get_department_roles(department_id: str) -> List[Dict[str, Any]]:
     try:
         result = client.table("roles").select("id, name, slug, description").eq("department_id", department_id).execute()
         return result.data or []
-    except Exception:
+    except Exception as e:
+        log_error("get_department_roles", e, resource_id=department_id)
         return []
 
 
@@ -348,7 +389,8 @@ def get_playbooks_for_context(
 
         return playbooks
 
-    except Exception:
+    except Exception as e:
+        log_error("get_playbooks_for_context", e, resource_id=company_id)
         return []
 
 
@@ -397,7 +439,8 @@ def get_decisions_for_context(
 
         return formatted
 
-    except Exception:
+    except Exception as e:
+        log_error("get_decisions_for_context", e, resource_id=company_id)
         return []
 
 

@@ -354,15 +354,17 @@ export function useMessageStreaming({
           break;
 
         case 'title_complete':
-          if (event.title) {
+          // Backend sends: { type: 'title_complete', data: { title: '...' } }
+          const newTitle = event.data?.title;
+          if (newTitle) {
             setConversations((prev: any[]) =>
               prev.map((conv) =>
-                conv.id === conversationId ? { ...conv, title: event.title } : conv
+                conv.id === conversationId ? { ...conv, title: newTitle } : conv
               )
             );
             setCurrentConversation((prev: any) => {
               if (!prev || prev.id !== conversationId) return prev;
-              return { ...prev, title: event.title };
+              return { ...prev, title: newTitle };
             });
           }
           break;

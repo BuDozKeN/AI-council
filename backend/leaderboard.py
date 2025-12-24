@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 from functools import lru_cache
 from .database import get_supabase_service
+from .security import log_error
 
 
 def record_session_rankings(
@@ -41,8 +42,8 @@ def record_session_rankings(
 
     try:
         supabase.table('model_rankings').insert(records).execute()
-    except Exception:
-        pass  # Non-critical - rankings can be skipped
+    except Exception as e:
+        log_error("record_session_rankings", e, resource_id=conversation_id)
 
 
 def _aggregate_leaderboard_data(data: List[Dict]) -> List[Dict[str, Any]]:
@@ -131,7 +132,8 @@ def get_overall_leaderboard() -> List[Dict[str, Any]]:
 
         return _aggregate_leaderboard_data(result.data or [])
 
-    except Exception:
+    except Exception as e:
+        log_error("get_global_leaderboard", e)
         return []
 
 
@@ -155,7 +157,8 @@ def get_department_leaderboard(department: str) -> List[Dict[str, Any]]:
 
         return _aggregate_leaderboard_data(result.data or [])
 
-    except Exception:
+    except Exception as e:
+        log_error("get_department_leaderboard", e, resource_id=department)
         return []
 
 
@@ -196,8 +199,8 @@ def _resolve_department_names_batch(supabase, dept_ids: List[str]) -> Dict[str, 
             dept_result = supabase.table('departments').select('id, name').in_('id', uuid_ids).execute()
             for row in (dept_result.data or []):
                 result[row['id']] = row['name']
-        except Exception:
-            pass  # Fall back to UUID IDs
+        except Exception as e:
+            log_error("_resolve_department_names_batch", e)
 
         # Fall back to ID for any not found
         for uuid_id in uuid_ids:
@@ -248,7 +251,8 @@ def get_all_department_leaderboards() -> Dict[str, List[Dict[str, Any]]]:
 
         return leaderboards
 
-    except Exception:
+    except Exception as e:
+        log_error("get_all_department_leaderboards", e)
         return {}
 
 

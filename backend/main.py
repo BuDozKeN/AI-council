@@ -606,11 +606,23 @@ async def root():
 
 
 @app.get("/api/businesses")
-async def get_businesses(user: dict = Depends(get_current_user)):
-    """List available business contexts for the authenticated user."""
+async def get_businesses(
+    user: dict = Depends(get_current_user),
+    limit: int = Query(default=50, ge=1, le=100, description="Max companies to return"),
+    offset: int = Query(default=0, ge=0, description="Number of companies to skip")
+):
+    """
+    List available business contexts for the authenticated user.
+
+    Supports pagination with limit/offset parameters.
+    Returns companies the user owns or has department access to.
+    """
     # SECURITY: Only return companies the user has access to
     user_id = user.get("id")
-    return list_available_businesses(user_id=user_id)
+    result = list_available_businesses(user_id=user_id, limit=limit, offset=offset)
+
+    # Return the full response with pagination info
+    return result
 
 
 @app.get("/api/conversations")

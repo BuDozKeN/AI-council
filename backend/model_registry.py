@@ -18,6 +18,7 @@ Usage:
 
 from typing import List, Optional
 import os
+import sys
 from supabase import create_client, Client
 
 # Hardcoded fallbacks - used if database is unavailable
@@ -86,7 +87,8 @@ def _get_supabase_client() -> Optional[Client]:
         return None
     try:
         return create_client(url, key)
-    except Exception:
+    except Exception as e:
+        print(f"[model_registry] Failed to create Supabase client: {type(e).__name__}", file=sys.stderr)
         return None
 
 
@@ -122,8 +124,8 @@ async def get_models(role: str, company_id: Optional[str] = None) -> List[str]:
             result = query.is_('company_id', 'null').execute()
             if result.data and len(result.data) > 0:
                 return [row['model_id'] for row in result.data]
-    except Exception:
-        pass  # Fall through to hardcoded fallback
+    except Exception as e:
+        print(f"[model_registry] get_models({role}) failed: {type(e).__name__}", file=sys.stderr)
 
     # Fallback to hardcoded
     return FALLBACK_MODELS.get(role, [])

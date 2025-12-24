@@ -2,11 +2,161 @@
 
 import httpx
 import json
+import asyncio
 import contextvars
+import time
 from typing import List, Dict, Any, Optional, AsyncGenerator
 from .config import OPENROUTER_API_KEY, OPENROUTER_API_URL
 from .config import MOCK_LLM as _MOCK_LLM_INITIAL
 from .config import ENABLE_PROMPT_CACHING, CACHE_SUPPORTED_MODELS
+
+
+# =============================================================================
+# CIRCUIT BREAKER IMPLEMENTATION
+# =============================================================================
+# Prevents cascading failures when OpenRouter is down by failing fast
+# after a threshold of failures, then gradually recovering.
+
+class CircuitBreaker:
+    """
+    Circuit breaker pattern for OpenRouter API resilience.
+
+    States:
+    - CLOSED: Normal operation, requests go through
+    - OPEN: Too many failures, requests fail immediately
+    - HALF_OPEN: Testing if service recovered, limited requests allowed
+    """
+
+    CLOSED = "closed"
+    OPEN = "open"
+    HALF_OPEN = "half_open"
+
+    def __init__(
+        self,
+        failure_threshold: int = 5,
+        recovery_timeout: float = 60.0,
+        half_open_max_calls: int = 3
+    ):
+        """
+        Initialize circuit breaker.
+
+        Args:
+            failure_threshold: Number of failures before opening circuit
+            recovery_timeout: Seconds to wait before attempting recovery
+            half_open_max_calls: Max calls allowed in half-open state
+        """
+        self.failure_threshold = failure_threshold
+        self.recovery_timeout = recovery_timeout
+        self.half_open_max_calls = half_open_max_calls
+
+        self._state = self.CLOSED
+        self._failure_count = 0
+        self._last_failure_time: Optional[float] = None
+        self._half_open_calls = 0
+        self._lock = asyncio.Lock()
+
+    @property
+    def state(self) -> str:
+        """Get current circuit state."""
+        return self._state
+
+    @property
+    def is_open(self) -> bool:
+        """Check if circuit is open (blocking requests)."""
+        return self._state == self.OPEN
+
+    async def can_execute(self) -> bool:
+        """
+        Check if a request can be executed.
+
+        Returns:
+            True if request should proceed, False if circuit is open
+        """
+        async with self._lock:
+            if self._state == self.CLOSED:
+                return True
+
+            if self._state == self.OPEN:
+                # Check if recovery timeout has passed
+                if self._last_failure_time and \
+                   time.time() - self._last_failure_time >= self.recovery_timeout:
+                    # Transition to half-open
+                    self._state = self.HALF_OPEN
+                    self._half_open_calls = 0
+                    return True
+                return False
+
+            if self._state == self.HALF_OPEN:
+                # Allow limited calls in half-open state
+                if self._half_open_calls < self.half_open_max_calls:
+                    self._half_open_calls += 1
+                    return True
+                return False
+
+            return True
+
+    async def record_success(self) -> None:
+        """Record a successful request."""
+        async with self._lock:
+            if self._state == self.HALF_OPEN:
+                # Success in half-open means service recovered
+                self._state = self.CLOSED
+                self._failure_count = 0
+                self._half_open_calls = 0
+            elif self._state == self.CLOSED:
+                # Reset failure count on success
+                self._failure_count = 0
+
+    async def record_failure(self) -> None:
+        """Record a failed request."""
+        async with self._lock:
+            self._failure_count += 1
+            self._last_failure_time = time.time()
+
+            if self._state == self.HALF_OPEN:
+                # Failure in half-open means service still down
+                self._state = self.OPEN
+                self._half_open_calls = 0
+            elif self._state == self.CLOSED:
+                if self._failure_count >= self.failure_threshold:
+                    self._state = self.OPEN
+
+    def get_status(self) -> Dict[str, Any]:
+        """Get circuit breaker status for monitoring."""
+        return {
+            "state": self._state,
+            "failure_count": self._failure_count,
+            "failure_threshold": self.failure_threshold,
+            "recovery_timeout": self.recovery_timeout,
+            "last_failure": self._last_failure_time,
+            "seconds_until_recovery": max(
+                0,
+                self.recovery_timeout - (time.time() - (self._last_failure_time or 0))
+            ) if self._last_failure_time else None
+        }
+
+
+# Global circuit breaker instance for OpenRouter
+_circuit_breaker = CircuitBreaker(
+    failure_threshold=5,      # Open after 5 consecutive failures
+    recovery_timeout=60.0,    # Wait 60s before trying again
+    half_open_max_calls=3     # Allow 3 test calls in half-open
+)
+
+
+class CircuitBreakerOpen(Exception):
+    """Raised when circuit breaker is open and blocking requests."""
+    def __init__(self, recovery_seconds: float):
+        self.recovery_seconds = recovery_seconds
+        super().__init__(
+            f"OpenRouter circuit breaker is open. "
+            f"Service appears unavailable. Retry in {recovery_seconds:.0f}s."
+        )
+
+
+def get_circuit_breaker_status() -> Dict[str, Any]:
+    """Get the current circuit breaker status for monitoring/health checks."""
+    return _circuit_breaker.get_status()
 
 # Context variable for per-request API key override (BYOK)
 # This allows setting the API key at the request level without threading it through all functions
@@ -62,9 +212,15 @@ def get_http_client(timeout: float = 120.0) -> httpx.AsyncClient:
     global _http_client
     if _http_client is None or _http_client.is_closed:
         # Create client with generous connection limits and timeouts
+        # Increased from 20 to 100 to support 20 concurrent council queries
+        # (each council query uses 5 models in parallel)
         _http_client = httpx.AsyncClient(
             timeout=httpx.Timeout(timeout, connect=30.0),  # 30s connect timeout
-            limits=httpx.Limits(max_connections=20, max_keepalive_connections=10),
+            limits=httpx.Limits(
+                max_connections=100,           # Support 20 concurrent councils
+                max_keepalive_connections=50,  # Keep 50 warm connections
+                keepalive_expiry=30.0          # Prevent stale connections
+            ),
             http2=True  # Enable HTTP/2 for better multiplexing
         )
     return _http_client
@@ -169,10 +325,18 @@ async def query_model(
 
     Returns:
         Response dict with 'content' and optional 'reasoning_details', or None if failed
+
+    Raises:
+        CircuitBreakerOpen: If circuit breaker is open due to repeated failures
     """
     # === MOCK MODE INTERCEPT ===
     if MOCK_LLM:
         return await generate_mock_response(model, messages)
+
+    # === CIRCUIT BREAKER CHECK ===
+    if not await _circuit_breaker.can_execute():
+        status = _circuit_breaker.get_status()
+        raise CircuitBreakerOpen(status.get("seconds_until_recovery", 60))
 
     # === REAL API CALL ===
     # Use provided API key, context variable, or fall back to system key
@@ -204,14 +368,26 @@ async def query_model(
         data = response.json()
         message = data['choices'][0]['message']
 
+        # Record success with circuit breaker
+        await _circuit_breaker.record_success()
+
         return {
             'content': message.get('content'),
             'reasoning_details': message.get('reasoning_details')
         }
 
     except httpx.TimeoutException:
+        await _circuit_breaker.record_failure()
         return None
-    except httpx.HTTPStatusError:
+    except httpx.HTTPStatusError as e:
+        # Only count 5xx errors as failures (server issues)
+        # 4xx errors are client issues, not service failures
+        if e.response.status_code >= 500:
+            await _circuit_breaker.record_failure()
+        return None
+    except (httpx.ConnectError, httpx.ReadError, httpx.RemoteProtocolError):
+        # Connection errors indicate service issues
+        await _circuit_breaker.record_failure()
         return None
     except Exception:
         return None
@@ -243,9 +419,14 @@ async def query_model_stream(
             yield chunk
         return
 
-    # === REAL API CALL ===
-    import asyncio
+    # === CIRCUIT BREAKER CHECK ===
+    if not await _circuit_breaker.can_execute():
+        status = _circuit_breaker.get_status()
+        recovery_secs = status.get("seconds_until_recovery", 60)
+        yield f"[Error: AI Council temporarily unavailable. Please retry in {recovery_secs:.0f}s]"
+        return
 
+    # === REAL API CALL ===
     # Use provided API key, context variable, or fall back to system key
     effective_key = get_effective_api_key(api_key)
     headers = {
@@ -265,6 +446,7 @@ async def query_model_stream(
 
     retries = 0
     should_retry = False
+    stream_succeeded = False
 
     # Use the shared HTTP client for connection pooling
     client = get_http_client(timeout)
@@ -280,6 +462,9 @@ async def query_model_stream(
             ) as response:
                 # Check for HTTP errors BEFORE reading stream - this lets us capture error body
                 if response.status_code >= 400:
+                    # Record failure for 5xx errors
+                    if response.status_code >= 500:
+                        await _circuit_breaker.record_failure()
                     yield f"[Error: Status {response.status_code}]"
                     return
 
@@ -291,7 +476,9 @@ async def query_model_stream(
                     if line.startswith("data: "):
                         data_str = line[6:]  # Remove "data: " prefix
                         if data_str.strip() == "[DONE]":
-                            return  # Successfully completed
+                            # Successfully completed - record success
+                            await _circuit_breaker.record_success()
+                            return
                         try:
                             data = json.loads(data_str)
 
@@ -344,9 +531,12 @@ async def query_model_stream(
                     return  # Done, exit the retry loop
 
         except httpx.TimeoutException:
+            await _circuit_breaker.record_failure()
             yield f"[Error: Timeout after {timeout}s]"
             return
         except httpx.HTTPStatusError as e:
+            if e.response.status_code >= 500:
+                await _circuit_breaker.record_failure()
             yield f"[Error: Status {e.response.status_code}]"
             return
         except (httpx.ConnectError, httpx.ReadError, httpx.RemoteProtocolError):
@@ -355,6 +545,8 @@ async def query_model_stream(
                 await asyncio.sleep(2)  # Wait before retry
                 retries += 1
                 continue  # Retry the loop
+            # Final retry failed - record failure
+            await _circuit_breaker.record_failure()
             yield "[Error: Connection failed]"
             return
         except Exception:
