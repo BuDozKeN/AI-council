@@ -72,8 +72,9 @@
 }
 
 /* Ensure the portal wrapper has correct z-index for modal context */
-[data-radix-popper-content-wrapper]:has(.project-select-content) {
-  z-index: var(--z-modal-dropdown) !important;
+/* Use higher specificity with attribute selector */
+[data-radix-popper-content-wrapper][data-radix-popper-content-wrapper]:has(.project-select-content) {
+  z-index: var(--z-modal-dropdown);
 }
 
 /* Animation keyframes */
