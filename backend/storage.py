@@ -149,32 +149,65 @@ def create_conversation(conversation_id: str, user_id: str, access_token: Option
     }
 
 
-def get_conversation(conversation_id: str, access_token: Optional[str] = None) -> Optional[Dict[str, Any]]:
+def get_conversation(
+    conversation_id: str,
+    access_token: Optional[str] = None,
+    message_limit: int = 200
+) -> Optional[Dict[str, Any]]:
     """
     Load a conversation from storage.
 
     Args:
         conversation_id: Unique identifier for the conversation
         access_token: User's JWT access token for RLS authentication
+        message_limit: Maximum number of messages to return (default 200, max 1000)
+                      Set to 0 for unlimited (use with caution).
 
     Returns:
-        Conversation dict or None if not found
+        Conversation dict or None if not found.
+        Includes 'message_count' for total messages and 'messages_truncated' if limited.
     """
     supabase = _get_client(access_token)
 
-    # Single query with embedded messages - much faster than 2 separate queries
-    conv_result = supabase.table('conversations').select(
-        '*, messages(*)'
-    ).eq('id', conversation_id).execute()
+    # Enforce message limit to prevent memory issues
+    if message_limit > 0:
+        message_limit = min(message_limit, 1000)  # Hard cap at 1000 messages
+
+    # First get conversation metadata
+    conv_result = supabase.table('conversations').select('*').eq('id', conversation_id).execute()
 
     if not conv_result.data:
         return None
 
     conv = conv_result.data[0]
 
-    # Sort messages by created_at (Supabase returns them unsorted in embedded queries)
-    raw_messages = conv.get('messages', [])
-    raw_messages.sort(key=lambda m: m.get('created_at', ''))
+    # Get messages separately with limit and order
+    # This prevents unbounded queries on conversations with thousands of messages
+    messages_query = supabase.table('messages').select('*').eq(
+        'conversation_id', conversation_id
+    ).order('created_at', desc=False)  # Oldest first
+
+    if message_limit > 0:
+        # Get total count for pagination info
+        count_result = supabase.table('messages').select(
+            'id', count='exact'
+        ).eq('conversation_id', conversation_id).execute()
+        total_messages = count_result.count if hasattr(count_result, 'count') else len(count_result.data or [])
+
+        # For limit, we want the MOST RECENT messages, so order desc and take limit, then reverse
+        messages_result = supabase.table('messages').select('*').eq(
+            'conversation_id', conversation_id
+        ).order('created_at', desc=True).limit(message_limit).execute()
+
+        raw_messages = messages_result.data or []
+        # Reverse to get chronological order (oldest first)
+        raw_messages.reverse()
+        messages_truncated = total_messages > message_limit
+    else:
+        messages_result = messages_query.execute()
+        raw_messages = messages_result.data or []
+        total_messages = len(raw_messages)
+        messages_truncated = False
 
     messages = []
     for msg in raw_messages:
@@ -197,7 +230,7 @@ def get_conversation(conversation_id: str, access_token: Optional[str] = None) -
                 message['aggregate_rankings'] = msg['aggregate_rankings']
             messages.append(message)
 
-    return {
+    result = {
         "id": conv['id'],
         "created_at": conv['created_at'],
         "last_updated": conv['updated_at'],
@@ -205,8 +238,16 @@ def get_conversation(conversation_id: str, access_token: Optional[str] = None) -
         "archived": conv.get('archived', False),
         "messages": messages,
         "curator_history": conv.get('curator_history') or [],
-        "user_id": conv.get('user_id')
+        "user_id": conv.get('user_id'),
+        "message_count": total_messages,
     }
+
+    # Only include truncation info if messages were limited
+    if messages_truncated:
+        result["messages_truncated"] = True
+        result["messages_shown"] = len(messages)
+
+    return result
 
 
 def save_conversation(conversation: Dict[str, Any], access_token: Optional[str] = None):
@@ -543,7 +584,8 @@ def get_project(project_id: str, access_token: str) -> Optional[Dict[str, Any]]:
             .limit(1)\
             .execute()
         return result.data[0] if result.data else None
-    except Exception:
+    except Exception as e:
+        log_app_event("PROJECT", f"get_project_by_id failed: {type(e).__name__}", resource_id=project_id, level="ERROR")
         return None
 
 
@@ -648,7 +690,8 @@ def get_project_context(project_id: str, access_token: str) -> Optional[str]:
             .limit(1)\
             .execute()
         return result.data[0].get("context_md") if result.data else None
-    except Exception:
+    except Exception as e:
+        log_app_event("PROJECT", f"get_project_context failed: {type(e).__name__}", resource_id=project_id, level="ERROR")
         return None
 
 
@@ -729,7 +772,8 @@ def touch_project_last_accessed(project_id: str, access_token: str) -> bool:
             .eq("id", project_id)\
             .execute()
         return True
-    except Exception:
+    except Exception as e:
+        log_app_event("PROJECT", f"touch_project_access failed: {type(e).__name__}", resource_id=project_id, level="ERROR")
         return False
 
 
@@ -764,7 +808,8 @@ def delete_project(project_id: str, access_token: str) -> Optional[dict]:
             return None  # RLS may be blocking delete
 
         return project_data
-    except Exception:
+    except Exception as e:
+        log_app_event("PROJECT", f"delete_project failed: {type(e).__name__}", resource_id=project_id, level="ERROR")
         return None
 
 

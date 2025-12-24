@@ -2,11 +2,67 @@
 
 import os
 import time
+import asyncio
 import threading
 from pathlib import Path
 from supabase import create_client, Client
 from dotenv import load_dotenv
-from typing import Optional, Dict, Tuple
+from typing import Optional, Dict, Tuple, TypeVar, Callable, Any
+
+T = TypeVar('T')
+
+# =============================================================================
+# DATABASE QUERY TIMEOUT
+# =============================================================================
+# Default timeout for database queries to prevent hung connections
+DEFAULT_DB_TIMEOUT = 10.0  # 10 seconds
+
+
+class DatabaseTimeoutError(Exception):
+    """Raised when a database query exceeds the timeout."""
+    def __init__(self, timeout: float, operation: str = "query"):
+        self.timeout = timeout
+        self.operation = operation
+        super().__init__(
+            f"Database {operation} timed out after {timeout}s. "
+            f"The database may be overloaded or the query is too complex."
+        )
+
+
+async def with_timeout(
+    coro_or_func: Callable[[], T],
+    timeout: float = DEFAULT_DB_TIMEOUT,
+    operation: str = "query"
+) -> T:
+    """
+    Execute a database operation with a timeout.
+
+    Args:
+        coro_or_func: Coroutine or sync function to execute
+        timeout: Timeout in seconds (default: 10s)
+        operation: Description of the operation for error messages
+
+    Returns:
+        Result of the operation
+
+    Raises:
+        DatabaseTimeoutError: If the operation exceeds the timeout
+    """
+    try:
+        # Check if it's a coroutine
+        if asyncio.iscoroutine(coro_or_func):
+            return await asyncio.wait_for(coro_or_func, timeout=timeout)
+        elif asyncio.iscoroutinefunction(coro_or_func):
+            return await asyncio.wait_for(coro_or_func(), timeout=timeout)
+        else:
+            # Sync function - run in executor with timeout
+            loop = asyncio.get_event_loop()
+            return await asyncio.wait_for(
+                loop.run_in_executor(None, coro_or_func),
+                timeout=timeout
+            )
+    except asyncio.TimeoutError:
+        raise DatabaseTimeoutError(timeout, operation)
 
 # Load .env from current dir or parent dir
 env_path = Path(__file__).resolve().parent.parent / '.env'

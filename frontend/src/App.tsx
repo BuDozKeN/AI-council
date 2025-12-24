@@ -897,17 +897,19 @@ function App() {
 
           case 'title_complete':
             // Title updated - update both sidebar and current conversation
-            if (event.title) {
+            // Backend sends: { type: 'title_complete', data: { title: '...' } }
+            const newTitle = event.data?.title;
+            if (newTitle) {
               // Update sidebar list
               setConversations((prev) =>
                 prev.map((conv) =>
-                  conv.id === conversationId ? { ...conv, title: event.title } : conv
+                  conv.id === conversationId ? { ...conv, title: newTitle } : conv
                 )
               );
               // Update current conversation so header shows AI-generated title
               setCurrentConversation((prev) => {
                 if (!prev || prev.id !== conversationId) return prev;
-                return { ...prev, title: event.title };
+                return { ...prev, title: newTitle };
               });
             }
             break;

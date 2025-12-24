@@ -3,10 +3,12 @@ User Settings API Router
 
 Endpoints for managing user preferences and BYOK (Bring Your Own Key):
 - OpenRouter API key management (encrypted storage)
+- Key rotation and expiry management
 - Council mode preferences (quick vs full_council)
 """
 
-from fastapi import APIRouter, Depends, HTTPException
+from datetime import datetime, timedelta, timezone
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from typing import Optional
 import httpx
@@ -15,6 +17,7 @@ from ..auth import get_current_user
 from ..database import get_supabase_with_auth
 from ..security import log_app_event
 from ..utils.encryption import encrypt_api_key, decrypt_api_key, get_key_suffix, mask_api_key
+from ..byok import KEY_EXPIRY_DAYS, log_api_key_event, get_key_expiry_info
 
 
 router = APIRouter(prefix="/api/settings", tags=["settings"])
@@ -31,10 +34,13 @@ class OpenRouterKeyRequest(BaseModel):
 
 class OpenRouterKeyResponse(BaseModel):
     """Response after saving/retrieving API key status."""
-    status: str  # "connected" | "not_connected" | "invalid" | "disabled"
+    status: str  # "connected" | "not_connected" | "invalid" | "disabled" | "expired"
     masked_key: Optional[str] = None  # e.g., "sk-or-v1-••••••••1234"
     is_valid: bool = False
     is_active: bool = True  # User toggle to temporarily disable
+    expires_at: Optional[str] = None  # ISO format expiry date
+    days_remaining: Optional[int] = None  # Days until expiry
+    rotation_count: int = 0  # Number of times key was rotated
 
 
 class UserSettingsResponse(BaseModel):
@@ -96,13 +102,14 @@ async def get_openrouter_key_status(
     """
     Get the status of the user's OpenRouter API key.
     Returns masked key if connected, or not_connected status.
+    Includes expiry information.
     """
     db = get_supabase_with_auth(current_user["access_token"])
 
     try:
         # Use maybe_single() to avoid exception when no row found
         result = db.table("user_api_keys").select(
-            "encrypted_key, key_suffix, is_valid, is_active"
+            "encrypted_key, key_suffix, is_valid, is_active, expires_at, revoked_at, rotation_count"
         ).eq("user_id", current_user["id"]).maybe_single().execute()
     except Exception:
         return OpenRouterKeyResponse(
@@ -118,6 +125,14 @@ async def get_openrouter_key_status(
             is_active=True
         )
 
+    # Check if revoked
+    if result.data.get("revoked_at"):
+        return OpenRouterKeyResponse(
+            status="not_connected",
+            is_valid=False,
+            is_active=False
+        )
+
     # Decrypt to get the full key for masking (we stored suffix too)
     # SECURITY: Use per-user derived key for decryption
     try:
@@ -129,8 +144,23 @@ async def get_openrouter_key_status(
     is_active = result.data.get("is_active", True)
     is_valid = result.data["is_valid"]
 
-    # Determine status based on is_active and is_valid
-    if not is_active:
+    # Calculate days remaining
+    expires_at = result.data.get("expires_at")
+    days_remaining = None
+    is_expired = False
+    if expires_at:
+        try:
+            exp_dt = datetime.fromisoformat(expires_at.replace('Z', '+00:00'))
+            delta = exp_dt - datetime.now(timezone.utc)
+            days_remaining = max(0, delta.days)
+            is_expired = delta.total_seconds() < 0
+        except ValueError:
+            pass
+
+    # Determine status based on expiry, is_active and is_valid
+    if is_expired:
+        status = "expired"
+    elif not is_active:
         status = "disabled"
     elif is_valid:
         status = "connected"
@@ -140,19 +170,24 @@ async def get_openrouter_key_status(
     return OpenRouterKeyResponse(
         status=status,
         masked_key=masked,
-        is_valid=is_valid,
-        is_active=is_active
+        is_valid=is_valid and not is_expired,
+        is_active=is_active,
+        expires_at=expires_at,
+        days_remaining=days_remaining,
+        rotation_count=result.data.get("rotation_count", 0)
     )
 
 
 @router.post("/openrouter-key")
 async def save_openrouter_key(
     request: OpenRouterKeyRequest,
+    http_request: Request,
     current_user=Depends(get_current_user)
 ) -> OpenRouterKeyResponse:
     """
     Save or update the user's OpenRouter API key.
     Validates the key before saving.
+    Sets expiry to 90 days from now.
     """
     key = request.key.strip()
 
@@ -169,6 +204,13 @@ async def save_openrouter_key(
     # Validate with OpenRouter
     is_valid = await validate_openrouter_key(key)
     if not is_valid:
+        log_api_key_event(
+            current_user["id"],
+            "validation_failed",
+            ip_address=http_request.client.host if http_request.client else None,
+            user_agent=http_request.headers.get("user-agent"),
+            metadata={"reason": "OpenRouter validation failed"}
+        )
         raise HTTPException(
             status_code=400,
             detail="Invalid OpenRouter API key. Please check it's copied correctly and has credits."
@@ -179,6 +221,9 @@ async def save_openrouter_key(
     encrypted = encrypt_api_key(key, user_id=current_user["id"])
     suffix = get_key_suffix(key)
 
+    # Calculate expiry date (90 days from now)
+    expires_at = datetime.now(timezone.utc) + timedelta(days=KEY_EXPIRY_DAYS)
+
     db = get_supabase_with_auth(current_user["access_token"])
 
     # Upsert (insert or update)
@@ -187,6 +232,9 @@ async def save_openrouter_key(
         "encrypted_key": encrypted,
         "key_suffix": suffix,
         "is_valid": True,
+        "is_active": True,
+        "expires_at": expires_at.isoformat(),
+        "revoked_at": None,  # Clear any previous revocation
         "last_validated_at": "now()"
     }, on_conflict="user_id").execute()
 
@@ -196,10 +244,23 @@ async def save_openrouter_key(
         details={"key_suffix": suffix}
     )
 
+    # Audit log
+    log_api_key_event(
+        current_user["id"],
+        "created",
+        ip_address=http_request.client.host if http_request.client else None,
+        user_agent=http_request.headers.get("user-agent"),
+        metadata={"key_suffix": suffix, "expires_at": expires_at.isoformat()}
+    )
+
     return OpenRouterKeyResponse(
         status="connected",
         masked_key=mask_api_key(key),
-        is_valid=True
+        is_valid=True,
+        is_active=True,
+        expires_at=expires_at.isoformat(),
+        days_remaining=KEY_EXPIRY_DAYS,
+        rotation_count=0
     )
 
 
@@ -339,6 +400,143 @@ async def toggle_openrouter_key(
         is_valid=is_valid,
         is_active=new_is_active
     )
+
+
+@router.post("/openrouter-key/rotate")
+async def rotate_openrouter_key(
+    request: OpenRouterKeyRequest,
+    http_request: Request,
+    current_user=Depends(get_current_user)
+) -> OpenRouterKeyResponse:
+    """
+    Rotate the user's OpenRouter API key.
+    Revokes the old key and saves the new one with fresh 90-day expiry.
+    Increments rotation_count for audit purposes.
+    """
+    key = request.key.strip()
+
+    # Basic format validation
+    if not key:
+        raise HTTPException(status_code=400, detail="API key cannot be empty")
+
+    if not key.startswith("sk-or-"):
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid key format. OpenRouter keys start with 'sk-or-'"
+        )
+
+    db = get_supabase_with_auth(current_user["access_token"])
+
+    # Get current key info for rotation_count
+    try:
+        current_key = db.table("user_api_keys").select(
+            "rotation_count, key_suffix"
+        ).eq("user_id", current_user["id"]).maybe_single().execute()
+    except Exception:
+        current_key = type('obj', (object,), {'data': None})()
+
+    current_rotation_count = 0
+    old_suffix = None
+    if current_key.data:
+        current_rotation_count = current_key.data.get("rotation_count", 0)
+        old_suffix = current_key.data.get("key_suffix")
+
+    # Validate new key with OpenRouter
+    is_valid = await validate_openrouter_key(key)
+    if not is_valid:
+        log_api_key_event(
+            current_user["id"],
+            "validation_failed",
+            ip_address=http_request.client.host if http_request.client else None,
+            user_agent=http_request.headers.get("user-agent"),
+            metadata={"reason": "OpenRouter validation failed during rotation"}
+        )
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid OpenRouter API key. Please check it's copied correctly and has credits."
+        )
+
+    # Encrypt new key
+    encrypted = encrypt_api_key(key, user_id=current_user["id"])
+    suffix = get_key_suffix(key)
+
+    # Calculate new expiry date (90 days from now)
+    expires_at = datetime.now(timezone.utc) + timedelta(days=KEY_EXPIRY_DAYS)
+    new_rotation_count = current_rotation_count + 1
+
+    # Update with new key, increment rotation count, reset expiry
+    db.table("user_api_keys").upsert({
+        "user_id": current_user["id"],
+        "encrypted_key": encrypted,
+        "key_suffix": suffix,
+        "is_valid": True,
+        "is_active": True,
+        "expires_at": expires_at.isoformat(),
+        "revoked_at": None,
+        "rotation_count": new_rotation_count,
+        "last_validated_at": "now()"
+    }, on_conflict="user_id").execute()
+
+    log_app_event(
+        "BYOK_KEY_ROTATED",
+        user_id=current_user["id"],
+        details={
+            "old_suffix": old_suffix,
+            "new_suffix": suffix,
+            "rotation_count": new_rotation_count
+        }
+    )
+
+    # Audit log
+    log_api_key_event(
+        current_user["id"],
+        "rotated",
+        ip_address=http_request.client.host if http_request.client else None,
+        user_agent=http_request.headers.get("user-agent"),
+        metadata={
+            "old_suffix": old_suffix,
+            "new_suffix": suffix,
+            "rotation_count": new_rotation_count,
+            "expires_at": expires_at.isoformat()
+        }
+    )
+
+    return OpenRouterKeyResponse(
+        status="connected",
+        masked_key=mask_api_key(key),
+        is_valid=True,
+        is_active=True,
+        expires_at=expires_at.isoformat(),
+        days_remaining=KEY_EXPIRY_DAYS,
+        rotation_count=new_rotation_count
+    )
+
+
+@router.get("/openrouter-key/expiry")
+async def get_openrouter_key_expiry(
+    current_user=Depends(get_current_user)
+):
+    """
+    Get detailed expiry information for the user's API key.
+    Useful for showing warnings when key is about to expire.
+    """
+    expiry_info = await get_key_expiry_info(current_user["id"])
+
+    if not expiry_info:
+        raise HTTPException(status_code=404, detail="No API key configured")
+
+    return {
+        "expires_at": expiry_info["expires_at"],
+        "days_remaining": expiry_info["days_remaining"],
+        "is_expired": expiry_info["is_expired"],
+        "is_revoked": expiry_info["is_revoked"],
+        "last_used_at": expiry_info["last_used_at"],
+        "rotation_count": expiry_info["rotation_count"],
+        "should_rotate": (
+            expiry_info["days_remaining"] is not None and
+            expiry_info["days_remaining"] <= 14  # Warn 2 weeks before expiry
+        )
+    }
 
 
 @router.get("")
