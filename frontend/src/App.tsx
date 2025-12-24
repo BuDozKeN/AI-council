@@ -417,13 +417,10 @@ function App() {
     return <DeliberationDemo />;
   }
 
-  // Show loading while checking auth
+  // Show blank screen while checking auth (auth is fast, avoids flicker)
+  // Use bg-secondary to match landing page background
   if (authLoading) {
-    return (
-      <div className="app" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p>Loading...</p>
-      </div>
-    );
+    return <div className="app" style={{ background: 'var(--color-bg-secondary)' }} />;
   }
 
   // Show login if not authenticated OR if user needs to reset password
