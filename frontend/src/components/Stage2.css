@@ -240,8 +240,8 @@
 }
 
 .stage2 .tab .tab-status-badge.complete {
-  background: #16a34a; /* Match Stage 1 green */
-  color: white;
+  background: var(--color-success);
+  color: var(--color-text-inverse);
   animation: badge-pop 0.3s ease-out;
 }
 
@@ -252,12 +252,12 @@
 }
 
 .stage2 .tab .tab-status-badge.error {
-  background: #dc2626; /* Red for errors - clear visual distinction */
-  color: white;
+  background: var(--color-error);
+  color: var(--color-text-inverse);
 }
 
 .stage2 .tab .tab-status-badge.streaming {
-  background: #3b82f6; /* Match Stage 1 blue */
+  background: var(--color-primary);
 }
 
 .stage2 .tab .tab-status-ping {
@@ -535,8 +535,8 @@
 }
 
 .stage2 .tab.error {
-  border-color: #dc2626;
-  color: #991b1b;
+  border-color: var(--color-error);
+  color: var(--color-error-hover);
 }
 
 .stage2 .tab.streaming {
@@ -566,8 +566,8 @@
   display: inline-block;
   margin-left: 8px;
   padding: 2px 6px;
-  background: #fef2f2;
-  color: #dc2626;
+  background: var(--color-error-subtle);
+  color: var(--color-error);
   border-radius: var(--radius-sm);
   font-size: 10px;
   font-weight: 600;
