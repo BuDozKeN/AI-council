@@ -16,7 +16,7 @@ import {
 } from './mycompany/MyCompanyModals';
 
 import { ActivityTab, OverviewTab, TeamTab, PlaybooksTab, ProjectsTab, DecisionsTab } from './mycompany/tabs';
-import './MyCompany.css';
+import './mycompany/styles/index.css';
 import { logger } from '../utils/logger';
 
 // Import hooks
