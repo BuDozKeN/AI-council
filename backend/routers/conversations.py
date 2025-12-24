@@ -23,7 +23,6 @@ from .. import billing
 from .. import leaderboard
 from .. import attachments
 from .. import image_analyzer
-from ..config import config
 from ..council import (
     stage1_stream_responses,
     stage2_stream_rankings,

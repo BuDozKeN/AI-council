@@ -17,7 +17,6 @@ import json
 from ..auth import get_current_user
 from .. import storage
 from .. import knowledge
-from ..config import config
 from ..security import SecureHTTPException
 from ..model_registry import model_registry
 

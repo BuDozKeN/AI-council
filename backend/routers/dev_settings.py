@@ -11,7 +11,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from ..auth import get_current_user
-from ..config import config
+from .. import config
 
 
 router = APIRouter(prefix="/api/settings", tags=["dev-settings"])

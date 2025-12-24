@@ -18,7 +18,6 @@ import json
 
 from ..auth import get_current_user
 from .. import storage
-from ..config import config
 from ..security import SecureHTTPException, log_app_event
 from ..model_registry import model_registry
 
