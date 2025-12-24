@@ -5,6 +5,7 @@
  */
 
 import { AppModal } from '../../ui/AppModal';
+import { Button } from '../../ui/button';
 import { Spinner } from '../../ui/Spinner';
 
 export function ConfirmModal({
@@ -56,17 +57,17 @@ export function ConfirmModal({
       </div>
       <p className="mc-confirm-message">{message}</p>
       <AppModal.Footer>
-        <button
+        <Button
           type="button"
-          className="app-modal-btn app-modal-btn-secondary"
+          variant="outline"
           onClick={onCancel}
           disabled={processing}
         >
           {cancelText}
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
-          className={`app-modal-btn ${buttonClass === 'danger' ? 'app-modal-btn-danger-sm' : buttonClass === 'warning' ? 'app-modal-btn-primary' : 'app-modal-btn-primary'}`}
+          variant={buttonClass === 'danger' ? 'destructive' : 'default'}
           onClick={onConfirm}
           disabled={processing}
         >
@@ -78,7 +79,7 @@ export function ConfirmModal({
           ) : (
             confirmText
           )}
-        </button>
+        </Button>
       </AppModal.Footer>
     </AppModal>
   );

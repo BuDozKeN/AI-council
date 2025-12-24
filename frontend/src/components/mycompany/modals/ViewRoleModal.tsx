@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { AppModal } from '../../ui/AppModal';
+import { Button } from '../../ui/button';
 import { AIWriteAssist } from '../../ui/AIWriteAssist';
 import { FloatingContextActions } from '../../ui/FloatingContextActions';
 import MarkdownViewer from '../../MarkdownViewer';
@@ -83,24 +84,24 @@ export function ViewRoleModal({ role, onClose, onSave }) {
       <AppModal.Footer>
         {isEditing ? (
           <>
-            <button className="app-modal-btn app-modal-btn-secondary" onClick={handleCancelEdit} disabled={saving}>
+            <Button variant="outline" onClick={handleCancelEdit} disabled={saving}>
               Cancel
-            </button>
-            <button className="app-modal-btn app-modal-btn-primary" onClick={handleSave} disabled={saving}>
+            </Button>
+            <Button variant="default" onClick={handleSave} disabled={saving}>
               {saving ? 'Saving...' : 'Save Changes'}
-            </button>
+            </Button>
           </>
         ) : (
           <>
             {onSave && (
-              <button className="app-modal-btn app-modal-btn-secondary" onClick={() => setIsEditing(true)}>
-                <svg viewBox="0 0 20 20" fill="currentColor">
+              <Button variant="outline" onClick={() => setIsEditing(true)}>
+                <svg viewBox="0 0 20 20" fill="currentColor" className="size-4">
                   <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                 </svg>
                 Edit
-              </button>
+              </Button>
             )}
-            <button className="app-modal-btn app-modal-btn-primary" onClick={onClose}>Done</button>
+            <Button variant="default" onClick={onClose}>Done</Button>
           </>
         )}
       </AppModal.Footer>

@@ -1,4 +1,5 @@
 import { Skeleton } from '../ui/Skeleton';
+import { Button } from '../ui/button';
 import { useProfile } from './hooks/useProfile';
 
 const ProfileSkeleton = () => (
@@ -125,9 +126,9 @@ export function ProfileSection({ user, isOpen }) {
             </div>
 
             <div className="form-actions">
-              <button type="submit" className="btn-primary" disabled={isSaving}>
+              <Button type="submit" variant="default" disabled={isSaving}>
                 {isSaving ? 'Saving...' : 'Save Changes'}
-              </button>
+              </Button>
               {saveMessage.text && (
                 <span className={`save-message ${saveMessage.type}`}>
                   {saveMessage.text}

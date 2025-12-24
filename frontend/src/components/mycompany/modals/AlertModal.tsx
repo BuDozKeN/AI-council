@@ -5,6 +5,7 @@
  */
 
 import { AppModal } from '../../ui/AppModal';
+import { Button } from '../../ui/button';
 
 export function AlertModal({
   title,
@@ -42,13 +43,13 @@ export function AlertModal({
       </div>
       <p className="mc-alert-message">{message}</p>
       <AppModal.Footer>
-        <button
+        <Button
           type="button"
-          className={`app-modal-btn ${variant === 'error' ? 'app-modal-btn-danger-sm' : 'app-modal-btn-primary'}`}
+          variant={variant === 'error' ? 'destructive' : 'default'}
           onClick={onClose}
         >
           OK
-        </button>
+        </Button>
       </AppModal.Footer>
     </AppModal>
   );

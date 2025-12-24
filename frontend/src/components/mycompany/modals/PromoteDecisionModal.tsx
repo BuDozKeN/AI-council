@@ -7,6 +7,7 @@
 import { useState, useEffect } from 'react';
 import MarkdownViewer from '../../MarkdownViewer';
 import { AppModal } from '../../ui/AppModal';
+import { Button } from '../../ui/button';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { ProjectSelect } from '../../ui/ProjectSelect';
 import { Spinner } from '../../ui/Spinner';
@@ -250,10 +251,10 @@ export function PromoteDecisionModal({ decision, departments, projects = [], com
         </div>
 
         <AppModal.Footer>
-          <button type="button" className="app-modal-btn app-modal-btn-secondary" onClick={onClose} disabled={saving}>
+          <Button type="button" variant="outline" onClick={onClose} disabled={saving}>
             Cancel
-          </button>
-          <button type="submit" className="app-modal-btn app-modal-btn-primary" disabled={saving || !title.trim()}>
+          </Button>
+          <Button type="submit" variant="default" disabled={saving || !title.trim()}>
             {saving ? (
               <>
                 <Spinner size="sm" variant="muted" />
@@ -274,7 +275,7 @@ export function PromoteDecisionModal({ decision, departments, projects = [], com
                 )}
               </>
             )}
-          </button>
+          </Button>
         </AppModal.Footer>
       </form>
     </AppModal>

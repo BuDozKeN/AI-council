@@ -5,6 +5,7 @@
  */
 
 import { AppModal } from '../ui/AppModal';
+import { Button } from '../ui/button';
 
 export function DeleteModal({
   isOpen,
@@ -22,18 +23,12 @@ export function DeleteModal({
         This action cannot be undone. The conversation will be permanently deleted.
       </p>
       <AppModal.Footer>
-        <button
-          className="app-modal-btn app-modal-btn-secondary"
-          onClick={onClose}
-        >
+        <Button variant="outline" onClick={onClose}>
           Cancel
-        </button>
-        <button
-          className="app-modal-btn app-modal-btn-danger-sm"
-          onClick={onConfirm}
-        >
+        </Button>
+        <Button variant="destructive" onClick={onConfirm}>
           Delete
-        </button>
+        </Button>
       </AppModal.Footer>
     </AppModal>
   );

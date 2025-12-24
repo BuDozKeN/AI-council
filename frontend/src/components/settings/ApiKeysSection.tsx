@@ -1,6 +1,7 @@
 import { Zap, ChevronDown, CheckCircle, XCircle, ExternalLink, RefreshCw, HelpCircle, DollarSign, Lock, ArrowRight, MoreHorizontal, Edit3, Trash2 } from 'lucide-react';
 import { Skeleton } from '../ui/Skeleton';
 import { Spinner } from '../ui/Spinner';
+import { Button } from '../ui/button';
 import { Switch } from '../ui/switch';
 import * as Accordion from '@radix-ui/react-accordion';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
@@ -202,23 +203,23 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }) {
                     autoFocus
                   />
                   <div className="byok-replace-actions">
-                    <button
+                    <Button
                       type="button"
-                      className="btn-ghost"
+                      variant="ghost"
                       onClick={() => {
                         setShowReplaceKeyForm(false);
                         setApiKeyInput('');
                       }}
                     >
                       Cancel
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="submit"
-                      className="btn-primary"
+                      variant="default"
                       disabled={apiKeySaving || !apiKeyInput.trim()}
                     >
                       {apiKeySaving ? <Spinner size={14} /> : 'Save'}
-                    </button>
+                    </Button>
                   </div>
                 </form>
               </div>
@@ -349,13 +350,13 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }) {
                         Your key is encrypted and stored securely
                       </span>
                     </div>
-                    <button
+                    <Button
                       type="submit"
-                      className="btn-primary"
+                      variant="default"
                       disabled={apiKeySaving || !apiKeyInput.trim()}
                     >
                       {apiKeySaving ? <Spinner size={14} /> : <><ArrowRight size={14} /> Connect & Verify</>}
-                    </button>
+                    </Button>
                   </form>
                 </div>
               )}

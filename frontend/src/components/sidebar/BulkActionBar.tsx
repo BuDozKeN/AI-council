@@ -8,6 +8,7 @@
  */
 
 import { Trash2 } from 'lucide-react';
+import { Button } from '../ui/button';
 
 export function BulkActionBar({
   selectedCount,
@@ -30,22 +31,26 @@ export function BulkActionBar({
       >
         {selectedCount} conversation{selectedCount !== 1 ? 's' : ''} selected
       </span>
-      <button
-        className="bulk-cancel-btn"
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={onClearSelection}
         aria-label="Cancel selection"
+        className="bulk-cancel-btn"
       >
         Cancel
-      </button>
-      <button
-        className="bulk-delete-btn"
+      </Button>
+      <Button
+        variant="destructive"
+        size="sm"
         onClick={onBulkDelete}
         disabled={isDeleting}
         aria-label={isDeleting ? 'Deleting conversations' : `Delete ${selectedCount} conversation${selectedCount !== 1 ? 's' : ''}`}
+        className="bulk-delete-btn"
       >
         <Trash2 size={14} aria-hidden="true" />
         {isDeleting ? 'Deleting...' : 'Delete'}
-      </button>
+      </Button>
     </div>
   );
 }
