@@ -1,8 +1,559 @@
 /**
  * Overview Tab Styles
  * Statistics, company context, hero section
- *
- * TODO: Extract from MyCompany.css lines ~677-1002
  */
 
-/* Placeholder - styles currently in MyCompany.css */
+/* ============================================================================
+   OVERVIEW TAB - Statistics & Company Context
+   ============================================================================ */
+
+.mc-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Hero section - explains what this page is about */
+.mc-overview-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 24px;
+  background: linear-gradient(135deg, var(--color-yellow-50) 0%, var(--color-amber-100) 100%);
+  border: 1px solid var(--color-amber-200);
+  border-radius: var(--radius-lg);
+}
+
+.mc-overview-hero-content {
+  flex: 1;
+}
+
+.mc-overview-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-slate-900);
+  margin: 0 0 8px 0;
+  letter-spacing: -0.02em;
+}
+
+.mc-overview-description {
+  font-size: 0.9375rem;
+  color: var(--color-slate-500);
+  margin: 0;
+  line-height: 1.6;
+  max-width: 600px;
+}
+
+.mc-overview-meta {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+}
+
+.mc-meta-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.mc-meta-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-slate-400);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mc-meta-value {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-slate-900);
+}
+
+.mc-empty-context {
+  text-align: center;
+  padding: 40px 24px;
+  color: var(--color-slate-400);
+}
+
+.mc-empty-context .mc-empty-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-slate-500);
+  margin-bottom: 6px;
+}
+
+.mc-empty-context .mc-empty-hint {
+  font-size: 13px;
+  color: var(--color-slate-400);
+  max-width: 320px;
+  margin: 0 auto;
+}
+
+/* ============================================================================
+   STATS GRID
+   ============================================================================ */
+
+.mc-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.mc-stat-card {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-100);
+  border-radius: var(--radius-lg);
+  padding: 20px 16px;
+  text-align: center;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.mc-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-orange-500) 0%, var(--color-orange-400) 100%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.mc-stat-card:hover {
+  border-color: var(--color-slate-200);
+  box-shadow: var(--shadow-sm);
+}
+
+.mc-stat-card:hover::before {
+  opacity: 1;
+}
+
+.mc-stat-card.selected {
+  border-color: var(--color-blue-500);
+  background: var(--color-blue-50);
+}
+
+.mc-stat-card.selected::before {
+  opacity: 1;
+  background: linear-gradient(90deg, var(--color-blue-500) 0%, var(--color-blue-400) 100%);
+}
+
+.mc-stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-slate-900);
+  letter-spacing: -0.02em;
+}
+
+.mc-stat-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-slate-500);
+  margin-top: 4px;
+}
+
+/* ============================================================================
+   CONTEXT SECTION
+   ============================================================================ */
+
+.mc-context-section {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-100);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.mc-context-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: var(--color-bg-primary);
+}
+
+.mc-context-section h3 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-slate-800);
+  margin: 0;
+}
+
+.mc-context-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--color-slate-100);
+  background: var(--color-bg-primary);
+}
+
+.mc-context-section-header h3 {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-slate-500);
+  margin: 0;
+}
+
+.mc-expand-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-md);
+  color: var(--color-slate-500);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-expand-btn:hover {
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+  color: var(--color-slate-700);
+}
+
+.mc-expand-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Compact context section - no header, fills remaining space in Overview */
+.mc-context-section--compact {
+  position: relative;
+  border: none;
+  background: transparent;
+  /* CRITICAL: flex to fill remaining space in .mc-overview */
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mc-context-section--compact .mc-context-content {
+  position: relative;
+  border-top: none;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-slate-100);
+  background: var(--color-gray-50);
+  /* CRITICAL: flex to fill parent, overflow hidden forces child to scroll */
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ScrollableContent wrapper - fill the .mc-context-content */
+.mc-context-section--compact .mc-context-content .scrollable-content-wrapper {
+  flex: 1;
+  min-height: 0;
+}
+
+/* When using ScrollableContent wrapper, inner div handles scrolling and padding */
+.mc-context-section--compact .mc-context-content .scrollable-content-inner {
+  padding: 20px 24px;
+}
+
+/* Legacy: Scroll-to-top FAB for non-ScrollableContent usage */
+.mc-scroll-top-fab {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  border-radius: 50%;
+  color: var(--color-slate-400);
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  opacity: 0.7;
+  z-index: var(--z-elevated);
+}
+
+.mc-scroll-top-fab:hover {
+  opacity: 1;
+  color: var(--color-slate-600);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.mc-scroll-top-fab:active {
+  transform: scale(0.9);
+}
+
+.mc-context-content {
+  background: var(--color-gray-50);
+  border-top: 1px solid var(--color-slate-100);
+  padding: 20px 24px;
+  max-height: 55vh;
+  overflow-y: auto;
+}
+
+/* ============================================================================
+   TAB HEADERS - Consistent styling across all tabs
+   ============================================================================ */
+
+.mc-team-header,
+.mc-playbooks-header,
+.mc-decisions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-slate-100);
+}
+
+.mc-team-header span,
+.mc-playbooks-header span,
+.mc-decisions-header span {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-slate-500);
+}
+
+/* ============================================================================
+   DEPARTMENTS & ROLES (Team structure in Overview)
+   ============================================================================ */
+
+.mc-departments {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mc-dept {
+  background: var(--color-gray-50);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.mc-dept-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.mc-dept-header:hover {
+  background: var(--color-gray-100);
+}
+
+.mc-dept-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mc-dept-name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-gray-800);
+}
+
+.mc-dept-meta {
+  font-size: 0.75rem;
+  color: var(--color-gray-400);
+  background: var(--color-gray-200);
+  padding: 3px 10px;
+  border-radius: var(--radius-lg);
+}
+
+.mc-expand-icon {
+  font-size: 10px;
+  color: var(--color-gray-400);
+}
+
+.mc-dept-desc {
+  margin: 0;
+  padding: 0 18px 14px;
+  font-size: 0.875rem;
+  color: var(--color-gray-500);
+}
+
+/* Roles */
+.mc-roles {
+  border-top: 1px solid var(--color-gray-200);
+  padding: 14px 18px;
+  background: var(--color-bg-primary);
+}
+
+.mc-role {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--color-gray-50);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+}
+
+.mc-role:last-of-type {
+  margin-bottom: 0;
+}
+
+.mc-role-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mc-role-name {
+  font-weight: 500;
+  color: var(--color-gray-700);
+}
+
+.mc-role-title {
+  font-size: 0.75rem;
+  color: var(--color-gray-400);
+}
+
+.mc-no-items {
+  font-size: 0.875rem;
+  color: var(--color-gray-400);
+  font-style: italic;
+  margin: 8px 0;
+}
+
+.mc-add-btn {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px;
+  background: none;
+  border: 1px dashed var(--color-gray-300);
+  border-radius: var(--radius-md);
+  color: var(--color-gray-500);
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.mc-add-btn:hover {
+  border-color: var(--color-orange-500);
+  color: var(--color-orange-500);
+  background: var(--color-orange-50);
+}
+
+/* ============================================================================
+   SEARCH & FILTERS (shared across tabs)
+   ============================================================================ */
+
+.mc-decisions-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* Search input wrapper */
+.mc-search-input-wrapper {
+  position: relative;
+  flex: 1;
+  max-width: 320px;
+}
+
+.mc-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-slate-400);
+  pointer-events: none;
+  width: 16px;
+  height: 16px;
+}
+
+.mc-search-input {
+  width: 100%;
+  padding: 10px 36px 10px 38px;
+  font-size: 14px;
+  border: 1px solid var(--color-slate-200);
+  border-radius: 10px;
+  background: var(--color-bg-primary);
+  color: var(--color-slate-800);
+  transition: all 0.15s ease;
+}
+
+.mc-search-input::placeholder {
+  color: var(--color-slate-400);
+}
+
+.mc-search-input:focus {
+  outline: none;
+  border-color: var(--color-blue-400);
+  box-shadow: 0 0 0 3px var(--color-blue-100);
+}
+
+.mc-search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--color-slate-400);
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-search-clear:hover {
+  background: var(--color-slate-100);
+  color: var(--color-slate-600);
+}
+
+/* Department filter in decisions */
+.mc-dept-filter {
+  min-width: 180px;
+}
+
+/* Filter results count */
+.mc-filter-results {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--color-slate-500);
+  margin-bottom: 12px;
+}
+
+.mc-clear-filters {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-blue-600);
+  background: var(--color-blue-50);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-clear-filters:hover {
+  background: var(--color-blue-100);
+}

@@ -1,8 +1,516 @@
 /**
  * Decisions Tab Styles
- * Decision list, items, promote modal
- *
- * TODO: Extract from MyCompany.css lines ~1435-1665
+ * Decision list, items, badges, promote flow, view modal
  */
 
-/* Placeholder - styles currently in MyCompany.css */
+/* ============================================================================
+   DECISIONS TAB - List & Items
+   ============================================================================ */
+
+.mc-decision-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mc-decision-item {
+  padding: 16px;
+  background: var(--color-gray-50);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+}
+
+.mc-decision-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mc-decision-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mc-decision-title {
+  font-weight: 500;
+  color: var(--color-gray-700);
+}
+
+.mc-decision-date {
+  font-size: 0.75rem;
+  color: var(--color-gray-400);
+}
+
+/* Badges row for promoted decisions */
+.mc-decision-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+/* Promoted decision card styling */
+.mc-decision-item.promoted {
+  border-left: 3px solid var(--color-emerald-500);
+}
+
+/* ============================================================================
+   PROMOTED LABELS & BADGES
+   ============================================================================ */
+
+/* Green "Promoted" label with checkmark */
+.mc-promoted-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-emerald-700);
+  background: var(--color-emerald-100);
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+}
+
+.mc-promoted-label .icon {
+  font-size: 0.875rem;
+}
+
+/* Promoted info row in modal */
+.mc-promoted-info-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Pending promotion label */
+.mc-pending-label {
+  font-size: 0.8125rem;
+  color: var(--color-gray-500);
+  font-style: italic;
+}
+
+.mc-decision-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+/* ============================================================================
+   DECISION ACTIONS
+   ============================================================================ */
+
+.mc-decision-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-gray-200);
+}
+
+/* Icon-based action buttons for decisions */
+.mc-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  background: var(--color-gray-100);
+  color: var(--color-gray-600);
+}
+
+.mc-action-btn:hover {
+  background: var(--color-gray-200);
+}
+
+.mc-action-btn .icon {
+  font-size: 0.875rem;
+}
+
+/* View button - subtle gray */
+.mc-action-btn.view {
+  background: var(--color-gray-100);
+  color: var(--color-gray-600);
+  border-color: var(--color-gray-200);
+}
+
+.mc-action-btn.view:hover {
+  background: var(--color-gray-200);
+  color: var(--color-gray-700);
+}
+
+/* Promote button - orange accent */
+.mc-action-btn.promote {
+  background: var(--color-orange-50);
+  color: var(--color-orange-700);
+  border-color: var(--color-orange-200);
+}
+
+.mc-action-btn.promote:hover {
+  background: var(--color-orange-100);
+  border-color: var(--color-orange-300);
+}
+
+/* Archive button - subtle red */
+.mc-action-btn.archive {
+  background: var(--color-red-50);
+  color: var(--color-red-700);
+  border-color: var(--color-red-200);
+}
+
+.mc-action-btn.archive:hover {
+  background: var(--color-red-100);
+  border-color: var(--color-red-300);
+}
+
+/* Legacy text buttons - keep for backwards compatibility */
+.mc-text-btn {
+  background: none;
+  border: none;
+  font-size: 0.8125rem;
+  color: var(--color-indigo-500);
+  cursor: pointer;
+  padding: 0;
+}
+
+.mc-text-btn:hover {
+  text-decoration: underline;
+}
+
+.mc-text-btn.promote {
+  color: var(--color-orange-500);
+}
+
+.mc-text-btn.delete {
+  color: var(--color-red-600);
+}
+
+.mc-text-btn.delete:hover {
+  color: var(--color-red-700);
+}
+
+/* ============================================================================
+   PROMOTED BADGE VARIANTS
+   ============================================================================ */
+
+.mc-promoted-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: var(--color-emerald-100);
+  color: var(--color-emerald-700);
+  padding: 4px 10px;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Promoted type colors */
+.mc-promoted-badge.sop {
+  background: var(--color-blue-100);
+  color: var(--color-blue-700);
+}
+
+.mc-promoted-badge.framework {
+  background: var(--color-amber-100);
+  color: var(--color-amber-700);
+}
+
+.mc-promoted-badge.policy {
+  background: var(--color-violet-100);
+  color: var(--color-violet-700);
+}
+
+/* Council type badge */
+.mc-council-badge {
+  font-size: 0.75rem;
+  background: var(--color-indigo-100);
+  color: var(--color-indigo-700);
+  padding: 3px 10px;
+  border-radius: var(--radius-lg);
+  font-weight: 500;
+}
+
+/* ============================================================================
+   DECISION META (Modal View)
+   ============================================================================ */
+
+.mc-decision-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.mc-meta-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Promoted info text */
+.mc-promoted-info {
+  font-size: 0.8125rem;
+  color: var(--color-emerald-700);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mc-promoted-info .icon {
+  font-size: 0.75rem;
+}
+
+.mc-promoter {
+  color: var(--color-gray-500);
+  font-style: italic;
+}
+
+/* Promoted badge in modal header */
+.mc-promoted {
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: var(--color-emerald-100);
+  color: var(--color-emerald-700);
+  padding: 4px 10px;
+  border-radius: 6px;
+}
+
+/* Promoted type colors in modal */
+.mc-promoted.sop {
+  background: var(--color-blue-100);
+  color: var(--color-blue-700);
+}
+
+.mc-promoted.framework {
+  background: var(--color-amber-100);
+  color: var(--color-amber-700);
+}
+
+.mc-promoted.policy {
+  background: var(--color-violet-100);
+  color: var(--color-violet-700);
+}
+
+/* ============================================================================
+   DECISION QUESTION BOX (Modal)
+   ============================================================================ */
+
+.mc-decision-question {
+  background: linear-gradient(135deg, var(--color-sky-50) 0%, var(--color-sky-100) 100%);
+  border: 1px solid var(--color-sky-200);
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+  margin-bottom: 16px;
+}
+
+.mc-decision-question-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-sky-700);
+  margin-bottom: 6px;
+}
+
+.mc-decision-question-text {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-sky-900);
+  line-height: 1.5;
+}
+
+/* ============================================================================
+   DECISION CONTENT (Modal)
+   ============================================================================ */
+
+.mc-decision-content {
+  position: relative;
+  background: var(--color-gray-50);
+  color: var(--color-gray-800);
+  padding: 20px 24px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-gray-200);
+  max-height: 450px;
+  overflow-y: auto;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
+/* Unified floating copy button - icon only, matches Stage3 */
+.mc-content-copy-btn {
+  position: sticky;
+  top: 8px;
+  float: right;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  z-index: 10;
+  margin-left: 12px;
+  margin-bottom: 8px;
+}
+
+.mc-content-copy-btn:hover {
+  background: var(--color-success-light, #dcfce7);
+  border-color: var(--color-success, #22c55e);
+  color: var(--color-success-dark, #166534);
+}
+
+.mc-content-copy-btn.copied {
+  background: var(--color-success-light, #dcfce7);
+  border-color: var(--color-success, #22c55e);
+  color: var(--color-success-dark, #166534);
+}
+
+.mc-content-copy-btn .copy-icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* Markdown rendered content inside decisions */
+.mc-decision-content h1,
+.mc-decision-content h2,
+.mc-decision-content h3 {
+  color: var(--color-gray-900);
+  margin-top: 1.25em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+}
+
+.mc-decision-content h1 { font-size: 1.5rem; }
+.mc-decision-content h2 { font-size: 1.25rem; }
+.mc-decision-content h3 { font-size: 1.1rem; }
+
+.mc-decision-content h1:first-child,
+.mc-decision-content h2:first-child,
+.mc-decision-content h3:first-child {
+  margin-top: 0;
+}
+
+.mc-decision-content p {
+  margin-bottom: 1em;
+}
+
+.mc-decision-content ul,
+.mc-decision-content ol {
+  margin: 0.75em 0;
+  padding-left: 1.5em;
+}
+
+.mc-decision-content li {
+  margin-bottom: 0.4em;
+}
+
+.mc-decision-content strong {
+  font-weight: 600;
+  color: var(--color-gray-900);
+}
+
+.mc-decision-content code {
+  background: var(--color-gray-200);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 0.875em;
+}
+
+.mc-decision-content pre {
+  background: var(--color-gray-800);
+  color: var(--color-gray-200);
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  margin: 1em 0;
+}
+
+.mc-decision-content pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+
+.mc-decision-content blockquote {
+  border-left: 3px solid var(--color-indigo-500);
+  margin: 1em 0;
+  padding-left: 1em;
+  color: var(--color-gray-600);
+  font-style: italic;
+}
+
+/* ============================================================================
+   DECISION SOURCE LINK
+   ============================================================================ */
+
+.mc-decision-source-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, var(--color-sky-50) 0%, var(--color-sky-100) 100%);
+  border: 1px solid var(--color-sky-200);
+  border-radius: var(--radius-md);
+  color: var(--color-sky-700);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: fit-content;
+}
+
+.mc-decision-source-link:hover {
+  background: linear-gradient(135deg, var(--color-sky-100) 0%, var(--color-sky-200) 100%);
+  border-color: var(--color-sky-300);
+  color: var(--color-sky-800);
+}
+
+.mc-decision-source-link svg {
+  flex-shrink: 0;
+}
+
+/* Project link button in decision modal */
+.mc-project-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  background: var(--color-blue-100);
+  border: 1px solid var(--color-blue-300);
+  border-radius: var(--radius-md);
+  color: var(--color-blue-700);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-project-link-btn:hover {
+  background: var(--color-blue-200);
+  border-color: var(--color-blue-400);
+}
+
+.mc-promoted-label.project {
+  background: var(--color-blue-100);
+  color: var(--color-blue-700);
+}

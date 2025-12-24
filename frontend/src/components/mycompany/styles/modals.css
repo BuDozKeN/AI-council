@@ -1,8 +1,816 @@
 /**
  * Modal Styles
- * Shared modal patterns, view modals, create modals
- *
- * TODO: Extract from MyCompany.css lines ~1869-2812, 2812-3400, 4292-4700
+ * Shared modal patterns, view/edit modals, promote modal
  */
 
-/* Placeholder - styles currently in MyCompany.css */
+/* ============================================================================
+   MODAL BODY & SCROLL
+   ============================================================================ */
+
+.mc-modal-body {
+  padding: 22px;
+  overflow-y: auto;
+  position: relative;
+  max-height: 60vh;
+}
+
+/* Scroll to top button for modal body */
+.mc-modal-scroll-top {
+  position: sticky;
+  bottom: 16px;
+  left: calc(100% - 52px);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-primary, #fff);
+  border: 1px solid var(--color-slate-200, #e2e8f0);
+  border-radius: 50%;
+  color: var(--color-slate-500, #64748b);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  transition: all 0.2s ease;
+  opacity: 0.9;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.mc-modal-scroll-top:hover {
+  opacity: 1;
+  color: var(--color-slate-700, #334155);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  transform: translateY(-2px);
+}
+
+.mc-modal-scroll-top:active {
+  transform: scale(0.95);
+}
+
+.mc-modal-scroll-top svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Mobile - larger touch target */
+@media (max-width: 640px) {
+  .mc-modal-scroll-top {
+    width: 40px;
+    height: 40px;
+    bottom: 12px;
+    left: calc(100% - 56px);
+  }
+}
+
+/* ============================================================================
+   MODAL HEADER
+   ============================================================================ */
+
+.mc-modal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.mc-modal-header-left h2 {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Modal hint text */
+.mc-modal-hint {
+  margin: 0 0 16px 0;
+  padding: 12px 16px;
+  background: var(--color-amber-100);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  color: var(--color-amber-800);
+  line-height: 1.5;
+}
+
+/* ============================================================================
+   CLEAN MODAL HEADER (2025 Design)
+   ============================================================================ */
+
+.mc-modal-header-clean {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--color-gray-200);
+  background: var(--color-gray-50);
+}
+
+.mc-header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Type badge in header */
+.mc-type-badge-header {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+/* Title display with pencil hover */
+.mc-title-display {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mc-title-display.editable {
+  cursor: pointer;
+  padding: 4px 8px;
+  margin: -4px -8px;
+  border-radius: 6px;
+  transition: background 0.15s ease;
+}
+
+.mc-title-display.editable:hover {
+  background: var(--color-gray-100);
+}
+
+.mc-pencil-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-gray-400);
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.mc-title-display.editable:hover .mc-pencil-icon {
+  opacity: 1;
+}
+
+/* Title input for editable headers */
+.mc-title-input {
+  flex: 1;
+  font-size: 1.25rem;
+  font-weight: 600;
+  padding: 8px 12px;
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-primary);
+}
+
+.mc-title-input:focus {
+  outline: none;
+  border-color: var(--color-orange-500);
+  box-shadow: var(--shadow-focus);
+}
+
+/* ============================================================================
+   FORM GROUPS
+   ============================================================================ */
+
+.mc-form-group {
+  margin-bottom: 18px;
+}
+
+.mc-form-group:last-child {
+  margin-bottom: 0;
+}
+
+.mc-form-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-700);
+  margin-bottom: 8px;
+}
+
+.mc-form-group input,
+.mc-form-group textarea,
+.mc-form-group select {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.mc-form-group input:focus,
+.mc-form-group textarea:focus,
+.mc-form-group select:focus {
+  outline: none;
+  border-color: var(--color-orange-500);
+  box-shadow: var(--shadow-focus);
+}
+
+/* ============================================================================
+   BUTTON SYSTEM
+   ============================================================================ */
+
+.mc-btn {
+  padding: 10px 18px;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid var(--color-slate-200);
+  background: var(--color-bg-primary);
+  color: var(--color-slate-600);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.mc-btn:hover:not(:disabled) {
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+  color: var(--color-slate-800);
+}
+
+.mc-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.mc-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mc-btn.primary {
+  background: linear-gradient(135deg, var(--color-orange-500) 0%, var(--color-orange-400) 100%);
+  border-color: transparent;
+  color: var(--color-text-inverse);
+  box-shadow: 0 2px 8px rgba(var(--color-orange-500-rgb, 249, 115, 22), 0.25);
+}
+
+.mc-btn.primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--color-orange-600) 0%, var(--color-orange-500) 100%);
+  box-shadow: 0 4px 12px rgba(var(--color-orange-500-rgb, 249, 115, 22), 0.35);
+  transform: translateY(-1px);
+}
+
+.mc-btn.primary:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.mc-btn.small {
+  padding: 7px 14px;
+  font-size: 0.8125rem;
+  border-radius: var(--radius-md);
+}
+
+/* ============================================================================
+   SELECT DROPDOWN
+   ============================================================================ */
+
+.mc-select {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  border: 1px solid var(--color-gray-300);
+  border-radius: 8px;
+  background: var(--color-bg-primary);
+  color: var(--color-gray-900);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+.mc-select:focus {
+  outline: none;
+  border-color: var(--color-indigo-500);
+  box-shadow: 0 0 0 3px rgba(var(--color-indigo-500-rgb, 99, 102, 241), 0.1);
+}
+
+.mc-select:hover {
+  border-color: var(--color-gray-400);
+}
+
+/* ============================================================================
+   EDIT MODE (Textarea, Split View)
+   ============================================================================ */
+
+.mc-edit-textarea {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 300px;
+  background: var(--color-gray-800);
+  color: var(--color-gray-200);
+}
+
+.mc-edit-textarea:focus {
+  outline: none;
+  border-color: var(--color-orange-500);
+  box-shadow: var(--shadow-focus);
+}
+
+.mc-edit-textarea.large {
+  min-height: 400px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+/* Split edit view - markdown source on left, live preview on right */
+.mc-edit-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  min-height: 400px;
+}
+
+.mc-edit-input,
+.mc-edit-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mc-edit-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mc-edit-preview .mc-context-content {
+  flex: 1;
+  padding: 16px;
+  background: var(--color-gray-50);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+.mc-edit-input .mc-edit-textarea {
+  flex: 1;
+  min-height: 350px;
+}
+
+/* Responsive - stack on smaller screens */
+@media (max-width: 900px) {
+  .mc-edit-split {
+    grid-template-columns: 1fr;
+  }
+
+  .mc-edit-preview {
+    order: -1;
+  }
+
+  .mc-edit-preview .mc-context-content {
+    max-height: 200px;
+  }
+}
+
+.mc-editor-hint {
+  font-size: 12px;
+  color: var(--color-slate-400);
+  font-style: italic;
+}
+
+/* ============================================================================
+   DEPARTMENT/ROLE MODALS
+   ============================================================================ */
+
+.mc-dept-meta,
+.mc-role-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.mc-role-dept-badge {
+  font-size: 0.6875rem;
+  background: var(--color-gray-100);
+  color: var(--color-gray-700);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+}
+
+.mc-role-title-badge {
+  font-size: 0.75rem;
+  background: var(--color-gray-200);
+  color: var(--color-gray-600);
+  padding: 4px 12px;
+  border-radius: var(--radius-lg);
+}
+
+.mc-dept-description {
+  color: var(--color-gray-600);
+  font-size: 0.9375rem;
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+
+.mc-section {
+  margin-top: 16px;
+}
+
+.mc-section h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-gray-700);
+  margin: 0 0 10px;
+}
+
+.mc-markdown-raw {
+  background: var(--color-gray-800);
+  color: var(--color-gray-200);
+  padding: 18px;
+  border-radius: var(--radius-lg);
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+}
+
+.mc-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.mc-section-header h4 {
+  margin: 0;
+}
+
+.mc-role-desc-badge {
+  font-size: 0.75rem;
+  background: var(--color-purple-100);
+  color: var(--color-purple-600);
+  padding: 4px 12px;
+  border-radius: var(--radius-lg);
+}
+
+/* ============================================================================
+   DEPARTMENT EXPANDED VIEW
+   ============================================================================ */
+
+.mc-dept-expanded {
+  border-top: 1px solid var(--color-gray-200);
+  background: var(--color-bg-primary);
+}
+
+.mc-view-context-btn {
+  display: block;
+  width: calc(100% - 36px);
+  margin: 14px 18px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, var(--color-sky-50) 0%, var(--color-sky-100) 100%);
+  border: 1px solid var(--color-sky-200);
+  border-radius: var(--radius-md);
+  color: var(--color-sky-700);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.mc-view-context-btn:hover {
+  background: linear-gradient(135deg, var(--color-sky-100) 0%, var(--color-sky-200) 100%);
+  border-color: var(--color-sky-300);
+}
+
+.mc-view-context-btn.has-content {
+  background: linear-gradient(135deg, var(--color-green-50) 0%, var(--color-green-100) 100%);
+  border-color: var(--color-green-300);
+  color: var(--color-green-800);
+}
+
+.mc-view-context-btn.has-content:hover {
+  background: linear-gradient(135deg, var(--color-green-100) 0%, var(--color-green-200) 100%);
+  border-color: var(--color-green-400);
+}
+
+.mc-view-context-btn.no-content {
+  background: var(--color-gray-50);
+  border-color: var(--color-gray-200);
+  color: var(--color-gray-400);
+}
+
+.mc-view-context-btn.no-content:hover {
+  background: var(--color-gray-100);
+  border-color: var(--color-gray-300);
+  color: var(--color-gray-500);
+}
+
+.mc-roles-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-gray-500);
+  margin: 0 0 10px;
+}
+
+.mc-role.clickable {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mc-role.clickable:hover {
+  background: var(--color-gray-100);
+  border: 1px solid var(--color-gray-200);
+}
+
+.mc-role-arrow {
+  color: var(--color-gray-400);
+  font-size: 1rem;
+}
+
+/* ============================================================================
+   PROMOTE DECISION MODAL
+   ============================================================================ */
+
+.mc-promote-intro {
+  font-size: 0.9375rem;
+  color: var(--color-gray-600);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.mc-promote-types {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.mc-promote-type {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  background: var(--color-gray-50);
+  border: 2px solid var(--color-gray-200);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-promote-type:hover {
+  background: var(--color-gray-100);
+  border-color: var(--color-gray-300);
+}
+
+.mc-promote-type.selected {
+  background: var(--color-indigo-50);
+  border-color: var(--color-indigo-500);
+  box-shadow: 0 0 0 3px rgba(var(--color-indigo-500-rgb, 99, 102, 241), 0.1);
+}
+
+.mc-promote-type-icon {
+  font-size: 1.75rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.mc-promote-type-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.mc-promote-type-label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+  margin-bottom: 2px;
+}
+
+.mc-promote-type.selected .mc-promote-type-label {
+  color: var(--color-indigo-600);
+}
+
+.mc-promote-type-desc {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--color-gray-500);
+  line-height: 1.4;
+}
+
+.mc-promote-preview {
+  margin-bottom: 20px;
+}
+
+.mc-promote-preview-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-gray-500);
+  margin-bottom: 8px;
+}
+
+.mc-promote-preview input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 0.9375rem;
+  border: 1px solid var(--color-gray-300);
+  border-radius: 8px;
+  background: var(--color-bg-primary);
+  color: var(--color-gray-900);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mc-promote-preview input:focus {
+  outline: none;
+  border-color: var(--color-indigo-500);
+  box-shadow: 0 0 0 3px rgba(var(--color-indigo-500-rgb, 99, 102, 241), 0.1);
+}
+
+/* ============================================================================
+   PLAYBOOK TAGS & DEPARTMENTS
+   ============================================================================ */
+
+.mc-playbook-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.mc-tag {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  background: var(--color-gray-100);
+  color: var(--color-gray-500);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-gray-200);
+}
+
+/* Title row with SOP badge inline */
+.mc-playbook-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+/* Playbook Department Assignment */
+.mc-playbook-departments {
+  margin: 16px 0;
+  padding: 12px;
+  background: var(--color-gray-50);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-gray-200);
+}
+
+.mc-playbook-departments h4 {
+  margin: 0 0 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-gray-700);
+}
+
+.mc-dept-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mc-dept-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.15s ease;
+}
+
+.mc-dept-checkbox:hover {
+  border-color: var(--color-gray-400);
+  background: var(--color-gray-100);
+}
+
+.mc-dept-checkbox input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+.mc-dept-checkbox.owner {
+  background: var(--color-blue-100);
+  border-color: var(--color-blue-300);
+}
+
+.mc-dept-checkbox.owner input[type="checkbox"] {
+  cursor: not-allowed;
+}
+
+.mc-owner-label {
+  font-size: 0.75rem;
+  color: var(--color-gray-500);
+  font-style: italic;
+}
+
+.mc-dept-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* ============================================================================
+   ACTIVITY SOURCE LINKS
+   ============================================================================ */
+
+.mc-activity-source {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 0.6875rem;
+  color: var(--color-indigo-500);
+  background: var(--color-indigo-50);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-indigo-200);
+}
+
+.mc-activity-source::before {
+  content: "💬 ";
+}
+
+.mc-activity-source-link {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 0.6875rem;
+  font-family: inherit;
+  color: var(--color-indigo-500);
+  background: var(--color-indigo-50);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-indigo-200);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-activity-source-link:hover {
+  background: var(--color-indigo-100);
+  border-color: var(--color-indigo-300);
+  color: var(--color-indigo-600);
+}
+
+.mc-activity-source-link::before {
+  content: "💬 ";
+}
+
+/* ============================================================================
+   ACTIVITY RIGHT COLUMN
+   ============================================================================ */
+
+.mc-activity-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.mc-activity-arrow {
+  color: var(--color-gray-400);
+  font-size: 0.875rem;
+}
+
+.mc-activity-item.clickable:hover .mc-activity-arrow {
+  color: var(--color-indigo-500);
+}

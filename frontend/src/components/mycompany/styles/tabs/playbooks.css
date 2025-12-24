@@ -1,8 +1,191 @@
 /**
  * Playbooks Tab Styles
- * Playbook list, items, type filters
- *
- * TODO: Extract from MyCompany.css lines ~1220-1336
+ * Filters, groups, playbook items, badges
  */
 
-/* Placeholder - styles currently in MyCompany.css */
+/* ============================================================================
+   PLAYBOOKS TAB - Filters & List
+   ============================================================================ */
+
+.mc-playbooks-filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+/* Note: .mc-search-input is in overview.css */
+
+.mc-filter-select {
+  padding: 10px 14px;
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  background: var(--color-bg-primary);
+  cursor: pointer;
+  min-width: 140px;
+}
+
+.mc-filter-select:focus {
+  outline: none;
+  border-color: var(--color-amber-500);
+}
+
+.mc-empty-filter {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--color-gray-500);
+}
+
+.mc-empty-filter p {
+  margin-bottom: 12px;
+}
+
+/* ============================================================================
+   PLAYBOOK GROUPS
+   ============================================================================ */
+
+.mc-playbook-group {
+  margin-bottom: 24px;
+}
+
+.mc-group-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 12px;
+}
+
+/* ============================================================================
+   PLAYBOOK LIST & ITEMS
+   ============================================================================ */
+
+.mc-playbook-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mc-playbook-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--color-gray-50);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  transition: all 0.15s ease;
+}
+
+.mc-playbook-item.clickable {
+  cursor: pointer;
+}
+
+.mc-playbook-item.clickable:hover {
+  background: var(--color-gray-100);
+  border-color: var(--color-gray-300);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.mc-playbook-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.mc-playbook-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mc-playbook-title {
+  font-weight: 500;
+  color: var(--color-gray-700);
+}
+
+/* Edit hint on hover */
+.mc-edit-hint {
+  font-size: 0.75rem;
+  color: var(--color-gray-400);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  flex-shrink: 0;
+}
+
+.mc-playbook-item.clickable:hover .mc-edit-hint {
+  opacity: 1;
+  color: var(--color-indigo-500);
+}
+
+.mc-playbook-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mc-playbook-version {
+  font-size: 0.75rem;
+  color: var(--color-gray-400);
+  background: var(--color-gray-200);
+  padding: 2px 8px;
+  border-radius: var(--radius-md);
+}
+
+/* ============================================================================
+   PLAYBOOK CONTENT (Modal View)
+   ============================================================================ */
+
+.mc-playbook-content {
+  background: var(--color-gray-800);
+  color: var(--color-gray-200);
+  padding: 18px;
+  border-radius: var(--radius-lg);
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* ============================================================================
+   PLAYBOOK META (Modal Header)
+   ============================================================================ */
+
+.mc-playbook-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.mc-doc-type {
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--color-orange-500);
+  color: var(--color-text-inverse);
+  padding: 4px 10px;
+  border-radius: var(--radius-md);
+}
+
+.mc-version {
+  font-size: 0.8125rem;
+  color: var(--color-gray-500);
+}
+
+.mc-date {
+  font-size: 0.8125rem;
+  color: var(--color-gray-500);
+}
+
+.mc-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
