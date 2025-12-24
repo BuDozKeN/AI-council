@@ -7,28 +7,28 @@ const BillingSkeleton = () => (
     <div className="settings-card">
       <div className="card-header">
         <Skeleton width={120} height={20} />
-        <Skeleton width={240} height={14} style={{ marginTop: 8 }} />
+        <Skeleton width={240} height={14} className="mt-2" />
       </div>
       <div className="card-body">
-        <Skeleton height={10} style={{ borderRadius: 5 }} />
-        <Skeleton width={200} height={14} style={{ marginTop: 10 }} />
+        <Skeleton height={10} className="rounded" />
+        <Skeleton width={200} height={14} className="mt-2.5" />
       </div>
     </div>
 
     {/* Plans Skeleton */}
     <div className="plans-section">
-      <Skeleton width={160} height={20} style={{ marginBottom: 16 }} />
+      <Skeleton width={160} height={20} className="mb-4" />
       <div className="plans-grid">
         {[1, 2, 3].map((i) => (
           <div className="plan-card" key={i}>
             <div className="plan-header">
-              <Skeleton width={60} height={20} style={{ margin: '0 auto 8px' }} />
-              <Skeleton width={80} height={32} style={{ margin: '0 auto 4px' }} />
-              <Skeleton width={100} height={14} style={{ margin: '0 auto' }} />
+              <Skeleton width={60} height={20} className="mx-auto mb-2" />
+              <Skeleton width={80} height={32} className="mx-auto mb-1" />
+              <Skeleton width={100} height={14} className="mx-auto" />
             </div>
-            <div style={{ padding: '0 0 16px' }}>
+            <div className="pb-4">
               {[1, 2, 3, 4].map((j) => (
-                <div key={j} style={{ display: 'flex', gap: 8, padding: '6px 0' }}>
+                <div key={j} className="flex gap-2 py-1.5">
                   <Skeleton width={16} height={16} />
                   <Skeleton width={120} height={14} />
                 </div>
