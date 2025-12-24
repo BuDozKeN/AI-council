@@ -301,57 +301,31 @@ The council notes several gaps in context that would improve this recommendation
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1400px', margin: '0 auto' }}>
+    <div className="p-5 max-w-[1400px] mx-auto">
       {/* Demo controls */}
-      <div style={{
-        marginBottom: '24px',
-        padding: '16px',
-        background: '#f0f9ff',
-        borderRadius: '12px',
-        border: '1px solid #bae6fd'
-      }}>
-        <h2 style={{ margin: '0 0 12px 0', fontSize: '18px', color: '#0369a1', display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div className="mb-6 p-4 bg-sky-50 rounded-xl border border-sky-200">
+        <h2 className="mb-3 text-lg text-sky-700 flex items-center gap-2">
           <FlaskConical size={20} />
           Deliberation View Demo
         </h2>
-        <p style={{ margin: '0 0 16px 0', color: '#64748b', fontSize: '14px' }}>
+        <p className="mb-4 text-slate-500 text-sm">
           This simulates the "Council in Session" experience with mock data.
           Watch the avatars change state, text stream in, and insights appear.
         </p>
-        <div style={{ display: 'flex', gap: '12px' }}>
+        <div className="flex gap-3">
           <button
             onClick={runSimulation}
             disabled={isRunning}
-            style={{
-              padding: '10px 20px',
-              background: isRunning ? '#94a3b8' : '#3b82f6',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              fontWeight: '600',
-              cursor: isRunning ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
+            className={`px-5 py-2.5 text-white rounded-lg font-semibold flex items-center gap-2 ${
+              isRunning ? 'bg-slate-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 cursor-pointer'
+            }`}
           >
             {isRunning ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} />}
             {isRunning ? 'Running...' : 'Start Simulation'}
           </button>
           <button
             onClick={resetSimulation}
-            style={{
-              padding: '10px 20px',
-              background: '#f1f5f9',
-              color: '#475569',
-              border: '1px solid #cbd5e1',
-              borderRadius: '8px',
-              fontWeight: '500',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
+            className="px-5 py-2.5 bg-slate-100 text-slate-600 border border-slate-300 rounded-lg font-medium cursor-pointer flex items-center gap-2 hover:bg-slate-200"
           >
             <RotateCcw size={16} />
             Reset
@@ -360,12 +334,7 @@ The council notes several gaps in context that would improve this recommendation
       </div>
 
       {/* The actual deliberation view */}
-      <div style={{
-        background: 'white',
-        borderRadius: '16px',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-        overflow: 'hidden'
-      }}>
+      <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
         <DeliberationView
           question="Should we expand to the European market next quarter?"
           currentStage={currentStage}
@@ -385,19 +354,11 @@ The council notes several gaps in context that would improve this recommendation
       </div>
 
       {/* Debug info */}
-      <details style={{ marginTop: '24px' }}>
-        <summary style={{ cursor: 'pointer', color: '#64748b', fontSize: '13px' }}>
+      <details className="mt-6">
+        <summary className="cursor-pointer text-slate-500 text-sm">
           🔧 Debug State
         </summary>
-        <pre style={{
-          marginTop: '8px',
-          padding: '12px',
-          background: '#1e293b',
-          color: '#94a3b8',
-          borderRadius: '8px',
-          fontSize: '11px',
-          overflow: 'auto'
-        }}>
+        <pre className="mt-2 p-3 bg-slate-800 text-slate-400 rounded-lg text-xs overflow-auto">
 {JSON.stringify({
   isRunning,
   currentStage,

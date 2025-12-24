@@ -17,12 +17,12 @@ const TeamSkeleton = () => (
     {/* Team Members Card Skeleton */}
     <div className="settings-card">
       <div className="card-header">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="flex items-center justify-between">
           <div>
             <Skeleton width={120} height={16} />
-            <Skeleton width={70} height={13} style={{ marginTop: 4 }} />
+            <Skeleton width={70} height={13} className="mt-1" />
           </div>
-          <Skeleton width={115} height={36} style={{ borderRadius: 6 }} />
+          <Skeleton width={115} height={36} className="rounded-md" />
         </div>
       </div>
       <div className="card-body">
@@ -34,11 +34,11 @@ const TeamSkeleton = () => (
               </div>
               <div className="member-info">
                 <Skeleton width={80} height={14} />
-                <Skeleton width={50} height={12} style={{ marginTop: 2 }} />
+                <Skeleton width={50} height={12} className="mt-0.5" />
               </div>
               <Skeleton width={110} height={12} />
               <div className="member-actions">
-                <Skeleton width={28} height={28} style={{ borderRadius: 4 }} />
+                <Skeleton width={28} height={28} className="rounded" />
               </div>
             </div>
           ))}
@@ -50,14 +50,14 @@ const TeamSkeleton = () => (
     <div className="settings-card">
       <div className="card-header">
         <Skeleton width={130} height={16} />
-        <Skeleton width={200} height={13} style={{ marginTop: 4 }} />
+        <Skeleton width={200} height={13} className="mt-1" />
       </div>
       <div className="card-body">
         <div className="usage-grid">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="usage-stat">
               <Skeleton width={40} height={24} />
-              <Skeleton width={90} height={12} style={{ marginTop: 4 }} />
+              <Skeleton width={90} height={12} className="mt-1" />
             </div>
           ))}
         </div>
@@ -96,7 +96,7 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }) {
   if (teamError) {
     return (
       <div className="settings-card">
-        <div className="card-body" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, gap: 12, color: 'var(--color-danger)' }}>
+        <div className="card-body flex items-center justify-center p-6 gap-3 text-red-500">
           <AlertCircle size={20} />
           <span>{teamError}</span>
           <button className="btn-outline" onClick={loadTeamData}>Retry</button>
@@ -110,16 +110,15 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }) {
       {/* Team Members Card */}
       <div className="settings-card">
         <div className="card-header">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div className="flex items-center justify-between">
             <div>
               <h3>Team Members</h3>
               <p>{members.length} {members.length === 1 ? 'member' : 'members'}</p>
             </div>
             {canManageMembers && (
               <button
-                className="btn-primary"
+                className="btn-primary flex items-center gap-1.5"
                 onClick={() => setShowAddForm(!showAddForm)}
-                style={{ display: 'flex', alignItems: 'center', gap: 6 }}
               >
                 <Plus size={16} />
                 Add Member
