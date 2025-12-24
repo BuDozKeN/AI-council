@@ -5,6 +5,8 @@
  * Extracted from ChatInterface.jsx for better maintainability.
  */
 
+import { Button } from '../ui/button';
+
 export function ChatInput({
   input,
   onInputChange,
@@ -61,22 +63,24 @@ export function ChatInput({
           </button>
         </div>
         {isLoading ? (
-          <button
+          <Button
             type="button"
-            className="stop-button"
+            variant="destructive"
             onClick={onStopGeneration}
+            className="stop-button"
           >
             Stop
-          </button>
+          </Button>
         ) : (
-          <button
+          <Button
             type="submit"
-            className="send-button"
+            variant="default"
             disabled={!input.trim() && !hasImages}
             onClick={onSubmit}
+            className="send-button"
           >
             {buttonLabel}
-          </button>
+          </Button>
         )}
       </div>
     </>

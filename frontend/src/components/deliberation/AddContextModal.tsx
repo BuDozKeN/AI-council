@@ -13,6 +13,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
 import { AppModal } from '../ui/AppModal';
+import { Button } from '../ui/button';
 import { AIWriteAssist } from '../ui/AIWriteAssist';
 import { logger } from '../../utils/logger';
 import './AddContextModal.css';
@@ -351,15 +352,15 @@ export function AddContextModal({
       </div>
 
       <AppModal.Footer>
-        <button
-          className="app-modal-btn app-modal-btn-secondary"
+        <Button
+          variant="outline"
           onClick={handleClose}
           disabled={isSaving}
         >
           Maybe later
-        </button>
-        <button
-          className="app-modal-btn app-modal-btn-primary"
+        </Button>
+        <Button
+          variant="default"
           onClick={handleSave}
           disabled={!response.trim() || isSaving || (scope === 'department' && !selectedDepartment)}
         >
@@ -371,7 +372,7 @@ export function AddContextModal({
           ) : (
             'Save this'
           )}
-        </button>
+        </Button>
       </AppModal.Footer>
     </AppModal>
   );
