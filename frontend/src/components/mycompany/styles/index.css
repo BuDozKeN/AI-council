@@ -1,0 +1,58 @@
+/**
+ * MyCompany Styles Index
+ *
+ * This file provides a transitional approach to modularizing MyCompany.css
+ *
+ * MIGRATION STATUS:
+ * ✅ shell.css    - Extracted (overlay, panel, header, tabs, content)
+ * ✅ badges.css   - Extracted (type, dept, scope, meta badges)
+ * ✅ shared.css   - Extracted (states, forms, buttons)
+ * ⏳ tabs/*.css   - Placeholder (styles still in legacy file)
+ * ⏳ modals.css   - Placeholder (styles still in legacy file)
+ * ⏳ mobile.css   - Placeholder (styles still in legacy file)
+ *
+ * The legacy MyCompany.css is still imported until full migration is complete.
+ * To migrate: Extract styles from legacy file into the appropriate module,
+ * then remove those styles from the legacy file.
+ */
+
+/* ============================================================================
+   NEW MODULAR STYLES (extracted from legacy file)
+   ============================================================================ */
+
+/* Core layout and shell */
+@import './shell.css';
+
+/* Shared components */
+@import './badges.css';
+@import './shared.css';
+
+/* ============================================================================
+   LEGACY STYLES (not yet extracted - DO NOT DUPLICATE)
+   The legacy file still contains:
+   - Tab-specific styles (overview, playbooks, decisions, activity, projects, team)
+   - Modal styles
+   - Mobile responsive overrides
+
+   Import legacy file AFTER modular styles to allow overrides
+   ============================================================================ */
+@import '../../MyCompany.css';
+
+/* ============================================================================
+   PLACEHOLDER IMPORTS (currently empty, ready for extraction)
+   Uncomment these as you extract styles from the legacy file:
+   ============================================================================ */
+
+/* Tab-specific styles (TODO: extract from legacy) */
+/* @import './tabs/overview.css'; */
+/* @import './tabs/playbooks.css'; */
+/* @import './tabs/decisions.css'; */
+/* @import './tabs/activity.css'; */
+/* @import './tabs/projects.css'; */
+/* @import './tabs/team.css'; */
+
+/* Modal styles (TODO: extract from legacy) */
+/* @import './modals.css'; */
+
+/* Mobile responsive overrides (TODO: extract from legacy) */
+/* @import './mobile.css'; */

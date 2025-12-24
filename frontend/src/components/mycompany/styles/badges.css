@@ -1,0 +1,206 @@
+/**
+ * MyCompany Badge Styles
+ * Shared badge components used across all tabs
+ *
+ * BADGE COLOR DESIGN SYSTEM:
+ *
+ * Document Type Badges (.mc-type-badge):
+ *   - SOP:        Blue    (blue-100 bg, blue-700 text)
+ *   - Framework:  Yellow  (amber-100 bg, amber-700 text)
+ *   - Policy:     Purple  (violet-100 bg, violet-700 text)
+ *
+ * Department Badges (.mc-dept-badge):
+ *   - Each department gets a UNIQUE color based on ID hash
+ *   - Colors are set via inline styles from getDeptColor() in JS
+ *   - 10 distinct colors for visual differentiation
+ *
+ * Scope Badges (.mc-scope-badge):
+ *   - Company-wide: Green (emerald-50 bg, emerald-700 text)
+ *
+ * Other Badges:
+ *   - Tags:       Gray    (gray-100 bg, gray-700 text)
+ *   - Council:    Indigo  (indigo-100 bg, indigo-700 text)
+ *   - Meta:       Gray    (gray-200 bg, gray-600 text)
+ */
+
+/* Type badges (SOP/Framework/Policy) - used everywhere */
+.mc-type-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+}
+
+.mc-type-badge.sop {
+  background: var(--color-blue-100);
+  color: var(--color-blue-700);
+}
+
+.mc-type-badge.framework {
+  background: var(--color-amber-100);
+  color: var(--color-amber-700);
+}
+
+.mc-type-badge.policy {
+  background: var(--color-violet-100);
+  color: var(--color-violet-700);
+}
+
+/* Department badges - color-coded per department (inline styles from JS) */
+.mc-dept-badge {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  border: 1px solid;
+  /* Colors set via inline styles for per-department uniqueness */
+}
+
+/* Fallback scope badges - used when no specific department */
+.mc-scope-badge {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  background: var(--color-gray-100);
+  color: var(--color-gray-700);
+}
+
+.mc-scope-badge.company-wide {
+  background: var(--color-emerald-50);
+  color: var(--color-emerald-700);
+  border: 1px solid var(--color-emerald-200);
+}
+
+.mc-scope-badge.owner {
+  background: var(--color-amber-100);
+  color: var(--color-amber-800);
+  font-weight: 600;
+}
+
+/* Meta badges (counts, stats) - neutral styling */
+.mc-meta-badge {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--color-gray-200);
+  color: var(--color-gray-600);
+}
+
+/* Edit hint on hover */
+.mc-edit-hint {
+  font-size: 0.75rem;
+  color: var(--color-gray-400);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  flex-shrink: 0;
+}
+
+.mc-playbook-item.clickable:hover .mc-edit-hint {
+  opacity: 1;
+  color: var(--color-indigo-500);
+}
+
+.mc-playbook-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mc-playbook-version {
+  font-size: 0.75rem;
+  color: var(--color-gray-400);
+  background: var(--color-gray-200);
+  padding: 2px 8px;
+  border-radius: var(--radius-md);
+}
+
+/* Tag badges */
+.mc-tag {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--color-gray-100);
+  color: var(--color-gray-700);
+  border: 1px solid var(--color-gray-200);
+}
+
+/* Council badge */
+.mc-council-badge {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--color-indigo-100);
+  color: var(--color-indigo-700);
+}
+
+/* Status dot - minimal visual indicator */
+.mc-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.mc-status-dot.active {
+  background: var(--color-green-500);
+}
+
+.mc-status-dot.pending {
+  background: var(--color-amber-500);
+}
+
+.mc-status-dot.archived {
+  background: var(--color-gray-400);
+}
+
+/* Mini badge (compact type indicator) */
+.mc-mini-badge {
+  font-size: 0.625rem;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+/* Promoted checkmark badge */
+.mc-promoted-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--color-green-50);
+  color: var(--color-green-700);
+  border: 1px solid var(--color-green-200);
+}
+
+.mc-promoted-badge svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* Pending badge */
+.mc-pending-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--color-amber-50);
+  color: var(--color-amber-700);
+  border: 1px solid var(--color-amber-200);
+}
