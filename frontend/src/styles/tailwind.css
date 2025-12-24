@@ -1,18 +1,72 @@
 @import "tailwindcss";
 @config "../../tailwind.config.js";
 
-/* Unified reset for Shadcn when preflight is disabled */
+/* Enhanced reset for Shadcn when preflight is disabled
+   This provides preflight-like normalization without breaking existing styles */
 @layer base {
+  /* Universal box-sizing */
   *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
   }
+
+  /* Form element normalization */
   button, input, textarea, select {
     font: inherit;
+    color: inherit;
     border-width: 0;
     border-style: solid;
     border-color: currentColor;
+    background: transparent;
+  }
+
+  /* Button cursor */
+  button, [role="button"] {
+    cursor: pointer;
+  }
+
+  /* Disabled state */
+  :disabled {
+    cursor: default;
+  }
+
+  /* Image normalization */
+  img, svg, video, canvas, audio, iframe, embed, object {
+    display: block;
+    vertical-align: middle;
+  }
+
+  img, video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Table border collapse */
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+
+  /* Remove list styles */
+  ol, ul {
+    list-style: none;
+  }
+
+  /* Remove quotes */
+  blockquote, q {
+    quotes: none;
+  }
+
+  /* Anchor reset */
+  a {
+    color: inherit;
+    text-decoration: inherit;
+  }
+
+  /* Prevent text size adjustment on orientation change (iOS) */
+  html {
+    -webkit-text-size-adjust: 100%;
   }
   :root {
     --background: 0 0% 100%;
