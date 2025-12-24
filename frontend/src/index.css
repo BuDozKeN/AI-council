@@ -98,20 +98,20 @@ select:focus-visible {
 .dark button:focus-visible,
 .dark [role="button"]:focus-visible,
 .dark a:focus-visible {
-  outline-color: #60a5fa;
+  outline-color: var(--color-blue-500);
   box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.2);
 }
 
 .dark .model-card:focus-visible,
 .dark [role="article"]:focus-visible {
-  outline-color: #60a5fa;
+  outline-color: var(--color-blue-500);
   box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.2);
 }
 
 .dark input:focus-visible,
 .dark textarea:focus-visible,
 .dark select:focus-visible {
-  border-color: #60a5fa;
+  border-color: var(--color-blue-500);
   box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
 }
 

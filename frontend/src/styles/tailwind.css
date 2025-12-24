@@ -215,6 +215,7 @@
     /* Blue scale - for SOP type, links, info */
     --color-blue-100: #dbeafe;
     --color-blue-200: #bfdbfe;
+    --color-blue-300: #93c5fd;
     --color-blue-500: #3b82f6;
     --color-blue-600: #2563eb;
     --color-blue-700: #1d4ed8;
@@ -224,6 +225,7 @@
     --color-green-50: #f0fdf4;
     --color-green-100: #dcfce7;
     --color-green-300: #86efac;
+    --color-green-500: #22c55e;
     --color-green-600: #16a34a;
 
     /* Emerald scale - for save buttons */
@@ -235,11 +237,15 @@
     /* Amber scale - for framework type */
     --color-amber-100: #fef3c7;
     --color-amber-200: #fde68a;
+    --color-amber-300: #fcd34d;
+    --color-amber-500: #f59e0b;
+    --color-amber-600: #d97706;
     --color-amber-700: #b45309;
 
     /* Purple scale - for policy type, projects */
     --color-purple-100: #f3e8ff;
     --color-purple-200: #e9d5ff;
+    --color-purple-300: #c4b5fd;
     --color-purple-600: #7c3aed;
 
     /* Violet scale - for project hover states */
@@ -251,7 +257,11 @@
     --color-violet-900: #4c1d95;
 
     /* Indigo extended scale */
+    --color-indigo-500: #6366f1;
     --color-indigo-600: #4f46e5;
+
+    /* Red scale - for errors, danger states */
+    --color-red-500: #ef4444;
 
     /* Knowledge Base (dark theme) */
     --color-kb-bg-primary: #1a1a2e;

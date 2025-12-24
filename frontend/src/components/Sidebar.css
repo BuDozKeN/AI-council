@@ -775,7 +775,7 @@ button.sidebar-new-btn:hover {
 /* Selected styling (multi-select for bulk actions) - distinct from active */
 .conversation-item.selected {
   background: rgba(59, 130, 246, 0.08); /* Blue tint for selection */
-  border-left: 3px solid #3b82f6; /* Blue border */
+  border-left: 3px solid var(--color-primary);
   padding-left: 13px;
 }
 
@@ -786,7 +786,7 @@ button.sidebar-new-btn:hover {
 /* When both selected AND active, show selected state takes visual priority */
 .conversation-item.selected.active {
   background: rgba(59, 130, 246, 0.12);
-  border-left: 3px solid #3b82f6;
+  border-left: 3px solid var(--color-primary);
 }
 
 /* Dark mode selected styling */
@@ -862,7 +862,7 @@ button.sidebar-new-btn:hover {
 
 .hover-action-btn.danger:hover {
   background: rgba(239, 68, 68, 0.2);
-  color: #f87171;
+  color: var(--color-error);
 }
 
 /* =============================================================================
@@ -1036,7 +1036,7 @@ button.sidebar-new-btn:hover {
 }
 
 .bulk-delete-btn:hover:not(:disabled) {
-  background: #dc2626;
+  background: var(--color-error-hover);
 }
 
 .bulk-delete-btn:disabled {
@@ -1217,11 +1217,11 @@ button.sidebar-new-btn:hover {
 .mode-toggle-btn.production {
   background: rgba(16, 185, 129, 0.15);
   border-color: rgba(16, 185, 129, 0.5);
-  color: #6ee7b7;
+  color: var(--color-success);
 }
 
 .mode-toggle-btn.production .mode-indicator {
-  background: #10b981;
+  background: var(--color-success);
   box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
 }
 
@@ -1233,11 +1233,11 @@ button.sidebar-new-btn:hover {
 .mode-toggle-btn.mock {
   background: rgba(245, 158, 11, 0.15);
   border-color: rgba(245, 158, 11, 0.5);
-  color: #fcd34d;
+  color: var(--color-warning);
 }
 
 .mode-toggle-btn.mock .mode-indicator {
-  background: #f59e0b;
+  background: var(--color-warning);
   box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
 }
 
@@ -1249,11 +1249,11 @@ button.sidebar-new-btn:hover {
 .mode-toggle-btn.caching.enabled {
   background: rgba(59, 130, 246, 0.15);
   border-color: rgba(59, 130, 246, 0.5);
-  color: #93c5fd;
+  color: var(--color-primary);
 }
 
 .mode-toggle-btn.caching.enabled .mode-indicator {
-  background: #3b82f6;
+  background: var(--color-primary);
   box-shadow: 0 0 6px rgba(59, 130, 246, 0.5);
 }
 
@@ -1362,7 +1362,7 @@ button.sidebar-new-btn:hover {
 }
 
 .delete-modal-confirm:hover {
-  background: #dc2626;
+  background: var(--color-error-hover);
 }
 
 /* =============================================================================
