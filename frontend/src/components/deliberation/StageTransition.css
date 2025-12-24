@@ -6,7 +6,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 50;
+  z-index: var(--z-sticky);
   border-radius: var(--radius-lg);
   animation: fadeIn 0.3s ease-out;
 }

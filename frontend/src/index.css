@@ -85,7 +85,7 @@ select:focus-visible {
 .role-pill-compact:focus-visible {
   outline: 2px solid var(--color-brand-primary, #f97316);
   outline-offset: 1px;
-  z-index: 1;
+  z-index: var(--z-base);
 }
 
 /* Remove focus outline for mouse users */
@@ -260,7 +260,7 @@ body {
     position: sticky;
     left: 0;
     background: var(--color-bg-primary);
-    z-index: 1;
+    z-index: var(--z-base);
     box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
   }
 
