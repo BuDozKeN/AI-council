@@ -2,8 +2,9 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import './index.css'           // Existing vanilla CSS
-import './styles/tailwind.css' // Tailwind (preflight disabled - safe to coexist)
+import './styles/design-tokens.css' // Design system tokens - load FIRST
+import './index.css'                // Global styles and accessibility
+import './styles/tailwind.css'      // Tailwind utilities
 import App from './App.jsx'
 import { AuthProvider } from './AuthContext'
 import { BusinessProvider, ConversationProvider, UIProvider } from './contexts'

@@ -1,0 +1,335 @@
+/**
+ * AxCouncil Design System - Single Source of Truth
+ *
+ * Style: Notion/Figma inspired - warm, soft, approachable
+ *
+ * USAGE:
+ * - Import this file FIRST in your CSS chain
+ * - Always use CSS variables, never hardcode values
+ * - Use semantic tokens (--color-text-primary) not scale tokens (--gray-700)
+ */
+
+:root {
+  /* ============================================================================
+     SPACING SCALE (4px base unit)
+     Use: padding, margin, gap
+     ============================================================================ */
+  --space-0: 0;
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+
+  /* ============================================================================
+     TYPOGRAPHY
+     Notion-style: Clean, readable, warm
+     ============================================================================ */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Monaco, Consolas, monospace;
+
+  /* Font sizes (rem for accessibility) */
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+
+  /* Line heights */
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+
+  /* Font weights */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  /* ============================================================================
+     BORDER RADIUS (Notion-style: soft, approachable)
+     ============================================================================ */
+  --radius-none: 0;
+  --radius-sm: 4px;       /* Small elements: badges, chips */
+  --radius-md: 8px;       /* Default: buttons, inputs, cards */
+  --radius-lg: 12px;      /* Large: modals, panels */
+  --radius-xl: 16px;      /* Extra large: main containers */
+  --radius-2xl: 24px;     /* Feature cards */
+  --radius-full: 9999px;  /* Pills, avatars */
+
+  /* ============================================================================
+     SHADOWS (Notion-style: subtle, layered)
+     ============================================================================ */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.03);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+
+  /* Focus ring (accessibility) */
+  --shadow-focus: 0 0 0 3px rgba(59, 130, 246, 0.25);
+  --shadow-focus-error: 0 0 0 3px rgba(239, 68, 68, 0.25);
+
+  /* ============================================================================
+     Z-INDEX SCALE (Predictable stacking)
+     ============================================================================ */
+  --z-base: 0;
+  --z-above: 1;
+  --z-sticky: 10;
+  --z-header: 20;
+  --z-dropdown: 50;
+  --z-overlay: 100;
+  --z-modal: 200;
+  --z-popover: 300;
+  --z-tooltip: 400;
+  --z-toast: 500;
+
+  /* ============================================================================
+     LIGHT THEME COLORS (Default - Notion/Figma inspired)
+     ============================================================================ */
+
+  /* --- Background colors --- */
+  --color-bg-base: #ffffff;           /* Main background */
+  --color-bg-subtle: #fafafa;         /* Sidebar, secondary areas */
+  --color-bg-muted: #f5f5f5;          /* Cards, elevated surfaces */
+  --color-bg-emphasis: #ebebeb;       /* Hover states, active */
+  --color-bg-canvas: #f9fafb;         /* Page canvas */
+
+  /* --- Text colors --- */
+  --color-text-default: #37352f;      /* Notion's signature dark brown-black */
+  --color-text-muted: #6b6b6b;        /* Secondary text */
+  --color-text-subtle: #9b9b9b;       /* Tertiary, placeholders */
+  --color-text-disabled: #c7c7c7;     /* Disabled state */
+  --color-text-inverse: #ffffff;      /* On dark backgrounds */
+
+  /* --- Border colors --- */
+  --color-border-default: #e8e8e8;    /* Default borders */
+  --color-border-muted: #f0f0f0;      /* Subtle dividers */
+  --color-border-emphasis: #d4d4d4;   /* Emphasized borders */
+
+  /* --- Primary (Brand) - Warm blue --- */
+  --color-primary: #2383e2;           /* Notion blue */
+  --color-primary-hover: #1a73d4;
+  --color-primary-active: #1565c0;
+  --color-primary-subtle: #e8f4fd;
+  --color-primary-text: #ffffff;
+
+  /* --- Accent (Orange - for CTAs) --- */
+  --color-accent: #eb5757;            /* Notion red/coral */
+  --color-accent-hover: #e04444;
+  --color-accent-subtle: #fce8e8;
+
+  /* --- Success --- */
+  --color-success: #0f7b6c;           /* Notion teal */
+  --color-success-hover: #0d6b5e;
+  --color-success-subtle: #e6f4f1;
+  --color-success-text: #ffffff;
+
+  /* --- Warning --- */
+  --color-warning: #cb912f;           /* Notion yellow/gold */
+  --color-warning-hover: #b8821a;
+  --color-warning-subtle: #fbf3db;
+  --color-warning-text: #3f3f3f;
+
+  /* --- Error --- */
+  --color-error: #e03e3e;             /* Notion red */
+  --color-error-hover: #c93636;
+  --color-error-subtle: #fbe4e4;
+  --color-error-text: #ffffff;
+
+  /* --- Info --- */
+  --color-info: #337ea9;              /* Notion blue variant */
+  --color-info-hover: #2b6d93;
+  --color-info-subtle: #ddebf1;
+
+  /* --- Notion-style tag/badge colors --- */
+  --color-tag-gray: #e3e2e0;
+  --color-tag-brown: #eee0da;
+  --color-tag-orange: #fadec9;
+  --color-tag-yellow: #fdecc8;
+  --color-tag-green: #dbeddb;
+  --color-tag-blue: #d3e5ef;
+  --color-tag-purple: #e8deee;
+  --color-tag-pink: #f5e0e9;
+  --color-tag-red: #ffe2dd;
+
+  /* --- Department colors (semantic) --- */
+  --color-dept-engineering: #2383e2;
+  --color-dept-design: #9065b0;
+  --color-dept-product: #0f7b6c;
+  --color-dept-marketing: #cb912f;
+  --color-dept-sales: #6940a5;
+  --color-dept-hr: #d44c8a;
+  --color-dept-finance: #337ea9;
+  --color-dept-legal: #787774;
+  --color-dept-operations: #eb5757;
+
+  /* ============================================================================
+     ANIMATION & TRANSITIONS
+     ============================================================================ */
+  --duration-instant: 0ms;
+  --duration-fast: 100ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 400ms;
+
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* ============================================================================
+     COMPONENT-SPECIFIC TOKENS
+     ============================================================================ */
+
+  /* --- Buttons --- */
+  --btn-height-sm: 32px;
+  --btn-height-md: 36px;
+  --btn-height-lg: 44px;
+  --btn-padding-sm: var(--space-2) var(--space-3);
+  --btn-padding-md: var(--space-2) var(--space-4);
+  --btn-padding-lg: var(--space-3) var(--space-6);
+
+  /* --- Inputs --- */
+  --input-height-sm: 32px;
+  --input-height-md: 40px;
+  --input-height-lg: 48px;
+  --input-padding: var(--space-2) var(--space-3);
+
+  /* --- Cards --- */
+  --card-padding: var(--space-4);
+  --card-padding-lg: var(--space-6);
+  --card-radius: var(--radius-lg);
+
+  /* --- Modal --- */
+  --modal-padding: var(--space-6);
+  --modal-radius: var(--radius-xl);
+  --modal-shadow: var(--shadow-2xl);
+
+  /* --- Sidebar --- */
+  --sidebar-width: 280px;
+  --sidebar-width-collapsed: 60px;
+  --sidebar-bg: var(--color-bg-subtle);
+  --sidebar-border: var(--color-border-default);
+}
+
+/* ============================================================================
+   DARK THEME
+   ============================================================================ */
+.dark,
+[data-theme="dark"] {
+  /* --- Background colors --- */
+  --color-bg-base: #191919;           /* Notion dark background */
+  --color-bg-subtle: #202020;
+  --color-bg-muted: #2f2f2f;
+  --color-bg-emphasis: #373737;
+  --color-bg-canvas: #121212;
+
+  /* --- Text colors --- */
+  --color-text-default: #ffffffcf;    /* Notion's dark mode text */
+  --color-text-muted: #ffffff80;
+  --color-text-subtle: #ffffff52;
+  --color-text-disabled: #ffffff33;
+  --color-text-inverse: #191919;
+
+  /* --- Border colors --- */
+  --color-border-default: #ffffff14;
+  --color-border-muted: #ffffff0a;
+  --color-border-emphasis: #ffffff24;
+
+  /* --- Primary (Brand) --- */
+  --color-primary: #529cca;
+  --color-primary-hover: #68aad4;
+  --color-primary-active: #7eb8de;
+  --color-primary-subtle: #2c3d4a;
+
+  /* --- Accent --- */
+  --color-accent: #ff6b6b;
+  --color-accent-hover: #ff8585;
+  --color-accent-subtle: #4a2c2c;
+
+  /* --- Success --- */
+  --color-success: #4dab9a;
+  --color-success-subtle: #1f3733;
+
+  /* --- Warning --- */
+  --color-warning: #e9a94b;
+  --color-warning-subtle: #3d3222;
+
+  /* --- Error --- */
+  --color-error: #ff6b6b;
+  --color-error-subtle: #4a2c2c;
+
+  /* --- Info --- */
+  --color-info: #6cb6d9;
+  --color-info-subtle: #253743;
+
+  /* --- Shadows (darker for dark mode) --- */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.15);
+
+  /* --- Sidebar --- */
+  --sidebar-bg: var(--color-bg-subtle);
+  --sidebar-border: var(--color-border-default);
+}
+
+/* ============================================================================
+   UTILITY CLASSES
+   ============================================================================ */
+
+/* Text utilities */
+.text-default { color: var(--color-text-default); }
+.text-muted { color: var(--color-text-muted); }
+.text-subtle { color: var(--color-text-subtle); }
+
+/* Background utilities */
+.bg-base { background-color: var(--color-bg-base); }
+.bg-subtle { background-color: var(--color-bg-subtle); }
+.bg-muted { background-color: var(--color-bg-muted); }
+
+/* Border utilities */
+.border-default { border-color: var(--color-border-default); }
+.border-muted { border-color: var(--color-border-muted); }
+
+/* Radius utilities */
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-xl { border-radius: var(--radius-xl); }
+.rounded-full { border-radius: var(--radius-full); }
+
+/* Shadow utilities */
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+
+/* Transition utility */
+.transition-colors {
+  transition: background-color var(--duration-fast) var(--ease-default),
+              border-color var(--duration-fast) var(--ease-default),
+              color var(--duration-fast) var(--ease-default);
+}
+
+.transition-all {
+  transition: all var(--duration-normal) var(--ease-default);
+}
+
+/* Focus visible (accessibility) */
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}

@@ -1,13 +1,15 @@
 @import "tailwindcss";
 @config "../../tailwind.config.js";
 
-/* Minimal reset for Shadcn when preflight is disabled */
+/* Unified reset for Shadcn when preflight is disabled */
 @layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
   button, input, textarea, select {
     font: inherit;
-  }
-  *, ::before, ::after {
-    box-sizing: border-box;
     border-width: 0;
     border-style: solid;
     border-color: currentColor;
@@ -670,35 +672,33 @@ html {
 }
 
 /* ============================================================================
-   SMOOTH THEME TRANSITIONS
+   THEME & INTERACTIVE TRANSITIONS
    ============================================================================ */
 
-/* Transition colors smoothly when theme changes */
-*,
-*::before,
-*::after {
-  transition-property: background-color, border-color, color, fill, stroke, box-shadow;
-  transition-duration: 0.15s;
-  transition-timing-function: ease-out;
+/* Only transition theme-aware elements, not everything */
+.theme-transition {
+  transition: background-color 0.15s ease-out, border-color 0.15s ease-out, color 0.15s ease-out;
 }
 
-/* Exclude elements that shouldn't transition */
-.no-theme-transition,
-.no-theme-transition *,
-input,
-textarea,
-select,
+/* Interactive element transitions */
 button,
 a,
-[role="button"] {
-  transition-property: none;
+[role="button"],
+.btn,
+.button {
+  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease, opacity 0.15s ease;
 }
 
-/* Re-enable specific transitions for interactive elements */
-button,
-a,
-[role="button"] {
-  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+/* Disable transitions for reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  button,
+  a,
+  [role="button"],
+  .btn,
+  .button,
+  .theme-transition {
+    transition: none;
+  }
 }
 
 /* ============================================================================
