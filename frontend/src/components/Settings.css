@@ -476,8 +476,8 @@
     left: calc(100% + 8px);
     top: 50%;
     transform: translateY(-50%);
-    background: #1a1a1a;
-    color: #ffffff;
+    background: var(--color-bg-canvas, #1a1a1a);
+    color: var(--color-text-inverse);
     padding: 6px 10px;
     border-radius: 6px;
     font-size: 12px;
@@ -726,12 +726,12 @@
 }
 
 .icon-btn.promote:hover {
-  color: #3b82f6;
+  color: var(--color-blue-500);
   background: rgba(59, 130, 246, 0.1);
 }
 
 .icon-btn.demote:hover {
-  color: #f59e0b;
+  color: var(--color-amber-500);
   background: rgba(245, 158, 11, 0.1);
 }
 
@@ -821,13 +821,13 @@
 
 .api-message.error {
   background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
+  color: var(--color-red-500);
   border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
 .api-message.success {
   background: rgba(34, 197, 94, 0.1);
-  color: #22c55e;
+  color: var(--color-green-500);
   border: 1px solid rgba(34, 197, 94, 0.2);
 }
 
@@ -855,11 +855,11 @@
 }
 
 .api-key-status .status-icon.valid {
-  color: #22c55e;
+  color: var(--color-green-500);
 }
 
 .api-key-status .status-icon.invalid {
-  color: #ef4444;
+  color: var(--color-red-500);
 }
 
 .api-key-status .masked-key {
@@ -882,12 +882,12 @@
 
 .api-key-status .status-badge.valid {
   background: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
+  color: var(--color-green-500);
 }
 
 .api-key-status .status-badge.invalid {
   background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
+  color: var(--color-red-500);
 }
 
 .api-key-hint {
@@ -910,7 +910,7 @@
 .btn-danger-outline {
   background: transparent;
   border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #ef4444;
+  color: var(--color-red-500);
   padding: 8px 14px;
   border-radius: 6px;
   font-size: 13px;
@@ -1132,7 +1132,7 @@
 }
 
 .provider-logo.openrouter {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: linear-gradient(135deg, var(--color-indigo-500), var(--color-violet-400));
   color: white;
 }
 
@@ -1164,16 +1164,16 @@
 }
 
 .status-dot.connected {
-  background: #22c55e;
+  background: var(--color-green-500);
   box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
 }
 
 .status-dot.paused {
-  background: #9ca3af;
+  background: var(--color-gray-400);
 }
 
 .status-dot.invalid {
-  background: #ef4444;
+  background: var(--color-red-500);
   box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
 }
 
@@ -1198,12 +1198,12 @@
 
 .status-pill.connected {
   background: rgba(34, 197, 94, 0.12);
-  color: #22c55e;
+  color: var(--color-green-500);
 }
 
 .status-pill.invalid {
   background: rgba(239, 68, 68, 0.12);
-  color: #ef4444;
+  color: var(--color-red-500);
 }
 
 .status-pill.not-connected {
@@ -1604,17 +1604,17 @@
 
 .byok-toast.success {
   background: rgba(34, 197, 94, 0.1);
-  color: #22c55e;
+  color: var(--color-green-500);
 }
 
 .byok-toast.warning {
   background: rgba(156, 163, 175, 0.15);
-  color: #9ca3af;
+  color: var(--color-gray-400);
 }
 
 .byok-toast.error {
   background: rgba(239, 68, 68, 0.1);
-  color: #ef4444;
+  color: var(--color-red-500);
 }
 
 /* Main row */
@@ -1653,12 +1653,12 @@
 
 .byok-badge.invalid {
   background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
+  color: var(--color-red-500);
 }
 
 .byok-badge.paused {
   background: rgba(156, 163, 175, 0.15);
-  color: #9ca3af;
+  color: var(--color-gray-400);
 }
 
 /* Actions group */
@@ -1737,7 +1737,7 @@
 }
 
 .byok-dropdown-item.danger {
-  color: #ef4444;
+  color: var(--color-red-500);
 }
 
 .byok-dropdown-item.danger:hover {
@@ -1827,7 +1827,7 @@
 /* Status pill for disabled state in header */
 .status-pill.disabled {
   background: rgba(156, 163, 175, 0.15);
-  color: #9ca3af;
+  color: var(--color-gray-400);
 }
 
 /* Mobile - even more compact */
