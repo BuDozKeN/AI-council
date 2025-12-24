@@ -1,31 +1,32 @@
 import { Skeleton } from '../ui/Skeleton';
 import { Button } from '../ui/button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
 import { useProfile } from './hooks/useProfile';
 
 const ProfileSkeleton = () => (
   <>
     {/* Account Info Card Skeleton */}
-    <div className="settings-card">
-      <div className="card-header">
+    <Card className="settings-card">
+      <CardHeader>
         <Skeleton width={180} height={20} />
         <Skeleton width={200} height={14} className="mt-2" />
-      </div>
-      <div className="card-body">
+      </CardHeader>
+      <CardContent>
         <div className="form-group">
           <Skeleton width={50} height={14} />
           <Skeleton height={40} className="mt-2" />
           <Skeleton width={160} height={12} className="mt-1.5" />
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
 
     {/* Profile Details Card Skeleton */}
-    <div className="settings-card">
-      <div className="card-header">
+    <Card className="settings-card">
+      <CardHeader>
         <Skeleton width={140} height={20} />
         <Skeleton width={220} height={14} className="mt-2" />
-      </div>
-      <div className="card-body">
+      </CardHeader>
+      <CardContent>
         {[1, 2, 3].map((i) => (
           <div className="form-group" key={i}>
             <Skeleton width={80} height={14} />
@@ -39,8 +40,8 @@ const ProfileSkeleton = () => (
         <div className="form-actions">
           <Skeleton width={120} height={40} />
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   </>
 );
 
@@ -61,12 +62,12 @@ export function ProfileSection({ user, isOpen }) {
   return (
     <>
       {/* Account Info Card */}
-      <div className="settings-card">
-        <div className="card-header">
-          <h3>Account Information</h3>
-          <p>Your email and account details</p>
-        </div>
-        <div className="card-body">
+      <Card className="settings-card">
+        <CardHeader>
+          <CardTitle>Account Information</CardTitle>
+          <CardDescription>Your email and account details</CardDescription>
+        </CardHeader>
+        <CardContent>
           <div className="form-group">
             <label>Email</label>
             <input
@@ -77,16 +78,16 @@ export function ProfileSection({ user, isOpen }) {
             />
             <span className="input-hint">Email cannot be changed</span>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Profile Details Card */}
-      <div className="settings-card">
-        <div className="card-header">
-          <h3>Profile Details</h3>
-          <p>Update your personal information</p>
-        </div>
-        <div className="card-body">
+      <Card className="settings-card">
+        <CardHeader>
+          <CardTitle>Profile Details</CardTitle>
+          <CardDescription>Update your personal information</CardDescription>
+        </CardHeader>
+        <CardContent>
           <form onSubmit={handleSaveProfile}>
             <div className="form-group">
               <label>Display Name</label>
@@ -136,8 +137,8 @@ export function ProfileSection({ user, isOpen }) {
               )}
             </div>
           </form>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </>
   );
 }

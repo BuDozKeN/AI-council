@@ -2,6 +2,7 @@ import { Zap, ChevronDown, CheckCircle, XCircle, ExternalLink, RefreshCw, HelpCi
 import { Skeleton } from '../ui/Skeleton';
 import { Spinner } from '../ui/Spinner';
 import { Button } from '../ui/button';
+import { Card, CardHeader, CardContent } from '../ui/card';
 import { Switch } from '../ui/switch';
 import * as Accordion from '@radix-ui/react-accordion';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
@@ -35,16 +36,16 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }) {
 
   if (apiKeyLoading) {
     return (
-      <div className="settings-card">
-        <div className="card-header">
+      <Card className="settings-card">
+        <CardHeader>
           <Skeleton width={200} height={20} />
           <Skeleton width={300} height={14} style={{ marginTop: 8 }} />
-        </div>
-        <div className="card-body">
+        </CardHeader>
+        <CardContent>
           <Skeleton height={40} style={{ marginBottom: 16 }} />
           <Skeleton height={40} />
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     );
   }
 

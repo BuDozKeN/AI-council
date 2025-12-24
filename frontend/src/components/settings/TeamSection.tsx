@@ -2,6 +2,7 @@ import { Crown, Shield, UserIcon, Plus, Trash2, ChevronUp, ChevronDown, AlertCir
 import { Skeleton } from '../ui/Skeleton';
 import { Spinner } from '../ui/Spinner';
 import { Button } from '../ui/button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../ui/select';
 import { formatDate } from '../../lib/dateUtils';
 import { useTeam } from './hooks/useTeam';
@@ -16,8 +17,8 @@ const ROLE_CONFIG = {
 const TeamSkeleton = () => (
   <>
     {/* Team Members Card Skeleton */}
-    <div className="settings-card">
-      <div className="card-header">
+    <Card className="settings-card">
+      <CardHeader>
         <div className="flex items-center justify-between">
           <div>
             <Skeleton width={120} height={16} />
@@ -25,8 +26,8 @@ const TeamSkeleton = () => (
           </div>
           <Skeleton width={115} height={36} className="rounded-md" />
         </div>
-      </div>
-      <div className="card-body">
+      </CardHeader>
+      <CardContent>
         <div className="members-list">
           {[1, 2, 3].map((i) => (
             <div key={i} className="member-row">
@@ -44,16 +45,16 @@ const TeamSkeleton = () => (
             </div>
           ))}
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
 
     {/* Usage Statistics Skeleton */}
-    <div className="settings-card">
-      <div className="card-header">
+    <Card className="settings-card">
+      <CardHeader>
         <Skeleton width={130} height={16} />
         <Skeleton width={200} height={13} className="mt-1" />
-      </div>
-      <div className="card-body">
+      </CardHeader>
+      <CardContent>
         <div className="usage-grid">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="usage-stat">
@@ -62,8 +63,8 @@ const TeamSkeleton = () => (
             </div>
           ))}
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   </>
 );
 
@@ -96,25 +97,25 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }) {
 
   if (teamError) {
     return (
-      <div className="settings-card">
-        <div className="card-body flex items-center justify-center p-6 gap-3 text-red-500">
+      <Card className="settings-card">
+        <CardContent className="flex items-center justify-center p-6 gap-3 text-red-500">
           <AlertCircle size={20} />
           <span>{teamError}</span>
           <Button variant="outline" onClick={loadTeamData}>Retry</Button>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
     <>
       {/* Team Members Card */}
-      <div className="settings-card">
-        <div className="card-header">
+      <Card className="settings-card">
+        <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <h3>Team Members</h3>
-              <p>{members.length} {members.length === 1 ? 'member' : 'members'}</p>
+              <CardTitle>Team Members</CardTitle>
+              <CardDescription>{members.length} {members.length === 1 ? 'member' : 'members'}</CardDescription>
             </div>
             {canManageMembers && (
               <Button
@@ -127,9 +128,9 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }) {
               </Button>
             )}
           </div>
-        </div>
+        </CardHeader>
 
-        <div className="card-body">
+        <CardContent>
           {/* Add member form */}
           {showAddForm && (
             <form onSubmit={handleAddMember} className="add-member-form">
@@ -236,17 +237,17 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }) {
               );
             })}
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {/* Usage Statistics (for owners/admins) */}
       {usage && (
-        <div className="settings-card">
-          <div className="card-header">
-            <h3>Usage Statistics</h3>
-            <p>Council usage for your organization</p>
-          </div>
-          <div className="card-body">
+        <Card className="settings-card">
+          <CardHeader>
+            <CardTitle>Usage Statistics</CardTitle>
+            <CardDescription>Council usage for your organization</CardDescription>
+          </CardHeader>
+          <CardContent>
             <div className="usage-grid">
               <div className="usage-stat">
                 <span className="usage-value">{usage.sessions_this_month}</span>
@@ -269,8 +270,8 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }) {
                 <span className="usage-label">Total tokens</span>
               </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       )}
     </>
   );
