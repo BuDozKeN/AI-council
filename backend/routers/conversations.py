@@ -147,19 +147,24 @@ async def list_conversations(
     List conversations for the current user with pagination, filtering, and search.
     """
     access_token = user.get("access_token")
-    conversations = storage.list_conversations(
+    result = storage.list_conversations(
         user_id=user["id"],
         limit=limit,
         offset=offset,
         sort_by=sort_by,
-        department=department,
         search=search,
         company_id=company_id,
-        starred=starred,
-        archived=archived,
+        include_archived=archived if archived is not None else False,
         access_token=access_token
     )
-    return {"conversations": conversations}
+    # Filter by department and starred client-side if specified
+    # (storage function doesn't support these filters yet)
+    conversations = result.get("conversations", [])
+    if department:
+        conversations = [c for c in conversations if c.get("department") == department]
+    if starred is not None:
+        conversations = [c for c in conversations if c.get("is_starred") == starred]
+    return {"conversations": conversations, "has_more": result.get("has_more", False)}
 
 
 @router.post("/conversations")
