@@ -7,9 +7,9 @@
  * ✅ shell.css    - Extracted (overlay, panel, header, tabs, content)
  * ✅ badges.css   - Extracted (type, dept, scope, meta badges)
  * ✅ shared.css   - Extracted (states, forms, buttons)
+ * ✅ mobile.css   - Extracted (bottom nav, touch targets, safe areas)
  * ⏳ tabs/*.css   - Placeholder (styles still in legacy file)
  * ⏳ modals.css   - Placeholder (styles still in legacy file)
- * ⏳ mobile.css   - Placeholder (styles still in legacy file)
  *
  * The legacy MyCompany.css is still imported until full migration is complete.
  * To migrate: Extract styles from legacy file into the appropriate module,
@@ -54,5 +54,5 @@
 /* Modal styles (TODO: extract from legacy) */
 /* @import './modals.css'; */
 
-/* Mobile responsive overrides (TODO: extract from legacy) */
-/* @import './mobile.css'; */
+/* Mobile responsive overrides - EXTRACTED */
+@import './mobile.css';
