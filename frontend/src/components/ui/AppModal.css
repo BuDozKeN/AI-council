@@ -534,7 +534,7 @@
     height: 4px;
     background: var(--color-slate-300, #cbd5e1);
     border-radius: 2px;
-    z-index: 10;
+    z-index: var(--z-elevated);
   }
 
   /* Header adjusts for drag handle */
@@ -642,7 +642,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
   opacity: 0.7;
-  z-index: 5;
+  z-index: var(--z-raised);
 }
 
 .app-modal-copy-btn:hover {
@@ -687,7 +687,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
   opacity: 0.7;
-  z-index: 10;
+  z-index: var(--z-elevated);
 }
 
 .app-modal-scroll-top-btn:hover {

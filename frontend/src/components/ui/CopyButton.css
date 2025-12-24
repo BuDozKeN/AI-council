@@ -88,7 +88,7 @@
   position: sticky;
   top: 8px;
   right: 8px;
-  z-index: 10;
+  z-index: var(--z-elevated);
   float: right;
   margin-left: auto;
 }
@@ -97,7 +97,7 @@
   position: absolute;
   top: 8px;
   right: 8px;
-  z-index: 10;
+  z-index: var(--z-elevated);
 }
 
 /* Dark mode */
