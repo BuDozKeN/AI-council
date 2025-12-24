@@ -73,6 +73,11 @@ def log_security_event(
         log_data["details"] = safe_details
 
     message = f"{event_type} | user={masked_user} | resource={resource_type}:{masked_resource}"
+    if details:
+        # Include details in log message (already filtered for sensitive keys)
+        safe_details = log_data.get("details", {})
+        if safe_details:
+            message += f" | details={safe_details}"
 
     if severity == "WARNING":
         security_logger.warning(message)
