@@ -32,7 +32,6 @@ from ..council import (
 )
 from ..context_loader import load_business_context
 from ..security import log_app_event
-from ..model_registry import model_registry
 
 # Import rate limiter from main module
 from slowapi import Limiter
