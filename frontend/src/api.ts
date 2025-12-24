@@ -120,7 +120,9 @@ export const api = {
     if (!response.ok) {
       throw new Error('Failed to list businesses');
     }
-    return response.json();
+    const data = await response.json();
+    // Backend returns { companies: [...], has_more: bool }, but callers expect an array
+    return data.companies || [];
   },
 
   /**
