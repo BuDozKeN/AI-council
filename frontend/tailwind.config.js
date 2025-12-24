@@ -6,7 +6,7 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   corePlugins: {
-    preflight: false,  // CRITICAL: Prevents breaking existing vanilla CSS styles
+    preflight: true,  // Enabled - Tailwind's CSS reset for consistent baseline
   },
   theme: {
   	extend: {

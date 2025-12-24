@@ -236,7 +236,7 @@
   font-weight: bold;
   border: 2px solid var(--color-bg-primary, white);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  z-index: 2;
+  z-index: var(--z-above);
 }
 
 .stage2 .tab .tab-status-badge.complete {

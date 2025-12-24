@@ -141,7 +141,7 @@
   /* This keeps the hero centered on the viewport regardless of sidebar state */
   position: absolute;
   inset: 0;
-  z-index: 10;
+  z-index: var(--z-elevated);
   /* Smooth backdrop for transition */
   background: var(--color-bg-secondary);
 }
@@ -157,6 +157,6 @@
 /* Mobile: bump z-index so landing overlays mobile sidebar */
 @media (max-width: 768px) {
   .main-content-landing {
-    z-index: 100;
+    z-index: var(--z-dropdown);
   }
 }

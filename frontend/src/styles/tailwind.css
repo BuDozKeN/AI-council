@@ -1,51 +1,12 @@
 @import "tailwindcss";
 @config "../../tailwind.config.js";
 
-/* Enhanced reset for Shadcn when preflight is disabled
-   This provides preflight-like normalization without breaking existing styles */
+/* Tailwind Preflight is now enabled - provides CSS reset
+   Additional app-specific base styles below */
 @layer base {
-  /* Universal box-sizing */
-  *, *::before, *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
-  /* Form element normalization */
+  /* Ensure form elements inherit app fonts */
   button, input, textarea, select {
     font: inherit;
-    color: inherit;
-    border-width: 0;
-    border-style: solid;
-    border-color: currentColor;
-    background: transparent;
-  }
-
-  /* Button cursor */
-  button, [role="button"] {
-    cursor: pointer;
-  }
-
-  /* Disabled state */
-  :disabled {
-    cursor: default;
-  }
-
-  /* Image normalization */
-  img, svg, video, canvas, audio, iframe, embed, object {
-    display: block;
-    vertical-align: middle;
-  }
-
-  img, video {
-    max-width: 100%;
-    height: auto;
-  }
-
-  /* Table border collapse */
-  table {
-    border-collapse: collapse;
-    border-spacing: 0;
   }
 
   /* Remove list styles */
@@ -97,11 +58,16 @@
 
     /* Z-index scale - use these instead of arbitrary values */
     --z-base: 1;
-    --z-sticky: 50;
-    --z-dropdown: 100;
-    --z-modal: 1000;
-    --z-modal-dropdown: 1100;
-    --z-toast: 1200;
+    --z-above: 2;           /* Just above siblings (badges, overlays) */
+    --z-raised: 5;          /* Slightly elevated (floating actions) */
+    --z-elevated: 10;       /* Cards, tooltips, popovers */
+    --z-header: 20;         /* Fixed headers, navbars */
+    --z-overlay: 40;        /* Overlays below sticky */
+    --z-sticky: 50;         /* Sticky elements */
+    --z-dropdown: 100;      /* Dropdowns, context menus */
+    --z-modal: 1000;        /* Modal dialogs */
+    --z-modal-dropdown: 1100; /* Dropdowns inside modals */
+    --z-toast: 1200;        /* Toast notifications */
 
     /* Shadow scale - use these instead of arbitrary box-shadow values */
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);

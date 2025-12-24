@@ -175,7 +175,7 @@ h2, h3 {
 .stage3-sticky-toolbar {
   position: sticky;
   top: 60px; /* Below any fixed headers */
-  z-index: 15;
+  z-index: var(--z-header);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1653,7 +1653,7 @@ h2, h3 {
   position: fixed;
   right: 24px; /* Aligned with content edge */
   bottom: 340px; /* Well above scroll-to-top button */
-  z-index: 20;
+  z-index: var(--z-header);
   /* Same style as sticky copy button */
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(8px);
@@ -1963,7 +1963,7 @@ h2, h3 {
 .stage3-mobile-outline-overlay {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: var(--z-dropdown);
   display: flex;
   align-items: flex-end;
   background: rgba(15, 23, 42, 0.4);
