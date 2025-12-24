@@ -1699,12 +1699,12 @@
 /* Dropdown */
 .byok-dropdown {
   min-width: 130px;
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
-  padding: 6px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-  z-index: 99999;
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  padding: var(--space-2);
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-popover);
   animation: byokDropdownIn 150ms ease-out;
 }
 

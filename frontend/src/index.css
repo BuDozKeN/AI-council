@@ -40,7 +40,7 @@
   font-weight: 600;
   font-size: 14px;
   border-radius: 8px;
-  z-index: 9999;
+  z-index: var(--z-toast);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   text-decoration: none;
 }
@@ -115,11 +115,7 @@ select:focus-visible {
   box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* Box-sizing is handled in tailwind.css @layer base */
 
 body {
   margin: 0;

@@ -28,7 +28,7 @@
   top: 50%;
   left: 0;
   transform: translateY(-50%);
-  z-index: 1001;
+  z-index: var(--z-modal);
   width: 20px;
   height: 60px;
   border: none;
@@ -85,7 +85,7 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 999;
+  z-index: var(--z-overlay);
   opacity: 0;
   transition: opacity 0.3s ease;
 }

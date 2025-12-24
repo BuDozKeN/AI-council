@@ -4,13 +4,13 @@
 
 .context-menu {
   position: fixed;
-  z-index: 1100;
+  z-index: var(--z-popover);
   min-width: 180px;
-  padding: 4px;
+  padding: var(--space-1);
   background: var(--sidebar-bg);
   border: 1px solid var(--sidebar-border);
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
   animation: context-menu-appear 0.15s ease-out;
 }
 

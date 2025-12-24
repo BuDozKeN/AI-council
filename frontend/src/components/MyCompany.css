@@ -7276,7 +7276,7 @@
     height: 4px;
     background: rgba(255, 255, 255, 0.5); /* White for dark header */
     border-radius: 2px;
-    z-index: 200;
+    z-index: var(--z-above);
   }
 
   /* Adjust header padding to account for drag handle */
