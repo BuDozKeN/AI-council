@@ -4,16 +4,20 @@
  * This file provides a transitional approach to modularizing MyCompany.css
  *
  * MIGRATION STATUS:
- * ✅ shell.css    - Extracted (overlay, panel, header, tabs, content)
- * ✅ badges.css   - Extracted (type, dept, scope, meta badges)
- * ✅ shared.css   - Extracted (states, forms, buttons)
- * ✅ mobile.css   - Extracted (bottom nav, touch targets, safe areas)
- * ⏳ tabs/*.css   - Placeholder (styles still in legacy file)
- * ⏳ modals.css   - Placeholder (styles still in legacy file)
+ * ✅ shell.css       - Extracted (overlay, panel, header, tabs, content)
+ * ✅ badges.css      - Extracted (type, dept, scope, meta badges)
+ * ✅ shared.css      - Extracted (states, forms, buttons)
+ * ✅ mobile.css      - Extracted (bottom nav, touch targets, safe areas)
+ * ✅ modals.css      - Extracted (modal patterns, promote, edit views)
+ * ✅ tabs/overview.css   - Extracted (stats, hero, context, search/filters)
+ * ✅ tabs/playbooks.css  - Extracted (playbook list, groups, items)
+ * ✅ tabs/decisions.css  - Extracted (decisions list, badges, actions)
+ * ✅ tabs/activity.css   - Extracted (activity feed, groups, filters)
+ * ✅ tabs/projects.css   - Extracted (project list, timeline, modal)
+ * ✅ tabs/team.css       - Extracted (members list, forms, usage)
  *
- * The legacy MyCompany.css is still imported until full migration is complete.
- * To migrate: Extract styles from legacy file into the appropriate module,
- * then remove those styles from the legacy file.
+ * The legacy MyCompany.css is still imported for any remaining styles.
+ * As styles are fully extracted, they can be removed from the legacy file.
  */
 
 /* ============================================================================
@@ -27,32 +31,31 @@
 @import './badges.css';
 @import './shared.css';
 
+/* Tab-specific styles */
+@import './tabs/overview.css';
+@import './tabs/playbooks.css';
+@import './tabs/decisions.css';
+@import './tabs/activity.css';
+@import './tabs/projects.css';
+@import './tabs/team.css';
+
+/* Modal styles */
+@import './modals.css';
+
 /* ============================================================================
-   LEGACY STYLES (not yet extracted - DO NOT DUPLICATE)
+   LEGACY STYLES (not yet removed - DO NOT DUPLICATE)
    The legacy file still contains:
-   - Tab-specific styles (overview, playbooks, decisions, activity, projects, team)
-   - Modal styles
-   - Mobile responsive overrides
+   - Some 768px and 480px responsive breakpoint overrides
+   - AI synthesize button styles
+   - Context header/field styles
+   - Some legacy button variants
 
    Import legacy file AFTER modular styles to allow overrides
    ============================================================================ */
 @import '../../MyCompany.css';
 
 /* ============================================================================
-   PLACEHOLDER IMPORTS (currently empty, ready for extraction)
-   Uncomment these as you extract styles from the legacy file:
+   MOBILE RESPONSIVE OVERRIDES
+   Mobile styles must come LAST to override everything else
    ============================================================================ */
-
-/* Tab-specific styles (TODO: extract from legacy) */
-/* @import './tabs/overview.css'; */
-/* @import './tabs/playbooks.css'; */
-/* @import './tabs/decisions.css'; */
-/* @import './tabs/activity.css'; */
-/* @import './tabs/projects.css'; */
-/* @import './tabs/team.css'; */
-
-/* Modal styles (TODO: extract from legacy) */
-/* @import './modals.css'; */
-
-/* Mobile responsive overrides - EXTRACTED */
 @import './mobile.css';

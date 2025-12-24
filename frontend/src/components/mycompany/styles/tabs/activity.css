@@ -1,8 +1,165 @@
 /**
  * Activity Tab Styles
- * Activity feed, timeline, filters
- *
- * TODO: Extract from MyCompany.css lines ~1665-1869
+ * Activity feed, groups, items, filters
  */
 
-/* Placeholder - styles currently in MyCompany.css */
+/* ============================================================================
+   ACTIVITY TAB - Header & Filters
+   ============================================================================ */
+
+.mc-activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  font-size: 0.875rem;
+  color: var(--color-gray-500);
+}
+
+.mc-cleanup-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--color-slate-100);
+  color: var(--color-slate-600);
+  border: 1px solid var(--color-slate-200);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-cleanup-btn:hover:not(:disabled) {
+  background: var(--color-slate-200);
+  border-color: var(--color-slate-300);
+}
+
+.mc-cleanup-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.mc-activity-filters {
+  display: flex;
+  gap: 8px;
+}
+
+.mc-filter-chip {
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid var(--color-slate-300);
+  background: white;
+  color: var(--color-slate-600);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.mc-filter-chip:hover {
+  background: var(--color-slate-100);
+  border-color: var(--color-slate-300);
+}
+
+.mc-filter-chip.active {
+  background: var(--color-brand-600);
+  border-color: var(--color-brand-600);
+  color: white;
+}
+
+.mc-load-more-container {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+}
+
+/* ============================================================================
+   ACTIVITY GROUPS & LIST
+   ============================================================================ */
+
+.mc-activity-group {
+  margin-bottom: 24px;
+}
+
+.mc-activity-date {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 12px;
+}
+
+.mc-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ============================================================================
+   ACTIVITY ITEMS
+   ============================================================================ */
+
+.mc-activity-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--color-gray-50);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  transition: background-color 0.15s;
+}
+
+.mc-activity-item:hover {
+  background: var(--color-gray-100);
+}
+
+.mc-activity-item.clickable {
+  cursor: pointer;
+}
+
+.mc-activity-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.mc-activity-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.mc-activity-type {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-gray-400);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 2px;
+}
+
+.mc-activity-title {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-gray-700);
+}
+
+.mc-activity-description {
+  margin: 6px 0 0;
+  font-size: 0.8125rem;
+  color: var(--color-gray-500);
+  line-height: 1.5;
+}
+
+.mc-activity-time {
+  font-size: 0.75rem;
+  color: var(--color-gray-400);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
