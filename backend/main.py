@@ -15,7 +15,7 @@ from datetime import datetime
 try:
     from .sentry import init_sentry, set_user_context, capture_exception
 except ImportError:
-    from sentry import init_sentry, set_user_context, capture_exception
+    from backend.sentry import init_sentry, set_user_context, capture_exception
 
 # Initialize Sentry before app creation to catch all errors
 init_sentry()
@@ -30,7 +30,7 @@ from slowapi.errors import RateLimitExceeded
 try:
     from .security import SecureHTTPException, log_security_event, get_client_ip, log_app_event
 except ImportError:
-    from security import SecureHTTPException, log_security_event, get_client_ip, log_app_event
+    from backend.security import SecureHTTPException, log_security_event, get_client_ip, log_app_event
 
 
 def get_user_identifier(request: Request) -> str:
@@ -103,9 +103,9 @@ try:
         profile_router,
     )
 except ImportError:
-    from context_loader import list_available_businesses
-    from auth import get_current_user
-    from routers import (
+    from backend.context_loader import list_available_businesses
+    from backend.auth import get_current_user
+    from backend.routers import (
         company_router,
         settings_router,
         conversations_router,
