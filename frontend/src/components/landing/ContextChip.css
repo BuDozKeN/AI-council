@@ -617,7 +617,7 @@
   flex-shrink: 0;
   position: sticky;
   bottom: 0;
-  z-index: 1;
+  z-index: var(--z-base);
 }
 
 .context-apply-btn:hover {
@@ -1038,7 +1038,7 @@
   width: 20px;
   height: 100%;
   pointer-events: none;
-  z-index: 1;
+  z-index: var(--z-base);
 }
 
 /* Note: Fade edges would require additional wrapper - keeping it simple for now */
