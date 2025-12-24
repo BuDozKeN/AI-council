@@ -7,13 +7,13 @@ const ProfileSkeleton = () => (
     <div className="settings-card">
       <div className="card-header">
         <Skeleton width={180} height={20} />
-        <Skeleton width={200} height={14} style={{ marginTop: 8 }} />
+        <Skeleton width={200} height={14} className="mt-2" />
       </div>
       <div className="card-body">
         <div className="form-group">
           <Skeleton width={50} height={14} />
-          <Skeleton height={40} style={{ marginTop: 8 }} />
-          <Skeleton width={160} height={12} style={{ marginTop: 6 }} />
+          <Skeleton height={40} className="mt-2" />
+          <Skeleton width={160} height={12} className="mt-1.5" />
         </div>
       </div>
     </div>
@@ -22,18 +22,18 @@ const ProfileSkeleton = () => (
     <div className="settings-card">
       <div className="card-header">
         <Skeleton width={140} height={20} />
-        <Skeleton width={220} height={14} style={{ marginTop: 8 }} />
+        <Skeleton width={220} height={14} className="mt-2" />
       </div>
       <div className="card-body">
         {[1, 2, 3].map((i) => (
           <div className="form-group" key={i}>
             <Skeleton width={80} height={14} />
-            <Skeleton height={40} style={{ marginTop: 8 }} />
+            <Skeleton height={40} className="mt-2" />
           </div>
         ))}
         <div className="form-group">
           <Skeleton width={40} height={14} />
-          <Skeleton height={80} style={{ marginTop: 8 }} />
+          <Skeleton height={80} className="mt-2" />
         </div>
         <div className="form-actions">
           <Skeleton width={120} height={40} />

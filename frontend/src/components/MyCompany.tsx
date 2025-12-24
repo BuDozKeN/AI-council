@@ -435,20 +435,20 @@ export default function MyCompany({
       {(activeTab === 'projects' || activeTab === 'playbooks') && (
         <>
           <div className="mc-skeleton-stats">
-            {[1,2,3,4].map(i => <Skeleton key={i} width={140} height={80} style={{ borderRadius: 12 }} />)}
+            {[1,2,3,4].map(i => <Skeleton key={i} width={140} height={80} className="rounded-xl" />)}
           </div>
           <div className="mc-skeleton-filters">
             <Skeleton width={120} height={36} />
             <Skeleton width={150} height={36} />
-            <Skeleton width={100} height={36} style={{ marginLeft: 'auto' }} />
+            <Skeleton width={100} height={36} className="ml-auto" />
           </div>
           <div className="mc-skeleton-list">
             {[1,2,3,4,5].map(i => (
               <div key={i} className="mc-skeleton-row">
                 <Skeleton variant="circular" width={10} height={10} />
                 <Skeleton width="40%" height={16} />
-                <Skeleton width={70} height={24} style={{ borderRadius: 12 }} />
-                <Skeleton width={60} height={14} style={{ marginLeft: 'auto' }} />
+                <Skeleton width={70} height={24} className="rounded-xl" />
+                <Skeleton width={60} height={14} className="ml-auto" />
               </div>
             ))}
           </div>
@@ -465,7 +465,7 @@ export default function MyCompany({
               <div key={i} className="mc-skeleton-row">
                 <Skeleton variant="circular" width={8} height={8} />
                 <Skeleton width="50%" height={16} />
-                <Skeleton width={70} height={24} style={{ borderRadius: 12 }} />
+                <Skeleton width={70} height={24} className="rounded-xl" />
               </div>
             ))}
           </div>
@@ -475,8 +475,8 @@ export default function MyCompany({
         <>
           <div className="mc-skeleton-filters">
             <Skeleton width={80} height={14} />
-            <div style={{ display: 'flex', gap: 8, marginLeft: 'auto' }}>
-              {[1,2,3,4].map(i => <Skeleton key={i} width={80} height={28} style={{ borderRadius: 16 }} />)}
+            <div className="flex gap-2 ml-auto">
+              {[1,2,3,4].map(i => <Skeleton key={i} width={80} height={28} className="rounded-2xl" />)}
             </div>
           </div>
           <div className="mc-skeleton-list">
@@ -484,7 +484,7 @@ export default function MyCompany({
               <div key={i} className="mc-skeleton-row">
                 <Skeleton variant="circular" width={8} height={8} />
                 <Skeleton width="45%" height={16} />
-                <Skeleton width={70} height={22} style={{ borderRadius: 12 }} />
+                <Skeleton width={70} height={22} className="rounded-xl" />
               </div>
             ))}
           </div>
@@ -493,13 +493,13 @@ export default function MyCompany({
       {(activeTab === 'overview' || activeTab === 'team') && (
         <>
           <div className="mc-skeleton-stats">
-            {[1,2,3].map(i => <Skeleton key={i} width={200} height={100} style={{ borderRadius: 12 }} />)}
+            {[1,2,3].map(i => <Skeleton key={i} width={200} height={100} className="rounded-xl" />)}
           </div>
           <div className="mc-skeleton-list">
             {[1,2,3].map(i => (
               <div key={i} className="mc-skeleton-row">
                 <Skeleton width="60%" height={18} />
-                <Skeleton width={100} height={14} style={{ marginLeft: 'auto' }} />
+                <Skeleton width={100} height={14} className="ml-auto" />
               </div>
             ))}
           </div>
