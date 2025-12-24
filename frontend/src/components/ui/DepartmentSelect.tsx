@@ -179,15 +179,8 @@ export function DepartmentSelect({
           side="bottom"
           align="start"
           sideOffset={4}
-          style={{
-            borderRadius: '12px',
-            border: '1px solid #e5e7eb',
-            background: 'white',
-            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-            overflow: 'hidden',
-          }}
         >
-          <SelectPrimitive.Viewport className="dept-select-viewport" style={{ padding: '8px' }}>
+          <SelectPrimitive.Viewport className="dept-select-viewport">
             {includeAll && (
               <DepartmentSelectItem value="all" deptId={null}>
                 {allLabel}

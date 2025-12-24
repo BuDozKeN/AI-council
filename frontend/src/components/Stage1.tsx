@@ -233,9 +233,9 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
               aria-label={isExpanded ? 'Collapse response' : 'Expand response'}
             >
               {isExpanded ? (
-                <X style={{ width: 16, height: 16 }} />
+                <X className="w-4 h-4" />
               ) : (
-                <ChevronDown style={{ width: 16, height: 16 }} />
+                <ChevronDown className="w-4 h-4" />
               )}
             </button>
           )}
@@ -279,7 +279,7 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
           // Preview text when collapsed
           <div className="model-card-preview">
             {previewText}
-            {hasMore && <span style={{ color: '#94a3b8' }}>...</span>}
+            {hasMore && <span className="text-slate-400">...</span>}
             {data.isStreaming && <span className="model-card-cursor" />}
           </div>
         )}

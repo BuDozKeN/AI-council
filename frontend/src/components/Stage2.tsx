@@ -176,7 +176,7 @@ function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoadin
             className="stage2-winner"
             title={`Winner: ${winnerPersona?.fullName || winnerPersona?.shortName || 'Unknown'} — Voted #1 by ${aggregateRankings?.length || 5} AI experts with avg score ${winnerAvg} (1 = best)`}
           >
-            <Trophy style={{ width: 14, height: 14 }} />
+            <Trophy className="w-3.5 h-3.5" />
             {winnerIconPath && (
               <img
                 src={winnerIconPath}

@@ -44,17 +44,7 @@ export function Stage3Actions({
     <div className="stage3-actions">
       {/* Error state */}
       {saveState === 'error' && (
-        <div className="save-error-bar" style={{
-          padding: '12px 16px',
-          background: 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)',
-          border: '1px solid #fca5a5',
-          borderRadius: '10px',
-          color: '#dc2626',
-          fontSize: '14px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '8px'
-        }}>
+        <div className="save-error-bar">
           <span>⚠️</span>
           <span>Failed to save. Please try again.</span>
         </div>
