@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { ChevronDown, X } from 'lucide-react';
+import '../ui/TableOfContents.css';
 
 interface Heading {
   id: string;

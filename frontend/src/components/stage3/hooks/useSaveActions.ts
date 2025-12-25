@@ -145,6 +145,8 @@ export function useSaveActions({
         if (decisionId) {
           setSavedDecisionId(decisionId);
           setSaveState('saved');
+          // Haptic feedback for save success
+          if (navigator.vibrate) navigator.vibrate([10, 50, 10]);
           if (projectToUse && (!fullProjectData || fullProjectData.id !== selectedProjectId)) {
             setFullProjectData(projectToUse);
           }
@@ -174,6 +176,8 @@ export function useSaveActions({
         }
         setSavedDecisionId(decisionId);
         setSaveState('saved');
+        // Haptic feedback for save success
+        if (navigator.vibrate) navigator.vibrate([10, 50, 10]);
       }
     } catch (err) {
       log.error('Failed to save decision:', err);

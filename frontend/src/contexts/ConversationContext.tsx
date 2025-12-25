@@ -192,7 +192,7 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
     if (conversationError) {
       log.error('Failed to load conversation:', conversationError);
       setCurrentConversationId(null);
-      toast.error('Failed to load conversation');
+      toast.error("We couldn't load that conversation. Please try again.");
     }
   }, [conversationError]);
 
@@ -296,7 +296,7 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
       if (context?.previousConversations) {
         setConversations(context.previousConversations);
       }
-      toast.error('Failed to star conversation');
+      toast.error("Couldn't update that conversation. Please try again.");
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: conversationKeys.lists() });
@@ -328,7 +328,7 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
       if (context?.previousCurrentConversation) {
         setCurrentConversation(context.previousCurrentConversation);
       }
-      toast.error('Failed to rename conversation');
+      toast.error("Couldn't rename that conversation. Please try again.");
     },
     onSettled: (_, __, { id }) => {
       queryClient.invalidateQueries({ queryKey: conversationKeys.lists() });
@@ -341,7 +341,7 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
     mutationFn: (id: string) => api.deleteConversation(id),
     onError: (err) => {
       log.error('Failed to delete conversation:', err);
-      toast.error('Failed to delete conversation');
+      toast.error("Couldn't delete that conversation. Please try again.");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: conversationKeys.lists() });
@@ -375,6 +375,12 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
 
     let undoClicked = false;
 
+    const executeDelete = () => {
+      if (!undoClicked) {
+        deleteMutation.mutate(id);
+      }
+    };
+
     toast('Conversation deleted', {
       description: conversationToDelete.title || 'New Conversation',
       action: {
@@ -393,12 +399,8 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
         },
       },
       duration: 5000,
-      onDismiss: () => {
-        if (!undoClicked) {
-          // Actually delete via mutation
-          deleteMutation.mutate(id);
-        }
-      },
+      onDismiss: executeDelete,
+      onAutoClose: executeDelete,
     });
   }, [conversations, currentConversationId, deleteMutation]);
 

@@ -16,8 +16,10 @@ import { useConversation } from './contexts/ConversationContext';
 import { api, setTokenGetter } from './api';
 import { useGlobalSwipe, useModalState } from './hooks';
 import { Toaster, toast } from './components/ui/sonner';
+import { MockModeBanner } from './components/ui/MockModeBanner';
 import { logger } from './utils/logger';
 import './App.css';
+
 
 // Simple unique ID generator for message keys
 let messageIdCounter = 0;
@@ -157,6 +159,7 @@ function App() {
   const [isUploading, setIsUploading] = useState(false); // Image upload in progress
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [landingChatMode, setLandingChatMode] = useState('council'); // 'chat' or 'council' for landing hero
+  const [mockModeEnabled, setMockModeEnabled] = useState(false); // Mock mode state for banner
 
   // Mobile swipe gesture to open sidebar from left edge
   useGlobalSwipe({
@@ -230,6 +233,27 @@ function App() {
     // Track whether undo was clicked
     let undoClicked = false;
 
+    const executeDelete = async () => {
+      if (!undoClicked) {
+        try {
+          await api.bulkDeleteConversations(ids);
+        } catch (error) {
+          log.error('Failed to bulk delete conversations:', error);
+          // Restore on error
+          setConversations((prev) => {
+            const newList = [...prev];
+            originalPositions
+              .sort((a, b) => a.index - b.index)
+              .forEach(({ index, conversation }) => {
+                newList.splice(index, 0, conversation);
+              });
+            return newList;
+          });
+          toast.error('Failed to delete conversations');
+        }
+      }
+    };
+
     // Show toast with undo action
     toast(`${conversationsToDelete.length} conversations deleted`, {
       action: {
@@ -255,26 +279,8 @@ function App() {
         },
       },
       duration: 5000,
-      onDismiss: async () => {
-        if (!undoClicked) {
-          try {
-            await api.bulkDeleteConversations(ids);
-          } catch (error) {
-            log.error('Failed to bulk delete conversations:', error);
-            // Restore on error
-            setConversations((prev) => {
-              const newList = [...prev];
-              originalPositions
-                .sort((a, b) => a.index - b.index)
-                .forEach(({ index, conversation }) => {
-                  newList.splice(index, 0, conversation);
-                });
-              return newList;
-            });
-            toast.error('Failed to delete conversations');
-          }
-        }
-      },
+      onDismiss: executeDelete,
+      onAutoClose: executeDelete,
     });
 
     return { deleted: ids };
@@ -326,6 +332,23 @@ function App() {
       hasLoadedInitialData.current = false;
     }
   }, [isAuthenticated]);
+
+  // Fetch mock mode status on mount
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    api.getMockMode()
+      .then(result => setMockModeEnabled(result.enabled))
+      .catch(err => {
+        log.error('Failed to get mock mode:', err);
+        setMockModeEnabled(false);
+      });
+  }, [isAuthenticated]);
+
+  // Handler for mock mode changes from Settings
+  const handleMockModeChange = useCallback((enabled: boolean) => {
+    setMockModeEnabled(enabled);
+  }, []);
 
   // Load businesses on mount (with token ready check)
   // Conversations are now loaded by BusinessContext when business changes
@@ -1177,6 +1200,9 @@ function App() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
     >
+      {/* Mock mode banner - shown when mock mode is enabled */}
+      {mockModeEnabled && <MockModeBanner />}
+
       {/* Skip to main content link for accessibility */}
       <a href="#main-content" className="sr-only focus:not-sr-only">
         Skip to main content
@@ -1397,6 +1423,7 @@ function App() {
         isOpen={isSettingsOpen}
         onClose={closeSettings}
         companyId={selectedBusiness}
+        onMockModeChange={handleMockModeChange}
       />
       {isProjectModalOpen && selectedBusiness && (
         <ProjectModal

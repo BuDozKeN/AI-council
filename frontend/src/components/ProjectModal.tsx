@@ -67,7 +67,7 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
   const processWithAI = async (text) => {
     const inputText = text || freeText;
     if (!inputText.trim()) {
-      setError('Please describe your project');
+      setError('Tell us a bit about your project first');
       return;
     }
 
@@ -83,11 +83,11 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
         setIsAIGenerated(true);
         setStep('review');
       } else {
-        setError('AI could not structure the content. Please try again or add more detail.');
+        setError("We couldn't quite understand that. Try adding more detail, or skip AI and enter it manually.");
       }
     } catch (err) {
       logger.error('Failed to structure context:', err);
-      setError('Failed to process with AI. Please try again.');
+      setError("Something went wrong with AI. You can try again or skip to manual entry.");
     } finally {
       setStructuring(false);
     }
@@ -108,7 +108,7 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
   // Save the project (works for both AI-assisted and manual)
   const handleSave = async () => {
     if (!editedName.trim()) {
-      setError('Project name is required');
+      setError('Your project needs a name');
       return;
     }
 
@@ -131,7 +131,7 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
       onClose();
     } catch (err) {
       logger.error('Failed to create project:', err);
-      setError(err.message || 'Failed to create project');
+      setError(err.message || "Couldn't create your project. Please try again.");
       setSaving(false);
     }
   };

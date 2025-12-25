@@ -7,6 +7,7 @@
    OVERVIEW TAB - Statistics & Company Context
    ============================================================================ */
 
+/* NOTE: .mc-overview now uses ScrollableContent wrapper which provides flex:1 + scroll */
 .mc-overview {
   display: flex;
   flex-direction: column;
@@ -242,16 +243,11 @@
   height: 14px;
 }
 
-/* Compact context section - no header, fills remaining space in Overview */
+/* Compact context section - displays content inline (no longer needs own scroll) */
 .mc-context-section--compact {
   position: relative;
   border: none;
   background: transparent;
-  /* CRITICAL: flex to fill remaining space in .mc-overview */
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
 }
 
 .mc-context-section--compact .mc-context-content {
@@ -260,23 +256,8 @@
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-slate-100);
   background: var(--color-gray-50);
-  /* CRITICAL: flex to fill parent, overflow hidden forces child to scroll */
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ScrollableContent wrapper - fill the .mc-context-content */
-.mc-context-section--compact .mc-context-content .scrollable-content-wrapper {
-  flex: 1;
-  min-height: 0;
-}
-
-/* When using ScrollableContent wrapper, inner div handles scrolling and padding */
-.mc-context-section--compact .mc-context-content .scrollable-content-inner {
   padding: 20px 24px;
+  /* Content flows naturally - outer ScrollableContent handles scroll */
 }
 
 /* Legacy: Scroll-to-top FAB for non-ScrollableContent usage */
@@ -314,7 +295,8 @@
   background: var(--color-gray-50);
   border-top: 1px solid var(--color-slate-100);
   padding: 20px 24px;
-  max-height: 55vh;
+  /* FIXED: Remove max-height - let flex system handle scroll constraints */
+  /* The parent .mc-context-section--compact has flex:1 + min-height:0 */
   overflow-y: auto;
 }
 

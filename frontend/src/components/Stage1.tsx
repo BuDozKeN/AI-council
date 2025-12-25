@@ -85,9 +85,9 @@ function CodeBlock({ children, className }) {
   }
 
   return (
-    <div className="code-block-wrapper">
+    <div className="code-block-wrapper copyable">
       {language && <span className="code-language">{language}</span>}
-      <CopyButton text={code} size="sm" position="absolute" />
+      <CopyButton text={code} size="sm" />
       <pre className={className}>
         <code>{children}</code>
       </pre>
@@ -258,7 +258,7 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
           <p className="model-card-error">{data.response || 'Error occurred'}</p>
         ) : isExpanded ? (
           // Full content when expanded
-          <div className="prose prose-sm prose-slate max-w-none">
+          <article className="prose prose-slate prose-sm max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:tracking-tight prose-h1:text-xl prose-h2:text-lg prose-h3:text-base prose-p:leading-relaxed prose-li:my-0.5 prose-ul:my-1 prose-ol:my-1 prose-code:before:content-none prose-code:after:content-none prose-code:bg-slate-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-emerald-700 prose-pre:bg-slate-50 prose-pre:border prose-pre:border-slate-200">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{
@@ -270,12 +270,19 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
                 },
                 code({ node: _node, className, children, ...props }) {
                   return <code className={className} {...props}>{children}</code>;
+                },
+                table({ children, ...props }) {
+                  return (
+                    <div className="table-scroll-wrapper">
+                      <table {...props}>{children}</table>
+                    </div>
+                  );
                 }
               }}
             >
               {data.response || ''}
             </ReactMarkdown>
-          </div>
+          </article>
         ) : (
           // Preview text when collapsed
           <div className="model-card-preview">
@@ -387,7 +394,7 @@ function Stage1({ responses, streaming, isLoading, stopped, isComplete, defaultC
 
         <div className="stage-loading">
           <Spinner size="md" />
-          <span>Waiting for models to respond...</span>
+          <span>Your council is gathering their thoughts...</span>
         </div>
       </div>
     );

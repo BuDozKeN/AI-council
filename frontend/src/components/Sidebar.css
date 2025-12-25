@@ -17,7 +17,8 @@
   height: 100%;
   flex-shrink: 0;
   position: relative;
-  z-index: var(--z-sticky);
+  /* Must be above landing page (z-sticky) on desktop */
+  z-index: calc(var(--z-sticky) + 1);
   overflow: hidden;
   /* Smooth transition */
   transition: width var(--sidebar-transition);
@@ -470,8 +471,8 @@ button.sidebar-new-btn:hover {
 
 /* Radix Select Triggers - Perplexity minimal style
    Higher specificity to override Radix defaults without !important */
-.sidebar-filter-bar button.filter-select-trigger,
-.sidebar-filter-bar button.sort-select-trigger,
+.sidebar-filter button.filter-select-trigger,
+.sidebar-filter button.sort-select-trigger,
 .sidebar button[data-radix-collection-item].filter-select-trigger,
 .sidebar button[data-radix-collection-item].sort-select-trigger {
   flex: 1;
@@ -498,37 +499,37 @@ button.sidebar-new-btn:hover {
 }
 
 /* Value text inside trigger */
-.sidebar-filter-bar .filter-select-trigger span,
-.sidebar-filter-bar .sort-select-trigger span {
+.sidebar-filter .filter-select-trigger span,
+.sidebar-filter .sort-select-trigger span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 /* Sort trigger - fixed width */
-.sidebar-filter-bar button.sort-select-trigger {
+.sidebar-filter button.sort-select-trigger {
   flex-shrink: 0;
   flex: 0 0 auto;
   width: auto;
   max-width: 80px;
 }
 
-.sidebar-filter-bar .filter-select-trigger:hover,
-.sidebar-filter-bar .sort-select-trigger:hover {
+.sidebar-filter .filter-select-trigger:hover,
+.sidebar-filter .sort-select-trigger:hover {
   border-color: var(--sidebar-text-muted);
   background: var(--sidebar-hover-bg);
   color: var(--sidebar-text-primary);
 }
 
-.sidebar-filter-bar .filter-select-trigger:focus,
-.sidebar-filter-bar .sort-select-trigger:focus {
+.sidebar-filter .filter-select-trigger:focus,
+.sidebar-filter .sort-select-trigger:focus {
   outline: none;
   border-color: var(--sidebar-text-muted);
   box-shadow: var(--shadow-focus);
 }
 
-.sidebar-filter-bar .filter-select-trigger svg,
-.sidebar-filter-bar .sort-select-trigger svg {
+.sidebar-filter .filter-select-trigger svg,
+.sidebar-filter .sort-select-trigger svg {
   width: 12px;
   height: 12px;
   opacity: 0.5;
@@ -915,8 +916,8 @@ button.sidebar-new-btn:hover {
   }
 
   /* Make filter/sort triggers touch-friendly */
-  .sidebar-filter-bar .filter-select-trigger,
-  .sidebar-filter-bar .sort-select-trigger {
+  .sidebar-filter .filter-select-trigger,
+  .sidebar-filter .sort-select-trigger {
     min-height: 44px;
     height: 44px;
   }

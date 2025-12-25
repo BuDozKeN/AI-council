@@ -100,7 +100,7 @@ export default function Sidebar({
       toast.success(`Moved to ${targetDepartment}`);
     } catch (error) {
       logger.error('Failed to update department:', error);
-      toast.error('Failed to move conversation');
+      toast.error("Couldn't move that conversation. Please try again.");
       // Revert optimistic update
       if (onUpdateConversationDepartment && conversation.department) {
         onUpdateConversationDepartment(conversationId, conversation.department);
@@ -552,13 +552,13 @@ export default function Sidebar({
               ) : totalConversations === 0 ? (
                 <div className="no-conversations">
                   <span className="no-conv-icon">💬</span>
-                  <span>No conversations yet</span>
-                  <span className="no-conv-hint">Click "New" to start</span>
+                  <span>Ready when you are</span>
+                  <span className="no-conv-hint">Start a new conversation to ask your council</span>
                 </div>
               ) : filter === 'archived' && filteredBySearch.archived.length === 0 ? (
                 <div className="no-conversations">
                   <span className="no-conv-icon">📦</span>
-                  No archived conversations
+                  Nothing archived yet
                 </div>
               ) : filter !== 'archived' && filteredBySearch.active.length === 0 ? (
                 <div className="no-conversations">No active conversations</div>

@@ -1,7 +1,183 @@
 /**
  * Team/Members Tab Styles
- * Member list, add member form, usage stats
+ * Departments with roles, member list, add member form, usage stats
  */
+
+/* ============================================================================
+   TEAM TAB - Departments & Roles Layout
+   ============================================================================ */
+
+.mc-team {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* NOTE: .mc-team-header is defined in overview.css (shared with playbooks/decisions headers) */
+
+/* Department container */
+.mc-dept-container {
+  margin-bottom: 4px;
+}
+
+/* Department row - clickable to expand */
+.mc-dept-row {
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+.mc-dept-row:hover {
+  background: var(--color-bg-hover);
+}
+
+.mc-dept-row.expanded {
+  border-radius: 8px 8px 0 0;
+  background: var(--color-slate-50);
+}
+
+/* Department color indicator */
+.mc-dept-indicator {
+  width: 4px;
+  height: 24px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* Role count meta text */
+.mc-elegant-meta {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  margin-left: auto;
+  padding-right: 8px;
+}
+
+/* Expand chevron */
+.mc-expand-chevron {
+  font-size: 18px;
+  color: var(--color-text-tertiary);
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+.mc-expand-chevron.expanded {
+  transform: rotate(90deg);
+}
+
+/* Expanded content area */
+.mc-dept-expanded-content {
+  background: var(--color-slate-50);
+  border-radius: 0 0 8px 8px;
+  padding: 12px 16px 16px 16px;
+  margin-top: -2px;
+}
+
+/* Context button */
+.mc-context-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  transition: all 0.15s ease;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.mc-context-btn:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-emphasis);
+}
+
+.mc-context-icon {
+  font-size: 14px;
+}
+
+.mc-context-size {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-tertiary);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Roles section */
+.mc-roles-section {
+  background: var(--color-bg-primary);
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.mc-roles-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.mc-roles-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-secondary);
+}
+
+.mc-roles-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mc-role-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--color-bg-secondary);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-role-row:hover {
+  background: var(--color-bg-hover);
+}
+
+.mc-role-row .mc-role-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.mc-role-row .mc-role-title {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-left: auto;
+}
+
+.mc-no-roles {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  text-align: center;
+  padding: 12px;
+  margin: 0;
+}
+
+.mc-text-btn.add {
+  color: var(--color-primary);
+  font-size: 12px;
+}
+
+.mc-text-btn.add:hover {
+  background: var(--color-bg-accent);
+}
 
 /* ============================================================================
    MEMBERS TAB - Layout
@@ -247,6 +423,42 @@
    ============================================================================ */
 
 @media (max-width: 640px) {
+  /* NOTE: .mc-team-header mobile overrides are in mobile.css */
+
+  /* Department rows - touch friendly */
+  .mc-dept-row {
+    min-height: 52px;
+  }
+
+  .mc-dept-indicator {
+    width: 3px;
+    height: 20px;
+  }
+
+  .mc-elegant-meta {
+    font-size: 11px;
+  }
+
+  /* Expanded content - full width */
+  .mc-dept-expanded-content {
+    padding: 10px 12px 14px 12px;
+  }
+
+  .mc-context-btn {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .mc-roles-section {
+    padding: 10px;
+  }
+
+  .mc-role-row {
+    padding: 10px 12px;
+    min-height: 44px;
+  }
+
+  /* Members form */
   .mc-form-row {
     flex-direction: column;
   }

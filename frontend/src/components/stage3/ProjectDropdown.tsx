@@ -1,10 +1,13 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { BottomSheet } from '../ui/BottomSheet';
 import { FolderKanban, ChevronDown, Plus } from 'lucide-react';
 
 // Check if we're on mobile/tablet
 const isMobileDevice = () => window.innerWidth <= 768;
+
+// Dropdown height estimate (header + items + create button)
+const DROPDOWN_HEIGHT = 450;
 
 /**
  * ProjectDropdown - Project selection dropdown/bottom sheet
@@ -26,6 +29,15 @@ export function ProjectDropdown({
   selectedDeptIds
 }) {
   const projectButtonRef = useRef(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const [openDirection, setOpenDirection] = useState<'down' | 'up'>('down');
+
+  // Reset scroll position when dropdown opens
+  useEffect(() => {
+    if (showProjectDropdown && listRef.current) {
+      listRef.current.scrollTop = 0;
+    }
+  }, [showProjectDropdown]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -52,10 +64,24 @@ export function ProjectDropdown({
         onClick={() => {
           if (!showProjectDropdown && projectButtonRef.current) {
             const rect = projectButtonRef.current.getBoundingClientRect();
-            setDropdownPosition({
-              top: rect.bottom + 4,
-              left: rect.left
-            });
+            const viewportHeight = window.innerHeight;
+            const spaceBelow = viewportHeight - rect.bottom;
+            const spaceAbove = rect.top;
+
+            // If not enough space below, open upward
+            if (spaceBelow < DROPDOWN_HEIGHT && spaceAbove > spaceBelow) {
+              setOpenDirection('up');
+              setDropdownPosition({
+                top: rect.top - DROPDOWN_HEIGHT - 4,
+                left: rect.left
+              });
+            } else {
+              setOpenDirection('down');
+              setDropdownPosition({
+                top: rect.bottom + 4,
+                left: rect.left
+              });
+            }
           }
           setShowProjectDropdown(!showProjectDropdown);
         }}
@@ -138,11 +164,11 @@ export function ProjectDropdown({
           className="save-project-dropdown-portal"
           style={{
             position: 'fixed',
-            top: dropdownPosition.top,
+            top: Math.max(8, dropdownPosition.top),
             left: dropdownPosition.left,
             zIndex: 9999,
-            minWidth: '260px',
-            maxWidth: '320px',
+            minWidth: '300px',
+            maxWidth: '400px',
             background: 'white',
             border: '1px solid #e2e8f0',
             borderRadius: '10px',
@@ -150,8 +176,16 @@ export function ProjectDropdown({
             overflow: 'hidden'
           }}
         >
-          <div className="save-project-dropdown-header">Select Project</div>
-          <div className="save-project-list">
+          <div className="save-project-dropdown-header" style={{ flexShrink: 0 }}>Select Project</div>
+          <div
+            ref={listRef}
+            className="save-project-list"
+            style={{
+              maxHeight: '300px',
+              overflowY: 'auto',
+              overscrollBehavior: 'contain'
+            }}
+          >
             {/* No project option */}
             <button
               className={`save-project-option ${!selectedProjectId ? 'selected' : ''}`}
@@ -174,6 +208,7 @@ export function ProjectDropdown({
                   onSelectProject && onSelectProject(project.id);
                   setShowProjectDropdown(false);
                 }}
+                title={project.description ? `${project.name}\n${project.description}` : project.name}
               >
                 <span className="save-project-option-name">{project.name}</span>
                 {project.description && (
@@ -182,25 +217,39 @@ export function ProjectDropdown({
               </button>
             ))}
           </div>
-          {/* Create new project */}
-          {onCreateProject && (
-            <div className="save-project-create">
-              <button
-                className="save-project-create-btn"
-                onClick={() => {
-                  setShowProjectDropdown(false);
+          {/* Create new project - ALWAYS visible at bottom */}
+          <div className="save-project-create" style={{ flexShrink: 0, borderTop: '1px solid #e2e8f0', padding: '8px', background: '#f8fafc' }}>
+            <button
+              className="save-project-create-btn"
+              onClick={() => {
+                setShowProjectDropdown(false);
+                if (onCreateProject) {
                   onCreateProject({
                     userQuestion,
                     councilResponse: displayText,
                     departmentIds: selectedDeptIds
                   });
-                }}
-              >
-                <Plus className="h-3.5 w-3.5" />
-                <span>Create New Project</span>
-              </button>
-            </div>
-          )}
+                }
+              }}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                width: '100%',
+                padding: '8px 10px',
+                background: 'transparent',
+                border: '1px dashed #cbd5e1',
+                borderRadius: '6px',
+                fontSize: '12px',
+                fontWeight: 500,
+                color: '#64748b',
+                cursor: 'pointer'
+              }}
+            >
+              <Plus className="h-3.5 w-3.5" />
+              <span>Create New Project</span>
+            </button>
+          </div>
         </div>,
         document.body
       )}

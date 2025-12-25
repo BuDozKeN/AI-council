@@ -74,9 +74,9 @@ export function ActivityTab({
     return (
       <div className="mc-empty">
         <ClipboardList className="mc-empty-icon" size={48} />
-        <p className="mc-empty-title">No activity yet</p>
+        <p className="mc-empty-title">All quiet here</p>
         <p className="mc-empty-hint">
-          Activity will appear here as you use the council, save decisions, and update playbooks.
+          Your team's activity will show up as you use the council, save decisions, and build playbooks.
         </p>
       </div>
     );

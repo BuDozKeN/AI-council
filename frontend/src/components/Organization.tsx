@@ -54,12 +54,12 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
         if (business) {
           setDepartments(business.departments || []);
         } else {
-          setError('Company not found');
+          setError("We couldn't find that company. It may have been removed.");
         }
       } catch (fetchErr) {
         if (cancelled) return;
         logger.error('Failed to fetch organization:', fetchErr);
-        setError('Failed to load organization structure');
+        setError("Couldn't load your team structure. Please try again.");
       }
       if (!cancelled) {
         setLoading(false);
@@ -83,11 +83,11 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
       if (business) {
         setDepartments(business.departments || []);
       } else {
-        setError('Company not found');
+        setError("We couldn't find that company. It may have been removed.");
       }
     } catch (fetchErr) {
       logger.error('Failed to fetch organization:', fetchErr);
-      setError('Failed to load organization structure');
+      setError("Couldn't load your team structure. Please try again.");
     }
     setLoading(false);
   };

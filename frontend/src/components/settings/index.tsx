@@ -2,14 +2,15 @@ import { useState } from 'react';
 import { useAuth } from '../../AuthContext';
 import { AdaptiveModal } from '../ui/AdaptiveModal';
 import { ConfirmModal } from '../ui/ConfirmModal';
-import { User, CreditCard, Users, Key } from 'lucide-react';
+import { User, CreditCard, Users, Key, FlaskConical } from 'lucide-react';
 import { ProfileSection } from './ProfileSection';
 import { BillingSection } from './BillingSection';
 import { TeamSection } from './TeamSection';
 import { ApiKeysSection } from './ApiKeysSection';
+import { DeveloperSection } from './DeveloperSection';
 import '../Settings.css';
 
-export default function Settings({ isOpen, onClose, companyId }) {
+export default function Settings({ isOpen, onClose, companyId, onMockModeChange }) {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
   const [confirmModal, setConfirmModal] = useState(null);
@@ -88,6 +89,14 @@ export default function Settings({ isOpen, onClose, companyId }) {
               <Key size={18} className="tab-icon" />
               <span className="tab-label">API Keys</span>
             </button>
+            <button
+              className={`settings-tab ${activeTab === 'developer' ? 'active' : ''}`}
+              onClick={() => setActiveTab('developer')}
+              data-tooltip="Developer"
+            >
+              <FlaskConical size={18} className="tab-icon" />
+              <span className="tab-label">Developer</span>
+            </button>
           </div>
 
           {/* Tab content */}
@@ -120,6 +129,15 @@ export default function Settings({ isOpen, onClose, companyId }) {
                 <ApiKeysSection
                   isOpen={isOpen}
                   onDeleteApiKey={handleDeleteApiKeyConfirm}
+                />
+              </div>
+            )}
+
+            {activeTab === 'developer' && (
+              <div className="developer-content">
+                <DeveloperSection
+                  isOpen={isOpen}
+                  onMockModeChange={onMockModeChange}
                 />
               </div>
             )}

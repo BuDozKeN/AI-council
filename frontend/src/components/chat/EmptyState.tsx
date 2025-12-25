@@ -12,7 +12,7 @@ export function WelcomeState() {
           <span className="text-white font-bold text-2xl">AX</span>
         </div>
         <h2 className="text-2xl font-semibold text-gray-900 mb-2">Welcome to AxCouncil</h2>
-        <p className="text-gray-500">Create a new conversation to get started</p>
+        <p className="text-gray-500">Your AI council is ready. What decision can we help with?</p>
       </div>
     </div>
   );
@@ -28,7 +28,7 @@ export function ConversationEmptyState() {
         </svg>
       </div>
       <h2>Ask the Council</h2>
-      <p>Get insights from 5 AI models who debate and synthesize the best answer</p>
+      <p>5 AI advisors will debate your question and synthesize the best answer</p>
       <div className="empty-state-hints">
         <span className="hint-item">Try: "What's the best approach to..."</span>
         <span className="hint-item">Paste images with Ctrl+V</span>

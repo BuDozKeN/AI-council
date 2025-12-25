@@ -75,7 +75,7 @@ class ProjectUpdate(BaseModel):
 
 class ExtractProjectRequest(BaseModel):
     """Request to extract project details from council response."""
-    user_question: str = Field(..., max_length=10000)
+    user_question: str = Field(..., max_length=50000)
     council_response: str = Field(..., max_length=50000)
 
 
@@ -86,10 +86,10 @@ class StructureContextRequest(BaseModel):
 
 
 class MergeDecisionRequest(BaseModel):
-    """Request to merge a decision into project context."""
+    """Request to merge a decision into project context. Updated limits."""
     existing_context: str = Field(..., max_length=100000)
     decision_content: str = Field(..., max_length=50000)
-    user_question: str = Field("", max_length=10000)
+    user_question: str = Field("", max_length=50000)
     save_decision: bool = False
     company_id: Optional[str] = Field(None, max_length=100)
     conversation_id: Optional[str] = Field(None, max_length=100)

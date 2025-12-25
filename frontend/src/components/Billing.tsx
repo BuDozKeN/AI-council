@@ -29,7 +29,7 @@ export default function Billing({ onClose }) {
       setSubscription(subData);
     } catch (err) {
       log.error('Failed to load billing data:', err);
-      setError('Failed to load billing information');
+      setError("Couldn't load your billing info. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -44,7 +44,7 @@ export default function Billing({ onClose }) {
       window.location.href = result.checkout_url;
     } catch (err) {
       log.error('Failed to create checkout:', err);
-      setError(err.message || 'Failed to start checkout');
+      setError(err.message || "Something went wrong. Please try again.");
       setCheckoutLoading(null);
     }
   };
@@ -58,7 +58,7 @@ export default function Billing({ onClose }) {
       window.location.href = result.portal_url;
     } catch (err) {
       log.error('Failed to open billing portal:', err);
-      setError(err.message || 'Failed to open billing portal');
+      setError(err.message || "Couldn't open billing portal. Please try again.");
       setCheckoutLoading(null);
     }
   };

@@ -110,10 +110,9 @@ export function ProjectsTab({
     return (
       <div className="mc-empty">
         <FolderKanban size={32} className="mc-empty-icon" />
-        <p className="mc-empty-title">No projects yet</p>
+        <p className="mc-empty-title">Start your first project</p>
         <p className="mc-empty-hint">
-          Create projects to organize council sessions and track decisions.
-          Projects help you maintain context across related queries.
+          Projects help you organize related decisions and give your council persistent context across sessions.
         </p>
       </div>
     );

@@ -1,141 +1,15 @@
 /**
  * MyCompany Legacy Styles
  *
- * Remaining styles from MyCompany.css that haven't been fully extracted
- * to modular files. These should be migrated to appropriate modules
- * when those components are refactored.
+ * AI-related button styles and editor toolbar.
+ * Context section styles are now in tabs/overview.css.
  *
  * Contents:
- * - Context section styles (Overview tab context display)
  * - AI Synthesize button and related styles
+ * - AI Resync button
  * - Editor toolbar (Format with AI)
- * - Some field/label styles
+ * - Field/label styles
  */
-
-/* ============================================================================
-   CONTEXT SECTION - Used in Overview tab for company context
-   ============================================================================ */
-
-.mc-context-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  background: var(--color-bg-primary);
-}
-
-.mc-context-section h3 {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--color-slate-800);
-  margin: 0;
-}
-
-.mc-context-section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  border-bottom: 1px solid var(--color-slate-100);
-  background: var(--color-bg-primary);
-}
-
-.mc-context-section-header h3 {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--color-slate-500);
-  margin: 0;
-}
-
-.mc-expand-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  background: transparent;
-  border: 1px solid var(--color-slate-200);
-  border-radius: var(--radius-md);
-  color: var(--color-slate-500);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.mc-expand-btn:hover {
-  background: var(--color-slate-50);
-  border-color: var(--color-slate-300);
-  color: var(--color-slate-700);
-}
-
-.mc-expand-btn svg {
-  width: 14px;
-  height: 14px;
-}
-
-/* Compact context section - no header, fills remaining space in Overview */
-.mc-context-section--compact {
-  position: relative;
-  border: none;
-  background: transparent;
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.mc-context-section--compact .mc-context-content {
-  position: relative;
-  border-top: none;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-slate-100);
-  background: var(--color-gray-50);
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.mc-context-section--compact .mc-context-content .scrollable-content-wrapper {
-  flex: 1;
-  min-height: 0;
-}
-
-.mc-context-section--compact .mc-context-content .scrollable-content-inner {
-  padding: 20px 24px;
-}
-
-/* Scroll-to-top FAB */
-.mc-scroll-top-fab {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-slate-200);
-  border-radius: 50%;
-  color: var(--color-slate-400);
-  cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
-  opacity: 0.7;
-  z-index: var(--z-elevated);
-}
-
-.mc-scroll-top-fab:hover {
-  opacity: 1;
-  color: var(--color-slate-600);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-}
-
-.mc-scroll-top-fab:active {
-  transform: scale(0.9);
-}
 
 /* ============================================================================
    FIELD LABELS AND SECTION HEADERS
