@@ -32,7 +32,8 @@ export const SearchBar = forwardRef(function SearchBar({
         </svg>
         <input
           ref={inputRef}
-          type="text"
+          type="search"
+          inputMode="search"
           placeholder="Search conversations... (⌘K)"
           aria-label="Search conversations"
           aria-describedby={searchQuery ? "search-results-count" : undefined}

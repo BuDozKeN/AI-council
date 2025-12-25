@@ -236,6 +236,7 @@ export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave,
                 rows={18}
                 placeholder="Paste any text here... then click Smart Format to convert to Markdown"
                 autoFocus={!startEditing}
+                enterKeyHint="done"
               />
             </div>
           ) : (

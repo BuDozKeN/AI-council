@@ -72,6 +72,7 @@ Include:
 - Key decisions and policies
 - Team structure
 - Any other important context for the AI Council"
+                  enterKeyHint="done"
                 />
               </AIWriteAssist>
             </div>

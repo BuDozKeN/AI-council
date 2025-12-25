@@ -66,6 +66,7 @@ export function AddDepartmentModal({ onSave, onClose, saving }) {
               value={description}
               onChange={e => setDescription(e.target.value)}
               rows={3}
+              enterKeyHint="done"
             />
           </AIWriteAssist>
         </div>
@@ -227,6 +228,7 @@ export function AddPlaybookModal({ onSave, onClose, saving, departments = [] }) 
               value={content}
               onChange={e => setContent(e.target.value)}
               rows={10}
+              enterKeyHint="done"
             />
           </AIWriteAssist>
         </div>

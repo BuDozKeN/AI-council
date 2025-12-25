@@ -707,6 +707,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                         rows={15}
                         autoFocus
                         placeholder="Add project context here..."
+                        enterKeyHint="done"
                       />
                     </AIWriteAssist>
                   </div>

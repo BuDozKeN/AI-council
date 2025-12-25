@@ -69,6 +69,7 @@ export function ViewDepartmentModal({ department, onClose, onSave }) {
                   rows={15}
                   autoFocus
                   placeholder="Enter the context documentation for this department..."
+                  enterKeyHint="done"
                 />
               </AIWriteAssist>
             </div>
