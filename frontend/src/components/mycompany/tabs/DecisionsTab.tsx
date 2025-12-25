@@ -120,7 +120,8 @@ export function DecisionsTab({
             <path d="m21 21-4.35-4.35" />
           </svg>
           <input
-            type="text"
+            type="search"
+            inputMode="search"
             className="mc-search-input"
             placeholder="Search decisions..."
             value={decisionSearch}

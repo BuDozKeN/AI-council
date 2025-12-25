@@ -66,6 +66,7 @@ export function ViewRoleModal({ role, onClose, onSave }) {
                   rows={15}
                   autoFocus
                   placeholder="Enter the system prompt for this role..."
+                  enterKeyHint="done"
                 />
               </AIWriteAssist>
             </div>

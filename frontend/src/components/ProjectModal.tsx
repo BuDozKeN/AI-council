@@ -187,6 +187,7 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
                 disabled={structuring}
                 rows={5}
                 autoFocus
+                enterKeyHint="done"
               />
               {structuring && (
                 <div className="pm-ai-structuring">
@@ -282,6 +283,7 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
                 placeholder="One or two sentences about what this project is for..."
                 disabled={saving}
                 rows={2}
+                enterKeyHint="next"
               />
             </div>
 
@@ -430,6 +432,7 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
                 placeholder="Brief description of the project..."
                 disabled={saving}
                 rows={3}
+                enterKeyHint="next"
               />
             </div>
 
@@ -462,6 +465,7 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
                   disabled={saving}
                   rows={8}
                   className="pm-context-editor"
+                  enterKeyHint="done"
                 />
               </AIWriteAssist>
               <p className="pm-field-hint">AI will use this info when you ask questions about this project.</p>

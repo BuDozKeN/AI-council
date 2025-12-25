@@ -668,6 +668,7 @@ export default function SaveKnowledgeModal({
                   onChange={e => setProblemStatement(e.target.value)}
                   placeholder="What problem or question led to this decision?"
                   rows={2}
+                  enterKeyHint="next"
                 />
               </div>
 
@@ -679,6 +680,7 @@ export default function SaveKnowledgeModal({
                   onChange={e => setDecisionText(e.target.value)}
                   placeholder="What was decided? Be specific and actionable."
                   rows={2}
+                  enterKeyHint="next"
                 />
               </div>
 
@@ -690,6 +692,7 @@ export default function SaveKnowledgeModal({
                   onChange={e => setReasoning(e.target.value)}
                   placeholder="Why was this decision made?"
                   rows={2}
+                  enterKeyHint="next"
                 />
               </div>
 
@@ -742,6 +745,7 @@ export default function SaveKnowledgeModal({
                     onKeyDown={handleTagKeyPress}
                     onBlur={handleAddTag}
                     placeholder="Add tags (press Enter or comma)"
+                    enterKeyHint="enter"
                   />
                 </div>
                 <p className="hint">Tags help organize and find this later</p>

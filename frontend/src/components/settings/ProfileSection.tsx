@@ -93,6 +93,7 @@ export function ProfileSection({ user, isOpen }) {
               <label>Display Name</label>
               <input
                 type="text"
+                autoComplete="name"
                 value={profile.display_name}
                 onChange={(e) => setProfile({ ...profile, display_name: e.target.value })}
                 placeholder="Your name"
@@ -102,6 +103,7 @@ export function ProfileSection({ user, isOpen }) {
               <label>Company</label>
               <input
                 type="text"
+                autoComplete="organization"
                 value={profile.company}
                 onChange={(e) => setProfile({ ...profile, company: e.target.value })}
                 placeholder="Company name"
@@ -111,6 +113,8 @@ export function ProfileSection({ user, isOpen }) {
               <label>Phone</label>
               <input
                 type="tel"
+                inputMode="tel"
+                autoComplete="tel"
                 value={profile.phone}
                 onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
                 placeholder="+1 (555) 123-4567"
@@ -123,6 +127,7 @@ export function ProfileSection({ user, isOpen }) {
                 onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                 placeholder="Tell us about yourself or your business..."
                 rows={3}
+                enterKeyHint="done"
               />
             </div>
 

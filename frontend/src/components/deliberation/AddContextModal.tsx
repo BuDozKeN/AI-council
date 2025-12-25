@@ -285,6 +285,7 @@ export function AddContextModal({
                 rows={4}
                 autoFocus
                 disabled={isSaving}
+                enterKeyHint="done"
               />
             </AIWriteAssist>
           </div>
