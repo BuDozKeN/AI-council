@@ -5,7 +5,6 @@ import ImageUpload from './ImageUpload';
 import CouncilProgressCapsule from './CouncilProgressCapsule';
 import { Spinner } from './ui/Spinner';
 import { CouncilLoader } from './ui/CouncilLoader';
-import { MobileHeader } from './ui/MobileHeader';
 import {
   WelcomeState,
   ConversationEmptyState,
@@ -312,15 +311,6 @@ export default function ChatInterface({
 
   return (
     <main id="main-content" className="chat-interface" aria-label="Chat interface">
-      {/* Mobile header - only show on mobile when conversation is loaded */}
-      {hasMessages && onOpenSidebar && (
-        <MobileHeader
-          title={conversation?.title || 'Chat'}
-          onBack={onOpenSidebar}
-          backLabel="Conversations"
-        />
-      )}
-
       {/* Back to My Company floating button */}
       {returnToMyCompanyTab && onReturnToMyCompany && (
         <button

@@ -185,10 +185,14 @@ h2, h3 {
   gap: 8px;
   padding: 8px 0;
   margin-bottom: 8px;
-  background: linear-gradient(180deg,
-    var(--color-bg-primary) 0%,
-    var(--color-bg-primary) 70%,
-    transparent 100%);
+  /* No shared background - each child element styles itself independently */
+  background: transparent;
+  pointer-events: none; /* Let clicks pass through to content below */
+}
+
+/* Re-enable pointer events on children */
+.stage3-sticky-toolbar > * {
+  pointer-events: auto;
 }
 
 /* Copy button in toolbar */
@@ -225,13 +229,10 @@ h2, h3 {
   height: 16px;
 }
 
-/* Dark mode toolbar */
+/* Dark mode toolbar - transparent, children style themselves */
 .dark .stage3-sticky-toolbar,
 [data-theme="dark"] .stage3-sticky-toolbar {
-  background: linear-gradient(180deg,
-    var(--color-bg-primary) 0%,
-    var(--color-bg-primary) 70%,
-    transparent 100%);
+  background: transparent;
 }
 
 .dark .stage3-sticky-toolbar .stage3-copy-btn,
