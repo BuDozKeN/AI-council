@@ -182,6 +182,8 @@ function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoadin
                 src={winnerIconPath}
                 alt=""
                 className="winner-model-icon"
+                loading="lazy"
+                decoding="async"
               />
             )}
           </span>
@@ -205,7 +207,7 @@ function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoadin
                 >
                   {/* Icon with status badge overlay - matches Stage 1 */}
                   <span className="tab-icon-wrapper">
-                    {iconPath && <img src={iconPath} alt="" className="tab-model-icon" />}
+                    {iconPath && <img src={iconPath} alt="" className="tab-model-icon" loading="lazy" decoding="async" />}
                     {data.isStreaming && <span className="tab-status-badge streaming"><span className="tab-status-ping"></span></span>}
                     {data.isComplete && !data.isEmpty && !data.hasError && <span className="tab-status-badge complete">✓</span>}
                     {(data.hasError || data.isEmpty) && <span className="tab-status-badge error">✕</span>}
@@ -225,7 +227,7 @@ function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoadin
                   const displayName = persona.providerLabel || persona.shortName;
                   return (
                     <>
-                      {iconPath && <img src={iconPath} alt="" className="model-info-icon" />}
+                      {iconPath && <img src={iconPath} alt="" className="model-info-icon" loading="lazy" decoding="async" />}
                       {displayName}
                     </>
                   );
@@ -303,7 +305,7 @@ function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoadin
                     >
                       <span className="rank-position">#{index + 1}</span>
                       <span className="rank-model">
-                        {iconPath && <img src={iconPath} alt="" className="rank-model-icon" />}
+                        {iconPath && <img src={iconPath} alt="" className="rank-model-icon" loading="lazy" decoding="async" />}
                         {displayName}
                       </span>
                       <span className="rank-score">{agg.average_rank.toFixed(1)}</span>

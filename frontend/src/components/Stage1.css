@@ -11,6 +11,9 @@
 .stage.stage1 {
   background: linear-gradient(135deg, var(--stage1-bg-gradient-start) 0%, var(--stage1-bg-gradient-end) 100%);
   border-color: var(--stage1-border);
+  /* Container queries - grid responds to container width, not viewport */
+  container-type: inline-size;
+  container-name: stage1;
 }
 
 /* Living Feed Grid - shows all models simultaneously */
@@ -20,20 +23,36 @@
   gap: 12px;
 }
 
-@media (min-width: 768px) {
+/* Container queries for responsive grid (adapts to sidebar state) */
+@container stage1 (min-width: 500px) {
   .stage1 .model-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (min-width: 1024px) {
+@container stage1 (min-width: 800px) {
   .stage1 .model-grid {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-/* When a card is expanded, show single column */
-.stage1 .model-grid.has-expanded {
+/* Fallback for browsers without container query support */
+@supports not (container-type: inline-size) {
+  @media (min-width: 768px) {
+    .stage1 .model-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .stage1 .model-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+}
+
+/* When a card is expanded, show single column (CSS :has() - no JS needed) */
+.stage1 .model-grid:has(.model-card.expanded) {
   grid-template-columns: 1fr;
 }
 

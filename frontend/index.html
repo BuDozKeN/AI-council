@@ -22,6 +22,29 @@
     <meta name="twitter:description" content="Multi-model AI advisory platform" />
 
     <title>AxCouncil - Strategic AI Advisory Platform</title>
+
+    <!-- Speculation Rules - Chrome 109+ prerendering for instant navigation -->
+    <!-- Gracefully ignored by browsers that don't support it -->
+    <script type="speculationrules">
+    {
+      "prefetch": [
+        {
+          "where": {
+            "selector_matches": ".conversation-item"
+          },
+          "eagerness": "moderate"
+        }
+      ],
+      "prerender": [
+        {
+          "where": {
+            "selector_matches": ".conversation-item:hover"
+          },
+          "eagerness": "moderate"
+        }
+      ]
+    }
+    </script>
   </head>
   <body>
     <div id="root"></div>
