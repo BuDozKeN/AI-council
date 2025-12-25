@@ -6,6 +6,7 @@ import { Spinner } from './ui/Spinner';
 import { CopyButton } from './ui/CopyButton';
 import { Activity, CheckCircle2, AlertCircle, StopCircle, ChevronDown, X, Check } from 'lucide-react';
 import { getModelPersona } from '../config/modelPersonas';
+import { hapticLight } from '../lib/haptics';
 import './Stage1.css';
 
 // Map provider to icon file path
@@ -171,7 +172,7 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.2 }}
       className={cardClasses}
-      onClick={() => onExpand(isExpanded ? null : data.model)}
+      onClick={() => { hapticLight(); onExpand(isExpanded ? null : data.model); }}
       onKeyDown={handleKeyDown}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
@@ -186,7 +187,7 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
           {/* LLM Icon with status indicator */}
           <div className="llm-icon-wrapper" style={{ '--model-color': modelColor }} title={tooltipName}>
             {iconPath ? (
-              <img src={iconPath} alt={displayName} className="llm-icon" />
+              <img src={iconPath} alt={displayName} className="llm-icon" loading="lazy" decoding="async" />
             ) : (
               <span className="llm-icon-fallback" style={{ background: modelColor }}>
                 {displayName.charAt(0)}
@@ -447,7 +448,7 @@ function Stage1({ responses, streaming, isLoading, stopped, isComplete, defaultC
                 <span className="pill-error">✕</span>
               )}
               {group.iconPath && (
-                <img src={group.iconPath} alt="" className="pill-icon" />
+                <img src={group.iconPath} alt="" className="pill-icon" loading="lazy" decoding="async" />
               )}
               <span className="pill-label">{group.label}</span>
             </span>
@@ -476,7 +477,7 @@ function Stage1({ responses, streaming, isLoading, stopped, isComplete, defaultC
           )}
 
           {/* Living Feed Grid - shows all models simultaneously */}
-          <div className={`model-grid ${expandedModel ? 'has-expanded' : ''}`}>
+          <div className="model-grid">
             <AnimatePresence mode="popLayout">
               {displayData.map((data) => (
                 <ModelCard

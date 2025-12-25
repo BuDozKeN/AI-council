@@ -42,7 +42,7 @@ function Stage3Content({
       <div className="stage3-header-row">
         <div className="chairman-indicator">
           {chairmanIconPath && (
-            <img src={chairmanIconPath} alt="" className="chairman-icon" />
+            <img src={chairmanIconPath} alt="" className="chairman-icon" loading="lazy" decoding="async" />
           )}
           {isStreaming && <span className="typing-indicator">●</span>}
           {isComplete && <CheckCircle2 className="h-4 w-4 text-green-600" />}

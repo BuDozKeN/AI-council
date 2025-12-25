@@ -15,6 +15,7 @@ import {
   MessageList,
   ChatInput,
 } from './chat';
+import { hapticLight } from '../lib/haptics';
 import './ChatInterface.css';
 import './ImageUpload.css';
 
@@ -254,6 +255,7 @@ export default function ChatInterface({
   const handleSubmit = (e) => {
     e.preventDefault();
     if ((input.trim() || attachedImages.length > 0) && !isLoading) {
+      hapticLight(); // Haptic feedback on send
       userHasScrolledUp.current = false;
       const imagesToSend = attachedImages.length > 0 ? attachedImages : null;
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../AuthContext';
 import { AuroraBackground } from './ui/aurora-background';
+import { hapticMedium, hapticSuccess, hapticError } from '../lib/haptics';
 import './Login.css';
 
 // Google Icon SVG
@@ -52,33 +53,41 @@ export default function Login() {
     setError('');
     setMessage('');
     setLoading(true);
+    hapticMedium(); // Haptic feedback on form submit
 
     try {
       if (mode === 'signUp') {
         await signUp(email, password);
         setMessage('Check your email to confirm your account!');
+        hapticSuccess();
       } else if (mode === 'signIn') {
         await signIn(email, password);
+        hapticSuccess();
       } else if (mode === 'forgotPassword') {
         await sendPasswordReset(email);
         setMessage('Check your email for a password reset link!');
+        hapticSuccess();
       } else if (mode === 'resetPassword') {
         if (password !== confirmPassword) {
           setError('Passwords do not match');
           setLoading(false);
+          hapticError();
           return;
         }
         if (password.length < 6) {
           setError('Password must be at least 6 characters');
           setLoading(false);
+          hapticError();
           return;
         }
         await updatePassword(password);
         setMessage('Password updated successfully! You are now signed in.');
         setMode('signIn');
+        hapticSuccess();
       }
     } catch (err) {
       setError(err.message);
+      hapticError();
     } finally {
       setLoading(false);
     }
