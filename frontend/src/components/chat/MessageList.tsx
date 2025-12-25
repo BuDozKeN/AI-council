@@ -8,12 +8,62 @@
  * Uses framer-motion spring animations for smooth message appearance.
  */
 
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import Stage1 from '../Stage1';
 import Stage2 from '../Stage2';
 import Stage3 from '../stage3';
+
+/**
+ * CouncilStages - Wrapper that connects Stage1 and Stage2 with shared expanded model state
+ * When user clicks a ranking in Stage2, it expands the corresponding card in Stage1
+ */
+function CouncilStages({ msg, conversation }) {
+  const [expandedModel, setExpandedModel] = useState(null);
+
+  const handleRankingClick = (model) => {
+    setExpandedModel(model);
+  };
+
+  // Get aggregate rankings for showing rank badges in Stage1
+  const aggregateRankings = msg.metadata?.aggregate_rankings || msg.aggregate_rankings;
+
+  return (
+    <>
+      {/* Stage 1 - show with streaming or final responses */}
+      {(msg.loading?.stage1 || msg.stage1 || (msg.stage1Streaming && Object.keys(msg.stage1Streaming).length > 0)) && (
+        <Stage1
+          responses={msg.stage1}
+          streaming={msg.stage1Streaming}
+          isLoading={msg.loading?.stage1}
+          stopped={msg.stopped}
+          isComplete={msg.stage3 && !msg.loading?.stage3}
+          conversationTitle={conversation?.title}
+          imageAnalysis={msg.imageAnalysis}
+          expandedModel={expandedModel}
+          onExpandedModelChange={setExpandedModel}
+          aggregateRankings={aggregateRankings}
+        />
+      )}
+
+      {/* Stage 2 - show with streaming or final rankings */}
+      {(msg.loading?.stage2 || msg.stage2 || (msg.stage2Streaming && Object.keys(msg.stage2Streaming).length > 0)) && (
+        <Stage2
+          rankings={msg.stage2}
+          streaming={msg.stage2Streaming}
+          labelToModel={msg.metadata?.label_to_model || msg.label_to_model}
+          aggregateRankings={msg.metadata?.aggregate_rankings || msg.aggregate_rankings}
+          isLoading={msg.loading?.stage2}
+          isComplete={msg.stage3 && !msg.loading?.stage3}
+          conversationTitle={conversation?.title}
+          onModelClick={handleRankingClick}
+        />
+      )}
+    </>
+  );
+}
 
 // Spring animation config for message bubbles
 const messageVariants = {
@@ -112,31 +162,8 @@ export function MessageList({
               ) : (
                 /* Full council response - show all 3 stages */
                 <>
-                  {/* Stage 1 - show with streaming or final responses */}
-                  {(msg.loading?.stage1 || msg.stage1 || (msg.stage1Streaming && Object.keys(msg.stage1Streaming).length > 0)) && (
-                    <Stage1
-                      responses={msg.stage1}
-                      streaming={msg.stage1Streaming}
-                      isLoading={msg.loading?.stage1}
-                      stopped={msg.stopped}
-                      isComplete={msg.stage3 && !msg.loading?.stage3}
-                      conversationTitle={conversation?.title}
-                      imageAnalysis={msg.imageAnalysis}
-                    />
-                  )}
-
-                  {/* Stage 2 - show with streaming or final rankings */}
-                  {(msg.loading?.stage2 || msg.stage2 || (msg.stage2Streaming && Object.keys(msg.stage2Streaming).length > 0)) && (
-                    <Stage2
-                      rankings={msg.stage2}
-                      streaming={msg.stage2Streaming}
-                      labelToModel={msg.metadata?.label_to_model || msg.label_to_model}
-                      aggregateRankings={msg.metadata?.aggregate_rankings || msg.aggregate_rankings}
-                      isLoading={msg.loading?.stage2}
-                      isComplete={msg.stage3 && !msg.loading?.stage3}
-                      conversationTitle={conversation?.title}
-                    />
-                  )}
+                  {/* Stage 1 & 2 - wrapped together for click-to-navigate from rankings */}
+                  <CouncilStages msg={msg} conversation={conversation} />
 
                   {/* Stage 3 - show with streaming or final response */}
                   {(msg.loading?.stage3 || msg.stage3 || msg.stage3Streaming) && (
