@@ -212,6 +212,40 @@
   letter-spacing: 0.05em;
 }
 
+/* Rank badge - shows council ranking position */
+.stage1 .model-card-rank {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--color-slate-100);
+  color: var(--color-slate-600);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+/* Gold, silver, bronze for top 3 */
+.stage1 .model-card-rank.rank-1 {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #92400e;
+  font-size: 14px;
+  padding: 2px 4px;
+}
+
+.stage1 .model-card-rank.rank-2 {
+  background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+  color: #374151;
+  font-size: 14px;
+  padding: 2px 4px;
+}
+
+.stage1 .model-card-rank.rank-3 {
+  background: linear-gradient(135deg, #fed7aa, #fdba74);
+  color: #9a3412;
+  font-size: 14px;
+  padding: 2px 4px;
+}
+
 /* Status indicators */
 .stage1 .status-dot {
   position: relative;
@@ -914,6 +948,27 @@
 
 .dark .stage1 .model-card-name {
   color: var(--color-text-secondary);
+}
+
+/* Dark mode rank badges */
+.dark .stage1 .model-card-rank {
+  background: var(--color-slate-700);
+  color: var(--color-slate-300);
+}
+
+.dark .stage1 .model-card-rank.rank-1 {
+  background: linear-gradient(135deg, #78350f, #92400e);
+  color: #fef3c7;
+}
+
+.dark .stage1 .model-card-rank.rank-2 {
+  background: linear-gradient(135deg, #374151, #4b5563);
+  color: #e5e7eb;
+}
+
+.dark .stage1 .model-card-rank.rank-3 {
+  background: linear-gradient(135deg, #7c2d12, #9a3412);
+  color: #fed7aa;
 }
 
 .dark .stage1 .model-card-content {

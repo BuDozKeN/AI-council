@@ -96,7 +96,7 @@ function CodeBlock({ children, className }) {
 }
 
 // Individual model card in the grid - memoized to prevent re-renders when other cards update
-const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExpand, isExpanded }) {
+const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExpand, isExpanded, rankData }) {
   const cardRef = useRef(null);
   const touchStartRef = useRef(null);
 
@@ -107,6 +107,21 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
   // Display friendly brand name, show specific model on hover
   const displayName = persona.providerLabel || persona.shortName;
   const tooltipName = persona.fullName;
+
+  // Rank display helper
+  const getRankLabel = (position) => {
+    if (position === 1) return '🥇';
+    if (position === 2) return '🥈';
+    if (position === 3) return '🥉';
+    return `#${position}`;
+  };
+
+  // Build informative tooltip for rank badge
+  const getRankTooltip = () => {
+    if (!rankData) return '';
+    const { average_rank, rankings_count, totalVoters } = rankData;
+    return `Avg score: ${average_rank.toFixed(1)} (${rankings_count}/${totalVoters} experts voted) — Lower is better`;
+  };
 
   // Clean preview text - strip markdown and truncate
   const cleanText = stripMarkdown(data.response || '');
@@ -217,6 +232,16 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
           </div>
 
           <span className="model-card-name" title={tooltipName}>{displayName}</span>
+
+          {/* Rank badge - shows position after rankings are complete */}
+          {rankData && (
+            <span
+              className={`model-card-rank rank-${rankData.position}`}
+              title={getRankTooltip()}
+            >
+              {getRankLabel(rankData.position)}
+            </span>
+          )}
         </div>
 
         {/* Copy button (when expanded) + Expand/collapse */}
@@ -297,9 +322,13 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
   );
 });
 
-function Stage1({ responses, streaming, isLoading, stopped, isComplete, defaultCollapsed = false, conversationTitle, imageAnalysis }) {
+function Stage1({ responses, streaming, isLoading, stopped, isComplete, defaultCollapsed = false, conversationTitle, imageAnalysis, expandedModel: externalExpandedModel, onExpandedModelChange, aggregateRankings }) {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
-  const [expandedModel, setExpandedModel] = useState(null);
+  const [internalExpandedModel, setInternalExpandedModel] = useState(null);
+
+  // Use external control if provided, otherwise use internal state
+  const expandedModel = externalExpandedModel !== undefined ? externalExpandedModel : internalExpandedModel;
+  const setExpandedModel = onExpandedModelChange || setInternalExpandedModel;
 
   // Build display data from either streaming or final responses
   const displayData = [];
@@ -345,6 +374,18 @@ function Stage1({ responses, streaming, isLoading, stopped, isComplete, defaultC
     });
   }
 
+  // Sort by ranking position when rankings are available (winner first)
+  if (aggregateRankings && aggregateRankings.length > 0) {
+    displayData.sort((a, b) => {
+      const rankA = aggregateRankings.findIndex(r => r.model === a.model);
+      const rankB = aggregateRankings.findIndex(r => r.model === b.model);
+      // Models not in rankings go to the end
+      const posA = rankA >= 0 ? rankA : Infinity;
+      const posB = rankB >= 0 ? rankB : Infinity;
+      return posA - posB;
+    });
+  }
+
   // Check if all models are complete
   const allComplete = displayData.length > 0 && displayData.every(d => d.isComplete || d.isStopped || d.hasError);
   const streamingCount = displayData.filter(d => d.isStreaming).length;
@@ -360,6 +401,14 @@ function Stage1({ responses, streaming, isLoading, stopped, isComplete, defaultC
       return () => clearTimeout(timeoutId);
     }
   }, [isComplete, allComplete, isCollapsed, userToggled]);
+
+  // Auto-expand Stage1 when a model is selected from external control (e.g., clicking ranking)
+  useEffect(() => {
+    if (externalExpandedModel && isCollapsed) {
+      setIsCollapsed(false);
+      setUserToggled(true);
+    }
+  }, [externalExpandedModel]);
 
   if (displayData.length === 0 && !isLoading) {
     return null;
@@ -486,15 +535,23 @@ function Stage1({ responses, streaming, isLoading, stopped, isComplete, defaultC
           {/* Living Feed Grid - shows all models simultaneously */}
           <div className="model-grid">
             <AnimatePresence mode="popLayout">
-              {displayData.map((data) => (
-                <ModelCard
-                  key={data.model}
-                  data={data}
-                  isComplete={isComplete}
-                  isExpanded={expandedModel === data.model}
-                  onExpand={setExpandedModel}
-                />
-              ))}
+              {displayData.map((data) => {
+                // Find ranking data for this model (includes position, avg_rank, rankings_count)
+                const rankIndex = aggregateRankings?.findIndex(r => r.model === data.model);
+                const rankData = rankIndex !== undefined && rankIndex >= 0
+                  ? { position: rankIndex + 1, ...aggregateRankings[rankIndex], totalVoters: aggregateRankings.length }
+                  : null;
+                return (
+                  <ModelCard
+                    key={data.model}
+                    data={data}
+                    isComplete={isComplete}
+                    isExpanded={expandedModel === data.model}
+                    onExpand={setExpandedModel}
+                    rankData={rankData}
+                  />
+                );
+              })}
             </AnimatePresence>
           </div>
         </>

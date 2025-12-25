@@ -49,7 +49,7 @@ function deAnonymizeText(text, labelToModel) {
   return result;
 }
 
-function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoading, isComplete, defaultCollapsed = true, conversationTitle }) {
+function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoading, isComplete, defaultCollapsed = true, conversationTitle, onModelClick }) {
   const [activeTab, setActiveTab] = useState(0);
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [userToggled, setUserToggled] = useState(false);
@@ -299,11 +299,16 @@ function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoadin
                   const iconPath = getModelIconPath(agg.model);
                   const displayName = persona.providerLabel || persona.shortName;
                   const totalVoters = aggregateRankings.length;
+                  const isClickable = !!onModelClick;
                   return (
                     <div
                       key={index}
-                      className="aggregate-item"
-                      title={`${persona.fullName} - Average rank: ${agg.average_rank.toFixed(1)} (${agg.rankings_count} of ${totalVoters} experts voted). Lower is better - #1 is the top answer.`}
+                      className={`aggregate-item ${isClickable ? 'clickable' : ''}`}
+                      title={`${persona.fullName} - Average rank: ${agg.average_rank.toFixed(1)} (${agg.rankings_count} of ${totalVoters} experts voted). Lower is better - #1 is the top answer.${isClickable ? ' Click to view response.' : ''}`}
+                      onClick={isClickable ? () => onModelClick(agg.model) : undefined}
+                      role={isClickable ? 'button' : undefined}
+                      tabIndex={isClickable ? 0 : undefined}
+                      onKeyDown={isClickable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onModelClick(agg.model); } } : undefined}
                     >
                       <span className="rank-position">#{index + 1}</span>
                       <span className="rank-model">
