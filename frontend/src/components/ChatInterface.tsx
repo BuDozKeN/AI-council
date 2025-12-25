@@ -284,7 +284,7 @@ export default function ChatInterface({
     return (
       <main id="main-content" className="chat-interface" aria-label="Chat interface">
         <div className="council-loader-overlay">
-          <CouncilLoader text="Loading conversation..." />
+          <CouncilLoader text="Getting your conversation ready..." />
         </div>
       </main>
     );
@@ -355,7 +355,7 @@ export default function ChatInterface({
         {triageState === 'analyzing' && (
           <div className="triage-analyzing">
             <Spinner size="md" />
-            <span>Analyzing your question...</span>
+            <span>Understanding what you need...</span>
           </div>
         )}
 
@@ -373,7 +373,7 @@ export default function ChatInterface({
         {/* Show council loader while loading conversation */}
         {isLoadingConversation && !hasMessages && (
           <div className="council-loader-overlay">
-            <CouncilLoader text="Loading conversation..." />
+            <CouncilLoader text="Getting your conversation ready..." />
           </div>
         )}
 
@@ -404,7 +404,7 @@ export default function ChatInterface({
           return (
             <div className="loading-indicator">
               <Spinner size="md" />
-              <span>Setting up conversation...</span>
+              <span>Preparing your council...</span>
             </div>
           );
         })()}

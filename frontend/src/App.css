@@ -90,7 +90,8 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.5);
-  z-index: var(--z-overlay);
+  /* Must be just below sidebar (z-modal) but above everything else */
+  z-index: calc(var(--z-modal) - 1);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -136,9 +137,6 @@
   flex-direction: column;
   min-width: 0;
   overflow: hidden;
-  /* GPU acceleration for smooth transitions */
-  will-change: transform, opacity;
-  transform-origin: center top;
 }
 
 .main-content-landing {
@@ -146,9 +144,19 @@
   /* This keeps the hero centered on the viewport regardless of sidebar state */
   position: absolute;
   inset: 0;
-  z-index: var(--z-elevated);
+  z-index: var(--z-sticky);
   /* Smooth backdrop for transition */
   background: var(--color-bg-secondary);
+  /* GPU acceleration for landing animations */
+  will-change: transform, opacity;
+  transform-origin: center top;
+}
+
+/* Mobile: bump z-index so landing overlays mobile sidebar */
+@media (max-width: 768px) {
+  .main-content-landing {
+    z-index: calc(var(--z-modal) - 2);
+  }
 }
 
 .main-content-chat {
@@ -159,9 +167,3 @@
   transition: backdrop-filter 0.3s ease;
 }
 
-/* Mobile: bump z-index so landing overlays mobile sidebar */
-@media (max-width: 768px) {
-  .main-content-landing {
-    z-index: var(--z-dropdown);
-  }
-}

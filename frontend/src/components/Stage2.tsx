@@ -241,28 +241,30 @@ function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoadin
                 <CopyButton text={activeData.ranking} size="sm" />
               )}
             </div>
-            <div className={`ranking-content markdown-content ${activeData.hasError || activeData.isEmpty ? 'error-text' : ''}`}>
+            <div className={`ranking-content ${activeData.hasError || activeData.isEmpty ? 'error-text' : ''}`}>
               {activeData.isEmpty ? (
                 <p className="empty-message">This model did not return an evaluation.</p>
               ) : activeData.hasError ? (
                 <p className="empty-message">{activeData.ranking || 'An error occurred while generating the evaluation.'}</p>
               ) : (
                 <>
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      // Wrap tables in scrollable container for mobile
-                      table({ children, ...props }) {
-                        return (
-                          <div className="table-scroll-wrapper">
-                            <table {...props}>{children}</table>
-                          </div>
-                        );
-                      }
-                    }}
-                  >
-                    {deAnonymizeText(activeData.ranking || '', labelToModel)}
-                  </ReactMarkdown>
+                  <article className="prose prose-slate prose-sm max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:tracking-tight prose-h1:text-xl prose-h2:text-lg prose-h3:text-base prose-p:leading-relaxed prose-li:my-0.5 prose-ul:my-1 prose-ol:my-1 prose-code:before:content-none prose-code:after:content-none prose-code:bg-slate-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-emerald-700 prose-pre:bg-slate-50 prose-pre:border prose-pre:border-slate-200">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        // Wrap tables in scrollable container for mobile
+                        table({ children, ...props }) {
+                          return (
+                            <div className="table-scroll-wrapper">
+                              <table {...props}>{children}</table>
+                            </div>
+                          );
+                        }
+                      }}
+                    >
+                      {deAnonymizeText(activeData.ranking || '', labelToModel)}
+                    </ReactMarkdown>
+                  </article>
                   {activeData.isStreaming && <span className="cursor">▊</span>}
                 </>
               )}

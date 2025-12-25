@@ -1,0 +1,722 @@
+/* =============================================================================
+   TABLE OF CONTENTS - Reusable TOC styles for floating sidebars and mobile sheets
+
+   This file provides standardized TOC styling used by:
+   - Stage3OutlineSidebar (desktop floating TOC)
+   - Stage3MobileOutline (mobile bottom sheet TOC)
+   - Future TOC implementations
+
+   Import this file where TOC components are used.
+   ============================================================================= */
+
+/* =============================================================================
+   SHARED SCROLLBAR STYLES - Hidden but functional
+   ============================================================================= */
+
+.toc-scrollable {
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.toc-scrollable::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Opera */
+}
+
+/* =============================================================================
+   STAGE 3 FLOATING TOC - Desktop sidebar (fixed position, right edge)
+   ============================================================================= */
+
+.stage3-floating-toc {
+  display: none;
+  position: fixed;
+  right: 24px;
+  /* Position from top instead of bottom for better vertical space usage */
+  top: 120px;
+  z-index: var(--z-header);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  opacity: 0.6;
+  transition: all 0.2s ease;
+  min-width: 180px;
+  max-width: 240px;
+  /* Much taller - use most of viewport, leave room for header and bottom padding */
+  max-height: calc(100vh - 180px);
+  /* Hidden scrollbar - functional but invisible */
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.stage3-floating-toc::-webkit-scrollbar {
+  display: none;
+}
+
+.stage3-floating-toc:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* TOC Header */
+.stage3-toc-header {
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.stage3-toc-title {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-slate-500);
+  letter-spacing: 0.02em;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+/* Collapse toggle button */
+.stage3-toc-toggle {
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: all 0.15s ease;
+  color: var(--color-slate-500);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.stage3-floating-toc:hover .stage3-toc-toggle {
+  opacity: 1;
+}
+
+.stage3-toc-toggle:hover {
+  background: var(--color-slate-100);
+  color: var(--color-slate-700);
+  transform: translateY(-50%) scale(1.1);
+}
+
+/* Collapsed state */
+.stage3-floating-toc.collapsed {
+  padding: 8px 6px;
+  min-width: auto;
+  max-width: 24px;
+  cursor: pointer;
+}
+
+.stage3-floating-toc.collapsed:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.stage3-floating-toc.collapsed .stage3-toc-toggle {
+  left: -10px;
+}
+
+.stage3-floating-toc.collapsed .stage3-toc-link {
+  padding: 4px;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* TOC List */
+.stage3-toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stage3-toc-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.stage3-toc-link:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* Dot indicator */
+.stage3-toc-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-slate-500);
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+/* Text label */
+.stage3-toc-text {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-slate-600);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+  transition: all 0.15s ease;
+}
+
+.stage3-toc-link:hover .stage3-toc-dot {
+  background: var(--color-slate-600);
+}
+
+.stage3-toc-link:hover .stage3-toc-text {
+  color: var(--color-slate-700);
+}
+
+/* Active state */
+.stage3-toc-link.active {
+  background: rgba(16, 185, 129, 0.15);
+  border-radius: 20px;
+}
+
+.stage3-toc-link.active .stage3-toc-dot {
+  background: var(--color-emerald-500);
+  opacity: 1;
+}
+
+.stage3-toc-link.active .stage3-toc-text {
+  color: var(--color-emerald-600);
+  font-weight: 500;
+}
+
+/* Show floating TOC on larger screens */
+@media (min-width: 1280px) {
+  .stage3-floating-toc {
+    display: block;
+    right: 24px;
+  }
+}
+
+@media (min-width: 1600px) {
+  .stage3-floating-toc {
+    right: 32px;
+  }
+}
+
+@media (min-width: 1920px) {
+  .stage3-floating-toc {
+    right: 40px;
+  }
+}
+
+/* Dark mode - prefers-color-scheme */
+@media (prefers-color-scheme: dark) {
+  .stage3-floating-toc {
+    background: rgba(40, 40, 45, 0.6);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .stage3-floating-toc:hover {
+    background: rgba(50, 50, 55, 0.8);
+  }
+
+  .stage3-toc-toggle {
+    color: var(--color-slate-400);
+  }
+
+  .stage3-toc-toggle:hover {
+    color: var(--color-slate-300);
+  }
+
+  .stage3-floating-toc.collapsed:hover {
+    background: rgba(50, 50, 55, 0.8);
+  }
+
+  .stage3-toc-header {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .stage3-toc-title {
+    color: var(--color-slate-400);
+  }
+}
+
+/* =============================================================================
+   MOBILE TOC TRIGGER - Floating pill button
+   ============================================================================= */
+
+.stage3-mobile-toc-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 6px 10px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(248,250,252,0.95) 100%);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: none;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-slate-500);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.stage3-mobile-toc-trigger:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.06),
+    0 8px 24px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.stage3-mobile-toc-trigger:active {
+  transform: scale(0.97);
+  transition-duration: 0.1s;
+}
+
+/* Progress indicator bar */
+.stage3-mobile-toc-progress {
+  width: 3px;
+  height: 14px;
+  background: var(--color-slate-200);
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stage3-mobile-toc-progress-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(to top, var(--color-emerald-500), var(--color-emerald-400));
+  border-radius: 2px;
+  transition: height 0.3s ease;
+}
+
+.stage3-mobile-toc-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.stage3-mobile-toc-icon {
+  width: 12px;
+  height: 12px;
+  color: var(--color-slate-400);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.stage3-mobile-toc-trigger:hover .stage3-mobile-toc-icon {
+  transform: translateY(1px);
+}
+
+/* Hide on desktop */
+@media (min-width: 1280px) {
+  .stage3-mobile-toc-trigger {
+    display: none;
+  }
+}
+
+/* =============================================================================
+   MOBILE TOC SHEET - Bottom sheet overlay
+   ============================================================================= */
+
+.stage3-mobile-outline-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-dropdown);
+  display: flex;
+  align-items: flex-end;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: tocOverlayFadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes tocOverlayFadeIn {
+  from { opacity: 0; backdrop-filter: blur(0); }
+  to { opacity: 1; backdrop-filter: blur(4px); }
+}
+
+.stage3-mobile-outline-sheet {
+  width: 100%;
+  max-height: 70vh;
+  overflow: hidden;
+  background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
+  border-radius: 20px 20px 0 0;
+  animation: tocSheetSlideUp 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  box-shadow:
+    0 -1px 0 rgba(0, 0, 0, 0.04),
+    0 -8px 32px rgba(0, 0, 0, 0.12),
+    0 -24px 64px rgba(0, 0, 0, 0.08);
+}
+
+@keyframes tocSheetSlideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* Drag handle */
+.stage3-mobile-sheet-handle {
+  width: 36px;
+  height: 5px;
+  background: linear-gradient(90deg, var(--color-slate-300), var(--color-slate-200));
+  border-radius: 100px;
+  margin: 8px auto 0;
+  opacity: 0.6;
+}
+
+/* Header */
+.stage3-mobile-outline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.stage3-mobile-outline-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-slate-400);
+}
+
+.stage3-mobile-outline-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--color-slate-100);
+  border: none;
+  border-radius: 50%;
+  color: var(--color-slate-500);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.stage3-mobile-outline-close:hover {
+  background: var(--color-slate-200);
+  color: var(--color-slate-700);
+}
+
+.stage3-mobile-outline-close:active {
+  transform: scale(0.92);
+}
+
+/* Scrollable list container */
+.stage3-mobile-outline-list {
+  list-style: none;
+  margin: 0;
+  padding: 8px 12px 32px;
+  max-height: calc(70vh - 80px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* Hidden scrollbar */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.stage3-mobile-outline-list::-webkit-scrollbar {
+  display: none;
+}
+
+/* Link items */
+.stage3-mobile-outline-link {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 12px;
+  margin-bottom: 2px;
+  border-radius: 12px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--color-slate-600);
+  text-decoration: none;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.stage3-mobile-outline-link:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.stage3-mobile-outline-link:active {
+  background: rgba(0, 0, 0, 0.06);
+  transform: scale(0.99);
+}
+
+/* Vertical line indicator */
+.stage3-mobile-link-indicator {
+  width: 3px;
+  height: 100%;
+  min-height: 20px;
+  background: var(--color-slate-200);
+  border-radius: 2px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.stage3-mobile-link-text {
+  flex: 1;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* Section number badge */
+.stage3-mobile-link-number {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-slate-400);
+  background: var(--color-slate-100);
+  padding: 2px 6px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* Active state */
+.stage3-mobile-outline-link.active {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.04) 100%);
+}
+
+.stage3-mobile-outline-link.active .stage3-mobile-link-indicator {
+  background: linear-gradient(to bottom, var(--color-emerald-500), var(--color-emerald-400));
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+}
+
+.stage3-mobile-outline-link.active .stage3-mobile-link-text {
+  color: var(--color-emerald-700);
+  font-weight: 600;
+}
+
+.stage3-mobile-outline-link.active .stage3-mobile-link-number {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--color-emerald-600);
+}
+
+/* H3 level - subtle indent */
+.stage3-mobile-outline-link.level-3 {
+  padding-left: 24px;
+  font-size: 14px;
+}
+
+.stage3-mobile-outline-link.level-3 .stage3-mobile-link-indicator {
+  width: 2px;
+  background: var(--color-slate-150, var(--color-slate-200));
+  opacity: 0.6;
+}
+
+.stage3-mobile-outline-link.level-3 .stage3-mobile-link-text {
+  color: var(--color-slate-500);
+  font-weight: 400;
+}
+
+/* =============================================================================
+   DARK MODE - Full dark theme support
+   ============================================================================= */
+
+/* Floating TOC dark mode */
+.dark .stage3-floating-toc,
+[data-theme="dark"] .stage3-floating-toc {
+  background: rgba(40, 40, 45, 0.6);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.dark .stage3-floating-toc:hover,
+[data-theme="dark"] .stage3-floating-toc:hover {
+  background: rgba(50, 50, 55, 0.8);
+}
+
+.dark .stage3-floating-toc.collapsed:hover,
+[data-theme="dark"] .stage3-floating-toc.collapsed:hover {
+  background: rgba(50, 50, 55, 0.8);
+}
+
+.dark .stage3-toc-header {
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark .stage3-toc-title {
+  color: var(--color-slate-500);
+}
+
+.dark .stage3-toc-toggle {
+  background: rgba(50, 50, 55, 0.9);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--color-slate-500);
+}
+
+.dark .stage3-toc-toggle:hover {
+  background: rgba(60, 60, 65, 0.95);
+  color: var(--color-slate-400);
+}
+
+.dark .stage3-toc-link:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dark .stage3-toc-dot {
+  background: var(--color-slate-500);
+}
+
+.dark .stage3-toc-text {
+  color: var(--color-slate-500);
+}
+
+.dark .stage3-toc-link:hover .stage3-toc-dot {
+  background: var(--color-slate-400);
+}
+
+.dark .stage3-toc-link:hover .stage3-toc-text {
+  color: var(--color-slate-300);
+}
+
+.dark .stage3-toc-link.active {
+  background: rgba(52, 211, 153, 0.1);
+}
+
+.dark .stage3-toc-link.active .stage3-toc-dot {
+  background: var(--color-emerald-400);
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2);
+}
+
+.dark .stage3-toc-link.active .stage3-toc-text {
+  color: var(--color-emerald-400);
+}
+
+/* Mobile trigger dark mode */
+.dark .stage3-mobile-toc-trigger {
+  background: linear-gradient(135deg, rgba(30, 30, 35, 0.95) 0%, rgba(25, 25, 30, 0.95) 100%);
+  color: var(--color-slate-400);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.2),
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.dark .stage3-mobile-toc-trigger:hover {
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.dark .stage3-mobile-toc-progress {
+  background: var(--color-slate-700);
+}
+
+.dark .stage3-mobile-toc-icon {
+  color: var(--color-slate-500);
+}
+
+/* Mobile sheet dark mode */
+.dark .stage3-mobile-outline-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.dark .stage3-mobile-outline-sheet {
+  background: linear-gradient(180deg, #1e1e24 0%, #18181c 100%);
+  box-shadow:
+    0 -1px 0 rgba(255, 255, 255, 0.05),
+    0 -8px 32px rgba(0, 0, 0, 0.5),
+    0 -24px 64px rgba(0, 0, 0, 0.4);
+}
+
+.dark .stage3-mobile-sheet-handle {
+  background: linear-gradient(90deg, var(--color-slate-600), var(--color-slate-700));
+}
+
+.dark .stage3-mobile-outline-header {
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+.dark .stage3-mobile-outline-title {
+  color: var(--color-slate-500);
+}
+
+.dark .stage3-mobile-outline-close {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-slate-400);
+}
+
+.dark .stage3-mobile-outline-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-slate-300);
+}
+
+.dark .stage3-mobile-outline-link {
+  color: var(--color-slate-400);
+}
+
+.dark .stage3-mobile-outline-link:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.dark .stage3-mobile-outline-link:active {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.dark .stage3-mobile-link-indicator {
+  background: var(--color-slate-700);
+}
+
+.dark .stage3-mobile-link-number {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-slate-500);
+}
+
+.dark .stage3-mobile-outline-link.active {
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.12) 0%, rgba(52, 211, 153, 0.06) 100%);
+}
+
+.dark .stage3-mobile-outline-link.active .stage3-mobile-link-indicator {
+  background: linear-gradient(to bottom, var(--color-emerald-400), var(--color-emerald-500));
+  box-shadow: 0 0 12px rgba(52, 211, 153, 0.4);
+}
+
+.dark .stage3-mobile-outline-link.active .stage3-mobile-link-text {
+  color: var(--color-emerald-400);
+}
+
+.dark .stage3-mobile-outline-link.active .stage3-mobile-link-number {
+  background: rgba(52, 211, 153, 0.15);
+  color: var(--color-emerald-400);
+}
+
+.dark .stage3-mobile-outline-link.level-3 {
+  color: var(--color-slate-500);
+}
+
+.dark .stage3-mobile-outline-link.level-3 .stage3-mobile-link-indicator {
+  background: var(--color-slate-700);
+}

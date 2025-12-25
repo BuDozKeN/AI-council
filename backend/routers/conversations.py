@@ -16,6 +16,7 @@ from typing import Optional, List, Dict, Any
 import asyncio
 import json
 import re
+import uuid
 
 from ..auth import get_current_user
 from .. import storage
@@ -175,7 +176,9 @@ async def create_conversation(
     """Create a new conversation."""
     access_token = user.get("access_token")
     company_id = request.company_id if request else None
+    conversation_id = str(uuid.uuid4())
     conversation = storage.create_conversation(
+        conversation_id,
         user["id"],
         company_id=company_id,
         access_token=access_token

@@ -1,41 +1,80 @@
 /**
- * CopyButton - Unified copy button styles
+ * CopyButton - Hover-to-reveal copy button
  *
- * Icon-only button with smooth checkmark feedback animation.
- * Supports inline, sticky, and absolute positioning.
+ * Best practice pattern: Hidden by default, appears on hover.
+ * Parent container needs: position: relative
+ *
+ * Usage:
+ *   .my-content { position: relative; }
+ *   <div className="my-content copyable">
+ *     <CopyButton text={content} />
+ *     {content}
+ *   </div>
  */
+
+/* =============================================================================
+   BASE BUTTON STYLES
+   ============================================================================= */
 
 .copy-btn-unified {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 6px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-primary);
-  color: var(--color-text-secondary);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--color-text-tertiary);
   cursor: pointer;
   transition: all 0.15s ease;
   flex-shrink: 0;
+
+  /* Default: positioned absolute top-right */
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 5;
+
+  /* Hidden by default on desktop */
+  opacity: 0;
+  pointer-events: none;
 }
 
+/* Show on hover of parent .copyable container */
+.copyable:hover .copy-btn-unified,
+.copyable:focus-within .copy-btn-unified {
+  opacity: 0.7;
+  pointer-events: auto;
+}
+
+/* Full opacity when button itself is hovered */
 .copy-btn-unified:hover {
+  opacity: 1 !important;
   border-color: var(--color-brand-primary);
   color: var(--color-brand-primary);
-  background: var(--color-brand-primary-light);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .copy-btn-unified:active {
   transform: scale(0.95);
 }
 
+/* Copied state - always visible */
 .copy-btn-unified.copied {
+  opacity: 1 !important;
+  pointer-events: auto;
   border-color: var(--color-success);
   color: var(--color-success);
-  background: var(--color-success-light);
+  background: rgba(255, 255, 255, 0.98);
 }
 
-/* Icon sizing */
+/* =============================================================================
+   ICON STYLES
+   ============================================================================= */
+
 .copy-btn-icon {
   width: 16px;
   height: 16px;
@@ -60,7 +99,10 @@
   }
 }
 
-/* Size variants */
+/* =============================================================================
+   SIZE VARIANTS
+   ============================================================================= */
+
 .copy-btn-sm {
   padding: 4px;
 }
@@ -83,38 +125,74 @@
   height: 18px;
 }
 
-/* Position variants */
-.copy-btn-sticky {
-  position: sticky;
-  top: 8px;
-  right: 8px;
-  z-index: var(--z-elevated);
-  float: right;
-  margin-left: auto;
+/* =============================================================================
+   POSITION VARIANTS (override default absolute)
+   ============================================================================= */
+
+/* Inline - flows with content, always visible */
+.copy-btn-inline {
+  position: relative;
+  top: auto;
+  right: auto;
+  opacity: 0.6;
+  pointer-events: auto;
 }
 
-.copy-btn-absolute {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: var(--z-elevated);
+.copy-btn-inline:hover {
+  opacity: 1;
 }
 
-/* Dark mode */
-.dark .copy-btn-unified {
-  background: var(--color-bg-secondary);
-  border-color: var(--color-border);
-  color: var(--color-text-secondary);
+/* =============================================================================
+   MOBILE - Always visible (no hover state)
+   ============================================================================= */
+
+@media (max-width: 768px) {
+  .copy-btn-unified {
+    opacity: 0.6;
+    pointer-events: auto;
+  }
+
+  .copy-btn-unified:hover {
+    opacity: 1;
+  }
 }
 
-.dark .copy-btn-unified:hover {
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .copy-btn-unified,
+[data-theme="dark"] .copy-btn-unified {
+  background: rgba(30, 30, 35, 0.9);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--color-text-tertiary);
+}
+
+.dark .copy-btn-unified:hover,
+[data-theme="dark"] .copy-btn-unified:hover {
   border-color: var(--color-brand-primary);
   color: var(--color-brand-primary);
-  background: var(--color-info-light);
+  background: rgba(40, 40, 45, 0.98);
 }
 
-.dark .copy-btn-unified.copied {
+.dark .copy-btn-unified.copied,
+[data-theme="dark"] .copy-btn-unified.copied {
   border-color: var(--color-success);
-  color: var(--stage3-text-primary);
-  background: var(--color-success-light);
+  color: var(--color-success);
+  background: rgba(40, 40, 45, 0.98);
+}
+
+/* =============================================================================
+   CODE BLOCK SPECIFIC - for pre/code containers
+   ============================================================================= */
+
+pre.copyable,
+.code-block.copyable {
+  position: relative;
+}
+
+pre.copyable .copy-btn-unified,
+.code-block.copyable .copy-btn-unified {
+  top: 6px;
+  right: 6px;
 }

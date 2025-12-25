@@ -173,8 +173,8 @@ export function InsightsPanel({ insights = [], onAddContext, companyName, depart
     return (
       <div className="insights-panel-empty">
         <Eye className="empty-icon" size={32} />
-        <p className="empty-text">The Council is thinking...</p>
-        <p className="empty-subtext">We'll show you anything that needs your attention</p>
+        <p className="empty-text">Your council is deliberating...</p>
+        <p className="empty-subtext">We'll surface anything that needs your input</p>
       </div>
     );
   }

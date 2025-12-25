@@ -8,8 +8,8 @@ import {
   AddDepartmentModal,
   AddRoleModal,
   AddPlaybookModal,
-  ConfirmModal,
 } from './modals';
+import { ConfirmModal } from '../ui/ConfirmModal';
 
 // Lazy load large/complex modals
 const ViewProjectModal = lazy(() => import('./modals/ViewProjectModal').then(m => ({ default: m.ViewProjectModal })));

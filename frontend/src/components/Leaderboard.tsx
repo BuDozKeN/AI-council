@@ -25,7 +25,7 @@ export default function Leaderboard({ isOpen, onClose }) {
       const data = await api.getLeaderboardSummary();
       setLeaderboardData(data);
     } catch (err) {
-      setError('Failed to load leaderboard');
+      setError("Couldn't load the leaderboard right now. Please try again.");
       logger.error(err);
     } finally {
       setIsLoading(false);

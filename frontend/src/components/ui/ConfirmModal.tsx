@@ -1,6 +1,7 @@
 import * as React from "react"
 import { AppModal } from "./AppModal"
 import { Button } from "./button"
+import { Spinner } from "./Spinner"
 import { AlertTriangle, Trash2, Info, AlertCircle } from "lucide-react"
 import "./ConfirmModal.css"
 
@@ -37,8 +38,10 @@ function ConfirmModal({
   cancelText = 'Cancel',
   onConfirm,
   onCancel,
-  isLoading = false
+  isLoading = false,
+  processing = false, // Alias for isLoading (backwards compat)
 }) {
+  const loading = isLoading || processing;
   const iconMap = {
     danger: <Trash2 size={24} />,
     warning: <AlertTriangle size={24} />,
@@ -59,7 +62,7 @@ function ConfirmModal({
       onClose={onCancel}
       title={title}
       size="sm"
-      closeOnOverlayClick={!isLoading}
+      closeOnOverlayClick={!loading}
     >
       <div className="confirm-modal-content">
         <div className={`confirm-modal-icon confirm-modal-icon-${variant}`}>
@@ -73,7 +76,7 @@ function ConfirmModal({
           type="button"
           variant="outline"
           onClick={onCancel}
-          disabled={isLoading}
+          disabled={loading}
         >
           {cancelText}
         </Button>
@@ -81,10 +84,15 @@ function ConfirmModal({
           type="button"
           variant={variant === 'danger' ? 'destructive' : 'default'}
           onClick={handleConfirm}
-          disabled={isLoading}
+          disabled={loading}
           autoFocus
         >
-          {isLoading ? 'Processing...' : confirmText}
+          {loading ? (
+            <>
+              <Spinner size="sm" variant="muted" />
+              Processing...
+            </>
+          ) : confirmText}
         </Button>
       </AppModal.Footer>
     </AppModal>

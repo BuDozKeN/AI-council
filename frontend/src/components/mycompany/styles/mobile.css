@@ -288,51 +288,72 @@
    ============================================================================ */
 
 @media (max-width: 640px) {
-  /* Filters row on mobile - horizontal scroll or wrap */
+  /* Filters row on mobile - compact single row */
   .mc-projects-filters {
     flex-direction: row;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    padding: 4px 0;
   }
 
   .mc-filters-left {
     flex-direction: row;
-    flex-wrap: wrap;
-    gap: 8px;
+    flex-wrap: nowrap;
+    gap: 6px;
     flex: 1;
     min-width: 0;
   }
 
   /* Filter dropdowns shrink to content */
   .mc-filters-left > * {
-    flex: 0 0 auto;
-    width: auto;
-    max-width: 100%;
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 50%;
   }
 
   /* Hide "New" button - FAB is used instead */
-  .mc-projects-filters .mc-btn-clean {
+  .mc-projects-filters .mc-btn-clean,
+  .mc-projects-filters > button {
     display: none;
   }
 
-  /* Playbooks filters */
-  .mc-playbooks-header {
+  /* Tab headers - compact on mobile */
+  .mc-team-header,
+  .mc-playbooks-header,
+  .mc-decisions-header {
     flex-direction: row;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 8px;
+    padding: 4px 0;
   }
 
-  /* Decisions filters */
+  .mc-team-header span,
+  .mc-playbooks-header span,
+  .mc-decisions-header span {
+    font-size: 0.75rem;
+  }
+
+  /* Playbooks filters - compact */
+  .mc-playbooks-header {
+    gap: 6px;
+  }
+
+  .mc-playbooks-header > button {
+    display: none;
+  }
+
+  /* Decisions filters - compact */
   .mc-decisions-filters {
     flex-direction: row;
-    flex-wrap: wrap;
-    gap: 8px;
+    flex-wrap: nowrap;
+    gap: 6px;
+    padding: 4px 0;
   }
 
   .mc-decisions-filters > * {
-    flex: 0 0 auto;
-    width: auto;
+    flex: 0 1 auto;
+    min-width: 0;
   }
 }
 
@@ -617,6 +638,80 @@
    ============================================================================ */
 
 @media (max-width: 768px) {
+  /* ========== OVERVIEW TAB - MOBILE ========== */
+
+  /* Hero section: compact vertical layout */
+  .mc-overview-hero {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .mc-overview-title {
+    font-size: 1rem;
+    margin-bottom: 4px;
+  }
+
+  .mc-overview-description {
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--color-text-secondary);
+  }
+
+  /* Meta row: horizontal with Edit button */
+  .mc-overview-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .mc-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .mc-meta-label {
+    font-size: 0.5625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-tertiary);
+  }
+
+  .mc-meta-value {
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  /* Edit button: auto width, stays inline */
+  .mc-overview-hero .mc-btn {
+    margin-left: auto;
+    padding: 8px 14px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  /* Hide stats grid on Overview - users can tap into tabs to see counts */
+  .mc-overview .mc-stats-grid {
+    display: none;
+  }
+
+  /* Context section: full height scrollable */
+  .mc-context-section--compact {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .mc-context-section--compact .mc-context-content {
+    height: 100%;
+  }
+
+  .mc-context-section--compact .scrollable-content-inner {
+    padding: 12px;
+  }
+
   /* ========== PROJECTS TAB - MOBILE ========== */
 
   /* Project row: clean card-like appearance */

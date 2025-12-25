@@ -1,9 +1,14 @@
 /**
- * CopyButton - Consistent icon-only copy button with checkmark feedback
+ * CopyButton - Hover-to-reveal copy button
+ *
+ * Best practice: Hidden by default, appears on parent hover.
+ * Parent container needs class "copyable" for hover-reveal behavior.
  *
  * Usage:
- *   <CopyButton text={contentToCopy} />
- *   <CopyButton text={contentToCopy} position="sticky" /> // Sticky top-right
+ *   <div className="copyable">
+ *     <CopyButton text={contentToCopy} />
+ *     {content}
+ *   </div>
  */
 
 import { useState } from 'react';
@@ -11,15 +16,22 @@ import { Copy, Check } from 'lucide-react';
 import { logger } from '../../utils/logger';
 import './CopyButton.css';
 
+interface CopyButtonProps {
+  text: string;
+  size?: 'sm' | 'md' | 'lg';
+  inline?: boolean;
+  className?: string;
+}
+
 export function CopyButton({
   text,
-  position = 'inline', // 'inline' | 'sticky' | 'absolute'
-  size = 'md', // 'sm' | 'md' | 'lg'
+  size = 'md',
+  inline = false,
   className = ''
-}) {
+}: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
 
-  const handleCopy = async (e) => {
+  const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
 
@@ -34,22 +46,13 @@ export function CopyButton({
     }
   };
 
-  const sizeClasses = {
-    sm: 'copy-btn-sm',
-    md: 'copy-btn-md',
-    lg: 'copy-btn-lg',
-  };
-
-  const positionClasses = {
-    inline: '',
-    sticky: 'copy-btn-sticky',
-    absolute: 'copy-btn-absolute',
-  };
+  const sizeClass = `copy-btn-${size}`;
+  const inlineClass = inline ? 'copy-btn-inline' : '';
 
   return (
     <button
       type="button"
-      className={`copy-btn-unified ${sizeClasses[size]} ${positionClasses[position]} ${copied ? 'copied' : ''} ${className}`}
+      className={`copy-btn-unified ${sizeClass} ${inlineClass} ${copied ? 'copied' : ''} ${className}`.trim()}
       onClick={handleCopy}
       title={copied ? 'Copied!' : 'Copy'}
       aria-label={copied ? 'Copied to clipboard' : 'Copy to clipboard'}

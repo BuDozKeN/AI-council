@@ -28,8 +28,8 @@ export function TeamTab({
     return (
       <div className="mc-empty">
         <Users size={32} className="mc-empty-icon" />
-        <p className="mc-empty-title">No departments yet</p>
-        <p className="mc-empty-hint">Add your first department to organize your AI council</p>
+        <p className="mc-empty-title">Set up your team</p>
+        <p className="mc-empty-hint">Add departments and roles to help your council understand your organization</p>
         <Button
           variant="default"
           onClick={onAddDepartment}
@@ -137,7 +137,7 @@ export function TeamTab({
                           ))}
                         </div>
                       ) : (
-                        <p className="mc-no-roles">No roles defined</p>
+                        <p className="mc-no-roles">Add roles to this department</p>
                       )}
                     </div>
                   </div>

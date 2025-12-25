@@ -273,7 +273,7 @@ export default function SaveKnowledgeModal({
         }
       }
     } catch (err) {
-      setError(err.message || 'Failed to create project');
+      setError(err.message || "Couldn't create that project. Please try again.");
     } finally {
       setCreatingProject(false);
     }
@@ -359,7 +359,7 @@ export default function SaveKnowledgeModal({
       setSuccess(true);
     } catch (err) {
       log.error('Save failed:', err);
-      setError(err.message || 'Failed to save knowledge entry');
+      setError(err.message || "Couldn't save your decision. Please try again.");
     } finally {
       setSaving(false);
     }

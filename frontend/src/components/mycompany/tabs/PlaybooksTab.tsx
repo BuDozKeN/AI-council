@@ -82,8 +82,8 @@ export function PlaybooksTab({
     return (
       <div className="mc-empty">
         <BookOpen size={32} className="mc-empty-icon" />
-        <p className="mc-empty-title">No playbooks yet</p>
-        <p className="mc-empty-hint">Create SOPs, frameworks, and policies for your AI council</p>
+        <p className="mc-empty-title">Build your knowledge base</p>
+        <p className="mc-empty-hint">Create SOPs, frameworks, and policies that your AI council will reference</p>
         <Button
           variant="default"
           onClick={onAddPlaybook}

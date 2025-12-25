@@ -163,3 +163,109 @@
   white-space: nowrap;
   flex-shrink: 0;
 }
+
+/* ============================================================================
+   EVENT DOT & BADGES (used in activity feed rows)
+   ============================================================================ */
+
+.mc-event-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.mc-activity-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+/* Deleted items */
+.mc-elegant-row.deleted-item {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.mc-elegant-row.deleted-item .mc-event-dot {
+  opacity: 0.4;
+}
+
+/* Content wrap for activity - column layout */
+.mc-activity-content-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Source icon button - navigates to conversation */
+.mc-source-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.mc-source-icon-btn:hover {
+  background: var(--color-blue-50);
+  color: var(--color-blue-500);
+}
+
+/* Load more button */
+.mc-load-more-btn {
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-default);
+  border-radius: 6px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-load-more-btn:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-emphasis);
+}
+
+.mc-load-more-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================================================
+   MOBILE STYLES
+   ============================================================================ */
+
+@media (max-width: 640px) {
+  .mc-activity-header {
+    margin-bottom: 12px;
+  }
+
+  .mc-activity-group {
+    margin-bottom: 16px;
+  }
+
+  .mc-source-icon-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .mc-load-more-btn {
+    width: 100%;
+    padding: 12px;
+    min-height: 44px;
+  }
+}

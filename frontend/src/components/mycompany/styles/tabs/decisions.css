@@ -170,31 +170,7 @@
   border-color: var(--color-red-300);
 }
 
-/* Legacy text buttons - keep for backwards compatibility */
-.mc-text-btn {
-  background: none;
-  border: none;
-  font-size: 0.8125rem;
-  color: var(--color-indigo-500);
-  cursor: pointer;
-  padding: 0;
-}
-
-.mc-text-btn:hover {
-  text-decoration: underline;
-}
-
-.mc-text-btn.promote {
-  color: var(--color-orange-500);
-}
-
-.mc-text-btn.delete {
-  color: var(--color-red-600);
-}
-
-.mc-text-btn.delete:hover {
-  color: var(--color-red-700);
-}
+/* NOTE: .mc-text-btn styles are now in shared.css */
 
 /* ============================================================================
    PROMOTED BADGE VARIANTS

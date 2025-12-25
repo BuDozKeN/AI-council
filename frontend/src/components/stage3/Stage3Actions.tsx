@@ -46,7 +46,7 @@ export function Stage3Actions({
       {saveState === 'error' && (
         <div className="save-error-bar">
           <span>⚠️</span>
-          <span>Failed to save. Please try again.</span>
+          <span>Couldn't save that. Let's try again.</span>
         </div>
       )}
 

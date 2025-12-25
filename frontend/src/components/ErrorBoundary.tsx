@@ -88,10 +88,10 @@ class ErrorBoundary extends Component {
               </svg>
             </div>
 
-            <h1 className="error-boundary-title">Something went wrong</h1>
+            <h1 className="error-boundary-title">Oops, something broke</h1>
 
             <p className="error-boundary-message">
-              We apologize for the inconvenience. An unexpected error occurred.
+              Don't worry — your work is safe. Let's get you back on track.
             </p>
 
             <div className="error-boundary-buttons">

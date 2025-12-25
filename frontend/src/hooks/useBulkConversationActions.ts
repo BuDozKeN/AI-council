@@ -51,6 +51,27 @@ export function useBulkConversationActions({
       // Track whether undo was clicked
       let undoClicked = false;
 
+      const executeDelete = async () => {
+        if (!undoClicked) {
+          try {
+            await api.bulkDeleteConversations(ids);
+          } catch (error) {
+            log.error('Failed to bulk delete conversations:', error);
+            // Restore on error
+            setConversations((prev: any[]) => {
+              const newList = [...prev];
+              originalPositions
+                .sort((a, b) => a.index - b.index)
+                .forEach(({ index, conversation }) => {
+                  newList.splice(index, 0, conversation);
+                });
+              return newList;
+            });
+            toast.error('Failed to delete conversations');
+          }
+        }
+      };
+
       // Show toast with undo action
       toast(`${conversationsToDelete.length} conversations deleted`, {
         action: {
@@ -76,26 +97,8 @@ export function useBulkConversationActions({
           },
         },
         duration: 5000,
-        onDismiss: async () => {
-          if (!undoClicked) {
-            try {
-              await api.bulkDeleteConversations(ids);
-            } catch (error) {
-              log.error('Failed to bulk delete conversations:', error);
-              // Restore on error
-              setConversations((prev: any[]) => {
-                const newList = [...prev];
-                originalPositions
-                  .sort((a, b) => a.index - b.index)
-                  .forEach(({ index, conversation }) => {
-                    newList.splice(index, 0, conversation);
-                  });
-                return newList;
-              });
-              toast.error('Failed to delete conversations');
-            }
-          }
-        },
+        onDismiss: executeDelete,
+        onAutoClose: executeDelete,
       });
 
       return { deleted: ids };

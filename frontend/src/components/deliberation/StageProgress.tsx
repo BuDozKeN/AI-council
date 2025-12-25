@@ -64,7 +64,7 @@ export function StageProgress({ currentStage, completedModels = 0, totalModels =
       {currentStage === 'reviewing' && (
         <div className="progress-status reviewing">
           <Search className="progress-icon" size={14} />
-          <span className="progress-label">Advisors are checking each other's suggestions...</span>
+          <span className="progress-label">Your advisors are peer-reviewing each other...</span>
         </div>
       )}
 
@@ -72,7 +72,7 @@ export function StageProgress({ currentStage, completedModels = 0, totalModels =
       {currentStage === 'synthesising' && (
         <div className="progress-status synthesising">
           <Sparkles className="progress-icon" size={14} />
-          <span className="progress-label">Combining the best ideas into your answer...</span>
+          <span className="progress-label">Synthesizing the best insights for you...</span>
         </div>
       )}
     </div>

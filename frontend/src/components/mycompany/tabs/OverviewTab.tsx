@@ -12,6 +12,7 @@
 import { Building2 } from 'lucide-react';
 import MarkdownViewer from '../../MarkdownViewer';
 import { ScrollableContent } from '../../ui/ScrollableContent';
+import { FloatingContextActions } from '../../ui/FloatingContextActions';
 import { formatDate } from '../../../lib/dateUtils';
 
 // Parse metadata from context markdown (Last Updated, Version)
@@ -48,7 +49,7 @@ export function OverviewTab({
   const { lastUpdated, version } = parseContextMetadata(contextMd);
 
   return (
-    <div className="mc-overview">
+    <ScrollableContent className="mc-overview">
       {/* Hero section - immediately explains what this is */}
       <div className="mc-overview-hero">
         <div className="mc-overview-hero-content">
@@ -103,12 +104,9 @@ export function OverviewTab({
         </div>
       </div>
 
-      {/* Context content with copy + scroll-to-top */}
+      {/* Context content - FloatingContextActions provides sticky copy button inside context */}
       <div className="mc-context-section mc-context-section--compact">
-        <ScrollableContent
-          className="mc-context-content"
-          copyText={contextMd || null}
-        >
+        <FloatingContextActions copyText={contextMd || null} className="mc-context-content">
           {contextMd ? (
             <MarkdownViewer content={contextMd} />
           ) : (
@@ -117,8 +115,8 @@ export function OverviewTab({
               <p className="mc-empty-hint">Click "Edit Context" above to add your company's mission, goals, strategy, and other important information that the AI Council should know.</p>
             </div>
           )}
-        </ScrollableContent>
+        </FloatingContextActions>
       </div>
-    </div>
+    </ScrollableContent>
   );
 }

@@ -4,8 +4,8 @@ import remarkGfm from 'remark-gfm';
 import { CopyButton } from '../ui/CopyButton';
 import { CheckCircle2 } from 'lucide-react';
 
-// Custom code block renderer with copy button
-function CodeBlock({ children, className }) {
+// Custom code block renderer with hover-reveal copy button
+function CodeBlock({ children, className }: { children: React.ReactNode; className?: string }) {
   const code = String(children).replace(/\n$/, '');
   const language = className?.replace('language-', '') || '';
 
@@ -16,9 +16,9 @@ function CodeBlock({ children, className }) {
   }
 
   return (
-    <div className="code-block-wrapper">
+    <div className="code-block-wrapper copyable">
       {language && <span className="code-language">{language}</span>}
-      <CopyButton text={code} size="sm" position="absolute" />
+      <CopyButton text={code} size="sm" />
       <pre className={className}>
         <code>{children}</code>
       </pre>
