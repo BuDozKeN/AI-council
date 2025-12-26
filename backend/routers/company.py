@@ -726,6 +726,9 @@ async def get_company_overview(company_id: ValidCompanyId, user=Depends(get_curr
     Per Council recommendation: ALL data comes from Supabase.
     Uses service client to bypass RLS for read-only company data.
     Cached for 5 minutes (company_cache TTL).
+
+    OPTIMIZATION: Fetches company data + all 4 counts in a single round-trip
+    using Supabase's nested select with count aggregation.
     """
     # Use service client to bypass RLS for read operations
     # User is already authenticated via get_current_user
@@ -746,10 +749,18 @@ async def get_company_overview(company_id: ValidCompanyId, user=Depends(get_curr
     if cached_result is not None:
         return cached_result
 
-    # Get company details from database
+    # OPTIMIZATION: Fetch company with nested counts in a single query
+    # Supabase supports selecting related tables with count aggregation
     company_result = client.table("companies") \
-        .select("*") \
+        .select(
+            "id, slug, name, context_md, "
+            "departments(count), "
+            "roles(count), "
+            "org_documents(count), "
+            "knowledge_entries(count)"
+        ) \
         .eq("id", company_uuid) \
+        .eq("knowledge_entries.is_active", True) \
         .single() \
         .execute()
 
@@ -758,34 +769,18 @@ async def get_company_overview(company_id: ValidCompanyId, user=Depends(get_curr
 
     company_data = company_result.data
 
-    # Count departments
-    dept_result = client.table("departments") \
-        .select("id", count="exact") \
-        .eq("company_id", company_uuid) \
-        .execute()
-    dept_count = dept_result.count or 0
+    # Extract counts from nested aggregations
+    # Supabase returns [{count: N}] for count aggregations
+    def get_count(data, key):
+        nested = data.get(key, [])
+        if isinstance(nested, list) and len(nested) > 0:
+            return nested[0].get("count", 0)
+        return 0
 
-    # Count roles
-    role_result = client.table("roles") \
-        .select("id", count="exact") \
-        .eq("company_id", company_uuid) \
-        .execute()
-    role_count = role_result.count or 0
-
-    # Count playbooks
-    playbook_result = client.table("org_documents") \
-        .select("id", count="exact") \
-        .eq("company_id", company_uuid) \
-        .execute()
-    playbook_count = playbook_result.count or 0
-
-    # Count decisions (now from knowledge_entries table)
-    decision_result = client.table("knowledge_entries") \
-        .select("id", count="exact") \
-        .eq("company_id", company_uuid) \
-        .eq("is_active", True) \
-        .execute()
-    decision_count = decision_result.count or 0
+    dept_count = get_count(company_data, "departments")
+    role_count = get_count(company_data, "roles")
+    playbook_count = get_count(company_data, "org_documents")
+    decision_count = get_count(company_data, "knowledge_entries")
 
     result = {
         "company": {
