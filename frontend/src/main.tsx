@@ -1,7 +1,10 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient } from '@tanstack/react-query'
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { get, set, del } from 'idb-keyval'
 import './styles/design-tokens.css' // Design system tokens - load FIRST
 import './index.css'                // Global styles and accessibility
 import './styles/tailwind.css'      // Tailwind utilities
@@ -23,11 +26,32 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
-      gcTime: 1000 * 60 * 30,   // 30 minutes (formerly cacheTime)
+      gcTime: 1000 * 60 * 60 * 24, // 24 hours (extended for persistence)
       retry: 1,
       refetchOnWindowFocus: false,
     },
   },
+})
+
+// Create IndexedDB persister for offline-capable caching
+// Uses idb-keyval for simple, fast IndexedDB access
+const persister = createAsyncStoragePersister({
+  storage: {
+    getItem: async (key: string) => {
+      const value = await get(key)
+      return value ?? null
+    },
+    setItem: async (key: string, value: string) => {
+      await set(key, value)
+    },
+    removeItem: async (key: string) => {
+      await del(key)
+    },
+  },
+  // Cache key in IndexedDB
+  key: 'axcouncil-query-cache',
+  // Throttle writes to reduce IndexedDB pressure
+  throttleTime: 1000,
 })
 
 const rootElement = document.getElementById('root')
@@ -36,7 +60,21 @@ if (!rootElement) throw new Error('Root element not found')
 createRoot(rootElement).render(
   <StrictMode>
     <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
+      <PersistQueryClientProvider
+        client={queryClient}
+        persistOptions={{
+          persister,
+          // Only persist queries older than 1 second (avoid caching in-flight)
+          dehydrateOptions: {
+            shouldDehydrateQuery: (query) => {
+              // Only persist successful queries
+              return query.state.status === 'success'
+            },
+          },
+          // Maximum age of cached data: 24 hours
+          maxAge: 1000 * 60 * 60 * 24,
+        }}
+      >
         <AuthProvider>
           <BusinessProvider>
             <ConversationProvider>
@@ -47,7 +85,7 @@ createRoot(rootElement).render(
           </BusinessProvider>
         </AuthProvider>
         <ReactQueryDevtools initialIsOpen={false} />
-      </QueryClientProvider>
+      </PersistQueryClientProvider>
     </ErrorBoundary>
   </StrictMode>,
 )
