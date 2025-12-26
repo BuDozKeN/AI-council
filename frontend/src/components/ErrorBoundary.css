@@ -68,7 +68,7 @@
 
 .error-boundary-btn.primary {
   background-color: var(--color-orange-500, #f97316);
-  color: #ffffff;
+  color: var(--color-text-inverse);
 }
 
 .error-boundary-btn.primary:hover {
@@ -76,7 +76,7 @@
 }
 
 .error-boundary-btn.secondary {
-  background-color: #ffffff;
+  background-color: var(--color-bg-primary);
   color: var(--color-gray-700, #374151);
   border: 1px solid var(--color-gray-300, #d1d5db);
 }
@@ -111,9 +111,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #ffffff;
+  background-color: var(--color-bg-primary);
   border: 1px solid var(--color-gray-200, #e5e7eb);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all 0.2s ease;
   z-index: var(--z-base);

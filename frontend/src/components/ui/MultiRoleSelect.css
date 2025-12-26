@@ -249,7 +249,7 @@
   width: 22px;
   height: 22px;
   margin-top: 2px;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
 }
 
 .multi-role-item-mobile .multi-role-item-info {

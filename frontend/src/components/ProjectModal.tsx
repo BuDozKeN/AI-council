@@ -6,8 +6,9 @@ import { MultiDepartmentSelect } from './ui/MultiDepartmentSelect';
 import MarkdownViewer from './MarkdownViewer';
 import { Spinner } from './ui/Spinner';
 import { AIWriteAssist } from './ui/AIWriteAssist';
-import { Sparkles, Check, RefreshCw, Edit3, FileText } from 'lucide-react';
+import { Sparkles, Check, RefreshCw, Edit3, FileText, CheckCircle2 } from 'lucide-react';
 import { logger } from '../utils/logger';
+import { hapticSuccess } from '../lib/haptics';
 import './ProjectModal.css';
 
 /**
@@ -22,9 +23,10 @@ import './ProjectModal.css';
  * @param {string[]} initialContext.departmentIds - Pre-selected department IDs from Stage3
  */
 export default function ProjectModal({ companyId, departments = [], onClose, onProjectCreated, initialContext }) {
-  // Step state: 'input', 'review', or 'manual'
+  // Step state: 'input', 'review', 'manual', or 'success'
   const [step, setStep] = useState('input');
   const hasAutoProcessed = useRef(false);
+  const createdProjectRef = useRef(null);
 
   // Input state
   const [freeText, setFreeText] = useState('');
@@ -127,8 +129,17 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
         source: isAIGenerated ? 'ai' : 'manual',
       });
 
-      onProjectCreated(result.project);
-      onClose();
+      // Store the created project and show success state
+      createdProjectRef.current = result.project;
+      setSaving(false);
+      setStep('success');
+      hapticSuccess();
+
+      // Auto-close after celebration
+      setTimeout(() => {
+        onProjectCreated(result.project);
+        onClose();
+      }, 1200);
     } catch (err) {
       logger.error('Failed to create project:', err);
       setError(err.message || "Couldn't create your project. Please try again.");
@@ -151,6 +162,7 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
   const getTitle = () => {
     if (step === 'input') return 'New Project';
     if (step === 'manual') return 'Create Project';
+    if (step === 'success') return 'Project Created';
     return 'Review Your Project';
   };
 
@@ -509,6 +521,17 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
                 )}
               </Button>
             </div>
+          </div>
+        )}
+
+        {/* SUCCESS: Celebration moment */}
+        {step === 'success' && (
+          <div className="pm-success-state">
+            <div className="pm-success-icon-wrapper">
+              <CheckCircle2 className="pm-success-icon animate-success-pop" />
+            </div>
+            <h3 className="pm-success-title">{editedName || 'Project'} Created!</h3>
+            <p className="pm-success-message">Your project is ready. Redirecting...</p>
           </div>
         )}
     </AppModal>

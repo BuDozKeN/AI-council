@@ -8,10 +8,22 @@ import { Activity, CheckCircle2, AlertCircle, StopCircle, ChevronDown, X, Check 
 import { getModelPersona } from '../config/modelPersonas';
 import { hapticLight } from '../lib/haptics';
 import { springs, interactionStates } from '../lib/animations';
+import { useCompletionCelebration } from '../hooks/useCelebration';
+import { CELEBRATION } from '../lib/animation-constants';
+import type {
+  Provider,
+  ProviderIconPaths,
+  Stage1Props,
+  Stage1DisplayData,
+  ModelCardProps,
+  ProviderGroup,
+  CodeBlockProps,
+  TouchStartData,
+} from '../types/stages';
 import './Stage1.css';
 
 // Map provider to icon file path
-const PROVIDER_ICON_PATH = {
+const PROVIDER_ICON_PATH: ProviderIconPaths = {
   anthropic: '/icons/anthropic.svg',
   openai: '/icons/openai.svg',
   google: '/icons/gemini.svg',
@@ -20,12 +32,12 @@ const PROVIDER_ICON_PATH = {
 };
 
 // Get icon path for a model - with fallback pattern matching
-function getModelIconPath(modelId) {
+function getModelIconPath(modelId: string): string | null {
   if (!modelId) return null;
 
   const persona = getModelPersona(modelId);
-  if (persona.provider && PROVIDER_ICON_PATH[persona.provider]) {
-    return PROVIDER_ICON_PATH[persona.provider];
+  if (persona.provider && PROVIDER_ICON_PATH[persona.provider as Provider]) {
+    return PROVIDER_ICON_PATH[persona.provider as Provider];
   }
 
   // Fallback: match common model name patterns
@@ -40,7 +52,7 @@ function getModelIconPath(modelId) {
 }
 
 // Strip markdown formatting for clean preview text
-function stripMarkdown(text) {
+function stripMarkdown(text: string): string {
   if (!text) return '';
 
   return text
@@ -75,7 +87,7 @@ function stripMarkdown(text) {
 }
 
 // Custom code block renderer with copy button
-function CodeBlock({ children, className }) {
+function CodeBlock({ children, className }: CodeBlockProps) {
   const code = String(children).replace(/\n$/, '');
   const language = className?.replace('language-', '') || '';
 
@@ -97,9 +109,9 @@ function CodeBlock({ children, className }) {
 }
 
 // Individual model card in the grid - memoized to prevent re-renders when other cards update
-const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExpand, isExpanded, rankData }) {
-  const cardRef = useRef(null);
-  const touchStartRef = useRef(null);
+const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExpand, isExpanded, rankData }: ModelCardProps) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const touchStartRef = useRef<TouchStartData | null>(null);
 
   // Get model persona and icon path
   const persona = getModelPersona(data.model);
@@ -110,7 +122,7 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
   const tooltipName = persona.fullName;
 
   // Rank display helper
-  const getRankLabel = (position) => {
+  const getRankLabel = (position: number): string => {
     if (position === 1) return '🥇';
     if (position === 2) return '🥈';
     if (position === 3) return '🥉';
@@ -133,21 +145,23 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
   useEffect(() => {
     if (isExpanded && cardRef.current) {
       setTimeout(() => {
-        cardRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }, 100);
     }
   }, [isExpanded]);
 
   // Swipe-to-dismiss for expanded cards on mobile
-  const handleTouchStart = useCallback((e) => {
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if (!isExpanded) return;
     const touch = e.touches[0];
+    if (!touch) return;
     touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
   }, [isExpanded]);
 
-  const handleTouchEnd = useCallback((e) => {
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
     if (!isExpanded || !touchStartRef.current) return;
     const touch = e.changedTouches[0];
+    if (!touch) return;
     const deltaY = touch.clientY - touchStartRef.current.y;
     const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
     const deltaTime = Date.now() - touchStartRef.current.time;
@@ -169,7 +183,7 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
   ].filter(Boolean).join(' ');
 
   // Handle keyboard navigation
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       onExpand(isExpanded ? null : data.model);
@@ -180,6 +194,12 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
     }
   };
 
+  // Motion props - only apply hover/tap when not expanded
+  const motionProps = !isExpanded ? {
+    whileHover: interactionStates.cardHover,
+    whileTap: interactionStates.cardTap,
+  } : {};
+
   return (
     <motion.div
       ref={cardRef}
@@ -187,8 +207,7 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={springs.smooth}
-      whileHover={!isExpanded ? interactionStates.cardHover : undefined}
-      whileTap={!isExpanded ? interactionStates.cardTap : undefined}
+      {...motionProps}
       className={cardClasses}
       onClick={() => { hapticLight(); onExpand(isExpanded ? null : data.model); }}
       onKeyDown={handleKeyDown}
@@ -203,7 +222,7 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
       <div className="model-card-header">
         <div className="model-card-header-left">
           {/* LLM Icon with status indicator */}
-          <div className="llm-icon-wrapper" style={{ '--model-color': modelColor }} title={tooltipName}>
+          <div className="llm-icon-wrapper" style={{ '--model-color': modelColor } as React.CSSProperties} title={tooltipName}>
             {iconPath ? (
               <img src={iconPath} alt={displayName} className="llm-icon" loading="lazy" decoding="async" />
             ) : (
@@ -291,12 +310,12 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
               remarkPlugins={[remarkGfm]}
               components={{
                 pre({ children: _children, node }) {
-                  const codeElement = node?.children?.[0];
+                  const codeElement = node?.children?.[0] as { properties?: { className?: string[] }; children?: { value?: string }[] } | undefined;
                   const className = codeElement?.properties?.className?.[0] || '';
                   const codeContent = codeElement?.children?.[0]?.value || '';
                   return <CodeBlock className={className}>{codeContent}</CodeBlock>;
                 },
-                code({ node: _node, className, children, ...props }) {
+                code({ className, children, ...props }) {
                   return <code className={className} {...props}>{children}</code>;
                 },
                 table({ children, ...props }) {
@@ -325,19 +344,31 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
   );
 });
 
-function Stage1({ responses, streaming, isLoading, stopped, isComplete, defaultCollapsed = false, conversationTitle, imageAnalysis, expandedModel: externalExpandedModel, onExpandedModelChange, aggregateRankings }) {
+function Stage1({
+  responses,
+  streaming,
+  isLoading,
+  stopped,
+  isComplete,
+  defaultCollapsed = false,
+  conversationTitle,
+  imageAnalysis,
+  expandedModel: externalExpandedModel,
+  onExpandedModelChange,
+  aggregateRankings,
+}: Stage1Props) {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
-  const [internalExpandedModel, setInternalExpandedModel] = useState(null);
+  const [internalExpandedModel, setInternalExpandedModel] = useState<string | null>(null);
 
   // Use external control if provided, otherwise use internal state
   const expandedModel = externalExpandedModel !== undefined ? externalExpandedModel : internalExpandedModel;
   const setExpandedModel = onExpandedModelChange || setInternalExpandedModel;
 
   // Build display data from either streaming or final responses
-  const displayData = [];
+  const displayData: Stage1DisplayData[] = [];
 
   // Helper to detect if response text looks like an error message
-  const textLooksLikeError = (text) => {
+  const textLooksLikeError = (text: string): boolean => {
     if (!text) return false;
     const lower = text.toLowerCase();
     return lower.includes('[error:') ||
@@ -357,9 +388,9 @@ function Stage1({ responses, streaming, isLoading, stopped, isComplete, defaultC
         response: data.text,
         isStreaming: !data.complete && !stopped,
         isComplete: data.complete && !data.error && !hasTextError,
-        hasError: data.error || hasTextError,
+        hasError: Boolean(data.error) || hasTextError,
         isEmpty: data.complete && !data.text && !data.error,
-        isStopped: wasStopped,
+        isStopped: Boolean(wasStopped),
       });
     });
   } else if (responses && responses.length > 0) {
@@ -380,8 +411,8 @@ function Stage1({ responses, streaming, isLoading, stopped, isComplete, defaultC
   // Sort by ranking position when rankings are available (winner first)
   if (aggregateRankings && aggregateRankings.length > 0) {
     displayData.sort((a, b) => {
-      const rankA = aggregateRankings.findIndex(r => r.model === a.model);
-      const rankB = aggregateRankings.findIndex(r => r.model === b.model);
+      const rankA = aggregateRankings.findIndex((r) => r.model === a.model);
+      const rankB = aggregateRankings.findIndex((r) => r.model === b.model);
       // Models not in rankings go to the end
       const posA = rankA >= 0 ? rankA : Infinity;
       const posB = rankB >= 0 ? rankB : Infinity;
@@ -396,13 +427,20 @@ function Stage1({ responses, streaming, isLoading, stopped, isComplete, defaultC
   // Track if user has manually toggled
   const [userToggled, setUserToggled] = useState(false);
 
+  // Use the reusable celebration hook for stage completion
+  const { isCelebrating: showCompleteCelebration } = useCompletionCelebration(
+    allComplete && displayData.length > 0,
+    { duration: CELEBRATION.STAGE_COMPLETE }
+  );
+
   // Auto-collapse when complete (only if user hasn't manually toggled)
-  // Deferred to avoid cascading renders warning
+  // Deferred with slight delay to allow celebration animation
   useEffect(() => {
     if (isComplete && allComplete && !isCollapsed && !userToggled) {
-      const timeoutId = setTimeout(() => setIsCollapsed(true), 0);
+      const timeoutId = setTimeout(() => setIsCollapsed(true), 600);
       return () => clearTimeout(timeoutId);
     }
+    return undefined;
   }, [isComplete, allComplete, isCollapsed, userToggled]);
 
   // Auto-expand Stage1 when a model is selected from external control (e.g., clicking ranking)
@@ -458,7 +496,7 @@ function Stage1({ responses, streaming, isLoading, stopped, isComplete, defaultC
   };
 
   // Group models by provider for collapsed summary
-  const providerGroups = displayData.reduce((acc, data) => {
+  const providerGroups = displayData.reduce<Record<string, ProviderGroup>>((acc, data) => {
     const persona = getModelPersona(data.model);
     const provider = persona.provider || 'other';
     if (!acc[provider]) {
@@ -479,13 +517,13 @@ function Stage1({ responses, streaming, isLoading, stopped, isComplete, defaultC
   }, {});
 
   return (
-    <div className={`stage stage1 ${isCollapsed ? 'collapsed' : ''}`} data-stage="stage1">
+    <div className={`stage stage1 ${isCollapsed ? 'collapsed' : ''} ${showCompleteCelebration ? 'celebrating' : ''}`} data-stage="stage1">
       <h3 className="stage-title clickable" onClick={toggleCollapsed}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
         {streamingCount > 0 ? (
           <Activity className="h-5 w-5 text-blue-500 animate-pulse flex-shrink-0" />
         ) : (
-          <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
+          <CheckCircle2 className={`h-5 w-5 text-green-600 flex-shrink-0 ${showCompleteCelebration ? 'animate-stage-complete' : ''}`} />
         )}
         <span className="font-semibold tracking-tight">Step 1: Gathering Expert Opinions</span>
         {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
@@ -540,9 +578,15 @@ function Stage1({ responses, streaming, isLoading, stopped, isComplete, defaultC
             <AnimatePresence mode="popLayout">
               {displayData.map((data) => {
                 // Find ranking data for this model (includes position, avg_rank, rankings_count)
-                const rankIndex = aggregateRankings?.findIndex(r => r.model === data.model);
-                const rankData = rankIndex !== undefined && rankIndex >= 0
-                  ? { position: rankIndex + 1, ...aggregateRankings[rankIndex], totalVoters: aggregateRankings.length }
+                const rankIndex = aggregateRankings?.findIndex((r) => r.model === data.model) ?? -1;
+                const aggRanking = aggregateRankings?.[rankIndex];
+                const rankData = rankIndex >= 0 && aggRanking
+                  ? {
+                      position: rankIndex + 1,
+                      average_rank: aggRanking.average_rank,
+                      rankings_count: aggRanking.rankings_count,
+                      totalVoters: aggregateRankings?.length ?? 0,
+                    }
                   : null;
                 return (
                   <ModelCard

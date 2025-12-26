@@ -86,11 +86,11 @@ export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave,
     setDeptSearch('');
   };
 
-  // Type badge styling
+  // Type badge styling - uses CSS variables for theming
   const typeStyles = {
-    sop: { bg: '#dbeafe', color: '#1d4ed8' },
-    framework: { bg: '#fef3c7', color: '#b45309' },
-    policy: { bg: '#ede9fe', color: '#6d28d9' }
+    sop: { bg: 'var(--color-blue-100)', color: 'var(--color-blue-700)' },
+    framework: { bg: 'var(--color-amber-100)', color: 'var(--color-amber-700)' },
+    policy: { bg: 'var(--color-violet-100)', color: 'var(--color-violet-700)' }
   };
   const typeStyle = typeStyles[playbook.doc_type] || typeStyles.sop;
 

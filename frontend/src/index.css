@@ -49,19 +49,19 @@ h2 { letter-spacing: -0.025em; }
   overflow: visible;
   clip: auto;
   white-space: normal;
-  background: #6366f1;
+  background: var(--color-focus);
   color: white;
   font-weight: 600;
   font-size: 14px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   z-index: var(--z-toast);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-md);
   text-decoration: none;
 }
 
 /* Global focus indicator for accessibility */
 *:focus-visible {
-  outline: 2px solid #6366f1;
+  outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
 
@@ -69,17 +69,17 @@ h2 { letter-spacing: -0.025em; }
 button:focus-visible,
 [role="button"]:focus-visible,
 a:focus-visible {
-  outline: 2px solid #6366f1;
+  outline: 2px solid var(--color-focus);
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 0 4px rgba(var(--color-focus-rgb), 0.15);
 }
 
 /* Card focus styles */
 .model-card:focus-visible,
 [role="article"]:focus-visible {
-  outline: 2px solid #6366f1;
+  outline: 2px solid var(--color-focus);
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 0 4px rgba(var(--color-focus-rgb), 0.15);
 }
 
 /* Input focus styles */
@@ -87,8 +87,8 @@ input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
   outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  border-color: var(--color-focus);
+  box-shadow: 0 0 0 3px rgba(var(--color-focus-rgb), 0.15);
 }
 
 /* Tab/pill focus styles */
@@ -97,7 +97,7 @@ select:focus-visible {
 .mode-btn-compact:focus-visible,
 .dept-pill-compact:focus-visible,
 .role-pill-compact:focus-visible {
-  outline: 2px solid #6366f1;
+  outline: 2px solid var(--color-focus);
   outline-offset: 1px;
   z-index: var(--z-base);
 }

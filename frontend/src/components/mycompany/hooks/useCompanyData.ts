@@ -61,6 +61,8 @@ export function useCompanyData({ companyId, activeTab, activityLimit = 20 }: Use
   const [decisionsLoaded, setDecisionsLoaded] = useState<boolean>(false);
   const [projectsLoaded, setProjectsLoaded] = useState<boolean>(false);
   const [activityLoaded, setActivityLoaded] = useState<boolean>(false);
+  // Track if departments have been loaded (avoids re-setting on every tab load)
+  const [departmentsLoaded, setDepartmentsLoaded] = useState<boolean>(false);
 
   // Load data based on active tab
   const loadData = useCallback(async () => {
@@ -103,9 +105,10 @@ export function useCompanyData({ companyId, activeTab, activityLimit = 20 }: Use
           setDecisions(decisionsData.decisions || []);
           setProjects(projectsData.projects || []);
           setProjectsLoaded(true);
-          // Use departments from decisions endpoint
-          if (decisionsData.departments) {
+          // Use departments from decisions endpoint (only if not already loaded)
+          if (decisionsData.departments && !departmentsLoaded) {
             setDepartments(decisionsData.departments.map(d => ({ ...d, roles: [] })));
+            setDepartmentsLoaded(true);
           }
           setDecisionsLoaded(true);
           break;
@@ -133,9 +136,10 @@ export function useCompanyData({ companyId, activeTab, activityLimit = 20 }: Use
           setProjects(projectsData.projects || []);
           setProjectsLoaded(true);
           // Also load departments if not already loaded (needed for project edit modal)
-          if (departments.length === 0) {
+          if (!departmentsLoaded) {
             const teamData = await api.getCompanyTeam(companyId);
             setDepartments(teamData.departments || []);
+            setDepartmentsLoaded(true);
           }
           break;
         }
@@ -145,7 +149,9 @@ export function useCompanyData({ companyId, activeTab, activityLimit = 20 }: Use
       setError(`Failed to load ${activeTab}`);
     }
     setLoading(false);
-  }, [companyId, activeTab, activityLimit, departments.length]);
+    // Note: departmentsLoaded is intentionally not in deps to avoid re-triggering loadData
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyId, activeTab, activityLimit]);
 
   // Load data when tab changes
   useEffect(() => {
@@ -171,6 +177,8 @@ export function useCompanyData({ companyId, activeTab, activityLimit = 20 }: Use
     setActivityLoaded(false);
     // Reset activity pagination
     setActivityHasMore(false);
+    // Reset departments loaded flag
+    setDepartmentsLoaded(false);
   }, [companyId]);
   /* eslint-enable react-hooks/set-state-in-effect */
 

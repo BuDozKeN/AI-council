@@ -613,7 +613,9 @@ export const api = {
     if (!response.ok) {
       throw new Error('Failed to delete conversation');
     }
-    return response.json();
+    // DELETE may return empty body
+    const text = await response.text();
+    return text ? JSON.parse(text) : { success: true };
   },
 
   /**
@@ -1080,7 +1082,9 @@ export const api = {
       const error = await response.json().catch(() => ({ detail: 'Failed to delete project' }));
       throw new Error(error.detail || 'Failed to delete project');
     }
-    return response.json();
+    // DELETE may return empty body
+    const text = await response.text();
+    return text ? JSON.parse(text) : { success: true };
   },
 
   /**
@@ -1341,7 +1345,9 @@ export const api = {
     if (!response.ok) {
       throw new Error('Failed to delete attachment');
     }
-    return response.json();
+    // DELETE may return empty body
+    const text = await response.text();
+    return text ? JSON.parse(text) : { success: true };
   },
 
   // ============================================
@@ -1446,7 +1452,9 @@ export const api = {
     if (!response.ok) {
       throw new Error('Failed to deactivate knowledge entry');
     }
-    return response.json();
+    // DELETE may return empty body
+    const text = await response.text();
+    return text ? JSON.parse(text) : { success: true };
   },
 
   /**
@@ -1958,7 +1966,9 @@ export const api = {
       const error = await response.json().catch(() => ({ detail: 'Failed to delete playbook' }));
       throw new Error(error.detail || 'Failed to delete playbook');
     }
-    return response.json();
+    // DELETE may return empty body
+    const text = await response.text();
+    return text ? JSON.parse(text) : { success: true };
   },
 
   /**
@@ -2149,7 +2159,9 @@ export const api = {
       const error = await response.json().catch(() => ({ detail: 'Failed to delete decision' }));
       throw new Error(error.detail || 'Failed to delete decision');
     }
-    return response.json();
+    // DELETE may return empty body - only parse JSON if there's content
+    const text = await response.text();
+    return text ? JSON.parse(text) : { success: true };
   },
 
   /**
@@ -2325,7 +2337,9 @@ export const api = {
       const error = await response.json().catch(() => ({ detail: 'Failed to remove member' }));
       throw new Error(error.detail || 'Failed to remove member');
     }
-    return response.json();
+    // DELETE may return empty body
+    const text = await response.text();
+    return text ? JSON.parse(text) : { success: true };
   },
 
   // ===== USAGE TRACKING =====
@@ -2393,7 +2407,9 @@ export const api = {
     if (!response.ok) {
       throw new Error('Failed to delete API key');
     }
-    return response.json();
+    // DELETE may return empty body
+    const text = await response.text();
+    return text ? JSON.parse(text) : { success: true };
   },
 
   /**

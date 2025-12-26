@@ -47,11 +47,12 @@
 }
 
 .context-menu-item.starred {
-  color: var(--color-accent);
+  color: var(--color-amber-500);
 }
 
 .context-menu-item.starred:hover {
   background: rgba(245, 158, 11, 0.15);
+  color: var(--color-amber-600);
 }
 
 .context-menu-item.danger {
@@ -60,7 +61,7 @@
 
 .context-menu-item.danger:hover {
   background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
+  color: var(--color-red-400);
 }
 
 .context-menu-separator {

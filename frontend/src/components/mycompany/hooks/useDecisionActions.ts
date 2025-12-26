@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { api } from '../../../api';
 import { logger } from '../../../utils/logger';
+import { toast } from '../../ui/sonner';
 import type { Decision, Project } from '../../../types';
 import type { MyCompanyTab } from './useCompanyData';
 
@@ -101,11 +102,14 @@ export function useDecisionActions({
         await api.deleteDecision(companyId, decision.id);
       } catch (err) {
         log.error('Failed to delete decision', { error: err });
-        // On error, reload to restore the item
-        await loadData();
+        // On error, restore the decision to the list (don't reload to avoid skeleton flash)
+        setDecisions(prev => [...prev, decision].sort((a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        ));
+        toast.error('Failed to delete decision. Please try again.');
       }
     }, 300);
-  }, [companyId, setDecisions, loadData]);
+  }, [companyId, setDecisions]);
 
   return {
     // State

@@ -86,7 +86,7 @@
 .mc-playbook-item.clickable:hover {
   background: var(--color-gray-100);
   border-color: var(--color-gray-300);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: var(--shadow-xs);
 }
 
 .mc-playbook-info {
@@ -144,7 +144,7 @@
   color: var(--color-gray-200);
   padding: 18px;
   border-radius: var(--radius-lg);
-  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  font-family: var(--font-mono);
   font-size: 0.8125rem;
   line-height: 1.65;
   max-height: 400px;

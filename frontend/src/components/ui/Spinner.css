@@ -33,6 +33,11 @@
    Size Variants
    ============================================================================= */
 
+.spinner-xs .spinner-icon {
+  width: 12px;
+  height: 12px;
+}
+
 .spinner-sm .spinner-icon {
   width: 16px;
   height: 16px;

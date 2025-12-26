@@ -195,7 +195,7 @@
 .btn-primary:hover:not(:disabled) {
   background: var(--color-brand-primary-hover);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-primary:disabled {
@@ -260,7 +260,7 @@
 
 .usage-fill {
   height: 100%;
-  background: #6366f1;
+  background: var(--color-indigo-500);
   border-radius: var(--radius-sm);
   transition: width 0.3s ease;
 }
@@ -320,7 +320,7 @@
   left: 50%;
   transform: translateX(-50%);
   padding: 4px 12px;
-  background: #6366f1;
+  background: var(--color-indigo-500);
   color: var(--color-text-inverse);
   font-size: 11px;
   font-weight: 600;
@@ -487,7 +487,7 @@
     visibility: hidden;
     transition: opacity 0.15s ease, visibility 0.15s ease;
     z-index: var(--z-dropdown);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    box-shadow: var(--shadow-md);
     pointer-events: none;
   }
 
@@ -1077,7 +1077,7 @@
 .api-provider-item {
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
@@ -1132,12 +1132,12 @@
 }
 
 .provider-logo.openrouter {
-  background: #6366f1;
+  background: var(--color-provider-openrouter);
   color: white;
 }
 
 .provider-logo.anthropic {
-  background: #d4a574;
+  background: var(--color-provider-anthropic);
   color: white;
 }
 
@@ -1191,7 +1191,7 @@
   align-items: center;
   gap: 5px;
   padding: 5px 10px;
-  border-radius: 20px;
+  border-radius: var(--radius-2xl);
   font-size: 12px;
   font-weight: 500;
 }
@@ -1458,7 +1458,7 @@
 .api-key-form input:focus {
   outline: none;
   border-color: var(--color-brand-primary);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 0 3px rgba(var(--color-focus-rgb), 0.1);
 }
 
 .api-key-form input::placeholder {
@@ -1777,7 +1777,7 @@
 .byok-replace-form input:focus {
   outline: none;
   border-color: var(--color-brand-primary);
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 0 2px rgba(var(--color-focus-rgb), 0.15);
 }
 
 .byok-replace-actions {

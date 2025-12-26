@@ -32,7 +32,7 @@
 }
 
 .mc-dept-row.expanded {
-  border-radius: 8px 8px 0 0;
+  border-radius: var(--radius-default) var(--radius-default) 0 0;
   background: var(--color-slate-50);
 }
 
@@ -341,12 +341,12 @@
 }
 
 .mc-icon-btn.promote:hover {
-  color: #3b82f6;
+  color: var(--color-blue-500);
   background: rgba(59, 130, 246, 0.1);
 }
 
 .mc-icon-btn.demote:hover {
-  color: #f59e0b;
+  color: var(--color-amber-500);
   background: rgba(245, 158, 11, 0.1);
 }
 

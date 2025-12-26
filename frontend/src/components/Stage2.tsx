@@ -5,10 +5,13 @@ import { Spinner } from './ui/Spinner';
 import { CopyButton } from './ui/CopyButton';
 import { Users, Trophy, CheckCircle2 } from 'lucide-react';
 import { getModelPersona } from '../config/modelPersonas';
+import { useCompletionCelebration } from '../hooks/useCelebration';
+import { CELEBRATION } from '../lib/animation-constants';
+import type { Provider, ProviderIconPaths, Stage2Props, Stage2DisplayData } from '../types/stages';
 import './Stage2.css';
 
 // Provider icon paths (same as Stage1)
-const PROVIDER_ICON_PATH = {
+const PROVIDER_ICON_PATH: ProviderIconPaths = {
   anthropic: '/icons/anthropic.svg',
   openai: '/icons/openai.svg',
   google: '/icons/gemini.svg',
@@ -17,12 +20,12 @@ const PROVIDER_ICON_PATH = {
 };
 
 // Get icon path for a model - with fallback pattern matching
-function getModelIconPath(modelId) {
+function getModelIconPath(modelId: string): string | null {
   if (!modelId) return null;
 
   const persona = getModelPersona(modelId);
-  if (persona.provider && PROVIDER_ICON_PATH[persona.provider]) {
-    return PROVIDER_ICON_PATH[persona.provider];
+  if (persona.provider && PROVIDER_ICON_PATH[persona.provider as Provider]) {
+    return PROVIDER_ICON_PATH[persona.provider as Provider];
   }
 
   // Fallback: match common model name patterns
@@ -36,7 +39,7 @@ function getModelIconPath(modelId) {
   return null;
 }
 
-function deAnonymizeText(text, labelToModel) {
+function deAnonymizeText(text: string, labelToModel?: Record<string, string>): string {
   if (!labelToModel) return text;
 
   let result = text;
@@ -49,16 +52,26 @@ function deAnonymizeText(text, labelToModel) {
   return result;
 }
 
-function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoading, isComplete, defaultCollapsed = true, conversationTitle, onModelClick }) {
+function Stage2({
+  rankings,
+  streaming,
+  labelToModel,
+  aggregateRankings,
+  isLoading,
+  isComplete,
+  defaultCollapsed = true,
+  conversationTitle,
+  onModelClick,
+}: Stage2Props) {
   const [activeTab, setActiveTab] = useState(0);
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [userToggled, setUserToggled] = useState(false);
 
   // Build display data from either streaming or final rankings
-  const displayData = [];
+  const displayData: Stage2DisplayData[] = [];
 
   // Helper to detect if response text looks like an error message
-  const textLooksLikeError = (text) => {
+  const textLooksLikeError = (text: string): boolean => {
     if (!text) return false;
     const lower = text.toLowerCase();
     return lower.includes('[error:') ||
@@ -78,7 +91,7 @@ function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoadin
         ranking: data.text,
         isStreaming: !data.complete,
         isComplete: data.complete && !data.error && !hasTextError,
-        hasError: data.error || hasTextError,
+        hasError: Boolean(data.error) || hasTextError,
         isEmpty: data.complete && !data.text && !data.error,
         parsed_ranking: null,
       });
@@ -94,7 +107,7 @@ function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoadin
         isComplete: !hasTextError,
         hasError: hasTextError,
         isEmpty: !rank.ranking,
-        parsed_ranking: rank.parsed_ranking,
+        parsed_ranking: rank.parsed_ranking ?? null,
       });
     });
   }
@@ -103,20 +116,28 @@ function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoadin
   const allComplete = displayData.every(d => d.isComplete || d.hasError);
   const streamingCount = displayData.filter(d => d.isStreaming).length;
 
+  // Use the reusable celebration hook for stage completion
+  const { isCelebrating: showCompleteCelebration } = useCompletionCelebration(
+    allComplete && displayData.length > 0,
+    { duration: CELEBRATION.STAGE_COMPLETE }
+  );
+
   // Auto-select first tab with content (deferred to avoid cascading renders)
   useEffect(() => {
     if (displayData.length > 0 && activeTab >= displayData.length) {
       const timeoutId = setTimeout(() => setActiveTab(0), 0);
       return () => clearTimeout(timeoutId);
     }
+    return undefined;
   }, [displayData.length, activeTab]);
 
-  // Auto-collapse when all complete (if user hasn't manually toggled, deferred)
+  // Auto-collapse when all complete (if user hasn't manually toggled, deferred with delay for celebration)
   useEffect(() => {
     if (isComplete && allComplete && !isCollapsed && !userToggled) {
-      const timeoutId = setTimeout(() => setIsCollapsed(true), 0);
+      const timeoutId = setTimeout(() => setIsCollapsed(true), 600);
       return () => clearTimeout(timeoutId);
     }
+    return undefined;
   }, [isComplete, allComplete, isCollapsed, userToggled]);
 
   // Early returns AFTER all hooks have been called
@@ -141,17 +162,15 @@ function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoadin
     );
   }
 
-  const activeData = displayData[activeTab] || displayData[0];
+  // Get active data - guaranteed to exist since we return null above if displayData is empty
+  const activeData = displayData[activeTab] ?? displayData[0]!;
 
   // Get winner from aggregate rankings
-  const winnerModel = aggregateRankings && aggregateRankings.length > 0
-    ? aggregateRankings[0].model
-    : null;
+  const firstRanking = aggregateRankings?.[0];
+  const winnerModel = firstRanking?.model ?? null;
   const winnerIconPath = winnerModel ? getModelIconPath(winnerModel) : null;
   const winnerPersona = winnerModel ? getModelPersona(winnerModel) : null;
-  const winnerAvg = aggregateRankings && aggregateRankings.length > 0
-    ? aggregateRankings[0].average_rank.toFixed(1)
-    : null;
+  const winnerAvg = firstRanking?.average_rank?.toFixed(1) ?? null;
 
   const toggleCollapsed = () => {
     setUserToggled(true);
@@ -159,13 +178,13 @@ function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoadin
   };
 
   return (
-    <div className={`stage stage2 ${isCollapsed ? 'collapsed' : ''}`} data-stage="stage2">
+    <div className={`stage stage2 ${isCollapsed ? 'collapsed' : ''} ${showCompleteCelebration ? 'celebrating' : ''}`} data-stage="stage2">
       <h3 className="stage-title clickable" onClick={toggleCollapsed}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
         {streamingCount > 0 ? (
           <Users className="h-5 w-5 text-violet-500 animate-pulse flex-shrink-0" />
         ) : (
-          <CheckCircle2 className="h-5 w-5 text-violet-600 flex-shrink-0" />
+          <CheckCircle2 className={`h-5 w-5 text-violet-600 flex-shrink-0 ${showCompleteCelebration ? 'animate-stage-complete' : ''}`} />
         )}
         <span className="font-semibold tracking-tight">Step 2: Cross-checking Answers</span>
         {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
@@ -173,7 +192,7 @@ function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoadin
         {/* Winner badge - just trophy + icon, details on hover */}
         {winnerModel && (
           <span
-            className="stage2-winner"
+            className={`stage2-winner ${showCompleteCelebration ? 'animate-winner-reveal' : ''}`}
             title={`Winner: ${winnerPersona?.fullName || winnerPersona?.shortName || 'Unknown'} — Voted #1 by ${aggregateRankings?.length || 5} AI experts with avg score ${winnerAvg} (1 = best)`}
           >
             <Trophy className="w-3.5 h-3.5" />
@@ -275,7 +294,7 @@ function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoadin
               <div className="parsed-ranking">
                 <strong>Ranking order:</strong>
                 <ol>
-                  {activeData.parsed_ranking.map((label, i) => {
+                  {activeData.parsed_ranking.map((label: string, i: number) => {
                     const model = labelToModel && labelToModel[label];
                     const persona = model ? getModelPersona(model) : null;
                     const displayName = persona ? (persona.providerLabel || persona.shortName) : label;
@@ -293,8 +312,8 @@ function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoadin
           {aggregateRankings && aggregateRankings.length > 0 && (
             <div className="aggregate-rankings">
               <h4 className="stage2-section-title">Final Rankings</h4>
-              <div className="aggregate-list">
-                {aggregateRankings.map((agg, index) => {
+              <div className="aggregate-list animate-stagger">
+                {aggregateRankings.map((agg, index: number) => {
                   const persona = getModelPersona(agg.model);
                   const iconPath = getModelIconPath(agg.model);
                   const displayName = persona.providerLabel || persona.shortName;
@@ -305,10 +324,10 @@ function Stage2({ rankings, streaming, labelToModel, aggregateRankings, isLoadin
                       key={index}
                       className={`aggregate-item ${isClickable ? 'clickable' : ''}`}
                       title={`${persona.fullName} - Average rank: ${agg.average_rank.toFixed(1)} (${agg.rankings_count} of ${totalVoters} experts voted). Lower is better - #1 is the top answer.${isClickable ? ' Click to view response.' : ''}`}
-                      onClick={isClickable ? () => onModelClick(agg.model) : undefined}
+                      onClick={isClickable && onModelClick ? () => onModelClick(agg.model) : undefined}
                       role={isClickable ? 'button' : undefined}
                       tabIndex={isClickable ? 0 : undefined}
-                      onKeyDown={isClickable ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onModelClick(agg.model); } } : undefined}
+                      onKeyDown={isClickable && onModelClick ? (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onModelClick(agg.model); } } : undefined}
                     >
                       <span className="rank-position">#{index + 1}</span>
                       <span className="rank-model">

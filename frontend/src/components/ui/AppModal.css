@@ -126,23 +126,23 @@
 }
 
 .app-modal-badge-success {
-  background: #ecfdf5;
-  color: #047857;
+  background: var(--color-emerald-50);
+  color: var(--color-emerald-700);
 }
 
 .app-modal-badge-info {
-  background: #eff6ff;
-  color: #1d4ed8;
+  background: var(--color-blue-50);
+  color: var(--color-blue-700);
 }
 
 .app-modal-badge-warning {
-  background: #fffbeb;
-  color: #b45309;
+  background: var(--color-amber-50);
+  color: var(--color-amber-700);
 }
 
 .app-modal-badge-purple {
-  background: #f5f3ff;
-  color: #6d28d9;
+  background: var(--color-violet-50);
+  color: var(--color-violet-700);
 }
 
 /* Visual title display */
@@ -231,7 +231,7 @@
   font-size: 14px;
   font-weight: 500;
   padding: 9px 16px;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   border: none;
   cursor: pointer;
   display: inline-flex;
@@ -249,7 +249,7 @@
 /* Primary button - solid dark, prominent */
 .app-modal-btn-primary {
   background: var(--color-slate-900, #0f172a);
-  color: #fff;
+  color: var(--color-text-inverse);
 }
 
 .app-modal-btn-primary:hover:not(:disabled) {
@@ -305,7 +305,7 @@
 
 .app-modal-btn-success {
   background: var(--color-green-600, #16a34a);
-  color: #fff;
+  color: var(--color-text-inverse);
   border: none;
 }
 
@@ -331,7 +331,7 @@
 
 .app-modal-btn-danger-sm {
   background: var(--color-red-600, #dc2626);
-  color: #fff;
+  color: var(--color-text-inverse);
 }
 
 .app-modal-btn-danger-sm:hover:not(:disabled) {
@@ -515,7 +515,7 @@
     transform: none;
     width: 100%;
     max-width: none;
-    border-radius: 20px 20px 0 0;
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
     max-height: calc(95vh - env(safe-area-inset-top, 0px));
     animation: app-modal-slide-up 250ms ease-out;
   }
@@ -553,7 +553,7 @@
   .app-modal-full {
     max-height: calc(100vh - env(safe-area-inset-top, 20px));
     height: calc(100vh - env(safe-area-inset-top, 20px));
-    border-radius: 20px 20px 0 0;
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
   }
 
   /* Close button gets 44px touch target */
@@ -597,7 +597,7 @@
 /* Very small phones - full screen modal */
 @media (max-width: 480px) {
   .app-modal-content {
-    border-radius: 16px 16px 0 0;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   }
 
   .app-modal-lg,
@@ -637,10 +637,10 @@
   justify-content: center;
   background: var(--color-bg-primary, #fff);
   border: 1px solid var(--color-slate-200, #e2e8f0);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   color: var(--color-slate-500, #64748b);
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
   opacity: 0.7;
   z-index: var(--z-raised);
@@ -649,7 +649,7 @@
 .app-modal-copy-btn:hover {
   opacity: 1;
   color: var(--color-slate-700, #334155);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .app-modal-copy-btn:active {
@@ -685,7 +685,7 @@
   border-radius: 50%;
   color: var(--color-slate-500, #64748b);
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
   opacity: 0.7;
   z-index: var(--z-elevated);
@@ -694,7 +694,7 @@
 .app-modal-scroll-top-btn:hover {
   opacity: 1;
   color: var(--color-slate-700, #334155);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .app-modal-scroll-top-btn:active {

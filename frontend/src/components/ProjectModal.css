@@ -322,7 +322,7 @@
   padding: 10px 24px;
   border: none;
   border-radius: var(--radius-md);
-  background: #6366f1;
+  background: var(--color-indigo-500);
   color: var(--color-text-inverse);
   font-size: 14px;
   font-weight: 600;
@@ -333,7 +333,7 @@
 
 .pm-btn-create:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 4px 8px rgba(var(--color-indigo-rgb), 0.4);
 }
 
 .pm-btn-create:disabled {
@@ -485,7 +485,7 @@
 
 /* Preview markdown content */
 .pm-preview-markdown {
-  font-family: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Monaco, monospace;
+  font-family: var(--font-mono);
   font-size: 12px;
   line-height: 1.5;
   white-space: pre-wrap;
@@ -687,7 +687,7 @@
 
 /* Context editor textarea */
 .pm-context-editor {
-  font-family: 'SF Mono', 'Consolas', 'Monaco', monospace;
+  font-family: var(--font-mono);
   font-size: 13px;
   line-height: 1.5;
   min-height: 180px;
@@ -720,4 +720,74 @@
 .pm-btn-icon-tiny {
   width: 12px;
   height: 12px;
+}
+
+/* ============================================================================
+   SUCCESS STATE - Celebration moment after project creation
+   ============================================================================ */
+
+.pm-success-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  min-height: 200px;
+}
+
+.pm-success-icon-wrapper {
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-success-light);
+  border-radius: 50%;
+  margin-bottom: 20px;
+  animation: success-ring-pulse 0.8s ease-out;
+}
+
+@keyframes success-ring-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 20px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.pm-success-icon {
+  width: 40px;
+  height: 40px;
+  color: var(--color-success);
+}
+
+.pm-success-title {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  animation: fade-slide-up 0.4s ease-out 0.2s both;
+}
+
+.pm-success-message {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  animation: fade-slide-up 0.4s ease-out 0.35s both;
+}
+
+@keyframes fade-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

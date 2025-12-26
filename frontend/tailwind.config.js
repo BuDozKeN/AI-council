@@ -11,12 +11,12 @@ export default {
   theme: {
   	extend: {
   		colors: {
-  			surface: '#0f172a',
-  			'surface-hover': '#1e293b',
+  			surface: 'var(--color-slate-800)',
+  			'surface-hover': 'var(--color-slate-700)',
   			brand: {
-  				DEFAULT: '#6366f1',
-  				dark: '#4f46e5',
-  				light: '#818cf8'
+  				DEFAULT: 'var(--color-indigo-500)',
+  				dark: 'var(--color-indigo-600)',
+  				light: 'var(--color-accent-iris)'
   			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',

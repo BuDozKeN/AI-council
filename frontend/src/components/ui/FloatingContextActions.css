@@ -51,7 +51,7 @@
   border-radius: var(--radius-default);
   color: var(--color-slate-500, #64748b);
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
   opacity: 0.85;
   z-index: var(--z-raised);
@@ -60,7 +60,7 @@
 .floating-copy-btn:hover {
   opacity: 1;
   color: var(--color-slate-700, #334155);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
   transform: scale(1.05);
 }
 
@@ -99,7 +99,7 @@
   border-radius: 50%;
   color: var(--color-slate-500, #64748b);
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
   opacity: 0.85;
   z-index: var(--z-elevated);
@@ -121,7 +121,7 @@
 .floating-scroll-top-btn:hover {
   opacity: 1;
   color: var(--color-slate-700, #334155);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  box-shadow: var(--shadow-md);
   transform: scale(1.1);
 }
 

@@ -121,7 +121,7 @@
   align-items: center;
   gap: 12px;
   padding: 14px 16px;
-  border-radius: 8px;
+  border-radius: var(--radius-default);
 }
 
 .mc-error {
@@ -139,7 +139,7 @@
 
 .mc-error button {
   padding: 10px 24px;
-  background: #6366f1;
+  background: var(--color-indigo-500);
   color: var(--color-text-inverse);
   border: none;
   border-radius: var(--radius-md);
@@ -147,12 +147,12 @@
   font-weight: 500;
   font-size: 0.875rem;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+  box-shadow: 0 2px 8px rgba(var(--color-indigo-rgb), 0.25);
 }
 
 .mc-error button:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 4px 12px rgba(var(--color-indigo-rgb), 0.35);
 }
 
 /* Modern minimal empty states */
@@ -273,15 +273,15 @@
 
 /* Primary button */
 .mc-btn-primary {
-  background: #6366f1;
+  background: var(--color-indigo-500);
   color: var(--color-text-inverse);
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+  box-shadow: 0 2px 8px rgba(var(--color-indigo-rgb), 0.25);
 }
 
 .mc-btn-primary:hover:not(:disabled) {
-  background: #4f46e5;
+  background: var(--color-indigo-600);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 4px 12px rgba(var(--color-indigo-rgb), 0.35);
 }
 
 /* Secondary button */
@@ -403,7 +403,7 @@
   gap: 12px;
   padding: 12px 16px;
   background: var(--color-bg-primary);
-  border-radius: 8px;
+  border-radius: var(--radius-default);
   cursor: pointer;
   transition: all 0.15s ease;
   position: relative;

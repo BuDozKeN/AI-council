@@ -138,7 +138,7 @@
     0 0 1px rgba(0, 0, 0, 0.08);
 
   /* Focus ring (accessibility) - using iris brand color */
-  --shadow-focus: 0 0 0 3px rgba(99, 102, 241, 0.35);
+  --shadow-focus: 0 0 0 3px rgba(var(--color-focus-rgb), 0.35);
   --shadow-focus-error: 0 0 0 3px rgba(239, 68, 68, 0.35);
 
   /* ============================================================================
@@ -193,10 +193,9 @@
   --color-primary-subtle: #e8f4fd;
   --color-primary-text: #ffffff;
 
-  /* --- Accent (Orange - for CTAs) --- */
-  --color-accent: #eb5757;            /* Notion red/coral */
-  --color-accent-hover: #e04444;
-  --color-accent-subtle: #fce8e8;
+  /* --- Accent - DEPRECATED: Use tailwind.css --color-accent (indigo) instead --- */
+  /* Accent colors are now defined in tailwind.css as the brand indigo (#6366f1) */
+  /* Legacy red/coral accent removed to prevent conflicts */
 
   /* --- Success --- */
   --color-success: #0f7b6c;           /* Notion teal */
@@ -220,6 +219,10 @@
   --color-info: #337ea9;              /* Notion blue variant */
   --color-info-hover: #2b6d93;
   --color-info-subtle: #ddebf1;
+
+  /* --- Focus (Accessibility) - Iris/Indigo for high visibility --- */
+  --color-focus: #6366f1;
+  --color-focus-rgb: 99, 102, 241;    /* For rgba() usage */
 
   /* --- Notion-style tag/badge colors --- */
   --color-tag-gray: #e3e2e0;
@@ -327,10 +330,8 @@
   --color-primary-active: #7eb8de;
   --color-primary-subtle: #2c3d4a;
 
-  /* --- Accent --- */
-  --color-accent: #ff6b6b;
-  --color-accent-hover: #ff8585;
-  --color-accent-subtle: #4a2c2c;
+  /* --- Accent - inherits from tailwind.css (indigo) --- */
+  /* Dark mode accent variants handled by tailwind.css */
 
   /* --- Success --- */
   --color-success: #4dab9a;
@@ -471,4 +472,158 @@
 .focus-ring:focus-visible {
   outline: none;
   box-shadow: var(--shadow-focus);
+}
+
+/* =============================================================================
+   COMPLETION & CELEBRATION ANIMATIONS
+   Premium micro-celebrations for success moments
+   ============================================================================= */
+
+/* Success pop - for checkmarks, badges, completion indicators */
+.animate-success-pop {
+  animation: success-pop 0.4s var(--ease-spring);
+}
+
+@keyframes success-pop {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Complete glow - subtle highlight pulse for containers */
+.animate-complete-glow {
+  animation: complete-glow 0.8s ease-out;
+}
+
+@keyframes complete-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  40% { box-shadow: 0 0 20px 4px rgba(16, 185, 129, 0.25); }
+}
+
+/* Stage complete - for stage header icons */
+.animate-stage-complete {
+  animation: stage-complete-pop 0.5s var(--ease-spring);
+}
+
+@keyframes stage-complete-pop {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.25); }
+  70% { transform: scale(0.95); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Winner reveal - bouncy entrance for trophy/winner badges */
+.animate-winner-reveal {
+  animation: winner-reveal 0.6s var(--ease-bounce);
+}
+
+@keyframes winner-reveal {
+  0% { transform: scale(0) rotate(-15deg); opacity: 0; }
+  50% { transform: scale(1.3) rotate(5deg); }
+  70% { transform: scale(0.9) rotate(-2deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* Fade slide up - for content reveals */
+.animate-fade-slide-up {
+  animation: fade-slide-up 0.4s var(--ease-default);
+}
+
+@keyframes fade-slide-up {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Stagger children - use with animation-delay on children */
+.animate-stagger > * {
+  opacity: 0;
+  animation: fade-slide-up 0.35s var(--ease-default) forwards;
+}
+
+.animate-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.animate-stagger > *:nth-child(2) { animation-delay: 50ms; }
+.animate-stagger > *:nth-child(3) { animation-delay: 100ms; }
+.animate-stagger > *:nth-child(4) { animation-delay: 150ms; }
+.animate-stagger > *:nth-child(5) { animation-delay: 200ms; }
+.animate-stagger > *:nth-child(6) { animation-delay: 250ms; }
+.animate-stagger > *:nth-child(7) { animation-delay: 300ms; }
+.animate-stagger > *:nth-child(8) { animation-delay: 350ms; }
+
+/* Pulse ring - for active/thinking states */
+.animate-pulse-ring {
+  animation: pulse-ring 1.5s var(--ease-default) infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 0.4; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+/* Cursor fade out - for streaming end */
+.animate-cursor-fade {
+  animation: cursor-fade-out 0.3s ease-out forwards;
+}
+
+@keyframes cursor-fade-out {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(4px); }
+}
+
+/* Celebration shake - subtle excitement */
+.animate-celebrate {
+  animation: celebrate-shake 0.5s var(--ease-spring);
+}
+
+@keyframes celebrate-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-3px) rotate(-1deg); }
+  40% { transform: translateX(3px) rotate(1deg); }
+  60% { transform: translateX(-2px) rotate(-0.5deg); }
+  80% { transform: translateX(2px) rotate(0.5deg); }
+}
+
+/* =============================================================================
+   ACCESSIBILITY: Reduced Motion Support
+   Respects user preference for reduced motion (WCAG 2.1 AA compliance)
+   ============================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  /* Disable all celebration/completion animations */
+  .animate-success-pop,
+  .animate-complete-glow,
+  .animate-stage-complete,
+  .animate-winner-reveal,
+  .animate-fade-slide-up,
+  .animate-pulse-ring,
+  .animate-cursor-fade,
+  .animate-celebrate {
+    animation: none !important;
+  }
+
+  /* Disable stagger animation - show all children immediately */
+  .animate-stagger > * {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+
+  /* Disable stage celebration glows */
+  .stage.stage1.celebrating,
+  .stage.stage2.celebrating {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* Disable chairman/council celebration */
+  .chairman-indicator.celebrating,
+  .final-content-wrapper.complete-glow {
+    animation: none !important;
+  }
+
+  /* Disable project modal success animations */
+  .pm-success-icon-wrapper,
+  .pm-success-title,
+  .pm-success-message {
+    animation: none !important;
+  }
 }

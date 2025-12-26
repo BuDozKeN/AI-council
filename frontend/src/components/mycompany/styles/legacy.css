@@ -137,7 +137,7 @@
   color: var(--color-slate-500);
   background: var(--color-slate-50);
   border: 1px solid var(--color-slate-200);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
@@ -217,13 +217,13 @@
 /* Countdown state */
 .mc-ai-synthesize-btn.countdown {
   background: var(--color-indigo-50);
-  border-color: #6366f1;
-  color: #4f46e5;
+  border-color: var(--color-indigo-500);
+  color: var(--color-indigo-600);
 }
 
 .mc-ai-synthesize-btn.countdown:hover {
   background: var(--color-indigo-100);
-  border-color: #4f46e5;
+  border-color: var(--color-indigo-600);
 }
 
 .mc-countdown-num {
@@ -278,7 +278,7 @@
 
 .mc-status-badge {
   padding: 4px 12px;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 12px;
   font-weight: 500;
   text-transform: capitalize;

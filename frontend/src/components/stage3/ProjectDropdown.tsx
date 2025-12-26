@@ -169,8 +169,8 @@ export function ProjectDropdown({
             zIndex: 9999,
             minWidth: '300px',
             maxWidth: '400px',
-            background: 'white',
-            border: '1px solid #e2e8f0',
+            background: 'var(--color-bg-primary)',
+            border: '1px solid var(--color-slate-200)',
             borderRadius: '10px',
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.05)',
             overflow: 'hidden'
@@ -218,7 +218,7 @@ export function ProjectDropdown({
             ))}
           </div>
           {/* Create new project - ALWAYS visible at bottom */}
-          <div className="save-project-create" style={{ flexShrink: 0, borderTop: '1px solid #e2e8f0', padding: '8px', background: '#f8fafc' }}>
+          <div className="save-project-create" style={{ flexShrink: 0, borderTop: '1px solid var(--color-slate-200)', padding: '8px', background: 'var(--color-slate-50)' }}>
             <button
               className="save-project-create-btn"
               onClick={() => {
@@ -238,11 +238,11 @@ export function ProjectDropdown({
                 width: '100%',
                 padding: '8px 10px',
                 background: 'transparent',
-                border: '1px dashed #cbd5e1',
+                border: '1px dashed var(--color-slate-300)',
                 borderRadius: '6px',
                 fontSize: '12px',
                 fontWeight: 500,
-                color: '#64748b',
+                color: 'var(--color-slate-500)',
                 cursor: 'pointer'
               }}
             >

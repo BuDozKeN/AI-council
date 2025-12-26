@@ -55,7 +55,7 @@
   border-color: var(--color-brand-primary);
   color: var(--color-brand-primary);
   background: rgba(255, 255, 255, 0.98);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .copy-btn-unified:active {

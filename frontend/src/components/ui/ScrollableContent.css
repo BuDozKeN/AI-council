@@ -43,10 +43,10 @@
   justify-content: center;
   background: var(--color-bg-primary, #fff);
   border: 1px solid var(--color-slate-200, #e2e8f0);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   color: var(--color-slate-500, #64748b);
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
   opacity: 0.7;
   z-index: var(--z-raised);
@@ -55,7 +55,7 @@
 .scrollable-copy-btn:hover {
   opacity: 1;
   color: var(--color-slate-700, #334155);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .scrollable-copy-btn:active {
@@ -91,7 +91,7 @@
   border-radius: 50%;
   color: var(--color-slate-500, #64748b);
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
   opacity: 0.7;
   z-index: var(--z-elevated);
@@ -100,7 +100,7 @@
 .scrollable-scroll-top-btn:hover {
   opacity: 1;
   color: var(--color-slate-700, #334155);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-md);
 }
 
 .scrollable-scroll-top-btn:active {

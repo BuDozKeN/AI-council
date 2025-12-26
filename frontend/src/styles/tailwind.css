@@ -235,8 +235,15 @@
     --color-violet-900: #4c1d95;
 
     /* Indigo extended scale */
+    --color-indigo-50: #eef2ff;
+    --color-indigo-100: #e0e7ff;
     --color-indigo-500: #6366f1;
     --color-indigo-600: #4f46e5;
+    --color-indigo-rgb: 99, 102, 241;  /* For rgba() usage */
+
+    /* Provider brand colors */
+    --color-provider-openrouter: #6366f1;
+    --color-provider-anthropic: #d4a574;
 
     /* Red scale - for errors, danger states */
     --color-red-500: #ef4444;

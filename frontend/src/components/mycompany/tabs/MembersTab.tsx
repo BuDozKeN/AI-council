@@ -21,11 +21,11 @@ import { Button } from '../../ui/button';
 import { Spinner } from '../../ui/Spinner';
 import { ScrollableContent } from '../../ui/ScrollableContent';
 
-// Role hierarchy for display
+// Role hierarchy for display - uses CSS variables for theming
 const ROLE_CONFIG = {
-  owner: { label: 'Owner', icon: Crown, color: '#6366f1', description: 'Full control' },
-  admin: { label: 'Admin', icon: Shield, color: '#3b82f6', description: 'Manage members' },
-  member: { label: 'Member', icon: User, color: '#6b7280', description: 'View & contribute' }
+  owner: { label: 'Owner', icon: Crown, color: 'var(--color-indigo-500)', description: 'Full control' },
+  admin: { label: 'Admin', icon: Shield, color: 'var(--color-blue-500)', description: 'Manage members' },
+  member: { label: 'Member', icon: User, color: 'var(--color-gray-500)', description: 'View & contribute' }
 };
 
 export function MembersTab({

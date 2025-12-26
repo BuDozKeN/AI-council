@@ -81,21 +81,21 @@
 
 /* Type-specific badge colors */
 .multi-playbook-badge.playbook-badge-sop {
-  background: #fef3c7;
-  color: #92400e;
-  border-color: #fcd34d;
+  background: var(--color-amber-100);
+  color: var(--color-amber-800);
+  border-color: var(--color-amber-300);
 }
 
 .multi-playbook-badge.playbook-badge-framework {
-  background: #dbeafe;
-  color: #1e40af;
-  border-color: #93c5fd;
+  background: var(--color-blue-100);
+  color: var(--color-blue-800);
+  border-color: var(--color-blue-300);
 }
 
 .multi-playbook-badge.playbook-badge-policy {
-  background: #f3e8ff;
-  color: #6b21a8;
-  border-color: #c4b5fd;
+  background: var(--color-purple-100);
+  color: var(--color-purple-800);
+  border-color: var(--color-violet-300);
 }
 
 .multi-playbook-badge-remove {
@@ -187,7 +187,7 @@
   margin-left: auto;
   padding: 2px 6px;
   background: var(--color-gray-100);
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   font-size: 10px;
   font-weight: 600;
 }
@@ -317,7 +317,7 @@
 .multi-playbook-item-mobile .multi-playbook-checkbox {
   width: 22px;
   height: 22px;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
 }
 
 .multi-playbook-item-mobile .multi-playbook-item-label {

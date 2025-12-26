@@ -22,7 +22,7 @@
   height: 32px;
   background: var(--color-bg-primary);
   border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-sm);
   color: var(--color-indigo-600);
 }
 
@@ -38,7 +38,7 @@
   background: var(--color-bg-primary);
   padding: 4px 12px;
   border-radius: var(--radius-lg);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
 }
 
 .pull-refresh-indicator.refreshing .pull-refresh-icon {

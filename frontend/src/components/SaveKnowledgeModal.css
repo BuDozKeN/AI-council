@@ -541,7 +541,7 @@
     max-width: none;
     max-height: 95vh;
     margin: 10px;
-    border-radius: 10px;
+    border-radius: var(--radius-lg);
   }
 
   .modal-header {

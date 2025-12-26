@@ -15,6 +15,17 @@
   /* Container queries - grid responds to container width, not viewport */
   container-type: inline-size;
   container-name: stage1;
+  /* Transition for celebration state */
+  transition: box-shadow 0.4s ease-out, border-color 0.3s ease;
+}
+
+/* Stage completion celebration - subtle glow effect */
+.stage.stage1.celebrating {
+  border-color: var(--color-success);
+  box-shadow:
+    var(--shadow-sm),
+    0 0 20px 2px rgba(16, 185, 129, 0.15),
+    0 0 40px 4px rgba(16, 185, 129, 0.08);
 }
 
 /* Living Feed Grid - shows all models simultaneously */
@@ -73,11 +84,11 @@
 }
 
 .stage1 .model-card.streaming {
-  border-color: #6366f1;
+  border-color: var(--color-indigo-500);
   background: var(--color-bg-primary);
   box-shadow:
-    0 0 0 1px rgba(99, 102, 241, 0.2),
-    0 4px 12px rgba(99, 102, 241, 0.1);
+    0 0 0 1px rgba(var(--color-indigo-rgb), 0.2),
+    0 4px 12px rgba(var(--color-indigo-rgb), 0.1);
 }
 
 .stage1 .model-card.error {
@@ -157,7 +168,7 @@
   border-radius: 50%;
   border: 2px solid var(--color-bg-primary);
   z-index: var(--z-above); /* Only needs to be above its parent icon, not sticky elements */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow-xs);
 }
 
 .stage1 .llm-status-badge.complete {
@@ -229,8 +240,8 @@
 
 /* Rank badges - iris for winner, subtle for others */
 .stage1 .model-card-rank.rank-1 {
-  background: #6366f1;
-  color: #ffffff;
+  background: var(--color-indigo-500);
+  color: var(--color-text-inverse);
   font-size: 14px;
   padding: 2px 6px;
   font-weight: 600;
@@ -328,12 +339,12 @@
 
 .stage1 .model-card.expanded .model-card-content::-webkit-scrollbar-track {
   background: var(--color-bg-muted);
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
 }
 
 .stage1 .model-card.expanded .model-card-content::-webkit-scrollbar-thumb {
   background: var(--color-border-emphasis);
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
 }
 
 .stage1 .model-card.expanded .model-card-content::-webkit-scrollbar-thumb:hover {
@@ -579,7 +590,7 @@
   color: var(--color-text-muted);
   font-size: 12px;
   margin-bottom: 12px;
-  font-family: monospace;
+  font-family: var(--font-mono);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -632,7 +643,7 @@
   font-size: 11px;
   color: var(--color-slate-500);
   text-transform: uppercase;
-  font-family: monospace;
+  font-family: var(--font-mono);
   font-weight: 600;
 }
 
@@ -669,7 +680,7 @@
 }
 
 .stage1 .code-block-wrapper code {
-  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+  font-family: var(--font-mono);
   font-size: 13px;
   line-height: 1.5;
   color: var(--color-slate-700);
@@ -680,8 +691,8 @@
   display: inline;
   padding: 1px 4px;
   background: rgba(0, 0, 0, 0.06);
-  border-radius: 3px;
-  font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Fira Code', monospace;
+  border-radius: var(--radius-xs);
+  font-family: var(--font-mono);
   font-size: 0.9em;
   color: inherit;
 }
@@ -726,7 +737,7 @@
   width: 8px;
   height: 8px;
   background: var(--color-gray-400);
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
 }
 
 @keyframes pulse {
@@ -961,18 +972,18 @@
 }
 
 .dark .stage1 .model-card-rank.rank-1 {
-  background: #6366f1;
-  color: #ffffff;
+  background: var(--color-indigo-500);
+  color: var(--color-text-inverse);
 }
 
 .dark .stage1 .model-card-rank.rank-2 {
-  background: #64748b;
-  color: #e5e7eb;
+  background: var(--color-slate-500);
+  color: var(--color-slate-200);
 }
 
 .dark .stage1 .model-card-rank.rank-3 {
-  background: #78716c;
-  color: #fed7aa;
+  background: var(--color-stone-500);
+  color: var(--color-orange-200);
 }
 
 .dark .stage1 .model-card-content {
@@ -1064,7 +1075,7 @@
   width: 36px;
   height: 4px;
   background: var(--color-slate-300);
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   transition: background 0.15s ease;
 }
 

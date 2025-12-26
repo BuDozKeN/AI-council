@@ -166,7 +166,7 @@
   color: var(--color-slate-500);
   background: var(--color-slate-100);
   padding: 2px 6px;
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
 }
 
 .mc-project-decision-count {
@@ -354,7 +354,7 @@
   padding: 2px 8px;
   background: var(--color-purple-100);
   color: var(--color-violet-600);
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   font-weight: 500;
   white-space: nowrap;
 }
@@ -365,7 +365,7 @@
   padding: 2px 8px;
   background: var(--color-amber-100);
   color: var(--color-amber-700);
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   font-weight: 500;
   white-space: nowrap;
 }
@@ -600,7 +600,7 @@
   height: 18px;
   padding: 0 5px;
   background: var(--color-gray-200);
-  border-radius: 9px;
+  border-radius: var(--radius-lg);
   font-size: 11px;
   font-weight: 600;
   color: var(--color-gray-500);
@@ -793,7 +793,7 @@
 }
 
 .mc-timeline-item.expanded .mc-timeline-header {
-  border-radius: 8px 8px 0 0;
+  border-radius: var(--radius-default) var(--radius-default) 0 0;
   border-bottom-color: transparent;
 }
 
@@ -1061,7 +1061,7 @@
   color: var(--color-text-secondary);
   cursor: pointer;
   transition: all 0.15s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-xs);
 }
 
 .mc-timeline-copy-btn:hover {

@@ -75,12 +75,19 @@ export function useHoverExpansion({ isPinned = false, hoverDelay = SIDEBAR_HOVER
     }
   }, [isPinned, clearPendingTimeout, hoverDelay]);
 
+  // Immediately collapse the sidebar (for click-outside handling)
+  const collapseNow = useCallback(() => {
+    clearPendingTimeout();
+    setHoveredIcon(null);
+  }, [clearPendingTimeout]);
+
   return {
     hoveredIcon,
     handleIconHover,
     handleIconLeave,
     handleExpandedAreaEnter,
     handleExpandedAreaLeave,
+    collapseNow,
   };
 }
 

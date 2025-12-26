@@ -128,7 +128,7 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: #6366f1;
+  background: var(--color-indigo-500);
   opacity: 0;
   transition: opacity 0.2s ease;
 }
@@ -149,7 +149,7 @@
 
 .mc-stat-card.selected::before {
   opacity: 1;
-  background: #6366f1;
+  background: var(--color-indigo-500);
 }
 
 .mc-stat-value {
@@ -281,7 +281,7 @@
   border-radius: 50%;
   color: var(--color-slate-400);
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-xs);
   transition: all 0.2s ease;
   opacity: 0.7;
   z-index: var(--z-elevated);
@@ -290,7 +290,7 @@
 .mc-scroll-top-fab:hover {
   opacity: 1;
   color: var(--color-slate-600);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-sm);
 }
 
 .mc-scroll-top-fab:active {

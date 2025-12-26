@@ -404,7 +404,7 @@
   width: 0;
   height: 2px;
   background: transparent;
-  border-radius: 1px;
+  border-radius: var(--radius-xs);
   transition: all 0.2s ease;
 }
 
@@ -421,7 +421,7 @@
 
 .mc-tab.active::after {
   width: 16px;
-  background: #6366f1;
+  background: var(--color-indigo-500);
 }
 
 .mc-tab-icon {

@@ -7,11 +7,11 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '.
 import { formatDate } from '../../lib/dateUtils';
 import { useTeam } from './hooks/useTeam';
 
-// Role configuration for display
+// Role configuration for display - uses CSS variables for theming
 const ROLE_CONFIG = {
-  owner: { label: 'Owner', icon: Crown, color: '#6366f1', description: 'Full control' },
-  admin: { label: 'Admin', icon: Shield, color: '#3b82f6', description: 'Manage members' },
-  member: { label: 'Member', icon: UserIcon, color: '#6b7280', description: 'View & contribute' }
+  owner: { label: 'Owner', icon: Crown, color: 'var(--color-indigo-500)', description: 'Full control' },
+  admin: { label: 'Admin', icon: Shield, color: 'var(--color-blue-500)', description: 'Manage members' },
+  member: { label: 'Member', icon: UserIcon, color: 'var(--color-gray-500)', description: 'View & contribute' }
 };
 
 const TeamSkeleton = () => (

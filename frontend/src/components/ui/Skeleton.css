@@ -216,20 +216,20 @@
 .dark .skeleton {
   background: linear-gradient(
     90deg,
-    #1e293b 0%,
-    #334155 50%,
-    #1e293b 100%
+    var(--color-slate-800) 0%,
+    var(--color-slate-700) 50%,
+    var(--color-slate-800) 100%
   );
   background-size: 200% 100%;
 }
 
 .dark .skeleton-table-header,
 .dark .skeleton-table-row {
-  border-bottom-color: #334155;
+  border-bottom-color: var(--color-slate-700);
 }
 
 .dark .skeleton-message-content {
-  background: #1e293b;
+  background: var(--color-slate-800);
 }
 
 .dark .skeleton-message.user .skeleton-message-content {

@@ -22,23 +22,23 @@
 
 /* Icon variants */
 .confirm-modal-icon-danger {
-  background: #fef2f2;
-  color: #dc2626;
+  background: var(--color-red-50);
+  color: var(--color-red-600);
 }
 
 .confirm-modal-icon-warning {
-  background: #fffbeb;
-  color: #d97706;
+  background: var(--color-amber-50);
+  color: var(--color-amber-600);
 }
 
 .confirm-modal-icon-info {
-  background: #eff6ff;
-  color: #2563eb;
+  background: var(--color-blue-50);
+  color: var(--color-blue-600);
 }
 
 .confirm-modal-icon-error {
-  background: #fef2f2;
-  color: #dc2626;
+  background: var(--color-red-50);
+  color: var(--color-red-600);
 }
 
 .confirm-modal-title {
@@ -58,13 +58,13 @@
 
 /* Danger solid button variant */
 .app-modal-btn-danger-solid {
-  background: #dc2626;
-  color: #fff;
+  background: var(--color-red-600);
+  color: var(--color-text-inverse);
   border: none;
 }
 
 .app-modal-btn-danger-solid:hover:not(:disabled) {
-  background: #b91c1c;
+  background: var(--color-red-700);
 }
 
 .app-modal-btn-danger-solid:disabled {

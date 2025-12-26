@@ -139,7 +139,31 @@ export default function Sidebar({
     handleIconLeave,
     handleExpandedAreaEnter,
     handleExpandedAreaLeave,
+    collapseNow,
   } = useHoverExpansion({ isPinned });
+
+  // Close sidebar when clicking outside (desktop only - both hovered and pinned states)
+  useEffect(() => {
+    const isDesktop = typeof window !== 'undefined' && window.innerWidth > 768;
+    const isExpandedOnDesktop = isDesktop && !isMobileOpen && (hoveredIcon || isPinned);
+
+    if (!isExpandedOnDesktop) return;
+
+    const handleClickOutside = (e) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(e.target)) {
+        if (isPinned) {
+          // Unpin and collapse
+          setSidebarState('collapsed');
+          localStorage.setItem('sidebar-pinned', 'false');
+        } else {
+          collapseNow();
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [hoveredIcon, isPinned, isMobileOpen, collapseNow]);
 
   // Derived state - mobile open always shows expanded content
   const isExpanded = isPinned || hoveredIcon !== null || isMobileOpen;

@@ -1,11 +1,14 @@
-import { memo } from 'react';
+import { memo, useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { CopyButton } from '../ui/CopyButton';
 import { CheckCircle2 } from 'lucide-react';
+import { hapticSuccess } from '../../lib/haptics';
+import { CELEBRATION } from '../../lib/animation-constants';
+import type { Stage3ContentProps, CodeBlockProps } from '../../types/stages';
 
 // Custom code block renderer with hover-reveal copy button
-function CodeBlock({ children, className }: { children: React.ReactNode; className?: string }) {
+function CodeBlock({ children, className }: CodeBlockProps) {
   const code = String(children).replace(/\n$/, '');
   const language = className?.replace('language-', '') || '';
 
@@ -28,6 +31,9 @@ function CodeBlock({ children, className }: { children: React.ReactNode; classNa
 
 /**
  * Stage3Content - Renders the markdown content and header row
+ *
+ * Note: Uses custom celebration logic instead of useCelebration hook
+ * because it has a multi-stage animation (cursor fade -> celebration).
  */
 function Stage3Content({
   displayText,
@@ -35,23 +41,61 @@ function Stage3Content({
   isStreaming,
   isComplete,
   chairmanIconPath,
-}) {
+}: Stage3ContentProps) {
+  // Track completion celebration
+  const [showCompleteCelebration, setShowCompleteCelebration] = useState(false);
+  const [cursorFading, setCursorFading] = useState(false);
+  const wasStreamingRef = useRef(false);
+  const hasCelebratedRef = useRef(false);
+
+  // Trigger celebration when streaming completes (only once per session)
+  // Multi-stage: cursor fades out first, then celebration triggers
+  useEffect(() => {
+    if (wasStreamingRef.current && !isStreaming && isComplete && displayText && !hasCelebratedRef.current) {
+      hasCelebratedRef.current = true;
+      // Fade out cursor first
+      setCursorFading(true);
+
+      // Then trigger celebration after cursor fades
+      const celebrationTimer = setTimeout(() => {
+        setShowCompleteCelebration(true);
+        hapticSuccess();
+      }, CELEBRATION.CURSOR_FADE);
+
+      // Reset celebration after animation
+      const resetTimer = setTimeout(() => {
+        setShowCompleteCelebration(false);
+      }, CELEBRATION.COUNCIL_COMPLETE);
+
+      return () => {
+        clearTimeout(celebrationTimer);
+        clearTimeout(resetTimer);
+      };
+    }
+    wasStreamingRef.current = isStreaming;
+    return undefined;
+  }, [isStreaming, isComplete, displayText]);
+
   return (
     <>
       {/* Header row: Chairman LLM icon + status + copy button */}
       <div className="stage3-header-row">
-        <div className="chairman-indicator">
+        <div className={`chairman-indicator ${showCompleteCelebration ? 'celebrating' : ''}`}>
           {chairmanIconPath && (
             <img src={chairmanIconPath} alt="" className="chairman-icon" loading="lazy" decoding="async" />
           )}
           {isStreaming && <span className="typing-indicator">●</span>}
-          {isComplete && <CheckCircle2 className="h-4 w-4 text-green-600" />}
+          {isComplete && (
+            <CheckCircle2
+              className={`h-4 w-4 text-green-600 ${showCompleteCelebration ? 'animate-success-pop' : ''}`}
+            />
+          )}
           {hasError && <span className="error-badge">Error</span>}
         </div>
       </div>
 
       {/* Content wrapper */}
-      <div className="final-content-wrapper">
+      <div className={`final-content-wrapper ${showCompleteCelebration ? 'complete-glow' : ''}`}>
         <div className={`final-text ${hasError ? 'error-text' : ''}`}>
           {hasError ? (
             <p className="empty-message">{displayText || 'An error occurred while generating the synthesis.'}</p>
@@ -62,12 +106,12 @@ function Stage3Content({
                   remarkPlugins={[remarkGfm]}
                   components={{
                     pre({ children: _children, node }) {
-                      const codeElement = node?.children?.[0];
+                      const codeElement = node?.children?.[0] as { properties?: { className?: string[] }; children?: { value?: string }[] } | undefined;
                       const className = codeElement?.properties?.className?.[0] || '';
                       const codeContent = codeElement?.children?.[0]?.value || '';
                       return <CodeBlock className={className}>{codeContent}</CodeBlock>;
                     },
-                    code({ node: _node, className, children, ...props }) {
+                    code({ className, children, ...props }) {
                       return <code className={className} {...props}>{children}</code>;
                     },
                     table({ children, ...props }) {
@@ -82,7 +126,7 @@ function Stage3Content({
                   {displayText}
                 </ReactMarkdown>
               </article>
-              {isStreaming && <span className="cursor">▊</span>}
+              {isStreaming && <span className={`cursor ${cursorFading ? 'animate-cursor-fade' : ''}`}>▊</span>}
             </>
           )}
         </div>

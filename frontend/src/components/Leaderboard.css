@@ -129,7 +129,7 @@
 }
 
 .score-col {
-  font-family: monospace;
+  font-family: var(--font-mono);
   color: var(--color-brand-primary);
   font-weight: 600;
 }

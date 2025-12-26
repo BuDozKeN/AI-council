@@ -33,7 +33,7 @@
   color: var(--color-text-secondary, #64748b);
   font-size: 13px;
   font-weight: 500;
-  border-radius: 8px;
+  border-radius: var(--radius-default);
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -45,8 +45,8 @@
 
 .omni-mode-btn.active {
   background: white;
-  color: var(--color-accent, #6366f1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  color: var(--color-indigo-500);
+  box-shadow: var(--shadow-xs);
 }
 
 /* Main omni-bar container - glass morphism effect */
@@ -68,7 +68,7 @@
 
 .omni-bar:focus-within {
   background: rgba(255, 255, 255, 0.95);
-  border-color: var(--color-accent, #6366f1);
+  border-color: var(--color-indigo-500);
   box-shadow:
     0 4px 24px rgba(99, 102, 241, 0.15),
     0 2px 8px rgba(0, 0, 0, 0.06),
@@ -76,7 +76,7 @@
 }
 
 .omni-bar-wrapper.has-content .omni-bar {
-  border-color: var(--color-accent, #6366f1);
+  border-color: var(--color-indigo-500);
 }
 
 .omni-bar-wrapper.is-loading .omni-bar {
@@ -128,7 +128,7 @@
   border: none;
   background: transparent;
   color: var(--color-text-secondary, #64748b);
-  border-radius: 8px;
+  border-radius: var(--radius-default);
   cursor: pointer;
   transition: all 0.15s ease;
   flex-shrink: 0;
@@ -174,9 +174,9 @@
   padding: 4px 8px;
   background: var(--color-slate-100, #f1f5f9);
   border: 1px solid var(--color-slate-200, #e2e8f0);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 11px;
-  font-family: monospace;
+  font-family: var(--font-mono);
   color: var(--color-text-secondary, #64748b);
   flex-shrink: 0;
 }
@@ -193,15 +193,15 @@
   cursor: pointer;
   transition: all 0.15s ease;
   flex-shrink: 0;
-  background: #6366f1;
+  background: var(--color-indigo-500);
   color: white;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 2px 8px rgba(var(--color-indigo-rgb), 0.3);
 }
 
 .omni-bar-submit:hover:not(:disabled) {
   transform: translateY(-1px);
-  background: #4f46e5;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+  background: var(--color-indigo-600);
+  box-shadow: 0 4px 12px rgba(var(--color-indigo-rgb), 0.4);
 }
 
 .omni-bar-submit:active:not(:disabled) {
@@ -216,12 +216,12 @@
 
 /* Stop button variant */
 .omni-bar-stop {
-  background: #ef4444;
+  background: var(--color-error);
   box-shadow: var(--shadow-sm), 0 0 0 1px rgba(239, 68, 68, 0.2);
 }
 
 .omni-bar-stop:hover:not(:disabled) {
-  background: #dc2626;
+  background: var(--color-error-dark);
   box-shadow: var(--shadow-md), 0 0 0 1px rgba(239, 68, 68, 0.3);
 }
 
@@ -236,7 +236,7 @@
 .omni-bar-landing .omni-bar-submit {
   width: 44px;
   height: 44px;
-  border-radius: 14px;
+  border-radius: var(--radius-xl);
 }
 
 /* Mobile adjustments */
@@ -247,7 +247,7 @@
 
   .omni-bar {
     padding: 10px 12px;
-    border-radius: 14px;
+    border-radius: var(--radius-xl);
   }
 
   .omni-bar-landing .omni-bar {
@@ -345,5 +345,5 @@
 .dark .omni-mode-btn.active {
   background: var(--color-bg-tertiary, #334155);
   color: var(--color-brand-primary, #60a5fa);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-xs);
 }

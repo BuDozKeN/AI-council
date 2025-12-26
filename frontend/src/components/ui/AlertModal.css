@@ -22,23 +22,23 @@
 
 /* Icon variants */
 .alert-modal-icon-success {
-  background: #ecfdf5;
-  color: #059669;
+  background: var(--color-emerald-50);
+  color: var(--color-emerald-600);
 }
 
 .alert-modal-icon-error {
-  background: #fef2f2;
-  color: #dc2626;
+  background: var(--color-red-50);
+  color: var(--color-red-600);
 }
 
 .alert-modal-icon-info {
-  background: #eff6ff;
-  color: #2563eb;
+  background: var(--color-blue-50);
+  color: var(--color-blue-600);
 }
 
 .alert-modal-icon-warning {
-  background: #fffbeb;
-  color: #d97706;
+  background: var(--color-amber-50);
+  color: var(--color-amber-600);
 }
 
 .alert-modal-title {

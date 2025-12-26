@@ -27,7 +27,7 @@
 }
 
 .context-chip-icon.sparkle {
-  color: var(--color-accent);
+  color: var(--color-indigo-500);
 }
 
 .context-chip-label {
@@ -120,7 +120,7 @@
   height: 34px;
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 13px;
   padding: 0 10px;
 }
@@ -155,7 +155,7 @@
   padding: 5px 8px;
   background: var(--chip-bg, var(--color-bg-secondary));
   border: 1px solid var(--chip-border, var(--color-border));
-  border-radius: 5px;
+  border-radius: var(--radius-md);
   font-size: 11px;
   font-weight: 500;
   color: var(--chip-text, var(--color-text-secondary));
@@ -188,20 +188,20 @@
 /* Playbook chips by type */
 .context-desktop-chip.playbook.framework.selected {
   --chip-bg: rgba(139, 92, 246, 0.1);
-  --chip-border: #8b5cf6;
-  --chip-text: #7c3aed;
+  --chip-border: var(--color-violet-400);
+  --chip-text: var(--color-purple-600);
 }
 
 .context-desktop-chip.playbook.sop.selected {
   --chip-bg: rgba(245, 158, 11, 0.1);
-  --chip-border: #f59e0b;
-  --chip-text: #d97706;
+  --chip-border: var(--color-amber-500);
+  --chip-text: var(--color-amber-600);
 }
 
 .context-desktop-chip.playbook.policy.selected {
   --chip-bg: rgba(59, 130, 246, 0.1);
-  --chip-border: #3b82f6;
-  --chip-text: #2563eb;
+  --chip-border: var(--color-blue-500);
+  --chip-text: var(--color-blue-600);
 }
 
 /* Truncate long chip text */
@@ -221,7 +221,7 @@
   padding: 8px 10px;
   background: transparent;
   border: 1px dashed var(--color-border);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 12px;
   font-weight: 500;
   color: var(--color-text-tertiary);
@@ -311,7 +311,7 @@
   padding: 10px 16px;
   background: var(--color-brand-primary);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 13px;
   font-weight: 600;
   color: white;
@@ -418,7 +418,7 @@
 }
 
 .context-option-label svg {
-  color: var(--color-accent);
+  color: var(--color-indigo-500);
 }
 
 .context-option-desc {
@@ -661,7 +661,7 @@
   margin: 8px 14px;
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: var(--radius-default);
   font-size: 13px;
   font-weight: 500;
   color: var(--color-text-secondary);
@@ -939,22 +939,22 @@
 /* Frameworks - Purple */
 .context-strip-chip.playbook.framework.selected {
   --chip-bg: rgba(139, 92, 246, 0.1);
-  --chip-border: #8b5cf6;
-  --chip-text: #7c3aed;
+  --chip-border: var(--color-violet-400);
+  --chip-text: var(--color-purple-600);
 }
 
 /* SOPs - Amber */
 .context-strip-chip.playbook.sop.selected {
   --chip-bg: rgba(245, 158, 11, 0.1);
-  --chip-border: #f59e0b;
-  --chip-text: #d97706;
+  --chip-border: var(--color-amber-500);
+  --chip-text: var(--color-amber-600);
 }
 
 /* Policies - Blue */
 .context-strip-chip.playbook.policy.selected {
   --chip-bg: rgba(59, 130, 246, 0.1);
-  --chip-border: #3b82f6;
-  --chip-text: #2563eb;
+  --chip-border: var(--color-blue-500);
+  --chip-text: var(--color-blue-600);
 }
 
 /* Check icon inside chips */
@@ -1087,7 +1087,7 @@
   padding: 5px 10px;
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 12px;
   font-weight: 500;
   color: var(--color-text-secondary);
@@ -1164,7 +1164,7 @@
   padding: 5px 10px;
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-size: 12px;
   font-weight: 500;
   color: var(--color-text-secondary);
