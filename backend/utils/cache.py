@@ -175,5 +175,9 @@ async def invalidate_user_cache(user_id: str) -> None:
 
 async def invalidate_company_cache(company_id: str) -> None:
     """Invalidate all cache entries for a specific company."""
+    # Clear company-specific caches with different prefixes
     await company_cache.clear_prefix(f"company:{company_id}")
+    await company_cache.clear_prefix(f"overview:{company_id}")
+    await company_cache.clear_prefix(f"team:{company_id}")
+    await company_cache.clear_prefix(f"playbooks:{company_id}")
     await user_cache.clear_prefix(f"deps:{company_id}")

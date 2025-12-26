@@ -23,6 +23,7 @@ import time
 from ..auth import get_current_user
 from ..database import get_supabase_with_auth, get_supabase_service
 from ..security import SecureHTTPException, log_security_event, log_app_event, escape_sql_like_pattern
+from ..utils.cache import company_cache, user_cache, cache_key, invalidate_company_cache
 
 
 router = APIRouter(prefix="/api/company", tags=["company"])
@@ -724,6 +725,7 @@ async def get_company_overview(company_id: ValidCompanyId, user=Depends(get_curr
 
     Per Council recommendation: ALL data comes from Supabase.
     Uses service client to bypass RLS for read-only company data.
+    Cached for 5 minutes (company_cache TTL).
     """
     # Use service client to bypass RLS for read operations
     # User is already authenticated via get_current_user
@@ -737,6 +739,12 @@ async def get_company_overview(company_id: ValidCompanyId, user=Depends(get_curr
 
     # SECURITY: Verify user has access to this company
     verify_company_access(client, company_uuid, user)
+
+    # Check cache first (keyed by company UUID for consistency)
+    overview_cache_key = cache_key("overview", company_uuid)
+    cached_result = await company_cache.get(overview_cache_key)
+    if cached_result is not None:
+        return cached_result
 
     # Get company details from database
     company_result = client.table("companies") \
@@ -779,7 +787,7 @@ async def get_company_overview(company_id: ValidCompanyId, user=Depends(get_curr
         .execute()
     decision_count = decision_result.count or 0
 
-    return {
+    result = {
         "company": {
             "id": company_data.get("id"),
             "slug": company_data.get("slug"),
@@ -793,6 +801,11 @@ async def get_company_overview(company_id: ValidCompanyId, user=Depends(get_curr
             "decisions": decision_count
         }
     }
+
+    # Cache the result
+    await company_cache.set(overview_cache_key, result)
+
+    return result
 
 
 class CompanyContextUpdate(BaseModel):
@@ -832,6 +845,9 @@ async def update_company_context(company_id: ValidCompanyId, data: CompanyContex
 
     if not result.data:
         raise HTTPException(status_code=404, detail="Resource not found")
+
+    # Invalidate company caches (overview includes context_md)
+    await invalidate_company_cache(company_uuid)
 
     return {"company": result.data[0]}
 
@@ -963,6 +979,7 @@ async def get_team(company_id: ValidCompanyId, user=Depends(get_current_user)):
 
     Per Council recommendation: ALL data comes from Supabase.
     Uses service client to bypass RLS for read-only company data.
+    Cached for 5 minutes (company_cache TTL).
     """
     # Use service client to bypass RLS for read operations
     # User is already authenticated via get_current_user
@@ -976,6 +993,12 @@ async def get_team(company_id: ValidCompanyId, user=Depends(get_current_user)):
 
     # SECURITY: Verify user has access to this company
     verify_company_access(client, company_uuid, user)
+
+    # Check cache first
+    team_cache_key = cache_key("team", company_uuid)
+    cached_result = await company_cache.get(team_cache_key)
+    if cached_result is not None:
+        return cached_result
 
     # Get departments from database
     dept_result = client.table("departments") \
@@ -1003,7 +1026,7 @@ async def get_team(company_id: ValidCompanyId, user=Depends(get_current_user)):
         roles_by_dept[dept_id].append(role)
 
     # Build response
-    result = []
+    departments = []
     for dept in dept_result.data:
         dept_id = dept.get("id")
         dept_roles = roles_by_dept.get(dept_id, [])
@@ -1029,9 +1052,14 @@ async def get_team(company_id: ValidCompanyId, user=Depends(get_current_user)):
                 "responsibilities": role.get("responsibilities", "")
             })
 
-        result.append(dept_data)
+        departments.append(dept_data)
 
-    return {"departments": result}
+    result = {"departments": departments}
+
+    # Cache the result
+    await company_cache.set(team_cache_key, result)
+
+    return result
 
 
 @router.post("/{company_id}/departments")
@@ -1062,6 +1090,9 @@ async def create_department(company_id: ValidCompanyId, data: DepartmentCreate, 
     if not result.data:
         raise HTTPException(status_code=400, detail="Failed to create department")
 
+    # Invalidate company caches (team structure and overview stats changed)
+    await invalidate_company_cache(company_uuid)
+
     return {"department": result.data[0]}
 
 
@@ -1082,6 +1113,9 @@ async def update_department(company_id: ValidCompanyId, dept_id: ValidDeptId, da
 
     if not result.data:
         raise HTTPException(status_code=404, detail="Resource not found")
+
+    # Invalidate company caches (team structure changed)
+    await invalidate_company_cache(company_uuid)
 
     return {"department": result.data[0]}
 
@@ -1116,6 +1150,9 @@ async def create_role(company_id: ValidCompanyId, dept_id: ValidDeptId, data: Ro
     if not result.data:
         raise HTTPException(status_code=400, detail="Failed to create role")
 
+    # Invalidate company caches (team structure and overview stats changed)
+    await invalidate_company_cache(company_uuid)
+
     return {"role": result.data[0]}
 
 
@@ -1123,6 +1160,7 @@ async def create_role(company_id: ValidCompanyId, dept_id: ValidDeptId, data: Ro
 async def update_role(company_id: ValidCompanyId, dept_id: ValidDeptId, role_id: ValidRoleId, data: RoleUpdate, user=Depends(get_current_user)):
     """Update a role."""
     client = get_client(user)
+    company_uuid = resolve_company_id(client, company_id)
 
     update_data = {k: v for k, v in data.dict().items() if v is not None}
     update_data["updated_at"] = datetime.utcnow().isoformat()
@@ -1135,6 +1173,9 @@ async def update_role(company_id: ValidCompanyId, dept_id: ValidDeptId, role_id:
 
     if not result.data:
         raise HTTPException(status_code=404, detail="Resource not found")
+
+    # Invalidate company caches (team structure changed)
+    await invalidate_company_cache(company_uuid)
 
     return {"role": result.data[0]}
 
