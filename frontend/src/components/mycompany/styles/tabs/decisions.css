@@ -444,7 +444,7 @@
   gap: 6px;
   margin-top: 20px;
   padding: 10px 14px;
-  background: linear-gradient(135deg, var(--color-sky-50) 0%, var(--color-sky-100) 100%);
+  background: var(--color-sky-50);
   border: 1px solid var(--color-sky-200);
   border-radius: var(--radius-md);
   color: var(--color-sky-700);
@@ -456,7 +456,7 @@
 }
 
 .mc-decision-source-link:hover {
-  background: linear-gradient(135deg, var(--color-sky-100) 0%, var(--color-sky-200) 100%);
+  background: var(--color-sky-100);
   border-color: var(--color-sky-300);
   color: var(--color-sky-800);
 }

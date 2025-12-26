@@ -131,6 +131,40 @@ select:focus-visible {
 
 /* Box-sizing is handled in tailwind.css @layer base */
 
+/* =============================================================================
+   NOISE TEXTURE UTILITIES (2025 Premium Trend)
+   Add .noise-overlay class to elements for subtle grain texture
+   ============================================================================= */
+.noise-overlay {
+  position: relative;
+}
+
+.noise-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--noise-texture);
+  opacity: var(--noise-opacity-subtle);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 1;
+}
+
+.noise-overlay-medium::before {
+  opacity: var(--noise-opacity-medium);
+}
+
+.noise-overlay-strong::before {
+  opacity: var(--noise-opacity-strong);
+}
+
+/* Dark mode - slightly stronger noise for visibility */
+.dark .noise-overlay::before {
+  opacity: var(--noise-opacity-medium);
+  mix-blend-mode: soft-light;
+}
+
 body {
   margin: 0;
   min-width: 320px;

@@ -241,7 +241,7 @@ function Stage3({
           <span className="font-semibold tracking-tight">Step 3: Final Recommendation</span>
           {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
         </h3>
-        <div className="final-response">
+        <div className="final-response noise-overlay">
           <div className="thinking-container">
             <div className="thinking-message">
               <Spinner size="sm" />
@@ -275,7 +275,7 @@ function Stage3({
       </h3>
 
       {!isCollapsed && (
-        <div className="final-response" ref={finalResponseRef}>
+        <div className="final-response noise-overlay" ref={finalResponseRef}>
           {/* Sticky toolbar - TOC trigger + copy button together */}
           {isComplete && (
             <div className="stage3-sticky-toolbar">

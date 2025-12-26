@@ -1,10 +1,13 @@
 """Authentication utilities for verifying Supabase JWT tokens."""
 
+import logging
 from fastapi import HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional
 from .database import get_supabase
 from .security import log_security_event
+
+logger = logging.getLogger(__name__)
 
 # HTTP Bearer security scheme
 security = HTTPBearer(auto_error=False)
@@ -56,8 +59,9 @@ async def get_current_user(
 
     except HTTPException:
         raise
-    except Exception:
-        log_security_event("AUTH_FAILURE", details={"reason": "verification_error"}, severity="WARNING")
+    except Exception as e:
+        logger.warning(f"Token verification failed: {type(e).__name__}: {e}")
+        log_security_event("AUTH_FAILURE", details={"reason": "verification_error", "error": str(e)}, severity="WARNING")
         raise HTTPException(
             status_code=401,
             detail="Authentication required",

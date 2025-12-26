@@ -138,7 +138,7 @@ export function OmniBar({
         </div>
       )}
 
-      <div className="omni-bar">
+      <div className="omni-bar noise-overlay">
         {/* Image attach button */}
         {showImageButton && onImageClick && (
           <button

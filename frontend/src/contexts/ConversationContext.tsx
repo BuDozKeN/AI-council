@@ -26,6 +26,7 @@ import {
 } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
+import { useAuth } from '../AuthContext';
 import { logger } from '../utils/logger';
 import { toast } from '../components/ui/sonner';
 import { PAGINATION } from '../constants';
@@ -95,6 +96,7 @@ interface ConversationProviderProps {
 }
 
 export function ConversationProvider({ children }: ConversationProviderProps) {
+  const { isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
 
   // Local UI state (not server state)
@@ -135,6 +137,7 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
         hasMore: result.has_more !== undefined ? result.has_more : (result.conversations || result).length >= limit,
       };
     },
+    enabled: isAuthenticated,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 

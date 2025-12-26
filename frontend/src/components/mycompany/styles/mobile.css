@@ -484,13 +484,11 @@
     right: 16px;
     width: 56px;
     height: 56px;
-    background: linear-gradient(135deg, var(--color-indigo-600) 0%, var(--color-indigo-700) 100%);
+    background: var(--color-indigo-600);
     color: white;
     border: none;
     border-radius: var(--radius-xl);
-    box-shadow:
-      0 4px 12px rgba(99, 102, 241, 0.4),
-      0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(99, 102, 241, 0.2);
     cursor: pointer;
     z-index: var(--z-overlay);
     transition: all 0.2s ease;

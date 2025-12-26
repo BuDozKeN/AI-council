@@ -104,7 +104,11 @@ const getAuthHeaders = async (): Promise<Record<string, string>> => {
     const token = await getAccessToken();
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
+    } else {
+      log.warn('getAccessToken returned null - no auth token available');
     }
+  } else {
+    log.warn('getAccessToken not set - API calls will be unauthenticated');
   }
   return headers;
 };

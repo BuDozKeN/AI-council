@@ -13,7 +13,7 @@ load_dotenv(Path(__file__).parent.parent / '.env')
 from supabase import create_client
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_KEY")
+SUPABASE_SERVICE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
 
 # Project data
 PROJECT_DATA = {
@@ -63,7 +63,7 @@ def main():
     print("=== AxCouncil Project Creator (Service Key) ===\n")
 
     if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
-        print("ERROR: SUPABASE_URL and SUPABASE_SERVICE_KEY not found in .env")
+        print("ERROR: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY not found in .env")
         return
 
     # Create service client (bypasses RLS)

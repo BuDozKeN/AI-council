@@ -37,3 +37,5 @@ NUL
 con
 CON
 .vite/
+.env.local
+.env.*

@@ -71,10 +71,8 @@
   position: sticky;
   top: 0;
   z-index: var(--z-sticky); /* Higher than content elements like badges */
-  /* Subtle shadow */
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.04),
-    0 4px 12px rgba(0, 0, 0, 0.06);
+  /* Premium layered shadow */
+  box-shadow: var(--shadow-md);
 }
 
 /* Dark mode context indicator - matches LandingHero dark mode */
@@ -387,7 +385,7 @@
   border: 1px solid var(--color-slate-200);
   border-radius: var(--radius-xl);
   padding: 8px 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
 }
 
@@ -998,7 +996,7 @@ button.role-select-trigger:focus {
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
   font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-sm);
 }
 
 .mode-btn-compact.active .mode-cost {
@@ -1607,7 +1605,7 @@ button.mobile-role-select {
     padding: 8px 12px;
     border-radius: var(--radius-lg);
     border: 1px solid rgba(255, 255, 255, 0.4);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+    box-shadow: var(--shadow-sm);
   }
 }
 

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { supabase } from './supabase';
 import { setUserContext, clearUserContext } from './utils/sentry';
+import { setTokenGetter } from './api';
 import { logger } from './utils/logger';
 
 const AuthContext = createContext({});
@@ -168,6 +169,10 @@ export function AuthProvider({ children }) {
     if (error) throw error;
     return data;
   }, []);
+
+  // Set the API token getter immediately so child components can make authenticated requests
+  // This must happen before children render, so we do it synchronously in the component body
+  setTokenGetter(getAccessToken);
 
   // Memoize context value to prevent unnecessary re-renders of all consumers
   const value = useMemo(() => ({

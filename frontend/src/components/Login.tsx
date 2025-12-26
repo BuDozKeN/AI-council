@@ -128,7 +128,7 @@ export default function Login() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={springs.gentle}
-        className="login-card"
+        className="login-card noise-overlay"
       >
         {/* Header */}
         <div className="login-header">

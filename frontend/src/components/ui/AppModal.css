@@ -396,7 +396,7 @@
 
 /* Gradient header (like Leaderboard) */
 .app-modal-header-gradient {
-  background: linear-gradient(135deg, var(--color-brand-primary, #4a90e2) 0%, var(--color-brand-primary-hover, #3b82f6) 100%);
+  background: var(--color-brand-primary, #4a90e2);
   border-bottom-color: transparent;
 }
 

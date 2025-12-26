@@ -151,16 +151,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--color-brand-primary) 0%, var(--color-brand-primary-hover) 100%);
+  background: var(--color-brand-primary);
   border: none;
   border-radius: var(--radius-lg);
   color: white;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
 }
 
 .omni-bar-submit:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--color-brand-primary-hover) 0%, var(--color-info) 100%);
+  background: var(--color-brand-primary-hover);
+  box-shadow: var(--shadow-md);
 }
 
 .omni-bar-submit:disabled {

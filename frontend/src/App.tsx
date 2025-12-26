@@ -12,7 +12,7 @@ import MyCompany from './components/MyCompany';
 import { useAuth } from './AuthContext';
 import { useBusiness } from './contexts/BusinessContext';
 import { useConversation } from './contexts/ConversationContext';
-import { api, setTokenGetter } from './api';
+import { api } from './api';
 import { useGlobalSwipe, useModalState } from './hooks';
 import { Toaster, toast } from './components/ui/sonner';
 import { MockModeBanner } from './components/ui/MockModeBanner';
@@ -40,12 +40,6 @@ const log = logger.scope('App');
 
 function App() {
   const { user, loading: authLoading, signOut, isAuthenticated, needsPasswordReset, getAccessToken } = useAuth();
-
-  // Set up API token getter synchronously when auth is available
-  // This must happen before any API calls, so we do it outside useEffect
-  if (getAccessToken) {
-    setTokenGetter(getAccessToken);
-  }
 
   // Business state from context
   const {

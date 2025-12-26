@@ -309,7 +309,7 @@
   display: block;
   width: 100%;
   padding: 10px 16px;
-  background: linear-gradient(135deg, var(--color-brand-primary) 0%, var(--color-brand-primary-hover) 100%);
+  background: var(--color-brand-primary);
   border: none;
   border-radius: 6px;
   font-size: 13px;
@@ -317,10 +317,12 @@
   color: white;
   cursor: pointer;
   transition: all 0.15s ease;
+  box-shadow: var(--shadow-sm);
 }
 
 .context-desktop-apply-btn:hover {
-  background: linear-gradient(135deg, var(--color-brand-primary-hover) 0%, var(--color-info) 100%);
+  background: var(--color-brand-primary-hover);
+  box-shadow: var(--shadow-md);
   transform: translateY(-1px);
 }
 
@@ -606,7 +608,7 @@
   width: calc(100% - 28px);
   margin: 12px 14px 14px;
   padding: 10px 16px;
-  background: linear-gradient(135deg, var(--color-brand-primary) 0%, var(--color-brand-primary-hover) 100%);
+  background: var(--color-brand-primary);
   border: none;
   border-radius: var(--radius-md);
   font-size: 14px;
@@ -618,10 +620,12 @@
   position: sticky;
   bottom: 0;
   z-index: var(--z-base);
+  box-shadow: var(--shadow-sm);
 }
 
 .context-apply-btn:hover {
-  background: linear-gradient(135deg, var(--color-brand-primary-hover) 0%, var(--color-info) 100%);
+  background: var(--color-brand-primary-hover);
+  box-shadow: var(--shadow-md);
   transform: translateY(-1px);
 }
 
@@ -1049,7 +1053,7 @@
   width: 100%;
   margin-top: 8px;
   padding: 16px;
-  background: linear-gradient(135deg, var(--color-brand-primary) 0%, var(--color-brand-primary-hover) 100%);
+  background: var(--color-brand-primary);
   border: none;
   border-radius: var(--radius-lg);
   font-size: 16px;
@@ -1057,6 +1061,7 @@
   color: white;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
 }
 
 .context-apply-btn-mobile:active {
