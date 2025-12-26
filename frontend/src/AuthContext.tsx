@@ -81,7 +81,13 @@ export function AuthProvider({ children }) {
   const signOut = useCallback(async () => {
     if (!supabase) throw new Error('Supabase not configured');
     const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    // Ignore AuthSessionMissingError - this just means we're already signed out
+    // This commonly happens on mobile when tokens have expired
+    if (error && error.name !== 'AuthSessionMissingError') {
+      throw error;
+    }
+    // Clear local state regardless
+    setUser(null);
   }, []);
 
   const resetPassword = useCallback(async (email) => {
