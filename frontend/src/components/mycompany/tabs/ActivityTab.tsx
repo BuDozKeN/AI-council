@@ -26,7 +26,7 @@ const PROMOTED_TYPE_LABELS = {
 };
 
 const PROMOTED_TYPE_COLORS = {
-  sop: { bg: '#fef3c7', text: '#d97706' },
+  sop: { bg: '#eef2ff', text: '#4338ca' },
   framework: { bg: '#dbeafe', text: '#2563eb' },
   policy: { bg: '#ede9fe', text: '#7c3aed' },
   project: { bg: '#d1fae5', text: '#059669' }
@@ -37,7 +37,7 @@ const EVENT_COLORS = {
   playbook: '#3b82f6',
   project: '#14b8a6',
   role: '#8b5cf6',
-  department: '#f59e0b',
+  department: '#6366f1',
   default: '#64748b'
 };
 

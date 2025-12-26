@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '../AuthContext';
 import { AuroraBackground } from './ui/aurora-background';
 import { hapticMedium, hapticSuccess, hapticError } from '../lib/haptics';
+import { springs, interactionStates, springWithDelay } from '../lib/animations';
 import './Login.css';
 
 // Google Icon SVG
@@ -126,7 +127,7 @@ export default function Login() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={springs.gentle}
         className="login-card"
       >
         {/* Header */}
@@ -135,7 +136,7 @@ export default function Login() {
             className="login-title"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.4 }}
+            transition={springWithDelay('smooth', 0.1)}
           >
             AxCouncil
           </motion.h1>
@@ -143,7 +144,7 @@ export default function Login() {
             className="login-subtitle"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.4 }}
+            transition={springWithDelay('smooth', 0.15)}
           >
             {getTitle()}
           </motion.p>
@@ -151,7 +152,7 @@ export default function Login() {
             className="login-description"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.4 }}
+            transition={springWithDelay('smooth', 0.2)}
           >
             {getSubtitle()}
           </motion.p>
@@ -166,9 +167,9 @@ export default function Login() {
             disabled={googleLoading}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.5, duration: 0.3 }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            transition={springWithDelay('smooth', 0.25)}
+            whileHover={interactionStates.buttonHover}
+            whileTap={interactionStates.buttonTap}
           >
             <GoogleIcon />
             <span>{googleLoading ? 'Connecting...' : 'Continue with Google'}</span>
@@ -181,7 +182,7 @@ export default function Login() {
             className="divider"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.3 }}
+            transition={springWithDelay('smooth', 0.3)}
           >
             <span>or continue with email</span>
           </motion.div>
@@ -193,7 +194,7 @@ export default function Login() {
           className="login-form"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.7, duration: 0.3 }}
+          transition={springWithDelay('smooth', 0.35)}
         >
           {mode !== 'resetPassword' && (
             <div className="form-group">
@@ -249,6 +250,7 @@ export default function Login() {
               className="error-message"
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
+              transition={springs.snappy}
             >
               {error}
             </motion.div>
@@ -259,6 +261,7 @@ export default function Login() {
               className="success-message"
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
+              transition={springs.snappy}
             >
               {message}
             </motion.div>
@@ -268,8 +271,8 @@ export default function Login() {
             type="submit"
             className="submit-button"
             disabled={loading}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={interactionStates.buttonHover}
+            whileTap={interactionStates.buttonTap}
           >
             {getButtonText()}
           </motion.button>
@@ -280,7 +283,7 @@ export default function Login() {
           className="login-footer"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8, duration: 0.3 }}
+          transition={springWithDelay('smooth', 0.4)}
         >
           {mode === 'signIn' && (
             <>

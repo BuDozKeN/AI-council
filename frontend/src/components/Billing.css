@@ -14,7 +14,7 @@
 
 .billing-modal {
   background: var(--color-bg-primary);
-  border-radius: 16px;
+  border-radius: var(--radius-xl);
   width: 100%;
   max-width: 900px;
   max-height: 90vh;

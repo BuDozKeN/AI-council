@@ -205,7 +205,7 @@ button.sidebar-new-btn:hover {
   height: 36px;
   background: transparent;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   color: var(--sidebar-icon-color);
   cursor: pointer;
   transition: all 0.15s ease;

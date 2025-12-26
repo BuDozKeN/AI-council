@@ -4,15 +4,17 @@
  * Shows:
  * - Company hero section with title and description
  * - Stats grid (departments, roles, playbooks, decisions)
- * - Business context document preview
+ * - Business context document preview with floating TOC
  *
  * Extracted from MyCompany.jsx for better maintainability.
  */
 
+import { useRef } from 'react';
 import { Building2 } from 'lucide-react';
 import MarkdownViewer from '../../MarkdownViewer';
 import { ScrollableContent } from '../../ui/ScrollableContent';
 import { FloatingContextActions } from '../../ui/FloatingContextActions';
+import { TableOfContents } from '../../ui/TableOfContents';
 import { formatDate } from '../../../lib/dateUtils';
 
 // Parse metadata from context markdown (Last Updated, Version)
@@ -35,6 +37,10 @@ export function OverviewTab({
   onEditContext
   // onViewContext - reserved for future use
 }) {
+  // Refs for TOC scroll-spy
+  const contentRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
   if (!overview) {
     return (
       <div className="mc-empty">
@@ -105,16 +111,30 @@ export function OverviewTab({
       </div>
 
       {/* Context content - FloatingContextActions provides sticky copy button inside context */}
-      <div className="mc-context-section mc-context-section--compact">
+      <div ref={containerRef} className="mc-context-section mc-context-section--compact">
         <FloatingContextActions copyText={contextMd || null} className="mc-context-content">
-          {contextMd ? (
-            <MarkdownViewer content={contextMd} />
-          ) : (
-            <div className="mc-empty-context">
-              <p className="mc-empty-title">No business context defined yet</p>
-              <p className="mc-empty-hint">Click "Edit Context" above to add your company's mission, goals, strategy, and other important information that the AI Council should know.</p>
-            </div>
+          {/* Sticky TOC - inside content, appears as collapsible pill */}
+          {contextMd && (
+            <TableOfContents
+              variant="sticky"
+              contentRef={contentRef}
+              containerRef={containerRef}
+              title={`${companyName} Context`}
+              headingLevels={['h2']}
+              minHeadings={2}
+            />
           )}
+
+          <div ref={contentRef}>
+            {contextMd ? (
+              <MarkdownViewer content={contextMd} />
+            ) : (
+              <div className="mc-empty-context">
+                <p className="mc-empty-title">No business context defined yet</p>
+                <p className="mc-empty-hint">Click "Edit Context" above to add your company's mission, goals, strategy, and other important information that the AI Council should know.</p>
+              </div>
+            )}
+          </div>
         </FloatingContextActions>
       </div>
     </ScrollableContent>

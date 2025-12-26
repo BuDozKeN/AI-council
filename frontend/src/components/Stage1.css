@@ -2,15 +2,16 @@
   margin: 24px 0;
   padding: 20px;
   background: var(--color-bg-secondary);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   width: 100%;
   box-sizing: border-box;
 }
 
 .stage.stage1 {
-  background: linear-gradient(135deg, var(--stage1-bg-gradient-start) 0%, var(--stage1-bg-gradient-end) 100%);
-  border-color: var(--stage1-border);
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
   /* Container queries - grid responds to container width, not viewport */
   container-type: inline-size;
   container-name: stage1;
@@ -72,14 +73,16 @@
 }
 
 .stage1 .model-card.streaming {
-  border-color: var(--stage1-border);
-  background: linear-gradient(135deg, var(--stage1-bg-gradient-start) 0%, var(--stage1-bg-gradient-end) 100%);
-  box-shadow: 0 0 0 1px var(--stage1-shadow-color);
+  border-color: #6366f1;
+  background: var(--color-bg-primary);
+  box-shadow:
+    0 0 0 1px rgba(99, 102, 241, 0.2),
+    0 4px 12px rgba(99, 102, 241, 0.1);
 }
 
 .stage1 .model-card.error {
-  border-color: var(--stage2-border);
-  background: linear-gradient(135deg, var(--stage2-bg-gradient-start) 0%, var(--stage2-bg-gradient-end) 100%);
+  border-color: var(--color-error);
+  background: var(--color-error-light);
 }
 
 .stage1 .model-card.expanded {
@@ -217,33 +220,34 @@
   font-size: 12px;
   font-weight: 600;
   padding: 2px 6px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background: var(--color-slate-100);
   color: var(--color-slate-600);
   margin-left: auto;
   flex-shrink: 0;
 }
 
-/* Gold, silver, bronze for top 3 */
+/* Rank badges - iris for winner, subtle for others */
 .stage1 .model-card-rank.rank-1 {
-  background: linear-gradient(135deg, #fef3c7, #fde68a);
-  color: #92400e;
+  background: #6366f1;
+  color: #ffffff;
   font-size: 14px;
-  padding: 2px 4px;
+  padding: 2px 6px;
+  font-weight: 600;
 }
 
 .stage1 .model-card-rank.rank-2 {
-  background: linear-gradient(135deg, #e5e7eb, #d1d5db);
-  color: #374151;
+  background: var(--color-slate-200);
+  color: var(--color-slate-700);
   font-size: 14px;
-  padding: 2px 4px;
+  padding: 2px 6px;
 }
 
 .stage1 .model-card-rank.rank-3 {
-  background: linear-gradient(135deg, #fed7aa, #fdba74);
-  color: #9a3412;
+  background: var(--color-slate-100);
+  color: var(--color-slate-600);
   font-size: 14px;
-  padding: 2px 4px;
+  padding: 2px 6px;
 }
 
 /* Status indicators */
@@ -291,7 +295,7 @@
   padding: 4px;
   border: none;
   background: transparent;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   color: var(--color-slate-500);
   transition: all 0.15s ease;
@@ -916,7 +920,7 @@
 /* Stage1 uses CSS variables from tailwind.css which are redefined in .dark context */
 
 .dark .stage.stage1 {
-  background: linear-gradient(135deg, var(--stage1-bg-gradient-start) 0%, var(--stage1-bg-gradient-end) 100%);
+  background: var(--color-bg-secondary);
   border-color: var(--color-border);
 }
 
@@ -932,13 +936,13 @@
 
 .dark .stage1 .model-card.streaming {
   border-color: var(--stage1-border);
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, var(--color-bg-secondary) 100%);
+  background: rgba(99, 102, 241, 0.1);
   box-shadow: 0 0 0 1px var(--color-info-light);
 }
 
 .dark .stage1 .model-card.error {
   border-color: var(--color-warning);
-  background: linear-gradient(135deg, var(--color-warning-light) 0%, var(--color-bg-secondary) 100%);
+  background: var(--color-warning-light);
 }
 
 .dark .stage1 .model-card.expanded {
@@ -957,17 +961,17 @@
 }
 
 .dark .stage1 .model-card-rank.rank-1 {
-  background: linear-gradient(135deg, #78350f, #92400e);
-  color: #fef3c7;
+  background: #6366f1;
+  color: #ffffff;
 }
 
 .dark .stage1 .model-card-rank.rank-2 {
-  background: linear-gradient(135deg, #374151, #4b5563);
+  background: #64748b;
   color: #e5e7eb;
 }
 
 .dark .stage1 .model-card-rank.rank-3 {
-  background: linear-gradient(135deg, #7c2d12, #9a3412);
+  background: #78716c;
   color: #fed7aa;
 }
 

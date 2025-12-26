@@ -9,7 +9,6 @@ import ProjectModal from './components/ProjectModal';
 import Triage from './components/Triage';
 import Login from './components/Login';
 import MyCompany from './components/MyCompany';
-import { DeliberationDemo } from './components/deliberation';
 import { useAuth } from './AuthContext';
 import { useBusiness } from './contexts/BusinessContext';
 import { useConversation } from './contexts/ConversationContext';
@@ -35,9 +34,6 @@ const generateInitialTitle = (content, maxLength = 60) => {
   return (lastSpace > maxLength * 0.7 ? truncated.substring(0, lastSpace) : truncated) + '...';
 };
 
-// Check for demo mode via URL parameter
-const urlParams = new URLSearchParams(window.location.search);
-const DEMO_MODE = urlParams.get('demo');
 
 // Create scoped logger for App component
 const log = logger.scope('App');
@@ -433,11 +429,6 @@ function App() {
 
     return () => clearTimeout(timeout);
   }, [returnToMyCompanyTab, clearReturnState]);
-
-  // Demo mode - show deliberation demo without auth
-  if (DEMO_MODE === 'deliberation') {
-    return <DeliberationDemo />;
-  }
 
   // Show blank screen while checking auth (auth is fast, avoids flicker)
   // Use bg-secondary to match landing page background

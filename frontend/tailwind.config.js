@@ -14,8 +14,9 @@ export default {
   			surface: '#0f172a',
   			'surface-hover': '#1e293b',
   			brand: {
-  				DEFAULT: '#fbbf24',
-  				dark: '#f59e0b'
+  				DEFAULT: '#6366f1',
+  				dark: '#4f46e5',
+  				light: '#818cf8'
   			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',

@@ -8,7 +8,7 @@ export function WelcomeState() {
   return (
     <div className="chat-interface">
       <div className="empty-state">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shadow-lg">
+        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg">
           <span className="text-white font-bold text-2xl">AX</span>
         </div>
         <h2 className="text-2xl font-semibold text-gray-900 mb-2">Welcome to AxCouncil</h2>

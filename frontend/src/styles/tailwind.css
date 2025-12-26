@@ -69,12 +69,24 @@
     --z-modal-dropdown: 1100; /* Dropdowns inside modals */
     --z-toast: 1200;        /* Toast notifications */
 
-    /* Shadow scale - use these instead of arbitrary box-shadow values */
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
-    --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.3);
-    --shadow-focus: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    /* Shadow scale - premium layered 3x depth */
+    --shadow-sm:
+      0 2px 4px rgba(0, 0, 0, 0.12),
+      0 1px 2px rgba(0, 0, 0, 0.08),
+      0 0 1px rgba(0, 0, 0, 0.04);
+    --shadow-md:
+      0 8px 16px -4px rgba(0, 0, 0, 0.16),
+      0 4px 8px -2px rgba(0, 0, 0, 0.12),
+      0 0 1px rgba(0, 0, 0, 0.08);
+    --shadow-lg:
+      0 16px 32px -8px rgba(0, 0, 0, 0.2),
+      0 8px 16px -4px rgba(0, 0, 0, 0.14),
+      0 0 1px rgba(0, 0, 0, 0.08);
+    --shadow-modal:
+      0 32px 64px -16px rgba(0, 0, 0, 0.35),
+      0 16px 32px -8px rgba(0, 0, 0, 0.25),
+      0 0 1px rgba(0, 0, 0, 0.08);
+    --shadow-focus: 0 0 0 3px rgba(99, 102, 241, 0.25);
 
     /* Border radius scale - use these instead of arbitrary pixel values */
     --radius-sm: 4px;
@@ -109,12 +121,12 @@
     --color-brand-primary-hover: #3b82f6;
     --color-brand-primary-light: #f0f7ff;
 
-    /* Brand colors - Orange Accent */
-    --color-accent: #f97316;
-    --color-accent-hover: #ea580c;
-    --color-accent-light: #fff7ed;
-    --color-accent-dark: #d97706;
-    --color-accent-amber: #f59e0b;
+    /* Brand colors - Iris Accent */
+    --color-accent: #6366f1;
+    --color-accent-hover: #4f46e5;
+    --color-accent-light: #eef2ff;
+    --color-accent-dark: #4338ca;
+    --color-accent-iris: #818cf8;
 
     /* Brand colors - Indigo */
     --color-indigo: #6366f1;
@@ -147,7 +159,7 @@
     --color-dept-engineering: #3b82f6;
     --color-dept-design: #8b5cf6;
     --color-dept-product: #10b981;
-    --color-dept-marketing: #f59e0b;
+    --color-dept-marketing: #6366f1;
     --color-dept-legal: #6b7280;
     --color-dept-finance: #14b8a6;
     --color-dept-hr: #ec4899;
@@ -286,7 +298,7 @@
     --sidebar-text-muted: #999999;
     --sidebar-hover-bg: rgba(0, 0, 0, 0.04);
     --sidebar-active-bg: rgba(0, 0, 0, 0.06);
-    --sidebar-active-border: var(--color-accent);
+    --sidebar-active-border: #6366f1;
     --sidebar-icon-color: #666666;
     --sidebar-icon-active: #1a1a1a;
     --sidebar-scrollbar-thumb: rgba(0, 0, 0, 0.12);
@@ -334,9 +346,9 @@
     --avatar-thinking-ring: rgba(59, 130, 246, 0.2);
     --avatar-complete-bg: #ecfdf5;
     --avatar-complete-border: #10b981;
-    --avatar-reviewing-bg: #fffbeb;
-    --avatar-reviewing-border: #f59e0b;
-    --avatar-reviewing-ring: rgba(245, 158, 11, 0.2);
+    --avatar-reviewing-bg: #eef2ff;
+    --avatar-reviewing-border: #6366f1;
+    --avatar-reviewing-ring: rgba(99, 102, 241, 0.2);
 
     /* Thinking stream */
     --thinking-stream-bg: #1e293b;
@@ -345,11 +357,11 @@
     --thinking-stream-cursor: #3b82f6;
 
     /* Insight cards */
-    --insight-gap-bg: #fef3c7;
-    --insight-gap-border: #f59e0b;
-    --insight-gap-text: #92400e;
-    --insight-gap-button-bg: #fffbeb;
-    --insight-gap-button-hover: #fef3c7;
+    --insight-gap-bg: #eef2ff;
+    --insight-gap-border: #6366f1;
+    --insight-gap-text: #3730a3;
+    --insight-gap-button-bg: #f5f3ff;
+    --insight-gap-button-hover: #eef2ff;
 
     --insight-consensus-bg: #d1fae5;
     --insight-consensus-border: #10b981;

@@ -12,6 +12,7 @@ import { AuroraBackground } from '../ui/aurora-background';
 import { OmniBar } from '../shared';
 import { ContextChip } from './ContextChip';
 import { QuickActionChips } from './QuickActionChips';
+import { springs, springWithDelay } from '../../lib/animations';
 import './LandingHero.css';
 
 export function LandingHero({
@@ -81,14 +82,14 @@ export function LandingHero({
         className="landing-hero"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={springs.gentle}
       >
         {/* Logo and headline */}
         <motion.div
           className="landing-header"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.4 }}
+          transition={springWithDelay('smooth', 0.1)}
         >
           <div className="landing-logo">
             <span className="landing-logo-text">AxCouncil</span>
@@ -103,7 +104,7 @@ export function LandingHero({
           className="omni-bar-container"
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2, duration: 0.4 }}
+          transition={springWithDelay('smooth', 0.15)}
         >
           <OmniBar
             value={input}
@@ -124,7 +125,7 @@ export function LandingHero({
             className="omni-bar-controls"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.3 }}
+            transition={springWithDelay('smooth', 0.25)}
           >
             {/* Mode toggle - left side */}
             <div className="mode-toggle-landing">
@@ -173,7 +174,7 @@ export function LandingHero({
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.3 }}
+          transition={springWithDelay('smooth', 0.35)}
         >
           <QuickActionChips onSelect={handleQuickAction} />
         </motion.div>

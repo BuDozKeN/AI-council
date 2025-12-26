@@ -1,6 +1,7 @@
 .stage2 {
-  background: linear-gradient(135deg, var(--stage2-bg-gradient-start) 0%, var(--stage2-bg-gradient-end) 100%);
-  border-color: var(--stage2-border);
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Accordion wrapper */
@@ -47,10 +48,11 @@
   gap: 4px;
   margin-left: auto;
   padding: 4px 8px;
-  background: linear-gradient(135deg, var(--color-amber-100) 0%, var(--color-amber-200) 100%);
-  color: var(--color-amber-700);
-  border-radius: 10px;
+  background: #6366f1;
+  color: #ffffff;
+  border-radius: var(--radius-lg);
   flex-shrink: 0;
+  font-weight: 600;
 }
 
 .stage2-winner .winner-model-icon {
@@ -633,8 +635,8 @@
 }
 
 .dark .stage2-winner {
-  background: linear-gradient(135deg, var(--color-warning-light) 0%, var(--color-warning-light) 100%);
-  color: var(--color-warning);
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
 }
 
 .dark .stage2-section-title {
@@ -824,7 +826,7 @@
   .stage2-winner {
     padding: 3px 5px;
     gap: 3px;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
   }
 
   .stage2 .stage2-winner svg {
