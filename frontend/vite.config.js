@@ -38,6 +38,10 @@ export default defineConfig({
         ]
       },
       workbox: {
+        // Force clean update - clear old caches on activate
+        cleanupOutdatedCaches: true,
+        // Enable navigation preload for faster page loads
+        navigationPreload: true,
         // Cache strategies for different resource types
         runtimeCaching: [
           {
