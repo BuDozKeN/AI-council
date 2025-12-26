@@ -386,28 +386,30 @@ async def get_company_usage(
 
     # Get usage data - handle case where usage_events table might not exist
     try:
-        # Get all-time usage
+        # Get all-time usage (only select id for counting - token columns may not exist yet)
         all_time = client.table("usage_events") \
-            .select("id, tokens_input, tokens_output") \
+            .select("id") \
             .eq("company_id", company_uuid) \
             .execute()
 
         total_sessions = len(all_time.data) if all_time.data else 0
-        total_input = sum(e.get("tokens_input", 0) or 0 for e in (all_time.data or []))
-        total_output = sum(e.get("tokens_output", 0) or 0 for e in (all_time.data or []))
 
         # Get this month's usage
         first_of_month = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
 
         this_month = client.table("usage_events") \
-            .select("id, tokens_input, tokens_output") \
+            .select("id") \
             .eq("company_id", company_uuid) \
             .gte("created_at", first_of_month.isoformat()) \
             .execute()
 
         month_sessions = len(this_month.data) if this_month.data else 0
-        month_input = sum(e.get("tokens_input", 0) or 0 for e in (this_month.data or []))
-        month_output = sum(e.get("tokens_output", 0) or 0 for e in (this_month.data or []))
+
+        # Token tracking not yet implemented - return zeros for now
+        total_input = 0
+        total_output = 0
+        month_input = 0
+        month_output = 0
     except Exception as e:
         log_error(e, "members.get_usage_data")
         # usage_events table might not exist yet - return zeros
