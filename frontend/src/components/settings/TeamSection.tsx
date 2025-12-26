@@ -9,7 +9,7 @@ import { useTeam } from './hooks/useTeam';
 
 // Role configuration for display
 const ROLE_CONFIG = {
-  owner: { label: 'Owner', icon: Crown, color: '#f59e0b', description: 'Full control' },
+  owner: { label: 'Owner', icon: Crown, color: '#6366f1', description: 'Full control' },
   admin: { label: 'Admin', icon: Shield, color: '#3b82f6', description: 'Manage members' },
   member: { label: 'Member', icon: UserIcon, color: '#6b7280', description: 'View & contribute' }
 };

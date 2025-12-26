@@ -6,6 +6,7 @@
 
 import { motion } from 'framer-motion';
 import { PenLine, FileSearch, Rocket, Scale, Users, TrendingUp } from 'lucide-react';
+import { springs, interactionStates, staggerDelay } from '../../lib/animations';
 import './QuickActionChips.css';
 
 const QUICK_ACTIONS = [
@@ -51,11 +52,11 @@ export function QuickActionChips({ onSelect }) {
             key={action.label}
             className="quick-action-chip"
             onClick={() => onSelect?.(action.prompt)}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 * index, duration: 0.2 }}
-            whileHover={{ scale: 1.02, y: -2 }}
-            whileTap={{ scale: 0.98 }}
+            transition={{ ...springs.smooth, delay: staggerDelay(index, 0.06) }}
+            whileHover={interactionStates.cardHover}
+            whileTap={interactionStates.chipTap}
           >
             <Icon size={14} className="quick-action-icon" />
             <span>{action.label}</span>

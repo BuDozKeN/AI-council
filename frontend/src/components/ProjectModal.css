@@ -15,7 +15,7 @@
   gap: 8px;
   margin: 16px 24px 0;
   padding: 12px 16px;
-  background: linear-gradient(135deg, var(--color-red-50) 0%, var(--color-error-light) 100%);
+  background: var(--color-red-50);
   border: 1px solid var(--color-red-300);
   border-radius: var(--radius-lg);
   color: var(--color-error-dark);
@@ -150,7 +150,7 @@
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: linear-gradient(135deg, var(--color-purple-600) 0%, var(--color-indigo) 100%);
+  background: var(--color-purple-600);
   border: none;
   border-radius: var(--radius-md);
   color: var(--color-text-inverse);
@@ -194,7 +194,7 @@
 
 /* AI Preview panel */
 .pm-preview {
-  background: linear-gradient(135deg, var(--color-purple-50) 0%, var(--color-purple-100) 100%);
+  background: var(--color-purple-50);
   border: 1px solid var(--color-purple-200);
   border-radius: var(--radius-lg);
   margin-top: 16px;
@@ -322,7 +322,7 @@
   padding: 10px 24px;
   border: none;
   border-radius: var(--radius-md);
-  background: linear-gradient(135deg, var(--color-indigo) 0%, var(--color-indigo-600) 100%);
+  background: #6366f1;
   color: var(--color-text-inverse);
   font-size: 14px;
   font-weight: 600;
@@ -353,7 +353,7 @@
   align-items: center;
   gap: 8px;
   padding: 12px 16px;
-  background: linear-gradient(135deg, var(--color-violet-50) 0%, var(--color-violet-100) 100%);
+  background: var(--color-violet-50);
   border: 1px solid var(--color-violet-200);
   border-radius: var(--radius-lg);
   margin-bottom: 12px;
@@ -375,7 +375,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  background: linear-gradient(135deg, var(--color-purple-50) 0%, var(--color-purple-100) 100%);
+  background: var(--color-purple-50);
   border-radius: var(--radius-md);
   margin-top: 10px;
   font-size: 13px;
@@ -400,7 +400,7 @@
   align-items: center;
   gap: 10px;
   padding: 14px 16px;
-  background: linear-gradient(135deg, var(--color-green-50) 0%, var(--color-success-light) 100%);
+  background: var(--color-green-50);
   border: 1px solid var(--color-emerald-400);
   border-radius: var(--radius-lg);
   margin-bottom: 20px;
@@ -626,7 +626,7 @@
   align-items: center;
   gap: 8px;
   padding: 12px 16px;
-  background: linear-gradient(135deg, var(--color-slate-50) 0%, var(--color-slate-100) 100%);
+  background: var(--color-slate-50);
   border: 1px solid var(--color-slate-200);
   border-radius: var(--radius-lg);
   margin-bottom: 16px;

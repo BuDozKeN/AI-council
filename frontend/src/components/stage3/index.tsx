@@ -9,8 +9,7 @@ import { useDecisionState } from './hooks/useDecisionState';
 import { useSaveActions } from './hooks/useSaveActions';
 import Stage3Content from './Stage3Content';
 import { Stage3Actions } from './Stage3Actions';
-import { Stage3OutlineSidebar } from './Stage3OutlineSidebar';
-import { Stage3MobileOutline } from './Stage3MobileOutline';
+import { TableOfContents } from '../ui/TableOfContents';
 import '../Stage3.css';
 
 const log = logger.scope('Stage3');
@@ -238,7 +237,7 @@ function Stage3({
     return (
       <div className="stage stage3">
         <h3 className="stage-title">
-          <Sparkles className="h-5 w-5 text-amber-500 flex-shrink-0" />
+          <Sparkles className="h-5 w-5 text-emerald-500 flex-shrink-0" />
           <span className="font-semibold tracking-tight">Step 3: Final Recommendation</span>
           {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
         </h3>
@@ -280,9 +279,13 @@ function Stage3({
           {/* Sticky toolbar - TOC trigger + copy button together */}
           {isComplete && (
             <div className="stage3-sticky-toolbar">
-              <Stage3MobileOutline
+              <TableOfContents
+                variant="sheet"
                 contentRef={finalResponseRef}
                 isStreamingComplete={isComplete}
+                title={getTitle()}
+                headingLevels={['h2', 'h3']}
+                minHeadings={2}
               />
               {displayText && (
                 <CopyButton text={displayText} size="sm" className="stage3-copy-btn" />
@@ -299,11 +302,14 @@ function Stage3({
           />
 
           {/* Floating TOC - overlays content on the right edge */}
-          <Stage3OutlineSidebar
+          <TableOfContents
+            variant="floating"
             contentRef={finalResponseRef}
             containerRef={containerRef}
             isStreamingComplete={isComplete}
             title={getTitle()}
+            headingLevels={['h2']}
+            minHeadings={1}
           />
 
           {isComplete && companyId && (

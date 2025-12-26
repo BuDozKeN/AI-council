@@ -114,7 +114,7 @@
     width: 3px;
     height: 24px;
     background: var(--color-slate-300);
-    border-radius: 2px;
+    border-radius: var(--radius-xs);
     opacity: 0;
     animation: swipe-hint-fade 3s ease-in-out infinite;
     animation-delay: 1s;

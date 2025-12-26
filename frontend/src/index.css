@@ -1,13 +1,27 @@
+/* Import Geist font from Vercel */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 :root {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family: 'Geist', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   line-height: 1.5;
   font-weight: 400;
+  letter-spacing: -0.01em;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
+
+/* Typography classes for premium headings */
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+h1 { letter-spacing: -0.03em; }
+h2 { letter-spacing: -0.025em; }
 
 /* Accessibility: Screen reader only utility class */
 .sr-only {
@@ -35,7 +49,7 @@
   overflow: visible;
   clip: auto;
   white-space: normal;
-  background: var(--color-brand-primary, #f97316);
+  background: #6366f1;
   color: white;
   font-weight: 600;
   font-size: 14px;
@@ -47,7 +61,7 @@
 
 /* Global focus indicator for accessibility */
 *:focus-visible {
-  outline: 2px solid var(--color-brand-primary, #f97316);
+  outline: 2px solid #6366f1;
   outline-offset: 2px;
 }
 
@@ -55,17 +69,17 @@
 button:focus-visible,
 [role="button"]:focus-visible,
 a:focus-visible {
-  outline: 2px solid var(--color-brand-primary, #f97316);
+  outline: 2px solid #6366f1;
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
 }
 
 /* Card focus styles */
 .model-card:focus-visible,
 [role="article"]:focus-visible {
-  outline: 2px solid var(--color-brand-primary, #f97316);
+  outline: 2px solid #6366f1;
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
 }
 
 /* Input focus styles */
@@ -73,8 +87,8 @@ input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
   outline: none;
-  border-color: var(--color-brand-primary, #f97316);
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
 /* Tab/pill focus styles */
@@ -83,7 +97,7 @@ select:focus-visible {
 .mode-btn-compact:focus-visible,
 .dept-pill-compact:focus-visible,
 .role-pill-compact:focus-visible {
-  outline: 2px solid var(--color-brand-primary, #f97316);
+  outline: 2px solid #6366f1;
   outline-offset: 1px;
   z-index: var(--z-base);
 }

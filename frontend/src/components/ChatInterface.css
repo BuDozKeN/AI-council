@@ -21,7 +21,7 @@
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  background: linear-gradient(135deg, var(--color-slate-800) 0%, var(--color-slate-700) 100%);
+  background: var(--color-slate-800);
   border: none;
   border-radius: var(--radius-full);
   font-size: 13px;
@@ -33,7 +33,7 @@
 }
 
 .back-to-company-btn:hover {
-  background: linear-gradient(135deg, var(--color-slate-700) 0%, var(--color-slate-600) 100%);
+  background: var(--color-slate-700);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1);
   transform: translateX(-50%) translateY(-1px);
 }
@@ -58,11 +58,11 @@
   gap: 4px;
   padding: 6px 12px;
   margin: 0 0 8px 0;
-  /* Semi-transparent background with blur for glass effect */
-  background: rgba(249, 250, 251, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  /* Premium glass effect - stronger blur and saturation */
+  background: rgba(249, 250, 251, 0.75);
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 0 0 var(--radius-md) var(--radius-md); /* Flat top, rounded bottom */
   border-top: none; /* No top border - flush with container */
   font-size: 11px;
@@ -124,9 +124,9 @@
   padding: 0;
   border: none;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   color: var(--color-text-tertiary);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -254,15 +254,15 @@
   height: 64px;
   margin-bottom: 16px;
   padding: 16px;
-  background: linear-gradient(135deg, var(--color-amber-100) 0%, var(--color-orange-100) 100%);
+  background: var(--color-indigo-100);
   border-radius: var(--radius-xl);
-  box-shadow: 0 4px 12px rgba(251, 146, 60, 0.15);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
 }
 
 .empty-state-icon svg {
   width: 100%;
   height: 100%;
-  stroke: var(--color-amber-600);
+  stroke: #6366f1;
 }
 
 .empty-state h2 {
@@ -374,7 +374,7 @@
   gap: 16px;
   padding: 20px 24px;
   border-top: 1px solid var(--color-border);
-  background: linear-gradient(180deg, var(--color-slate-50) 0%, var(--color-slate-100) 100%);
+  background: var(--color-bg-secondary);
   flex-shrink: 0;
 }
 
@@ -385,15 +385,15 @@
   gap: 12px;
   background: var(--color-bg-base, white);
   border: 1px solid var(--color-slate-200);
-  border-radius: 16px;
+  border-radius: var(--radius-xl);
   padding: 8px 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: all 0.2s ease;
 }
 
 .input-row:focus-within {
-  border-color: var(--color-brand-primary);
-  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.12);
+  border-color: #6366f1;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.12);
 }
 
 /* Context Bar - Clean, minimal, single row */
@@ -580,13 +580,13 @@ button.role-select-trigger:focus {
 }
 
 .context-pill.active {
-  border-color: var(--color-brand-primary);
-  background: linear-gradient(135deg, var(--color-brand-primary-light) 0%, var(--color-blue-100) 100%);
-  color: var(--color-blue-700);
+  border-color: #6366f1;
+  background: var(--color-indigo-50);
+  color: #4f46e5;
 }
 
 .context-pill.active:hover {
-  background: linear-gradient(135deg, var(--color-blue-100) 0%, var(--color-blue-200) 100%);
+  background: var(--color-indigo-100);
 }
 
 .context-pill:disabled {
@@ -697,9 +697,9 @@ button.role-select-trigger:focus {
   align-items: center;
   justify-content: center;
   padding: 12px 24px;
-  background: linear-gradient(135deg, var(--color-amber-500) 0%, var(--color-amber-600) 100%);
+  background: #6366f1;
   border: none;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   color: white;
   font-size: 14px;
   font-weight: 600;
@@ -707,13 +707,13 @@ button.role-select-trigger:focus {
   transition: all 0.2s ease;
   white-space: nowrap;
   align-self: flex-end;
-  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
 }
 
 .send-button:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--color-amber-600) 0%, var(--color-amber-700) 100%);
+  background: #4f46e5;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
 }
 
 .send-button:active:not(:disabled) {
@@ -772,10 +772,10 @@ button.role-select-trigger:focus {
   gap: 12px;
   padding: 24px;
   margin: 16px;
-  background: linear-gradient(135deg, var(--color-accent-light) 0%, var(--color-bg-primary) 100%);
-  border: 2px solid var(--color-warning);
+  background: var(--color-indigo-50);
+  border: 2px solid #6366f1;
   border-radius: var(--radius-lg);
-  color: var(--color-accent-hover);
+  color: #4f46e5;
   font-size: 14px;
   font-weight: 500;
 }
@@ -830,7 +830,7 @@ button.role-select-trigger:focus {
 }
 
 .toggle-switch input:checked + .toggle-slider {
-  background: linear-gradient(135deg, var(--color-brand-primary) 0%, var(--color-brand-primary-hover) 100%);
+  background: #6366f1;
 }
 
 .toggle-switch input:checked + .toggle-slider:before {
@@ -851,7 +851,7 @@ button.role-select-trigger:focus {
 }
 
 .toggle-label.active {
-  color: var(--color-brand-primary);
+  color: #6366f1;
 }
 
 /* Curator Trigger Button */
@@ -860,7 +860,7 @@ button.role-select-trigger:focus {
   width: 100%;
   margin-top: 16px;
   padding: 12px 20px;
-  background: linear-gradient(135deg, var(--color-curator-light) 0%, var(--color-curator-lighter) 100%);
+  background: var(--color-violet-50);
   border: 2px dashed var(--color-curator-primary);
   border-radius: var(--radius-lg);
   color: var(--color-curator-dark);
@@ -872,7 +872,7 @@ button.role-select-trigger:focus {
 }
 
 .curator-trigger-btn:hover {
-  background: linear-gradient(135deg, var(--color-curator-lighter) 0%, var(--color-curator-border) 100%);
+  background: var(--color-violet-100);
   border-style: solid;
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(156, 39, 176, 0.2);
@@ -884,14 +884,14 @@ button.role-select-trigger:focus {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: linear-gradient(135deg, var(--color-success-bg) 0%, var(--color-success-border) 100%);
+  background: var(--color-success-light);
   border: 2px solid var(--color-success);
   border-style: solid;
   color: var(--color-success-dark);
 }
 
 .curator-trigger-btn.has-status:hover {
-  background: linear-gradient(135deg, var(--color-success-border) 0%, var(--color-green-300) 100%);
+  background: var(--color-green-100);
   border-color: var(--color-success);
 }
 
@@ -1250,14 +1250,14 @@ button.role-select-trigger:focus {
 }
 
 .context-toggle-btn:hover {
-  border-color: var(--color-brand-primary);
-  color: var(--color-brand-primary);
+  border-color: #6366f1;
+  color: #6366f1;
 }
 
 .context-toggle-btn.active {
-  background: linear-gradient(135deg, var(--color-info-light) 0%, var(--color-blue-200) 100%);
-  border-color: var(--color-brand-primary);
-  color: var(--color-blue-600);
+  background: var(--color-indigo-50);
+  border-color: #6366f1;
+  color: #4f46e5;
 }
 
 .context-toggle-btn:disabled {
@@ -1271,7 +1271,7 @@ button.role-select-trigger:focus {
 
 /* Chat response styling - simpler than full council */
 .chat-response {
-  background: linear-gradient(135deg, var(--color-bg-tertiary) 0%, var(--color-bg-secondary) 100%);
+  background: var(--color-bg-tertiary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 16px;

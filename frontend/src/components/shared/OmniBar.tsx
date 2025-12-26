@@ -9,6 +9,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TextareaAutosize from 'react-textarea-autosize';
 import { Send, StopCircle, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { springs, interactionStates } from '../../lib/animations';
 import './OmniBar.css';
 
 // Rotating placeholder examples for empty state
@@ -189,7 +190,8 @@ export function OmniBar({
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.15 }}
+              transition={springs.snappy}
+              whileTap={interactionStates.buttonTap}
             >
               <StopCircle className="h-5 w-5" />
             </motion.button>
@@ -203,9 +205,9 @@ export function OmniBar({
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.15 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              transition={springs.snappy}
+              whileHover={interactionStates.buttonHover}
+              whileTap={interactionStates.buttonTap}
             >
               <Send className="h-5 w-5" />
             </motion.button>

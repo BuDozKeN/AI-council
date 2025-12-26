@@ -33,13 +33,13 @@
 }
 
 .org-action-btn.primary {
-  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-warning) 100%);
+  background: #6366f1;
   border-color: transparent;
   color: var(--color-text-inverse);
 }
 
 .org-action-btn.primary:hover {
-  background: linear-gradient(135deg, var(--color-accent-hover) 0%, var(--color-accent-dark) 100%);
+  background: #4f46e5;
 }
 
 /* Content */
@@ -359,13 +359,13 @@
 }
 
 .org-btn.primary {
-  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent-amber) 100%);
+  background: #6366f1;
   border-color: transparent;
   color: var(--color-text-inverse);
 }
 
 .org-btn.primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--color-accent-hover) 0%, var(--color-accent-dark) 100%);
+  background: #4f46e5;
 }
 
 .org-btn.secondary {

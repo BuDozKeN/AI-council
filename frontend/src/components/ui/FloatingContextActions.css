@@ -21,7 +21,7 @@
   /* Inherit styling from parent (.mc-content-preview) */
   background: var(--color-bg-primary);
   border: 1px solid var(--color-gray-100);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 20px;
   min-height: 200px;
   max-height: 400px;
@@ -48,7 +48,7 @@
   justify-content: center;
   background: var(--color-bg-primary, #fff);
   border: 1px solid var(--color-slate-200, #e2e8f0);
-  border-radius: 6px;
+  border-radius: var(--radius-default);
   color: var(--color-slate-500, #64748b);
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -179,7 +179,7 @@
 /* No border variant - inherits parent styling (.mc-content-preview, .mc-content-section, etc.) */
 .floating-context-wrapper.no-border .floating-context-content {
   border: 1px solid var(--color-gray-100, #f3f4f6);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 20px;
   background: var(--color-bg-primary, #fff);
 }

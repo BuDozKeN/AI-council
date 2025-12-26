@@ -12,7 +12,7 @@
   min-height: 36px;
   background: var(--color-bg-primary);
   border: 1px solid var(--color-slate-200);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   font-size: 13px;
   font-weight: 500;
   color: var(--color-slate-600);
@@ -194,7 +194,7 @@
   padding: 14px 16px;
   border: none;
   background: var(--color-bg-secondary);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   font-size: 16px;
   color: var(--color-gray-700);
   cursor: pointer;
@@ -229,7 +229,7 @@
     min-height: 40px;
     padding: 8px 12px;
     font-size: 13px;
-    border-radius: 10px;
+    border-radius: var(--radius-lg);
   }
 
   .multi-dept-single,

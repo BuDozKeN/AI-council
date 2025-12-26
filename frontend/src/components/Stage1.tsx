@@ -7,6 +7,7 @@ import { CopyButton } from './ui/CopyButton';
 import { Activity, CheckCircle2, AlertCircle, StopCircle, ChevronDown, X, Check } from 'lucide-react';
 import { getModelPersona } from '../config/modelPersonas';
 import { hapticLight } from '../lib/haptics';
+import { springs, interactionStates } from '../lib/animations';
 import './Stage1.css';
 
 // Map provider to icon file path
@@ -185,7 +186,9 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
       layout
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.2 }}
+      transition={springs.smooth}
+      whileHover={!isExpanded ? interactionStates.cardHover : undefined}
+      whileTap={!isExpanded ? interactionStates.cardTap : undefined}
       className={cardClasses}
       onClick={() => { hapticLight(); onExpand(isExpanded ? null : data.model); }}
       onKeyDown={handleKeyDown}

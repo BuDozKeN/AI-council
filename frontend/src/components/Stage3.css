@@ -15,7 +15,7 @@ h2, h3 {
 
 .save-error-bar {
   padding: 12px 16px;
-  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  background: var(--color-error-light);
   border: 1px solid #fca5a5;
   border-radius: var(--radius-md);
   color: #dc2626;
@@ -26,8 +26,9 @@ h2, h3 {
 }
 
 .stage3 {
-  background: linear-gradient(135deg, var(--stage3-bg-gradient-start) 0%, var(--stage3-bg-gradient-end) 100%);
-  border-color: var(--stage3-border);
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Collapsible styles */
@@ -70,7 +71,7 @@ h2, h3 {
 .final-response {
   background: var(--color-bg-primary);
   padding: 24px 28px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--color-success-border);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04), 0 2px 6px rgba(0, 0, 0, 0.02);
   position: relative;
@@ -84,7 +85,7 @@ h2, h3 {
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #10b981 0%, #059669 50%, #047857 100%);
+  background: #10b981;
   border-radius: 12px 12px 0 0;
 }
 
@@ -112,7 +113,7 @@ h2, h3 {
   width: 24px;
   height: 24px;
   object-fit: contain;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 
 /* Copy button - legacy class */
@@ -205,7 +206,7 @@ h2, h3 {
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(0, 0, 0, 0.06);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   color: var(--color-text-tertiary);
   opacity: 0.7;
   transition: all 0.2s ease;
@@ -470,7 +471,7 @@ h2, h3 {
   color: var(--color-text-secondary);
   font-size: 14px;
   padding: 16px 24px;
-  background: linear-gradient(135deg, var(--color-bg-tertiary) 0%, var(--color-success-light) 100%);
+  background: var(--color-bg-tertiary);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
 }
@@ -670,7 +671,7 @@ h2, h3 {
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  background: linear-gradient(135deg, var(--color-emerald-600) 0%, var(--color-emerald-500) 100%);
+  background: var(--color-emerald-600);
   border: none;
   border-radius: var(--radius-md);
   font-size: 13px;
@@ -683,7 +684,7 @@ h2, h3 {
 }
 
 .save-action-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--color-emerald-700) 0%, var(--color-emerald-600) 100%);
+  background: var(--color-emerald-700);
   box-shadow: 0 4px 8px rgba(5, 150, 105, 0.3);
   transform: translateY(-1px);
 }
@@ -699,7 +700,7 @@ h2, h3 {
 }
 
 .save-action-btn.loading {
-  background: linear-gradient(135deg, var(--color-gray-500) 0%, var(--color-gray-400) 100%);
+  background: var(--color-gray-500);
   box-shadow: none;
 }
 
@@ -713,7 +714,7 @@ h2, h3 {
   align-items: center;
   gap: 12px;
   padding: 6px 12px;
-  background: linear-gradient(135deg, var(--color-green-50) 0%, var(--color-green-100) 100%);
+  background: var(--color-green-50);
   border: 1px solid var(--color-green-300);
   border-radius: var(--radius-md);
   animation: save-celebration 0.4s ease-out;
@@ -770,7 +771,7 @@ h2, h3 {
   align-items: center;
   gap: 6px;
   padding: 8px 16px;
-  background: linear-gradient(135deg, var(--color-blue-600) 0%, var(--color-blue-500) 100%);
+  background: var(--color-blue-600);
   border: none;
   border-radius: var(--radius-md);
   font-size: 13px;
@@ -783,7 +784,7 @@ h2, h3 {
 }
 
 .save-access-btn:hover {
-  background: linear-gradient(135deg, var(--color-blue-700) 0%, var(--color-blue-600) 100%);
+  background: var(--color-blue-700);
   box-shadow: 0 4px 8px rgba(37, 99, 235, 0.35);
   transform: translateY(-1px);
 }
@@ -1037,7 +1038,7 @@ h2, h3 {
 }
 
 .dark .final-response::before {
-  background: linear-gradient(90deg, var(--color-success) 0%, var(--color-success-dark) 50%, var(--color-emerald-700) 100%);
+  background: var(--color-success);
 }
 
 
@@ -1124,7 +1125,7 @@ h2, h3 {
 }
 
 .dark .stage3 .thinking-message {
-  background: linear-gradient(135deg, var(--color-bg-tertiary) 0%, var(--color-success-light) 100%);
+  background: var(--color-bg-tertiary);
   border-color: var(--color-border);
   color: var(--color-text-secondary);
 }
