@@ -404,20 +404,22 @@
 }
 
 .mc-decision-content code {
-  background: var(--color-gray-200);
+  background: var(--color-bg-hover);
   padding: 2px 6px;
   border-radius: var(--radius-sm);
   font-family: var(--font-mono);
   font-size: 0.875em;
+  color: var(--color-amber-700);
 }
 
 .mc-decision-content pre {
-  background: var(--color-gray-800);
-  color: var(--color-gray-200);
+  background: var(--color-code-bg);
+  color: var(--color-code-text);
   padding: 14px 16px;
   border-radius: var(--radius-md);
   overflow-x: auto;
   margin: 1em 0;
+  border: 1px solid var(--color-code-border);
 }
 
 .mc-decision-content pre code {

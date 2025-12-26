@@ -125,22 +125,27 @@
   font-family: var(--font-mono);
 }
 
-/* Code blocks */
+/* Code blocks - dark theme for readability */
 .prose pre {
-  background-color: var(--color-slate-800);
-  color: var(--color-border);
+  background-color: var(--color-code-bg);
+  color: var(--color-code-text);
   padding: 1rem;
   border-radius: var(--radius-md);
   overflow-x: auto;
   font-size: 0.8125rem;
+  font-family: var(--font-mono);
+  line-height: 1.6;
   margin-top: 1rem;
   margin-bottom: 1rem;
+  border: 1px solid var(--color-code-border);
 }
 
 .prose pre code {
   background-color: transparent;
   padding: 0;
   color: inherit;
+  font-size: inherit;
+  font-family: inherit;
 }
 
 /* Tables - clean and readable */

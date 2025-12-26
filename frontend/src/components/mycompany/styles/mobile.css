@@ -339,6 +339,8 @@
     gap: 6px;
   }
 
+  /* Hide header buttons on mobile - FAB is used instead */
+  .mc-team-header > button,
   .mc-playbooks-header > button {
     display: none;
   }

@@ -271,15 +271,15 @@
   cursor: not-allowed;
 }
 
-/* Primary button */
+/* Primary button - uses design system tokens */
 .mc-btn-primary {
-  background: var(--color-indigo-500);
-  color: var(--color-text-inverse);
+  background: var(--color-primary);
+  color: var(--color-primary-text);
   box-shadow: 0 2px 8px rgba(var(--color-indigo-rgb), 0.25);
 }
 
 .mc-btn-primary:hover:not(:disabled) {
-  background: var(--color-indigo-600);
+  background: var(--color-primary-hover);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(var(--color-indigo-rgb), 0.35);
 }

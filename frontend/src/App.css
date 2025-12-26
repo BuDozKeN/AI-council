@@ -167,3 +167,39 @@
   transition: backdrop-filter 0.3s ease;
 }
 
+/* =============================================================================
+   Lazy Loading Fallback
+   Minimal spinner shown while lazy-loaded components are loading
+   ============================================================================= */
+.lazy-loading-fallback {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(4px);
+  z-index: var(--z-modal);
+}
+
+.lazy-loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border-muted);
+  border-top-color: var(--color-brand-primary);
+  border-radius: 50%;
+  animation: lazy-spin 0.8s linear infinite;
+}
+
+@keyframes lazy-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ChatInterface loading fallback - subtle, no spinner */
+.chat-loading-fallback {
+  flex: 1;
+  display: flex;
+  background: var(--color-bg-primary);
+}

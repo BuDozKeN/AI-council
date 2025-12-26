@@ -1,14 +1,7 @@
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback, lazy, Suspense, ComponentType } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from './components/Sidebar';
-import ChatInterface from './components/ChatInterface';
 import { LandingHero } from './components/landing';
-import Leaderboard from './components/Leaderboard';
-import Settings from './components/settings';
-import ProjectModal from './components/ProjectModal';
-import Triage from './components/Triage';
-import Login from './components/Login';
-import MyCompany from './components/MyCompany';
 import { useAuth } from './AuthContext';
 import { useBusiness } from './contexts/BusinessContext';
 import { useConversation } from './contexts/ConversationContext';
@@ -18,6 +11,43 @@ import { Toaster, toast } from './components/ui/sonner';
 import { MockModeBanner } from './components/ui/MockModeBanner';
 import { logger } from './utils/logger';
 import './App.css';
+
+// =============================================================================
+// Performance: Route-based code splitting
+// These components are lazily loaded to reduce initial bundle size (~70% reduction)
+// =============================================================================
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const lazyWithType = <T extends ComponentType<any>>(factory: () => Promise<{ default: T }>) => lazy(factory);
+
+// Login is lazy-loaded since it's only shown when NOT authenticated
+// Most returning users skip this, reducing initial bundle
+const Login = lazyWithType(() => import('./components/Login'));
+// ChatInterface is lazy-loaded since LandingHero is shown first
+// This moves ~200KB+ (Stage1/2/3, Triage, MessageList) out of initial bundle
+const ChatInterface = lazyWithType(() => import('./components/ChatInterface'));
+const Leaderboard = lazyWithType(() => import('./components/Leaderboard'));
+const Settings = lazyWithType(() => import('./components/settings'));
+const ProjectModal = lazyWithType(() => import('./components/ProjectModal'));
+const MyCompany = lazyWithType(() => import('./components/MyCompany'));
+
+// Performance: Preload ChatInterface after initial render
+// This starts loading the chunk while user is on LandingHero
+const preloadChatInterface = () => {
+  import('./components/ChatInterface');
+};
+
+// Minimal loading fallback for lazy modal components
+const LazyFallback = () => (
+  <div className="lazy-loading-fallback" aria-label="Loading...">
+    <div className="lazy-loading-spinner" />
+  </div>
+);
+
+// Subtle fallback for ChatInterface - no spinner, just empty space
+// The framer-motion animation handles the visual transition
+const ChatFallback = () => (
+  <div className="chat-loading-fallback" aria-label="Loading chat..." />
+);
 
 
 // Simple unique ID generator for message keys
@@ -169,6 +199,14 @@ function App() {
     // Show landing when it's a temp conversation with no messages
     return currentConversation.isTemp && currentConversation.messages?.length === 0;
   }, [isAuthenticated, needsPasswordReset, currentConversation]);
+
+  // Performance: Preload ChatInterface while user is on LandingHero
+  // This starts loading the chunk in the background for instant transition
+  useEffect(() => {
+    if (showLandingHero) {
+      preloadChatInterface();
+    }
+  }, [showLandingHero]);
 
   // Handler for Load More button
   const handleLoadMoreConversations = useCallback(async (currentOffset, searchQuery = '') => {
@@ -441,7 +479,9 @@ function App() {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <Login />
+          <Suspense fallback={<LazyFallback />}>
+            <Login />
+          </Suspense>
         </motion.div>
       </AnimatePresence>
     );
@@ -1294,6 +1334,7 @@ function App() {
               delay: 0.1, // Slight delay so landing clears first
             }}
           >
+            <Suspense fallback={<ChatFallback />}>
             <ChatInterface
               conversation={currentConversation}
               onSendMessage={handleSendMessage}
@@ -1396,59 +1437,74 @@ function App() {
               // Mobile sidebar toggle
               onOpenSidebar={() => setIsMobileSidebarOpen(true)}
             />
+            </Suspense>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <Leaderboard
-        isOpen={isLeaderboardOpen}
-        onClose={closeLeaderboard}
-      />
-      <Settings
-        isOpen={isSettingsOpen}
-        onClose={closeSettings}
-        companyId={selectedBusiness}
-        onMockModeChange={handleMockModeChange}
-      />
+      {/* Lazy-loaded modals wrapped in Suspense for code splitting */}
+      {/* Only render when open to avoid loading spinner on initial page load */}
+      {isLeaderboardOpen && (
+        <Suspense fallback={<LazyFallback />}>
+          <Leaderboard
+            isOpen={isLeaderboardOpen}
+            onClose={closeLeaderboard}
+          />
+        </Suspense>
+      )}
+      {isSettingsOpen && (
+        <Suspense fallback={<LazyFallback />}>
+          <Settings
+            isOpen={isSettingsOpen}
+            onClose={closeSettings}
+            companyId={selectedBusiness}
+            onMockModeChange={handleMockModeChange}
+          />
+        </Suspense>
+      )}
       {isProjectModalOpen && selectedBusiness && (
-        <ProjectModal
-          companyId={selectedBusiness}
-          departments={availableDepartments}
-          initialContext={projectModalContext}
-          onClose={closeProjectModal}
-          onProjectCreated={(newProject) => {
-            // Add to projects list and select it
-            setProjects((prev) => [...prev, newProject]);
-            setSelectedProject(newProject.id);
-          }}
-        />
+        <Suspense fallback={<LazyFallback />}>
+          <ProjectModal
+            companyId={selectedBusiness}
+            departments={availableDepartments}
+            initialContext={projectModalContext}
+            onClose={closeProjectModal}
+            onProjectCreated={(newProject) => {
+              // Add to projects list and select it
+              setProjects((prev) => [...prev, newProject]);
+              setSelectedProject(newProject.id);
+            }}
+          />
+        </Suspense>
       )}
       {isMyCompanyOpen && selectedBusiness && (
-        <MyCompany
-          companyId={selectedBusiness}
-          companyName={currentBusiness?.name}
-          allCompanies={businesses}
-          onSelectCompany={(newCompanyId) => {
-            setSelectedBusiness(newCompanyId);
-            resetMyCompanyInitial();
-          }}
-          onClose={() => {
-            closeMyCompany();
-            // Return to landing page by creating a new temp conversation
-            handleNewConversation();
-          }}
-          onNavigateToConversation={(conversationId, fromTab, responseIndex = null, projectId = null, decisionId = null) => {
-            navigateToConversation(fromTab, responseIndex, projectId, decisionId);
-            setCurrentConversationId(conversationId);
-          }}
-          initialTab={myCompanyInitialTab}
-          initialDecisionId={myCompanyInitialDecisionId}
-          initialPlaybookId={myCompanyInitialPlaybookId}
-          initialProjectId={myCompanyInitialProjectId}
-          initialProjectDecisionId={myCompanyInitialProjectDecisionId}
-          initialPromoteDecision={myCompanyPromoteDecision}
-          onConsumePromoteDecision={() => setMyCompanyPromoteDecision(null)}
-        />
+        <Suspense fallback={<LazyFallback />}>
+          <MyCompany
+            companyId={selectedBusiness}
+            companyName={currentBusiness?.name}
+            allCompanies={businesses}
+            onSelectCompany={(newCompanyId) => {
+              setSelectedBusiness(newCompanyId);
+              resetMyCompanyInitial();
+            }}
+            onClose={() => {
+              closeMyCompany();
+              // Return to landing page by creating a new temp conversation
+              handleNewConversation();
+            }}
+            onNavigateToConversation={(conversationId, fromTab, responseIndex = null, projectId = null, decisionId = null) => {
+              navigateToConversation(fromTab, responseIndex, projectId, decisionId);
+              setCurrentConversationId(conversationId);
+            }}
+            initialTab={myCompanyInitialTab}
+            initialDecisionId={myCompanyInitialDecisionId}
+            initialPlaybookId={myCompanyInitialPlaybookId}
+            initialProjectId={myCompanyInitialProjectId}
+            initialProjectDecisionId={myCompanyInitialProjectDecisionId}
+            initialPromoteDecision={myCompanyPromoteDecision}
+            onConsumePromoteDecision={() => setMyCompanyPromoteDecision(null)}
+          />
+        </Suspense>
       )}
       {/* Toast notifications for undo actions */}
       <Toaster />

@@ -220,57 +220,87 @@ async def cleanup_orphaned_activity_logs(
     logs = logs_result.data or []
     orphaned_ids = []
 
+    # Performance: Batch check existence by type (avoids N+1 queries)
+    # Group related IDs by type
+    decision_ids = []
+    playbook_ids = []
+    project_ids = []
+    log_id_to_related = {}  # Map log ID to (related_id, related_type)
+
     for log in logs:
         related_id = log.get("related_id")
         related_type = log.get("related_type")
 
-        # Skip logs without related items
         if not related_id or not related_type:
             continue
 
-        # Check if the related item exists
+        log_id_to_related[log["id"]] = (related_id, related_type)
+
+        if related_type == "decision":
+            decision_ids.append(related_id)
+        elif related_type == "playbook":
+            playbook_ids.append(related_id)
+        elif related_type == "project":
+            project_ids.append(related_id)
+
+    # Batch fetch existing items (3 queries max instead of N)
+    existing_decisions = set()
+    existing_playbooks = set()
+    existing_projects = set()
+
+    try:
+        if decision_ids:
+            result = client.table("knowledge_entries") \
+                .select("id") \
+                .in_("id", decision_ids) \
+                .eq("is_active", True) \
+                .execute()
+            existing_decisions = {r["id"] for r in (result.data or [])}
+
+        if playbook_ids:
+            result = client.table("org_documents") \
+                .select("id") \
+                .in_("id", playbook_ids) \
+                .eq("is_active", True) \
+                .execute()
+            existing_playbooks = {r["id"] for r in (result.data or [])}
+
+        if project_ids:
+            result = client.table("projects") \
+                .select("id") \
+                .in_("id", project_ids) \
+                .execute()
+            existing_projects = {r["id"] for r in (result.data or [])}
+    except Exception as e:
+        log_error(e, "activity.cleanup_batch_check")
+        # If batch check fails, abort cleanup to be safe
+        return {"deleted_count": 0, "total_checked": len(logs), "message": "Cleanup aborted due to error"}
+
+    # Identify orphaned logs
+    for log_id, (related_id, related_type) in log_id_to_related.items():
         exists = False
-        try:
-            if related_type == "decision":
-                result = client.table("knowledge_entries") \
-                    .select("id") \
-                    .eq("id", related_id) \
-                    .eq("is_active", True) \
-                    .execute()
-                exists = len(result.data) > 0 if result.data else False
-            elif related_type == "playbook":
-                result = client.table("org_documents") \
-                    .select("id") \
-                    .eq("id", related_id) \
-                    .eq("is_active", True) \
-                    .execute()
-                exists = len(result.data) > 0 if result.data else False
-            elif related_type == "project":
-                result = client.table("projects") \
-                    .select("id") \
-                    .eq("id", related_id) \
-                    .execute()
-                exists = len(result.data) > 0 if result.data else False
-            else:
-                # Unknown type - keep the log
-                exists = True
-        except Exception as e:
-            log_error(e, "activity.cleanup_check_existence")
-            # If check fails, keep the log to be safe
+        if related_type == "decision":
+            exists = related_id in existing_decisions
+        elif related_type == "playbook":
+            exists = related_id in existing_playbooks
+        elif related_type == "project":
+            exists = related_id in existing_projects
+        else:
+            # Unknown type - keep the log
             exists = True
 
         if not exists:
-            orphaned_ids.append(log["id"])
+            orphaned_ids.append(log_id)
 
-    # Delete orphaned logs
+    # Delete orphaned logs in batches (1 query per batch instead of N)
     deleted_count = 0
     if orphaned_ids:
-        for log_id in orphaned_ids:
-            try:
-                client.table("activity_logs").delete().eq("id", log_id).execute()
-                deleted_count += 1
-            except Exception as e:
-                log_error(e, "activity.cleanup_delete")
+        try:
+            # Supabase supports .in_() for batch delete
+            client.table("activity_logs").delete().in_("id", orphaned_ids).execute()
+            deleted_count = len(orphaned_ids)
+        except Exception as e:
+            log_error(e, "activity.cleanup_batch_delete")
 
     return {
         "deleted_count": deleted_count,

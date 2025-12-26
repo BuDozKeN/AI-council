@@ -317,14 +317,14 @@ h2, h3 {
   }
 }
 
-/* Code block with hover-reveal copy button - light theme to match Stage3 */
+/* Code block with hover-reveal copy button - dark theme for readability */
 .code-block-wrapper {
   position: relative;
   margin: 12px 0;
   border-radius: var(--radius-md);
   overflow: hidden;
-  background: var(--color-success-bg);
-  border: 1px solid var(--color-success-border);
+  background: var(--color-code-bg);
+  border: 1px solid var(--color-code-border);
 }
 
 .code-block-wrapper .code-language {
@@ -332,7 +332,7 @@ h2, h3 {
   top: 8px;
   left: 12px;
   font-size: 11px;
-  color: var(--color-success-muted);
+  color: var(--color-slate-400);
   text-transform: uppercase;
   font-family: var(--font-mono);
   font-weight: 600;
@@ -349,14 +349,14 @@ h2, h3 {
   margin: 0;
   padding: 36px 12px 12px 12px;
   overflow-x: auto;
-  background: var(--color-success-bg);
+  background: var(--color-code-bg);
 }
 
 .code-block-wrapper code {
   font-family: var(--font-mono);
   font-size: 13px;
   line-height: 1.5;
-  color: var(--color-success-code);
+  color: var(--color-code-text);
 }
 
 /* Inline code styling (for short snippets like table names, paths) */
@@ -1103,29 +1103,29 @@ h2, h3 {
 }
 
 .dark .stage3 .code-block-wrapper {
-  background: var(--color-bg-primary);
-  border-color: var(--color-border);
+  background: var(--color-code-bg);
+  border-color: var(--color-code-border);
 }
 
 .dark .stage3 .code-block-wrapper .code-language {
-  color: var(--color-text-tertiary);
+  color: var(--color-slate-400);
 }
 
 .dark .stage3 .code-block-wrapper .copy-code-btn {
-  border-color: var(--color-border);
-  color: var(--stage3-text-primary);
+  border-color: var(--color-code-border);
+  color: var(--color-code-text);
 }
 
 .dark .stage3 .code-block-wrapper .copy-code-btn:hover {
-  background: var(--color-success-light);
+  background: var(--color-slate-700);
 }
 
 .dark .stage3 .code-block-wrapper pre {
-  background: var(--color-bg-primary);
+  background: var(--color-code-bg);
 }
 
 .dark .stage3 .code-block-wrapper code {
-  color: var(--color-emerald-400);
+  color: var(--color-code-text);
 }
 
 .dark .stage3 .inline-code {

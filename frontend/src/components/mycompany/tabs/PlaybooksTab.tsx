@@ -88,7 +88,7 @@ export function PlaybooksTab({
           variant="default"
           onClick={onAddPlaybook}
         >
-          + Create Playbook
+          New Playbook
         </Button>
       </div>
     );
@@ -143,7 +143,6 @@ export function PlaybooksTab({
           size="sm"
           onClick={onAddPlaybook}
         >
-          <Plus size={14} />
           New Playbook
         </Button>
       </div>

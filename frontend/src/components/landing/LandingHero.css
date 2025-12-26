@@ -6,11 +6,15 @@
 }
 
 .landing-hero-aurora .aurora-gradient {
-  opacity: 0.25;
-  filter: blur(60px);
+  opacity: 0.3;
+  filter: blur(80px);
   background-image:
-    repeating-linear-gradient(100deg, transparent 0%, transparent 7%, rgba(255,255,255,0.3) 10%, transparent 12%, transparent 16%),
+    repeating-linear-gradient(100deg, transparent 0%, transparent 7%, rgba(255,255,255,0.4) 10%, transparent 12%, transparent 16%),
     repeating-linear-gradient(100deg, var(--color-blue-200) 10%, var(--color-indigo-200) 15%, var(--color-blue-100) 20%, var(--color-violet-100) 25%, var(--color-blue-200) 30%);
+  /* Inherit animation properties from base aurora */
+  background-size: 300% 200%, 200% 100%;
+  background-position: 50% 50%, 50% 50%;
+  animation: aurora 60s linear infinite;
 }
 
 .landing-hero-aurora {
@@ -330,11 +334,15 @@
 }
 
 .dark .landing-hero-aurora .aurora-gradient {
-  opacity: 0.15;
+  opacity: 0.2;
   filter: blur(80px);
   background-image:
     repeating-linear-gradient(100deg, transparent 0%, transparent 7%, rgba(255,255,255,0.1) 10%, transparent 12%, transparent 16%),
     repeating-linear-gradient(100deg, var(--color-blue-900) 10%, var(--color-indigo-900) 15%, var(--color-blue-800) 20%, var(--color-purple-900) 25%, var(--color-blue-900) 30%);
+  /* Inherit animation properties from base aurora */
+  background-size: 300% 200%, 200% 100%;
+  background-position: 50% 50%, 50% 50%;
+  animation: aurora 60s linear infinite;
 }
 
 .dark .landing-headline {

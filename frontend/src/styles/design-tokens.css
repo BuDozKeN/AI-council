@@ -186,12 +186,10 @@
   --color-border-muted: #f0f0f0;      /* Subtle dividers */
   --color-border-emphasis: #d4d4d4;   /* Emphasized borders */
 
-  /* --- Primary (Brand) - Warm blue --- */
-  --color-primary: #2383e2;           /* Notion blue */
-  --color-primary-hover: #1a73d4;
-  --color-primary-active: #1565c0;
-  --color-primary-subtle: #e8f4fd;
-  --color-primary-text: #ffffff;
+  /* --- Primary (Brand) --- */
+  /* NOTE: --color-primary is defined in tailwind.css as indigo (#6366f1) */
+  /* These are kept for legacy compatibility but tailwind.css takes precedence */
+  --color-primary-subtle: #eef2ff;    /* Indigo-50 for subtle backgrounds */
 
   /* --- Accent - DEPRECATED: Use tailwind.css --color-accent (indigo) instead --- */
   /* Accent colors are now defined in tailwind.css as the brand indigo (#6366f1) */
@@ -325,10 +323,8 @@
   --color-border-emphasis: #ffffff24;
 
   /* --- Primary (Brand) --- */
-  --color-primary: #529cca;
-  --color-primary-hover: #68aad4;
-  --color-primary-active: #7eb8de;
-  --color-primary-subtle: #2c3d4a;
+  /* NOTE: --color-primary is defined in tailwind.css as indigo (#6366f1) */
+  --color-primary-subtle: #312e81;    /* Indigo-900 for dark mode subtle */
 
   /* --- Accent - inherits from tailwind.css (indigo) --- */
   /* Dark mode accent variants handled by tailwind.css */

@@ -1,11 +1,14 @@
 import { memo, useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeSlug from 'rehype-slug';
 import { CopyButton } from '../ui/CopyButton';
 import { CheckCircle2 } from 'lucide-react';
 import { hapticSuccess } from '../../lib/haptics';
 import { CELEBRATION } from '../../lib/animation-constants';
 import type { Stage3ContentProps, CodeBlockProps } from '../../types/stages';
+// Import shared prose styling for consistent rendering with playbooks/SOPs
+import '../MarkdownViewer.css';
 
 // Custom code block renderer with hover-reveal copy button
 function CodeBlock({ children, className }: CodeBlockProps) {
@@ -101,9 +104,10 @@ function Stage3Content({
             <p className="empty-message">{displayText || 'An error occurred while generating the synthesis.'}</p>
           ) : (
             <>
-              <article className="prose prose-slate prose-lg max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:tracking-tight prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg prose-p:leading-relaxed prose-li:my-1 prose-code:before:content-none prose-code:after:content-none prose-code:bg-slate-100 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-emerald-700 prose-pre:bg-slate-50 prose-pre:border prose-pre:border-slate-200">
+              <article className="prose prose-slate max-w-none dark:prose-invert">
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeSlug]}
                   components={{
                     pre({ children: _children, node }) {
                       const codeElement = node?.children?.[0] as { properties?: { className?: string[] }; children?: { value?: string }[] } | undefined;

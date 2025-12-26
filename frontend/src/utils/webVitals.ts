@@ -13,8 +13,9 @@
  */
 
 import { onCLS, onFCP, onLCP, onTTFB, onINP } from 'web-vitals';
+import * as Sentry from '@sentry/react';
 
-// Log metrics in development, send to analytics in production
+// Log metrics in development, send to Sentry in production
 function sendToAnalytics(metric) {
   // Development: Log to console with styling
   if (import.meta.env.DEV) {
@@ -26,14 +27,32 @@ function sendToAnalytics(metric) {
     return;
   }
 
-  // Production: Send to analytics endpoint
-  // TODO: Configure your analytics service here
-  // Examples:
-  // - Google Analytics 4: gtag('event', metric.name, { value: metric.value, ... })
-  // - Sentry: Sentry.addBreadcrumb({ category: 'web-vitals', data: metric })
-  // - Custom endpoint: fetch('/api/analytics', { method: 'POST', body: JSON.stringify(metric) })
+  // Production: Send to Sentry as custom measurements
+  // This enables Sentry's Web Vitals dashboard and alerts
+  try {
+    // Add as breadcrumb for context in error reports
+    Sentry.addBreadcrumb({
+      category: 'web-vitals',
+      message: `${metric.name}: ${Math.round(metric.value)}${getMetricUnit(metric.name)} (${metric.rating})`,
+      level: metric.rating === 'poor' ? 'warning' : 'info',
+      data: {
+        value: metric.value,
+        rating: metric.rating,
+        delta: metric.delta,
+        id: metric.id,
+      },
+    });
 
-  // For now, we'll store in sessionStorage for debugging
+    // Send poor metrics as measurements on the current transaction
+    // This allows tracking in Sentry Performance dashboard
+    if (metric.rating === 'poor') {
+      Sentry.setMeasurement(metric.name, metric.value, metric.name === 'CLS' ? '' : 'millisecond');
+    }
+  } catch {
+    // Sentry not initialized - fall back to sessionStorage
+  }
+
+  // Also store in sessionStorage for debugging
   const vitals = JSON.parse(sessionStorage.getItem('webVitals') || '{}');
   vitals[metric.name] = {
     value: metric.value,

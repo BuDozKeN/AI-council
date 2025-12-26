@@ -114,13 +114,13 @@
 
 /* Hover state */
 .role-select-item[data-highlighted] {
-  background: var(--color-brand-primary-light, #fff7ed);
+  background: var(--color-brand-primary-light, #f0f7ff);
 }
 
 /* Selected/checked state */
 .role-select-item[data-state="checked"] {
-  background: var(--color-brand-primary-light, #fff7ed);
-  color: var(--color-brand-primary, #f97316);
+  background: var(--color-brand-primary-light, #f0f7ff);
+  color: var(--color-brand-primary, #4a90e2);
 }
 
 /* Disabled state */
@@ -138,7 +138,7 @@
   width: 16px;
   align-items: center;
   justify-content: center;
-  color: var(--color-brand-primary, #f97316);
+  color: var(--color-brand-primary, #4a90e2);
 }
 
 /* Dark mode */

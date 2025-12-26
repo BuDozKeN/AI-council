@@ -8,7 +8,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
     <meta name="description" content="AxCouncil - Multi-model AI advisory platform for strategic decision making" />
-    <meta name="theme-color" content="#f97316" />
+    <meta name="theme-color" content="#4a90e2" />
 
     <!-- Open Graph / Social Sharing -->
     <meta property="og:type" content="website" />
@@ -22,6 +22,55 @@
     <meta name="twitter:description" content="Multi-model AI advisory platform" />
 
     <title>AxCouncil - Strategic AI Advisory Platform</title>
+
+    <!-- Performance: Preconnect to font servers -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Load Inter font (CSP-safe: no inline JS handlers) -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+
+    <!-- Critical CSS: Inline styles for instant first paint (prevents FOUC) -->
+    <style>
+      /* Minimal critical path CSS - only what's needed before React hydrates */
+      :root {
+        --color-bg-primary: #ffffff;
+        --color-bg-secondary: #f9fafb;
+        --color-text-primary: #37352f;
+        --color-brand-primary: #4a90e2;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --color-bg-primary: #0a0a0a;
+          --color-bg-secondary: #111111;
+          --color-text-primary: #ededed;
+        }
+      }
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body, #root {
+        height: 100%;
+        width: 100%;
+        background: var(--color-bg-secondary);
+        color: var(--color-text-primary);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      /* Loading spinner shown before React mounts */
+      #root:empty::after {
+        content: '';
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        width: 32px;
+        height: 32px;
+        margin: -16px 0 0 -16px;
+        border: 3px solid var(--color-bg-primary);
+        border-top-color: var(--color-brand-primary);
+        border-radius: 50%;
+        animation: critical-spin 0.8s linear infinite;
+      }
+      @keyframes critical-spin { to { transform: rotate(360deg); } }
+    </style>
 
     <!-- Speculation Rules - Chrome 109+ prerendering for instant navigation -->
     <!-- Gracefully ignored by browsers that don't support it -->

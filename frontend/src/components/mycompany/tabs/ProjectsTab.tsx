@@ -277,7 +277,6 @@ export function ProjectsTab({
           size="sm"
           onClick={onAddProject}
         >
-          <Plus size={14} />
           New Project
         </Button>
       </div>

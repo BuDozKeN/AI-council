@@ -675,27 +675,33 @@ async def bulk_delete_conversations(
 ):
     """Permanently delete multiple conversations (must be owner of all)."""
     access_token = user.get("access_token")
-    deleted = []
     failed = []
 
+    # Performance: Batch fetch all conversations in one query (avoids N+1)
+    conversations = storage.get_conversations_by_ids(request.conversation_ids, access_token=access_token)
+    conv_map = {c["id"]: c for c in conversations}
+
+    # Check authorization and collect IDs to delete
+    authorized_ids = []
     for conv_id in request.conversation_ids:
+        conversation = conv_map.get(conv_id)
+        if conversation is None:
+            failed.append({"id": conv_id, "reason": "not found"})
+        elif conversation.get("user_id") and conversation.get("user_id") != user["id"]:
+            failed.append({"id": conv_id, "reason": "access denied"})
+        else:
+            authorized_ids.append(conv_id)
+
+    # Performance: Batch delete all authorized conversations (2 queries instead of 2N)
+    deleted = []
+    if authorized_ids:
         try:
-            conversation = storage.get_conversation(conv_id, access_token=access_token)
-            if conversation is None:
-                failed.append({"id": conv_id, "reason": "not found"})
-                continue
-
-            if conversation.get("user_id") and conversation.get("user_id") != user["id"]:
-                failed.append({"id": conv_id, "reason": "access denied"})
-                continue
-
-            success = storage.delete_conversation(conv_id, access_token=access_token)
-            if success:
-                deleted.append(conv_id)
-            else:
-                failed.append({"id": conv_id, "reason": "delete failed"})
+            storage.bulk_delete_conversations(authorized_ids, access_token=access_token)
+            deleted = authorized_ids
         except Exception as e:
-            failed.append({"id": conv_id, "reason": str(e)})
+            # If batch delete fails, report all as failed
+            for conv_id in authorized_ids:
+                failed.append({"id": conv_id, "reason": str(e)})
 
     return {"deleted": deleted, "failed": failed, "deleted_count": len(deleted)}
 

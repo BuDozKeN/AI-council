@@ -4,6 +4,7 @@ SECURITY: Uses per-user derived keys via HKDF to ensure that:
 1. Each user's data is encrypted with a unique key
 2. Compromise of one user's derived key doesn't affect others
 3. The master secret alone cannot decrypt any user data without their user_id
+4. Dynamic salt from environment adds additional entropy
 """
 
 import os
@@ -16,6 +17,9 @@ _cipher_cache = {}
 
 # Master key for key derivation
 _master_key = None
+
+# HKDF salt - configurable via environment for additional security
+_hkdf_salt = None
 
 
 def _get_master_key() -> bytes:
@@ -31,6 +35,29 @@ def _get_master_key() -> bytes:
         # Decode the Fernet key to get raw bytes
         _master_key = base64.urlsafe_b64decode(key.encode())
     return _master_key
+
+
+def _get_hkdf_salt() -> bytes:
+    """
+    Get HKDF salt from environment or use default.
+
+    SECURITY: A configurable salt adds entropy and allows rotation without
+    changing the master key. The default is used for backwards compatibility.
+
+    To generate a new salt:
+        python -c "import secrets; print(secrets.token_hex(32))"
+    """
+    global _hkdf_salt
+    if _hkdf_salt is None:
+        salt_hex = os.getenv("HKDF_SALT")
+        if salt_hex:
+            # Use environment-provided salt (hex-encoded)
+            _hkdf_salt = bytes.fromhex(salt_hex)
+        else:
+            # Default salt for backwards compatibility
+            # SECURITY NOTE: Set HKDF_SALT in production for better security
+            _hkdf_salt = b"ai_council_user_keys"
+    return _hkdf_salt
 
 
 def _derive_user_key(user_id: str) -> bytes:
@@ -58,13 +85,14 @@ def _derive_user_key(user_id: str) -> bytes:
         )
 
     master_key = _get_master_key()
+    salt = _get_hkdf_salt()
 
     # Use HKDF to derive a user-specific key
     # Info contains "user_api_key" to bind the key to this specific use case
     hkdf = HKDF(
         algorithm=hashes.SHA256(),
         length=32,  # Fernet requires 32-byte key
-        salt=b"ai_council_user_keys",  # Static salt for consistency
+        salt=salt,  # Configurable via HKDF_SALT env var
         info=f"user_api_key:{user_id}".encode(),
         backend=default_backend()
     )

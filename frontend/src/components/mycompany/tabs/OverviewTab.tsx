@@ -15,6 +15,7 @@ import MarkdownViewer from '../../MarkdownViewer';
 import { ScrollableContent } from '../../ui/ScrollableContent';
 import { FloatingContextActions } from '../../ui/FloatingContextActions';
 import { TableOfContents } from '../../ui/TableOfContents';
+import { Button } from '../../ui/button';
 import { formatDate } from '../../../lib/dateUtils';
 
 // Parse metadata from context markdown (Last Updated, Version)
@@ -78,15 +79,16 @@ export function OverviewTab({
               <span className="mc-meta-value">{version}</span>
             </div>
           )}
-          <button
-            className="mc-btn primary small"
+          <Button
+            variant="default"
+            size="sm"
             onClick={() => onEditContext && onEditContext({
               id: overview.company?.id,
               context_md: contextMd
             })}
           >
             Edit Context
-          </button>
+          </Button>
         </div>
       </div>
 

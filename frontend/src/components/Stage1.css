@@ -626,14 +626,14 @@
   height: 14px;
 }
 
-/* Code block with copy button - light theme */
+/* Code block with copy button - dark theme for readability */
 .stage1 .code-block-wrapper {
   position: relative;
   margin: 12px 0;
   border-radius: var(--radius-md);
   overflow: hidden;
-  background: var(--color-slate-50);
-  border: 1px solid var(--color-slate-200);
+  background: var(--color-code-bg);
+  border: 1px solid var(--color-code-border);
 }
 
 .stage1 .code-block-wrapper .code-language {
@@ -641,7 +641,7 @@
   top: 8px;
   left: 12px;
   font-size: 11px;
-  color: var(--color-slate-500);
+  color: var(--color-slate-400);
   text-transform: uppercase;
   font-family: var(--font-mono);
   font-weight: 600;
@@ -656,15 +656,16 @@
   justify-content: center;
   padding: 4px 8px;
   background: transparent;
-  border: 1px solid var(--color-slate-200);
+  border: 1px solid var(--color-code-border);
   border-radius: var(--radius-sm);
-  color: var(--color-brand-primary);
+  color: var(--color-slate-300);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .stage1 .code-block-wrapper .copy-code-btn:hover {
-  background: var(--color-brand-primary-light);
+  background: var(--color-slate-700);
+  color: var(--color-slate-100);
 }
 
 .stage1 .code-block-wrapper .copy-code-btn .copy-icon {
@@ -676,14 +677,14 @@
   margin: 0;
   padding: 36px 12px 12px 12px;
   overflow-x: auto;
-  background: var(--color-slate-50);
+  background: var(--color-code-bg);
 }
 
 .stage1 .code-block-wrapper code {
   font-family: var(--font-mono);
   font-size: 13px;
   line-height: 1.5;
-  color: var(--color-slate-700);
+  color: var(--color-code-text);
 }
 
 /* Inline code styling (for short snippets like table names, paths) */
@@ -1020,31 +1021,32 @@
   background: var(--color-text-tertiary);
 }
 
-/* Dark mode code blocks */
+/* Dark mode code blocks - uses same standardized variables */
 .dark .stage1 .code-block-wrapper {
-  background: var(--color-bg-primary);
-  border-color: var(--color-border);
+  background: var(--color-code-bg);
+  border-color: var(--color-code-border);
 }
 
 .dark .stage1 .code-block-wrapper .code-language {
-  color: var(--color-text-tertiary);
+  color: var(--color-slate-400);
 }
 
 .dark .stage1 .code-block-wrapper .copy-code-btn {
-  border-color: var(--color-border);
-  color: var(--color-brand-primary);
+  border-color: var(--color-code-border);
+  color: var(--color-slate-300);
 }
 
 .dark .stage1 .code-block-wrapper .copy-code-btn:hover {
-  background: var(--color-info-light);
+  background: var(--color-slate-700);
+  color: var(--color-slate-100);
 }
 
 .dark .stage1 .code-block-wrapper pre {
-  background: var(--color-bg-primary);
+  background: var(--color-code-bg);
 }
 
 .dark .stage1 .code-block-wrapper code {
-  color: var(--color-text-primary);
+  color: var(--color-code-text);
 }
 
 .dark .stage1 .inline-code {

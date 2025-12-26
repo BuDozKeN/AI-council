@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
  * Button component with Notion/Figma-inspired variants
  *
  * Variants:
- * - default: Primary blue action button
+ * - default: Primary indigo action button
  * - secondary: Gray/neutral button
  * - outline: Bordered button with transparent bg
  * - ghost: No border, transparent until hover
@@ -17,44 +17,34 @@ import { cn } from "@/lib/utils"
  * - success: Green confirmation button
  * - link: Text link style
  *
- * Sizes:
- * - sm: 32px height, compact
- * - default: 36px height, standard
- * - lg: 44px height, prominent
- * - icon: Square icon-only button
+ * Sizes (padding handled via CSS in tailwind.css):
+ * - sm: 40px height, 24px horizontal padding
+ * - default: 44px height, 28px horizontal padding
+ * - lg: 52px height, 36px horizontal padding
+ * - icon: 44x44px square icon-only button
+ *
+ * Styling uses CSS classes from tailwind.css (.btn-variant-*)
+ * for reliable theming via CSS variables.
  */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-primary)] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap font-medium transition-all duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        // Primary - Uses design tokens
-        default:
-          "bg-[var(--color-primary)] text-[var(--color-primary-text)] shadow-sm hover:bg-[var(--color-primary-hover)] active:bg-[var(--color-primary-active)]",
-        // Secondary - Gray
-        secondary:
-          "bg-[var(--color-bg-muted)] text-[var(--color-text-default)] hover:bg-[var(--color-bg-emphasis)] active:bg-[var(--color-border-emphasis)]",
-        // Outline - Bordered
-        outline:
-          "border border-[var(--color-border-default)] bg-[var(--color-bg-base)] text-[var(--color-text-default)] shadow-sm hover:bg-[var(--color-bg-subtle)] hover:border-[var(--color-border-emphasis)]",
-        // Ghost - Minimal
-        ghost:
-          "text-[var(--color-text-default)] hover:bg-[var(--color-bg-muted)] active:bg-[var(--color-bg-emphasis)]",
-        // Destructive - Red
-        destructive:
-          "bg-[var(--color-error)] text-[var(--color-error-text)] shadow-sm hover:bg-[var(--color-error-hover)] active:opacity-90",
-        // Success - Green
-        success:
-          "bg-[var(--color-success)] text-[var(--color-success-text)] shadow-sm hover:bg-[var(--color-success-hover)] active:opacity-90",
-        // Link style
-        link:
-          "text-[var(--color-primary)] underline-offset-4 hover:underline",
+        // Variants use CSS classes from tailwind.css for reliable theming
+        default: "btn-variant-default",
+        secondary: "btn-variant-secondary",
+        outline: "btn-variant-outline",
+        ghost: "btn-variant-ghost",
+        destructive: "btn-variant-destructive",
+        success: "btn-variant-success",
+        link: "btn-variant-link",
       },
       size: {
-        sm: "h-8 px-3 text-xs rounded-md",
-        default: "h-9 px-4 py-2",
-        lg: "h-11 px-6 text-base rounded-lg",
-        icon: "h-9 w-9 p-0",
+        sm: "h-10 [&_svg]:size-4",
+        default: "h-11 [&_svg]:size-4",
+        lg: "h-13 [&_svg]:size-5",
+        icon: "h-11 w-11 [&_svg]:size-5",
       },
     },
     defaultVariants: {

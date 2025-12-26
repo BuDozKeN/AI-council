@@ -1,5 +1,5 @@
-/* Import Geist font from Vercel */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* Inter font is loaded via index.html with preload for non-blocking load */
+/* font-display: swap is included in the Google Fonts URL */
 
 :root {
   font-family: 'Geist', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;

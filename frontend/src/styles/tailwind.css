@@ -132,6 +132,23 @@
     --color-indigo: #6366f1;
     --color-indigo-light: rgba(99, 102, 241, 0.1);
 
+    /* Button component tokens - direct values to avoid variable resolution issues */
+    --color-primary: #6366f1;           /* Indigo-500 */
+    --color-primary-text: #ffffff;
+    --color-primary-hover: #4f46e5;     /* Indigo-600 */
+    --color-primary-active: #4338ca;    /* Indigo-700 */
+    --color-bg-base: #ffffff;
+    --color-bg-muted: #f1f5f9;          /* Slate-100 */
+    --color-bg-subtle: #f8fafc;         /* Slate-50 */
+    --color-bg-emphasis: #e2e8f0;       /* Slate-200 */
+    --color-text-default: #333333;
+    --color-border-default: #e5e7eb;
+    --color-border-emphasis: #cbd5e1;   /* Slate-300 */
+    --color-error-text: #ffffff;
+    --color-error-hover: #dc2626;       /* Red-600 */
+    --color-success-text: #ffffff;
+    --color-success-hover: #059669;     /* Emerald-600 */
+
     /* Semantic colors - Success */
     --color-success: #10b981;
     --color-success-light: #d1fae5;
@@ -184,6 +201,12 @@
     --color-slate-600: #475569;
     --color-slate-700: #334155;
     --color-slate-800: #1e293b;
+    --color-slate-900: #0f172a;
+
+    /* Code block colors - always dark for contrast */
+    --color-code-bg: var(--color-slate-900);
+    --color-code-text: var(--color-slate-100);
+    --color-code-border: var(--color-slate-700);
 
     /* Gray scale */
     --color-gray-400: #9ca3af;
@@ -237,8 +260,11 @@
     /* Indigo extended scale */
     --color-indigo-50: #eef2ff;
     --color-indigo-100: #e0e7ff;
+    --color-indigo-300: #a5b4fc;
+    --color-indigo-400: #818cf8;
     --color-indigo-500: #6366f1;
     --color-indigo-600: #4f46e5;
+    --color-indigo-700: #4338ca;
     --color-indigo-rgb: 99, 102, 241;  /* For rgba() usage */
 
     /* Provider brand colors */
@@ -444,13 +470,30 @@
     --color-brand-primary-hover: #3b82f6;
     --color-brand-primary-light: rgba(59, 130, 246, 0.15);
 
+    /* Button component tokens - dark mode (direct values) */
+    --color-primary: #6366f1;           /* Indigo-500 */
+    --color-primary-text: #ffffff;
+    --color-primary-hover: #818cf8;     /* Indigo-400 - brighter for dark */
+    --color-primary-active: #a5b4fc;    /* Indigo-300 */
+    --color-bg-base: #0f172a;
+    --color-bg-muted: #334155;          /* Dark slate */
+    --color-bg-subtle: #1e293b;
+    --color-bg-emphasis: #475569;
+    --color-text-default: #f1f5f9;
+    --color-border-default: #334155;
+    --color-border-emphasis: #64748b;
+    --color-error-text: #ffffff;
+    --color-error-hover: #ef4444;       /* Red-500 */
+    --color-success-text: #ffffff;
+    --color-success-hover: #10b981;     /* Emerald-500 */
+
     /* Semantic colors - adjusted for dark */
     --color-success-light: rgba(16, 185, 129, 0.15);
     --color-error-light: rgba(239, 68, 68, 0.15);
     --color-warning-light: rgba(245, 158, 11, 0.15);
     --color-info-light: rgba(59, 130, 246, 0.15);
 
-    /* Slate scale - inverted */
+    /* Slate scale - inverted for dark mode UI */
     --color-slate-50: #1e293b;
     --color-slate-100: #334155;
     --color-slate-200: #475569;
@@ -459,6 +502,12 @@
     --color-slate-600: #cbd5e1;
     --color-slate-700: #e2e8f0;
     --color-slate-800: #f1f5f9;
+    --color-slate-900: #f8fafc;
+
+    /* Code blocks - remain dark even in dark mode for contrast */
+    --color-code-bg: #0f172a;
+    --color-code-text: #e2e8f0;
+    --color-code-border: #334155;
 
     /* Stage colors - dark variants */
     --stage1-bg-gradient-start: #1e293b;
@@ -840,4 +889,190 @@ button:not(:disabled):active,
   [role="button"]:active {
     transform: scale(0.98);
   }
+}
+
+/* ============================================================================
+   BUTTON VARIANT CLASSES - Premium $25M Quality
+   Explicit CSS classes for button variants - reliable & simple
+   Used by button.tsx component via cva
+   ============================================================================ */
+
+/* Base button sizing - applied to ALL button variants */
+/* This ensures consistent padding regardless of Tailwind utility issues */
+[class*="btn-variant-"] {
+  padding: 12px 28px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  border-radius: 12px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Size modifiers for buttons - override base sizing */
+[class*="btn-variant-"].h-10 {
+  padding: 10px 24px;
+  min-height: 40px;
+  font-size: 14px;
+}
+
+[class*="btn-variant-"].h-11 {
+  padding: 12px 28px;
+  min-height: 44px;
+  font-size: 14px;
+}
+
+[class*="btn-variant-"].h-13 {
+  padding: 16px 36px;
+  min-height: 52px;
+  font-size: 16px;
+}
+
+/* Icon-only buttons */
+[class*="btn-variant-"].w-11 {
+  padding: 0;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+}
+
+/* Primary Button - Indigo with premium shadow */
+.btn-variant-default {
+  background-color: var(--color-primary) !important;
+  color: var(--color-primary-text) !important;
+  box-shadow:
+    0 1px 3px rgba(99, 102, 241, 0.3),
+    0 2px 8px rgba(99, 102, 241, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.btn-variant-default:hover:not(:disabled) {
+  background-color: var(--color-primary-hover) !important;
+  box-shadow:
+    0 2px 6px rgba(99, 102, 241, 0.35),
+    0 4px 12px rgba(99, 102, 241, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.btn-variant-default:active:not(:disabled) {
+  background-color: var(--color-primary-active) !important;
+  transform: translateY(0) scale(0.98);
+  box-shadow:
+    0 1px 2px rgba(99, 102, 241, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Secondary Button - Muted gray with subtle depth */
+.btn-variant-secondary {
+  background-color: var(--color-bg-muted) !important;
+  color: var(--color-text-default) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  font-weight: 500;
+}
+
+.btn-variant-secondary:hover:not(:disabled) {
+  background-color: var(--color-bg-emphasis) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+.btn-variant-secondary:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Outline Button - Bordered with clean look */
+.btn-variant-outline {
+  background-color: var(--color-bg-base) !important;
+  color: var(--color-text-default) !important;
+  border: 1px solid var(--color-border-default) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  font-weight: 500;
+}
+
+.btn-variant-outline:hover:not(:disabled) {
+  background-color: var(--color-bg-subtle) !important;
+  border-color: var(--color-border-emphasis) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+.btn-variant-outline:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Ghost Button - Minimal with subtle hover */
+.btn-variant-ghost {
+  background-color: transparent !important;
+  color: var(--color-text-default) !important;
+  font-weight: 500;
+}
+
+.btn-variant-ghost:hover:not(:disabled) {
+  background-color: var(--color-bg-muted) !important;
+}
+
+.btn-variant-ghost:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Destructive Button - Red with warning presence */
+.btn-variant-destructive {
+  background-color: var(--color-error) !important;
+  color: var(--color-error-text) !important;
+  box-shadow:
+    0 1px 3px rgba(239, 68, 68, 0.3),
+    0 2px 8px rgba(239, 68, 68, 0.15);
+  font-weight: 500;
+}
+
+.btn-variant-destructive:hover:not(:disabled) {
+  background-color: var(--color-error-hover) !important;
+  box-shadow:
+    0 2px 6px rgba(239, 68, 68, 0.35),
+    0 4px 12px rgba(239, 68, 68, 0.2);
+  transform: translateY(-1px);
+}
+
+.btn-variant-destructive:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Success Button - Green with confidence */
+.btn-variant-success {
+  background-color: var(--color-success) !important;
+  color: var(--color-success-text) !important;
+  box-shadow:
+    0 1px 3px rgba(16, 185, 129, 0.3),
+    0 2px 8px rgba(16, 185, 129, 0.15);
+  font-weight: 500;
+}
+
+.btn-variant-success:hover:not(:disabled) {
+  background-color: var(--color-success-hover) !important;
+  box-shadow:
+    0 2px 6px rgba(16, 185, 129, 0.35),
+    0 4px 12px rgba(16, 185, 129, 0.2);
+  transform: translateY(-1px);
+}
+
+.btn-variant-success:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Link Button - Text style */
+.btn-variant-link {
+  background-color: transparent !important;
+  color: var(--color-primary) !important;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.btn-variant-link:hover:not(:disabled) {
+  text-decoration: underline;
 }

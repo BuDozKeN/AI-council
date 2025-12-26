@@ -39,3 +39,6 @@ CON
 .vite/
 .env.local
 .env.*
+
+# Vercel local config (contains project IDs)
+.vercel/

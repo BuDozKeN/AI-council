@@ -13,3 +13,15 @@ dependencies = [
     "supabase>=2.0.0",
     "gunicorn>=21.0.0",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit>=3.6.0",
+    "bandit>=1.7.7",
+    "detect-secrets>=1.4.0",
+]
+
+# Bandit security linter configuration
+[tool.bandit]
+exclude_dirs = ["tests", "scripts", ".venv"]
+skips = ["B101"]  # Skip assert warnings (used in tests)

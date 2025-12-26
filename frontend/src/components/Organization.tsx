@@ -223,7 +223,7 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
           variant="default"
           onClick={() => setShowAddDept(true)}
         >
-          + Add Department
+          New Department
         </Button>
         <Button
           variant="outline"
@@ -256,7 +256,7 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
                 variant="default"
                 onClick={() => setShowAddDept(true)}
               >
-                + Add Department
+                New Department
               </Button>
             </div>
           ) : (
@@ -379,7 +379,7 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
                           size="sm"
                           onClick={() => setShowAddRole(dept.id)}
                         >
-                          + Add Role
+                          New Role
                         </Button>
                       )}
                     </div>

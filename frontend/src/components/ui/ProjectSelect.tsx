@@ -15,7 +15,7 @@
  *   onValueChange={setSelectedProjectId}
  *   projects={projects}
  *   includeCreate={true}
- *   createLabel="+ Create New Project"
+ *   createLabel="New Project"
  *   disabled={false}
  *   className="custom-class"
  * />
@@ -69,7 +69,7 @@ export function ProjectSelect({
   onValueChange,
   projects = [],
   includeCreate = true,
-  createLabel = '+ Create New Project',
+  createLabel = 'New Project',
   currentProjectId = null,
   disabled = false,
   className,

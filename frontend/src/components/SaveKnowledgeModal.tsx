@@ -584,7 +584,7 @@ export default function SaveKnowledgeModal({
                     ))}
                   <option value="">No Project (company-wide)</option>
                   <option value="__new__">
-                    {creatingProject ? 'Creating project...' : '+ Create New Project'}
+                    {creatingProject ? 'Creating...' : 'New Project'}
                   </option>
                 </select>
 

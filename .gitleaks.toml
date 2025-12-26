@@ -1,0 +1,46 @@
+# Gitleaks configuration for AI-Council
+# https://github.com/gitleaks/gitleaks
+
+title = "AI-Council Secret Detection"
+
+[allowlist]
+description = "Allowlist for known false positives"
+paths = [
+    '''(^|/)\.secrets\.baseline$''',
+    '''(^|/)package-lock\.json$''',
+    '''(^|/)\.pre-commit-config\.yaml$''',
+]
+
+# Extend built-in rules with custom patterns
+[[rules]]
+id = "openrouter-api-key"
+description = "OpenRouter API Key"
+regex = '''sk-or-v1-[a-zA-Z0-9]{64}'''
+tags = ["api", "openrouter"]
+
+[[rules]]
+id = "supabase-service-key"
+description = "Supabase Service Role Key"
+regex = '''eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+'''
+tags = ["api", "supabase"]
+
+[[rules]]
+id = "stripe-secret-key"
+description = "Stripe Secret Key"
+regex = '''sk_live_[a-zA-Z0-9]{24,}'''
+tags = ["api", "stripe"]
+
+[[rules]]
+id = "stripe-test-key"
+description = "Stripe Test Key"
+regex = '''sk_test_[a-zA-Z0-9]{24,}'''
+tags = ["api", "stripe"]
+
+# Entropy-based detection for generic secrets
+[[rules]]
+id = "generic-api-key"
+description = "Generic API Key"
+regex = '''(?i)api[_-]?key['":\s]*[=:]\s*['"]?([a-zA-Z0-9_-]{32,})['"]?'''
+entropy = 4.0
+secretGroup = 1
+tags = ["api", "generic"]

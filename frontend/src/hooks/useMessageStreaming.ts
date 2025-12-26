@@ -3,13 +3,131 @@
  *
  * Extracts the complex streaming logic from App.tsx to reduce its size
  * and make the streaming behavior testable.
+ *
+ * Performance: Uses requestAnimationFrame batching for token updates
+ * to reduce CPU usage during streaming (~60fps cap instead of per-token).
  */
 
-import { useCallback, useRef } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 import { api } from '../api';
 import { logger } from '../utils/logger';
 
 const log = logger.scope('MessageStreaming');
+
+// ============================================================================
+// Performance: Token batching with requestAnimationFrame
+// ============================================================================
+interface PendingTokens {
+  stage1: Record<string, string>;
+  stage2: Record<string, string>;
+  stage3: string;
+  chat: string;
+}
+
+function useTokenBatcher(setCurrentConversation: (updater: any) => void) {
+  const pendingTokens = useRef<PendingTokens>({
+    stage1: {},
+    stage2: {},
+    stage3: '',
+    chat: '',
+  });
+  const rafRef = useRef<number | null>(null);
+
+  const flushTokens = useCallback(() => {
+    rafRef.current = null;
+    const pending = pendingTokens.current;
+    const hasStage1 = Object.keys(pending.stage1).length > 0;
+    const hasStage2 = Object.keys(pending.stage2).length > 0;
+    const hasStage3 = pending.stage3.length > 0;
+    const hasChat = pending.chat.length > 0;
+
+    if (!hasStage1 && !hasStage2 && !hasStage3 && !hasChat) return;
+
+    setCurrentConversation((prev: any) => {
+      if (!prev?.messages) return prev;
+      const messages = [...prev.messages];
+      const lastIdx = messages.length - 1;
+      if (lastIdx < 0) return prev;
+
+      const msg = { ...messages[lastIdx] };
+
+      if (hasStage1) {
+        const stage1Streaming = { ...msg.stage1Streaming };
+        for (const [model, tokens] of Object.entries(pending.stage1)) {
+          const current = stage1Streaming[model] || { text: '', complete: false };
+          stage1Streaming[model] = { text: current.text + tokens, complete: false };
+        }
+        msg.stage1Streaming = stage1Streaming;
+      }
+
+      if (hasStage2) {
+        const stage2Streaming = { ...msg.stage2Streaming };
+        for (const [model, tokens] of Object.entries(pending.stage2)) {
+          const current = stage2Streaming[model] || { text: '', complete: false };
+          stage2Streaming[model] = { text: current.text + tokens, complete: false };
+        }
+        msg.stage2Streaming = stage2Streaming;
+      }
+
+      if (hasStage3 || hasChat) {
+        const currentStreaming = msg.stage3Streaming || { text: '', complete: false };
+        msg.stage3Streaming = {
+          text: currentStreaming.text + pending.stage3 + pending.chat,
+          complete: false,
+        };
+      }
+
+      messages[lastIdx] = msg;
+      pendingTokens.current = { stage1: {}, stage2: {}, stage3: '', chat: '' };
+
+      return { ...prev, messages, _streamTick: Date.now() };
+    });
+  }, [setCurrentConversation]);
+
+  const scheduleFlush = useCallback(() => {
+    if (rafRef.current === null) {
+      rafRef.current = requestAnimationFrame(flushTokens);
+    }
+  }, [flushTokens]);
+
+  const addStage1Token = useCallback((model: string, content: string) => {
+    pendingTokens.current.stage1[model] = (pendingTokens.current.stage1[model] || '') + content;
+    scheduleFlush();
+  }, [scheduleFlush]);
+
+  const addStage2Token = useCallback((model: string, content: string) => {
+    pendingTokens.current.stage2[model] = (pendingTokens.current.stage2[model] || '') + content;
+    scheduleFlush();
+  }, [scheduleFlush]);
+
+  const addStage3Token = useCallback((content: string) => {
+    pendingTokens.current.stage3 += content;
+    scheduleFlush();
+  }, [scheduleFlush]);
+
+  const addChatToken = useCallback((content: string) => {
+    pendingTokens.current.chat += content;
+    scheduleFlush();
+  }, [scheduleFlush]);
+
+  const flushNow = useCallback(() => {
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    flushTokens();
+  }, [flushTokens]);
+
+  useEffect(() => {
+    return () => {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, []);
+
+  return { addStage1Token, addStage2Token, addStage3Token, addChatToken, flushNow };
+}
 
 // Simple unique ID generator for message keys
 let messageIdCounter = 0;
@@ -84,6 +202,10 @@ export function useMessageStreaming({
     loadConversations,
   } = conversationState;
 
+  // Performance: Use batched token updates (RAF-throttled)
+  const { addStage1Token, addStage2Token, addStage3Token, addChatToken, flushNow } =
+    useTokenBatcher(setCurrentConversation);
+
   // Stop generation handler
   const handleStopGeneration = useCallback(() => {
     if (abortControllerRef.current) {
@@ -93,7 +215,7 @@ export function useMessageStreaming({
     }
   }, [setIsLoading]);
 
-  // Create streaming event handler
+  // Create streaming event handler with batched token updates
   const createStreamEventHandler = useCallback(
     (conversationId: string) => (eventType: string, event: any) => {
       if (eventType.includes('error') || eventType.includes('Error')) {
@@ -114,30 +236,13 @@ export function useMessageStreaming({
           break;
 
         case 'stage1_token':
-          setCurrentConversation((prev: any) => {
-            if (!prev?.messages) return prev;
-            const model = event.model;
-            const messages = [...prev.messages];
-            const lastIdx = messages.length - 1;
-            if (lastIdx >= 0) {
-              const msg = messages[lastIdx];
-              const currentStreaming = msg.stage1Streaming?.[model] || { text: '', complete: false };
-              messages[lastIdx] = {
-                ...msg,
-                stage1Streaming: {
-                  ...msg.stage1Streaming,
-                  [model]: {
-                    text: currentStreaming.text + event.content,
-                    complete: false,
-                  },
-                },
-              };
-            }
-            return { ...prev, messages, _streamTick: Date.now() };
-          });
+          // Performance: Batched with RAF instead of per-token state updates
+          addStage1Token(event.model, event.content);
           break;
 
         case 'stage1_model_complete':
+          // Flush pending tokens before marking complete
+          flushNow();
           setCurrentConversation((prev: any) => {
             if (!prev?.messages) return prev;
             const model = event.model;
@@ -160,6 +265,7 @@ export function useMessageStreaming({
 
         case 'stage1_model_error':
           log.error(`[Stage1 Error] Model ${event.model}:`, event.error);
+          flushNow();
           setCurrentConversation((prev: any) => {
             if (!prev?.messages) return prev;
             const model = event.model;
@@ -179,6 +285,7 @@ export function useMessageStreaming({
           break;
 
         case 'stage1_complete':
+          flushNow();
           setCurrentConversation((prev: any) => {
             if (!prev?.messages) return prev;
             const messages = prev.messages.map((msg: any, idx: number) =>
@@ -203,30 +310,12 @@ export function useMessageStreaming({
           break;
 
         case 'stage2_token':
-          setCurrentConversation((prev: any) => {
-            if (!prev?.messages) return prev;
-            const model = event.model;
-            const messages = [...prev.messages];
-            const lastIdx = messages.length - 1;
-            if (lastIdx >= 0) {
-              const msg = messages[lastIdx];
-              const currentStreaming = msg.stage2Streaming?.[model] || { text: '', complete: false };
-              messages[lastIdx] = {
-                ...msg,
-                stage2Streaming: {
-                  ...msg.stage2Streaming,
-                  [model]: {
-                    text: currentStreaming.text + event.content,
-                    complete: false,
-                  },
-                },
-              };
-            }
-            return { ...prev, messages, _streamTick: Date.now() };
-          });
+          // Performance: Batched with RAF instead of per-token state updates
+          addStage2Token(event.model, event.content);
           break;
 
         case 'stage2_model_complete':
+          flushNow();
           setCurrentConversation((prev: any) => {
             if (!prev?.messages) return prev;
             const model = event.model;
@@ -248,6 +337,7 @@ export function useMessageStreaming({
           break;
 
         case 'stage2_model_error':
+          flushNow();
           setCurrentConversation((prev: any) => {
             if (!prev?.messages) return prev;
             const model = event.model;
@@ -267,6 +357,7 @@ export function useMessageStreaming({
           break;
 
         case 'stage2_complete':
+          flushNow();
           setCurrentConversation((prev: any) => {
             if (!prev?.messages) return prev;
             const messages = prev.messages.map((msg: any, idx: number) =>
@@ -300,26 +391,12 @@ export function useMessageStreaming({
           break;
 
         case 'stage3_token':
-          setCurrentConversation((prev: any) => {
-            if (!prev?.messages) return prev;
-            const messages = [...prev.messages];
-            const lastIdx = messages.length - 1;
-            if (lastIdx >= 0) {
-              const msg = messages[lastIdx];
-              const currentStreaming = msg.stage3Streaming || { text: '', complete: false };
-              messages[lastIdx] = {
-                ...msg,
-                stage3Streaming: {
-                  text: currentStreaming.text + event.content,
-                  complete: false,
-                },
-              };
-            }
-            return { ...prev, messages, _streamTick: Date.now() };
-          });
+          // Performance: Batched with RAF instead of per-token state updates
+          addStage3Token(event.content);
           break;
 
         case 'stage3_error':
+          flushNow();
           setCurrentConversation((prev: any) => {
             if (!prev?.messages) return prev;
             const messages = prev.messages.map((msg: any, idx: number) =>
@@ -335,6 +412,7 @@ export function useMessageStreaming({
           break;
 
         case 'stage3_complete':
+          flushNow();
           setCurrentConversation((prev: any) => {
             if (!prev?.messages) return prev;
             const messages = prev.messages.map((msg: any, idx: number) =>
@@ -370,12 +448,14 @@ export function useMessageStreaming({
           break;
 
         case 'complete':
+          flushNow();
           loadConversations();
           setIsLoading(false);
           break;
 
         case 'error':
           log.error('Stream error:', event.message);
+          flushNow();
           setCurrentConversation((prev: any) => {
             if (!prev || !prev.messages || prev.messages.length === 0) return prev;
             const messages = prev.messages.map((msg: any, idx: number) =>
@@ -393,6 +473,7 @@ export function useMessageStreaming({
 
         case 'cancelled':
           log.debug('Request cancelled');
+          flushNow();
           setIsLoading(false);
           break;
 
@@ -418,7 +499,7 @@ export function useMessageStreaming({
           log.warn('Unknown event type:', eventType);
       }
     },
-    [setCurrentConversation, setConversations, loadConversations, setIsLoading]
+    [setCurrentConversation, setConversations, loadConversations, setIsLoading, addStage1Token, addStage2Token, addStage3Token, flushNow]
   );
 
   // Send message to council (full deliberation)
@@ -607,21 +688,8 @@ export function useMessageStreaming({
                 break;
 
               case 'chat_token':
-                setCurrentConversation((prev: any) => {
-                  if (!prev?.messages) return prev;
-                  const messages = prev.messages.map((msg: any, idx: number) => {
-                    if (idx !== prev.messages.length - 1) return msg;
-                    const currentStreaming = msg.stage3Streaming || { text: '', complete: false };
-                    return {
-                      ...msg,
-                      stage3Streaming: {
-                        ...currentStreaming,
-                        text: currentStreaming.text + event.content,
-                      },
-                    };
-                  });
-                  return { ...prev, messages };
-                });
+                // Performance: Batched with RAF instead of per-token state updates
+                addChatToken(event.content);
                 break;
 
               case 'chat_error':
@@ -629,6 +697,7 @@ export function useMessageStreaming({
                 break;
 
               case 'chat_complete':
+                flushNow();
                 setCurrentConversation((prev: any) => {
                   if (!prev?.messages) return prev;
                   const messages = prev.messages.map((msg: any, idx: number) =>
@@ -646,11 +715,13 @@ export function useMessageStreaming({
                 break;
 
               case 'complete':
+                flushNow();
                 setIsLoading(false);
                 break;
 
               case 'error':
                 log.error('Chat stream error:', event.message);
+                flushNow();
                 setCurrentConversation((prev: any) => {
                   if (!prev?.messages) return prev;
                   const messages = prev.messages.map((msg: any, idx: number) =>
@@ -665,6 +736,7 @@ export function useMessageStreaming({
 
               case 'cancelled':
                 log.debug('Chat request cancelled');
+                flushNow();
                 setIsLoading(false);
                 break;
 
@@ -711,6 +783,8 @@ export function useMessageStreaming({
       useDepartmentContext,
       setCurrentConversation,
       setIsLoading,
+      addChatToken,
+      flushNow,
     ]
   );
 

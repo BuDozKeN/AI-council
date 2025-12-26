@@ -148,7 +148,7 @@ export function PromoteDecisionModal({ decision, departments, projects = [], com
                   onValueChange={setSelectedProjectId}
                   projects={activeProjects}
                   includeCreate={true}
-                  createLabel="+ Create New Project"
+                  createLabel="New Project"
                   currentProjectId={decision?.project_id}
                 />
                 {existingProject && (

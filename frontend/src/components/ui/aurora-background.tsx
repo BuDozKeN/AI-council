@@ -8,24 +8,22 @@ export const AuroraBackground = ({
   ...props
 }) => {
   return (
-    <main>
-      <div
-        className={cn(
-          "aurora-container",
-          className
-        )}
-        {...props}
-      >
-        <div className="aurora-overlay">
-          <div
-            className={cn(
-              "aurora-gradient",
-              showRadialGradient && "aurora-radial-mask"
-            )}
-          ></div>
-        </div>
-        {children}
+    <div
+      className={cn(
+        "aurora-container",
+        className
+      )}
+      {...props}
+    >
+      <div className="aurora-overlay">
+        <div
+          className={cn(
+            "aurora-gradient",
+            showRadialGradient && "aurora-radial-mask"
+          )}
+        ></div>
       </div>
-    </main>
+      {children}
+    </div>
   );
 };

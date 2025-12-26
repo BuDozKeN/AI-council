@@ -29,10 +29,12 @@ updates:
     labels:
       - "dependencies"
       - "frontend"
+    commit-message:
+      prefix: "chore(deps)"
 
-  # Backend Python dependencies
+  # Backend Python dependencies (root pyproject.toml)
   - package-ecosystem: "pip"
-    directory: "/backend"
+    directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -40,6 +42,20 @@ updates:
     labels:
       - "dependencies"
       - "backend"
+      - "security"
+    commit-message:
+      prefix: "chore(deps)"
+    # Prioritize security updates
+    groups:
+      security-critical:
+        patterns:
+          - "cryptography"
+          - "supabase"
+          - "pyjwt"
+        update-types:
+          - "major"
+          - "minor"
+          - "patch"
 
   # GitHub Actions
   - package-ecosystem: "github-actions"
@@ -49,3 +65,5 @@ updates:
     labels:
       - "dependencies"
       - "ci"
+    commit-message:
+      prefix: "chore(ci)"

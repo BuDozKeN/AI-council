@@ -550,6 +550,62 @@ def delete_conversation(conversation_id: str, access_token: Optional[str] = None
     return True
 
 
+def get_conversations_by_ids(
+    conversation_ids: List[str],
+    access_token: Optional[str] = None
+) -> List[Dict[str, Any]]:
+    """
+    Batch fetch multiple conversations by ID.
+
+    Args:
+        conversation_ids: List of conversation IDs to fetch
+        access_token: User's JWT access token for RLS authentication
+
+    Returns:
+        List of conversation dicts (only metadata, no messages)
+    """
+    if not conversation_ids:
+        return []
+
+    supabase = _get_client(access_token)
+
+    # Batch fetch all conversations in one query
+    result = supabase.table('conversations') \
+        .select('id, user_id, title, created_at') \
+        .in_('id', conversation_ids) \
+        .execute()
+
+    return result.data or []
+
+
+def bulk_delete_conversations(
+    conversation_ids: List[str],
+    access_token: Optional[str] = None
+) -> int:
+    """
+    Batch delete multiple conversations.
+
+    Args:
+        conversation_ids: List of conversation IDs to delete
+        access_token: User's JWT access token for RLS authentication
+
+    Returns:
+        Number of conversations deleted
+    """
+    if not conversation_ids:
+        return 0
+
+    supabase = _get_client(access_token)
+
+    # Delete messages first (foreign key constraint) - batch delete
+    supabase.table('messages').delete().in_('conversation_id', conversation_ids).execute()
+
+    # Delete conversations - batch delete
+    supabase.table('conversations').delete().in_('id', conversation_ids).execute()
+
+    return len(conversation_ids)
+
+
 # ============================================
 # PROJECT FUNCTIONS
 # ============================================

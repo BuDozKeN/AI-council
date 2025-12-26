@@ -9,7 +9,7 @@
  * Extracted from MyCompany.jsx for better maintainability.
  */
 
-import { Users } from 'lucide-react';
+import { Users, Plus } from 'lucide-react';
 import { Button } from '../../ui/button';
 import { getDeptColor } from '../../../lib/colors';
 import { ScrollableContent } from '../../ui/ScrollableContent';
@@ -34,7 +34,7 @@ export function TeamTab({
           variant="default"
           onClick={onAddDepartment}
         >
-          + Add Department
+          New Department
         </Button>
       </div>
     );
@@ -49,7 +49,7 @@ export function TeamTab({
           size="sm"
           onClick={onAddDepartment}
         >
-          + Add Department
+          New Department
         </Button>
       </div>
 
@@ -114,7 +114,7 @@ export function TeamTab({
                             onAddRole && onAddRole(dept.id);
                           }}
                         >
-                          + Add
+                          New Role
                         </button>
                       </div>
 
@@ -147,6 +147,15 @@ export function TeamTab({
           })}
         </div>
       </ScrollableContent>
+
+      {/* FAB - Mobile only (visible via CSS) */}
+      <button
+        className="mc-fab"
+        onClick={onAddDepartment}
+        aria-label="Create new department"
+      >
+        <Plus />
+      </button>
     </div>
   );
 }

@@ -222,7 +222,8 @@ app.add_middleware(
     ],
     expose_headers=["Content-Disposition"],
 )
-app.add_middleware(GZipMiddleware, minimum_size=1000)
+# Performance: Lower threshold to compress smaller API responses (e.g., JSON lists)
+app.add_middleware(GZipMiddleware, minimum_size=500)
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(RequestSizeLimitMiddleware)
 
