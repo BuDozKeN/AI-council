@@ -11,6 +11,11 @@ wheels/
 
 # Keys and secrets
 .env
+.env.*
+.env.local
+.env.development
+.env.production
+.env*.local
 .mcp.json
 
 # Data files
