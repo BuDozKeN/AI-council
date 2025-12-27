@@ -1,0 +1,289 @@
+# CLAUDE.md - AxCouncil Development Guide
+
+> This file provides context for Claude Code to maintain consistency across development sessions.
+
+## Project Overview
+
+AxCouncil is an AI-powered decision council platform that orchestrates multiple LLM models (Claude, GPT, Gemini, Grok, DeepSeek) through a 3-stage deliberation pipeline: individual responses → peer review → synthesis.
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Frontend | React 19, Vite 7, TypeScript 5.9 |
+| Styling | Tailwind CSS v4, Radix UI, Framer Motion |
+| State | TanStack Query v5 + React Context |
+| Backend | FastAPI, Python 3.10+ |
+| Database | Supabase (PostgreSQL + RLS) |
+| Auth | Supabase Auth (JWT) |
+| Monitoring | Sentry |
+
+## Directory Structure
+
+```
+AI-council/
+├── frontend/              # React SPA
+│   ├── src/
+│   │   ├── components/    # UI components
+│   │   │   ├── ui/        # Base shadcn/ui components
+│   │   │   ├── chat/      # Chat interface
+│   │   │   ├── mycompany/ # Company management
+│   │   │   └── stage1-3/  # Deliberation stages
+│   │   ├── styles/        # Design tokens
+│   │   ├── hooks/         # Custom hooks
+│   │   ├── lib/           # Utilities
+│   │   └── contexts/      # React contexts
+│   └── package.json
+├── backend/               # FastAPI API
+│   ├── routers/           # API endpoints
+│   │   └── company/       # Sub-routers
+│   ├── utils/             # Helpers
+│   └── migrations/        # SQL schemas
+├── supabase/              # Database config
+└── councils/              # Legacy templates (not runtime)
+```
+
+## Frontend Conventions
+
+### Design System
+
+The design system uses semantic CSS tokens. Always use these patterns:
+
+```css
+/* DO: Use semantic tokens */
+color: var(--color-text-primary);
+background: var(--color-bg-primary);
+padding: var(--space-4);
+border-radius: var(--radius-md);
+
+/* DON'T: Hardcode values */
+color: #37352f;
+padding: 16px;
+```
+
+**Key token files:**
+- `frontend/src/styles/design-tokens.css` - Core tokens
+- `frontend/src/styles/tailwind.css` - Tailwind config + custom layers
+
+### Styling Priority
+
+1. **Tailwind utilities** for layout and responsive design
+2. **CSS variables** from design-tokens.css for colors, spacing, radius
+3. **Scoped CSS files** only for complex interactions/animations
+
+```tsx
+// Preferred pattern
+<div className="flex items-center gap-4 p-6 rounded-lg bg-card">
+  <Button variant="default">Action</Button>
+</div>
+```
+
+### Component Patterns
+
+- Use Radix UI primitives with custom styling
+- Use CVA (class-variance-authority) for component variants
+- Pair complex components with `.css` files (e.g., `Modal.tsx` + `Modal.css`)
+- Export via `index.ts` in subdirectories
+
+```tsx
+// Button variant pattern (CVA)
+const buttonVariants = cva(
+  "inline-flex items-center justify-center gap-2",
+  {
+    variants: {
+      variant: { default: "btn-variant-default" },
+      size: { default: "h-9 px-4" }
+    }
+  }
+)
+```
+
+### Dark Mode
+
+- Class-based switching via `next-themes`
+- All components must support both modes
+- Test with `.dark` class on root element
+
+### Accessibility Requirements
+
+- 44px minimum touch targets on mobile
+- `focus-visible` states on all interactive elements
+- Support `prefers-reduced-motion`
+- Use `sr-only` for screen reader labels
+
+### State Management
+
+- **TanStack Query** for server state (with IndexedDB persistence)
+- **React Context** for auth, business data, UI state
+- Don't duplicate server state in local state
+
+## Backend Conventions
+
+### API Structure
+
+```python
+# Router pattern
+from fastapi import APIRouter, Depends
+from auth import get_current_user
+
+router = APIRouter(prefix="/api/resource", tags=["resource"])
+
+@router.get("/")
+async def list_items(user: dict = Depends(get_current_user)):
+    # Always filter by user ownership
+    return await get_items_for_user(user["id"])
+```
+
+### Database Patterns
+
+```python
+# Always use parameterized queries
+supabase.table("items").select("*").eq("company_id", company_id).execute()
+
+# Use service client only for admin operations
+from database import get_supabase_service
+service = get_supabase_service()
+
+# Use auth client for user-scoped queries (respects RLS)
+from database import get_supabase_with_auth
+client = get_supabase_with_auth(user["access_token"])
+```
+
+### Pydantic Models
+
+Define request/response models in each router file:
+
+```python
+class CreateItemRequest(BaseModel):
+    name: str = Field(..., max_length=100)
+    description: Optional[str] = None
+```
+
+### Error Handling
+
+```python
+from security import create_secure_error
+
+# Use secure error factory (sanitizes messages)
+raise create_secure_error(404, "Resource not found", log_details={"id": item_id})
+```
+
+### Import Pattern
+
+Support both module and direct execution:
+
+```python
+try:
+    from .module import thing
+except ImportError:
+    from backend.module import thing
+```
+
+## Database Schema
+
+### Core Tables
+
+| Table | Purpose |
+|-------|---------|
+| `companies` | Company profiles with context |
+| `departments` | Department configurations |
+| `roles` | AI personas with system prompts |
+| `org_documents` | Playbooks (SOPs, policies) |
+| `knowledge_entries` | Saved decisions |
+| `conversations` | Chat history |
+
+### RLS Policy
+
+All tables enforce multi-tenant isolation:
+```sql
+company_id IN (SELECT id FROM companies WHERE user_id = auth.uid())
+```
+
+## Testing
+
+### Frontend
+
+```bash
+cd frontend
+npm run test        # Watch mode
+npm run test:run    # Single run
+npm run test:coverage
+```
+
+- Vitest + Testing Library
+- MSW for API mocking
+- JSDOM environment
+
+### Linting
+
+```bash
+cd frontend
+npm run lint        # ESLint
+npm run lint:css    # Stylelint
+npm run type-check  # TypeScript
+npm run format      # Prettier
+```
+
+Pre-commit hooks run `lint-staged` automatically.
+
+## Common Pitfalls
+
+### Frontend
+
+- **Don't** hardcode colors - use `--color-*` tokens
+- **Don't** skip dark mode testing
+- **Don't** use arbitrary pixel values - use spacing tokens
+- **Don't** forget mobile touch targets (44px min)
+- **Do** use Tailwind for layout, tokens for theming
+
+### Backend
+
+- **Don't** expose internal errors - use `create_secure_error()`
+- **Don't** bypass RLS unless admin operation requires it
+- **Don't** store sensitive data without encryption
+- **Do** filter all queries by user/company ownership
+- **Do** use rate limiting on public endpoints
+
+## Key Commands
+
+```bash
+# Frontend development
+cd frontend && npm run dev
+
+# Backend development
+cd backend && uvicorn main:app --reload
+
+# Full lint check
+cd frontend && npm run lint && npm run type-check
+
+# Build for production
+cd frontend && npm run build
+```
+
+## Environment Variables
+
+See `.env.example` for required variables:
+- `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`
+- `VITE_API_URL` - Backend API base
+- `VITE_SENTRY_DSN` - Error tracking
+- `OPENROUTER_API_KEY` - LLM access
+
+## MCP Server (Claude Code Integration)
+
+To enable direct Supabase schema access in Claude Code sessions:
+
+```bash
+cp .mcp.json.example .mcp.json
+# Edit .mcp.json and replace YOUR_PROJECT_REF with your Supabase project reference
+# (the subdomain from your Supabase URL, e.g., "abcdefghij" from https://abcdefghij.supabase.co)
+```
+
+This enables Claude Code to query your database schema and generate accurate TypeScript types.
+
+## Architecture Decisions
+
+1. **Multi-tenant by design** - All data filtered by ownership via RLS
+2. **Stateless API** - JWT-based auth, no server sessions
+3. **Streaming first** - Real-time token streaming for LLM responses
+4. **Resilience patterns** - Circuit breaker, timeouts, graceful degradation
+5. **Mobile-first** - Base styles for mobile, enhanced on desktop
