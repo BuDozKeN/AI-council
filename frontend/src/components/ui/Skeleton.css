@@ -172,7 +172,7 @@
 /* User message skeleton - right aligned */
 .skeleton-message.user .skeleton-message-content {
   margin-left: auto;
-  background: var(--color-brand-primary-light, #f0f7ff);
+  background: var(--color-brand-primary-light);
 }
 
 /* Staggered animation for multiple skeletons */
@@ -216,7 +216,7 @@
 
 .dark .skeleton-message.user .skeleton-message-content,
 [data-theme="dark"] .skeleton-message.user .skeleton-message-content {
-  background: rgba(96, 165, 250, 0.15);
+  background: var(--overlay-blue-15);
 }
 
 /* =============================================================================

@@ -1,7 +1,15 @@
 import * as React from "react"
-import { Inbox } from "lucide-react"
+import { Inbox, LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import "./EmptyState.css"
+
+interface EmptyStateProps extends React.HTMLAttributes<HTMLDivElement> {
+  icon?: LucideIcon;
+  title?: string;
+  message?: React.ReactNode;
+  action?: React.ReactNode;
+  className?: string;
+}
 
 /**
  * Unified EmptyState component for consistent empty UI across the app.
@@ -12,7 +20,7 @@ import "./EmptyState.css"
  * @param {React.ReactNode} action - Optional action button/element
  * @param {string} className - Additional CSS classes
  */
-const EmptyState = React.forwardRef(({
+const EmptyState = React.forwardRef<HTMLDivElement, EmptyStateProps>(({
   icon: Icon = Inbox,
   title,
   message,
@@ -47,3 +55,4 @@ const EmptyState = React.forwardRef(({
 EmptyState.displayName = "EmptyState"
 
 export { EmptyState }
+export type { EmptyStateProps }

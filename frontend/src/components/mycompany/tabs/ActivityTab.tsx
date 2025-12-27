@@ -10,7 +10,7 @@ import { formatDateGroup } from '../../../lib/dateUtils';
 import { ScrollableContent } from '../../ui/ScrollableContent';
 
 // Constants for activity display
-const EVENT_LABELS = {
+const EVENT_LABELS: Record<string, string> = {
   decision: 'Decision',
   playbook: 'Playbook',
   project: 'Project',
@@ -18,21 +18,21 @@ const EVENT_LABELS = {
   department: 'Department'
 };
 
-const PROMOTED_TYPE_LABELS = {
+const PROMOTED_TYPE_LABELS: Record<string, string> = {
   sop: 'SOP',
   framework: 'FRAMEWORK',
   policy: 'POLICY',
   project: 'PROJECT'
 };
 
-const PROMOTED_TYPE_COLORS = {
+const PROMOTED_TYPE_COLORS: Record<string, { bg: string; text: string }> = {
   sop: { bg: '#eef2ff', text: '#4338ca' },
   framework: { bg: '#dbeafe', text: '#2563eb' },
   policy: { bg: '#ede9fe', text: '#7c3aed' },
   project: { bg: '#d1fae5', text: '#059669' }
 };
 
-const EVENT_COLORS = {
+const EVENT_COLORS: Record<string, string> = {
   decision: '#22c55e',
   playbook: '#3b82f6',
   project: '#14b8a6',
@@ -41,7 +41,7 @@ const EVENT_COLORS = {
   default: '#64748b'
 };
 
-const ACTION_COLORS = {
+const ACTION_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   deleted: { bg: '#fef2f2', text: '#dc2626', border: '#fecaca' },
   promoted: { bg: '#ecfdf5', text: '#059669', border: '#a7f3d0' },
   saved: { bg: '#eff6ff', text: '#2563eb', border: '#bfdbfe' },
@@ -50,9 +50,31 @@ const ACTION_COLORS = {
   archived: { bg: '#f5f5f4', text: '#78716c', border: '#d6d3d1' }
 };
 
+interface ActivityLog {
+  id: string;
+  event_type: string;
+  created_at: string;
+  title?: string;
+  action?: string;
+  promoted_to_type?: string;
+  related_id?: string;
+  related_type?: string;
+  conversation_id?: string;
+}
+
+interface ActivityTabProps {
+  activityLogs?: ActivityLog[] | undefined;
+  activityLoaded?: boolean | undefined;
+  activityHasMore?: boolean | undefined;
+  activityLoadingMore?: boolean | undefined;
+  onActivityClick?: ((log: ActivityLog) => void | Promise<void>) | undefined;
+  onLoadMore?: (() => void) | undefined;
+  onNavigateToConversation?: ((conversationId: string, source: string) => void) | undefined;
+}
+
 // Group logs by date (Today, Yesterday, or formatted date)
-function groupLogsByDate(logs) {
-  return logs.reduce((groups, log) => {
+function groupLogsByDate(logs: ActivityLog[]): Record<string, ActivityLog[]> {
+  return logs.reduce((groups: Record<string, ActivityLog[]>, log) => {
     const dateKey = formatDateGroup(log.created_at);
     if (!groups[dateKey]) groups[dateKey] = [];
     groups[dateKey].push(log);
@@ -68,7 +90,7 @@ export function ActivityTab({
   onActivityClick,
   onLoadMore,
   onNavigateToConversation
-}) {
+}: ActivityTabProps) {
   // Only show empty state if data has been loaded (not during initial load)
   if (activityLogs.length === 0 && activityLoaded) {
     return (
@@ -167,7 +189,7 @@ export function ActivityTab({
                         className="mc-source-icon-btn"
                         onClick={(e) => {
                           e.stopPropagation();
-                          onNavigateToConversation(log.conversation_id, 'activity');
+                          onNavigateToConversation(log.conversation_id!, 'activity');
                         }}
                         title="View source conversation"
                         aria-label="View source conversation"

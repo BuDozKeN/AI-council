@@ -2,6 +2,26 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import "./Skeleton.css"
 
+type SkeletonVariant = "rectangular" | "circular" | "text";
+
+interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: SkeletonVariant;
+  width?: number | string;
+  height?: number | string;
+}
+
+interface SkeletonTextProps extends React.HTMLAttributes<HTMLDivElement> {
+  lines?: number;
+}
+
+interface MessageSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
+  variant?: "assistant" | "user";
+}
+
+interface CountProps extends React.HTMLAttributes<HTMLDivElement> {
+  count?: number;
+}
+
 /**
  * Skeleton - Animated placeholder for loading states
  *
@@ -18,7 +38,7 @@ import "./Skeleton.css"
  * @param {number} height - Height in pixels (or use className)
  * @param {string} className - Additional CSS classes (supports Tailwind w-*, h-*)
  */
-const Skeleton = React.forwardRef(({
+const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(({
   variant = "rectangular",
   width,
   height,
@@ -26,13 +46,13 @@ const Skeleton = React.forwardRef(({
   style,
   ...props
 }, ref) => {
-  const variantClass = {
+  const variantClass: Record<SkeletonVariant, string> = {
     rectangular: "skeleton-rectangular",
     circular: "skeleton-circular",
     text: "skeleton-text"
   }
 
-  const inlineStyle = {
+  const inlineStyle: React.CSSProperties = {
     ...style,
     ...(width && { width: typeof width === 'number' ? `${width}px` : width }),
     ...(height && { height: typeof height === 'number' ? `${height}px` : height })
@@ -57,7 +77,7 @@ Skeleton.displayName = "Skeleton"
  * @param {number} lines - Number of lines to show
  * @param {string} className - Additional CSS classes for each line
  */
-const SkeletonText = ({ lines = 3, className, ...props }) => (
+const SkeletonText: React.FC<SkeletonTextProps> = ({ lines = 3, className, ...props }) => (
   <div className="skeleton-text-block" {...props}>
     {Array.from({ length: lines }).map((_, i) => (
       <Skeleton
@@ -80,7 +100,7 @@ SkeletonText.displayName = "SkeletonText"
  *
  * @param {string} variant - "assistant" (default) or "user"
  */
-const MessageSkeleton = ({ variant = "assistant", ...props }) => (
+const MessageSkeleton: React.FC<MessageSkeletonProps> = ({ variant = "assistant", ...props }) => (
   <div className={cn("skeleton-message", variant)} {...props}>
     <div className="skeleton-message-header">
       <Skeleton className="skeleton-message-avatar" />
@@ -101,7 +121,7 @@ MessageSkeleton.displayName = "MessageSkeleton"
  *
  * @param {number} count - Number of skeletons to show
  */
-const MessageSkeletonGroup = ({ count = 3, ...props }) => (
+const MessageSkeletonGroup: React.FC<CountProps> = ({ count = 3, ...props }) => (
   <div className="skeleton-message-group" {...props}>
     {Array.from({ length: count }).map((_, i) => (
       <MessageSkeleton key={i} variant={i % 2 === 0 ? "assistant" : "user"} />
@@ -114,7 +134,7 @@ MessageSkeletonGroup.displayName = "MessageSkeletonGroup"
 /**
  * ConversationSkeleton - Loading placeholder for sidebar conversation items
  */
-const ConversationSkeleton = ({ ...props }) => (
+const ConversationSkeleton: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ ...props }) => (
   <div className="skeleton-conversation" {...props}>
     <div className="skeleton-conversation-content">
       <Skeleton className="skeleton-conversation-title" />
@@ -130,7 +150,7 @@ ConversationSkeleton.displayName = "ConversationSkeleton"
  *
  * @param {number} count - Number of skeletons to show (default: 5)
  */
-const ConversationSkeletonGroup = ({ count = 5, ...props }) => (
+const ConversationSkeletonGroup: React.FC<CountProps> = ({ count = 5, ...props }) => (
   <div className="skeleton-conversation-group" {...props}>
     {Array.from({ length: count }).map((_, i) => (
       <ConversationSkeleton key={i} />

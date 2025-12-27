@@ -16,10 +16,48 @@ import { Popover, PopoverTrigger, PopoverContent } from '../ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { BottomSheet } from '../ui/BottomSheet';
 import { getDeptColor } from '../../lib/colors';
+import type { Business, Department, Role, Project, Playbook, UserPreferences } from '../../types/business';
 import './ContextChip.css';
 
 // Check if we're on mobile for bottom sheet vs popover
 const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
+
+// Extended role type that may include department_id from API
+interface RoleWithDepartment extends Role {
+  department_id?: string | undefined;
+}
+
+// Use the base Playbook type which already includes title and doc_type
+type PlaybookWithVariants = Playbook;
+
+// Normalized playbook for internal use
+interface NormalizedPlaybook {
+  id: string;
+  name: string;
+  type: 'framework' | 'sop' | 'policy';
+}
+
+interface ContextChipProps {
+  displayText?: string | undefined;
+  isSmartAuto?: boolean | undefined;
+  smartAutoHint?: string | null | undefined;
+  businesses?: Business[] | undefined;
+  selectedBusiness: string | null;
+  onSelectBusiness: (id: string | null) => void;
+  departments?: Department[] | undefined;
+  selectedDepartments?: string[] | undefined;
+  onSelectDepartments: (ids: string[]) => void;
+  allRoles?: RoleWithDepartment[] | undefined;
+  selectedRoles?: string[] | undefined;
+  onSelectRoles: (ids: string[]) => void;
+  projects?: Project[] | undefined;
+  selectedProject: string | null;
+  onSelectProject: (id: string | null) => void;
+  playbooks?: PlaybookWithVariants[] | undefined;
+  selectedPlaybooks?: string[] | undefined;
+  onSelectPlaybooks: (ids: string[]) => void;
+  userPreferences?: UserPreferences | null | undefined;
+}
 
 export function ContextChip({
   displayText = 'Smart Auto',
@@ -41,7 +79,7 @@ export function ContextChip({
   selectedPlaybooks = [],
   onSelectPlaybooks,
   userPreferences: _userPreferences,
-}) {
+}: ContextChipProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(isMobileDevice());
   const [showMore, setShowMore] = useState(false); // Toggle for Projects & Playbooks
@@ -70,22 +108,27 @@ export function ContextChip({
 
   // Group playbooks by doc_type (framework, sop, policy)
   const groupedPlaybooks = useMemo(() => {
-    const groups = { framework: [], sop: [], policy: [] };
+    const groups: Record<'framework' | 'sop' | 'policy', NormalizedPlaybook[]> = {
+      framework: [],
+      sop: [],
+      policy: []
+    };
     playbooks.forEach(pb => {
       const title = pb?.title || pb?.name;
       if (!pb || !title) return;
-      const docType = pb.doc_type || pb.type;
+      const docType = (pb.doc_type || pb.type) as 'framework' | 'sop' | 'policy' | undefined;
       if (!docType || !groups[docType]) return;
-      groups[docType].push({ ...pb, name: title });
+      groups[docType].push({ id: pb.id, name: title, type: docType });
     });
-    Object.keys(groups).forEach(key => {
+    (Object.keys(groups) as Array<keyof typeof groups>).forEach(key => {
       groups[key].sort((a, b) => a.name.localeCompare(b.name));
     });
     return groups;
   }, [playbooks]);
 
-  // Handle Smart Auto selection
-  const _handleSmartAuto = () => {
+  // Handle Smart Auto selection (used by UI components)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleSmartAuto = () => {
     onSelectBusiness?.(null);
     onSelectDepartments?.([]);
     onSelectRoles?.([]);
@@ -93,6 +136,7 @@ export function ContextChip({
     onSelectPlaybooks?.([]);
     setIsOpen(false);
   };
+  void handleSmartAuto; // Acknowledge the function exists for future use
 
   // Display text with Smart Auto hint
   const getDisplayWithHint = () => {
@@ -103,7 +147,7 @@ export function ContextChip({
   };
 
   // Toggle department selection
-  const toggleDepartment = (deptId) => {
+  const toggleDepartment = (deptId: string) => {
     if (selectedDepartments.includes(deptId)) {
       onSelectDepartments(selectedDepartments.filter(id => id !== deptId));
     } else {
@@ -112,7 +156,7 @@ export function ContextChip({
   };
 
   // Toggle role selection
-  const toggleRole = (roleId) => {
+  const toggleRole = (roleId: string) => {
     if (selectedRoles.includes(roleId)) {
       onSelectRoles(selectedRoles.filter(id => id !== roleId));
     } else {
@@ -121,7 +165,7 @@ export function ContextChip({
   };
 
   // Toggle playbook selection
-  const togglePlaybook = (pbId) => {
+  const togglePlaybook = (pbId: string) => {
     if (selectedPlaybooks.includes(pbId)) {
       onSelectPlaybooks(selectedPlaybooks.filter(id => id !== pbId));
     } else {
@@ -152,7 +196,7 @@ export function ContextChip({
   // Get filtered roles based on selected department (for single-select mode)
   const filteredRoles = useMemo(() => {
     if (selectedDepartments.length === 0) return allRoles;
-    return allRoles.filter(role => selectedDepartments.includes(role.department_id));
+    return allRoles.filter(role => role.department_id && selectedDepartments.includes(role.department_id));
   }, [allRoles, selectedDepartments]);
 
   // Desktop content - compact with playbooks behind toggle
@@ -202,7 +246,7 @@ export function ContextChip({
                     '--chip-bg': isSelected ? colors.bg : undefined,
                     '--chip-border': isSelected ? colors.text : undefined,
                     '--chip-text': isSelected ? colors.text : undefined,
-                  }}
+                  } as React.CSSProperties}
                 >
                   {dept.name}
                   {isSelected && <Check size={10} />}
@@ -408,7 +452,7 @@ export function ContextChip({
                     '--chip-bg': isSelected ? colors.bg : 'var(--color-bg-secondary)',
                     '--chip-border': isSelected ? colors.text : 'var(--color-border)',
                     '--chip-text': isSelected ? colors.text : 'var(--color-text-secondary)',
-                  }}
+                  } as React.CSSProperties}
                 >
                   {dept.name}
                   {isSelected && <Check size={14} className="strip-chip-check" />}

@@ -16,13 +16,23 @@
 
 import * as React from 'react';
 import * as Popover from '@radix-ui/react-popover';
-import { User, Check, ChevronDown, X } from 'lucide-react';
+import { User, Check, ChevronDown } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from './BottomSheet';
+import type { Role } from '../../types/business';
 import './MultiRoleSelect.css';
 
 // Check if we're on mobile/tablet for bottom sheet vs dropdown
 const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
+
+interface MultiRoleSelectProps {
+  value?: string[] | undefined;
+  onValueChange: (ids: string[]) => void;
+  roles?: Role[] | undefined;
+  disabled?: boolean | undefined;
+  placeholder?: string | undefined;
+  className?: string | undefined;
+}
 
 export function MultiRoleSelect({
   value = [],
@@ -31,15 +41,15 @@ export function MultiRoleSelect({
   disabled = false,
   placeholder = 'Select roles...',
   className,
-}) {
+}: MultiRoleSelectProps) {
   const [open, setOpen] = React.useState(false);
 
   // Get selected roles with their data
   const selectedRoles = value
     .map(id => roles.find(r => r.id === id))
-    .filter(Boolean);
+    .filter((r): r is Role => Boolean(r));
 
-  const toggleRole = (roleId) => {
+  const toggleRole = (roleId: string) => {
     if (value.includes(roleId)) {
       onValueChange(value.filter(id => id !== roleId));
     } else {
@@ -47,10 +57,6 @@ export function MultiRoleSelect({
     }
   };
 
-  const _removeRole = (e, roleId) => {
-    e.stopPropagation();
-    onValueChange(value.filter(id => id !== roleId));
-  };
 
   // Shared trigger content - compact format like departments
   const triggerContent = (
@@ -59,7 +65,7 @@ export function MultiRoleSelect({
 
       {selectedRoles.length === 0 ? (
         <span className="multi-role-placeholder">{placeholder}</span>
-      ) : selectedRoles.length === 1 ? (
+      ) : selectedRoles.length === 1 && selectedRoles[0] ? (
         // Single role: show name
         <span className="multi-role-single">{selectedRoles[0].name}</span>
       ) : (

@@ -20,16 +20,25 @@
 
 import * as React from 'react';
 import * as SelectPrimitive from '@radix-ui/react-select';
-import { Check, ChevronDown, Circle, CheckCircle2, Archive, Layers } from 'lucide-react';
+import { Check, ChevronDown, Circle, CheckCircle2, Archive, Layers, LucideIcon } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from './BottomSheet';
 import './StatusSelect.css';
+
+type StatusValue = 'all' | 'active' | 'completed' | 'archived';
+
+interface StatusColor {
+  bg: string;
+  text: string;
+  border: string;
+  hoverBg: string;
+}
 
 // Check if we're on mobile/tablet for bottom sheet vs dropdown
 const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
 
 // Status color definitions
-const statusColors = {
+const statusColors: Record<StatusValue, StatusColor> = {
   all: {
     bg: '#f3f4f6',
     text: '#374151',
@@ -56,24 +65,31 @@ const statusColors = {
   },
 };
 
-const statusIcons = {
+const statusIcons: Record<StatusValue, LucideIcon> = {
   all: Layers,
   active: Circle,
   completed: CheckCircle2,
   archived: Archive,
 };
 
-const statusLabels = {
+const statusLabels: Record<StatusValue, string> = {
   all: 'All Statuses',
   active: 'Active',
   completed: 'Completed',
   archived: 'Archived',
 };
 
-const statusOptions = ['all', 'active', 'completed', 'archived'];
+const statusOptions: StatusValue[] = ['all', 'active', 'completed', 'archived'];
+
+interface StatusSelectItemProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> {
+  status: StatusValue;
+}
 
 // Custom SelectItem matching DepartmentSelectItem pattern
-const StatusSelectItem = React.forwardRef(({
+const StatusSelectItem = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.Item>,
+  StatusSelectItemProps
+>(({
   className,
   children,
   status,
@@ -90,7 +106,7 @@ const StatusSelectItem = React.forwardRef(({
         '--status-hover-bg': colors.hoverBg,
         '--status-checked-bg': colors.bg,
         '--status-checked-text': colors.text,
-      }}
+      } as React.CSSProperties}
       {...props}
     >
       <span className="status-select-item-indicator">
@@ -105,12 +121,19 @@ const StatusSelectItem = React.forwardRef(({
 });
 StatusSelectItem.displayName = 'StatusSelectItem';
 
+interface StatusSelectProps {
+  value: StatusValue;
+  onValueChange: (value: StatusValue) => void;
+  disabled?: boolean;
+  className?: string;
+}
+
 export function StatusSelect({
   value,
   onValueChange,
   disabled = false,
   className,
-}) {
+}: StatusSelectProps) {
   const [open, setOpen] = React.useState(false);
   const colors = statusColors[value] || statusColors.active;
   const Icon = statusIcons[value] || Circle;
@@ -122,7 +145,7 @@ export function StatusSelect({
     borderColor: colors.border,
   };
 
-  const handleSelect = (statusValue) => {
+  const handleSelect = (statusValue: StatusValue) => {
     onValueChange(statusValue);
     setOpen(false);
   };
@@ -161,7 +184,7 @@ export function StatusSelect({
                   style={{
                     '--status-bg': statusColor.bg,
                     '--status-text': statusColor.text,
-                  }}
+                  } as React.CSSProperties}
                   type="button"
                 >
                   <div
@@ -169,7 +192,7 @@ export function StatusSelect({
                     style={{
                       '--radio-checked-bg': statusColor.text,
                       '--radio-checked-border': statusColor.text
-                    }}
+                    } as React.CSSProperties}
                   >
                     {isSelected && <Check className="h-3 w-3" />}
                   </div>

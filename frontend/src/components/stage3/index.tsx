@@ -10,12 +10,45 @@ import { useSaveActions } from './hooks/useSaveActions';
 import Stage3Content from './Stage3Content';
 import { Stage3Actions } from './Stage3Actions';
 import { TableOfContents } from '../ui/TableOfContents';
+import type { Department, Project } from '../../types/business';
 import '../Stage3.css';
 
 const log = logger.scope('Stage3');
 
+type Provider = 'anthropic' | 'openai' | 'google' | 'xai' | 'deepseek';
+
+interface FinalResponse {
+  response?: string;
+  model?: string;
+}
+
+interface StreamingState {
+  text?: string;
+  complete?: boolean;
+  error?: boolean;
+  model?: string;
+}
+
+interface Stage3Props {
+  finalResponse: FinalResponse | null;
+  streaming: StreamingState | null;
+  isLoading: boolean;
+  companyId: string | null;
+  departmentId: string | null;
+  conversationId: string | null;
+  conversationTitle: string | null;
+  userQuestion: string;
+  responseIndex?: number;
+  defaultCollapsed?: boolean;
+  onViewDecision?: (decisionId: string | null, viewType?: string, contextId?: string) => void;
+  projects?: Project[];
+  currentProjectId?: string | null;
+  onSelectProject?: (id: string | null) => void;
+  onCreateProject?: (data: { userQuestion: string; councilResponse: string; departmentIds: string[] }) => void;
+}
+
 // Provider icon paths
-const PROVIDER_ICON_PATH = {
+const PROVIDER_ICON_PATH: Record<Provider, string> = {
   anthropic: '/icons/anthropic.svg',
   openai: '/icons/openai.svg',
   google: '/icons/gemini.svg',
@@ -24,12 +57,12 @@ const PROVIDER_ICON_PATH = {
 };
 
 // Get icon path for a model
-function getModelIconPath(modelId) {
+function getModelIconPath(modelId: string | undefined): string | null {
   if (!modelId) return null;
 
   const persona = getModelPersona(modelId);
-  if (persona.provider && PROVIDER_ICON_PATH[persona.provider]) {
-    return PROVIDER_ICON_PATH[persona.provider];
+  if (persona.provider && PROVIDER_ICON_PATH[persona.provider as Provider]) {
+    return PROVIDER_ICON_PATH[persona.provider as Provider];
   }
 
   const lowerModel = modelId.toLowerCase();
@@ -58,10 +91,22 @@ function Stage3({
   currentProjectId = null,
   onSelectProject,
   onCreateProject,
-}) {
+}: Stage3Props) {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
-  const [departments, setDepartments] = useState([]);
-  const [fullProjectData, setFullProjectData] = useState(null);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  // ProjectWithContext type matches what useSaveActions expects
+  interface ProjectWithContext {
+    id: string;
+    name: string;
+    context_md?: string;
+    description?: string;
+    status?: 'active' | 'completed' | 'archived';
+    company_id?: string;
+    department_ids?: string[];
+    created_at?: string;
+    updated_at?: string;
+  }
+  const [fullProjectData, setFullProjectData] = useState<ProjectWithContext | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const finalResponseRef = useRef<HTMLDivElement>(null);
@@ -101,7 +146,7 @@ function Stage3({
     } else if (conversationTitle) {
       title = conversationTitle;
     } else if (displayText) {
-      title = displayText.split('\n')[0].slice(0, 100);
+      title = (displayText.split('\n')[0] ?? '').slice(0, 100);
     } else {
       return 'Council Decision';
     }
@@ -117,9 +162,11 @@ function Stage3({
     return title || 'Council Decision';
   };
 
-  // Get current project
+  // Get current project - cast to ProjectWithContext for consistency with useSaveActions
   const currentProjectBasic = projects.find(p => p.id === selectedProjectId);
-  const currentProject = fullProjectData?.id === selectedProjectId ? fullProjectData : currentProjectBasic;
+  const currentProject: ProjectWithContext | null = fullProjectData?.id === selectedProjectId
+    ? fullProjectData
+    : (currentProjectBasic ? { ...currentProjectBasic } : null);
 
   // Use save actions hook
   const { handleSaveForLater, handleSaveAndPromote } = useSaveActions({
@@ -145,7 +192,7 @@ function Stage3({
   });
 
   // View decision handler
-  const handleViewDecision = (decisionId, viewType, contextId) => {
+  const handleViewDecision = (decisionId: string | null, viewType?: string, contextId?: string) => {
     if (onViewDecision) {
       onViewDecision(decisionId || savedDecisionId, viewType, contextId);
     }
@@ -221,12 +268,12 @@ function Stage3({
     return () => observer.disconnect();
   }, [checkDecisionStatus, savedDecisionId, conversationId, companyId]);
 
-  // Streaming states
-  const isStreaming = streaming && !streaming.complete;
-  const hasError = streaming?.error;
+  // Streaming states - explicitly type as boolean
+  const isStreaming: boolean = Boolean(streaming && !streaming.complete);
+  const hasError: boolean = Boolean(streaming?.error);
   const chairmanModel = finalResponse?.model || streaming?.model || 'google/gemini-3-pro-preview';
   const chairmanIconPath = getModelIconPath(chairmanModel);
-  const isComplete = !isStreaming && !hasError && displayText;
+  const isComplete: boolean = !isStreaming && !hasError && Boolean(displayText);
 
   const toggleCollapsed = () => {
     setIsCollapsed(!isCollapsed);

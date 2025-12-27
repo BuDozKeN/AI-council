@@ -10,20 +10,58 @@
  * Extracted from MyCompany.jsx for better maintainability.
  */
 
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { BookOpen, Plus } from 'lucide-react';
 import { Button } from '../../ui/button';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { ScrollableContent } from '../../ui/ScrollableContent';
+import { Skeleton } from '../../ui/Skeleton';
 import { getDeptColor } from '../../../lib/colors';
+import type { Department } from '../../../types/business';
 
-const DOC_TYPES = ['sop', 'framework', 'policy'];
-const TYPE_LABELS = {
+type DocType = 'sop' | 'framework' | 'policy';
+type PlaybookTypeFilter = 'all' | DocType;
+
+interface ExtendedPlaybook {
+  id: string;
+  title: string;
+  doc_type: DocType;
+  department_id?: string | undefined;
+  department_name?: string | undefined;
+  department_slug?: string | undefined;
+  additional_departments?: string[] | undefined;
+}
+
+interface ExpandedTypesState {
+  sop?: boolean;
+  framework?: boolean;
+  policy?: boolean;
+}
+
+interface PlaybooksTabProps {
+  playbooks?: ExtendedPlaybook[] | undefined;
+  departments?: Department[] | undefined;
+  playbooksLoaded?: boolean | undefined;
+  loading?: boolean | undefined;
+  playbookTypeFilter?: PlaybookTypeFilter | undefined;
+  playbookDeptFilter?: string[] | undefined;
+  expandedTypes?: ExpandedTypesState | Record<string, boolean> | undefined;
+  onTypeFilterChange?: ((filter: PlaybookTypeFilter) => void) | undefined;
+  onDeptFilterChange?: ((ids: string[]) => void) | undefined;
+  onExpandedTypesChange?: ((updater: (prev: ExpandedTypesState) => ExpandedTypesState) => void) | React.Dispatch<React.SetStateAction<Record<string, boolean>>> | undefined;
+  onAddPlaybook?: (() => void) | undefined;
+  onViewPlaybook?: ((playbook: ExtendedPlaybook) => void) | undefined;
+  onArchivePlaybook?: ((playbook: ExtendedPlaybook) => void) | undefined;
+  onDeletePlaybook?: ((playbook: ExtendedPlaybook) => void) | undefined;
+}
+
+const DOC_TYPES: DocType[] = ['sop', 'framework', 'policy'];
+const TYPE_LABELS: Record<DocType, string> = {
   sop: 'Standard Operating Procedures',
   framework: 'Frameworks',
   policy: 'Policies'
 };
-const TYPE_SHORT_LABELS = {
+const TYPE_SHORT_LABELS: Record<DocType, string> = {
   sop: 'SOP',
   framework: 'Framework',
   policy: 'Policy'
@@ -32,6 +70,8 @@ const TYPE_SHORT_LABELS = {
 export function PlaybooksTab({
   playbooks = [],
   departments = [],
+  playbooksLoaded = true,
+  loading = false,
   // Filter state
   playbookTypeFilter = 'all',
   playbookDeptFilter = [],
@@ -45,7 +85,7 @@ export function PlaybooksTab({
   onViewPlaybook,
   onArchivePlaybook,
   onDeletePlaybook
-}) {
+}: PlaybooksTabProps) {
   // Memoize stats to prevent recalculation on every render
   const stats = useMemo(() => ({
     sops: playbooks.filter(p => p.doc_type === 'sop').length,
@@ -59,7 +99,7 @@ export function PlaybooksTab({
       .filter(pb => {
         const matchesType = playbookTypeFilter === 'all' || pb.doc_type === playbookTypeFilter;
         const matchesDept = playbookDeptFilter.length === 0 ||
-          playbookDeptFilter.includes(pb.department_id) ||
+          (pb.department_id && playbookDeptFilter.includes(pb.department_id)) ||
           (pb.additional_departments || []).some(id => playbookDeptFilter.includes(id));
         return matchesType && matchesDept;
       })
@@ -68,7 +108,7 @@ export function PlaybooksTab({
     const grouped = DOC_TYPES.reduce((acc, type) => {
       acc[type] = filtered.filter(p => p.doc_type === type);
       return acc;
-    }, {});
+    }, {} as Record<DocType, ExtendedPlaybook[]>);
 
     return { filteredPlaybooks: filtered, groupedPlaybooks: grouped };
   }, [playbooks, playbookTypeFilter, playbookDeptFilter]);
@@ -77,6 +117,52 @@ export function PlaybooksTab({
   const allSops = { length: stats.sops };
   const allFrameworks = { length: stats.frameworks };
   const allPolicies = { length: stats.policies };
+
+  // Show skeleton during initial load
+  if (!playbooksLoaded || loading) {
+    return (
+      <div className="mc-playbooks">
+        {/* Stats skeleton */}
+        <div className="mc-stats-grid">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="mc-stat-card">
+              <Skeleton className="h-8 w-12 mb-1" />
+              <Skeleton className="h-3 w-16" />
+            </div>
+          ))}
+        </div>
+        {/* Filters skeleton */}
+        <div className="mc-projects-filters">
+          <div className="mc-filters-left">
+            <Skeleton className="h-9 w-28" />
+          </div>
+          <Skeleton className="h-9 w-32" />
+        </div>
+        {/* Playbook groups skeleton */}
+        <div className="mc-playbooks-list">
+          {[1, 2].map(groupIdx => (
+            <div key={groupIdx} className="mc-playbook-group">
+              <Skeleton className="h-4 w-48 mb-3" />
+              <div className="mc-elegant-list">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="mc-elegant-row" style={{ pointerEvents: 'none' }}>
+                    <Skeleton variant="circular" className="h-2.5 w-2.5" />
+                    <div className="mc-elegant-content">
+                      <Skeleton className="h-4 w-52 mb-2" />
+                      <div className="mc-elegant-badges">
+                        <Skeleton className="h-5 w-20" />
+                        <Skeleton className="h-5 w-14" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (playbooks.length === 0) {
     return (
@@ -133,7 +219,7 @@ export function PlaybooksTab({
         <div className="mc-filters-left">
           <MultiDepartmentSelect
             value={playbookDeptFilter}
-            onValueChange={onDeptFilterChange}
+            onValueChange={onDeptFilterChange ?? (() => {})}
             departments={departments}
             placeholder="All Depts"
           />
@@ -154,7 +240,7 @@ export function PlaybooksTab({
             No playbooks match your filters
           </div>
         ) : (
-          DOC_TYPES.map(type => {
+          DOC_TYPES.map((type: DocType) => {
             const docs = groupedPlaybooks[type];
             if (docs.length === 0) return null;
 
@@ -170,18 +256,18 @@ export function PlaybooksTab({
                   <span className="mc-group-count">({docs.length})</span>
                 </h4>
                 <div className="mc-elegant-list">
-                  {visibleDocs.map(doc => {
+                  {visibleDocs.map((doc: ExtendedPlaybook) => {
                     // Use embedded department name (or fallback to lookup for backwards compat)
-                    const dept = doc.department_name
+                    const dept: { id: string | undefined; name: string; slug: string | undefined } | Department | undefined = doc.department_name
                       ? { id: doc.department_id, name: doc.department_name, slug: doc.department_slug }
-                      : departments.find(d => d.id === doc.department_id);
+                      : departments.find((d: Department) => d.id === doc.department_id);
                     // Find additional department names
                     const additionalDepts = (doc.additional_departments || [])
-                      .map(deptId => departments.find(d => d.id === deptId))
-                      .filter(Boolean);
+                      .map((deptId: string) => departments.find((d: Department) => d.id === deptId))
+                      .filter((d): d is Department => Boolean(d));
 
                     // All departments for this playbook
-                    const allDepts = [dept, ...additionalDepts].filter(Boolean);
+                    const allDepts = [dept, ...additionalDepts].filter((d): d is NonNullable<typeof dept> => Boolean(d));
 
                     const typeLabel = TYPE_SHORT_LABELS[doc.doc_type] || doc.doc_type;
 
@@ -201,11 +287,12 @@ export function PlaybooksTab({
                           {/* Badges row - departments + type */}
                           <div className="mc-elegant-badges">
                             {/* Department badges */}
-                            {allDepts.map(d => {
-                              const color = getDeptColor(d.id);
+                            {allDepts.map((d, idx) => {
+                              const deptId = d.id ?? `dept-${idx}`;
+                              const color = getDeptColor(deptId);
                               return (
                                 <span
-                                  key={d.id}
+                                  key={deptId}
                                   className="mc-elegant-dept"
                                   style={{
                                     background: color.bg,
@@ -252,7 +339,7 @@ export function PlaybooksTab({
                 {hasMore && (
                   <button
                     className="mc-load-more-btn"
-                    onClick={() => onExpandedTypesChange && onExpandedTypesChange(prev => ({ ...prev, [type]: !prev[type] }))}
+                    onClick={() => onExpandedTypesChange && onExpandedTypesChange((prev: ExpandedTypesState) => ({ ...prev, [type]: !prev[type] }))}
                   >
                     {isExpanded ? `Show less` : `Load more (${docs.length - MAX_VISIBLE} more)`}
                   </button>

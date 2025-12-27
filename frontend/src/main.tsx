@@ -14,12 +14,16 @@ import { BusinessProvider, ConversationProvider, UIProvider } from './contexts'
 import ErrorBoundary from './components/ErrorBoundary'
 import { initWebVitals } from './utils/webVitals'
 import { initSentry } from './utils/sentry'
+import { initPWA } from './pwa'
 
 // Initialize Sentry error tracking (before anything else)
 initSentry()
 
 // Initialize performance monitoring
 initWebVitals()
+
+// Initialize PWA service worker (with error handling)
+initPWA()
 
 // Configure TanStack Query client
 const queryClient = new QueryClient({

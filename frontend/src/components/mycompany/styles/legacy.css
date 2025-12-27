@@ -349,36 +349,36 @@
 .dark .mc-ai-synthesize-btn,
 [data-theme="dark"] .mc-ai-synthesize-btn {
   color: var(--color-violet-400);
-  background: rgba(139, 92, 246, 0.15);
-  border-color: rgba(139, 92, 246, 0.3);
+  background: var(--overlay-purple-15);
+  border-color: var(--overlay-purple-20);
 }
 
 .dark .mc-ai-synthesize-btn:hover:not(:disabled),
 [data-theme="dark"] .mc-ai-synthesize-btn:hover:not(:disabled) {
-  background: rgba(139, 92, 246, 0.25);
+  background: var(--overlay-purple-20);
   color: var(--color-violet-300);
-  border-color: rgba(139, 92, 246, 0.4);
+  border-color: var(--overlay-purple-20);
 }
 
 /* Countdown state */
 .dark .mc-ai-synthesize-btn.countdown,
 [data-theme="dark"] .mc-ai-synthesize-btn.countdown {
-  background: rgba(99, 102, 241, 0.15);
+  background: var(--overlay-indigo-15);
   border-color: var(--color-indigo-400);
   color: var(--color-indigo-400);
 }
 
 .dark .mc-ai-synthesize-btn.countdown:hover,
 [data-theme="dark"] .mc-ai-synthesize-btn.countdown:hover {
-  background: rgba(99, 102, 241, 0.25);
+  background: var(--overlay-indigo-25);
   border-color: var(--color-indigo-300);
 }
 
 /* AI Synthesize row */
 .dark .mc-ai-synthesize-row,
 [data-theme="dark"] .mc-ai-synthesize-row {
-  background: rgba(139, 92, 246, 0.1);
-  border-color: rgba(139, 92, 246, 0.2);
+  background: var(--overlay-purple-10);
+  border-color: var(--overlay-purple-20);
 }
 
 .dark .mc-ai-synthesize-hint,
@@ -401,7 +401,7 @@
 /* Source badge */
 .dark .mc-source-badge,
 [data-theme="dark"] .mc-source-badge {
-  background: rgba(14, 165, 233, 0.1);
+  background: var(--overlay-blue-10);
   color: var(--color-sky-400);
-  border-color: rgba(14, 165, 233, 0.2);
+  border-color: var(--overlay-blue-20);
 }

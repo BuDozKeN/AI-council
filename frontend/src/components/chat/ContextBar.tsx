@@ -10,22 +10,64 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { MultiDepartmentSelect } from '../ui/MultiDepartmentSelect';
 import { MultiRoleSelect } from '../ui/MultiRoleSelect';
 import { MultiPlaybookSelect } from '../ui/MultiPlaybookSelect';
+import type { Business, Department, Role, Channel, Style, Project, Playbook } from '../../types/business';
+
+// Extended playbook type expected by MultiPlaybookSelect
+type PlaybookType = 'sop' | 'framework' | 'policy';
+interface ExtendedPlaybook {
+  id: string;
+  title: string;
+  doc_type: PlaybookType;
+}
+
+interface ContextBarProps {
+  businesses?: Business[];
+  selectedBusiness: string | null;
+  onSelectBusiness: (id: string | null) => void;
+  departments?: Department[];
+  selectedDepartments?: string[];
+  onSelectDepartments?: (ids: string[]) => void;
+  allRoles?: Role[];
+  selectedRoles?: string[];
+  onSelectRoles?: (ids: string[]) => void;
+  playbooks?: Playbook[];
+  selectedPlaybooks?: string[];
+  onSelectPlaybooks?: (ids: string[]) => void;
+  selectedDepartment?: string | null;
+  onSelectDepartment?: (id: string | null) => void;
+  roles?: Role[];
+  selectedRole?: string | null;
+  onSelectRole?: (id: string | null) => void;
+  channels?: Channel[];
+  selectedChannel?: string | null;
+  onSelectChannel?: (id: string | null) => void;
+  styles?: Style[];
+  selectedStyle?: string | null;
+  onSelectStyle?: (id: string | null) => void;
+  projects?: Project[];
+  selectedProject?: string | null;
+  onSelectProject?: (id: string | null) => void;
+  onOpenProjectModal?: (context?: unknown) => void;
+  useCompanyContext?: boolean;
+  onToggleCompanyContext?: (value: boolean) => void;
+  useDepartmentContext?: boolean;
+  onToggleDepartmentContext?: (value: boolean) => void;
+  isLoading?: boolean;
+}
 
 export function ContextBar({
   businesses = [],
   selectedBusiness,
   onSelectBusiness,
   departments = [],
-  selectedDepartments = [],  // Changed to array
-  onSelectDepartments,       // Changed to handle array
-  allRoles = [],             // All roles from all departments
-  selectedRoles = [],        // Changed to array
-  onSelectRoles,             // Changed to handle array
-  // Playbooks
+  selectedDepartments = [],
+  onSelectDepartments,
+  allRoles = [],
+  selectedRoles = [],
+  onSelectRoles,
   playbooks = [],
   selectedPlaybooks = [],
   onSelectPlaybooks,
-  // Legacy single-select props (for backwards compatibility)
   selectedDepartment,
   onSelectDepartment,
   roles = [],
@@ -46,10 +88,24 @@ export function ContextBar({
   useDepartmentContext,
   onToggleDepartmentContext,
   isLoading
-}) {
+}: ContextBarProps) {
   // Determine if we're using multi-select mode
   const useMultiSelect = onSelectDepartments && onSelectRoles;
   if (businesses.length === 0) return null;
+
+  // Normalize isLoading to boolean for components that require it
+  const disabled = isLoading ?? false;
+
+  // Convert playbooks to extended format expected by MultiPlaybookSelect
+  const extendedPlaybooks: ExtendedPlaybook[] = playbooks
+    .filter((p): p is Playbook & { doc_type: PlaybookType } =>
+      p.doc_type !== undefined && ['sop', 'framework', 'policy'].includes(p.doc_type)
+    )
+    .map(p => ({
+      id: p.id,
+      title: p.title ?? p.name ?? 'Untitled',
+      doc_type: p.doc_type,
+    }));
 
   return (
     <div className="context-bar">
@@ -57,7 +113,7 @@ export function ContextBar({
       <Select
         value={selectedBusiness || '__none__'}
         onValueChange={(v) => onSelectBusiness(v === '__none__' ? null : v)}
-        disabled={isLoading}
+        disabled={disabled}
       >
         <SelectTrigger className="context-select-trigger company-select-trigger">
           <SelectValue placeholder="No company" />
@@ -79,8 +135,8 @@ export function ContextBar({
           <button
             type="button"
             className={`context-pill ${useCompanyContext ? 'active' : ''}`}
-            onClick={() => onToggleCompanyContext(!useCompanyContext)}
-            disabled={isLoading}
+            onClick={() => onToggleCompanyContext?.(!useCompanyContext)}
+            disabled={disabled}
             title="Toggle company-wide context (main company knowledge)"
           >
             <span className="pill-icon">{useCompanyContext ? '✓' : '○'}</span>
@@ -92,8 +148,8 @@ export function ContextBar({
             {projects.length > 0 ? (
               <Select
                 value={selectedProject || '__none__'}
-                onValueChange={(v) => onSelectProject(v === '__none__' ? null : v)}
-                disabled={isLoading}
+                onValueChange={(v) => onSelectProject?.(v === '__none__' ? null : v)}
+                disabled={disabled}
               >
                 <SelectTrigger className="context-select-trigger project-select-trigger">
                   <SelectValue placeholder="Company-wide" />
@@ -113,8 +169,8 @@ export function ContextBar({
             <button
               type="button"
               className="add-project-btn"
-              onClick={onOpenProjectModal}
-              disabled={isLoading}
+              onClick={() => onOpenProjectModal?.()}
+              disabled={disabled}
               title="Add a new project or client"
             >
               +
@@ -129,9 +185,9 @@ export function ContextBar({
                 <>
                   <MultiDepartmentSelect
                     value={selectedDepartments}
-                    onValueChange={onSelectDepartments}
+                    onValueChange={onSelectDepartments!}
                     departments={departments}
-                    disabled={isLoading}
+                    disabled={disabled}
                     placeholder="Select departments..."
                     className="context-multi-select"
                   />
@@ -140,21 +196,21 @@ export function ContextBar({
                   {allRoles.length > 0 && (
                     <MultiRoleSelect
                       value={selectedRoles}
-                      onValueChange={onSelectRoles}
+                      onValueChange={onSelectRoles!}
                       roles={allRoles}
-                      disabled={isLoading}
+                      disabled={disabled}
                       placeholder="Select roles..."
                       className="context-multi-select"
                     />
                   )}
 
                   {/* Playbook multi-select */}
-                  {playbooks.length > 0 && onSelectPlaybooks && (
+                  {extendedPlaybooks.length > 0 && onSelectPlaybooks && (
                     <MultiPlaybookSelect
                       value={selectedPlaybooks}
                       onValueChange={onSelectPlaybooks}
-                      playbooks={playbooks}
-                      disabled={isLoading}
+                      playbooks={extendedPlaybooks}
+                      disabled={disabled}
                       placeholder="Select playbooks..."
                       className="context-multi-select"
                     />
@@ -165,8 +221,8 @@ export function ContextBar({
                     <button
                       type="button"
                       className={`context-pill ${useDepartmentContext ? 'active' : ''}`}
-                      onClick={() => onToggleDepartmentContext(!useDepartmentContext)}
-                      disabled={isLoading}
+                      onClick={() => onToggleDepartmentContext?.(!useDepartmentContext)}
+                      disabled={disabled}
                       title="Toggle department-specific context (department knowledge)"
                     >
                       <span className="pill-icon">{useDepartmentContext ? '✓' : '○'}</span>
@@ -179,8 +235,8 @@ export function ContextBar({
                 <>
                   <Select
                     value={selectedDepartment || '__none__'}
-                    onValueChange={(v) => onSelectDepartment(v === '__none__' ? null : v)}
-                    disabled={isLoading}
+                    onValueChange={(v) => onSelectDepartment?.(v === '__none__' ? null : v)}
+                    disabled={disabled}
                   >
                     <SelectTrigger className="context-select-trigger department-select-trigger">
                       <SelectValue placeholder="General Council" />
@@ -199,8 +255,8 @@ export function ContextBar({
                   {selectedDepartment && roles.length > 0 && (
                     <Select
                       value={selectedRole || '__none__'}
-                      onValueChange={(v) => onSelectRole(v === '__none__' ? null : v)}
-                      disabled={isLoading}
+                      onValueChange={(v) => onSelectRole?.(v === '__none__' ? null : v)}
+                      disabled={disabled}
                     >
                       <SelectTrigger className="context-select-trigger role-select-trigger">
                         <SelectValue placeholder={`All ${departments.find(d => d.id === selectedDepartment)?.name || 'Department'} Roles`} />
@@ -221,8 +277,8 @@ export function ContextBar({
                     <button
                       type="button"
                       className={`context-pill ${useDepartmentContext ? 'active' : ''}`}
-                      onClick={() => onToggleDepartmentContext(!useDepartmentContext)}
-                      disabled={isLoading}
+                      onClick={() => onToggleDepartmentContext?.(!useDepartmentContext)}
+                      disabled={disabled}
                       title="Toggle department-specific context (department knowledge)"
                     >
                       <span className="pill-icon">{useDepartmentContext ? '✓' : '○'}</span>
@@ -238,8 +294,8 @@ export function ContextBar({
           {selectedDepartment && channels.length > 0 && (
             <Select
               value={selectedChannel || '__none__'}
-              onValueChange={(v) => onSelectChannel(v === '__none__' ? null : v)}
-              disabled={isLoading}
+              onValueChange={(v) => onSelectChannel?.(v === '__none__' ? null : v)}
+              disabled={disabled}
             >
               <SelectTrigger className="context-select-trigger channel-select-trigger">
                 <SelectValue placeholder="Any channel" />
@@ -259,8 +315,8 @@ export function ContextBar({
           {styles.length > 0 && (
             <Select
               value={selectedStyle || '__none__'}
-              onValueChange={(v) => onSelectStyle(v === '__none__' ? null : v)}
-              disabled={isLoading}
+              onValueChange={(v) => onSelectStyle?.(v === '__none__' ? null : v)}
+              disabled={disabled}
             >
               <SelectTrigger className="context-select-trigger style-select-trigger">
                 <SelectValue placeholder="Default style" />

@@ -68,13 +68,13 @@ export interface ContextWriteAssistOptions {
 }
 
 export interface SaveDecisionOptions {
-  saveDecision?: boolean;
-  companyId?: string;
-  conversationId?: string;
-  responseIndex?: number;
-  decisionTitle?: string;
-  departmentId?: string | null;
-  departmentIds?: string[] | null;
+  saveDecision?: boolean | undefined;
+  companyId?: string | undefined;
+  conversationId?: string | undefined;
+  responseIndex?: number | undefined;
+  decisionTitle?: string | undefined;
+  departmentId?: string | null | undefined;
+  departmentIds?: string[] | null | undefined;
 }
 
 export type SSEEventCallback = (eventType: string, data: Record<string, unknown>) => void;
@@ -170,7 +170,7 @@ export const api = {
    * @param {string} conversationId - ID of the conversation
    * @param {boolean} starred - True to star, false to unstar
    */
-  async starConversation(conversationId, starred = true) {
+  async starConversation(conversationId: string, starred = true) {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/star`,
@@ -190,7 +190,7 @@ export const api = {
    * Create a new conversation.
    * @param {string} companyId - The company ID to associate with this conversation
    */
-  async createConversation(companyId = null) {
+  async createConversation(companyId: string | null = null) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/conversations`, {
       method: 'POST',
@@ -206,7 +206,7 @@ export const api = {
   /**
    * Get a specific conversation.
    */
-  async getConversation(conversationId) {
+  async getConversation(conversationId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}`,
@@ -224,7 +224,7 @@ export const api = {
    * @param {string} content - The message content
    * @param {string|null} businessId - Optional business context ID
    */
-  async sendMessage(conversationId, content, businessId = null) {
+  async sendMessage(conversationId: string, content: string, businessId: string | null = null) {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/message`,
@@ -439,7 +439,7 @@ export const api = {
    * Get department-specific leaderboard.
    * @param {string} department - The department name
    */
-  async getDepartmentLeaderboard(department) {
+  async getDepartmentLeaderboard(department: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/leaderboard/department/${department}`, { headers });
     if (!response.ok) {
@@ -454,7 +454,7 @@ export const api = {
    * @param {string|null} businessId - Optional business context ID
    * @returns {Promise<{ready: boolean, constraints: object, missing: string[], questions: string|null, enhanced_query: string}>}
    */
-  async analyzeTriage(content, businessId = null) {
+  async analyzeTriage(content: string, businessId: string | null = null) {
     const response = await fetch(`${API_BASE}/api/triage/analyze`, {
       method: 'POST',
       headers: {
@@ -476,7 +476,7 @@ export const api = {
    * @param {string|null} businessId - Optional business context ID
    * @returns {Promise<{ready: boolean, constraints: object, missing: string[], questions: string|null, enhanced_query: string}>}
    */
-  async continueTriage(originalQuery, previousConstraints, userResponse, businessId = null) {
+  async continueTriage(originalQuery: string, previousConstraints: Record<string, unknown>, userResponse: string, businessId: string | null = null) {
     const response = await fetch(`${API_BASE}/api/triage/continue`, {
       method: 'POST',
       headers: {
@@ -500,7 +500,7 @@ export const api = {
    * @param {string} conversationId - The conversation ID
    * @returns {Promise<void>} - Triggers a file download
    */
-  async exportConversation(conversationId) {
+  async exportConversation(conversationId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/export`,
@@ -515,7 +515,7 @@ export const api = {
     let filename = 'conversation.md';
     if (contentDisposition) {
       const match = contentDisposition.match(/filename="(.+)"/);
-      if (match) {
+      if (match?.[1]) {
         filename = match[1];
       }
     }
@@ -537,7 +537,7 @@ export const api = {
    * @param {string} conversationId - The conversation ID
    * @param {string} title - The new title
    */
-  async renameConversation(conversationId, title) {
+  async renameConversation(conversationId: string, title: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/rename`,
@@ -558,7 +558,7 @@ export const api = {
    * @param {string} conversationId - The conversation ID
    * @param {boolean} archived - True to archive, false to unarchive
    */
-  async archiveConversation(conversationId, archived = true) {
+  async archiveConversation(conversationId: string, archived = true) {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/archive`,
@@ -581,7 +581,7 @@ export const api = {
    * @param {string} department - The target department ID/slug
    * @returns {Promise<{success: boolean, department: string}>}
    */
-  async updateConversationDepartment(conversationId, department) {
+  async updateConversationDepartment(conversationId: string, department: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/department`,
@@ -601,7 +601,7 @@ export const api = {
    * Permanently delete a conversation.
    * @param {string} conversationId - The conversation ID
    */
-  async deleteConversation(conversationId) {
+  async deleteConversation(conversationId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}`,
@@ -623,7 +623,7 @@ export const api = {
    * @param {string[]} conversationIds - Array of conversation IDs to delete
    * @returns {Promise<{deleted: string[], failed: Array, deleted_count: number}>}
    */
-  async bulkDeleteConversations(conversationIds) {
+  async bulkDeleteConversations(conversationIds: string[]) {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/conversations/bulk-delete`,
@@ -646,7 +646,7 @@ export const api = {
    * @param {string|null} departmentId - Optional department ID
    * @returns {Promise<{suggestions: Array, summary: string, analyzed_at: string}>}
    */
-  async curateConversation(conversationId, businessId, departmentId = null) {
+  async curateConversation(conversationId: string, businessId: string, departmentId: string | null = null) {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/curate`,
@@ -672,7 +672,7 @@ export const api = {
    * @param {object} suggestion - The suggestion object to apply
    * @returns {Promise<{success: boolean, message: string, updated_at: string}>}
    */
-  async applySuggestion(businessId, suggestion) {
+  async applySuggestion(businessId: string, suggestion: Record<string, unknown>) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/context/apply-suggestion`, {
       method: 'POST',
@@ -696,7 +696,7 @@ export const api = {
    * @param {string|null} department - Optional department ID to look in department context
    * @returns {Promise<{section: string, content: string, exists: boolean}>}
    */
-  async getContextSection(businessId, sectionName, department = null) {
+  async getContextSection(businessId: string, sectionName: string, department: string | null = null) {
     const headers = await getAuthHeaders();
     let url = `${API_BASE}/api/context/${businessId}/section/${encodeURIComponent(sectionName)}`;
     if (department && department !== 'company') {
@@ -718,7 +718,7 @@ export const api = {
    * @param {number} rejectedCount - Number of suggestions rejected
    * @returns {Promise<{success: boolean}>}
    */
-  async saveCuratorRun(conversationId, businessId, suggestionsCount, acceptedCount, rejectedCount) {
+  async saveCuratorRun(conversationId: string, businessId: string, suggestionsCount: number, acceptedCount: number, rejectedCount: number) {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/curator-history`,
@@ -744,7 +744,7 @@ export const api = {
    * @param {string} conversationId - The conversation ID
    * @returns {Promise<{history: Array}>}
    */
-  async getCuratorHistory(conversationId) {
+  async getCuratorHistory(conversationId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/curator-history`,
@@ -774,7 +774,7 @@ export const api = {
    * @param {boolean} enabled - Whether to enable mock mode
    * @returns {Promise<{success: boolean, enabled: boolean, message: string}>}
    */
-  async setMockMode(enabled) {
+  async setMockMode(enabled: boolean) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/settings/mock-mode`, {
       method: 'POST',
@@ -805,7 +805,7 @@ export const api = {
    * @param {boolean} enabled - Whether to enable prompt caching
    * @returns {Promise<{success: boolean, enabled: boolean, message: string}>}
    */
-  async setCachingMode(enabled) {
+  async setCachingMode(enabled: boolean) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/settings/caching-mode`, {
       method: 'POST',
@@ -824,7 +824,7 @@ export const api = {
    * @param {string} businessId - The business context ID
    * @returns {Promise<{last_updated: string|null}>}
    */
-  async getContextLastUpdated(businessId) {
+  async getContextLastUpdated(businessId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/context/${businessId}/last-updated`,
@@ -845,13 +845,16 @@ export const api = {
    * @param {string} department.name - The display name for the department
    * @returns {Promise<Object>} Created department
    */
-  async createDepartment(companyId, department) {
+  async createDepartment(companyId: string, department: { id?: string; name: string; description?: string }) {
     // Delegate to new unified endpoint
-    return this.createCompanyDepartment(companyId, {
+    const payload: { name: string; slug: string; description?: string } = {
       name: department.name,
       slug: department.id || department.name.toLowerCase().replace(/\s+/g, '-'),
-      description: department.description || null,
-    });
+    };
+    if (department.description) {
+      payload.description = department.description;
+    }
+    return this.createCompanyDepartment(companyId, payload);
   },
 
   /**
@@ -862,7 +865,7 @@ export const api = {
    * @param {object} updates - Fields to update
    * @returns {Promise<Object>} Updated department
    */
-  async updateDepartment(companyId, departmentId, updates) {
+  async updateDepartment(companyId: string, departmentId: string, updates: { name?: string; slug?: string; description?: string; purpose?: string }) {
     // Delegate to new unified endpoint
     return this.updateCompanyDepartment(companyId, departmentId, updates);
   },
@@ -878,14 +881,17 @@ export const api = {
    * @param {string} role.role_description - Optional description
    * @returns {Promise<Object>} Created role
    */
-  async addRole(companyId, departmentId, role) {
+  async addRole(companyId: string, departmentId: string, role: { role_id?: string; role_name: string; role_description?: string }) {
     // Delegate to new unified endpoint
-    return this.createCompanyRole(companyId, departmentId, {
+    const payload: { name: string; slug: string; title: string; responsibilities?: string } = {
       name: role.role_name,
       slug: role.role_id || role.role_name.toLowerCase().replace(/\s+/g, '-'),
       title: role.role_name,
-      responsibilities: role.role_description || null,
-    });
+    };
+    if (role.role_description) {
+      payload.responsibilities = role.role_description;
+    }
+    return this.createCompanyRole(companyId, departmentId, payload);
   },
 
   /**
@@ -897,12 +903,16 @@ export const api = {
    * @param {object} updates - Fields to update
    * @returns {Promise<Object>} Updated role
    */
-  async updateRole(companyId, departmentId, roleId, updates) {
+  async updateRole(companyId: string, departmentId: string, roleId: string, updates: { name?: string; description?: string }) {
     // Delegate to new unified endpoint
-    return this.updateCompanyRole(companyId, departmentId, roleId, {
-      name: updates.name,
-      responsibilities: updates.description,
-    });
+    const payload: { name?: string; responsibilities?: string } = {};
+    if (updates.name) {
+      payload.name = updates.name;
+    }
+    if (updates.description) {
+      payload.responsibilities = updates.description;
+    }
+    return this.updateCompanyRole(companyId, departmentId, roleId, payload);
   },
 
   /**
@@ -912,7 +922,7 @@ export const api = {
    * @param {string} roleId - The role ID
    * @returns {Promise<{role: Object}>} Role with system_prompt
    */
-  async getRoleContext(companyId, departmentId, roleId) {
+  async getRoleContext(companyId: string, departmentId: string, roleId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/company/${companyId}/departments/${departmentId}/roles/${roleId}`,
@@ -937,7 +947,7 @@ export const api = {
    * @param {string} companyId - The company ID
    * @returns {Promise<{projects: Array}>}
    */
-  async listProjects(companyId) {
+  async listProjects(companyId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/companies/${companyId}/projects`,
@@ -956,9 +966,11 @@ export const api = {
    * @param {string} project.name - Project name
    * @param {string} project.description - Optional description
    * @param {string} project.context_md - Optional markdown context
+   * @param {string[]} project.department_ids - Optional department IDs
+   * @param {string} project.source - Optional source ('ai' or 'manual')
    * @returns {Promise<{project: object}>}
    */
-  async createProject(companyId, project) {
+  async createProject(companyId: string, project: { name: string; description?: string; context_md?: string; department_ids?: string[]; source?: 'ai' | 'manual' }) {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/companies/${companyId}/projects`,
@@ -987,7 +999,7 @@ export const api = {
    * @param {string} projectId - The project ID
    * @returns {Promise<{project: object}>}
    */
-  async getProject(projectId) {
+  async getProject(projectId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/projects/${projectId}`,
@@ -1005,7 +1017,7 @@ export const api = {
    * @param {object} updates - Fields to update (name, description, context_md, status)
    * @returns {Promise<{project: object}>}
    */
-  async updateProject(projectId, updates) {
+  async updateProject(projectId: string, updates: Record<string, unknown>) {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/projects/${projectId}`,
@@ -1027,7 +1039,7 @@ export const api = {
    * @param {string} projectId - The project ID
    * @returns {Promise<{success: boolean}>}
    */
-  async touchProject(projectId) {
+  async touchProject(projectId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/projects/${projectId}/touch`,
@@ -1048,7 +1060,7 @@ export const api = {
    * @param {string} projectId - The project ID
    * @returns {Promise<{success: boolean, context_md: string, message: string, decision_count: number}>}
    */
-  async regenerateProjectContext(projectId) {
+  async regenerateProjectContext(projectId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/projects/${projectId}/regenerate-context`,
@@ -1069,7 +1081,7 @@ export const api = {
    * @param {string} projectId - The project ID
    * @returns {Promise<{success: boolean}>}
    */
-  async deleteProject(projectId) {
+  async deleteProject(projectId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/projects/${projectId}`,
@@ -1117,7 +1129,7 @@ export const api = {
    * @param {string} fieldType - The field type for context (client_background, goals, constraints, additional)
    * @returns {Promise<{polished: string}>}
    */
-  async polishText(text, fieldType) {
+  async polishText(text: string, fieldType: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/utils/polish-text`,
@@ -1164,7 +1176,7 @@ export const api = {
    * @param {string} profile.bio - Bio/description
    * @returns {Promise<{success: boolean, profile: Object}>}
    */
-  async updateProfile(profile) {
+  async updateProfile(profile: { display_name?: string; company?: string; phone?: string; bio?: string }) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/profile`, {
       method: 'PUT',
@@ -1229,7 +1241,7 @@ export const api = {
    * @param {string} tierId - The tier to subscribe to (pro, enterprise)
    * @returns {Promise<{checkout_url: string, session_id: string}>}
    */
-  async createCheckout(tierId) {
+  async createCheckout(tierId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/billing/checkout`, {
       method: 'POST',
@@ -1308,7 +1320,7 @@ export const api = {
    * @param {string} attachmentId - The attachment ID
    * @returns {Promise<{id: string, file_name: string, file_type: string, file_size: number, storage_path: string, signed_url: string}>}
    */
-  async getAttachment(attachmentId) {
+  async getAttachment(attachmentId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/attachments/${attachmentId}`, { headers });
     if (!response.ok) {
@@ -1322,7 +1334,7 @@ export const api = {
    * @param {string} attachmentId - The attachment ID
    * @returns {Promise<{signed_url: string}>}
    */
-  async getAttachmentUrl(attachmentId) {
+  async getAttachmentUrl(attachmentId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/attachments/${attachmentId}/url`, { headers });
     if (!response.ok) {
@@ -1336,7 +1348,7 @@ export const api = {
    * @param {string} attachmentId - The attachment ID
    * @returns {Promise<{success: boolean}>}
    */
-  async deleteAttachment(attachmentId) {
+  async deleteAttachment(attachmentId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/attachments/${attachmentId}`, {
       method: 'DELETE',
@@ -1365,7 +1377,25 @@ export const api = {
    * @param {string|null} entry.conversation_id - Optional source conversation ID
    * @returns {Promise<{success: boolean, entry: Object}>}
    */
-  async createKnowledgeEntry(entry) {
+  async createKnowledgeEntry(entry: {
+    company_id: string;
+    title: string;
+    content?: string;
+    summary?: string;
+    category: string;
+    department_id?: string | null;
+    department_ids?: string[];
+    conversation_id?: string | null;
+    source_conversation_id?: string | null;
+    project_id?: string | null;
+    problem_statement?: string | null;
+    decision_text?: string;
+    reasoning?: string | null;
+    status?: string;
+    auto_inject?: boolean;
+    scope?: string;
+    tags?: string[] | null;
+  }) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/knowledge`, {
       method: 'POST',
@@ -1424,7 +1454,7 @@ export const api = {
    * @param {string|null} updates.version - New version string
    * @returns {Promise<Object>} Updated entry
    */
-  async updateKnowledgeEntry(entryId, updates) {
+  async updateKnowledgeEntry(entryId: string, updates: Record<string, unknown>) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/knowledge/${entryId}`, {
       method: 'PATCH',
@@ -1443,7 +1473,7 @@ export const api = {
    * @param {string} entryId - Knowledge entry UUID
    * @returns {Promise<{success: boolean}>}
    */
-  async deactivateKnowledgeEntry(entryId) {
+  async deactivateKnowledgeEntry(entryId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/knowledge/${entryId}`, {
       method: 'DELETE',
@@ -1470,7 +1500,7 @@ export const api = {
    *   - timeline: Array<{date, title, category}>
    *   - executive_summary: string
    */
-  async getProjectReport(projectId) {
+  async getProjectReport(projectId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/projects/${projectId}/report`, { headers });
     if (!response.ok) {
@@ -1486,7 +1516,7 @@ export const api = {
    * @param {string} companyId - Company UUID
    * @returns {Promise<{count: number}>}
    */
-  async getKnowledgeCountForConversation(conversationId, companyId) {
+  async getKnowledgeCountForConversation(conversationId: string, companyId: string) {
     const headers = await getAuthHeaders();
     const params = new URLSearchParams({ company_id: companyId });
     const response = await fetch(
@@ -1505,7 +1535,7 @@ export const api = {
    * @param {string} companyId - Company UUID
    * @returns {Promise<{project: {id: string, name: string, description: string, status: string} | null}>}
    */
-  async getConversationLinkedProject(conversationId, companyId) {
+  async getConversationLinkedProject(conversationId: string, companyId: string) {
     const headers = await getAuthHeaders();
     const params = new URLSearchParams({ company_id: companyId });
     const response = await fetch(
@@ -1525,7 +1555,7 @@ export const api = {
    * @param {number} responseIndex - The index of the response within the conversation
    * @returns {Promise<{decision: Object|null}>}
    */
-  async getConversationDecision(conversationId, companyId, responseIndex) {
+  async getConversationDecision(conversationId: string, companyId: string, responseIndex: number) {
     const headers = await getAuthHeaders();
     const params = new URLSearchParams({
       company_id: companyId,
@@ -1685,7 +1715,7 @@ export const api = {
         log.error('merge-decision error', { error, status: response.status });
         // Pydantic validation errors come as array of objects with loc, msg, type
         const errorMsg = Array.isArray(error.detail)
-          ? error.detail.map(e => `${e.loc?.join('.')}: ${e.msg}`).join('; ')
+          ? error.detail.map((e: { loc?: string[]; msg?: string }) => `${e.loc?.join('.')}: ${e.msg}`).join('; ')
           : (error.detail || 'Failed to merge decision');
         throw new Error(errorMsg);
       }
@@ -1711,7 +1741,7 @@ export const api = {
    * @param {string} companyId - Company ID (slug or UUID)
    * @returns {Promise<Object>} Company overview with stats
    */
-  async getCompanyOverview(companyId) {
+  async getCompanyOverview(companyId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/overview`, { headers });
     if (!response.ok) {
@@ -1726,7 +1756,7 @@ export const api = {
    * @param {Object} data - Company data to update
    * @returns {Promise<Object>} Updated company
    */
-  async updateCompanyOverview(companyId, data) {
+  async updateCompanyOverview(companyId: string, data: { name?: string; description?: string }) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/overview`, {
       method: 'POST',
@@ -1746,7 +1776,7 @@ export const api = {
    * @param {Object} data - {context_md: string}
    * @returns {Promise<Object>} Updated company
    */
-  async updateCompanyContext(companyId, data) {
+  async updateCompanyContext(companyId: string, data: { context_md: string }) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/context`, {
       method: 'PUT',
@@ -1765,7 +1795,7 @@ export const api = {
    * @param {string} companyId - Company ID
    * @returns {Promise<{departments: Array}>}
    */
-  async getCompanyTeam(companyId) {
+  async getCompanyTeam(companyId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/team`, { headers });
     if (!response.ok) {
@@ -1780,7 +1810,7 @@ export const api = {
    * @param {Object} dept - Department data {name, slug, description, purpose}
    * @returns {Promise<Object>} Created department
    */
-  async createCompanyDepartment(companyId, dept) {
+  async createCompanyDepartment(companyId: string, dept: { name: string; slug?: string; description?: string; purpose?: string }) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/departments`, {
       method: 'POST',
@@ -1801,7 +1831,7 @@ export const api = {
    * @param {Object} data - Fields to update
    * @returns {Promise<Object>} Updated department
    */
-  async updateCompanyDepartment(companyId, deptId, data) {
+  async updateCompanyDepartment(companyId: string, deptId: string, data: { name?: string; slug?: string; description?: string; purpose?: string }) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/departments/${deptId}`, {
       method: 'PUT',
@@ -1822,7 +1852,7 @@ export const api = {
    * @param {Object} role - Role data {name, slug, title, responsibilities, system_prompt}
    * @returns {Promise<Object>} Created role
    */
-  async createCompanyRole(companyId, deptId, role) {
+  async createCompanyRole(companyId: string, deptId: string, role: { name: string; slug?: string; title?: string; responsibilities?: string; system_prompt?: string }) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/departments/${deptId}/roles`, {
       method: 'POST',
@@ -1844,7 +1874,7 @@ export const api = {
    * @param {Object} updates - Role updates {name, title, responsibilities, system_prompt}
    * @returns {Promise<Object>} Updated role
    */
-  async updateCompanyRole(companyId, deptId, roleId, updates) {
+  async updateCompanyRole(companyId: string, deptId: string, roleId: string, updates: { name?: string; title?: string; responsibilities?: string; system_prompt?: string }) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/departments/${deptId}/roles/${roleId}`, {
       method: 'PUT',
@@ -1864,7 +1894,7 @@ export const api = {
    * @param {string} docType - Optional filter: 'sop', 'framework', 'policy'
    * @returns {Promise<{playbooks: Array}>}
    */
-  async getCompanyPlaybooks(companyId, docType = null) {
+  async getCompanyPlaybooks(companyId: string, docType: string | null = null) {
     const headers = await getAuthHeaders();
     const params = docType ? `?doc_type=${docType}` : '';
     const response = await fetch(`${API_BASE}/api/company/${companyId}/playbooks${params}`, { headers });
@@ -1879,7 +1909,7 @@ export const api = {
    * @param {string} companyId - Company ID
    * @returns {Promise<{tags: Array<string>}>}
    */
-  async getCompanyPlaybookTags(companyId) {
+  async getCompanyPlaybookTags(companyId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/playbooks/tags`, { headers });
     if (!response.ok) {
@@ -1894,7 +1924,7 @@ export const api = {
    * @param {string} playbookId - Playbook ID
    * @returns {Promise<Object>} Playbook with content
    */
-  async getPlaybook(companyId, playbookId) {
+  async getPlaybook(companyId: string, playbookId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/playbooks/${playbookId}`, { headers });
     if (!response.ok) {
@@ -1910,7 +1940,7 @@ export const api = {
    * @param {Object} playbook - Playbook data {title, doc_type, content, department_id}
    * @returns {Promise<Object>} Created playbook with version
    */
-  async createCompanyPlaybook(companyId, playbook) {
+  async createCompanyPlaybook(companyId: string, playbook: { title: string; doc_type: string; content?: string | undefined; department_id?: string | undefined; department_ids?: string[] | null | undefined }) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/playbooks`, {
       method: 'POST',
@@ -1931,7 +1961,7 @@ export const api = {
    * @param {Object} data - {content, change_summary}
    * @returns {Promise<Object>} Updated playbook with new version
    */
-  async updateCompanyPlaybook(companyId, playbookId, data) {
+  async updateCompanyPlaybook(companyId: string, playbookId: string, data: { content?: string; change_summary?: string; title?: string; status?: string }) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/playbooks/${playbookId}`, {
       method: 'PUT',
@@ -1946,7 +1976,7 @@ export const api = {
   },
 
   // Alias for updateCompanyPlaybook for consistency with MyCompany.jsx naming
-  async updatePlaybook(companyId, playbookId, data) {
+  async updatePlaybook(companyId: string, playbookId: string, data: { content?: string; change_summary?: string; title?: string; status?: string }) {
     return this.updateCompanyPlaybook(companyId, playbookId, data);
   },
 
@@ -1956,7 +1986,7 @@ export const api = {
    * @param {string} playbookId - Playbook ID
    * @returns {Promise<void>}
    */
-  async deletePlaybook(companyId, playbookId) {
+  async deletePlaybook(companyId: string, playbookId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/playbooks/${playbookId}`, {
       method: 'DELETE',
@@ -1976,7 +2006,7 @@ export const api = {
    * @param {string} companyId - Company ID
    * @returns {Promise<{decisions: Array}>}
    */
-  async getCompanyDecisions(companyId) {
+  async getCompanyDecisions(companyId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions`, { headers });
     if (!response.ok) {
@@ -1991,7 +2021,7 @@ export const api = {
    * @param {string} decisionId - Decision ID
    * @returns {Promise<Object|null>} Decision or null if not found
    */
-  async getDecision(companyId, decisionId) {
+  async getDecision(companyId: string, decisionId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions/${decisionId}`, { headers });
     if (!response.ok) {
@@ -2009,7 +2039,7 @@ export const api = {
    * @param {string} decision.project_id - Optional project ID to link this decision to a project timeline
    * @returns {Promise<Object>} Created decision
    */
-  async createCompanyDecision(companyId, decision) {
+  async createCompanyDecision(companyId: string, decision: { title: string; content: string; department_id?: string | undefined; department_ids?: string[] | undefined; project_id?: string | undefined; source_conversation_id?: string | undefined; user_question?: string | undefined; response_index?: number | undefined; tags?: string[] | undefined }) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions`, {
       method: 'POST',
@@ -2029,7 +2059,7 @@ export const api = {
    * @param {string} projectId - Project ID
    * @returns {Promise<{project: Object, decisions: Array, total_count: number}>}
    */
-  async getProjectDecisions(companyId, projectId) {
+  async getProjectDecisions(companyId: string, projectId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
       `${API_BASE}/api/company/${companyId}/projects/${projectId}/decisions`,
@@ -2048,7 +2078,7 @@ export const api = {
    * @param {Object} data - {doc_type, title, department_id, department_ids}
    * @returns {Promise<Object>} Created playbook
    */
-  async promoteDecisionToPlaybook(companyId, decisionId, data) {
+  async promoteDecisionToPlaybook(companyId: string, decisionId: string, data: { doc_type: string; title?: string; department_id?: string; department_ids?: string[] }) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions/${decisionId}/promote`, {
       method: 'POST',
@@ -2069,7 +2099,7 @@ export const api = {
    * @param {string} projectId - Project ID to link to
    * @returns {Promise<Object>} Updated decision
    */
-  async linkDecisionToProject(companyId, decisionId, projectId) {
+  async linkDecisionToProject(companyId: string, decisionId: string, projectId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions/${decisionId}/link-project`, {
       method: 'POST',
@@ -2090,7 +2120,7 @@ export const api = {
    * @param {Object} data - {name, department_ids}
    * @returns {Promise<Object>} Created project
    */
-  async createProjectFromDecision(companyId, decisionId, data) {
+  async createProjectFromDecision(companyId: string, decisionId: string, data: { name: string; department_ids?: string[] }) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions/${decisionId}/create-project`, {
       method: 'POST',
@@ -2110,7 +2140,7 @@ export const api = {
    * @param {string} decisionId - Decision ID
    * @returns {Promise<Object>} Success response
    */
-  async archiveDecision(companyId, decisionId) {
+  async archiveDecision(companyId: string, decisionId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions/${decisionId}/archive`, {
       method: 'POST',
@@ -2130,7 +2160,7 @@ export const api = {
    * @param {string} projectId - Project ID
    * @returns {Promise<Object>} Updated department_ids
    */
-  async syncProjectDepartments(companyId, projectId) {
+  async syncProjectDepartments(companyId: string, projectId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/projects/${projectId}/sync-departments`, {
       method: 'POST',
@@ -2149,7 +2179,7 @@ export const api = {
    * @param {string} decisionId - Decision ID
    * @returns {Promise<Object>} Success response
    */
-  async deleteDecision(companyId, decisionId) {
+  async deleteDecision(companyId: string, decisionId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions/${decisionId}`, {
       method: 'DELETE',
@@ -2171,7 +2201,7 @@ export const api = {
    * @param {string} decisionId - Decision ID
    * @returns {Promise<{summary: string, cached: boolean}>}
    */
-  async generateDecisionSummary(companyId, decisionId) {
+  async generateDecisionSummary(companyId: string, decisionId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions/${decisionId}/generate-summary`, {
       method: 'POST',
@@ -2245,7 +2275,7 @@ export const api = {
    * @param {string} params.answer - The user's answer to the question
    * @returns {Promise<{merged_context: string}>} The merged context
    */
-  async mergeCompanyContext({ companyId, existingContext, question, answer }) {
+  async mergeCompanyContext({ companyId, existingContext, question, answer }: { companyId: string; existingContext: string; question: string; answer: string }) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/context/merge`, {
       method: 'POST',
@@ -2270,7 +2300,7 @@ export const api = {
    * @param {string} companyId - Company ID
    * @returns {Promise<{members: Array}>} List of company members with roles
    */
-  async getCompanyMembers(companyId) {
+  async getCompanyMembers(companyId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/members`, { headers });
     if (!response.ok) {
@@ -2286,7 +2316,7 @@ export const api = {
    * @param {string} role - Role to assign ('admin' or 'member')
    * @returns {Promise<{member: Object, message: string}>}
    */
-  async addCompanyMember(companyId, email, role = 'member') {
+  async addCompanyMember(companyId: string, email: string, role: 'admin' | 'member' = 'member') {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/members`, {
       method: 'POST',
@@ -2307,7 +2337,7 @@ export const api = {
    * @param {string} role - New role ('admin' or 'member')
    * @returns {Promise<{member: Object, message: string}>}
    */
-  async updateCompanyMember(companyId, memberId, role) {
+  async updateCompanyMember(companyId: string, memberId: string, role: 'admin' | 'member') {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/members/${memberId}`, {
       method: 'PATCH',
@@ -2327,7 +2357,7 @@ export const api = {
    * @param {string} memberId - Member ID
    * @returns {Promise<{message: string}>}
    */
-  async removeCompanyMember(companyId, memberId) {
+  async removeCompanyMember(companyId: string, memberId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/members/${memberId}`, {
       method: 'DELETE',
@@ -2350,7 +2380,7 @@ export const api = {
    * @param {string} companyId - Company ID
    * @returns {Promise<{usage: Object}>} Usage statistics
    */
-  async getCompanyUsage(companyId) {
+  async getCompanyUsage(companyId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/usage`, { headers });
     if (!response.ok) {
@@ -2380,7 +2410,7 @@ export const api = {
    * @param {string} key - The OpenRouter API key
    * @returns {Promise<{status: string, masked_key: string, is_valid: boolean}>}
    */
-  async saveOpenRouterKey(key) {
+  async saveOpenRouterKey(key: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/settings/openrouter-key`, {
       method: 'POST',
@@ -2465,7 +2495,7 @@ export const api = {
    * @param {string} [updates.default_mode] - 'quick' or 'full_council'
    * @returns {Promise<Object>} Updated settings
    */
-  async updateUserSettings(updates) {
+  async updateUserSettings(updates: { default_mode?: 'quick' | 'full_council' }) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/settings`, {
       method: 'PATCH',

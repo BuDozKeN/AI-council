@@ -1,7 +1,8 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, ReactNode } from 'react';
 import { Spinner } from '../ui/Spinner';
 import { api } from '../../api';
 import ProjectModal from '../ProjectModal';
+import type { Department, Role, Playbook, Project } from '../../types/business';
 
 // Eagerly load small/simple modals
 import {
@@ -20,6 +21,57 @@ const ViewRoleModal = lazy(() => import('./modals/ViewRoleModal').then(m => ({ d
 const ViewCompanyContextModal = lazy(() => import('./modals/ViewCompanyContextModal').then(m => ({ default: m.ViewCompanyContextModal })));
 const ViewDecisionModal = lazy(() => import('./modals/ViewDecisionModal').then(m => ({ default: m.ViewDecisionModal })));
 
+// Type definitions
+type AddFormType = 'department' | 'playbook' | { type: 'role'; deptId: string } | null;
+
+interface Decision {
+  id: string;
+  conversation_id: string;
+  company_id: string;
+  title: string;
+  content: string;
+  content_summary?: string;
+  question?: string;
+  summary?: string;
+  status: 'pending' | 'approved' | 'rejected' | 'archived';
+  council_type?: string;
+  project_id?: string;
+  department_ids?: string[];
+  playbook_type?: 'sop' | 'framework' | 'policy';
+  source_conversation_id?: string;
+  response_index?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+interface CompanyContextData {
+  context_md?: string;
+  industry?: string;
+  size?: string;
+}
+
+interface EditingItem {
+  type: 'company-context' | 'company-context-view' | 'department' | 'role' | 'playbook' | 'decision' | 'project' | 'new_project';
+  data: Department | Role | Playbook | ExtendedProject | Decision | CompanyContextData | unknown;
+  startEditing?: boolean;
+}
+
+interface ConfirmModalData {
+  title: string;
+  message: string;
+  confirmText: string;
+  variant: 'warning' | 'danger';
+}
+
+interface ProjectActions {
+  handleUpdateProject: (id: string, updates: Partial<Project>) => Promise<Project | undefined>;
+}
+
+interface DecisionActions {
+  setPromoteModal: (decision: Decision | null) => void;
+  handleConfirmPromote: (docType: string, title: string, departmentIds: string[], projectId: string | null) => void;
+}
+
 // Loading fallback for lazy-loaded modals
 const ModalLoadingFallback = () => (
   <div className="modal-loading-fallback flex items-center justify-center p-8">
@@ -27,9 +79,19 @@ const ModalLoadingFallback = () => (
   </div>
 );
 
-const LazyWrapper = ({ children }) => (
+const LazyWrapper = ({ children }: { children: ReactNode }) => (
   <Suspense fallback={<ModalLoadingFallback />}>{children}</Suspense>
 );
+
+interface AddFormModalProps {
+  showAddForm: AddFormType;
+  saving: boolean;
+  departments: Department[];
+  onAddDepartment: (name: string, description?: string) => Promise<void>;
+  onAddRole: (deptId: string, name: string, title: string) => Promise<void>;
+  onAddPlaybook: (title: string, docType: string, content?: string, departmentId?: string | null, additionalDepartments?: string[]) => Promise<void>;
+  onClose: () => void;
+}
 
 /**
  * AddFormModal - Renders the add department/role/playbook modals
@@ -42,19 +104,48 @@ export function AddFormModal({
   onAddRole,
   onAddPlaybook,
   onClose,
-}) {
+}: AddFormModalProps) {
   if (!showAddForm) return null;
 
   if (showAddForm === 'department') {
     return <AddDepartmentModal onSave={onAddDepartment} onClose={onClose} saving={saving} />;
   }
-  if (showAddForm?.type === 'role') {
+  if (typeof showAddForm === 'object' && showAddForm.type === 'role') {
     return <AddRoleModal deptId={showAddForm.deptId} onSave={onAddRole} onClose={onClose} saving={saving} />;
   }
   if (showAddForm === 'playbook') {
     return <AddPlaybookModal onSave={onAddPlaybook} onClose={onClose} saving={saving} departments={departments} />;
   }
   return null;
+}
+
+interface ExtendedProject extends Project {
+  context_md?: string;
+  source?: string;
+  source_conversation_id?: string;
+  decision_count?: number;
+  department_names?: string[];
+  last_accessed_at?: string;
+}
+
+interface EditingModalProps {
+  editingItem: EditingItem | null;
+  companyId: string;
+  companyName?: string | undefined;
+  departments: Department[];
+  playbooks: Playbook[];
+  projects: ExtendedProject[] | Project[];
+  initialProjectDecisionToExpand: string | null;
+  projectActions: ProjectActions;
+  decisionActions: DecisionActions | { setPromoteModal: (decision: Decision | null) => void; handleConfirmPromote: (docType: string, title: string, departmentIds: string[], projectId: string | null) => Promise<void>; deletingDecisionId: string | null; saving: boolean; promoteModal: Decision | null; handlePromoteDecision: (decision: unknown) => void; handleDeleteDecision: (decision: Decision) => Promise<void>; };
+  onClose: () => void;
+  onConsumeInitialDecision?: (() => void) | undefined;
+  onUpdateCompanyContext: (data: { context_md: string }) => Promise<void>;
+  onUpdateDepartment: (id: string, data: Partial<Department>) => Promise<void>;
+  onUpdateRole: (roleId: string, deptId: string, data: Partial<Role>) => Promise<void>;
+  onUpdatePlaybook: (id: string, data: Partial<Playbook>) => Promise<void>;
+  onNavigateToConversation?: ((conversationId: string, source: string, responseIndex?: number | undefined, projectId?: string | undefined, decisionId?: string | undefined) => void) | undefined;
+  onSetProjects: React.Dispatch<React.SetStateAction<ExtendedProject[]>> | React.Dispatch<React.SetStateAction<Project[]>>;
 }
 
 /**
@@ -78,7 +169,7 @@ export function EditingModal({
   onUpdatePlaybook,
   onNavigateToConversation,
   onSetProjects,
-}) {
+}: EditingModalProps) {
   if (!editingItem) return null;
 
   switch (editingItem.type) {
@@ -86,7 +177,7 @@ export function EditingModal({
       return (
         <LazyWrapper>
           <ViewCompanyContextModal
-            data={editingItem.data}
+            data={editingItem.data as CompanyContextData}
             companyName={companyName}
             onClose={onClose}
             onSave={onUpdateCompanyContext}
@@ -97,7 +188,7 @@ export function EditingModal({
       return (
         <LazyWrapper>
           <ViewCompanyContextModal
-            data={editingItem.data}
+            data={editingItem.data as CompanyContextData}
             companyName={companyName}
             onClose={onClose}
             onSave={onUpdateCompanyContext}
@@ -110,9 +201,9 @@ export function EditingModal({
       return (
         <LazyWrapper>
           <ViewDepartmentModal
-            department={editingItem.data}
+            department={editingItem.data as Department}
             onClose={onClose}
-            onSave={onUpdateDepartment}
+            onSave={(id: string, data: { context_md: string }) => onUpdateDepartment(id, data)}
           />
         </LazyWrapper>
       );
@@ -120,7 +211,7 @@ export function EditingModal({
       return (
         <LazyWrapper>
           <ViewRoleModal
-            role={editingItem.data}
+            role={editingItem.data as Role}
             onClose={onClose}
             onSave={onUpdateRole}
           />
@@ -130,7 +221,7 @@ export function EditingModal({
       return (
         <LazyWrapper>
           <ViewPlaybookModal
-            playbook={editingItem.data}
+            playbook={editingItem.data as Playbook}
             departments={departments}
             onClose={onClose}
             onSave={onUpdatePlaybook}
@@ -142,19 +233,19 @@ export function EditingModal({
       return (
         <LazyWrapper>
           <ViewDecisionModal
-            decision={editingItem.data}
+            decision={editingItem.data as Decision}
             departments={departments}
             playbooks={playbooks}
             projects={projects}
             onClose={onClose}
             onPromote={(decision) => {
               onClose();
-              decisionActions.setPromoteModal(decision);
+              decisionActions.setPromoteModal(decision as Decision);
             }}
-            onViewProject={(_projectId) => {
+            onViewProject={(_projectId: string) => {
               // This will be handled by parent - close and open project modal
             }}
-            onNavigateToConversation={(conversationId, source, responseIndex) => {
+            onNavigateToConversation={(conversationId: string, source: string, responseIndex?: number) => {
               onClose();
               if (onNavigateToConversation) onNavigateToConversation(conversationId, source, responseIndex);
             }}
@@ -165,25 +256,25 @@ export function EditingModal({
       return (
         <LazyWrapper>
           <ViewProjectModal
-            project={editingItem.data}
+            project={editingItem.data as ExtendedProject}
             companyId={companyId}
             departments={departments}
             initialExpandedDecisionId={initialProjectDecisionToExpand}
-            onConsumeInitialDecision={onConsumeInitialDecision}
+            {...(onConsumeInitialDecision ? { onConsumeInitialDecision } : {})}
             onClose={onClose}
             onSave={projectActions.handleUpdateProject}
-            onNavigateToConversation={onNavigateToConversation}
-            onProjectUpdate={(projectId, updates) => {
-              onSetProjects(prev => prev.map(p => p.id === projectId ? { ...p, ...updates } : p));
+            {...(onNavigateToConversation ? { onNavigateToConversation } : {})}
+            onProjectUpdate={(projectId: string, updates: Partial<ExtendedProject>) => {
+              (onSetProjects as React.Dispatch<React.SetStateAction<ExtendedProject[]>>)((prev: ExtendedProject[]) => prev.map((p: ExtendedProject) => p.id === projectId ? { ...p, ...updates } : p));
             }}
-            onStatusChange={async (projectId, newStatus) => {
+            onStatusChange={async (projectId: string, newStatus: 'active' | 'completed' | 'archived') => {
               await api.updateProject(projectId, { status: newStatus });
-              onSetProjects(prev => prev.map(p => p.id === projectId ? { ...p, status: newStatus } : p));
+              (onSetProjects as React.Dispatch<React.SetStateAction<ExtendedProject[]>>)((prev: ExtendedProject[]) => prev.map((p: ExtendedProject) => p.id === projectId ? { ...p, status: newStatus } : p));
               onClose();
             }}
-            onDelete={async (projectId) => {
+            onDelete={async (projectId: string) => {
               await api.deleteProject(projectId);
-              onSetProjects(prev => prev.filter(p => p.id !== projectId));
+              (onSetProjects as React.Dispatch<React.SetStateAction<ExtendedProject[]>>)((prev: ExtendedProject[]) => prev.filter((p: ExtendedProject) => p.id !== projectId));
               onClose();
             }}
           />
@@ -193,10 +284,10 @@ export function EditingModal({
       return (
         <ProjectModal
           companyId={companyId}
-          departments={departments}
+          departments={departments as Department[]}
           onClose={onClose}
-          onProjectCreated={(project) => {
-            onSetProjects(prev => [project, ...prev]);
+          onProjectCreated={(project: ExtendedProject) => {
+            (onSetProjects as React.Dispatch<React.SetStateAction<ExtendedProject[]>>)((prev: ExtendedProject[]) => [project, ...prev]);
             onClose();
           }}
         />
@@ -204,6 +295,16 @@ export function EditingModal({
     default:
       return null;
   }
+}
+
+interface PromoteModalProps {
+  promoteModal: Decision | null;
+  departments: Department[];
+  projects: ExtendedProject[] | Project[];
+  companyId: string;
+  saving: boolean;
+  decisionActions: DecisionActions | { setPromoteModal: (decision: Decision | null) => void; handleConfirmPromote: (docType: string, title: string, departmentIds: string[], projectId: string | null) => Promise<void>; deletingDecisionId: string | null; saving: boolean; promoteModal: Decision | null; handlePromoteDecision: (decision: unknown) => void; handleDeleteDecision: (decision: Decision) => Promise<void>; };
+  onNavigateToConversation?: ((conversationId: string, source: string, decisionToRestore?: Decision | undefined) => void) | undefined;
 }
 
 /**
@@ -217,7 +318,7 @@ export function PromoteModal({
   saving,
   decisionActions,
   onNavigateToConversation,
-}) {
+}: PromoteModalProps) {
   if (!promoteModal) return null;
 
   return (
@@ -230,7 +331,7 @@ export function PromoteModal({
         onPromote={decisionActions.handleConfirmPromote}
         onClose={() => decisionActions.setPromoteModal(null)}
         saving={saving}
-        onViewSource={(convId) => {
+        onViewSource={(convId: string) => {
           const decisionToRestore = promoteModal;
           decisionActions.setPromoteModal(null);
           if (onNavigateToConversation) onNavigateToConversation(convId, 'decisions', decisionToRestore);
@@ -238,6 +339,13 @@ export function PromoteModal({
       />
     </Suspense>
   );
+}
+
+interface ConfirmActionModalProps {
+  confirmModal: ConfirmModalData | { title: string; message: string; confirmText: string; variant?: 'warning' | 'danger'; onConfirm: () => void } | null;
+  saving: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
 }
 
 /**
@@ -248,7 +356,7 @@ export function ConfirmActionModal({
   saving,
   onConfirm,
   onCancel,
-}) {
+}: ConfirmActionModalProps) {
   if (!confirmModal) return null;
 
   return (
@@ -256,7 +364,7 @@ export function ConfirmActionModal({
       title={confirmModal.title}
       message={confirmModal.message}
       confirmText={confirmModal.confirmText}
-      variant={confirmModal.variant}
+      variant={confirmModal.variant || 'warning'}
       onConfirm={onConfirm}
       onCancel={onCancel}
       processing={saving}

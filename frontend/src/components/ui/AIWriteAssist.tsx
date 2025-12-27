@@ -1,8 +1,20 @@
 import { useState, useCallback } from 'react';
+import type { ReactNode, InputHTMLAttributes, TextareaHTMLAttributes } from 'react';
 import { api } from '../../api';
 import { Spinner } from './Spinner';
 import { logger } from '../../utils/logger';
 import './AIWriteAssist.css';
+
+type ContextType = 'project-title' | 'project-description' | 'project-context' | 'company-context' |
+  'department-description' | 'role-description' | 'role-prompt' | 'playbook-content' |
+  'decision-title' | 'decision-statement' | 'knowledge-reasoning' | 'question-refine' | 'generic';
+
+interface ContextPromptConfig {
+  instruction: string;
+  placeholder: string;
+  buttonText: string;
+  emptyHint: string;
+}
 
 /**
  * AI Writing Assistant - Context-aware help for form fields
@@ -41,7 +53,7 @@ import './AIWriteAssist.css';
 
 // Context-specific prompts for the AI
 // Button text should be PLAIN ENGLISH - what your mum would understand
-const CONTEXT_PROMPTS = {
+const CONTEXT_PROMPTS: Record<ContextType, ContextPromptConfig> = {
   'project-title': {
     instruction: 'Generate a clear, concise project name (3-6 words) based on this description:',
     placeholder: 'Describe your project briefly...',
@@ -149,35 +161,40 @@ Make it easy to follow:`,
   },
 };
 
+type PlaybookType = 'sop' | 'framework' | 'policy';
+
+interface AIWriteAssistProps {
+  context?: ContextType | undefined;
+  value?: string | undefined;
+  onSuggestion?: ((suggestion: string) => void) | undefined;
+  additionalContext?: string | undefined;
+  buttonLabel?: string | null | undefined;
+  playbookType?: PlaybookType | null | undefined;
+  disabled?: boolean | undefined;
+  children?: ReactNode | undefined;
+  className?: string | undefined;
+  inline?: boolean | undefined;
+}
+
 /**
  * AIWriteAssist Component
- *
- * @param {string} context - The type of content (determines AI prompt)
- * @param {string} value - Current input value
- * @param {function} onSuggestion - Called with AI suggestion
- * @param {string} [additionalContext] - Extra context for the AI (e.g., company name)
- * @param {string} [buttonLabel] - Override the default button text
- * @param {boolean} [disabled] - Disable the assist button
- * @param {React.ReactNode} [children] - Wrap an existing input
- * @param {string} [className] - Additional CSS class
- * @param {boolean} [inline] - Show button inline with input
  */
 export function AIWriteAssist({
   context = 'generic',
   value = '',
   onSuggestion,
   additionalContext = '',
-  buttonLabel = null, // Override default button text
-  playbookType = null, // For playbook content: 'sop', 'framework', 'policy'
+  buttonLabel = null,
+  playbookType = null,
   disabled = false,
   children,
   className = '',
   inline = false,
-}) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [showPreview, setShowPreview] = useState(false);
-  const [suggestion, setSuggestion] = useState('');
+}: AIWriteAssistProps) {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState<boolean>(false);
+  const [suggestion, setSuggestion] = useState<string>('');
 
   const config = CONTEXT_PROMPTS[context] || CONTEXT_PROMPTS.generic;
   const hasContent = value && value.trim().length > 0;
@@ -198,7 +215,11 @@ export function AIWriteAssist({
       prompt += `User input:\n${value}`;
 
       // Call the API with playbook type if applicable
-      const result = await api.aiWriteAssist({ prompt, context, playbookType });
+      const apiParams: { prompt: string; context: string; playbookType?: string } = { prompt, context };
+      if (playbookType) {
+        apiParams.playbookType = playbookType;
+      }
+      const result = await api.aiWriteAssist(apiParams);
 
       if (result.suggestion) {
         setSuggestion(result.suggestion);
@@ -208,7 +229,8 @@ export function AIWriteAssist({
       }
     } catch (err) {
       logger.error('AI assist error:', err);
-      setError(err.message || 'Failed to get suggestion');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to get suggestion';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -337,6 +359,15 @@ export function AIWriteAssist({
   );
 }
 
+interface SmartInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
+  context?: ContextType | undefined;
+  value: string;
+  onChange: (value: string) => void;
+  additionalContext?: string | undefined;
+  placeholder?: string | undefined;
+  className?: string | undefined;
+}
+
 /**
  * Smart Input - Input with integrated AI assistance
  */
@@ -348,7 +379,7 @@ export function SmartInput({
   placeholder,
   className = '',
   ...props
-}) {
+}: SmartInputProps) {
   const config = CONTEXT_PROMPTS[context] || CONTEXT_PROMPTS.generic;
 
   return (
@@ -371,6 +402,16 @@ export function SmartInput({
   );
 }
 
+interface SmartTextareaProps extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'onChange'> {
+  context?: ContextType | undefined;
+  value: string;
+  onChange: (value: string) => void;
+  additionalContext?: string | undefined;
+  placeholder?: string | undefined;
+  rows?: number | undefined;
+  className?: string | undefined;
+}
+
 /**
  * Smart Textarea - Textarea with integrated AI assistance
  */
@@ -383,7 +424,7 @@ export function SmartTextarea({
   rows = 3,
   className = '',
   ...props
-}) {
+}: SmartTextareaProps) {
   const config = CONTEXT_PROMPTS[context] || CONTEXT_PROMPTS.generic;
 
   return (

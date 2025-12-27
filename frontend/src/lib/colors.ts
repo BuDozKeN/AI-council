@@ -13,6 +13,19 @@
  * in tailwind.css for consistency in static contexts.
  */
 
+interface DeptColor {
+  bg: string;
+  text: string;
+  border: string;
+  hoverBg: string;
+}
+
+interface PlaybookTypeColor extends DeptColor {
+  shadowColor: string;
+}
+
+type PlaybookType = 'sop' | 'framework' | 'policy';
+
 // ============================================
 // DEPARTMENT COLORS
 // ============================================
@@ -20,7 +33,7 @@
 // Each department gets a consistent color based on its ID hash
 // These values align with Tailwind's color palette
 
-export const DEPT_COLORS = [
+export const DEPT_COLORS: DeptColor[] = [
   { bg: '#fef3c7', text: '#92400e', border: '#fcd34d', hoverBg: '#fde68a' },  // Amber (amber-100, amber-800, amber-300, amber-200)
   { bg: '#dbeafe', text: '#1e40af', border: '#93c5fd', hoverBg: '#bfdbfe' },  // Blue (blue-100, blue-800, blue-300, blue-200)
   { bg: '#dcfce7', text: '#166534', border: '#86efac', hoverBg: '#bbf7d0' },  // Green (green-100, green-800, green-300, green-200)
@@ -33,15 +46,13 @@ export const DEPT_COLORS = [
 
 /**
  * Get consistent color for a department based on its ID
- * @param {string} deptId - Department UUID
- * @returns {object} Color object with bg, text, border, hoverBg
  */
-export function getDeptColor(deptId) {
+export function getDeptColor(deptId: string | null | undefined): DeptColor {
   if (!deptId) return { bg: '#f3f4f6', text: '#6b7280', border: '#e5e7eb', hoverBg: '#e5e7eb' };
 
   // Simple hash based on first chars of UUID
   const hash = deptId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return DEPT_COLORS[hash % DEPT_COLORS.length];
+  return DEPT_COLORS[hash % DEPT_COLORS.length] ?? { bg: '#f3f4f6', text: '#6b7280', border: '#e5e7eb', hoverBg: '#e5e7eb' };
 }
 
 // ============================================
@@ -52,7 +63,7 @@ export function getDeptColor(deptId) {
 // - Framework: amber-100, amber-700, amber-300, amber-200
 // - Policy: purple-100, purple-600, purple-300, purple-200
 
-export const PLAYBOOK_TYPE_COLORS = {
+export const PLAYBOOK_TYPE_COLORS: Record<PlaybookType, PlaybookTypeColor> = {
   sop: {
     bg: '#dbeafe',        // blue-100 / var(--color-blue-100)
     text: '#1d4ed8',      // blue-700 / var(--color-blue-700)
@@ -78,22 +89,27 @@ export const PLAYBOOK_TYPE_COLORS = {
 
 /**
  * Get color scheme for a playbook type
- * @param {string} type - 'sop', 'framework', or 'policy'
- * @returns {object} Color object
  */
-export function getPlaybookTypeColor(type) {
-  return PLAYBOOK_TYPE_COLORS[type] || PLAYBOOK_TYPE_COLORS.sop;
+export function getPlaybookTypeColor(type: string | null | undefined): PlaybookTypeColor {
+  if (type && type in PLAYBOOK_TYPE_COLORS) {
+    return PLAYBOOK_TYPE_COLORS[type as PlaybookType];
+  }
+  return PLAYBOOK_TYPE_COLORS.sop;
 }
 
 // ============================================
 // CSS VARIABLE INJECTION
 // ============================================
 
+interface CSSVars {
+  [key: string]: string;
+}
+
 /**
  * Generate CSS custom properties for a department
  * Use this for inline styles or CSS-in-JS
  */
-export function getDeptCSSVars(deptId) {
+export function getDeptCSSVars(deptId: string | null | undefined): CSSVars {
   const colors = getDeptColor(deptId);
   return {
     '--dept-bg': colors.bg,
@@ -106,7 +122,7 @@ export function getDeptCSSVars(deptId) {
 /**
  * Generate CSS custom properties for a playbook type
  */
-export function getTypeCSSVars(type) {
+export function getTypeCSSVars(type: string | null | undefined): CSSVars {
   const colors = getPlaybookTypeColor(type);
   return {
     '--type-bg': colors.bg,

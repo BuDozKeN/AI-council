@@ -1,14 +1,19 @@
 import { diffWords } from 'diff';
 
+export interface DiffPart {
+  type: 'added' | 'removed' | 'unchanged';
+  value: string;
+}
+
 /**
  * Compute an inline diff between two strings.
  * Returns an array of parts with type 'added', 'removed', or 'unchanged'.
  *
- * @param {string} oldText - The original text
- * @param {string} newText - The proposed new text
- * @returns {Array<{type: 'added'|'removed'|'unchanged', value: string}>}
+ * @param oldText - The original text
+ * @param newText - The proposed new text
+ * @returns Array of diff parts with type and value
  */
-export function computeInlineDiff(oldText, newText) {
+export function computeInlineDiff(oldText: string, newText: string): DiffPart[] {
   if (!oldText && !newText) {
     return [];
   }
@@ -33,11 +38,11 @@ export function computeInlineDiff(oldText, newText) {
 
 /**
  * Check if there are actual changes between old and new text.
- * @param {string} oldText - The original text
- * @param {string} newText - The proposed new text
- * @returns {boolean}
+ * @param oldText - The original text
+ * @param newText - The proposed new text
+ * @returns true if there are changes, false otherwise
  */
-export function hasChanges(oldText, newText) {
+export function hasChanges(oldText: string, newText: string): boolean {
   if (!oldText && !newText) return false;
   if (!oldText || !newText) return true;
 

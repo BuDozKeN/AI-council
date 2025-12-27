@@ -13,7 +13,7 @@ import './MarkdownViewer.css';
  * - Blockquote metadata (> **Last Updated:** etc.)
  * - Leading horizontal rules (---)
  */
-function cleanContent(content) {
+function cleanContent(content: string): string {
   if (!content) return content;
 
   let cleaned = content;
@@ -52,12 +52,21 @@ function cleanContent(content) {
  * - skipCleanup: Set to true to skip metadata removal (for raw editing preview)
  * - skipSmartConvert: Set to true to skip plain text to markdown conversion
  */
-export default function MarkdownViewer({ content, className = '', skipCleanup = false, skipSmartConvert = false }) {
-  const containerRef = useRef(null);
+
+interface MarkdownViewerProps {
+  content: string;
+  className?: string | undefined;
+  skipCleanup?: boolean | undefined;
+  skipSmartConvert?: boolean | undefined;
+}
+
+export default function MarkdownViewer({ content, className = '', skipCleanup = false, skipSmartConvert = false }: MarkdownViewerProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Handle clicks on anchor links to scroll within the container (works in modals)
-  const handleClick = useCallback((e) => {
-    const target = e.target.closest('a');
+  const handleClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const targetElement = e.target as HTMLElement;
+    const target = targetElement.closest('a');
     if (!target) return;
 
     const href = target.getAttribute('href');

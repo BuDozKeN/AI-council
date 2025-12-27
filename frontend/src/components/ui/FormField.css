@@ -175,7 +175,7 @@
 .form-field-error .form-input:focus,
 .form-field-error .form-textarea:focus,
 .form-field-error .form-select:focus {
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+  box-shadow: 0 0 0 3px var(--overlay-red-15);
 }
 
 .form-field-error-text {

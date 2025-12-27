@@ -13,9 +13,42 @@ import { useRef, useEffect, memo, useCallback } from 'react';
 import { Star, Trash2, Archive, ArchiveRestore, Square, CheckSquare, Pencil, GripVertical } from 'lucide-react';
 import { getRelativeTime } from './hooks';
 import { formatDateTime } from '../../lib/dateUtils';
+import type { Conversation } from '../../types/conversation';
 
 // Long-press duration in ms (industry standard is ~500ms)
 const LONG_PRESS_DURATION = 500;
+
+interface DragHandlers {
+  onDragStart?: (e: React.DragEvent) => void;
+  onDragEnd?: (e: React.DragEvent) => void;
+  draggable?: boolean;
+}
+
+interface ConversationItemProps {
+  conversation: Conversation;
+  isActive: boolean;
+  isSelected: boolean;
+  isFocused: boolean;
+  isEditing: boolean;
+  editingTitle: string;
+  onSelect: (id: string) => void;
+  onStartEdit: (conv: Conversation, e?: React.MouseEvent) => void;
+  onEditTitleChange: (title: string) => void;
+  onSaveEdit: () => void;
+  onCancelEdit: () => void;
+  onToggleSelection: (id: string, e: React.MouseEvent) => void;
+  onStar?: ((id: string, starred?: boolean) => void) | undefined;
+  onArchive?: ((id: string, archived?: boolean) => void) | undefined;
+  onDelete: (id: string) => void;
+  onContextMenu?: ((e: React.MouseEvent, conv: Conversation) => void) | undefined;
+  dragHandlers?: DragHandlers | undefined;
+  isDragging?: boolean | undefined;
+}
+
+interface TouchPosition {
+  x: number;
+  y: number;
+}
 
 export const ConversationItem = memo(function ConversationItem({
   conversation,
@@ -34,15 +67,14 @@ export const ConversationItem = memo(function ConversationItem({
   onArchive,
   onDelete,
   onContextMenu,
-  // Drag and drop props
   dragHandlers,
   isDragging,
-}) {
-  const editInputRef = useRef(null);
-  const itemRef = useRef(null);
-  const longPressTimer = useRef(null);
-  const touchStartPos = useRef(null);
-  const longPressTriggered = useRef(false);
+}: ConversationItemProps) {
+  const editInputRef = useRef<HTMLInputElement | null>(null);
+  const itemRef = useRef<HTMLDivElement | null>(null);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const touchStartPos = useRef<TouchPosition | null>(null);
+  const longPressTriggered = useRef<boolean>(false);
 
   useEffect(() => {
     if (isEditing && editInputRef.current) {
@@ -52,13 +84,15 @@ export const ConversationItem = memo(function ConversationItem({
   }, [isEditing]);
 
   // Long-press handlers for mobile context menu
-  const handleTouchStart = useCallback((e) => {
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
     // Reset flag
     longPressTriggered.current = false;
 
     // Capture touch position immediately (before the event object is recycled)
-    const touchX = e.touches[0].clientX;
-    const touchY = e.touches[0].clientY;
+    const firstTouch = e.touches[0];
+    if (!firstTouch) return;
+    const touchX = firstTouch.clientX;
+    const touchY = firstTouch.clientY;
     const target = e.target;
 
     // Store initial touch position to detect scrolling
@@ -74,7 +108,7 @@ export const ConversationItem = memo(function ConversationItem({
           clientX: touchX,
           clientY: touchY,
           target: target,
-        };
+        } as React.MouseEvent;
         onContextMenu(syntheticEvent, conversation);
         // Vibrate on supported devices for haptic feedback
         if (navigator.vibrate) {
@@ -85,10 +119,11 @@ export const ConversationItem = memo(function ConversationItem({
     }, LONG_PRESS_DURATION);
   }, [conversation, onContextMenu]);
 
-  const handleTouchMove = useCallback((e) => {
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
     // Cancel long-press if user is scrolling (moved more than 10px)
     if (longPressTimer.current && touchStartPos.current) {
       const touch = e.touches[0];
+      if (!touch) return;
       const deltaX = Math.abs(touch.clientX - touchStartPos.current.x);
       const deltaY = Math.abs(touch.clientY - touchStartPos.current.y);
       if (deltaX > 10 || deltaY > 10) {
@@ -121,7 +156,7 @@ export const ConversationItem = memo(function ConversationItem({
     }
   }, [isFocused]);
 
-  const handleEditKeyDown = (e) => {
+  const handleEditKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       onSaveEdit();
@@ -203,7 +238,7 @@ export const ConversationItem = memo(function ConversationItem({
           {relativeTime && (
             <span
               className="conversation-time"
-              title={absoluteTime}
+              title={absoluteTime ?? undefined}
             >
               {' '}· {relativeTime}
             </span>
@@ -235,7 +270,7 @@ export const ConversationItem = memo(function ConversationItem({
           className={`hover-action-btn ${conversation.is_starred ? 'starred' : ''}`}
           onClick={(e) => {
             e.stopPropagation();
-            onStar(conversation.id, !conversation.is_starred);
+            onStar?.(conversation.id, !conversation.is_starred);
           }}
           aria-label={conversation.is_starred ? 'Remove star' : 'Add star'}
           aria-pressed={conversation.is_starred}
@@ -246,7 +281,7 @@ export const ConversationItem = memo(function ConversationItem({
           className="hover-action-btn"
           onClick={(e) => {
             e.stopPropagation();
-            onArchive(conversation.id, !conversation.is_archived);
+            onArchive?.(conversation.id, !conversation.is_archived);
           }}
           aria-label={conversation.is_archived ? 'Unarchive conversation' : 'Archive conversation'}
         >

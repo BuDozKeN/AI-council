@@ -60,9 +60,14 @@
     max-width: 320px;
     min-width: auto;
     height: 100vh;
+    height: 100dvh; /* Dynamic viewport height for mobile browsers */
     z-index: var(--z-modal);
     transform: translateX(-100%);
     box-shadow: none;
+    /* CRITICAL: Ensure flex layout properly constrains children */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
 
   .sidebar.mobile-open {
@@ -93,23 +98,71 @@
     display: none;
   }
 
-  /* Expanded panel takes full width on mobile */
-  .sidebar .sidebar-expanded-panel {
-    border-left: none;
-  }
-
-  /* Main content is column layout on mobile */
+  /* Main content is column layout on mobile - must constrain height */
   .sidebar .sidebar-main {
     flex-direction: column;
+    /* CRITICAL: Use flex shorthand to constrain height properly */
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* Expanded panel takes remaining space and scrolls internally */
+  .sidebar .sidebar-expanded-panel {
+    border-left: none;
+    /* CRITICAL: Constrain height so it doesn't push footer off screen */
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Conversation list scrolls, not the panel */
+  .sidebar .conversation-list {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Panel controls stay fixed at top */
+  .sidebar .sidebar-panel-controls {
+    flex-shrink: 0;
   }
 
   /* Header takes full width with New Chat button */
   .sidebar .sidebar-header {
     padding: 12px 16px;
+    flex-shrink: 0;
   }
 
   .sidebar .sidebar-new-btn {
     flex: 1;
+  }
+
+  /* Footer - always visible at bottom on mobile */
+  .sidebar .sidebar-footer {
+    flex-shrink: 0;
+    padding: 12px 16px;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    background: var(--sidebar-bg);
+    border-top: 1px solid var(--sidebar-border);
+  }
+
+  /* Make footer buttons touch-friendly */
+  .sidebar .sidebar-footer-btn,
+  .sidebar .sign-out-btn {
+    min-height: 44px;
+    padding: 10px 12px;
+  }
+
+  /* Make all footer action buttons touch-friendly */
+  .sidebar .sidebar-footer .company-btn,
+  .sidebar .sidebar-footer .settings-btn {
+    min-height: 44px;
+    padding: 10px 12px;
   }
 }
 
@@ -653,11 +706,11 @@ button.sidebar-new-btn:hover {
 }
 
 .group-header:hover .group-count {
-  background: rgba(0, 0, 0, 0.08);
+  background: var(--overlay-black-8);
 }
 
 .dark .group-header:hover .group-count {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--overlay-white-10);
 }
 
 /* =============================================================================
@@ -751,7 +804,7 @@ button.sidebar-new-btn:hover {
   display: inline-block;
   font-size: 9px;
   background: var(--color-warning);
-  color: white;
+  color: var(--color-text-inverse);
   padding: 1px 5px;
   border-radius: var(--radius-sm);
   margin-right: 6px;
@@ -775,7 +828,7 @@ button.sidebar-new-btn:hover {
 
 /* Selected styling (multi-select for bulk actions) - distinct from active */
 .conversation-item.selected {
-  background: rgba(59, 130, 246, 0.08); /* Blue tint for selection */
+  background: var(--overlay-blue-10); /* Blue tint for selection */
   border-left: 3px solid var(--color-primary);
   padding-left: 13px;
 }
@@ -786,17 +839,17 @@ button.sidebar-new-btn:hover {
 
 /* When both selected AND active, show selected state takes visual priority */
 .conversation-item.selected.active {
-  background: rgba(59, 130, 246, 0.12);
+  background: var(--overlay-blue-15);
   border-left: 3px solid var(--color-primary);
 }
 
 /* Dark mode selected styling */
 .dark .conversation-item.selected {
-  background: rgba(59, 130, 246, 0.15);
+  background: var(--overlay-blue-15);
 }
 
 .dark .conversation-item.selected.active {
-  background: rgba(59, 130, 246, 0.2);
+  background: var(--overlay-blue-20);
 }
 
 /* =============================================================================
@@ -854,7 +907,7 @@ button.sidebar-new-btn:hover {
 }
 
 .hover-action-btn.starred:hover {
-  background: rgba(245, 158, 11, 0.2);
+  background: var(--overlay-amber-20);
   color: var(--color-amber-600);
 }
 
@@ -863,7 +916,7 @@ button.sidebar-new-btn:hover {
 }
 
 .hover-action-btn.danger:hover {
-  background: rgba(239, 68, 68, 0.2);
+  background: var(--overlay-red-20);
   color: var(--color-error);
 }
 
@@ -921,12 +974,43 @@ button.sidebar-new-btn:hover {
   .sidebar-filter .sort-select-trigger {
     min-height: 44px;
     height: 44px;
+    padding: 0 12px;
+    font-size: 14px;
+    border-radius: var(--radius-md);
+  }
+
+  /* Filter row - better spacing on mobile */
+  .sidebar-filter {
+    padding: 8px 16px;
+    gap: 8px;
   }
 
   /* Make search input touch-friendly */
   .search-input {
     min-height: 44px;
-    padding: 12px 32px 12px 34px;
+    padding: 12px 36px 12px 40px;
+    font-size: 16px; /* Prevents iOS zoom on focus */
+    border-radius: var(--radius-lg);
+  }
+
+  /* Larger search icon on mobile */
+  .search-icon {
+    left: 14px;
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Larger clear button on mobile */
+  .search-clear {
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+  }
+
+  /* More padding around search on mobile */
+  .sidebar-search {
+    padding: 12px 16px;
   }
 
   /* Make load more button touch-friendly */
@@ -993,9 +1077,10 @@ button.sidebar-new-btn:hover {
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
-  background: rgba(245, 158, 11, 0.15);
-  border-top: 1px solid rgba(245, 158, 11, 0.3);
-  border-bottom: 1px solid rgba(245, 158, 11, 0.3);
+  background: var(--overlay-amber-15);
+  border-top: 1px solid rgba(var(--color-amber-500-rgb), 0.3);
+  border-bottom: 1px solid rgba(var(--color-amber-500-rgb), 0.3);
+  flex-shrink: 0; /* Don't compress on mobile */
 }
 
 .bulk-count {
@@ -1010,7 +1095,7 @@ button.sidebar-new-btn:hover {
   font-size: 12px;
   font-weight: 500;
   color: var(--sidebar-text-secondary);
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--overlay-white-10);
   border: 1px solid var(--sidebar-border);
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -1018,7 +1103,7 @@ button.sidebar-new-btn:hover {
 }
 
 .bulk-cancel-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--overlay-white-15);
   border-color: var(--sidebar-text-muted);
 }
 
@@ -1029,7 +1114,7 @@ button.sidebar-new-btn:hover {
   padding: 6px 12px;
   font-size: 12px;
   font-weight: 500;
-  color: white;
+  color: var(--color-text-inverse);
   background: var(--color-error);
   border: none;
   border-radius: var(--radius-md);
@@ -1217,55 +1302,55 @@ button.sidebar-new-btn:hover {
 
 /* Production mode - green */
 .mode-toggle-btn.production {
-  background: rgba(16, 185, 129, 0.15);
-  border-color: rgba(16, 185, 129, 0.5);
+  background: var(--overlay-emerald-15);
+  border-color: rgba(var(--color-emerald-500-rgb), 0.5);
   color: var(--color-success);
 }
 
 .mode-toggle-btn.production .mode-indicator {
   background: var(--color-success);
-  box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
+  box-shadow: 0 0 6px rgba(var(--color-emerald-500-rgb), 0.5);
 }
 
 .mode-toggle-btn.production:hover {
-  background: rgba(16, 185, 129, 0.25);
+  background: var(--overlay-emerald-20);
 }
 
 /* Mock mode - orange */
 .mode-toggle-btn.mock {
-  background: rgba(245, 158, 11, 0.15);
-  border-color: rgba(245, 158, 11, 0.5);
+  background: var(--overlay-amber-15);
+  border-color: rgba(var(--color-amber-500-rgb), 0.5);
   color: var(--color-warning);
 }
 
 .mode-toggle-btn.mock .mode-indicator {
   background: var(--color-warning);
-  box-shadow: 0 0 6px rgba(245, 158, 11, 0.5);
+  box-shadow: 0 0 6px rgba(var(--color-amber-500-rgb), 0.5);
 }
 
 .mode-toggle-btn.mock:hover {
-  background: rgba(245, 158, 11, 0.25);
+  background: var(--overlay-amber-20);
 }
 
 /* Caching enabled - blue */
 .mode-toggle-btn.caching.enabled {
-  background: rgba(59, 130, 246, 0.15);
-  border-color: rgba(59, 130, 246, 0.5);
+  background: var(--overlay-blue-15);
+  border-color: rgba(var(--color-blue-500-rgb), 0.5);
   color: var(--color-primary);
 }
 
 .mode-toggle-btn.caching.enabled .mode-indicator {
   background: var(--color-primary);
-  box-shadow: 0 0 6px rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 6px rgba(var(--color-blue-500-rgb), 0.5);
 }
 
 .mode-toggle-btn.caching.enabled:hover {
-  background: rgba(59, 130, 246, 0.25);
+  background: var(--overlay-blue-20);
 }
 
 /* Caching disabled - gray */
 .mode-toggle-btn.caching.disabled {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--overlay-white-5);
   border-color: var(--sidebar-border);
   color: var(--sidebar-text-muted);
 }
@@ -1275,7 +1360,7 @@ button.sidebar-new-btn:hover {
 }
 
 .mode-toggle-btn.caching.disabled:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--overlay-white-10);
 }
 
 /* Toggling state */
@@ -1315,9 +1400,9 @@ button.sidebar-new-btn:hover {
   font-size: 13px;
   font-weight: 500;
   color: var(--sidebar-text-primary);
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--overlay-white-10);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(var(--color-focus-rgb), 0.15);
+  box-shadow: 0 0 0 3px rgba(var(--color-indigo-rgb), 0.15);
 }
 
 .title-edit-input:focus {
@@ -1356,7 +1441,7 @@ button.sidebar-new-btn:hover {
   background: var(--color-error);
   border: none;
   border-radius: var(--radius-md);
-  color: white;
+  color: var(--color-text-inverse);
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -1484,24 +1569,24 @@ button.sidebar-new-btn:hover {
 
 /* Drop target - highlight the group when dragging over */
 .conversation-group.drop-target {
-  background: rgba(59, 130, 246, 0.08);
+  background: var(--overlay-blue-10);
   border-radius: var(--radius-md);
-  outline: 2px dashed rgba(59, 130, 246, 0.4);
+  outline: 2px dashed rgba(var(--color-blue-500-rgb), 0.4);
   outline-offset: -2px;
 }
 
 .conversation-group.drop-target .group-header {
-  background: rgba(59, 130, 246, 0.12);
+  background: var(--overlay-blue-15);
 }
 
 /* Dark mode drop target */
 .dark .conversation-group.drop-target {
-  background: rgba(59, 130, 246, 0.15);
-  outline-color: rgba(59, 130, 246, 0.5);
+  background: var(--overlay-blue-15);
+  outline-color: rgba(var(--color-blue-500-rgb), 0.5);
 }
 
 .dark .conversation-group.drop-target .group-header {
-  background: rgba(59, 130, 246, 0.2);
+  background: var(--overlay-blue-20);
 }
 
 /* Dark mode dragging - stronger shadow for visibility */

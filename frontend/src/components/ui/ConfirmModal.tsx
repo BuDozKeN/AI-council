@@ -5,6 +5,20 @@ import { Spinner } from "./Spinner"
 import { AlertTriangle, Trash2, Info, AlertCircle } from "lucide-react"
 import "./ConfirmModal.css"
 
+type ConfirmModalVariant = 'danger' | 'warning' | 'info' | 'error';
+
+interface ConfirmModalProps {
+  title?: string;
+  message?: React.ReactNode;
+  variant?: ConfirmModalVariant;
+  confirmText?: string;
+  cancelText?: string;
+  onConfirm?: () => void | Promise<void>;
+  onCancel?: () => void;
+  isLoading?: boolean;
+  processing?: boolean;
+}
+
 /**
  * ConfirmModal - Replaces browser confirm() with a styled modal
  *
@@ -40,9 +54,9 @@ function ConfirmModal({
   onCancel,
   isLoading = false,
   processing = false, // Alias for isLoading (backwards compat)
-}) {
+}: ConfirmModalProps) {
   const loading = isLoading || processing;
-  const iconMap = {
+  const iconMap: Record<ConfirmModalVariant, React.ReactNode> = {
     danger: <Trash2 size={24} />,
     warning: <AlertTriangle size={24} />,
     info: <Info size={24} />,
@@ -59,10 +73,10 @@ function ConfirmModal({
   return (
     <AppModal
       isOpen={true}
-      onClose={onCancel}
-      title={title}
       size="sm"
       closeOnOverlayClick={!loading}
+      {...(onCancel !== undefined && { onClose: onCancel })}
+      {...(title !== undefined && { title })}
     >
       <div className="confirm-modal-content">
         <div className={`confirm-modal-icon confirm-modal-icon-${variant}`}>
@@ -100,3 +114,4 @@ function ConfirmModal({
 }
 
 export { ConfirmModal }
+export type { ConfirmModalProps, ConfirmModalVariant }

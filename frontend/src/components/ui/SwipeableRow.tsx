@@ -1,20 +1,25 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
-import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
+import { useState, useRef, useCallback, useEffect, ReactNode } from 'react';
+import { motion, useMotionValue, useTransform, animate, PanInfo } from 'framer-motion';
 import { hapticImpact, hapticLight } from '../../lib/haptics';
 import './SwipeableRow.css';
 
+interface SwipeAction {
+  label: string;
+  icon?: ReactNode;
+  onClick?: () => void;
+  variant?: 'default' | 'danger' | 'warning';
+}
+
+interface SwipeableRowProps {
+  children?: ReactNode;
+  actions?: SwipeAction[];
+  onClick?: (e: React.MouseEvent) => void;
+  className?: string;
+  disabled?: boolean;
+}
+
 /**
  * SwipeableRow - A row component that reveals actions on swipe
- *
- * Swipe left to reveal action buttons (like iOS Mail)
- * Supports multiple actions with different colors
- *
- * @param {Object} props
- * @param {React.ReactNode} props.children - Row content
- * @param {Array} props.actions - Array of action objects: { label, icon, onClick, variant }
- * @param {Function} props.onClick - Click handler for the row
- * @param {string} props.className - Additional class name
- * @param {boolean} props.disabled - Whether swipe is disabled
  */
 export function SwipeableRow({
   children,
@@ -22,10 +27,10 @@ export function SwipeableRow({
   onClick,
   className = '',
   disabled = false,
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isSwiping, setIsSwiping] = useState(false);
-  const containerRef = useRef(null);
+}: SwipeableRowProps) {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isSwiping, setIsSwiping] = useState<boolean>(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const x = useMotionValue(0);
 
   // Calculate action area width based on number of actions
@@ -35,8 +40,8 @@ export function SwipeableRow({
   // Transform for action button opacity
   const actionOpacity = useTransform(x, [-actionWidth, -threshold, 0], [1, 0.8, 0]);
 
-  // Handle drag end
-  const handleDragEnd = useCallback((_, info) => {
+  // Handle drag end - using any for event type as framer-motion uses a complex union
+  const handleDragEnd = useCallback((_event: unknown, info: PanInfo) => {
     setIsSwiping(false);
     const offsetX = info.offset.x;
     const velocityX = info.velocity.x;
@@ -63,8 +68,8 @@ export function SwipeableRow({
   useEffect(() => {
     if (!isOpen) return;
 
-    const handleClickOutside = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
+    const handleClickOutside = (e: Event) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         animate(x, 0, { type: 'spring', stiffness: 500, damping: 30 });
         setIsOpen(false);
       }
@@ -80,7 +85,7 @@ export function SwipeableRow({
   }, [isOpen, x]);
 
   // Close on action click
-  const handleActionClick = useCallback((action) => {
+  const handleActionClick = useCallback((action: SwipeAction) => {
     hapticLight();
     animate(x, 0, { type: 'spring', stiffness: 500, damping: 30 });
     setIsOpen(false);
@@ -88,7 +93,7 @@ export function SwipeableRow({
   }, [x]);
 
   // Handle row click (only if not swiping)
-  const handleRowClick = useCallback((e) => {
+  const handleRowClick = useCallback((e: React.MouseEvent) => {
     if (isSwiping || isOpen) {
       if (isOpen) {
         animate(x, 0, { type: 'spring', stiffness: 500, damping: 30 });

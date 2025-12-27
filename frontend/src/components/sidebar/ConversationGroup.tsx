@@ -9,6 +9,46 @@
  */
 
 import { ConversationItem } from './ConversationItem';
+import type { Conversation } from '../../types/conversation';
+
+interface DragHandlers {
+  onDragStart?: (e: React.DragEvent) => void;
+  onDragEnd?: (e: React.DragEvent) => void;
+  draggable?: boolean;
+}
+
+interface DropHandlers {
+  onDragOver?: (e: React.DragEvent) => void;
+  onDragLeave?: (e: React.DragEvent) => void;
+  onDrop?: (e: React.DragEvent) => void;
+}
+
+interface ConversationGroupProps {
+  groupId: string;
+  groupName: string;
+  conversations?: Conversation[] | undefined;
+  isExpanded: boolean;
+  onToggleExpand: (groupId: string) => void;
+  currentConversationId: string | null;
+  focusedConversationId: string | null;
+  selectedIds: Set<string>;
+  editingId: string | null;
+  editingTitle: string;
+  onSelectConversation: (id: string) => void;
+  onStartEdit: (conv: Conversation, e?: React.MouseEvent) => void;
+  onEditTitleChange: (title: string) => void;
+  onSaveEdit: () => void;
+  onCancelEdit: () => void;
+  onToggleSelection: (id: string, e: React.MouseEvent) => void;
+  onStarConversation?: ((id: string, starred?: boolean) => void) | undefined;
+  onArchiveConversation?: ((id: string, archived?: boolean) => void) | undefined;
+  onDeleteConversation: (id: string) => void;
+  onContextMenu: (e: React.MouseEvent, conv: Conversation) => void;
+  dropHandlers?: DropHandlers | undefined;
+  isDropTarget?: boolean | undefined;
+  getDragHandlers?: ((conv: Conversation) => DragHandlers) | undefined;
+  draggedItemId?: string | null | undefined;
+}
 
 export function ConversationGroup({
   groupId,
@@ -31,12 +71,11 @@ export function ConversationGroup({
   onArchiveConversation,
   onDeleteConversation,
   onContextMenu,
-  // Drag and drop props
   dropHandlers,
   isDropTarget,
   getDragHandlers,
   draggedItemId,
-}) {
+}: ConversationGroupProps) {
   // Show empty groups when they're drop targets (so user can drop into empty groups)
   if (conversations.length === 0 && !isDropTarget) return null;
 

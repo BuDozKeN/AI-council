@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, KeyboardEvent } from 'react';
 import { api } from '../api';
 import { logger } from '../utils/logger';
 import { AppModal } from './ui/AppModal';
 import { Button } from './ui/button';
 import { Spinner } from './ui/Spinner';
 import { AIWriteAssist } from './ui/AIWriteAssist';
+import type { Project } from '../types/business';
 import './SaveKnowledgeModal.css';
 
 /**
@@ -17,7 +18,46 @@ import './SaveKnowledgeModal.css';
 
 const log = logger.scope('SaveKnowledgeModal');
 
-const CATEGORIES = [
+interface CategoryOption {
+  id: string;
+  label: string;
+  description: string;
+}
+
+interface SaveModeOption {
+  id: string;
+  label: string;
+  icon: string;
+  description: string;
+}
+
+interface ScopeOption {
+  id: string;
+  label: string;
+  description: string;
+}
+
+interface DepartmentOption {
+  id: string;
+  label: string;
+}
+
+interface SaveKnowledgeModalProps {
+  isOpen: boolean;
+  onClose: (saved?: boolean | undefined) => void;
+  suggestedTitle?: string | undefined;
+  suggestedSummary?: string | undefined;
+  fullResponseText?: string | undefined;
+  companyId: string;
+  departmentId?: string | undefined;
+  conversationId?: string | undefined;
+  userQuestion?: string | undefined;
+  projects?: Project[] | undefined;
+  currentProjectId?: string | null | undefined;
+  onProjectCreated?: ((project: Project) => void) | undefined;
+}
+
+const CATEGORIES: CategoryOption[] = [
   { id: 'technical_decision', label: 'Technical Decision', description: 'Architecture choices, tech stack decisions' },
   { id: 'ux_pattern', label: 'UX Pattern', description: 'UI/UX decisions and best practices' },
   { id: 'feature', label: 'Feature', description: 'New features and functionality' },
@@ -27,7 +67,7 @@ const CATEGORIES = [
 ];
 
 // Save modes for progressive disclosure
-const SAVE_MODES = [
+const SAVE_MODES: SaveModeOption[] = [
   {
     id: 'just_save',
     label: 'Just Save',
@@ -49,13 +89,13 @@ const SAVE_MODES = [
 ];
 
 // Scope options
-const SCOPES = [
+const SCOPES: ScopeOption[] = [
   { id: 'department', label: 'Department', description: 'Visible to this department only' },
   { id: 'company', label: 'Company-wide', description: 'Visible to all departments' },
   { id: 'project', label: 'Project Only', description: 'Visible only within this project' }
 ];
 
-const DEPARTMENTS = [
+const DEPARTMENTS: DepartmentOption[] = [
   { id: 'technology', label: 'Technology' },
   { id: 'marketing', label: 'Marketing' },
   { id: 'operations', label: 'Operations' },
@@ -67,7 +107,7 @@ const DEPARTMENTS = [
 /**
  * Truncate text for display (simple, no regex extraction)
  */
-function truncateForDisplay(text, maxLength = 150) {
+function truncateForDisplay(text: string | undefined | null, maxLength = 150): string {
   if (!text) return '';
   if (text.length <= maxLength) return text;
   return text.slice(0, maxLength - 3) + '...';
@@ -86,38 +126,38 @@ export default function SaveKnowledgeModal({
   projects = [],
   currentProjectId = null,
   onProjectCreated,  // Callback when a new project is created
-}) {
-  const [title, setTitle] = useState('');
-  const [summary, setSummary] = useState('');
-  const [category, setCategory] = useState('technical_decision');
-  const [categoryReason, setCategoryReason] = useState('');
-  const [originalCategory, setOriginalCategory] = useState(null);
-  const [department, setDepartment] = useState(departmentId || 'technology');
-  const [departmentReason, setDepartmentReason] = useState('');
-  const [originalDepartment, setOriginalDepartment] = useState(null);
-  const [projectId, setProjectId] = useState(currentProjectId);
-  const [saving, setSaving] = useState(false);
-  const [extracting, setExtracting] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
-  const [showFullQuestion, setShowFullQuestion] = useState(false);
-  const [contextSummary, setContextSummary] = useState('');
+}: SaveKnowledgeModalProps) {
+  const [title, setTitle] = useState<string>('');
+  const [summary, setSummary] = useState<string>('');
+  const [category, setCategory] = useState<string>('technical_decision');
+  const [categoryReason, setCategoryReason] = useState<string>('');
+  const [originalCategory, setOriginalCategory] = useState<string | null>(null);
+  const [department, setDepartment] = useState<string>(departmentId || 'technology');
+  const [departmentReason, setDepartmentReason] = useState<string>('');
+  const [originalDepartment, setOriginalDepartment] = useState<string | null>(null);
+  const [projectId, setProjectId] = useState<string | null>(currentProjectId ?? null);
+  const [saving, setSaving] = useState<boolean>(false);
+  const [extracting, setExtracting] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<boolean>(false);
+  const [showFullQuestion, setShowFullQuestion] = useState<boolean>(false);
+  const [contextSummary, setContextSummary] = useState<string>('');
   // Structured decision fields
-  const [problemStatement, setProblemStatement] = useState('');
-  const [decisionText, setDecisionText] = useState('');
-  const [reasoning, setReasoning] = useState('');
+  const [problemStatement, setProblemStatement] = useState<string>('');
+  const [decisionText, setDecisionText] = useState<string>('');
+  const [reasoning, setReasoning] = useState<string>('');
   // NEW: Knowledge consolidation fields
-  const [saveMode, setSaveMode] = useState('just_save'); // just_save, remember, playbook
-  const [scope, setScope] = useState('department'); // department, company, project
-  const [tags, setTags] = useState([]);
-  const [tagInput, setTagInput] = useState('');
+  const [saveMode, setSaveMode] = useState<string>('just_save'); // just_save, remember, playbook
+  const [scope, setScope] = useState<string>('department'); // department, company, project
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState<string>('');
   // Project creation
-  const [showProjectPreview, setShowProjectPreview] = useState(false);
-  const [extractingProject, setExtractingProject] = useState(false);
-  const [newProjectName, setNewProjectName] = useState('');
-  const [newProjectDescription, setNewProjectDescription] = useState('');
-  const [creatingProject, setCreatingProject] = useState(false);
-  const [availableProjects, setAvailableProjects] = useState(projects);
+  const [showProjectPreview, setShowProjectPreview] = useState<boolean>(false);
+  const [extractingProject, setExtractingProject] = useState<boolean>(false);
+  const [newProjectName, setNewProjectName] = useState<string>('');
+  const [newProjectDescription, setNewProjectDescription] = useState<string>('');
+  const [creatingProject, setCreatingProject] = useState<boolean>(false);
+  const [availableProjects, setAvailableProjects] = useState<Project[]>(projects);
 
   // Sync projects prop
   useEffect(() => {
@@ -221,7 +261,7 @@ export default function SaveKnowledgeModal({
     try {
       // Call backend to extract project details
       // Backend handles sanitization - no garbage will come through
-      const result = await api.extractProject(userQuestion, fullResponseText || '');
+      const result = await api.extractProject(userQuestion ?? '', fullResponseText ?? '');
 
       if (result.success && result.extracted) {
         setNewProjectName(result.extracted.name || 'New Project');
@@ -273,7 +313,8 @@ export default function SaveKnowledgeModal({
         }
       }
     } catch (err) {
-      setError(err.message || "Couldn't create that project. Please try again.");
+      const errorMessage = err instanceof Error ? err.message : "Couldn't create that project. Please try again.";
+      setError(errorMessage);
     } finally {
       setCreatingProject(false);
     }
@@ -291,12 +332,12 @@ export default function SaveKnowledgeModal({
   };
 
   // Remove a tag
-  const handleRemoveTag = (tagToRemove) => {
+  const handleRemoveTag = (tagToRemove: string) => {
     setTags(tags.filter(t => t !== tagToRemove));
   };
 
   // Handle tag input keypress
-  const handleTagKeyPress = (e) => {
+  const handleTagKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
       handleAddTag();
@@ -359,7 +400,8 @@ export default function SaveKnowledgeModal({
       setSuccess(true);
     } catch (err) {
       log.error('Save failed:', err);
-      setError(err.message || "Couldn't save your decision. Please try again.");
+      const errorMessage = err instanceof Error ? err.message : "Couldn't save your decision. Please try again.";
+      setError(errorMessage);
     } finally {
       setSaving(false);
     }
@@ -755,7 +797,7 @@ export default function SaveKnowledgeModal({
             </div>
 
             <AppModal.Footer>
-              <Button variant="outline" onClick={onClose} disabled={saving}>
+              <Button variant="outline" onClick={() => onClose()} disabled={saving}>
                 Cancel
               </Button>
               <Button variant="default" onClick={handleSave} disabled={saving}>

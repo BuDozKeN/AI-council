@@ -10,8 +10,34 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { Pencil, Star, Archive, ArchiveRestore, Trash2, Copy, Download } from 'lucide-react';
+import { Pencil, Star, Archive, ArchiveRestore, Trash2, Download, LucideIcon } from 'lucide-react';
+import type { Conversation } from '../../types';
 import './ConversationContextMenu.css';
+
+interface MenuPosition {
+  x: number;
+  y: number;
+}
+
+interface ConversationContextMenuProps {
+  isOpen: boolean;
+  position: MenuPosition;
+  conversation: Conversation | null;
+  onClose: () => void;
+  onRename: (conversation: Conversation, e?: React.MouseEvent) => void;
+  onStar: (id: string, starred: boolean) => void;
+  onArchive: (id: string, archived: boolean) => void;
+  onDelete: (id: string) => void;
+  onExport?: ((id: string) => void) | undefined;
+}
+
+interface MenuItem {
+  label?: string;
+  icon?: LucideIcon;
+  onClick?: () => void;
+  className?: string;
+  type?: 'separator';
+}
 
 export function ConversationContextMenu({
   isOpen,
@@ -23,21 +49,21 @@ export function ConversationContextMenu({
   onArchive,
   onDelete,
   onExport,
-}) {
-  const menuRef = useRef(null);
+}: ConversationContextMenuProps) {
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   // Close on Escape and click outside
   useEffect(() => {
     if (!isOpen) return;
 
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
       }
     };
 
-    const handleClickOutside = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
+    const handleClickOutside = (e: globalThis.MouseEvent | TouchEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         onClose();
       }
     };
@@ -60,29 +86,24 @@ export function ConversationContextMenu({
   }, [isOpen, onClose]);
 
   // Adjust position to keep menu in viewport
-  const _adjustedPosition = useCallback(() => {
-    if (!menuRef.current) return position;
-
-    const menuRect = menuRef.current.getBoundingClientRect();
-    const padding = 8;
-    let { x, y } = position;
-
-    // Adjust horizontal position
-    if (x + menuRect.width > window.innerWidth - padding) {
-      x = window.innerWidth - menuRect.width - padding;
-    }
-
-    // Adjust vertical position
-    if (y + menuRect.height > window.innerHeight - padding) {
-      y = window.innerHeight - menuRect.height - padding;
-    }
-
-    return { x: Math.max(padding, x), y: Math.max(padding, y) };
-  }, [position]);
+  // NOTE: Currently unused but kept for future viewport edge detection
+  // const adjustedPosition = useCallback((): MenuPosition => {
+  //   if (!menuRef.current) return position;
+  //   const menuRect = menuRef.current.getBoundingClientRect();
+  //   const padding = 8;
+  //   let { x, y } = position;
+  //   if (x + menuRect.width > window.innerWidth - padding) {
+  //     x = window.innerWidth - menuRect.width - padding;
+  //   }
+  //   if (y + menuRect.height > window.innerHeight - padding) {
+  //     y = window.innerHeight - menuRect.height - padding;
+  //   }
+  //   return { x: Math.max(padding, x), y: Math.max(padding, y) };
+  // }, [position]);
 
   if (!isOpen || !conversation) return null;
 
-  const menuItems = [
+  const menuItems: MenuItem[] = [
     {
       label: 'Rename',
       icon: Pencil,
@@ -145,7 +166,7 @@ export function ConversationContextMenu({
           return <div key={index} className="context-menu-separator" role="separator" />;
         }
 
-        const Icon = item.icon;
+        const Icon = item.icon!;
         return (
           <button
             key={item.label}
@@ -164,15 +185,23 @@ export function ConversationContextMenu({
   return createPortal(menu, document.body);
 }
 
+interface UseContextMenuReturn<T> {
+  isOpen: boolean;
+  position: MenuPosition;
+  contextData: T | null;
+  open: (e: React.MouseEvent | globalThis.MouseEvent, data: T) => void;
+  close: () => void;
+}
+
 /**
  * useContextMenu - Hook for managing context menu state
  */
-export function useContextMenu() {
+export function useContextMenu<T = unknown>(): UseContextMenuReturn<T> {
   const [isOpen, setIsOpen] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [contextData, setContextData] = useState(null);
+  const [position, setPosition] = useState<MenuPosition>({ x: 0, y: 0 });
+  const [contextData, setContextData] = useState<T | null>(null);
 
-  const open = useCallback((e, data) => {
+  const open = useCallback((e: React.MouseEvent | globalThis.MouseEvent, data: T) => {
     e.preventDefault();
     e.stopPropagation();
     setPosition({ x: e.clientX, y: e.clientY });

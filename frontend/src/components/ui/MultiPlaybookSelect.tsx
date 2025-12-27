@@ -17,22 +17,39 @@
 
 import * as React from 'react';
 import * as Popover from '@radix-ui/react-popover';
-import { BookOpen, Check, ChevronDown, X, FileText, Scale, Cog } from 'lucide-react';
+import { BookOpen, Check, ChevronDown, FileText, Scale, Cog, type LucideIcon } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from './BottomSheet';
 import './MultiPlaybookSelect.css';
+
+type PlaybookType = 'sop' | 'framework' | 'policy';
+
+interface ExtendedPlaybook {
+  id: string;
+  title: string;
+  doc_type: PlaybookType;
+}
+
+interface MultiPlaybookSelectProps {
+  value?: string[] | undefined;
+  onValueChange: (ids: string[]) => void;
+  playbooks?: ExtendedPlaybook[] | undefined;
+  disabled?: boolean | undefined;
+  placeholder?: string | undefined;
+  className?: string | undefined;
+}
 
 // Check if we're on mobile/tablet for bottom sheet vs dropdown
 const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
 
 // Icons for different playbook types
-const TYPE_ICONS = {
+const TYPE_ICONS: Record<PlaybookType, LucideIcon> = {
   sop: Cog,
   framework: Scale,
   policy: FileText,
 };
 
-const TYPE_LABELS = {
+const TYPE_LABELS: Record<PlaybookType, string> = {
   sop: 'SOP',
   framework: 'Framework',
   policy: 'Policy',
@@ -45,30 +62,30 @@ export function MultiPlaybookSelect({
   disabled = false,
   placeholder = 'Select playbooks...',
   className,
-}) {
+}: MultiPlaybookSelectProps) {
   const [open, setOpen] = React.useState(false);
 
   // Get selected playbooks with their data
   const selectedPlaybooks = value
     .map(id => playbooks.find(p => p.id === id))
-    .filter(Boolean);
+    .filter((p): p is ExtendedPlaybook => Boolean(p));
 
   // Group playbooks by type, sorted alphabetically within each group
   const groupedPlaybooks = React.useMemo(() => {
-    const groups = { sop: [], framework: [], policy: [] };
-    playbooks.forEach(p => {
+    const groups: Record<PlaybookType, ExtendedPlaybook[]> = { sop: [], framework: [], policy: [] };
+    playbooks.forEach((p: ExtendedPlaybook) => {
       if (groups[p.doc_type]) {
         groups[p.doc_type].push(p);
       }
     });
     // Sort each group alphabetically by title
-    Object.keys(groups).forEach(key => {
+    (Object.keys(groups) as PlaybookType[]).forEach((key: PlaybookType) => {
       groups[key].sort((a, b) => (a.title || '').localeCompare(b.title || ''));
     });
     return groups;
   }, [playbooks]);
 
-  const togglePlaybook = (playbookId) => {
+  const togglePlaybook = (playbookId: string) => {
     if (value.includes(playbookId)) {
       onValueChange(value.filter(id => id !== playbookId));
     } else {
@@ -76,13 +93,14 @@ export function MultiPlaybookSelect({
     }
   };
 
-  const _removePlaybook = (e, playbookId) => {
+  // Utility function to remove a playbook - used by tag close buttons
+  const removePlaybook = (e: React.MouseEvent, playbookId: string) => {
     e.stopPropagation();
     onValueChange(value.filter(id => id !== playbookId));
   };
 
-  // Get type badge color
-  const _getTypeBadgeClass = (docType) => {
+  // Get type badge color - used for styling
+  const getTypeBadgeClass = (docType: PlaybookType): string => {
     switch (docType) {
       case 'sop': return 'playbook-badge-sop';
       case 'framework': return 'playbook-badge-framework';
@@ -90,6 +108,10 @@ export function MultiPlaybookSelect({
       default: return '';
     }
   };
+
+  // Suppress unused variable warnings - these are available for future use
+  void removePlaybook;
+  void getTypeBadgeClass;
 
   // Shared trigger content - compact format like departments
   const triggerContent = (
@@ -100,7 +122,7 @@ export function MultiPlaybookSelect({
         <span className="multi-playbook-placeholder">{placeholder}</span>
       ) : selectedPlaybooks.length === 1 ? (
         // Single playbook: show title (truncated)
-        <span className="multi-playbook-single">{selectedPlaybooks[0].title}</span>
+        <span className="multi-playbook-single">{selectedPlaybooks[0]?.title}</span>
       ) : (
         // Multiple playbooks: show count
         <span className="multi-playbook-count">{selectedPlaybooks.length} playbooks</span>
@@ -116,7 +138,7 @@ export function MultiPlaybookSelect({
       {playbooks.length === 0 ? (
         <div className="multi-playbook-empty">No playbooks available</div>
       ) : (
-        Object.entries(groupedPlaybooks).map(([type, items]) => {
+        (Object.entries(groupedPlaybooks) as [PlaybookType, ExtendedPlaybook[]][]).map(([type, items]) => {
           if (items.length === 0) return null;
 
           const TypeIcon = TYPE_ICONS[type] || BookOpen;
@@ -129,7 +151,7 @@ export function MultiPlaybookSelect({
                 <span className="multi-playbook-group-count">{items.length}</span>
               </div>
 
-              {items.map(playbook => {
+              {items.map((playbook: ExtendedPlaybook) => {
                 const isSelected = value.includes(playbook.id);
 
                 return (

@@ -19,55 +19,109 @@ import { getDeptColor } from '../../../lib/colors';
 import { truncateText } from '../../../lib/utils';
 import { formatDateShort, formatDateCompact } from '../../../lib/dateUtils';
 import { logger } from '../../../utils/logger';
+import type { Department, Project } from '../../../types/business';
 
 const log = logger.scope('ViewProjectModal');
 
-export function ViewProjectModal({ project: initialProject, companyId, departments = [], initialExpandedDecisionId = null, onConsumeInitialDecision, onClose, onSave, isNew = false, onNavigateToConversation, onProjectUpdate, onStatusChange, onDelete }) {
+type ProjectStatus = 'active' | 'completed' | 'archived';
+type ConfirmAction = 'complete' | 'archive' | 'restore' | 'delete' | null;
+type TabType = 'context' | 'decisions';
+
+interface ExtendedProject extends Project {
+  context_md?: string;
+  source?: string;
+  source_conversation_id?: string;
+  decision_count?: number;
+  department_names?: string[];
+  last_accessed_at?: string;
+}
+
+interface ProjectDecision {
+  id: string;
+  title: string;
+  content?: string;
+  content_summary?: string;
+  question?: string;
+  department_ids?: string[];
+  department_names?: string[];
+  source_conversation_id?: string;
+  response_index?: number | null;
+  created_at: string;
+}
+
+interface DecisionGroup {
+  type: 'single' | 'group';
+  conversationId?: string;
+  decisions: ProjectDecision[];
+}
+
+interface AlertModalData {
+  title: string;
+  message: string;
+  variant: 'success' | 'error' | 'warning' | 'info';
+}
+
+interface ViewProjectModalProps {
+  project: ExtendedProject;
+  companyId: string;
+  departments?: Department[];
+  initialExpandedDecisionId?: string | null;
+  onConsumeInitialDecision?: () => void;
+  onClose: () => void;
+  onSave?: (id: string, updates: Partial<ExtendedProject>) => Promise<ExtendedProject | undefined>;
+  isNew?: boolean;
+  onNavigateToConversation?: (conversationId: string, source: string, responseIndex?: number, projectId?: string, decisionId?: string) => void;
+  onProjectUpdate?: (projectId: string, updates: Partial<ExtendedProject>) => void;
+  onStatusChange?: (projectId: string, newStatus: ProjectStatus) => Promise<void>;
+  onDelete?: (projectId: string) => Promise<void>;
+}
+
+export function ViewProjectModal({ project: initialProject, companyId, departments = [], initialExpandedDecisionId = null, onConsumeInitialDecision, onClose, onSave, isNew = false, onNavigateToConversation, onProjectUpdate, onStatusChange, onDelete }: ViewProjectModalProps) {
   // Local project state that can be updated after save
   const [project, setProject] = useState(initialProject);
 
   // State for action confirmations
-  const [confirmingAction, setConfirmingAction] = useState(null); // 'complete' | 'archive' | 'restore' | 'delete'
+  const [confirmingAction, setConfirmingAction] = useState<ConfirmAction>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
   // Alert modal state (local to this component)
-  const [alertModal, setAlertModal] = useState(null); // { title, message, variant }
+  const [alertModal, setAlertModal] = useState<AlertModalData | null>(null);
 
   const [isEditing, setIsEditing] = useState(isNew);
   const [editedName, setEditedName] = useState(project.name || '');
   const [editedDescription, setEditedDescription] = useState(project.description || '');
   const [editedContext, setEditedContext] = useState(project.context_md || '');
-  const [editedStatus, setEditedStatus] = useState(project.status || 'active');
+  const [editedStatus, setEditedStatus] = useState<ProjectStatus>(project.status || 'active');
   // Use department_ids array
-  const [editedDepartmentIds, setEditedDepartmentIds] = useState(
+  const [editedDepartmentIds, setEditedDepartmentIds] = useState<string[]>(
     project.department_ids || []
   );
   const [saving, setSaving] = useState(false);
   const [isEditingName, setIsEditingName] = useState(isNew);
 
   // Tab state for Context vs Decisions - default to decisions if returning to a specific decision
-  const [activeTab, setActiveTab] = useState(initialExpandedDecisionId ? 'decisions' : 'context'); // 'context' | 'decisions'
+  const [activeTab, setActiveTab] = useState<TabType>(initialExpandedDecisionId ? 'decisions' : 'context');
 
   // Decisions timeline state
-  const [projectDecisions, setProjectDecisions] = useState([]);
+  const [projectDecisions, setProjectDecisions] = useState<ProjectDecision[]>([]);
   const [loadingDecisions, setLoadingDecisions] = useState(false);
-  const [expandedDecisionId, setExpandedDecisionId] = useState(null);
+  const [expandedDecisionId, setExpandedDecisionId] = useState<string | null>(null);
   const hasExpandedInitialDecision = useRef(false); // Track if we've auto-expanded the initial decision
-  const [generatingSummaryId, setGeneratingSummaryId] = useState(null);
+  const [generatingSummaryId, setGeneratingSummaryId] = useState<string | null>(null);
 
   // Regenerate context state
   const [regenerating, setRegenerating] = useState(false);
 
   // Scroll ref for modal body
-  const modalBodyRef = useRef(null);
+  const modalBodyRef = useRef<HTMLDivElement | null>(null);
 
   // Track which project we've synced departments for (prevent multiple syncs causing flicker)
-  const syncedProjectId = useRef(null);
+  const syncedProjectId = useRef<string | null>(null);
 
   // Check if a summary is garbage and needs regeneration
   // NOTE: New decisions get summaries at save time (in merge endpoint).
   // This check is only for LEGACY decisions saved before that feature was added.
-  const isGarbageSummary = (summary) => {
+  const isGarbageSummary = (summary: string | null | undefined): boolean => {
     if (!summary) return true;
     const garbageTexts = [
       'added council decision to project',
@@ -80,7 +134,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
 
   // Handle expanding a decision - only regenerate summaries for legacy decisions without one
   // New decisions should already have summaries (generated at save time)
-  const handleExpandDecision = async (decisionId) => {
+  const handleExpandDecision = async (decisionId: string) => {
     if (expandedDecisionId === decisionId) {
       // Collapsing
       setExpandedDecisionId(null);
@@ -120,19 +174,19 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
   };
 
   // Group decisions by conversation for visual linking
-  const groupedDecisions = useMemo(() => {
+  const groupedDecisions = useMemo((): DecisionGroup[] => {
     if (!projectDecisions.length) return [];
 
     // Create groups - decisions with same source_conversation_id are grouped together
-    const groups = [];
-    let currentGroup = null;
+    const groups: DecisionGroup[] = [];
+    let currentGroup: DecisionGroup | null = null;
 
     // Sort by created_at to ensure chronological order
     const sorted = [...projectDecisions].sort((a, b) =>
-      new Date(a.created_at) - new Date(b.created_at)
+      new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     );
 
-    sorted.forEach(decision => {
+    sorted.forEach((decision: ProjectDecision) => {
       const convId = decision.source_conversation_id;
 
       if (!convId) {
@@ -159,16 +213,16 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
   const content = project.context_md || '';
 
   // Get department names for display
-  const getDepartmentNames = () => {
+  const getDepartmentNames = (): string[] | null => {
     if (!editedDepartmentIds || editedDepartmentIds.length === 0) return null;
     return editedDepartmentIds
-      .map(id => departments.find(d => d.id === id)?.name)
-      .filter(Boolean);
+      .map((id: string) => departments.find((d: Department) => d.id === id)?.name)
+      .filter((name): name is string => Boolean(name));
   };
 
   // Handle regenerating project context from all decisions
-  const [regenCountdown, setRegenCountdown] = useState(null); // null = not counting, 3/2/1 = counting down
-  const countdownRef = useRef(null);
+  const [regenCountdown, setRegenCountdown] = useState<number | null>(null); // null = not counting, 3/2/1 = counting down
+  const countdownRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleRegenerateContext = () => {
     if (!project.id || regenerating) return;
@@ -198,7 +252,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
 
     // Tick down every second
     countdownRef.current = setTimeout(() => {
-      setRegenCountdown(prev => prev - 1);
+      setRegenCountdown(prev => prev !== null ? prev - 1 : null);
     }, 1000);
 
     return () => {
@@ -313,7 +367,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
     }
   }, [initialExpandedDecisionId, projectDecisions, loadingDecisions, onConsumeInitialDecision]);
 
-  const getStatusColor = (status) => {
+  const getStatusColor = (status: ProjectStatus): { bg: string; text: string } => {
     switch (status) {
       case 'active': return { bg: '#dbeafe', text: '#1d4ed8' };
       case 'completed': return { bg: '#dcfce7', text: '#15803d' };
@@ -331,13 +385,16 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
       setSaving(true);
       try {
         // onSave now returns the updated project data
-        const updatedProject = await onSave(project.id, {
+        const updates: Partial<ExtendedProject> = {
           name: editedName,
           description: editedDescription,
           context_md: editedContext,
-          status: editedStatus,
-          department_ids: editedDepartmentIds.length > 0 ? editedDepartmentIds : null
-        });
+          status: editedStatus
+        };
+        if (editedDepartmentIds.length > 0) {
+          updates.department_ids = editedDepartmentIds;
+        }
+        const updatedProject = await onSave(project.id, updates);
         // Update local project state with returned data (stay on view, don't close)
         if (updatedProject) {
           setProject(updatedProject);
@@ -482,7 +539,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                 className="mc-source-link"
                 onClick={() => {
                   onClose();
-                  onNavigateToConversation(project.source_conversation_id, 'projects');
+                  onNavigateToConversation(project.source_conversation_id!, 'projects');
                 }}
                 title="View the original conversation that created this project"
               >
@@ -536,7 +593,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
               >
                 <Bookmark size={14} />
                 Decisions
-                {project.decision_count > 0 && (
+                {(project.decision_count ?? 0) > 0 && (
                   <span className="mc-tab-badge">{project.decision_count}</span>
                 )}
               </button>
@@ -574,7 +631,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                         disabled={regenerating}
                         title={isEditing
                           ? "AI will enhance your current content"
-                          : (project.decision_count > 0 || projectDecisions.length > 0)
+                          : ((project.decision_count ?? 0) > 0 || projectDecisions.length > 0)
                             ? "AI will synthesize all decisions into organized project context"
                             : "AI will enhance and structure your project context"
                         }
@@ -655,7 +712,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                     </AIWriteAssist>
                   </div>
                 ) : (
-                  <FloatingContextActions copyText={content || null} className="no-border">
+                  <FloatingContextActions copyText={content || undefined} className="no-border">
                     {content ? (
                       <MarkdownViewer content={content} skipCleanup={true} />
                     ) : (
@@ -762,24 +819,24 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                                   <div className="mc-timeline-copy-container">
                                     <button
                                       className="mc-timeline-copy-btn"
-                                    onClick={async (e) => {
+                                    onClick={async (e: React.MouseEvent<HTMLButtonElement>) => {
                                       e.stopPropagation();
-                                      const btn = e.target.closest('.mc-timeline-copy-btn');
+                                      const btn = (e.target as HTMLElement).closest('.mc-timeline-copy-btn') as HTMLElement | null;
                                       try {
                                         await navigator.clipboard.writeText(decision.content || '');
                                         // Brief visual feedback - swap icon
-                                        btn.classList.add('copied');
-                                        btn.querySelector('.copy-icon').style.display = 'none';
-                                        btn.querySelector('.check-icon').style.display = 'block';
-                                        setTimeout(() => {
-                                          if (btn) {
+                                        if (btn) {
+                                          btn.classList.add('copied');
+                                          const copyIcon = btn.querySelector('.copy-icon') as HTMLElement | null;
+                                          const checkIcon = btn.querySelector('.check-icon') as HTMLElement | null;
+                                          if (copyIcon) copyIcon.style.display = 'none';
+                                          if (checkIcon) checkIcon.style.display = 'block';
+                                          setTimeout(() => {
                                             btn.classList.remove('copied');
-                                            const copyIcon = btn.querySelector('.copy-icon');
-                                            const checkIcon = btn.querySelector('.check-icon');
                                             if (copyIcon) copyIcon.style.display = 'block';
                                             if (checkIcon) checkIcon.style.display = 'none';
-                                          }
-                                        }, 2000);
+                                          }, 2000);
+                                        }
                                       } catch {
                                         log.error('Failed to copy', { error: "unknown" });
                                       }
@@ -815,7 +872,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                                         inferredFrom: decisionIndex
                                       });
                                       // Pass project ID and decision ID so "Back to Project" returns to this exact decision
-                                      onNavigateToConversation(decision.source_conversation_id, 'projects', inferredIndex, project.id, decision.id);
+                                      onNavigateToConversation(decision.source_conversation_id!, 'projects', inferredIndex, project.id, decision.id);
                                     }}
                                   >
                                     View original conversation →
@@ -848,7 +905,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                     onClick={async () => {
                       setActionLoading(true);
                       try {
-                        await onDelete(project.id);
+                        if (onDelete) await onDelete(project.id);
                       } catch {
                         log.error('Failed to delete', { error: "unknown" });
                         setActionLoading(false);

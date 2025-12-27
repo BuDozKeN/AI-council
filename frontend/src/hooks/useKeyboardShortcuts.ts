@@ -13,13 +13,13 @@ export interface KeyboardShortcutsOptions {
 }
 
 interface KeyboardHandlers {
-  onFocusSearch?: () => void;
-  onNewConversation?: () => void;
-  onNavigateUp?: () => void;
-  onNavigateDown?: () => void;
-  onSelectCurrent?: () => void;
-  onDeleteCurrent?: () => void;
-  onEscape?: () => void;
+  onFocusSearch?: (() => void) | undefined;
+  onNewConversation?: (() => void) | undefined;
+  onNavigateUp?: (() => void) | undefined;
+  onNavigateDown?: (() => void) | undefined;
+  onSelectCurrent?: (() => void) | undefined;
+  onDeleteCurrent?: (() => void) | undefined;
+  onEscape?: (() => void) | undefined;
 }
 
 /**

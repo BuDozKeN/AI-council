@@ -18,6 +18,39 @@ import MarkdownViewer from '../../MarkdownViewer';
 import { Bookmark, FolderKanban, ExternalLink } from 'lucide-react';
 import { getDeptColor } from '../../../lib/colors';
 import { formatDate } from '../../../lib/dateUtils';
+import type { Department, Project, Playbook } from '../../../types/business';
+import type { Decision } from '../../../types/conversation';
+
+type PlaybookDocType = 'sop' | 'framework' | 'policy';
+
+interface LinkedDepartment {
+  department_id: string;
+}
+
+interface ExtendedPlaybook extends Playbook {
+  linked_departments?: LinkedDepartment[];
+}
+
+interface ExtendedDecision extends Decision {
+  promoted_to_id?: string | null;
+  promoted_to_type?: string | null;
+  question?: string;
+  question_summary?: string;
+  response_index?: number;
+  tags?: string[];
+  source_conversation_id?: string | null;
+}
+
+interface ViewDecisionModalProps {
+  decision: ExtendedDecision;
+  departments?: Department[];
+  playbooks?: ExtendedPlaybook[];
+  projects?: Project[];
+  onClose: () => void;
+  onPromote?: (decision: ExtendedDecision) => void;
+  onViewProject?: (projectId: string) => void;
+  onNavigateToConversation?: (conversationId: string, source: string, responseIndex: number) => void;
+}
 
 export function ViewDecisionModal({
   decision,
@@ -28,7 +61,7 @@ export function ViewDecisionModal({
   onPromote,
   onViewProject,
   onNavigateToConversation
-}) {
+}: ViewDecisionModalProps) {
   // Get linked playbook (source of truth for promoted decisions)
   const linkedPlaybook = decision.promoted_to_id && playbooks.length > 0
     ? playbooks.find(p => p.id === decision.promoted_to_id)
@@ -44,15 +77,15 @@ export function ViewDecisionModal({
 
   // Get type from linked playbook OR decision's promoted_to_type
   // Decision.promoted_to_type is set when promoted (sop/framework/policy/project)
-  const getTypeLabel = () => {
-    const typeLabels = {
+  const getTypeLabel = (): string | null => {
+    const typeLabels: Record<PlaybookDocType, string> = {
       sop: 'SOP',
       framework: 'Framework',
       policy: 'Policy'
     };
     // Try linkedPlaybook first, then fall back to decision.promoted_to_type
-    const docType = linkedPlaybook?.doc_type || decision.promoted_to_type;
-    return typeLabels[docType] || null;
+    const docType = (linkedPlaybook?.doc_type || decision.promoted_to_type) as PlaybookDocType | undefined;
+    return docType ? typeLabels[docType] || null : null;
   };
 
   // Get the actual type value for CSS class
@@ -61,11 +94,11 @@ export function ViewDecisionModal({
   };
 
   // Get departments from linked playbook (source of truth)
-  const getPlaybookDepts = () => {
+  const getPlaybookDepts = (): Department[] => {
     if (!linkedPlaybook) return [];
 
     // Collect all departments the playbook belongs to
-    const deptIds = new Set();
+    const deptIds = new Set<string>();
     if (linkedPlaybook.department_id) deptIds.add(linkedPlaybook.department_id);
     if (linkedPlaybook.linked_departments) {
       linkedPlaybook.linked_departments.forEach(ld => {
@@ -76,7 +109,7 @@ export function ViewDecisionModal({
     // Map to department objects
     return Array.from(deptIds)
       .map(id => departments.find(d => d.id === id))
-      .filter(Boolean);
+      .filter((d): d is Department => Boolean(d));
   };
 
   const typeLabel = getTypeLabel();
@@ -159,7 +192,9 @@ export function ViewDecisionModal({
               className="mc-decision-source-link"
               onClick={() => {
                 // Pass response_index to scroll to the correct response in multi-turn conversations
-                onNavigateToConversation(decision.source_conversation_id, 'decisions', decision.response_index || 0);
+                if (decision.source_conversation_id) {
+                  onNavigateToConversation(decision.source_conversation_id, 'decisions', decision.response_index || 0);
+                }
               }}
             >
               <ExternalLink size={14} />

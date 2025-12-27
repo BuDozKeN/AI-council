@@ -14,7 +14,7 @@ export interface DraggableConversation {
 }
 
 export interface UseDragAndDropOptions {
-  onDrop: (conversationId: string, targetDepartment: string, item: DraggableConversation) => void;
+  onDrop: (conversationId: string, targetDepartment: string, item: DraggableConversation) => void | Promise<void>;
 }
 
 export interface DragHandlers {

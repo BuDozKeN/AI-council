@@ -12,11 +12,13 @@
  * In production, these metrics should be sent to an analytics service.
  */
 
-import { onCLS, onFCP, onLCP, onTTFB, onINP } from 'web-vitals';
+import { onCLS, onFCP, onLCP, onTTFB, onINP, type Metric } from 'web-vitals';
 import * as Sentry from '@sentry/react';
 
+type MetricName = 'CLS' | 'FCP' | 'LCP' | 'TTFB' | 'INP';
+
 // Log metrics in development, send to Sentry in production
-function sendToAnalytics(metric) {
+function sendToAnalytics(metric: Metric): void {
   // Development: Log to console with styling
   if (import.meta.env.DEV) {
     const color = getMetricColor(metric);
@@ -65,25 +67,25 @@ function sendToAnalytics(metric) {
 }
 
 // Get color based on metric rating
-function getMetricColor(metric) {
-  const colors = {
+function getMetricColor(metric: Metric): string {
+  const colors: Record<string, string> = {
     good: '#4CAF50',
     'needs-improvement': '#FF9800',
     poor: '#F44336'
   };
-  return colors[metric.rating] || '#2196F3';
+  return colors[metric.rating] ?? '#2196F3';
 }
 
 // Get unit for each metric
-function getMetricUnit(name) {
-  const units = {
+function getMetricUnit(name: MetricName): string {
+  const units: Record<MetricName, string> = {
     CLS: '', // unitless
     FCP: 'ms',
     LCP: 'ms',
     TTFB: 'ms',
     INP: 'ms'
   };
-  return units[name] || '';
+  return units[name] ?? '';
 }
 
 /**

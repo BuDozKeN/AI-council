@@ -46,12 +46,13 @@ export const businessKeys = {
 const log = logger.scope('BusinessContext');
 
 // Default departments when no company is selected or company has no departments
+// Note: For default departments, id and slug are the same (slug-based identifiers)
 const DEFAULT_DEPARTMENTS: Department[] = [
-  { id: 'standard', name: 'Standard', description: 'General advisory council' },
+  { id: 'standard', slug: 'standard', name: 'Standard', description: 'General advisory council' },
 ];
 
-interface BusinessContextValue {
-  // State
+// State values - these change and trigger re-renders
+interface BusinessStateValue {
   businesses: Business[];
   selectedBusiness: string | null;
   currentBusiness: Business | null;
@@ -69,15 +70,16 @@ interface BusinessContextValue {
   useDepartmentContext: boolean;
   userPreferences: UserPreferences | null;
   isLoading: boolean;
-
   // Derived values
   availableDepartments: Department[];
   availableRoles: Role[];
   allRoles: Role[];
   availableChannels: Channel[];
   availableStyles: Style[];
+}
 
-  // Setters
+// Actions - these are stable and never cause re-renders
+interface BusinessActionsValue {
   setSelectedBusiness: (id: string | null) => void;
   setSelectedDepartment: (id: string | null) => void;
   setSelectedRole: (id: string | null) => void;
@@ -90,16 +92,26 @@ interface BusinessContextValue {
   setUseCompanyContext: (value: boolean) => void;
   setUseDepartmentContext: (value: boolean) => void;
   setProjects: React.Dispatch<React.SetStateAction<Project[]>>;
-
-  // Actions
   loadBusinesses: () => Promise<void>;
   refreshProjects: () => Promise<void>;
   refreshPlaybooks: () => Promise<void>;
 }
 
-const BusinessContext = createContext<BusinessContextValue>({} as BusinessContextValue);
+// Split contexts: Actions are stable (never cause re-renders), State changes trigger re-renders
+// This pattern prevents re-renders in components that only need actions
+const BusinessStateContext = createContext<BusinessStateValue>({} as BusinessStateValue);
+const BusinessActionsContext = createContext<BusinessActionsValue>({} as BusinessActionsValue);
 
-export const useBusiness = () => useContext(BusinessContext);
+// Convenience hook for components that need everything (backwards compatible)
+export const useBusiness = () => {
+  const state = useContext(BusinessStateContext);
+  const actions = useContext(BusinessActionsContext);
+  return { ...state, ...actions };
+};
+
+// Granular hooks for optimized components
+export const useBusinessState = () => useContext(BusinessStateContext);
+export const useBusinessActions = () => useContext(BusinessActionsContext);
 
 interface BusinessProviderProps {
   children: ReactNode;
@@ -214,7 +226,7 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
 
   // Get the currently selected business object
   const currentBusiness = useMemo(() => {
-    return businesses.find((b) => b.id === selectedBusiness) || null;
+    return businesses.find((b: Business) => b.id === selectedBusiness) ?? null;
   }, [businesses, selectedBusiness]);
 
   // Get departments for the selected company
@@ -228,8 +240,8 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
   // Get roles for the selected department (legacy single-select)
   const availableRoles = useMemo(() => {
     if (!selectedDepartment || !availableDepartments) return [];
-    const dept = availableDepartments.find((d) => d.id === selectedDepartment);
-    return dept?.roles || [];
+    const dept = availableDepartments.find((d: Department) => d.id === selectedDepartment);
+    return dept?.roles ?? [];
   }, [availableDepartments, selectedDepartment]);
 
   // Get ALL roles from all departments (for multi-select)
@@ -253,8 +265,8 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
   // Get channels for the selected department
   const availableChannels = useMemo(() => {
     if (!selectedDepartment || !availableDepartments) return [];
-    const dept = availableDepartments.find((d) => d.id === selectedDepartment);
-    return dept?.channels || [];
+    const dept = availableDepartments.find((d: Department) => d.id === selectedDepartment);
+    return dept?.channels ?? [];
   }, [availableDepartments, selectedDepartment]);
 
   // Get styles for the selected company
@@ -274,17 +286,17 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
 
         if (prefs?.last_company_id && businesses.some((b: Business) => b.id === prefs.last_company_id)) {
           setSelectedBusiness(prefs.last_company_id);
-          if (prefs.last_department_ids?.length > 0) {
-            setSelectedDepartments(prefs.last_department_ids);
+          if ((prefs.last_department_ids?.length ?? 0) > 0) {
+            setSelectedDepartments(prefs.last_department_ids ?? []);
           }
-          if (prefs.last_role_ids?.length > 0) {
-            setSelectedRoles(prefs.last_role_ids);
+          if ((prefs.last_role_ids?.length ?? 0) > 0) {
+            setSelectedRoles(prefs.last_role_ids ?? []);
           }
           if (prefs.last_project_id) {
             setSelectedProject(prefs.last_project_id);
           }
-          if (prefs.last_playbook_ids?.length > 0) {
-            setSelectedPlaybooks(prefs.last_playbook_ids);
+          if ((prefs.last_playbook_ids?.length ?? 0) > 0) {
+            setSelectedPlaybooks(prefs.last_playbook_ids ?? []);
           }
         } else {
           setSelectedBusiness(businesses[0].id);
@@ -319,7 +331,8 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
   // Validate selectedProject when projects change
   useEffect(() => {
     if (projects.length > 0 && selectedProject) {
-      if (!projects.some((p: Project) => p.id === selectedProject)) {
+      const projectExists = projects.some((p: Project) => p.id === selectedProject);
+      if (!projectExists) {
         log.debug('Clearing selectedProject - project no longer exists:', selectedProject);
         setSelectedProject(null);
       }
@@ -380,9 +393,8 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
     await queryClient.invalidateQueries({ queryKey: businessKeys.playbooks(selectedBusiness) });
   }, [selectedBusiness, queryClient]);
 
-  // Memoize context value
-  const value = useMemo(() => ({
-    // State
+  // Memoize state value - changes when data changes
+  const stateValue = useMemo<BusinessStateValue>(() => ({
     businesses,
     selectedBusiness,
     currentBusiness,
@@ -400,32 +412,11 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
     useDepartmentContext,
     userPreferences,
     isLoading,
-
-    // Derived values
     availableDepartments,
     availableRoles,
     allRoles,
     availableChannels,
     availableStyles,
-
-    // Setters
-    setSelectedBusiness,
-    setSelectedDepartment,
-    setSelectedRole,
-    setSelectedChannel,
-    setSelectedStyle,
-    setSelectedDepartments,
-    setSelectedRoles,
-    setSelectedPlaybooks,
-    setSelectedProject,
-    setUseCompanyContext,
-    setUseDepartmentContext,
-    setProjects,
-
-    // Actions
-    loadBusinesses,
-    refreshProjects,
-    refreshPlaybooks,
   }), [
     businesses,
     selectedBusiness,
@@ -449,14 +440,40 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
     allRoles,
     availableChannels,
     availableStyles,
+  ]);
+
+  // Memoize actions value - STABLE reference, never changes
+  // React guarantees useState setters are stable, and our callbacks use useCallback
+  const actionsValue = useMemo<BusinessActionsValue>(() => ({
+    setSelectedBusiness,
+    setSelectedDepartment,
+    setSelectedRole,
+    setSelectedChannel,
+    setSelectedStyle,
+    setSelectedDepartments,
+    setSelectedRoles,
+    setSelectedPlaybooks,
+    setSelectedProject,
+    setUseCompanyContext,
+    setUseDepartmentContext,
+    setProjects,
+    loadBusinesses,
+    refreshProjects,
+    refreshPlaybooks,
+  }), [
+    // Note: useState setters are stable by React guarantee
+    // Only include callbacks that might change
+    setProjects,
     loadBusinesses,
     refreshProjects,
     refreshPlaybooks,
   ]);
 
   return (
-    <BusinessContext.Provider value={value}>
-      {children}
-    </BusinessContext.Provider>
+    <BusinessActionsContext.Provider value={actionsValue}>
+      <BusinessStateContext.Provider value={stateValue}>
+        {children}
+      </BusinessStateContext.Provider>
+    </BusinessActionsContext.Provider>
   );
 }

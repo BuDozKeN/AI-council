@@ -10,19 +10,23 @@ import { Button } from '../../ui/button';
 import { AIWriteAssist } from '../../ui/AIWriteAssist';
 import { FloatingContextActions } from '../../ui/FloatingContextActions';
 import MarkdownViewer from '../../MarkdownViewer';
-import { getDeptColor } from '../../../lib/colors';
+import type { Role } from '../../../types/business';
 
-export function ViewRoleModal({ role, onClose, onSave }) {
+interface ViewRoleModalProps {
+  role: Role;
+  onClose: () => void;
+  onSave?: ((roleId: string, deptId: string, data: Partial<Role>) => Promise<void>) | undefined;
+}
+
+export function ViewRoleModal({ role, onClose, onSave }: ViewRoleModalProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedPrompt, setEditedPrompt] = useState(role.system_prompt || '');
   const [saving, setSaving] = useState(false);
 
   const content = role.system_prompt || '';
-  // Get department color if we have a department ID
-  const _deptColor = role.departmentId ? getDeptColor(role.departmentId) : { bg: '#f3f4f6', text: '#6b7280' };
 
   const handleSave = async () => {
-    if (onSave) {
+    if (onSave && role.departmentId) {
       setSaving(true);
       await onSave(role.id, role.departmentId, { system_prompt: editedPrompt });
       setSaving(false);

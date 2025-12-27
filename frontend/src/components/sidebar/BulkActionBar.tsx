@@ -10,12 +10,19 @@
 import { Trash2 } from 'lucide-react';
 import { Button } from '../ui/button';
 
+interface BulkActionBarProps {
+  selectedCount: number;
+  isDeleting: boolean;
+  onClearSelection: () => void;
+  onBulkDelete: () => void;
+}
+
 export function BulkActionBar({
   selectedCount,
   isDeleting,
   onClearSelection,
   onBulkDelete
-}) {
+}: BulkActionBarProps) {
   if (selectedCount === 0) return null;
 
   return (

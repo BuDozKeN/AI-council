@@ -1,8 +1,17 @@
-import * as React from "react"
 import { AppModal } from "./AppModal"
 import { Button } from "./button"
 import { CheckCircle, AlertCircle, Info, AlertTriangle } from "lucide-react"
 import "./AlertModal.css"
+
+type AlertVariant = 'success' | 'error' | 'info' | 'warning';
+
+interface AlertModalProps {
+  title?: string;
+  message: string;
+  variant?: AlertVariant;
+  onClose: () => void;
+  buttonText?: string;
+}
 
 /**
  * AlertModal - Replaces browser alert() with a styled modal
@@ -31,7 +40,7 @@ function AlertModal({
   variant = 'info',
   onClose,
   buttonText = 'OK'
-}) {
+}: AlertModalProps) {
   const iconMap = {
     success: <CheckCircle size={28} />,
     error: <AlertCircle size={28} />,
@@ -40,7 +49,7 @@ function AlertModal({
   }
 
   return (
-    <AppModal isOpen={true} onClose={onClose} title={title} size="sm">
+    <AppModal isOpen={true} onClose={onClose} title={title || ''} size="sm">
       <div className="alert-modal-content">
         <div className={`alert-modal-icon alert-modal-icon-${variant}`}>
           {iconMap[variant]}
@@ -63,3 +72,4 @@ function AlertModal({
 }
 
 export { AlertModal }
+export type { AlertModalProps, AlertVariant }

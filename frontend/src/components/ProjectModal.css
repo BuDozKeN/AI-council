@@ -158,12 +158,12 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 2px 4px rgba(var(--color-purple-500-rgb), 0.3);
 }
 
 .pm-ai-btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 4px 8px rgba(var(--color-purple-500-rgb), 0.4);
 }
 
 .pm-ai-btn:disabled {
@@ -576,7 +576,7 @@
   background: var(--color-indigo);
   border: none;
   border-radius: var(--radius-md);
-  color: white;
+  color: var(--color-text-inverse);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -750,13 +750,13 @@
 
 @keyframes success-ring-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+    box-shadow: 0 0 0 0 rgba(var(--color-emerald-500-rgb), 0.4);
   }
   50% {
-    box-shadow: 0 0 0 20px rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 20px rgba(var(--color-emerald-500-rgb), 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 0 rgba(var(--color-emerald-500-rgb), 0);
   }
 }
 
@@ -789,5 +789,76 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* ============================================================================
+   MOBILE RESPONSIVE - ProjectModal-specific adjustments
+   Note: Base input/button sizing is handled by AppModal.css standardized styles
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  /* Form padding - tighter on mobile */
+  .pm-form {
+    padding: 16px;
+  }
+
+  /* Context textarea - needs more height than default */
+  .pm-context-editor {
+    min-height: 150px;
+  }
+
+  /* Banners - more compact on mobile */
+  .pm-ai-intro,
+  .pm-ai-success,
+  .pm-manual-badge {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  /* Actions - allow wrapping */
+  .pm-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-top: 16px;
+    margin-top: 16px;
+  }
+
+  /* Buttons - flex to fill space */
+  .pm-actions button {
+    flex: 1 1 auto;
+  }
+
+  /* Error banner - more compact */
+  .pm-error {
+    margin: 12px 16px 0;
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  /* Field spacing - tighter */
+  .pm-field {
+    margin-bottom: 16px;
+  }
+
+  /* Success state - fit on small screens */
+  .pm-success-state {
+    padding: 32px 16px;
+    min-height: 160px;
+  }
+
+  .pm-success-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 16px;
+  }
+
+  .pm-success-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .pm-success-title {
+    font-size: 18px;
   }
 }

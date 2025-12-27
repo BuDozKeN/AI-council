@@ -1,16 +1,27 @@
-import { Component } from 'react';
+import { Component, ReactNode, ErrorInfo } from 'react';
 import { Copy, Check } from 'lucide-react';
 import { Button } from './ui/button';
 import { captureError } from '../utils/sentry';
 import { logger } from '../utils/logger';
 import './ErrorBoundary.css';
 
+interface ErrorBoundaryProps {
+  children: ReactNode;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+  errorInfo: ErrorInfo | null;
+  copied: boolean;
+}
+
 /**
  * Error Boundary component to catch JavaScript errors anywhere in the child
  * component tree, log them, and display a fallback UI instead of crashing.
  */
-class ErrorBoundary extends Component {
-  constructor(props) {
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = {
       hasError: false,
@@ -20,12 +31,12 @@ class ErrorBoundary extends Component {
     };
   }
 
-  static getDerivedStateFromError(error) {
+  static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
     // Update state so the next render will show the fallback UI
     return { hasError: true, error };
   }
 
-  componentDidCatch(error, errorInfo) {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Log the error to console
     console.error('ErrorBoundary caught an error:', error, errorInfo);
 
@@ -38,15 +49,15 @@ class ErrorBoundary extends Component {
     });
   }
 
-  handleReload = () => {
+  handleReload = (): void => {
     window.location.reload();
   };
 
-  handleGoHome = () => {
+  handleGoHome = (): void => {
     window.location.href = '/';
   };
 
-  handleCopyError = async () => {
+  handleCopyError = async (): Promise<void> => {
     const errorText = this.getErrorText();
     if (!errorText) return;
 
@@ -59,7 +70,7 @@ class ErrorBoundary extends Component {
     }
   };
 
-  getErrorText = () => {
+  getErrorText = (): string => {
     const { error, errorInfo } = this.state;
     if (!error) return '';
     return `${error.toString()}${errorInfo?.componentStack || ''}`;

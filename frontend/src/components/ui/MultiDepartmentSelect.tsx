@@ -19,11 +19,22 @@ import { Building2, Check, ChevronDown } from 'lucide-react';
 import { getDeptColor } from '../../lib/colors';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from './BottomSheet';
+import type { Department } from '../../types/business';
 import './MultiDepartmentSelect.css';
 
 // Check if we're on mobile/tablet for bottom sheet vs dropdown
 // Use 768px to include tablets like iPad Mini
 const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
+
+interface MultiDepartmentSelectProps {
+  value?: string[] | undefined;
+  onValueChange: (ids: string[]) => void;
+  departments?: Department[] | undefined;
+  disabled?: boolean | undefined;
+  placeholder?: string | undefined;
+  className?: string | undefined;
+  title?: string | undefined;
+}
 
 export function MultiDepartmentSelect({
   value = [],
@@ -32,15 +43,15 @@ export function MultiDepartmentSelect({
   disabled = false,
   placeholder = 'Select departments...',
   className,
-}) {
+}: MultiDepartmentSelectProps) {
   const [open, setOpen] = React.useState(false);
 
   // Get selected departments with their data
   const selectedDepts = value
     .map(id => departments.find(d => d.id === id))
-    .filter(Boolean);
+    .filter((d): d is Department => Boolean(d));
 
-  const toggleDepartment = (deptId) => {
+  const toggleDepartment = (deptId: string) => {
     if (value.includes(deptId)) {
       onValueChange(value.filter(id => id !== deptId));
     } else {
@@ -55,7 +66,7 @@ export function MultiDepartmentSelect({
 
       {selectedDepts.length === 0 ? (
         <span className="multi-dept-placeholder">{placeholder}</span>
-      ) : selectedDepts.length === 1 ? (
+      ) : selectedDepts.length === 1 && selectedDepts[0] ? (
         // Single department: show name with color dot
         <span className="multi-dept-single">
           <span
@@ -85,7 +96,7 @@ export function MultiDepartmentSelect({
   );
 
   // Shared department list content
-  const departmentList = (isMobile = false) => (
+  const departmentList = (isMobile: boolean = false) => (
     <div className={isMobile ? "multi-dept-list-mobile" : "multi-dept-list"}>
       {departments.length === 0 ? (
         <div className="multi-dept-empty">No departments available</div>
@@ -106,7 +117,7 @@ export function MultiDepartmentSelect({
                 '--dept-hover-bg': colors.hoverBg,
                 '--dept-selected-bg': colors.bg,
                 '--dept-selected-text': colors.text,
-              }}
+              } as React.CSSProperties}
               type="button"
             >
               <div className={cn("multi-dept-checkbox", isSelected && "checked")}>

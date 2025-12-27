@@ -2,8 +2,8 @@
  * API request and response type definitions
  */
 
-import type { Conversation, Message, Decision } from './conversation';
-import type { Business, Project, Playbook, Department, Role } from './business';
+import type { Conversation } from './conversation';
+import type { Business, Project, Playbook } from './business';
 
 // Generic API response wrapper
 export interface ApiResponse<T> {

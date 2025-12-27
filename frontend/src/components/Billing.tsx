@@ -6,12 +6,31 @@ import './Billing.css';
 
 const log = logger.scope('Billing');
 
-export default function Billing({ onClose }) {
-  const [plans, setPlans] = useState([]);
-  const [subscription, setSubscription] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [checkoutLoading, setCheckoutLoading] = useState(null);
-  const [error, setError] = useState(null);
+interface Plan {
+  id: string;
+  name: string;
+  price: number;
+  is_free: boolean;
+  queries_display: string;
+  features: string[];
+}
+
+interface Subscription {
+  tier: string;
+  queries_used: number;
+  queries_limit: number;
+}
+
+interface BillingProps {
+  onClose: () => void;
+}
+
+export default function Billing({ onClose }: BillingProps) {
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [subscription, setSubscription] = useState<Subscription | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadBillingData();
@@ -35,7 +54,7 @@ export default function Billing({ onClose }) {
     }
   };
 
-  const handleSubscribe = async (tierId) => {
+  const handleSubscribe = async (tierId: string) => {
     try {
       setCheckoutLoading(tierId);
       setError(null);
@@ -44,7 +63,8 @@ export default function Billing({ onClose }) {
       window.location.href = result.checkout_url;
     } catch (err) {
       log.error('Failed to create checkout:', err);
-      setError(err.message || "Something went wrong. Please try again.");
+      const errorMessage = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+      setError(errorMessage);
       setCheckoutLoading(null);
     }
   };
@@ -58,7 +78,8 @@ export default function Billing({ onClose }) {
       window.location.href = result.portal_url;
     } catch (err) {
       log.error('Failed to open billing portal:', err);
-      setError(err.message || "Couldn't open billing portal. Please try again.");
+      const errorMessage = err instanceof Error ? err.message : "Couldn't open billing portal. Please try again.";
+      setError(errorMessage);
       setCheckoutLoading(null);
     }
   };

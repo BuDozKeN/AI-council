@@ -21,8 +21,8 @@ export interface Stage3Synthesis {
 }
 
 export interface StreamingState {
-  text: string;
-  complete: boolean;
+  text?: string;
+  complete?: boolean;
   error?: boolean;
 }
 
@@ -74,6 +74,7 @@ export interface Conversation {
   isTemp?: boolean;
   created_at: string;
   updated_at?: string;
+  last_updated?: string;
 }
 
 export interface Decision {

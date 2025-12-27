@@ -13,6 +13,28 @@ import { Users, Plus } from 'lucide-react';
 import { Button } from '../../ui/button';
 import { getDeptColor } from '../../../lib/colors';
 import { ScrollableContent } from '../../ui/ScrollableContent';
+import type { Department, Role } from '../../../types/business';
+
+interface ExtendedDepartment extends Department {
+  context_md?: string;
+}
+
+interface ExtendedRole extends Role {
+  title?: string;
+  departmentName?: string;
+  departmentId?: string;
+}
+
+interface TeamTabProps {
+  departments?: ExtendedDepartment[];
+  totalRoles?: number;
+  expandedDept?: string | null;
+  onExpandDept?: (deptId: string | null) => void;
+  onAddDepartment?: () => void;
+  onAddRole?: (deptId: string) => void;
+  onViewDepartment?: (dept: ExtendedDepartment) => void;
+  onViewRole?: (role: ExtendedRole) => void;
+}
 
 export function TeamTab({
   departments = [],
@@ -23,7 +45,7 @@ export function TeamTab({
   onAddRole,
   onViewDepartment,
   onViewRole
-}) {
+}: TeamTabProps) {
   if (departments.length === 0) {
     return (
       <div className="mc-empty">
@@ -55,7 +77,7 @@ export function TeamTab({
 
       <ScrollableContent className="mc-team-list">
         <div className="mc-elegant-list">
-          {departments.map(dept => {
+          {departments.map((dept: ExtendedDepartment) => {
             const deptColors = getDeptColor(dept.id);
             const isExpanded = expandedDept === dept.id;
 
@@ -120,7 +142,7 @@ export function TeamTab({
 
                       {dept.roles && dept.roles.length > 0 ? (
                         <div className="mc-roles-list">
-                          {dept.roles.map(role => (
+                          {dept.roles.map((role: Role) => (
                             <div
                               key={role.id}
                               className="mc-role-row"

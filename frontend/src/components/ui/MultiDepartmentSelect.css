@@ -20,6 +20,9 @@
   transition: all 0.15s ease;
   text-align: left;
   white-space: nowrap;
+  /* Flex shrink support for responsive layouts */
+  min-width: 0;
+  flex-shrink: 1;
 }
 
 .multi-dept-trigger:hover {
@@ -30,7 +33,7 @@
 .multi-dept-trigger:focus {
   outline: none;
   border-color: var(--color-indigo-400);
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 0 2px var(--overlay-indigo-10);
 }
 
 .multi-dept-trigger[disabled] {
@@ -223,22 +226,65 @@
   font-weight: 500;
 }
 
+/* Tablet improvements (768px and below) */
+@media (max-width: 768px) {
+  .multi-dept-trigger {
+    min-height: 42px;
+    padding: 8px 12px;
+  }
+}
+
 /* Mobile trigger improvements */
 @media (max-width: 640px) {
   .multi-dept-trigger {
     min-height: 40px;
-    padding: 8px 12px;
+    padding: 8px 10px;
     font-size: 13px;
     border-radius: var(--radius-lg);
+    /* Allow trigger to shrink and truncate on small screens */
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .multi-dept-placeholder {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
   }
 
   .multi-dept-single,
   .multi-dept-count {
     font-size: 13px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
   }
 
   .multi-dept-dot {
     width: 7px;
     height: 7px;
+  }
+}
+
+/* Extra small screens - more compact */
+@media (max-width: 380px) {
+  .multi-dept-trigger {
+    padding: 6px 8px;
+    gap: 4px;
+    font-size: 12px;
+  }
+
+  .multi-dept-placeholder,
+  .multi-dept-single,
+  .multi-dept-count {
+    font-size: 12px;
+  }
+
+  /* Hide chevron on very small screens to save space */
+  .multi-dept-trigger .h-4.w-4.opacity-50 {
+    display: none;
   }
 }

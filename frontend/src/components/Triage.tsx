@@ -1,8 +1,25 @@
-import { useState } from 'react';
+import { useState, FormEvent, KeyboardEvent } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Button } from './ui/button';
 import { Pencil } from 'lucide-react';
 import './Triage.css';
+
+interface TriageResult {
+  ready?: boolean;
+  constraints?: Record<string, unknown>;
+  questions?: string;
+  follow_up_question?: string;
+  enhanced_query?: string;
+}
+
+interface TriageProps {
+  triageResult: TriageResult | null;
+  originalQuestion: string;
+  onRespond: (response: string) => void;
+  onSkip: () => void;
+  onProceed: (query: string) => void;
+  isLoading: boolean;
+}
 
 export default function Triage({
   triageResult,
@@ -11,12 +28,12 @@ export default function Triage({
   onSkip,
   onProceed,
   isLoading,
-}) {
-  const [response, setResponse] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedConstraints, setEditedConstraints] = useState(null);
+}: TriageProps) {
+  const [response, setResponse] = useState<string>('');
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [editedConstraints, setEditedConstraints] = useState<Record<string, unknown> | null>(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent | KeyboardEvent<HTMLTextAreaElement>) => {
     e.preventDefault();
     if (response.trim()) {
       onRespond(response.trim());
@@ -24,7 +41,7 @@ export default function Triage({
     }
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
@@ -32,7 +49,7 @@ export default function Triage({
   };
 
   const startEditing = () => {
-    setEditedConstraints({ ...triageResult.constraints });
+    setEditedConstraints(triageResult?.constraints ? { ...triageResult.constraints } : {});
     setIsEditing(true);
   };
 
@@ -43,21 +60,22 @@ export default function Triage({
 
   const saveEdits = () => {
     // Build enhanced query with edited constraints
-    const c = editedConstraints;
+    const c = editedConstraints ?? {};
+    const getStr = (v: unknown): string => (typeof v === 'string' ? v : 'Not specified');
     const enhanced = `${originalQuestion}
 
 Context:
-- Who: ${c.who || 'Not specified'}
-- Goal: ${c.goal || 'Not specified'}
-- Budget: ${c.budget || 'Not specified'}
-- Priority: ${c.risk || 'Not specified'}`;
+- Who: ${getStr(c.who)}
+- Goal: ${getStr(c.goal)}
+- Budget: ${getStr(c.budget)}
+- Priority: ${getStr(c.risk)}`;
 
     setIsEditing(false);
     onProceed(enhanced);
   };
 
-  const updateConstraint = (key, value) => {
-    setEditedConstraints(prev => ({ ...prev, [key]: value }));
+  const updateConstraint = (key: string, value: string) => {
+    setEditedConstraints(prev => prev ? { ...prev, [key]: value } : { [key]: value });
   };
 
   if (!triageResult) return null;
@@ -90,63 +108,63 @@ Context:
             </div>
 
             <div className="constraints-summary">
-              {displayConstraints.who !== undefined && (
+              {displayConstraints?.who !== undefined && (
                 <div className="constraint-row">
                   <span className="constraint-label">Who:</span>
                   {isEditing ? (
                     <textarea
                       className="constraint-edit"
-                      value={editedConstraints.who || ''}
+                      value={typeof editedConstraints?.who === 'string' ? editedConstraints.who : ''}
                       onChange={(e) => updateConstraint('who', e.target.value)}
                       rows={2}
                     />
                   ) : (
-                    <span className="constraint-value">{constraints.who}</span>
+                    <span className="constraint-value">{String(constraints?.who ?? '')}</span>
                   )}
                 </div>
               )}
-              {displayConstraints.goal !== undefined && (
+              {displayConstraints?.goal !== undefined && (
                 <div className="constraint-row">
                   <span className="constraint-label">Goal:</span>
                   {isEditing ? (
                     <textarea
                       className="constraint-edit"
-                      value={editedConstraints.goal || ''}
+                      value={typeof editedConstraints?.goal === 'string' ? editedConstraints.goal : ''}
                       onChange={(e) => updateConstraint('goal', e.target.value)}
                       rows={2}
                     />
                   ) : (
-                    <span className="constraint-value">{constraints.goal}</span>
+                    <span className="constraint-value">{String(constraints?.goal ?? '')}</span>
                   )}
                 </div>
               )}
-              {displayConstraints.budget !== undefined && (
+              {displayConstraints?.budget !== undefined && (
                 <div className="constraint-row">
                   <span className="constraint-label">Budget:</span>
                   {isEditing ? (
                     <textarea
                       className="constraint-edit"
-                      value={editedConstraints.budget || ''}
+                      value={typeof editedConstraints?.budget === 'string' ? editedConstraints.budget : ''}
                       onChange={(e) => updateConstraint('budget', e.target.value)}
                       rows={2}
                     />
                   ) : (
-                    <span className="constraint-value">{constraints.budget}</span>
+                    <span className="constraint-value">{String(constraints?.budget ?? '')}</span>
                   )}
                 </div>
               )}
-              {displayConstraints.risk !== undefined && (
+              {displayConstraints?.risk !== undefined && (
                 <div className="constraint-row">
                   <span className="constraint-label">Priority:</span>
                   {isEditing ? (
                     <textarea
                       className="constraint-edit"
-                      value={editedConstraints.risk || ''}
+                      value={typeof editedConstraints?.risk === 'string' ? editedConstraints.risk : ''}
                       onChange={(e) => updateConstraint('risk', e.target.value)}
                       rows={2}
                     />
                   ) : (
-                    <span className="constraint-value">{constraints.risk}</span>
+                    <span className="constraint-value">{String(constraints?.risk ?? '')}</span>
                   )}
                 </div>
               )}
@@ -172,7 +190,7 @@ Context:
               ) : (
                 <>
                   <Button
-                    onClick={() => onProceed(enhanced_query)}
+                    onClick={() => onProceed(enhanced_query ?? originalQuestion)}
                     disabled={isLoading}
                   >
                     {isLoading ? 'Sending...' : 'Send to Council →'}

@@ -8,14 +8,27 @@
 import { useRef, forwardRef, useImperativeHandle } from 'react';
 import { Spinner } from '../ui/Spinner';
 
-export const SearchBar = forwardRef(function SearchBar({
+interface SearchBarProps {
+  searchQuery: string;
+  onSearchChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onClear: () => void;
+  isSearching: boolean;
+  resultCount: number;
+}
+
+export interface SearchBarRef {
+  focus: () => void;
+  blur: () => void;
+}
+
+export const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(function SearchBar({
   searchQuery,
   onSearchChange,
   onClear,
   isSearching,
   resultCount
 }, ref) {
-  const inputRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Expose focus method to parent
   useImperativeHandle(ref, () => ({

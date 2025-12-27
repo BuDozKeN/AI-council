@@ -8,7 +8,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TextareaAutosize from 'react-textarea-autosize';
-import { Send, StopCircle, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { Send, StopCircle, Image as ImageIcon } from 'lucide-react';
 import { springs, interactionStates } from '../../lib/animations';
 import './OmniBar.css';
 
@@ -21,6 +21,47 @@ const PLACEHOLDER_EXAMPLES = [
   "Help me plan a product launch strategy",
   "How do I handle a difficult employee situation?",
 ];
+
+// =============================================================================
+// Type Definitions
+// =============================================================================
+
+type ChatMode = 'council' | 'chat';
+type OmniBarVariant = 'default' | 'landing' | 'compact';
+
+interface OmniBarProps {
+  // Core input state
+  value?: string;
+  onChange: (value: string) => void;
+  onSubmit: (value: string, mode: ChatMode) => void;
+
+  // Loading/streaming state
+  isLoading?: boolean;
+  onStop?: () => void;
+
+  // Mode configuration
+  chatMode?: ChatMode;
+  onChatModeChange?: (mode: ChatMode) => void;
+  showModeToggle?: boolean;
+
+  // Appearance variants
+  variant?: OmniBarVariant;
+  placeholder?: string;
+
+  // Image upload support
+  hasImages?: boolean;
+  onImageClick?: () => void;
+  showImageButton?: boolean;
+
+  // Keyboard shortcuts
+  showShortcutHint?: boolean;
+
+  // Auto-focus
+  autoFocus?: boolean;
+
+  // Additional className
+  className?: string;
+}
 
 export function OmniBar({
   // Core input state
@@ -38,7 +79,7 @@ export function OmniBar({
   showModeToggle = true,
 
   // Appearance variants
-  variant = 'default', // 'default' | 'landing' | 'compact'
+  variant = 'default',
   placeholder,
 
   // Image upload support
@@ -54,9 +95,9 @@ export function OmniBar({
 
   // Additional className
   className = '',
-}) {
+}: OmniBarProps) {
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
-  const textareaRef = useRef(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Rotate placeholder text
   useEffect(() => {
@@ -77,7 +118,7 @@ export function OmniBar({
 
   // Global keyboard shortcut: Cmd+K / Ctrl+K to focus input
   useEffect(() => {
-    const handleGlobalKeyDown = (e) => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         textareaRef.current?.focus();
@@ -87,14 +128,14 @@ export function OmniBar({
     return () => document.removeEventListener('keydown', handleGlobalKeyDown);
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
     if ((value.trim() || hasImages) && !isLoading && onSubmit) {
       onSubmit(value.trim(), chatMode);
     }
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit();

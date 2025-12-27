@@ -6,11 +6,36 @@ import { Skeleton } from './ui/Skeleton';
 import { logger } from '../utils/logger';
 import './Leaderboard.css';
 
-export default function Leaderboard({ isOpen, onClose }) {
-  const [leaderboardData, setLeaderboardData] = useState(null);
+interface LeaderboardEntry {
+  model: string;
+  avg_rank: number;
+  wins: number;
+  win_rate: number;
+  sessions: number;
+}
+
+interface DepartmentData {
+  leaderboard: LeaderboardEntry[];
+}
+
+interface LeaderboardData {
+  overall?: {
+    leaderboard: LeaderboardEntry[];
+    total_sessions: number;
+  };
+  departments?: Record<string, DepartmentData>;
+}
+
+interface LeaderboardProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
+  const [leaderboardData, setLeaderboardData] = useState<LeaderboardData | null>(null);
   const [selectedDepartment, setSelectedDepartment] = useState('overall');
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -40,11 +65,11 @@ export default function Leaderboard({ isOpen, onClose }) {
     return leaderboardData.departments?.[selectedDepartment]?.leaderboard || [];
   };
 
-  const getAvailableDepartments = () => {
+  const getAvailableDepartments = (): string[] => {
     if (!leaderboardData) return [];
     // Filter out any department names that look like UUIDs (failed to resolve)
-    const isUuidLike = (str) => /^[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}$/.test(str);
-    return Object.keys(leaderboardData.departments || {}).filter(dept => !isUuidLike(dept));
+    const isUuidLike = (str: string): boolean => /^[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}$/.test(str);
+    return Object.keys(leaderboardData.departments ?? {}).filter(dept => !isUuidLike(dept));
   };
 
   const currentLeaderboard = getCurrentLeaderboard();
@@ -160,7 +185,7 @@ export default function Leaderboard({ isOpen, onClose }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {currentLeaderboard.map((entry, index) => (
+                  {currentLeaderboard.map((entry: LeaderboardEntry, index: number) => (
                     <tr key={entry.model} className={index === 0 ? 'leader' : ''}>
                       <td className="rank-col">
                         {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}

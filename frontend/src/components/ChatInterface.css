@@ -26,7 +26,7 @@
   border-radius: var(--radius-full);
   font-size: 13px;
   font-weight: 500;
-  color: white;
+  color: var(--color-text-inverse);
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: var(--shadow-sm);
@@ -59,10 +59,10 @@
   padding: 6px 12px;
   margin: 0 0 8px 0;
   /* Premium glass effect - stronger blur and saturation */
-  background: rgba(249, 250, 251, 0.75);
+  background: var(--overlay-white-80);
   backdrop-filter: blur(32px) saturate(180%);
   -webkit-backdrop-filter: blur(32px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 1px solid var(--overlay-white-40);
   border-radius: 0 0 var(--radius-md) var(--radius-md); /* Flat top, rounded bottom */
   border-top: none; /* No top border - flush with container */
   font-size: 11px;
@@ -78,12 +78,12 @@
 /* Dark mode context indicator - matches LandingHero dark mode */
 .dark .context-indicator,
 [data-theme="dark"] .context-indicator {
-  background: rgba(30, 30, 35, 0.85);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(var(--color-slate-800-rgb), 0.85);
+  border-color: var(--overlay-white-10);
   border-top: none;
   box-shadow:
-    0 2px 6px rgba(0, 0, 0, 0.2),
-    0 8px 24px rgba(0, 0, 0, 0.35);
+    0 2px 6px var(--overlay-black-20),
+    0 8px 24px var(--overlay-black-40);
 }
 
 /* Question line - what the user asked (AI-summarized) */
@@ -122,7 +122,7 @@
   padding: 0;
   border: none;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--overlay-white-50);
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   color: var(--color-text-tertiary);
@@ -134,7 +134,7 @@
 }
 
 .scroll-to-top-fab:hover {
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--overlay-white-90);
   color: var(--color-text-secondary);
   opacity: 1;
   box-shadow: var(--shadow-sm);
@@ -147,14 +147,14 @@
 
 .dark .scroll-to-top-fab,
 [data-theme="dark"] .scroll-to-top-fab {
-  background: rgba(50, 50, 55, 0.5);
+  background: var(--overlay-black-50);
   color: var(--color-text-tertiary);
   box-shadow: var(--shadow-xs);
 }
 
 .dark .scroll-to-top-fab:hover,
 [data-theme="dark"] .scroll-to-top-fab:hover {
-  background: rgba(60, 60, 65, 0.7);
+  background: var(--overlay-black-60);
   color: var(--color-text-secondary);
 }
 
@@ -207,25 +207,25 @@
 /* Dark mode pills */
 .dark .context-indicator-item.company,
 [data-theme="dark"] .context-indicator-item.company {
-  background: rgba(59, 130, 246, 0.15);
+  background: var(--overlay-blue-15);
   color: var(--color-blue-300);
 }
 
 .dark .context-indicator-item.project,
 [data-theme="dark"] .context-indicator-item.project {
-  background: rgba(139, 92, 246, 0.15);
+  background: var(--overlay-purple-15);
   color: var(--color-purple-300);
 }
 
 .dark .context-indicator-item.department,
 [data-theme="dark"] .context-indicator-item.department {
-  background: rgba(245, 158, 11, 0.15);
+  background: var(--overlay-amber-15);
   color: var(--color-amber-300);
 }
 
 .dark .context-indicator-item.role,
 [data-theme="dark"] .context-indicator-item.role {
-  background: rgba(34, 197, 94, 0.15);
+  background: var(--overlay-green-15);
   color: var(--color-green-300);
 }
 
@@ -376,6 +376,12 @@
   flex-shrink: 0;
 }
 
+/* ===== DARK MODE - Input Form ===== */
+.dark .input-form {
+  background: var(--color-bg-secondary);
+  border-top-color: var(--color-border);
+}
+
 /* Premium input wrapper - consistent with OmniBar */
 .input-row {
   display: flex;
@@ -392,6 +398,18 @@
 .input-row:focus-within {
   border-color: var(--color-indigo-500);
   box-shadow: 0 4px 16px rgba(var(--color-indigo-rgb), 0.12);
+}
+
+/* ===== DARK MODE - Input Row ===== */
+.dark .input-row {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  box-shadow: 0 2px 8px var(--overlay-black-20);
+}
+
+.dark .input-row:focus-within {
+  border-color: var(--color-brand-primary);
+  box-shadow: 0 4px 16px var(--overlay-blue-15);
 }
 
 /* Context Bar - Clean, minimal, single row */
@@ -690,6 +708,26 @@ button.role-select-trigger:focus {
   background: var(--color-bg-tertiary);
 }
 
+/* ===== DARK MODE - Message Input ===== */
+.dark .message-input {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .message-input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.dark .message-input:focus {
+  border-color: var(--color-brand-primary);
+  box-shadow: 0 0 0 3px var(--overlay-blue-20);
+}
+
+.dark .message-input:disabled {
+  background: var(--color-bg-secondary);
+}
+
 .send-button {
   display: flex;
   align-items: center;
@@ -698,7 +736,7 @@ button.role-select-trigger:focus {
   background: var(--color-indigo-500);
   border: none;
   border-radius: var(--radius-lg);
-  color: white;
+  color: var(--color-text-inverse);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -989,7 +1027,7 @@ button.role-select-trigger:focus {
 
 .mode-btn-compact:hover:not(.active) {
   color: var(--color-text-secondary);
-  background: rgba(0, 0, 0, 0.03);
+  background: var(--overlay-black-5);
 }
 
 .mode-btn-compact.active {
@@ -1007,6 +1045,58 @@ button.role-select-trigger:focus {
 .mode-btn-compact:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* ===== DARK MODE - Mode Toggle ===== */
+.dark .mode-toggle-compact {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .mode-btn-compact {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mode-btn-compact:hover:not(.active) {
+  color: var(--color-text-secondary);
+  background: var(--overlay-white-5);
+}
+
+.dark .mode-btn-compact.active {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  box-shadow: 0 1px 3px var(--overlay-black-30);
+}
+
+.dark .mode-btn-compact.active .mode-cost {
+  color: var(--color-brand-primary);
+}
+
+/* ===== DARK MODE - Context Bar & Selects ===== */
+.dark .context-bar button.context-select-trigger,
+.dark button.context-select-trigger {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .context-bar button.context-select-trigger:hover,
+.dark button.context-select-trigger:hover {
+  border-color: var(--color-border-dark);
+  background: var(--color-bg-hover);
+}
+
+.dark .context-bar button.role-select-trigger,
+.dark button.role-select-trigger {
+  border-color: var(--color-violet-400);
+  background: var(--overlay-purple-10);
+  color: var(--color-violet-300);
+}
+
+.dark .context-bar button.role-select-trigger:hover,
+.dark button.role-select-trigger:hover {
+  border-color: var(--color-violet-300);
+  background: var(--overlay-purple-15);
 }
 
 /* Compact department pills for follow-up */
@@ -1160,7 +1250,7 @@ button.role-select-trigger:focus {
 
 .dept-pill:hover {
   color: var(--color-text-primary);
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--overlay-white-50);
 }
 
 .dept-pill.active {
@@ -1199,7 +1289,7 @@ button.role-select-trigger:focus {
 
 .role-pill:hover {
   color: var(--color-violet-900);
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--overlay-white-50);
 }
 
 .role-pill.active {
@@ -1590,21 +1680,21 @@ button.mobile-role-select {
 @media (max-width: 768px) {
   /* Glass effect on input form for floating appearance */
   .input-form {
-    background: rgba(255, 255, 255, 0.92);
+    background: var(--overlay-white-95);
     backdrop-filter: blur(16px) saturate(180%);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
-    border-top: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+    border-top: 1px solid var(--overlay-white-30);
+    box-shadow: 0 -4px 20px var(--overlay-black-8);
   }
 
   /* Context bar glass pill effect */
   .context-bar {
-    background: rgba(255, 255, 255, 0.8);
+    background: var(--overlay-white-80);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     padding: 8px 12px;
     border-radius: var(--radius-lg);
-    border: 1px solid rgba(255, 255, 255, 0.4);
+    border: 1px solid var(--overlay-white-40);
     box-shadow: var(--shadow-sm);
   }
 }
@@ -1613,14 +1703,14 @@ button.mobile-role-select {
 @media (max-width: 768px) {
   [data-theme="dark"] .input-form,
   .dark .input-form {
-    background: rgba(30, 30, 35, 0.9);
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(var(--color-slate-800-rgb), 0.9);
+    border-top: 1px solid var(--overlay-white-8);
   }
 
   [data-theme="dark"] .context-bar,
   .dark .context-bar {
-    background: rgba(40, 40, 50, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(var(--color-slate-800-rgb), 0.85);
+    border: 1px solid var(--overlay-white-8);
   }
 }
 

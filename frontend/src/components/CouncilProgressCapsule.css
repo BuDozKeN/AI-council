@@ -45,7 +45,7 @@
   color: var(--color-text-inverse);
   border-radius: var(--radius-full);
   box-shadow: var(--shadow-lg);
-  border: 1px solid rgba(71, 85, 105, 0.6); /* slate-600/60 */
+  border: 1px solid rgba(var(--color-slate-600-rgb), 0.6);
   font-size: 0.875rem;
   font-weight: 500;
   letter-spacing: 0.025em;
@@ -93,7 +93,7 @@
 /* Stopped state - gray instead of green, no animation */
 .council-progress-capsule.stopped .capsule-inner {
   background: var(--color-slate-600);
-  border-color: rgba(100, 116, 139, 0.6); /* slate-500/60 */
+  border-color: rgba(var(--color-slate-500-rgb), 0.6);
 }
 
 .stopped-indicator {
@@ -115,7 +115,7 @@
 /* Uploading state - blue theme */
 .council-progress-capsule.uploading .capsule-inner {
   background: var(--color-blue-800);
-  border-color: rgba(59, 130, 246, 0.6); /* blue-500/60 */
+  border-color: rgba(var(--color-blue-500-rgb), 0.6);
 }
 
 .upload-indicator {

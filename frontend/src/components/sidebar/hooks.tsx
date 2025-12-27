@@ -16,18 +16,23 @@ const log = logger.scope('SidebarHooks');
 const SIDEBAR_HOVER_DELAY = 100;
 const SIDEBAR_COLLAPSE_DELAY = 300;
 
+interface HoverExpansionOptions {
+  isPinned?: boolean;
+  hoverDelay?: number;
+  collapseDelay?: number;
+}
+
 /**
  * Hook to manage hover expansion behavior for sidebar icons
  * Encapsulates timeout logic for entering/leaving hover states
  *
- * @param {Object} options
- * @param {boolean} options.isPinned - Whether sidebar is pinned open
- * @param {number} options.hoverDelay - Delay before expanding (default: 150ms)
- * @param {number} options.collapseDelay - Delay before collapsing (default: 200ms)
+ * @param options.isPinned - Whether sidebar is pinned open
+ * @param options.hoverDelay - Delay before expanding (default: 150ms)
+ * @param options.collapseDelay - Delay before collapsing (default: 200ms)
  */
-export function useHoverExpansion({ isPinned = false, hoverDelay = SIDEBAR_HOVER_DELAY, collapseDelay = SIDEBAR_COLLAPSE_DELAY } = {}) {
-  const [hoveredIcon, setHoveredIcon] = useState(null);
-  const timeoutRef = useRef(null);
+export function useHoverExpansion({ isPinned = false, hoverDelay = SIDEBAR_HOVER_DELAY, collapseDelay = SIDEBAR_COLLAPSE_DELAY }: HoverExpansionOptions = {}) {
+  const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -45,7 +50,7 @@ export function useHoverExpansion({ isPinned = false, hoverDelay = SIDEBAR_HOVER
   }, []);
 
   // Handle hover on specific icon
-  const handleIconHover = useCallback((iconName) => {
+  const handleIconHover = useCallback((iconName: string) => {
     clearPendingTimeout();
     timeoutRef.current = setTimeout(() => {
       setHoveredIcon(iconName);
@@ -100,8 +105,8 @@ export const DEV_MODE = typeof window !== 'undefined' && localStorage.getItem('d
  */
 export function useMockMode() {
   const { isAuthenticated } = useAuth();
-  const [mockMode, setMockMode] = useState(null);
-  const [isToggling, setIsToggling] = useState(false);
+  const [mockMode, setMockMode] = useState<boolean | null>(null);
+  const [isToggling, setIsToggling] = useState<boolean>(false);
 
   useEffect(() => {
     // Only fetch if authenticated
@@ -140,8 +145,8 @@ export function useMockMode() {
  */
 export function useCachingMode() {
   const { isAuthenticated } = useAuth();
-  const [cachingMode, setCachingMode] = useState(null);
-  const [isToggling, setIsToggling] = useState(false);
+  const [cachingMode, setCachingMode] = useState<boolean | null>(null);
+  const [isToggling, setIsToggling] = useState<boolean>(false);
 
   useEffect(() => {
     // Only fetch if authenticated
@@ -177,12 +182,12 @@ export function useCachingMode() {
 /**
  * Convert an ISO timestamp to a human-readable relative time string.
  */
-export function getRelativeTime(isoTimestamp) {
+export function getRelativeTime(isoTimestamp: string): string {
   if (!isoTimestamp) return '';
 
   const now = new Date();
   const then = new Date(isoTimestamp);
-  const diffMs = now - then;
+  const diffMs = now.getTime() - then.getTime();
   const diffSeconds = Math.floor(diffMs / 1000);
   const diffMinutes = Math.floor(diffSeconds / 60);
   const diffHours = Math.floor(diffMinutes / 60);

@@ -2,16 +2,6 @@
  * RoleSelect - A Select component for single role selection
  *
  * Uses Radix Select for desktop and BottomSheet for mobile.
- *
- * Usage:
- * <RoleSelect
- *   value={selectedRoleId}
- *   onValueChange={setSelectedRoleId}
- *   roles={roles}
- *   includeAll={true}
- *   allLabel="All Roles"
- *   disabled={false}
- * />
  */
 
 import * as React from 'react';
@@ -19,17 +9,22 @@ import * as SelectPrimitive from '@radix-ui/react-select';
 import { User, Check, ChevronDown } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from './BottomSheet';
+import type { Role } from '../../types/business';
 import './RoleSelect.css';
 
 // Check if we're on mobile/tablet for bottom sheet vs dropdown
 const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
 
+interface RoleSelectItemProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> {
+  className?: string;
+  children?: React.ReactNode;
+}
+
 // Custom SelectItem for roles
-const RoleSelectItem = React.forwardRef(({
-  className,
-  children,
-  ...props
-}, ref) => {
+const RoleSelectItem = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.Item>,
+  RoleSelectItemProps
+>(({ className, children, ...props }, ref) => {
   return (
     <SelectPrimitive.Item
       ref={ref}
@@ -47,6 +42,23 @@ const RoleSelectItem = React.forwardRef(({
 });
 RoleSelectItem.displayName = 'RoleSelectItem';
 
+interface RoleItem {
+  id: string;
+  name: string;
+}
+
+interface RoleSelectProps {
+  value?: string | null;
+  onValueChange: (value: string) => void;
+  roles?: Role[];
+  includeAll?: boolean;
+  allLabel?: string;
+  disabled?: boolean;
+  className?: string;
+  showIcon?: boolean;
+  compact?: boolean;
+}
+
 export function RoleSelect({
   value,
   onValueChange,
@@ -57,29 +69,30 @@ export function RoleSelect({
   className,
   showIcon = true,
   compact = false,
-}) {
-  const [open, setOpen] = React.useState(false);
+}: RoleSelectProps) {
+  const [open, setOpen] = React.useState<boolean>(false);
 
   // Get display name for current value
   const selectedRole = value && value !== 'all' ? roles.find(r => r.id === value) : null;
 
-  const getDisplayName = () => {
+  const getDisplayName = (): string => {
     if (value === 'all' || !value) {
       return compact ? 'All' : allLabel;
     }
     if (!selectedRole) return compact ? 'All' : allLabel;
-    return compact ? selectedRole.name.split(' ')[0] : selectedRole.name;
+    const firstName = selectedRole.name.split(' ')[0];
+    return compact ? (firstName ?? selectedRole.name) : selectedRole.name;
   };
 
-  const handleSelect = (roleValue) => {
+  const handleSelect = (roleValue: string) => {
     onValueChange(roleValue);
     setOpen(false);
   };
 
   // Build items list for mobile
-  const allItems = [
+  const allItems: RoleItem[] = [
     ...(includeAll ? [{ id: 'all', name: allLabel }] : []),
-    ...roles
+    ...roles.map(r => ({ id: r.id, name: r.name }))
   ];
 
   // Mobile: use BottomSheet

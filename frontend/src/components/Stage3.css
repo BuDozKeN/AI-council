@@ -134,9 +134,9 @@ h2, h3 {
 }
 
 @keyframes council-complete-glow {
-  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-  40% { box-shadow: 0 0 30px 8px rgba(16, 185, 129, 0.15); }
-  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  0% { box-shadow: 0 0 0 0 var(--overlay-emerald-10); }
+  40% { box-shadow: 0 0 30px 8px var(--overlay-emerald-15); }
+  100% { box-shadow: 0 0 0 0 var(--overlay-emerald-10); }
 }
 
 /* Copy button - legacy class */
@@ -171,7 +171,7 @@ h2, h3 {
 .stage3-copy-btn.copy-btn-unified {
   border-color: var(--color-success-border, #86efac);
   color: var(--color-success, #22c55e);
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--overlay-white-95);
   backdrop-filter: blur(4px);
   box-shadow: var(--shadow-sm);
 }
@@ -225,10 +225,10 @@ h2, h3 {
   height: 32px;
   padding: 6px;
   box-shadow: var(--shadow-xs);
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--overlay-white-90);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--overlay-black-5);
   border-radius: var(--radius-md);
   color: var(--color-text-tertiary);
   opacity: 0.7;
@@ -239,7 +239,7 @@ h2, h3 {
 
 .stage3-sticky-toolbar .stage3-copy-btn:hover {
   opacity: 1;
-  background: rgba(255, 255, 255, 0.98);
+  background: var(--overlay-white-95);
   color: var(--color-text-secondary);
   box-shadow: var(--shadow-sm);
 }
@@ -261,14 +261,14 @@ h2, h3 {
 
 .dark .stage3-sticky-toolbar .stage3-copy-btn,
 [data-theme="dark"] .stage3-sticky-toolbar .stage3-copy-btn {
-  background: rgba(40, 40, 45, 0.9);
-  border-color: rgba(255, 255, 255, 0.08);
+  background: var(--overlay-black-80);
+  border-color: var(--overlay-white-10);
   color: var(--color-text-tertiary);
 }
 
 .dark .stage3-sticky-toolbar .stage3-copy-btn:hover,
 [data-theme="dark"] .stage3-sticky-toolbar .stage3-copy-btn:hover {
-  background: rgba(50, 50, 55, 0.95);
+  background: var(--overlay-black-80);
   color: var(--color-text-secondary);
 }
 
@@ -363,7 +363,7 @@ h2, h3 {
 .inline-code {
   display: inline;
   padding: 1px 4px;
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--overlay-black-5);
   border-radius: var(--radius-xs);
   font-family: var(--font-mono);
   font-size: 0.9em;
@@ -633,19 +633,19 @@ h2, h3 {
 .save-type-pill.selected.sop {
   background: var(--color-blue-100);
   color: var(--color-blue-700);
-  box-shadow: 0 1px 2px rgba(29, 78, 216, 0.15);
+  box-shadow: 0 1px 2px var(--overlay-blue-15);
 }
 
 .save-type-pill.selected.framework {
   background: var(--color-amber-100);
   color: var(--color-amber-700);
-  box-shadow: 0 1px 2px rgba(180, 83, 9, 0.15);
+  box-shadow: 0 1px 2px var(--overlay-amber-15);
 }
 
 .save-type-pill.selected.policy {
   background: var(--color-purple-100);
   color: var(--color-purple-600);
-  box-shadow: 0 1px 2px rgba(124, 58, 237, 0.15);
+  box-shadow: 0 1px 2px var(--overlay-purple-15);
 }
 
 .save-type-pill:disabled {
@@ -669,19 +669,19 @@ h2, h3 {
 .save-type-pill.saved.sop {
   background: var(--color-blue-100);
   color: var(--color-blue-700);
-  box-shadow: 0 1px 2px rgba(29, 78, 216, 0.15);
+  box-shadow: 0 1px 2px var(--overlay-blue-15);
 }
 
 .save-type-pill.saved.framework {
   background: var(--color-amber-100);
   color: var(--color-amber-700);
-  box-shadow: 0 1px 2px rgba(180, 83, 9, 0.15);
+  box-shadow: 0 1px 2px var(--overlay-amber-15);
 }
 
 .save-type-pill.saved.policy {
   background: var(--color-purple-100);
   color: var(--color-purple-600);
-  box-shadow: 0 1px 2px rgba(124, 58, 237, 0.15);
+  box-shadow: 0 1px 2px var(--overlay-purple-15);
 }
 
 .save-type-pill.saved svg {
@@ -703,12 +703,12 @@ h2, h3 {
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
-  box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2);
+  box-shadow: 0 2px 4px var(--overlay-emerald-20);
 }
 
 .save-action-btn:hover:not(:disabled) {
   background: var(--color-emerald-700);
-  box-shadow: 0 4px 8px rgba(5, 150, 105, 0.3);
+  box-shadow: 0 4px 8px var(--overlay-emerald-20);
   transform: translateY(-1px);
 }
 
@@ -803,12 +803,12 @@ h2, h3 {
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
-  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.25);
+  box-shadow: 0 2px 4px var(--overlay-blue-20);
 }
 
 .save-access-btn:hover {
   background: var(--color-blue-700);
-  box-shadow: 0 4px 8px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 4px 8px var(--overlay-blue-20);
   transform: translateY(-1px);
 }
 
@@ -1084,22 +1084,22 @@ h2, h3 {
 
 /* Dark mode Stage3 copy button - subtle green style */
 .dark .stage3-copy-btn.copy-btn-unified {
-  border-color: rgba(34, 197, 94, 0.3);
+  border-color: var(--overlay-green-20);
   color: var(--color-success, #22c55e);
-  background: rgba(30, 30, 30, 0.95);
+  background: var(--overlay-black-80);
   backdrop-filter: blur(4px);
 }
 
 .dark .stage3-copy-btn.copy-btn-unified:hover {
   border-color: var(--color-success, #22c55e);
   color: var(--color-success, #22c55e);
-  background: rgba(34, 197, 94, 0.15);
+  background: var(--overlay-green-15);
 }
 
 .dark .stage3-copy-btn.copy-btn-unified.copied {
   border-color: var(--color-success, #22c55e);
   color: var(--color-success, #22c55e);
-  background: rgba(34, 197, 94, 0.2);
+  background: var(--overlay-green-20);
 }
 
 .dark .stage3 .code-block-wrapper {
@@ -1189,14 +1189,14 @@ h2, h3 {
 }
 
 .dark .save-project-pill.has-project {
-  background: rgba(139, 92, 246, 0.2);
-  border-color: rgba(139, 92, 246, 0.3);
+  background: var(--overlay-purple-20);
+  border-color: var(--overlay-purple-20);
   color: var(--color-violet-400);
 }
 
 .dark .save-status-group {
   background: var(--color-success-light);
-  border-color: rgba(16, 185, 129, 0.3);
+  border-color: var(--overlay-emerald-20);
 }
 
 .dark .save-status-text {
@@ -1238,7 +1238,7 @@ h2, h3 {
 }
 
 .dark .save-project-option.selected {
-  background: rgba(139, 92, 246, 0.2);
+  background: var(--overlay-purple-20);
 }
 
 .dark .save-project-option-name {
@@ -1247,6 +1247,16 @@ h2, h3 {
 
 .dark .save-project-option.selected .save-project-option-name {
   color: var(--color-violet-400);
+}
+
+/* Mobile bottom sheet - dark mode */
+.dark .save-project-option-mobile.selected {
+  background: var(--overlay-purple-15);
+  border-color: var(--color-violet-500);
+}
+
+.dark .save-project-create-btn-mobile:hover {
+  background: var(--overlay-purple-10);
 }
 
 .dark .save-project-option-desc {
@@ -1300,10 +1310,10 @@ h2, h3 {
   .table-scroll-wrapper {
     /* Subtle shadow to indicate scrollable content */
     background:
-      linear-gradient(to right, white 30%, rgba(255,255,255,0)),
-      linear-gradient(to right, rgba(255,255,255,0), white 70%) 100% 0,
-      linear-gradient(to right, rgba(0,0,0,.08), rgba(0,0,0,0)),
-      linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,.08)) 100% 0;
+      linear-gradient(to right, var(--color-bg-primary) 30%, transparent),
+      linear-gradient(to right, transparent, var(--color-bg-primary) 70%) 100% 0,
+      linear-gradient(to right, var(--overlay-black-10), transparent),
+      linear-gradient(to right, transparent, var(--overlay-black-10)) 100% 0;
     background-repeat: no-repeat;
     background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
     background-attachment: local, local, scroll, scroll;
@@ -1311,10 +1321,10 @@ h2, h3 {
 
   .dark .table-scroll-wrapper {
     background:
-      linear-gradient(to right, var(--color-bg-secondary) 30%, rgba(0,0,0,0)),
-      linear-gradient(to right, rgba(0,0,0,0), var(--color-bg-secondary) 70%) 100% 0,
-      linear-gradient(to right, rgba(255,255,255,.05), rgba(0,0,0,0)),
-      linear-gradient(to right, rgba(0,0,0,0), rgba(255,255,255,.05)) 100% 0;
+      linear-gradient(to right, var(--color-bg-secondary) 30%, transparent),
+      linear-gradient(to right, transparent, var(--color-bg-secondary) 70%) 100% 0,
+      linear-gradient(to right, var(--overlay-white-5), transparent),
+      linear-gradient(to right, transparent, var(--overlay-white-5)) 100% 0;
     background-repeat: no-repeat;
     background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
     background-attachment: local, local, scroll, scroll;
@@ -1537,7 +1547,7 @@ h2, h3 {
   transition: all 0.15s ease;
   /* Ensure proper mobile touch handling */
   touch-action: manipulation;
-  -webkit-tap-highlight-color: rgba(139, 92, 246, 0.2);
+  -webkit-tap-highlight-color: var(--overlay-purple-20);
   user-select: none;
 }
 
@@ -1547,7 +1557,7 @@ h2, h3 {
 }
 
 .save-project-option-mobile:active {
-  background: var(--color-slate-100);
+  background: var(--color-bg-tertiary);
   transform: scale(0.98);
 }
 
@@ -1593,7 +1603,7 @@ h2, h3 {
   transition: all 0.15s ease;
   /* Ensure proper mobile touch handling */
   touch-action: manipulation;
-  -webkit-tap-highlight-color: rgba(139, 92, 246, 0.2);
+  -webkit-tap-highlight-color: var(--overlay-purple-20);
   user-select: none;
 }
 
@@ -1603,7 +1613,7 @@ h2, h3 {
 }
 
 .save-project-create-btn-mobile:active {
-  background: var(--color-purple-100);
+  background: var(--color-purple-200);
   transform: scale(0.98);
 }
 
@@ -1618,7 +1628,7 @@ h2, h3 {
 }
 
 .dark .save-project-option-mobile.selected {
-  background: rgba(139, 92, 246, 0.15);
+  background: var(--overlay-purple-15);
   border-color: var(--color-violet-500);
 }
 
@@ -1637,7 +1647,7 @@ h2, h3 {
 }
 
 .dark .save-project-create-btn-mobile:hover {
-  background: rgba(139, 92, 246, 0.1);
+  background: var(--overlay-purple-10);
 }
 
 /* Even smaller screens (iPhone SE, etc) */

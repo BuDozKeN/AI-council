@@ -4,6 +4,14 @@ import { cn } from "@/lib/utils"
 import { Button } from "./button"
 import "./ErrorState.css"
 
+interface ErrorStateProps extends React.HTMLAttributes<HTMLDivElement> {
+  title?: string;
+  message?: React.ReactNode;
+  onRetry?: () => void;
+  retryLabel?: string;
+  className?: string;
+}
+
 /**
  * Unified ErrorState component for consistent error UI across the app.
  *
@@ -13,7 +21,7 @@ import "./ErrorState.css"
  * @param {string} retryLabel - Retry button text (default: "Try again")
  * @param {string} className - Additional CSS classes
  */
-const ErrorState = React.forwardRef(({
+const ErrorState = React.forwardRef<HTMLDivElement, ErrorStateProps>(({
   title = "Something went wrong",
   message,
   onRetry,
@@ -54,3 +62,4 @@ const ErrorState = React.forwardRef(({
 ErrorState.displayName = "ErrorState"
 
 export { ErrorState }
+export type { ErrorStateProps }

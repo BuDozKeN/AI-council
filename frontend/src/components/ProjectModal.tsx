@@ -9,7 +9,26 @@ import { AIWriteAssist } from './ui/AIWriteAssist';
 import { Sparkles, Check, RefreshCw, Edit3, FileText, CheckCircle2 } from 'lucide-react';
 import { logger } from '../utils/logger';
 import { hapticSuccess } from '../lib/haptics';
+import type { Department, Project } from '../types/business';
 import './ProjectModal.css';
+
+interface InitialContext {
+  userQuestion?: string;
+  councilResponse?: string;
+  departmentIds?: string[];
+}
+
+interface ExtendedProject extends Project {
+  context_md?: string;
+}
+
+interface ProjectModalProps {
+  companyId: string;
+  departments?: Department[];
+  onClose: () => void;
+  onProjectCreated?: (project: ExtendedProject) => void;
+  initialContext?: InitialContext;
+}
 
 /**
  * New Project Modal - Flexible creation flow:
@@ -22,7 +41,7 @@ import './ProjectModal.css';
  * @param {string} initialContext.councilResponse - The council's response
  * @param {string[]} initialContext.departmentIds - Pre-selected department IDs from Stage3
  */
-export default function ProjectModal({ companyId, departments = [], onClose, onProjectCreated, initialContext }) {
+export default function ProjectModal({ companyId, departments = [], onClose, onProjectCreated, initialContext }: ProjectModalProps) {
   // Step state: 'input', 'review', 'manual', or 'success'
   const [step, setStep] = useState('input');
   const hasAutoProcessed = useRef(false);
@@ -41,7 +60,7 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
   // UI state
   const [structuring, setStructuring] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [isAIGenerated, setIsAIGenerated] = useState(false); // Track if AI was used
   const [isEditingDetails, setIsEditingDetails] = useState(false); // Toggle between view/edit for project details
 
@@ -66,7 +85,7 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
   }, [initialContext]);
 
   // Process with AI (can be called with custom text for auto-processing)
-  const processWithAI = async (text) => {
+  const processWithAI = async (text?: string) => {
     const inputText = text || freeText;
     if (!inputText.trim()) {
       setError('Tell us a bit about your project first');
@@ -121,13 +140,27 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
       // Use edited context if available, otherwise generate basic context
       const contextMd = editedContext.trim() || `# ${editedName.trim()}\n\n${editedDescription.trim() || 'No description provided.'}`;
 
-      const result = await api.createProject(companyId, {
+      // Build project data, only including optional fields if they have values
+      // (required by exactOptionalPropertyTypes)
+      const projectData: {
+        name: string;
+        description?: string;
+        context_md?: string;
+        department_ids?: string[];
+        source?: 'ai' | 'manual';
+      } = {
         name: editedName.trim(),
-        description: editedDescription.trim() || null,
         context_md: contextMd,
-        department_ids: selectedDeptIds.length > 0 ? selectedDeptIds : null,
         source: isAIGenerated ? 'ai' : 'manual',
-      });
+      };
+      if (editedDescription.trim()) {
+        projectData.description = editedDescription.trim();
+      }
+      if (selectedDeptIds.length > 0) {
+        projectData.department_ids = selectedDeptIds;
+      }
+
+      const result = await api.createProject(companyId, projectData);
 
       // Store the created project and show success state
       createdProjectRef.current = result.project;
@@ -137,12 +170,12 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
 
       // Auto-close after celebration
       setTimeout(() => {
-        onProjectCreated(result.project);
+        onProjectCreated?.(result.project);
         onClose();
       }, 1200);
     } catch (err) {
       logger.error('Failed to create project:', err);
-      setError(err.message || "Couldn't create your project. Please try again.");
+      setError(err instanceof Error ? err.message : "Couldn't create your project. Please try again.");
       setSaving(false);
     }
   };

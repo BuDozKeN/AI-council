@@ -1,5 +1,15 @@
+import * as React from 'react';
 import { ChevronLeft } from 'lucide-react';
 import './MobileHeader.css';
+
+interface MobileHeaderProps {
+  title: string;
+  onBack: () => void;
+  backLabel?: string | undefined;
+  actions?: React.ReactNode | undefined;
+  sticky?: boolean | undefined;
+  className?: string | undefined;
+}
 
 /**
  * MobileHeader - Reusable mobile header with back button
@@ -21,7 +31,7 @@ export function MobileHeader({
   actions,
   sticky = true,
   className = "",
-}) {
+}: MobileHeaderProps) {
   return (
     <div className={`mobile-header ${sticky ? 'sticky' : ''} ${className}`}>
       <button

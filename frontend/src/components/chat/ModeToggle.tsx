@@ -10,6 +10,8 @@ import { MultiDepartmentSelect } from '../ui/MultiDepartmentSelect';
 import { MultiRoleSelect } from '../ui/MultiRoleSelect';
 import { MultiPlaybookSelect } from '../ui/MultiPlaybookSelect';
 
+import type { Department, Role, Playbook } from '../../types/business';
+
 // Check if we're on mobile
 const useIsMobile = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -23,6 +25,29 @@ const useIsMobile = () => {
 
   return isMobile;
 };
+
+interface ModeToggleProps {
+  chatMode: 'chat' | 'council';
+  onChatModeChange: (mode: 'chat' | 'council') => void;
+  // Multi-select props (primary)
+  departments?: Department[] | undefined;
+  selectedDepartments?: string[] | undefined;
+  onSelectDepartments?: ((ids: string[]) => void) | undefined;
+  allRoles?: Role[] | undefined;
+  selectedRoles?: string[] | undefined;
+  onSelectRoles?: ((ids: string[]) => void) | undefined;
+  playbooks?: Playbook[] | undefined;
+  selectedPlaybooks?: string[] | undefined;
+  onSelectPlaybooks?: ((ids: string[]) => void) | undefined;
+  // Legacy single-select props (fallback)
+  selectedDepartment?: string | null | undefined;
+  onSelectDepartment?: ((id: string | null) => void) | undefined;
+  roles?: Role[] | undefined;
+  selectedRole?: string | null | undefined;
+  onSelectRole?: ((id: string | null) => void) | undefined;
+  selectedBusiness?: string | null | undefined;
+  isLoading?: boolean | undefined;
+}
 
 export function ModeToggle({
   chatMode,
@@ -45,7 +70,7 @@ export function ModeToggle({
   onSelectRole,
   selectedBusiness,
   isLoading
-}) {
+}: ModeToggleProps) {
   const isMobile = useIsMobile();
 
   // Determine if we're using multi-select mode
@@ -110,8 +135,12 @@ export function ModeToggle({
                 <MultiPlaybookSelect
                   value={selectedPlaybooks}
                   onValueChange={onSelectPlaybooks}
-                  playbooks={playbooks}
-                  disabled={isLoading}
+                  playbooks={playbooks.map(p => ({
+                    id: p.id,
+                    title: p.title ?? p.name ?? 'Untitled',
+                    doc_type: p.doc_type ?? p.type ?? 'sop'
+                  }))}
+                  disabled={isLoading ?? false}
                   placeholder="Playbooks..."
                   className="mode-toggle-select"
                 />
@@ -120,10 +149,10 @@ export function ModeToggle({
           ) : (
             // Legacy single-select mode (fallback)
             <>
-              {departments.length > 0 && (
+              {departments.length > 0 && onSelectDepartment && (
                 <MultiDepartmentSelect
                   value={selectedDepartment ? [selectedDepartment] : []}
-                  onValueChange={(vals) => onSelectDepartment(vals[0] || null)}
+                  onValueChange={(vals: string[]) => onSelectDepartment(vals[0] ?? null)}
                   departments={departments}
                   disabled={isLoading}
                   placeholder="Department..."
@@ -131,10 +160,10 @@ export function ModeToggle({
                 />
               )}
 
-              {selectedDepartment && roles.length > 0 && (
+              {selectedDepartment && roles.length > 0 && onSelectRole && (
                 <MultiRoleSelect
                   value={selectedRole ? [selectedRole] : []}
-                  onValueChange={(vals) => onSelectRole(vals[0] || null)}
+                  onValueChange={(vals: string[]) => onSelectRole(vals[0] ?? null)}
                   roles={roles}
                   disabled={isLoading}
                   placeholder="Role..."

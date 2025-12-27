@@ -1,20 +1,21 @@
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback, ReactNode } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import './BottomSheet.css';
+
+interface BottomSheetProps {
+  isOpen: boolean;
+  onClose?: (() => void) | undefined;
+  title?: string | undefined;
+  children: ReactNode;
+  showCloseButton?: boolean | undefined;
+  className?: string | undefined;
+}
 
 /**
  * BottomSheet component - iOS/Android style sheet that slides up from bottom
  * On mobile: slides up from bottom with drag handle
  * On desktop: renders as centered modal
- *
- * @param {Object} props
- * @param {boolean} props.isOpen - Whether the sheet is open
- * @param {Function} props.onClose - Callback when sheet should close
- * @param {string} props.title - Title shown in header
- * @param {React.ReactNode} props.children - Content to render in sheet
- * @param {boolean} props.showCloseButton - Whether to show the X close button (default: false)
- * @param {string} props.className - Additional CSS class for customization
  */
 export function BottomSheet({
   isOpen,
@@ -23,18 +24,18 @@ export function BottomSheet({
   children,
   showCloseButton = false, // Hidden by default - tap outside or swipe down to close
   className = '',
-}) {
-  const contentRef = useRef(null);
-  const dragStartY = useRef(null);
-  const dragStartScrollTop = useRef(null);
+}: BottomSheetProps) {
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const dragStartY = useRef<number | null>(null);
+  const dragStartScrollTop = useRef<number | null>(null);
 
   // Handle swipe-to-dismiss
-  const handleTouchStart = useCallback((e) => {
+  const handleTouchStart = useCallback((e: TouchEvent) => {
     const content = contentRef.current;
     if (!content) return;
 
     // Don't interfere with button clicks
-    const touchTarget = e.target;
+    const touchTarget = e.target as HTMLElement;
     if (touchTarget.closest('button, a, [role="button"], input, textarea, select')) {
       return;
     }
@@ -44,15 +45,15 @@ export function BottomSheet({
     const isHandle = touchTarget.closest('.bottom-sheet-handle');
 
     if (isAtTop || isHandle) {
-      dragStartY.current = e.touches[0].clientY;
+      dragStartY.current = e.touches[0]?.clientY ?? null;
       dragStartScrollTop.current = content.scrollTop;
     }
   }, []);
 
-  const handleTouchEnd = useCallback((e) => {
+  const handleTouchEnd = useCallback((e: TouchEvent) => {
     if (dragStartY.current === null) return;
 
-    const deltaY = e.changedTouches[0].clientY - dragStartY.current;
+    const deltaY = (e.changedTouches[0]?.clientY ?? 0) - dragStartY.current;
     dragStartY.current = null;
 
     // If swiped down more than 100px, close the sheet

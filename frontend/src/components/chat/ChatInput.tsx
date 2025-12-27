@@ -5,7 +5,28 @@
  * Extracted from ChatInterface.jsx for better maintainability.
  */
 
+import type { ReactNode, KeyboardEvent, ClipboardEvent } from 'react';
 import { Button } from '../ui/button';
+
+interface ImageUploadHandlers {
+  errorDisplay: ReactNode;
+  previews: ReactNode;
+  handlePaste: (e: ClipboardEvent<HTMLTextAreaElement>) => void;
+  openFilePicker: () => void;
+}
+
+interface ChatInputProps {
+  input: string;
+  onInputChange: (value: string) => void;
+  onKeyDown: (e: KeyboardEvent<HTMLTextAreaElement>) => void;
+  onSubmit: () => void;
+  isLoading: boolean;
+  onStopGeneration: () => void;
+  chatMode: 'council' | 'chat';
+  hasMessages: boolean;
+  hasImages: boolean;
+  imageUpload: ImageUploadHandlers;
+}
 
 export function ChatInput({
   input,
@@ -18,7 +39,7 @@ export function ChatInput({
   hasMessages,
   hasImages,
   imageUpload
-}) {
+}: ChatInputProps) {
   const placeholder = !hasMessages
     ? "Ask a question... (Enter to send, Shift+Enter for new line)"
     : chatMode === 'chat'

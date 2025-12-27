@@ -2,14 +2,61 @@ import { useState } from 'react';
 import { MultiDepartmentSelect } from '../ui/MultiDepartmentSelect';
 import { Spinner } from '../ui/Spinner';
 import { ProjectDropdown } from './ProjectDropdown';
-import { Bookmark, FileText, Layers, ScrollText } from 'lucide-react';
+import { Bookmark, FileText, Layers, ScrollText, LucideIcon } from 'lucide-react';
+import type { Department, Project } from '../../types/business';
+
+interface ProjectWithContext {
+  id: string;
+  name: string;
+  context_md?: string;
+  description?: string;
+  status?: 'active' | 'completed' | 'archived';
+  company_id?: string;
+  department_ids?: string[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+type DocType = 'sop' | 'framework' | 'policy';
+type SaveState = 'idle' | 'saving' | 'promoting' | 'saved' | 'promoted' | 'error';
+
+interface DocTypeDefinition {
+  value: DocType;
+  label: string;
+  icon: LucideIcon;
+  description: string;
+}
 
 // Playbook type definitions with icons
-const DOC_TYPES = [
+const DOC_TYPES: DocTypeDefinition[] = [
   { value: 'sop', label: 'SOP', icon: ScrollText, description: 'Standard Operating Procedure - step-by-step instructions' },
   { value: 'framework', label: 'Framework', icon: Layers, description: 'Framework - guidelines and best practices' },
   { value: 'policy', label: 'Policy', icon: FileText, description: 'Policy - rules and requirements' }
 ];
+
+interface Stage3ActionsProps {
+  companyId?: string | undefined;
+  departments: Department[];
+  selectedDeptIds: string[];
+  setSelectedDeptIds: (ids: string[]) => void;
+  selectedDocType: string;
+  setSelectedDocType: (type: string) => void;
+  currentProject: ProjectWithContext | null;
+  projects: Project[];
+  selectedProjectId: string | null;
+  setSelectedProjectId: (id: string | null) => void;
+  onSelectProject?: ((id: string | null) => void) | undefined;
+  onCreateProject?: ((data: { userQuestion: string; councilResponse: string; departmentIds: string[] }) => void) | undefined;
+  saveState: SaveState;
+  savedDecisionId: string | null;
+  promotedPlaybookId: string | null;
+  handleSaveForLater: () => void;
+  handleSaveAndPromote: () => void;
+  handleViewDecision: (decisionId: string, targetType?: string | undefined, targetId?: string | undefined) => void;
+  checkDecisionStatus: (force?: boolean | undefined) => Promise<void>;
+  userQuestion: string;
+  displayText: string;
+}
 
 /**
  * Stage3Actions - Save toolbar with departments, projects, doc types, and save button
@@ -36,7 +83,7 @@ export function Stage3Actions({
   checkDecisionStatus,
   userQuestion,
   displayText
-}) {
+}: Stage3ActionsProps) {
   const [showProjectDropdown, setShowProjectDropdown] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
 

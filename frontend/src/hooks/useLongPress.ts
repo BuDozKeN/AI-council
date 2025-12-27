@@ -42,7 +42,7 @@ export function useLongPress({
     if (!enabled) return;
 
     // Record start position
-    if ('touches' in e && e.touches) {
+    if ('touches' in e && e.touches && e.touches[0]) {
       touchStartPosRef.current = {
         x: e.touches[0].clientX,
         y: e.touches[0].clientY,
@@ -66,6 +66,7 @@ export function useLongPress({
     // Cancel if moved too far (> 10px)
     const moveThreshold = 10;
     const touch = e.touches[0];
+    if (!touch) return;
     const deltaX = Math.abs(touch.clientX - touchStartPosRef.current.x);
     const deltaY = Math.abs(touch.clientY - touchStartPosRef.current.y);
 

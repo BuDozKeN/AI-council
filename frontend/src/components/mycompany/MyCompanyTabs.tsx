@@ -11,10 +11,15 @@ const TABS = [
   { id: 'activity', label: 'Activity', Icon: ClipboardList, tooltip: 'Recent changes: see what happened across your company' }
 ];
 
+interface MyCompanyTabsProps {
+  activeTab: string;
+  onTabChange: (tabId: string) => void;
+}
+
 /**
  * MyCompanyTabs - Tab navigation bar
  */
-export function MyCompanyTabs({ activeTab, onTabChange }) {
+export function MyCompanyTabs({ activeTab, onTabChange }: MyCompanyTabsProps) {
   return (
     <nav className="mc-tabs">
       {TABS.map(tab => (

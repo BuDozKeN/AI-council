@@ -52,8 +52,8 @@ interface LoadConversationsOptions {
   search?: string;
 }
 
-interface ConversationContextValue {
-  // State
+// State values - these change and trigger re-renders
+interface ConversationStateValue {
   conversations: Conversation[];
   hasMoreConversations: boolean;
   conversationSortBy: ConversationSortBy;
@@ -61,18 +61,18 @@ interface ConversationContextValue {
   currentConversation: Conversation | null;
   isLoadingConversation: boolean;
   isLoading: boolean;
+}
 
+// Actions and refs - these are stable and never cause re-renders
+interface ConversationActionsValue {
   // Refs (for external access)
   skipNextLoadRef: MutableRefObject<boolean>;
   abortControllerRef: MutableRefObject<AbortController | null>;
-
   // Setters (for streaming handlers in App.tsx)
   setConversations: React.Dispatch<React.SetStateAction<Conversation[]>>;
   setCurrentConversation: React.Dispatch<React.SetStateAction<Conversation | null>>;
   setCurrentConversationId: React.Dispatch<React.SetStateAction<string | null>>;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  // Note: setIsLoadingConversation removed - now managed by TanStack Query
-
   // Actions
   loadConversations: (options?: LoadConversationsOptions) => Promise<Conversation[]>;
   loadConversation: (id: string) => Promise<void>;
@@ -87,9 +87,20 @@ interface ConversationContextValue {
   handleSortByChange: (newSort: ConversationSortBy) => void;
 }
 
-const ConversationContext = createContext<ConversationContextValue>({} as ConversationContextValue);
+// Split contexts: Actions are stable (never cause re-renders), State changes trigger re-renders
+const ConversationStateContext = createContext<ConversationStateValue>({} as ConversationStateValue);
+const ConversationActionsContext = createContext<ConversationActionsValue>({} as ConversationActionsValue);
 
-export const useConversation = () => useContext(ConversationContext);
+// Convenience hook for components that need everything (backwards compatible)
+export const useConversation = () => {
+  const state = useContext(ConversationStateContext);
+  const actions = useContext(ConversationActionsContext);
+  return { ...state, ...actions };
+};
+
+// Granular hooks for optimized components
+export const useConversationState = () => useContext(ConversationStateContext);
+export const useConversationActions = () => useContext(ConversationActionsContext);
 
 interface ConversationProviderProps {
   children: ReactNode;
@@ -121,15 +132,17 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
 
   const {
     data: conversationsData,
-    isLoading: isLoadingList,
+    // isLoading: isLoadingList, // Not used currently - TanStack Query handles loading state
     error: listError,
   } = useQuery({
     queryKey: listQueryKey,
     queryFn: async () => {
       const limit = PAGINATION.CONVERSATIONS_PAGE_SIZE;
+      // Cast sortBy to the API's expected type (excludes 'title' which is only used locally)
+      const apiSortBy = conversationSortBy === 'title' ? 'date' : conversationSortBy;
       const result = await api.listConversations({
         limit,
-        sortBy: conversationSortBy,
+        sortBy: apiSortBy,
         offset: paginationOffset
       });
       return {
@@ -423,7 +436,7 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
         if (!prev?.messages?.length) return prev;
         const messages = [...prev.messages];
         const lastMsg = messages[messages.length - 1];
-        if (lastMsg.loading) {
+        if (lastMsg && lastMsg.loading) {
           lastMsg.loading = { stage1: false, stage2: false, stage3: false };
           lastMsg.stopped = true;
         }
@@ -445,8 +458,8 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
     // Query will automatically refetch due to queryKey change
   }, []);
 
-  const value = useMemo((): ConversationContextValue => ({
-    // State
+  // Memoize state value - changes when data changes
+  const stateValue = useMemo<ConversationStateValue>(() => ({
     conversations,
     hasMoreConversations,
     conversationSortBy,
@@ -454,19 +467,25 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
     currentConversation,
     isLoadingConversation,
     isLoading,
+  }), [
+    conversations,
+    hasMoreConversations,
+    conversationSortBy,
+    currentConversationId,
+    currentConversation,
+    isLoadingConversation,
+    isLoading,
+  ]);
 
-    // Refs (for external access)
+  // Memoize actions value - STABLE reference, never changes
+  // React guarantees useState setters are stable, refs are stable objects
+  const actionsValue = useMemo<ConversationActionsValue>(() => ({
     skipNextLoadRef,
     abortControllerRef,
-
-    // Setters (for streaming handlers in App.tsx)
     setConversations,
     setCurrentConversation,
     setCurrentConversationId,
     setIsLoading,
-    // Note: setIsLoadingConversation removed - now managed by TanStack Query
-
-    // Actions
     loadConversations,
     loadConversation,
     handleNewConversation,
@@ -479,13 +498,8 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
     refreshConversations,
     handleSortByChange,
   }), [
-    conversations,
-    hasMoreConversations,
-    conversationSortBy,
-    currentConversationId,
-    currentConversation,
-    isLoadingConversation,
-    isLoading,
+    // Note: useState setters and refs are stable by React guarantee
+    // Only include callbacks that might change
     loadConversations,
     loadConversation,
     handleNewConversation,
@@ -500,8 +514,10 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
   ]);
 
   return (
-    <ConversationContext.Provider value={value}>
-      {children}
-    </ConversationContext.Provider>
+    <ConversationActionsContext.Provider value={actionsValue}>
+      <ConversationStateContext.Provider value={stateValue}>
+        {children}
+      </ConversationStateContext.Provider>
+    </ConversationActionsContext.Provider>
   );
 }

@@ -5,10 +5,11 @@ import { logger } from '../../../utils/logger';
 const log = logger.scope('useApiKeys');
 
 export interface ApiKeyStatus {
-  status: 'not_connected' | 'connected' | 'invalid';
+  status: 'not_connected' | 'connected' | 'invalid' | 'disabled';
   is_valid: boolean;
   is_active: boolean;
   key_hint?: string;
+  masked_key?: string;
   last_validated?: string;
 }
 

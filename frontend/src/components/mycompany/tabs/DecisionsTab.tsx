@@ -15,11 +15,45 @@ import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { ScrollableContent } from '../../ui/ScrollableContent';
 import { getDeptColor } from '../../../lib/colors';
 import { formatDateCompact } from '../../../lib/dateUtils';
+import type { Department } from '../../../types/business';
 
 // Note: ScrollableContent provides sticky copy button + scroll-to-top for lists
 
+interface Decision {
+  id: string;
+  conversation_id?: string;
+  company_id?: string;
+  title?: string;
+  content?: string;
+  content_summary?: string;
+  summary?: string;
+  question?: string;
+  status?: 'pending' | 'approved' | 'rejected' | 'archived';
+  council_type?: string;
+  department_ids?: string[];
+  promoted_to_id?: string;
+  project_id?: string;
+  playbook_type?: 'sop' | 'framework' | 'policy';
+  source_conversation_id?: string;
+  created_at: string;
+  updated_at?: string;
+}
+
+interface DecisionsTabProps {
+  decisions?: Decision[] | undefined;
+  departments?: Department[] | undefined;
+  decisionDeptFilter?: string[] | undefined;
+  decisionSearch?: string | undefined;
+  deletingDecisionId?: string | null | undefined;
+  onDeptFilterChange?: ((ids: string[]) => void) | undefined;
+  onSearchChange?: ((search: string) => void) | undefined;
+  onPromoteDecision?: ((decision: Decision) => void) | undefined;
+  onDeleteDecision?: ((decision: Decision) => void | Promise<void>) | undefined;
+  onNavigateToConversation?: ((conversationId: string, source: string) => void) | undefined;
+}
+
 // Helper to get a clean, short title from decision
-function getDecisionDisplayTitle(decision) {
+function getDecisionDisplayTitle(decision: Decision): string {
   // If we have an AI-generated content_summary, extract first sentence as title
   if (decision.content_summary) {
     const firstSentence = decision.content_summary.split(/[.!?]/)[0];
@@ -50,7 +84,7 @@ export function DecisionsTab({
   onPromoteDecision,
   onDeleteDecision,
   onNavigateToConversation
-}) {
+}: DecisionsTabProps) {
   // Memoized pending decisions (not promoted)
   const pendingDecisions = useMemo(() =>
     decisions.filter(d => !d.promoted_to_id && !d.project_id),
@@ -107,7 +141,7 @@ export function DecisionsTab({
         {/* Department filter - first on mobile for thumb reach */}
         <MultiDepartmentSelect
           value={decisionDeptFilter}
-          onValueChange={onDeptFilterChange}
+          onValueChange={onDeptFilterChange ?? (() => {})}
           departments={departments}
           placeholder="All departments"
           className="mc-dept-filter"
@@ -171,7 +205,7 @@ export function DecisionsTab({
       {filteredDecisions.length > 0 && (
         <ScrollableContent className="mc-decisions-list">
           <div className="mc-elegant-list">
-            {filteredDecisions.map(decision => {
+            {filteredDecisions.map((decision: Decision) => {
               const isDeleting = deletingDecisionId === decision.id;
               const displayTitle = getDecisionDisplayTitle(decision);
 
@@ -189,8 +223,8 @@ export function DecisionsTab({
                     <span className="mc-elegant-title">{displayTitle}</span>
                     <div className="mc-elegant-badges">
                       {/* Department badges */}
-                      {(decision.department_ids || []).map(deptId => {
-                        const dept = departments.find(d => d.id === deptId);
+                      {(decision.department_ids || []).map((deptId: string) => {
+                        const dept = departments.find((d: Department) => d.id === deptId);
                         if (!dept) return null;
                         const color = getDeptColor(deptId);
                         return (
@@ -218,7 +252,7 @@ export function DecisionsTab({
                       {decision.source_conversation_id && !decision.source_conversation_id.startsWith('temp-') && onNavigateToConversation && (
                         <button
                           className="mc-text-btn source"
-                          onClick={(e) => { e.stopPropagation(); onNavigateToConversation(decision.source_conversation_id, 'decisions'); }}
+                          onClick={(e) => { e.stopPropagation(); onNavigateToConversation(decision.source_conversation_id!, 'decisions'); }}
                           title="View original conversation"
                         >
                           Source

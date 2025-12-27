@@ -1,5 +1,41 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, ReactNode, DragEvent, ChangeEvent, ClipboardEvent } from 'react';
 import './ImageUpload.css';
+
+interface UploadedImage {
+  file: File;
+  preview: string;
+  name: string;
+  size: number;
+  type: string;
+}
+
+interface DropZoneProps {
+  onDragEnter: (e: DragEvent<HTMLElement>) => void;
+  onDragLeave: (e: DragEvent<HTMLElement>) => void;
+  onDragOver: (e: DragEvent<HTMLElement>) => void;
+  onDrop: (e: DragEvent<HTMLElement>) => void;
+}
+
+interface ImageUploadReturn {
+  dropZoneProps: DropZoneProps;
+  handlePaste: (e: ClipboardEvent) => void;
+  isDragging: boolean;
+  error: string | null;
+  removeImage: (index: number) => void;
+  openFilePicker: () => void;
+  fileInput: ReactNode;
+  previews: ReactNode | null;
+  errorDisplay: ReactNode | null;
+  dragOverlay: ReactNode | null;
+}
+
+interface ImageUploadProps {
+  images: UploadedImage[];
+  onImagesChange: (images: UploadedImage[]) => void;
+  disabled?: boolean;
+  maxImages?: number;
+  maxSizeMB?: number;
+}
 
 /**
  * ImageUpload component for handling image attachments.
@@ -14,17 +50,17 @@ export default function ImageUpload({
   disabled = false,
   maxImages = 5,
   maxSizeMB = 10,
-}) {
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragHasImages, setDragHasImages] = useState(true); // Whether dragged files include images
-  const [error, setError] = useState(null);
-  const fileInputRef = useRef(null);
-  const dragCounterRef = useRef(0); // Counter to handle nested drag events
+}: ImageUploadProps): ImageUploadReturn {
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [dragHasImages, setDragHasImages] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const dragCounterRef = useRef<number>(0);
 
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
   const allowedTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
 
-  const validateFile = (file) => {
+  const validateFile = (file: File): string | null => {
     if (!allowedTypes.includes(file.type)) {
       return `Invalid file type: ${file.type}. Allowed: PNG, JPG, WebP, GIF`;
     }
@@ -34,11 +70,11 @@ export default function ImageUpload({
     return null;
   };
 
-  const processFiles = useCallback((files) => {
+  const processFiles = useCallback((files: File[]) => {
     if (disabled) return;
 
-    const newImages = [];
-    const errors = [];
+    const newImages: UploadedImage[] = [];
+    const errors: string[] = [];
 
     for (const file of files) {
       if (images.length + newImages.length >= maxImages) {
@@ -74,23 +110,26 @@ export default function ImageUpload({
   // eslint-disable-next-line react-hooks/exhaustive-deps -- validateFile is stable within component
   }, [images, onImagesChange, disabled, maxImages, maxSizeBytes]);
 
-  const removeImage = (index) => {
+  const removeImage = (index: number) => {
     const newImages = [...images];
     // Revoke the object URL to free memory
-    URL.revokeObjectURL(newImages[index].preview);
+    const imageToRemove = newImages[index];
+    if (imageToRemove) {
+      URL.revokeObjectURL(imageToRemove.preview);
+    }
     newImages.splice(index, 1);
     onImagesChange(newImages);
   };
 
   // Handle paste event
-  const handlePaste = useCallback((e) => {
+  const handlePaste = useCallback((e: ClipboardEvent) => {
     if (disabled) return;
 
     const items = e.clipboardData?.items;
     if (!items) return;
 
-    const imageFiles = [];
-    for (const item of items) {
+    const imageFiles: File[] = [];
+    for (const item of Array.from(items)) {
       if (item.type.startsWith('image/')) {
         const file = item.getAsFile();
         if (file) imageFiles.push(file);
@@ -104,7 +143,7 @@ export default function ImageUpload({
   }, [processFiles, disabled]);
 
   // Drag and drop handlers - using counter to prevent flicker on child elements
-  const handleDragEnter = (e) => {
+  const handleDragEnter = (e: DragEvent<HTMLElement>) => {
     e.preventDefault();
     e.stopPropagation();
     dragCounterRef.current++;
@@ -113,7 +152,7 @@ export default function ImageUpload({
       const items = e.dataTransfer?.items;
       let hasImages = false;
       if (items) {
-        for (const item of items) {
+        for (const item of Array.from(items)) {
           if (item.type.startsWith('image/')) {
             hasImages = true;
             break;
@@ -128,7 +167,7 @@ export default function ImageUpload({
     }
   };
 
-  const handleDragLeave = (e) => {
+  const handleDragLeave = (e: DragEvent<HTMLElement>) => {
     e.preventDefault();
     e.stopPropagation();
     dragCounterRef.current--;
@@ -137,12 +176,12 @@ export default function ImageUpload({
     }
   };
 
-  const handleDragOver = (e) => {
+  const handleDragOver = (e: DragEvent<HTMLElement>) => {
     e.preventDefault();
     e.stopPropagation();
   };
 
-  const handleDrop = (e) => {
+  const handleDrop = (e: DragEvent<HTMLElement>) => {
     e.preventDefault();
     e.stopPropagation();
     dragCounterRef.current = 0; // Reset counter on drop
@@ -162,7 +201,7 @@ export default function ImageUpload({
   };
 
   // File picker
-  const handleFileSelect = (e) => {
+  const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length > 0) {
       processFiles(files);

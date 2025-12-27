@@ -85,14 +85,17 @@ function Stage2({
   if (streaming && Object.keys(streaming).length > 0) {
     // Use streaming data
     Object.entries(streaming).forEach(([model, data]) => {
-      const hasTextError = textLooksLikeError(data.text);
+      const textValue = data.text ?? '';
+      const isComplete = data.complete ?? false;
+      const hasError = data.error ?? false;
+      const hasTextError = textLooksLikeError(textValue);
       displayData.push({
         model,
-        ranking: data.text,
-        isStreaming: !data.complete,
-        isComplete: data.complete && !data.error && !hasTextError,
-        hasError: Boolean(data.error) || hasTextError,
-        isEmpty: data.complete && !data.text && !data.error,
+        ranking: textValue,
+        isStreaming: !isComplete,
+        isComplete: isComplete && !hasError && !hasTextError,
+        hasError: hasError || hasTextError,
+        isEmpty: isComplete && !textValue && !hasError,
         parsed_ranking: null,
       });
     });
@@ -272,7 +275,7 @@ function Stage2({
                       remarkPlugins={[remarkGfm]}
                       components={{
                         // Wrap tables in scrollable container for mobile
-                        table({ children, ...props }) {
+                        table({ children, ...props }: React.ComponentPropsWithoutRef<'table'>) {
                           return (
                             <div className="table-scroll-wrapper">
                               <table {...props}>{children}</table>

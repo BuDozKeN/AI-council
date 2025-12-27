@@ -8,10 +8,18 @@
  * Both buttons are positioned to NOT cover the scrollbar.
  */
 
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, ReactNode } from 'react';
 import { ChevronUp, Copy, Check } from 'lucide-react';
 import { logger } from '../../utils/logger';
 import './ScrollableContent.css';
+
+interface ScrollableContentProps {
+  children: ReactNode;
+  className?: string;
+  copyText?: string | null;
+  scrollThreshold?: number;
+  [key: string]: unknown;
+}
 
 export function ScrollableContent({
   children,
@@ -19,13 +27,13 @@ export function ScrollableContent({
   copyText = null, // If provided, shows floating copy button
   scrollThreshold = 150, // px scrolled before scroll-to-top appears
   ...props
-}) {
-  const contentRef = useRef(null);
+}: ScrollableContentProps) {
+  const contentRef = useRef<HTMLDivElement | null>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const handleScroll = useCallback((e) => {
-    setShowScrollTop(e.target.scrollTop > scrollThreshold);
+  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    setShowScrollTop((e.target as HTMLDivElement).scrollTop > scrollThreshold);
   }, [scrollThreshold]);
 
   const scrollToTop = () => {

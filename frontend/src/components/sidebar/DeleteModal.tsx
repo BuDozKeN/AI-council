@@ -7,11 +7,17 @@
 import { AppModal } from '../ui/AppModal';
 import { Button } from '../ui/button';
 
+interface DeleteModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}
+
 export function DeleteModal({
   isOpen,
   onClose,
   onConfirm
-}) {
+}: DeleteModalProps) {
   return (
     <AppModal
       isOpen={isOpen}

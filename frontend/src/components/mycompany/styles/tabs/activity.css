@@ -50,7 +50,7 @@
   font-size: 13px;
   font-weight: 500;
   border: 1px solid var(--color-border-dark);
-  background: white;
+  background: var(--color-bg-primary);
   color: var(--color-text-primary);
   border-radius: var(--radius-2xl);
   cursor: pointer;
@@ -66,7 +66,7 @@
 .mc-filter-chip.active {
   background: var(--color-brand-600);
   border-color: var(--color-brand-600);
-  color: white;
+  color: var(--color-text-inverse);
 }
 
 .mc-load-more-container {
@@ -278,6 +278,6 @@
 /* Source icon button hover - needs special rgba background */
 .dark .mc-source-icon-btn:hover,
 [data-theme="dark"] .mc-source-icon-btn:hover {
-  background: rgba(59, 130, 246, 0.15);
+  background: var(--overlay-blue-15);
   color: var(--color-blue-400);
 }

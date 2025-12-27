@@ -44,7 +44,11 @@ const BillingSkeleton = () => (
   </>
 );
 
-export function BillingSection({ isOpen }) {
+interface BillingSectionProps {
+  isOpen: boolean;
+}
+
+export function BillingSection({ isOpen }: BillingSectionProps) {
   const {
     plans,
     billingLoading,

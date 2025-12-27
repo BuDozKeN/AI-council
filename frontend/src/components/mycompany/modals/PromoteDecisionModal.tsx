@@ -11,18 +11,48 @@ import { Button } from '../../ui/button';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { ProjectSelect } from '../../ui/ProjectSelect';
 import { Spinner } from '../../ui/Spinner';
-import { Bookmark, ScrollText, Layers, FileText, FolderKanban, RefreshCw } from 'lucide-react';
+import { Bookmark, ScrollText, Layers, FileText, FolderKanban, RefreshCw, LucideIcon } from 'lucide-react';
 import { api } from '../../../api';
 import { logger } from '../../../utils/logger';
+import type { Department, Project } from '../../../types/business';
 
-const DOC_TYPES = [
+interface Decision {
+  id: string;
+  title?: string;
+  content?: string;
+  content_summary?: string;
+  question?: string;
+  department_ids?: string[];
+  project_id?: string;
+  source_conversation_id?: string;
+}
+
+interface DocType {
+  value: string;
+  label: string;
+  icon: LucideIcon;
+  desc: string;
+}
+
+const DOC_TYPES: DocType[] = [
   { value: 'sop', label: 'SOP', icon: ScrollText, desc: 'Step-by-step procedures' },
   { value: 'framework', label: 'Framework', icon: Layers, desc: 'Conceptual structure' },
   { value: 'policy', label: 'Policy', icon: FileText, desc: 'Rules & guidelines' },
   { value: 'project', label: 'Project', icon: FolderKanban, desc: 'Track as a project' }
 ];
 
-export function PromoteDecisionModal({ decision, departments, projects = [], companyId, onPromote, onClose, saving, onViewSource }) {
+interface PromoteDecisionModalProps {
+  decision: Decision;
+  departments: Department[];
+  projects?: Project[];
+  companyId: string;
+  onPromote: (docType: string, title: string, departmentIds: string[], projectId: string | null) => void;
+  onClose: () => void;
+  saving: boolean;
+  onViewSource?: (conversationId: string) => void;
+}
+
+export function PromoteDecisionModal({ decision, departments, projects = [], companyId, onPromote, onClose, saving, onViewSource }: PromoteDecisionModalProps) {
   // If decision already belongs to a project, default to 'project' type
   const hasExistingProject = !!decision?.project_id;
   const [docType, setDocType] = useState(hasExistingProject ? 'project' : 'sop');
@@ -42,7 +72,7 @@ export function PromoteDecisionModal({ decision, departments, projects = [], com
     if (!companyId || !decision?.id) return;
     setGeneratingSummary(true);
     try {
-      const result = await api.generateDecisionSummary(companyId, decision.id, { force: true });
+      const result = await api.generateDecisionSummary(companyId, decision.id);
       if (result.summary) {
         setSummary(result.summary);
       }
@@ -60,7 +90,7 @@ export function PromoteDecisionModal({ decision, departments, projects = [], com
     }
   }, [summary, decision, companyId]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
 
@@ -96,7 +126,7 @@ export function PromoteDecisionModal({ decision, departments, projects = [], com
                 type="text"
                 className="mc-input-unified"
                 value={title}
-                onChange={e => setTitle(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
                 placeholder="e.g., Customer Onboarding Process"
                 autoFocus
               />
@@ -144,12 +174,12 @@ export function PromoteDecisionModal({ decision, departments, projects = [], com
               <div className="mc-form-unified">
                 <label className="mc-label-unified">Add to Project</label>
                 <ProjectSelect
-                  value={selectedProjectId}
+                  value={selectedProjectId || null}
                   onValueChange={setSelectedProjectId}
                   projects={activeProjects}
                   includeCreate={true}
                   createLabel="New Project"
-                  currentProjectId={decision?.project_id}
+                  currentProjectId={decision?.project_id ?? null}
                 />
                 {existingProject && (
                   <p className="mc-existing-project-hint">
@@ -164,7 +194,7 @@ export function PromoteDecisionModal({ decision, departments, projects = [], com
               <button
                 type="button"
                 className="mc-source-link-compact"
-                onClick={() => onViewSource(decision.source_conversation_id)}
+                onClick={() => onViewSource(decision.source_conversation_id!)}
               >
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" />

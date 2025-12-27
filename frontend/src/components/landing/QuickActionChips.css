@@ -13,7 +13,7 @@
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--overlay-white-60);
   backdrop-filter: blur(8px);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-full);
@@ -23,6 +23,27 @@
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
+}
+
+/* ===== DARK MODE ===== */
+.dark .quick-action-chip {
+  background: rgba(var(--color-slate-800-rgb), 0.7);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .quick-action-chip:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-brand-primary);
+  color: var(--color-brand-primary);
+}
+
+.dark .quick-action-icon {
+  color: var(--color-text-tertiary);
+}
+
+.dark .quick-action-chip:hover .quick-action-icon {
+  color: var(--color-brand-primary);
 }
 
 .quick-action-chip:hover {

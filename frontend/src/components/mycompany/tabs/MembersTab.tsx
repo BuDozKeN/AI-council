@@ -14,15 +14,37 @@
 
 import { formatDate } from '../../../lib/dateUtils';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import { api } from '../../../api';
-import { Users, Crown, Shield, User, Plus, Trash2, ChevronUp, ChevronDown, AlertCircle } from 'lucide-react';
+import { Users, Crown, Shield, User, Plus, Trash2, ChevronUp, ChevronDown, AlertCircle, LucideIcon } from 'lucide-react';
 import { Button } from '../../ui/button';
 import { Spinner } from '../../ui/Spinner';
 import { ScrollableContent } from '../../ui/ScrollableContent';
 
+type MemberRole = 'owner' | 'admin' | 'member';
+
+interface Member {
+  id: string;
+  user_id: string;
+  role: MemberRole;
+  joined_at?: string;
+  created_at?: string;
+}
+
+interface RoleConfigEntry {
+  label: string;
+  icon: LucideIcon;
+  color: string;
+  description: string;
+}
+
+interface MembersTabProps {
+  companyId: string;
+  currentUserId: string;
+}
+
 // Role hierarchy for display - uses CSS variables for theming
-const ROLE_CONFIG = {
+const ROLE_CONFIG: Record<MemberRole, RoleConfigEntry> = {
   owner: { label: 'Owner', icon: Crown, color: 'var(--color-indigo-500)', description: 'Full control' },
   admin: { label: 'Admin', icon: Shield, color: 'var(--color-blue-500)', description: 'Manage members' },
   member: { label: 'Member', icon: User, color: 'var(--color-gray-500)', description: 'View & contribute' }
@@ -31,20 +53,20 @@ const ROLE_CONFIG = {
 export function MembersTab({
   companyId,
   currentUserId // To identify current user and their role
-}) {
-  const [members, setMembers] = useState([]);
+}: MembersTabProps) {
+  const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   // Add member form state
   const [showAddForm, setShowAddForm] = useState(false);
   const [newEmail, setNewEmail] = useState('');
-  const [newRole, setNewRole] = useState('member');
-  const [addError, setAddError] = useState(null);
+  const [newRole, setNewRole] = useState<MemberRole>('member');
+  const [addError, setAddError] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
 
   // Action state
-  const [actionLoading, setActionLoading] = useState(null); // member id being acted on
+  const [actionLoading, setActionLoading] = useState<string | null>(null); // member id being acted on
 
   // Current user's role (derived from members list)
   const currentMember = members.find(m => m.user_id === currentUserId);
@@ -66,13 +88,13 @@ export function MembersTab({
       const membersResult = await api.getCompanyMembers(companyId);
       setMembers(membersResult.members || []);
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddMember = async (e) => {
+  const handleAddMember = async (e: FormEvent) => {
     e.preventDefault();
     if (!newEmail.trim()) return;
 
@@ -80,7 +102,8 @@ export function MembersTab({
       setAdding(true);
       setAddError(null);
 
-      await api.addCompanyMember(companyId, newEmail.trim(), newRole);
+      // API only accepts 'admin' | 'member' roles (not 'owner')
+      await api.addCompanyMember(companyId, newEmail.trim(), newRole as 'admin' | 'member');
 
       // Refresh list
       await loadData();
@@ -90,26 +113,26 @@ export function MembersTab({
       setNewRole('member');
       setShowAddForm(false);
     } catch (err) {
-      setAddError(err.message);
+      setAddError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setAdding(false);
     }
   };
 
-  const handleChangeRole = async (memberId, newRole) => {
+  const handleChangeRole = async (memberId: string, newRole: 'admin' | 'member') => {
     try {
       setActionLoading(memberId);
       await api.updateCompanyMember(companyId, memberId, newRole);
       await loadData();
     } catch (err) {
       // Show error inline
-      alert(err.message);
+      alert(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setActionLoading(null);
     }
   };
 
-  const handleRemoveMember = async (memberId, memberRole) => {
+  const handleRemoveMember = async (memberId: string, memberRole: MemberRole) => {
     if (!confirm(`Are you sure you want to remove this ${memberRole}?`)) return;
 
     try {
@@ -117,7 +140,7 @@ export function MembersTab({
       await api.removeCompanyMember(companyId, memberId);
       await loadData();
     } catch (err) {
-      alert(err.message);
+      alert(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setActionLoading(null);
     }
@@ -176,7 +199,7 @@ export function MembersTab({
             />
             <select
               value={newRole}
-              onChange={(e) => setNewRole(e.target.value)}
+              onChange={(e) => setNewRole(e.target.value as MemberRole)}
               className="mc-select"
             >
               <option value="member">Member</option>

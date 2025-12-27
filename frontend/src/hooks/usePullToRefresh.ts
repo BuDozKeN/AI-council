@@ -1,10 +1,10 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 
 export interface UsePullToRefreshOptions {
-  onRefresh?: () => Promise<void> | void;
-  threshold?: number;
-  maxPull?: number;
-  enabled?: boolean;
+  onRefresh?: (() => Promise<void> | void) | undefined;
+  threshold?: number | undefined;
+  maxPull?: number | undefined;
+  enabled?: boolean | undefined;
 }
 
 export interface UsePullToRefreshReturn {
@@ -39,8 +39,11 @@ export function usePullToRefresh({
 
     // Only track if at top of scroll
     if (container.scrollTop <= 0) {
-      touchStartY.current = e.touches[0].clientY;
-      touchStartScrollTop.current = container.scrollTop;
+      const touch = e.touches[0];
+      if (touch) {
+        touchStartY.current = touch.clientY;
+        touchStartScrollTop.current = container.scrollTop;
+      }
     }
   }, [enabled, isRefreshing]);
 
@@ -58,7 +61,9 @@ export function usePullToRefresh({
       return;
     }
 
-    const deltaY = e.touches[0].clientY - touchStartY.current;
+    const touch = e.touches[0];
+    if (!touch) return;
+    const deltaY = touch.clientY - touchStartY.current;
 
     if (deltaY > 0) {
       // Pulling down

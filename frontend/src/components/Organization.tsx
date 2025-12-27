@@ -6,7 +6,49 @@ import { Button } from './ui/button';
 import { AlertModal } from './ui/AlertModal';
 import { AIWriteAssist } from './ui/AIWriteAssist';
 import { logger } from '../utils/logger';
+import type { Department, Business } from '../types/business';
 import './Organization.css';
+
+interface OrganizationProps {
+  companyId: string;
+  companyName?: string;
+  onClose: () => void;
+  onOpenKnowledgeBase?: () => void;
+}
+
+interface EditingDept {
+  id: string;
+  name: string;
+  description?: string;
+}
+
+interface EditingRole {
+  deptId: string;
+  role: {
+    id: string;
+    name: string;
+    description?: string;
+  };
+}
+
+interface ViewingRolePrompt {
+  deptId: string;
+  roleId: string;
+  prompt: string;
+  exists: boolean;
+}
+
+interface NewItem {
+  id: string;
+  name: string;
+  description: string;
+}
+
+interface AlertModalState {
+  title: string;
+  message: string;
+  variant: 'info' | 'success' | 'warning' | 'error';
+}
 
 /**
  * Organization Manager - View and edit company structure
@@ -18,24 +60,24 @@ import './Organization.css';
  * - Add new departments and roles
  * - View and edit role system prompts
  */
-export default function Organization({ companyId, companyName, onClose, onOpenKnowledgeBase }) {
-  const [departments, setDepartments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+export default function Organization({ companyId, companyName, onClose, onOpenKnowledgeBase }: OrganizationProps) {
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   // UI state
-  const [expandedDept, setExpandedDept] = useState(null);
-  const [editingDept, setEditingDept] = useState(null); // {id, name, description}
-  const [editingRole, setEditingRole] = useState(null); // {deptId, role: {id, name, description}}
-  const [viewingRolePrompt, setViewingRolePrompt] = useState(null); // {deptId, roleId, prompt}
-  const [saving, setSaving] = useState(false);
+  const [expandedDept, setExpandedDept] = useState<string | null>(null);
+  const [editingDept, setEditingDept] = useState<EditingDept | null>(null);
+  const [editingRole, setEditingRole] = useState<EditingRole | null>(null);
+  const [viewingRolePrompt, setViewingRolePrompt] = useState<ViewingRolePrompt | null>(null);
+  const [saving, setSaving] = useState<boolean>(false);
 
   // Add new department/role state
-  const [showAddDept, setShowAddDept] = useState(false);
-  const [newDept, setNewDept] = useState({ id: '', name: '', description: '' });
-  const [showAddRole, setShowAddRole] = useState(null); // deptId or null
-  const [newRole, setNewRole] = useState({ id: '', name: '', description: '' });
-  const [alertModal, setAlertModal] = useState(null);
+  const [showAddDept, setShowAddDept] = useState<boolean>(false);
+  const [newDept, setNewDept] = useState<NewItem>({ id: '', name: '', description: '' });
+  const [showAddRole, setShowAddRole] = useState<string | null>(null);
+  const [newRole, setNewRole] = useState<NewItem>({ id: '', name: '', description: '' });
+  const [alertModal, setAlertModal] = useState<AlertModalState | null>(null);
 
   // Fetch departments on mount
   useEffect(() => {
@@ -49,7 +91,7 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
       try {
         const businesses = await api.listBusinesses();
         if (cancelled) return;
-        const business = businesses.find(b => b.id === companyId);
+        const business = businesses.find((b: Business) => b.id === companyId);
 
         if (business) {
           setDepartments(business.departments || []);
@@ -79,7 +121,7 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
     setError(null);
     try {
       const businesses = await api.listBusinesses();
-      const business = businesses.find(b => b.id === companyId);
+      const business = businesses.find((b: Business) => b.id === companyId);
       if (business) {
         setDepartments(business.departments || []);
       } else {
@@ -93,7 +135,7 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
   };
 
   // Generate slug from name
-  const generateSlug = (name) => {
+  const generateSlug = (name: string): string => {
     return name
       .toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '')
@@ -119,13 +161,14 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
       setShowAddDept(false);
       setNewDept({ id: '', name: '', description: '' });
     } catch (err) {
-      setAlertModal({ title: 'Error', message: 'Failed to create department: ' + err.message, variant: 'error' });
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      setAlertModal({ title: 'Error', message: 'Failed to create department: ' + message, variant: 'error' });
     }
     setSaving(false);
   }
 
   // Handle adding a new role
-  async function handleAddRole(deptId) {
+  async function handleAddRole(deptId: string) {
     if (!newRole.name.trim()) return;
 
     setSaving(true);
@@ -142,7 +185,8 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
       setShowAddRole(null);
       setNewRole({ id: '', name: '', description: '' });
     } catch (err) {
-      setAlertModal({ title: 'Error', message: 'Failed to create role: ' + err.message, variant: 'error' });
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      setAlertModal({ title: 'Error', message: 'Failed to create role: ' + message, variant: 'error' });
     }
     setSaving(false);
   }
@@ -153,15 +197,17 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
 
     setSaving(true);
     try {
-      await api.updateDepartment(companyId, editingDept.id, {
-        name: editingDept.name,
-        description: editingDept.description,
-      });
+      const updates: { name?: string; description?: string } = { name: editingDept.name };
+      if (editingDept.description !== undefined) {
+        updates.description = editingDept.description;
+      }
+      await api.updateDepartment(companyId, editingDept.id, updates);
 
       await fetchOrganization();
       setEditingDept(null);
     } catch (err) {
-      setAlertModal({ title: 'Error', message: 'Failed to update department: ' + err.message, variant: 'error' });
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      setAlertModal({ title: 'Error', message: 'Failed to update department: ' + message, variant: 'error' });
     }
     setSaving(false);
   }
@@ -172,21 +218,23 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
 
     setSaving(true);
     try {
-      await api.updateRole(companyId, editingRole.deptId, editingRole.role.id, {
-        name: editingRole.role.name,
-        description: editingRole.role.description,
-      });
+      const updates: { name?: string; description?: string } = { name: editingRole.role.name };
+      if (editingRole.role.description !== undefined) {
+        updates.description = editingRole.role.description;
+      }
+      await api.updateRole(companyId, editingRole.deptId, editingRole.role.id, updates);
 
       await fetchOrganization();
       setEditingRole(null);
     } catch (err) {
-      setAlertModal({ title: 'Error', message: 'Failed to update role: ' + err.message, variant: 'error' });
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      setAlertModal({ title: 'Error', message: 'Failed to update role: ' + message, variant: 'error' });
     }
     setSaving(false);
   }
 
   // Handle viewing role system prompt
-  async function handleViewRolePrompt(deptId, roleId) {
+  async function handleViewRolePrompt(deptId: string, roleId: string) {
     try {
       const result = await api.getRoleContext(companyId, deptId, roleId);
       setViewingRolePrompt({

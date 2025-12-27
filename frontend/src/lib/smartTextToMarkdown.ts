@@ -16,7 +16,7 @@ const MIN_CODE_LINES_FOR_BLOCK = 3;
 /**
  * Detect if content is already Markdown (has MD syntax)
  */
-function isAlreadyMarkdown(text) {
+function isAlreadyMarkdown(text: string): boolean {
   if (!text) return false;
 
   // Check for common Markdown patterns
@@ -36,7 +36,7 @@ function isAlreadyMarkdown(text) {
  * Detect if a group of lines looks like a table
  * (consistent column structure with tabs or multiple spaces)
  */
-function detectTable(lines) {
+function detectTable(lines: string[]): boolean {
   if (lines.length < 2) return false;
 
   // Check if lines have consistent tab/multi-space separators
@@ -47,14 +47,14 @@ function detectTable(lines) {
   });
 
   // All rows should have same column count (2+ columns)
-  const firstCount = columnCounts[0];
+  const firstCount = columnCounts[0] ?? 0;
   return firstCount >= 2 && columnCounts.every(c => c === firstCount || c === 0);
 }
 
 /**
  * Convert table lines to Markdown table
  */
-function convertToMarkdownTable(lines) {
+function convertToMarkdownTable(lines: string[]): string {
   const rows = lines.map(line => {
     const cols = line.split(/\t|  +/).filter(c => c.trim());
     return cols;
@@ -62,31 +62,40 @@ function convertToMarkdownTable(lines) {
 
   if (rows.length === 0) return '';
 
-  const colCount = rows[0].length;
+  const firstRow = rows[0];
+  if (!firstRow) return '';
+  const colCount = firstRow.length;
 
   // Build markdown table
   let md = '';
 
   // Header row
-  md += '| ' + rows[0].join(' | ') + ' |\n';
+  md += '| ' + firstRow.join(' | ') + ' |\n';
 
   // Separator row
-  md += '|' + rows[0].map(() => '---').join('|') + '|\n';
+  md += '|' + firstRow.map(() => '---').join('|') + '|\n';
 
   // Data rows
   for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    if (!row) continue;
     // Pad row if needed
-    while (rows[i].length < colCount) rows[i].push('');
-    md += '| ' + rows[i].join(' | ') + ' |\n';
+    while (row.length < colCount) row.push('');
+    md += '| ' + row.join(' | ') + ' |\n';
   }
 
   return md;
 }
 
+interface HeaderResult {
+  level: number;
+  text: string;
+}
+
 /**
  * Detect if line is a section header
  */
-function isHeader(line, nextLine) {
+function isHeader(line: string, nextLine: string | undefined): HeaderResult | false {
   if (!line.trim()) return false;
 
   // Numbered section: "1. Something" or "1. Something"
@@ -123,7 +132,7 @@ function isHeader(line, nextLine) {
  * - Headers (ALL CAPS, numbered sections, title case)
  * - Lists (bullet points, checkboxes)
  */
-function isCodeLine(_line) {
+function isCodeLine(_line: string): boolean {
   // Disabled - too many false positives
   return false;
 }
@@ -131,8 +140,8 @@ function isCodeLine(_line) {
 /**
  * Main conversion function
  */
-export function smartTextToMarkdown(text, forceConvert = false) {
-  if (!text || typeof text !== 'string') return text;
+export function smartTextToMarkdown(text: string | null | undefined, forceConvert = false): string {
+  if (!text || typeof text !== 'string') return text || '';
 
   // If already has Markdown, return as-is (unless forceConvert is true)
   if (!forceConvert && isAlreadyMarkdown(text)) return text;
@@ -144,7 +153,7 @@ export function smartTextToMarkdown(text, forceConvert = false) {
   let codeBlockLines = [];
 
   while (i < lines.length) {
-    const line = lines[i];
+    const line = lines[i] ?? '';
     const nextLine = lines[i + 1];
     const trimmed = line.trim();
 
@@ -197,12 +206,13 @@ export function smartTextToMarkdown(text, forceConvert = false) {
 
     // Check for table start
     // Look ahead to see if next few lines form a table
-    const tableLines = [];
+    const tableLines: string[] = [];
     let j = i;
-    while (j < lines.length && lines[j].trim()) {
-      const cols = lines[j].split(/\t|  +/).filter(c => c.trim());
+    while (j < lines.length && lines[j]?.trim()) {
+      const currentLine = lines[j] ?? '';
+      const cols = currentLine.split(/\t|  +/).filter(c => c.trim());
       if (cols.length >= 2) {
-        tableLines.push(lines[j]);
+        tableLines.push(currentLine);
         j++;
       } else {
         break;

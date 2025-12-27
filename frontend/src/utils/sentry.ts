@@ -79,7 +79,7 @@ export function initSentry() {
 export { Sentry };
 
 // Helper to capture errors with additional context
-export function captureError(error, context = {}) {
+export function captureError(error: unknown, context: Record<string, unknown> = {}) {
   if (!SENTRY_DSN) return;
 
   Sentry.withScope((scope) => {
@@ -91,12 +91,12 @@ export function captureError(error, context = {}) {
 }
 
 // Set user context (call after login)
-export function setUserContext(user) {
+export function setUserContext(user: { id: string; email?: string } | null) {
   if (!SENTRY_DSN || !user) return;
 
   Sentry.setUser({
     id: user.id,
-    email: user.email,
+    ...(user.email ? { email: user.email } : {}),
   });
 }
 

@@ -104,29 +104,29 @@ export function TableOfContents({
       ];
 
       const items: Heading[] = elements
-        .map((el) => {
+        .map((el: Element) => {
           if (!el.id) {
             const slug = el.textContent
               ?.toLowerCase()
               .replace(/[^\w]+/g, '-')
               .replace(/^-+|-+$/g, '');
-            el.id = slug || `section-${Math.random().toString(36).slice(2, 8)}`;
+            el.id = slug ?? `section-${Math.random().toString(36).slice(2, 8)}`;
           }
 
           return {
             id: el.id,
-            text: el.textContent || '',
-            level: el.tagName === 'H2' ? 2 : 3,
+            text: el.textContent ?? '',
+            level: (el.tagName === 'H2' ? 2 : 3) as 2 | 3,
           };
         })
-        .filter((h) => {
+        .filter((h: Heading) => {
           // Exclude common TOC headings
           const normalizedText = h.text.toLowerCase().trim();
           return !excludedHeadings.includes(normalizedText);
         });
 
       setHeadings(items);
-      if (items.length > 0) {
+      if (items.length > 0 && items[0]) {
         setActiveId(items[0].id);
       }
     }, 100);
@@ -140,13 +140,13 @@ export function TableOfContents({
     if (!contentRef.current || headings.length === 0) return;
 
     // Find the scrollable parent (could be the content itself or a parent)
-    const findScrollableParent = (el: HTMLElement | null): HTMLElement | Window => {
-      if (!el) return window;
-      const style = getComputedStyle(el);
+    const findScrollableParent = (element: HTMLElement | null): HTMLElement | Window => {
+      if (!element) return window;
+      const style = getComputedStyle(element);
       if (style.overflowY === 'auto' || style.overflowY === 'scroll') {
-        return el;
+        return element;
       }
-      return findScrollableParent(el.parentElement);
+      return findScrollableParent(element.parentElement);
     };
 
     const scrollContainer = findScrollableParent(contentRef.current);
@@ -178,7 +178,7 @@ export function TableOfContents({
       // Default to first heading if none found
       if (currentHeading) {
         setActiveId(currentHeading);
-      } else if (headings.length > 0) {
+      } else if (headings.length > 0 && headings[0]) {
         setActiveId(headings[0].id);
       }
     };

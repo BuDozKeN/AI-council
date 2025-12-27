@@ -15,8 +15,13 @@ import './SortSelect.css';
 // Check if we're on mobile/tablet for bottom sheet vs dropdown
 const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
 
+interface SortOption {
+  value: string;
+  label: string;
+}
+
 // Sort option definitions - compact labels for filters
-const sortOptions = [
+const defaultSortOptions: SortOption[] = [
   { value: 'updated', label: 'Latest' },
   { value: 'created', label: 'Newest' },
   { value: 'name', label: 'A-Z' },
@@ -24,7 +29,10 @@ const sortOptions = [
 ];
 
 // Custom SelectItem
-const SortSelectItem = React.forwardRef(({
+const SortSelectItem = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.Item>,
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
+>(({
   className,
   children,
   ...props
@@ -44,17 +52,25 @@ const SortSelectItem = React.forwardRef(({
 ));
 SortSelectItem.displayName = 'SortSelectItem';
 
+interface SortSelectProps {
+  value: string;
+  onValueChange: (value: string) => void;
+  disabled?: boolean | undefined;
+  className?: string | undefined;
+  options?: SortOption[] | undefined;
+}
+
 export function SortSelect({
   value,
   onValueChange,
   disabled = false,
   className,
-  options = sortOptions,
-}) {
+  options = defaultSortOptions,
+}: SortSelectProps) {
   const [open, setOpen] = React.useState(false);
-  const selectedOption = options.find(o => o.value === value) || options[0];
+  const selectedOption = options.find(o => o.value === value) ?? options[0] ?? { value: '', label: '' };
 
-  const handleSelect = (optionValue) => {
+  const handleSelect = (optionValue: string) => {
     onValueChange(optionValue);
     setOpen(false);
   };

@@ -7,11 +7,13 @@
 
 const DATE_LOCALE = 'en-GB';
 
+type DateInput = string | number | Date | null | undefined;
+
 /**
  * Format a date as "6 December 2025"
  * Use for: member join dates, created dates, formal displays
  */
-export const formatDate = (date) => {
+export const formatDate = (date: DateInput): string => {
   if (!date) return '';
   return new Date(date).toLocaleDateString(DATE_LOCALE, {
     day: 'numeric',
@@ -24,7 +26,7 @@ export const formatDate = (date) => {
  * Format a date as "6 Dec 2025"
  * Use for: compact displays where space is limited
  */
-export const formatDateShort = (date) => {
+export const formatDateShort = (date: DateInput): string => {
   if (!date) return '';
   return new Date(date).toLocaleDateString(DATE_LOCALE, {
     day: 'numeric',
@@ -37,7 +39,7 @@ export const formatDateShort = (date) => {
  * Format a date as "Dec 6" (no year)
  * Use for: recent dates within the same year, update timestamps
  */
-export const formatDateCompact = (date) => {
+export const formatDateCompact = (date: DateInput): string => {
   if (!date) return '';
   return new Date(date).toLocaleDateString(DATE_LOCALE, {
     day: 'numeric',
@@ -49,7 +51,7 @@ export const formatDateCompact = (date) => {
  * Format a date as "Monday, 6 December 2025"
  * Use for: activity logs, detailed date displays
  */
-export const formatDateWithWeekday = (date) => {
+export const formatDateWithWeekday = (date: DateInput): string => {
   if (!date) return '';
   return new Date(date).toLocaleDateString(DATE_LOCALE, {
     weekday: 'long',
@@ -64,12 +66,12 @@ export const formatDateWithWeekday = (date) => {
  * Falls back to formatDateShort for older dates
  * Use for: activity feeds, last updated timestamps
  */
-export const formatRelativeDate = (date) => {
+export const formatRelativeDate = (date: DateInput): string => {
   if (!date) return '';
 
   const d = new Date(date);
   const now = new Date();
-  const diffMs = now - d;
+  const diffMs = now.getTime() - d.getTime();
   const diffMins = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
@@ -86,7 +88,7 @@ export const formatRelativeDate = (date) => {
  * Format date for grouping (activity logs, conversation lists)
  * Returns "Today", "Yesterday", or weekday with date
  */
-export const formatDateGroup = (date) => {
+export const formatDateGroup = (date: DateInput): string => {
   if (!date) return '';
 
   const d = new Date(date);
@@ -114,7 +116,7 @@ export const formatDateGroup = (date) => {
  * Returns "Sat, 6 Dec 2025, 14:30"
  * Use for: conversation tooltips, detailed timestamps
  */
-export const formatDateTime = (date) => {
+export const formatDateTime = (date: DateInput): string => {
   if (!date) return '';
   return new Date(date).toLocaleDateString(DATE_LOCALE, {
     weekday: 'short',

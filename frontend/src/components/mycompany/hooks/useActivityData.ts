@@ -29,7 +29,7 @@ export function useActivityData({
     setActivityLoadingMore(true);
     try {
       const newLimit = activityLimit + 20;
-      const activityData = await api.getCompanyActivity(companyId, { limit: newLimit + 1 });
+      const activityData = await api.getCompanyActivity(companyId ?? '', { limit: newLimit + 1 });
       const logs = activityData.logs || [];
       setActivityHasMore(logs.length > newLimit);
       setActivityLogs(logs.slice(0, newLimit));

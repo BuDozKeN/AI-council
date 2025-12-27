@@ -50,12 +50,12 @@ export function useDecisionActions({
         let targetProjectId = projectId;
         if (projectId) {
           // Add to existing project - link decision to project
-          await api.linkDecisionToProject(companyId, promoteModal.id, projectId);
+          await api.linkDecisionToProject(companyId!, promoteModal.id, projectId);
         } else {
           // Create new project from decision
-          const result = await api.createProjectFromDecision(companyId, promoteModal.id, {
+          const result = await api.createProjectFromDecision(companyId!, promoteModal.id, {
             name: title || promoteModal.title,
-            department_ids: departmentIds?.length > 0 ? departmentIds : null
+            department_ids: departmentIds && departmentIds.length > 0 ? departmentIds : []
           });
           // Get the new project ID from the response
           targetProjectId = result?.project?.id;
@@ -71,7 +71,7 @@ export function useDecisionActions({
         }
       } else {
         // Promote to playbook (SOP, Framework, Policy)
-        await api.promoteDecisionToPlaybook(companyId, promoteModal.id, {
+        await api.promoteDecisionToPlaybook(companyId!, promoteModal.id, {
           doc_type: docType,
           title: title || promoteModal.title,
           department_ids: departmentIds || []
@@ -99,7 +99,7 @@ export function useDecisionActions({
 
       // Then call API in background
       try {
-        await api.deleteDecision(companyId, decision.id);
+        await api.deleteDecision(companyId!, decision.id);
       } catch (err) {
         log.error('Failed to delete decision', { error: err });
         // On error, restore the decision to the list (don't reload to avoid skeleton flash)

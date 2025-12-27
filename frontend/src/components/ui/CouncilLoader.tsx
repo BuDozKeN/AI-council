@@ -10,19 +10,35 @@ import { getProviderIcon } from '../icons';
 import { PROVIDER_COLORS, PROVIDER_LABELS } from '../../config/modelPersonas';
 import './CouncilLoader.css';
 
+type LoaderSize = 'small' | 'medium' | 'large';
+type Provider = 'openai' | 'anthropic' | 'google' | 'xai' | 'deepseek';
+
+interface CouncilLoaderProps {
+  size?: LoaderSize | undefined;
+  showText?: boolean | undefined;
+  text?: string | undefined;
+}
+
+interface CouncilLoaderCompactProps {
+  size?: number | undefined;
+}
+
 // Council members derived from centralized config
-const COUNCIL_PROVIDERS = ['openai', 'anthropic', 'google', 'xai', 'deepseek'];
-const COUNCIL_MEMBERS = COUNCIL_PROVIDERS.map(provider => ({
-  icon: getProviderIcon(provider),
-  color: PROVIDER_COLORS[provider],
-  name: PROVIDER_LABELS[provider],
-}));
+const COUNCIL_PROVIDERS: Provider[] = ['openai', 'anthropic', 'google', 'xai', 'deepseek'];
+const COUNCIL_MEMBERS = COUNCIL_PROVIDERS.map((provider: Provider) => {
+  const icon = getProviderIcon(provider);
+  return {
+    icon,
+    color: PROVIDER_COLORS[provider],
+    name: PROVIDER_LABELS[provider],
+  };
+}).filter((member): member is { icon: NonNullable<ReturnType<typeof getProviderIcon>>; color: string; name: string } => member.icon !== null);
 
 export function CouncilLoader({
   size = 'medium',
   showText = true,
   text = 'Loading conversation...',
-}) {
+}: CouncilLoaderProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   // Rotate through council members
@@ -41,7 +57,7 @@ export function CouncilLoader({
     <div className={`council-loader ${sizeClass}`}>
       <div className="council-loader__icons">
         {COUNCIL_MEMBERS.map((member, index) => {
-          const Icon = member.icon;
+          const IconComponent = member.icon;
           const isActive = index === activeIndex;
 
           return (
@@ -54,7 +70,7 @@ export function CouncilLoader({
                 transform: isActive ? 'scale(1.2)' : 'scale(0.8)',
               }}
             >
-              <Icon size={iconSize} />
+              <IconComponent size={iconSize} />
             </div>
           );
         })}
@@ -68,7 +84,7 @@ export function CouncilLoader({
  * Compact version - single icon that cycles through members
  * Good for inline loading indicators
  */
-export function CouncilLoaderCompact({ size = 24 }) {
+export function CouncilLoaderCompact({ size = 24 }: CouncilLoaderCompactProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
@@ -80,11 +96,12 @@ export function CouncilLoaderCompact({ size = 24 }) {
   }, []);
 
   const member = COUNCIL_MEMBERS[activeIndex];
-  const Icon = member.icon;
+  if (!member) return null;
+  const IconComponent = member.icon;
 
   return (
     <div className="council-loader-compact" style={{ color: member.color }}>
-      <Icon size={size} />
+      <IconComponent size={size} />
     </div>
   );
 }

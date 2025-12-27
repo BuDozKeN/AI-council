@@ -19,6 +19,8 @@ import re
 import uuid
 from functools import lru_cache
 import time
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
 from ..auth import get_current_user
 from ..database import get_supabase_with_auth, get_supabase_service
@@ -27,6 +29,9 @@ from ..utils.cache import company_cache, user_cache, cache_key, invalidate_compa
 
 
 router = APIRouter(prefix="/api/company", tags=["company"])
+
+# Thread pool for parallel database queries
+_db_executor = ThreadPoolExecutor(max_workers=4)
 
 # UUID pattern for validation
 UUID_PATTERN = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', re.I)
@@ -995,9 +1000,9 @@ async def get_team(company_id: ValidCompanyId, user=Depends(get_current_user)):
     if cached_result is not None:
         return cached_result
 
-    # Get departments from database
+    # Get departments from database (only needed columns to reduce payload)
     dept_result = client.table("departments") \
-        .select("*") \
+        .select("id, name, slug, description, purpose, context_md") \
         .eq("company_id", company_uuid) \
         .order("display_order") \
         .execute()
@@ -1005,9 +1010,9 @@ async def get_team(company_id: ValidCompanyId, user=Depends(get_current_user)):
     if not dept_result.data:
         return {"departments": []}
 
-    # Get all roles for this company
+    # Get all roles for this company (only needed columns)
     roles_result = client.table("roles") \
-        .select("*") \
+        .select("id, name, slug, title, description, system_prompt, responsibilities, department_id") \
         .eq("company_id", company_uuid) \
         .order("display_order") \
         .execute()
@@ -1203,14 +1208,16 @@ async def get_playbooks(
     doc_type: Optional[str] = None,
     department_id: Optional[str] = None,
     tag: Optional[str] = None,
+    include_content: bool = False,
     user=Depends(get_current_user)
 ):
     """
-    Get all playbooks with current version content.
+    Get all playbooks with optional content.
     Optional filters:
     - doc_type: sop/framework/policy
     - department_id: filter by owner or visible departments
     - tag: filter by tag
+    - include_content: if False (default), excludes content for faster loading
 
     Returns playbooks with departments embedded to avoid extra API calls.
     Note: Playbooks come from database. If company not in DB yet, returns empty list.
@@ -1226,50 +1233,68 @@ async def get_playbooks(
         # Company not in database yet - return empty playbooks
         return {"playbooks": [], "departments": []}
 
-    # First get all documents for this company
-    doc_query = client.table("org_documents") \
-        .select("*") \
-        .eq("company_id", company_uuid)
+    loop = asyncio.get_event_loop()
 
-    if doc_type:
-        doc_query = doc_query.eq("doc_type", doc_type)
+    # Build the documents query
+    def fetch_documents():
+        doc_query = client.table("org_documents") \
+            .select("*") \
+            .eq("company_id", company_uuid)
+        if doc_type:
+            doc_query = doc_query.eq("doc_type", doc_type)
+        if tag:
+            doc_query = doc_query.contains("tags", [tag])
+        return doc_query.order("created_at", desc=True).execute()
 
-    if tag:
-        # Filter by tag using array contains
-        doc_query = doc_query.contains("tags", [tag])
+    def fetch_departments():
+        return service_client.table("departments") \
+            .select("id, name, slug") \
+            .eq("company_id", company_uuid) \
+            .execute()
 
-    doc_result = doc_query.order("created_at", desc=True).execute()
-
-    # Fetch departments for name lookup using service client (bypasses RLS)
-    dept_result = service_client.table("departments") \
-        .select("id, name, slug") \
-        .eq("company_id", company_uuid) \
-        .execute()
+    # PARALLEL: Fetch documents and departments simultaneously
+    doc_result, dept_result = await asyncio.gather(
+        loop.run_in_executor(_db_executor, fetch_documents),
+        loop.run_in_executor(_db_executor, fetch_departments)
+    )
 
     dept_map = {d["id"]: d for d in (dept_result.data or [])}
+    departments = [{"id": d["id"], "name": d["name"], "slug": d["slug"]} for d in (dept_result.data or [])]
 
     if not doc_result.data:
-        departments = [{"id": d["id"], "name": d["name"], "slug": d["slug"]} for d in (dept_result.data or [])]
         return {"playbooks": [], "departments": departments}
 
-    # Get current versions for all documents
+    # Get doc IDs for subsequent queries
     doc_ids = [doc["id"] for doc in doc_result.data]
-    version_result = client.table("org_document_versions") \
-        .select("*") \
-        .in_("document_id", doc_ids) \
-        .eq("is_current", True) \
-        .execute()
 
-    # Create a map of document_id -> version
-    version_map = {v["document_id"]: v for v in (version_result.data or [])}
+    def fetch_versions():
+        # Only fetch version number (not content) unless include_content is True
+        columns = "*" if include_content else "document_id, version, is_current"
+        return client.table("org_document_versions") \
+            .select(columns) \
+            .in_("document_id", doc_ids) \
+            .eq("is_current", True) \
+            .execute()
 
-    # Get additional department mappings for all documents
-    dept_mapping_result = client.table("org_document_departments") \
-        .select("document_id, department_id") \
-        .in_("document_id", doc_ids) \
-        .execute()
+    def fetch_dept_mappings():
+        return client.table("org_document_departments") \
+            .select("document_id, department_id") \
+            .in_("document_id", doc_ids) \
+            .execute()
 
-    # Create a map of document_id -> list of additional department_ids
+    # PARALLEL: Fetch versions and department mappings simultaneously
+    # Skip version fetch entirely if content not needed (saves a query)
+    if include_content:
+        version_result, dept_mapping_result = await asyncio.gather(
+            loop.run_in_executor(_db_executor, fetch_versions),
+            loop.run_in_executor(_db_executor, fetch_dept_mappings)
+        )
+        version_map = {v["document_id"]: v for v in (version_result.data or [])}
+    else:
+        # Just fetch department mappings - no content needed for list view
+        dept_mapping_result = await loop.run_in_executor(_db_executor, fetch_dept_mappings)
+        version_map = {}
+
     additional_depts_map = {}
     for mapping in (dept_mapping_result.data or []):
         doc_id = mapping["document_id"]
@@ -1277,15 +1302,21 @@ async def get_playbooks(
             additional_depts_map[doc_id] = []
         additional_depts_map[doc_id].append(mapping["department_id"])
 
-    # Flatten the response - extract current version content
+    # Build playbooks response
     playbooks = []
     for doc in doc_result.data:
-        version = version_map.get(doc["id"])
-        if version:
-            doc["content"] = version.get("content", "")
-            doc["version"] = version.get("version", 1)
+        # Only include content if requested
+        if include_content:
+            version = version_map.get(doc["id"])
+            if version:
+                doc["content"] = version.get("content", "")
+                doc["version"] = version.get("version", 1)
+            else:
+                doc["content"] = ""
+                doc["version"] = 0
         else:
-            doc["content"] = ""
+            # Remove content from response to reduce payload size
+            doc.pop("content", None)
             doc["version"] = 0
 
         # Add additional departments list
@@ -1305,9 +1336,6 @@ async def get_playbooks(
             doc["department_slug"] = dept_map[dept_id].get("slug")
 
         playbooks.append(doc)
-
-    # Include departments list so frontend doesn't need separate call
-    departments = [{"id": d["id"], "name": d["name"], "slug": d["slug"]} for d in (dept_result.data or [])]
 
     return {"playbooks": playbooks, "departments": departments}
 

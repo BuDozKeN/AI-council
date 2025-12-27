@@ -12,8 +12,13 @@
  * - Chairman (Council synthesis) - Gavel icon
  */
 
+interface IconProps {
+  size?: number | undefined;
+  className?: string | undefined;
+}
+
 // Claude (Anthropic) - Official Anthropic "A" logo from Simple Icons
-export function ClaudeIcon({ size = 24, className = '' }) {
+export function ClaudeIcon({ size = 24, className = '' }: IconProps) {
   return (
     <svg
       width={size}
@@ -29,7 +34,7 @@ export function ClaudeIcon({ size = 24, className = '' }) {
 }
 
 // ChatGPT (OpenAI) - Official OpenAI hexagonal knot logo from Simple Icons
-export function ChatGPTIcon({ size = 24, className = '' }) {
+export function ChatGPTIcon({ size = 24, className = '' }: IconProps) {
   return (
     <svg
       width={size}
@@ -45,7 +50,7 @@ export function ChatGPTIcon({ size = 24, className = '' }) {
 }
 
 // Gemini (Google) - Official Google Gemini sparkle logo from Simple Icons
-export function GeminiIcon({ size = 24, className = '' }) {
+export function GeminiIcon({ size = 24, className = '' }: IconProps) {
   return (
     <svg
       width={size}
@@ -61,7 +66,7 @@ export function GeminiIcon({ size = 24, className = '' }) {
 }
 
 // Grok (xAI) - Official X logo from Simple Icons
-export function GrokIcon({ size = 24, className = '' }) {
+export function GrokIcon({ size = 24, className = '' }: IconProps) {
   return (
     <svg
       width={size}
@@ -77,7 +82,7 @@ export function GrokIcon({ size = 24, className = '' }) {
 }
 
 // DeepSeek - Stylized whale/dolphin icon (based on official branding)
-export function DeepSeekIcon({ size = 24, className = '' }) {
+export function DeepSeekIcon({ size = 24, className = '' }: IconProps) {
   return (
     <svg
       width={size}
@@ -109,7 +114,7 @@ export function DeepSeekIcon({ size = 24, className = '' }) {
 }
 
 // Chairman/Council - Scale icon (balance/synthesis) - Lucide style
-export function ChairmanIcon({ size = 24, className = '' }) {
+export function ChairmanIcon({ size = 24, className = '' }: IconProps) {
   return (
     <svg
       width={size}
@@ -143,11 +148,13 @@ export const PROVIDER_ICONS = {
   council: ChairmanIcon
 };
 
+type ProviderName = keyof typeof PROVIDER_ICONS;
+
 /**
  * Get the icon component for a provider
- * @param {string} provider - Provider name
- * @returns {Function} React component for the icon
+ * @param provider - Provider name
+ * @returns React component for the icon
  */
-export function getProviderIcon(provider) {
-  return PROVIDER_ICONS[provider] || null;
+export function getProviderIcon(provider: string): ((props: IconProps) => React.JSX.Element) | null {
+  return PROVIDER_ICONS[provider as ProviderName] ?? null;
 }

@@ -20,7 +20,7 @@ interface ListConversationsParams {
 
 export function useConversations(params: ListConversationsParams = {}) {
   return useQuery({
-    queryKey: conversationKeys.list(params),
+    queryKey: conversationKeys.list(params as Record<string, unknown>),
     queryFn: () => api.listConversations(params),
   });
 }
@@ -28,11 +28,11 @@ export function useConversations(params: ListConversationsParams = {}) {
 export function useInfiniteConversations(params: Omit<ListConversationsParams, 'offset'> = {}) {
   return useInfiniteQuery({
     queryKey: conversationKeys.list({ ...params, infinite: true }),
-    queryFn: ({ pageParam = 0 }) =>
-      api.listConversations({ ...params, offset: pageParam, limit: params.limit || 20 }),
-    getNextPageParam: (lastPage, allPages) => {
+    queryFn: ({ pageParam }: { pageParam: number }) =>
+      api.listConversations({ ...params, offset: pageParam, limit: params.limit ?? 20 }),
+    getNextPageParam: (lastPage: { has_more: boolean }, allPages: unknown[]) => {
       if (!lastPage.has_more) return undefined;
-      return allPages.length * (params.limit || 20);
+      return allPages.length * (params.limit ?? 20);
     },
     initialPageParam: 0,
   });
@@ -50,20 +50,25 @@ export function useCreateConversation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { title?: string }) => api.createConversation(data),
+    mutationFn: (companyId: string | null = null) => api.createConversation(companyId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: conversationKeys.lists() });
     },
   });
 }
 
+interface RenameConversationVariables {
+  conversationId: string;
+  title: string;
+}
+
 export function useUpdateConversation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ conversationId, title }: { conversationId: string; title: string }) =>
-      api.updateConversationTitle(conversationId, title),
-    onSuccess: (_, { conversationId }) => {
+    mutationFn: ({ conversationId, title }: RenameConversationVariables) =>
+      api.renameConversation(conversationId, title),
+    onSuccess: (_: unknown, { conversationId }: RenameConversationVariables) => {
       queryClient.invalidateQueries({ queryKey: conversationKeys.detail(conversationId) });
       queryClient.invalidateQueries({ queryKey: conversationKeys.lists() });
     },

@@ -1,13 +1,43 @@
 import { getModelPersona } from '../config/modelPersonas';
 import './CouncilProgressCapsule.css';
 
+interface StreamingData {
+  complete?: boolean;
+  text?: string;
+  [key: string]: unknown;
+}
+
+// StreamingState matches Record<string, StreamingState> from conversation.ts
+type StreamingStateRecord = Record<string, StreamingData>;
+
+interface LoadingState {
+  stage1?: boolean;
+  stage2?: boolean;
+  stage3?: boolean;
+}
+
+interface StatusResult {
+  text: string;
+  isStopped?: boolean;
+  isUploading?: boolean;
+}
+
+interface CouncilProgressCapsuleProps {
+  stage1Streaming?: StreamingStateRecord | null | undefined;
+  stage2Streaming?: StreamingStateRecord | null | undefined;
+  loading?: LoadingState | null | undefined;
+  isComplete?: boolean | undefined;
+  stopped?: boolean | undefined;
+  isUploading?: boolean | undefined;
+}
+
 /**
  * Shows what the council is doing in plain, friendly language.
  * A user should be able to tell their friend "Gemini and Claude are thinking" not "Stage 1 in progress"
  */
 
 // Get friendly display name from centralized model personas
-const getFriendlyName = (modelId) => {
+const getFriendlyName = (modelId: string): string => {
   const persona = getModelPersona(modelId);
   return persona.providerLabel || persona.shortName;
 };
@@ -19,8 +49,8 @@ export default function CouncilProgressCapsule({
   isComplete,
   stopped,
   isUploading,
-}) {
-  const getStatus = () => {
+}: CouncilProgressCapsuleProps) {
+  const getStatus = (): StatusResult | null => {
     // If stopped, show stopped message
     if (stopped) {
       return { text: "Stopped", isStopped: true };
@@ -42,13 +72,13 @@ export default function CouncilProgressCapsule({
       }
 
       // Find which models are still thinking (not complete)
-      const thinkingModels = models.filter(model => {
-        const data = stage1Streaming[model];
+      const thinkingModels = models.filter((model: string) => {
+        const data = stage1Streaming?.[model];
         return data && !data.complete;
       });
 
-      const completedModels = models.filter(model => {
-        const data = stage1Streaming[model];
+      const completedModels = models.filter((model: string) => {
+        const data = stage1Streaming?.[model];
         return data && data.complete;
       });
 
@@ -79,8 +109,8 @@ export default function CouncilProgressCapsule({
         return { text: "Council members are reviewing each other's answers..." };
       }
 
-      const reviewingModels = models.filter(model => {
-        const data = stage2Streaming[model];
+      const reviewingModels = models.filter((model: string) => {
+        const data = stage2Streaming?.[model];
         return data && !data.complete;
       });
 

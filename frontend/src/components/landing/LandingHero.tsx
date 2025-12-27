@@ -13,7 +13,36 @@ import { OmniBar } from '../shared';
 import { ContextChip } from './ContextChip';
 import { QuickActionChips } from './QuickActionChips';
 import { springs, springWithDelay } from '../../lib/animations';
+import type { Business, Department, Role, Project, Playbook, UserPreferences } from '../../types/business';
 import './LandingHero.css';
+
+interface LandingHeroProps {
+  // Context state
+  businesses?: Business[];
+  selectedBusiness: string | null;
+  onSelectBusiness: (id: string | null) => void;
+  departments?: Department[];
+  selectedDepartments?: string[];
+  onSelectDepartments: (ids: string[]) => void;
+  allRoles?: Role[];
+  selectedRoles?: string[];
+  onSelectRoles: (ids: string[]) => void;
+  projects?: Project[];
+  selectedProject: string | null;
+  onSelectProject: (id: string | null) => void;
+  playbooks?: Playbook[];
+  selectedPlaybooks?: string[];
+  onSelectPlaybooks: (ids: string[]) => void;
+  // User preferences
+  userPreferences: UserPreferences | null;
+  onUpdatePreferences?: (prefs: Partial<UserPreferences>) => void;
+  // Mode
+  chatMode?: 'chat' | 'council';
+  onChatModeChange: (mode: 'chat' | 'council') => void;
+  // Submit handler
+  onSubmit: (content: string, mode?: string) => void;
+  isLoading?: boolean;
+}
 
 export function LandingHero({
   // Context state
@@ -41,10 +70,10 @@ export function LandingHero({
   // Submit handler
   onSubmit,
   isLoading = false,
-}) {
+}: LandingHeroProps) {
   const [input, setInput] = useState('');
 
-  const handleQuickAction = (prompt) => {
+  const handleQuickAction = (prompt: string) => {
     setInput(prompt);
   };
 

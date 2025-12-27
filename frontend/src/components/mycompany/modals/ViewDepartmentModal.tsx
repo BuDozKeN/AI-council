@@ -11,8 +11,23 @@ import { AIWriteAssist } from '../../ui/AIWriteAssist';
 import { FloatingContextActions } from '../../ui/FloatingContextActions';
 import MarkdownViewer from '../../MarkdownViewer';
 import { getDeptColor } from '../../../lib/colors';
+import type { Role } from '../../../types/business';
 
-export function ViewDepartmentModal({ department, onClose, onSave }) {
+interface DepartmentWithContext {
+  id: string;
+  name: string;
+  description?: string;
+  context_md?: string;
+  roles?: Role[];
+}
+
+interface ViewDepartmentModalProps {
+  department: DepartmentWithContext;
+  onClose: () => void;
+  onSave?: (id: string, data: { context_md: string }) => Promise<void>;
+}
+
+export function ViewDepartmentModal({ department, onClose, onSave }: ViewDepartmentModalProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedContext, setEditedContext] = useState(department.context_md || '');
   const [saving, setSaving] = useState(false);
@@ -47,7 +62,7 @@ export function ViewDepartmentModal({ department, onClose, onSave }) {
       badgeStyle={{ background: deptColor.bg, color: deptColor.text }}
       title={department.name}
       titleExtra={`${department.roles?.length || 0} roles`}
-      description={department.description}
+      {...(department.description ? { description: department.description } : {})}
       contentClassName="mc-modal-no-padding"
     >
       <div className="mc-modal-body">

@@ -2,12 +2,49 @@ import { useRef, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { BottomSheet } from '../ui/BottomSheet';
 import { FolderKanban, ChevronDown, Plus } from 'lucide-react';
+import type { Project } from '../../types/business';
+
+interface ProjectWithContext {
+  id: string;
+  name: string;
+  context_md?: string;
+  description?: string;
+  status?: 'active' | 'completed' | 'archived';
+  company_id?: string;
+  department_ids?: string[];
+  created_at?: string;
+  updated_at?: string;
+}
 
 // Check if we're on mobile/tablet
 const isMobileDevice = () => window.innerWidth <= 768;
 
 // Dropdown height estimate (header + items + create button)
 const DROPDOWN_HEIGHT = 450;
+
+type SaveState = 'idle' | 'saving' | 'promoting' | 'saved' | 'promoted' | 'error';
+
+interface DropdownPosition {
+  top: number;
+  left: number;
+}
+
+interface ProjectDropdownProps {
+  currentProject: ProjectWithContext | null;
+  projects: Project[];
+  selectedProjectId: string | null;
+  setSelectedProjectId: (id: string | null) => void;
+  showProjectDropdown: boolean;
+  setShowProjectDropdown: (show: boolean) => void;
+  dropdownPosition: DropdownPosition;
+  setDropdownPosition: (position: DropdownPosition) => void;
+  onSelectProject?: ((id: string | null) => void) | undefined;
+  onCreateProject?: ((data: { userQuestion: string; councilResponse: string; departmentIds: string[] }) => void) | undefined;
+  saveState: SaveState;
+  userQuestion: string;
+  displayText: string;
+  selectedDeptIds: string[];
+}
 
 /**
  * ProjectDropdown - Project selection dropdown/bottom sheet
@@ -27,10 +64,10 @@ export function ProjectDropdown({
   userQuestion,
   displayText,
   selectedDeptIds
-}) {
-  const projectButtonRef = useRef(null);
+}: ProjectDropdownProps) {
+  const projectButtonRef = useRef<HTMLButtonElement | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
-  const [openDirection, setOpenDirection] = useState<'down' | 'up'>('down');
+  const [, setOpenDirection] = useState<'down' | 'up'>('down');
 
   // Reset scroll position when dropdown opens
   useEffect(() => {
@@ -43,10 +80,10 @@ export function ProjectDropdown({
   useEffect(() => {
     if (!showProjectDropdown) return;
 
-    const handleClickOutside = (e) => {
-      if (projectButtonRef.current && !projectButtonRef.current.contains(e.target)) {
+    const handleClickOutside = (e: globalThis.MouseEvent) => {
+      if (projectButtonRef.current && !projectButtonRef.current.contains(e.target as Node)) {
         const portalDropdown = document.querySelector('.save-project-dropdown-portal');
-        if (!portalDropdown || !portalDropdown.contains(e.target)) {
+        if (!portalDropdown || !portalDropdown.contains(e.target as Node)) {
           setShowProjectDropdown(false);
         }
       }

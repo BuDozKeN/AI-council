@@ -11,7 +11,22 @@ import { AIWriteAssist } from '../../ui/AIWriteAssist';
 import { FloatingContextActions } from '../../ui/FloatingContextActions';
 import MarkdownViewer from '../../MarkdownViewer';
 
-export function ViewCompanyContextModal({ data, companyName, onClose, onSave, initialEditing = true, fullscreen = false }) {
+interface CompanyContextData {
+  context_md?: string;
+  industry?: string;
+  size?: string;
+}
+
+interface ViewCompanyContextModalProps {
+  data: CompanyContextData;
+  companyName?: string | undefined;
+  onClose: () => void;
+  onSave?: ((data: { context_md: string }) => Promise<void>) | undefined;
+  initialEditing?: boolean | undefined;
+  fullscreen?: boolean | undefined;
+}
+
+export function ViewCompanyContextModal({ data, companyName, onClose, onSave, initialEditing = true, fullscreen = false }: ViewCompanyContextModalProps) {
   const [isEditing, setIsEditing] = useState(initialEditing);
   const [editedContext, setEditedContext] = useState(data.context_md || '');
   const [saving, setSaving] = useState(false);

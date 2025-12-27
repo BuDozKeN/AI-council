@@ -3,6 +3,27 @@ import { logger } from './utils/logger';
 
 const log = logger.scope('Supabase');
 
+/**
+ * Type definitions for user preferences
+ */
+interface UserPreferencesData {
+  user_id: string;
+  last_company_id?: string | null;
+  last_department_ids?: string[];
+  last_role_ids?: string[];
+  last_project_id?: string | null;
+  last_playbook_ids?: string[];
+  updated_at?: string;
+}
+
+interface SaveLastUsedParams {
+  companyId?: string | null;
+  departmentIds?: string[];
+  roleIds?: string[];
+  projectId?: string | null;
+  playbookIds?: string[];
+}
+
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
@@ -42,9 +63,9 @@ export const userPreferencesApi = {
 
   /**
    * Update the user's preferences (upsert).
-   * @param {Object} prefs - Partial preferences to update
+   * @param prefs - Partial preferences to update
    */
-  async update(prefs) {
+  async update(prefs: Partial<Omit<UserPreferencesData, 'user_id'>>) {
     if (!supabase) return null;
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return null;
@@ -71,7 +92,7 @@ export const userPreferencesApi = {
   /**
    * Save the current context as last-used (for Smart Auto).
    */
-  async saveLastUsed({ companyId, departmentIds, roleIds, projectId, playbookIds }) {
+  async saveLastUsed({ companyId, departmentIds, roleIds, projectId, playbookIds }: SaveLastUsedParams) {
     return this.update({
       last_company_id: companyId || null,
       last_department_ids: departmentIds || [],

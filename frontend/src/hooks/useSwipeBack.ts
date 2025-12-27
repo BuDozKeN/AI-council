@@ -33,6 +33,7 @@ export function useSwipeBack({
     if (!enabled) return;
 
     const touch = e.touches[0];
+    if (!touch) return;
     const isFromLeftEdge = touch.clientX <= edgeWidth;
 
     if (!isFromLeftEdge) {
@@ -52,6 +53,7 @@ export function useSwipeBack({
     if (!enabled || !touchStartRef.current) return;
 
     const touch = e.touches[0];
+    if (!touch) return;
     const startData = touchStartRef.current;
     const deltaX = touch.clientX - startData.x;
     const deltaY = touch.clientY - startData.y;
@@ -66,6 +68,7 @@ export function useSwipeBack({
     if (!enabled || !touchStartRef.current) return;
 
     const touch = e.changedTouches[0];
+    if (!touch) return;
     const startData = touchStartRef.current;
     const deltaX = touch.clientX - startData.x;
     const deltaY = touch.clientY - startData.y;

@@ -483,7 +483,7 @@
 .mc-add-btn:hover {
   border-color: var(--color-amber-500);
   color: var(--color-amber-500);
-  background: rgba(245, 158, 11, 0.1);
+  background: var(--overlay-amber-10);
 }
 
 /* ============================================================================
@@ -534,7 +534,7 @@
 .mc-search-input:focus {
   outline: none;
   border-color: var(--color-blue-400);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 0 3px var(--overlay-blue-15);
 }
 
 .mc-search-clear {
@@ -665,13 +665,13 @@
 .dark .mc-stat-card:hover,
 [data-theme="dark"] .mc-stat-card:hover {
   border-color: var(--color-border-dark);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px var(--overlay-black-30);
 }
 
 .dark .mc-stat-card.selected,
 [data-theme="dark"] .mc-stat-card.selected {
   border-color: var(--color-blue-400);
-  background: rgba(59, 130, 246, 0.1);
+  background: var(--overlay-blue-10);
 }
 
 .dark .mc-stat-value,
@@ -778,7 +778,7 @@
 .dark .mc-scroll-top-fab:hover,
 [data-theme="dark"] .mc-scroll-top-fab:hover {
   color: var(--color-text-secondary);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 8px var(--overlay-black-30);
 }
 
 /* Tab headers */
@@ -870,7 +870,7 @@
 [data-theme="dark"] .mc-add-btn:hover {
   border-color: var(--color-amber-400);
   color: var(--color-amber-400);
-  background: rgba(245, 158, 11, 0.1);
+  background: var(--overlay-amber-10);
 }
 
 /* Search & filters */
@@ -889,7 +889,7 @@
 .dark .mc-search-input:focus,
 [data-theme="dark"] .mc-search-input:focus {
   border-color: var(--color-brand-primary);
-  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+  box-shadow: 0 0 0 3px var(--overlay-blue-20);
 }
 
 .dark .mc-search-icon,
@@ -916,10 +916,10 @@
 .dark .mc-clear-filters,
 [data-theme="dark"] .mc-clear-filters {
   color: var(--color-blue-400);
-  background: rgba(59, 130, 246, 0.15);
+  background: var(--overlay-blue-15);
 }
 
 .dark .mc-clear-filters:hover,
 [data-theme="dark"] .mc-clear-filters:hover {
-  background: rgba(59, 130, 246, 0.25);
+  background: var(--overlay-blue-20);
 }

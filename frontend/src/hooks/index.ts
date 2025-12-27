@@ -11,6 +11,7 @@ export * from './queries';
 export { useMessageStreaming } from './useMessageStreaming';
 export { useBulkConversationActions } from './useBulkConversationActions';
 export { useTriage } from './useTriage';
+export { usePrefetchCompany, usePrefetchConversation } from './usePrefetch';
 
 // Gesture and UI Hooks
 export { useSwipeGesture, useGlobalSwipe } from './useSwipeGesture';

@@ -239,14 +239,24 @@ export function useModalState() {
   const closeSettings = useCallback(() =>
     dispatch({ type: 'CLOSE_SETTINGS' }), []);
 
-  const openProjectModal = useCallback((context?: ProjectModalContext): void =>
-    dispatch({ type: 'OPEN_PROJECT_MODAL', payload: context }), []);
+  const openProjectModal = useCallback((context?: ProjectModalContext): void => {
+    if (context) {
+      dispatch({ type: 'OPEN_PROJECT_MODAL', payload: context });
+    } else {
+      dispatch({ type: 'OPEN_PROJECT_MODAL' });
+    }
+  }, []);
 
   const closeProjectModal = useCallback((): void =>
     dispatch({ type: 'CLOSE_PROJECT_MODAL' }), []);
 
-  const openMyCompany = useCallback((options?: OpenMyCompanyPayload): void =>
-    dispatch({ type: 'OPEN_MY_COMPANY', payload: options }), []);
+  const openMyCompany = useCallback((options?: OpenMyCompanyPayload): void => {
+    if (options) {
+      dispatch({ type: 'OPEN_MY_COMPANY', payload: options });
+    } else {
+      dispatch({ type: 'OPEN_MY_COMPANY' });
+    }
+  }, []);
 
   const closeMyCompany = useCallback((): void =>
     dispatch({ type: 'CLOSE_MY_COMPANY' }), []);

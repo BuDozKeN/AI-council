@@ -44,12 +44,12 @@ export default function Login() {
     try {
       await signInWithGoogle();
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'An error occurred');
       setGoogleLoading(false);
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setMessage('');
@@ -87,7 +87,7 @@ export default function Login() {
         hapticSuccess();
       }
     } catch (err) {
-      setError(err.message);
+      setError(err instanceof Error ? err.message : 'An error occurred');
       hapticError();
     } finally {
       setLoading(false);

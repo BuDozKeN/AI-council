@@ -727,17 +727,17 @@
 
 .icon-btn.promote:hover {
   color: var(--color-blue-500);
-  background: rgba(59, 130, 246, 0.1);
+  background: var(--overlay-blue-10);
 }
 
 .icon-btn.demote:hover {
   color: var(--color-amber-500);
-  background: rgba(245, 158, 11, 0.1);
+  background: var(--overlay-amber-10);
 }
 
 .icon-btn.danger:hover {
   color: var(--color-danger);
-  background: rgba(239, 68, 68, 0.1);
+  background: var(--overlay-red-10);
 }
 
 /* Usage grid */
@@ -820,15 +820,15 @@
 }
 
 .api-message.error {
-  background: rgba(239, 68, 68, 0.1);
+  background: var(--overlay-red-10);
   color: var(--color-red-500);
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  border: 1px solid var(--overlay-red-20);
 }
 
 .api-message.success {
-  background: rgba(34, 197, 94, 0.1);
+  background: var(--overlay-green-10);
   color: var(--color-green-500);
-  border: 1px solid rgba(34, 197, 94, 0.2);
+  border: 1px solid var(--overlay-green-20);
 }
 
 /* Connected state */
@@ -881,12 +881,12 @@
 }
 
 .api-key-status .status-badge.valid {
-  background: rgba(34, 197, 94, 0.15);
+  background: var(--overlay-green-15);
   color: var(--color-green-500);
 }
 
 .api-key-status .status-badge.invalid {
-  background: rgba(239, 68, 68, 0.15);
+  background: var(--overlay-red-15);
   color: var(--color-red-500);
 }
 
@@ -909,7 +909,7 @@
 
 .btn-danger-outline {
   background: transparent;
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  border: 1px solid var(--overlay-red-30, rgba(var(--color-red-500-rgb), 0.3));
   color: var(--color-red-500);
   padding: 8px 14px;
   border-radius: var(--radius-default);
@@ -920,8 +920,8 @@
 }
 
 .btn-danger-outline:hover:not(:disabled) {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.5);
+  background: var(--overlay-red-10);
+  border-color: var(--overlay-red-50, rgba(var(--color-red-500-rgb), 0.5));
 }
 
 .btn-danger-outline:disabled {
@@ -1133,12 +1133,12 @@
 
 .provider-logo.openrouter {
   background: var(--color-provider-openrouter);
-  color: white;
+  color: var(--color-text-inverse);
 }
 
 .provider-logo.anthropic {
   background: var(--color-provider-anthropic);
-  color: white;
+  color: var(--color-text-inverse);
 }
 
 .provider-details h3 {
@@ -1165,7 +1165,7 @@
 
 .status-dot.connected {
   background: var(--color-green-500);
-  box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+  box-shadow: 0 0 6px rgba(var(--color-green-500-rgb), 0.5);
 }
 
 .status-dot.paused {
@@ -1174,7 +1174,7 @@
 
 .status-dot.invalid {
   background: var(--color-red-500);
-  box-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+  box-shadow: 0 0 6px rgba(var(--color-red-500-rgb), 0.5);
 }
 
 .provider-tagline {
@@ -1197,12 +1197,12 @@
 }
 
 .status-pill.connected {
-  background: rgba(34, 197, 94, 0.12);
+  background: var(--overlay-green-10);
   color: var(--color-green-500);
 }
 
 .status-pill.invalid {
-  background: rgba(239, 68, 68, 0.12);
+  background: var(--overlay-red-10);
   color: var(--color-red-500);
 }
 
@@ -1378,7 +1378,7 @@
   min-height: 28px;
   border-radius: 50%;
   background: var(--color-brand-primary);
-  color: white;
+  color: var(--color-text-inverse);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1603,17 +1603,17 @@
 }
 
 .byok-toast.success {
-  background: rgba(34, 197, 94, 0.1);
+  background: var(--overlay-green-10);
   color: var(--color-green-500);
 }
 
 .byok-toast.warning {
-  background: rgba(156, 163, 175, 0.15);
+  background: var(--overlay-black-15);
   color: var(--color-gray-400);
 }
 
 .byok-toast.error {
-  background: rgba(239, 68, 68, 0.1);
+  background: var(--overlay-red-10);
   color: var(--color-red-500);
 }
 
@@ -1652,12 +1652,12 @@
 }
 
 .byok-badge.invalid {
-  background: rgba(239, 68, 68, 0.15);
+  background: var(--overlay-red-15);
   color: var(--color-red-500);
 }
 
 .byok-badge.paused {
-  background: rgba(156, 163, 175, 0.15);
+  background: var(--overlay-black-15);
   color: var(--color-gray-400);
 }
 
@@ -1741,7 +1741,7 @@
 }
 
 .byok-dropdown-item.danger:hover {
-  background: rgba(239, 68, 68, 0.1);
+  background: var(--overlay-red-10);
 }
 
 .byok-dropdown-separator {
@@ -1826,7 +1826,7 @@
 
 /* Status pill for disabled state in header */
 .status-pill.disabled {
-  background: rgba(156, 163, 175, 0.15);
+  background: var(--overlay-black-15);
   color: var(--color-gray-400);
 }
 
@@ -1869,8 +1869,8 @@
   align-items: center;
   gap: 10px;
   padding: 12px 16px;
-  background: rgba(245, 158, 11, 0.1);
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: var(--overlay-amber-10);
+  border: 1px solid rgba(var(--color-amber-500-rgb), 0.3);
   border-radius: var(--radius-md);
   color: var(--color-amber-500);
   font-size: 13px;
@@ -1908,12 +1908,12 @@
 
 .dev-toggle-icon.mock {
   background: var(--color-amber-500);
-  color: white;
+  color: var(--color-text-inverse);
 }
 
 .dev-toggle-icon.caching {
   background: var(--color-blue-500);
-  color: white;
+  color: var(--color-text-inverse);
 }
 
 .dev-toggle-text {
@@ -1950,7 +1950,7 @@
 }
 
 .dev-status-badge.active {
-  background: rgba(245, 158, 11, 0.15);
+  background: var(--overlay-amber-15);
   color: var(--color-amber-500);
 }
 
@@ -1971,9 +1971,9 @@
 }
 
 .dev-info-box.success {
-  background: rgba(34, 197, 94, 0.1);
+  background: var(--overlay-green-10);
   color: var(--color-green-500);
-  border: 1px solid rgba(34, 197, 94, 0.2);
+  border: 1px solid var(--overlay-green-20);
 }
 
 .dev-info-box svg {

@@ -1120,7 +1120,7 @@
 
 .dark .mc-stat-pill.active,
 [data-theme="dark"] .mc-stat-pill.active {
-  background: rgba(59, 130, 246, 0.15);
+  background: var(--overlay-blue-15);
   border-color: var(--color-blue-400);
 }
 
@@ -1166,7 +1166,7 @@
 
 .dark .mc-project-decision-count,
 [data-theme="dark"] .mc-project-decision-count {
-  background: rgba(245, 158, 11, 0.15);
+  background: var(--overlay-amber-15);
   color: var(--color-amber-400);
 }
 
@@ -1183,7 +1183,7 @@
 
 .dark .mc-project-action.complete:hover,
 [data-theme="dark"] .mc-project-action.complete:hover {
-  background: rgba(34, 197, 94, 0.15);
+  background: var(--overlay-green-15);
 }
 
 .dark .mc-project-action.archive,
@@ -1203,7 +1203,7 @@
 
 .dark .mc-project-action.restore:hover,
 [data-theme="dark"] .mc-project-action.restore:hover {
-  background: rgba(34, 197, 94, 0.15);
+  background: var(--overlay-green-15);
 }
 
 .dark .mc-project-action.delete,
@@ -1213,7 +1213,7 @@
 
 .dark .mc-project-action.delete:hover,
 [data-theme="dark"] .mc-project-action.delete:hover {
-  background: rgba(239, 68, 68, 0.15);
+  background: var(--overlay-red-15);
 }
 
 .dark .mc-project-action.confirm-yes,
@@ -1237,14 +1237,14 @@
 /* Department badge */
 .dark .mc-project-dept-badge,
 [data-theme="dark"] .mc-project-dept-badge {
-  background: rgba(139, 92, 246, 0.15);
+  background: var(--overlay-purple-15);
   color: var(--color-violet-400);
 }
 
 /* Decisions badge */
 .dark .mc-project-decisions-badge,
 [data-theme="dark"] .mc-project-decisions-badge {
-  background: rgba(245, 158, 11, 0.15);
+  background: var(--overlay-amber-15);
   color: var(--color-amber-400);
 }
 
@@ -1263,7 +1263,7 @@
 .dark .mc-text-btn.complete:hover,
 [data-theme="dark"] .mc-text-btn.complete:hover {
   color: var(--color-green-300);
-  background: rgba(34, 197, 94, 0.15);
+  background: var(--overlay-green-15);
 }
 
 .dark .mc-text-btn.reopen,
@@ -1274,7 +1274,7 @@
 .dark .mc-text-btn.reopen:hover,
 [data-theme="dark"] .mc-text-btn.reopen:hover {
   color: var(--color-blue-300);
-  background: rgba(59, 130, 246, 0.15);
+  background: var(--overlay-blue-15);
 }
 
 .dark .mc-text-btn.archive,
@@ -1296,7 +1296,7 @@
 .dark .mc-text-btn.restore:hover,
 [data-theme="dark"] .mc-text-btn.restore:hover {
   color: var(--color-blue-300);
-  background: rgba(59, 130, 246, 0.15);
+  background: var(--overlay-blue-15);
 }
 
 /* Project modal meta */
@@ -1346,23 +1346,23 @@
 /* Source badge */
 .dark .mc-source-badge,
 [data-theme="dark"] .mc-source-badge {
-  background: rgba(14, 165, 233, 0.1);
+  background: var(--overlay-blue-10);
   color: var(--color-sky-400);
-  border-color: rgba(14, 165, 233, 0.2);
+  border-color: var(--overlay-blue-20);
 }
 
 .dark .mc-source-badge.council,
 [data-theme="dark"] .mc-source-badge.council {
-  background: rgba(139, 92, 246, 0.15);
+  background: var(--overlay-purple-15);
   color: var(--color-violet-400);
-  border-color: rgba(139, 92, 246, 0.3);
+  border-color: var(--overlay-purple-20);
 }
 
 .dark .mc-source-badge.import,
 [data-theme="dark"] .mc-source-badge.import {
-  background: rgba(245, 158, 11, 0.15);
+  background: var(--overlay-amber-15);
   color: var(--color-amber-400);
-  border-color: rgba(245, 158, 11, 0.3);
+  border-color: var(--overlay-amber-20);
 }
 
 .dark .mc-meta-info,
@@ -1379,7 +1379,7 @@
 .dark .mc-source-link:hover,
 [data-theme="dark"] .mc-source-link:hover {
   color: var(--color-indigo-400);
-  background: rgba(99, 102, 241, 0.1);
+  background: var(--overlay-indigo-10);
 }
 
 /* Project tabs */
@@ -1413,7 +1413,7 @@
 
 .dark .mc-project-tab.active .mc-tab-badge,
 [data-theme="dark"] .mc-project-tab.active .mc-tab-badge {
-  background: rgba(99, 102, 241, 0.15);
+  background: var(--overlay-indigo-15);
   color: var(--color-indigo-400);
 }
 
@@ -1526,13 +1526,13 @@
 /* Timeline council/dept badges */
 .dark .mc-timeline-council,
 [data-theme="dark"] .mc-timeline-council {
-  background: rgba(59, 130, 246, 0.15);
+  background: var(--overlay-blue-15);
   color: var(--color-blue-400);
 }
 
 .dark .mc-timeline-dept,
 [data-theme="dark"] .mc-timeline-dept {
-  background: rgba(139, 92, 246, 0.15);
+  background: var(--overlay-purple-15);
   color: var(--color-violet-400);
 }
 
@@ -1546,14 +1546,14 @@
 
 .dark .mc-timeline-source-link:hover,
 [data-theme="dark"] .mc-timeline-source-link:hover {
-  background: rgba(99, 102, 241, 0.15);
+  background: var(--overlay-indigo-15);
   border-color: var(--color-indigo-400);
 }
 
 /* Timeline group */
 .dark .mc-timeline-group.linked,
 [data-theme="dark"] .mc-timeline-group.linked {
-  background: rgba(14, 165, 233, 0.1);
+  background: var(--overlay-blue-10);
   border-left-color: var(--color-blue-400);
 }
 
@@ -1621,14 +1621,14 @@
 
 .dark .mc-timeline-copy-btn:hover,
 [data-theme="dark"] .mc-timeline-copy-btn:hover {
-  background: rgba(34, 197, 94, 0.15);
+  background: var(--overlay-green-15);
   border-color: var(--color-green-500);
   color: var(--color-green-400);
 }
 
 .dark .mc-timeline-copy-btn.copied,
 [data-theme="dark"] .mc-timeline-copy-btn.copied {
-  background: rgba(34, 197, 94, 0.15);
+  background: var(--overlay-green-15);
   border-color: var(--color-green-500);
   color: var(--color-green-400);
 }
@@ -1636,7 +1636,7 @@
 /* Decision summary in body */
 .dark .mc-timeline-body .mc-timeline-summary,
 [data-theme="dark"] .mc-timeline-body .mc-timeline-summary {
-  background: rgba(245, 158, 11, 0.1);
-  border-color: rgba(245, 158, 11, 0.2);
+  background: var(--overlay-amber-10);
+  border-color: var(--overlay-amber-20);
   color: var(--color-amber-300);
 }

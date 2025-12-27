@@ -11,8 +11,35 @@ import { Button } from '../../ui/button';
 import { FloatingContextActions } from '../../ui/FloatingContextActions';
 import { getDeptColor } from '../../../lib/colors';
 import smartTextToMarkdown from '../../../lib/smartTextToMarkdown';
+import type { Department, Playbook } from '../../../types/business';
 
-export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave, startEditing = false }) {
+type DocType = 'sop' | 'framework' | 'policy';
+
+interface PlaybookVersion {
+  content?: string;
+}
+
+interface ExtendedPlaybook extends Playbook {
+  current_version?: PlaybookVersion;
+  additional_departments?: string[];
+}
+
+interface PlaybookUpdates {
+  title: string;
+  content: string;
+  additional_departments: string[];
+  change_summary: string;
+}
+
+interface ViewPlaybookModalProps {
+  playbook: ExtendedPlaybook;
+  departments?: Department[];
+  onClose: () => void;
+  onSave?: (id: string, updates: PlaybookUpdates) => Promise<void>;
+  startEditing?: boolean;
+}
+
+export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave, startEditing = false }: ViewPlaybookModalProps) {
   const [isEditing, setIsEditing] = useState(startEditing);
   const [editedContent, setEditedContent] = useState(playbook.content || playbook.current_version?.content || '');
   const [editedTitle, setEditedTitle] = useState(playbook.title || '');
@@ -43,14 +70,14 @@ export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave,
   // Get names of linked departments
   const linkedDeptNames = selectedDepts
     .map(id => departments.find(d => d.id === id))
-    .filter(Boolean);
+    .filter((d): d is Department => Boolean(d));
 
   // Filter departments by search
   const filteredDepts = departments.filter(dept =>
     dept.name.toLowerCase().includes(deptSearch.toLowerCase())
   );
 
-  const handleToggleDept = (deptId) => {
+  const handleToggleDept = (deptId: string) => {
     setSelectedDepts(prev =>
       prev.includes(deptId)
         ? prev.filter(id => id !== deptId)
@@ -87,12 +114,13 @@ export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave,
   };
 
   // Type badge styling - uses CSS variables for theming
-  const typeStyles = {
+  const typeStyles: Record<DocType, { bg: string; color: string }> = {
     sop: { bg: 'var(--color-blue-100)', color: 'var(--color-blue-700)' },
     framework: { bg: 'var(--color-amber-100)', color: 'var(--color-amber-700)' },
     policy: { bg: 'var(--color-violet-100)', color: 'var(--color-violet-700)' }
   };
-  const typeStyle = typeStyles[playbook.doc_type] || typeStyles.sop;
+  const docType: DocType = playbook.doc_type ?? 'sop';
+  const typeStyle = typeStyles[docType];
 
   return (
     <AppModal isOpen={true} onClose={onClose} size="lg" showCloseButton={false} contentClassName="mc-modal-no-padding">
@@ -138,7 +166,7 @@ export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave,
             className="mc-type-badge"
             style={{ background: typeStyle.bg, color: typeStyle.color }}
           >
-            {playbook.doc_type.toUpperCase()}
+            {docType.toUpperCase()}
           </span>
 
           {/* Department badges - inline with type */}

@@ -1,14 +1,29 @@
-import { Crown, Shield, UserIcon, Plus, Trash2, ChevronUp, ChevronDown, AlertCircle } from 'lucide-react';
+import { Crown, Shield, UserIcon, Plus, Trash2, ChevronUp, ChevronDown, AlertCircle, LucideIcon } from 'lucide-react';
 import { Skeleton } from '../ui/Skeleton';
 import { Spinner } from '../ui/Spinner';
 import { Button } from '../ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../ui/select';
 import { formatDate } from '../../lib/dateUtils';
-import { useTeam } from './hooks/useTeam';
+import { useTeam, type TeamRole } from './hooks/useTeam';
+import type { User } from '@supabase/supabase-js';
+
+interface RoleConfigEntry {
+  label: string;
+  icon: LucideIcon;
+  color: string;
+  description: string;
+}
+
+interface TeamSectionProps {
+  user: User | null;
+  isOpen: boolean;
+  companyId: string;
+  onRemoveMember: (memberId: string, role: TeamRole, handler: (memberId: string) => Promise<void>) => void;
+}
 
 // Role configuration for display - uses CSS variables for theming
-const ROLE_CONFIG = {
+const ROLE_CONFIG: Record<TeamRole, RoleConfigEntry> = {
   owner: { label: 'Owner', icon: Crown, color: 'var(--color-indigo-500)', description: 'Full control' },
   admin: { label: 'Admin', icon: Shield, color: 'var(--color-blue-500)', description: 'Manage members' },
   member: { label: 'Member', icon: UserIcon, color: 'var(--color-gray-500)', description: 'View & contribute' }
@@ -68,7 +83,7 @@ const TeamSkeleton = () => (
   </>
 );
 
-export function TeamSection({ user, isOpen, companyId, onRemoveMember }) {
+export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSectionProps) {
   const {
     members,
     usage,
@@ -143,7 +158,7 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }) {
                   className="form-input"
                   autoFocus
                 />
-                <Select value={newRole} onValueChange={setNewRole}>
+                <Select value={newRole} onValueChange={(value: string) => setNewRole(value as TeamRole)}>
                   <SelectTrigger className="form-select">
                     <SelectValue />
                   </SelectTrigger>

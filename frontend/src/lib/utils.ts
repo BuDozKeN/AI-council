@@ -1,7 +1,7 @@
-import { clsx } from "clsx";
+import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge"
 
-export function cn(...inputs) {
+export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
@@ -9,7 +9,7 @@ export function cn(...inputs) {
  * Strip markdown formatting from text for clean display.
  * Useful for showing descriptions or summaries without markdown noise.
  */
-export function stripMarkdown(text) {
+export function stripMarkdown(text: string | null | undefined): string {
   if (!text) return '';
   return text
     // Remove headers (### Header)
@@ -23,8 +23,8 @@ export function stripMarkdown(text) {
     // Remove markdown tables (|---|---|)
     .replace(/\|[-:]+\|[-:|\s]+\|/g, '')
     // Clean up table rows but keep content
-    .replace(/^\|(.+)\|$/gm, (match, content) => {
-      return content.split('|').map(s => s.trim()).filter(s => s).join(' - ');
+    .replace(/^\|(.+)\|$/gm, (_match: string, content: string) => {
+      return content.split('|').map((s: string) => s.trim()).filter((s: string) => s).join(' - ');
     })
     // Convert markdown bullets to plain text (no bullets for summaries)
     .replace(/^[-*+]\s+/gm, '')
@@ -45,7 +45,7 @@ export function stripMarkdown(text) {
 /**
  * Truncate text to a maximum length, adding ellipsis if needed.
  */
-export function truncateText(text, maxLength = 150) {
+export function truncateText(text: string | null | undefined, maxLength: number = 150): string {
   if (!text) return '';
   const stripped = stripMarkdown(text);
   if (stripped.length <= maxLength) return stripped;

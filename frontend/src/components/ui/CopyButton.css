@@ -21,9 +21,9 @@
   align-items: center;
   justify-content: center;
   padding: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--overlay-black-10);
   border-radius: var(--radius-default);
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--overlay-white-90);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   color: var(--color-text-tertiary);
@@ -54,7 +54,7 @@
   opacity: 1 !important;
   border-color: var(--color-brand-primary);
   color: var(--color-brand-primary);
-  background: rgba(255, 255, 255, 0.98);
+  background: var(--overlay-white-95);
   box-shadow: var(--shadow-sm);
 }
 
@@ -68,7 +68,7 @@
   pointer-events: auto;
   border-color: var(--color-success);
   color: var(--color-success);
-  background: rgba(255, 255, 255, 0.98);
+  background: var(--overlay-white-95);
 }
 
 /* =============================================================================
@@ -163,8 +163,8 @@
 
 .dark .copy-btn-unified,
 [data-theme="dark"] .copy-btn-unified {
-  background: rgba(30, 30, 35, 0.9);
-  border-color: rgba(255, 255, 255, 0.1);
+  background: var(--overlay-black-80);
+  border-color: var(--overlay-white-10);
   color: var(--color-text-tertiary);
 }
 
@@ -172,14 +172,14 @@
 [data-theme="dark"] .copy-btn-unified:hover {
   border-color: var(--color-brand-primary);
   color: var(--color-brand-primary);
-  background: rgba(40, 40, 45, 0.98);
+  background: var(--overlay-black-80);
 }
 
 .dark .copy-btn-unified.copied,
 [data-theme="dark"] .copy-btn-unified.copied {
   border-color: var(--color-success);
   color: var(--color-success);
-  background: rgba(40, 40, 45, 0.98);
+  background: var(--overlay-black-80);
 }
 
 /* =============================================================================

@@ -27,17 +27,25 @@ export { ViewDecisionModal } from './ViewDecisionModal';
 export { AlertModal } from '../../ui/AlertModal';
 export { ConfirmModal } from '../../ui/ConfirmModal';
 
+import type { Department } from '../../../types/business';
+
+interface AddDepartmentModalProps {
+  onSave: (name: string, description?: string) => Promise<void>;
+  onClose: () => void;
+  saving: boolean;
+}
+
 /**
  * Modal for adding a new department
  */
-export function AddDepartmentModal({ onSave, onClose, saving }) {
+export function AddDepartmentModal({ onSave, onClose, saving }: AddDepartmentModalProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-    onSave(name.trim(), description.trim());
+    onSave(name.trim(), description.trim() || undefined);
   };
 
   return (
@@ -92,14 +100,21 @@ export function AddDepartmentModal({ onSave, onClose, saving }) {
   );
 }
 
+interface AddRoleModalProps {
+  deptId: string;
+  onSave: (deptId: string, name: string, title: string) => Promise<void>;
+  onClose: () => void;
+  saving: boolean;
+}
+
 /**
  * Modal for adding a new role to a department
  */
-export function AddRoleModal({ deptId, onSave, onClose, saving }) {
+export function AddRoleModal({ deptId, onSave, onClose, saving }: AddRoleModalProps) {
   const [name, setName] = useState('');
   const [title, setTitle] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
     onSave(deptId, name.trim(), title.trim());
@@ -149,16 +164,25 @@ export function AddRoleModal({ deptId, onSave, onClose, saving }) {
   );
 }
 
+interface AddPlaybookModalProps {
+  onSave: (title: string, docType: string, content?: string, departmentId?: string | null, additionalDepartments?: string[]) => Promise<void>;
+  onClose: () => void;
+  saving: boolean;
+  departments?: Department[] | undefined;
+}
+
 /**
  * Modal for creating a new playbook (SOP, Framework, or Policy)
  */
-export function AddPlaybookModal({ onSave, onClose, saving, departments = [] }) {
-  const [title, setTitle] = useState('');
-  const [docType, setDocType] = useState('sop');
-  const [content, setContent] = useState('');
-  const [selectedDepts, setSelectedDepts] = useState([]);
+type PlaybookType = 'sop' | 'framework' | 'policy';
 
-  const handleSubmit = (e) => {
+export function AddPlaybookModal({ onSave, onClose, saving, departments = [] }: AddPlaybookModalProps) {
+  const [title, setTitle] = useState('');
+  const [docType, setDocType] = useState<PlaybookType>('sop');
+  const [content, setContent] = useState('');
+  const [selectedDepts, setSelectedDepts] = useState<string[]>([]);
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) return;
     // First selected department becomes owner, rest are additional

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown, { ExtraProps } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Spinner } from './ui/Spinner';
 import { CopyButton } from './ui/CopyButton';
@@ -309,16 +309,17 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{
-                pre({ children: _children, node }) {
-                  const codeElement = node?.children?.[0] as { properties?: { className?: string[] }; children?: { value?: string }[] } | undefined;
+                pre(props: React.ClassAttributes<HTMLPreElement> & React.HTMLAttributes<HTMLPreElement> & ExtraProps) {
+                  const { node } = props;
+                  const codeElement = node?.children?.[0] as { properties?: { className?: string[] }; children?: Array<{ value?: string }> } | undefined;
                   const className = codeElement?.properties?.className?.[0] || '';
                   const codeContent = codeElement?.children?.[0]?.value || '';
                   return <CodeBlock className={className}>{codeContent}</CodeBlock>;
                 },
-                code({ className, children, ...props }) {
+                code({ className, children, ...props }: React.ComponentPropsWithoutRef<'code'>) {
                   return <code className={className} {...props}>{children}</code>;
                 },
-                table({ children, ...props }) {
+                table({ children, ...props }: React.ComponentPropsWithoutRef<'table'>) {
                   return (
                     <div className="table-scroll-wrapper">
                       <table {...props}>{children}</table>
@@ -382,14 +383,17 @@ function Stage1({
   if (streaming && Object.keys(streaming).length > 0) {
     Object.entries(streaming).forEach(([model, data]) => {
       const wasStopped = stopped && !data.complete;
-      const hasTextError = textLooksLikeError(data.text);
+      const textContent = data.text ?? '';
+      const isComplete = data.complete ?? false;
+      const hasError = data.error ?? false;
+      const hasTextError = textLooksLikeError(textContent);
       displayData.push({
         model,
-        response: data.text,
-        isStreaming: !data.complete && !stopped,
-        isComplete: data.complete && !data.error && !hasTextError,
-        hasError: Boolean(data.error) || hasTextError,
-        isEmpty: data.complete && !data.text && !data.error,
+        response: textContent,
+        isStreaming: !isComplete && !stopped,
+        isComplete: isComplete && !hasError && !hasTextError,
+        hasError: hasError || hasTextError,
+        isEmpty: isComplete && !textContent && !hasError,
         isStopped: Boolean(wasStopped),
       });
     });

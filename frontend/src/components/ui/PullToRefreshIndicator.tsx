@@ -2,6 +2,12 @@ import { motion } from 'framer-motion';
 import { RefreshCw } from 'lucide-react';
 import './PullToRefreshIndicator.css';
 
+interface PullToRefreshIndicatorProps {
+  progress?: number;
+  isRefreshing?: boolean;
+  pullDistance?: number;
+}
+
 /**
  * PullToRefreshIndicator - Visual indicator for pull-to-refresh gesture
  *
@@ -14,7 +20,7 @@ export function PullToRefreshIndicator({
   progress = 0,
   isRefreshing = false,
   pullDistance = 0,
-}) {
+}: PullToRefreshIndicatorProps) {
   // Don't render if not pulling and not refreshing
   if (progress === 0 && !isRefreshing) {
     return null;
@@ -30,9 +36,7 @@ export function PullToRefreshIndicator({
     >
       <motion.div
         className="pull-refresh-icon"
-        style={{
-          rotate: isRefreshing ? undefined : progress * 180,
-        }}
+        style={isRefreshing ? {} : { rotate: progress * 180 }}
         animate={isRefreshing ? { rotate: 360 } : {}}
         transition={isRefreshing ? { duration: 1, repeat: Infinity, ease: 'linear' } : {}}
       >

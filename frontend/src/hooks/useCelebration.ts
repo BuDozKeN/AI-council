@@ -21,7 +21,7 @@
  * ```
  */
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { hapticSuccess } from '../lib/haptics';
 
 export interface UseCelebrationOptions {
@@ -128,11 +128,12 @@ export function useCompletionCelebration(
   const wasCompleteRef = useRef(false);
 
   // Trigger celebration when completion state transitions from false to true
-  if (isComplete && !wasCompleteRef.current) {
-    wasCompleteRef.current = true;
-    // Use setTimeout to avoid state update during render
-    setTimeout(() => celebration.triggerCelebration(), 0);
-  }
+  useEffect(() => {
+    if (isComplete && !wasCompleteRef.current) {
+      wasCompleteRef.current = true;
+      celebration.triggerCelebration();
+    }
+  }, [isComplete, celebration.triggerCelebration]);
 
   return celebration;
 }

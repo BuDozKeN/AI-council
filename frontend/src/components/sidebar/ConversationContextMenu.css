@@ -51,7 +51,7 @@
 }
 
 .context-menu-item.starred:hover {
-  background: rgba(245, 158, 11, 0.15);
+  background: var(--overlay-amber-15);
   color: var(--color-amber-600);
 }
 
@@ -60,7 +60,7 @@
 }
 
 .context-menu-item.danger:hover {
-  background: rgba(239, 68, 68, 0.15);
+  background: var(--overlay-red-15);
   color: var(--color-red-400);
 }
 
@@ -72,5 +72,5 @@
 
 /* Dark mode adjustments */
 .dark .context-menu {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 16px var(--overlay-black-40), 0 2px 6px var(--overlay-black-30);
 }

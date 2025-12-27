@@ -229,3 +229,67 @@
   margin: 4px -4px;
   background: var(--color-border-light);
 }
+
+/* ============================================================================
+   MOBILE - Touch-friendly sizes
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  /* Trigger - larger touch target */
+  .select-trigger {
+    min-height: 44px;
+    height: auto;
+    padding: 10px 14px;
+    font-size: 16px; /* Prevents iOS zoom */
+    border-radius: var(--radius-lg);
+  }
+
+  .select-trigger-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Content - better mobile sizing */
+  .select-content {
+    max-height: 50vh;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Viewport - more padding */
+  .select-viewport {
+    padding: 6px;
+  }
+
+  /* Items - larger touch targets */
+  .select-item {
+    min-height: 44px;
+    padding: 12px 14px;
+    padding-right: 40px;
+    font-size: 16px;
+    border-radius: var(--radius-lg);
+  }
+
+  /* Label - slightly larger */
+  .select-label {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  /* Check indicator - larger */
+  .select-item-indicator {
+    right: 14px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .select-item-check {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Scroll buttons - larger */
+  .select-scroll-btn {
+    padding: 8px 0;
+  }
+}

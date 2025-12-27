@@ -7,7 +7,7 @@
 .app-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--overlay-black-40);
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   z-index: var(--z-modal, 1000);
@@ -405,7 +405,7 @@
 }
 
 .app-modal-header-gradient .app-modal-description {
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--overlay-white-80);
 }
 
 .app-modal-header-gradient .app-modal-close {
@@ -414,7 +414,7 @@
 }
 
 .app-modal-header-gradient .app-modal-close:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--overlay-white-10);
   opacity: 1;
 }
 
@@ -516,8 +516,14 @@
     width: 100%;
     max-width: none;
     border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
-    max-height: calc(95vh - env(safe-area-inset-top, 0px));
+    /* CRITICAL: Use dvh (dynamic viewport height) for keyboard-aware sizing */
+    max-height: 95dvh;
+    max-height: calc(95dvh - env(safe-area-inset-top, 0px));
     animation: app-modal-slide-up 250ms ease-out;
+    /* Ensure flex layout constraints children properly */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
 
   .app-modal-content[data-state="closed"] {
@@ -538,21 +544,37 @@
     z-index: var(--z-elevated);
   }
 
-  /* Header adjusts for drag handle */
+  /* Header - MUST stay visible, never scrolls away */
   .app-modal-header {
     padding-top: 24px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    background: var(--color-bg-primary, #fff);
+  }
+
+  /* Body - ONLY this scrolls, constrained by flex layout */
+  .app-modal-body {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
   }
 
   /* Footer respects safe area */
   .app-modal-footer,
   .app-modal-footer-with-actions {
+    flex-shrink: 0;
     padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   }
 
   /* Full-size modals take more space on mobile */
   .app-modal-full {
-    max-height: calc(100vh - env(safe-area-inset-top, 20px));
-    height: calc(100vh - env(safe-area-inset-top, 20px));
+    max-height: 100dvh;
+    max-height: calc(100dvh - env(safe-area-inset-top, 20px));
+    height: 100dvh;
+    height: calc(100dvh - env(safe-area-inset-top, 20px));
     border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
   }
 
@@ -603,7 +625,8 @@
   .app-modal-lg,
   .app-modal-xl,
   .app-modal-full {
-    max-height: calc(100vh - env(safe-area-inset-top, 0px));
+    max-height: 100dvh;
+    max-height: calc(100dvh - env(safe-area-inset-top, 0px));
     border-radius: 0;
   }
 
@@ -718,5 +741,39 @@
     right: 12px;
     width: 36px;
     height: 36px;
+  }
+}
+
+/* ===========================================
+   MOBILE FORM INPUTS - Standardized for ALL modals
+   Prevents iOS zoom and ensures touch-friendly targets
+   =========================================== */
+
+@media (max-width: 768px) {
+  /* Text inputs inside modals - prevent iOS zoom with 16px font */
+  .app-modal-body input[type="text"],
+  .app-modal-body input[type="email"],
+  .app-modal-body input[type="password"],
+  .app-modal-body input[type="search"],
+  .app-modal-body input[type="url"],
+  .app-modal-body input[type="number"],
+  .app-modal-body textarea {
+    font-size: 16px; /* Prevents iOS auto-zoom on focus */
+    min-height: 44px; /* Touch-friendly target */
+  }
+
+  /* Textareas - reasonable minimum height */
+  .app-modal-body textarea {
+    min-height: 100px;
+  }
+
+  /* Buttons inside modal body - touch-friendly */
+  .app-modal-body button {
+    min-height: 44px;
+  }
+
+  /* Labels - slightly larger for readability */
+  .app-modal-body label {
+    font-size: 13px;
   }
 }

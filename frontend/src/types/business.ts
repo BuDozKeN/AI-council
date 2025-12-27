@@ -5,7 +5,9 @@
 export interface Department {
   id: string;
   name: string;
+  slug?: string;  // Department slug (e.g., "technology", "sales") - used for conversation grouping
   description?: string;
+  context_md?: string;  // Department-specific context for AI
   roles?: Role[];
   channels?: Channel[];
 }
@@ -13,6 +15,7 @@ export interface Department {
 export interface Role {
   id: string;
   name: string;
+  title?: string;
   description?: string;
   system_prompt?: string;
   departmentId?: string;
@@ -33,15 +36,19 @@ export interface Style {
 
 export interface Playbook {
   id: string;
-  name: string;
-  type: 'sop' | 'framework' | 'policy';
-  content: string;
+  name?: string;
+  title?: string;
+  type?: 'sop' | 'framework' | 'policy';
+  doc_type?: 'sop' | 'framework' | 'policy';
+  content?: string;
   description?: string;
   department_id?: string;
+  department_ids?: string[];
   tags?: string[];
   version?: number;
-  created_at: string;
-  updated_at: string;
+  status?: 'active' | 'archived' | 'draft';
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Project {

@@ -15,32 +15,63 @@
 }
 
 .floating-context-content {
+  /* NO position: relative here - it breaks sticky positioning for children */
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden; /* Never show horizontal scrollbar - tables handle their own overflow */
   -webkit-overflow-scrolling: touch;
-  /* Inherit styling from parent (.mc-content-preview) */
+  min-height: 0;
+  /* Default styling - can be overridden by parent context (e.g., overview.css) */
   background: var(--color-bg-primary);
   border: 1px solid var(--color-gray-100);
   border-radius: var(--radius-md);
   padding: 20px;
-  min-height: 200px;
-  max-height: 400px;
 }
 
 /* ===========================================
-   Copy Button - Sticky top-right inside scrollable content
-   Uses float to stay on the right without affecting layout
+   Sticky Header Row - Contains TOC and copy button aligned
+   =========================================== */
+
+.floating-sticky-row {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-raised, 10);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  margin-bottom: 12px;
+  /* Background to cover content scrolling behind - use explicit color */
+  background: var(--color-bg-primary, #fff);
+  /* Extend to full width to cover scrolling content */
+  margin-left: -20px;
+  margin-right: -20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  width: calc(100% + 40px);
+}
+
+.floating-sticky-left {
+  flex: 1;
+  min-width: 0;
+}
+
+/* When TOC is inside sticky row, disable its own sticky wrapper */
+.floating-sticky-row .toc-sticky-wrapper {
+  position: static;
+  margin: 0;
+  padding: 0;
+  width: auto;
+  background: transparent;
+}
+
+/* ===========================================
+   Copy Button - Inside sticky row, right-aligned
    =========================================== */
 
 .floating-copy-btn {
-  position: sticky;
-  top: 0;
-  float: right;
-  margin-left: 12px;
-  margin-bottom: 8px;
-  /* Pull into padding area */
-  margin-top: -4px;
-  margin-right: -4px;
+  flex-shrink: 0;
   width: 28px;
   height: 28px;
   display: flex;
@@ -54,7 +85,6 @@
   box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
   opacity: 0.85;
-  z-index: var(--z-raised);
 }
 
 .floating-copy-btn:hover {
@@ -162,8 +192,16 @@
     height: 18px;
   }
 
+  /* Remove max-height on mobile - let flex layout determine height */
   .floating-context-content {
-    max-height: 350px;
+    max-height: none;
+    min-height: 0;
+  }
+
+  /* Ensure wrapper fills available space */
+  .floating-context-wrapper {
+    flex: 1;
+    min-height: 0;
   }
 }
 
@@ -188,4 +226,46 @@
 .floating-context-wrapper.compact .floating-context-content {
   min-height: 120px;
   max-height: 300px;
+}
+
+/* ===========================================
+   Dark Mode
+   =========================================== */
+
+.dark .floating-sticky-row,
+[data-theme="dark"] .floating-sticky-row {
+  background: inherit;
+}
+
+.dark .floating-copy-btn,
+[data-theme="dark"] .floating-copy-btn {
+  background: var(--color-bg-secondary, #1e293b);
+  border-color: var(--color-border, #334155);
+  color: var(--color-text-secondary, #94a3b8);
+}
+
+.dark .floating-copy-btn:hover,
+[data-theme="dark"] .floating-copy-btn:hover {
+  background: var(--color-bg-tertiary, #334155);
+  color: var(--color-text-primary, #f1f5f9);
+}
+
+.dark .floating-copy-btn.copied,
+[data-theme="dark"] .floating-copy-btn.copied {
+  color: var(--color-green-400, #4ade80);
+  border-color: var(--color-green-700, #15803d);
+  background: var(--overlay-green-15);
+}
+
+.dark .floating-scroll-top-btn,
+[data-theme="dark"] .floating-scroll-top-btn {
+  background: var(--color-bg-secondary, #1e293b);
+  border-color: var(--color-border, #334155);
+  color: var(--color-text-secondary, #94a3b8);
+}
+
+.dark .floating-scroll-top-btn:hover,
+[data-theme="dark"] .floating-scroll-top-btn:hover {
+  background: var(--color-bg-tertiary, #334155);
+  color: var(--color-text-primary, #f1f5f9);
 }

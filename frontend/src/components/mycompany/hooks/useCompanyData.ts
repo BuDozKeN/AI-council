@@ -26,6 +26,14 @@ export interface ActivityLog {
   user_email?: string;
   metadata?: Record<string, unknown>;
   created_at: string;
+  // Activity navigation properties
+  related_id?: string;
+  related_type?: string;
+  conversation_id?: string;
+  // Display properties
+  title?: string;
+  action?: string;
+  promoted_to_type?: string;
 }
 
 interface UseCompanyDataOptions {
@@ -91,7 +99,7 @@ export function useCompanyData({ companyId, activeTab, activityLimit = 20 }: Use
           setPlaybooks(playbooksData.playbooks || []);
           // Use departments from playbooks endpoint
           if (playbooksData.departments) {
-            setDepartments(playbooksData.departments.map(d => ({ ...d, roles: [] })));
+            setDepartments(playbooksData.departments.map((d: Department) => ({ ...d, roles: [] })));
           }
           setPlaybooksLoaded(true);
           break;
@@ -100,14 +108,14 @@ export function useCompanyData({ companyId, activeTab, activityLimit = 20 }: Use
           // Load decisions and projects in parallel (need projects for Promote modal)
           const [decisionsData, projectsData] = await Promise.all([
             api.getCompanyDecisions(companyId),
-            api.listProjectsWithStats(companyId, { status: null, includeArchived: true })
+            api.listProjectsWithStats(companyId, { includeArchived: true })
           ]);
           setDecisions(decisionsData.decisions || []);
           setProjects(projectsData.projects || []);
           setProjectsLoaded(true);
           // Use departments from decisions endpoint (only if not already loaded)
           if (decisionsData.departments && !departmentsLoaded) {
-            setDepartments(decisionsData.departments.map(d => ({ ...d, roles: [] })));
+            setDepartments(decisionsData.departments.map((d: Department) => ({ ...d, roles: [] })));
             setDepartmentsLoaded(true);
           }
           setDecisionsLoaded(true);
@@ -117,7 +125,7 @@ export function useCompanyData({ companyId, activeTab, activityLimit = 20 }: Use
           // Load activity and projects in parallel (need projects for click navigation)
           const [activityData, projectsData] = await Promise.all([
             api.getCompanyActivity(companyId, { limit: activityLimit + 1 }),
-            api.listProjectsWithStats(companyId, { status: null, includeArchived: true })
+            api.listProjectsWithStats(companyId, { includeArchived: true })
           ]);
           const logs = activityData.logs || [];
           setActivityHasMore(logs.length > activityLimit);
@@ -128,19 +136,22 @@ export function useCompanyData({ companyId, activeTab, activityLimit = 20 }: Use
           break;
         }
         case 'projects': {
-          // Load ALL projects (client-side filtering)
-          const projectsData = await api.listProjectsWithStats(companyId, {
-            status: null,
-            includeArchived: true
-          });
-          setProjects(projectsData.projects || []);
-          setProjectsLoaded(true);
-          // Also load departments if not already loaded (needed for project edit modal)
+          // Load projects and departments in parallel (needed for project edit modal)
           if (!departmentsLoaded) {
-            const teamData = await api.getCompanyTeam(companyId);
+            const [projectsData, teamData] = await Promise.all([
+              api.listProjectsWithStats(companyId, { includeArchived: true }),
+              api.getCompanyTeam(companyId)
+            ]);
+            setProjects(projectsData.projects || []);
             setDepartments(teamData.departments || []);
             setDepartmentsLoaded(true);
+          } else {
+            const projectsData = await api.listProjectsWithStats(companyId, {
+              includeArchived: true
+            });
+            setProjects(projectsData.projects || []);
           }
+          setProjectsLoaded(true);
           break;
         }
       }

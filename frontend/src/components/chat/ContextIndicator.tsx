@@ -41,14 +41,14 @@ interface Role {
 
 interface ContextIndicatorProps {
   businesses?: Business[];
-  selectedBusiness?: string;
+  selectedBusiness?: string | undefined;
   projects?: Project[];
-  selectedProject?: string;
+  selectedProject?: string | undefined;
   departments?: Department[];
-  selectedDepartment?: string;
+  selectedDepartment?: string | undefined;
   roles?: Role[];
-  selectedRole?: string;
-  question?: string;
+  selectedRole?: string | undefined;
+  question?: string | undefined;
   conversationTitle?: string;
 }
 

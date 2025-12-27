@@ -1,6 +1,21 @@
 import { ChevronDown, ChevronLeft, Building2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
+interface Company {
+  id: string;
+  name: string;
+}
+
+interface MyCompanyHeaderProps {
+  companyName?: string | undefined;
+  companyId: string;
+  allCompanies: Company[];
+  pendingDecisionsCount: number | null;
+  onSelectCompany?: ((companyId: string) => void) | undefined;
+  onClose?: (() => void) | undefined;
+  onHeaderClick?: (() => void) | undefined;
+}
+
 /**
  * MyCompanyHeader - Header with company name, status indicator, and company switcher
  */
@@ -12,7 +27,7 @@ export function MyCompanyHeader({
   onSelectCompany,
   onClose,
   onHeaderClick,
-}) {
+}: MyCompanyHeaderProps) {
   return (
     <header
       className="mc-header mc-header-dismissible"
@@ -23,7 +38,7 @@ export function MyCompanyHeader({
     >
       <button
         className="mc-mobile-back-btn"
-        onClick={(e) => { e.stopPropagation(); onClose(); }}
+        onClick={(e: React.MouseEvent) => { e.stopPropagation(); onClose?.(); }}
         aria-label="Close My Company"
       >
         <ChevronLeft size={20} />
@@ -36,11 +51,11 @@ export function MyCompanyHeader({
         <div className="mc-title-row">
           <h1>
             <span
-              className={`mc-status-indicator ${pendingDecisionsCount === 0 ? 'all-good' : pendingDecisionsCount > 0 ? 'pending' : ''}`}
+              className={`mc-status-indicator ${pendingDecisionsCount === 0 ? 'all-good' : pendingDecisionsCount !== null && pendingDecisionsCount > 0 ? 'pending' : ''}`}
               title={
                 pendingDecisionsCount === 0
                   ? 'All decisions promoted'
-                  : pendingDecisionsCount > 0
+                  : pendingDecisionsCount !== null && pendingDecisionsCount > 0
                     ? `${pendingDecisionsCount} pending decision${pendingDecisionsCount !== 1 ? 's' : ''}`
                     : 'Loading...'
               }
@@ -70,7 +85,7 @@ export function MyCompanyHeader({
           </div>
         )}
       </div>
-      <button className="mc-close-btn" onClick={onClose}>&times;</button>
+      <button className="mc-close-btn" onClick={(e: React.MouseEvent) => { e.stopPropagation(); onClose?.(); }}>&times;</button>
     </header>
   );
 }

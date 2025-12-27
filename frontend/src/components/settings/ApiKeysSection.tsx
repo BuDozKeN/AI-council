@@ -9,7 +9,12 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { api } from '../../api';
 import { useApiKeys } from './hooks/useApiKeys';
 
-export function ApiKeysSection({ isOpen, onDeleteApiKey }) {
+interface ApiKeysSectionProps {
+  isOpen: boolean;
+  onDeleteApiKey: (deleteHandler: () => Promise<void>) => void;
+}
+
+export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) {
   const {
     apiKeyStatus,
     setApiKeyStatus,
@@ -189,8 +194,8 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }) {
                     setApiKeyInput('');
                     setShowReplaceKeyForm(false);
                     setApiKeySuccess('API key replaced successfully!');
-                  } catch (err) {
-                    setApiKeyError(err.message || 'Failed to save API key');
+                  } catch (err: unknown) {
+                    setApiKeyError(err instanceof Error ? err.message : 'Failed to save API key');
                   } finally {
                     setApiKeySaving(false);
                   }

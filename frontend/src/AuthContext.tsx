@@ -1,22 +1,43 @@
-import { createContext, useContext, useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import { createContext, useContext, useEffect, useState, useMemo, useCallback, useRef, type ReactNode } from 'react';
+import type { User, AuthChangeEvent } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 import { setUserContext, clearUserContext } from './utils/sentry';
 import { setTokenGetter } from './api';
 import { logger } from './utils/logger';
 
-const AuthContext = createContext({});
+// Auth context value interface
+interface AuthContextValue {
+  user: User | null;
+  loading: boolean;
+  authEvent: AuthChangeEvent | null;
+  needsPasswordReset: boolean;
+  signUp: (email: string, password: string) => Promise<{ user: User | null; session: unknown }>;
+  signIn: (email: string, password: string) => Promise<{ user: User | null; session: unknown }>;
+  signInWithGoogle: () => Promise<{ url: string | null; provider: string }>;
+  signOut: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  updatePassword: (newPassword: string) => Promise<void>;
+  getAccessToken: () => Promise<string | null>;
+  isAuthenticated: boolean;
+}
+
+const AuthContext = createContext<AuthContextValue>({} as AuthContextValue);
 
 // eslint-disable-next-line react-refresh/only-export-components -- Hook export alongside Provider is intentional
 export const useAuth = () => useContext(AuthContext);
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [authEvent, setAuthEvent] = useState(null); // Track auth events like PASSWORD_RECOVERY
-  const [needsPasswordReset, setNeedsPasswordReset] = useState(false); // Persist password reset state
+  const [authEvent, setAuthEvent] = useState<AuthChangeEvent | null>(null);
+  const [needsPasswordReset, setNeedsPasswordReset] = useState(false);
 
   // Mutex to prevent concurrent token refresh race conditions
-  const refreshingPromiseRef = useRef(null);
+  const refreshingPromiseRef = useRef<Promise<string | null> | null>(null);
 
   useEffect(() => {
     if (!supabase) {
@@ -64,14 +85,14 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = useCallback(async (email, password) => {
+  const signUp = useCallback(async (email: string, password: string) => {
     if (!supabase) throw new Error('Supabase not configured');
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) throw error;
     return data;
   }, []);
 
-  const signIn = useCallback(async (email, password) => {
+  const signIn = useCallback(async (email: string, password: string) => {
     if (!supabase) throw new Error('Supabase not configured');
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
@@ -80,17 +101,25 @@ export function AuthProvider({ children }) {
 
   const signOut = useCallback(async () => {
     if (!supabase) throw new Error('Supabase not configured');
-    const { error } = await supabase.auth.signOut();
-    // Ignore AuthSessionMissingError - this just means we're already signed out
-    // This commonly happens on mobile when tokens have expired
-    if (error && error.name !== 'AuthSessionMissingError') {
-      throw error;
+    try {
+      const { error } = await supabase.auth.signOut();
+      // Ignore AuthSessionMissingError - this just means we're already signed out
+      // This commonly happens on mobile when tokens have expired
+      if (error && error.name !== 'AuthSessionMissingError') {
+        throw error;
+      }
+    } catch (err) {
+      // Supabase can throw AuthSessionMissingError directly in some code paths
+      // (not just return it), especially on mobile with expired tokens
+      if (err instanceof Error && err.name !== 'AuthSessionMissingError') {
+        throw err;
+      }
     }
     // Clear local state regardless
     setUser(null);
   }, []);
 
-  const resetPassword = useCallback(async (email) => {
+  const resetPassword = useCallback(async (email: string) => {
     if (!supabase) throw new Error('Supabase not configured');
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: window.location.origin,
@@ -98,7 +127,7 @@ export function AuthProvider({ children }) {
     if (error) throw error;
   }, []);
 
-  const updatePassword = useCallback(async (newPassword) => {
+  const updatePassword = useCallback(async (newPassword: string) => {
     if (!supabase) throw new Error('Supabase not configured');
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     if (error) throw error;

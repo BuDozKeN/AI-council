@@ -1,28 +1,17 @@
-import { forwardRef } from 'react';
+import { forwardRef, ReactNode, InputHTMLAttributes, TextareaHTMLAttributes, SelectHTMLAttributes } from 'react';
 import './FormField.css';
+
+interface FormFieldProps {
+  label?: string;
+  hint?: string;
+  error?: string;
+  required?: boolean;
+  className?: string;
+  children?: ReactNode;
+}
 
 /**
  * FormField - Unified form input component
- *
- * Provides consistent styling for all form inputs across the app.
- * Supports text inputs, textareas, and select elements.
- *
- * Usage:
- *   <FormField label="Name" required>
- *     <input type="text" value={name} onChange={...} placeholder="Enter name" />
- *   </FormField>
- *
- *   <FormField label="Description" hint="Optional context">
- *     <textarea value={desc} onChange={...} rows={3} />
- *   </FormField>
- *
- * Props:
- *   - label: Field label text
- *   - hint: Helper text below the label
- *   - error: Error message to display
- *   - required: Show required indicator
- *   - className: Additional class for the wrapper
- *   - children: The input/textarea/select element
  */
 export function FormField({
   label,
@@ -31,7 +20,7 @@ export function FormField({
   required,
   className = '',
   children
-}) {
+}: FormFieldProps) {
   return (
     <div className={`form-field ${error ? 'form-field-error' : ''} ${className}`}>
       {label && (
@@ -49,10 +38,14 @@ export function FormField({
   );
 }
 
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+  className?: string;
+}
+
 /**
  * Input - Styled text input
  */
-export const Input = forwardRef(({ className = '', ...props }, ref) => (
+export const Input = forwardRef<HTMLInputElement, InputProps>(({ className = '', ...props }, ref) => (
   <input
     ref={ref}
     className={`form-input ${className}`}
@@ -61,10 +54,15 @@ export const Input = forwardRef(({ className = '', ...props }, ref) => (
 ));
 Input.displayName = 'Input';
 
+interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
+  className?: string;
+  rows?: number;
+}
+
 /**
  * Textarea - Styled textarea
  */
-export const Textarea = forwardRef(({ className = '', rows = 3, ...props }, ref) => (
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({ className = '', rows = 3, ...props }, ref) => (
   <textarea
     ref={ref}
     className={`form-textarea ${className}`}
@@ -74,11 +72,16 @@ export const Textarea = forwardRef(({ className = '', rows = 3, ...props }, ref)
 ));
 Textarea.displayName = 'Textarea';
 
+interface NativeSelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
+  className?: string;
+  children?: ReactNode;
+}
+
 /**
  * NativeSelect - Styled native select (for simple cases)
  * For complex selects, use the Radix Select component
  */
-export const NativeSelect = forwardRef(({ className = '', children, ...props }, ref) => (
+export const NativeSelect = forwardRef<HTMLSelectElement, NativeSelectProps>(({ className = '', children, ...props }, ref) => (
   <select
     ref={ref}
     className={`form-select ${className}`}

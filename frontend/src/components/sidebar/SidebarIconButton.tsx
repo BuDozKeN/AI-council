@@ -5,19 +5,21 @@
  * Supports badges, active states, and disabled states.
  */
 
-/**
- * @param {Object} props
- * @param {React.ReactNode} props.icon - The icon component to render
- * @param {string} props.title - Tooltip/aria-label text
- * @param {Function} props.onClick - Click handler
- * @param {Function} props.onMouseEnter - Mouse enter handler (for hover expansion)
- * @param {Function} props.onMouseLeave - Mouse leave handler (for hover collapse)
- * @param {boolean} props.isActive - Whether button is in active state
- * @param {boolean} props.isPrimary - Whether button uses primary (gradient) styling
- * @param {boolean} props.disabled - Whether button is disabled
- * @param {number|string} props.badge - Optional badge content (e.g., count)
- * @param {string} props.className - Additional CSS classes
- */
+import { ReactNode } from 'react';
+
+interface SidebarIconButtonProps {
+  icon: ReactNode;
+  title: string;
+  onClick?: (() => void) | undefined;
+  onMouseEnter?: (() => void) | undefined;
+  onMouseLeave?: (() => void) | undefined;
+  isActive?: boolean | undefined;
+  isPrimary?: boolean | undefined;
+  disabled?: boolean | undefined;
+  badge?: number | string | undefined;
+  className?: string | undefined;
+}
+
 export function SidebarIconButton({
   icon,
   title,
@@ -29,7 +31,7 @@ export function SidebarIconButton({
   disabled = false,
   badge,
   className = '',
-}) {
+}: SidebarIconButtonProps) {
   // Build class list
   const classes = [
     'sidebar-icon-btn',

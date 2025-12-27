@@ -18,8 +18,31 @@ import { TableOfContents } from '../../ui/TableOfContents';
 import { Button } from '../../ui/button';
 import { formatDate } from '../../../lib/dateUtils';
 
+interface CompanyOverview {
+  company?: {
+    context_md?: string;
+    [key: string]: unknown;
+  };
+  stats?: {
+    departments?: number;
+    roles?: number;
+    playbooks?: number;
+    decisions?: number;
+    conversations?: number;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+}
+
+interface OverviewTabProps {
+  overview?: CompanyOverview | null | undefined;
+  companyName?: string | undefined;
+  onEditContext?: ((data: Record<string, unknown>) => void) | undefined;
+  onViewContext?: ((data: Record<string, unknown>) => void) | undefined;
+}
+
 // Parse metadata from context markdown (Last Updated, Version)
-function parseContextMetadata(contextMd) {
+function parseContextMetadata(contextMd: string | undefined): { lastUpdated: string | null; version: string | null } {
   if (!contextMd) return { lastUpdated: null, version: null };
 
   // Look for patterns like "> **Last Updated:** 2025-12-16" and "> **Version:** 1.2"
@@ -27,17 +50,16 @@ function parseContextMetadata(contextMd) {
   const versionMatch = contextMd.match(/\*\*Version:\*\*\s*([\d.]+)/);
 
   return {
-    lastUpdated: lastUpdatedMatch ? formatDate(lastUpdatedMatch[1] + 'T00:00:00') : null,
-    version: versionMatch ? versionMatch[1] : null
+    lastUpdated: lastUpdatedMatch?.[1] ? formatDate(lastUpdatedMatch[1] + 'T00:00:00') : null,
+    version: versionMatch?.[1] ?? null
   };
 }
 
 export function OverviewTab({
   overview,
   companyName,
-  onEditContext
-  // onViewContext - reserved for future use
-}) {
+  onEditContext,
+}: OverviewTabProps) {
   // Refs for TOC scroll-spy
   const contentRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -112,21 +134,37 @@ export function OverviewTab({
         </div>
       </div>
 
-      {/* Context content - FloatingContextActions provides sticky copy button inside context */}
+      {/* Context content - FloatingContextActions provides sticky header with TOC + copy button */}
       <div ref={containerRef} className="mc-context-section mc-context-section--compact">
-        <FloatingContextActions copyText={contextMd || null} className="mc-context-content">
-          {/* Sticky TOC - inside content, appears as collapsible pill */}
-          {contextMd && (
-            <TableOfContents
-              variant="sticky"
-              contentRef={contentRef}
-              containerRef={containerRef}
-              title={`${companyName} Context`}
-              headingLevels={['h2']}
-              minHeadings={2}
-            />
-          )}
-
+        <FloatingContextActions
+          copyText={contextMd || null}
+          className="mc-context-content"
+          stickyHeader={
+            contextMd ? (
+              <>
+                {/* Desktop: sticky pill TOC */}
+                <TableOfContents
+                  variant="sticky"
+                  contentRef={contentRef}
+                  containerRef={containerRef}
+                  title={`${companyName} Context`}
+                  headingLevels={['h2']}
+                  minHeadings={2}
+                />
+                {/* Mobile: sheet TOC (floating pill trigger) */}
+                <TableOfContents
+                  variant="sheet"
+                  contentRef={contentRef}
+                  containerRef={containerRef}
+                  title={`${companyName} Context`}
+                  headingLevels={['h2']}
+                  minHeadings={2}
+                  className="mc-mobile-toc"
+                />
+              </>
+            ) : null
+          }
+        >
           <div ref={contentRef}>
             {contextMd ? (
               <MarkdownViewer content={contextMd} />

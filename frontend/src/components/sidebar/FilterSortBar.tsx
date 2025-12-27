@@ -2,9 +2,29 @@
  * FilterSortBar - Filter and sort dropdowns
  *
  * Extracted from Sidebar.jsx for better maintainability.
+ *
+ * Note: Filter values use department slugs (e.g., "technology", "standard")
+ * because conversations store department as a slug, not a UUID.
  */
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import type { Department } from '../../types/business';
+import type { Conversation, ConversationSortBy } from '../../types/conversation';
+
+interface ConversationGroup {
+  conversations: Conversation[];
+}
+
+interface FilterSortBarProps {
+  filter: string;
+  onFilterChange: (value: string) => void;
+  sortBy: ConversationSortBy;
+  onSortByChange: (value: ConversationSortBy) => void;
+  departments?: Department[];
+  groupedConversations?: Record<string, ConversationGroup>;
+  activeCount?: number;
+  archivedCount?: number;
+}
 
 export function FilterSortBar({
   filter,
@@ -15,7 +35,7 @@ export function FilterSortBar({
   groupedConversations = {},
   activeCount = 0,
   archivedCount = 0
-}) {
+}: FilterSortBarProps) {
   return (
     <div className="sidebar-filter">
       <Select value={filter} onValueChange={onFilterChange}>
@@ -25,9 +45,11 @@ export function FilterSortBar({
         <SelectContent>
           <SelectItem value="all">All Conversations ({activeCount})</SelectItem>
           {departments.map(dept => {
-            const deptCount = groupedConversations[dept.id]?.conversations.length || 0;
+            // Use slug for grouping key (conversations store department as slug)
+            const deptKey = dept.slug || dept.id;
+            const deptCount = groupedConversations[deptKey]?.conversations.length || 0;
             return (
-              <SelectItem key={dept.id} value={dept.id}>
+              <SelectItem key={dept.id} value={deptKey}>
                 {dept.name} ({deptCount})
               </SelectItem>
             );

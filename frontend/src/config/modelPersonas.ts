@@ -5,9 +5,23 @@
  * Used throughout the deliberation view for consistent branding.
  */
 
+type Provider = 'openai' | 'anthropic' | 'google' | 'xai' | 'deepseek' | 'council' | 'unknown';
+
+interface ModelPersona {
+  color: string;
+  shortName: string;
+  fullName: string;
+  tagline: string;
+  provider: Provider;
+}
+
+interface ModelPersonaWithLabel extends ModelPersona {
+  providerLabel: string;
+}
+
 // Provider colors for consistent branding
 // Only includes providers we actually use in the council
-export const PROVIDER_COLORS = {
+export const PROVIDER_COLORS: Record<Provider, string> = {
   openai: '#10a37f',      // Green
   anthropic: '#d97706',   // Orange/amber
   google: '#4285f4',      // Blue
@@ -18,7 +32,7 @@ export const PROVIDER_COLORS = {
 };
 
 // Provider labels for collapsed summary pills
-export const PROVIDER_LABELS = {
+export const PROVIDER_LABELS: Record<Provider, string> = {
   openai: 'GPT',
   anthropic: 'Claude',
   google: 'Gemini',
@@ -28,7 +42,7 @@ export const PROVIDER_LABELS = {
   unknown: 'AI'
 };
 
-export const MODEL_PERSONAS = {
+export const MODEL_PERSONAS: Record<string, ModelPersona> = {
   // OpenAI Models
   'gpt-4': {
     color: PROVIDER_COLORS.openai,
@@ -204,7 +218,7 @@ export const MODEL_PERSONAS = {
 };
 
 // Default persona for unknown models
-const DEFAULT_PERSONA = {
+const DEFAULT_PERSONA: ModelPersona = {
   color: PROVIDER_COLORS.unknown,
   shortName: 'AI',
   fullName: 'AI Model',
@@ -214,38 +228,36 @@ const DEFAULT_PERSONA = {
 
 /**
  * Get persona configuration for a model
- * @param {string} modelId - The model identifier
- * @returns {Object} Persona configuration with providerLabel
  */
-export function getModelPersona(modelId) {
+export function getModelPersona(modelId: string | null | undefined): ModelPersonaWithLabel {
   if (!modelId) return { ...DEFAULT_PERSONA, providerLabel: PROVIDER_LABELS[DEFAULT_PERSONA.provider] };
 
   // Try exact match first
   if (MODEL_PERSONAS[modelId]) {
     const persona = MODEL_PERSONAS[modelId];
-    return { ...persona, providerLabel: PROVIDER_LABELS[persona.provider] || persona.provider.toUpperCase() };
+    return { ...persona, providerLabel: PROVIDER_LABELS[persona.provider] ?? persona.provider.toUpperCase() };
   }
 
   // Extract model name from provider/model format (e.g., 'x-ai/grok-4' → 'grok-4')
-  const modelName = modelId.includes('/') ? modelId.split('/')[1] : modelId;
+  const modelName = modelId.includes('/') ? modelId.split('/')[1] ?? modelId : modelId;
   const lowerModelName = modelName.toLowerCase();
 
   // Try exact match on model name part
   if (MODEL_PERSONAS[modelName]) {
     const persona = MODEL_PERSONAS[modelName];
-    return { ...persona, providerLabel: PROVIDER_LABELS[persona.provider] || persona.provider.toUpperCase() };
+    return { ...persona, providerLabel: PROVIDER_LABELS[persona.provider] ?? persona.provider.toUpperCase() };
   }
 
   // Try partial match (e.g., 'gpt-4-turbo-preview' → 'gpt-4-turbo')
   for (const [key, persona] of Object.entries(MODEL_PERSONAS)) {
     if (lowerModelName.includes(key.toLowerCase())) {
-      return { ...persona, providerLabel: PROVIDER_LABELS[persona.provider] || persona.provider.toUpperCase() };
+      return { ...persona, providerLabel: PROVIDER_LABELS[persona.provider] ?? persona.provider.toUpperCase() };
     }
   }
 
   // Detect provider from model ID for unknown models
   const lowerModelId = modelId.toLowerCase();
-  let detectedProvider = 'unknown';
+  let detectedProvider: Provider = 'unknown';
   if (lowerModelId.includes('openai') || lowerModelId.includes('gpt') || lowerModelId.includes('o1')) {
     detectedProvider = 'openai';
   } else if (lowerModelId.includes('anthropic') || lowerModelId.includes('claude')) {
@@ -261,7 +273,7 @@ export function getModelPersona(modelId) {
   // Return default with dynamic name and detected provider
   return {
     ...DEFAULT_PERSONA,
-    shortName: modelName.split('-')[0].toUpperCase(),
+    shortName: (modelName.split('-')[0] ?? modelName).toUpperCase(),
     fullName: modelId,
     provider: detectedProvider,
     color: PROVIDER_COLORS[detectedProvider],
@@ -271,19 +283,15 @@ export function getModelPersona(modelId) {
 
 /**
  * Get color for a model
- * @param {string} modelId - The model identifier
- * @returns {string} Hex color code
  */
-export function getModelColor(modelId) {
+export function getModelColor(modelId: string | null | undefined): string {
   return getModelPersona(modelId).color;
 }
 
 /**
  * Get first letter/initials for avatar display
- * @param {string} modelId - The model identifier
- * @returns {string} 1-2 character initials
  */
-export function getModelInitials(modelId) {
+export function getModelInitials(modelId: string | null | undefined): string {
   const persona = getModelPersona(modelId);
   const name = persona.shortName;
 
@@ -304,13 +312,11 @@ export function getModelInitials(modelId) {
 
 /**
  * Get all personas for a specific provider
- * @param {string} provider - Provider name (openai, anthropic, google, etc.)
- * @returns {Object} Map of model IDs to personas
  */
-export function getPersonasByProvider(provider) {
+export function getPersonasByProvider(provider: Provider): Record<string, ModelPersona> {
   return Object.entries(MODEL_PERSONAS)
     .filter(([, persona]) => persona.provider === provider)
-    .reduce((acc, [id, persona]) => {
+    .reduce((acc: Record<string, ModelPersona>, [id, persona]) => {
       acc[id] = persona;
       return acc;
     }, {});

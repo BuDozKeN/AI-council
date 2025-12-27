@@ -7,6 +7,27 @@
 import { Briefcase } from 'lucide-react';
 import { DEV_MODE } from './hooks';
 
+interface User {
+  email: string;
+}
+
+interface SidebarFooterProps {
+  user: User | null;
+  mockMode: boolean | null;
+  isTogglingMock: boolean;
+  onToggleMockMode: () => void;
+  cachingMode: boolean | null;
+  isTogglingCaching: boolean;
+  onToggleCachingMode: () => void;
+  onOpenMyCompany: () => void;
+  onOpenSettings: () => void;
+  onSignOut: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+  onCompanyMouseEnter?: () => void;
+  onCompanyMouseLeave?: () => void;
+}
+
 export function SidebarFooter({
   user,
   mockMode,
@@ -20,8 +41,11 @@ export function SidebarFooter({
   onSignOut,
   // Hover handlers to keep panel open when hovering footer
   onMouseEnter,
-  onMouseLeave
-}) {
+  onMouseLeave,
+  // Prefetch handlers for instant navigation
+  onCompanyMouseEnter,
+  onCompanyMouseLeave,
+}: SidebarFooterProps) {
   if (!user) return null;
 
   return (
@@ -60,7 +84,13 @@ export function SidebarFooter({
         </span>
       </div>
       <div className="sidebar-footer-buttons">
-        <button className="company-btn" onClick={onOpenMyCompany} title="My Company">
+        <button
+          className="company-btn"
+          onClick={onOpenMyCompany}
+          onMouseEnter={onCompanyMouseEnter}
+          onMouseLeave={onCompanyMouseLeave}
+          title="My Company"
+        >
           <Briefcase className="h-3.5 w-3.5" />
           Company
         </button>

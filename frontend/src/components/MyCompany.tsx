@@ -30,8 +30,49 @@ import {
   useDecisionFilter,
   usePendingDecisions,
 } from './mycompany/hooks';
+import type { MyCompanyTab, ActivityLog } from './mycompany/hooks';
+import type { Business, Department, Project, Playbook, Role } from '../types/business';
+import type { Decision } from '../types/conversation';
 
 const log = logger.scope('MyCompany');
+
+interface PromoteDecision {
+  decision: Decision;
+  title: string;
+  summary?: string;
+}
+
+type AddFormType = 'department' | 'playbook' | { type: 'role'; deptId: string } | null;
+
+interface EditingItem {
+  type: 'department' | 'role' | 'project' | 'playbook' | 'decision' | 'company-context' | 'company-context-view' | 'new_project';
+  data: Department | Role | Project | Playbook | Decision | Record<string, unknown>;
+}
+
+interface ConfirmModalState {
+  type: 'archivePlaybook' | 'deletePlaybook';
+  item: Playbook;
+  title: string;
+  message: string;
+  confirmText?: string;
+  variant?: 'warning' | 'danger';
+}
+
+interface MyCompanyProps {
+  companyId: string;
+  companyName?: string;
+  allCompanies?: Business[];
+  onSelectCompany?: (id: string) => void;
+  onClose?: () => void;
+  onNavigateToConversation?: (conversationId: string, source: string) => void;
+  initialTab?: MyCompanyTab;
+  initialDecisionId?: string | null;
+  initialPlaybookId?: string | null;
+  initialProjectId?: string | null;
+  initialProjectDecisionId?: string | null;
+  initialPromoteDecision?: PromoteDecision | null;
+  onConsumePromoteDecision?: (() => void) | null;
+}
 
 /**
  * My Company - Unified interface for company management
@@ -50,20 +91,20 @@ export default function MyCompany({
   initialProjectDecisionId = null,
   initialPromoteDecision = null,
   onConsumePromoteDecision = null
-}) {
+}: MyCompanyProps) {
   // Core UI state
-  const [activeTab, setActiveTab] = useState(initialTab);
-  const [expandedDept, setExpandedDept] = useState(null);
-  const [editingItem, setEditingItem] = useState(null);
-  const [showAddForm, setShowAddForm] = useState(null);
-  const [saving, setSaving] = useState(false);
-  const [confirmModal, setConfirmModal] = useState(null);
+  const [activeTab, setActiveTab] = useState<MyCompanyTab>(initialTab);
+  const [expandedDept, setExpandedDept] = useState<string | null>(null);
+  const [editingItem, setEditingItem] = useState<EditingItem | null>(null);
+  const [showAddForm, setShowAddForm] = useState<AddFormType>(null);
+  const [saving, setSaving] = useState<boolean>(false);
+  const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
 
   // Highlight states for auto-opening items
-  const [highlightedDecisionId, setHighlightedDecisionId] = useState(initialDecisionId);
-  const [highlightedPlaybookId, setHighlightedPlaybookId] = useState(initialPlaybookId);
-  const [highlightedProjectId, setHighlightedProjectId] = useState(initialProjectId);
-  const [initialProjectDecisionToExpand, setInitialProjectDecisionToExpand] = useState(initialProjectDecisionId);
+  const [highlightedDecisionId, setHighlightedDecisionId] = useState<string | null>(initialDecisionId);
+  const [highlightedPlaybookId, setHighlightedPlaybookId] = useState<string | null>(initialPlaybookId);
+  const [highlightedProjectId, setHighlightedProjectId] = useState<string | null>(initialProjectId);
+  const [initialProjectDecisionToExpand, setInitialProjectDecisionToExpand] = useState<string | null>(initialProjectDecisionId);
 
   // Filter hooks
   const playbookFilters = usePlaybookFilter();
@@ -146,7 +187,7 @@ export default function MyCompany({
 
   // ESC key to close
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         hapticLight();
         onClose?.();
@@ -157,8 +198,8 @@ export default function MyCompany({
   }, [onClose]);
 
   // Header click to close (but not on interactive elements)
-  const handleHeaderClick = useCallback((e) => {
-    if (e.target.closest('button, [role="combobox"], [role="listbox"], select, input')) {
+  const handleHeaderClick = useCallback((e?: React.MouseEvent) => {
+    if (e && (e.target as HTMLElement).closest('button, [role="combobox"], [role="listbox"], select, input')) {
       return;
     }
     hapticLight();
@@ -202,7 +243,8 @@ export default function MyCompany({
   // Auto-open Promote modal if returning from Source view
   useEffect(() => {
     if (initialPromoteDecision && !decisionActions.promoteModal) {
-      decisionActions.setPromoteModal(initialPromoteDecision);
+      // PromoteDecision has a decision property that matches the Decision type
+      decisionActions.setPromoteModal(initialPromoteDecision.decision);
       if (onConsumePromoteDecision) {
         onConsumePromoteDecision();
       }
@@ -210,7 +252,7 @@ export default function MyCompany({
   }, [initialPromoteDecision, onConsumePromoteDecision, decisionActions]);
 
   // Generate slug from name
-  const generateSlug = (name) => {
+  const generateSlug = (name: string): string => {
     return name
       .toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '')
@@ -223,15 +265,15 @@ export default function MyCompany({
   const totalRoles = companyData.departments.reduce((sum, dept) => sum + (dept.roles?.length || 0), 0);
 
   // Handle opening project details/edit modal
-  const handleProjectClick = (project) => {
+  const handleProjectClick = (project: Project) => {
     setEditingItem({ type: 'project', data: project });
   };
 
   // Handle clicking on activity item
-  const handleActivityClick = async (activityLog) => {
+  const handleActivityClick = async (activityLog: ActivityLog) => {
     if (!activityLog.related_id || !activityLog.related_type) return;
 
-    const showNotFound = (type) => {
+    const showNotFound = (type: string) => {
       log.warn(`${type} not found`, { related_id: activityLog.related_id });
     };
 
@@ -301,7 +343,7 @@ export default function MyCompany({
   };
 
   // Playbook actions
-  const handleArchivePlaybook = (playbook) => {
+  const handleArchivePlaybook = (playbook: Playbook) => {
     setConfirmModal({
       type: 'archivePlaybook',
       item: playbook,
@@ -312,7 +354,7 @@ export default function MyCompany({
     });
   };
 
-  const handleDeletePlaybook = (playbook) => {
+  const handleDeletePlaybook = (playbook: Playbook) => {
     setConfirmModal({
       type: 'deletePlaybook',
       item: playbook,
@@ -344,10 +386,12 @@ export default function MyCompany({
   };
 
   // CRUD handlers
-  const handleAddDepartment = async (name, description) => {
+  const handleAddDepartment = async (name: string, description?: string) => {
     setSaving(true);
     try {
-      await api.createCompanyDepartment(companyId, { name, slug: generateSlug(name), description });
+      const deptData: { name: string; slug: string; description?: string } = { name, slug: generateSlug(name) };
+      if (description) deptData.description = description;
+      await api.createCompanyDepartment(companyId, deptData);
       await companyData.loadData();
       setShowAddForm(null);
     } catch (err) {
@@ -356,7 +400,7 @@ export default function MyCompany({
     setSaving(false);
   };
 
-  const handleAddRole = async (deptId, name, title) => {
+  const handleAddRole = async (deptId: string, name: string, title: string) => {
     setSaving(true);
     try {
       await api.createCompanyRole(companyId, deptId, { name, slug: generateSlug(name), title });
@@ -368,12 +412,11 @@ export default function MyCompany({
     setSaving(false);
   };
 
-  const handleAddPlaybook = async (title, docType, content, departmentId, additionalDepartments = []) => {
+  const handleAddPlaybook = async (title: string, docType: string, content?: string, departmentId?: string | null, additionalDepartments: string[] = []) => {
     setSaving(true);
     try {
-      const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-      const allDeptIds = departmentId ? [departmentId, ...(additionalDepartments || [])] : (additionalDepartments || []);
-      await api.createCompanyPlaybook(companyId, { title, slug, doc_type: docType, content, department_ids: allDeptIds });
+      const allDeptIds = departmentId ? [departmentId, ...additionalDepartments] : (additionalDepartments.length > 0 ? additionalDepartments : null);
+      await api.createCompanyPlaybook(companyId, { title, doc_type: docType, content, department_ids: allDeptIds });
       await companyData.loadData();
       setShowAddForm(null);
     } catch (err) {
@@ -382,7 +425,7 @@ export default function MyCompany({
     setSaving(false);
   };
 
-  const handleUpdateRole = async (roleId, deptId, updates) => {
+  const handleUpdateRole = async (roleId: string, deptId: string, updates: Partial<Role>) => {
     try {
       await api.updateCompanyRole(companyId, deptId, roleId, updates);
       await companyData.loadData();
@@ -393,7 +436,7 @@ export default function MyCompany({
     }
   };
 
-  const handleUpdateDepartment = async (deptId, updates) => {
+  const handleUpdateDepartment = async (deptId: string, updates: Partial<Department>) => {
     try {
       await api.updateCompanyDepartment(companyId, deptId, updates);
       await companyData.loadData();
@@ -404,9 +447,13 @@ export default function MyCompany({
     }
   };
 
-  const handleUpdateCompanyContext = async (updates) => {
+  const handleUpdateCompanyContext = async (updates: Record<string, unknown>) => {
     try {
-      await api.updateCompanyContext(companyId, updates);
+      // Ensure context_md is a string for the API call
+      const contextData = {
+        context_md: typeof updates.context_md === 'string' ? updates.context_md : ''
+      };
+      await api.updateCompanyContext(companyId, contextData);
       await companyData.loadData();
       setEditingItem(null);
     } catch (err) {
@@ -415,7 +462,7 @@ export default function MyCompany({
     }
   };
 
-  const handleUpdatePlaybook = async (playbookId, updates) => {
+  const handleUpdatePlaybook = async (playbookId: string, updates: Partial<Playbook>) => {
     try {
       await api.updateCompanyPlaybook(companyId, playbookId, updates);
       await companyData.loadData();
@@ -510,7 +557,7 @@ export default function MyCompany({
 
   return (
     <div className="mc-overlay" onClick={onClose}>
-      <div className="mc-panel" ref={panelSwipeRef} onClick={e => e.stopPropagation()}>
+      <div className="mc-panel" ref={panelSwipeRef as React.RefObject<HTMLDivElement>} onClick={e => e.stopPropagation()}>
         <MyCompanyHeader
           companyName={companyName}
           companyId={companyId}
@@ -518,13 +565,13 @@ export default function MyCompany({
           pendingDecisionsCount={pendingDecisionsCount}
           onSelectCompany={onSelectCompany}
           onClose={onClose}
-          onHeaderClick={handleHeaderClick}
+          onHeaderClick={() => handleHeaderClick()}
         />
 
-        <MyCompanyTabs activeTab={activeTab} onTabChange={setActiveTab} />
+        <MyCompanyTabs activeTab={activeTab} onTabChange={(tabId: string) => setActiveTab(tabId as MyCompanyTab)} />
 
         {/* Content */}
-        <div className="mc-content" ref={contentRef}>
+        <div className="mc-content" ref={contentRef as React.RefObject<HTMLDivElement>}>
           <PullToRefreshIndicator progress={pullProgress} isRefreshing={isRefreshing} pullDistance={pullDistance} />
 
           {showSkeleton ? renderSkeleton() : companyData.error ? (
@@ -579,7 +626,21 @@ export default function MyCompany({
               )}
               {activeTab === 'playbooks' && (
                 <PlaybooksTab
-                  playbooks={companyData.playbooks}
+                  playbooksLoaded={companyData.playbooksLoaded}
+                  loading={companyData.loading}
+                  playbooks={companyData.playbooks
+                    .filter((p): p is Playbook & { title: string; doc_type: 'sop' | 'framework' | 'policy' } =>
+                      Boolean(p.title) && Boolean(p.doc_type) && ['sop', 'framework', 'policy'].includes(p.doc_type || '')
+                    )
+                    .map(p => ({
+                      id: p.id,
+                      title: p.title,
+                      doc_type: p.doc_type,
+                      department_id: p.department_id,
+                      department_name: undefined,
+                      department_slug: undefined,
+                      additional_departments: p.department_ids?.slice(1),
+                    }))}
                   departments={companyData.departments}
                   playbookTypeFilter={playbookFilters.playbookTypeFilter}
                   playbookDeptFilter={playbookFilters.playbookDeptFilter}
@@ -588,32 +649,32 @@ export default function MyCompany({
                   onDeptFilterChange={playbookFilters.setPlaybookDeptFilter}
                   onExpandedTypesChange={playbookFilters.setExpandedTypes}
                   onAddPlaybook={() => setShowAddForm('playbook')}
-                  onViewPlaybook={(doc) => setEditingItem({ type: 'playbook', data: doc })}
-                  onArchivePlaybook={handleArchivePlaybook}
-                  onDeletePlaybook={handleDeletePlaybook}
+                  onViewPlaybook={(doc) => setEditingItem({ type: 'playbook', data: doc as unknown as Playbook })}
+                  onArchivePlaybook={(playbook) => handleArchivePlaybook(playbook as unknown as Playbook)}
+                  onDeletePlaybook={(playbook) => handleDeletePlaybook(playbook as unknown as Playbook)}
                 />
               )}
               {activeTab === 'decisions' && (
                 <DecisionsTab
-                  decisions={companyData.decisions}
+                  decisions={companyData.decisions as unknown as Parameters<typeof DecisionsTab>[0]['decisions']}
                   departments={companyData.departments}
                   decisionDeptFilter={decisionFilters.decisionDeptFilter}
                   decisionSearch={decisionFilters.decisionSearch}
                   deletingDecisionId={decisionActions.deletingDecisionId}
                   onDeptFilterChange={decisionFilters.setDecisionDeptFilter}
                   onSearchChange={decisionFilters.setDecisionSearch}
-                  onPromoteDecision={decisionActions.handlePromoteDecision}
-                  onDeleteDecision={decisionActions.handleDeleteDecision}
+                  onPromoteDecision={(decision) => decisionActions.handlePromoteDecision(decision as unknown as Decision)}
+                  onDeleteDecision={(decision) => decisionActions.handleDeleteDecision(decision as unknown as Decision)}
                   onNavigateToConversation={onNavigateToConversation}
                 />
               )}
               {activeTab === 'activity' && (
                 <ActivityTab
-                  activityLogs={companyData.activityLogs}
+                  activityLogs={companyData.activityLogs as unknown as Parameters<typeof ActivityTab>[0]['activityLogs']}
                   activityLoaded={companyData.activityLoaded}
                   activityHasMore={companyData.activityHasMore}
                   activityLoadingMore={activityData.activityLoadingMore}
-                  onActivityClick={handleActivityClick}
+                  onActivityClick={(log) => handleActivityClick(log as unknown as Parameters<typeof handleActivityClick>[0])}
                   onLoadMore={activityData.handleLoadMoreActivity}
                   onNavigateToConversation={onNavigateToConversation}
                 />
@@ -642,15 +703,15 @@ export default function MyCompany({
           projects={companyData.projects}
           initialProjectDecisionToExpand={initialProjectDecisionToExpand}
           projectActions={projectActions}
-          decisionActions={decisionActions}
+          decisionActions={decisionActions as unknown as Parameters<typeof EditingModal>[0]['decisionActions']}
           onClose={() => setEditingItem(null)}
           onConsumeInitialDecision={() => setInitialProjectDecisionToExpand(null)}
-          onUpdateCompanyContext={handleUpdateCompanyContext}
+          onUpdateCompanyContext={(data) => handleUpdateCompanyContext(data as Record<string, unknown>)}
           onUpdateDepartment={handleUpdateDepartment}
           onUpdateRole={handleUpdateRole}
           onUpdatePlaybook={handleUpdatePlaybook}
           onNavigateToConversation={onNavigateToConversation}
-          onSetProjects={companyData.setProjects}
+          onSetProjects={companyData.setProjects as unknown as Parameters<typeof EditingModal>[0]['onSetProjects']}
         />
 
         <PromoteModal
@@ -659,12 +720,12 @@ export default function MyCompany({
           projects={companyData.projects}
           companyId={companyId}
           saving={decisionActions.saving}
-          decisionActions={decisionActions}
+          decisionActions={decisionActions as unknown as Parameters<typeof PromoteModal>[0]['decisionActions']}
           onNavigateToConversation={onNavigateToConversation}
         />
 
         <ConfirmActionModal
-          confirmModal={confirmModal}
+          confirmModal={confirmModal as Parameters<typeof ConfirmActionModal>[0]['confirmModal']}
           saving={saving}
           onConfirm={handleConfirmAction}
           onCancel={() => setConfirmModal(null)}

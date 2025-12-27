@@ -221,3 +221,107 @@
 .prose > blockquote:first-child + hr + h1 {
   margin-top: 0;
 }
+
+/* =============================================================================
+   DARK MODE - Comprehensive Prose/Markdown Styles
+   ============================================================================= */
+
+.dark .prose h1 {
+  color: var(--color-text-primary);
+}
+
+.dark .prose h2 {
+  color: var(--color-text-primary);
+  border-bottom-color: var(--color-amber-400);
+}
+
+.dark .prose h3 {
+  color: var(--color-text-primary);
+}
+
+.dark .prose h4 {
+  color: var(--color-text-secondary);
+}
+
+.dark .prose p {
+  color: var(--color-text-secondary);
+}
+
+.dark .prose li {
+  color: var(--color-text-secondary);
+}
+
+.dark .prose li::marker {
+  color: var(--color-amber-400);
+}
+
+.dark .prose strong {
+  color: var(--color-text-primary);
+}
+
+.dark .prose em {
+  color: var(--color-text-secondary);
+}
+
+.dark .prose blockquote {
+  border-left-color: var(--color-border-dark);
+  color: var(--color-text-tertiary);
+}
+
+.dark .prose blockquote p {
+  color: var(--color-text-tertiary);
+}
+
+.dark .prose code {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-amber-300);
+}
+
+/* Tables - dark mode */
+.dark .prose table {
+  border-color: var(--color-border);
+}
+
+.dark .prose th {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+.dark .prose td {
+  color: var(--color-text-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .prose td,
+.dark .prose th {
+  border-color: var(--color-border);
+}
+
+.dark .prose tbody tr:nth-child(even) {
+  background-color: var(--color-bg-secondary);
+}
+
+.dark .prose tbody tr:hover {
+  background-color: var(--color-bg-tertiary);
+}
+
+/* Links */
+.dark .prose a {
+  color: var(--color-blue-400);
+}
+
+.dark .prose a:hover {
+  color: var(--color-blue-300);
+}
+
+/* Horizontal rule */
+.dark .prose hr {
+  border-top-color: var(--color-border);
+}
+
+/* Metadata blockquote */
+.dark .prose > blockquote:first-child {
+  background-color: var(--color-bg-tertiary);
+  border-left-color: var(--color-border);
+}

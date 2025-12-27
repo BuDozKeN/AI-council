@@ -3,6 +3,15 @@ import { Spinner } from "./Spinner"
 import { cn } from "@/lib/utils"
 import "./LoadingState.css"
 
+import { SpinnerSize, SpinnerVariant } from "./Spinner"
+
+interface LoadingStateProps extends React.HTMLAttributes<HTMLDivElement> {
+  message?: string | undefined;
+  size?: SpinnerSize | undefined;
+  variant?: SpinnerVariant | undefined;
+  className?: string | undefined;
+}
+
 /**
  * Unified LoadingState component for consistent loading UI across the app.
  *
@@ -11,7 +20,7 @@ import "./LoadingState.css"
  * @param {string} variant - Spinner color variant (default: "default")
  * @param {string} className - Additional CSS classes
  */
-const LoadingState = React.forwardRef(({
+const LoadingState = React.forwardRef<HTMLDivElement, LoadingStateProps>(({
   message,
   size = "lg",
   variant = "default",

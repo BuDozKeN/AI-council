@@ -1,7 +1,8 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
+import type { User } from '@supabase/supabase-js';
 import { Button } from './ui/button';
 import { Spinner } from './ui/Spinner';
-import { Plus, PanelLeftClose, PanelLeft, History, Search, Settings, Building2, LogOut, Trophy } from 'lucide-react';
+import { Plus, PanelLeftClose, PanelLeft, History, Settings, Building2, LogOut, Trophy } from 'lucide-react';
 import {
   useMockMode,
   useCachingMode,
@@ -16,13 +17,53 @@ import {
   ConversationContextMenu,
   useContextMenu,
 } from './sidebar/index.jsx';
+import type { SearchBarRef } from './sidebar/SearchBar';
 import { ConversationSkeletonGroup } from './ui/Skeleton';
-import { usePullToRefresh, useKeyboardShortcuts, useListNavigation, useDragAndDrop } from '../hooks';
+import { usePullToRefresh, useKeyboardShortcuts, useListNavigation, useDragAndDrop, usePrefetchCompany } from '../hooks';
+import type { DraggableConversation } from '../hooks/useDragAndDrop';
 import { PullToRefreshIndicator } from './ui/PullToRefresh';
 import { toast } from './ui/sonner';
 import { api } from '../api';
 import { logger } from '../utils/logger';
+import type { Conversation, ConversationSortBy } from '../types/conversation';
+import type { Department } from '../types/business';
 import './Sidebar.css';
+
+interface ConversationGroup {
+  name: string;
+  conversations: Conversation[];
+  deptId: string;
+}
+
+interface SidebarProps {
+  conversations: Conversation[];
+  currentConversationId: string | null;
+  onSelectConversation: (id: string) => void;
+  onNewConversation: () => void;
+  onOpenLeaderboard?: () => void;
+  onOpenSettings?: () => void;
+  onOpenMyCompany?: () => void;
+  onExportConversation?: (id: string) => void;
+  onArchiveConversation?: (id: string, archived?: boolean) => void | Promise<void>;
+  onStarConversation?: (id: string, starred?: boolean) => void | Promise<void>;
+  onDeleteConversation: (id: string) => void;
+  onBulkDeleteConversations: (ids: string[]) => Promise<{ deleted: string[] }>;
+  onRenameConversation: (id: string, title: string) => Promise<void>;
+  onLoadMore?: (offset: number, searchQuery?: string) => Promise<Conversation[] | void>;
+  onSearch?: (query: string) => Promise<Conversation[] | void> | void;
+  hasMoreConversations?: boolean;
+  departments?: Department[];
+  user?: User | null;
+  onSignOut?: () => void;
+  sortBy?: ConversationSortBy;
+  onSortByChange?: (sortBy: ConversationSortBy) => void;
+  isMobileOpen?: boolean;
+  onMobileClose?: () => void;
+  onRefresh?: () => Promise<void>;
+  isLoading?: boolean;
+  onUpdateConversationDepartment?: (id: string, department: string) => void;
+  companyId?: string | null;
+}
 
 /**
  * Perplexity-style collapsible sidebar with three states:
@@ -55,9 +96,12 @@ export default function Sidebar({
   isMobileOpen = false,
   onMobileClose,
   onRefresh,
-  isLoading = false, // New prop for initial loading state
-  onUpdateConversationDepartment, // Optional callback for department changes
-}) {
+  isLoading = false,
+  onUpdateConversationDepartment,
+  companyId = null,
+}: SidebarProps) {
+  // Prefetch company data on hover for instant navigation
+  const { allHoverHandlers: prefetchMyCompanyHandlers } = usePrefetchCompany(companyId);
   // Sidebar state: 'collapsed' | 'hovered' | 'pinned'
   const [sidebarState, setSidebarState] = useState(() => {
     // Load saved preference from localStorage
@@ -68,27 +112,27 @@ export default function Sidebar({
     return 'collapsed';
   });
 
-  const [filter, setFilter] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [expandedGroups, setExpandedGroups] = useState({});
+  const [filter, setFilter] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
   // Note: deleteConfirm modal removed - optimistic delete with undo toast is used instead
-  const [editingId, setEditingId] = useState(null);
-  const [editingTitle, setEditingTitle] = useState('');
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
-  const [selectedIds, setSelectedIds] = useState(new Set());
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [focusedConversationId, setFocusedConversationId] = useState(null);
-  const searchTimeoutRef = useRef(null);
-  const searchInputRef = useRef(null);
-  const sidebarRef = useRef(null);
-  const loadMoreRef = useRef(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState<string>('');
+  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [focusedConversationId, setFocusedConversationId] = useState<string | null>(null);
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const searchInputRef = useRef<SearchBarRef | null>(null);
+  const sidebarRef = useRef<HTMLElement | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   // Context menu for right-click actions
   const contextMenu = useContextMenu();
 
   // Drag and drop for moving conversations between departments
-  const handleDragDrop = useCallback(async (conversationId, targetDepartment, conversation) => {
+  const handleDragDrop = useCallback(async (conversationId: string, targetDepartment: string, item: DraggableConversation) => {
     // Optimistically update UI (parent will handle via callback)
     if (onUpdateConversationDepartment) {
       onUpdateConversationDepartment(conversationId, targetDepartment);
@@ -102,8 +146,8 @@ export default function Sidebar({
       logger.error('Failed to update department:', error);
       toast.error("Couldn't move that conversation. Please try again.");
       // Revert optimistic update
-      if (onUpdateConversationDepartment && conversation.department) {
-        onUpdateConversationDepartment(conversationId, conversation.department);
+      if (onUpdateConversationDepartment && item.department) {
+        onUpdateConversationDepartment(conversationId, item.department);
       }
     }
   }, [onUpdateConversationDepartment]);
@@ -149,8 +193,8 @@ export default function Sidebar({
 
     if (!isExpandedOnDesktop) return;
 
-    const handleClickOutside = (e) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(e.target)) {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(e.target as Node)) {
         if (isPinned) {
           // Unpin and collapse
           setSidebarState('collapsed');
@@ -195,7 +239,7 @@ export default function Sidebar({
   });
 
   // Edit handlers
-  const handleStartEdit = (conv, e) => {
+  const handleStartEdit = (conv: Conversation, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     setEditingId(conv.id);
     setEditingTitle(conv.title || 'New Conversation');
@@ -215,7 +259,7 @@ export default function Sidebar({
   };
 
   // Search handlers
-  const handleSearchChange = (e) => {
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchQuery(value);
 
@@ -251,7 +295,7 @@ export default function Sidebar({
   };
 
   // Multi-select handlers
-  const toggleSelection = (convId, e) => {
+  const toggleSelection = (convId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setSelectedIds(prev => {
       const newSet = new Set(prev);
@@ -294,7 +338,7 @@ export default function Sidebar({
       return { active: activeConversations, archived: archivedConversations };
     }
     const query = searchQuery.toLowerCase();
-    const matchesSearch = (conv) =>
+    const matchesSearch = (conv: Conversation) =>
       conv.title?.toLowerCase().includes(query) ||
       conv.department?.toLowerCase().includes(query);
     return {
@@ -305,7 +349,7 @@ export default function Sidebar({
 
   // Flat list of all visible conversations for keyboard navigation
   const flatConversationList = useMemo(() => {
-    const list = [];
+    const list: Conversation[] = [];
     const convsToShow = filter === 'archived' ? filteredBySearch.archived : filteredBySearch.active;
     convsToShow.forEach(conv => list.push(conv));
     return list;
@@ -318,7 +362,7 @@ export default function Sidebar({
     navigateDown,
     selectCurrent,
   } = useListNavigation({
-    items: flatConversationList,
+    items: flatConversationList as unknown as { id: string; [key: string]: unknown }[],
     currentId: currentConversationId,
     onSelect: onSelectConversation,
     enabled: isExpanded && !editingId,
@@ -357,24 +401,28 @@ export default function Sidebar({
   });
 
   // Group conversations by department
+  // Note: conversations store department as a slug (e.g., "technology", "standard")
+  // while departments from the API have both id (UUID) and slug fields
   const groupedConversations = useMemo(() => {
-    const groups = {};
+    const groups: Record<string, ConversationGroup> = {};
     const convsToGroup = filter === 'archived' ? filteredBySearch.archived : filteredBySearch.active;
 
+    // Create groups keyed by slug (or id for legacy/default departments)
     departments.forEach(dept => {
-      groups[dept.id] = { name: dept.name, conversations: [] };
+      const key = dept.slug || dept.id;
+      groups[key] = { name: dept.name, conversations: [], deptId: dept.id };
     });
 
     if (!groups['standard']) {
-      groups['standard'] = { name: 'Standard', conversations: [] };
+      groups['standard'] = { name: 'Standard', conversations: [], deptId: 'standard' };
     }
 
     convsToGroup.forEach(conv => {
-      const dept = conv.department || 'standard';
-      if (!groups[dept]) {
-        groups[dept] = { name: dept.charAt(0).toUpperCase() + dept.slice(1), conversations: [] };
+      const deptSlug = conv.department || 'standard';
+      if (!groups[deptSlug]) {
+        groups[deptSlug] = { name: deptSlug.charAt(0).toUpperCase() + deptSlug.slice(1), conversations: [], deptId: deptSlug };
       }
-      groups[dept].conversations.push(conv);
+      groups[deptSlug].conversations.push(conv);
     });
 
     return groups;
@@ -388,15 +436,15 @@ export default function Sidebar({
     return { [filter]: groupedConversations[filter] };
   }, [groupedConversations, filter]);
 
-  const toggleGroup = (groupId) => {
+  const toggleGroup = (groupId: string) => {
     setExpandedGroups(prev => ({ ...prev, [groupId]: !prev[groupId] }));
   };
 
-  const isGroupExpanded = (groupId) => {
+  const isGroupExpanded = (groupId: string): boolean => {
     if (expandedGroups[groupId] !== undefined) {
       return expandedGroups[groupId];
     }
-    return groupedConversations[groupId]?.conversations.length > 0;
+    return (groupedConversations[groupId]?.conversations.length ?? 0) > 0;
   };
 
   const totalConversations = conversations.length;
@@ -404,8 +452,8 @@ export default function Sidebar({
 
   // Use virtualization for large lists (> 20 conversations for consistency)
   const useVirtualization = totalConversations > 20;
-  const listContainerRef = useRef(null);
-  const [listHeight, setListHeight] = useState(400);
+  const listContainerRef = useRef<HTMLDivElement | null>(null);
+  const [listHeight, setListHeight] = useState<number>(400);
 
   // Update list height when container resizes
   useEffect(() => {
@@ -426,18 +474,19 @@ export default function Sidebar({
 
   // Infinite scroll - auto-load more when reaching bottom
   useEffect(() => {
-    if (!loadMoreRef.current || !onLoadMore || !hasMoreConversations || isLoadingMore || searchQuery) return;
+    const loadMoreElement = loadMoreRef.current;
+    if (!loadMoreElement || !onLoadMore || !hasMoreConversations || isLoadingMore || searchQuery) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && !isLoadingMore) {
+        if (entries[0]?.isIntersecting && !isLoadingMore) {
           handleLoadMore();
         }
       },
       { threshold: 0.1 }
     );
 
-    observer.observe(loadMoreRef.current);
+    observer.observe(loadMoreElement);
     return () => observer.disconnect();
   // eslint-disable-next-line react-hooks/exhaustive-deps -- handleLoadMore is stable within observer
   }, [onLoadMore, hasMoreConversations, isLoadingMore, searchQuery]);
@@ -506,7 +555,7 @@ export default function Sidebar({
               icon={<History className="h-5 w-5" />}
               title={`History (${totalConversations})`}
               onClick={togglePin}
-              onMouseEnter={() => totalConversations > 0 && handleIconHover('history')}
+              onMouseEnter={() => { if (totalConversations > 0) handleIconHover('history'); }}
               onMouseLeave={handleIconLeave}
               isActive={hoveredIcon === 'history'}
               disabled={totalConversations === 0}
@@ -546,7 +595,7 @@ export default function Sidebar({
                   filter={filter}
                   onFilterChange={setFilter}
                   sortBy={sortBy}
-                  onSortByChange={onSortByChange}
+                  onSortByChange={onSortByChange ?? (() => {})}
                   departments={departments}
                   groupedConversations={groupedConversations}
                   activeCount={filteredBySearch.active.length}
@@ -564,7 +613,7 @@ export default function Sidebar({
             />
 
             {/* Conversation List */}
-            <div className="conversation-list" ref={(el) => { pullToRefreshRef.current = el; listContainerRef.current = el; }}>
+            <div className="conversation-list" ref={(el: HTMLDivElement | null) => { pullToRefreshRef.current = el; listContainerRef.current = el; }}>
               {/* Skeleton loading state */}
               {isLoading && totalConversations === 0 ? (
                 <ConversationSkeletonGroup count={5} />
@@ -602,20 +651,20 @@ export default function Sidebar({
                   onSaveEdit={handleSaveEdit}
                   onCancelEdit={handleCancelEdit}
                   onToggleSelection={toggleSelection}
-                  onStarConversation={onStarConversation}
-                  onArchiveConversation={onArchiveConversation}
+                  onStarConversation={onStarConversation ? (id: string) => onStarConversation(id) : undefined}
+                  onArchiveConversation={onArchiveConversation ? (id: string) => onArchiveConversation(id) : undefined}
                   onDeleteConversation={onDeleteConversation}
                   onToggleGroup={toggleGroup}
                   onContextMenu={contextMenu.open}
                   height={listHeight}
                 />
               ) : (
-                Object.entries(filteredGroups).map(([groupId, group]) => (
+                Object.entries(filteredGroups).map(([groupId, group]) => group && (
                   <ConversationGroup
                     key={groupId}
                     groupId={groupId}
-                    groupName={group?.name}
-                    conversations={group?.conversations || []}
+                    groupName={group.name}
+                    conversations={group.conversations}
                     isExpanded={isGroupExpanded(groupId)}
                     onToggleExpand={toggleGroup}
                     currentConversationId={currentConversationId}
@@ -629,15 +678,15 @@ export default function Sidebar({
                     onSaveEdit={handleSaveEdit}
                     onCancelEdit={handleCancelEdit}
                     onToggleSelection={toggleSelection}
-                    onStarConversation={onStarConversation}
-                    onArchiveConversation={onArchiveConversation}
+                    onStarConversation={onStarConversation ? (id: string) => onStarConversation(id) : undefined}
+                    onArchiveConversation={onArchiveConversation ? (id: string) => onArchiveConversation(id) : undefined}
                     onDeleteConversation={onDeleteConversation}
                     onContextMenu={contextMenu.open}
                     // Drag and drop props
                     dropHandlers={getDropHandlers(groupId)}
                     isDropTarget={dragOverTarget === groupId}
-                    getDragHandlers={getDragHandlers}
-                    draggedItemId={draggedItem?.id}
+                    getDragHandlers={(conv: Conversation) => getDragHandlers(conv as unknown as DraggableConversation)}
+                    draggedItemId={draggedItem?.id ?? null}
                   />
                 ))
               )}
@@ -671,18 +720,20 @@ export default function Sidebar({
       {/* Footer with user info and actions */}
       {isExpanded ? (
         <SidebarFooter
-          user={user}
+          user={user ? { email: user.email ?? '' } : null}
           mockMode={mockMode}
           isTogglingMock={isTogglingMock}
           onToggleMockMode={toggleMockMode}
           cachingMode={cachingMode}
           isTogglingCaching={isTogglingCaching}
           onToggleCachingMode={toggleCachingMode}
-          onOpenMyCompany={onOpenMyCompany}
-          onOpenSettings={onOpenSettings}
-          onSignOut={onSignOut}
+          onOpenMyCompany={onOpenMyCompany ?? (() => {})}
+          onOpenSettings={onOpenSettings ?? (() => {})}
+          onSignOut={onSignOut ?? (() => {})}
           onMouseEnter={handleExpandedAreaEnter}
           onMouseLeave={handleExpandedAreaLeave}
+          onCompanyMouseEnter={prefetchMyCompanyHandlers.onMouseEnter}
+          onCompanyMouseLeave={prefetchMyCompanyHandlers.onMouseLeave}
         />
       ) : (
         // Collapsed footer - icon buttons only
@@ -695,17 +746,19 @@ export default function Sidebar({
           <SidebarIconButton
             icon={<Building2 className="h-4 w-4" />}
             title="My Company"
-            onClick={onOpenMyCompany}
+            onClick={onOpenMyCompany ?? (() => {})}
+            onMouseEnter={prefetchMyCompanyHandlers.onMouseEnter}
+            onMouseLeave={prefetchMyCompanyHandlers.onMouseLeave}
           />
           <SidebarIconButton
             icon={<Settings className="h-4 w-4" />}
             title="Settings"
-            onClick={onOpenSettings}
+            onClick={onOpenSettings ?? (() => {})}
           />
           <SidebarIconButton
             icon={<LogOut className="h-4 w-4" />}
             title="Sign Out"
-            onClick={onSignOut}
+            onClick={onSignOut ?? (() => {})}
           />
         </div>
       )}
@@ -714,11 +767,11 @@ export default function Sidebar({
       <ConversationContextMenu
         isOpen={contextMenu.isOpen}
         position={contextMenu.position}
-        conversation={contextMenu.contextData}
+        conversation={contextMenu.contextData as Conversation | null}
         onClose={contextMenu.close}
         onRename={handleStartEdit}
-        onStar={onStarConversation}
-        onArchive={onArchiveConversation}
+        onStar={(id: string, starred: boolean) => onStarConversation?.(id, starred)}
+        onArchive={(id: string, archived: boolean) => onArchiveConversation?.(id, archived)}
         onDelete={onDeleteConversation}
         onExport={onExportConversation}
       />

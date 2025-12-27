@@ -108,7 +108,7 @@
     transform: translateX(-50%);
     width: 36px;
     height: 4px;
-    background: rgba(255, 255, 255, 0.5); /* White for dark header */
+    background: var(--overlay-white-50); /* White for dark header */
     border-radius: var(--radius-xs);
     z-index: var(--z-above);
   }
@@ -549,10 +549,10 @@
     width: 56px;
     height: 56px;
     background: var(--color-indigo-600);
-    color: white;
+    color: var(--color-text-inverse);
     border: none;
     border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(99, 102, 241, 0.2);
+    box-shadow: var(--shadow-lg), 0 0 0 1px var(--overlay-indigo-20);
     cursor: pointer;
     z-index: var(--z-overlay);
     transition: all 0.2s ease;
@@ -561,8 +561,8 @@
   .mc-fab:hover {
     transform: scale(1.05);
     box-shadow:
-      0 6px 16px rgba(99, 102, 241, 0.5),
-      0 3px 6px rgba(0, 0, 0, 0.15);
+      0 6px 16px var(--overlay-indigo-20),
+      0 3px 6px var(--overlay-black-15);
   }
 
   .mc-fab:active {
@@ -1202,7 +1202,7 @@
   height: 44px;
   background: transparent;
   border: none;
-  color: white;
+  color: var(--color-text-inverse);
   cursor: pointer;
   border-radius: var(--radius-default);
   transition: background 0.15s ease;
@@ -1210,11 +1210,11 @@
 }
 
 .mc-mobile-back-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--overlay-white-10);
 }
 
 .mc-mobile-back-btn:active {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--overlay-white-15);
   transform: scale(0.98);
 }
 

@@ -15,15 +15,48 @@ import { Button } from '../../ui/button';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { SortSelect } from '../../ui/SortSelect';
 import { ScrollableContent } from '../../ui/ScrollableContent';
+import { Skeleton } from '../../ui/Skeleton';
 import { formatRelativeDate } from '../../../lib/dateUtils';
 import { getDeptColor } from '../../../lib/colors';
+import type { Department, Project } from '../../../types/business';
+
+type ProjectStatusFilter = 'all' | 'active' | 'completed' | 'archived';
+type ProjectSortBy = 'updated' | 'name' | 'created' | 'decisions';
+
+interface ExtendedProject extends Project {
+  decision_count?: number;
+  department_names?: string[];
+  last_accessed_at?: string;
+}
+
+interface ProjectsTabProps {
+  projects?: ExtendedProject[];
+  departments?: Department[];
+  projectsLoaded?: boolean;
+  loading?: boolean;
+  projectStatusFilter?: ProjectStatusFilter;
+  projectDeptFilter?: string[];
+  projectSortBy?: ProjectSortBy;
+  fadingProjectId?: string | null;
+  confirmingDeleteProjectId?: string | null;
+  onStatusFilterChange?: (filter: ProjectStatusFilter) => void;
+  onDeptFilterChange?: (ids: string[]) => void;
+  onSortByChange?: (sortBy: ProjectSortBy) => void;
+  onConfirmingDeleteChange?: (id: string | null) => void;
+  onAddProject?: () => void;
+  onProjectClick?: (project: ExtendedProject) => void;
+  onCompleteProject?: (project: ExtendedProject, e: React.MouseEvent) => void;
+  onArchiveProject?: (project: ExtendedProject, e: React.MouseEvent) => void;
+  onRestoreProject?: (project: ExtendedProject, e: React.MouseEvent) => void;
+  onDeleteProject?: (project: ExtendedProject, e: React.MouseEvent) => void;
+}
 
 // Format relative time for project timestamps
-function formatRelativeTime(dateStr) {
+function formatRelativeTime(dateStr: string | null | undefined): string {
   if (!dateStr) return 'Never';
   const date = new Date(dateStr);
   const now = new Date();
-  const diffMs = now - date;
+  const diffMs = now.getTime() - date.getTime();
   const diffMins = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
@@ -59,7 +92,7 @@ export function ProjectsTab({
   onArchiveProject,
   onRestoreProject,
   onDeleteProject
-}) {
+}: ProjectsTabProps) {
   // Memoized stats - only recalculate when projects change
   // Must be before any early returns to satisfy React hooks rules
   const stats = useMemo(() => ({
@@ -90,20 +123,56 @@ export function ProjectsTab({
         case 'name':
           return (a.name || '').localeCompare(b.name || '');
         case 'created':
-          return new Date(b.created_at) - new Date(a.created_at);
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
         case 'decisions':
           return (b.decision_count || 0) - (a.decision_count || 0);
         case 'updated':
         default:
-          return new Date(b.last_accessed_at || b.updated_at || b.created_at) -
-                 new Date(a.last_accessed_at || a.updated_at || a.created_at);
+          return new Date(b.last_accessed_at || b.updated_at || b.created_at).getTime() -
+                 new Date(a.last_accessed_at || a.updated_at || a.created_at).getTime();
       }
     });
   }, [projects, projectStatusFilter, projectDeptFilter, projectSortBy]);
 
-  // Show nothing during initial load (skeleton handled by parent)
-  if (!projectsLoaded && !loading) {
-    return null;
+  // Show skeleton during initial load
+  if (!projectsLoaded || loading) {
+    return (
+      <div className="mc-projects">
+        {/* Stats skeleton */}
+        <div className="mc-stats-grid">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="mc-stat-card">
+              <Skeleton className="h-8 w-12 mb-1" />
+              <Skeleton className="h-3 w-16" />
+            </div>
+          ))}
+        </div>
+        {/* Filters skeleton */}
+        <div className="mc-projects-filters">
+          <div className="mc-filters-left">
+            <Skeleton className="h-9 w-28" />
+            <Skeleton className="h-9 w-24" />
+          </div>
+          <Skeleton className="h-9 w-28" />
+        </div>
+        {/* Project rows skeleton */}
+        <div className="mc-projects-list">
+          {[1, 2, 3, 4, 5].map(i => (
+            <div key={i} className="mc-project-row-compact" style={{ pointerEvents: 'none' }}>
+              <Skeleton variant="circular" className="h-2.5 w-2.5" />
+              <div className="mc-project-title-group">
+                <Skeleton className="h-4 w-40" />
+                <Skeleton className="h-5 w-16" />
+              </div>
+              <div className="mc-project-meta">
+                <Skeleton className="h-3 w-6" />
+                <Skeleton className="h-3 w-12" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   if (projects.length === 0) {
@@ -119,7 +188,7 @@ export function ProjectsTab({
   }
 
   // Project row component
-  const renderProjectRow = (project) => {
+  const renderProjectRow = (project: ExtendedProject) => {
     const deptIds = project.department_ids || [];
     const deptNames = project.department_names || [];
     const isFading = fadingProjectId === project.id;
@@ -136,8 +205,8 @@ export function ProjectsTab({
         {/* Title group: name + ALL department badges */}
         <div className="mc-project-title-group">
           <span className="mc-project-name">{project.name}</span>
-          {deptIds.map((deptId, idx) => {
-            const deptName = deptNames[idx] || departments.find(d => d.id === deptId)?.name;
+          {deptIds.map((deptId: string, idx: number) => {
+            const deptName = deptNames[idx] || departments.find((d: Department) => d.id === deptId)?.name;
             if (!deptName) return null;
             return (
               <span
@@ -263,13 +332,13 @@ export function ProjectsTab({
         <div className="mc-filters-left">
           <MultiDepartmentSelect
             value={projectDeptFilter}
-            onValueChange={onDeptFilterChange}
+            onValueChange={onDeptFilterChange ?? (() => {})}
             departments={departments}
             placeholder="All Depts"
           />
           <SortSelect
             value={projectSortBy}
-            onValueChange={onSortByChange}
+            onValueChange={(value: string) => onSortByChange?.(value as ProjectSortBy)}
           />
         </div>
         <Button

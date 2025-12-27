@@ -10,6 +10,8 @@ export interface BillingPlan {
   price: number;
   features: string[];
   tier: string;
+  is_free?: boolean;
+  queries_display?: string;
 }
 
 export interface Subscription {

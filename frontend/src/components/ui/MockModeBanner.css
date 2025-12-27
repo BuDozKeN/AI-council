@@ -6,7 +6,7 @@
   justify-content: space-between;
   padding: 8px 16px;
   background: var(--color-amber-600);
-  color: white;
+  color: var(--color-text-inverse);
   font-size: 13px;
   font-weight: 500;
   z-index: var(--z-modal, 1000);
@@ -38,17 +38,17 @@
   justify-content: center;
   width: 24px;
   height: 24px;
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--overlay-white-15);
   border: none;
   border-radius: var(--radius-sm);
-  color: white;
+  color: var(--color-text-inverse);
   cursor: pointer;
   transition: background 0.15s ease;
   flex-shrink: 0;
 }
 
 .mock-mode-banner-dismiss:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: var(--overlay-white-25);
 }
 
 /* Mobile adjustments */

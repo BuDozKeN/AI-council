@@ -8,15 +8,37 @@ import { BillingSection } from './BillingSection';
 import { TeamSection } from './TeamSection';
 import { ApiKeysSection } from './ApiKeysSection';
 import { DeveloperSection } from './DeveloperSection';
+import type { TeamRole } from './hooks/useTeam';
 import '../Settings.css';
 
-export default function Settings({ isOpen, onClose, companyId, onMockModeChange }) {
+type ConfirmModalVariant = 'danger' | 'warning' | 'info';
+
+interface ConfirmModalState {
+  title: string;
+  message: string;
+  variant: ConfirmModalVariant;
+  confirmText: string;
+  onConfirm: () => Promise<void>;
+}
+
+interface SettingsProps {
+  isOpen: boolean;
+  onClose: () => void;
+  companyId: string | null;
+  onMockModeChange?: (enabled: boolean) => void;
+}
+
+export default function Settings({ isOpen, onClose, companyId, onMockModeChange }: SettingsProps) {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
-  const [confirmModal, setConfirmModal] = useState(null);
+  const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
 
   // Handler for team member removal with confirmation
-  const handleRemoveMemberConfirm = (memberId, memberRole, handleRemoveMember) => {
+  const handleRemoveMemberConfirm = (
+    memberId: string,
+    memberRole: TeamRole,
+    handleRemoveMember: (memberId: string) => Promise<void>
+  ) => {
     setConfirmModal({
       title: 'Remove Team Member',
       message: `Remove this ${memberRole} from the team?`,
@@ -29,7 +51,7 @@ export default function Settings({ isOpen, onClose, companyId, onMockModeChange 
   };
 
   // Handler for API key deletion with confirmation
-  const handleDeleteApiKeyConfirm = (handleDeleteApiKey) => {
+  const handleDeleteApiKeyConfirm = (handleDeleteApiKey: () => Promise<void>) => {
     setConfirmModal({
       title: 'Remove API Key',
       message: 'Remove your OpenRouter API key? You will use the system key with usage limits.',
@@ -137,7 +159,7 @@ export default function Settings({ isOpen, onClose, companyId, onMockModeChange 
               <div className="developer-content">
                 <DeveloperSection
                   isOpen={isOpen}
-                  onMockModeChange={onMockModeChange}
+                  {...(onMockModeChange ? { onMockModeChange } : {})}
                 />
               </div>
             )}

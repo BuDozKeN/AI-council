@@ -15,8 +15,104 @@ import {
   ChatInput,
 } from './chat';
 import { hapticLight } from '../lib/haptics';
+import type { Conversation } from '../types/conversation';
+import type { Business, Department, Role, Channel, Style, Project, Playbook } from '../types/business';
+import type { MyCompanyTab } from './mycompany/hooks';
+import type { ProjectModalContext, PromoteDecision } from '../hooks/useModalState';
 import './ChatInterface.css';
 import './ImageUpload.css';
+
+// Triage result type (compatible with App.tsx)
+interface TriageResult {
+  constraints?: Record<string, unknown>;
+  enhanced_query?: string;
+  follow_up_question?: string;
+  questions?: string;
+  ready?: boolean;
+}
+
+type TriageState = null | 'analyzing' | TriageResult;
+
+// Image upload type (matching ImageUpload.tsx)
+interface UploadedImage {
+  file: File;
+  preview: string;
+  name: string;
+  size: number;
+  type: string;
+}
+
+interface ChatInterfaceProps {
+  conversation: Conversation | null;
+  onSendMessage: (content: string, images: UploadedImage[] | null) => void;
+  onSendChatMessage: (content: string) => void;
+  onStopGeneration: () => void;
+  isLoading: boolean;
+  businesses?: Business[];
+  selectedBusiness: string | null;
+  onSelectBusiness: (id: string | null) => void;
+  departments?: Department[];
+  selectedDepartment: string | null;
+  onSelectDepartment: (id: string | null) => void;
+  // Multi-select support
+  selectedDepartments?: string[];
+  onSelectDepartments: (ids: string[]) => void;
+  allRoles?: Role[];
+  selectedRoles?: string[];
+  onSelectRoles: (ids: string[]) => void;
+  // Playbooks
+  playbooks?: Playbook[];
+  selectedPlaybooks?: string[];
+  onSelectPlaybooks: (ids: string[]) => void;
+  // Legacy single-select
+  roles?: Role[];
+  selectedRole: string | null;
+  onSelectRole: (id: string | null) => void;
+  channels?: Channel[];
+  selectedChannel: string | null;
+  onSelectChannel: (id: string | null) => void;
+  styles?: Style[];
+  selectedStyle: string | null;
+  onSelectStyle: (id: string | null) => void;
+  // Projects
+  projects?: Project[];
+  selectedProject: string | null;
+  onSelectProject: (id: string | null) => void;
+  onOpenProjectModal: (context: ProjectModalContext) => void;
+  onProjectCreated: (project: Project) => void;
+  // Independent context toggles
+  useCompanyContext: boolean;
+  onToggleCompanyContext: (value: boolean) => void;
+  useDepartmentContext: boolean;
+  onToggleDepartmentContext: (value: boolean) => void;
+  // Triage props
+  triageState: TriageState;
+  originalQuestion: string;
+  isTriageLoading: boolean;
+  onTriageRespond: (response: string) => void;
+  onTriageSkip: () => void;
+  onTriageProceed: (query: string) => void;
+  // Upload progress
+  isUploading: boolean;
+  // Decision navigation
+  onViewDecision: (decisionId: string, type?: string, targetId?: string | null) => void;
+  // Scroll to Stage 3 when navigating from decision source
+  scrollToStage3: boolean;
+  scrollToResponseIndex: number | null;
+  onScrollToStage3Complete: () => void;
+  // Return to My Company (after viewing source)
+  returnToMyCompanyTab: MyCompanyTab | null;
+  returnToProjectId: string | null;
+  returnToDecisionId: string | null;
+  returnPromoteDecision?: PromoteDecision | null;
+  onReturnToMyCompany: (tab: MyCompanyTab, projectId: string | null, decisionId: string | null) => void;
+  // Initial loading state (for conversation fetch)
+  isLoadingConversation?: boolean;
+  // Knowledge Base navigation
+  onViewKnowledgeBase?: () => void;
+  // Mobile sidebar toggle
+  onOpenSidebar: () => void;
+}
 
 export default function ChatInterface({
   conversation,
@@ -84,22 +180,23 @@ export default function ChatInterface({
   // Initial loading state (for conversation fetch)
   isLoadingConversation = false,
   // Mobile sidebar toggle
-  onOpenSidebar,
-}) {
+  onOpenSidebar: _onOpenSidebar,
+}: ChatInterfaceProps) {
   const [input, setInput] = useState('');
-  const [chatMode, setChatMode] = useState('chat');
-  const [attachedImages, setAttachedImages] = useState([]);
+  const [chatMode, setChatMode] = useState<'chat' | 'council'>('chat');
+  const [attachedImages, setAttachedImages] = useState<UploadedImage[]>([]);
   const [showScrollTop, setShowScrollTop] = useState(false);
-  const messagesEndRef = useRef(null);
-  const messagesContainerRef = useRef(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const userHasScrolledUp = useRef(false);
 
   // Get first user question for context indicator
   const firstUserQuestion = useMemo(() => {
     const messages = conversation?.messages || [];
     for (let i = 0; i < messages.length; i++) {
-      if (messages[i].role === 'user') {
-        return messages[i].content;
+      const msg = messages[i];
+      if (msg?.role === 'user') {
+        return msg.content;
       }
     }
     return '';
@@ -161,16 +258,16 @@ export default function ChatInterface({
 
       // Wait for DOM to fully render (animations need time)
       const timer = setTimeout(() => {
-        let targetElement = null;
+        let targetElement: Element | null = null;
 
         if (scrollToResponseIndex !== null && scrollToResponseIndex !== undefined) {
           // Scroll to a specific response index
           const allMessageGroups = messagesContainerRef.current?.querySelectorAll('.message-group');
           if (allMessageGroups && allMessageGroups.length > scrollToResponseIndex) {
             const messageGroup = allMessageGroups[scrollToResponseIndex];
-            targetElement = messageGroup?.querySelector('.stage3') ||
-                           messageGroup?.querySelector('.chat-response') ||
-                           messageGroup;
+            targetElement = messageGroup?.querySelector('.stage3') ??
+                           messageGroup?.querySelector('.chat-response') ??
+                           messageGroup ?? null;
           }
         }
 
@@ -178,7 +275,7 @@ export default function ChatInterface({
         if (!targetElement) {
           const allStage3Elements = messagesContainerRef.current?.querySelectorAll('.stage3');
           if (allStage3Elements && allStage3Elements.length > 0) {
-            targetElement = allStage3Elements[allStage3Elements.length - 1];
+            targetElement = allStage3Elements[allStage3Elements.length - 1] ?? null;
           }
         }
 
@@ -199,6 +296,7 @@ export default function ChatInterface({
     if (!userHasScrolledUp.current) {
       scrollToBottom();
     }
+    return undefined;
   }, [scrollToStage3, scrollToResponseIndex, conversation, onScrollToStage3Complete]);
 
   // Auto-scroll during streaming - only if user hasn't scrolled up
@@ -212,7 +310,7 @@ export default function ChatInterface({
 
     // Stage 1: sum of all model responses
     if (lastMsg.stage1Streaming) {
-      Object.values(lastMsg.stage1Streaming).forEach(response => {
+      Object.values(lastMsg.stage1Streaming).forEach((response: { text?: string } | string) => {
         if (typeof response === 'string') length += response.length;
         else if (response?.text) length += response.text.length;
       });
@@ -220,7 +318,7 @@ export default function ChatInterface({
 
     // Stage 2: sum of all model rankings
     if (lastMsg.stage2Streaming) {
-      Object.values(lastMsg.stage2Streaming).forEach(ranking => {
+      Object.values(lastMsg.stage2Streaming).forEach((ranking: { text?: string } | string) => {
         if (typeof ranking === 'string') length += ranking.length;
         else if (ranking?.text) length += ranking.text.length;
       });
@@ -251,19 +349,19 @@ export default function ChatInterface({
     }
   }, [streamingTextLength, lastMsg]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if ((input.trim() || attachedImages.length > 0) && !isLoading) {
       hapticLight(); // Haptic feedback on send
       userHasScrolledUp.current = false;
       const imagesToSend = attachedImages.length > 0 ? attachedImages : null;
 
-      if (conversation.messages.length === 0) {
+      if (!conversation || conversation.messages.length === 0) {
         onSendMessage(input, imagesToSend);
       } else if (chatMode === 'council') {
         onSendMessage(input, imagesToSend);
       } else {
-        onSendChatMessage(input, imagesToSend);
+        onSendChatMessage(input);
       }
 
       setInput('');
@@ -271,7 +369,7 @@ export default function ChatInterface({
     }
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSubmit(e);
@@ -295,8 +393,8 @@ export default function ChatInterface({
   }
 
   // Format tab name for display
-  const formatTabName = (tab) => {
-    const tabNames = {
+  const formatTabName = (tab: MyCompanyTab): string => {
+    const tabNames: Record<MyCompanyTab, string> = {
       'decisions': 'Decisions',
       'activity': 'Activity',
       'playbooks': 'Playbooks',
@@ -329,14 +427,14 @@ export default function ChatInterface({
         {hasMessages && (
           <ContextIndicator
             businesses={businesses}
-            selectedBusiness={selectedBusiness}
+            selectedBusiness={selectedBusiness || undefined}
             projects={projects}
-            selectedProject={selectedProject}
+            selectedProject={selectedProject || undefined}
             departments={departments}
-            selectedDepartment={selectedDepartment}
+            selectedDepartment={selectedDepartment || undefined}
             roles={roles}
-            selectedRole={selectedRole}
-            question={firstUserQuestion}
+            selectedRole={selectedRole || undefined}
+            question={firstUserQuestion || undefined}
             conversationTitle={conversation?.title}
           />
         )}
@@ -372,23 +470,27 @@ export default function ChatInterface({
           <ConversationEmptyState />
         ) : hasMessages ? (
           <MessageList
-            messages={conversation.messages}
+            messages={conversation.messages as unknown as Parameters<typeof MessageList>[0]['messages']}
             conversation={conversation}
-            selectedBusiness={selectedBusiness}
-            selectedDepartment={selectedDepartment}
-            selectedProject={selectedProject}
+            selectedBusiness={selectedBusiness || undefined}
+            selectedDepartment={selectedDepartment || undefined}
+            selectedProject={selectedProject || undefined}
             projects={projects}
             onSelectProject={onSelectProject}
-            onOpenProjectModal={onOpenProjectModal}
+            onOpenProjectModal={() => onOpenProjectModal({ type: 'new' })}
             onProjectCreated={onProjectCreated}
-            onViewDecision={onViewDecision}
+            onViewDecision={(decisionId: string | null, viewType?: string, contextId?: string) => {
+              if (decisionId) {
+                onViewDecision(decisionId, viewType, contextId ?? null);
+              }
+            }}
           />
         ) : null}
 
         {/* Loading indicator during initial setup */}
         {isLoading && hasMessages && (() => {
           const lastMsg = conversation.messages[conversation.messages.length - 1];
-          if (lastMsg.role === 'assistant' && (lastMsg.loading?.stage1 || lastMsg.loading?.stage2 || lastMsg.loading?.stage3)) {
+          if (lastMsg?.role === 'assistant' && (lastMsg?.loading?.stage1 || lastMsg?.loading?.stage2 || lastMsg?.loading?.stage3)) {
             return null;
           }
           return (
@@ -456,7 +558,7 @@ export default function ChatInterface({
               projects={projects}
               selectedProject={selectedProject}
               onSelectProject={onSelectProject}
-              onOpenProjectModal={onOpenProjectModal}
+              onOpenProjectModal={() => onOpenProjectModal({ type: 'new' })}
               useCompanyContext={useCompanyContext}
               onToggleCompanyContext={onToggleCompanyContext}
               useDepartmentContext={useDepartmentContext}
@@ -495,7 +597,7 @@ export default function ChatInterface({
             input={input}
             onInputChange={setInput}
             onKeyDown={handleKeyDown}
-            onSubmit={handleSubmit}
+            onSubmit={() => handleSubmit({ preventDefault: () => {} } as React.FormEvent)}
             isLoading={isLoading}
             onStopGeneration={onStopGeneration}
             chatMode={chatMode}
@@ -513,18 +615,22 @@ export default function ChatInterface({
 
         const loading = lastMsg?.loading;
         const isAnyLoading = loading?.stage1 || loading?.stage2 || loading?.stage3;
-        const isComplete = lastMsg?.stage3 && !loading?.stage3;
+        const isComplete = Boolean(lastMsg?.stage3) && !loading?.stage3;
         const isStopped = lastMsg?.stopped;
 
         if (!isAnyLoading && !isComplete && !isStopped && !isUploading) return null;
 
+        // Use type assertion since both types have compatible shapes
+        const s1 = lastMsg?.stage1Streaming as Record<string, { complete?: boolean; text?: string }> | undefined;
+        const s2 = lastMsg?.stage2Streaming as Record<string, { complete?: boolean; text?: string }> | undefined;
+
         return (
           <CouncilProgressCapsule
-            stage1Streaming={lastMsg?.stage1Streaming}
-            stage2Streaming={lastMsg?.stage2Streaming}
-            loading={loading}
+            stage1Streaming={s1 || null}
+            stage2Streaming={s2 || null}
+            loading={loading || null}
             isComplete={isComplete}
-            stopped={isStopped}
+            stopped={isStopped || false}
             isUploading={isUploading}
           />
         );

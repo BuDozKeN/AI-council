@@ -42,7 +42,11 @@ const QUICK_ACTIONS = [
   },
 ];
 
-export function QuickActionChips({ onSelect }) {
+interface QuickActionChipsProps {
+  onSelect?: ((prompt: string) => void) | undefined;
+}
+
+export function QuickActionChips({ onSelect }: QuickActionChipsProps) {
   return (
     <div className="quick-action-chips">
       {QUICK_ACTIONS.map((action, index) => {

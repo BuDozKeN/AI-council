@@ -6,14 +6,15 @@ import { useCallback } from 'react';
 import { api } from '../api';
 import { toast } from '../components/ui/sonner';
 import { logger } from '../utils/logger';
+import type { Conversation } from '../types/conversation';
 
 const log = logger.scope('BulkActions');
 
 interface UseBulkConversationActionsOptions {
-  conversations: any[];
+  conversations: Conversation[];
   currentConversationId: string | null;
-  setConversations: (updater: any) => void;
-  setCurrentConversation: (conv: any) => void;
+  setConversations: (updater: (prev: Conversation[]) => Conversation[]) => void;
+  setCurrentConversation: (conv: Conversation | null | ((prev: Conversation | null) => Conversation | null)) => void;
   setCurrentConversationId: (id: string | null) => void;
 }
 
@@ -42,7 +43,7 @@ export function useBulkConversationActions({
       const wasCurrentConversationDeleted = ids.includes(currentConversationId || '');
 
       // Optimistically remove from UI immediately
-      setConversations((prev: any[]) => prev.filter((conv) => !ids.includes(conv.id)));
+      setConversations((prev) => prev.filter((conv) => !ids.includes(conv.id)));
       if (wasCurrentConversationDeleted) {
         setCurrentConversation(null);
         setCurrentConversationId(null);
@@ -58,12 +59,12 @@ export function useBulkConversationActions({
           } catch (error) {
             log.error('Failed to bulk delete conversations:', error);
             // Restore on error
-            setConversations((prev: any[]) => {
+            setConversations((prev) => {
               const newList = [...prev];
               originalPositions
                 .sort((a, b) => a.index - b.index)
                 .forEach(({ index, conversation }) => {
-                  newList.splice(index, 0, conversation);
+                  if (conversation) newList.splice(index, 0, conversation);
                 });
               return newList;
             });
@@ -79,13 +80,13 @@ export function useBulkConversationActions({
           onClick: () => {
             undoClicked = true;
             // Restore conversations at original positions
-            setConversations((prev: any[]) => {
+            setConversations((prev) => {
               const newList = [...prev];
               // Sort by original index to insert in correct order
               originalPositions
                 .sort((a, b) => a.index - b.index)
                 .forEach(({ index, conversation }) => {
-                  newList.splice(index, 0, conversation);
+                  if (conversation) newList.splice(index, 0, conversation);
                 });
               return newList;
             });
@@ -114,13 +115,13 @@ export function useBulkConversationActions({
 
   const handleUpdateConversationDepartment = useCallback(
     (conversationId: string, newDepartment: string) => {
-      setConversations((prev: any[]) =>
+      setConversations((prev) =>
         prev.map((conv) =>
           conv.id === conversationId ? { ...conv, department: newDepartment } : conv
         )
       );
       // Also update current conversation if it's the one being moved
-      setCurrentConversation((prev: any) =>
+      setCurrentConversation((prev) =>
         prev && prev.id === conversationId ? { ...prev, department: newDepartment } : prev
       );
     },

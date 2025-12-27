@@ -1,28 +1,32 @@
-import * as React from 'react';
-import { useState, useEffect } from 'react';
-import { AppModal } from './AppModal';
+import { useState, useEffect, ReactNode, CSSProperties } from 'react';
+import { AppModal, AppModalSize } from './AppModal';
 import { BottomSheet } from './BottomSheet';
+
+type BadgeVariant = 'default' | 'success' | 'warning' | 'info' | 'purple';
+
+interface AdaptiveModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title?: string | undefined;
+  description?: string | undefined;
+  children?: ReactNode | undefined;
+  size?: AppModalSize | undefined;
+  forceModal?: boolean | undefined;
+  forceSheet?: boolean | undefined;
+  className?: string | undefined;
+  showCloseButton?: boolean | undefined;
+  badge?: string | undefined;
+  badgeVariant?: BadgeVariant | undefined;
+  badgeStyle?: CSSProperties | undefined;
+  titleExtra?: ReactNode | undefined;
+  headerClassName?: string | undefined;
+  contentClassName?: string | undefined;
+  bodyMinHeight?: string | undefined;
+  closeOnOverlayClick?: boolean | undefined;
+}
 
 /**
  * AdaptiveModal - Responsive modal that switches between AppModal and BottomSheet
- *
- * On desktop (>768px): Uses AppModal (centered modal)
- * On mobile (<=768px): Uses BottomSheet (slide up from bottom)
- *
- * This provides a native-feeling experience on mobile while maintaining
- * the traditional modal experience on desktop.
- *
- * @param {Object} props
- * @param {boolean} props.isOpen - Whether the modal is open
- * @param {Function} props.onClose - Callback when modal should close
- * @param {string} props.title - Modal title
- * @param {string} props.description - Optional description
- * @param {React.ReactNode} props.children - Modal content
- * @param {string} props.size - Size for desktop modal: "sm", "md", "lg", "xl"
- * @param {boolean} props.forceModal - Force AppModal even on mobile
- * @param {boolean} props.forceSheet - Force BottomSheet even on desktop
- * @param {string} props.className - Additional CSS class
- * @param {boolean} props.showCloseButton - Whether to show close button
  */
 export function AdaptiveModal({
   isOpen,
@@ -44,9 +48,8 @@ export function AdaptiveModal({
   contentClassName,
   bodyMinHeight,
   closeOnOverlayClick = true,
-  ...props
-}) {
-  const [isMobile, setIsMobile] = useState(false);
+}: AdaptiveModalProps) {
+  const [isMobile, setIsMobile] = useState<boolean>(false);
 
   useEffect(() => {
     // Check initial state
@@ -95,7 +98,6 @@ export function AdaptiveModal({
       contentClassName={contentClassName}
       bodyMinHeight={bodyMinHeight}
       closeOnOverlayClick={closeOnOverlayClick}
-      {...props}
     >
       {children}
     </AppModal>

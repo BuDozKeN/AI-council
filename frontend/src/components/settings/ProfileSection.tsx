@@ -2,6 +2,7 @@ import { Skeleton } from '../ui/Skeleton';
 import { Button } from '../ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
 import { useProfile } from './hooks/useProfile';
+import type { User } from '@supabase/supabase-js';
 
 const ProfileSkeleton = () => (
   <>
@@ -45,7 +46,12 @@ const ProfileSkeleton = () => (
   </>
 );
 
-export function ProfileSection({ user, isOpen }) {
+interface ProfileSectionProps {
+  user: User | null;
+  isOpen: boolean;
+}
+
+export function ProfileSection({ user, isOpen }: ProfileSectionProps) {
   const {
     profile,
     setProfile,

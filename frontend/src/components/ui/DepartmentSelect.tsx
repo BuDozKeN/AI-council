@@ -25,13 +25,21 @@ import { Building2, Check, ChevronDown } from 'lucide-react';
 import { getDeptColor } from '../../lib/colors';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from './BottomSheet';
+import type { Department } from '../../types/business';
 import './DepartmentSelect.css';
 
 // Check if we're on mobile/tablet for bottom sheet vs dropdown
 const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
 
+interface DepartmentSelectItemProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> {
+  deptId: string | null;
+}
+
 // Custom SelectItem with department color support
-const DepartmentSelectItem = React.forwardRef(({
+const DepartmentSelectItem = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.Item>,
+  DepartmentSelectItemProps
+>(({
   className,
   children,
   deptId,
@@ -50,7 +58,7 @@ const DepartmentSelectItem = React.forwardRef(({
         '--dept-hover-bg': colors.hoverBg,
         '--dept-checked-bg': colors.bg,
         '--dept-checked-text': colors.text,
-      }}
+      } as React.CSSProperties}
       {...props}
     >
       <span className="dept-select-item-indicator">
@@ -64,6 +72,18 @@ const DepartmentSelectItem = React.forwardRef(({
 });
 DepartmentSelectItem.displayName = 'DepartmentSelectItem';
 
+interface DepartmentSelectProps {
+  value: string | null;
+  onValueChange: (value: string) => void;
+  departments?: Department[] | undefined;
+  includeAll?: boolean | undefined;
+  allLabel?: string | undefined;
+  disabled?: boolean | undefined;
+  className?: string | undefined;
+  showIcon?: boolean | undefined;
+  compact?: boolean | undefined;
+}
+
 export function DepartmentSelect({
   value,
   onValueChange,
@@ -74,7 +94,7 @@ export function DepartmentSelect({
   className,
   showIcon = true,
   compact = false,
-}) {
+}: DepartmentSelectProps) {
   const [open, setOpen] = React.useState(false);
 
   // Get display name and color for current value
@@ -96,7 +116,7 @@ export function DepartmentSelect({
     borderColor: selectedColor.border,
   } : {};
 
-  const handleSelect = (deptValue) => {
+  const handleSelect = (deptValue: string) => {
     onValueChange(deptValue);
     setOpen(false);
   };
@@ -143,7 +163,7 @@ export function DepartmentSelect({
                     '--dept-text': colors.text,
                     '--radio-checked-bg': colors.text,
                     '--radio-checked-border': colors.text
-                  }}
+                  } as React.CSSProperties}
                   type="button"
                 >
                   <div className={cn("dept-select-radio", isSelected && "checked")}>

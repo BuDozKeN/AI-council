@@ -111,7 +111,7 @@
 }
 
 .expand-btn:hover {
-  background: rgba(74, 158, 255, 0.15);
+  background: var(--overlay-blue-15);
 }
 
 /* Two-column layout for department and category */
@@ -156,7 +156,7 @@
 .save-btn {
   background: var(--accent-color, #4a9eff);
   border: none;
-  color: white;
+  color: var(--color-text-inverse);
 }
 
 .save-btn:hover:not(:disabled) {
@@ -171,8 +171,8 @@
 
 .error-message {
   padding: 10px 12px;
-  background: rgba(220, 53, 69, 0.15);
-  border: 1px solid rgba(220, 53, 69, 0.3);
+  background: var(--overlay-red-15);
+  border: 1px solid var(--overlay-red-30, rgba(var(--color-red-500-rgb), 0.3));
   border-radius: var(--radius-md);
   color: var(--color-red-400);
   font-size: 0.85rem;
@@ -193,7 +193,7 @@
   justify-content: center;
   width: 56px;
   height: 56px;
-  background: rgba(74, 158, 255, 0.15);
+  background: var(--overlay-blue-15);
   border: 2px solid var(--accent-color, #4a9eff);
   border-radius: 50%;
   font-size: 1.75rem;
@@ -247,7 +247,7 @@
   background: var(--accent-color, #4a9eff);
   border: none;
   border-radius: var(--radius-md);
-  color: white;
+  color: var(--color-text-inverse);
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
@@ -296,7 +296,7 @@
 .detection-tooltip:hover .tooltip-icon {
   background: var(--accent-color, #4a9eff);
   border-color: var(--accent-color, #4a9eff);
-  color: white;
+  color: var(--color-text-inverse);
 }
 
 .tooltip-text {
@@ -478,14 +478,14 @@
 }
 
 .project-cancel-btn:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--overlay-white-5);
   color: var(--text-primary, #fff);
 }
 
 .project-create-btn {
   background: var(--accent-color, #4a9eff);
   border: none;
-  color: white;
+  color: var(--color-text-inverse);
 }
 
 .project-create-btn:hover:not(:disabled) {
@@ -698,7 +698,7 @@
 
 .save-mode-option.selected {
   border-color: var(--accent-color, #0ea5e9);
-  background: rgba(14, 165, 233, 0.1);
+  background: var(--overlay-blue-10);
 }
 
 .save-mode-icon {
@@ -747,7 +747,7 @@
   gap: 4px;
   padding: 4px 8px;
   background: var(--accent-color, #0ea5e9);
-  color: white;
+  color: var(--color-text-inverse);
   border-radius: var(--radius-sm);
   font-size: 0.8rem;
   font-weight: 500;
@@ -756,7 +756,7 @@
 .tag-remove {
   background: none;
   border: none;
-  color: white;
+  color: var(--color-text-inverse);
   cursor: pointer;
   padding: 0;
   margin-left: 2px;

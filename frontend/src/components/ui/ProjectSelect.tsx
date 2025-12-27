@@ -26,13 +26,22 @@ import * as SelectPrimitive from '@radix-ui/react-select';
 import { Check, ChevronDown, FolderKanban, Plus } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from './BottomSheet';
+import type { Project } from '../../types/business';
 import './ProjectSelect.css';
 
 // Check if we're on mobile/tablet for bottom sheet vs dropdown
 const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
 
+interface ProjectSelectItemProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> {
+  isCreate?: boolean;
+  isCurrent?: boolean;
+}
+
 // Custom SelectItem for projects
-const ProjectSelectItem = React.forwardRef(({
+const ProjectSelectItem = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.Item>,
+  ProjectSelectItemProps
+>(({
   className,
   children,
   isCreate = false,
@@ -64,6 +73,18 @@ const ProjectSelectItem = React.forwardRef(({
 });
 ProjectSelectItem.displayName = 'ProjectSelectItem';
 
+interface ProjectSelectProps {
+  value: string | null;
+  onValueChange: (value: string) => void;
+  projects?: Project[];
+  includeCreate?: boolean;
+  createLabel?: string;
+  currentProjectId?: string | null;
+  disabled?: boolean;
+  className?: string;
+  placeholder?: string;
+}
+
 export function ProjectSelect({
   value,
   onValueChange,
@@ -74,7 +95,7 @@ export function ProjectSelect({
   disabled = false,
   className,
   placeholder = 'Select project',
-}) {
+}: ProjectSelectProps) {
   const [open, setOpen] = React.useState(false);
 
   // Get display name for current value
@@ -90,11 +111,11 @@ export function ProjectSelect({
   };
 
   // Handle value change - convert __create__ to empty string for parent
-  const handleValueChange = (newValue) => {
+  const handleValueChange = (newValue: string) => {
     onValueChange(newValue === '__create__' ? '' : newValue);
   };
 
-  const handleSelect = (projectValue) => {
+  const handleSelect = (projectValue: string) => {
     handleValueChange(projectValue);
     setOpen(false);
   };

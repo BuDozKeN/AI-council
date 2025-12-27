@@ -5,8 +5,16 @@ import type { SaveState } from './useDecisionState';
 
 const log = logger.scope('useSaveActions');
 
-interface ProjectWithContext extends Partial<Project> {
+interface ProjectWithContext {
+  id: string;
+  name: string;
   context_md?: string;
+  description?: string;
+  status?: 'active' | 'completed' | 'archived';
+  company_id?: string;
+  department_ids?: string[];
+  created_at?: string;
+  updated_at?: string;
 }
 
 interface UseSaveActionsOptions {
@@ -119,8 +127,8 @@ export function useSaveActions({
           userQuestion || conversationTitle || '',
           {
             saveDecision: true,
-            companyId,
-            conversationId: conversationId?.startsWith('temp-') ? null : conversationId,
+            companyId: companyId ?? undefined,
+            conversationId: conversationId?.startsWith('temp-') ? undefined : (conversationId ?? undefined),
             responseIndex,
             decisionTitle: getTitle(),
             departmentId: selectedDeptIds.length > 0 ? selectedDeptIds[0] : null,
@@ -157,14 +165,14 @@ export function useSaveActions({
         }
       } else {
         log.debug('No project selected, saving as standalone decision');
-        const result = await api.createCompanyDecision(companyId, {
+        const result = await api.createCompanyDecision(companyId!, {
           title: getTitle(),
           content: displayText,
-          user_question: userQuestion || null,
+          user_question: userQuestion ?? undefined,
           department_ids: selectedDeptIds,
-          source_conversation_id: conversationId?.startsWith('temp-') ? null : conversationId,
+          source_conversation_id: conversationId?.startsWith('temp-') ? undefined : (conversationId ?? undefined),
           response_index: responseIndex,
-          project_id: selectedProjectId || null,
+          project_id: selectedProjectId ?? undefined,
           tags: []
         });
 
@@ -234,8 +242,8 @@ export function useSaveActions({
           userQuestion || conversationTitle || '',
           {
             saveDecision: true,
-            companyId,
-            conversationId: conversationId?.startsWith('temp-') ? null : conversationId,
+            companyId: companyId ?? undefined,
+            conversationId: conversationId?.startsWith('temp-') ? undefined : (conversationId ?? undefined),
             responseIndex,
             decisionTitle: getTitle(),
             departmentId: selectedDeptIds.length > 0 ? selectedDeptIds[0] : null,
@@ -259,12 +267,12 @@ export function useSaveActions({
         }
       } else {
         log.debug('handleSaveAndPromote - saving without project');
-        const saveResult = await api.createCompanyDecision(companyId, {
+        const saveResult = await api.createCompanyDecision(companyId!, {
           title: getTitle(),
           content: displayText,
           department_ids: selectedDeptIds,
-          source_conversation_id: conversationId?.startsWith('temp-') ? null : conversationId,
-          project_id: null,
+          source_conversation_id: conversationId?.startsWith('temp-') ? undefined : (conversationId ?? undefined),
+          project_id: undefined,
           tags: []
         });
 
@@ -280,7 +288,7 @@ export function useSaveActions({
 
       // Step 2: Promote to playbook
       log.info('Promoting to playbook...', decisionId);
-      const promoteResult = await api.promoteDecisionToPlaybook(companyId, decisionId, {
+      const promoteResult = await api.promoteDecisionToPlaybook(companyId!, decisionId, {
         doc_type: selectedDocType,
         title: getTitle(),
         department_ids: selectedDeptIds

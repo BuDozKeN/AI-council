@@ -112,16 +112,19 @@ async def stage1_stream_responses(
     messages.append({"role": "user", "content": user_query})
 
     # Use a queue to collect events from all models
-    queue: asyncio.Queue = asyncio.Queue()
+    # maxsize=1000 provides backpressure if consumer is slower than producers
+    queue: asyncio.Queue = asyncio.Queue(maxsize=1000)
     model_content: Dict[str, str] = {}
 
     async def stream_single_model(model: str):
         """Stream tokens from a single model and put events on the queue."""
-        content = ""
+        # Use list + join to avoid O(n²) string concatenation
+        content_chunks: list[str] = []
         try:
             async for chunk in query_model_stream(model, messages):
-                content += chunk
+                content_chunks.append(chunk)
                 await queue.put({"type": "stage1_token", "model": model, "content": chunk})
+            content = "".join(content_chunks)
             model_content[model] = content
             await queue.put({"type": "stage1_model_complete", "model": model, "response": content})
         except Exception as e:
@@ -254,16 +257,19 @@ Now provide your evaluation and ranking:"""
     messages.append({"role": "user", "content": ranking_prompt})
 
     # Use a queue to collect events from all models
-    queue: asyncio.Queue = asyncio.Queue()
+    # maxsize=1000 provides backpressure if consumer is slower than producers
+    queue: asyncio.Queue = asyncio.Queue(maxsize=1000)
     model_content: Dict[str, str] = {}
 
     async def stream_single_model(model: str):
         """Stream tokens from a single model and put events on the queue."""
-        content = ""
+        # Use list + join to avoid O(n²) string concatenation
+        content_chunks: list[str] = []
         try:
             async for chunk in query_model_stream(model, messages):
-                content += chunk
+                content_chunks.append(chunk)
                 await queue.put({"type": "stage2_token", "model": model, "content": chunk})
+            content = "".join(content_chunks)
             model_content[model] = content
             await queue.put({"type": "stage2_model_complete", "model": model, "ranking": content})
         except Exception as e:
@@ -430,7 +436,8 @@ Provide a clear, well-reasoned final answer that represents the council's collec
     final_content = ""
 
     for chairman_index, chairman_model in enumerate(CHAIRMAN_MODELS):
-        content = ""
+        # Use list + join to avoid O(n²) string concatenation
+        content_chunks: list[str] = []
         had_error = False
 
         try:
@@ -440,9 +447,10 @@ Provide a clear, well-reasoned final answer that represents the council's collec
                     had_error = True
                     break
 
-                content += chunk
+                content_chunks.append(chunk)
                 yield {"type": "stage3_token", "model": chairman_model, "content": chunk}
 
+            content = "".join(content_chunks)
             if not had_error and content and len(content) > 50:
                 successful_chairman = chairman_model
                 final_content = content
@@ -881,11 +889,13 @@ Be helpful, concise, and reference the previous discussion when relevant. You do
 
     for chairman in CHAIRMAN_MODELS:
         try:
-            content = ""
+            # Use list + join to avoid O(n²) string concatenation
+            content_chunks: list[str] = []
             async for chunk in query_model_stream(chairman, messages):
-                content += chunk
+                content_chunks.append(chunk)
                 yield {"type": "chat_token", "content": chunk, "model": chairman}
 
+            content = "".join(content_chunks)
             if content:
                 final_content = content
                 successful_chairman = chairman

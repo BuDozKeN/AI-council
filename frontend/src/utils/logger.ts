@@ -16,20 +16,22 @@
 const isDev = import.meta.env.DEV;
 const LOG_LEVEL = isDev ? 'debug' : 'warn';
 
-const LEVELS = {
+type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+
+const LEVELS: Record<LogLevel, number> = {
   debug: 0,
   info: 1,
   warn: 2,
   error: 3,
 };
 
-const currentLevel = LEVELS[LOG_LEVEL] ?? LEVELS.warn;
+const currentLevel = LEVELS[LOG_LEVEL as LogLevel] ?? LEVELS.warn;
 
 /**
  * Format a log message with timestamp and optional context
  */
-function formatMessage(level, args) {
-  const timestamp = new Date().toISOString().split('T')[1].slice(0, 12);
+function formatMessage(level: string, args: unknown[]): unknown[] {
+  const timestamp = new Date().toISOString().split('T')[1]?.slice(0, 12) ?? '';
   const prefix = `[${timestamp}] [${level.toUpperCase()}]`;
   return [prefix, ...args];
 }
@@ -39,7 +41,7 @@ export const logger = {
    * Debug-level logging (development only)
    * Use for detailed debugging info, API responses, state changes
    */
-  debug: (...args) => {
+  debug: (...args: unknown[]): void => {
     if (currentLevel <= LEVELS.debug) {
       console.log(...formatMessage('debug', args));
     }
@@ -49,7 +51,7 @@ export const logger = {
    * Info-level logging
    * Use for general operational info, user actions, flow milestones
    */
-  info: (...args) => {
+  info: (...args: unknown[]): void => {
     if (currentLevel <= LEVELS.info) {
       console.info(...formatMessage('info', args));
     }
@@ -59,7 +61,7 @@ export const logger = {
    * Warning-level logging (always shown)
    * Use for recoverable issues, deprecation notices, fallback behavior
    */
-  warn: (...args) => {
+  warn: (...args: unknown[]): void => {
     if (currentLevel <= LEVELS.warn) {
       console.warn(...formatMessage('warn', args));
     }
@@ -70,7 +72,7 @@ export const logger = {
    * Use for errors, failures, exceptions
    * Errors are also captured by Sentry if configured
    */
-  error: (...args) => {
+  error: (...args: unknown[]): void => {
     if (currentLevel <= LEVELS.error) {
       console.error(...formatMessage('error', args));
     }
@@ -80,7 +82,7 @@ export const logger = {
    * Log API request/response for debugging
    * Only logs in development
    */
-  api: (method, url, data) => {
+  api: (method: string, url: string, data?: unknown) => {
     if (currentLevel <= LEVELS.debug) {
       console.log(`[API] ${method} ${url}`, data);
     }
@@ -94,11 +96,11 @@ export const logger = {
    *   const log = logger.scope('MyComponent');
    *   log.debug('mounting');
    */
-  scope: (name) => ({
-    debug: (...args) => logger.debug(`[${name}]`, ...args),
-    info: (...args) => logger.info(`[${name}]`, ...args),
-    warn: (...args) => logger.warn(`[${name}]`, ...args),
-    error: (...args) => logger.error(`[${name}]`, ...args),
+  scope: (name: string) => ({
+    debug: (...args: unknown[]) => logger.debug(`[${name}]`, ...args),
+    info: (...args: unknown[]) => logger.info(`[${name}]`, ...args),
+    warn: (...args: unknown[]) => logger.warn(`[${name}]`, ...args),
+    error: (...args: unknown[]) => logger.error(`[${name}]`, ...args),
   }),
 };
 
