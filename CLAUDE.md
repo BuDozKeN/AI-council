@@ -268,6 +268,18 @@ See `.env.example` for required variables:
 - `VITE_SENTRY_DSN` - Error tracking
 - `OPENROUTER_API_KEY` - LLM access
 
+## MCP Server (Claude Code Integration)
+
+To enable direct Supabase schema access in Claude Code sessions:
+
+```bash
+cp .mcp.json.example .mcp.json
+# Edit .mcp.json and replace YOUR_PROJECT_REF with your Supabase project reference
+# (the subdomain from your Supabase URL, e.g., "abcdefghij" from https://abcdefghij.supabase.co)
+```
+
+This enables Claude Code to query your database schema and generate accurate TypeScript types.
+
 ## Architecture Decisions
 
 1. **Multi-tenant by design** - All data filtered by ownership via RLS
