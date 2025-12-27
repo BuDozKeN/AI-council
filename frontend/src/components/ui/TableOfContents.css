@@ -378,7 +378,7 @@
 .stage3-mobile-sheet-handle {
   width: 36px;
   height: 5px;
-  background: var(--color-slate-300);
+  background: var(--color-border-dark);
   border-radius: var(--radius-full);
   margin: 8px auto 0;
   opacity: 0.6;
@@ -390,7 +390,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px 12px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .stage3-mobile-outline-title {
@@ -398,7 +398,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--color-slate-400);
+  color: var(--color-text-tertiary);
 }
 
 .stage3-mobile-outline-close {
@@ -407,17 +407,17 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: var(--color-slate-100);
+  background: var(--color-bg-hover);
   border: none;
   border-radius: 50%;
-  color: var(--color-slate-500);
+  color: var(--color-text-secondary);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .stage3-mobile-outline-close:hover {
-  background: var(--color-slate-200);
-  color: var(--color-slate-700);
+  background: var(--color-border);
+  color: var(--color-text-primary);
 }
 
 .stage3-mobile-outline-close:active {
@@ -451,18 +451,18 @@
   border-radius: var(--radius-lg);
   font-size: 15px;
   line-height: 1.45;
-  color: var(--color-slate-600);
+  color: var(--color-text-secondary);
   text-decoration: none;
   transition: all 0.15s ease;
   position: relative;
 }
 
 .stage3-mobile-outline-link:hover {
-  background: rgba(0, 0, 0, 0.03);
+  background: var(--color-bg-hover);
 }
 
 .stage3-mobile-outline-link:active {
-  background: rgba(0, 0, 0, 0.06);
+  background: var(--color-bg-active);
   transform: scale(0.99);
 }
 
@@ -471,7 +471,7 @@
   width: 3px;
   height: 100%;
   min-height: 20px;
-  background: var(--color-slate-200);
+  background: var(--color-border);
   border-radius: var(--radius-xs);
   flex-shrink: 0;
   transition: all 0.2s ease;
@@ -487,8 +487,8 @@
 .stage3-mobile-link-number {
   font-size: 10px;
   font-weight: 700;
-  color: var(--color-slate-400);
-  background: var(--color-slate-100);
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-hover);
   padding: 2px 6px;
   border-radius: var(--radius-sm);
   flex-shrink: 0;
@@ -523,12 +523,12 @@
 
 .stage3-mobile-outline-link.level-3 .stage3-mobile-link-indicator {
   width: 2px;
-  background: var(--color-slate-150, var(--color-slate-200));
+  background: var(--color-border);
   opacity: 0.6;
 }
 
 .stage3-mobile-outline-link.level-3 .stage3-mobile-link-text {
-  color: var(--color-slate-500);
+  color: var(--color-text-tertiary);
   font-weight: 400;
 }
 
@@ -606,102 +606,66 @@
 }
 
 /* Mobile trigger dark mode */
-.dark .stage3-mobile-toc-trigger {
+.dark .stage3-mobile-toc-trigger,
+[data-theme="dark"] .stage3-mobile-toc-trigger {
   background: rgba(30, 30, 35, 0.95);
-  color: var(--color-slate-400);
+  color: var(--color-text-secondary);
   box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
-.dark .stage3-mobile-toc-trigger:hover {
+.dark .stage3-mobile-toc-trigger:hover,
+[data-theme="dark"] .stage3-mobile-toc-trigger:hover {
   box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-.dark .stage3-mobile-toc-progress {
-  background: var(--color-slate-700);
+.dark .stage3-mobile-toc-progress,
+[data-theme="dark"] .stage3-mobile-toc-progress {
+  background: var(--color-border);
 }
 
-.dark .stage3-mobile-toc-icon {
-  color: var(--color-slate-500);
+.dark .stage3-mobile-toc-icon,
+[data-theme="dark"] .stage3-mobile-toc-icon {
+  color: var(--color-text-tertiary);
 }
 
 /* Mobile sheet dark mode */
-.dark .stage3-mobile-outline-overlay {
+.dark .stage3-mobile-outline-overlay,
+[data-theme="dark"] .stage3-mobile-outline-overlay {
   background: rgba(0, 0, 0, 0.7);
 }
 
-.dark .stage3-mobile-outline-sheet {
-  background: var(--color-slate-900);
+.dark .stage3-mobile-outline-sheet,
+[data-theme="dark"] .stage3-mobile-outline-sheet {
+  background: var(--color-bg-primary);
   box-shadow: var(--shadow-xl);
 }
 
-.dark .stage3-mobile-sheet-handle {
-  background: var(--color-slate-600);
-}
+/* Note: Base styles for handle, header, title, close, link, indicator, number
+   all use semantic tokens and auto-adapt. Only active/special states need overrides. */
 
-.dark .stage3-mobile-outline-header {
-  border-bottom-color: rgba(255, 255, 255, 0.06);
-}
-
-.dark .stage3-mobile-outline-title {
-  color: var(--color-slate-500);
-}
-
-.dark .stage3-mobile-outline-close {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--color-slate-400);
-}
-
-.dark .stage3-mobile-outline-close:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--color-slate-300);
-}
-
-.dark .stage3-mobile-outline-link {
-  color: var(--color-slate-400);
-}
-
-.dark .stage3-mobile-outline-link:hover {
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.dark .stage3-mobile-outline-link:active {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.dark .stage3-mobile-link-indicator {
-  background: var(--color-slate-700);
-}
-
-.dark .stage3-mobile-link-number {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--color-slate-500);
-}
-
-.dark .stage3-mobile-outline-link.active {
+.dark .stage3-mobile-outline-link.active,
+[data-theme="dark"] .stage3-mobile-outline-link.active {
   background: rgba(52, 211, 153, 0.1);
 }
 
-.dark .stage3-mobile-outline-link.active .stage3-mobile-link-indicator {
+.dark .stage3-mobile-outline-link.active .stage3-mobile-link-indicator,
+[data-theme="dark"] .stage3-mobile-outline-link.active .stage3-mobile-link-indicator {
   background: var(--color-emerald-400);
   box-shadow: 0 0 12px rgba(52, 211, 153, 0.4);
 }
 
-.dark .stage3-mobile-outline-link.active .stage3-mobile-link-text {
+.dark .stage3-mobile-outline-link.active .stage3-mobile-link-text,
+[data-theme="dark"] .stage3-mobile-outline-link.active .stage3-mobile-link-text {
   color: var(--color-emerald-400);
 }
 
-.dark .stage3-mobile-outline-link.active .stage3-mobile-link-number {
+.dark .stage3-mobile-outline-link.active .stage3-mobile-link-number,
+[data-theme="dark"] .stage3-mobile-outline-link.active .stage3-mobile-link-number {
   background: rgba(52, 211, 153, 0.15);
   color: var(--color-emerald-400);
 }
 
-.dark .stage3-mobile-outline-link.level-3 {
-  color: var(--color-slate-500);
-}
-
-.dark .stage3-mobile-outline-link.level-3 .stage3-mobile-link-indicator {
-  background: var(--color-slate-700);
-}
+/* Note: level-3 base styles use semantic tokens - no dark override needed */
 
 /* =============================================================================
    STICKY VARIANT - Capsule at top of content (recommended for embedded areas)
@@ -717,8 +681,16 @@
   display: inline-flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 4px 0;
+  padding: 8px 0;
   margin-bottom: var(--space-3, 12px);
+  /* Background to cover content scrolling behind */
+  background: inherit;
+  /* Extend background to full width */
+  margin-left: -20px;
+  margin-right: -20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  width: calc(100% + 40px);
 }
 
 /* Hide sticky TOC on mobile - doesn't work well in compact content areas */
