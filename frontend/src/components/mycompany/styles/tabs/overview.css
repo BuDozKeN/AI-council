@@ -39,14 +39,14 @@
 .mc-overview-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--color-slate-900);
+  color: var(--color-text-primary);
   margin: 0 0 var(--stack-sm) 0;
   letter-spacing: -0.02em;
 }
 
 .mc-overview-description {
   font-size: 0.9375rem;
-  color: var(--color-slate-500);
+  color: var(--color-text-secondary);
   margin: 0;
   line-height: 1.6;
   max-width: 600px;
@@ -69,7 +69,7 @@
 .mc-meta-label {
   font-size: 0.75rem;
   font-weight: 500;
-  color: var(--color-slate-400);
+  color: var(--color-text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -77,25 +77,25 @@
 .mc-meta-value {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--color-slate-900);
+  color: var(--color-text-primary);
 }
 
 .mc-empty-context {
   text-align: center;
   padding: var(--space-10) var(--card-padding-xl);
-  color: var(--color-slate-400);
+  color: var(--color-text-tertiary);
 }
 
 .mc-empty-context .mc-empty-title {
   font-size: 14px;
   font-weight: 500;
-  color: var(--color-slate-500);
+  color: var(--color-text-secondary);
   margin-bottom: 6px;
 }
 
 .mc-empty-context .mc-empty-hint {
   font-size: 13px;
-  color: var(--color-slate-400);
+  color: var(--color-text-tertiary);
   max-width: 320px;
   margin: 0 auto;
 }
@@ -112,7 +112,7 @@
 
 .mc-stat-card {
   background: var(--color-bg-primary);
-  border: 1px solid var(--color-slate-100);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: var(--card-padding-lg) var(--card-padding);
   text-align: center;
@@ -134,7 +134,7 @@
 }
 
 .mc-stat-card:hover {
-  border-color: var(--color-slate-200);
+  border-color: var(--color-border-dark);
   box-shadow: var(--shadow-sm);
 }
 
@@ -155,14 +155,14 @@
 .mc-stat-value {
   font-size: 1.75rem;
   font-weight: 700;
-  color: var(--color-slate-900);
+  color: var(--color-text-primary);
   letter-spacing: -0.02em;
 }
 
 /* Semantic stat value colors */
 .mc-stat-value.active { color: var(--color-blue-700); }
 .mc-stat-value.completed { color: var(--color-green-700); }
-.mc-stat-value.archived { color: var(--color-gray-500); }
+.mc-stat-value.archived { color: var(--color-text-tertiary); }
 .mc-stat-value.decisions { color: var(--color-amber-700); }
 .mc-stat-value.total { color: var(--color-emerald-600); }
 .mc-stat-value.sops { color: var(--color-blue-700); }
@@ -172,7 +172,7 @@
 .mc-stat-label {
   font-size: 0.8125rem;
   font-weight: 500;
-  color: var(--color-slate-500);
+  color: var(--color-text-secondary);
   margin-top: 4px;
 }
 
@@ -187,7 +187,7 @@
 
 .mc-context-section {
   background: var(--color-bg-primary);
-  border: 1px solid var(--color-slate-100);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
@@ -203,7 +203,7 @@
 .mc-context-section h3 {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: var(--color-slate-800);
+  color: var(--color-text-primary);
   margin: 0;
 }
 
@@ -212,14 +212,14 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--card-padding-sm) var(--card-padding);
-  border-bottom: 1px solid var(--color-slate-100);
+  border-bottom: 1px solid var(--color-border);
   background: var(--color-bg-primary);
 }
 
 .mc-context-section-header h3 {
   font-size: 0.8125rem;
   font-weight: 600;
-  color: var(--color-slate-500);
+  color: var(--color-text-secondary);
   margin: 0;
 }
 
@@ -231,17 +231,17 @@
   height: 28px;
   padding: 0;
   background: transparent;
-  border: 1px solid var(--color-slate-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  color: var(--color-slate-500);
+  color: var(--color-text-tertiary);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .mc-expand-btn:hover {
-  background: var(--color-slate-50);
-  border-color: var(--color-slate-300);
-  color: var(--color-slate-700);
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-secondary);
 }
 
 .mc-expand-btn svg {
@@ -254,16 +254,48 @@
   position: relative;
   border: none;
   background: transparent;
+  /* Enable flex for proper height distribution */
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 0; /* Force flex to constrain height for child scrolling */
 }
 
+/* The FloatingContextActions wrapper - inherits flex positioning */
 .mc-context-section--compact .mc-context-content {
-  position: relative;
-  border-top: none;
+  /* NO position: relative - not needed, and can interfere with sticky in children */
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 0; /* Force flex to constrain height */
+}
+
+/* The actual scrollable content inside FloatingContextActions */
+.mc-context-section--compact .mc-context-content .floating-context-content {
+  /* NO position: relative - it breaks sticky positioning for TOC */
+  flex: 1 1 0;
+  min-height: 0;
+  /* CRITICAL: height: 0 forces flex to constrain, enabling overflow scroll */
+  height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-slate-100);
-  background: var(--color-gray-50);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
   padding: var(--card-padding-lg) var(--card-padding-xl);
-  /* Content flows naturally - outer ScrollableContent handles scroll */
+}
+
+/* Sticky row inside context gets proper background and padding alignment */
+.mc-context-section--compact .floating-sticky-row {
+  background: var(--color-bg-secondary);
+  /* Match parent's horizontal padding (--card-padding-xl = 24px) */
+  margin-left: calc(-1 * var(--card-padding-xl));
+  margin-right: calc(-1 * var(--card-padding-xl));
+  padding-left: var(--card-padding-xl);
+  padding-right: var(--card-padding-xl);
+  width: calc(100% + 2 * var(--card-padding-xl));
 }
 
 /* Legacy: Scroll-to-top FAB for non-ScrollableContent usage */
@@ -277,9 +309,9 @@
   align-items: center;
   justify-content: center;
   background: var(--color-bg-primary);
-  border: 1px solid var(--color-slate-200);
+  border: 1px solid var(--color-border);
   border-radius: 50%;
-  color: var(--color-slate-400);
+  color: var(--color-text-tertiary);
   cursor: pointer;
   box-shadow: var(--shadow-xs);
   transition: all 0.2s ease;
@@ -289,7 +321,7 @@
 
 .mc-scroll-top-fab:hover {
   opacity: 1;
-  color: var(--color-slate-600);
+  color: var(--color-text-secondary);
   box-shadow: var(--shadow-sm);
 }
 
@@ -297,13 +329,11 @@
   transform: scale(0.9);
 }
 
+/* General .mc-context-content - wrapper for FloatingContextActions */
+/* Actual styling is applied to .floating-context-content inside */
 .mc-context-content {
-  background: var(--color-gray-50);
-  border-top: 1px solid var(--color-slate-100);
-  padding: var(--card-padding-lg) var(--card-padding-xl);
-  /* FIXED: Remove max-height - let flex system handle scroll constraints */
-  /* The parent .mc-context-section--compact has flex:1 + min-height:0 */
-  overflow-y: auto;
+  /* Transparent wrapper - the inner .floating-context-content has the visual styling */
+  background: transparent;
 }
 
 /* ============================================================================
@@ -318,7 +348,7 @@
   align-items: center;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid var(--color-slate-100);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .mc-team-header span,
@@ -326,7 +356,7 @@
 .mc-decisions-header span {
   font-size: 0.8125rem;
   font-weight: 500;
-  color: var(--color-slate-500);
+  color: var(--color-text-secondary);
 }
 
 /* ============================================================================
@@ -340,8 +370,8 @@
 }
 
 .mc-dept {
-  background: var(--color-gray-50);
-  border: 1px solid var(--color-gray-200);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
@@ -356,7 +386,7 @@
 }
 
 .mc-dept-header:hover {
-  background: var(--color-gray-100);
+  background: var(--color-bg-tertiary);
 }
 
 .mc-dept-info {
@@ -369,32 +399,32 @@
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
-  color: var(--color-gray-800);
+  color: var(--color-text-primary);
 }
 
 .mc-dept-meta {
   font-size: 0.75rem;
-  color: var(--color-gray-400);
-  background: var(--color-gray-200);
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-tertiary);
   padding: 3px 10px;
   border-radius: var(--radius-lg);
 }
 
 .mc-expand-icon {
   font-size: 10px;
-  color: var(--color-gray-400);
+  color: var(--color-text-tertiary);
 }
 
 .mc-dept-desc {
   margin: 0;
   padding: 0 18px 14px;
   font-size: 0.875rem;
-  color: var(--color-gray-500);
+  color: var(--color-text-secondary);
 }
 
 /* Roles */
 .mc-roles {
-  border-top: 1px solid var(--color-gray-200);
+  border-top: 1px solid var(--color-border);
   padding: 14px 18px;
   background: var(--color-bg-primary);
 }
@@ -404,7 +434,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 14px;
-  background: var(--color-gray-50);
+  background: var(--color-bg-secondary);
   border-radius: var(--radius-md);
   margin-bottom: 8px;
 }
@@ -421,17 +451,17 @@
 
 .mc-role-name {
   font-weight: 500;
-  color: var(--color-gray-700);
+  color: var(--color-text-primary);
 }
 
 .mc-role-title {
   font-size: 0.75rem;
-  color: var(--color-gray-400);
+  color: var(--color-text-tertiary);
 }
 
 .mc-no-items {
   font-size: 0.875rem;
-  color: var(--color-gray-400);
+  color: var(--color-text-tertiary);
   font-style: italic;
   margin: 8px 0;
 }
@@ -442,18 +472,18 @@
   margin-top: 12px;
   padding: 10px;
   background: none;
-  border: 1px dashed var(--color-gray-300);
+  border: 1px dashed var(--color-border);
   border-radius: var(--radius-md);
-  color: var(--color-gray-500);
+  color: var(--color-text-tertiary);
   cursor: pointer;
   font-size: 0.875rem;
   transition: all 0.2s;
 }
 
 .mc-add-btn:hover {
-  border-color: var(--color-orange-500);
-  color: var(--color-orange-500);
-  background: var(--color-orange-50);
+  border-color: var(--color-amber-500);
+  color: var(--color-amber-500);
+  background: rgba(245, 158, 11, 0.1);
 }
 
 /* ============================================================================
@@ -472,6 +502,7 @@
   position: relative;
   flex: 1;
   max-width: 320px;
+  min-width: 0; /* Allow shrinking in flex context */
 }
 
 .mc-search-icon {
@@ -479,7 +510,7 @@
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--color-slate-400);
+  color: var(--color-text-tertiary);
   pointer-events: none;
   width: 16px;
   height: 16px;
@@ -489,21 +520,21 @@
   width: 100%;
   padding: 10px 36px 10px 38px;
   font-size: 14px;
-  border: 1px solid var(--color-slate-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-bg-primary);
-  color: var(--color-slate-800);
+  color: var(--color-text-primary);
   transition: all 0.15s ease;
 }
 
 .mc-search-input::placeholder {
-  color: var(--color-slate-400);
+  color: var(--color-text-tertiary);
 }
 
 .mc-search-input:focus {
   outline: none;
   border-color: var(--color-blue-400);
-  box-shadow: 0 0 0 3px var(--color-blue-100);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
 .mc-search-clear {
@@ -517,7 +548,7 @@
   align-items: center;
   justify-content: center;
   font-size: 16px;
-  color: var(--color-slate-400);
+  color: var(--color-text-tertiary);
   background: transparent;
   border: none;
   border-radius: 50%;
@@ -526,13 +557,29 @@
 }
 
 .mc-search-clear:hover {
-  background: var(--color-slate-100);
-  color: var(--color-slate-600);
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
 }
 
 /* Department filter in decisions */
 .mc-dept-filter {
-  min-width: 180px;
+  min-width: 140px;
+  flex-shrink: 1;
+}
+
+/* Responsive department filter */
+@media (max-width: 640px) {
+  .mc-dept-filter {
+    min-width: 0;
+    flex: 0 1 auto;
+    max-width: 45%;
+  }
+}
+
+@media (max-width: 380px) {
+  .mc-dept-filter {
+    max-width: 40%;
+  }
 }
 
 /* Filter results count */
@@ -541,7 +588,7 @@
   align-items: center;
   gap: 12px;
   font-size: 13px;
-  color: var(--color-slate-500);
+  color: var(--color-text-secondary);
   margin-bottom: 12px;
 }
 
@@ -559,4 +606,320 @@
 
 .mc-clear-filters:hover {
   background: var(--color-blue-100);
+}
+
+/* =============================================================================
+   DARK MODE - Overview Tab
+   ============================================================================= */
+
+/* Hero section */
+.dark .mc-overview-hero,
+[data-theme="dark"] .mc-overview-hero {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .mc-overview-title,
+[data-theme="dark"] .mc-overview-title {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-overview-description,
+[data-theme="dark"] .mc-overview-description {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-meta-label,
+[data-theme="dark"] .mc-meta-label {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-meta-value,
+[data-theme="dark"] .mc-meta-value {
+  color: var(--color-text-primary);
+}
+
+/* Empty context */
+.dark .mc-empty-context,
+[data-theme="dark"] .mc-empty-context {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-empty-context .mc-empty-title,
+[data-theme="dark"] .mc-empty-context .mc-empty-title {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-empty-context .mc-empty-hint,
+[data-theme="dark"] .mc-empty-context .mc-empty-hint {
+  color: var(--color-text-tertiary);
+}
+
+/* Stats grid */
+.dark .mc-stat-card,
+[data-theme="dark"] .mc-stat-card {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .mc-stat-card:hover,
+[data-theme="dark"] .mc-stat-card:hover {
+  border-color: var(--color-border-dark);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.dark .mc-stat-card.selected,
+[data-theme="dark"] .mc-stat-card.selected {
+  border-color: var(--color-blue-400);
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.dark .mc-stat-value,
+[data-theme="dark"] .mc-stat-value {
+  color: var(--color-text-primary);
+}
+
+/* Semantic stat value colors - dark mode (brighter) */
+.dark .mc-stat-value.active,
+[data-theme="dark"] .mc-stat-value.active { color: var(--color-blue-400); }
+.dark .mc-stat-value.completed,
+[data-theme="dark"] .mc-stat-value.completed { color: var(--color-green-500); }
+.dark .mc-stat-value.archived,
+[data-theme="dark"] .mc-stat-value.archived { color: var(--color-text-tertiary); }
+.dark .mc-stat-value.decisions,
+[data-theme="dark"] .mc-stat-value.decisions { color: var(--color-amber-400); }
+.dark .mc-stat-value.total,
+[data-theme="dark"] .mc-stat-value.total { color: var(--color-emerald-400); }
+.dark .mc-stat-value.sops,
+[data-theme="dark"] .mc-stat-value.sops { color: var(--color-blue-400); }
+.dark .mc-stat-value.frameworks,
+[data-theme="dark"] .mc-stat-value.frameworks { color: var(--color-amber-400); }
+.dark .mc-stat-value.policies,
+[data-theme="dark"] .mc-stat-value.policies { color: var(--color-violet-400); }
+
+.dark .mc-stat-label,
+[data-theme="dark"] .mc-stat-label {
+  color: var(--color-text-secondary);
+}
+
+/* Context section */
+.dark .mc-context-section,
+[data-theme="dark"] .mc-context-section {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .mc-context-header,
+[data-theme="dark"] .mc-context-header {
+  background: var(--color-bg-secondary);
+}
+
+.dark .mc-context-section h3,
+[data-theme="dark"] .mc-context-section h3 {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-context-section-header,
+[data-theme="dark"] .mc-context-section-header {
+  border-bottom-color: var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+.dark .mc-context-section-header h3,
+[data-theme="dark"] .mc-context-section-header h3 {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-expand-btn,
+[data-theme="dark"] .mc-expand-btn {
+  border-color: var(--color-border);
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-expand-btn:hover,
+[data-theme="dark"] .mc-expand-btn:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-secondary);
+}
+
+/* Context content - the markdown area */
+.dark .mc-context-content,
+[data-theme="dark"] .mc-context-content {
+  background: transparent;
+}
+
+.dark .mc-context-section--compact .mc-context-content,
+[data-theme="dark"] .mc-context-section--compact .mc-context-content {
+  background: transparent;
+}
+
+/* The actual scrollable content area in dark mode */
+.dark .mc-context-section--compact .mc-context-content .floating-context-content,
+[data-theme="dark"] .mc-context-section--compact .mc-context-content .floating-context-content {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+}
+
+/* Sticky row background in dark mode */
+.dark .mc-context-section--compact .floating-sticky-row,
+[data-theme="dark"] .mc-context-section--compact .floating-sticky-row {
+  background: var(--color-bg-tertiary);
+}
+
+/* Scroll top FAB */
+.dark .mc-scroll-top-fab,
+[data-theme="dark"] .mc-scroll-top-fab {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-scroll-top-fab:hover,
+[data-theme="dark"] .mc-scroll-top-fab:hover {
+  color: var(--color-text-secondary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Tab headers */
+.dark .mc-team-header,
+.dark .mc-playbooks-header,
+.dark .mc-decisions-header,
+[data-theme="dark"] .mc-team-header,
+[data-theme="dark"] .mc-playbooks-header,
+[data-theme="dark"] .mc-decisions-header {
+  border-bottom-color: var(--color-border);
+}
+
+.dark .mc-team-header span,
+.dark .mc-playbooks-header span,
+.dark .mc-decisions-header span,
+[data-theme="dark"] .mc-team-header span,
+[data-theme="dark"] .mc-playbooks-header span,
+[data-theme="dark"] .mc-decisions-header span {
+  color: var(--color-text-secondary);
+}
+
+/* Departments */
+.dark .mc-dept,
+[data-theme="dark"] .mc-dept {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .mc-dept-header:hover,
+[data-theme="dark"] .mc-dept-header:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .mc-dept-name,
+[data-theme="dark"] .mc-dept-name {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-dept-meta,
+[data-theme="dark"] .mc-dept-meta {
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-tertiary);
+}
+
+.dark .mc-expand-icon,
+[data-theme="dark"] .mc-expand-icon {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-dept-desc,
+[data-theme="dark"] .mc-dept-desc {
+  color: var(--color-text-secondary);
+}
+
+/* Roles */
+.dark .mc-roles,
+[data-theme="dark"] .mc-roles {
+  border-top-color: var(--color-border);
+  background: var(--color-bg-primary);
+}
+
+.dark .mc-role,
+[data-theme="dark"] .mc-role {
+  background: var(--color-bg-secondary);
+}
+
+.dark .mc-role-name,
+[data-theme="dark"] .mc-role-name {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-role-title,
+[data-theme="dark"] .mc-role-title {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-no-items,
+[data-theme="dark"] .mc-no-items {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-add-btn,
+[data-theme="dark"] .mc-add-btn {
+  border-color: var(--color-border);
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-add-btn:hover,
+[data-theme="dark"] .mc-add-btn:hover {
+  border-color: var(--color-amber-400);
+  color: var(--color-amber-400);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+/* Search & filters */
+.dark .mc-search-input,
+[data-theme="dark"] .mc-search-input {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .mc-search-input::placeholder,
+[data-theme="dark"] .mc-search-input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-search-input:focus,
+[data-theme="dark"] .mc-search-input:focus {
+  border-color: var(--color-brand-primary);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+
+.dark .mc-search-icon,
+[data-theme="dark"] .mc-search-icon {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-search-clear,
+[data-theme="dark"] .mc-search-clear {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-search-clear:hover,
+[data-theme="dark"] .mc-search-clear:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-filter-results,
+[data-theme="dark"] .mc-filter-results {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-clear-filters,
+[data-theme="dark"] .mc-clear-filters {
+  color: var(--color-blue-400);
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.dark .mc-clear-filters:hover,
+[data-theme="dark"] .mc-clear-filters:hover {
+  background: rgba(59, 130, 246, 0.25);
 }

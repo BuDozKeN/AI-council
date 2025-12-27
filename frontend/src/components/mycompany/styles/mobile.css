@@ -11,6 +11,15 @@
  */
 
 /* ============================================================================
+   MOBILE TOC - Hidden on desktop, shown on mobile
+   ============================================================================ */
+
+/* Hide mobile TOC trigger on desktop (sticky variant is used instead) */
+.mc-mobile-toc.stage3-mobile-toc-trigger {
+  display: none;
+}
+
+/* ============================================================================
    P0-1: BOTTOM NAVIGATION TABS (≤768px)
    Move tabs from mid-screen to bottom for thumb reach
    ============================================================================ */
@@ -31,7 +40,7 @@
     right: 0;
     z-index: var(--z-dropdown);
     background: var(--color-bg-primary);
-    border-top: 1px solid var(--color-slate-200);
+    border-top: 1px solid var(--color-border);
     border-bottom: none;
     padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px)) 8px;
     justify-content: space-around;
@@ -75,8 +84,14 @@
 
   /* Add padding to content to account for fixed bottom nav */
   .mc-content {
+    padding: 0;
     padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
     order: 2;
+    /* Ensure content fills available height */
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
   }
 
   /* Header stays at top */
@@ -345,17 +360,64 @@
     display: none;
   }
 
-  /* Decisions filters - compact */
+  /* Decisions filters - responsive row layout */
   .mc-decisions-filters {
+    display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
-    gap: 6px;
+    gap: 8px;
     padding: 4px 0;
+    align-items: stretch;
   }
 
-  .mc-decisions-filters > * {
+  /* Department filter - allow shrink but maintain usability */
+  .mc-decisions-filters .mc-dept-filter {
     flex: 0 1 auto;
     min-width: 0;
+    max-width: 45%;
+  }
+
+  /* Search input takes remaining space */
+  .mc-decisions-filters .mc-search-input-wrapper {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: none;
+  }
+}
+
+/* Small mobile - compact layouts (640px and below) */
+@media (max-width: 640px) {
+  /* Button sizing is handled globally in tailwind.css */
+}
+
+/* Extra small mobile - more compact layouts (380px and below) */
+@media (max-width: 380px) {
+  .mc-decisions-filters {
+    gap: 6px;
+  }
+
+  .mc-decisions-filters .mc-dept-filter {
+    max-width: 40%;
+  }
+
+  /* Even tighter content padding on very small screens */
+  .mc-content {
+    padding: 0;
+    padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .mc-overview-hero {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+
+  .mc-overview .scrollable-content-inner > * + * {
+    margin-top: 8px;
+  }
+
+  .mc-context-section--compact .mc-context-content .floating-context-content,
+  .mc-context-section--compact .floating-context-content {
+    padding: 12px;
   }
 }
 
@@ -449,8 +511,8 @@
     display: inline-flex;
     font-size: 10px;
     padding: 2px 6px;
-    background: var(--color-slate-200);
-    color: var(--color-slate-600);
+    background: var(--color-border);
+    color: var(--color-text-secondary);
     border-radius: var(--radius-sm);
   }
 
@@ -540,7 +602,7 @@
 .mc-pull-indicator svg {
   width: 24px;
   height: 24px;
-  color: var(--color-slate-400);
+  color: var(--color-text-tertiary);
 }
 
 .mc-pull-indicator.refreshing svg {
@@ -564,7 +626,7 @@
     transform: translateY(-50%);
     width: 4px;
     height: 32px;
-    background: var(--color-slate-300);
+    background: var(--color-border-dark);
     border-radius: var(--radius-xs);
     opacity: 0;
     transition: opacity 0.2s ease;
@@ -640,11 +702,15 @@
 @media (max-width: 768px) {
   /* ========== OVERVIEW TAB - MOBILE ========== */
 
-  /* Hero section: compact vertical layout */
+  /* Hero section: edge-to-edge layout matching header */
   .mc-overview-hero {
     flex-direction: column;
-    gap: 12px;
-    padding: 12px;
+    gap: 8px;
+    padding: 12px 16px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    margin: 0;
   }
 
   .mc-overview-title {
@@ -685,11 +751,10 @@
     font-weight: 500;
   }
 
-  /* Edit button: auto width, stays inline */
-  .mc-overview-hero .mc-btn {
+  /* Edit button positioning - sizing handled globally in tailwind.css */
+  .mc-overview-hero button,
+  .mc-overview-hero [class*="btn-variant-"] {
     margin-left: auto;
-    padding: 8px 14px;
-    font-size: 0.75rem;
     white-space: nowrap;
   }
 
@@ -698,18 +763,103 @@
     display: none;
   }
 
-  /* Context section: full height scrollable */
+  /* Context section: fill all remaining height on mobile */
   .mc-context-section--compact {
-    flex: 1;
+    flex: 1 1 auto;
     min-height: 0;
+    display: flex;
+    flex-direction: column;
   }
 
   .mc-context-section--compact .mc-context-content {
-    height: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    /* Remove any max-height constraints */
+    max-height: none;
+    /* Edge-to-edge on mobile - remove ALL card styling */
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    background: transparent;
+  }
+
+  /* Ensure the overview tab fills available space */
+  .mc-overview {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  /* Tighter vertical spacing between elements on mobile */
+  .mc-overview .scrollable-content-inner > * + * {
+    margin-top: 0;
+  }
+
+  .mc-overview .scrollable-content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .mc-overview .scrollable-content-inner {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 0;
   }
 
   .mc-context-section--compact .scrollable-content-inner {
-    padding: 12px;
+    padding: 0;
+  }
+
+  /* Context content wrapper (FloatingContextActions with .mc-context-content class) */
+  .mc-context-section--compact .mc-context-content {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* The actual scrollable content inside FloatingContextActions */
+  .mc-context-section--compact .mc-context-content .floating-context-content,
+  .mc-context-section--compact .floating-context-content {
+    flex: 1;
+    min-height: 0;
+    padding: 16px;
+    /* Edge-to-edge: remove ALL card styling */
+    border: none;
+    border-radius: 0;
+    background: var(--color-bg-primary);
+    max-height: none;
+  }
+
+  /* Mobile TOC trigger - show in sticky row (parent handles sticky) */
+  .mc-mobile-toc.stage3-mobile-toc-trigger {
+    display: inline-flex;
+  }
+
+  /* Hide desktop sticky TOC on mobile */
+  .floating-sticky-row .toc-sticky-wrapper {
+    display: none;
+  }
+
+  /* Sticky row - smaller padding on mobile */
+  .floating-sticky-row {
+    padding: 8px 0;
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+    width: calc(100% + 32px);
+  }
+
+  /* Mobile background for sticky row */
+  .mc-context-section--compact .floating-sticky-row {
+    background: var(--color-bg-primary);
   }
 
   /* ========== PROJECTS TAB - MOBILE ========== */
@@ -982,12 +1132,15 @@
 
   /* Search input: larger on mobile */
   .mc-search-input-wrapper {
-    height: 48px;
+    height: 44px;
+    max-width: none; /* Remove desktop max-width constraint */
+    min-width: 0;
   }
 
   .mc-search-input {
     height: 100%;
     font-size: 16px; /* Prevent iOS zoom */
+    padding: 8px 32px 8px 36px; /* Adjust padding for smaller height */
   }
 
   /* Filter row: more breathing room */
@@ -1031,7 +1184,7 @@
   .mc-project-row-compact:active,
   .mc-elegant-row:active,
   .mc-decision-row:active {
-    background: var(--color-slate-100);
+    background: var(--color-bg-hover);
     transform: scale(0.99);
   }
 }

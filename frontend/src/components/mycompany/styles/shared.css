@@ -52,12 +52,12 @@
 }
 
 .mc-content::-webkit-scrollbar-thumb {
-  background: var(--color-slate-200);
+  background: var(--color-border);
   border-radius: var(--radius-sm);
 }
 
 .mc-content::-webkit-scrollbar-thumb:hover {
-  background: var(--color-slate-300);
+  background: var(--color-border-dark);
 }
 
 /* ============================================================================
@@ -82,7 +82,7 @@
 .mc-loading p {
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--color-slate-500);
+  color: var(--color-text-secondary);
   margin: 0;
 }
 
@@ -173,12 +173,12 @@
 .mc-empty-title {
   font-size: 15px;
   font-weight: 500;
-  color: var(--color-slate-500);
+  color: var(--color-text-secondary);
   margin: 0;
 }
 
 .mc-empty-hint {
-  color: var(--color-slate-400);
+  color: var(--color-text-tertiary);
   margin: 6px 0 16px;
   max-width: 280px;
   font-size: 13px;
@@ -361,9 +361,9 @@
 }
 
 .mc-action-btn.view:hover {
-  background: var(--color-slate-100);
-  border-color: var(--color-slate-300);
-  color: var(--color-slate-700);
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-primary);
 }
 
 .mc-action-btn.promote:hover {
@@ -392,7 +392,7 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  background: var(--color-slate-50);
+  background: var(--color-bg-secondary);
   border-radius: var(--radius-lg);
   padding: 4px;
 }
@@ -411,11 +411,11 @@
 }
 
 .mc-elegant-row:hover {
-  background: var(--color-slate-100);
+  background: var(--color-bg-hover);
 }
 
 .mc-elegant-row:active {
-  background: var(--color-slate-200);
+  background: var(--color-bg-active);
 }
 
 /* Status dot - minimal visual indicator */
@@ -448,7 +448,7 @@
 .mc-elegant-title {
   font-size: 14px;
   font-weight: 500;
-  color: var(--color-slate-800);
+  color: var(--color-text-primary);
   line-height: 1.3;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -459,7 +459,7 @@
 .mc-elegant-summary {
   font-size: 13px;
   font-weight: 400;
-  color: var(--color-slate-500);
+  color: var(--color-text-secondary);
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -513,8 +513,8 @@
 }
 
 .mc-elegant-dept-none {
-  background: var(--color-slate-100);
-  color: var(--color-slate-500);
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
 }
 
 /* Right side container - holds date and actions */
@@ -530,7 +530,7 @@
 /* Date - visible by default, fades on hover */
 .mc-elegant-date {
   font-size: 12px;
-  color: var(--color-slate-400);
+  color: var(--color-text-tertiary);
   white-space: nowrap;
   transition: opacity 0.15s ease;
 }
@@ -558,7 +558,7 @@
 
 .mc-elegant-row:hover .mc-elegant-actions {
   opacity: 1;
-  background: var(--color-slate-100);
+  background: var(--color-bg-hover);
 }
 
 /* Text button actions (Source, Promote, Delete) */
@@ -601,12 +601,12 @@
 }
 
 .mc-text-btn.archive {
-  color: var(--color-slate-500);
+  color: var(--color-text-secondary);
 }
 
 .mc-text-btn.archive:hover {
-  background: var(--color-slate-100);
-  color: var(--color-slate-600);
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
 }
 
 /* Empty state for elegant lists */
@@ -615,7 +615,7 @@
   display: block;
   padding: 40px;
   text-align: center;
-  color: var(--color-slate-400);
+  color: var(--color-text-tertiary);
   font-size: 14px;
 }
 
@@ -624,3 +624,131 @@
   opacity: 0.5;
   pointer-events: none;
 }
+
+/* =============================================================================
+   DARK MODE - Shared Styles
+   ============================================================================= */
+
+/* Note: Scrollbar, loading, skeleton use semantic tokens - no dark override needed */
+
+/* Error state */
+.dark .mc-error,
+[data-theme="dark"] .mc-error {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.dark .mc-error p,
+[data-theme="dark"] .mc-error p {
+  color: var(--color-red-400);
+}
+
+/* Note: Empty state uses semantic tokens - no dark override needed */
+
+/* Form elements */
+.dark .mc-input,
+.dark .mc-textarea,
+.dark .mc-select,
+[data-theme="dark"] .mc-input,
+[data-theme="dark"] .mc-textarea,
+[data-theme="dark"] .mc-select {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .mc-input::placeholder,
+.dark .mc-textarea::placeholder,
+[data-theme="dark"] .mc-input::placeholder,
+[data-theme="dark"] .mc-textarea::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-input:focus,
+.dark .mc-textarea:focus,
+.dark .mc-select:focus,
+[data-theme="dark"] .mc-input:focus,
+[data-theme="dark"] .mc-textarea:focus,
+[data-theme="dark"] .mc-select:focus {
+  border-color: var(--color-brand-primary);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+
+/* Note: Form labels/hints use semantic tokens - no dark override needed */
+
+/* Action buttons - only colored variants need dark overrides */
+
+.dark .mc-action-btn.promote:hover,
+[data-theme="dark"] .mc-action-btn.promote:hover {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: var(--color-amber-400);
+  color: var(--color-amber-400);
+}
+
+.dark .mc-action-btn.archive:hover,
+.dark .mc-action-btn.delete:hover,
+[data-theme="dark"] .mc-action-btn.archive:hover,
+[data-theme="dark"] .mc-action-btn.delete:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: var(--color-red-400);
+  color: var(--color-red-400);
+}
+
+/* Note: Elegant list uses semantic tokens - no dark override needed */
+
+/* Badges - dark mode */
+.dark .mc-elegant-badge.sop,
+[data-theme="dark"] .mc-elegant-badge.sop {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--color-blue-400);
+}
+
+.dark .mc-elegant-badge.framework,
+[data-theme="dark"] .mc-elegant-badge.framework {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--color-amber-400);
+}
+
+.dark .mc-elegant-badge.policy,
+[data-theme="dark"] .mc-elegant-badge.policy {
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--color-violet-400);
+}
+
+/* Note: .mc-elegant-dept-none uses semantic tokens - no dark override needed */
+
+/* Text buttons */
+.dark .mc-text-btn.source,
+[data-theme="dark"] .mc-text-btn.source {
+  color: var(--color-indigo-400);
+}
+
+.dark .mc-text-btn.source:hover,
+[data-theme="dark"] .mc-text-btn.source:hover {
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--color-indigo-300);
+}
+
+.dark .mc-text-btn.promote,
+[data-theme="dark"] .mc-text-btn.promote {
+  color: var(--color-emerald-400);
+}
+
+.dark .mc-text-btn.promote:hover,
+[data-theme="dark"] .mc-text-btn.promote:hover {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--color-emerald-300);
+}
+
+.dark .mc-text-btn.delete,
+[data-theme="dark"] .mc-text-btn.delete {
+  color: var(--color-red-400);
+}
+
+.dark .mc-text-btn.delete:hover,
+[data-theme="dark"] .mc-text-btn.delete:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--color-red-300);
+}
+
+/* Note: Archive button and empty list use semantic tokens - no dark override needed */

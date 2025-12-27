@@ -28,16 +28,16 @@
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: var(--color-slate-50);
-  border: 1px solid var(--color-slate-200);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-2xl);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .mc-stat-pill:hover {
-  background: var(--color-slate-100);
-  border-color: var(--color-slate-300);
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
 }
 
 .mc-stat-pill.active {
@@ -53,7 +53,7 @@
 
 .mc-stat-text {
   font-size: 12px;
-  color: var(--color-slate-500);
+  color: var(--color-text-secondary);
   font-weight: 500;
 }
 
@@ -76,7 +76,7 @@
 .mc-empty-filtered {
   padding: 40px 24px;
   text-align: center;
-  color: var(--color-slate-400);
+  color: var(--color-text-tertiary);
   font-size: 14px;
   background: transparent;
   border: none;
@@ -94,10 +94,10 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  background: var(--color-slate-50);
+  background: var(--color-bg-secondary);
   border-radius: var(--radius-md);
   padding: 4px;
-  border: 1px solid var(--color-slate-200);
+  border: 1px solid var(--color-border);
   flex: 1;
   min-height: 0;
 }
@@ -115,7 +115,7 @@
 }
 
 .mc-project-row-compact:hover {
-  background: var(--color-slate-100);
+  background: var(--color-bg-hover);
 }
 
 /* Title group: name + badge together */
@@ -130,7 +130,7 @@
 .mc-project-name {
   font-size: 14px;
   font-weight: 500;
-  color: var(--color-slate-800);
+  color: var(--color-text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -148,7 +148,7 @@
 }
 
 .mc-project-source-icon.manual {
-  color: var(--color-slate-400);
+  color: var(--color-text-tertiary);
 }
 
 /* Meta group: count + time on the right */
@@ -163,8 +163,8 @@
 .mc-project-dept-more {
   font-size: 10px;
   font-weight: 500;
-  color: var(--color-slate-500);
-  background: var(--color-slate-100);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-hover);
   padding: 2px 6px;
   border-radius: var(--radius-full);
 }
@@ -182,7 +182,7 @@
 
 .mc-project-time {
   font-size: 11px;
-  color: var(--color-slate-400);
+  color: var(--color-text-tertiary);
   white-space: nowrap;
   min-width: 55px;
   text-align: right;
@@ -237,11 +237,11 @@
 
 /* Archive button - gray/blue */
 .mc-project-action.archive {
-  color: var(--color-gray-500);
+  color: var(--color-text-secondary);
 }
 
 .mc-project-action.archive:hover {
-  background: var(--color-gray-100);
+  background: var(--color-bg-hover);
 }
 
 /* Restore button - green */
@@ -274,12 +274,12 @@
 }
 
 .mc-project-action.confirm-no {
-  color: var(--color-slate-500);
-  background: var(--color-slate-100);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-hover);
 }
 
 .mc-project-action.confirm-no:hover {
-  background: var(--color-slate-200);
+  background: var(--color-border);
 }
 
 /* Fade out animation for projects */
@@ -314,7 +314,7 @@
 }
 
 .mc-project-row:hover {
-  background: var(--color-slate-50);
+  background: var(--color-bg-secondary);
 }
 
 /* Project status dot colors */
@@ -327,7 +327,7 @@
 }
 
 .mc-status-dot.archived {
-  background: var(--color-gray-400);
+  background: var(--color-text-tertiary);
 }
 
 /* Project status icon in badge */
@@ -345,7 +345,7 @@
 }
 
 .mc-project-status-icon.archived {
-  color: var(--color-gray-500);
+  color: var(--color-text-secondary);
 }
 
 /* Department badge for project rows */
@@ -373,7 +373,7 @@
 /* Last accessed timestamp */
 .mc-project-last-accessed {
   font-size: 11px;
-  color: var(--color-slate-400);
+  color: var(--color-text-tertiary);
   white-space: nowrap;
   margin-left: auto;
   padding-right: 8px;
@@ -402,12 +402,12 @@
 }
 
 .mc-text-btn.archive {
-  color: var(--color-gray-400);
+  color: var(--color-text-tertiary);
 }
 
 .mc-text-btn.archive:hover {
-  color: var(--color-gray-500);
-  background: var(--color-gray-100);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-hover);
 }
 
 .mc-text-btn.restore {
@@ -433,7 +433,7 @@
 
 /* Project description */
 .mc-project-description {
-  color: var(--color-slate-500);
+  color: var(--color-text-secondary);
   margin-bottom: 12px;
   font-size: 14px;
   line-height: 1.5;
@@ -443,7 +443,7 @@
 .mc-source-question {
   margin-bottom: 16px;
   padding: 10px 14px;
-  background: var(--color-slate-50);
+  background: var(--color-bg-secondary);
   border-radius: var(--radius-md);
   border-left: 3px solid var(--color-blue-500);
   font-size: 13px;
@@ -451,13 +451,13 @@
 }
 
 .mc-source-question-label {
-  color: var(--color-slate-500);
+  color: var(--color-text-secondary);
   font-weight: 500;
   margin-right: 6px;
 }
 
 .mc-source-question-text {
-  color: var(--color-gray-700);
+  color: var(--color-text-primary);
   font-style: italic;
 }
 
@@ -466,19 +466,19 @@
   display: inline-flex;
   gap: 8px;
   font-size: 11px;
-  color: var(--color-gray-400);
+  color: var(--color-text-tertiary);
   margin-left: auto;
 }
 
 .mc-timestamp {
   font-size: 11px;
-  color: var(--color-gray-400);
+  color: var(--color-text-tertiary);
 }
 
 .mc-timestamp::before {
   content: '•';
   margin-right: 8px;
-  color: var(--color-gray-300);
+  color: var(--color-text-tertiary);
 }
 
 .mc-timestamp:first-child::before {
@@ -522,7 +522,7 @@
 
 .mc-meta-info {
   font-size: 13px;
-  color: var(--color-gray-500);
+  color: var(--color-text-secondary);
 }
 
 /* Source conversation link */
@@ -536,7 +536,7 @@
   border: none;
   border-radius: var(--radius-sm);
   font-size: 12px;
-  color: var(--color-gray-500);
+  color: var(--color-text-secondary);
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -562,7 +562,7 @@
   display: flex;
   gap: 4px;
   margin-bottom: 16px;
-  border-bottom: 1px solid var(--color-gray-200);
+  border-bottom: 1px solid var(--color-border);
   padding-bottom: 0;
 }
 
@@ -577,14 +577,14 @@
   margin-bottom: -1px;
   font-size: 13px;
   font-weight: 500;
-  color: var(--color-gray-500);
+  color: var(--color-text-secondary);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .mc-project-tab:hover {
-  color: var(--color-gray-700);
-  background: var(--color-gray-50);
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
 }
 
 .mc-project-tab.active {
@@ -599,11 +599,11 @@
   min-width: 18px;
   height: 18px;
   padding: 0 5px;
-  background: var(--color-gray-200);
+  background: var(--color-border);
   border-radius: var(--radius-lg);
   font-size: 11px;
   font-weight: 600;
-  color: var(--color-gray-500);
+  color: var(--color-text-secondary);
 }
 
 .mc-project-tab.active .mc-tab-badge {
@@ -636,13 +636,13 @@
 .mc-empty-decisions .mc-empty-title {
   font-size: 14px;
   font-weight: 500;
-  color: var(--color-slate-500);
+  color: var(--color-text-secondary);
   margin: 0 0 6px 0;
 }
 
 .mc-empty-decisions .mc-empty-hint {
   font-size: 13px;
-  color: var(--color-slate-400);
+  color: var(--color-text-tertiary);
   margin: 0;
   max-width: 280px;
 }
@@ -659,7 +659,7 @@
 
 .mc-decisions-loading span {
   font-size: 13px;
-  color: var(--color-slate-500);
+  color: var(--color-text-secondary);
 }
 
 /* ============================================================================
@@ -697,7 +697,7 @@
 .mc-timeline-line {
   width: 2px;
   flex: 1;
-  background: var(--color-gray-200);
+  background: var(--color-border);
   margin-top: 4px;
 }
 
@@ -716,8 +716,8 @@
   flex-direction: column;
   gap: 6px;
   padding: 12px 14px;
-  background: var(--color-slate-50);
-  border: 1px solid var(--color-gray-200);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all 0.15s ease;
@@ -744,8 +744,8 @@
   font-weight: 600;
   padding: 2px 6px;
   border-radius: var(--radius-sm);
-  background: var(--color-gray-200);
-  color: var(--color-gray-500);
+  background: var(--color-border);
+  color: var(--color-text-secondary);
   white-space: nowrap;
 }
 
@@ -762,7 +762,7 @@
 .mc-timeline-title {
   font-size: 14px;
   font-weight: 500;
-  color: var(--color-slate-800);
+  color: var(--color-text-primary);
   margin: 0;
   flex: 1;
   min-width: 0;
@@ -770,7 +770,7 @@
 
 .mc-timeline-date {
   font-size: 11px;
-  color: var(--color-gray-400);
+  color: var(--color-text-tertiary);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -778,7 +778,7 @@
 .mc-timeline-chevron {
   width: 16px;
   height: 16px;
-  color: var(--color-gray-400);
+  color: var(--color-text-tertiary);
   transition: transform 0.2s ease;
   flex-shrink: 0;
 }
@@ -788,8 +788,8 @@
 }
 
 .mc-timeline-header:hover {
-  background: var(--color-slate-100);
-  border-color: var(--color-slate-300);
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
 }
 
 .mc-timeline-item.expanded .mc-timeline-header {
@@ -804,7 +804,7 @@
 .mc-timeline-body {
   padding: 16px;
   background: var(--color-bg-primary);
-  border: 1px solid var(--color-gray-200);
+  border: 1px solid var(--color-border);
   border-top: none;
   border-radius: 0 0 8px 8px;
 }
@@ -812,12 +812,12 @@
 .mc-timeline-body .markdown-content {
   font-size: 14px;
   line-height: 1.6;
-  color: var(--color-gray-700);
+  color: var(--color-text-primary);
 }
 
 /* Question box in expanded view */
 .mc-timeline-question-box {
-  background: var(--color-slate-50);
+  background: var(--color-bg-secondary);
   border-left: 3px solid var(--color-indigo-500);
   padding: 12px 14px;
   margin-bottom: 12px;
@@ -836,7 +836,7 @@
 
 .mc-timeline-question-text {
   font-size: 13px;
-  color: var(--color-slate-700);
+  color: var(--color-text-primary);
   margin: 0;
   line-height: 1.5;
   white-space: pre-wrap;
@@ -844,7 +844,7 @@
 
 .mc-timeline-question-label {
   font-weight: 600;
-  color: var(--color-slate-600);
+  color: var(--color-text-primary);
 }
 
 /* Council and department badges in timeline */
@@ -873,8 +873,8 @@
   gap: 4px;
   margin-top: 12px;
   padding: 6px 12px;
-  background: var(--color-slate-50);
-  border: 1px solid var(--color-gray-200);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-default);
   font-size: 12px;
   font-weight: 500;
@@ -926,12 +926,12 @@
 .mc-timeline-summary {
   margin-bottom: 16px;
   padding: 14px 16px;
-  background: var(--color-slate-50);
-  border: 1px solid var(--color-slate-200);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   font-size: 14px;
   font-weight: 400;
-  color: var(--color-slate-700);
+  color: var(--color-text-primary);
   line-height: 1.7;
 }
 
@@ -952,7 +952,7 @@
 
 .mc-timeline-summary .markdown-viewer strong {
   font-weight: 600;
-  color: var(--color-slate-800);
+  color: var(--color-text-primary);
 }
 
 .mc-timeline-summary .markdown-viewer ul,
@@ -970,23 +970,23 @@
   align-items: center;
   gap: 10px;
   padding: 14px 16px;
-  background: var(--color-slate-50);
-  border: 1px solid var(--color-slate-200);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   font-size: 13px;
-  color: var(--color-slate-500);
+  color: var(--color-text-secondary);
 }
 
 /* Legacy context summary */
 .mc-timeline-context {
   margin-bottom: 16px;
   padding: 12px 14px;
-  background: var(--color-slate-50);
+  background: var(--color-bg-secondary);
   border-left: 3px solid var(--color-blue-500);
   border-radius: var(--radius-sm);
   font-size: 14px;
   font-weight: 400;
-  color: var(--color-gray-700);
+  color: var(--color-text-primary);
   line-height: 1.6;
 }
 
@@ -1011,7 +1011,7 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--color-gray-500);
+  color: var(--color-text-secondary);
   margin-bottom: 8px;
 }
 
@@ -1099,4 +1099,544 @@
   -webkit-line-clamp: unset;
   -webkit-box-orient: unset;
   white-space: normal;
+}
+
+/* =============================================================================
+   DARK MODE - Projects Tab
+   ============================================================================= */
+
+/* Stats pills */
+.dark .mc-stat-pill,
+[data-theme="dark"] .mc-stat-pill {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .mc-stat-pill:hover,
+[data-theme="dark"] .mc-stat-pill:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+.dark .mc-stat-pill.active,
+[data-theme="dark"] .mc-stat-pill.active {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: var(--color-blue-400);
+}
+
+.dark .mc-stat-text,
+[data-theme="dark"] .mc-stat-text {
+  color: var(--color-text-secondary);
+}
+
+/* Empty filtered */
+.dark .mc-empty-filtered,
+[data-theme="dark"] .mc-empty-filtered {
+  color: var(--color-text-tertiary);
+}
+
+/* Projects list */
+.dark .mc-projects-list,
+[data-theme="dark"] .mc-projects-list {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+/* Project row compact */
+.dark .mc-project-row-compact,
+[data-theme="dark"] .mc-project-row-compact {
+  background: var(--color-bg-primary);
+}
+
+.dark .mc-project-row-compact:hover,
+[data-theme="dark"] .mc-project-row-compact:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .mc-project-name,
+[data-theme="dark"] .mc-project-name {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-project-dept-more,
+[data-theme="dark"] .mc-project-dept-more {
+  color: var(--color-text-secondary);
+  background: var(--color-bg-tertiary);
+}
+
+.dark .mc-project-decision-count,
+[data-theme="dark"] .mc-project-decision-count {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--color-amber-400);
+}
+
+.dark .mc-project-time,
+[data-theme="dark"] .mc-project-time {
+  color: var(--color-text-tertiary);
+}
+
+/* Project actions */
+.dark .mc-project-action.complete,
+[data-theme="dark"] .mc-project-action.complete {
+  color: var(--color-green-400);
+}
+
+.dark .mc-project-action.complete:hover,
+[data-theme="dark"] .mc-project-action.complete:hover {
+  background: rgba(34, 197, 94, 0.15);
+}
+
+.dark .mc-project-action.archive,
+[data-theme="dark"] .mc-project-action.archive {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-project-action.archive:hover,
+[data-theme="dark"] .mc-project-action.archive:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .mc-project-action.restore,
+[data-theme="dark"] .mc-project-action.restore {
+  color: var(--color-green-400);
+}
+
+.dark .mc-project-action.restore:hover,
+[data-theme="dark"] .mc-project-action.restore:hover {
+  background: rgba(34, 197, 94, 0.15);
+}
+
+.dark .mc-project-action.delete,
+[data-theme="dark"] .mc-project-action.delete {
+  color: var(--color-red-400);
+}
+
+.dark .mc-project-action.delete:hover,
+[data-theme="dark"] .mc-project-action.delete:hover {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.dark .mc-project-action.confirm-yes,
+[data-theme="dark"] .mc-project-action.confirm-yes {
+  background: var(--color-red-600);
+  color: var(--color-text-inverse);
+}
+
+.dark .mc-project-action.confirm-no,
+[data-theme="dark"] .mc-project-action.confirm-no {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+/* Legacy project row */
+.dark .mc-project-row:hover,
+[data-theme="dark"] .mc-project-row:hover {
+  background: var(--color-bg-tertiary);
+}
+
+/* Department badge */
+.dark .mc-project-dept-badge,
+[data-theme="dark"] .mc-project-dept-badge {
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--color-violet-400);
+}
+
+/* Decisions badge */
+.dark .mc-project-decisions-badge,
+[data-theme="dark"] .mc-project-decisions-badge {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--color-amber-400);
+}
+
+/* Last accessed */
+.dark .mc-project-last-accessed,
+[data-theme="dark"] .mc-project-last-accessed {
+  color: var(--color-text-tertiary);
+}
+
+/* Text button variants */
+.dark .mc-text-btn.complete,
+[data-theme="dark"] .mc-text-btn.complete {
+  color: var(--color-green-400);
+}
+
+.dark .mc-text-btn.complete:hover,
+[data-theme="dark"] .mc-text-btn.complete:hover {
+  color: var(--color-green-300);
+  background: rgba(34, 197, 94, 0.15);
+}
+
+.dark .mc-text-btn.reopen,
+[data-theme="dark"] .mc-text-btn.reopen {
+  color: var(--color-blue-400);
+}
+
+.dark .mc-text-btn.reopen:hover,
+[data-theme="dark"] .mc-text-btn.reopen:hover {
+  color: var(--color-blue-300);
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.dark .mc-text-btn.archive,
+[data-theme="dark"] .mc-text-btn.archive {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-text-btn.archive:hover,
+[data-theme="dark"] .mc-text-btn.archive:hover {
+  color: var(--color-text-secondary);
+  background: var(--color-bg-tertiary);
+}
+
+.dark .mc-text-btn.restore,
+[data-theme="dark"] .mc-text-btn.restore {
+  color: var(--color-blue-400);
+}
+
+.dark .mc-text-btn.restore:hover,
+[data-theme="dark"] .mc-text-btn.restore:hover {
+  color: var(--color-blue-300);
+  background: rgba(59, 130, 246, 0.15);
+}
+
+/* Project modal meta */
+.dark .mc-project-description,
+[data-theme="dark"] .mc-project-description {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-source-question,
+[data-theme="dark"] .mc-source-question {
+  background: var(--color-bg-tertiary);
+  border-left-color: var(--color-blue-400);
+}
+
+.dark .mc-source-question-label,
+[data-theme="dark"] .mc-source-question-label {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-source-question-text,
+[data-theme="dark"] .mc-source-question-text {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-project-timestamps,
+[data-theme="dark"] .mc-project-timestamps {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-timestamp,
+[data-theme="dark"] .mc-timestamp {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-timestamp::before,
+[data-theme="dark"] .mc-timestamp::before {
+  color: var(--color-border);
+}
+
+/* Status badge */
+.dark .mc-status-badge,
+[data-theme="dark"] .mc-status-badge {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+/* Source badge */
+.dark .mc-source-badge,
+[data-theme="dark"] .mc-source-badge {
+  background: rgba(14, 165, 233, 0.1);
+  color: var(--color-sky-400);
+  border-color: rgba(14, 165, 233, 0.2);
+}
+
+.dark .mc-source-badge.council,
+[data-theme="dark"] .mc-source-badge.council {
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--color-violet-400);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.dark .mc-source-badge.import,
+[data-theme="dark"] .mc-source-badge.import {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--color-amber-400);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.dark .mc-meta-info,
+[data-theme="dark"] .mc-meta-info {
+  color: var(--color-text-secondary);
+}
+
+/* Source link */
+.dark .mc-source-link,
+[data-theme="dark"] .mc-source-link {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-source-link:hover,
+[data-theme="dark"] .mc-source-link:hover {
+  color: var(--color-indigo-400);
+  background: rgba(99, 102, 241, 0.1);
+}
+
+/* Project tabs */
+.dark .mc-project-tabs,
+[data-theme="dark"] .mc-project-tabs {
+  border-bottom-color: var(--color-border);
+}
+
+.dark .mc-project-tab,
+[data-theme="dark"] .mc-project-tab {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-project-tab:hover,
+[data-theme="dark"] .mc-project-tab:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-tertiary);
+}
+
+.dark .mc-project-tab.active,
+[data-theme="dark"] .mc-project-tab.active {
+  color: var(--color-indigo-400);
+  border-bottom-color: var(--color-indigo-400);
+}
+
+.dark .mc-tab-badge,
+[data-theme="dark"] .mc-tab-badge {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-project-tab.active .mc-tab-badge,
+[data-theme="dark"] .mc-project-tab.active .mc-tab-badge {
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--color-indigo-400);
+}
+
+/* Empty decisions */
+.dark .mc-empty-decisions .mc-empty-title,
+[data-theme="dark"] .mc-empty-decisions .mc-empty-title {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-empty-decisions .mc-empty-hint,
+[data-theme="dark"] .mc-empty-decisions .mc-empty-hint {
+  color: var(--color-text-tertiary);
+}
+
+/* Decisions loading */
+.dark .mc-decisions-loading span,
+[data-theme="dark"] .mc-decisions-loading span {
+  color: var(--color-text-secondary);
+}
+
+/* Timeline */
+.dark .mc-timeline-dot,
+[data-theme="dark"] .mc-timeline-dot {
+  background: var(--color-violet-400);
+}
+
+.dark .mc-timeline-line,
+[data-theme="dark"] .mc-timeline-line {
+  background: var(--color-border);
+}
+
+.dark .mc-timeline-line.linked,
+[data-theme="dark"] .mc-timeline-line.linked {
+  background: var(--color-blue-400);
+}
+
+/* Timeline header */
+.dark .mc-timeline-header,
+[data-theme="dark"] .mc-timeline-header {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .mc-timeline-header:hover,
+[data-theme="dark"] .mc-timeline-header:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+.dark .mc-timeline-item.expanded .mc-timeline-header,
+[data-theme="dark"] .mc-timeline-item.expanded .mc-timeline-header {
+  border-bottom-color: transparent;
+}
+
+.dark .mc-timeline-title,
+[data-theme="dark"] .mc-timeline-title {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-timeline-date,
+[data-theme="dark"] .mc-timeline-date {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-timeline-chevron,
+[data-theme="dark"] .mc-timeline-chevron {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-timeline-iteration-badge,
+[data-theme="dark"] .mc-timeline-iteration-badge {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-tertiary);
+}
+
+/* Timeline body */
+.dark .mc-timeline-body,
+[data-theme="dark"] .mc-timeline-body {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border);
+}
+
+.dark .mc-timeline-body .markdown-content,
+[data-theme="dark"] .mc-timeline-body .markdown-content {
+  color: var(--color-text-secondary);
+}
+
+/* Timeline question box */
+.dark .mc-timeline-question-box,
+[data-theme="dark"] .mc-timeline-question-box {
+  background: var(--color-bg-tertiary);
+  border-left-color: var(--color-indigo-400);
+}
+
+.dark .mc-timeline-question-box .mc-timeline-question-label,
+[data-theme="dark"] .mc-timeline-question-box .mc-timeline-question-label {
+  color: var(--color-indigo-400);
+}
+
+.dark .mc-timeline-question-text,
+[data-theme="dark"] .mc-timeline-question-text {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-timeline-question-label,
+[data-theme="dark"] .mc-timeline-question-label {
+  color: var(--color-text-secondary);
+}
+
+/* Timeline council/dept badges */
+.dark .mc-timeline-council,
+[data-theme="dark"] .mc-timeline-council {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--color-blue-400);
+}
+
+.dark .mc-timeline-dept,
+[data-theme="dark"] .mc-timeline-dept {
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--color-violet-400);
+}
+
+/* Timeline source link */
+.dark .mc-timeline-source-link,
+[data-theme="dark"] .mc-timeline-source-link {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-indigo-400);
+}
+
+.dark .mc-timeline-source-link:hover,
+[data-theme="dark"] .mc-timeline-source-link:hover {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: var(--color-indigo-400);
+}
+
+/* Timeline group */
+.dark .mc-timeline-group.linked,
+[data-theme="dark"] .mc-timeline-group.linked {
+  background: rgba(14, 165, 233, 0.1);
+  border-left-color: var(--color-blue-400);
+}
+
+/* Timeline summary */
+.dark .mc-timeline-summary,
+[data-theme="dark"] .mc-timeline-summary {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-timeline-summary .markdown-viewer strong,
+[data-theme="dark"] .mc-timeline-summary .markdown-viewer strong {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-timeline-summary-loading,
+[data-theme="dark"] .mc-timeline-summary-loading {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-timeline-context,
+[data-theme="dark"] .mc-timeline-context {
+  background: var(--color-bg-tertiary);
+  border-left-color: var(--color-blue-400);
+  color: var(--color-text-secondary);
+}
+
+/* Timeline answer */
+.dark .mc-timeline-answer,
+[data-theme="dark"] .mc-timeline-answer {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .mc-timeline-answer-label,
+[data-theme="dark"] .mc-timeline-answer-label {
+  color: var(--color-text-tertiary);
+}
+
+/* Copy container/button */
+.dark .mc-timeline-copy-container,
+[data-theme="dark"] .mc-timeline-copy-container {
+  background: var(--color-bg-secondary);
+}
+
+.dark .mc-content-preview .mc-timeline-copy-container,
+[data-theme="dark"] .mc-content-preview .mc-timeline-copy-container {
+  background: var(--color-bg-primary);
+}
+
+.dark .mc-timeline-answer .mc-timeline-copy-container,
+[data-theme="dark"] .mc-timeline-answer .mc-timeline-copy-container {
+  background: var(--color-bg-secondary);
+}
+
+.dark .mc-timeline-copy-btn,
+[data-theme="dark"] .mc-timeline-copy-btn {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-timeline-copy-btn:hover,
+[data-theme="dark"] .mc-timeline-copy-btn:hover {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: var(--color-green-500);
+  color: var(--color-green-400);
+}
+
+.dark .mc-timeline-copy-btn.copied,
+[data-theme="dark"] .mc-timeline-copy-btn.copied {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: var(--color-green-500);
+  color: var(--color-green-400);
+}
+
+/* Decision summary in body */
+.dark .mc-timeline-body .mc-timeline-summary,
+[data-theme="dark"] .mc-timeline-body .mc-timeline-summary {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.2);
+  color: var(--color-amber-300);
 }

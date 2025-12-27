@@ -19,7 +19,7 @@
   display: block;
   font-size: 12px;
   font-weight: 600;
-  color: var(--color-slate-500);
+  color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 6px;
@@ -42,12 +42,12 @@
 .mc-section-label {
   font-size: 13px;
   font-weight: 600;
-  color: var(--color-gray-700);
+  color: var(--color-text-primary);
 }
 
 .mc-section-hint {
   font-size: 11px;
-  color: var(--color-slate-400);
+  color: var(--color-text-tertiary);
 }
 
 .mc-context-header-actions {
@@ -78,7 +78,7 @@
   gap: 12px;
   margin-bottom: 12px;
   padding-bottom: 12px;
-  border-bottom: 1px solid var(--color-slate-100);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .mc-btn-format-ai {
@@ -119,7 +119,7 @@
 
 .mc-editor-hint {
   font-size: 12px;
-  color: var(--color-slate-400);
+  color: var(--color-text-tertiary);
   font-style: italic;
 }
 
@@ -134,9 +134,9 @@
   padding: 5px 10px;
   font-size: 11px;
   font-weight: 500;
-  color: var(--color-slate-500);
-  background: var(--color-slate-50);
-  border: 1px solid var(--color-slate-200);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -144,9 +144,9 @@
 }
 
 .mc-ai-resync-btn:hover:not(:disabled) {
-  background: var(--color-slate-100);
-  color: var(--color-slate-700);
-  border-color: var(--color-slate-300);
+  background: var(--color-border);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-dark);
 }
 
 .mc-ai-resync-btn:disabled {
@@ -264,7 +264,7 @@
 
 .mc-ai-synthesize-warning {
   font-size: 11px;
-  color: var(--color-gray-400);
+  color: var(--color-text-tertiary);
   font-weight: 400;
   font-style: italic;
   display: flex;
@@ -292,4 +292,116 @@
   background: var(--color-sky-50);
   color: var(--color-sky-600);
   border: 1px solid var(--color-sky-200);
+}
+
+/* =============================================================================
+   DARK MODE - Legacy Styles
+   ============================================================================= */
+
+/* Field labels */
+.dark .mc-field-label,
+[data-theme="dark"] .mc-field-label {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-section-label,
+[data-theme="dark"] .mc-section-label {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-section-hint,
+[data-theme="dark"] .mc-section-hint {
+  color: var(--color-text-tertiary);
+}
+
+/* Editor toolbar */
+.dark .mc-editor-toolbar,
+[data-theme="dark"] .mc-editor-toolbar {
+  border-bottom-color: var(--color-border);
+}
+
+.dark .mc-btn-format-ai,
+[data-theme="dark"] .mc-btn-format-ai {
+  background: var(--color-violet-600);
+}
+
+.dark .mc-editor-hint,
+[data-theme="dark"] .mc-editor-hint {
+  color: var(--color-text-tertiary);
+}
+
+/* AI Resync button */
+.dark .mc-ai-resync-btn,
+[data-theme="dark"] .mc-ai-resync-btn {
+  color: var(--color-text-secondary);
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+}
+
+.dark .mc-ai-resync-btn:hover:not(:disabled),
+[data-theme="dark"] .mc-ai-resync-btn:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-dark);
+}
+
+/* AI Synthesize button */
+.dark .mc-ai-synthesize-btn,
+[data-theme="dark"] .mc-ai-synthesize-btn {
+  color: var(--color-violet-400);
+  background: rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.dark .mc-ai-synthesize-btn:hover:not(:disabled),
+[data-theme="dark"] .mc-ai-synthesize-btn:hover:not(:disabled) {
+  background: rgba(139, 92, 246, 0.25);
+  color: var(--color-violet-300);
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+/* Countdown state */
+.dark .mc-ai-synthesize-btn.countdown,
+[data-theme="dark"] .mc-ai-synthesize-btn.countdown {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: var(--color-indigo-400);
+  color: var(--color-indigo-400);
+}
+
+.dark .mc-ai-synthesize-btn.countdown:hover,
+[data-theme="dark"] .mc-ai-synthesize-btn.countdown:hover {
+  background: rgba(99, 102, 241, 0.25);
+  border-color: var(--color-indigo-300);
+}
+
+/* AI Synthesize row */
+.dark .mc-ai-synthesize-row,
+[data-theme="dark"] .mc-ai-synthesize-row {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.2);
+}
+
+.dark .mc-ai-synthesize-hint,
+[data-theme="dark"] .mc-ai-synthesize-hint {
+  color: var(--color-violet-400);
+}
+
+.dark .mc-ai-synthesize-warning,
+[data-theme="dark"] .mc-ai-synthesize-warning {
+  color: var(--color-text-tertiary);
+}
+
+/* Status badge */
+.dark .mc-status-badge,
+[data-theme="dark"] .mc-status-badge {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+/* Source badge */
+.dark .mc-source-badge,
+[data-theme="dark"] .mc-source-badge {
+  background: rgba(14, 165, 233, 0.1);
+  color: var(--color-sky-400);
+  border-color: rgba(14, 165, 233, 0.2);
 }

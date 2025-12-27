@@ -61,7 +61,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px;
-  background: var(--color-slate-900);
+  background: var(--color-bg-inverse);
   color: var(--color-text-inverse);
   position: relative;
   overflow: visible; /* Allow dropdown to extend beyond header */
@@ -75,11 +75,11 @@
 }
 
 .mc-header-dismissible:hover {
-  background: var(--color-slate-800);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .mc-header-dismissible:active {
-  background: var(--color-slate-700);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 /* Dismiss hint - shows "tap to close" on hover/focus */
@@ -154,7 +154,7 @@
   height: 8px;
   border-radius: var(--radius-xs);
   flex-shrink: 0;
-  background: var(--color-gray-500);
+  background: var(--color-text-tertiary);
   cursor: help;
   transition: all 0.3s ease;
 }
@@ -319,7 +319,7 @@
 }
 
 .mc-company-option:hover {
-  background: var(--color-slate-50);
+  background: var(--color-bg-secondary);
 }
 
 .mc-company-option.active {
@@ -328,7 +328,7 @@
 
 .mc-company-option-name {
   font-size: 0.875rem;
-  color: var(--color-slate-700);
+  color: var(--color-text-primary);
   font-weight: 500;
 }
 
@@ -343,7 +343,7 @@
 
 /* Divider between company options */
 .mc-company-option:not(:last-child) {
-  border-bottom: 1px solid var(--color-slate-100);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .mc-close-btn {
@@ -375,8 +375,8 @@
   display: flex;
   gap: 4px;
   padding: 12px 20px;
-  background: var(--color-slate-50);
-  border-bottom: 1px solid var(--color-slate-200);
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .mc-tab {
@@ -389,7 +389,7 @@
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--color-slate-500);
+  color: var(--color-text-secondary);
   border-radius: var(--radius-md);
   transition: all 0.2s ease;
   position: relative;
@@ -409,12 +409,12 @@
 }
 
 .mc-tab:hover {
-  color: var(--color-slate-700);
+  color: var(--color-text-primary);
   background: rgba(0, 0, 0, 0.04);
 }
 
 .mc-tab.active {
-  color: var(--color-slate-800);
+  color: var(--color-text-primary);
   background: var(--color-bg-primary);
   box-shadow: var(--shadow-sm);
 }
@@ -445,4 +445,89 @@
   /* Enable flex for child tabs to fill height */
   display: flex;
   flex-direction: column;
+}
+
+/* =============================================================================
+   DARK MODE - Command Center Shell
+   ============================================================================= */
+
+/* Panel */
+.dark .mc-panel,
+[data-theme="dark"] .mc-panel {
+  background: var(--color-bg-primary);
+  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.5);
+}
+
+/* Tabs - dark background */
+.dark .mc-tabs,
+[data-theme="dark"] .mc-tabs {
+  background: var(--color-bg-secondary);
+  border-bottom-color: var(--color-border);
+}
+
+.dark .mc-tab,
+[data-theme="dark"] .mc-tab {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-tab:hover,
+[data-theme="dark"] .mc-tab:hover {
+  color: var(--color-text-secondary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dark .mc-tab.active,
+[data-theme="dark"] .mc-tab.active {
+  color: var(--color-text-primary);
+  background: var(--color-bg-tertiary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.dark .mc-tab.active::after,
+[data-theme="dark"] .mc-tab.active::after {
+  background: var(--color-brand-primary);
+}
+
+/* Content area */
+.dark .mc-content,
+[data-theme="dark"] .mc-content {
+  background: var(--color-bg-primary);
+}
+
+/* Company dropdown */
+.dark .mc-company-dropdown,
+[data-theme="dark"] .mc-company-dropdown {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.dark .mc-company-option,
+[data-theme="dark"] .mc-company-option {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-company-option:hover,
+[data-theme="dark"] .mc-company-option:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .mc-company-option.active,
+[data-theme="dark"] .mc-company-option.active {
+  background: rgba(16, 185, 129, 0.15);
+}
+
+.dark .mc-company-option-name,
+[data-theme="dark"] .mc-company-option-name {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-company-option.active .mc-company-option-name,
+[data-theme="dark"] .mc-company-option.active .mc-company-option-name {
+  color: var(--color-emerald-400);
+}
+
+.dark .mc-company-option:not(:last-child),
+[data-theme="dark"] .mc-company-option:not(:last-child) {
+  border-bottom-color: var(--color-border);
 }

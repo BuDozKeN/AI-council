@@ -15,24 +15,24 @@
   flex-wrap: wrap;
   margin-bottom: 20px;
   font-size: 0.875rem;
-  color: var(--color-gray-500);
+  color: var(--color-text-secondary);
 }
 
 .mc-cleanup-btn {
   padding: 4px 10px;
   font-size: 12px;
   font-weight: 500;
-  background: var(--color-slate-100);
-  color: var(--color-slate-600);
-  border: 1px solid var(--color-slate-200);
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .mc-cleanup-btn:hover:not(:disabled) {
-  background: var(--color-slate-200);
-  border-color: var(--color-slate-300);
+  background: var(--color-border);
+  border-color: var(--color-border-dark);
 }
 
 .mc-cleanup-btn:disabled {
@@ -49,9 +49,9 @@
   padding: 6px 14px;
   font-size: 13px;
   font-weight: 500;
-  border: 1px solid var(--color-slate-300);
+  border: 1px solid var(--color-border-dark);
   background: white;
-  color: var(--color-slate-600);
+  color: var(--color-text-primary);
   border-radius: var(--radius-2xl);
   cursor: pointer;
   transition: all 0.15s ease;
@@ -59,8 +59,8 @@
 }
 
 .mc-filter-chip:hover {
-  background: var(--color-slate-100);
-  border-color: var(--color-slate-300);
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
 }
 
 .mc-filter-chip.active {
@@ -86,7 +86,7 @@
 .mc-activity-date {
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--color-gray-500);
+  color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin: 0 0 12px;
@@ -109,14 +109,14 @@
   align-items: flex-start;
   gap: 12px;
   padding: 14px 16px;
-  background: var(--color-gray-50);
-  border: 1px solid var(--color-gray-200);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   transition: background-color 0.15s;
 }
 
 .mc-activity-item:hover {
-  background: var(--color-gray-100);
+  background: var(--color-bg-hover);
 }
 
 .mc-activity-item.clickable {
@@ -137,7 +137,7 @@
   display: block;
   font-size: 0.6875rem;
   font-weight: 600;
-  color: var(--color-gray-400);
+  color: var(--color-text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.03em;
   margin-bottom: 2px;
@@ -147,19 +147,19 @@
   display: block;
   font-size: 0.9375rem;
   font-weight: 500;
-  color: var(--color-gray-700);
+  color: var(--color-text-primary);
 }
 
 .mc-activity-description {
   margin: 6px 0 0;
   font-size: 0.8125rem;
-  color: var(--color-gray-500);
+  color: var(--color-text-secondary);
   line-height: 1.5;
 }
 
 .mc-activity-time {
   font-size: 0.75rem;
-  color: var(--color-gray-400);
+  color: var(--color-text-tertiary);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -268,4 +268,16 @@
     padding: 12px;
     min-height: 44px;
   }
+}
+
+/* =============================================================================
+   DARK MODE - Activity Tab
+   All base styles use semantic tokens, only special cases need overrides
+   ============================================================================= */
+
+/* Source icon button hover - needs special rgba background */
+.dark .mc-source-icon-btn:hover,
+[data-theme="dark"] .mc-source-icon-btn:hover {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--color-blue-400);
 }

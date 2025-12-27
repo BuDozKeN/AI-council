@@ -18,7 +18,7 @@
 
 .mc-filter-select {
   padding: 10px 14px;
-  border: 1px solid var(--color-gray-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   font-size: 0.875rem;
   background: var(--color-bg-primary);
@@ -34,7 +34,7 @@
 .mc-empty-filter {
   text-align: center;
   padding: 40px 20px;
-  color: var(--color-gray-500);
+  color: var(--color-text-secondary);
 }
 
 .mc-empty-filter p {
@@ -52,7 +52,7 @@
 .mc-group-title {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--color-gray-500);
+  color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin: 0 0 12px;
@@ -73,8 +73,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 14px 16px;
-  background: var(--color-gray-50);
-  border: 1px solid var(--color-gray-200);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   transition: all 0.15s ease;
 }
@@ -84,8 +84,8 @@
 }
 
 .mc-playbook-item.clickable:hover {
-  background: var(--color-gray-100);
-  border-color: var(--color-gray-300);
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
   box-shadow: var(--shadow-xs);
 }
 
@@ -104,13 +104,13 @@
 
 .mc-playbook-title {
   font-weight: 500;
-  color: var(--color-gray-700);
+  color: var(--color-text-primary);
 }
 
 /* Edit hint on hover */
 .mc-edit-hint {
   font-size: 0.75rem;
-  color: var(--color-gray-400);
+  color: var(--color-text-tertiary);
   opacity: 0;
   transition: opacity 0.15s ease;
   flex-shrink: 0;
@@ -129,8 +129,8 @@
 
 .mc-playbook-version {
   font-size: 0.75rem;
-  color: var(--color-gray-400);
-  background: var(--color-gray-200);
+  color: var(--color-text-tertiary);
+  background: var(--color-border);
   padding: 2px 8px;
   border-radius: var(--radius-md);
 }
@@ -140,8 +140,8 @@
    ============================================================================ */
 
 .mc-playbook-content {
-  background: var(--color-gray-800);
-  color: var(--color-gray-200);
+  background: var(--color-code-bg);
+  color: var(--color-border);
   padding: 18px;
   border-radius: var(--radius-lg);
   font-family: var(--font-mono);
@@ -175,12 +175,12 @@
 
 .mc-version {
   font-size: 0.8125rem;
-  color: var(--color-gray-500);
+  color: var(--color-text-secondary);
 }
 
 .mc-date {
   font-size: 0.8125rem;
-  color: var(--color-gray-500);
+  color: var(--color-text-secondary);
 }
 
 .mc-tags {
@@ -188,4 +188,15 @@
   flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 16px;
+}
+
+/* =============================================================================
+   DARK MODE - Playbooks Tab
+   All base styles use semantic tokens, only special hover states need overrides
+   ============================================================================= */
+
+/* Edit hint hover - special color */
+.dark .mc-playbook-item.clickable:hover .mc-edit-hint,
+[data-theme="dark"] .mc-playbook-item.clickable:hover .mc-edit-hint {
+  color: var(--color-indigo-400);
 }

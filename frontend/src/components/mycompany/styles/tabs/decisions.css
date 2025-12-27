@@ -15,8 +15,8 @@
 
 .mc-decision-item {
   padding: 16px;
-  background: var(--color-gray-50);
-  border: 1px solid var(--color-gray-200);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
 }
 
@@ -34,12 +34,12 @@
 
 .mc-decision-title {
   font-weight: 500;
-  color: var(--color-gray-700);
+  color: var(--color-text-primary);
 }
 
 .mc-decision-date {
   font-size: 0.75rem;
-  color: var(--color-gray-400);
+  color: var(--color-text-tertiary);
 }
 
 /* Badges row for promoted decisions */
@@ -87,7 +87,7 @@
 /* Pending promotion label */
 .mc-pending-label {
   font-size: 0.8125rem;
-  color: var(--color-gray-500);
+  color: var(--color-text-secondary);
   font-style: italic;
 }
 
@@ -107,7 +107,7 @@
   align-items: center;
   gap: 8px;
   padding-top: 12px;
-  border-top: 1px solid var(--color-gray-200);
+  border-top: 1px solid var(--color-border);
 }
 
 /* Icon-based action buttons for decisions */
@@ -122,12 +122,12 @@
   cursor: pointer;
   transition: all 0.15s ease;
   border: 1px solid transparent;
-  background: var(--color-gray-100);
-  color: var(--color-gray-600);
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
 }
 
 .mc-action-btn:hover {
-  background: var(--color-gray-200);
+  background: var(--color-border);
 }
 
 .mc-action-btn .icon {
@@ -136,14 +136,14 @@
 
 /* View button - subtle gray */
 .mc-action-btn.view {
-  background: var(--color-gray-100);
-  color: var(--color-gray-600);
-  border-color: var(--color-gray-200);
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
 }
 
 .mc-action-btn.view:hover {
-  background: var(--color-gray-200);
-  color: var(--color-gray-700);
+  background: var(--color-border);
+  color: var(--color-text-primary);
 }
 
 /* Promote button - orange accent */
@@ -247,7 +247,7 @@
 }
 
 .mc-promoter {
-  color: var(--color-gray-500);
+  color: var(--color-text-secondary);
   font-style: italic;
 }
 
@@ -313,11 +313,11 @@
 
 .mc-decision-content {
   position: relative;
-  background: var(--color-gray-50);
-  color: var(--color-gray-800);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
   padding: 20px 24px;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-gray-200);
+  border: 1px solid var(--color-border);
   max-height: 450px;
   overflow-y: auto;
   font-size: 0.9375rem;
@@ -368,7 +368,7 @@
 .mc-decision-content h1,
 .mc-decision-content h2,
 .mc-decision-content h3 {
-  color: var(--color-gray-900);
+  color: var(--color-text-primary);
   margin-top: 1.25em;
   margin-bottom: 0.5em;
   font-weight: 600;
@@ -400,7 +400,7 @@
 
 .mc-decision-content strong {
   font-weight: 600;
-  color: var(--color-gray-900);
+  color: var(--color-text-primary);
 }
 
 .mc-decision-content code {
@@ -432,7 +432,7 @@
   border-left: 3px solid var(--color-indigo-500);
   margin: 1em 0;
   padding-left: 1em;
-  color: var(--color-gray-600);
+  color: var(--color-text-primary);
   font-style: italic;
 }
 
@@ -491,4 +491,220 @@
 .mc-promoted-label.project {
   background: var(--color-blue-100);
   color: var(--color-blue-700);
+}
+
+/* =============================================================================
+   DARK MODE - Decisions Tab
+   ============================================================================= */
+
+/* Note: Decision items, titles, dates use semantic tokens - no override needed */
+
+/* Promoted decision */
+.dark .mc-decision-item.promoted,
+[data-theme="dark"] .mc-decision-item.promoted {
+  border-left-color: var(--color-emerald-400);
+}
+
+/* Promoted labels */
+.dark .mc-promoted-label,
+[data-theme="dark"] .mc-promoted-label {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--color-emerald-400);
+}
+
+/* Note: Pending label, decision actions, action btns use semantic tokens */
+
+/* Action buttons with colors - need rgba backgrounds */
+.dark .mc-action-btn.promote,
+[data-theme="dark"] .mc-action-btn.promote {
+  background: rgba(249, 115, 22, 0.15);
+  color: var(--color-amber-400);
+  border-color: rgba(249, 115, 22, 0.3);
+}
+
+.dark .mc-action-btn.promote:hover,
+[data-theme="dark"] .mc-action-btn.promote:hover {
+  background: rgba(249, 115, 22, 0.25);
+}
+
+.dark .mc-action-btn.archive,
+[data-theme="dark"] .mc-action-btn.archive {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-red-400);
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.dark .mc-action-btn.archive:hover,
+[data-theme="dark"] .mc-action-btn.archive:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+/* Promoted badges - dark mode */
+.dark .mc-promoted-badge,
+[data-theme="dark"] .mc-promoted-badge {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--color-emerald-400);
+}
+
+.dark .mc-promoted-badge.sop,
+[data-theme="dark"] .mc-promoted-badge.sop {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--color-blue-400);
+}
+
+.dark .mc-promoted-badge.framework,
+[data-theme="dark"] .mc-promoted-badge.framework {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--color-amber-400);
+}
+
+.dark .mc-promoted-badge.policy,
+[data-theme="dark"] .mc-promoted-badge.policy {
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--color-violet-400);
+}
+
+/* Council badge */
+.dark .mc-council-badge,
+[data-theme="dark"] .mc-council-badge {
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--color-indigo-400);
+}
+
+/* Decision meta */
+.dark .mc-promoted-info,
+[data-theme="dark"] .mc-promoted-info {
+  color: var(--color-emerald-400);
+}
+
+/* Note: .mc-promoter uses semantic token */
+
+.dark .mc-promoted,
+[data-theme="dark"] .mc-promoted {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--color-emerald-400);
+}
+
+.dark .mc-promoted.sop,
+[data-theme="dark"] .mc-promoted.sop {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--color-blue-400);
+}
+
+.dark .mc-promoted.framework,
+[data-theme="dark"] .mc-promoted.framework {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--color-amber-400);
+}
+
+.dark .mc-promoted.policy,
+[data-theme="dark"] .mc-promoted.policy {
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--color-violet-400);
+}
+
+/* Decision question box */
+.dark .mc-decision-question,
+[data-theme="dark"] .mc-decision-question {
+  background: rgba(14, 165, 233, 0.1);
+  border-color: rgba(14, 165, 233, 0.2);
+}
+
+.dark .mc-decision-question-label,
+[data-theme="dark"] .mc-decision-question-label {
+  color: var(--color-sky-400);
+}
+
+.dark .mc-decision-question-text,
+[data-theme="dark"] .mc-decision-question-text {
+  color: var(--color-text-primary);
+}
+
+/* Decision content */
+.dark .mc-decision-content,
+[data-theme="dark"] .mc-decision-content {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-decision-content h1,
+.dark .mc-decision-content h2,
+.dark .mc-decision-content h3,
+[data-theme="dark"] .mc-decision-content h1,
+[data-theme="dark"] .mc-decision-content h2,
+[data-theme="dark"] .mc-decision-content h3 {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-decision-content strong,
+[data-theme="dark"] .mc-decision-content strong {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-decision-content code,
+[data-theme="dark"] .mc-decision-content code {
+  background: var(--color-bg-hover);
+  color: var(--color-amber-400);
+}
+
+.dark .mc-decision-content blockquote,
+[data-theme="dark"] .mc-decision-content blockquote {
+  border-left-color: var(--color-indigo-400);
+  color: var(--color-text-secondary);
+}
+
+/* Copy button */
+.dark .mc-content-copy-btn,
+[data-theme="dark"] .mc-content-copy-btn {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-content-copy-btn:hover,
+[data-theme="dark"] .mc-content-copy-btn:hover {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: var(--color-green-500);
+  color: var(--color-green-400);
+}
+
+.dark .mc-content-copy-btn.copied,
+[data-theme="dark"] .mc-content-copy-btn.copied {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: var(--color-green-500);
+  color: var(--color-green-400);
+}
+
+/* Decision source link */
+.dark .mc-decision-source-link,
+[data-theme="dark"] .mc-decision-source-link {
+  background: rgba(14, 165, 233, 0.1);
+  border-color: rgba(14, 165, 233, 0.2);
+  color: var(--color-sky-400);
+}
+
+.dark .mc-decision-source-link:hover,
+[data-theme="dark"] .mc-decision-source-link:hover {
+  background: rgba(14, 165, 233, 0.2);
+  border-color: rgba(14, 165, 233, 0.3);
+}
+
+/* Project link button */
+.dark .mc-project-link-btn,
+[data-theme="dark"] .mc-project-link-btn {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: var(--color-blue-400);
+}
+
+.dark .mc-project-link-btn:hover,
+[data-theme="dark"] .mc-project-link-btn:hover {
+  background: rgba(59, 130, 246, 0.25);
+}
+
+.dark .mc-promoted-label.project,
+[data-theme="dark"] .mc-promoted-label.project {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--color-blue-400);
 }

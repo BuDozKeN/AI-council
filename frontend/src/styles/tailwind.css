@@ -109,6 +109,7 @@
     --color-bg-tertiary: #f5f5f5;
     --color-bg-hover: #f3f4f6;
     --color-bg-active: #e5e7eb;
+    --color-bg-inverse: #1e293b;         /* Dark bg for headers/banners */
 
     /* Border colors */
     --color-border: #e5e7eb;
@@ -217,10 +218,12 @@
     --color-blue-100: #dbeafe;
     --color-blue-200: #bfdbfe;
     --color-blue-300: #93c5fd;
+    --color-blue-400: #60a5fa;
     --color-blue-500: #3b82f6;
     --color-blue-600: #2563eb;
     --color-blue-700: #1d4ed8;
     --color-blue-800: #1e40af;
+    --color-blue-900: #1e3a5f;
 
     /* Green scale - for success states */
     --color-green-50: #f0fdf4;
@@ -230,6 +233,7 @@
     --color-green-600: #16a34a;
 
     /* Emerald scale - for save buttons */
+    --color-emerald-300: #6ee7b7;
     --color-emerald-400: #34d399;
     --color-emerald-500: #10b981;
     --color-emerald-600: #059669;
@@ -239,6 +243,7 @@
     --color-amber-100: #fef3c7;
     --color-amber-200: #fde68a;
     --color-amber-300: #fcd34d;
+    --color-amber-400: #fbbf24;
     --color-amber-500: #f59e0b;
     --color-amber-600: #d97706;
     --color-amber-700: #b45309;
@@ -248,6 +253,7 @@
     --color-purple-200: #e9d5ff;
     --color-purple-300: #c4b5fd;
     --color-purple-600: #7c3aed;
+    --color-purple-900: #581c87;
 
     /* Violet scale - for project hover states */
     --color-violet-100: #ede9fe;
@@ -265,6 +271,7 @@
     --color-indigo-500: #6366f1;
     --color-indigo-600: #4f46e5;
     --color-indigo-700: #4338ca;
+    --color-indigo-900: #312e81;
     --color-indigo-rgb: 99, 102, 241;  /* For rgba() usage */
 
     /* Provider brand colors */
@@ -416,6 +423,10 @@
     /* Overlays */
     --overlay-bg: rgba(255, 255, 255, 0.95);
     --overlay-shimmer: rgba(255, 255, 255, 0.4);
+
+    /* Skeleton loading - subtle shimmer animation */
+    --skeleton-base: #e2e8f0;      /* slate-200 - matches bg-secondary feel */
+    --skeleton-shimmer: #f1f5f9;   /* slate-100 - subtle lighter pulse */
   }
   .dark {
     --background: 0 0% 3.9%;
@@ -458,6 +469,7 @@
     --color-bg-tertiary: #334155;
     --color-bg-hover: #334155;
     --color-bg-active: #475569;
+    --color-bg-inverse: #0f172a;         /* Dark bg for headers/banners */
 
     /* Border colors */
     --color-border: #334155;
@@ -529,6 +541,10 @@
     /* Overlays - dark variants */
     --overlay-bg: rgba(15, 23, 42, 0.95);
     --overlay-shimmer: rgba(255, 255, 255, 0.05);
+
+    /* Skeleton loading - dark mode (subtle, not jarring) */
+    --skeleton-base: #1e293b;      /* slate-800 - dark base */
+    --skeleton-shimmer: #334155;   /* slate-700 - subtle lighter shimmer */
 
     /* Glass morphism - dark mode */
     --glass-bg: rgba(30, 41, 59, 0.85);
@@ -1075,4 +1091,53 @@ button:not(:disabled):active,
 
 .btn-variant-link:hover:not(:disabled) {
   text-decoration: underline;
+}
+
+/* ===========================================
+   Button Mobile Responsive Sizes
+   =========================================== */
+
+/* Tablet (768px) - slightly smaller buttons */
+@media (max-width: 768px) {
+  [class*="btn-variant-"].h-10 {
+    padding: 8px 16px;
+    min-height: 36px;
+    font-size: 13px;
+  }
+
+  [class*="btn-variant-"].h-11 {
+    padding: 10px 20px;
+    min-height: 40px;
+    font-size: 13px;
+  }
+}
+
+/* Mobile (640px) - compact buttons */
+@media (max-width: 640px) {
+  [class*="btn-variant-"].h-10 {
+    padding: 6px 12px;
+    min-height: 32px;
+    font-size: 12px;
+  }
+
+  [class*="btn-variant-"].h-11 {
+    padding: 8px 14px;
+    min-height: 36px;
+    font-size: 12px;
+  }
+}
+
+/* Extra small (380px) - most compact */
+@media (max-width: 380px) {
+  [class*="btn-variant-"].h-10 {
+    padding: 5px 10px;
+    min-height: 28px;
+    font-size: 11px;
+  }
+
+  [class*="btn-variant-"].h-11 {
+    padding: 6px 12px;
+    min-height: 32px;
+    font-size: 11px;
+  }
 }

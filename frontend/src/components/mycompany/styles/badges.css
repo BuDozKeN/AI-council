@@ -67,8 +67,8 @@
   padding: 3px 8px;
   border-radius: var(--radius-sm);
   flex-shrink: 0;
-  background: var(--color-gray-100);
-  color: var(--color-gray-700);
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
 }
 
 .mc-scope-badge.company-wide {
@@ -89,14 +89,14 @@
   font-weight: 500;
   padding: 3px 8px;
   border-radius: var(--radius-sm);
-  background: var(--color-gray-200);
-  color: var(--color-gray-600);
+  background: var(--color-border);
+  color: var(--color-text-secondary);
 }
 
 /* Edit hint on hover */
 .mc-edit-hint {
   font-size: 0.75rem;
-  color: var(--color-gray-400);
+  color: var(--color-text-tertiary);
   opacity: 0;
   transition: opacity 0.15s ease;
   flex-shrink: 0;
@@ -115,8 +115,8 @@
 
 .mc-playbook-version {
   font-size: 0.75rem;
-  color: var(--color-gray-400);
-  background: var(--color-gray-200);
+  color: var(--color-text-tertiary);
+  background: var(--color-border);
   padding: 2px 8px;
   border-radius: var(--radius-md);
 }
@@ -127,9 +127,9 @@
   font-weight: 500;
   padding: 2px 8px;
   border-radius: var(--radius-sm);
-  background: var(--color-gray-100);
-  color: var(--color-gray-700);
-  border: 1px solid var(--color-gray-200);
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
 }
 
 /* Council badge */
@@ -159,7 +159,7 @@
 }
 
 .mc-status-dot.archived {
-  background: var(--color-gray-400);
+  background: var(--color-text-tertiary);
 }
 
 /* Mini badge (compact type indicator) */
@@ -203,4 +203,91 @@
   background: var(--color-amber-50);
   color: var(--color-amber-700);
   border: 1px solid var(--color-amber-200);
+}
+
+/* =============================================================================
+   DARK MODE - Badges
+   ============================================================================= */
+
+/* Type badges */
+.dark .mc-type-badge.sop,
+[data-theme="dark"] .mc-type-badge.sop {
+  background: rgba(59, 130, 246, 0.15);
+  color: var(--color-blue-400);
+}
+
+.dark .mc-type-badge.framework,
+[data-theme="dark"] .mc-type-badge.framework {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--color-amber-400);
+}
+
+.dark .mc-type-badge.policy,
+[data-theme="dark"] .mc-type-badge.policy {
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--color-violet-400);
+}
+
+/* Scope badges */
+.dark .mc-scope-badge,
+[data-theme="dark"] .mc-scope-badge {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-scope-badge.company-wide,
+[data-theme="dark"] .mc-scope-badge.company-wide {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--color-emerald-400);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.dark .mc-scope-badge.owner,
+[data-theme="dark"] .mc-scope-badge.owner {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--color-amber-400);
+}
+
+/* Edit hint - base uses semantic tokens, only override hover state */
+
+.dark .mc-playbook-item.clickable:hover .mc-edit-hint,
+[data-theme="dark"] .mc-playbook-item.clickable:hover .mc-edit-hint {
+  color: var(--color-indigo-400);
+}
+
+/* Note: .mc-playbook-version and .mc-tag use semantic tokens - no dark override needed */
+
+/* Council badge */
+.dark .mc-council-badge,
+[data-theme="dark"] .mc-council-badge {
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--color-indigo-400);
+}
+
+/* Note: Status dots use semantic tokens for archived,
+   but active/pending might need slight adjustment for dark visibility */
+.dark .mc-status-dot.active,
+[data-theme="dark"] .mc-status-dot.active {
+  background: var(--color-green-400);
+}
+
+.dark .mc-status-dot.pending,
+[data-theme="dark"] .mc-status-dot.pending {
+  background: var(--color-amber-400);
+}
+
+/* Promoted badge */
+.dark .mc-promoted-badge,
+[data-theme="dark"] .mc-promoted-badge {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--color-green-400);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+/* Pending badge */
+.dark .mc-pending-badge,
+[data-theme="dark"] .mc-pending-badge {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--color-amber-400);
+  border-color: rgba(245, 158, 11, 0.3);
 }
