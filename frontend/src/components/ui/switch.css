@@ -1,0 +1,131 @@
+/* =============================================================================
+   SWITCH COMPONENT
+   Custom toggle switch with smooth animations and design system tokens
+   ============================================================================= */
+
+.switch-root {
+  /* Reset inherited styles */
+  all: unset;
+
+  /* Explicit sizing */
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 48px;
+  min-width: 48px;
+  max-width: 48px;
+  height: 28px;
+  min-height: 28px;
+  max-height: 28px;
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  flex-shrink: 0;
+
+  /* Appearance */
+  cursor: pointer;
+  border-radius: 9999px;
+  background: var(--color-bg-tertiary, #e5e7eb);
+  border: 1px solid var(--color-border-default, #d1d5db);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.switch-root:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-bg-primary), 0 0 0 4px var(--color-brand-primary);
+}
+
+.switch-root:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Checked state */
+.switch-root[data-state="checked"] {
+  background: var(--color-brand-primary, #6366f1);
+  border-color: var(--color-brand-primary, #6366f1);
+}
+
+/* Thumb (the sliding circle) */
+.switch-thumb {
+  display: block;
+  width: 20px;
+  min-width: 20px;
+  max-width: 20px;
+  height: 20px;
+  min-height: 20px;
+  max-height: 20px;
+  background: var(--color-bg-primary, #ffffff);
+  border-radius: 9999px;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform: translateX(3px);
+}
+
+.switch-root[data-state="checked"] .switch-thumb {
+  transform: translateX(23px); /* 48px - 20px - 5px padding */
+}
+
+/* Hover states */
+.switch-root:hover:not(:disabled) {
+  border-color: var(--color-border-emphasis);
+}
+
+.switch-root[data-state="checked"]:hover:not(:disabled) {
+  background: var(--color-indigo-600);
+  border-color: var(--color-indigo-600);
+}
+
+/* Active/pressed state */
+.switch-root:active:not(:disabled) .switch-thumb {
+  width: 24px;
+  min-width: 24px;
+  max-width: 24px;
+}
+
+.switch-root[data-state="checked"]:active:not(:disabled) .switch-thumb {
+  transform: translateX(19px); /* 48px - 24px - 5px */
+}
+
+/* Dark mode adjustments */
+.dark .switch-root,
+[data-theme="dark"] .switch-root {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border-subtle);
+}
+
+.dark .switch-root[data-state="checked"],
+[data-theme="dark"] .switch-root[data-state="checked"] {
+  background: var(--color-brand-primary);
+  border-color: var(--color-brand-primary);
+}
+
+.dark .switch-thumb,
+[data-theme="dark"] .switch-thumb {
+  background: var(--color-text-inverse);
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Mobile - same visual size, expanded touch target via pseudo-element */
+@media (max-width: 768px) {
+  .switch-root {
+    /* Keep same visual dimensions as desktop */
+    position: relative;
+  }
+
+  /* Invisible expanded touch target */
+  .switch-root::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% + 16px); /* Expand horizontally */
+    height: 44px; /* 44px touch target */
+    min-width: 44px;
+  }
+}

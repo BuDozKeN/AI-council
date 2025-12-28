@@ -35,8 +35,8 @@ export const CELEBRATION = {
   WINNER_REVEAL: 600,
   /** Council/chairman completion celebration */
   COUNCIL_COMPLETE: 1100,
-  /** Project creation success display time */
-  PROJECT_SUCCESS: 1200,
+  /** Project creation success display time - enough to read the message */
+  PROJECT_SUCCESS: 2500,
   /** Cursor fade-out before celebration */
   CURSOR_FADE: 300,
   /** Stagger delay between list items */

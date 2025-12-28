@@ -13,7 +13,8 @@
 .mc-content > .mc-decisions,
 .mc-content > .mc-team,
 .mc-content > .mc-members,
-.mc-content > .mc-activity {
+.mc-content > .mc-activity,
+.mc-content > .mc-usage {
   flex: 1 1 0;
   min-height: 0;
   max-height: 100%;
@@ -22,20 +23,14 @@
   overflow: hidden;
 }
 
-/* Overview uses ScrollableContent wrapper - scrolls as single unit */
-.mc-content > .scrollable-content-wrapper.mc-overview {
-  flex: 1 1 0;
-  min-height: 0;
-  max-height: 100%;
-}
-
 /* ScrollableContent list wrappers - fill remaining space */
 .mc-playbooks-list,
 .mc-decisions-list,
 .mc-team-list,
 .mc-members-list-wrapper,
 .mc-activity-list,
-.mc-projects-list {
+.mc-projects-list,
+.mc-usage-scroll {
   flex: 1;
   min-height: 0;
   display: flex;

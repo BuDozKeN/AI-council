@@ -371,9 +371,21 @@ async def query_model(
         # Record success with circuit breaker
         await _circuit_breaker.record_success()
 
+        # Extract usage data for cost tracking
+        usage = data.get('usage', {})
+
         return {
             'content': message.get('content'),
-            'reasoning_details': message.get('reasoning_details')
+            'reasoning_details': message.get('reasoning_details'),
+            'usage': {
+                'prompt_tokens': usage.get('prompt_tokens', 0),
+                'completion_tokens': usage.get('completion_tokens', 0),
+                'total_tokens': usage.get('total_tokens', 0),
+                # Cache-specific metrics (Anthropic/Gemini)
+                'cache_creation_input_tokens': usage.get('cache_creation_input_tokens', 0),
+                'cache_read_input_tokens': usage.get('cache_read_input_tokens', 0),
+            },
+            'model': model,
         }
 
     except httpx.TimeoutException:
@@ -471,6 +483,7 @@ async def query_model_stream(
                 line_count = 0
                 token_count = 0
                 finish_reason = None
+                usage_data = None  # Capture usage from final chunk
                 async for line in response.aiter_lines():
                     line_count += 1
                     if line.startswith("data: "):
@@ -478,6 +491,9 @@ async def query_model_stream(
                         if data_str.strip() == "[DONE]":
                             # Successfully completed - record success
                             await _circuit_breaker.record_success()
+                            # Yield usage data as final event if captured
+                            if usage_data:
+                                yield f"[USAGE:{json.dumps(usage_data)}]"
                             return
                         try:
                             data = json.loads(data_str)
@@ -502,6 +518,18 @@ async def query_model_stream(
                                     break  # Break inner loop to retry
                                 yield f"[Error: {error_msg}]"
                                 return
+
+                            # Capture usage data (sent in final chunk before [DONE])
+                            if 'usage' in data:
+                                usage = data['usage']
+                                usage_data = {
+                                    'prompt_tokens': usage.get('prompt_tokens', 0),
+                                    'completion_tokens': usage.get('completion_tokens', 0),
+                                    'total_tokens': usage.get('total_tokens', 0),
+                                    'cache_creation_input_tokens': usage.get('cache_creation_input_tokens', 0),
+                                    'cache_read_input_tokens': usage.get('cache_read_input_tokens', 0),
+                                    'model': model,
+                                }
 
                             choice = data.get('choices', [{}])[0]
                             delta = choice.get('delta', {})

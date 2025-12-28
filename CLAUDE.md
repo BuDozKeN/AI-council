@@ -230,11 +230,55 @@ Pre-commit hooks run `lint-staged` automatically.
 
 ### Frontend
 
-- **Don't** hardcode colors - use `--color-*` tokens
+- **Don't** hardcode colors - use `--color-*` or `--overlay-*` tokens (NEVER use `rgba()`, `#hex`, or color names)
+- **Don't** use `!important` - increase selector specificity instead
 - **Don't** skip dark mode testing
 - **Don't** use arbitrary pixel values - use spacing tokens
 - **Don't** forget mobile touch targets (44px min)
 - **Do** use Tailwind for layout, tokens for theming
+- **Do** check mobile viewport when making CSS changes
+
+### Layout & Scrolling Patterns
+
+When building scrollable layouts with cards:
+
+1. **Single scroll container** - Only ONE element should have `overflow-y: auto`. Never nest scroll containers.
+2. **Parent is scroll container** - The parent scrolls, children flow naturally inside it.
+3. **Alignment via parent padding** - Cards align when parent has consistent padding. Don't mix card margins with parent padding.
+4. **Sticky elements** - Use `position: sticky` inside the scroll container, with solid `background` to cover content scrolling behind.
+
+```css
+/* CORRECT: Parent scrolls, children flow */
+.scroll-container {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px;
+}
+.card-inside {
+  /* No overflow, no height constraints - just flows naturally */
+  padding: var(--card-padding-xl);
+}
+
+/* WRONG: Nested scroll containers */
+.parent { overflow-y: auto; }
+.child { overflow-y: auto; }  /* Creates scroll-in-scroll mess */
+```
+
+### Button Variants
+
+Use consistent button variants:
+- `variant="default"` - Primary actions (indigo/blue filled) - Edit, Save, Submit
+- `variant="outline"` - Secondary actions (bordered) - Cancel, Back
+- `variant="ghost"` - Tertiary/subtle actions - Close, minor toggles
+- `variant="destructive"` - Dangerous actions - Delete, Remove
+
+### Mobile Layout Rules
+
+1. **Same structure, adjusted spacing** - Don't restructure HTML for mobile, just adjust CSS
+2. **Match padding between siblings** - If header has `padding: 12px 16px`, body should use same horizontal: `padding: X 16px`
+3. **Let flexbox handle wrapping** - Use `flex-wrap: wrap` not restructured HTML
+4. **Test both viewports** - Always verify changes on both desktop AND mobile
 
 ### Backend
 

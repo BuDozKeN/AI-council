@@ -5,7 +5,7 @@ import type { Department, Playbook, Project, Decision } from '../../../types';
 
 const log = logger.scope('useCompanyData');
 
-export type MyCompanyTab = 'overview' | 'team' | 'playbooks' | 'decisions' | 'activity' | 'projects';
+export type MyCompanyTab = 'overview' | 'team' | 'playbooks' | 'decisions' | 'activity' | 'projects' | 'usage';
 
 export interface CompanyOverview {
   company_name: string;
@@ -202,6 +202,7 @@ export function useCompanyData({ companyId, activeTab, activityLimit = 20 }: Use
       case 'decisions': setDecisionsLoaded(false); break;
       case 'projects': setProjectsLoaded(false); break;
       case 'activity': setActivityLoaded(false); break;
+      case 'usage': break; // Usage has its own hook that manages loading state
     }
   }, []);
 
@@ -214,6 +215,7 @@ export function useCompanyData({ companyId, activeTab, activityLimit = 20 }: Use
       case 'decisions': return decisionsLoaded;
       case 'projects': return projectsLoaded;
       case 'activity': return activityLoaded;
+      case 'usage': return true; // Usage tab manages its own loading state via useUsageData
       default: return false;
     }
   }, [overviewLoaded, teamLoaded, playbooksLoaded, decisionsLoaded, projectsLoaded, activityLoaded]);

@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { api } from '../../../api';
 import { logger } from '../../../utils/logger';
+import { toast } from '../../ui/sonner';
 import type { Project } from '../../../types';
 
 const log = logger.scope('useProjectActions');
@@ -29,8 +30,10 @@ export function useProjectActions({ setProjects, loadData }: UseProjectActionsOp
         setProjects(prev => prev.map(p =>
           p.id === project.id ? { ...p, status: 'completed' } : p
         ));
+        toast.success(`"${project.name}" marked as complete`, { duration: 3000 });
       } catch (err) {
         log.error('Failed to complete project', { error: err });
+        toast.error('Failed to complete project');
       } finally {
         setFadingProjectId(null);
       }
@@ -48,8 +51,10 @@ export function useProjectActions({ setProjects, loadData }: UseProjectActionsOp
         setProjects(prev => prev.map(p =>
           p.id === project.id ? { ...p, status: 'archived' } : p
         ));
+        toast.success(`"${project.name}" archived`, { duration: 3000 });
       } catch (err) {
         log.error('Failed to archive project', { error: err });
+        toast.error('Failed to archive project');
       } finally {
         setFadingProjectId(null);
       }
@@ -67,8 +72,10 @@ export function useProjectActions({ setProjects, loadData }: UseProjectActionsOp
         setProjects(prev => prev.map(p =>
           p.id === project.id ? { ...p, status: 'active' } : p
         ));
+        toast.success(`"${project.name}" restored to active`, { duration: 3000 });
       } catch (err) {
         log.error('Failed to restore project', { error: err });
+        toast.error('Failed to restore project');
       } finally {
         setFadingProjectId(null);
       }
@@ -80,6 +87,7 @@ export function useProjectActions({ setProjects, loadData }: UseProjectActionsOp
     e?.stopPropagation();
     if (confirmingDeleteProjectId === project.id) {
       // Second click - actually delete with fade
+      const projectName = project.name;
       setConfirmingDeleteProjectId(null);
       setFadingProjectId(project.id);
       setTimeout(async () => {
@@ -87,8 +95,10 @@ export function useProjectActions({ setProjects, loadData }: UseProjectActionsOp
           await api.deleteProject(project.id);
           // Remove from local state - no full reload, no spinner
           setProjects(prev => prev.filter(p => p.id !== project.id));
+          toast.success(`"${projectName}" deleted`, { duration: 3000 });
         } catch (err) {
           log.error('Failed to delete project', { error: err });
+          toast.error('Failed to delete project');
         } finally {
           setFadingProjectId(null);
         }

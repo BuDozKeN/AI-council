@@ -26,6 +26,7 @@ interface ExtendedPlaybook {
   id: string;
   title: string;
   doc_type: DocType;
+  content?: string | undefined;
   department_id?: string | undefined;
   department_name?: string | undefined;
   department_slug?: string | undefined;

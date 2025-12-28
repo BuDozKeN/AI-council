@@ -3,23 +3,25 @@
  *
  * Shows:
  * - Company hero section with title and description
- * - Stats grid (departments, roles, playbooks, decisions)
- * - Business context document preview with floating TOC
+ * - Business context document preview with sticky TOC
  *
- * Extracted from MyCompany.jsx for better maintainability.
+ * Layout pattern:
+ * - .mc-overview is the single scroll container (flex: 1, overflow-y: auto)
+ * - Hero and context card flow naturally inside and scroll together
+ * - Sticky toolbar inside context card for TOC + copy button
  */
 
 import { useRef } from 'react';
-import { Building2 } from 'lucide-react';
+import { Building2, Pencil } from 'lucide-react';
 import MarkdownViewer from '../../MarkdownViewer';
-import { ScrollableContent } from '../../ui/ScrollableContent';
-import { FloatingContextActions } from '../../ui/FloatingContextActions';
 import { TableOfContents } from '../../ui/TableOfContents';
+import { CopyButton } from '../../ui/CopyButton';
 import { Button } from '../../ui/button';
 import { formatDate } from '../../../lib/dateUtils';
 
 interface CompanyOverview {
   company?: {
+    id?: string;
     context_md?: string;
     [key: string]: unknown;
   };
@@ -45,7 +47,6 @@ interface OverviewTabProps {
 function parseContextMetadata(contextMd: string | undefined): { lastUpdated: string | null; version: string | null } {
   if (!contextMd) return { lastUpdated: null, version: null };
 
-  // Look for patterns like "> **Last Updated:** 2025-12-16" and "> **Version:** 1.2"
   const lastUpdatedMatch = contextMd.match(/\*\*Last Updated:\*\*\s*(\d{4}-\d{2}-\d{2})/);
   const versionMatch = contextMd.match(/\*\*Version:\*\*\s*([\d.]+)/);
 
@@ -60,9 +61,8 @@ export function OverviewTab({
   companyName,
   onEditContext,
 }: OverviewTabProps) {
-  // Refs for TOC scroll-spy
   const contentRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   if (!overview) {
     return (
@@ -78,8 +78,8 @@ export function OverviewTab({
   const { lastUpdated, version } = parseContextMetadata(contextMd);
 
   return (
-    <ScrollableContent className="mc-overview">
-      {/* Hero section - immediately explains what this is */}
+    <div ref={scrollContainerRef} className="mc-overview">
+      {/* Hero section - scrolls with content */}
       <div className="mc-overview-hero">
         <div className="mc-overview-hero-content">
           <h2 className="mc-overview-title">{companyName} Business Context</h2>
@@ -88,19 +88,21 @@ export function OverviewTab({
             When selected, it's injected into Council conversations to provide relevant, contextual advice.
           </p>
         </div>
-        <div className="mc-overview-meta">
-          {lastUpdated && (
-            <div className="mc-meta-item">
-              <span className="mc-meta-label">Last Updated</span>
-              <span className="mc-meta-value">{lastUpdated}</span>
-            </div>
-          )}
-          {version && (
-            <div className="mc-meta-item">
-              <span className="mc-meta-label">Version</span>
-              <span className="mc-meta-value">{version}</span>
-            </div>
-          )}
+        <div className="mc-overview-hero-right">
+          <div className="mc-overview-meta">
+            {lastUpdated && (
+              <div className="mc-meta-item">
+                <span className="mc-meta-label">Last Updated</span>
+                <span className="mc-meta-value">{lastUpdated}</span>
+              </div>
+            )}
+            {version && (
+              <div className="mc-meta-item">
+                <span className="mc-meta-label">Version</span>
+                <span className="mc-meta-value">{version}</span>
+              </div>
+            )}
+          </div>
           <Button
             variant="default"
             size="sm"
@@ -109,74 +111,51 @@ export function OverviewTab({
               context_md: contextMd
             })}
           >
-            Edit Context
+            <Pencil size={14} />
+            Edit
           </Button>
         </div>
       </div>
 
-      {/* Stats grid */}
-      <div className="mc-stats-grid">
-        <div className="mc-stat-card">
-          <div className="mc-stat-value">{overview.stats?.departments || 0}</div>
-          <div className="mc-stat-label">Departments</div>
-        </div>
-        <div className="mc-stat-card">
-          <div className="mc-stat-value">{overview.stats?.roles || 0}</div>
-          <div className="mc-stat-label">Roles</div>
-        </div>
-        <div className="mc-stat-card">
-          <div className="mc-stat-value">{overview.stats?.playbooks || 0}</div>
-          <div className="mc-stat-label">Playbooks</div>
-        </div>
-        <div className="mc-stat-card">
-          <div className="mc-stat-value">{overview.stats?.decisions || 0}</div>
-          <div className="mc-stat-label">Decisions</div>
-        </div>
-      </div>
-
-      {/* Context content - FloatingContextActions provides sticky header with TOC + copy button */}
-      <div ref={containerRef} className="mc-context-section mc-context-section--compact">
-        <FloatingContextActions
-          copyText={contextMd || null}
-          className="mc-context-content"
-          stickyHeader={
-            contextMd ? (
-              <>
-                {/* Desktop: sticky pill TOC */}
-                <TableOfContents
-                  variant="sticky"
-                  contentRef={contentRef}
-                  containerRef={containerRef}
-                  title={`${companyName} Context`}
-                  headingLevels={['h2']}
-                  minHeadings={2}
-                />
-                {/* Mobile: sheet TOC (floating pill trigger) */}
-                <TableOfContents
-                  variant="sheet"
-                  contentRef={contentRef}
-                  containerRef={containerRef}
-                  title={`${companyName} Context`}
-                  headingLevels={['h2']}
-                  minHeadings={2}
-                  className="mc-mobile-toc"
-                />
-              </>
-            ) : null
-          }
-        >
-          <div ref={contentRef}>
-            {contextMd ? (
-              <MarkdownViewer content={contextMd} />
-            ) : (
-              <div className="mc-empty-context">
-                <p className="mc-empty-title">No business context defined yet</p>
-                <p className="mc-empty-hint">Click "Edit Context" above to add your company's mission, goals, strategy, and other important information that the AI Council should know.</p>
-              </div>
-            )}
+      {/* Context card - scrolls with content */}
+      <div className="mc-context-card">
+        {/* Sticky toolbar - sticks to top when scrolling */}
+        {contextMd && (
+          <div className="mc-context-sticky-toolbar">
+            <TableOfContents
+              variant="sheet"
+              contentRef={contentRef}
+              containerRef={scrollContainerRef}
+              title={`${companyName} Context`}
+              headingLevels={['h2']}
+              minHeadings={2}
+              className="mc-mobile-toc"
+            />
+            <TableOfContents
+              variant="sticky"
+              contentRef={contentRef}
+              containerRef={scrollContainerRef}
+              title={`${companyName} Context`}
+              headingLevels={['h2']}
+              minHeadings={2}
+              className="mc-desktop-toc"
+            />
+            <CopyButton text={contextMd} size="sm" className="mc-context-copy-btn" />
           </div>
-        </FloatingContextActions>
+        )}
+
+        {/* Content */}
+        <div ref={contentRef} className="mc-context-content">
+          {contextMd ? (
+            <MarkdownViewer content={contextMd} />
+          ) : (
+            <div className="mc-empty-context">
+              <p className="mc-empty-title">No business context defined yet</p>
+              <p className="mc-empty-hint">Click "Edit Context" above to add your company's mission, goals, strategy, and other important information that the AI Council should know.</p>
+            </div>
+          )}
+        </div>
       </div>
-    </ScrollableContent>
+    </div>
   );
 }

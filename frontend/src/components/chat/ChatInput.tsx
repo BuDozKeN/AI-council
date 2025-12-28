@@ -61,6 +61,7 @@ export function ChatInput({
           <textarea
             className="message-input"
             placeholder={placeholder}
+            aria-label="Message input"
             value={input}
             onChange={(e) => onInputChange(e.target.value)}
             onKeyDown={onKeyDown}
@@ -74,7 +75,7 @@ export function ChatInput({
             className="attach-image-btn-inline"
             onClick={imageUpload.openFilePicker}
             disabled={isLoading}
-            title="Attach images (drag & drop, paste, or click)"
+            aria-label="Attach images (drag & drop, paste, or click)"
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>

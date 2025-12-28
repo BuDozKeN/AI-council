@@ -187,6 +187,11 @@
   justify-content: center;
 }
 
+/* Hovered state - offset header to align with expanded panel, not icon rail */
+.sidebar--hovered .sidebar-header {
+  margin-left: var(--sidebar-width-collapsed);
+}
+
 /* New Chat button (expanded) - Perplexity style: simple + icon */
 .sidebar .sidebar-new-btn,
 .sidebar-header .sidebar-new-btn,
@@ -295,6 +300,7 @@ button.sidebar-new-btn:hover {
 .sidebar-main {
   display: flex;
   flex: 1;
+  min-height: 0; /* Required for flex children to constrain height and enable scrolling */
   overflow: hidden;
 }
 
@@ -319,6 +325,7 @@ button.sidebar-new-btn:hover {
 
 .sidebar-expanded-panel {
   flex: 1;
+  min-height: 0; /* Required for flex children to constrain height and enable scrolling */
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -594,7 +601,8 @@ button.sidebar-new-btn:hover {
    ============================================================================= */
 
 .conversation-list {
-  flex: 1;
+  flex: 1 1 0;       /* Full shorthand: grow, shrink, basis=0 */
+  min-height: 0;     /* Required for flex item to shrink below content height */
   overflow-y: auto;
   overflow-x: hidden; /* Prevent horizontal overflow */
   padding: 8px 4px;

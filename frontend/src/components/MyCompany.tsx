@@ -15,7 +15,7 @@ import {
   ConfirmActionModal,
 } from './mycompany/MyCompanyModals';
 
-import { ActivityTab, OverviewTab, TeamTab, PlaybooksTab, ProjectsTab, DecisionsTab } from './mycompany/tabs';
+import { ActivityTab, OverviewTab, TeamTab, PlaybooksTab, ProjectsTab, DecisionsTab, UsageTab } from './mycompany/tabs';
 import './mycompany/styles/index.css';
 import { logger } from '../utils/logger';
 
@@ -29,6 +29,7 @@ import {
   useProjectFilter,
   useDecisionFilter,
   usePendingDecisions,
+  useUsageData,
 } from './mycompany/hooks';
 import type { MyCompanyTab, ActivityLog } from './mycompany/hooks';
 import type { Business, Department, Project, Playbook, Role } from '../types/business';
@@ -124,6 +125,12 @@ export default function MyCompany({
     setActivityLogs: companyData.setActivityLogs,
     activityHasMore: companyData.activityHasMore,
     setActivityHasMore: companyData.setActivityHasMore,
+  });
+
+  // Usage data hook
+  const usageData = useUsageData({
+    companyId,
+    initialPeriod: 30,
   });
 
   // Project actions hook
@@ -636,6 +643,7 @@ export default function MyCompany({
                       id: p.id,
                       title: p.title,
                       doc_type: p.doc_type,
+                      content: p.content,
                       department_id: p.department_id,
                       department_name: undefined,
                       department_slug: undefined,
@@ -677,6 +685,19 @@ export default function MyCompany({
                   onActivityClick={(log) => handleActivityClick(log as unknown as Parameters<typeof handleActivityClick>[0])}
                   onLoadMore={activityData.handleLoadMoreActivity}
                   onNavigateToConversation={onNavigateToConversation}
+                />
+              )}
+              {activeTab === 'usage' && (
+                <UsageTab
+                  usage={usageData.usage}
+                  rateLimits={usageData.rateLimits}
+                  alerts={usageData.alerts}
+                  loading={usageData.loading}
+                  usageLoaded={usageData.usageLoaded}
+                  error={usageData.error}
+                  period={usageData.period}
+                  onPeriodChange={usageData.changePeriod}
+                  onAlertAcknowledge={usageData.acknowledgeAlert}
                 />
               )}
             </>

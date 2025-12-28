@@ -1,48 +1,117 @@
 /**
  * Overview Tab Styles
  * Statistics, company context, hero section
+ *
+ * LAYOUT PATTERN: Single scroll container
+ * ---------------------------------------
+ * - .mc-overview is the scroll container (flex: 1, overflow-y: auto)
+ * - Hero and context card flow naturally inside and scroll together
+ * - Sticky toolbar inside context card for TOC + copy button
+ *
+ * CODING GUIDELINES:
+ * ------------------
+ * 1. NEVER use !important - increase selector specificity instead.
+ * 2. Single scroll container - don't add overflow to child elements.
+ * 3. Hero and context card are siblings - use gap for spacing.
  */
 
 /* ============================================================================
    OVERVIEW TAB - Statistics & Company Context
    ============================================================================ */
 
-/* NOTE: .mc-overview now uses ScrollableContent wrapper which provides flex:1 + scroll */
+/* Overview container - scrollable with visible scrollbar on right */
 .mc-overview {
   display: flex;
   flex-direction: column;
+  gap: var(--gap-md);
+  /* This is the scroll container */
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  /* Padding for content */
+  padding: 16px;
 }
 
-/* The actual content is inside .scrollable-content-inner, so spacing is applied via child margins */
-/* Note: We use > * + * (lobotomized owl) pattern instead of gap to preserve overflow-y: auto behavior */
-.mc-overview .scrollable-content-inner > * + * {
-  margin-top: var(--gap-lg);
+/* =============================================================================
+   COMPACT HEADER BAR - Minimal header to maximize content reading area
+   Single row: title on left, metadata + actions on right
+   ============================================================================= */
+
+.mc-overview-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 36px;
+}
+
+.mc-overview-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Inline metadata (Updated date, version) */
+.mc-meta-inline {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+}
+
+/* Hide metadata on very small screens */
+@media (max-width: 480px) {
+  .mc-meta-inline {
+    display: none;
+  }
 }
 
 /* Hero section - explains what this page is about */
+/* Premium card styling matching Stage 3 final-response design */
 .mc-overview-hero {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: var(--gap-lg);
   padding: var(--card-padding-xl);
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-indigo-200);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  /* Don't shrink - always show full hero */
+  flex-shrink: 0;
+}
+
+/* Premium accent bar at top - soft gradient glow effect */
+.mc-overview-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--color-indigo-400) 20%,
+    var(--color-indigo-500) 50%,
+    var(--color-indigo-400) 80%,
+    transparent 100%
+  );
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  opacity: 0.7;
 }
 
 .mc-overview-hero-content {
   flex: 1;
 }
 
-.mc-overview-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  margin: 0 0 var(--stack-sm) 0;
-  letter-spacing: -0.02em;
-}
+/* Note: .mc-overview-title is now defined above in the compact header bar section */
 
 .mc-overview-description {
   font-size: 0.9375rem;
@@ -52,11 +121,18 @@
   max-width: 600px;
 }
 
+/* Right side of hero - meta + edit button */
+.mc-overview-hero-right {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-lg);
+  flex-shrink: 0;
+}
+
 .mc-overview-meta {
   display: flex;
   align-items: center;
   gap: var(--gap-md);
-  flex-shrink: 0;
 }
 
 .mc-meta-item {
@@ -108,6 +184,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: var(--gap);
+  margin-bottom: var(--gap-lg);
 }
 
 .mc-stat-card {
@@ -140,6 +217,17 @@
 
 .mc-stat-card:hover::before {
   opacity: 1;
+}
+
+.mc-stat-icon {
+  color: var(--color-indigo-500);
+  margin-bottom: 8px;
+}
+
+.mc-stat-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .mc-stat-card.selected {
@@ -249,91 +337,123 @@
   height: 14px;
 }
 
-/* Compact context section - displays content inline (no longer needs own scroll) */
-.mc-context-section--compact {
+.mc-context-section {
   position: relative;
-  border: none;
-  background: transparent;
-  /* Enable flex for proper height distribution */
-  flex: 1 1 0;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  height: 0; /* Force flex to constrain height for child scrolling */
 }
 
-/* The FloatingContextActions wrapper - inherits flex positioning */
-.mc-context-section--compact .mc-context-content {
-  /* NO position: relative - not needed, and can interfere with sticky in children */
-  flex: 1 1 0;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  height: 0; /* Force flex to constrain height */
-}
+/* =============================================================================
+   CONTEXT CARD - Premium card styling (same pattern as Stage 3 .final-response)
+   Simple structure: card container > sticky toolbar > content
+   ============================================================================= */
 
-/* The actual scrollable content inside FloatingContextActions */
-.mc-context-section--compact .mc-context-content .floating-context-content {
-  /* NO position: relative - it breaks sticky positioning for TOC */
-  flex: 1 1 0;
-  min-height: 0;
-  /* CRITICAL: height: 0 forces flex to constrain, enabling overflow scroll */
-  height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
+.mc-context-card {
+  position: relative;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
-  background: var(--color-bg-secondary);
-  padding: var(--card-padding-lg) var(--card-padding-xl);
+  border: 1px solid var(--color-indigo-200);
+  border-top: 3px solid var(--color-indigo-400);
+  background: var(--color-bg-primary);
+  box-shadow: var(--shadow-md);
+  /* Normal card - content flows naturally, parent scrolls */
+  padding: var(--card-padding-xl);
 }
 
-/* Sticky row inside context gets proper background and padding alignment */
-.mc-context-section--compact .floating-sticky-row {
-  background: var(--color-bg-secondary);
-  /* Match parent's horizontal padding (--card-padding-xl = 24px) */
-  margin-left: calc(-1 * var(--card-padding-xl));
-  margin-right: calc(-1 * var(--card-padding-xl));
-  padding-left: var(--card-padding-xl);
-  padding-right: var(--card-padding-xl);
-  width: calc(100% + 2 * var(--card-padding-xl));
-}
-
-/* Legacy: Scroll-to-top FAB for non-ScrollableContent usage */
-.mc-scroll-top-fab {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  width: 32px;
-  height: 32px;
+/* Context card header - title and metadata */
+.mc-context-card-header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
-  border-radius: 50%;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.mc-context-card-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.mc-context-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.mc-context-meta .mc-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mc-context-meta .mc-meta-label {
+  font-size: 0.75rem;
+  font-weight: 500;
   color: var(--color-text-tertiary);
-  cursor: pointer;
-  box-shadow: var(--shadow-xs);
-  transition: all 0.2s ease;
-  opacity: 0.7;
-  z-index: var(--z-elevated);
 }
 
-.mc-scroll-top-fab:hover {
-  opacity: 1;
+.mc-context-meta .mc-meta-value {
+  font-size: 0.8125rem;
+  font-weight: 500;
   color: var(--color-text-secondary);
-  box-shadow: var(--shadow-sm);
 }
 
-.mc-scroll-top-fab:active {
-  transform: scale(0.9);
+/* Sticky toolbar - sticks to top when scrolling the body */
+.mc-context-sticky-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 0;
+  /* Solid background so content scrolls behind */
+  background: var(--color-bg-primary);
 }
 
-/* General .mc-context-content - wrapper for FloatingContextActions */
-/* Actual styling is applied to .floating-context-content inside */
+/* Copy button in toolbar - override CopyButton's default absolute positioning */
+.mc-context-copy-btn {
+  /* Override CopyButton's position: absolute to work in flex layout */
+  position: relative;
+  top: auto;
+  right: auto;
+  /* Always visible in toolbar (not hover-dependent) */
+  opacity: 0.7;
+  pointer-events: auto;
+  /* Flex positioning */
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.mc-context-copy-btn:hover {
+  opacity: 1;
+}
+
+/* Desktop TOC - show on large screens */
+.mc-desktop-toc {
+  display: none;
+}
+
+@media (min-width: 769px) {
+  .mc-desktop-toc {
+    display: inline-flex;
+  }
+  .mc-mobile-toc {
+    display: none;
+  }
+}
+
+/* Mobile TOC - show on small screens */
+@media (max-width: 768px) {
+  .mc-mobile-toc {
+    display: inline-flex;
+  }
+}
+
+/* Content area - flows naturally, parent scrolls */
 .mc-context-content {
-  /* Transparent wrapper - the inner .floating-context-content has the visual styling */
-  background: transparent;
+  /* Content just flows - no scroll here */
 }
 
 /* ============================================================================
@@ -612,11 +732,35 @@
    DARK MODE - Overview Tab
    ============================================================================= */
 
+/* Compact header bar */
+.dark .mc-overview-title,
+[data-theme="dark"] .mc-overview-title {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-meta-inline,
+[data-theme="dark"] .mc-meta-inline {
+  color: var(--color-text-tertiary);
+}
+
 /* Hero section */
 .dark .mc-overview-hero,
 [data-theme="dark"] .mc-overview-hero {
   background: var(--color-bg-secondary);
-  border-color: var(--color-border);
+  border-color: var(--color-indigo-400);
+  box-shadow: var(--shadow-lg);
+}
+
+.dark .mc-overview-hero::before,
+[data-theme="dark"] .mc-overview-hero::before {
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--color-indigo-300) 20%,
+    var(--color-indigo-400) 50%,
+    var(--color-indigo-300) 80%,
+    transparent 100%
+  );
+  opacity: 0.6;
 }
 
 .dark .mc-overview-title,
@@ -749,22 +893,46 @@
   background: transparent;
 }
 
-.dark .mc-context-section--compact .mc-context-content,
-[data-theme="dark"] .mc-context-section--compact .mc-context-content {
+/* Context card dark mode styling */
+.dark .mc-context-card,
+[data-theme="dark"] .mc-context-card {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-indigo-400);
+  border-top-color: var(--color-indigo-300);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Context card header dark mode */
+.dark .mc-context-card-header,
+[data-theme="dark"] .mc-context-card-header {
+  border-bottom-color: var(--color-border);
+}
+
+.dark .mc-context-card-title,
+[data-theme="dark"] .mc-context-card-title {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-context-meta .mc-meta-label,
+[data-theme="dark"] .mc-context-meta .mc-meta-label {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-context-meta .mc-meta-value,
+[data-theme="dark"] .mc-context-meta .mc-meta-value {
+  color: var(--color-text-secondary);
+}
+
+/* Stat icons dark mode */
+.dark .mc-stat-icon,
+[data-theme="dark"] .mc-stat-icon {
+  color: var(--color-indigo-400);
+}
+
+/* Sticky toolbar - same transparent background in dark mode */
+.dark .mc-context-sticky-toolbar,
+[data-theme="dark"] .mc-context-sticky-toolbar {
   background: transparent;
-}
-
-/* The actual scrollable content area in dark mode */
-.dark .mc-context-section--compact .mc-context-content .floating-context-content,
-[data-theme="dark"] .mc-context-section--compact .mc-context-content .floating-context-content {
-  background: var(--color-bg-tertiary);
-  border-color: var(--color-border);
-}
-
-/* Sticky row background in dark mode */
-.dark .mc-context-section--compact .floating-sticky-row,
-[data-theme="dark"] .mc-context-section--compact .floating-sticky-row {
-  background: var(--color-bg-tertiary);
 }
 
 /* Scroll top FAB */

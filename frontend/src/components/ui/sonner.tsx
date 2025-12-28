@@ -5,6 +5,9 @@ import { Toaster as Sonner, toast } from "sonner"
 /**
  * Toast component using sonner library
  * Provides notifications with optional undo actions
+ *
+ * Mobile: bottom-center for better thumb reach
+ * Desktop: bottom-right to stay out of main content
  */
 const Toaster = ({
   ...props
@@ -13,11 +16,17 @@ const Toaster = ({
   const isDark = typeof document !== 'undefined' &&
     document.documentElement.classList.contains('dark');
 
+  // Use bottom-center on mobile for better accessibility
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
   return (
     <Sonner
       theme={isDark ? 'dark' : 'light'}
       className="toaster group"
-      position="bottom-right"
+      position={isMobile ? 'bottom-center' : 'bottom-right'}
+      // Mobile: larger touch targets and more visible
+      expand={isMobile}
+      richColors
       toastOptions={{
         classNames: {
           toast:

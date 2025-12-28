@@ -435,10 +435,11 @@
 
 /* Content Area - Fixed height, no resizing between tabs */
 .mc-content {
-  flex: 1;
+  /* flex: 1 1 0 ensures this fills remaining space but can shrink to 0 basis */
+  flex: 1 1 0;
+  /* min-height: 0 is CRITICAL - allows flex item to shrink below content size */
   min-height: 0;
-  /* CRITICAL: overflow:hidden forces children to scroll, not this container */
-  /* This enables ScrollableContent's onScroll to fire properly */
+  /* overflow:hidden forces children to handle their own scrolling */
   overflow: hidden;
   padding: 24px;
   background: var(--color-bg-primary);

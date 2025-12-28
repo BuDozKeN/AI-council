@@ -15,6 +15,7 @@ import remarkGfm from 'remark-gfm';
 import Stage1 from '../Stage1';
 import Stage2 from '../Stage2';
 import Stage3 from '../stage3';
+import { TokenUsageDisplay, type UsageData } from '../ui/TokenUsageDisplay';
 import type { Project } from '../../types/business';
 import type { Conversation, StreamingState } from '../../types/conversation';
 import type { AggregateRanking } from '../../types/stages';
@@ -71,11 +72,18 @@ interface Message {
   aggregate_rankings?: AggregateRanking[];
   label_to_model?: Record<string, string>;
   imageAnalysis?: string;
+  usage?: UsageData;
 }
 
 interface CouncilStagesProps {
   msg: Message;
   conversation: Conversation | null | undefined;
+}
+
+interface CreateProjectContext {
+  userQuestion: string;
+  councilResponse: string;
+  departmentIds: string[];
 }
 
 interface MessageListProps {
@@ -86,7 +94,7 @@ interface MessageListProps {
   selectedProject?: string | null | undefined;
   projects?: Project[] | undefined;
   onSelectProject?: ((projectId: string | null) => void) | undefined;
-  onOpenProjectModal?: (() => void) | undefined;
+  onOpenProjectModal?: ((context?: CreateProjectContext) => void) | undefined;
   onProjectCreated?: ((project: Project) => void) | undefined;
   onViewDecision?: ((decisionId: string | null, viewType?: string, contextId?: string) => void) | undefined;
 }
@@ -277,6 +285,11 @@ export function MessageList({
                       />
                     );
                   })()}
+
+                  {/* Developer: Token Usage Display (only visible when enabled in settings) */}
+                  {msg.usage && !msg.loading?.stage3 && (
+                    <TokenUsageDisplay usage={msg.usage} stage="complete" />
+                  )}
                 </>
               )}
             </motion.div>

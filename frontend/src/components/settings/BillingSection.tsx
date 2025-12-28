@@ -164,6 +164,7 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
             </div>
             <Button
               variant="outline"
+              size="sm"
               onClick={handleManageSubscription}
               disabled={checkoutLoading !== null}
             >

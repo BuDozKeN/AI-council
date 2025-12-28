@@ -828,6 +828,7 @@
 
 @media (max-width: 768px) {
   /* Ensure minimum 44x44px touch targets on mobile */
+  /* Components with custom sizing should use .no-touch-target class to opt out */
   button:not(.no-touch-target),
   .button:not(.no-touch-target),
   [role="button"]:not(.no-touch-target),

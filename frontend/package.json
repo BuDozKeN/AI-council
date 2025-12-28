@@ -48,6 +48,7 @@
     "react-textarea-autosize": "^8.5.9",
     "react-window": "^2.2.3",
     "react-window-infinite-loader": "^2.0.0",
+    "recharts": "^3.6.0",
     "rehype-slug": "^6.0.0",
     "remark-gfm": "^4.0.1",
     "sonner": "^2.0.7",

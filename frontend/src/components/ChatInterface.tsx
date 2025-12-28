@@ -400,7 +400,8 @@ export default function ChatInterface({
       'playbooks': 'Playbooks',
       'projects': 'Projects',
       'team': 'Team',
-      'overview': 'Overview'
+      'overview': 'Overview',
+      'usage': 'Usage'
     };
     return tabNames[tab] || 'My Company';
   };
@@ -477,7 +478,7 @@ export default function ChatInterface({
             selectedProject={selectedProject || undefined}
             projects={projects}
             onSelectProject={onSelectProject}
-            onOpenProjectModal={() => onOpenProjectModal({ type: 'new' })}
+            onOpenProjectModal={(context) => onOpenProjectModal(context ? { type: 'new', ...context } : { type: 'new' })}
             onProjectCreated={onProjectCreated}
             onViewDecision={(decisionId: string | null, viewType?: string, contextId?: string) => {
               if (decisionId) {

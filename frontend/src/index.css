@@ -327,12 +327,13 @@ body {
 
 @media (max-width: 640px) {
   /* Global touch target enforcement - 44px minimum per Apple/Google guidelines */
-  button:not(.inline-btn),
-  [role="button"],
+  /* Components with custom sizing should use .no-touch-target class to opt out */
+  button:not(.inline-btn):not(.no-touch-target),
+  [role="button"]:not(.no-touch-target),
   .tab,
   .copy-btn,
   .save-type-pill,
-  input,
+  input:not(.no-touch-target),
   select,
   a:not(.inline-link):not([class*="prose"] a) {
     min-height: 44px;
@@ -438,9 +439,9 @@ body {
     font-size: 14px;
   }
 
-  /* Ensure buttons remain tappable */
-  button:not(.inline-btn),
-  [role="button"] {
+  /* Ensure buttons remain tappable - use .no-touch-target to opt out */
+  button:not(.inline-btn):not(.no-touch-target),
+  [role="button"]:not(.no-touch-target) {
     min-height: 44px;
   }
 }

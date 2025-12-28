@@ -2507,4 +2507,114 @@ export const api = {
     }
     return response.json();
   },
+
+  // ===== LLM OPERATIONS =====
+
+  /**
+   * Get LLM usage analytics for the dashboard.
+   * Returns daily usage breakdown, model usage, and summary statistics.
+   * Only accessible by company owners and admins.
+   * @param {string} companyId - Company ID
+   * @param {number} days - Number of days to fetch (1-90)
+   * @returns {Promise<{summary: Object, daily: Array, models: Array, period_days: number}>}
+   */
+  async getLlmUsage(companyId: string, days: number = 30) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/company/${companyId}/llm-ops/usage?days=${days}`, { headers });
+    if (!response.ok) {
+      if (response.status === 403) {
+        throw new Error('Admin access required to view usage data');
+      }
+      if (response.status === 404) {
+        throw new Error('Company not found');
+      }
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || 'Failed to get LLM usage');
+    }
+    return response.json();
+  },
+
+  /**
+   * Get rate limit status and configuration.
+   * Returns current usage vs limits for sessions, tokens, and budget.
+   * @param {string} companyId - Company ID
+   * @returns {Promise<{tier: string, config: Object, current: Object, warnings: Array, exceeded: Array}>}
+   */
+  async getRateLimits(companyId: string) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/company/${companyId}/llm-ops/rate-limits`, { headers });
+    if (!response.ok) {
+      throw new Error('Failed to get rate limits');
+    }
+    return response.json();
+  },
+
+  /**
+   * Update rate limit configuration.
+   * Only company owners can update rate limits.
+   * @param {string} companyId - Company ID
+   * @param {Object} updates - Rate limit updates
+   * @returns {Promise<{success: boolean, updated: Object}>}
+   */
+  async updateRateLimits(companyId: string, updates: {
+    sessions_per_hour?: number;
+    sessions_per_day?: number;
+    tokens_per_month?: number;
+    budget_cents_per_month?: number;
+    alert_threshold_percent?: number;
+  }) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/company/${companyId}/llm-ops/rate-limits`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(updates),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to update rate limits' }));
+      throw new Error(error.detail || 'Failed to update rate limits');
+    }
+    return response.json();
+  },
+
+  /**
+   * Get budget alerts for the company.
+   * @param {string} companyId - Company ID
+   * @param {boolean} acknowledged - Filter by acknowledged status
+   * @param {number} limit - Max number of alerts to return
+   * @returns {Promise<{alerts: Array, total: number}>}
+   */
+  async getBudgetAlerts(companyId: string, options: { acknowledged?: boolean; limit?: number } = {}) {
+    const headers = await getAuthHeaders();
+    const params = new URLSearchParams();
+    if (options.acknowledged !== undefined) {
+      params.append('acknowledged', String(options.acknowledged));
+    }
+    if (options.limit) {
+      params.append('limit', String(options.limit));
+    }
+    const queryString = params.toString() ? `?${params.toString()}` : '';
+    const response = await fetch(`${API_BASE}/api/company/${companyId}/llm-ops/alerts${queryString}`, { headers });
+    if (!response.ok) {
+      throw new Error('Failed to get budget alerts');
+    }
+    return response.json();
+  },
+
+  /**
+   * Acknowledge a budget alert.
+   * @param {string} companyId - Company ID
+   * @param {string} alertId - Alert ID
+   * @returns {Promise<{success: boolean}>}
+   */
+  async acknowledgeBudgetAlert(companyId: string, alertId: string) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}/api/company/${companyId}/llm-ops/alerts/${alertId}/acknowledge`, {
+      method: 'POST',
+      headers,
+    });
+    if (!response.ok) {
+      throw new Error('Failed to acknowledge alert');
+    }
+    return response.json();
+  },
 };

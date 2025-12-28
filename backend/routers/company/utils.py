@@ -212,6 +212,306 @@ async def log_usage_event(
 
 
 # =============================================================================
+# LLM OPS: SESSION USAGE & RATE LIMITING
+# =============================================================================
+
+# Model pricing (per 1M tokens) - must match frontend TokenUsageDisplay.tsx
+MODEL_PRICING = {
+    'anthropic/claude-opus-4.5': {'input': 5.0, 'output': 25.0},
+    'anthropic/claude-opus-4': {'input': 15.0, 'output': 75.0},
+    'anthropic/claude-sonnet-4': {'input': 3.0, 'output': 15.0},
+    'anthropic/claude-3-5-sonnet-20241022': {'input': 3.0, 'output': 15.0},
+    'anthropic/claude-3-5-haiku-20241022': {'input': 1.0, 'output': 5.0},
+    'openai/gpt-4o': {'input': 5.0, 'output': 15.0},
+    'openai/gpt-4o-mini': {'input': 0.15, 'output': 0.60},
+    'openai/gpt-5.1': {'input': 5.0, 'output': 20.0},
+    'google/gemini-3-pro-preview': {'input': 2.0, 'output': 12.0},
+    'google/gemini-2.5-pro-preview': {'input': 1.25, 'output': 10.0},
+    'google/gemini-2.5-flash': {'input': 0.075, 'output': 0.30},
+    'google/gemini-2.0-flash-001': {'input': 0.10, 'output': 0.40},
+    'x-ai/grok-3': {'input': 3.0, 'output': 15.0},
+    'x-ai/grok-4': {'input': 3.0, 'output': 15.0},
+    'deepseek/deepseek-chat': {'input': 0.28, 'output': 0.42},
+    'deepseek/deepseek-chat-v3-0324': {'input': 0.28, 'output': 0.42},
+}
+
+DEFAULT_PRICING = {'input': 2.0, 'output': 8.0}
+
+
+def get_model_pricing(model: str) -> dict:
+    """Get pricing for a model with fallback to default."""
+    if model in MODEL_PRICING:
+        return MODEL_PRICING[model]
+    # Try partial match
+    for key, pricing in MODEL_PRICING.items():
+        if model in key or key in model:
+            return pricing
+    return DEFAULT_PRICING
+
+
+def calculate_cost_cents(usage_data: dict) -> int:
+    """Calculate cost in cents from usage data with per-model breakdown."""
+    total_cost = 0.0
+
+    by_model = usage_data.get('by_model', {})
+    if by_model:
+        for model, model_usage in by_model.items():
+            pricing = get_model_pricing(model)
+            input_cost = (model_usage.get('prompt_tokens', 0) / 1_000_000) * pricing['input']
+            output_cost = (model_usage.get('completion_tokens', 0) / 1_000_000) * pricing['output']
+            total_cost += input_cost + output_cost
+    else:
+        # Fallback to total tokens with default pricing
+        pricing = DEFAULT_PRICING
+        input_cost = (usage_data.get('prompt_tokens', 0) / 1_000_000) * pricing['input']
+        output_cost = (usage_data.get('completion_tokens', 0) / 1_000_000) * pricing['output']
+        total_cost = input_cost + output_cost
+
+    # Convert to cents
+    return int(total_cost * 100)
+
+
+async def save_session_usage(
+    company_id: str,
+    conversation_id: str,
+    usage_data: dict,
+    session_type: str = 'council'
+) -> bool:
+    """
+    Save detailed session usage for analytics.
+
+    Args:
+        company_id: Company UUID
+        conversation_id: Conversation/session UUID
+        usage_data: Token usage dict from council run
+        session_type: 'council', 'chat', 'triage', or 'document'
+
+    Returns:
+        True if saved successfully
+    """
+    client = get_service_client()
+
+    # Calculate cost
+    cost_cents = calculate_cost_cents(usage_data)
+
+    # Build model breakdown with costs
+    model_breakdown = {}
+    for model, model_usage in usage_data.get('by_model', {}).items():
+        pricing = get_model_pricing(model)
+        input_cost = (model_usage.get('prompt_tokens', 0) / 1_000_000) * pricing['input']
+        output_cost = (model_usage.get('completion_tokens', 0) / 1_000_000) * pricing['output']
+        model_breakdown[model] = {
+            'input': model_usage.get('prompt_tokens', 0),
+            'output': model_usage.get('completion_tokens', 0),
+            'total': model_usage.get('total_tokens', 0),
+            'cost_cents': int((input_cost + output_cost) * 100)
+        }
+
+    data = {
+        'company_id': company_id,
+        'conversation_id': conversation_id,
+        'tokens_input': usage_data.get('prompt_tokens', 0),
+        'tokens_output': usage_data.get('completion_tokens', 0),
+        'tokens_total': usage_data.get('total_tokens', 0),
+        'cache_creation_tokens': usage_data.get('cache_creation_input_tokens', 0),
+        'cache_read_tokens': usage_data.get('cache_read_input_tokens', 0),
+        'estimated_cost_cents': cost_cents,
+        'model_breakdown': model_breakdown,
+        'session_type': session_type,
+        'model_count': len(usage_data.get('by_model', {})),
+    }
+
+    try:
+        client.table('session_usage').insert(data).execute()
+        log_app_event(
+            "SESSION_USAGE_SAVED",
+            level="DEBUG",
+            company_id=company_id,
+            tokens=usage_data.get('total_tokens', 0),
+            cost_cents=cost_cents
+        )
+        return True
+    except Exception as e:
+        log_app_event("SESSION_USAGE_SAVE_FAILED", level="WARNING", error=str(e))
+        return False
+
+
+async def check_rate_limits(company_id: str) -> dict:
+    """
+    Check if company has exceeded any rate limits.
+
+    Returns:
+        {
+            'allowed': True/False,
+            'exceeded': ['limit_type', ...],
+            'warnings': ['limit_type', ...],
+            'details': { limit_type: { current, limit } }
+        }
+    """
+    client = get_service_client()
+
+    try:
+        result = client.rpc('check_rate_limits', {'p_company_id': company_id}).execute()
+        limits = result.data or []
+
+        exceeded = []
+        warnings = []
+        details = {}
+
+        for limit in limits:
+            limit_type = limit['limit_type']
+            details[limit_type] = {
+                'current': limit['current_value'],
+                'limit': limit['limit_value']
+            }
+            if limit['is_exceeded']:
+                exceeded.append(limit_type)
+            elif limit['is_warning']:
+                warnings.append(limit_type)
+
+        return {
+            'allowed': len(exceeded) == 0,
+            'exceeded': exceeded,
+            'warnings': warnings,
+            'details': details
+        }
+    except Exception as e:
+        log_app_event("RATE_LIMIT_CHECK_FAILED", level="WARNING", error=str(e))
+        # Fail open - allow the request
+        return {'allowed': True, 'exceeded': [], 'warnings': [], 'details': {}}
+
+
+async def increment_rate_counters(
+    company_id: str,
+    sessions: int = 1,
+    tokens: int = 0,
+    cost_cents: int = 0
+) -> dict:
+    """
+    Increment rate limit counters after a session.
+
+    Returns current counter values.
+    """
+    client = get_service_client()
+
+    try:
+        result = client.rpc('increment_rate_limit_counter', {
+            'p_company_id': company_id,
+            'p_sessions': sessions,
+            'p_tokens': tokens,
+            'p_cost_cents': cost_cents
+        }).execute()
+
+        if result.data and len(result.data) > 0:
+            row = result.data[0]
+            return {
+                'hourly_sessions': row.get('hourly_sessions', 0),
+                'daily_sessions': row.get('daily_sessions', 0),
+                'monthly_tokens': row.get('monthly_tokens', 0),
+                'monthly_cost_cents': row.get('monthly_cost_cents', 0)
+            }
+        return {}
+    except Exception as e:
+        log_app_event("RATE_COUNTER_INCREMENT_FAILED", level="WARNING", error=str(e))
+        return {}
+
+
+async def get_usage_analytics(company_id: str, days: int = 30) -> list:
+    """
+    Get usage analytics for dashboard display.
+
+    Returns list of daily usage summaries.
+    """
+    client = get_service_client()
+
+    try:
+        result = client.rpc('get_usage_analytics', {
+            'p_company_id': company_id,
+            'p_days': days
+        }).execute()
+        return result.data or []
+    except Exception as e:
+        log_app_event("USAGE_ANALYTICS_FAILED", level="WARNING", error=str(e))
+        return []
+
+
+async def get_rate_limit_config(company_id: str) -> dict:
+    """Get rate limit configuration for a company."""
+    client = get_service_client()
+
+    try:
+        result = client.table('rate_limits').select('*').eq('company_id', company_id).single().execute()
+        if result.data:
+            return result.data
+    except Exception:
+        pass
+
+    # Return defaults
+    return {
+        'sessions_per_hour': 20,
+        'sessions_per_day': 100,
+        'tokens_per_month': 10_000_000,
+        'budget_cents_per_month': 10_000,
+        'alert_threshold_percent': 80,
+        'tier': 'free'
+    }
+
+
+async def create_budget_alert(
+    company_id: str,
+    alert_type: str,
+    current_value: int,
+    limit_value: int
+) -> bool:
+    """Create a budget alert if one doesn't already exist for this period."""
+    client = get_service_client()
+
+    # Determine period start based on alert type
+    from datetime import datetime
+    now = datetime.now()
+    if 'hourly' in alert_type:
+        period_start = now.replace(minute=0, second=0, microsecond=0)
+    elif 'daily' in alert_type:
+        period_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    else:
+        period_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+    try:
+        # Check if alert already exists for this period
+        existing = client.table('budget_alerts') \
+            .select('id') \
+            .eq('company_id', company_id) \
+            .eq('alert_type', alert_type) \
+            .eq('period_start', period_start.isoformat()) \
+            .execute()
+
+        if existing.data and len(existing.data) > 0:
+            return False  # Already alerted
+
+        # Create new alert
+        client.table('budget_alerts').insert({
+            'company_id': company_id,
+            'alert_type': alert_type,
+            'current_value': current_value,
+            'limit_value': limit_value,
+            'period_start': period_start.isoformat()
+        }).execute()
+
+        log_app_event(
+            "BUDGET_ALERT_CREATED",
+            level="INFO",
+            company_id=company_id,
+            alert_type=alert_type,
+            current_value=current_value,
+            limit_value=limit_value
+        )
+        return True
+    except Exception as e:
+        log_app_event("BUDGET_ALERT_CREATE_FAILED", level="WARNING", error=str(e))
+        return False
+
+
+# =============================================================================
 # AI HELPERS
 # =============================================================================
 

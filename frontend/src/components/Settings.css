@@ -79,23 +79,57 @@
   font-size: 14px;
 }
 
-/* Cards */
-.settings-card {
+/* =============================================================================
+   SETTINGS CARDS - Override shadcn Card styles for Settings context
+   ============================================================================= */
+
+/* Target Card components within settings-panel */
+.settings-panel .settings-card {
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  margin-bottom: 20px;
+  margin-bottom: var(--space-6);
   overflow: hidden;
 }
 
+/* Override shadcn CardHeader padding for Settings */
+.settings-panel .settings-card > div:first-child {
+  padding: var(--space-5) var(--space-6);
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Card title styling */
+.settings-panel .settings-card h3,
+.settings-panel .settings-card [class*="CardTitle"] {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Card description styling */
+.settings-panel .settings-card [class*="CardDescription"],
+.settings-panel .settings-card p:first-of-type {
+  margin: var(--space-1) 0 0 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+/* Override shadcn CardContent padding for proper form spacing */
+.settings-panel .settings-card > div:last-child {
+  padding: var(--space-6);
+}
+
+/* Legacy card styles (for any non-shadcn cards) */
 .card-header {
-  padding: 16px 20px;
+  padding: var(--space-4) var(--space-5);
   background: var(--color-bg-secondary);
   border-bottom: 1px solid var(--color-border);
 }
 
 .card-header h3 {
-  margin: 0 0 4px 0;
+  margin: 0 0 var(--space-1) 0;
   font-size: 16px;
   font-weight: 600;
   color: var(--color-text-primary);
@@ -108,12 +142,15 @@
 }
 
 .card-body {
-  padding: 20px;
+  padding: var(--space-5);
 }
 
-/* Forms */
+/* =============================================================================
+   SETTINGS FORMS - Proper spacing and styling for form elements
+   ============================================================================= */
+
 .form-group {
-  margin-bottom: 18px;
+  margin-bottom: var(--space-5);
 }
 
 .form-group:last-child {
@@ -122,7 +159,7 @@
 
 .form-group label {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
   font-size: 13px;
   font-weight: 600;
   color: var(--color-text-primary);
@@ -131,10 +168,11 @@
 .form-group input,
 .form-group textarea {
   width: 100%;
-  padding: 10px 14px;
+  padding: var(--space-3) var(--space-4);
   border: 1px solid var(--color-border-dark);
   border-radius: var(--radius-md);
   font-size: 14px;
+  line-height: 1.5;
   color: var(--color-text-primary);
   background: var(--color-bg-primary);
   transition: border-color 0.2s, box-shadow 0.2s;
@@ -165,7 +203,7 @@
 
 .input-hint {
   display: block;
-  margin-top: 6px;
+  margin-top: var(--space-2);
   font-size: 12px;
   color: var(--color-text-tertiary);
 }
@@ -173,9 +211,9 @@
 .form-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-top: 20px;
-  padding-top: 16px;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+  padding-top: var(--space-4);
   border-top: 1px solid var(--color-border-light);
 }
 
@@ -399,11 +437,17 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+}
+
+.manage-content > div {
+  flex: 1;
+  min-width: 0;
 }
 
 .manage-title {
-  margin: 0 0 4px 0;
+  margin: 0 0 var(--space-1) 0;
   font-size: 14px;
   font-weight: 600;
   color: var(--color-text-primary);
@@ -413,6 +457,10 @@
   margin: 0;
   font-size: 13px;
   color: var(--color-text-muted);
+}
+
+.manage-content button {
+  flex-shrink: 0;
 }
 
 .stripe-note {
@@ -469,32 +517,8 @@
     margin: 0;
   }
 
-  /* Tooltip on hover/tap */
-  .settings-tab::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    left: calc(100% + 8px);
-    top: 50%;
-    transform: translateY(-50%);
-    background: var(--color-bg-canvas, #1a1a1a);
-    color: var(--color-text-inverse);
-    padding: 6px 10px;
-    border-radius: var(--radius-default);
-    font-size: 12px;
-    font-weight: 500;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.15s ease, visibility 0.15s ease;
-    z-index: var(--z-dropdown);
-    box-shadow: var(--shadow-md);
-    pointer-events: none;
-  }
-
-  .settings-tab:hover::after {
-    opacity: 1;
-    visibility: visible;
-  }
+  /* Tooltips disabled on mobile/tablet - they don't work well on touch devices */
+  /* The active tab styling provides enough visual feedback */
 
   .settings-panel {
     flex: 1;
@@ -643,61 +667,58 @@
 .members-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-2);
 }
 
-.member-row {
+/* Compact single-line member row */
+.member-row-compact {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
   background: var(--color-bg-primary);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border-subtle);
   transition: all 0.15s ease;
 }
 
-.member-row:hover {
+.member-row-compact:hover {
   border-color: var(--color-border-default);
   background: var(--color-bg-hover);
 }
 
-.member-row.current {
+.member-row-compact.current {
   background: var(--color-bg-accent);
   border-color: var(--color-brand-primary);
 }
 
-.member-role-icon {
+.member-row-compact .member-role-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--color-bg-secondary);
+  flex-shrink: 0;
 }
 
-.member-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.member-name {
+.member-row-compact .member-name {
   font-weight: 500;
   font-size: 14px;
   color: var(--color-text-primary);
 }
 
-.member-role-label {
-  font-size: 12px;
-  font-weight: 500;
+.member-row-compact .member-role-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: var(--color-bg-secondary);
+  margin-left: auto;
 }
 
-.member-joined {
-  font-size: 12px;
-  color: var(--color-text-muted);
+.member-row-compact .member-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: var(--space-2);
 }
 
 .member-actions {
@@ -710,8 +731,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   border-radius: var(--radius-sm);
   border: none;
   background: transparent;
@@ -770,6 +791,31 @@
   text-align: center;
 }
 
+/* Add Member button - full button on desktop, icon-only on mobile */
+.add-member-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.add-member-btn .add-member-text {
+  display: inline;
+}
+
+/* Mobile: icon-only button */
+@media (max-width: 768px) {
+  .add-member-btn {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .add-member-btn .add-member-text {
+    display: none;
+  }
+}
+
 /* Mobile responsiveness for Team */
 @media (max-width: 640px) {
   .form-row {
@@ -780,17 +826,6 @@
   .form-row .form-select {
     width: 100%;
     min-width: auto;
-  }
-
-  .member-row {
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  .member-joined {
-    flex-basis: 100%;
-    order: 3;
-    margin-left: 44px;
   }
 
   .usage-grid {
@@ -1891,7 +1926,7 @@
 
 .dev-toggle-info {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 14px;
   flex: 1;
 }
@@ -1913,6 +1948,11 @@
 
 .dev-toggle-icon.caching {
   background: var(--color-blue-500);
+  color: var(--color-text-inverse);
+}
+
+.dev-toggle-icon.usage {
+  background: var(--color-purple-500, #a855f7);
   color: var(--color-text-inverse);
 }
 
@@ -1940,13 +1980,15 @@
   flex-shrink: 0;
 }
 
-/* Status badge */
+/* Status badge - fixed width to prevent layout shift on toggle */
 .dev-status-badge {
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   padding: 4px 8px;
   border-radius: var(--radius-sm);
+  min-width: 70px;
+  text-align: center;
 }
 
 .dev-status-badge.active {
@@ -1974,6 +2016,12 @@
   background: var(--overlay-green-10);
   color: var(--color-green-500);
   border: 1px solid var(--overlay-green-20);
+}
+
+.dev-info-box.info {
+  background: var(--overlay-purple-10, rgba(168, 85, 247, 0.1));
+  color: var(--color-purple-500, #a855f7);
+  border: 1px solid var(--overlay-purple-20, rgba(168, 85, 247, 0.2));
 }
 
 .dev-info-box svg {

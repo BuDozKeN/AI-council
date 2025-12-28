@@ -4,7 +4,6 @@ import { Spinner } from '../ui/Spinner';
 import { Button } from '../ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../ui/select';
-import { formatDate } from '../../lib/dateUtils';
 import { useTeam, type TeamRole } from './hooks/useTeam';
 import type { User } from '@supabase/supabase-js';
 
@@ -39,54 +38,28 @@ const TeamSkeleton = () => (
             <Skeleton width={120} height={16} />
             <Skeleton width={70} height={13} className="mt-1" />
           </div>
-          <Skeleton width={115} height={36} className="rounded-md" />
+          <Skeleton width={44} height={44} className="rounded-md" />
         </div>
       </CardHeader>
       <CardContent>
         <div className="members-list">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="member-row">
-              <div className="member-role-icon">
-                <Skeleton variant="circular" width={18} height={18} />
-              </div>
-              <div className="member-info">
-                <Skeleton width={80} height={14} />
-                <Skeleton width={50} height={12} className="mt-0.5" />
-              </div>
-              <Skeleton width={110} height={12} />
-              <div className="member-actions">
-                <Skeleton width={28} height={28} className="rounded" />
-              </div>
+            <div key={i} className="member-row-compact">
+              <Skeleton variant="circular" width={16} height={16} />
+              <Skeleton width={60} height={14} />
+              <Skeleton width={50} height={18} className="rounded-full" />
             </div>
           ))}
         </div>
       </CardContent>
     </Card>
 
-    {/* Usage Statistics Skeleton */}
-    <Card className="settings-card">
-      <CardHeader>
-        <Skeleton width={130} height={16} />
-        <Skeleton width={200} height={13} className="mt-1" />
-      </CardHeader>
-      <CardContent>
-        <div className="usage-grid">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="usage-stat">
-              <Skeleton width={40} height={24} />
-              <Skeleton width={90} height={12} className="mt-1" />
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
   </>
 );
 
 export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSectionProps) {
   const {
     members,
-    usage,
     teamLoading,
     teamError,
     showAddForm,
@@ -135,11 +108,11 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
             {canManageMembers && (
               <Button
                 variant="default"
-                className="flex items-center gap-1.5"
                 onClick={() => setShowAddForm(!showAddForm)}
+                className="add-member-btn"
               >
                 <Plus size={16} />
-                Add Member
+                <span className="add-member-text">Add Member</span>
               </Button>
             )}
           </div>
@@ -198,25 +171,18 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
               const canRemove = canModify && (currentUserRole === 'owner' || (currentUserRole === 'admin' && member.role === 'member'));
 
               return (
-                <div key={member.id} className={`member-row ${isCurrentUser ? 'current' : ''}`}>
+                <div key={member.id} className={`member-row-compact ${isCurrentUser ? 'current' : ''}`}>
                   <div className="member-role-icon" style={{ color: roleConfig.color }}>
-                    <RoleIcon size={18} />
+                    <RoleIcon size={16} />
                   </div>
-                  <div className="member-info">
-                    <span className="member-name">
-                      {isCurrentUser ? 'You' : `User ${member.user_id.slice(0, 8)}...`}
-                    </span>
-                    <span className="member-role-label" style={{ color: roleConfig.color }}>
-                      {roleConfig.label}
-                    </span>
-                  </div>
-                  <div className="member-joined">
-                    Joined {formatDate(member.joined_at || member.created_at)}
-                  </div>
+                  <span className="member-name">
+                    {isCurrentUser ? 'You' : `User ${member.user_id.slice(0, 8)}...`}
+                  </span>
+                  <span className="member-role-badge" style={{ color: roleConfig.color }}>
+                    {roleConfig.label}
+                  </span>
                   {isLoading ? (
-                    <div className="member-actions">
-                      <Spinner size={16} />
-                    </div>
+                    <Spinner size={14} />
                   ) : (
                     <div className="member-actions">
                       {canPromote && (
@@ -225,7 +191,7 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                           onClick={() => handleChangeRole(member.id, 'admin')}
                           title="Promote to Admin"
                         >
-                          <ChevronUp size={16} />
+                          <ChevronUp size={14} />
                         </button>
                       )}
                       {canDemote && (
@@ -234,7 +200,7 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                           onClick={() => handleChangeRole(member.id, 'member')}
                           title="Demote to Member"
                         >
-                          <ChevronDown size={16} />
+                          <ChevronDown size={14} />
                         </button>
                       )}
                       {canRemove && (
@@ -243,7 +209,7 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                           onClick={() => onRemoveMember(member.id, member.role, handleRemoveMember)}
                           title="Remove from team"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={14} />
                         </button>
                       )}
                     </div>
@@ -255,39 +221,6 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
         </CardContent>
       </Card>
 
-      {/* Usage Statistics (for owners/admins) */}
-      {usage && (
-        <Card className="settings-card">
-          <CardHeader>
-            <CardTitle>Usage Statistics</CardTitle>
-            <CardDescription>Council usage for your organization</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="usage-grid">
-              <div className="usage-stat">
-                <span className="usage-value">{usage.sessions_this_month}</span>
-                <span className="usage-label">Sessions this month</span>
-              </div>
-              <div className="usage-stat">
-                <span className="usage-value">{usage.total_sessions}</span>
-                <span className="usage-label">Total sessions</span>
-              </div>
-              <div className="usage-stat">
-                <span className="usage-value">
-                  {((usage.tokens_this_month_input + usage.tokens_this_month_output) / 1000).toFixed(1)}k
-                </span>
-                <span className="usage-label">Tokens this month</span>
-              </div>
-              <div className="usage-stat">
-                <span className="usage-value">
-                  {((usage.total_tokens_input + usage.total_tokens_output) / 1000).toFixed(1)}k
-                </span>
-                <span className="usage-label">Total tokens</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </>
   );
 }

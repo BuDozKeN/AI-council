@@ -9,6 +9,7 @@ import { AIWriteAssist } from './ui/AIWriteAssist';
 import { Sparkles, Check, RefreshCw, Edit3, FileText, CheckCircle2 } from 'lucide-react';
 import { logger } from '../utils/logger';
 import { hapticSuccess } from '../lib/haptics';
+import { CELEBRATION } from '../lib/animation-constants';
 import type { Department, Project } from '../types/business';
 import './ProjectModal.css';
 
@@ -168,11 +169,11 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
       setStep('success');
       hapticSuccess();
 
-      // Auto-close after celebration
+      // Auto-close after celebration - give user time to read success message
       setTimeout(() => {
         onProjectCreated?.(result.project);
         onClose();
-      }, 1200);
+      }, CELEBRATION.PROJECT_SUCCESS);
     } catch (err) {
       logger.error('Failed to create project:', err);
       setError(err instanceof Error ? err.message : "Couldn't create your project. Please try again.");

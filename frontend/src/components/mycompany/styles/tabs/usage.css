@@ -1,0 +1,906 @@
+/**
+ * Usage Tab Styles
+ *
+ * Styles for the LLM Operations / Usage analytics tab.
+ * Shows cost charts, model breakdown, council roster, and budget progress.
+ */
+
+/* ============================================================================
+   LAYOUT
+   ============================================================================ */
+
+.mc-usage {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: var(--space-4);
+  padding: var(--space-2) var(--space-4);
+  overflow: hidden; /* Contain children */
+}
+
+.mc-usage-scroll {
+  flex: 1;
+  min-height: 0;
+}
+
+/* When using ScrollableContent wrapper, ensure it fills space */
+.mc-usage-scroll.scrollable-content-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+/* The inner scrollable div needs explicit overflow */
+.mc-usage-scroll .scrollable-content-inner {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Add padding to scroll content for sections */
+.mc-usage-scroll .mc-usage-section:last-child {
+  margin-bottom: var(--space-4);
+}
+
+.mc-usage-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 var(--space-1);
+  flex-shrink: 0;
+}
+
+/* ============================================================================
+   PERIOD SELECTOR
+   ============================================================================ */
+
+.mc-usage-period-selector {
+  display: flex;
+  gap: var(--space-1);
+  background: var(--color-bg-secondary);
+  padding: var(--space-1);
+  border-radius: var(--radius-md);
+}
+
+.mc-usage-period-btn {
+  padding: var(--space-1-5) var(--space-3);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-usage-period-btn:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-tertiary);
+}
+
+.mc-usage-period-btn.active {
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ============================================================================
+   ALERTS
+   ============================================================================ */
+
+.mc-usage-alerts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: 0 var(--space-1);
+}
+
+.mc-usage-alert {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2-5) var(--space-3);
+  background: hsl(45, 100%, 96%);
+  border: 1px solid hsl(45, 100%, 80%);
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+}
+
+.dark .mc-usage-alert {
+  background: hsl(45, 100%, 10%);
+  border-color: hsl(45, 100%, 30%);
+}
+
+.mc-usage-alert-icon {
+  color: hsl(45, 100%, 40%);
+  flex-shrink: 0;
+}
+
+.mc-usage-alert-text {
+  flex: 1;
+  color: var(--color-text-primary);
+}
+
+.mc-usage-alert-dismiss {
+  padding: var(--space-1) var(--space-2);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-usage-alert-dismiss:hover {
+  background: var(--color-bg-tertiary);
+}
+
+/* ============================================================================
+   SECTIONS
+   ============================================================================ */
+
+.mc-usage-section {
+  padding: var(--space-4);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-4);
+}
+
+.mc-usage-section-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-3) 0;
+}
+
+/* ============================================================================
+   CHARTS
+   ============================================================================ */
+
+.mc-usage-chart-container {
+  width: 100%;
+  height: 240px;
+}
+
+/* Recharts tooltip customization */
+.recharts-tooltip-wrapper {
+  outline: none !important;
+}
+
+/* ============================================================================
+   MODEL BREAKDOWN
+   ============================================================================ */
+
+.mc-usage-models-grid {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+@media (max-width: 640px) {
+  .mc-usage-models-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mc-usage-pie-container {
+  width: 180px;
+  height: 180px;
+}
+
+@media (max-width: 640px) {
+  .mc-usage-pie-container {
+    width: 100%;
+    max-width: 200px;
+    margin: 0 auto;
+  }
+}
+
+.mc-usage-models-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.mc-usage-model-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2-5);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.mc-usage-model-item:last-child {
+  border-bottom: none;
+}
+
+.mc-usage-model-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.mc-usage-model-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mc-usage-model-name {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.mc-usage-model-stats {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+}
+
+.mc-usage-model-cost {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================================
+   BUDGET PROGRESS
+   ============================================================================ */
+
+.mc-usage-budget {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.mc-usage-budget-header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+}
+
+.mc-usage-budget-current {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.mc-usage-budget-limit {
+  font-size: 0.875rem;
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.mc-usage-budget-bar {
+  height: 8px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.mc-usage-budget-fill {
+  height: 100%;
+  background: hsl(217, 91%, 60%);
+  border-radius: var(--radius-full);
+  transition: width 0.3s ease;
+}
+
+.mc-usage-budget-fill.warning {
+  background: hsl(45, 100%, 50%);
+}
+
+.mc-usage-budget-fill.exceeded {
+  background: hsl(0, 84%, 60%);
+}
+
+.mc-usage-budget-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mc-usage-budget-percent {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+}
+
+.mc-usage-budget-warning {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: 0.75rem;
+  color: hsl(45, 100%, 40%);
+}
+
+/* ============================================================================
+   COUNCIL ROSTER
+   ============================================================================ */
+
+.mc-usage-roster {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.mc-usage-roster-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2-5) var(--space-3);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+}
+
+.mc-usage-roster-status {
+  color: hsl(160, 84%, 39%);
+  flex-shrink: 0;
+}
+
+.mc-usage-roster-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mc-usage-roster-name {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.mc-usage-roster-role {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+}
+
+.mc-usage-roster-provider {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--color-text-quaternary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.mc-usage-roster-note {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-subtle);
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  line-height: 1.5;
+}
+
+/* ============================================================================
+   EXTRA STATS
+   ============================================================================ */
+
+.mc-usage-extra-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+}
+
+@media (max-width: 480px) {
+  .mc-usage-extra-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mc-usage-extra-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.mc-usage-extra-label {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.mc-usage-extra-value {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================================
+   STAT CARD ENHANCEMENTS (for usage tab)
+   ============================================================================ */
+
+.mc-usage .mc-stat-card.highlight {
+  background: linear-gradient(135deg, hsl(160, 84%, 95%), hsl(160, 84%, 98%));
+  border-color: hsl(160, 84%, 80%);
+}
+
+.dark .mc-usage .mc-stat-card.highlight {
+  background: linear-gradient(135deg, hsl(160, 84%, 10%), hsl(160, 84%, 8%));
+  border-color: hsl(160, 84%, 25%);
+}
+
+.mc-usage .mc-stat-value.cost {
+  color: var(--color-text-primary);
+}
+
+.mc-usage .mc-stat-value.saved {
+  color: hsl(160, 84%, 39%);
+}
+
+.mc-usage .mc-stat-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.mc-usage .mc-stat-label svg {
+  opacity: 0.6;
+}
+
+/* ============================================================================
+   EMPTY STATE
+   ============================================================================ */
+
+.mc-usage-empty-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-secondary);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.mc-usage-empty-banner svg {
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+/* Subtle styling for sections when in empty state */
+.mc-usage-section.empty-state {
+  opacity: 0.7;
+}
+
+.mc-stats-grid.empty-state {
+  opacity: 0.6;
+}
+
+.mc-stats-grid.empty-state .mc-stat-value {
+  color: var(--color-text-tertiary);
+}
+
+/* Pie chart placeholder for empty state */
+.mc-usage-pie-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 180px;
+  gap: var(--space-2);
+}
+
+.mc-usage-pie-ring {
+  width: 140px;
+  height: 140px;
+  border: 12px solid var(--color-bg-tertiary);
+  border-radius: 50%;
+  opacity: 0.5;
+}
+
+.mc-usage-pie-placeholder span {
+  font-size: 0.75rem;
+  color: var(--color-text-quaternary);
+}
+
+/* Empty model list */
+.mc-usage-models-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  padding: var(--space-4);
+  text-align: center;
+}
+
+.mc-usage-models-empty p {
+  font-size: 0.8125rem;
+  color: var(--color-text-tertiary);
+  line-height: 1.5;
+  max-width: 280px;
+}
+
+/* ============================================================================
+   MOBILE ADJUSTMENTS (≤768px)
+   Following mobile patterns from mobile.css:
+   - Horizontal scroll for stats (thumb-friendly)
+   - Touch targets 44px minimum
+   - Card-based sections
+   - Safe area handling
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  /* Main container - tighter layout, minimal gap */
+  .mc-usage {
+    padding: 8px 16px 0 16px;
+    gap: var(--space-2); /* Reduced from space-3 */
+  }
+
+  /* Scroll content just needs small padding for last item visibility */
+  .mc-usage .mc-usage-scroll .scrollable-content-inner {
+    padding-bottom: var(--space-4);
+  }
+
+  /* Empty banner - inline and compact */
+  .mc-usage-empty-banner {
+    padding: var(--space-2) var(--space-3);
+    font-size: 0.6875rem;
+    gap: var(--space-2);
+    border-radius: var(--radius-md);
+  }
+
+  .mc-usage-empty-banner svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Stats grid - horizontal scroll, compact cards */
+  .mc-usage .mc-stats-grid {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: var(--space-1-5);
+    margin: 0 -16px;
+    padding: 0 16px 2px 16px;
+    flex-shrink: 0;
+  }
+
+  .mc-usage .mc-stats-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mc-usage .mc-stats-grid .mc-stat-card {
+    flex: 0 0 auto;
+    min-width: 85px;
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .mc-usage .mc-stats-grid .mc-stat-value {
+    font-size: 1.125rem;
+  }
+
+  .mc-usage .mc-stats-grid .mc-stat-label {
+    font-size: 0.625rem;
+  }
+
+  /* Period selector - inline, smaller touch target */
+  .mc-usage-header {
+    justify-content: center;
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+  .mc-usage-period-selector {
+    padding: 2px;
+    gap: 2px;
+  }
+
+  .mc-usage-period-btn {
+    padding: var(--space-1-5) var(--space-2-5);
+    font-size: 0.6875rem;
+    min-height: 36px; /* Slightly smaller but still touch-friendly */
+  }
+
+  /* ScrollableContent must fill remaining space */
+  .mc-usage .mc-usage-scroll {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mc-usage .mc-usage-scroll.scrollable-content-wrapper {
+    overflow: hidden;
+  }
+
+  .mc-usage .mc-usage-scroll .scrollable-content-inner {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Sections - compact cards */
+  .mc-usage-section {
+    padding: var(--space-2-5);
+    margin-bottom: var(--space-2);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-xs);
+  }
+
+  .mc-usage-section-title {
+    font-size: 0.75rem;
+    margin-bottom: var(--space-2);
+  }
+
+  /* Chart container - shorter on mobile */
+  .mc-usage-chart-container {
+    height: 160px;
+    margin: 0 -4px; /* Slight negative margin for chart edges */
+  }
+
+  /* Model breakdown - stack on mobile */
+  .mc-usage-models-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .mc-usage-pie-container {
+    width: 100%;
+    max-width: 160px;
+    height: 160px;
+    margin: 0 auto;
+  }
+
+  .mc-usage-pie-placeholder {
+    height: 160px;
+  }
+
+  .mc-usage-pie-ring {
+    width: 120px;
+    height: 120px;
+    border-width: 10px;
+  }
+
+  .mc-usage-models-list {
+    gap: var(--space-1-5);
+  }
+
+  .mc-usage-model-item {
+    padding: var(--space-2) 0;
+    gap: var(--space-2);
+  }
+
+  .mc-usage-model-name {
+    font-size: 0.75rem;
+  }
+
+  .mc-usage-model-stats {
+    font-size: 0.6875rem;
+  }
+
+  .mc-usage-model-cost {
+    font-size: 0.75rem;
+  }
+
+  .mc-usage-models-empty {
+    min-height: 80px;
+    padding: var(--space-3);
+  }
+
+  .mc-usage-models-empty p {
+    font-size: 0.75rem;
+    max-width: 240px;
+  }
+
+  /* Budget progress - compact */
+  .mc-usage-budget-current {
+    font-size: 1.125rem;
+  }
+
+  .mc-usage-budget-limit {
+    font-size: 0.8125rem;
+  }
+
+  .mc-usage-budget-bar {
+    height: 6px;
+  }
+
+  .mc-usage-budget-percent,
+  .mc-usage-budget-warning {
+    font-size: 0.6875rem;
+  }
+
+  /* Council roster - compact cards */
+  .mc-usage-roster {
+    gap: var(--space-1-5);
+  }
+
+  .mc-usage-roster-item {
+    padding: var(--space-2) var(--space-2-5);
+    gap: var(--space-2);
+    border-radius: var(--radius-md);
+  }
+
+  .mc-usage-roster-status svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .mc-usage-roster-name {
+    font-size: 0.75rem;
+  }
+
+  .mc-usage-roster-role {
+    font-size: 0.6875rem;
+  }
+
+  .mc-usage-roster-provider {
+    font-size: 0.625rem;
+  }
+
+  .mc-usage-roster-note {
+    margin-top: var(--space-2);
+    padding-top: var(--space-2);
+    font-size: 0.6875rem;
+  }
+
+  /* Extra stats - 2 columns on mobile */
+  .mc-usage-extra-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-2);
+  }
+
+  .mc-usage-extra-stat {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: var(--space-1-5) 0;
+  }
+
+  .mc-usage-extra-label {
+    font-size: 0.6875rem;
+  }
+
+  .mc-usage-extra-value {
+    font-size: 0.875rem;
+    font-weight: 700;
+  }
+
+  /* Alerts - touch friendly */
+  .mc-usage-alerts {
+    padding: 0;
+    gap: var(--space-2);
+  }
+
+  .mc-usage-alert {
+    padding: var(--space-2) var(--space-2-5);
+    font-size: 0.75rem;
+    gap: var(--space-2);
+  }
+
+  .mc-usage-alert-dismiss {
+    padding: var(--space-1-5) var(--space-2-5);
+    min-height: 36px;
+    font-size: 0.6875rem;
+  }
+}
+
+/* Extra small mobile (≤380px) - even more compact */
+@media (max-width: 380px) {
+  .mc-usage {
+    padding: 6px 12px 0 12px;
+    gap: var(--space-1-5);
+  }
+
+  .mc-usage-empty-banner {
+    padding: var(--space-1-5) var(--space-2);
+    font-size: 0.625rem;
+  }
+
+  .mc-usage .mc-stats-grid {
+    margin: 0 -12px;
+    padding: 0 12px;
+    gap: var(--space-1);
+  }
+
+  .mc-usage .mc-stats-grid .mc-stat-card {
+    min-width: 75px;
+    padding: var(--space-1-5) var(--space-2);
+  }
+
+  .mc-usage .mc-stats-grid .mc-stat-value {
+    font-size: 1rem;
+  }
+
+  .mc-usage .mc-stats-grid .mc-stat-label {
+    font-size: 0.5625rem;
+  }
+
+  .mc-usage-section {
+    padding: var(--space-2);
+    margin-bottom: var(--space-1-5);
+  }
+
+  .mc-usage-chart-container {
+    height: 140px;
+  }
+
+  .mc-usage-extra-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Landscape mode - optimize for horizontal space */
+@media (max-width: 900px) and (orientation: landscape) {
+  .mc-usage {
+    padding: 8px 24px;
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Stats in a row in landscape */
+  .mc-usage .mc-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    overflow: visible;
+    margin: 0;
+    padding: 0;
+  }
+
+  .mc-usage .mc-stats-grid .mc-stat-card {
+    min-width: auto;
+  }
+
+  /* Two-column layout for sections */
+  .mc-usage-scroll {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+    align-items: start;
+  }
+
+  .mc-usage-section {
+    margin-bottom: 0;
+  }
+
+  /* Model breakdown side-by-side in landscape */
+  .mc-usage-models-grid {
+    grid-template-columns: 140px 1fr;
+  }
+
+  .mc-usage-pie-container {
+    width: 140px;
+    height: 140px;
+  }
+}
+
+/* Dark mode mobile cards */
+@media (max-width: 768px) {
+  .dark .mc-usage-section {
+    background: var(--color-bg-secondary);
+    border-color: var(--color-border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .dark .mc-usage .mc-stat-card {
+    background: var(--color-bg-secondary);
+    border-color: var(--color-border);
+  }
+
+  .dark .mc-usage-empty-banner {
+    background: var(--color-bg-tertiary);
+    border-color: var(--color-border);
+  }
+}

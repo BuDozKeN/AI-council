@@ -5,6 +5,7 @@
  * All styles are split by concern for maintainability.
  *
  * Structure:
+ * - layouts.css     - Layout pattern documentation
  * - shell.css       - Overlay, panel, header, tabs, content area
  * - badges.css      - Type, department, scope, meta badges
  * - shared.css      - Loading states, forms, buttons
@@ -12,13 +13,14 @@
  * - legacy.css      - AI synthesize, context headers (to be migrated)
  * - tabs/*.css      - Tab-specific styles
  * - mobile.css      - Mobile responsive overrides (must be last)
- *
- * Total: ~5,700 lines (down from 8,200 monolithic)
  */
 
 /* ============================================================================
    NEW MODULAR STYLES (extracted from legacy file)
    ============================================================================ */
+
+/* Reusable layout patterns - import first so tabs can use them */
+@import './layouts.css';
 
 /* Core layout and shell */
 @import './shell.css';
@@ -34,6 +36,7 @@
 @import './tabs/activity.css';
 @import './tabs/projects.css';
 @import './tabs/team.css';
+@import './tabs/usage.css';
 
 /* Modal styles */
 @import './modals.css';

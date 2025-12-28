@@ -11,3 +11,4 @@ export { MembersTab } from './MembersTab';
 export { PlaybooksTab } from './PlaybooksTab';
 export { ProjectsTab } from './ProjectsTab';
 export { DecisionsTab } from './DecisionsTab';
+export { UsageTab } from './UsageTab';

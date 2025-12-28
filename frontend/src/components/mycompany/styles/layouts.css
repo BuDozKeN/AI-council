@@ -1,0 +1,35 @@
+/**
+ * MyCompany Layout Patterns
+ * ==========================
+ *
+ * This file documents reusable layout patterns for MyCompany tabs.
+ *
+ * PATTERN: Single Scroll Container
+ * ---------------------------------
+ * The preferred pattern is a single scroll container for each tab.
+ *
+ * Example (OverviewTab):
+ *   <div class="mc-overview">           <- scroll container (flex: 1, overflow-y: auto)
+ *     <div class="mc-overview-hero">    <- flows naturally, scrolls with content
+ *       ...
+ *     </div>
+ *     <div class="mc-context-card">     <- flows naturally, scrolls with content
+ *       <div class="mc-context-sticky-toolbar">  <- sticky inside scroll container
+ *         ...
+ *       </div>
+ *       <div class="mc-context-content">
+ *         ...
+ *       </div>
+ *     </div>
+ *   </div>
+ *
+ * KEY PRINCIPLES:
+ * 1. One scroll container per tab - never nest scroll containers
+ * 2. Use flex: 1 + min-height: 0 + overflow-y: auto on the scroll container
+ * 3. Children flow naturally with gap between them
+ * 4. Sticky elements work because they're inside the scroll container
+ * 5. Solid backgrounds on sticky elements to cover content scrolling behind
+ *
+ * Tab-specific styles are in ./tabs/*.css
+ * Mobile overrides are in ./mobile.css (imported last)
+ */

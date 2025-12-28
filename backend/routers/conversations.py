@@ -33,6 +33,13 @@ from ..council import (
 )
 from ..context_loader import load_business_context
 from ..security import log_app_event
+from .company.utils import (
+    save_session_usage,
+    check_rate_limits,
+    increment_rate_counters,
+    calculate_cost_cents,
+    create_budget_alert
+)
 
 # Import rate limiter from main module
 from slowapi import Limiter
@@ -303,6 +310,47 @@ async def send_message(
                 except Exception:
                     pass
 
+            # Check rate limits before starting council session
+            if company_uuid:
+                rate_check = await check_rate_limits(company_uuid)
+                if not rate_check['allowed']:
+                    exceeded = rate_check['exceeded']
+                    details = rate_check['details']
+                    error_msg = f"Rate limit exceeded: {', '.join(exceeded)}"
+                    log_app_event("RATE_LIMIT_EXCEEDED", level="WARNING", company_id=company_uuid, exceeded=exceeded)
+                    yield f"data: {json.dumps({'type': 'error', 'message': error_msg, 'rate_limited': True, 'details': details})}\n\n"
+                    return
+                # Emit warnings if approaching limits
+                if rate_check['warnings']:
+                    yield f"data: {json.dumps({'type': 'rate_warning', 'warnings': rate_check['warnings'], 'details': rate_check['details']})}\n\n"
+
+            # Track token usage across all stages
+            total_usage = {
+                'prompt_tokens': 0,
+                'completion_tokens': 0,
+                'total_tokens': 0,
+                'cache_creation_input_tokens': 0,
+                'cache_read_input_tokens': 0,
+                'by_model': {}
+            }
+
+            def aggregate_usage(usage_data):
+                """Aggregate usage from a model response."""
+                if not usage_data:
+                    return
+                total_usage['prompt_tokens'] += usage_data.get('prompt_tokens', 0)
+                total_usage['completion_tokens'] += usage_data.get('completion_tokens', 0)
+                total_usage['total_tokens'] += usage_data.get('total_tokens', 0)
+                total_usage['cache_creation_input_tokens'] += usage_data.get('cache_creation_input_tokens', 0)
+                total_usage['cache_read_input_tokens'] += usage_data.get('cache_read_input_tokens', 0)
+                # Track per-model usage
+                model = usage_data.get('model', 'unknown')
+                if model not in total_usage['by_model']:
+                    total_usage['by_model'][model] = {'prompt_tokens': 0, 'completion_tokens': 0, 'total_tokens': 0}
+                total_usage['by_model'][model]['prompt_tokens'] += usage_data.get('prompt_tokens', 0)
+                total_usage['by_model'][model]['completion_tokens'] += usage_data.get('completion_tokens', 0)
+                total_usage['by_model'][model]['total_tokens'] += usage_data.get('total_tokens', 0)
+
             # Stage 1: Collect responses with streaming
             yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
             stage1_results = []
@@ -326,6 +374,8 @@ async def send_message(
                 if event['type'] == 'stage1_token':
                     yield f"data: {json.dumps(event)}\n\n"
                 elif event['type'] == 'stage1_model_complete':
+                    # Capture usage data from this model
+                    aggregate_usage(event.get('usage'))
                     yield f"data: {json.dumps(event)}\n\n"
                 elif event['type'] == 'stage1_model_error':
                     yield f"data: {json.dumps(event)}\n\n"
@@ -346,6 +396,8 @@ async def send_message(
                 if event['type'] == 'stage2_token':
                     yield f"data: {json.dumps(event)}\n\n"
                 elif event['type'] == 'stage2_model_complete':
+                    # Capture usage data from this model
+                    aggregate_usage(event.get('usage'))
                     yield f"data: {json.dumps(event)}\n\n"
                 elif event['type'] == 'stage2_model_error':
                     yield f"data: {json.dumps(event)}\n\n"
@@ -380,6 +432,8 @@ async def send_message(
                     yield f"data: {json.dumps(event)}\n\n"
                 elif event['type'] == 'stage3_complete':
                     stage3_result = event['data']
+                    # Capture usage data from chairman
+                    aggregate_usage(event['data'].get('usage'))
                     yield f"data: {json.dumps({'type': 'stage3_complete', 'data': stage3_result})}\n\n"
 
             # Final check for title if not emitted yet
@@ -410,19 +464,66 @@ async def send_message(
             # Increment query usage after successful council run
             billing.increment_query_usage(user_id, access_token=access_token)
 
-            # Log usage event for analytics
+            # Log usage event for analytics with actual token counts
             if company_uuid:
                 try:
                     await company_router.log_usage_event(
                         company_id=company_uuid,
                         event_type="council_session",
-                        tokens_input=0,
-                        tokens_output=0,
+                        tokens_input=total_usage['prompt_tokens'],
+                        tokens_output=total_usage['completion_tokens'],
                         model_used="council",
                         session_id=conversation_id
                     )
                 except Exception:
                     pass
+
+                # Save detailed session usage for LLM ops dashboard
+                try:
+                    await save_session_usage(
+                        company_id=company_uuid,
+                        conversation_id=conversation_id,
+                        usage_data=total_usage,
+                        session_type='council'
+                    )
+                except Exception:
+                    pass
+
+                # Increment rate limit counters and check for budget alerts
+                try:
+                    cost_cents = calculate_cost_cents(total_usage)
+                    counters = await increment_rate_counters(
+                        company_id=company_uuid,
+                        sessions=1,
+                        tokens=total_usage.get('total_tokens', 0),
+                        cost_cents=cost_cents
+                    )
+
+                    # Check for warning thresholds and create alerts
+                    rate_check = await check_rate_limits(company_uuid)
+                    for warning in rate_check.get('warnings', []):
+                        details = rate_check['details'].get(warning, {})
+                        await create_budget_alert(
+                            company_id=company_uuid,
+                            alert_type=f"{warning}_warning",
+                            current_value=details.get('current', 0),
+                            limit_value=details.get('limit', 0)
+                        )
+                except Exception:
+                    pass
+
+            # Log token usage summary
+            if total_usage['total_tokens'] > 0:
+                log_app_event(
+                    "COUNCIL_USAGE",
+                    level="INFO",
+                    total_tokens=total_usage['total_tokens'],
+                    prompt_tokens=total_usage['prompt_tokens'],
+                    completion_tokens=total_usage['completion_tokens'],
+                    cache_read_tokens=total_usage['cache_read_input_tokens'],
+                    cache_creation_tokens=total_usage['cache_creation_input_tokens'],
+                    models_used=list(total_usage['by_model'].keys())
+                )
 
             # Record rankings to leaderboard
             if aggregate_rankings:
@@ -432,6 +533,9 @@ async def send_message(
                     business_id=body.business_id,
                     aggregate_rankings=aggregate_rankings
                 )
+
+            # Emit usage summary to frontend
+            yield f"data: {json.dumps({'type': 'usage', 'data': total_usage})}\n\n"
 
             yield f"data: {json.dumps({'type': 'complete'})}\n\n"
 

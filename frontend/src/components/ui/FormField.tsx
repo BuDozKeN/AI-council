@@ -1,4 +1,4 @@
-import { forwardRef, ReactNode, InputHTMLAttributes, TextareaHTMLAttributes, SelectHTMLAttributes } from 'react';
+import { forwardRef, useId, ReactNode, InputHTMLAttributes, TextareaHTMLAttributes, SelectHTMLAttributes, isValidElement, cloneElement, Children, ReactElement } from 'react';
 import './FormField.css';
 
 interface FormFieldProps {
@@ -8,10 +8,15 @@ interface FormFieldProps {
   required?: boolean;
   className?: string;
   children?: ReactNode;
+  /** Optional explicit ID for the input. If not provided, one will be generated. */
+  inputId?: string;
 }
 
 /**
  * FormField - Unified form input component
+ *
+ * Accessibility: Automatically associates labels with inputs via htmlFor/id.
+ * The component generates a unique ID for the input if one is not provided.
  */
 export function FormField({
   label,
@@ -19,21 +24,48 @@ export function FormField({
   error,
   required,
   className = '',
-  children
+  children,
+  inputId: explicitInputId
 }: FormFieldProps) {
+  const generatedId = useId();
+  const inputId = explicitInputId || generatedId;
+  const hintId = hint ? `${inputId}-hint` : undefined;
+  const errorId = error ? `${inputId}-error` : undefined;
+
+  // Clone the child input element to inject accessibility attributes
+  const enhancedChildren = Children.map(children, (child) => {
+    if (isValidElement(child)) {
+      // Build aria-describedby from hint and error IDs
+      const describedBy = [hintId, errorId].filter(Boolean).join(' ') || undefined;
+
+      const additionalProps: { id: string; 'aria-describedby'?: string; 'aria-invalid'?: boolean } = {
+        id: inputId,
+      };
+      if (describedBy) {
+        additionalProps['aria-describedby'] = describedBy;
+      }
+      if (error) {
+        additionalProps['aria-invalid'] = true;
+      }
+      return cloneElement(child as ReactElement<typeof additionalProps>, additionalProps);
+    }
+    return child;
+  });
+
   return (
     <div className={`form-field ${error ? 'form-field-error' : ''} ${className}`}>
       {label && (
-        <label className="form-field-label">
+        <label htmlFor={inputId} className="form-field-label">
           {label}
-          {required && <span className="form-field-required">*</span>}
+          {required && <span className="form-field-required" aria-hidden="true">*</span>}
+          {required && <span className="sr-only">(required)</span>}
         </label>
       )}
-      {hint && <p className="form-field-hint">{hint}</p>}
+      {hint && <p id={hintId} className="form-field-hint">{hint}</p>}
       <div className="form-field-input">
-        {children}
+        {enhancedChildren}
       </div>
-      {error && <p className="form-field-error-text">{error}</p>}
+      {error && <p id={errorId} className="form-field-error-text" role="alert">{error}</p>}
     </div>
   );
 }

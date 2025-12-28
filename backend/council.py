@@ -120,13 +120,28 @@ async def stage1_stream_responses(
         """Stream tokens from a single model and put events on the queue."""
         # Use list + join to avoid O(n²) string concatenation
         content_chunks: list[str] = []
+        usage_data = None
         try:
             async for chunk in query_model_stream(model, messages):
+                # Check for usage data marker (sent at end of stream)
+                if chunk.startswith("[USAGE:"):
+                    try:
+                        import json
+                        usage_json = chunk[7:-1]  # Extract JSON between [USAGE: and ]
+                        usage_data = json.loads(usage_json)
+                    except Exception:
+                        pass
+                    continue  # Don't include usage marker in content
                 content_chunks.append(chunk)
                 await queue.put({"type": "stage1_token", "model": model, "content": chunk})
             content = "".join(content_chunks)
             model_content[model] = content
-            await queue.put({"type": "stage1_model_complete", "model": model, "response": content})
+            await queue.put({
+                "type": "stage1_model_complete",
+                "model": model,
+                "response": content,
+                "usage": usage_data
+            })
         except Exception as e:
             await queue.put({"type": "stage1_model_error", "model": model, "error": str(e)})
 
@@ -265,13 +280,28 @@ Now provide your evaluation and ranking:"""
         """Stream tokens from a single model and put events on the queue."""
         # Use list + join to avoid O(n²) string concatenation
         content_chunks: list[str] = []
+        usage_data = None
         try:
             async for chunk in query_model_stream(model, messages):
+                # Check for usage data marker (sent at end of stream)
+                if chunk.startswith("[USAGE:"):
+                    try:
+                        import json
+                        usage_json = chunk[7:-1]
+                        usage_data = json.loads(usage_json)
+                    except Exception:
+                        pass
+                    continue
                 content_chunks.append(chunk)
                 await queue.put({"type": "stage2_token", "model": model, "content": chunk})
             content = "".join(content_chunks)
             model_content[model] = content
-            await queue.put({"type": "stage2_model_complete", "model": model, "ranking": content})
+            await queue.put({
+                "type": "stage2_model_complete",
+                "model": model,
+                "ranking": content,
+                "usage": usage_data
+            })
         except Exception as e:
             await queue.put({"type": "stage2_model_error", "model": model, "error": str(e)})
 
@@ -434,11 +464,13 @@ Provide a clear, well-reasoned final answer that represents the council's collec
     # Try each chairman model in order until one succeeds
     successful_chairman = None
     final_content = ""
+    chairman_usage = None
 
     for chairman_index, chairman_model in enumerate(CHAIRMAN_MODELS):
         # Use list + join to avoid O(n²) string concatenation
         content_chunks: list[str] = []
         had_error = False
+        usage_data = None
 
         try:
             async for chunk in query_model_stream(chairman_model, messages):
@@ -447,6 +479,16 @@ Provide a clear, well-reasoned final answer that represents the council's collec
                     had_error = True
                     break
 
+                # Check for usage data marker (sent at end of stream)
+                if chunk.startswith("[USAGE:"):
+                    try:
+                        import json
+                        usage_json = chunk[7:-1]
+                        usage_data = json.loads(usage_json)
+                    except Exception:
+                        pass
+                    continue
+
                 content_chunks.append(chunk)
                 yield {"type": "stage3_token", "model": chairman_model, "content": chunk}
 
@@ -454,6 +496,7 @@ Provide a clear, well-reasoned final answer that represents the council's collec
             if not had_error and content and len(content) > 50:
                 successful_chairman = chairman_model
                 final_content = content
+                chairman_usage = usage_data
                 break
 
         except Exception as e:
@@ -471,7 +514,8 @@ Provide a clear, well-reasoned final answer that represents the council's collec
         "type": "stage3_complete",
         "data": {
             "model": successful_chairman,
-            "response": final_content
+            "response": final_content,
+            "usage": chairman_usage
         }
     }
 
@@ -886,12 +930,23 @@ Be helpful, concise, and reference the previous discussion when relevant. You do
     # Stream from chairman model(s) with fallback
     successful_chairman = None
     final_content = ""
+    chat_usage = None
 
     for chairman in CHAIRMAN_MODELS:
         try:
             # Use list + join to avoid O(n²) string concatenation
             content_chunks: list[str] = []
+            usage_data = None
             async for chunk in query_model_stream(chairman, messages):
+                # Check for usage data marker (sent at end of stream)
+                if chunk.startswith("[USAGE:"):
+                    try:
+                        import json
+                        usage_json = chunk[7:-1]
+                        usage_data = json.loads(usage_json)
+                    except Exception:
+                        pass
+                    continue
                 content_chunks.append(chunk)
                 yield {"type": "chat_token", "content": chunk, "model": chairman}
 
@@ -899,6 +954,7 @@ Be helpful, concise, and reference the previous discussion when relevant. You do
             if content:
                 final_content = content
                 successful_chairman = chairman
+                chat_usage = usage_data
                 break
         except Exception:
             yield {"type": "chat_error", "model": chairman, "error": "Model unavailable"}
@@ -912,6 +968,7 @@ Be helpful, concise, and reference the previous discussion when relevant. You do
         "type": "chat_complete",
         "data": {
             "model": successful_chairman,
-            "content": final_content
+            "content": final_content,
+            "usage": chat_usage
         }
     }

@@ -55,31 +55,41 @@ function getModelIconPath(modelId: string): string | null {
 function stripMarkdown(text: string): string {
   if (!text) return '';
 
-  return text
-    // Remove headers (# ## ### etc)
-    .replace(/^#{1,6}\s+/gm, '')
-    // Remove bold **text** or __text__
-    .replace(/\*\*(.+?)\*\*/g, '$1')
-    .replace(/__(.+?)__/g, '$1')
-    // Remove italic *text* or _text_
-    .replace(/\*(.+?)\*/g, '$1')
-    .replace(/_(.+?)_/g, '$1')
+  let result = text
+    // Remove code blocks first (before other processing) ```code```
+    .replace(/```[\s\S]*?```/g, '')
+    // Remove bold **text** or __text__ (use [\s\S] to match across newlines)
+    .replace(/\*\*([\s\S]+?)\*\*/g, '$1')
+    .replace(/__([\s\S]+?)__/g, '$1')
+    // Remove italic *text* or _text_ (single asterisk/underscore)
+    // Be careful not to match list items or horizontal rules
+    .replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g, '$1')
+    .replace(/(?<!_)_([^_\n]+)_(?!_)/g, '$1')
     // Remove inline code `code`
     .replace(/`([^`]+)`/g, '$1')
-    // Remove code blocks ```code```
-    .replace(/```[\s\S]*?```/g, '')
     // Remove links [text](url) -> text
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
     // Remove images ![alt](url)
     .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1')
     // Remove blockquotes >
-    .replace(/^>\s+/gm, '')
-    // Remove horizontal rules ---
-    .replace(/^-{3,}$/gm, '')
-    // Remove bullet points - or * at start
-    .replace(/^[-*]\s+/gm, '')
+    .replace(/^>\s*/gm, '')
+    // Remove horizontal rules --- or ***
+    .replace(/^[-*]{3,}$/gm, '')
+    // Remove bullet points - or * at start of line
+    .replace(/^[-*+]\s+/gm, '')
     // Remove numbered lists 1. 2. etc
-    .replace(/^\d+\.\s+/gm, '')
+    .replace(/^\d+\.\s+/gm, '');
+
+  // Remove headers (# ## ### etc) - run multiple times to catch nested/consecutive headers
+  // This handles cases like "# Title ## Subtitle" after newlines are collapsed
+  for (let i = 0; i < 3; i++) {
+    result = result.replace(/^#{1,6}\s+/gm, '').replace(/\s#{1,6}\s+/g, ' ');
+  }
+
+  return result
+    // Remove any remaining standalone asterisks or hash symbols
+    .replace(/\*+/g, '')
+    .replace(/(?<=\s)#+(?=\s|$)/g, '')
     // Remove extra whitespace/newlines
     .replace(/\n+/g, ' ')
     .replace(/\s+/g, ' ')

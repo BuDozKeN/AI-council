@@ -32,6 +32,19 @@ function useTokenBatcher(setCurrentConversation: (updater: any) => void) {
     chat: '',
   });
   const rafRef = useRef<number | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const isStreamingRef = useRef(false);
+
+  // Check if there are pending tokens to flush
+  const hasPendingTokens = useCallback(() => {
+    const pending = pendingTokens.current;
+    return (
+      Object.keys(pending.stage1).length > 0 ||
+      Object.keys(pending.stage2).length > 0 ||
+      pending.stage3.length > 0 ||
+      pending.chat.length > 0
+    );
+  }, []);
 
   const flushTokens = useCallback(() => {
     rafRef.current = null;
@@ -84,11 +97,39 @@ function useTokenBatcher(setCurrentConversation: (updater: any) => void) {
     });
   }, [setCurrentConversation]);
 
+  // Start the fallback interval timer when streaming begins
+  const startFallbackInterval = useCallback(() => {
+    if (intervalRef.current === null) {
+      isStreamingRef.current = true;
+      // Fallback: flush every 100ms if RAF doesn't fire (e.g., tab in background)
+      intervalRef.current = setInterval(() => {
+        if (hasPendingTokens()) {
+          log.debug('[TokenBatcher] Fallback interval flush triggered');
+          flushTokens();
+        }
+      }, 100);
+    }
+  }, [flushTokens, hasPendingTokens]);
+
+  // Stop the fallback interval when streaming ends
+  const stopFallbackInterval = useCallback(() => {
+    isStreamingRef.current = false;
+    if (intervalRef.current !== null) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, []);
+
   const scheduleFlush = useCallback(() => {
+    // Ensure fallback interval is running during streaming
+    if (!isStreamingRef.current) {
+      startFallbackInterval();
+    }
+    // Primary: use RAF for smooth 60fps updates when tab is active
     if (rafRef.current === null) {
       rafRef.current = requestAnimationFrame(flushTokens);
     }
-  }, [flushTokens]);
+  }, [flushTokens, startFallbackInterval]);
 
   const addStage1Token = useCallback((model: string, content: string) => {
     pendingTokens.current.stage1[model] = (pendingTokens.current.stage1[model] || '') + content;
@@ -116,12 +157,33 @@ function useTokenBatcher(setCurrentConversation: (updater: any) => void) {
       rafRef.current = null;
     }
     flushTokens();
-  }, [flushTokens]);
+    // Stop fallback interval when explicitly flushing (stream complete)
+    stopFallbackInterval();
+  }, [flushTokens, stopFallbackInterval]);
 
+  // Flush on visibility change (when user returns to tab)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && hasPendingTokens()) {
+        log.debug('[TokenBatcher] Visibility change flush triggered');
+        flushTokens();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [flushTokens, hasPendingTokens]);
+
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (rafRef.current !== null) {
         cancelAnimationFrame(rafRef.current);
+      }
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current);
       }
     };
   }, []);
@@ -493,6 +555,19 @@ export function useMessageStreaming({
               return { ...prev, messages };
             });
           }
+          break;
+
+        case 'usage':
+          // Token usage data for developer display
+          log.debug('[USAGE]', event.data);
+          setCurrentConversation((prev: any) => {
+            if (!prev?.messages) return prev;
+            const lastIdx = prev.messages.length - 1;
+            const messages = prev.messages.map((msg: any, idx: number) =>
+              idx === lastIdx ? { ...msg, usage: event.data } : msg
+            );
+            return { ...prev, messages };
+          });
           break;
 
         default:
