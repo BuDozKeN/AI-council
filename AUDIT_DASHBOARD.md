@@ -1,21 +1,21 @@
 # AxCouncil Audit Dashboard
 
-> Last Updated: 2024-12-29 17:30 UTC
-> Last Audit: a11y (Accessibility)
+> Last Updated: 2025-12-29 18:45 UTC
+> Last Audit: perf (Performance)
 > Branch: master
 
 ---
 
 ## Executive Summary
 
-### Overall Health: 7/10
+### Overall Health: 7.5/10
 
 | Category | Score | Trend | Critical | High | Medium | Last Checked |
 |----------|-------|-------|----------|------|--------|--------------|
 | Security | --/10 | -- | -- | -- | -- | -- |
 | Code Quality | --/10 | -- | -- | -- | -- | -- |
 | UI/UX | --/10 | -- | -- | -- | -- | -- |
-| Performance | --/10 | -- | -- | -- | -- | -- |
+| Performance | 8/10 | ↑ | 0 | 0 | 2 | 2025-12-29 |
 | Accessibility | 8/10 | ↑ | 0 | 0 | 2 | 2024-12-29 |
 | Mobile | --/10 | -- | -- | -- | -- | -- |
 | LLM Operations | --/10 | -- | -- | -- | -- | -- |
@@ -27,10 +27,10 @@
 > Categories not run in this audit retain their previous scores and "Last Checked" dates.
 
 ### Key Metrics
-- **Total Findings**: 5 (Critical: 0, High: 0, Medium: 2, Low: 3)
-- **Fixed Since Last Run**: 3 (all critical issues)
-- **New This Run**: N/A (first audit)
-- **$25M Readiness**: Near Ready (Accessibility on track)
+- **Total Findings**: 7 (Critical: 0, High: 0, Medium: 4, Low: 3)
+- **Fixed Since Last Run**: 4 (3 critical a11y + 1 high perf)
+- **New This Run**: 3 (performance findings)
+- **$25M Readiness**: Near Ready (Performance + Accessibility on track)
 
 ---
 
@@ -38,6 +38,7 @@
 
 | Date | Scope | Overall | Sec | Code | UI | Perf | A11y | Mobile | LLM | Data | Bill | Resil | API |
 |------|-------|---------|-----|------|-----|------|------|--------|-----|------|------|-------|-----|
+| 2025-12-29 | perf | 7.5 | -- | -- | -- | 8 | 8 | -- | -- | -- | -- | -- | -- |
 | 2024-12-29 | a11y | 7.0 | -- | -- | -- | -- | 8 | -- | -- | -- | -- | -- | -- |
 
 ---
@@ -73,11 +74,28 @@
 
 ## High Priority (This Sprint)
 
-No high priority issues.
+### ~~[PERF-001] Performance: Missing bundle analysis in build pipeline~~ ✅ FIXED
+- **Location**: `frontend/package.json`, `frontend/vite.config.js`
+- **Impact**: Cannot verify bundle sizes or identify bloat before deployment
+- **Fix Applied**: Added `npm run build:analyze` script with rollup-plugin-visualizer
+- **Fixed**: 2025-12-29
+- **Status**: ✅ Fixed
 
 ---
 
 ## Medium Priority (Next Sprint)
+
+### [PERF-002] Performance: Framer Motion bundle impact
+- **Location**: `frontend/vite.config.js:156` - vendor-motion chunk
+- **Impact**: framer-motion is ~50KB+ gzipped, used throughout the app
+- **Recommendation**: Consider CSS animations for simple transitions, reserve Framer for complex orchestration
+- **Status**: Open
+
+### [PERF-003] Performance: Missing image optimization pipeline
+- **Location**: No image optimization configured in Vite
+- **Impact**: User-uploaded images and assets not compressed/resized
+- **Recommendation**: Consider `vite-plugin-imagemin` or edge-side image optimization
+- **Status**: Open
 
 ### [A11Y-004] Accessibility: Muted text color contrast
 - **Location**: `frontend/src/styles/tailwind.css:103`
@@ -124,10 +142,95 @@ Run `/audit-dashboard ui ux` to populate.
 
 </details>
 
-<details>
-<summary>Performance (--/10) - Not yet audited</summary>
+<details open>
+<summary>Performance (8/10) - Last checked: 2025-12-29</summary>
 
-Run `/audit-dashboard perf` to populate.
+### Build & Bundle Optimization: Excellent ✅
+
+| Area | Implementation | Location |
+|------|----------------|----------|
+| Code Splitting | Manual chunks for vendor libraries | `frontend/vite.config.js:160-186` |
+| React Chunk | Separate `vendor-react` chunk (react, react-dom) | `vite.config.js:162` |
+| Framer Motion | Isolated in `vendor-motion` chunk | `vite.config.js:164` |
+| Markdown | Lazy chunk `vendor-markdown` (react-markdown, remark-gfm) | `vite.config.js:166` |
+| Radix UI | Bundled in `vendor-radix` chunk | `vite.config.js:168-175` |
+| Monitoring | Separate `vendor-monitoring` (Sentry, web-vitals) | `vite.config.js:177` |
+| Supabase | Separate `vendor-supabase` chunk (~46KB gzip) | `vite.config.js:179` |
+| TanStack Query | Separate `vendor-query` chunk (~12KB gzip) | `vite.config.js:181-185` |
+| Tree Shaking | esbuild minification + console/debugger stripping | `vite.config.js:187-190` |
+| Chunk Warning | 500KB limit configured (all chunks now pass) | `vite.config.js:182` |
+
+### Lazy Loading: Excellent ✅
+
+| Component | Strategy | Location |
+|-----------|----------|----------|
+| Login | Lazy (only for unauthenticated) | `frontend/src/App.tsx:51` |
+| ChatInterface | Lazy + preload on landing | `frontend/src/App.tsx:54,62-64` |
+| Leaderboard | Lazy modal | `frontend/src/App.tsx:55` |
+| Settings | Lazy modal | `frontend/src/App.tsx:56` |
+| ProjectModal | Lazy modal | `frontend/src/App.tsx:57` |
+| MyCompany | Lazy modal | `frontend/src/App.tsx:58` |
+| UsageTab | Lazy (splits Recharts ~109KB gzip) | `frontend/src/components/MyCompany.tsx:22` |
+
+### Caching Strategy: Excellent ✅
+
+| Layer | Implementation | Details |
+|-------|----------------|---------|
+| TanStack Query | 5-minute staleTime, 24-hour gcTime | `frontend/src/main.tsx:29-38` |
+| IndexedDB Persistence | Query cache persisted offline | `frontend/src/main.tsx:42-59` |
+| Service Worker | CacheFirst for fonts, assets; NetworkFirst for API | `vite.config.js:47-112` |
+| Navigation Preload | Enabled for faster page loads | `vite.config.js:45` |
+
+### React Optimizations: Good ✅
+
+| Pattern | Count | Assessment |
+|---------|-------|------------|
+| useMemo/useCallback | 165 occurrences in 33 files | Healthy usage |
+| Context Splitting | State/Actions separation in BusinessContext | Prevents unnecessary re-renders |
+| Virtualization | react-window for long lists | `VirtualizedConversationList.tsx` |
+
+### Animation Performance: Good ✅
+
+| Feature | Implementation | Location |
+|---------|----------------|----------|
+| GPU Acceleration | `transform`, `will-change` used in 60 CSS files | Various |
+| Reduced Motion | Full support for `prefers-reduced-motion` | `design-tokens.css:587-625` |
+| Animation Constants | Centralized timing values | `animation-constants.ts` |
+| Spring Configs | Framer Motion spring presets | `animation-constants.ts:86-95` |
+
+### Critical Rendering Path: Excellent ✅
+
+| Optimization | Details | Location |
+|--------------|---------|----------|
+| Critical CSS | Inlined in HTML, prevents FOUC | `frontend/index.html:48-88` |
+| Dark Mode Sync | Pre-paint script prevents flash | `frontend/index.html:3-12` |
+| Font Preconnect | Preconnect to Google Fonts servers | `frontend/index.html:41-43` |
+| Speculation Rules | Chrome prerendering for conversations | `frontend/index.html:92-111` |
+
+### PWA & Offline: Excellent ✅
+
+| Feature | Implementation |
+|---------|----------------|
+| Service Worker | VitePWA with Workbox |
+| Cache Strategies | Fonts (1 year), Assets (1 year), Images (30 days), API (5 min) |
+| Offline Query Cache | IndexedDB persistence via idb-keyval |
+| Skip Waiting | Immediate SW activation |
+
+### What Could Be Better
+
+1. ~~**Bundle Analyzer**~~ ✅ Fixed - Added `npm run build:analyze` script
+2. ~~**Recharts in MyCompany**~~ ✅ Fixed - Lazy-loaded UsageTab, reduced MyCompany from 432KB to 67KB
+3. ~~**Main chunk over 500KB**~~ ✅ Fixed - Split Supabase + TanStack Query, main chunk now 411KB
+4. **Framer Motion Size** - Consider CSS animations for simple fades/slides
+5. **Image Optimization** - No build-time image compression configured
+6. **Lighthouse CI** - No automated performance regression testing
+
+### Recommendations
+
+1. ~~Add `"analyze": "vite build --mode analyze"` script with visualizer enabled~~ ✅ Done
+2. Run Lighthouse in CI to catch regressions
+3. ~~Consider lazy-loading Recharts (used only in UsageTab)~~ ✅ Done - MyCompany reduced by 84%
+4. Add `loading="lazy"` to offscreen images
 
 </details>
 

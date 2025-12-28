@@ -194,14 +194,36 @@ export default function Sidebar({
     if (!isExpandedOnDesktop) return;
 
     const handleClickOutside = (e: MouseEvent) => {
-      if (sidebarRef.current && !sidebarRef.current.contains(e.target as Node)) {
-        if (isPinned) {
-          // Unpin and collapse
-          setSidebarState('collapsed');
-          localStorage.setItem('sidebar-pinned', 'false');
-        } else {
-          collapseNow();
-        }
+      const target = e.target as Element;
+
+      // Don't collapse if clicking inside the sidebar
+      if (sidebarRef.current && sidebarRef.current.contains(target)) {
+        return;
+      }
+
+      // Don't collapse if clicking on a Radix portal (dropdowns, selects, dialogs)
+      // These are rendered outside the sidebar but are logically part of it
+      // Check for any element with data-radix-* attributes or within a Radix portal wrapper
+      const isRadixElement = target.closest?.(
+        '[data-radix-popper-content-wrapper], ' +
+        '[data-radix-select-content], ' +
+        '[data-radix-menu-content], ' +
+        '[data-radix-dialog-content], ' +
+        '.select-content, ' +
+        '.select-item, ' +
+        '[role="listbox"], ' +
+        '[role="option"]'
+      );
+      if (isRadixElement) {
+        return;
+      }
+
+      if (isPinned) {
+        // Unpin and collapse
+        setSidebarState('collapsed');
+        localStorage.setItem('sidebar-pinned', 'false');
+      } else {
+        collapseNow();
       }
     };
 

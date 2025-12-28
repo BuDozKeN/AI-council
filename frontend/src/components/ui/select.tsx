@@ -17,6 +17,7 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn("select-trigger", className)}
+    data-radix-select-trigger=""
     {...props}
   >
     {children}
@@ -58,31 +59,49 @@ SelectScrollDownButton.displayName = SelectPrimitive.ScrollDownButton.displayNam
 const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
->(({ className, children, position = "popper", ...props }, ref) => (
-  <SelectPrimitive.Portal>
-    <SelectPrimitive.Content
-      ref={ref}
-      className={cn(
-        "select-content",
-        position === "popper" && "select-content-popper",
-        className
-      )}
-      position={position}
-      {...props}
-    >
-      <SelectScrollUpButton />
-      <SelectPrimitive.Viewport
+>(({ className, children, position = "popper", onPointerDownOutside, ...props }, ref) => {
+  // Stop propagation of mouse events to prevent parent handlers (like sidebar click-outside)
+  // from being triggered when interacting with the dropdown
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
+  return (
+    <SelectPrimitive.Portal>
+      <SelectPrimitive.Content
+        ref={ref}
         className={cn(
-          "select-viewport",
-          position === "popper" && "select-viewport-popper"
+          "select-content",
+          position === "popper" && "select-content-popper",
+          className
         )}
+        position={position}
+        onMouseDown={handleMouseDown}
+        onPointerDownOutside={(e) => {
+          // Prevent clicks on the trigger from being treated as outside clicks
+          // This fixes dropdown toggle behavior - clicking trigger should only toggle, not navigate
+          const target = e.target as Element;
+          if (target.closest?.('[data-radix-select-trigger]')) {
+            e.preventDefault();
+          }
+          onPointerDownOutside?.(e);
+        }}
+        {...props}
       >
-        {children}
-      </SelectPrimitive.Viewport>
-      <SelectScrollDownButton />
-    </SelectPrimitive.Content>
-  </SelectPrimitive.Portal>
-))
+        <SelectScrollUpButton />
+        <SelectPrimitive.Viewport
+          className={cn(
+            "select-viewport",
+            position === "popper" && "select-viewport-popper"
+          )}
+        >
+          {children}
+        </SelectPrimitive.Viewport>
+        <SelectScrollDownButton />
+      </SelectPrimitive.Content>
+    </SelectPrimitive.Portal>
+  );
+})
 SelectContent.displayName = SelectPrimitive.Content.displayName
 
 const SelectLabel = React.forwardRef<

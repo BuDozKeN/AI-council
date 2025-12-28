@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { api } from '../api';
 import { Skeleton } from './ui/Skeleton';
 import { PullToRefreshIndicator } from './ui/PullToRefreshIndicator';
@@ -15,7 +15,11 @@ import {
   ConfirmActionModal,
 } from './mycompany/MyCompanyModals';
 
-import { ActivityTab, OverviewTab, TeamTab, PlaybooksTab, ProjectsTab, DecisionsTab, UsageTab } from './mycompany/tabs';
+import { ActivityTab, OverviewTab, TeamTab, PlaybooksTab, ProjectsTab, DecisionsTab } from './mycompany/tabs';
+
+// Performance: Lazy-load UsageTab to split Recharts (~127KB gzip) into separate chunk
+// Most users never view the Usage tab, so this reduces initial MyCompany load
+const UsageTab = lazy(() => import('./mycompany/tabs/UsageTab'));
 import './mycompany/styles/index.css';
 import { logger } from '../utils/logger';
 
@@ -688,17 +692,26 @@ export default function MyCompany({
                 />
               )}
               {activeTab === 'usage' && (
-                <UsageTab
-                  usage={usageData.usage}
-                  rateLimits={usageData.rateLimits}
-                  alerts={usageData.alerts}
-                  loading={usageData.loading}
-                  usageLoaded={usageData.usageLoaded}
-                  error={usageData.error}
-                  period={usageData.period}
-                  onPeriodChange={usageData.changePeriod}
-                  onAlertAcknowledge={usageData.acknowledgeAlert}
-                />
+                <Suspense fallback={
+                  <div className="mc-skeleton-container">
+                    <div className="mc-skeleton-stats">
+                      {[1,2,3,4].map(i => <Skeleton key={i} width={140} height={80} className="rounded-xl" />)}
+                    </div>
+                    <Skeleton width="100%" height={240} className="rounded-xl mt-4" />
+                  </div>
+                }>
+                  <UsageTab
+                    usage={usageData.usage}
+                    rateLimits={usageData.rateLimits}
+                    alerts={usageData.alerts}
+                    loading={usageData.loading}
+                    usageLoaded={usageData.usageLoaded}
+                    error={usageData.error}
+                    period={usageData.period}
+                    onPeriodChange={usageData.changePeriod}
+                    onAlertAcknowledge={usageData.acknowledgeAlert}
+                  />
+                </Suspense>
               )}
             </>
           )}

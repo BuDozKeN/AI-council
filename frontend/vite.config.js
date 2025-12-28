@@ -1,12 +1,20 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { visualizer } from 'rollup-plugin-visualizer'
 import path from 'path'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
+    // Bundle analyzer - only in analyze mode
+    mode === 'analyze' && visualizer({
+      filename: 'dist/stats.html',
+      open: true,
+      gzipSize: true,
+      brotliSize: true,
+    }),
     VitePWA({
       registerType: 'prompt',
       injectRegister: false,
@@ -167,7 +175,14 @@ export default defineConfig({
           ],
           // Monitoring/analytics
           'vendor-monitoring': ['@sentry/react', 'web-vitals'],
-          // Note: Supabase is imported dynamically by AuthContext, let Vite handle chunking
+          // Supabase client - auth/database, changes rarely
+          'vendor-supabase': ['@supabase/supabase-js'],
+          // TanStack Query - data fetching/caching layer
+          'vendor-query': [
+            '@tanstack/react-query',
+            '@tanstack/query-async-storage-persister',
+            '@tanstack/react-query-persist-client'
+          ],
         }
       }
     },
@@ -182,4 +197,4 @@ export default defineConfig({
       drop: ['console', 'debugger'],
     },
   },
-})
+}))
