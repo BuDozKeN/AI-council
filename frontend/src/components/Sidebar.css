@@ -17,9 +17,11 @@
   height: 100%;
   flex-shrink: 0;
   position: relative;
+
   /* Must be above landing page (z-sticky) on desktop */
   z-index: calc(var(--z-sticky) + 1);
   overflow: hidden;
+
   /* Smooth transition */
   transition: width var(--sidebar-transition);
 }
@@ -64,6 +66,7 @@
     z-index: var(--z-modal);
     transform: translateX(-100%);
     box-shadow: none;
+
     /* CRITICAL: Ensure flex layout properly constrains children */
     display: flex;
     flex-direction: column;
@@ -101,6 +104,7 @@
   /* Main content is column layout on mobile - must constrain height */
   .sidebar .sidebar-main {
     flex-direction: column;
+
     /* CRITICAL: Use flex shorthand to constrain height properly */
     flex: 1 1 0;
     min-height: 0;
@@ -110,6 +114,7 @@
   /* Expanded panel takes remaining space and scrolls internally */
   .sidebar .sidebar-expanded-panel {
     border-left: none;
+
     /* CRITICAL: Constrain height so it doesn't push footer off screen */
     flex: 1 1 0;
     min-height: 0;
@@ -122,8 +127,7 @@
   .sidebar .conversation-list {
     flex: 1 1 0;
     min-height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden auto;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -331,6 +335,7 @@ button.sidebar-new-btn:hover {
   overflow: hidden;
   background: var(--sidebar-bg);
   border-left: 1px solid var(--sidebar-border);
+
   /* Subtle slide-in */
   animation: panelSlideIn 0.2s ease-out;
 }
@@ -340,6 +345,7 @@ button.sidebar-new-btn:hover {
     opacity: 0;
     transform: translateX(-4px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -568,7 +574,6 @@ button.sidebar-new-btn:hover {
 
 /* Sort trigger - fixed width */
 .sidebar-filter button.sort-select-trigger {
-  flex-shrink: 0;
   flex: 0 0 auto;
   width: auto;
   max-width: 80px;
@@ -603,8 +608,7 @@ button.sidebar-new-btn:hover {
 .conversation-list {
   flex: 1 1 0;       /* Full shorthand: grow, shrink, basis=0 */
   min-height: 0;     /* Required for flex item to shrink below content height */
-  overflow-y: auto;
-  overflow-x: hidden; /* Prevent horizontal overflow */
+  overflow: hidden auto; /* Prevent horizontal overflow */
   padding: 8px 4px;
 }
 
@@ -661,7 +665,7 @@ button.sidebar-new-btn:hover {
   display: flex;
   align-items: center;
   padding: 8px 12px;
-  margin: 8px 8px 4px 8px;
+  margin: 8px 8px 4px;
   cursor: pointer;
   user-select: none;
   transition: all 0.15s ease;
@@ -874,6 +878,7 @@ button.sidebar-new-btn:hover {
   gap: 0;
   opacity: 0;
   transition: opacity 0.15s ease;
+
   /* Clean background - no overlap since content shrinks on hover */
   background: transparent;
   padding: 2px;
@@ -938,6 +943,7 @@ button.sidebar-new-btn:hover {
     padding: 10px 12px;
     margin: 1px 0;
     flex-wrap: nowrap;
+
     /* Allow custom long-press handling, prevent text selection on hold */
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -957,6 +963,7 @@ button.sidebar-new-btn:hover {
   }
 
   /* HIDE all hover actions on mobile - use long-press context menu instead */
+
   /* This follows standard mobile UX patterns (Slack, Discord, WhatsApp) */
   .sidebar .hover-actions,
   .conversation-list .hover-actions {
@@ -1031,7 +1038,7 @@ button.sidebar-new-btn:hover {
   .group-header {
     min-height: 44px;
     padding: 10px 12px;
-    margin: 12px 8px 6px 8px;
+    margin: 12px 8px 6px;
   }
 
   .group-name {
@@ -1086,8 +1093,8 @@ button.sidebar-new-btn:hover {
   gap: 8px;
   padding: 10px 12px;
   background: var(--overlay-amber-15);
-  border-top: 1px solid rgba(var(--color-amber-500-rgb), 0.3);
-  border-bottom: 1px solid rgba(var(--color-amber-500-rgb), 0.3);
+  border-top: 1px solid rgb(var(--color-amber-500-rgb), 0.3);
+  border-bottom: 1px solid rgb(var(--color-amber-500-rgb), 0.3);
   flex-shrink: 0; /* Don't compress on mobile */
 }
 
@@ -1311,13 +1318,13 @@ button.sidebar-new-btn:hover {
 /* Production mode - green */
 .mode-toggle-btn.production {
   background: var(--overlay-emerald-15);
-  border-color: rgba(var(--color-emerald-500-rgb), 0.5);
+  border-color: rgb(var(--color-emerald-500-rgb), 0.5);
   color: var(--color-success);
 }
 
 .mode-toggle-btn.production .mode-indicator {
   background: var(--color-success);
-  box-shadow: 0 0 6px rgba(var(--color-emerald-500-rgb), 0.5);
+  box-shadow: 0 0 6px rgb(var(--color-emerald-500-rgb), 0.5);
 }
 
 .mode-toggle-btn.production:hover {
@@ -1327,13 +1334,13 @@ button.sidebar-new-btn:hover {
 /* Mock mode - orange */
 .mode-toggle-btn.mock {
   background: var(--overlay-amber-15);
-  border-color: rgba(var(--color-amber-500-rgb), 0.5);
+  border-color: rgb(var(--color-amber-500-rgb), 0.5);
   color: var(--color-warning);
 }
 
 .mode-toggle-btn.mock .mode-indicator {
   background: var(--color-warning);
-  box-shadow: 0 0 6px rgba(var(--color-amber-500-rgb), 0.5);
+  box-shadow: 0 0 6px rgb(var(--color-amber-500-rgb), 0.5);
 }
 
 .mode-toggle-btn.mock:hover {
@@ -1343,13 +1350,13 @@ button.sidebar-new-btn:hover {
 /* Caching enabled - blue */
 .mode-toggle-btn.caching.enabled {
   background: var(--overlay-blue-15);
-  border-color: rgba(var(--color-blue-500-rgb), 0.5);
+  border-color: rgb(var(--color-blue-500-rgb), 0.5);
   color: var(--color-primary);
 }
 
 .mode-toggle-btn.caching.enabled .mode-indicator {
   background: var(--color-primary);
-  box-shadow: 0 0 6px rgba(var(--color-blue-500-rgb), 0.5);
+  box-shadow: 0 0 6px rgb(var(--color-blue-500-rgb), 0.5);
 }
 
 .mode-toggle-btn.caching.enabled:hover {
@@ -1410,7 +1417,7 @@ button.sidebar-new-btn:hover {
   color: var(--sidebar-text-primary);
   background: var(--overlay-white-10);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(var(--color-indigo-rgb), 0.15);
+  box-shadow: 0 0 0 3px rgb(var(--color-indigo-rgb), 0.15);
 }
 
 .title-edit-input:focus {
@@ -1579,7 +1586,7 @@ button.sidebar-new-btn:hover {
 .conversation-group.drop-target {
   background: var(--overlay-blue-10);
   border-radius: var(--radius-md);
-  outline: 2px dashed rgba(var(--color-blue-500-rgb), 0.4);
+  outline: 2px dashed rgb(var(--color-blue-500-rgb), 0.4);
   outline-offset: -2px;
 }
 
@@ -1590,7 +1597,7 @@ button.sidebar-new-btn:hover {
 /* Dark mode drop target */
 .dark .conversation-group.drop-target {
   background: var(--overlay-blue-15);
-  outline-color: rgba(var(--color-blue-500-rgb), 0.5);
+  outline-color: rgb(var(--color-blue-500-rgb), 0.5);
 }
 
 .dark .conversation-group.drop-target .group-header {

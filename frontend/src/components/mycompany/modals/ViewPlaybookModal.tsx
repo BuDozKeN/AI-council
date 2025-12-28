@@ -9,6 +9,7 @@ import MarkdownViewer from '../../MarkdownViewer';
 import { AppModal } from '../../ui/AppModal';
 import { Button } from '../../ui/button';
 import { FloatingContextActions } from '../../ui/FloatingContextActions';
+import { toast } from '../../ui/sonner';
 import { getDeptColor } from '../../../lib/colors';
 import smartTextToMarkdown from '../../../lib/smartTextToMarkdown';
 import type { Department, Playbook } from '../../../types/business';
@@ -97,8 +98,10 @@ export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave,
         });
         setIsEditing(false);
         setIsEditingTitle(false);
+        const docTypeLabel = docType === 'sop' ? 'SOP' : docType.charAt(0).toUpperCase() + docType.slice(1);
+        toast.success(`${docTypeLabel} "${editedTitle || playbook.title}" saved`, { duration: 3000 });
       } catch {
-        // Error handled by parent
+        toast.error('Failed to save changes');
       }
       setSaving(false);
     }

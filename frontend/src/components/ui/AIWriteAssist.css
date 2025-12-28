@@ -59,7 +59,7 @@
   background: var(--color-indigo-50);
   color: var(--color-indigo-500);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(var(--color-indigo-rgb), 0.15);
+  box-shadow: 0 2px 8px rgb(var(--color-indigo-rgb), 0.15);
 }
 
 .ai-assist-btn:active:not(:disabled) {
@@ -108,6 +108,7 @@
     opacity: 0;
     transform: translateY(-8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -138,7 +139,7 @@
   max-height: 300px;
   overflow-y: auto;
   white-space: pre-wrap;
-  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .ai-assist-preview-actions {
@@ -179,7 +180,7 @@
 .ai-assist-preview-btn.accept:hover {
   background: var(--color-indigo-600);
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(var(--color-indigo-rgb), 0.25);
+  box-shadow: 0 2px 8px rgb(var(--color-indigo-rgb), 0.25);
 }
 
 /* Standalone mode */

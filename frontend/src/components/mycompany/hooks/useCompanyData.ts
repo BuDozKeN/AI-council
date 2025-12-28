@@ -166,12 +166,12 @@ export function useCompanyData({ companyId, activeTab, activityLimit = 20 }: Use
 
   // Load data when tab changes
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: trigger data load on tab change
+
     loadData();
   }, [loadData]);
 
   // Reset data when company changes
-  /* eslint-disable react-hooks/set-state-in-effect -- Intentional: reset state when company changes */
+
   useEffect(() => {
     setOverview(null);
     setDepartments([]);
@@ -191,7 +191,7 @@ export function useCompanyData({ companyId, activeTab, activityLimit = 20 }: Use
     // Reset departments loaded flag
     setDepartmentsLoaded(false);
   }, [companyId]);
-  /* eslint-enable react-hooks/set-state-in-effect */
+
 
   // Reset loaded flag for a specific tab (used by pull-to-refresh)
   const resetTabLoaded = useCallback((tab: MyCompanyTab): void => {

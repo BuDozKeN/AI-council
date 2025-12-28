@@ -2,6 +2,7 @@
   background: var(--color-bg-secondary);
   border-color: var(--color-border);
   box-shadow: var(--shadow-sm);
+
   /* Transition for celebration state */
   transition: box-shadow 0.4s ease-out, border-color 0.3s ease;
 }
@@ -78,7 +79,7 @@
 }
 
 .stage2-section-title {
-  margin: 20px 0 8px 0;
+  margin: 20px 0 8px;
   color: var(--color-purple-600);
   font-size: 14px;
   font-weight: 600;
@@ -109,7 +110,7 @@
 }
 
 .stage2 h4 {
-  margin: 20px 0 8px 0;
+  margin: 20px 0 8px;
   color: var(--color-text-primary);
   font-size: 14px;
   font-weight: 600;
@@ -120,7 +121,7 @@
 }
 
 .stage-description {
-  margin: 0 0 12px 0;
+  margin: 0 0 12px;
   color: var(--color-text-secondary);
   font-size: 13px;
   line-height: 1.5;
@@ -135,7 +136,7 @@
 }
 
 .aggregate-rankings h4 {
-  margin: 0 0 12px 0;
+  margin: 0 0 12px;
   color: var(--color-blue-600);
   font-size: 15px;
 }
@@ -540,7 +541,7 @@
 }
 
 .parsed-ranking ol {
-  margin: 8px 0 0 0;
+  margin: 8px 0 0;
   padding-left: 24px;
   color: var(--color-text-primary);
 }
@@ -639,6 +640,7 @@
 /* Spinner styles removed - now using unified <Spinner /> component */
 
 /* ===== DARK MODE ===== */
+
 /* Stage2 uses CSS variables from tailwind.css which are redefined in .dark context */
 
 .dark .stage2-title {
@@ -748,6 +750,7 @@
   margin: 12px 0;
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
+
   /* Prevent touch events from propagating to parent */
   overscroll-behavior-x: contain;
 }
@@ -860,6 +863,7 @@
     padding-bottom: 8px;
     margin-bottom: 12px;
     flex-wrap: nowrap;
+
     /* Hide scrollbar but keep functionality */
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -1018,7 +1022,7 @@
   /* Section titles */
   .stage2-section-title {
     font-size: 13px;
-    margin: 16px 0 10px 0;
+    margin: 16px 0 10px;
   }
 
   /* Status badges */

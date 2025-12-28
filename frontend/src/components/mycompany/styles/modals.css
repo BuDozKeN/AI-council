@@ -26,8 +26,7 @@
     flex: 1 1 0;
     min-height: 0;
     padding: 16px;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden auto;
     -webkit-overflow-scrolling: touch;
   }
 }
@@ -100,7 +99,7 @@
 
 /* Modal hint text */
 .mc-modal-hint {
-  margin: 0 0 16px 0;
+  margin: 0 0 16px;
   padding: 12px 16px;
   background: var(--color-amber-100);
   border-radius: var(--radius-md);
@@ -276,12 +275,12 @@
   background: var(--color-primary);
   border-color: transparent;
   color: var(--color-primary-text);
-  box-shadow: 0 2px 8px rgba(var(--color-indigo-rgb), 0.25);
+  box-shadow: 0 2px 8px rgb(var(--color-indigo-rgb), 0.25);
 }
 
 .mc-btn.primary:hover:not(:disabled) {
   background: var(--color-primary-hover);
-  box-shadow: 0 4px 12px rgba(var(--color-indigo-rgb), 0.35);
+  box-shadow: 0 4px 12px rgb(var(--color-indigo-rgb), 0.35);
   transform: translateY(-1px);
 }
 
@@ -320,7 +319,7 @@
 .mc-select:focus {
   outline: none;
   border-color: var(--color-indigo-500);
-  box-shadow: 0 0 0 3px rgba(var(--color-indigo-500-rgb, 99, 102, 241), 0.1);
+  box-shadow: 0 0 0 3px rgb(var(--color-indigo-500-rgb, 99, 102, 241), 0.1);
 }
 
 .mc-select:hover {
@@ -475,7 +474,7 @@
   max-height: 400px;
   overflow-y: auto;
   white-space: pre-wrap;
-  word-wrap: break-word;
+  overflow-wrap: break-word;
   margin: 0;
 }
 
@@ -613,7 +612,7 @@
 .mc-promote-type.selected {
   background: var(--color-indigo-50);
   border-color: var(--color-indigo-500);
-  box-shadow: 0 0 0 3px rgba(var(--color-indigo-500-rgb, 99, 102, 241), 0.1);
+  box-shadow: 0 0 0 3px rgb(var(--color-indigo-500-rgb, 99, 102, 241), 0.1);
 }
 
 .mc-promote-type-icon {
@@ -671,7 +670,7 @@
 .mc-promote-preview input:focus {
   outline: none;
   border-color: var(--color-indigo-500);
-  box-shadow: 0 0 0 3px rgba(var(--color-indigo-500-rgb, 99, 102, 241), 0.1);
+  box-shadow: 0 0 0 3px rgb(var(--color-indigo-500-rgb, 99, 102, 241), 0.1);
 }
 
 /* ============================================================================
@@ -873,7 +872,7 @@
   outline: none;
   background: var(--color-bg-primary);
   border-color: var(--color-indigo-500);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  box-shadow: 0 0 0 3px rgb(99, 102, 241, 0.1);
 }
 
 .mc-input-unified::placeholder {
@@ -1210,7 +1209,7 @@
 }
 
 .mc-promote-content-rendered p {
-  margin: 0 0 12px 0;
+  margin: 0 0 12px;
 }
 
 .mc-promote-content-rendered h1,
@@ -1297,8 +1296,7 @@
     flex-direction: column;
     flex: 1 1 0;
     min-height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden auto;
     -webkit-overflow-scrolling: touch;
     padding: 16px;
   }
@@ -1352,7 +1350,7 @@
 .mc-edit-textarea-full:focus {
   outline: none;
   border-color: var(--color-indigo-500);
-  box-shadow: 0 0 0 3px rgba(var(--color-indigo-500-rgb, 99, 102, 241), 0.08);
+  box-shadow: 0 0 0 3px rgb(var(--color-indigo-500-rgb, 99, 102, 241), 0.08);
   background: var(--color-bg-primary);
 }
 
@@ -1401,7 +1399,7 @@
   padding: 4px 8px;
   background: var(--color-bg-primary);
   outline: none;
-  box-shadow: 0 0 0 3px rgba(var(--color-indigo-500-rgb, 99, 102, 241), 0.1);
+  box-shadow: 0 0 0 3px rgb(var(--color-indigo-500-rgb, 99, 102, 241), 0.1);
   flex: 1;
   min-width: 200px;
 }
@@ -1636,15 +1634,15 @@
 
 .dark .mc-view-context-btn,
 [data-theme="dark"] .mc-view-context-btn {
-  background: var(--overlay-blue-10, rgba(14, 165, 233, 0.1));
-  border-color: var(--overlay-blue-20, rgba(14, 165, 233, 0.2));
+  background: var(--overlay-blue-10, rgb(14, 165, 233, 0.1));
+  border-color: var(--overlay-blue-20, rgb(14, 165, 233, 0.2));
   color: var(--color-sky-400);
 }
 
 .dark .mc-view-context-btn:hover,
 [data-theme="dark"] .mc-view-context-btn:hover {
-  background: var(--overlay-blue-20, rgba(14, 165, 233, 0.2));
-  border-color: var(--overlay-blue-30, rgba(14, 165, 233, 0.3));
+  background: var(--overlay-blue-20, rgb(14, 165, 233, 0.2));
+  border-color: var(--overlay-blue-30, rgb(14, 165, 233, 0.3));
 }
 
 .dark .mc-view-context-btn.has-content,
@@ -1657,7 +1655,7 @@
 .dark .mc-view-context-btn.has-content:hover,
 [data-theme="dark"] .mc-view-context-btn.has-content:hover {
   background: var(--overlay-green-20);
-  border-color: var(--overlay-green-30, rgba(var(--color-green-500-rgb), 0.3));
+  border-color: var(--overlay-green-30, rgb(var(--color-green-500-rgb), 0.3));
 }
 
 .dark .mc-view-context-btn.no-content,
@@ -1774,7 +1772,7 @@
 .dark .mc-dept-checkbox.owner,
 [data-theme="dark"] .mc-dept-checkbox.owner {
   background: var(--overlay-blue-15);
-  border-color: var(--overlay-blue-30, rgba(var(--color-blue-500-rgb), 0.3));
+  border-color: var(--overlay-blue-30, rgb(var(--color-blue-500-rgb), 0.3));
 }
 
 .dark .mc-owner-label,
@@ -1800,7 +1798,7 @@
 .dark .mc-activity-source-link:hover,
 [data-theme="dark"] .mc-activity-source-link:hover {
   background: var(--overlay-indigo-20);
-  border-color: var(--overlay-indigo-30, rgba(var(--color-indigo-rgb), 0.3));
+  border-color: var(--overlay-indigo-30, rgb(var(--color-indigo-rgb), 0.3));
 }
 
 /* Activity right column */
@@ -1993,8 +1991,8 @@
 /* Question box */
 .dark .mc-promote-question-text,
 [data-theme="dark"] .mc-promote-question-text {
-  background: var(--overlay-blue-10, rgba(14, 165, 233, 0.1));
-  border-color: var(--overlay-blue-20, rgba(14, 165, 233, 0.2));
+  background: var(--overlay-blue-10, rgb(14, 165, 233, 0.1));
+  border-color: var(--overlay-blue-20, rgb(14, 165, 233, 0.2));
   color: var(--color-text-primary);
 }
 
@@ -2013,15 +2011,15 @@
 
 .dark .mc-generate-summary-btn,
 [data-theme="dark"] .mc-generate-summary-btn {
-  background: var(--overlay-blue-10, rgba(14, 165, 233, 0.1));
-  border-color: var(--overlay-blue-20, rgba(14, 165, 233, 0.2));
+  background: var(--overlay-blue-10, rgb(14, 165, 233, 0.1));
+  border-color: var(--overlay-blue-20, rgb(14, 165, 233, 0.2));
   color: var(--color-sky-400);
 }
 
 .dark .mc-generate-summary-btn:hover:not(:disabled),
 [data-theme="dark"] .mc-generate-summary-btn:hover:not(:disabled) {
-  background: var(--overlay-blue-20, rgba(14, 165, 233, 0.2));
-  border-color: var(--overlay-blue-30, rgba(14, 165, 233, 0.3));
+  background: var(--overlay-blue-20, rgb(14, 165, 233, 0.2));
+  border-color: var(--overlay-blue-30, rgb(14, 165, 233, 0.3));
 }
 
 .dark .mc-generating-text,

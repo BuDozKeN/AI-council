@@ -1,4 +1,5 @@
 /* Organization Manager Styles */
+
 /* Modal wrapper handled by AppModal - content styles only */
 
 /* Override AppModal body padding for custom layout */
@@ -406,5 +407,5 @@
   max-height: 400px;
   overflow-y: auto;
   white-space: pre-wrap;
-  word-wrap: break-word;
+  overflow-wrap: break-word;
 }

@@ -194,7 +194,11 @@ export function TableOfContents({
   // Visibility observer for floating variant
   useEffect(() => {
     if (variant !== 'floating' || !containerRef?.current || headings.length === 0) {
-      if (variant !== 'floating') setIsVisible(true);
+      if (variant !== 'floating') {
+        // Defer state update to avoid synchronous setState in effect
+        const frameId = requestAnimationFrame(() => setIsVisible(true));
+        return () => cancelAnimationFrame(frameId);
+      }
       return;
     }
 

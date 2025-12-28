@@ -56,8 +56,12 @@ function Stage3Content({
   useEffect(() => {
     if (wasStreamingRef.current && !isStreaming && isComplete && displayText && !hasCelebratedRef.current) {
       hasCelebratedRef.current = true;
-      // Fade out cursor first
-      setCursorFading(true);
+
+      // Use requestAnimationFrame to batch state updates outside effect sync phase
+      const frameId = requestAnimationFrame(() => {
+        // Fade out cursor first
+        setCursorFading(true);
+      });
 
       // Then trigger celebration after cursor fades
       const celebrationTimer = setTimeout(() => {
@@ -71,6 +75,7 @@ function Stage3Content({
       }, CELEBRATION.COUNCIL_COMPLETE);
 
       return () => {
+        cancelAnimationFrame(frameId);
         clearTimeout(celebrationTimer);
         clearTimeout(resetTimer);
       };

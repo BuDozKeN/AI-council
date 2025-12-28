@@ -49,9 +49,9 @@
   pointer-events: auto;
 }
 
-/* Full opacity when button itself is hovered */
-.copy-btn-unified:hover {
-  opacity: 1 !important;
+/* Full opacity when button itself is hovered - double class for specificity */
+.copy-btn-unified.copy-btn-unified:hover {
+  opacity: 1;
   border-color: var(--color-brand-primary);
   color: var(--color-brand-primary);
   background: var(--overlay-white-95);
@@ -62,9 +62,9 @@
   transform: scale(0.95);
 }
 
-/* Copied state - always visible */
-.copy-btn-unified.copied {
-  opacity: 1 !important;
+/* Copied state - always visible - double class for specificity */
+.copy-btn-unified.copy-btn-unified.copied {
+  opacity: 1;
   pointer-events: auto;
   border-color: var(--color-success);
   color: var(--color-success);
@@ -90,9 +90,11 @@
     transform: scale(0.8);
     opacity: 0.5;
   }
+
   50% {
     transform: scale(1.15);
   }
+
   100% {
     transform: scale(1);
     opacity: 1;

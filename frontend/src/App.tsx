@@ -43,7 +43,7 @@ interface UploadedImage {
 // Performance: Route-based code splitting
 // These components are lazily loaded to reduce initial bundle size (~70% reduction)
 // =============================================================================
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+
 const lazyWithType = <T extends ComponentType<any>>(factory: () => Promise<{ default: T }>) => lazy(factory);
 
 // Login is lazy-loaded since it's only shown when NOT authenticated
@@ -528,7 +528,7 @@ function App() {
 
   // Triage handlers (currently disabled but kept for future use)
   // @ts-expect-error - Kept for future use when triage is re-enabled
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   const _handleStartTriage = async (content: string) => {
     if (!currentConversationId) return;
 
@@ -551,7 +551,7 @@ function App() {
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   const handleTriageRespond = async (response: string) => {
     if (!triageState || triageState === 'analyzing') return;
     const triageResult = triageState as TriageResult;
@@ -578,13 +578,13 @@ function App() {
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   const handleTriageSkip = () => {
     // Skip triage and send original query to council
     handleSendToCouncil(originalQuery);
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   const handleTriageProceed = (enhancedQuery: string) => {
     // Proceed with the enhanced query
     handleSendToCouncil(enhancedQuery);
@@ -1430,7 +1430,7 @@ function App() {
           <ProjectModal
             companyId={selectedBusiness}
             departments={availableDepartments}
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
             initialContext={projectModalContext as any}
             onClose={closeProjectModal}
             onProjectCreated={(newProject: Project) => {
@@ -1473,7 +1473,7 @@ function App() {
             initialPlaybookId={myCompanyInitialPlaybookId}
             initialProjectId={myCompanyInitialProjectId}
             initialProjectDecisionId={myCompanyInitialProjectDecisionId}
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
             initialPromoteDecision={myCompanyPromoteDecision as any}
             onConsumePromoteDecision={() => setMyCompanyPromoteDecision(null)}
           />

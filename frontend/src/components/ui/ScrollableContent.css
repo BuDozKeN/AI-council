@@ -14,15 +14,16 @@
   flex-direction: column;
   min-height: 0;
   flex: 1;
+
   /* Ensure this wrapper doesn't grow beyond parent */
   overflow: hidden;
 }
 
 .scrollable-content-inner {
   flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden; /* Never show horizontal scrollbar */
+  overflow: hidden auto; /* Never show horizontal scrollbar */
   -webkit-overflow-scrolling: touch;
+
   /* Constrain height to enable scroll detection */
   min-height: 0;
 }

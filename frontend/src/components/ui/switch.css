@@ -55,11 +55,11 @@
   height: 20px;
   min-height: 20px;
   max-height: 20px;
-  background: var(--color-bg-primary, #ffffff);
+  background: var(--color-bg-primary, #fff);
   border-radius: 9999px;
   box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.1),
-    0 4px 8px rgba(0, 0, 0, 0.1);
+    0 2px 4px rgb(0, 0, 0, 0.1),
+    0 4px 8px rgb(0, 0, 0, 0.1);
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
   transform: translateX(3px);
 }
@@ -106,8 +106,8 @@
 [data-theme="dark"] .switch-thumb {
   background: var(--color-text-inverse);
   box-shadow:
-    0 2px 4px rgba(0, 0, 0, 0.2),
-    0 4px 8px rgba(0, 0, 0, 0.15);
+    0 2px 4px rgb(0, 0, 0, 0.2),
+    0 4px 8px rgb(0, 0, 0, 0.15);
 }
 
 /* Mobile - same visual size, expanded touch target via pseudo-element */

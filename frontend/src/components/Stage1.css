@@ -12,9 +12,11 @@
   background: var(--color-bg-secondary);
   border-color: var(--color-border);
   box-shadow: var(--shadow-sm);
+
   /* Container queries - grid responds to container width, not viewport */
   container-type: inline-size;
   container-name: stage1;
+
   /* Transition for celebration state */
   transition: box-shadow 0.4s ease-out, border-color 0.3s ease;
 }
@@ -87,8 +89,8 @@
   border-color: var(--color-indigo-500);
   background: var(--color-bg-primary);
   box-shadow:
-    0 0 0 1px rgba(var(--color-indigo-rgb), 0.2),
-    0 4px 12px rgba(var(--color-indigo-rgb), 0.1);
+    0 0 0 1px rgb(var(--color-indigo-rgb), 0.2),
+    0 4px 12px rgb(var(--color-indigo-rgb), 0.1);
 }
 
 .stage1 .model-card.error {
@@ -212,6 +214,7 @@
     transform: scale(1);
     opacity: 1;
   }
+
   75%, 100% {
     transform: scale(1.8);
     opacity: 0;
@@ -395,7 +398,7 @@
 }
 
 .stage-title {
-  margin: 0 0 16px 0;
+  margin: 0 0 16px;
   color: var(--color-text-primary);
   font-size: 16px;
   font-weight: 600;
@@ -675,7 +678,7 @@
 
 .stage1 .code-block-wrapper pre {
   margin: 0;
-  padding: 36px 12px 12px 12px;
+  padding: 36px 12px 12px;
   overflow-x: auto;
   background: var(--color-code-bg);
 }
@@ -702,7 +705,6 @@
   color: var(--color-text-primary);
   line-height: 1.6;
   overflow-wrap: break-word;
-  word-break: break-word;
 }
 
 .response-text.error-text {
@@ -903,7 +905,7 @@
 .image-analysis-content h2,
 .image-analysis-content h3 {
   color: var(--color-blue-700);
-  margin: 16px 0 8px 0;
+  margin: 16px 0 8px;
   font-size: 14px;
 }
 
@@ -929,6 +931,7 @@
 }
 
 /* ===== DARK MODE ===== */
+
 /* Stage1 uses CSS variables from tailwind.css which are redefined in .dark context */
 
 .dark .stage.stage1 {
@@ -1113,6 +1116,7 @@
     transform: translateY(0);
     opacity: 1;
   }
+
   50% {
     transform: translateY(4px);
     opacity: 0.6;

@@ -1,9 +1,6 @@
 .billing-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: var(--overlay-black-60);
   display: flex;
   align-items: center;
@@ -194,7 +191,7 @@
 .plan-features {
   list-style: none;
   padding: 0;
-  margin: 0 0 24px 0;
+  margin: 0 0 24px;
 }
 
 .plan-features li {

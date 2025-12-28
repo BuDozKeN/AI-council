@@ -36,10 +36,14 @@
   .mc-panel {
     display: flex;
     flex-direction: column;
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0;
   }
 
-  /* Move tabs to bottom - iOS-style tab bar */
-  .mc-tabs {
+  /* Move tabs to bottom - iOS-style tab bar (doubled selector for specificity) */
+  .mc-tabs.mc-tabs {
     order: 3;
     position: fixed;
     bottom: 12px;
@@ -50,9 +54,9 @@
     background: var(--color-bg-inverse);
     border: none;
     border-radius: var(--radius-xl);
-    padding: 8px 4px calc(8px + env(safe-area-inset-bottom, 0px)) 4px;
-    display: flex !important;
-    flex-wrap: nowrap !important;
+    padding: 8px 4px calc(8px + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    flex-wrap: nowrap;
     justify-content: space-around;
     gap: 0;
     box-shadow: var(--shadow-lg);
@@ -60,13 +64,13 @@
     box-sizing: border-box;
   }
 
-  /* Tab style: icon + label stacked (iOS tab bar style) */
-  .mc-tab {
-    flex: 1 1 0 !important;
+  /* Tab style: icon + label stacked (iOS tab bar style) - doubled selector for specificity */
+  .mc-tab.mc-tab {
+    flex: 1 1 0;
     flex-direction: column;
     gap: 2px;
-    padding: 6px 2px !important;
-    min-width: 0 !important;
+    padding: 6px 2px;
+    min-width: 0;
     max-width: none;
     min-height: 44px;
     border-radius: var(--radius-md);
@@ -119,9 +123,10 @@
 
   /* Add padding to content to account for floating bottom nav */
   .mc-content {
-    padding: 0;
+    padding: 12px 16px;
     padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
     order: 2;
+
     /* Ensure content fills available height */
     flex: 1;
     min-height: 0;
@@ -173,14 +178,21 @@
     font-size: 1.25rem;
   }
 
-  /* Prevent browser back gesture */
+  /* Prevent browser back gesture and scroll bounce */
   .mc-panel {
-    overscroll-behavior: contain;
+    overscroll-behavior: none;
     touch-action: pan-y pinch-zoom;
   }
 
   .mc-overlay {
-    overscroll-behavior: contain;
+    overscroll-behavior: none;
+    touch-action: none;
+  }
+
+  /* Bottom nav should not trigger scroll when touched */
+  .mc-tabs {
+    touch-action: manipulation;
+    overscroll-behavior: none;
   }
 }
 
@@ -309,10 +321,13 @@
       bottom: calc(12px + env(safe-area-inset-bottom));
     }
 
-    /* Panel height accounts for safe areas */
+    /* Panel height accounts for safe areas - use dvh for mobile browser chrome */
     .mc-panel {
-      height: calc(100vh - env(safe-area-inset-top, 0px));
-      padding-top: env(safe-area-inset-top, 0px);
+      height: 100vh; /* Fallback */
+      height: 100dvh; /* Dynamic viewport height for mobile browsers */
+      max-height: 100vh;
+      max-height: 100dvh;
+      padding-top: env(safe-area-inset-top, 0);
     }
 
     /* Modal content safe area - use fallbacks to prevent calc failures */
@@ -335,16 +350,14 @@
 @media (max-width: 640px) {
   /* Filters row on mobile - compact single row */
   .mc-projects-filters {
-    flex-direction: row;
-    flex-wrap: nowrap;
+    flex-flow: row nowrap;
     align-items: center;
     gap: 6px;
     padding: 4px 0;
   }
 
   .mc-filters-left {
-    flex-direction: row;
-    flex-wrap: nowrap;
+    flex-flow: row nowrap;
     gap: 6px;
     flex: 1;
     min-width: 0;
@@ -367,8 +380,7 @@
   .mc-team-header,
   .mc-playbooks-header,
   .mc-decisions-header {
-    flex-direction: row;
-    flex-wrap: nowrap;
+    flex-flow: row nowrap;
     gap: 8px;
     padding: 4px 0;
   }
@@ -393,8 +405,7 @@
   /* Decisions filters - responsive row layout */
   .mc-decisions-filters {
     display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
+    flex-flow: row nowrap;
     gap: 8px;
     padding: 4px 0;
     align-items: stretch;
@@ -430,9 +441,9 @@
     max-width: 40%;
   }
 
-  /* Even tighter content padding on very small screens */
+  /* Slightly tighter content padding on very small screens */
   .mc-content {
-    padding: 0;
+    padding: 8px 12px;
     padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
   }
 
@@ -739,11 +750,13 @@
     flex-direction: column;
     gap: 8px;
     padding: 16px 20px;
+
     /* Keep premium card styling on mobile */
     border-radius: var(--radius-lg);
     border: 1px solid var(--color-indigo-200);
     background: var(--color-bg-primary);
     box-shadow: var(--shadow-md);
+
     /* No margin - parent handles spacing */
     margin: 0;
     width: 100%;
@@ -815,8 +828,10 @@
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
+
     /* Remove any max-height constraints */
     max-height: none;
+
     /* Edge-to-edge on mobile - remove ALL card styling */
     border: none;
     border-radius: 0;
@@ -825,11 +840,12 @@
   }
 
   /* Ensure the overview tab fills available space */
+
   /* ========== OVERVIEW TAB - MOBILE ========== */
 
   /* Overview container - scrollable on mobile */
   .mc-overview {
-    padding: 12px 16px;
+    padding: 0; /* Parent .mc-content provides padding */
     gap: 12px;
   }
 
@@ -858,6 +874,7 @@
   }
 
   /* Hide hover actions on mobile - tap opens detail view */
+
   /* Double class selector for specificity over hover states */
   .mc-project-row-compact.mc-project-row-compact .mc-project-actions,
   .mc-project-row-compact .mc-project-actions[class] {
@@ -955,6 +972,7 @@
   }
 
   /* Hide action buttons on mobile - tap opens detail */
+
   /* Double class for specificity over hover states */
   .mc-elegant-row.mc-elegant-row .mc-elegant-actions,
   .mc-elegant-row .mc-elegant-actions[class] {
@@ -962,6 +980,7 @@
   }
 
   /* Activity tab: SHOW source link on mobile - important for navigation */
+
   /* Triple selector to override the hide rule above */
   .mc-activity .mc-elegant-row.mc-elegant-row .mc-elegant-actions,
   .mc-activity.mc-activity .mc-elegant-row .mc-elegant-actions {
@@ -1052,6 +1071,7 @@
   }
 
   /* Hide all action buttons on mobile */
+
   /* Double class for specificity over hover states */
   .mc-decision-row.mc-decision-row .mc-elegant-actions,
   .mc-decision-row.mc-decision-row .mc-elegant-right .mc-elegant-actions {
@@ -1281,8 +1301,7 @@
   /* Inner scroll container */
   .mc-usage .scrollable-content-inner {
     flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden auto;
     -webkit-overflow-scrolling: touch;
   }
 }

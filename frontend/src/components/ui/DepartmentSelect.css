@@ -21,7 +21,7 @@
 
 /* When a department is selected, show its color */
 .dept-select-trigger.has-selection {
-  border: 1px solid currentColor;
+  border: 1px solid currentcolor;
   opacity: 0.9;
 }
 
@@ -71,6 +71,7 @@
     opacity: 0;
     transform: scale(0.95) translateY(-4px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -82,6 +83,7 @@
     opacity: 0;
     transform: scale(0.95) translateY(4px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);

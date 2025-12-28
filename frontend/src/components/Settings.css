@@ -8,6 +8,7 @@
 .settings-content {
   display: flex;
   flex: 1;
+
   /* Fixed height prevents modal from changing size between tabs */
   height: 480px;
   min-height: 480px;
@@ -59,6 +60,7 @@
   flex: 1;
   padding: 24px;
   overflow-y: auto;
+
   /* Fixed height to prevent layout shift between tabs */
   min-height: 400px;
 }
@@ -67,6 +69,7 @@
 .billing-content,
 .team-content {
   width: 100%; /* Fill entire panel width */
+
   /* Content fills the panel, panel controls min-height */
 }
 
@@ -315,7 +318,7 @@
 }
 
 .plans-section h3 {
-  margin: 0 0 16px 0;
+  margin: 0 0 16px;
   font-size: 16px;
   font-weight: 600;
   color: var(--color-text-primary);
@@ -372,7 +375,7 @@
 }
 
 .plan-header h4 {
-  margin: 0 0 8px 0;
+  margin: 0 0 8px;
   font-size: 16px;
   font-weight: 600;
   color: var(--color-text-primary);
@@ -402,7 +405,7 @@
 .plan-features {
   list-style: none;
   padding: 0;
-  margin: 0 0 16px 0;
+  margin: 0 0 16px;
   flex: 1; /* Push button to bottom by filling available space */
 }
 
@@ -480,6 +483,7 @@
   .settings-content {
     /* Keep horizontal layout with icon sidebar on left */
     flex-direction: row;
+
     /* Fixed height to prevent size changes between tabs */
     height: 480px;
     min-height: 480px;
@@ -518,10 +522,12 @@
   }
 
   /* Tooltips disabled on mobile/tablet - they don't work well on touch devices */
+
   /* The active tab styling provides enough visual feedback */
 
   .settings-panel {
     flex: 1;
+
     /* Fixed height panel - content scrolls inside */
     height: 100%;
     padding: 20px;
@@ -529,6 +535,25 @@
 
   .plans-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* Inside BottomSheet: prevent nested scroll containers
+     BottomSheet handles scrolling at the body level, so settings
+     shouldn't create its own scroll container */
+  .bottom-sheet-body .settings-content {
+    /* Let content size naturally - no fixed height that forces scrolling */
+    height: auto;
+    min-height: auto;
+    overflow: visible;
+  }
+
+  .bottom-sheet-body .settings-panel {
+    /* Remove scroll - bottom-sheet-body is the scroll container */
+    overflow: visible;
+
+    /* Remove min-height that forces empty scrollable space */
+    min-height: auto;
+    height: auto;
   }
 }
 
@@ -563,6 +588,24 @@
   .settings-panel {
     padding: 16px;
     height: 100%;
+  }
+
+  /* Inside BottomSheet: let bottom-sheet-body handle scrolling, not settings-panel */
+  .bottom-sheet-body .settings-content {
+    /* Remove fixed height - let content determine size naturally */
+    height: auto;
+    min-height: auto;
+
+    /* Ensure content doesn't overflow horizontally */
+    overflow: visible;
+  }
+
+  .bottom-sheet-body .settings-panel {
+    /* Remove scroll from panel - bottom-sheet-body scrolls */
+    overflow: visible;
+
+    /* Remove fixed min-height that forces empty space */
+    min-height: auto;
   }
 
   .settings-section h3 {
@@ -944,7 +987,7 @@
 
 .btn-danger-outline {
   background: transparent;
-  border: 1px solid var(--overlay-red-30, rgba(var(--color-red-500-rgb), 0.3));
+  border: 1px solid var(--overlay-red-30, rgb(var(--color-red-500-rgb), 0.3));
   color: var(--color-red-500);
   padding: 8px 14px;
   border-radius: var(--radius-default);
@@ -956,7 +999,7 @@
 
 .btn-danger-outline:hover:not(:disabled) {
   background: var(--overlay-red-10);
-  border-color: var(--overlay-red-50, rgba(var(--color-red-500-rgb), 0.5));
+  border-color: var(--overlay-red-50, rgb(var(--color-red-500-rgb), 0.5));
 }
 
 .btn-danger-outline:disabled {
@@ -978,7 +1021,7 @@
 }
 
 .api-key-benefits h4 {
-  margin: 0 0 12px 0;
+  margin: 0 0 12px;
   font-size: 14px;
   font-weight: 600;
   color: var(--color-text-primary);
@@ -1039,7 +1082,7 @@
 }
 
 .info-card h4 {
-  margin: 0 0 12px 0;
+  margin: 0 0 12px;
   font-size: 14px;
   font-weight: 600;
   color: var(--color-text-primary);
@@ -1048,7 +1091,7 @@
 .info-card p {
   font-size: 13px;
   color: var(--color-text-secondary);
-  margin: 0 0 12px 0;
+  margin: 0 0 12px;
   line-height: 1.6;
 }
 
@@ -1091,7 +1134,7 @@
   font-size: 18px;
   font-weight: 600;
   color: var(--color-text-primary);
-  margin: 0 0 8px 0;
+  margin: 0 0 8px;
 }
 
 .api-page-intro p {
@@ -1200,7 +1243,7 @@
 
 .status-dot.connected {
   background: var(--color-green-500);
-  box-shadow: 0 0 6px rgba(var(--color-green-500-rgb), 0.5);
+  box-shadow: 0 0 6px rgb(var(--color-green-500-rgb), 0.5);
 }
 
 .status-dot.paused {
@@ -1209,7 +1252,7 @@
 
 .status-dot.invalid {
   background: var(--color-red-500);
-  box-shadow: 0 0 6px rgba(var(--color-red-500-rgb), 0.5);
+  box-shadow: 0 0 6px rgb(var(--color-red-500-rgb), 0.5);
 }
 
 .provider-tagline {
@@ -1275,6 +1318,7 @@
     height: 0;
     opacity: 0;
   }
+
   to {
     height: var(--radix-accordion-content-height);
     opacity: 1;
@@ -1286,6 +1330,7 @@
     height: var(--radix-accordion-content-height);
     opacity: 1;
   }
+
   to {
     height: 0;
     opacity: 0;
@@ -1314,7 +1359,7 @@
   font-size: 14px;
   font-weight: 600;
   color: var(--color-text-primary);
-  margin: 0 0 10px 0;
+  margin: 0 0 10px;
 }
 
 .explainer-section h4 svg {
@@ -1326,7 +1371,7 @@
   font-size: 13px;
   color: var(--color-text-secondary);
   line-height: 1.7;
-  margin: 0 0 10px 0;
+  margin: 0 0 10px;
 }
 
 .explainer-section p:last-child {
@@ -1393,7 +1438,7 @@
   font-size: 14px;
   font-weight: 600;
   color: var(--color-text-primary);
-  margin: 0 0 16px 0;
+  margin: 0 0 16px;
 }
 
 .setup-step {
@@ -1431,7 +1476,7 @@
   font-size: 13px;
   color: var(--color-text-secondary);
   line-height: 1.6;
-  margin: 0 0 4px 0;
+  margin: 0 0 4px;
 }
 
 .step-content p:last-child {
@@ -1493,7 +1538,7 @@
 .api-key-form input:focus {
   outline: none;
   border-color: var(--color-brand-primary);
-  box-shadow: 0 0 0 3px rgba(var(--color-focus-rgb), 0.1);
+  box-shadow: 0 0 0 3px rgb(var(--color-focus-rgb), 0.1);
 }
 
 .api-key-form input::placeholder {
@@ -1631,6 +1676,7 @@
     opacity: 0;
     transform: translateY(4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1748,6 +1794,7 @@
     opacity: 0;
     transform: scale(0.95) translateY(-4px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -1812,7 +1859,7 @@
 .byok-replace-form input:focus {
   outline: none;
   border-color: var(--color-brand-primary);
-  box-shadow: 0 0 0 2px rgba(var(--color-focus-rgb), 0.15);
+  box-shadow: 0 0 0 2px rgb(var(--color-focus-rgb), 0.15);
 }
 
 .byok-replace-actions {
@@ -1905,7 +1952,7 @@
   gap: 10px;
   padding: 12px 16px;
   background: var(--overlay-amber-10);
-  border: 1px solid rgba(var(--color-amber-500-rgb), 0.3);
+  border: 1px solid rgb(var(--color-amber-500-rgb), 0.3);
   border-radius: var(--radius-md);
   color: var(--color-amber-500);
   font-size: 13px;
@@ -2019,9 +2066,9 @@
 }
 
 .dev-info-box.info {
-  background: var(--overlay-purple-10, rgba(168, 85, 247, 0.1));
+  background: var(--overlay-purple-10, rgb(168, 85, 247, 0.1));
   color: var(--color-purple-500, #a855f7);
-  border: 1px solid var(--overlay-purple-20, rgba(168, 85, 247, 0.2));
+  border: 1px solid var(--overlay-purple-20, rgb(168, 85, 247, 0.2));
 }
 
 .dev-info-box svg {

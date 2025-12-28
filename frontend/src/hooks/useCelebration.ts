@@ -55,12 +55,13 @@ export function useCelebration(options: UseCelebrationOptions = {}): UseCelebrat
   } = options;
 
   const [isCelebrating, setIsCelebrating] = useState(false);
-  const hasFiredRef = useRef(false);
+  const [hasFired, setHasFired] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const triggerCelebration = useCallback(() => {
     // Guard against double-firing if once=true
-    if (once && hasFiredRef.current) {
+    // Note: We check state but also use a ref internally for immediate checking
+    if (once && hasFired) {
       return;
     }
 
@@ -70,7 +71,7 @@ export function useCelebration(options: UseCelebrationOptions = {}): UseCelebrat
     }
 
     const startCelebration = () => {
-      hasFiredRef.current = true;
+      setHasFired(true);
       setIsCelebrating(true);
 
       if (haptic) {
@@ -88,10 +89,10 @@ export function useCelebration(options: UseCelebrationOptions = {}): UseCelebrat
     } else {
       startCelebration();
     }
-  }, [duration, haptic, delay, once]);
+  }, [duration, haptic, delay, once, hasFired]);
 
   const reset = useCallback(() => {
-    hasFiredRef.current = false;
+    setHasFired(false);
     setIsCelebrating(false);
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -103,7 +104,7 @@ export function useCelebration(options: UseCelebrationOptions = {}): UseCelebrat
     isCelebrating,
     triggerCelebration,
     reset,
-    hasFired: hasFiredRef.current,
+    hasFired,
   };
 }
 

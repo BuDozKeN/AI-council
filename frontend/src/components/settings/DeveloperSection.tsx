@@ -18,26 +18,13 @@ import { Skeleton } from '../ui/Skeleton';
 import { api } from '../../api';
 import { useAuth } from '../../AuthContext';
 import { logger } from '../../utils/logger';
+import { getShowTokenUsage, setShowTokenUsage } from './tokenUsageSettings';
 
 const log = logger.scope('DeveloperSection');
 
 interface DeveloperSectionProps {
   isOpen: boolean;
   onMockModeChange?: (enabled: boolean) => void;
-}
-
-// localStorage key for token usage display
-const SHOW_TOKEN_USAGE_KEY = 'showTokenUsage';
-
-// Helper to get/set token usage visibility
-export function getShowTokenUsage(): boolean {
-  return localStorage.getItem(SHOW_TOKEN_USAGE_KEY) === 'true';
-}
-
-export function setShowTokenUsage(enabled: boolean): void {
-  localStorage.setItem(SHOW_TOKEN_USAGE_KEY, String(enabled));
-  // Dispatch event so other components can react
-  window.dispatchEvent(new CustomEvent('showTokenUsageChanged', { detail: enabled }));
 }
 
 export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionProps) {

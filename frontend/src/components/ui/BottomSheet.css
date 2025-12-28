@@ -99,10 +99,7 @@
   .bottom-sheet-content[class],
   div.bottom-sheet-content {
     position: fixed;
-    bottom: auto;
-    top: 50%;
-    left: 50%;
-    right: auto;
+    inset: 50% auto auto 50%;
     transform: translate(-50%, -50%);
     border-radius: var(--radius-xl);
     max-width: 500px;
@@ -185,6 +182,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

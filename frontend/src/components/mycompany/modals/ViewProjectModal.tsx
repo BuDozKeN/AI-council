@@ -14,6 +14,7 @@ import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { Spinner } from '../../ui/Spinner';
 import { AIWriteAssist } from '../../ui/AIWriteAssist';
 import { FloatingContextActions } from '../../ui/FloatingContextActions';
+import { toast } from '../../ui/sonner';
 import { Bookmark, CheckCircle, Archive, RotateCcw, ExternalLink, Trash2, Sparkles, PenLine } from 'lucide-react';
 import { getDeptColor } from '../../../lib/colors';
 import { truncateText } from '../../../lib/utils';
@@ -401,8 +402,9 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
         }
         setIsEditing(false);
         setIsEditingName(false);
+        toast.success(`"${editedName}" saved`, { duration: 3000 });
       } catch {
-        // Error handled by parent
+        toast.error('Failed to save project');
       }
       setSaving(false);
     }

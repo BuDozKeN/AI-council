@@ -31,6 +31,7 @@
   display: none;
   position: fixed;
   right: var(--space-6);
+
   /* Position from top instead of bottom for better vertical space usage */
   top: 120px;
   z-index: var(--z-header);
@@ -45,8 +46,10 @@
   transition: all 0.2s ease;
   min-width: 180px;
   max-width: 240px;
+
   /* Much taller - use most of viewport, leave room for header and bottom padding */
   max-height: calc(100vh - 180px);
+
   /* Hidden scrollbar - functional but invisible */
   overflow-y: auto;
   scrollbar-width: none;
@@ -123,7 +126,7 @@
 
 .stage3-floating-toc.collapsed:hover {
   opacity: 1;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgb(255, 255, 255, 0.95);
 }
 
 .stage3-floating-toc.collapsed .stage3-toc-toggle {
@@ -432,6 +435,7 @@
   max-height: calc(70vh - 80px);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+
   /* Hidden scrollbar */
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -497,12 +501,12 @@
 
 /* Active state */
 .stage3-mobile-outline-link.active {
-  background: var(--overlay-emerald-10, rgba(var(--color-emerald-500-rgb), 0.08));
+  background: var(--overlay-emerald-10, rgb(var(--color-emerald-500-rgb), 0.08));
 }
 
 .stage3-mobile-outline-link.active .stage3-mobile-link-indicator {
   background: var(--color-emerald-500);
-  box-shadow: 0 0 8px rgba(var(--color-emerald-500-rgb), 0.3);
+  box-shadow: 0 0 8px rgb(var(--color-emerald-500-rgb), 0.3);
 }
 
 .stage3-mobile-outline-link.active .stage3-mobile-link-text {
@@ -568,7 +572,7 @@
 }
 
 .dark .stage3-toc-toggle:hover {
-  background: var(--overlay-black-95, rgba(60, 60, 65, 0.95));
+  background: var(--overlay-black-95, rgb(60, 60, 65, 0.95));
   color: var(--color-slate-400);
 }
 
@@ -608,7 +612,7 @@
 /* Mobile trigger dark mode */
 .dark .stage3-mobile-toc-trigger,
 [data-theme="dark"] .stage3-mobile-toc-trigger {
-  background: var(--overlay-black-95, rgba(30, 30, 35, 0.95));
+  background: var(--overlay-black-95, rgb(30, 30, 35, 0.95));
   color: var(--color-text-secondary);
   box-shadow: var(--shadow-md), inset 0 1px 0 var(--overlay-white-5);
 }
@@ -651,7 +655,7 @@
 .dark .stage3-mobile-outline-link.active .stage3-mobile-link-indicator,
 [data-theme="dark"] .stage3-mobile-outline-link.active .stage3-mobile-link-indicator {
   background: var(--color-emerald-400);
-  box-shadow: 0 0 12px rgba(var(--color-emerald-500-rgb), 0.4);
+  box-shadow: 0 0 12px rgb(var(--color-emerald-500-rgb), 0.4);
 }
 
 .dark .stage3-mobile-outline-link.active .stage3-mobile-link-text,
@@ -683,8 +687,10 @@
   align-items: flex-start;
   padding: 8px 0;
   margin-bottom: var(--space-3, 12px);
+
   /* Background to cover content scrolling behind */
   background: inherit;
+
   /* Extend background to full width */
   margin-left: -20px;
   margin-right: -20px;
@@ -777,7 +783,7 @@
 
 /* Dropdown list */
 .toc-sticky-dropdown {
-  background: var(--overlay-white-95, rgba(255, 255, 255, 0.98));
+  background: var(--overlay-white-95, rgb(255, 255, 255, 0.98));
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   border: 1px solid var(--overlay-black-5);
@@ -973,7 +979,7 @@
 
 .dark .toc-sticky-trigger,
 [data-theme="dark"] .toc-sticky-trigger {
-  background: var(--overlay-black-95, rgba(30, 30, 35, 0.95));
+  background: var(--overlay-black-95, rgb(30, 30, 35, 0.95));
   border-color: var(--overlay-white-8);
   color: var(--color-slate-400);
   box-shadow: var(--shadow-md), inset 0 1px 0 var(--overlay-white-5);
@@ -992,7 +998,7 @@
 
 .dark .toc-sticky-dropdown,
 [data-theme="dark"] .toc-sticky-dropdown {
-  background: var(--overlay-black-95, rgba(30, 30, 35, 0.98));
+  background: var(--overlay-black-95, rgb(30, 30, 35, 0.98));
   border-color: var(--overlay-white-8);
   box-shadow: var(--shadow-xl);
 }
@@ -1040,7 +1046,7 @@
 .dark .toc-sticky-link.active .toc-sticky-dot,
 [data-theme="dark"] .toc-sticky-link.active .toc-sticky-dot {
   background: var(--color-iris-400, #818cf8);
-  box-shadow: 0 0 0 2px var(--overlay-indigo-30, rgba(var(--color-indigo-rgb), 0.3));
+  box-shadow: 0 0 0 2px var(--overlay-indigo-30, rgb(var(--color-indigo-rgb), 0.3));
 }
 
 .dark .toc-sticky-link.active .toc-sticky-text,

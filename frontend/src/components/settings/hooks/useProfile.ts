@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { api } from '../../../api';
 import { logger } from '../../../utils/logger';
+import { toast } from '../../ui/sonner';
 import type { User } from '@supabase/supabase-js';
 
 const log = logger.scope('useProfile');
@@ -12,11 +13,6 @@ export interface Profile {
   bio: string;
 }
 
-export interface SaveMessage {
-  type: '' | 'success' | 'error';
-  text: string;
-}
-
 export function useProfile(isOpen: boolean, user: User | null) {
   const [profile, setProfile] = useState<Profile>({
     display_name: '',
@@ -26,7 +22,6 @@ export function useProfile(isOpen: boolean, user: User | null) {
   });
   const [profileLoading, setProfileLoading] = useState<boolean>(true);
   const [isSaving, setIsSaving] = useState<boolean>(false);
-  const [saveMessage, setSaveMessage] = useState<SaveMessage>({ type: '', text: '' });
 
   useEffect(() => {
     if (isOpen && user) {
@@ -61,15 +56,13 @@ export function useProfile(isOpen: boolean, user: User | null) {
   const handleSaveProfile = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setIsSaving(true);
-    setSaveMessage({ type: '', text: '' });
 
     try {
       await api.updateProfile(profile);
-      setSaveMessage({ type: 'success', text: 'Profile saved successfully!' });
+      toast.success('Profile saved', { duration: 3000 });
     } catch (error) {
       log.error('Failed to save profile:', error);
-      const message = error instanceof Error ? error.message : 'Failed to save profile';
-      setSaveMessage({ type: 'error', text: message });
+      toast.error('Failed to save profile');
     } finally {
       setIsSaving(false);
     }
@@ -80,7 +73,6 @@ export function useProfile(isOpen: boolean, user: User | null) {
     setProfile,
     profileLoading,
     isSaving,
-    saveMessage,
     handleSaveProfile,
   };
 }

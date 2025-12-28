@@ -15,8 +15,13 @@
   flex: 1;
   min-height: 0;
   gap: var(--space-4);
-  padding: var(--space-2) var(--space-4);
   overflow: hidden; /* Contain children */
+
+  /* NOTE: Padding is provided by parent .mc-content
+   * Desktop: 24px (shell.css)
+   * Mobile: 12px 16px (mobile.css @768px)
+   * Extra small: 8px 12px (mobile.css @380px)
+   * DO NOT add padding here - it will double up with parent */
 }
 
 .mc-usage-scroll {
@@ -34,8 +39,7 @@
 .mc-usage-scroll .scrollable-content-inner {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden auto;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -102,19 +106,19 @@
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2-5) var(--space-3);
-  background: hsl(45, 100%, 96%);
-  border: 1px solid hsl(45, 100%, 80%);
+  background: hsl(45deg, 100%, 96%);
+  border: 1px solid hsl(45deg, 100%, 80%);
   border-radius: var(--radius-md);
   font-size: 0.8125rem;
 }
 
 .dark .mc-usage-alert {
-  background: hsl(45, 100%, 10%);
-  border-color: hsl(45, 100%, 30%);
+  background: hsl(45deg, 100%, 10%);
+  border-color: hsl(45deg, 100%, 30%);
 }
 
 .mc-usage-alert-icon {
-  color: hsl(45, 100%, 40%);
+  color: hsl(45deg, 100%, 40%);
   flex-shrink: 0;
 }
 
@@ -167,9 +171,9 @@
   height: 240px;
 }
 
-/* Recharts tooltip customization */
-.recharts-tooltip-wrapper {
-  outline: none !important;
+/* Recharts tooltip customization - doubled selector to override library styles */
+.recharts-tooltip-wrapper.recharts-tooltip-wrapper {
+  outline: none;
 }
 
 /* ============================================================================
@@ -291,17 +295,17 @@
 
 .mc-usage-budget-fill {
   height: 100%;
-  background: hsl(217, 91%, 60%);
+  background: hsl(217deg, 91%, 60%);
   border-radius: var(--radius-full);
   transition: width 0.3s ease;
 }
 
 .mc-usage-budget-fill.warning {
-  background: hsl(45, 100%, 50%);
+  background: hsl(45deg, 100%, 50%);
 }
 
 .mc-usage-budget-fill.exceeded {
-  background: hsl(0, 84%, 60%);
+  background: hsl(0deg, 84%, 60%);
 }
 
 .mc-usage-budget-footer {
@@ -320,7 +324,7 @@
   align-items: center;
   gap: var(--space-1);
   font-size: 0.75rem;
-  color: hsl(45, 100%, 40%);
+  color: hsl(45deg, 100%, 40%);
 }
 
 /* ============================================================================
@@ -343,7 +347,7 @@
 }
 
 .mc-usage-roster-status {
-  color: hsl(160, 84%, 39%);
+  color: hsl(160deg, 84%, 39%);
   flex-shrink: 0;
 }
 
@@ -424,13 +428,13 @@
    ============================================================================ */
 
 .mc-usage .mc-stat-card.highlight {
-  background: linear-gradient(135deg, hsl(160, 84%, 95%), hsl(160, 84%, 98%));
-  border-color: hsl(160, 84%, 80%);
+  background: linear-gradient(135deg, hsl(160deg, 84%, 95%), hsl(160deg, 84%, 98%));
+  border-color: hsl(160deg, 84%, 80%);
 }
 
 .dark .mc-usage .mc-stat-card.highlight {
-  background: linear-gradient(135deg, hsl(160, 84%, 10%), hsl(160, 84%, 8%));
-  border-color: hsl(160, 84%, 25%);
+  background: linear-gradient(135deg, hsl(160deg, 84%, 10%), hsl(160deg, 84%, 8%));
+  border-color: hsl(160deg, 84%, 25%);
 }
 
 .mc-usage .mc-stat-value.cost {
@@ -438,7 +442,7 @@
 }
 
 .mc-usage .mc-stat-value.saved {
-  color: hsl(160, 84%, 39%);
+  color: hsl(160deg, 84%, 39%);
 }
 
 .mc-usage .mc-stat-label {
@@ -538,8 +542,8 @@
 
 @media (max-width: 768px) {
   /* Main container - tighter layout, minimal gap */
+  /* NOTE: Padding comes from parent .mc-content - don't override here */
   .mc-usage {
-    padding: 8px 16px 0 16px;
     gap: var(--space-2); /* Reduced from space-3 */
   }
 
@@ -570,7 +574,7 @@
     scrollbar-width: none;
     gap: var(--space-1-5);
     margin: 0 -16px;
-    padding: 0 16px 2px 16px;
+    padding: 0 16px 2px;
     flex-shrink: 0;
   }
 
@@ -625,8 +629,7 @@
   .mc-usage .mc-usage-scroll .scrollable-content-inner {
     flex: 1;
     min-height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden auto;
     -webkit-overflow-scrolling: touch;
   }
 
@@ -800,8 +803,8 @@
 
 /* Extra small mobile (≤380px) - even more compact */
 @media (max-width: 380px) {
+  /* NOTE: Padding comes from parent .mc-content - don't override here */
   .mc-usage {
-    padding: 6px 12px 0 12px;
     gap: var(--space-1-5);
   }
 
@@ -845,10 +848,7 @@
 
 /* Landscape mode - optimize for horizontal space */
 @media (max-width: 900px) and (orientation: landscape) {
-  .mc-usage {
-    padding: 8px 24px;
-    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
-  }
+  /* NOTE: Padding comes from parent .mc-content (mobile.css landscape) - don't override here */
 
   /* Stats in a row in landscape */
   .mc-usage .mc-stats-grid {

@@ -67,7 +67,7 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
       </div>
 
       {/* OpenRouter Provider Accordion */}
-      <Accordion.Root type="single" collapsible defaultValue="openrouter" className="api-provider-accordion">
+      <Accordion.Root type="single" collapsible className="api-provider-accordion">
         <Accordion.Item value="openrouter" className="api-provider-item">
           <Accordion.Header>
             <Accordion.Trigger className="api-provider-trigger">

@@ -61,7 +61,7 @@
      TYPOGRAPHY - Premium Modern ($25M worthy)
      Geist Sans for body, Inter as fallback, premium letter-spacing
      ============================================================================ */
-  --font-sans: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-sans: 'Geist', 'Inter', -apple-system, blinkmacsystemfont, 'Segoe UI', sans-serif;
   --font-mono: 'Geist Mono', 'JetBrains Mono', 'Fira Code', monospace;
 
   /* Font sizes (rem for accessibility) */
@@ -114,32 +114,32 @@
      SHADOWS (Premium layered - 3x depth for modern look)
      ============================================================================ */
   --shadow-xs:
-    0 1px 2px rgba(0, 0, 0, 0.08),
-    0 0 1px rgba(0, 0, 0, 0.04);
+    0 1px 2px rgb(0, 0, 0, 0.08),
+    0 0 1px rgb(0, 0, 0, 0.04);
   --shadow-sm:
-    0 2px 4px rgba(0, 0, 0, 0.12),
-    0 1px 2px rgba(0, 0, 0, 0.08),
-    0 0 1px rgba(0, 0, 0, 0.04);
+    0 2px 4px rgb(0, 0, 0, 0.12),
+    0 1px 2px rgb(0, 0, 0, 0.08),
+    0 0 1px rgb(0, 0, 0, 0.04);
   --shadow-md:
-    0 8px 16px -4px rgba(0, 0, 0, 0.16),
-    0 4px 8px -2px rgba(0, 0, 0, 0.12),
-    0 0 1px rgba(0, 0, 0, 0.08);
+    0 8px 16px -4px rgb(0, 0, 0, 0.16),
+    0 4px 8px -2px rgb(0, 0, 0, 0.12),
+    0 0 1px rgb(0, 0, 0, 0.08);
   --shadow-lg:
-    0 16px 32px -8px rgba(0, 0, 0, 0.2),
-    0 8px 16px -4px rgba(0, 0, 0, 0.14),
-    0 0 1px rgba(0, 0, 0, 0.08);
+    0 16px 32px -8px rgb(0, 0, 0, 0.2),
+    0 8px 16px -4px rgb(0, 0, 0, 0.14),
+    0 0 1px rgb(0, 0, 0, 0.08);
   --shadow-xl:
-    0 24px 48px -12px rgba(0, 0, 0, 0.24),
-    0 12px 24px -6px rgba(0, 0, 0, 0.16),
-    0 0 1px rgba(0, 0, 0, 0.08);
+    0 24px 48px -12px rgb(0, 0, 0, 0.24),
+    0 12px 24px -6px rgb(0, 0, 0, 0.16),
+    0 0 1px rgb(0, 0, 0, 0.08);
   --shadow-2xl:
-    0 32px 64px -16px rgba(0, 0, 0, 0.32),
-    0 16px 32px -8px rgba(0, 0, 0, 0.2),
-    0 0 1px rgba(0, 0, 0, 0.08);
+    0 32px 64px -16px rgb(0, 0, 0, 0.32),
+    0 16px 32px -8px rgb(0, 0, 0, 0.2),
+    0 0 1px rgb(0, 0, 0, 0.08);
 
   /* Focus ring (accessibility) - using iris brand color */
-  --shadow-focus: 0 0 0 3px rgba(var(--color-focus-rgb), 0.35);
-  --shadow-focus-error: 0 0 0 3px rgba(239, 68, 68, 0.35);
+  --shadow-focus: 0 0 0 3px rgb(var(--color-focus-rgb), 0.35);
+  --shadow-focus-error: 0 0 0 3px rgb(239, 68, 68, 0.35);
 
   /* ============================================================================
      NOISE TEXTURES (2025 Premium Trend - Vercel/Linear style)
@@ -168,7 +168,7 @@
      ============================================================================ */
 
   /* --- Background colors --- */
-  --color-bg-base: #ffffff;           /* Main background */
+  --color-bg-base: #fff;           /* Main background */
   --color-bg-subtle: #fafafa;         /* Sidebar, secondary areas */
   --color-bg-muted: #f5f5f5;          /* Cards, elevated surfaces */
   --color-bg-emphasis: #ebebeb;       /* Hover states, active */
@@ -179,7 +179,7 @@
   --color-text-muted: #6b6b6b;        /* Secondary text */
   --color-text-subtle: #9b9b9b;       /* Tertiary, placeholders */
   --color-text-disabled: #c7c7c7;     /* Disabled state */
-  --color-text-inverse: #ffffff;      /* On dark backgrounds */
+  --color-text-inverse: #fff;      /* On dark backgrounds */
 
   /* --- Border colors --- */
   --color-border-default: #e8e8e8;    /* Default borders */
@@ -187,19 +187,23 @@
   --color-border-emphasis: #d4d4d4;   /* Emphasized borders */
 
   /* --- Primary (Brand) --- */
+
   /* NOTE: --color-primary is defined in tailwind.css as indigo (#6366f1) */
+
   /* These are kept for legacy compatibility but tailwind.css takes precedence */
   --color-primary-subtle: #eef2ff;    /* Indigo-50 for subtle backgrounds */
 
   /* --- Accent - DEPRECATED: Use tailwind.css --color-accent (indigo) instead --- */
+
   /* Accent colors are now defined in tailwind.css as the brand indigo (#6366f1) */
+
   /* Legacy red/coral accent removed to prevent conflicts */
 
   /* --- Success --- */
   --color-success: #0f7b6c;           /* Notion teal */
   --color-success-hover: #0d6b5e;
   --color-success-subtle: #e6f4f1;
-  --color-success-text: #ffffff;
+  --color-success-text: #fff;
 
   /* --- Warning --- */
   --color-warning: #cb912f;           /* Notion yellow/gold */
@@ -211,7 +215,7 @@
   --color-error: #e03e3e;             /* Notion red */
   --color-error-hover: #c93636;
   --color-error-subtle: #fbe4e4;
-  --color-error-text: #ffffff;
+  --color-error-text: #fff;
 
   /* --- Info --- */
   --color-info: #337ea9;              /* Notion blue variant */
@@ -282,8 +286,6 @@
   --input-padding: var(--space-2) var(--space-3);
 
   /* --- Cards --- */
-  --card-padding: var(--space-4);
-  --card-padding-lg: var(--space-6);
   --card-radius: var(--radius-lg);
 
   /* --- Modal --- */
@@ -314,7 +316,7 @@
   --color-text-default: #ffffffcf;    /* Notion's dark mode text */
   --color-text-muted: #ffffff80;
   --color-text-subtle: #ffffff52;
-  --color-text-disabled: #ffffff33;
+  --color-text-disabled: #fff3;
   --color-text-inverse: #191919;
 
   /* --- Border colors --- */
@@ -323,10 +325,12 @@
   --color-border-emphasis: #ffffff24;
 
   /* --- Primary (Brand) --- */
+
   /* NOTE: --color-primary is defined in tailwind.css as indigo (#6366f1) */
   --color-primary-subtle: #312e81;    /* Indigo-900 for dark mode subtle */
 
   /* --- Accent - inherits from tailwind.css (indigo) --- */
+
   /* Dark mode accent variants handled by tailwind.css */
 
   /* --- Success --- */
@@ -347,21 +351,21 @@
 
   /* --- Shadows (premium layered for dark mode) --- */
   --shadow-sm:
-    0 2px 4px rgba(0, 0, 0, 0.4),
-    0 1px 2px rgba(0, 0, 0, 0.3),
-    0 0 1px rgba(0, 0, 0, 0.2);
+    0 2px 4px rgb(0, 0, 0, 0.4),
+    0 1px 2px rgb(0, 0, 0, 0.3),
+    0 0 1px rgb(0, 0, 0, 0.2);
   --shadow-md:
-    0 8px 16px -4px rgba(0, 0, 0, 0.5),
-    0 4px 8px -2px rgba(0, 0, 0, 0.35),
-    0 0 1px rgba(0, 0, 0, 0.2);
+    0 8px 16px -4px rgb(0, 0, 0, 0.5),
+    0 4px 8px -2px rgb(0, 0, 0, 0.35),
+    0 0 1px rgb(0, 0, 0, 0.2);
   --shadow-lg:
-    0 16px 32px -8px rgba(0, 0, 0, 0.55),
-    0 8px 16px -4px rgba(0, 0, 0, 0.4),
-    0 0 1px rgba(0, 0, 0, 0.2);
+    0 16px 32px -8px rgb(0, 0, 0, 0.55),
+    0 8px 16px -4px rgb(0, 0, 0, 0.4),
+    0 0 1px rgb(0, 0, 0, 0.2);
   --shadow-xl:
-    0 24px 48px -12px rgba(0, 0, 0, 0.6),
-    0 12px 24px -6px rgba(0, 0, 0, 0.45),
-    0 0 1px rgba(0, 0, 0, 0.2);
+    0 24px 48px -12px rgb(0, 0, 0, 0.6),
+    0 12px 24px -6px rgb(0, 0, 0, 0.45),
+    0 0 1px rgb(0, 0, 0, 0.2);
 
   /* --- Sidebar --- */
   --sidebar-bg: var(--color-bg-subtle);
@@ -492,8 +496,8 @@
 }
 
 @keyframes complete-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-  40% { box-shadow: 0 0 20px 4px rgba(16, 185, 129, 0.25); }
+  0%, 100% { box-shadow: 0 0 0 0 rgb(16, 185, 129, 0); }
+  40% { box-shadow: 0 0 20px 4px rgb(16, 185, 129, 0.25); }
 }
 
 /* Stage complete - for stage header icons */
@@ -582,8 +586,10 @@
 /* =============================================================================
    ACCESSIBILITY: Reduced Motion Support
    Respects user preference for reduced motion (WCAG 2.1 AA compliance)
+   !important is required here to ensure animations are disabled regardless of specificity
    ============================================================================= */
 
+/* stylelint-disable declaration-no-important */
 @media (prefers-reduced-motion: reduce) {
   /* Disable all celebration/completion animations */
   .animate-success-pop,
@@ -623,3 +629,4 @@
     animation: none !important;
   }
 }
+/* stylelint-enable declaration-no-important */

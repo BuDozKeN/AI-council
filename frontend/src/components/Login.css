@@ -33,7 +33,6 @@
   pointer-events: none;
   will-change: transform;
   filter: blur(10px);
-
   background-image:
     repeating-linear-gradient(100deg, var(--black) 0%, var(--black) 7%, var(--transparent) 10%, var(--transparent) 12%, var(--black) 16%),
     repeating-linear-gradient(100deg, var(--blue-500) 10%, var(--indigo-300) 15%, var(--blue-300) 20%, var(--violet-200) 25%, var(--blue-400) 30%);
@@ -51,6 +50,7 @@
   from {
     background-position: 50% 50%, 50% 50%;
   }
+
   to {
     background-position: 350% 50%, 350% 50%;
   }
@@ -64,7 +64,7 @@
   max-width: 420px;
   padding: 40px;
   margin: 20px;
-  background: rgba(var(--color-gray-900-rgb), 0.8);
+  background: rgb(var(--color-gray-900-rgb), 0.8);
   backdrop-filter: blur(40px) saturate(180%);
   -webkit-backdrop-filter: blur(40px) saturate(180%);
   border-radius: var(--radius-3xl);
@@ -84,7 +84,7 @@
   font-size: 32px;
   font-weight: 700;
   color: var(--color-text-inverse);
-  margin: 0 0 8px 0;
+  margin: 0 0 8px;
   letter-spacing: -0.5px;
   text-shadow: 0 2px 10px var(--overlay-black-30);
 }
@@ -93,7 +93,7 @@
   font-size: 20px;
   font-weight: 500;
   color: var(--overlay-white-90);
-  margin: 0 0 4px 0;
+  margin: 0 0 4px;
 }
 
 .login-description {
@@ -181,7 +181,7 @@
 
 .login-form .form-group input {
   padding: 14px 16px;
-  background: rgba(var(--color-slate-800-rgb), 0.8);
+  background: rgb(var(--color-slate-800-rgb), 0.8);
   border: 1px solid var(--overlay-white-20);
   border-radius: var(--radius-md);
   font-size: 15px;
@@ -195,8 +195,8 @@
 
 .login-form .form-group input:focus {
   outline: none;
-  border-color: rgba(var(--color-indigo-rgb), 0.8);
-  background: rgba(var(--color-slate-800-rgb), 0.9);
+  border-color: rgb(var(--color-indigo-rgb), 0.8);
+  background: rgb(var(--color-slate-800-rgb), 0.9);
   box-shadow: var(--shadow-focus);
 }
 
@@ -204,7 +204,7 @@
 .submit-button {
   margin-top: 8px;
   padding: 14px 20px;
-  background: rgba(var(--color-indigo-rgb), 0.85);
+  background: rgb(var(--color-indigo-rgb), 0.85);
   border: 1px solid var(--overlay-white-10);
   border-radius: var(--radius-md);
   font-size: 16px;
@@ -216,7 +216,7 @@
 }
 
 .submit-button:hover:not(:disabled) {
-  background: rgba(var(--color-indigo-rgb), 0.95);
+  background: rgb(var(--color-indigo-rgb), 0.95);
   box-shadow: var(--shadow-lg);
 }
 
@@ -228,7 +228,7 @@
 /* Messages */
 .error-message {
   background: var(--overlay-red-15);
-  border: 1px solid rgba(var(--color-red-500-rgb), 0.3);
+  border: 1px solid rgb(var(--color-red-500-rgb), 0.3);
   color: var(--color-red-300);
   padding: 12px 14px;
   border-radius: var(--radius-md);
@@ -237,7 +237,7 @@
 
 .success-message {
   background: var(--overlay-green-15);
-  border: 1px solid rgba(var(--color-green-500-rgb), 0.3);
+  border: 1px solid rgb(var(--color-green-500-rgb), 0.3);
   color: var(--color-green-300);
   padding: 12px 14px;
   border-radius: var(--radius-md);

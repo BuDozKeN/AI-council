@@ -7,7 +7,9 @@
     "custom-property-pattern": null,
     "keyframes-name-pattern": null,
     "no-descending-specificity": null,
+    "no-duplicate-selectors": null,
     "property-no-vendor-prefix": null,
+    "property-no-deprecated": null,
     "value-no-vendor-prefix": null,
     "selector-no-vendor-prefix": null,
     "at-rule-no-vendor-prefix": null,
@@ -16,6 +18,7 @@
     "color-function-notation": null,
     "import-notation": null,
     "selector-not-notation": null,
+    "declaration-block-single-line-max-declarations": null,
     "function-no-unknown": [true, {
       "ignoreFunctions": ["theme", "screen"]
     }],

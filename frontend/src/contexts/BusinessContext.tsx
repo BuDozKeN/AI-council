@@ -217,7 +217,7 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
   const isLoading = isLoadingBusinesses;
 
   // Setter for projects (needed by some components that modify projects locally before cache invalidates)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   const setProjects = useCallback((_updater: Project[] | ((prev: Project[]) => Project[])) => {
     // This is a no-op now since projects come from TanStack Query
     // Components should call refreshProjects() instead
@@ -313,19 +313,20 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
   }, [queryClient]);
 
   // Reset selections when business changes
-  const prevBusinessRef = useRef<string | null>(selectedBusiness);
   useEffect(() => {
-    const businessChanged = prevBusinessRef.current !== selectedBusiness;
-    prevBusinessRef.current = selectedBusiness;
-
-    if (businessChanged && selectedBusiness !== null) {
-      // Reset selections when business changes
-      setSelectedDepartment(null);
-      setSelectedChannel(null);
-      setSelectedStyle(null);
-      setSelectedProject(null);
-      setSelectedPlaybooks([]);
+    if (selectedBusiness !== null) {
+      // Defer state updates to avoid synchronous setState in effect
+      const frameId = requestAnimationFrame(() => {
+        setSelectedDepartment(null);
+        setSelectedChannel(null);
+        setSelectedStyle(null);
+        setSelectedProject(null);
+        setSelectedPlaybooks([]);
+      });
+      return () => cancelAnimationFrame(frameId);
     }
+    return undefined;
+
   }, [selectedBusiness]);
 
   // Validate selectedProject when projects change
@@ -334,21 +335,28 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
       const projectExists = projects.some((p: Project) => p.id === selectedProject);
       if (!projectExists) {
         log.debug('Clearing selectedProject - project no longer exists:', selectedProject);
-        setSelectedProject(null);
+        // Defer state update to avoid synchronous setState in effect
+        const frameId = requestAnimationFrame(() => {
+          setSelectedProject(null);
+        });
+        return () => cancelAnimationFrame(frameId);
       }
     }
+    return undefined;
   }, [projects, selectedProject]);
 
   // Reset role and channel when department changes
-  const prevDepartmentRef = useRef<string | null>(selectedDepartment);
   useEffect(() => {
-    const departmentChanged = prevDepartmentRef.current !== selectedDepartment;
-    prevDepartmentRef.current = selectedDepartment;
-
-    if (departmentChanged && selectedDepartment !== null) {
-      setSelectedRole(null);
-      setSelectedChannel(null);
+    if (selectedDepartment !== null) {
+      // Defer state updates to avoid synchronous setState in effect
+      const frameId = requestAnimationFrame(() => {
+        setSelectedRole(null);
+        setSelectedChannel(null);
+      });
+      return () => cancelAnimationFrame(frameId);
     }
+    return undefined;
+
   }, [selectedDepartment]);
 
   // Save context preferences when they change (debounced)

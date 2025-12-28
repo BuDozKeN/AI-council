@@ -5,6 +5,7 @@ import { AppModal } from './ui/AppModal';
 import { Button } from './ui/button';
 import { Spinner } from './ui/Spinner';
 import { AIWriteAssist } from './ui/AIWriteAssist';
+import { toast } from './ui/sonner';
 import type { Project } from '../types/business';
 import './SaveKnowledgeModal.css';
 
@@ -305,6 +306,7 @@ export default function SaveKnowledgeModal({
         setAvailableProjects(prev => [...prev, result.project]);
         setProjectId(result.project.id);
         setShowProjectPreview(false);
+        toast.success(`"${newProjectName.trim()}" project created`, { duration: 3000 });
         setNewProjectName('');
         setNewProjectDescription('');
         // Notify parent so project appears in main dropdown
@@ -396,8 +398,10 @@ export default function SaveKnowledgeModal({
       const result = await api.createKnowledgeEntry(payload);
       log.debug('Save successful:', result);
 
-      // Show success - user clicks "Done" to dismiss
-      setSuccess(true);
+      // Show success toast and close modal
+      const modeText = saveMode === 'remember' ? 'Decision saved and will be remembered' : 'Decision saved';
+      toast.success(`"${title.trim()}" - ${modeText}`, { duration: 4000 });
+      onClose(true); // Close modal immediately with saved=true
     } catch (err) {
       log.error('Save failed:', err);
       const errorMessage = err instanceof Error ? err.message : "Couldn't save your decision. Please try again.";

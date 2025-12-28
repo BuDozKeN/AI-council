@@ -127,7 +127,7 @@ export function ContextChip({
   }, [playbooks]);
 
   // Handle Smart Auto selection (used by UI components)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
   const handleSmartAuto = () => {
     onSelectBusiness?.(null);
     onSelectDepartments?.([]);

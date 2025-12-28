@@ -11,6 +11,7 @@
   background-image:
     repeating-linear-gradient(100deg, transparent 0%, transparent 7%, var(--overlay-white-40) 10%, transparent 12%, transparent 16%),
     repeating-linear-gradient(100deg, var(--color-blue-200) 10%, var(--color-indigo-200) 15%, var(--color-blue-100) 20%, var(--color-violet-100) 25%, var(--color-blue-200) 30%);
+
   /* Inherit animation properties from base aurora */
   background-size: 300% 200%, 200% 100%;
   background-position: 50% 50%, 50% 50%;
@@ -24,6 +25,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
   /* Prevent content from overflowing on very small screens */
   overflow-y: auto;
 }
@@ -342,6 +344,7 @@
   background-image:
     repeating-linear-gradient(100deg, transparent 0%, transparent 7%, var(--overlay-white-10) 10%, transparent 12%, transparent 16%),
     repeating-linear-gradient(100deg, var(--color-blue-900) 10%, var(--color-indigo-900) 15%, var(--color-blue-800) 20%, var(--color-purple-900) 25%, var(--color-blue-900) 30%);
+
   /* Inherit animation properties from base aurora */
   background-size: 300% 200%, 200% 100%;
   background-position: 50% 50%, 50% 50%;
@@ -360,7 +363,7 @@
 }
 
 .dark .mode-toggle-landing {
-  background: rgba(var(--color-slate-800-rgb), 0.8);
+  background: rgb(var(--color-slate-800-rgb), 0.8);
   border-color: var(--color-border);
 }
 

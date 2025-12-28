@@ -57,7 +57,6 @@ export function ProfileSection({ user, isOpen }: ProfileSectionProps) {
     setProfile,
     profileLoading,
     isSaving,
-    saveMessage,
     handleSaveProfile,
   } = useProfile(isOpen, user);
 
@@ -141,11 +140,6 @@ export function ProfileSection({ user, isOpen }: ProfileSectionProps) {
               <Button type="submit" variant="default" disabled={isSaving}>
                 {isSaving ? 'Saving...' : 'Save Changes'}
               </Button>
-              {saveMessage.text && (
-                <span className={`save-message ${saveMessage.type}`}>
-                  {saveMessage.text}
-                </span>
-              )}
             </div>
           </form>
         </CardContent>

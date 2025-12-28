@@ -59,7 +59,7 @@
   height: 20px;
   border: none;
   border-radius: 50%;
-  background: rgba(var(--color-red-500-rgb), 0.9);
+  background: rgb(var(--color-red-500-rgb), 0.9);
   color: var(--color-text-inverse);
   font-size: 14px;
   font-weight: bold;

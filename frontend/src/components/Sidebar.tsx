@@ -29,7 +29,7 @@ import type { Conversation, ConversationSortBy } from '../types/conversation';
 import type { Department } from '../types/business';
 import './Sidebar.css';
 
-interface ConversationGroup {
+interface DepartmentConversationGroup {
   name: string;
   conversations: Conversation[];
   deptId: string;
@@ -426,7 +426,7 @@ export default function Sidebar({
   // Note: conversations store department as a slug (e.g., "technology", "standard")
   // while departments from the API have both id (UUID) and slug fields
   const groupedConversations = useMemo(() => {
-    const groups: Record<string, ConversationGroup> = {};
+    const groups: Record<string, DepartmentConversationGroup> = {};
     const convsToGroup = filter === 'archived' ? filteredBySearch.archived : filteredBySearch.active;
 
     // Create groups keyed by slug (or id for legacy/default departments)

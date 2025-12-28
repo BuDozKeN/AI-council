@@ -24,7 +24,7 @@
 
 /* ===== DARK MODE - Trigger ===== */
 .dark .context-chip-trigger {
-  background: rgba(var(--color-slate-800-rgb), 0.8);
+  background: rgb(var(--color-slate-800-rgb), 0.8);
   border-color: var(--color-border);
   color: var(--color-text-secondary);
 }
@@ -284,6 +284,7 @@
     opacity: 0;
     transform: translateY(-4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -365,7 +366,7 @@
   color: var(--color-text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin: 0 0 8px 0;
+  margin: 0 0 8px;
 }
 
 /* Smart Auto option */
@@ -443,7 +444,7 @@
 .context-option-current {
   font-size: 12px;
   color: var(--color-text-tertiary);
-  margin: 4px 0 0 0;
+  margin: 4px 0 0;
   font-style: italic;
 }
 
@@ -779,6 +780,7 @@
     opacity: 0;
     transform: translateY(-8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -787,7 +789,7 @@
 
 /* Mobile sections */
 .context-section-mobile {
-  padding: 0 0 16px 0;
+  padding: 0 0 16px;
   animation: slideInSection 0.25s ease-out;
 }
 
@@ -797,7 +799,7 @@
   color: var(--color-text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin: 0 0 12px 0;
+  margin: 0 0 12px;
 }
 
 /* Mobile company buttons */
@@ -854,14 +856,14 @@
 .context-chip-strip {
   display: flex;
   gap: 10px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 4px 0 8px 0;
+  overflow: auto hidden;
+  padding: 4px 0 8px;
   margin: 0 -4px;
   padding-left: 4px;
   padding-right: 4px;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+
   /* Hide scrollbar but keep functionality */
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -887,6 +889,7 @@
   cursor: pointer;
   transition: all 0.15s ease;
   flex-shrink: 0;
+
   /* Touch-friendly size */
   min-height: 44px;
 }
@@ -999,6 +1002,7 @@
   --chip-bg: transparent;
   --chip-border: var(--color-border);
   --chip-text: var(--color-text-tertiary);
+
   border-style: dashed;
 }
 

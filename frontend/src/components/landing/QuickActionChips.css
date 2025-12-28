@@ -27,7 +27,7 @@
 
 /* ===== DARK MODE ===== */
 .dark .quick-action-chip {
-  background: rgba(var(--color-slate-800-rgb), 0.7);
+  background: rgb(var(--color-slate-800-rgb), 0.7);
   border-color: var(--color-border);
   color: var(--color-text-secondary);
 }

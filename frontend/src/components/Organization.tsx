@@ -5,6 +5,7 @@ import { AppModal } from './ui/AppModal';
 import { Button } from './ui/button';
 import { AlertModal } from './ui/AlertModal';
 import { AIWriteAssist } from './ui/AIWriteAssist';
+import { toast } from './ui/sonner';
 import { logger } from '../utils/logger';
 import type { Department, Business } from '../types/business';
 import './Organization.css';
@@ -151,15 +152,17 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
     setSaving(true);
     try {
       const deptId = newDept.id || generateSlug(newDept.name);
+      const deptName = newDept.name.trim();
       await api.createDepartment(companyId, {
         id: deptId,
-        name: newDept.name.trim(),
+        name: deptName,
       });
 
       // Refresh data
       await fetchOrganization();
       setShowAddDept(false);
       setNewDept({ id: '', name: '', description: '' });
+      toast.success(`"${deptName}" department created`, { duration: 3000 });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       setAlertModal({ title: 'Error', message: 'Failed to create department: ' + message, variant: 'error' });
@@ -174,9 +177,10 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
     setSaving(true);
     try {
       const roleId = newRole.id || generateSlug(newRole.name);
+      const roleName = newRole.name.trim();
       await api.addRole(companyId, deptId, {
         role_id: roleId,
-        role_name: newRole.name.trim(),
+        role_name: roleName,
         role_description: newRole.description.trim() || '',
       });
 
@@ -184,6 +188,7 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
       await fetchOrganization();
       setShowAddRole(null);
       setNewRole({ id: '', name: '', description: '' });
+      toast.success(`"${roleName}" role added`, { duration: 3000 });
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       setAlertModal({ title: 'Error', message: 'Failed to create role: ' + message, variant: 'error' });
@@ -204,6 +209,7 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
       await api.updateDepartment(companyId, editingDept.id, updates);
 
       await fetchOrganization();
+      toast.success(`"${editingDept.name}" updated`, { duration: 3000 });
       setEditingDept(null);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
@@ -225,6 +231,7 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
       await api.updateRole(companyId, editingRole.deptId, editingRole.role.id, updates);
 
       await fetchOrganization();
+      toast.success(`"${editingRole.role.name}" updated`, { duration: 3000 });
       setEditingRole(null);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';

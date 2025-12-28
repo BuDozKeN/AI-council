@@ -493,7 +493,7 @@ export function useMessageStreaming({
           });
           break;
 
-        case 'title_complete':
+        case 'title_complete': {
           // Backend sends: { type: 'title_complete', data: { title: '...' } }
           const newTitle = event.data?.title;
           if (newTitle) {
@@ -508,6 +508,7 @@ export function useMessageStreaming({
             });
           }
           break;
+        }
 
         case 'complete':
           flushNow();

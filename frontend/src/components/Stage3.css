@@ -139,24 +139,7 @@ h2, h3 {
   100% { box-shadow: 0 0 0 0 var(--overlay-emerald-10); }
 }
 
-/* Copy button - legacy class */
-.copy-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px 8px;
-  background: transparent;
-  border: 1px solid var(--color-success-border);
-  border-radius: var(--radius-sm);
-  color: var(--color-success-dark);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.copy-btn:hover {
-  background: var(--color-success-light);
-}
-
+/* Icon size for inline copy buttons */
 .copy-icon {
   width: 14px;
   height: 14px;
@@ -209,6 +192,7 @@ h2, h3 {
   gap: 8px;
   padding: 8px 0;
   margin-bottom: 8px;
+
   /* No shared background - each child element styles itself independently */
   background: transparent;
   pointer-events: none; /* Let clicks pass through to content below */
@@ -311,6 +295,7 @@ h2, h3 {
     opacity: 0;
     transform: translateY(-8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -347,7 +332,7 @@ h2, h3 {
 
 .code-block-wrapper pre {
   margin: 0;
-  padding: 36px 12px 12px 12px;
+  padding: 36px 12px 12px;
   overflow-x: auto;
   background: var(--color-code-bg);
 }
@@ -749,9 +734,11 @@ h2, h3 {
     transform: scale(0.95);
     opacity: 0;
   }
+
   50% {
     transform: scale(1.02);
   }
+
   100% {
     transform: scale(1);
     opacity: 1;
@@ -845,6 +832,7 @@ h2, h3 {
   transition: all 0.15s ease;
   white-space: nowrap;
   max-width: 160px;
+  overflow: hidden;
 }
 
 .save-project-pill:hover:not(:disabled) {
@@ -875,55 +863,9 @@ h2, h3 {
   max-width: 100px;
 }
 
-/* Legacy selector (keeping for backwards compat) */
-.save-project-selector {
-  position: relative;
+/* Ensure icons don't shrink when text truncates */
+.save-project-pill svg {
   flex-shrink: 0;
-}
-
-.save-project-trigger {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
-  background: var(--color-slate-50);
-  border: 1px solid var(--color-slate-200);
-  border-radius: var(--radius-md);
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--color-slate-500);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
-  max-width: 180px;
-}
-
-.save-project-trigger:hover:not(:disabled) {
-  background: var(--color-bg-primary);
-  border-color: var(--color-slate-300);
-  color: var(--color-gray-700);
-}
-
-.save-project-trigger.has-project {
-  background: var(--color-purple-100);
-  border-color: var(--color-purple-200);
-  color: var(--color-purple-600);
-}
-
-.save-project-trigger.has-project:hover:not(:disabled) {
-  background: var(--color-violet-100);
-  border-color: var(--color-violet-200);
-}
-
-.save-project-trigger:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.save-project-trigger span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 120px;
 }
 
 /* Project dropdown */
@@ -998,6 +940,7 @@ h2, h3 {
   color: var(--color-slate-500);
   margin-top: 2px;
   line-height: 1.4;
+
   /* Allow 2 lines before truncating */
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -1035,6 +978,7 @@ h2, h3 {
 }
 
 /* ===== DARK MODE ===== */
+
 /* Stage3 uses CSS variables from tailwind.css which are redefined in .dark context */
 
 .dark .stage3 .stage-title.clickable:hover {
@@ -1071,15 +1015,6 @@ h2, h3 {
 
 .dark .final-text {
   color: var(--color-text-primary);
-}
-
-.dark .copy-btn {
-  border-color: var(--color-border);
-  color: var(--stage3-text-primary);
-}
-
-.dark .copy-btn:hover {
-  background: var(--color-success-light);
 }
 
 /* Dark mode Stage3 copy button - subtle green style */
@@ -1293,6 +1228,7 @@ h2, h3 {
   margin: 16px 0;
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
+
   /* Prevent touch events from propagating to parent */
   overscroll-behavior-x: contain;
 }
@@ -1339,6 +1275,7 @@ h2, h3 {
 
   .final-response {
     padding: 16px;
+
     /* Remove overflow from container - tables have their own scroll wrapper */
     overflow-x: visible;
   }
@@ -1545,6 +1482,7 @@ h2, h3 {
   cursor: pointer;
   text-align: left;
   transition: all 0.15s ease;
+
   /* Ensure proper mobile touch handling */
   touch-action: manipulation;
   -webkit-tap-highlight-color: var(--overlay-purple-20);
@@ -1601,6 +1539,7 @@ h2, h3 {
   color: var(--color-purple-600);
   cursor: pointer;
   transition: all 0.15s ease;
+
   /* Ensure proper mobile touch handling */
   touch-action: manipulation;
   -webkit-tap-highlight-color: var(--overlay-purple-20);

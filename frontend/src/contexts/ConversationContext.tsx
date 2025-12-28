@@ -160,18 +160,23 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
 
   useEffect(() => {
     if (conversationsData) {
-      if (paginationOffset === 0) {
-        setConversations(conversationsData.conversations);
-      } else {
-        // Append with deduplication
-        setConversations(prev => {
-          const existingIds = new Set(prev.map(c => c.id));
-          const newConvs = conversationsData.conversations.filter((c: Conversation) => !existingIds.has(c.id));
-          return [...prev, ...newConvs];
-        });
-      }
-      setHasMoreConversations(conversationsData.hasMore);
+      // Defer state updates to avoid synchronous setState in effect
+      const frameId = requestAnimationFrame(() => {
+        if (paginationOffset === 0) {
+          setConversations(conversationsData.conversations);
+        } else {
+          // Append with deduplication
+          setConversations(prev => {
+            const existingIds = new Set(prev.map(c => c.id));
+            const newConvs = conversationsData.conversations.filter((c: Conversation) => !existingIds.has(c.id));
+            return [...prev, ...newConvs];
+          });
+        }
+        setHasMoreConversations(conversationsData.hasMore);
+      });
+      return () => cancelAnimationFrame(frameId);
     }
+    return undefined;
   }, [conversationsData, paginationOffset]);
 
   // Log errors to Sentry/console
@@ -200,16 +205,26 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
   // Sync fetched conversation to local state
   useEffect(() => {
     if (fetchedConversation && shouldFetchConversation) {
-      setCurrentConversation(fetchedConversation);
+      // Defer state update to avoid synchronous setState in effect
+      const frameId = requestAnimationFrame(() => {
+        setCurrentConversation(fetchedConversation);
+      });
+      return () => cancelAnimationFrame(frameId);
     }
+    return undefined;
   }, [fetchedConversation, shouldFetchConversation]);
 
   useEffect(() => {
     if (conversationError) {
       log.error('Failed to load conversation:', conversationError);
-      setCurrentConversationId(null);
+      // Defer state update to avoid synchronous setState in effect
+      const frameId = requestAnimationFrame(() => {
+        setCurrentConversationId(null);
+      });
       toast.error("We couldn't load that conversation. Please try again.");
+      return () => cancelAnimationFrame(frameId);
     }
+    return undefined;
   }, [conversationError]);
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -270,17 +285,23 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
       await queryClient.cancelQueries({ queryKey: conversationKeys.lists() });
       // Snapshot
       const previousConversations = conversations;
+      const conversation = conversations.find(c => c.id === id);
       // Optimistic update
       setConversations(prev =>
         prev.map(conv => conv.id === id ? { ...conv, is_archived: archived } : conv)
       );
-      return { previousConversations };
+      return { previousConversations, conversationTitle: conversation?.title };
+    },
+    onSuccess: (_, { archived }, context) => {
+      const title = context?.conversationTitle || 'Conversation';
+      toast.success(archived ? `"${title}" archived` : `"${title}" restored`, { duration: 3000 });
     },
     onError: (err, _, context) => {
       log.error('Failed to archive conversation:', err);
       if (context?.previousConversations) {
         setConversations(context.previousConversations);
       }
+      toast.error("Couldn't update conversation");
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: conversationKeys.lists() });
@@ -294,6 +315,7 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
     onMutate: async ({ id, starred }) => {
       await queryClient.cancelQueries({ queryKey: conversationKeys.lists() });
       const previousConversations = conversations;
+      const conversation = conversations.find(c => c.id === id);
       // Optimistic update with sort
       setConversations(prev => {
         const updated = prev.map(conv =>
@@ -305,14 +327,18 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
           return (b.message_count || 0) - (a.message_count || 0);
         });
       });
-      return { previousConversations };
+      return { previousConversations, conversationTitle: conversation?.title };
+    },
+    onSuccess: (_, { starred }, context) => {
+      const title = context?.conversationTitle || 'Conversation';
+      toast.success(starred ? `"${title}" starred` : `"${title}" unstarred`, { duration: 3000 });
     },
     onError: (err, _, context) => {
       log.error('Failed to star conversation:', err);
       if (context?.previousConversations) {
         setConversations(context.previousConversations);
       }
-      toast.error("Couldn't update that conversation. Please try again.");
+      toast.error("Couldn't update conversation");
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: conversationKeys.lists() });
@@ -336,6 +362,9 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
       );
       return { previousConversations, previousCurrentConversation };
     },
+    onSuccess: (_, { title }) => {
+      toast.success(`Renamed to "${title}"`, { duration: 3000 });
+    },
     onError: (err, _, context) => {
       log.error('Failed to rename conversation:', err);
       if (context?.previousConversations) {
@@ -344,7 +373,7 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
       if (context?.previousCurrentConversation) {
         setCurrentConversation(context.previousCurrentConversation);
       }
-      toast.error("Couldn't rename that conversation. Please try again.");
+      toast.error("Couldn't rename conversation");
     },
     onSettled: (_, __, { id }) => {
       queryClient.invalidateQueries({ queryKey: conversationKeys.lists() });

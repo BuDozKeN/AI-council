@@ -39,7 +39,7 @@
   font-size: 24px;
   font-weight: 600;
   color: var(--color-gray-900);
-  margin: 0 0 12px 0;
+  margin: 0 0 12px;
 }
 
 .error-boundary-message {
@@ -135,6 +135,6 @@
   overflow: auto;
   max-height: 200px;
   white-space: pre-wrap;
-  word-break: break-word;
+  overflow-wrap: break-word;
   margin: 0;
 }

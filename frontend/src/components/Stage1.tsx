@@ -370,10 +370,25 @@ function Stage1({
 }: Stage1Props) {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [internalExpandedModel, setInternalExpandedModel] = useState<string | null>(null);
+  const [userToggled, setUserToggled] = useState(false);
 
   // Use external control if provided, otherwise use internal state
   const expandedModel = externalExpandedModel !== undefined ? externalExpandedModel : internalExpandedModel;
   const setExpandedModel = onExpandedModelChange || setInternalExpandedModel;
+
+  // Auto-expand Stage1 when a model is selected from external control (e.g., clicking ranking)
+  useEffect(() => {
+    if (externalExpandedModel && isCollapsed) {
+      // Defer state update to avoid synchronous setState in effect
+      const frameId = requestAnimationFrame(() => {
+        setIsCollapsed(false);
+        setUserToggled(true);
+      });
+      return () => cancelAnimationFrame(frameId);
+    }
+    return undefined;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [externalExpandedModel]);
 
   // Build display data from either streaming or final responses
   const displayData: Stage1DisplayData[] = [];
@@ -438,9 +453,6 @@ function Stage1({
   const allComplete = displayData.length > 0 && displayData.every(d => d.isComplete || d.isStopped || d.hasError);
   const streamingCount = displayData.filter(d => d.isStreaming).length;
 
-  // Track if user has manually toggled
-  const [userToggled, setUserToggled] = useState(false);
-
   // Use the reusable celebration hook for stage completion
   const { isCelebrating: showCompleteCelebration } = useCompletionCelebration(
     allComplete && displayData.length > 0,
@@ -456,14 +468,6 @@ function Stage1({
     }
     return undefined;
   }, [isComplete, allComplete, isCollapsed, userToggled]);
-
-  // Auto-expand Stage1 when a model is selected from external control (e.g., clicking ranking)
-  useEffect(() => {
-    if (externalExpandedModel && isCollapsed) {
-      setIsCollapsed(false);
-      setUserToggled(true);
-    }
-  }, [externalExpandedModel]);
 
   if (displayData.length === 0 && !isLoading) {
     return null;

@@ -12,7 +12,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { Activity, Zap, DollarSign, ChevronDown, ChevronUp } from 'lucide-react';
-import { getShowTokenUsage } from '../settings/DeveloperSection';
+import { getShowTokenUsage } from '../settings/tokenUsageSettings';
 import './TokenUsageDisplay.css';
 
 // Model pricing (per 1M tokens) - Official provider pricing as of Dec 2025
@@ -131,13 +131,14 @@ export function TokenUsageDisplay({ usage, stage = 'complete', className = '' }:
 
   // Listen for visibility changes from settings
   useEffect(() => {
-    const handleVisibilityChange = (e: CustomEvent<boolean>) => {
-      setIsVisible(e.detail);
+    const handleVisibilityChange = (e: Event) => {
+      const customEvent = e as CustomEvent<boolean>;
+      setIsVisible(customEvent.detail);
     };
 
-    window.addEventListener('showTokenUsageChanged', handleVisibilityChange as EventListener);
+    window.addEventListener('showTokenUsageChanged', handleVisibilityChange);
     return () => {
-      window.removeEventListener('showTokenUsageChanged', handleVisibilityChange as EventListener);
+      window.removeEventListener('showTokenUsageChanged', handleVisibilityChange);
     };
   }, []);
 

@@ -94,12 +94,12 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
-  box-shadow: 0 2px 4px rgba(var(--color-violet-500-rgb, 139, 92, 246), 0.2);
+  box-shadow: 0 2px 4px rgb(var(--color-violet-500-rgb, 139, 92, 246), 0.2);
 }
 
 .mc-btn-format-ai:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(var(--color-violet-500-rgb, 139, 92, 246), 0.3);
+  box-shadow: 0 4px 12px rgb(var(--color-violet-500-rgb, 139, 92, 246), 0.3);
 }
 
 .mc-btn-format-ai:disabled {
@@ -191,7 +191,7 @@
   background: var(--color-violet-100);
   color: var(--color-violet-700);
   border-color: var(--color-violet-400);
-  box-shadow: 0 2px 8px rgba(var(--color-violet-600-rgb, 124, 58, 237), 0.15);
+  box-shadow: 0 2px 8px rgb(var(--color-violet-600-rgb, 124, 58, 237), 0.15);
   transform: translateY(-1px);
 }
 

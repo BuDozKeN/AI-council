@@ -66,6 +66,11 @@ export function useDecisionActions({
           await loadData();
           setActiveTab('projects');
           setHighlightedProjectId(targetProjectId);
+          toast.success(projectId
+            ? `Decision added to project`
+            : `"${title || promoteModal.title}" created as project`,
+            { duration: 3000 }
+          );
           setSaving(false);
           return; // Early return - we've handled everything
         }
@@ -76,12 +81,15 @@ export function useDecisionActions({
           title: title || promoteModal.title,
           department_ids: departmentIds || []
         });
+        const docTypeLabel = docType === 'sop' ? 'SOP' : docType.charAt(0).toUpperCase() + docType.slice(1);
+        toast.success(`"${title || promoteModal.title}" created as ${docTypeLabel}`, { duration: 3000 });
       }
       setPromoteModal(null);
       // Reload decisions to show promoted status
       await loadData();
     } catch (err) {
       log.error('Failed to promote decision', { error: err });
+      toast.error('Failed to promote decision');
     }
     setSaving(false);
   }, [promoteModal, companyId, loadData, setActiveTab, setHighlightedProjectId]);
@@ -100,13 +108,14 @@ export function useDecisionActions({
       // Then call API in background
       try {
         await api.deleteDecision(companyId!, decision.id);
+        toast.success(`"${decision.title}" removed from decisions`, { duration: 3000 });
       } catch (err) {
         log.error('Failed to delete decision', { error: err });
         // On error, restore the decision to the list (don't reload to avoid skeleton flash)
         setDecisions(prev => [...prev, decision].sort((a, b) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         ));
-        toast.error('Failed to delete decision. Please try again.');
+        toast.error('Failed to delete decision');
       }
     }, 300);
   }, [companyId, setDecisions]);

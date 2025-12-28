@@ -57,7 +57,8 @@
   flex-direction: column;
   gap: 4px;
   padding: 6px 12px;
-  margin: 0 0 8px 0;
+  margin: 0 0 8px;
+
   /* Premium glass effect - stronger blur and saturation */
   background: var(--overlay-white-80);
   backdrop-filter: blur(32px) saturate(180%);
@@ -67,10 +68,12 @@
   border-top: none; /* No top border - flush with container */
   font-size: 11px;
   color: var(--color-text-secondary);
+
   /* Sticky - stays visible at top with NO gap */
   position: sticky;
   top: 0;
   z-index: var(--z-sticky); /* Higher than content elements like badges */
+
   /* Premium layered shadow */
   box-shadow: var(--shadow-md);
 }
@@ -78,7 +81,7 @@
 /* Dark mode context indicator - matches LandingHero dark mode */
 .dark .context-indicator,
 [data-theme="dark"] .context-indicator {
-  background: rgba(var(--color-slate-800-rgb), 0.85);
+  background: rgb(var(--color-slate-800-rgb), 0.85);
   border-color: var(--overlay-white-10);
   border-top: none;
   box-shadow:
@@ -231,9 +234,8 @@
 
 .messages-container {
   flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 0 24px 24px 24px; /* No top padding - context indicator handles it */
+  overflow: hidden auto;
+  padding: 0 24px 24px; /* No top padding - context indicator handles it */
 }
 
 .empty-state {
@@ -254,7 +256,7 @@
   padding: 16px;
   background: var(--color-indigo-100);
   border-radius: var(--radius-xl);
-  box-shadow: 0 4px 12px rgba(var(--color-indigo-rgb), 0.15);
+  box-shadow: 0 4px 12px rgb(var(--color-indigo-rgb), 0.15);
 }
 
 .empty-state-icon svg {
@@ -264,14 +266,14 @@
 }
 
 .empty-state h2 {
-  margin: 0 0 8px 0;
+  margin: 0 0 8px;
   font-size: 24px;
   font-weight: 600;
   color: var(--color-text-primary);
 }
 
 .empty-state p {
-  margin: 0 0 20px 0;
+  margin: 0 0 20px;
   font-size: 15px;
   max-width: 360px;
   line-height: 1.5;
@@ -307,6 +309,7 @@
     opacity: 0;
     transform: translateY(12px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -397,7 +400,7 @@
 
 .input-row:focus-within {
   border-color: var(--color-indigo-500);
-  box-shadow: 0 4px 16px rgba(var(--color-indigo-rgb), 0.12);
+  box-shadow: 0 4px 16px rgb(var(--color-indigo-rgb), 0.12);
 }
 
 /* ===== DARK MODE - Input Row ===== */
@@ -691,8 +694,8 @@ button.role-select-trigger:focus {
   resize: vertical;
   min-height: 80px;
   max-height: 300px;
+
   /* Handle long URLs and text without breaking layout */
-  word-wrap: break-word;
   overflow-wrap: break-word;
   white-space: pre-wrap;
 }
@@ -743,13 +746,13 @@ button.role-select-trigger:focus {
   transition: all 0.2s ease;
   white-space: nowrap;
   align-self: flex-end;
-  box-shadow: 0 2px 8px rgba(var(--color-indigo-rgb), 0.3);
+  box-shadow: 0 2px 8px rgb(var(--color-indigo-rgb), 0.3);
 }
 
 .send-button:hover:not(:disabled) {
   background: var(--color-indigo-600);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(var(--color-indigo-rgb), 0.4);
+  box-shadow: 0 4px 12px rgb(var(--color-indigo-rgb), 0.4);
 }
 
 .send-button:active:not(:disabled) {
@@ -843,16 +846,13 @@ button.role-select-trigger:focus {
 
 .toggle-slider {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background-color: var(--color-border-dark);
   border-radius: var(--radius-full);
   transition: all 0.3s ease;
 }
 
-.toggle-slider:before {
+.toggle-slider::before {
   position: absolute;
   content: "";
   height: 18px;
@@ -869,7 +869,7 @@ button.role-select-trigger:focus {
   background: var(--color-indigo-500);
 }
 
-.toggle-switch input:checked + .toggle-slider:before {
+.toggle-switch input:checked + .toggle-slider::before {
   transform: translateX(20px);
 }
 
@@ -1446,7 +1446,7 @@ button.role-select-trigger:focus {
   }
 
   .messages-container {
-    padding: 0 16px 16px 16px; /* No top padding on mobile either */
+    padding: 0 16px 16px; /* No top padding on mobile either */
   }
 
   .input-form {
@@ -1492,7 +1492,7 @@ button.role-select-trigger:focus {
 /* Small phones */
 @media (max-width: 480px) {
   .messages-container {
-    padding: 0 12px 12px 12px; /* No top padding on small phones either */
+    padding: 0 12px 12px; /* No top padding on small phones either */
   }
 
   .input-form {
@@ -1703,13 +1703,13 @@ button.mobile-role-select {
 @media (max-width: 768px) {
   [data-theme="dark"] .input-form,
   .dark .input-form {
-    background: rgba(var(--color-slate-800-rgb), 0.9);
+    background: rgb(var(--color-slate-800-rgb), 0.9);
     border-top: 1px solid var(--overlay-white-8);
   }
 
   [data-theme="dark"] .context-bar,
   .dark .context-bar {
-    background: rgba(var(--color-slate-800-rgb), 0.85);
+    background: rgb(var(--color-slate-800-rgb), 0.85);
     border: 1px solid var(--overlay-white-8);
   }
 }
