@@ -53,6 +53,49 @@
 }
 
 /* ============================================================================
+   TRIGGER VARIANTS
+   ============================================================================ */
+
+/**
+ * Compact variant - for sidebars, toolbars, and dense UIs
+ * Smaller height, minimal styling, subtle border
+ */
+.select-trigger--compact {
+  height: 30px;
+  padding: 0 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  box-shadow: none;
+}
+
+.select-trigger--compact:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-primary);
+}
+
+.select-trigger--compact:focus {
+  border-color: var(--color-border-dark);
+  /* No focus shadow for compact variant - it's too prominent in dense UIs */
+  box-shadow: none;
+}
+
+.select-trigger--compact:focus-visible {
+  border-color: var(--color-border-dark);
+  /* Only show subtle focus for keyboard navigation */
+  box-shadow: 0 0 0 2px var(--color-bg-hover);
+}
+
+.select-trigger--compact .select-trigger-icon {
+  width: 12px;
+  height: 12px;
+}
+
+/* ============================================================================
    CONTENT - The dropdown panel
    ============================================================================ */
 
@@ -67,6 +110,8 @@
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
   box-shadow: var(--shadow-dropdown);
+  /* Ensure pointer events work correctly for dismiss */
+  pointer-events: auto;
 }
 
 /* Animation states */
@@ -141,9 +186,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 0;
+  height: 0;
+  padding: 0;
+  overflow: hidden;
   cursor: default;
   color: var(--color-text-secondary);
+  transition: height 0.1s, padding 0.1s;
+}
+
+/* Only show scroll buttons when they have content to scroll to */
+.select-scroll-btn[data-state="visible"] {
+  height: auto;
+  padding: 4px 0;
 }
 
 /* ============================================================================
@@ -249,6 +303,20 @@
   .select-trigger-icon {
     width: 18px;
     height: 18px;
+  }
+
+  /* Compact variant - still needs 44px touch target on mobile */
+  .select-trigger--compact {
+    min-height: 44px;
+    height: 44px;
+    padding: 0 12px;
+    font-size: 14px;
+    border-radius: var(--radius-md);
+  }
+
+  .select-trigger--compact .select-trigger-icon {
+    width: 14px;
+    height: 14px;
   }
 
   /* Content - better mobile sizing */

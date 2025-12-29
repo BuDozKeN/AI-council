@@ -2,6 +2,7 @@
  * FilterSortBar - Filter and sort dropdowns
  *
  * Extracted from Sidebar.jsx for better maintainability.
+ * Uses the compact Select variant for dense sidebar UI.
  *
  * Note: Filter values use department slugs (e.g., "technology", "standard")
  * because conversations store department as a slug, not a UUID.
@@ -37,9 +38,12 @@ export function FilterSortBar({
   archivedCount = 0
 }: FilterSortBarProps) {
   return (
-    <div className="sidebar-filter">
+    <div
+      className="sidebar-filter"
+      onClick={(e) => e.stopPropagation()}
+    >
       <Select value={filter} onValueChange={onFilterChange}>
-        <SelectTrigger className="filter-select-trigger">
+        <SelectTrigger variant="compact" className="filter-select-trigger">
           <SelectValue placeholder="All Conversations" />
         </SelectTrigger>
         <SelectContent>
@@ -60,7 +64,7 @@ export function FilterSortBar({
         </SelectContent>
       </Select>
       <Select value={sortBy} onValueChange={onSortByChange}>
-        <SelectTrigger className="sort-select-trigger" title="Sort conversations">
+        <SelectTrigger variant="compact" className="sort-select-trigger" title="Sort conversations">
           <SelectValue placeholder="Latest" />
         </SelectTrigger>
         <SelectContent>

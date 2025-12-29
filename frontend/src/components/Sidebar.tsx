@@ -1,7 +1,6 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { Button } from './ui/button';
-import { Spinner } from './ui/Spinner';
 import { Plus, PanelLeftClose, PanelLeft, History, Settings, Building2, LogOut, Trophy } from 'lucide-react';
 import {
   useMockMode,
@@ -49,7 +48,6 @@ interface SidebarProps {
   onDeleteConversation: (id: string) => void;
   onBulkDeleteConversations: (ids: string[]) => Promise<{ deleted: string[] }>;
   onRenameConversation: (id: string, title: string) => Promise<void>;
-  onLoadMore?: (offset: number, searchQuery?: string) => Promise<Conversation[] | void>;
   onSearch?: (query: string) => Promise<Conversation[] | void> | void;
   hasMoreConversations?: boolean;
   departments?: Department[];
@@ -85,7 +83,6 @@ export default function Sidebar({
   onDeleteConversation,
   onBulkDeleteConversations,
   onRenameConversation,
-  onLoadMore,
   onSearch,
   hasMoreConversations = true,
   departments = [],
@@ -118,7 +115,6 @@ export default function Sidebar({
   // Note: deleteConfirm modal removed - optimistic delete with undo toast is used instead
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState<string>('');
-  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
@@ -126,7 +122,6 @@ export default function Sidebar({
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const searchInputRef = useRef<SearchBarRef | null>(null);
   const sidebarRef = useRef<HTMLElement | null>(null);
-  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   // Context menu for right-click actions
   const contextMenu = useContextMenu();
@@ -231,18 +226,21 @@ export default function Sidebar({
         return;
       }
 
-      // Don't collapse if clicking on a Radix portal (dropdowns, selects, dialogs)
+      // Don't collapse if clicking on a Radix portal or select trigger
       // These are rendered outside the sidebar but are logically part of it
-      // Check for any element with data-radix-* attributes or within a Radix portal wrapper
+      // Also check for select triggers which are inside the sidebar
       const isRadixElement = target.closest?.(
         '[data-radix-popper-content-wrapper], ' +
         '[data-radix-select-content], ' +
+        '[data-radix-select-trigger], ' +
         '[data-radix-menu-content], ' +
         '[data-radix-dialog-content], ' +
         '.select-content, ' +
         '.select-item, ' +
+        '.select-trigger, ' +
         '[role="listbox"], ' +
-        '[role="option"]'
+        '[role="option"], ' +
+        '[role="combobox"]'
       );
       if (isRadixElement) {
         return;
@@ -330,17 +328,6 @@ export default function Sidebar({
   const handleSearchClear = () => {
     setSearchQuery('');
     if (onSearch) onSearch('');
-  };
-
-  // Load more
-  const handleLoadMore = async () => {
-    if (!onLoadMore || isLoadingMore) return;
-    setIsLoadingMore(true);
-    try {
-      await onLoadMore(conversations.length, searchQuery);
-    } finally {
-      setIsLoadingMore(false);
-    }
   };
 
   // Multi-select handlers
@@ -522,23 +509,10 @@ export default function Sidebar({
   }, [useVirtualization]);
 
   // Infinite scroll - auto-load more when reaching bottom
-  useEffect(() => {
-    const loadMoreElement = loadMoreRef.current;
-    if (!loadMoreElement || !onLoadMore || !hasMoreConversations || isLoadingMore || searchQuery) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting && !isLoadingMore) {
-          handleLoadMore();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(loadMoreElement);
-    return () => observer.disconnect();
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- handleLoadMore is stable within observer
-  }, [onLoadMore, hasMoreConversations, isLoadingMore, searchQuery]);
+  // DISABLED: Removed auto-load behavior. Users must manually scroll to bottom
+  // or use "Load More" functionality. This prevents the list from auto-expanding
+  // beyond the initial 10 items without user intent.
+  // Note: The load more trigger element is still rendered for potential future use.
 
   // Determine visual state for CSS
   // When items are selected, treat as 'hovered' to keep expanded panel visible but preserve icon rail
@@ -745,15 +719,10 @@ export default function Sidebar({
                 ))
               )}
 
-              {/* Infinite scroll trigger - replaces Load More button */}
-              {onLoadMore && hasMoreConversations && totalConversations > 0 && !searchQuery && (
-                <div ref={loadMoreRef} className="load-more-trigger">
-                  {isLoadingMore && (
-                    <div className="load-more-spinner">
-                      <Spinner size="sm" variant="muted" />
-                      <span>Loading more...</span>
-                    </div>
-                  )}
+              {/* Load more indicator - shown when more conversations exist */}
+              {hasMoreConversations && totalConversations > 0 && !searchQuery && (
+                <div className="load-more-hint">
+                  <span className="load-more-hint-text">Scroll for more conversations</span>
                 </div>
               )}
             </div>

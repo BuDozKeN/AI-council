@@ -10,14 +10,39 @@ const SelectGroup = SelectPrimitive.Group
 
 const SelectValue = SelectPrimitive.Value
 
+export interface SelectTriggerProps
+  extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger> {
+  /**
+   * Visual variant of the select trigger
+   * - default: Standard size (36px height, full styling)
+   * - compact: Smaller size (30px height) for sidebars, toolbars, dense UIs
+   */
+  variant?: "default" | "compact"
+}
+
 const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
+  SelectTriggerProps
+>(({ className, children, variant = "default", onPointerDown, onMouseDown, ...props }, ref) => (
   <SelectPrimitive.Trigger
     ref={ref}
-    className={cn("select-trigger", className)}
+    className={cn(
+      "select-trigger",
+      variant === "compact" && "select-trigger--compact",
+      className
+    )}
     data-radix-select-trigger=""
+    onPointerDown={(e) => {
+      // Stop propagation to prevent parent handlers (like sidebar click-outside)
+      // from triggering navigation when clicking to toggle the dropdown
+      e.stopPropagation();
+      onPointerDown?.(e);
+    }}
+    onMouseDown={(e) => {
+      // Also stop mousedown for browsers/listeners that use mousedown instead of pointerdown
+      e.stopPropagation();
+      onMouseDown?.(e);
+    }}
     {...props}
   >
     {children}
@@ -59,13 +84,7 @@ SelectScrollDownButton.displayName = SelectPrimitive.ScrollDownButton.displayNam
 const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
->(({ className, children, position = "popper", onPointerDownOutside, ...props }, ref) => {
-  // Stop propagation of mouse events to prevent parent handlers (like sidebar click-outside)
-  // from being triggered when interacting with the dropdown
-  const handleMouseDown = (e: React.MouseEvent) => {
-    e.stopPropagation();
-  };
-
+>(({ className, children, position = "popper", onPointerDownOutside, onEscapeKeyDown, onInteractOutside, ...props }, ref) => {
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
@@ -76,15 +95,18 @@ const SelectContent = React.forwardRef<
           className
         )}
         position={position}
-        onMouseDown={handleMouseDown}
         onPointerDownOutside={(e) => {
-          // Prevent clicks on the trigger from being treated as outside clicks
-          // This fixes dropdown toggle behavior - clicking trigger should only toggle, not navigate
-          const target = e.target as Element;
-          if (target.closest?.('[data-radix-select-trigger]')) {
-            e.preventDefault();
-          }
+          // Mark that a dropdown was just dismissed - overlay handler will check this
+          // to avoid closing the sidebar on the same click that dismissed the dropdown
+          (window as Window & { __radixSelectJustDismissed?: number }).__radixSelectJustDismissed = Date.now();
+
           onPointerDownOutside?.(e);
+        }}
+        onInteractOutside={(e) => {
+          // Also mark for touch/interact events (mobile)
+          (window as Window & { __radixSelectJustDismissed?: number }).__radixSelectJustDismissed = Date.now();
+
+          onInteractOutside?.(e);
         }}
         {...props}
       >

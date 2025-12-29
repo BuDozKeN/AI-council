@@ -248,14 +248,6 @@ function App() {
     }
   }, [showLandingHero]);
 
-  // Handler for Load More button
-  const handleLoadMoreConversations = useCallback(async (currentOffset: number, searchQuery = '') => {
-    return loadConversations({
-      offset: currentOffset,
-      ...(searchQuery ? { search: searchQuery } : {}),
-    });
-  }, [loadConversations]);
-
   // Handler for search
   const handleSearchConversations = useCallback(async (searchQuery: string) => {
     return loadConversations({
@@ -1217,7 +1209,29 @@ function App() {
       {/* Mobile overlay backdrop */}
       <div
         className={`sidebar-overlay ${isMobileSidebarOpen ? 'visible' : ''}`}
-        onClick={() => setIsMobileSidebarOpen(false)}
+        onClick={(e) => {
+          // Don't close if a Radix portal (dropdown, dialog) is open
+          const isRadixPortalActive = document.querySelector(
+            '[data-radix-popper-content-wrapper], ' +
+            '[data-radix-select-content], ' +
+            '[data-state="open"][data-radix-select-trigger], ' +
+            '[data-radix-menu-content]'
+          );
+          if (isRadixPortalActive) {
+            e.stopPropagation();
+            return;
+          }
+
+          // Don't close if a dropdown was just dismissed (within 100ms)
+          // This prevents the same click that closes a dropdown from also closing the sidebar
+          const dismissedAt = (window as Window & { __radixSelectJustDismissed?: number }).__radixSelectJustDismissed;
+          if (dismissedAt && Date.now() - dismissedAt < 100) {
+            e.stopPropagation();
+            return;
+          }
+
+          setIsMobileSidebarOpen(false);
+        }}
         aria-hidden="true"
       />
 
@@ -1237,7 +1251,6 @@ function App() {
           onDeleteConversation={handleDeleteConversation}
           onBulkDeleteConversations={handleBulkDeleteConversations}
           onRenameConversation={handleRenameConversation}
-          onLoadMore={handleLoadMoreConversations}
           onSearch={handleSearchConversations}
           hasMoreConversations={hasMoreConversations}
           departments={availableDepartments}

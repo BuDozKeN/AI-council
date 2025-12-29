@@ -70,11 +70,24 @@ export function useHoverExpansion({ isPinned = false, hoverDelay = SIDEBAR_HOVER
     clearPendingTimeout();
   }, [clearPendingTimeout]);
 
-  // Start collapsing when leaving expanded area (unless pinned)
+  // Start collapsing when leaving expanded area (unless pinned or interacting with portal)
   const handleExpandedAreaLeave = useCallback(() => {
     if (!isPinned) {
       clearPendingTimeout();
       timeoutRef.current = setTimeout(() => {
+        // Check if a Radix portal is open (dropdown, dialog, etc.)
+        // If so, don't collapse - user is still interacting with sidebar content
+        const isRadixPortalActive = document.querySelector(
+          '[data-radix-popper-content-wrapper], ' +
+          '[data-radix-select-content], ' +
+          '[data-state="open"][data-radix-select-trigger], ' +
+          '[data-radix-menu-content]'
+        );
+
+        if (isRadixPortalActive) {
+          return;
+        }
+
         setHoveredIcon(null);
       }, hoverDelay);
     }
