@@ -77,12 +77,14 @@ class ExtractProjectRequest(BaseModel):
     """Request to extract project details from council response."""
     user_question: str = Field(..., max_length=50000)
     council_response: str = Field(..., max_length=50000)
+    company_id: Optional[str] = Field(None, max_length=100)  # For usage tracking
 
 
 class StructureContextRequest(BaseModel):
     """Request to structure free-form project description."""
     free_text: str = Field(..., max_length=50000)
     project_name: str = Field("", max_length=200)
+    company_id: Optional[str] = Field(None, max_length=100)  # For usage tracking
 
 
 class MergeDecisionRequest(BaseModel):
@@ -332,13 +334,28 @@ Respond ONLY with this JSON (no markdown code blocks):
     if isinstance(model_prefs, str):
         model_prefs = json.loads(model_prefs)
 
+    model_used = model_prefs[0]
+
     try:
         messages = [
             {"role": "system", "content": system_prompt + "\n\nRespond ONLY with valid JSON."},
             {"role": "user", "content": extraction_prompt}
         ]
 
-        result = await query_model(model=model_prefs[0], messages=messages)
+        result = await query_model(model=model_used, messages=messages)
+
+        # Track internal LLM usage if company_id provided
+        if extract_request.company_id and result and result.get('usage'):
+            try:
+                from .company.utils import save_internal_llm_usage
+                await save_internal_llm_usage(
+                    company_id=extract_request.company_id,
+                    operation_type='project_extraction',
+                    model=model_used,
+                    usage=result['usage']
+                )
+            except Exception:
+                pass  # Don't fail extraction if tracking fails
 
         if result and result.get('content'):
             content = result['content'].strip()
@@ -427,6 +444,19 @@ For context_md, use these sections (skip any that don't apply):
     for model in models:
         try:
             result = await query_model(model=model, messages=messages)
+
+            # Track internal LLM usage if company_id provided
+            if structure_request.company_id and result and result.get('usage'):
+                try:
+                    from .company.utils import save_internal_llm_usage
+                    await save_internal_llm_usage(
+                        company_id=structure_request.company_id,
+                        operation_type='context_structuring',
+                        model=model,
+                        usage=result['usage']
+                    )
+                except Exception:
+                    pass  # Don't fail structuring if tracking fails
 
             if result and result.get('content'):
                 content = result['content']
@@ -551,6 +581,20 @@ Return valid JSON with exactly these fields:
     for model, timeout in MERGE_MODELS:
         try:
             result = await query_model(model=model, messages=messages, timeout=timeout)
+
+            # Track internal LLM usage if company_id provided
+            if merge_request.company_id and result and result.get('usage'):
+                try:
+                    from .company.utils import save_internal_llm_usage
+                    await save_internal_llm_usage(
+                        company_id=merge_request.company_id,
+                        operation_type='decision_merge',
+                        model=model,
+                        usage=result['usage'],
+                        related_id=project_id
+                    )
+                except Exception:
+                    pass  # Don't fail merge if tracking fails
 
             if result and result.get('content'):
                 content = result['content']
@@ -807,10 +851,25 @@ Today's date: {today_date}"""
 
     result_data = None
     last_error = None
+    company_id = project.get("company_id")  # For usage tracking
 
     for model in models:
         try:
             result = await query_model(model=model, messages=messages)
+
+            # Track internal LLM usage if company_id available
+            if company_id and result and result.get('usage'):
+                try:
+                    from .company.utils import save_internal_llm_usage
+                    await save_internal_llm_usage(
+                        company_id=company_id,
+                        operation_type='context_regeneration',
+                        model=model,
+                        usage=result['usage'],
+                        related_id=project_id
+                    )
+                except Exception:
+                    pass  # Don't fail regeneration if tracking fails
 
             if result and result.get('content'):
                 content = result['content']

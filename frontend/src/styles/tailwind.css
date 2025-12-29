@@ -1050,191 +1050,202 @@ button:not(:disabled):active,
 
 /* ============================================================================
    BUTTON VARIANT CLASSES - Premium $25M Quality
-   Explicit CSS classes for button variants - reliable & simple
-   Used by button.tsx component via cva
+
+   These styles are OUTSIDE @layer to ensure they have higher specificity than
+   Tailwind utilities. This is intentional - button variants need to override
+   any conflicting utility classes applied via CVA.
    ============================================================================ */
 
-@layer components {
-  /* Base button sizing - applied to ALL button variants */
+/* Primary Button - Indigo with premium shadow */
+button.btn-variant-default,
+.btn-variant-default {
+  padding: 12px 28px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  border-radius: 12px;
+  min-height: 44px;
+  background-color: var(--color-primary);
+  color: var(--color-primary-text);
+  box-shadow:
+    0 1px 3px rgb(99, 102, 241, 0.3),
+    0 2px 8px rgb(99, 102, 241, 0.15),
+    inset 0 1px 0 rgb(255, 255, 255, 0.1);
+}
 
-  /* This ensures consistent padding regardless of Tailwind utility issues */
-  [class*="btn-variant-"] {
-    padding: 12px 28px;
-    font-size: 14px;
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    border-radius: 12px;
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
+button.btn-variant-default:hover:not(:disabled),
+.btn-variant-default:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+  box-shadow:
+    0 2px 6px rgb(99, 102, 241, 0.35),
+    0 4px 12px rgb(99, 102, 241, 0.2),
+    inset 0 1px 0 rgb(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
 
-  /* Size modifiers for buttons - override base sizing */
-  [class*="btn-variant-"].h-10 {
-    padding: 10px 24px;
-    min-height: 40px;
-    font-size: 14px;
-  }
+button.btn-variant-default:active:not(:disabled),
+.btn-variant-default:active:not(:disabled) {
+  background-color: var(--color-primary-active);
+  transform: translateY(0) scale(0.98);
+  box-shadow:
+    0 1px 2px rgb(99, 102, 241, 0.2),
+    inset 0 1px 0 rgb(255, 255, 255, 0.05);
+}
 
-  [class*="btn-variant-"].h-11 {
-    padding: 12px 28px;
-    min-height: 44px;
-    font-size: 14px;
-  }
+/* Secondary Button - Muted gray with subtle depth */
+button.btn-variant-secondary,
+.btn-variant-secondary {
+  padding: 12px 28px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  border-radius: 12px;
+  min-height: 44px;
+  background-color: var(--color-bg-muted);
+  color: var(--color-text-default);
+  box-shadow: 0 1px 2px rgb(0, 0, 0, 0.05);
+}
 
-  [class*="btn-variant-"].h-13 {
-    padding: 16px 36px;
-    min-height: 52px;
-    font-size: 16px;
-  }
+button.btn-variant-secondary:hover:not(:disabled),
+.btn-variant-secondary:hover:not(:disabled) {
+  background-color: var(--color-bg-emphasis);
+  box-shadow: 0 2px 4px rgb(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
 
-  /* Icon-only buttons */
-  [class*="btn-variant-"].w-11 {
-    padding: 0;
-    width: 44px;
-    height: 44px;
-    min-height: 44px;
-  }
+button.btn-variant-secondary:active:not(:disabled),
+.btn-variant-secondary:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
 
-  /* Primary Button - Indigo with premium shadow */
-  .btn-variant-default {
-    background-color: var(--color-primary);
-    color: var(--color-primary-text);
-    box-shadow:
-      0 1px 3px rgb(99, 102, 241, 0.3),
-      0 2px 8px rgb(99, 102, 241, 0.15),
-      inset 0 1px 0 rgb(255, 255, 255, 0.1);
-    font-weight: 500;
-    letter-spacing: -0.01em;
-  }
+/* Outline Button - Bordered with clean look */
+button.btn-variant-outline,
+.btn-variant-outline {
+  padding: 12px 28px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  border-radius: 12px;
+  min-height: 44px;
+  background-color: var(--color-bg-base);
+  color: var(--color-text-default);
+  border: 1px solid var(--color-border-default);
+  box-shadow: 0 1px 2px rgb(0, 0, 0, 0.04);
+}
 
-  .btn-variant-default:hover:not(:disabled) {
-    background-color: var(--color-primary-hover);
-    box-shadow:
-      0 2px 6px rgb(99, 102, 241, 0.35),
-      0 4px 12px rgb(99, 102, 241, 0.2),
-      inset 0 1px 0 rgb(255, 255, 255, 0.15);
-    transform: translateY(-1px);
-  }
+button.btn-variant-outline:hover:not(:disabled),
+.btn-variant-outline:hover:not(:disabled) {
+  background-color: var(--color-bg-subtle);
+  border-color: var(--color-border-emphasis);
+  box-shadow: 0 2px 4px rgb(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
 
-  .btn-variant-default:active:not(:disabled) {
-    background-color: var(--color-primary-active);
-    transform: translateY(0) scale(0.98);
-    box-shadow:
-      0 1px 2px rgb(99, 102, 241, 0.2),
-      inset 0 1px 0 rgb(255, 255, 255, 0.05);
-  }
+button.btn-variant-outline:active:not(:disabled),
+.btn-variant-outline:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
 
-  /* Secondary Button - Muted gray with subtle depth */
-  .btn-variant-secondary {
-    background-color: var(--color-bg-muted);
-    color: var(--color-text-default);
-    box-shadow: 0 1px 2px rgb(0, 0, 0, 0.05);
-    font-weight: 500;
-  }
+/* Ghost Button - Minimal with subtle hover */
+button.btn-variant-ghost,
+.btn-variant-ghost {
+  padding: 12px 28px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  border-radius: 12px;
+  min-height: 44px;
+  background-color: transparent;
+  color: var(--color-text-default);
+}
 
-  .btn-variant-secondary:hover:not(:disabled) {
-    background-color: var(--color-bg-emphasis);
-    box-shadow: 0 2px 4px rgb(0, 0, 0, 0.08);
-    transform: translateY(-1px);
-  }
+button.btn-variant-ghost:hover:not(:disabled),
+.btn-variant-ghost:hover:not(:disabled) {
+  background-color: var(--color-bg-muted);
+}
 
-  .btn-variant-secondary:active:not(:disabled) {
-    transform: translateY(0) scale(0.98);
-  }
+button.btn-variant-ghost:active:not(:disabled),
+.btn-variant-ghost:active:not(:disabled) {
+  transform: scale(0.98);
+}
 
-  /* Outline Button - Bordered with clean look */
-  .btn-variant-outline {
-    background-color: var(--color-bg-base);
-    color: var(--color-text-default);
-    border: 1px solid var(--color-border-default);
-    box-shadow: 0 1px 2px rgb(0, 0, 0, 0.04);
-    font-weight: 500;
-  }
+/* Destructive Button - Red with warning presence */
+button.btn-variant-destructive,
+.btn-variant-destructive {
+  padding: 12px 28px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  border-radius: 12px;
+  min-height: 44px;
+  background-color: var(--color-error);
+  color: var(--color-error-text);
+  box-shadow:
+    0 1px 3px rgb(239, 68, 68, 0.3),
+    0 2px 8px rgb(239, 68, 68, 0.15);
+}
 
-  .btn-variant-outline:hover:not(:disabled) {
-    background-color: var(--color-bg-subtle);
-    border-color: var(--color-border-emphasis);
-    box-shadow: 0 2px 4px rgb(0, 0, 0, 0.06);
-    transform: translateY(-1px);
-  }
+button.btn-variant-destructive:hover:not(:disabled),
+.btn-variant-destructive:hover:not(:disabled) {
+  background-color: var(--color-error-hover);
+  box-shadow:
+    0 2px 6px rgb(239, 68, 68, 0.35),
+    0 4px 12px rgb(239, 68, 68, 0.2);
+  transform: translateY(-1px);
+}
 
-  .btn-variant-outline:active:not(:disabled) {
-    transform: translateY(0) scale(0.98);
-  }
+button.btn-variant-destructive:active:not(:disabled),
+.btn-variant-destructive:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
 
-  /* Ghost Button - Minimal with subtle hover */
-  .btn-variant-ghost {
-    background-color: transparent;
-    color: var(--color-text-default);
-    font-weight: 500;
-  }
+/* Success Button - Green with positive presence */
+button.btn-variant-success,
+.btn-variant-success {
+  padding: 12px 28px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  border-radius: 12px;
+  min-height: 44px;
+  background-color: var(--color-success);
+  color: var(--color-success-text);
+  box-shadow:
+    0 1px 3px rgb(16, 185, 129, 0.3),
+    0 2px 8px rgb(16, 185, 129, 0.15);
+}
 
-  .btn-variant-ghost:hover:not(:disabled) {
-    background-color: var(--color-bg-muted);
-  }
+button.btn-variant-success:hover:not(:disabled),
+.btn-variant-success:hover:not(:disabled) {
+  background-color: var(--color-success-hover);
+  box-shadow:
+    0 2px 6px rgb(16, 185, 129, 0.35),
+    0 4px 12px rgb(16, 185, 129, 0.2);
+  transform: translateY(-1px);
+}
 
-  .btn-variant-ghost:active:not(:disabled) {
-    transform: scale(0.98);
-  }
+button.btn-variant-success:active:not(:disabled),
+.btn-variant-success:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
 
-  /* Destructive Button - Red with warning presence */
-  .btn-variant-destructive {
-    background-color: var(--color-error);
-    color: var(--color-error-text);
-    box-shadow:
-      0 1px 3px rgb(239, 68, 68, 0.3),
-      0 2px 8px rgb(239, 68, 68, 0.15);
-    font-weight: 500;
-  }
+/* Link Button - Text style */
+button.btn-variant-link,
+.btn-variant-link {
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  border-radius: 8px;
+  min-height: 36px;
+  background-color: transparent;
+  color: var(--color-primary);
+  text-decoration: none;
+}
 
-  .btn-variant-destructive:hover:not(:disabled) {
-    background-color: var(--color-error-hover);
-    box-shadow:
-      0 2px 6px rgb(239, 68, 68, 0.35),
-      0 4px 12px rgb(239, 68, 68, 0.2);
-    transform: translateY(-1px);
-  }
-
-  .btn-variant-destructive:active:not(:disabled) {
-    transform: translateY(0) scale(0.98);
-  }
-
-  /* Success Button - Green with confidence */
-  .btn-variant-success {
-    background-color: var(--color-success);
-    color: var(--color-success-text);
-    box-shadow:
-      0 1px 3px rgb(16, 185, 129, 0.3),
-      0 2px 8px rgb(16, 185, 129, 0.15);
-    font-weight: 500;
-  }
-
-  .btn-variant-success:hover:not(:disabled) {
-    background-color: var(--color-success-hover);
-    box-shadow:
-      0 2px 6px rgb(16, 185, 129, 0.35),
-      0 4px 12px rgb(16, 185, 129, 0.2);
-    transform: translateY(-1px);
-  }
-
-  .btn-variant-success:active:not(:disabled) {
-    transform: translateY(0) scale(0.98);
-  }
-
-  /* Link Button - Text style */
-  .btn-variant-link {
-    background-color: transparent;
-    color: var(--color-primary);
-    text-decoration: none;
-    font-weight: 500;
-  }
-
-  .btn-variant-link:hover:not(:disabled) {
-    text-decoration: underline;
-  }
+button.btn-variant-link:hover:not(:disabled),
+.btn-variant-link:hover:not(:disabled) {
+  text-decoration: underline;
 }
 
 /* ===========================================

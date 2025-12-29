@@ -488,11 +488,26 @@ export default function ChatInterface({
           />
         ) : null}
 
-        {/* Loading indicator during initial setup */}
+        {/* Loading indicator during initial setup - only show before any streaming begins */}
         {isLoading && hasMessages && (() => {
           const lastMsg = conversation.messages[conversation.messages.length - 1];
-          if (lastMsg?.role === 'assistant' && (lastMsg?.loading?.stage1 || lastMsg?.loading?.stage2 || lastMsg?.loading?.stage3)) {
-            return null;
+          if (lastMsg?.role === 'assistant') {
+            // Hide if any stage is actively loading
+            if (lastMsg?.loading?.stage1 || lastMsg?.loading?.stage2 || lastMsg?.loading?.stage3) {
+              return null;
+            }
+            // Hide if any streaming data exists (prevents flicker between stages)
+            const hasStage1Streaming = lastMsg?.stage1Streaming && Object.keys(lastMsg.stage1Streaming).length > 0;
+            const hasStage2Streaming = lastMsg?.stage2Streaming && Object.keys(lastMsg.stage2Streaming).length > 0;
+            const hasStage3Streaming = lastMsg?.stage3Streaming && lastMsg.stage3Streaming.text;
+            // Hide if any final stage data exists
+            const hasStage1Data = lastMsg?.stage1 && lastMsg.stage1.length > 0;
+            const hasStage2Data = lastMsg?.stage2 && lastMsg.stage2.length > 0;
+            const hasStage3Data = lastMsg?.stage3;
+            if (hasStage1Streaming || hasStage2Streaming || hasStage3Streaming ||
+                hasStage1Data || hasStage2Data || hasStage3Data) {
+              return null;
+            }
           }
           return (
             <div className="loading-indicator">

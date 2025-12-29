@@ -114,7 +114,6 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
   const [conversationSortBy, setConversationSortBy] = useState<ConversationSortBy>('date');
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null);
-  const [paginationOffset, setPaginationOffset] = useState<number>(0);
 
   // General loading state (for streaming - managed by App.tsx)
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -128,7 +127,17 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
   // ═══════════════════════════════════════════════════════════════════════════
   // TanStack Query: Conversation List
   // ═══════════════════════════════════════════════════════════════════════════
-  const listQueryKey = conversationKeys.list({ sortBy: conversationSortBy, offset: paginationOffset });
+  // Note: Query key does NOT include offset - we use a single cache entry for the list
+  // and manage pagination via local state to avoid race conditions during invalidation
+  const listQueryKey = conversationKeys.list({ sortBy: conversationSortBy });
+
+  // Conversation list state - managed outside TanStack Query to support pagination
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [hasMoreConversations, setHasMoreConversations] = useState<boolean>(true);
+
+  // Track if we're explicitly loading more (vs background refetch)
+  const isLoadingMoreRef = useRef<boolean>(false);
+  const pendingOffsetRef = useRef<number>(0);
 
   const {
     data: conversationsData,
@@ -140,44 +149,51 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
       const limit = PAGINATION.CONVERSATIONS_PAGE_SIZE;
       // Cast sortBy to the API's expected type (excludes 'title' which is only used locally)
       const apiSortBy = conversationSortBy === 'title' ? 'date' : conversationSortBy;
+
+      // Determine offset: if explicitly loading more, use pending offset; otherwise reset to 0
+      const currentOffset = isLoadingMoreRef.current ? pendingOffsetRef.current : 0;
+
       const result = await api.listConversations({
         limit,
         sortBy: apiSortBy,
-        offset: paginationOffset
+        offset: currentOffset
       });
+
+      // Reset the loading more flag after fetch completes
+      const wasLoadingMore = isLoadingMoreRef.current;
+      isLoadingMoreRef.current = false;
+
       return {
         conversations: result.conversations || result,
         hasMore: result.has_more !== undefined ? result.has_more : (result.conversations || result).length >= limit,
+        isAppend: wasLoadingMore && currentOffset > 0, // Flag to indicate this should append
       };
     },
     enabled: isAuthenticated,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
-  // Merge paginated results into a single list
-  const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [hasMoreConversations, setHasMoreConversations] = useState<boolean>(true);
-
   useEffect(() => {
     if (conversationsData) {
       // Defer state updates to avoid synchronous setState in effect
       const frameId = requestAnimationFrame(() => {
-        if (paginationOffset === 0) {
-          setConversations(conversationsData.conversations);
-        } else {
+        if (conversationsData.isAppend) {
           // Append with deduplication
           setConversations(prev => {
             const existingIds = new Set(prev.map(c => c.id));
             const newConvs = conversationsData.conversations.filter((c: Conversation) => !existingIds.has(c.id));
             return [...prev, ...newConvs];
           });
+        } else {
+          // Replace (initial load or refresh)
+          setConversations(conversationsData.conversations);
         }
         setHasMoreConversations(conversationsData.hasMore);
       });
       return () => cancelAnimationFrame(frameId);
     }
     return undefined;
-  }, [conversationsData, paginationOffset]);
+  }, [conversationsData]);
 
   // Log errors to Sentry/console
   useEffect(() => {
@@ -203,8 +219,25 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
   });
 
   // Sync fetched conversation to local state
+  // IMPORTANT: Skip sync when actively loading/streaming to prevent overwriting local streaming state
+  // Also skip if current conversation has more messages than fetched (streaming added new content)
   useEffect(() => {
-    if (fetchedConversation && shouldFetchConversation) {
+    if (fetchedConversation && shouldFetchConversation && !isLoading) {
+      // Check if current conversation has more/newer data than fetched version
+      const currentMsgCount = currentConversation?.messages?.length ?? 0;
+      const fetchedMsgCount = fetchedConversation.messages?.length ?? 0;
+
+      // Skip sync if current conversation has more messages (we've added streaming content)
+      // or if the last message has streaming data that server doesn't have yet
+      const lastMsg = currentConversation?.messages?.[currentMsgCount - 1];
+      const hasStreamingData = lastMsg?.stage1Streaming || lastMsg?.stage2Streaming || lastMsg?.stage3Streaming;
+      const hasFinalData = lastMsg?.stage1 || lastMsg?.stage2 || lastMsg?.stage3;
+
+      if (currentMsgCount > fetchedMsgCount || hasStreamingData || hasFinalData) {
+        // Don't overwrite - current conversation has newer data
+        return undefined;
+      }
+
       // Defer state update to avoid synchronous setState in effect
       const frameId = requestAnimationFrame(() => {
         setCurrentConversation(fetchedConversation);
@@ -212,7 +245,7 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
       return () => cancelAnimationFrame(frameId);
     }
     return undefined;
-  }, [fetchedConversation, shouldFetchConversation]);
+  }, [fetchedConversation, shouldFetchConversation, isLoading, currentConversation]);
 
   useEffect(() => {
     if (conversationError) {
@@ -233,18 +266,24 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
 
   // Load conversations - now just triggers refetch or pagination
   const loadConversations = useCallback(async (options: LoadConversationsOptions = {}): Promise<Conversation[]> => {
-    if (options.offset && options.offset > 0) {
-      setPaginationOffset(options.offset);
-    } else {
-      setPaginationOffset(0);
-      // Invalidate to force refetch
+    const newOffset = options.offset && options.offset > 0 ? options.offset : 0;
+
+    if (newOffset === 0) {
+      // Reset: invalidate to force refetch from the beginning
+      // isLoadingMoreRef stays false so queryFn uses offset=0
       await queryClient.invalidateQueries({ queryKey: conversationKeys.lists() });
+    } else {
+      // Pagination: set flags BEFORE triggering refetch
+      isLoadingMoreRef.current = true;
+      pendingOffsetRef.current = newOffset;
+      await queryClient.refetchQueries({ queryKey: listQueryKey });
     }
+
     if (options.sortBy && options.sortBy !== conversationSortBy) {
       setConversationSortBy(options.sortBy);
     }
     return conversations;
-  }, [queryClient, conversations, conversationSortBy]);
+  }, [queryClient, listQueryKey, conversations, conversationSortBy]);
 
   // Load a single conversation - just set the ID, query handles the rest
   const loadConversation = useCallback(async (id: string): Promise<void> => {
@@ -476,13 +515,13 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
 
   // Refresh conversations - invalidate cache to force refetch
   const refreshConversations = useCallback(async (): Promise<void> => {
-    setPaginationOffset(0);
+    // isLoadingMoreRef stays false so queryFn uses offset=0
     await queryClient.invalidateQueries({ queryKey: conversationKeys.lists() });
   }, [queryClient]);
 
   // Change sort order
   const handleSortByChange = useCallback((newSort: ConversationSortBy): void => {
-    setPaginationOffset(0);
+    // isLoadingMoreRef stays false so queryFn uses offset=0
     setConversationSortBy(newSort);
     // Query will automatically refetch due to queryKey change
   }, []);

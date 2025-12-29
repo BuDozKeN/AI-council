@@ -353,6 +353,9 @@ async def query_model(
         "model": model,
         "messages": cached_messages,
         "max_tokens": 4096,  # Explicit limit to prevent truncation (especially for DeepSeek)
+        # Exclude reasoning/thinking tokens from response - users should only see final answer
+        # This affects reasoning models like o1, o3, GPT-5.1, and Gemini thinking models
+        "reasoning": {"exclude": True},
     }
 
     try:
@@ -454,6 +457,9 @@ async def query_model_stream(
         "messages": cached_messages,
         "stream": True,
         "max_tokens": 16384,  # Higher limit to prevent truncation
+        # Exclude reasoning/thinking tokens from response - users should only see final answer
+        # This affects reasoning models like o1, o3, GPT-5.1, and Gemini thinking models
+        "reasoning": {"exclude": True},
     }
 
     retries = 0
@@ -539,19 +545,17 @@ async def query_model_stream(
                             if fr:
                                 finish_reason = fr
 
-                            # Capture both 'content' and 'reasoning' fields
-                            # Gemini sends thinking in 'reasoning' and final answer in 'content'
+                            # Only yield 'content' field - this is the actual response
+                            # The 'reasoning' field contains internal model thinking (chain of thought)
+                            # which should NOT be displayed to users
                             content = delta.get('content', '')
-                            reasoning = delta.get('reasoning', '')
 
                             # Yield content if present (the actual answer)
                             if content:
                                 token_count += 1
                                 yield content
-                            # Also yield reasoning if present (Gemini's thinking)
-                            if reasoning:
-                                token_count += 1
-                                yield reasoning
+                            # NOTE: We intentionally do NOT yield 'reasoning' field
+                            # as it contains internal model thinking that users shouldn't see
                         except json.JSONDecodeError:
                             continue  # Skip malformed JSON lines
 

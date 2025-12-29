@@ -262,7 +262,8 @@ export default function SaveKnowledgeModal({
     try {
       // Call backend to extract project details
       // Backend handles sanitization - no garbage will come through
-      const result = await api.extractProject(userQuestion ?? '', fullResponseText ?? '');
+      // Pass companyId for usage tracking
+      const result = await api.extractProject(userQuestion ?? '', fullResponseText ?? '', companyId);
 
       if (result.success && result.extracted) {
         setNewProjectName(result.extracted.name || 'New Project');

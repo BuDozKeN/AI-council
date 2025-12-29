@@ -26,7 +26,7 @@ import {
   PieChart,
   Pie,
 } from 'recharts';
-import { Gauge, AlertTriangle, Zap, TrendingUp, DollarSign, Users, CheckCircle } from 'lucide-react';
+import { Gauge, AlertTriangle, Zap, TrendingUp, DollarSign, Users, Bot, Sparkles } from 'lucide-react';
 import { ScrollableContent } from '../../ui/ScrollableContent';
 import { Skeleton } from '../../ui/Skeleton';
 import type {
@@ -61,15 +61,6 @@ const MODEL_COLORS: Record<string, string> = {
 };
 
 const DEFAULT_COLOR = 'hsl(215, 20%, 65%)';
-
-// Council roster - the 5 models that make up the council
-const COUNCIL_ROSTER = [
-  { id: 'gpt', name: 'GPT-5.1', role: 'Generalist Analysis', provider: 'OpenAI' },
-  { id: 'claude', name: 'Claude Opus 4.5', role: 'Nuance & Writing', provider: 'Anthropic' },
-  { id: 'gemini', name: 'Gemini 3 Pro', role: 'Rapid Synthesis', provider: 'Google' },
-  { id: 'grok', name: 'Grok 4', role: 'Contrarian Perspectives', provider: 'xAI' },
-  { id: 'deepseek', name: 'DeepSeek V3', role: 'Code & Logic', provider: 'DeepSeek' },
-];
 
 // ============================================================================
 // Helper Functions
@@ -161,15 +152,24 @@ export function UsageTab({
     return Math.round(cachedMillions * savingsPerMillion * 100); // In cents
   }, [usage]);
 
-  // Prepare chart data - reverse to show oldest first (left to right)
+  // Prepare chart data - ONLY real data, no mock/padding
   const chartData = useMemo(() => {
     if (!usage) return [];
-    return [...usage.daily].reverse().map(day => ({
-      date: formatDate(day.date),
-      cost: day.estimated_cost_cents / 100,
-      sessions: day.sessions,
-      tokens: day.tokens_total,
-    }));
+
+    // Filter to only days with actual usage - no fake data
+    const daysWithData = usage.daily.filter(day =>
+      day.sessions > 0 || day.tokens_total > 0 || day.estimated_cost_cents > 0
+    );
+
+    // Sort chronologically (oldest first for left-to-right display)
+    return [...daysWithData]
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      .map(day => ({
+        date: formatDate(day.date),
+        cost: day.estimated_cost_cents / 100,
+        sessions: day.sessions,
+        tokens: day.tokens_total,
+      }));
   }, [usage]);
 
   // Model breakdown for pie chart
@@ -191,21 +191,6 @@ export function UsageTab({
     return { current, limit, percent: Math.min(percent, 100) };
   }, [rateLimits]);
 
-  // Placeholder chart data for empty state - must be before early returns
-  const emptyChartData = useMemo(() => {
-    const dates = [];
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      dates.push({
-        date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        cost: 0,
-        sessions: 0,
-        tokens: 0,
-      });
-    }
-    return dates;
-  }, []);
 
   // Show skeleton during initial load (when not yet loaded and no error)
   if (!usageLoaded && !error) {
@@ -226,17 +211,7 @@ export function UsageTab({
         </div>
         {/* Chart skeleton */}
         <div className="mc-usage-chart-container">
-          <Skeleton className="h-[280px] w-full rounded-xl" />
-        </div>
-        {/* Roster skeleton */}
-        <div className="mc-usage-roster">
-          <Skeleton className="h-6 w-40 mb-4" />
-          {[1, 2, 3, 4, 5].map(i => (
-            <div key={i} className="mc-usage-roster-item">
-              <Skeleton className="h-4 w-32" />
-              <Skeleton className="h-3 w-24" />
-            </div>
-          ))}
+          <Skeleton className="h-full w-full rounded-xl" />
         </div>
       </div>
     );
@@ -256,8 +231,7 @@ export function UsageTab({
   // Check if we have data or showing empty state
   const hasData = usage && usage.summary.total_sessions > 0;
 
-  // Use real data or placeholders
-  const displayChartData = hasData ? chartData : emptyChartData;
+  // Use only real data - no mock/placeholder data
   const displayModelData = hasData ? modelChartData : [];
 
   return (
@@ -331,6 +305,24 @@ export function UsageTab({
         </div>
       </div>
 
+      {/* Cost breakdown by type */}
+      {hasData && (usage.summary.council_cost_cents > 0 || usage.summary.internal_cost_cents > 0) && (
+        <div className="mc-usage-breakdown">
+          <div className="mc-usage-breakdown-item">
+            <Bot size={14} />
+            <span className="mc-usage-breakdown-label">Council Sessions</span>
+            <span className="mc-usage-breakdown-count">{usage.summary.council_sessions}</span>
+            <span className="mc-usage-breakdown-cost">{formatCost(usage.summary.council_cost_cents)}</span>
+          </div>
+          <div className="mc-usage-breakdown-item">
+            <Sparkles size={14} />
+            <span className="mc-usage-breakdown-label">Internal Operations</span>
+            <span className="mc-usage-breakdown-count">{usage.summary.internal_sessions}</span>
+            <span className="mc-usage-breakdown-cost">{formatCost(usage.summary.internal_cost_cents)}</span>
+          </div>
+        </div>
+      )}
+
       {/* Period selector */}
       <div className="mc-usage-header">
         <div className="mc-usage-period-selector">
@@ -351,39 +343,54 @@ export function UsageTab({
         <div className={`mc-usage-section ${!hasData ? 'empty-state' : ''}`}>
           <h3 className="mc-usage-section-title">Daily Cost</h3>
           <div className="mc-usage-chart-container">
-            <ResponsiveContainer width="100%" height={240}>
-              <BarChart data={displayChartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" opacity={0.5} />
-                <XAxis
-                  dataKey="date"
-                  tick={{ fontSize: 11, fill: 'var(--color-text-tertiary)' }}
-                  tickLine={false}
-                  axisLine={{ stroke: 'var(--color-border)' }}
-                />
-                <YAxis
-                  tick={{ fontSize: 11, fill: 'var(--color-text-tertiary)' }}
-                  tickLine={false}
-                  axisLine={{ stroke: 'var(--color-border)' }}
-                  tickFormatter={(v) => `$${v}`}
-                />
-                <Tooltip
-                  contentStyle={{
-                    background: 'var(--color-bg-primary)',
-                    border: '1px solid var(--color-border)',
-                    borderRadius: 'var(--radius-md)',
-                    boxShadow: 'var(--shadow-lg)',
-                  }}
-                  labelStyle={{ color: 'var(--color-text-primary)', fontWeight: 500 }}
-                  formatter={(value) => [`$${(value as number).toFixed(2)}`, 'Cost']}
-                />
-                <Bar
-                  dataKey="cost"
-                  fill="hsl(217, 91%, 60%)"
-                  radius={[4, 4, 0, 0]}
-                  maxBarSize={40}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            {chartData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300} debounce={50}>
+                <BarChart
+                  data={chartData}
+                  margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                  barCategoryGap="20%"
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" opacity={0.5} />
+                  <XAxis
+                    dataKey="date"
+                    tick={{ fontSize: 12, fill: 'var(--color-text-secondary)' }}
+                    tickLine={false}
+                    axisLine={{ stroke: 'var(--color-border)' }}
+                    height={40}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 12, fill: 'var(--color-text-secondary)' }}
+                    tickLine={false}
+                    axisLine={{ stroke: 'var(--color-border)' }}
+                    tickFormatter={(v) => `$${v}`}
+                    width={50}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      background: 'var(--color-bg-primary)',
+                      border: '1px solid var(--color-border)',
+                      borderRadius: 'var(--radius-md)',
+                      boxShadow: 'var(--shadow-lg)',
+                      padding: '12px 16px',
+                    }}
+                    labelStyle={{ color: 'var(--color-text-primary)', fontWeight: 600, marginBottom: 4 }}
+                    formatter={(value) => [`$${(value as number).toFixed(2)}`, 'Cost']}
+                  />
+                  <Bar
+                    dataKey="cost"
+                    fill="hsl(217, 91%, 60%)"
+                    radius={[6, 6, 0, 0]}
+                    maxBarSize={80}
+                    minPointSize={3}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="mc-usage-chart-empty">
+                <TrendingUp size={32} />
+                <span>No usage data for this period</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -393,7 +400,7 @@ export function UsageTab({
           <div className="mc-usage-models-grid">
             <div className="mc-usage-pie-container">
               {displayModelData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={180}>
+                <ResponsiveContainer width="100%" height={180} debounce={50}>
                   <PieChart>
                     <Pie
                       data={displayModelData}
@@ -489,28 +496,6 @@ export function UsageTab({
               ) : null}
             </div>
           </div>
-        </div>
-
-        {/* Council roster */}
-        <div className="mc-usage-section">
-          <h3 className="mc-usage-section-title">Active Council Roster</h3>
-          <div className="mc-usage-roster">
-            {COUNCIL_ROSTER.map(member => (
-              <div key={member.id} className="mc-usage-roster-item">
-                <div className="mc-usage-roster-status">
-                  <CheckCircle size={14} />
-                </div>
-                <div className="mc-usage-roster-info">
-                  <span className="mc-usage-roster-name">{member.name}</span>
-                  <span className="mc-usage-roster-role">{member.role}</span>
-                </div>
-                <span className="mc-usage-roster-provider">{member.provider}</span>
-              </div>
-            ))}
-          </div>
-          <p className="mc-usage-roster-note">
-            Council composition is optimized by AxCouncil for maximum consensus accuracy.
-          </p>
         </div>
 
         {/* Additional stats */}

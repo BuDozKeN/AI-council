@@ -271,6 +271,96 @@ def calculate_cost_cents(usage_data: dict) -> int:
     return int(total_cost * 100)
 
 
+async def save_internal_llm_usage(
+    company_id: str,
+    operation_type: str,
+    model: str,
+    usage: dict,
+    related_id: str = None
+) -> bool:
+    """
+    Track internal LLM operations (title generation, project extraction, summaries, etc.).
+
+    These are "invisible" operations that consume tokens but aren't part of council sessions.
+    Tracking them gives visibility into total LLM costs.
+
+    Args:
+        company_id: Company UUID
+        operation_type: Type of operation:
+            - 'title_generation': Auto-generating conversation titles
+            - 'project_extraction': Extracting project from council response
+            - 'context_structuring': Structuring free-form project descriptions
+            - 'decision_merge': Merging decisions into project context
+            - 'context_regeneration': Regenerating project context from decisions
+            - 'decision_summary': Generating decision summaries
+        model: The model used (e.g., 'google/gemini-2.5-flash')
+        usage: Token usage dict from query_model response:
+            - prompt_tokens: Input tokens
+            - completion_tokens: Output tokens
+            - total_tokens: Total tokens
+            - cache_creation_input_tokens: Cache creation (if applicable)
+            - cache_read_input_tokens: Cache read (if applicable)
+        related_id: Optional related resource ID (conversation_id, project_id, decision_id)
+
+    Returns:
+        True if saved successfully
+    """
+    if not company_id or not usage:
+        return False
+
+    client = get_service_client()
+
+    # Calculate cost for this single model call
+    pricing = get_model_pricing(model)
+    prompt_tokens = usage.get('prompt_tokens', 0)
+    completion_tokens = usage.get('completion_tokens', 0)
+    total_tokens = usage.get('total_tokens', 0) or (prompt_tokens + completion_tokens)
+
+    input_cost = (prompt_tokens / 1_000_000) * pricing['input']
+    output_cost = (completion_tokens / 1_000_000) * pricing['output']
+    cost_cents = int((input_cost + output_cost) * 100)
+
+    # Build model breakdown for consistency with session_usage schema
+    model_breakdown = {
+        model: {
+            'input': prompt_tokens,
+            'output': completion_tokens,
+            'total': total_tokens,
+            'cost_cents': cost_cents
+        }
+    }
+
+    data = {
+        'company_id': company_id,
+        'conversation_id': related_id,  # Reuse field for related resource
+        'tokens_input': prompt_tokens,
+        'tokens_output': completion_tokens,
+        'tokens_total': total_tokens,
+        'cache_creation_tokens': usage.get('cache_creation_input_tokens', 0),
+        'cache_read_tokens': usage.get('cache_read_input_tokens', 0),
+        'estimated_cost_cents': cost_cents,
+        'model_breakdown': model_breakdown,
+        'session_type': f'internal_{operation_type}',  # Prefix with 'internal_' to distinguish
+        'model_count': 1,
+    }
+
+    try:
+        client.table('session_usage').insert(data).execute()
+        log_app_event(
+            "INTERNAL_LLM_USAGE_SAVED",
+            level="DEBUG",
+            company_id=company_id,
+            operation=operation_type,
+            model=model,
+            tokens=total_tokens,
+            cost_cents=cost_cents
+        )
+        return True
+    except Exception as e:
+        log_app_event("INTERNAL_LLM_USAGE_SAVE_FAILED", level="WARNING", error=str(e), operation=operation_type)
+        return False
+
+
 async def save_session_usage(
     company_id: str,
     conversation_id: str,
@@ -601,10 +691,24 @@ Today's date: {today_date}"""
 
     result_data = None
     last_error = None
+    company_id = project.get("company_id")  # For usage tracking
 
     for model in models:
         try:
             result = await query_model(model=model, messages=messages)
+
+            # Track internal LLM usage if company_id available
+            if company_id and result and result.get('usage'):
+                try:
+                    await save_internal_llm_usage(
+                        company_id=company_id,
+                        operation_type='auto_context_regeneration',
+                        model=model,
+                        usage=result['usage'],
+                        related_id=project_id
+                    )
+                except Exception:
+                    pass  # Don't fail regeneration if tracking fails
 
             if result and result.get('content'):
                 content = result['content']
@@ -738,14 +842,29 @@ async def generate_decision_summary_internal(
     if isinstance(model_prefs, str):
         model_prefs = json.loads(model_prefs)
 
+    model_used = model_prefs[0]
+
     try:
         response = await query_model(
-            model_prefs[0],
+            model_used,
             [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ]
         )
+
+        # Track internal LLM usage
+        if company_uuid and response and response.get('usage'):
+            try:
+                await save_internal_llm_usage(
+                    company_id=company_uuid,
+                    operation_type='decision_summary',
+                    model=model_used,
+                    usage=response['usage'],
+                    related_id=decision_id
+                )
+            except Exception:
+                pass  # Don't fail summary generation if tracking fails
 
         content = response.get("content", "").strip() if response else ""
 

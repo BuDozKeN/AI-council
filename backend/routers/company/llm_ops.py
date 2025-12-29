@@ -194,6 +194,11 @@ async def get_llm_usage(
     total_cache_read = 0
     total_cost = 0
     model_usage = {}
+    # Breakdown by session type
+    total_council_sessions = 0
+    total_council_cost = 0
+    total_internal_sessions = 0
+    total_internal_cost = 0
 
     for day in daily_data:
         total_sessions += day.get('sessions', 0)
@@ -202,6 +207,11 @@ async def get_llm_usage(
         total_tokens += day.get('tokens_total', 0) or 0
         total_cache_read += day.get('cache_read_tokens', 0) or 0
         total_cost += day.get('estimated_cost_cents', 0) or 0
+        # Session type breakdown
+        total_council_sessions += day.get('council_sessions', 0) or 0
+        total_council_cost += day.get('council_cost_cents', 0) or 0
+        total_internal_sessions += day.get('internal_sessions', 0) or 0
+        total_internal_cost += day.get('internal_cost_cents', 0) or 0
 
         # Aggregate model usage from top_models
         top_models = day.get('top_models') or []
@@ -225,6 +235,11 @@ async def get_llm_usage(
             'tokens_total': day.get('tokens_total', 0) or 0,
             'cache_read_tokens': day.get('cache_read_tokens', 0) or 0,
             'estimated_cost_cents': day.get('estimated_cost_cents', 0) or 0,
+            # Session type breakdown per day
+            'council_sessions': day.get('council_sessions', 0) or 0,
+            'council_cost_cents': day.get('council_cost_cents', 0) or 0,
+            'internal_sessions': day.get('internal_sessions', 0) or 0,
+            'internal_cost_cents': day.get('internal_cost_cents', 0) or 0,
         }
         for day in daily_data
     ]
@@ -255,6 +270,11 @@ async def get_llm_usage(
             'estimated_cost_cents': total_cost,
             'avg_tokens_per_session': round(avg_tokens, 0),
             'cache_hit_rate': round(cache_hit_rate, 1),
+            # Breakdown by session type
+            'council_sessions': total_council_sessions,
+            'council_cost_cents': total_council_cost,
+            'internal_sessions': total_internal_sessions,
+            'internal_cost_cents': total_internal_cost,
         },
         'daily': daily,
         'models': models,

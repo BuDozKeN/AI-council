@@ -24,6 +24,11 @@ export interface UsageSummary {
   estimated_cost_cents: number;
   avg_tokens_per_session: number;
   cache_hit_rate: number;
+  // Breakdown by session type
+  council_sessions: number;
+  council_cost_cents: number;
+  internal_sessions: number;
+  internal_cost_cents: number;
 }
 
 export interface DailyUsage {
@@ -34,6 +39,11 @@ export interface DailyUsage {
   tokens_total: number;
   cache_read_tokens: number;
   estimated_cost_cents: number;
+  // Breakdown by session type
+  council_sessions: number;
+  council_cost_cents: number;
+  internal_sessions: number;
+  internal_cost_cents: number;
 }
 
 export interface ModelUsage {

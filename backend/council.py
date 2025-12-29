@@ -779,12 +779,16 @@ def calculate_aggregate_rankings(
     return aggregate
 
 
-async def generate_conversation_title(user_query: str) -> str:
+async def generate_conversation_title(
+    user_query: str,
+    company_id: str = None
+) -> str:
     """
     Generate a short title for a conversation based on the first user message.
 
     Args:
         user_query: The first user message
+        company_id: Optional company UUID for usage tracking
 
     Returns:
         A short title (3-5 words)
@@ -801,6 +805,19 @@ Title:"""
     # Get title generator model from registry
     title_model = await get_primary_model('title_generator') or 'google/gemini-2.5-flash'
     response = await query_model(title_model, messages, timeout=30.0)
+
+    # Track usage if company_id provided
+    if company_id and response and response.get('usage'):
+        try:
+            from .routers.company.utils import save_internal_llm_usage
+            await save_internal_llm_usage(
+                company_id=company_id,
+                operation_type='title_generation',
+                model=title_model,
+                usage=response['usage']
+            )
+        except Exception:
+            pass  # Don't fail title generation if tracking fails
 
     if response is None:
         # Fallback to a generic title

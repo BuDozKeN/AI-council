@@ -186,10 +186,35 @@ export default function Sidebar({
     collapseNow,
   } = useHoverExpansion({ isPinned });
 
-  // Close sidebar when clicking outside (desktop only - both hovered and pinned states)
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SIDEBAR STATE SYSTEM
+  // ═══════════════════════════════════════════════════════════════════════════
+  // The sidebar has THREE related pieces that must stay in sync:
+  //
+  // 1. visualState (line ~526) - CSS class determining width/layout:
+  //    - 'collapsed': narrow, icon rail only
+  //    - 'hovered': icon rail + expanded panel side by side
+  //    - 'pinned': full width, no icon rail
+  //
+  // 2. isExpanded (below) - whether to RENDER expanded content
+  //
+  // 3. Icon rail render condition (line ~582) - `!isPinned`
+  //
+  // IMPORTANT: When adding new conditions that keep sidebar open (like hasSelection),
+  // you must update ALL THREE pieces consistently:
+  // - Add to isExpanded (to render content)
+  // - Add to visualState with correct mode ('hovered' keeps icon rail, 'pinned' hides it)
+  // - Consider if icon rail condition needs updating
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  const hasSelection = selectedIds.size > 0;
+  const isExpanded = isPinned || hoveredIcon !== null || isMobileOpen || hasSelection;
+
+  // Close sidebar when clicking outside (desktop only - expanded states)
+  // NOTE: This effect depends on hasSelection, so it must be defined after
   useEffect(() => {
     const isDesktop = typeof window !== 'undefined' && window.innerWidth > 768;
-    const isExpandedOnDesktop = isDesktop && !isMobileOpen && (hoveredIcon || isPinned);
+    const isExpandedOnDesktop = isDesktop && !isMobileOpen && (hoveredIcon || isPinned || hasSelection);
 
     if (!isExpandedOnDesktop) return;
 
@@ -198,6 +223,11 @@ export default function Sidebar({
 
       // Don't collapse if clicking inside the sidebar
       if (sidebarRef.current && sidebarRef.current.contains(target)) {
+        return;
+      }
+
+      // Don't collapse if items are selected - user needs to complete the bulk action
+      if (hasSelection) {
         return;
       }
 
@@ -229,10 +259,7 @@ export default function Sidebar({
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [hoveredIcon, isPinned, isMobileOpen, collapseNow]);
-
-  // Derived state - mobile open always shows expanded content
-  const isExpanded = isPinned || hoveredIcon !== null || isMobileOpen;
+  }, [hoveredIcon, isPinned, isMobileOpen, hasSelection, collapseNow]);
 
   // Toggle pin state
   const togglePin = useCallback(() => {
@@ -514,7 +541,8 @@ export default function Sidebar({
   }, [onLoadMore, hasMoreConversations, isLoadingMore, searchQuery]);
 
   // Determine visual state for CSS
-  const visualState = isPinned ? 'pinned' : (hoveredIcon ? 'hovered' : 'collapsed');
+  // When items are selected, treat as 'hovered' to keep expanded panel visible but preserve icon rail
+  const visualState = isPinned ? 'pinned' : (hoveredIcon || hasSelection ? 'hovered' : 'collapsed');
 
   // Build sidebar CSS classes
   const sidebarClasses = [
@@ -530,7 +558,11 @@ export default function Sidebar({
       aria-label="Conversation history"
     >
       {/* Header with New Chat and Pin toggle */}
-      <div className="sidebar-header">
+      <div
+        className="sidebar-header"
+        onMouseEnter={handleExpandedAreaEnter}
+        onMouseLeave={handleExpandedAreaLeave}
+      >
         {isExpanded ? (
           <>
             <Button
@@ -725,19 +757,17 @@ export default function Sidebar({
                 </div>
               )}
             </div>
+
+            {/* Multi-select action bar - inside expanded panel to avoid overlapping icon rail */}
+            <BulkActionBar
+              selectedCount={selectedIds.size}
+              isDeleting={isDeleting}
+              onClearSelection={clearSelection}
+              onBulkDelete={handleBulkDelete}
+            />
           </div>
         )}
       </div>
-
-      {/* Multi-select action bar */}
-      {isExpanded && (
-        <BulkActionBar
-          selectedCount={selectedIds.size}
-          isDeleting={isDeleting}
-          onClearSelection={clearSelection}
-          onBulkDelete={handleBulkDelete}
-        />
-      )}
 
       {/* Footer with user info and actions */}
       {isExpanded ? (

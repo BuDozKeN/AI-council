@@ -36,28 +36,30 @@ export function BulkActionBar({
         role="status"
         aria-live="polite"
       >
-        {selectedCount} conversation{selectedCount !== 1 ? 's' : ''} selected
+        {selectedCount} selected
       </span>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onClearSelection}
-        aria-label="Cancel selection"
-        className="bulk-cancel-btn"
-      >
-        Cancel
-      </Button>
-      <Button
-        variant="destructive"
-        size="sm"
-        onClick={onBulkDelete}
-        disabled={isDeleting}
-        aria-label={isDeleting ? 'Deleting conversations' : `Delete ${selectedCount} conversation${selectedCount !== 1 ? 's' : ''}`}
-        className="bulk-delete-btn"
-      >
-        <Trash2 size={14} aria-hidden="true" />
-        {isDeleting ? 'Deleting...' : 'Delete'}
-      </Button>
+      <div className="bulk-action-buttons">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onClearSelection}
+          aria-label="Cancel selection"
+          className="bulk-cancel-btn"
+        >
+          Cancel
+        </Button>
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={onBulkDelete}
+          disabled={isDeleting}
+          aria-label={isDeleting ? 'Deleting conversations' : `Delete ${selectedCount} conversation${selectedCount !== 1 ? 's' : ''}`}
+          className="bulk-delete-btn"
+        >
+          <Trash2 size={14} aria-hidden="true" />
+          {isDeleting ? 'Deleting...' : 'Delete'}
+        </Button>
+      </div>
     </div>
   );
 }

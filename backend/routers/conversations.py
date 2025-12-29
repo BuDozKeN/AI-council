@@ -40,6 +40,7 @@ from .company.utils import (
     calculate_cost_cents,
     create_budget_alert
 )
+from ..openrouter import MOCK_LLM
 
 # Import rate limiter from main module
 from slowapi import Limiter
@@ -284,11 +285,20 @@ async def send_message(
                 else:
                     yield f"data: {json.dumps({'type': 'image_analysis_complete', 'analyzed': 0})}\n\n"
 
+            # Resolve company UUID for knowledge base lookup (needed for title tracking and rate limits)
+            company_uuid = None
+            if body.business_id:
+                try:
+                    company_uuid = storage.resolve_company_id(body.business_id, access_token)
+                except Exception:
+                    pass
+
             # Start title generation in parallel (don't await yet)
+            # Pass company_uuid for internal LLM usage tracking
             title_task = None
             title_emitted = False
             if is_first_message:
-                title_task = asyncio.create_task(generate_conversation_title(body.content))
+                title_task = asyncio.create_task(generate_conversation_title(body.content, company_id=company_uuid))
 
             async def check_and_emit_title():
                 nonlocal title_emitted
@@ -301,14 +311,6 @@ async def send_message(
                     except Exception:
                         title_emitted = True
                 return None
-
-            # Resolve company UUID for knowledge base lookup
-            company_uuid = None
-            if body.business_id:
-                try:
-                    company_uuid = storage.resolve_company_id(body.business_id, access_token)
-                except Exception:
-                    pass
 
             # Check rate limits before starting council session
             if company_uuid:
@@ -465,7 +467,8 @@ async def send_message(
             billing.increment_query_usage(user_id, access_token=access_token)
 
             # Log usage event for analytics with actual token counts
-            if company_uuid:
+            # Skip all usage tracking in mock mode - no real API calls were made
+            if company_uuid and not MOCK_LLM:
                 try:
                     await company_router.log_usage_event(
                         company_id=company_uuid,

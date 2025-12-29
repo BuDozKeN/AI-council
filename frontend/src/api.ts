@@ -1608,9 +1608,10 @@ export const api = {
    * Designed to be understandable by anyone - like onboarding documentation.
    * @param {string} userQuestion - The original user question
    * @param {string} councilResponse - The Stage 3 chairman synthesis
+   * @param {string} companyId - Optional company ID for usage tracking
    * @returns {Promise<{success: boolean, extracted: {name: string, description: string}, error: string}>}
    */
-  async extractProject(userQuestion: string, councilResponse: string) {
+  async extractProject(userQuestion: string, councilResponse: string, companyId?: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/projects/extract`, {
       method: 'POST',
@@ -1618,6 +1619,7 @@ export const api = {
       body: JSON.stringify({
         user_question: userQuestion,
         council_response: councilResponse,
+        company_id: companyId,
       }),
     });
     if (!response.ok) {
@@ -1631,13 +1633,14 @@ export const api = {
    * Use AI to structure free-form project description into organized context.
    * @param {string} freeText - User's free-form project description
    * @param {string} projectName - Optional project name (AI may suggest one if empty)
+   * @param {string} companyId - Optional company ID for usage tracking
    * @returns {Promise<{structured: Object}>}
    *   - structured.context_md: Formatted markdown context
    *   - structured.description: Brief project description
    *   - structured.suggested_name: Suggested project name (if not provided)
    *   - structured.sections: Array of {title, content} for preview
    */
-  async structureProjectContext(freeText: string, projectName: string = '') {
+  async structureProjectContext(freeText: string, projectName: string = '', companyId?: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/projects/structure-context`, {
       method: 'POST',
@@ -1645,6 +1648,7 @@ export const api = {
       body: JSON.stringify({
         free_text: freeText,
         project_name: projectName,
+        company_id: companyId,
       }),
     });
     if (!response.ok) {

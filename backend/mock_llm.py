@@ -36,7 +36,7 @@ def _detect_stage(messages: List[Dict]) -> str:
         return "stage3"
 
     # Title generation
-    if "conversation title" in last_content or "generate a title" in last_content:
+    if "conversation title" in last_content or "short title" in last_content or "generate a title" in last_content:
         return "title"
 
     # Triage

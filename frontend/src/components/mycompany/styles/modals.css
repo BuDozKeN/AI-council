@@ -237,65 +237,9 @@
 }
 
 /* ============================================================================
-   BUTTON SYSTEM
-   ============================================================================ */
-
-.mc-btn {
-  padding: 10px 18px;
-  border-radius: var(--radius-md);
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid var(--color-border);
-  background: var(--color-bg-primary);
-  color: var(--color-text-secondary);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-.mc-btn:hover:not(:disabled) {
-  background: var(--color-bg-secondary);
-  border-color: var(--color-border-dark);
-  color: var(--color-text-primary);
-}
-
-.mc-btn:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-.mc-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.mc-btn.primary {
-  background: var(--color-primary);
-  border-color: transparent;
-  color: var(--color-primary-text);
-  box-shadow: 0 2px 8px rgb(var(--color-indigo-rgb), 0.25);
-}
-
-.mc-btn.primary:hover:not(:disabled) {
-  background: var(--color-primary-hover);
-  box-shadow: 0 4px 12px rgb(var(--color-indigo-rgb), 0.35);
-  transform: translateY(-1px);
-}
-
-.mc-btn.primary:active:not(:disabled) {
-  transform: translateY(0) scale(0.98);
-}
-
-.mc-btn.small {
-  padding: 7px 14px;
-  font-size: 0.8125rem;
-  border-radius: var(--radius-md);
-}
-
-/* ============================================================================
    SELECT DROPDOWN
+
+   NOTE: .mc-btn styles were removed - use <Button> component instead.
    ============================================================================ */
 
 .mc-select {
@@ -1523,21 +1467,6 @@
 [data-theme="dark"] .mc-form-group textarea:focus,
 [data-theme="dark"] .mc-form-group select:focus {
   border-color: var(--color-amber-400);
-}
-
-/* Buttons */
-.dark .mc-btn,
-[data-theme="dark"] .mc-btn {
-  background: var(--color-bg-secondary);
-  border-color: var(--color-border);
-  color: var(--color-text-secondary);
-}
-
-.dark .mc-btn:hover:not(:disabled),
-[data-theme="dark"] .mc-btn:hover:not(:disabled) {
-  background: var(--color-bg-tertiary);
-  border-color: var(--color-border-dark);
-  color: var(--color-text-primary);
 }
 
 /* Select dropdown */

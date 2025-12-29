@@ -955,6 +955,13 @@ function App() {
             setIsLoading(false);
             break;
 
+          case 'usage':
+            // Usage data event - store on the last message for display
+            setCurrentConversation((prev) => updateLastMessage(prev, () => ({
+              usage: event.data ?? event,
+            })));
+            break;
+
           case 'error': {
             const errorMessage = event.message as string | undefined;
             log.error('Stream error:', errorMessage);

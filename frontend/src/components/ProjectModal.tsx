@@ -97,7 +97,8 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
     setError(null);
 
     try {
-      const result = await api.structureProjectContext(inputText);
+      // Pass companyId for usage tracking
+      const result = await api.structureProjectContext(inputText, '', companyId);
       if (result?.structured) {
         setEditedName(result.structured.suggested_name || '');
         setEditedDescription(result.structured.description || '');
