@@ -705,6 +705,7 @@ export default function MyCompany({
                     alerts={usageData.alerts}
                     loading={usageData.loading}
                     usageLoaded={usageData.usageLoaded}
+                    isRefetching={usageData.isRefetching}
                     error={usageData.error}
                     period={usageData.period}
                     onPeriodChange={usageData.changePeriod}

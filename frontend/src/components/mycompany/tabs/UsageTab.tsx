@@ -13,7 +13,7 @@
  * - Showcase multi-model value through visualization
  */
 
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import {
   BarChart,
   Bar,
@@ -29,6 +29,7 @@ import {
 import { Gauge, AlertTriangle, Zap, TrendingUp, DollarSign, Users, Bot, Sparkles } from 'lucide-react';
 import { ScrollableContent } from '../../ui/ScrollableContent';
 import { Skeleton } from '../../ui/Skeleton';
+import { getModelPersona, getModelColor as getModelColorFromPersona } from '../../../config/modelPersonas';
 import type {
   UsageData,
   RateLimitStatus,
@@ -46,21 +47,27 @@ const PERIOD_OPTIONS: { value: UsagePeriod; label: string }[] = [
   { value: 90, label: '90d' },
 ];
 
-// Chart colors for models - using design system colors
-const MODEL_COLORS: Record<string, string> = {
-  'anthropic/claude-opus-4.5': 'hsl(217, 91%, 60%)', // Blue
-  'anthropic/claude-sonnet-4': 'hsl(217, 91%, 70%)',
-  'openai/gpt-4o': 'hsl(160, 84%, 39%)', // Green
-  'openai/gpt-5.1': 'hsl(160, 84%, 49%)',
-  'google/gemini-3-pro-preview': 'hsl(280, 100%, 65%)', // Purple
-  'google/gemini-2.5-flash': 'hsl(280, 100%, 75%)',
-  'x-ai/grok-4': 'hsl(0, 84%, 60%)', // Red
-  'x-ai/grok-3': 'hsl(0, 84%, 70%)',
-  'deepseek/deepseek-chat': 'hsl(45, 93%, 47%)', // Yellow
-  'deepseek/deepseek-chat-v3-0324': 'hsl(45, 93%, 57%)',
-};
+// Responsive breakpoint (matches CSS media queries)
+const MOBILE_BREAKPOINT = 768;
 
-const DEFAULT_COLOR = 'hsl(215, 20%, 65%)';
+// Chart dimensions (responsive)
+const CHART_CONFIG = {
+  bar: {
+    height: { mobile: 180, desktop: 300 },
+    margin: {
+      mobile: { top: 10, right: 8, left: 0, bottom: 10 },
+      desktop: { top: 20, right: 20, left: 10, bottom: 20 },
+    },
+    fontSize: { mobile: 10, desktop: 12 },
+    yAxisWidth: { mobile: 35, desktop: 50 },
+    xAxisHeight: { mobile: 30, desktop: 40 },
+  },
+  pie: {
+    height: { mobile: 140, desktop: 180 },
+    innerRadius: { mobile: 35, desktop: 45 },
+    outerRadius: { mobile: 55, desktop: 70 },
+  },
+} as const;
 
 // ============================================================================
 // Helper Functions
@@ -80,30 +87,18 @@ function formatTokens(count: number): string {
   return count.toString();
 }
 
+/**
+ * Get short display name for a model using centralized persona config
+ */
 function getModelShortName(model: string): string {
-  const parts = model.split('/');
-  const name = parts[parts.length - 1] ?? model;
-  return name
-    .replace('claude-opus-4.5', 'Opus 4.5')
-    .replace('claude-sonnet-4', 'Sonnet 4')
-    .replace('gpt-5.1', 'GPT-5.1')
-    .replace('gpt-4o', 'GPT-4o')
-    .replace('gemini-3-pro-preview', 'Gemini 3')
-    .replace('gemini-2.5-flash', 'Flash 2.5')
-    .replace('grok-4', 'Grok 4')
-    .replace('grok-3', 'Grok 3')
-    .replace('deepseek-chat-v3-0324', 'DeepSeek')
-    .replace('deepseek-chat', 'DeepSeek');
+  return getModelPersona(model).shortName;
 }
 
+/**
+ * Get color for a model using centralized persona config
+ */
 function getModelColor(model: string): string {
-  // Try exact match
-  if (MODEL_COLORS[model]) return MODEL_COLORS[model];
-  // Try partial match
-  for (const [key, color] of Object.entries(MODEL_COLORS)) {
-    if (model.includes(key) || key.includes(model)) return color;
-  }
-  return DEFAULT_COLOR;
+  return getModelColorFromPersona(model);
 }
 
 function formatDate(dateStr: string): string {
@@ -121,6 +116,7 @@ interface UsageTabProps {
   alerts?: BudgetAlert[];
   loading?: boolean;
   usageLoaded?: boolean;
+  isRefetching?: boolean; // Background refresh (old data still visible)
   error?: string | null;
   period?: UsagePeriod;
   onPeriodChange?: (period: UsagePeriod) => void;
@@ -137,11 +133,21 @@ export function UsageTab({
   alerts = [],
   loading: _loading = false,
   usageLoaded = false,
+  isRefetching = false,
   error = null,
   period = 30,
   onPeriodChange,
   onAlertAcknowledge,
 }: UsageTabProps) {
+  // Mobile detection for responsive chart heights
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= MOBILE_BREAKPOINT);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // Calculate cache savings in cents (rough estimate)
   const cacheSavings = useMemo(() => {
     if (!usage) return 0;
@@ -325,12 +331,13 @@ export function UsageTab({
 
       {/* Period selector */}
       <div className="mc-usage-header">
-        <div className="mc-usage-period-selector">
+        <div className={`mc-usage-period-selector ${isRefetching ? 'refetching' : ''}`}>
           {PERIOD_OPTIONS.map(opt => (
             <button
               key={opt.value}
               className={`mc-usage-period-btn ${period === opt.value ? 'active' : ''}`}
               onClick={() => onPeriodChange?.(opt.value)}
+              disabled={isRefetching}
             >
               {opt.label}
             </button>
@@ -344,26 +351,36 @@ export function UsageTab({
           <h3 className="mc-usage-section-title">Daily Cost</h3>
           <div className="mc-usage-chart-container">
             {chartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300} debounce={50}>
+              <ResponsiveContainer
+                width="100%"
+                height={isMobile ? CHART_CONFIG.bar.height.mobile : CHART_CONFIG.bar.height.desktop}
+                debounce={50}
+              >
                 <BarChart
                   data={chartData}
-                  margin={{ top: 20, right: 20, left: 10, bottom: 20 }}
+                  margin={isMobile ? CHART_CONFIG.bar.margin.mobile : CHART_CONFIG.bar.margin.desktop}
                   barCategoryGap="20%"
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" opacity={0.5} />
                   <XAxis
                     dataKey="date"
-                    tick={{ fontSize: 12, fill: 'var(--color-text-secondary)' }}
+                    tick={{
+                      fontSize: isMobile ? CHART_CONFIG.bar.fontSize.mobile : CHART_CONFIG.bar.fontSize.desktop,
+                      fill: 'var(--color-text-secondary)',
+                    }}
                     tickLine={false}
                     axisLine={{ stroke: 'var(--color-border)' }}
-                    height={40}
+                    height={isMobile ? CHART_CONFIG.bar.xAxisHeight.mobile : CHART_CONFIG.bar.xAxisHeight.desktop}
                   />
                   <YAxis
-                    tick={{ fontSize: 12, fill: 'var(--color-text-secondary)' }}
+                    tick={{
+                      fontSize: isMobile ? CHART_CONFIG.bar.fontSize.mobile : CHART_CONFIG.bar.fontSize.desktop,
+                      fill: 'var(--color-text-secondary)',
+                    }}
                     tickLine={false}
                     axisLine={{ stroke: 'var(--color-border)' }}
                     tickFormatter={(v) => `$${v}`}
-                    width={50}
+                    width={isMobile ? CHART_CONFIG.bar.yAxisWidth.mobile : CHART_CONFIG.bar.yAxisWidth.desktop}
                   />
                   <Tooltip
                     contentStyle={{
@@ -371,14 +388,14 @@ export function UsageTab({
                       border: '1px solid var(--color-border)',
                       borderRadius: 'var(--radius-md)',
                       boxShadow: 'var(--shadow-lg)',
-                      padding: '12px 16px',
+                      padding: 'var(--space-3) var(--space-4)',
                     }}
                     labelStyle={{ color: 'var(--color-text-primary)', fontWeight: 600, marginBottom: 4 }}
                     formatter={(value) => [`$${(value as number).toFixed(2)}`, 'Cost']}
                   />
                   <Bar
                     dataKey="cost"
-                    fill="hsl(217, 91%, 60%)"
+                    fill="var(--color-primary)"
                     radius={[6, 6, 0, 0]}
                     maxBarSize={80}
                     minPointSize={3}
@@ -400,7 +417,11 @@ export function UsageTab({
           <div className="mc-usage-models-grid">
             <div className="mc-usage-pie-container">
               {displayModelData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={180} debounce={50}>
+                <ResponsiveContainer
+                  width="100%"
+                  height={isMobile ? CHART_CONFIG.pie.height.mobile : CHART_CONFIG.pie.height.desktop}
+                  debounce={50}
+                >
                   <PieChart>
                     <Pie
                       data={displayModelData}
@@ -408,8 +429,8 @@ export function UsageTab({
                       nameKey="name"
                       cx="50%"
                       cy="50%"
-                      innerRadius={45}
-                      outerRadius={70}
+                      innerRadius={isMobile ? CHART_CONFIG.pie.innerRadius.mobile : CHART_CONFIG.pie.innerRadius.desktop}
+                      outerRadius={isMobile ? CHART_CONFIG.pie.outerRadius.mobile : CHART_CONFIG.pie.outerRadius.desktop}
                       paddingAngle={2}
                     >
                       {displayModelData.map((entry, index) => (

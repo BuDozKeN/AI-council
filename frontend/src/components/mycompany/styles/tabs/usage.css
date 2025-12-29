@@ -90,6 +90,37 @@
   box-shadow: var(--shadow-sm);
 }
 
+.mc-usage-period-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Refetching state - subtle loading indicator */
+.mc-usage-period-selector.refetching {
+  position: relative;
+}
+
+.mc-usage-period-selector.refetching::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-primary),
+    transparent
+  );
+  animation: mc-usage-loading 1s ease-in-out infinite;
+}
+
+@keyframes mc-usage-loading {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
 /* ============================================================================
    ALERTS
    ============================================================================ */
@@ -767,8 +798,8 @@
 
   /* Sections - compact cards */
   .mc-usage-section {
-    padding: var(--space-2-5);
-    margin-bottom: var(--space-2);
+    padding: var(--space-2);
+    margin-bottom: var(--space-1-5);
     border-radius: var(--radius-md);
     background: var(--color-bg-primary);
     border: 1px solid var(--color-border);
@@ -777,30 +808,32 @@
 
   .mc-usage-section-title {
     font-size: 0.75rem;
-    margin-bottom: var(--space-2);
+    margin-bottom: var(--space-1-5);
   }
 
-  /* Chart container - shorter on mobile */
+  /* Chart container - let JS control height via ResponsiveContainer */
   .mc-usage-chart-container {
-    height: 160px;
+    height: auto;
+    min-height: 140px;
     margin: 0 -4px; /* Slight negative margin for chart edges */
   }
 
   /* Model breakdown - stack on mobile */
   .mc-usage-models-grid {
     grid-template-columns: 1fr;
-    gap: var(--space-3);
+    gap: var(--space-2);
   }
 
   .mc-usage-pie-container {
     width: 100%;
-    max-width: 160px;
-    height: 160px;
+    max-width: 140px;
+    height: auto;
+    min-height: 140px;
     margin: 0 auto;
   }
 
   .mc-usage-pie-placeholder {
-    height: 160px;
+    height: 140px;
   }
 
   .mc-usage-pie-ring {

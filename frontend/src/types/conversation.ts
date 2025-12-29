@@ -56,6 +56,20 @@ export interface Message {
   loading?: LoadingState;
   stopped?: boolean;
 
+  // Token usage (for developer display)
+  usage?: {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+    cache_creation_input_tokens: number;
+    cache_read_input_tokens: number;
+    by_model: Record<string, {
+      prompt_tokens: number;
+      completion_tokens: number;
+      total_tokens: number;
+    }>;
+  };
+
   // Attachments
   attachments?: string[];
 

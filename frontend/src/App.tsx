@@ -13,6 +13,7 @@ import { Toaster, toast } from './components/ui/sonner';
 import { MockModeBanner } from './components/ui/MockModeBanner';
 import { logger } from './utils/logger';
 import type { Conversation, Message } from './types/conversation';
+import type { UsageData } from './components/ui/TokenUsageDisplay';
 import './App.css';
 
 // Extend Window interface for pending question feature
@@ -958,7 +959,7 @@ function App() {
           case 'usage':
             // Usage data event - store on the last message for display
             setCurrentConversation((prev) => updateLastMessage(prev, () => ({
-              usage: event.data ?? event,
+              usage: (event.data ?? event) as UsageData,
             })));
             break;
 

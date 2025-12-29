@@ -115,12 +115,19 @@ export function useUsageData({ companyId, initialPeriod = 30 }: UseUsageDataOpti
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [usageLoaded, setUsageLoaded] = useState(false);
+  const [isRefetching, setIsRefetching] = useState(false); // For period changes (keeps old data visible)
 
   // Load all data - single function without nested callbacks
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (isRefetch = false) => {
     if (!companyId) return;
 
-    setLoading(true);
+    // For refetches (period changes), use isRefetching instead of loading
+    // This keeps old data visible while fetching new data
+    if (isRefetch) {
+      setIsRefetching(true);
+    } else {
+      setLoading(true);
+    }
     setError(null);
 
     try {
@@ -161,16 +168,17 @@ export function useUsageData({ companyId, initialPeriod = 30 }: UseUsageDataOpti
       setError('Failed to load usage data');
     } finally {
       setLoading(false);
+      setIsRefetching(false);
     }
   }, [companyId, period]);
 
-  // Load on mount and when dependencies change
+  // Load on initial mount only
   useEffect(() => {
-    if (companyId) {
-      loadData();
+    if (companyId && !usageLoaded) {
+      loadData(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadData already depends on companyId and period
-  }, [companyId, period]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only run on mount/company change
+  }, [companyId]);
 
   // Reset when company changes
   useEffect(() => {
@@ -195,11 +203,29 @@ export function useUsageData({ companyId, initialPeriod = 30 }: UseUsageDataOpti
     }
   }, [companyId]);
 
-  // Change period and reload
-  const changePeriod = useCallback((newPeriod: UsagePeriod) => {
+  // Change period - refetch with old data still visible
+  const changePeriod = useCallback(async (newPeriod: UsagePeriod) => {
+    if (newPeriod === period) return;
     setPeriod(newPeriod);
-    setUsageLoaded(false);
-  }, []);
+
+    // Don't clear usageLoaded - keep showing old data while fetching
+    // The isRefetching state will show a subtle loading indicator
+    if (companyId) {
+      setIsRefetching(true);
+      setError(null);
+
+      try {
+        // Only refetch usage data (rate limits and alerts don't change with period)
+        const usageResult = await api.getLlmUsage(companyId, newPeriod);
+        setUsage(usageResult);
+      } catch (err) {
+        log.error('Failed to load usage data', { error: err });
+        setError('Failed to load usage data');
+      } finally {
+        setIsRefetching(false);
+      }
+    }
+  }, [companyId, period]);
 
   return {
     // Data
@@ -212,6 +238,7 @@ export function useUsageData({ companyId, initialPeriod = 30 }: UseUsageDataOpti
     loading,
     error,
     usageLoaded,
+    isRefetching, // New: indicates background refresh (old data still visible)
 
     // Actions
     loadData,
