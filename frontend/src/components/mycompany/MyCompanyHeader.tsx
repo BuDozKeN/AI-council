@@ -64,8 +64,10 @@ export function MyCompanyHeader({
           </h1>
           <span className="mc-title-suffix">Command Center</span>
         </div>
-        {allCompanies.length > 1 && (
-          <div className="mc-company-switcher">
+        {/* Company switcher - always show on mobile for clear company display, only show dropdown if multiple companies */}
+        {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+        <div className="mc-company-switcher" onClick={(e) => e.stopPropagation()}>
+          {allCompanies.length > 1 ? (
             <Select
               value={companyId}
               onValueChange={(val) => { if (val !== companyId) onSelectCompany?.(val); }}
@@ -82,8 +84,13 @@ export function MyCompanyHeader({
                 ))}
               </SelectContent>
             </Select>
-          </div>
-        )}
+          ) : (
+            <div className="mc-company-display">
+              <Building2 size={14} />
+              <span>{companyName || 'Your Company'}</span>
+            </div>
+          )}
+        </div>
       </div>
       <button className="mc-close-btn" onClick={(e: React.MouseEvent) => { e.stopPropagation(); onClose?.(); }}>&times;</button>
     </header>

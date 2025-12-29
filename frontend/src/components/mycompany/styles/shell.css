@@ -258,6 +258,25 @@
   opacity: 0.8;
 }
 
+/* Static company display when only one company (no dropdown) */
+.mc-company-display {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--overlay-white-10);
+  border: 1px solid var(--overlay-white-20);
+  border-radius: var(--radius-md);
+  color: var(--overlay-white-90);
+  font-size: 14px;
+  font-weight: 500;
+  min-width: 140px;
+}
+
+.mc-company-display svg {
+  opacity: 0.8;
+}
+
 .mc-company-dropdown-btn {
   display: inline-flex;
   align-items: center;

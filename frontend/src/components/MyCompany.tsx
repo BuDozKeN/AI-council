@@ -208,11 +208,10 @@ export default function MyCompany({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
-  // Header click to close (but not on interactive elements)
-  const handleHeaderClick = useCallback((e?: React.MouseEvent) => {
-    if (e && (e.target as HTMLElement).closest('button, [role="combobox"], [role="listbox"], select, input')) {
-      return;
-    }
+  // Header click to close
+  // Note: Interactive elements (company switcher, buttons) use stopPropagation()
+  // so this handler only fires for clicks on the header background itself
+  const handleHeaderClick = useCallback(() => {
     hapticLight();
     onClose?.();
   }, [onClose]);
