@@ -19,9 +19,17 @@ def _detect_stage(messages: List[Dict]) -> str:
     Works with your existing prompt structure in council.py.
     """
     if not messages:
+        print("[MOCK DETECT] No messages, defaulting to stage1")
         return "stage1"
 
     last_content = (messages[-1].get("content") or "").lower()
+    print(f"[MOCK DETECT] Last message content (first 100 chars): {last_content[:100]}")
+
+    # Title generation - check FIRST since it's a short prompt
+    # Must check before stage1 (default) since title prompts don't have other markers
+    if "short title" in last_content or "conversation title" in last_content or "generate a title" in last_content:
+        print(f"[MOCK DETECT] -> TITLE")
+        return "title"
 
     # Curator: Knowledge curation requests
     if "knowledge curator" in last_content or ("suggestions" in last_content and "json" in last_content):
@@ -34,10 +42,6 @@ def _detect_stage(messages: List[Dict]) -> str:
     # Stage 3: Chairman synthesis
     if "synthesize" in last_content or "chairman" in last_content:
         return "stage3"
-
-    # Title generation
-    if "conversation title" in last_content or "short title" in last_content or "generate a title" in last_content:
-        return "title"
 
     # Triage
     if "triage" in last_content or "4 constraints" in last_content:
@@ -347,12 +351,31 @@ Based on the collective wisdom of the council:
 Align stakeholders on success criteria, resource the pilot phase, establish governance cadence, and begin execution with a checkpoint at Day 30. This synthesis represents the integrated wisdom of the AI Council."""
 
 
+def _estimate_mock_usage(content: str, messages: List[Dict]) -> Dict:
+    """
+    Estimate realistic token usage for mock responses.
+    Uses approximate token counts based on character length.
+    """
+    # Rough estimation: ~4 chars per token for English text
+    prompt_text = " ".join(m.get("content", "") for m in messages)
+    prompt_tokens = len(prompt_text) // 4
+    completion_tokens = len(content) // 4
+
+    return {
+        'prompt_tokens': prompt_tokens,
+        'completion_tokens': completion_tokens,
+        'total_tokens': prompt_tokens + completion_tokens,
+        'cache_creation_input_tokens': 0,
+        'cache_read_input_tokens': 0,
+    }
+
+
 async def generate_mock_response(model: str, messages: List[Dict]) -> Optional[Dict]:
     """
     Main entry point for non-streaming mock responses.
 
     Returns:
-        dict with 'content' and 'reasoning_details' keys, or None for simulated failure
+        dict with 'content', 'reasoning_details', and 'usage' keys, or None for simulated failure
     """
     # Simulate network latency
     await asyncio.sleep(random.uniform(MOCK_DELAY_MIN, MOCK_DELAY_MAX))
@@ -384,7 +407,9 @@ async def generate_mock_response(model: str, messages: List[Dict]) -> Optional[D
 
     return {
         "content": content,
-        "reasoning_details": None
+        "reasoning_details": None,
+        "usage": _estimate_mock_usage(content, messages),
+        "model": model,
     }
 
 

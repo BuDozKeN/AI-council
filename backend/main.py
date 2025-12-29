@@ -7,7 +7,112 @@ from fastapi.responses import JSONResponse
 from fastapi import Request
 import re
 import os
+import sys
+import uuid
+import signal
+import asyncio
+import contextvars
 from datetime import datetime
+
+# =============================================================================
+# GRACEFUL SHUTDOWN MANAGEMENT
+# =============================================================================
+# Track in-flight requests and manage graceful shutdown
+
+class ShutdownManager:
+    """
+    Manages graceful shutdown with in-flight request tracking.
+
+    - Tracks active requests to allow them to complete
+    - Blocks new requests during shutdown
+    - Enforces maximum drain timeout
+    """
+
+    def __init__(self, drain_timeout: float = 30.0):
+        self._shutting_down = False
+        self._active_requests = 0
+        self._lock = asyncio.Lock()
+        self._drain_timeout = drain_timeout
+        self._shutdown_event = asyncio.Event()
+
+    @property
+    def is_shutting_down(self) -> bool:
+        return self._shutting_down
+
+    @property
+    def active_requests(self) -> int:
+        return self._active_requests
+
+    async def start_request(self) -> bool:
+        """
+        Register a new request. Returns False if shutting down.
+        """
+        async with self._lock:
+            if self._shutting_down:
+                return False
+            self._active_requests += 1
+            return True
+
+    async def end_request(self) -> None:
+        """Mark a request as completed."""
+        async with self._lock:
+            self._active_requests = max(0, self._active_requests - 1)
+            if self._shutting_down and self._active_requests == 0:
+                self._shutdown_event.set()
+
+    async def initiate_shutdown(self) -> None:
+        """Begin graceful shutdown process."""
+        async with self._lock:
+            self._shutting_down = True
+            if self._active_requests == 0:
+                self._shutdown_event.set()
+
+    async def wait_for_drain(self) -> bool:
+        """
+        Wait for all requests to complete or timeout.
+        Returns True if all requests completed, False if timed out.
+        """
+        try:
+            await asyncio.wait_for(
+                self._shutdown_event.wait(),
+                timeout=self._drain_timeout
+            )
+            return True
+        except asyncio.TimeoutError:
+            return False
+
+    def get_status(self) -> dict:
+        """Get shutdown manager status."""
+        return {
+            "shutting_down": self._shutting_down,
+            "active_requests": self._active_requests,
+            "drain_timeout": self._drain_timeout
+        }
+
+
+# Global shutdown manager instance
+_shutdown_manager = ShutdownManager(drain_timeout=30.0)
+
+
+def get_shutdown_manager() -> ShutdownManager:
+    """Get the global shutdown manager."""
+    return _shutdown_manager
+
+# =============================================================================
+# REQUEST CORRELATION ID
+# =============================================================================
+# Context variable for request tracing across async operations
+_correlation_id: contextvars.ContextVar[str] = contextvars.ContextVar('correlation_id', default='')
+
+
+def get_correlation_id() -> str:
+    """Get the current request's correlation ID for logging."""
+    return _correlation_id.get() or 'no-correlation-id'
+
+
+def set_correlation_id(correlation_id: str) -> contextvars.Token:
+    """Set correlation ID for the current async context."""
+    return _correlation_id.set(correlation_id)
 
 # =============================================================================
 # SENTRY: Initialize error tracking FIRST (before anything else)
@@ -178,6 +283,125 @@ class RequestSizeLimitMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
 
+class GracefulShutdownMiddleware(BaseHTTPMiddleware):
+    """
+    Track in-flight requests and reject new ones during shutdown.
+
+    - Allows health checks during shutdown (for load balancer)
+    - Returns 503 for new requests during shutdown
+    - Tracks request lifecycle for graceful draining
+    """
+
+    HEALTH_PATHS = {"/health", "/health/live", "/health/ready"}
+
+    async def dispatch(self, request, call_next):
+        # Always allow health checks (load balancer needs them)
+        if request.url.path in self.HEALTH_PATHS:
+            return await call_next(request)
+
+        # Check if we're shutting down
+        if _shutdown_manager.is_shutting_down:
+            return JSONResponse(
+                status_code=503,
+                content={
+                    "detail": "Service is shutting down",
+                    "retry_after": 5
+                },
+                headers={"Retry-After": "5"}
+            )
+
+        # Register request
+        if not await _shutdown_manager.start_request():
+            return JSONResponse(
+                status_code=503,
+                content={"detail": "Service is shutting down"}
+            )
+
+        try:
+            return await call_next(request)
+        finally:
+            await _shutdown_manager.end_request()
+
+
+class CorrelationIdMiddleware(BaseHTTPMiddleware):
+    """
+    Add correlation ID to all requests for distributed tracing.
+
+    - Accepts X-Correlation-ID from client (for cross-service tracing)
+    - Generates new UUID if not provided
+    - Returns correlation ID in response header
+    - Sets context variable for use in logging throughout request
+    """
+
+    async def dispatch(self, request, call_next):
+        # Get or generate correlation ID
+        correlation_id = request.headers.get("X-Correlation-ID")
+        if not correlation_id:
+            correlation_id = str(uuid.uuid4())[:8]  # Short ID for readability
+
+        # Set in context variable for logging
+        token = set_correlation_id(correlation_id)
+
+        try:
+            response = await call_next(request)
+            # Add correlation ID to response headers
+            response.headers["X-Correlation-ID"] = correlation_id
+            return response
+        finally:
+            # Reset context variable
+            _correlation_id.reset(token)
+
+
+class RequestDurationMiddleware(BaseHTTPMiddleware):
+    """
+    Track request duration for performance monitoring.
+
+    - Logs slow requests (>1s warning, >5s error)
+    - Adds X-Response-Time header to all responses
+    - Excludes health check endpoints from slow request logging
+    """
+
+    SLOW_REQUEST_THRESHOLD = 1.0  # seconds - log warning
+    VERY_SLOW_THRESHOLD = 5.0  # seconds - log error
+    EXCLUDED_PATHS = {"/health", "/health/live", "/health/ready", "/"}
+
+    async def dispatch(self, request, call_next):
+        import time
+        start_time = time.perf_counter()
+
+        response = await call_next(request)
+
+        duration = time.perf_counter() - start_time
+        duration_ms = round(duration * 1000, 2)
+
+        # Add timing header
+        response.headers["X-Response-Time"] = f"{duration_ms}ms"
+
+        # Log slow requests (except health checks)
+        path = request.url.path
+        if path not in self.EXCLUDED_PATHS:
+            if duration >= self.VERY_SLOW_THRESHOLD:
+                log_app_event(
+                    "VERY_SLOW_REQUEST",
+                    level="ERROR",
+                    path=path,
+                    method=request.method,
+                    duration_ms=duration_ms,
+                    status_code=response.status_code
+                )
+            elif duration >= self.SLOW_REQUEST_THRESHOLD:
+                log_app_event(
+                    "SLOW_REQUEST",
+                    level="WARNING",
+                    path=path,
+                    method=request.method,
+                    duration_ms=duration_ms,
+                    status_code=response.status_code
+                )
+
+        return response
+
+
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """Add security headers to all responses."""
 
@@ -219,12 +443,16 @@ app.add_middleware(
         "Origin",
         "X-Requested-With",
         "Cache-Control",
+        "X-Correlation-ID",
     ],
-    expose_headers=["Content-Disposition"],
+    expose_headers=["Content-Disposition", "X-Correlation-ID", "X-Response-Time"],
 )
 # Performance: Lower threshold to compress smaller API responses (e.g., JSON lists)
 app.add_middleware(GZipMiddleware, minimum_size=500)
 app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(RequestDurationMiddleware)  # Track request timing
+app.add_middleware(CorrelationIdMiddleware)
+app.add_middleware(GracefulShutdownMiddleware)  # Track in-flight requests
 app.add_middleware(RequestSizeLimitMiddleware)
 
 
@@ -316,16 +544,94 @@ app.include_router(profile_router)
 # =============================================================================
 # APPLICATION LIFECYCLE
 # =============================================================================
-@app.on_event("shutdown")
-async def shutdown_event():
-    """Clean up resources on application shutdown."""
+@app.on_event("startup")
+async def startup_event():
+    """Initialize application and set up signal handlers."""
+    log_app_event("APP_STARTUP", level="INFO", service="LLM Council API")
+
+    # Set up signal handlers for graceful shutdown (Unix only)
+    if sys.platform != "win32":
+        loop = asyncio.get_event_loop()
+
+        def signal_handler(sig):
+            log_app_event(
+                "SHUTDOWN_SIGNAL_RECEIVED",
+                level="WARNING",
+                signal=sig.name
+            )
+            asyncio.create_task(_graceful_shutdown())
+
+        for sig in (signal.SIGTERM, signal.SIGINT):
+            loop.add_signal_handler(sig, lambda s=sig: signal_handler(s))
+
+
+async def _graceful_shutdown():
+    """
+    Graceful shutdown procedure:
+    1. Stop accepting new requests
+    2. Wait for in-flight requests to complete (with timeout)
+    3. Clean up resources
+    """
+    log_app_event(
+        "GRACEFUL_SHUTDOWN_INITIATED",
+        level="WARNING",
+        active_requests=_shutdown_manager.active_requests
+    )
+
+    # Initiate shutdown (stops accepting new requests)
+    await _shutdown_manager.initiate_shutdown()
+
+    # Wait for in-flight requests to drain
+    drained = await _shutdown_manager.wait_for_drain()
+
+    if drained:
+        log_app_event("GRACEFUL_SHUTDOWN_DRAINED", level="INFO")
+    else:
+        log_app_event(
+            "GRACEFUL_SHUTDOWN_TIMEOUT",
+            level="WARNING",
+            remaining_requests=_shutdown_manager.active_requests
+        )
+
+    # Clean up resources
+    await _cleanup_resources()
+
+
+async def _cleanup_resources():
+    """Clean up all resources on shutdown."""
+    # Close HTTP client
     try:
         from .openrouter import _http_client
     except ImportError:
-        from openrouter import _http_client
+        try:
+            from openrouter import _http_client
+        except ImportError:
+            _http_client = None
 
     if _http_client and not _http_client.is_closed:
         await _http_client.aclose()
+        log_app_event("SHUTDOWN_HTTP_CLIENT_CLOSED", level="INFO")
+
+    # Clear caches
+    try:
+        from .utils.cache import user_cache, company_cache, settings_cache
+    except ImportError:
+        from backend.utils.cache import user_cache, company_cache, settings_cache
+
+    await user_cache.clear()
+    await company_cache.clear()
+    await settings_cache.clear()
+    log_app_event("SHUTDOWN_CACHES_CLEARED", level="INFO")
+
+    log_app_event("SHUTDOWN_COMPLETE", level="INFO")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """FastAPI shutdown hook - clean up resources."""
+    # If graceful shutdown wasn't triggered by signal, do cleanup now
+    if not _shutdown_manager.is_shutting_down:
+        await _graceful_shutdown()
 
 
 # =============================================================================
@@ -339,8 +645,144 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint to verify deployment."""
-    return {"status": "healthy"}
+    """
+    Comprehensive health check endpoint.
+
+    Returns:
+        - status: "healthy" | "degraded" | "unhealthy" | "draining"
+        - checks: Individual dependency statuses
+        - HTTP 200 if healthy/degraded, 503 if unhealthy/draining
+    """
+    checks = {}
+    overall_healthy = True
+    degraded = False
+
+    # Check if shutting down
+    if _shutdown_manager.is_shutting_down:
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "draining",
+                "timestamp": datetime.utcnow().isoformat() + "Z",
+                "active_requests": _shutdown_manager.active_requests,
+                "checks": {}
+            }
+        )
+
+    # Check database connectivity
+    try:
+        from .database import get_supabase, with_timeout
+    except ImportError:
+        from backend.database import get_supabase, with_timeout
+
+    try:
+        supabase = get_supabase()
+        # Simple query to verify connection (with 5s timeout)
+        await with_timeout(
+            lambda: supabase.table("companies").select("id").limit(1).execute(),
+            timeout=5.0,
+            operation="health_check"
+        )
+        checks["database"] = {"status": "healthy", "latency_ms": None}
+    except Exception as e:
+        checks["database"] = {"status": "unhealthy", "error": str(e)[:100]}
+        overall_healthy = False
+
+    # Check circuit breaker status
+    try:
+        from .openrouter import get_circuit_breaker_status
+    except ImportError:
+        from backend.openrouter import get_circuit_breaker_status
+
+    cb_status = get_circuit_breaker_status()
+    if cb_status["state"] == "open":
+        checks["llm_circuit_breaker"] = {
+            "status": "unhealthy",
+            "state": cb_status["state"],
+            "recovery_in_seconds": cb_status.get("seconds_until_recovery")
+        }
+        degraded = True
+    elif cb_status["state"] == "half_open":
+        checks["llm_circuit_breaker"] = {
+            "status": "degraded",
+            "state": cb_status["state"],
+            "failure_count": cb_status["failure_count"]
+        }
+        degraded = True
+    else:
+        checks["llm_circuit_breaker"] = {
+            "status": "healthy",
+            "state": cb_status["state"],
+            "failure_count": cb_status["failure_count"]
+        }
+
+    # Check cache health
+    try:
+        from .utils.cache import user_cache, company_cache
+    except ImportError:
+        from backend.utils.cache import user_cache, company_cache
+
+    checks["cache"] = {
+        "status": "healthy",
+        "user_cache_size": user_cache.stats()["size"],
+        "company_cache_size": company_cache.stats()["size"]
+    }
+
+    # Determine overall status
+    if not overall_healthy:
+        status = "unhealthy"
+        http_status = 503
+    elif degraded:
+        status = "degraded"
+        http_status = 200
+    else:
+        status = "healthy"
+        http_status = 200
+
+    response = {
+        "status": status,
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "checks": checks
+    }
+
+    if http_status != 200:
+        return JSONResponse(status_code=http_status, content=response)
+    return response
+
+
+@app.get("/health/live")
+async def liveness_check():
+    """
+    Liveness probe - is the process running?
+    Used by load balancers for basic health.
+    """
+    return {"status": "alive"}
+
+
+@app.get("/health/ready")
+async def readiness_check():
+    """
+    Readiness probe - is the service ready to accept traffic?
+    Checks critical dependencies.
+    """
+    try:
+        from .database import get_supabase, with_timeout
+    except ImportError:
+        from backend.database import get_supabase, with_timeout
+
+    try:
+        supabase = get_supabase()
+        await with_timeout(
+            lambda: supabase.table("companies").select("id").limit(1).execute(),
+            timeout=3.0,
+            operation="readiness_check"
+        )
+        return {"status": "ready"}
+    except Exception:
+        return JSONResponse(
+            status_code=503,
+            content={"status": "not_ready", "reason": "database_unavailable"}
+        )
 
 
 @app.get("/api/businesses")

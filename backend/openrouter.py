@@ -5,6 +5,7 @@ import json
 import asyncio
 import contextvars
 import time
+import random
 from typing import List, Dict, Any, Optional, AsyncGenerator
 from .config import OPENROUTER_API_KEY, OPENROUTER_API_URL
 from .config import MOCK_LLM as _MOCK_LLM_INITIAL
@@ -12,10 +13,53 @@ from .config import ENABLE_PROMPT_CACHING, CACHE_SUPPORTED_MODELS
 
 
 # =============================================================================
+# RETRY UTILITIES
+# =============================================================================
+
+def calculate_backoff_with_jitter(
+    retry_attempt: int,
+    base_delay: float = 2.0,
+    max_delay: float = 60.0,
+    jitter_factor: float = 0.5
+) -> float:
+    """
+    Calculate exponential backoff with jitter to prevent thundering herd.
+
+    Uses "decorrelated jitter" approach which provides good distribution:
+    delay = min(max_delay, random(base_delay, previous_delay * 3))
+
+    Args:
+        retry_attempt: Current retry attempt (0-indexed)
+        base_delay: Base delay in seconds
+        max_delay: Maximum delay cap
+        jitter_factor: Random factor (0.5 = +/- 50% jitter)
+
+    Returns:
+        Delay in seconds with jitter applied
+    """
+    # Exponential backoff: 2^attempt * base_delay
+    exponential_delay = min(max_delay, base_delay * (2 ** retry_attempt))
+
+    # Add jitter: random value between (1-jitter_factor) and (1+jitter_factor) of delay
+    jitter_min = exponential_delay * (1 - jitter_factor)
+    jitter_max = exponential_delay * (1 + jitter_factor)
+
+    return random.uniform(jitter_min, jitter_max)
+
+
+# =============================================================================
 # CIRCUIT BREAKER IMPLEMENTATION
 # =============================================================================
 # Prevents cascading failures when OpenRouter is down by failing fast
 # after a threshold of failures, then gradually recovering.
+# Uses per-model circuit breakers so one failing model doesn't block others.
+
+# Import logging for state transition alerts
+try:
+    from .security import log_app_event
+except ImportError:
+    from backend.security import log_app_event
+
 
 class CircuitBreaker:
     """
@@ -33,6 +77,7 @@ class CircuitBreaker:
 
     def __init__(
         self,
+        name: str = "default",
         failure_threshold: int = 5,
         recovery_timeout: float = 60.0,
         half_open_max_calls: int = 3
@@ -41,10 +86,12 @@ class CircuitBreaker:
         Initialize circuit breaker.
 
         Args:
+            name: Identifier for this circuit breaker (e.g., model name)
             failure_threshold: Number of failures before opening circuit
             recovery_timeout: Seconds to wait before attempting recovery
             half_open_max_calls: Max calls allowed in half-open state
         """
+        self.name = name
         self.failure_threshold = failure_threshold
         self.recovery_timeout = recovery_timeout
         self.half_open_max_calls = half_open_max_calls
@@ -65,6 +112,19 @@ class CircuitBreaker:
         """Check if circuit is open (blocking requests)."""
         return self._state == self.OPEN
 
+    def _log_state_transition(self, from_state: str, to_state: str, reason: str) -> None:
+        """Log circuit breaker state transitions for observability."""
+        level = "WARNING" if to_state == self.OPEN else "INFO"
+        log_app_event(
+            f"CIRCUIT_BREAKER_{to_state.upper()}",
+            level=level,
+            circuit=self.name,
+            from_state=from_state,
+            to_state=to_state,
+            reason=reason,
+            failure_count=self._failure_count
+        )
+
     async def can_execute(self) -> bool:
         """
         Check if a request can be executed.
@@ -81,8 +141,10 @@ class CircuitBreaker:
                 if self._last_failure_time and \
                    time.time() - self._last_failure_time >= self.recovery_timeout:
                     # Transition to half-open
+                    old_state = self._state
                     self._state = self.HALF_OPEN
                     self._half_open_calls = 0
+                    self._log_state_transition(old_state, self.HALF_OPEN, "recovery_timeout_elapsed")
                     return True
                 return False
 
@@ -100,9 +162,11 @@ class CircuitBreaker:
         async with self._lock:
             if self._state == self.HALF_OPEN:
                 # Success in half-open means service recovered
+                old_state = self._state
                 self._state = self.CLOSED
                 self._failure_count = 0
                 self._half_open_calls = 0
+                self._log_state_transition(old_state, self.CLOSED, "service_recovered")
             elif self._state == self.CLOSED:
                 # Reset failure count on success
                 self._failure_count = 0
@@ -115,15 +179,20 @@ class CircuitBreaker:
 
             if self._state == self.HALF_OPEN:
                 # Failure in half-open means service still down
+                old_state = self._state
                 self._state = self.OPEN
                 self._half_open_calls = 0
+                self._log_state_transition(old_state, self.OPEN, "half_open_failure")
             elif self._state == self.CLOSED:
                 if self._failure_count >= self.failure_threshold:
+                    old_state = self._state
                     self._state = self.OPEN
+                    self._log_state_transition(old_state, self.OPEN, f"threshold_exceeded_{self._failure_count}_failures")
 
     def get_status(self) -> Dict[str, Any]:
         """Get circuit breaker status for monitoring."""
         return {
+            "name": self.name,
             "state": self._state,
             "failure_count": self._failure_count,
             "failure_threshold": self.failure_threshold,
@@ -136,9 +205,69 @@ class CircuitBreaker:
         }
 
 
-# Global circuit breaker instance for OpenRouter
-_circuit_breaker = CircuitBreaker(
-    failure_threshold=5,      # Open after 5 consecutive failures
+class CircuitBreakerRegistry:
+    """
+    Registry for per-model circuit breakers.
+    Each LLM model gets its own circuit breaker to prevent one failing
+    model from blocking requests to other healthy models.
+    """
+
+    def __init__(
+        self,
+        failure_threshold: int = 5,
+        recovery_timeout: float = 60.0,
+        half_open_max_calls: int = 3
+    ):
+        self._breakers: Dict[str, CircuitBreaker] = {}
+        self._lock = asyncio.Lock()
+        self._failure_threshold = failure_threshold
+        self._recovery_timeout = recovery_timeout
+        self._half_open_max_calls = half_open_max_calls
+
+    async def get_breaker(self, model: str) -> CircuitBreaker:
+        """Get or create a circuit breaker for a specific model."""
+        async with self._lock:
+            if model not in self._breakers:
+                self._breakers[model] = CircuitBreaker(
+                    name=model,
+                    failure_threshold=self._failure_threshold,
+                    recovery_timeout=self._recovery_timeout,
+                    half_open_max_calls=self._half_open_max_calls
+                )
+            return self._breakers[model]
+
+    def get_all_statuses(self) -> Dict[str, Dict[str, Any]]:
+        """Get status of all circuit breakers."""
+        return {model: breaker.get_status() for model, breaker in self._breakers.items()}
+
+    def get_summary(self) -> Dict[str, Any]:
+        """Get summary status for health checks."""
+        statuses = self.get_all_statuses()
+        open_breakers = [m for m, s in statuses.items() if s["state"] == "open"]
+        half_open_breakers = [m for m, s in statuses.items() if s["state"] == "half_open"]
+
+        # Determine overall state
+        if len(open_breakers) == len(statuses) and len(statuses) > 0:
+            overall_state = "open"  # All breakers open
+        elif open_breakers or half_open_breakers:
+            overall_state = "degraded"  # Some breakers not healthy
+        else:
+            overall_state = "closed"  # All healthy
+
+        return {
+            "state": overall_state,
+            "total_breakers": len(statuses),
+            "open_breakers": open_breakers,
+            "half_open_breakers": half_open_breakers,
+            "failure_count": sum(s["failure_count"] for s in statuses.values()),
+            "failure_threshold": self._failure_threshold,
+            "recovery_timeout": self._recovery_timeout
+        }
+
+
+# Global circuit breaker registry for per-model breakers
+_circuit_breaker_registry = CircuitBreakerRegistry(
+    failure_threshold=5,      # Open after 5 consecutive failures per model
     recovery_timeout=60.0,    # Wait 60s before trying again
     half_open_max_calls=3     # Allow 3 test calls in half-open
 )
@@ -146,17 +275,23 @@ _circuit_breaker = CircuitBreaker(
 
 class CircuitBreakerOpen(Exception):
     """Raised when circuit breaker is open and blocking requests."""
-    def __init__(self, recovery_seconds: float):
+    def __init__(self, model: str, recovery_seconds: float):
+        self.model = model
         self.recovery_seconds = recovery_seconds
         super().__init__(
-            f"OpenRouter circuit breaker is open. "
+            f"Circuit breaker for {model} is open. "
             f"Service appears unavailable. Retry in {recovery_seconds:.0f}s."
         )
 
 
 def get_circuit_breaker_status() -> Dict[str, Any]:
-    """Get the current circuit breaker status for monitoring/health checks."""
-    return _circuit_breaker.get_status()
+    """Get the current circuit breaker summary status for monitoring/health checks."""
+    return _circuit_breaker_registry.get_summary()
+
+
+def get_all_circuit_breaker_statuses() -> Dict[str, Dict[str, Any]]:
+    """Get detailed status of all per-model circuit breakers."""
+    return _circuit_breaker_registry.get_all_statuses()
 
 # Context variable for per-request API key override (BYOK)
 # This allows setting the API key at the request level without threading it through all functions
@@ -333,10 +468,11 @@ async def query_model(
     if MOCK_LLM:
         return await generate_mock_response(model, messages)
 
-    # === CIRCUIT BREAKER CHECK ===
-    if not await _circuit_breaker.can_execute():
-        status = _circuit_breaker.get_status()
-        raise CircuitBreakerOpen(status.get("seconds_until_recovery", 60))
+    # === CIRCUIT BREAKER CHECK (per-model) ===
+    breaker = await _circuit_breaker_registry.get_breaker(model)
+    if not await breaker.can_execute():
+        status = breaker.get_status()
+        raise CircuitBreakerOpen(model, status.get("seconds_until_recovery", 60))
 
     # === REAL API CALL ===
     # Use provided API key, context variable, or fall back to system key
@@ -372,7 +508,7 @@ async def query_model(
         message = data['choices'][0]['message']
 
         # Record success with circuit breaker
-        await _circuit_breaker.record_success()
+        await breaker.record_success()
 
         # Extract usage data for cost tracking
         usage = data.get('usage', {})
@@ -392,17 +528,17 @@ async def query_model(
         }
 
     except httpx.TimeoutException:
-        await _circuit_breaker.record_failure()
+        await breaker.record_failure()
         return None
     except httpx.HTTPStatusError as e:
         # Only count 5xx errors as failures (server issues)
         # 4xx errors are client issues, not service failures
         if e.response.status_code >= 500:
-            await _circuit_breaker.record_failure()
+            await breaker.record_failure()
         return None
     except (httpx.ConnectError, httpx.ReadError, httpx.RemoteProtocolError):
         # Connection errors indicate service issues
-        await _circuit_breaker.record_failure()
+        await breaker.record_failure()
         return None
     except Exception:
         return None
@@ -434,11 +570,12 @@ async def query_model_stream(
             yield chunk
         return
 
-    # === CIRCUIT BREAKER CHECK ===
-    if not await _circuit_breaker.can_execute():
-        status = _circuit_breaker.get_status()
+    # === CIRCUIT BREAKER CHECK (per-model) ===
+    breaker = await _circuit_breaker_registry.get_breaker(model)
+    if not await breaker.can_execute():
+        status = breaker.get_status()
         recovery_secs = status.get("seconds_until_recovery", 60)
-        yield f"[Error: AI Council temporarily unavailable. Please retry in {recovery_secs:.0f}s]"
+        yield f"[Error: {model} temporarily unavailable. Please retry in {recovery_secs:.0f}s]"
         return
 
     # === REAL API CALL ===
@@ -482,7 +619,7 @@ async def query_model_stream(
                 if response.status_code >= 400:
                     # Record failure for 5xx errors
                     if response.status_code >= 500:
-                        await _circuit_breaker.record_failure()
+                        await breaker.record_failure()
                     yield f"[Error: Status {response.status_code}]"
                     return
 
@@ -496,7 +633,7 @@ async def query_model_stream(
                         data_str = line[6:]  # Remove "data: " prefix
                         if data_str.strip() == "[DONE]":
                             # Successfully completed - record success
-                            await _circuit_breaker.record_success()
+                            await breaker.record_success()
                             # Yield usage data as final event if captured
                             if usage_data:
                                 yield f"[USAGE:{json.dumps(usage_data)}]"
@@ -518,8 +655,10 @@ async def query_model_stream(
                                 )
                                 if is_retryable and retries < max_retries:
                                     should_retry = True
-                                    # Use exponential backoff: 5s, 10s (longer for rate limits)
-                                    wait_time = (retries + 1) * 5
+                                    # Use exponential backoff with jitter to prevent thundering herd
+                                    # Rate limits get longer base delay
+                                    base = 5.0 if error_code == 429 else 2.0
+                                    wait_time = calculate_backoff_with_jitter(retries, base_delay=base)
                                     await asyncio.sleep(wait_time)
                                     break  # Break inner loop to retry
                                 yield f"[Error: {error_msg}]"
@@ -563,22 +702,23 @@ async def query_model_stream(
                     return  # Done, exit the retry loop
 
         except httpx.TimeoutException:
-            await _circuit_breaker.record_failure()
+            await breaker.record_failure()
             yield f"[Error: Timeout after {timeout}s]"
             return
         except httpx.HTTPStatusError as e:
             if e.response.status_code >= 500:
-                await _circuit_breaker.record_failure()
+                await breaker.record_failure()
             yield f"[Error: Status {e.response.status_code}]"
             return
         except (httpx.ConnectError, httpx.ReadError, httpx.RemoteProtocolError):
             # Connection errors are often transient - retry them
             if retries < max_retries:
-                await asyncio.sleep(2)  # Wait before retry
+                wait_time = calculate_backoff_with_jitter(retries, base_delay=1.0)
+                await asyncio.sleep(wait_time)
                 retries += 1
                 continue  # Retry the loop
             # Final retry failed - record failure
-            await _circuit_breaker.record_failure()
+            await breaker.record_failure()
             yield "[Error: Connection failed]"
             return
         except Exception:

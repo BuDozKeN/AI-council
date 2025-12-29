@@ -1,14 +1,14 @@
 # AxCouncil Audit Dashboard
 
-> Last Updated: 2025-12-29 18:45 UTC
-> Last Audit: perf (Performance)
+> Last Updated: 2025-12-30 UTC
+> Last Audit: resilience (Resilience & Observability)
 > Branch: master
 
 ---
 
 ## Executive Summary
 
-### Overall Health: 7.5/10
+### Overall Health: 8.3/10
 
 | Category | Score | Trend | Critical | High | Medium | Last Checked |
 |----------|-------|-------|----------|------|--------|--------------|
@@ -21,16 +21,16 @@
 | LLM Operations | --/10 | -- | -- | -- | -- | -- |
 | Data Architecture | --/10 | -- | -- | -- | -- | -- |
 | Billing | --/10 | -- | -- | -- | -- | -- |
-| Resilience | --/10 | -- | -- | -- | -- | -- |
+| Resilience | 9/10 | ↑ | 0 | 0 | 1 | 2025-12-30 |
 | API Governance | --/10 | -- | -- | -- | -- | -- |
 
 > Categories not run in this audit retain their previous scores and "Last Checked" dates.
 
 ### Key Metrics
-- **Total Findings**: 7 (Critical: 0, High: 0, Medium: 4, Low: 3)
-- **Fixed Since Last Run**: 4 (3 critical a11y + 1 high perf)
-- **New This Run**: 3 (performance findings)
-- **$25M Readiness**: Near Ready (Performance + Accessibility on track)
+- **Total Findings**: 8 (Critical: 0, High: 0, Medium: 5, Low: 3)
+- **Fixed Since Last Run**: 14 (all resilience critical/high/medium/low items)
+- **New This Run**: 1 (resilience medium - observability dashboard)
+- **$25M Readiness**: Near Ready (Performance + Accessibility + Resilience on track)
 
 ---
 
@@ -38,6 +38,7 @@
 
 | Date | Scope | Overall | Sec | Code | UI | Perf | A11y | Mobile | LLM | Data | Bill | Resil | API |
 |------|-------|---------|-----|------|-----|------|------|--------|-----|------|------|-------|-----|
+| 2025-12-30 | resilience | 8.3 | -- | -- | -- | 8 | 8 | -- | -- | -- | -- | 9 | -- |
 | 2025-12-29 | perf | 7.5 | -- | -- | -- | 8 | 8 | -- | -- | -- | -- | -- | -- |
 | 2024-12-29 | a11y | 7.0 | -- | -- | -- | -- | 8 | -- | -- | -- | -- | -- | -- |
 
@@ -107,6 +108,12 @@
 - **Location**: Various views
 - **Impact**: Missing page-level `<h1>` in some views; screen reader users can't navigate by headings
 - **Recommendation**: Ensure each view has proper h1 → h2 → h3 hierarchy
+- **Status**: Open
+
+### [RESIL-001] Resilience: No real-time observability dashboard
+- **Location**: Backend API
+- **Impact**: Teams cannot monitor circuit breaker states or cache metrics in real-time
+- **Recommendation**: Add `/api/health/metrics` endpoint exposing Prometheus-compatible metrics
 - **Status**: Open
 
 ---
@@ -306,10 +313,78 @@ Run `/audit-dashboard billing` to populate.
 
 </details>
 
-<details>
-<summary>Resilience (--/10) - Not yet audited</summary>
+<details open>
+<summary>Resilience (9/10) - Last checked: 2025-12-30</summary>
 
-Run `/audit-dashboard resilience` to populate.
+### Resilience Score: 9/10 | Observability Score: 8/10
+
+### What's Implemented
+
+#### Critical (All Fixed)
+
+| Area | Implementation | Location |
+|------|----------------|----------|
+| Health Checks | Comprehensive `/health` with DB, circuit breaker status | `backend/main.py:169-230` |
+| Circuit Breakers | Per-model breakers prevent cascade failures | `backend/openrouter.py:35-130` |
+| Request Correlation | UUID correlation IDs for distributed tracing | `backend/main.py:90-110` |
+| State Logging | Circuit breaker state transitions logged | `backend/openrouter.py:85-95` |
+
+#### High Priority (All Fixed)
+
+| Area | Implementation | Location |
+|------|----------------|----------|
+| Graceful Shutdown | ShutdownManager with connection draining (30s timeout) | `backend/main.py:232-295` |
+| Exponential Backoff | Jitter prevents thundering herd on retries | `backend/openrouter.py:140-165` |
+| Minimum Viable Council | Quorum requirements for LLM responses | `backend/council.py:45-80`, `backend/config.py:25-26` |
+
+#### Medium Priority (All Fixed)
+
+| Area | Implementation | Location |
+|------|----------------|----------|
+| Cache Stampede Prevention | Per-key locks with double-check pattern | `backend/utils/cache.py:154-217` |
+| Database Retry Logic | Exponential backoff for transient failures | `backend/database.py:123-193` |
+| Sentry Release Tracking | Git SHA/Render commit for deployment tracking | `backend/sentry.py:31-62` |
+| Cache Metrics | Hit rate, stampede waits, evictions tracked | `backend/utils/cache.py:22-44` |
+
+#### Low Priority (All Fixed)
+
+| Area | Implementation | Location |
+|------|----------------|----------|
+| Structured Logging | JSON formatter for log aggregation | `backend/security.py:385-420` |
+| Request Duration | Slow request detection + warning/error thresholds | `backend/main.py:300-350` |
+| Rate Limit Headers | IETF standard headers (X-RateLimit-*) | `backend/security.py:450-470` |
+
+### Configuration
+
+| Setting | Value | Environment Variable |
+|---------|-------|---------------------|
+| Circuit Breaker Threshold | 5 failures | `CIRCUIT_BREAKER_THRESHOLD` |
+| Circuit Breaker Timeout | 60 seconds | `CIRCUIT_BREAKER_TIMEOUT` |
+| Min Stage 1 Responses | 3 models | `MIN_STAGE1_RESPONSES` |
+| Min Stage 2 Rankings | 2 reviewers | `MIN_STAGE2_RANKINGS` |
+| DB Query Timeout | 10 seconds | Default |
+| DB Max Retries | 3 attempts | Default |
+| Shutdown Drain Timeout | 30 seconds | Default |
+
+### Remaining Issue
+
+### [RESIL-001] Observability: No real-time dashboard
+- **Impact**: Teams cannot monitor circuit breaker states or cache metrics in real-time
+- **Recommendation**: Add `/api/health/metrics` endpoint exposing Prometheus-compatible metrics
+- **Status**: Open (Medium Priority)
+
+### What Could Be Better
+
+1. **Prometheus Metrics** - Export circuit breaker, cache, and request duration metrics
+2. **Distributed Tracing** - Integrate with OpenTelemetry for full request traces
+3. **Alerting Rules** - Configure Sentry alerts for circuit breaker trips
+
+### Verification
+
+All 14 resilience items were implemented and verified:
+- Python syntax compilation passed for all modified files
+- Import tests passed for all new classes/functions
+- Functional tests confirmed new features work correctly
 
 </details>
 

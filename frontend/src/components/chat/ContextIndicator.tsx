@@ -46,8 +46,10 @@ interface ContextIndicatorProps {
   selectedProject?: string | undefined;
   departments?: Department[];
   selectedDepartment?: string | undefined;
+  selectedDepartments?: string[];  // Multi-select support
   roles?: Role[];
   selectedRole?: string | undefined;
+  selectedRoles?: string[];  // Multi-select support
   question?: string | undefined;
   conversationTitle?: string;
 }
@@ -59,14 +61,42 @@ export function ContextIndicator({
   selectedProject,
   departments = [],
   selectedDepartment,
+  selectedDepartments = [],
   roles = [],
   selectedRole,
+  selectedRoles = [],
   question,
   conversationTitle,
 }: ContextIndicatorProps) {
   if (!selectedBusiness && !question && !conversationTitle) return null;
 
   const displayQuestion = conversationTitle || summarizeQuestion(question);
+
+  // Get department names (support both single and multi-select)
+  const departmentNames: string[] = [];
+  if (selectedDepartment) {
+    const dept = departments.find(d => d.id === selectedDepartment);
+    if (dept) departmentNames.push(dept.name);
+  }
+  selectedDepartments.forEach(id => {
+    if (id !== selectedDepartment) { // Avoid duplicates
+      const dept = departments.find(d => d.id === id);
+      if (dept) departmentNames.push(dept.name);
+    }
+  });
+
+  // Get role names (support both single and multi-select)
+  const roleNames: string[] = [];
+  if (selectedRole) {
+    const role = roles.find(r => r.id === selectedRole);
+    if (role) roleNames.push(role.name);
+  }
+  selectedRoles.forEach(id => {
+    if (id !== selectedRole) { // Avoid duplicates
+      const role = roles.find(r => r.id === id);
+      if (role) roleNames.push(role.name);
+    }
+  });
 
   return (
     <div className="context-indicator" data-stage="question">
@@ -76,7 +106,7 @@ export function ContextIndicator({
         <span className="context-question-text">{displayQuestion || 'Question'}</span>
       </div>
 
-      {/* Context pills - company, project, department, role */}
+      {/* Context pills - company, project, departments, roles */}
       {selectedBusiness && (
         <div className="context-indicator-pills">
           <span className="context-indicator-label">Context:</span>
@@ -88,16 +118,16 @@ export function ContextIndicator({
               {projects.find(p => p.id === selectedProject)?.name || 'Project'}
             </span>
           )}
-          {selectedDepartment && (
-            <span className="context-indicator-item department">
-              {departments.find(d => d.id === selectedDepartment)?.name || 'Department'}
+          {departmentNames.map((name, idx) => (
+            <span key={`dept-${idx}`} className="context-indicator-item department">
+              {name}
             </span>
-          )}
-          {selectedRole && (
-            <span className="context-indicator-item role">
-              {roles.find(r => r.id === selectedRole)?.name || 'Role'}
+          ))}
+          {roleNames.map((name, idx) => (
+            <span key={`role-${idx}`} className="context-indicator-item role">
+              {name}
             </span>
-          )}
+          ))}
         </div>
       )}
     </div>

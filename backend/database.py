@@ -4,12 +4,15 @@ import os
 import time
 import asyncio
 import threading
+import random
+import logging
 from pathlib import Path
 from supabase import create_client, Client
 from dotenv import load_dotenv
 from typing import Optional, Dict, Tuple, TypeVar, Callable, Any
 
 T = TypeVar('T')
+logger = logging.getLogger(__name__)
 
 # =============================================================================
 # DATABASE QUERY TIMEOUT
@@ -63,6 +66,132 @@ async def with_timeout(
             )
     except asyncio.TimeoutError:
         raise DatabaseTimeoutError(timeout, operation)
+
+
+# =============================================================================
+# DATABASE RETRY LOGIC
+# =============================================================================
+# Retry configuration for transient database failures
+DEFAULT_MAX_RETRIES = 3
+DEFAULT_BASE_DELAY = 0.5  # 500ms
+DEFAULT_MAX_DELAY = 5.0  # 5 seconds
+DEFAULT_JITTER = 0.3  # 30% jitter
+
+# Transient error indicators (substrings to match in error messages)
+TRANSIENT_ERRORS = [
+    "connection",
+    "timeout",
+    "too many clients",
+    "temporarily unavailable",
+    "network",
+    "ECONNRESET",
+    "ETIMEDOUT",
+    "socket",
+    "refused",
+    "503",
+    "502",
+    "504",
+]
+
+
+class DatabaseRetryError(Exception):
+    """Raised when all database retry attempts fail."""
+    def __init__(self, attempts: int, last_error: Exception, operation: str = "query"):
+        self.attempts = attempts
+        self.last_error = last_error
+        self.operation = operation
+        super().__init__(
+            f"Database {operation} failed after {attempts} attempts. "
+            f"Last error: {last_error}"
+        )
+
+
+def _is_transient_error(error: Exception) -> bool:
+    """Check if an error is transient and worth retrying."""
+    error_str = str(error).lower()
+    return any(indicator in error_str for indicator in TRANSIENT_ERRORS)
+
+
+def _calculate_delay(attempt: int, base_delay: float, max_delay: float, jitter: float) -> float:
+    """Calculate delay with exponential backoff and jitter."""
+    exponential_delay = min(max_delay, base_delay * (2 ** attempt))
+    jitter_min = exponential_delay * (1 - jitter)
+    jitter_max = exponential_delay * (1 + jitter)
+    return random.uniform(jitter_min, jitter_max)
+
+
+async def with_retry(
+    func: Callable[[], T],
+    max_retries: int = DEFAULT_MAX_RETRIES,
+    base_delay: float = DEFAULT_BASE_DELAY,
+    max_delay: float = DEFAULT_MAX_DELAY,
+    jitter: float = DEFAULT_JITTER,
+    operation: str = "query",
+    timeout: Optional[float] = DEFAULT_DB_TIMEOUT,
+) -> T:
+    """
+    Execute a database operation with retry logic for transient failures.
+
+    Uses exponential backoff with jitter to prevent thundering herd.
+    Only retries on transient errors (connection issues, timeouts, etc).
+
+    Args:
+        func: Function to execute (sync or async)
+        max_retries: Maximum number of retry attempts
+        base_delay: Base delay in seconds for exponential backoff
+        max_delay: Maximum delay between retries
+        jitter: Jitter factor (0.3 = ±30% randomization)
+        operation: Description of the operation for logging
+        timeout: Timeout per attempt (None to disable)
+
+    Returns:
+        Result of the operation
+
+    Raises:
+        DatabaseRetryError: If all retry attempts fail
+    """
+    last_error: Optional[Exception] = None
+
+    for attempt in range(max_retries + 1):
+        try:
+            # Apply timeout if specified
+            if timeout:
+                return await with_timeout(func, timeout=timeout, operation=operation)
+            elif asyncio.iscoroutinefunction(func):
+                return await func()
+            elif asyncio.iscoroutine(func):
+                return await func
+            else:
+                return func()
+
+        except DatabaseTimeoutError:
+            # Timeouts are transient - retry them
+            last_error = DatabaseTimeoutError(timeout or DEFAULT_DB_TIMEOUT, operation)
+            logger.warning(
+                f"Database {operation} timeout (attempt {attempt + 1}/{max_retries + 1})"
+            )
+
+        except Exception as e:
+            last_error = e
+
+            # Only retry transient errors
+            if not _is_transient_error(e):
+                logger.error(f"Database {operation} failed with non-transient error: {e}")
+                raise
+
+            logger.warning(
+                f"Database {operation} transient error (attempt {attempt + 1}/{max_retries + 1}): {e}"
+            )
+
+        # Don't sleep after the last attempt
+        if attempt < max_retries:
+            delay = _calculate_delay(attempt, base_delay, max_delay, jitter)
+            logger.debug(f"Retrying {operation} in {delay:.2f}s")
+            await asyncio.sleep(delay)
+
+    # All retries exhausted
+    raise DatabaseRetryError(max_retries + 1, last_error, operation)
+
 
 # Load .env from current dir or parent dir
 env_path = Path(__file__).resolve().parent.parent / '.env'

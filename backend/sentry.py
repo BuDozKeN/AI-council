@@ -3,9 +3,15 @@ Sentry Error Tracking for Backend
 
 Initializes Sentry for production error monitoring.
 Set SENTRY_DSN environment variable to enable.
+
+Release tracking:
+- Set SENTRY_RELEASE to track deployments (e.g., git SHA or version)
+- Render.com: Uses RENDER_GIT_COMMIT automatically
+- CI/CD: Set SENTRY_RELEASE in your build pipeline
 """
 
 import os
+import subprocess
 
 # Try to import sentry_sdk, but gracefully handle if not installed
 try:
@@ -22,8 +28,42 @@ ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 IS_PRODUCTION = ENVIRONMENT == "production" or os.getenv("RENDER", False)
 
 
+def _get_release_version() -> str | None:
+    """
+    Determine the release version for Sentry.
+
+    Priority:
+    1. SENTRY_RELEASE env var (explicit override)
+    2. RENDER_GIT_COMMIT (Render.com deployments)
+    3. Git SHA (local development)
+    4. None (fallback)
+    """
+    # Explicit release override
+    if release := os.getenv("SENTRY_RELEASE"):
+        return release
+
+    # Render.com provides the git commit SHA
+    if render_commit := os.getenv("RENDER_GIT_COMMIT"):
+        return f"axcouncil-backend@{render_commit[:8]}"
+
+    # Try to get git SHA locally
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return f"axcouncil-backend@{result.stdout.strip()}"
+    except (subprocess.SubprocessError, FileNotFoundError, OSError):
+        pass
+
+    return None
+
+
 def init_sentry():
-    """Initialize Sentry SDK for FastAPI."""
+    """Initialize Sentry SDK for FastAPI with release tracking."""
     if not SENTRY_AVAILABLE:
         if IS_PRODUCTION:
             print("[Sentry] sentry-sdk not installed. Error tracking disabled.", flush=True)
@@ -34,8 +74,13 @@ def init_sentry():
             print("[Sentry] DSN not configured. Error tracking disabled.", flush=True)
         return False
 
+    release = _get_release_version()
+
     sentry_sdk.init(
         dsn=SENTRY_DSN,
+
+        # Release version for deployment tracking
+        release=release,
 
         # Environment tag
         environment=ENVIRONMENT if not IS_PRODUCTION else "production",
@@ -65,7 +110,8 @@ def init_sentry():
         ],
     )
 
-    print(f"[Sentry] Initialized for environment: {ENVIRONMENT}", flush=True)
+    release_info = f", release: {release}" if release else ""
+    print(f"[Sentry] Initialized for environment: {ENVIRONMENT}{release_info}", flush=True)
     return True
 
 

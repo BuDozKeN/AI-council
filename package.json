@@ -1,4 +1,13 @@
 {
+  "name": "axcouncil",
+  "private": true,
+  "scripts": {
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "python -m backend.main",
+    "build": "cd frontend && npm run build",
+    "lint": "cd frontend && npm run lint && npm run type-check",
+    "secrets:baseline": "detect-secrets scan --baseline .secrets.baseline"
+  },
   "devDependencies": {
     "typescript": "^5.9.3"
   }

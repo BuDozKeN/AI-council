@@ -294,14 +294,21 @@ Use consistent button variants:
 # Frontend development
 cd frontend && npm run dev
 
-# Backend development
-cd backend && uvicorn main:app --reload
+# Backend development (MUST run from project root, not from backend/)
+python -m backend.main
 
 # Full lint check
 cd frontend && npm run lint && npm run type-check
 
 # Build for production
 cd frontend && npm run build
+
+# Kill stale processes on ports (Windows)
+netstat -ano | findstr :8081  # Find PID
+taskkill //F //PID <pid>      # Kill it
+
+# Regenerate secrets baseline (if pre-commit fails)
+detect-secrets scan --baseline .secrets.baseline
 ```
 
 ## Environment Variables

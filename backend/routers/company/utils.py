@@ -192,7 +192,14 @@ async def log_usage_event(
     """
     Log a usage event for billing/analytics.
     IMPORTANT: Does NOT log user_id - privacy by design.
+
+    NOTE: Automatically skips in mock mode (MOCK_LLM=true).
     """
+    # Skip in mock mode - no real API calls were made
+    from ... import openrouter
+    if openrouter.MOCK_LLM:
+        return
+
     client = get_service_client()
 
     data = {
@@ -284,6 +291,9 @@ async def save_internal_llm_usage(
     These are "invisible" operations that consume tokens but aren't part of council sessions.
     Tracking them gives visibility into total LLM costs.
 
+    NOTE: Automatically skips saving in mock mode (MOCK_LLM=true) since no real API
+    calls are made. This check happens here so callers don't need to check.
+
     Args:
         company_id: Company UUID
         operation_type: Type of operation:
@@ -303,8 +313,13 @@ async def save_internal_llm_usage(
         related_id: Optional related resource ID (conversation_id, project_id, decision_id)
 
     Returns:
-        True if saved successfully
+        True if saved successfully, False if skipped (mock mode) or failed
     """
+    # Skip in mock mode - no real API calls were made
+    from ... import openrouter
+    if openrouter.MOCK_LLM:
+        return False
+
     if not company_id or not usage:
         return False
 
@@ -370,6 +385,9 @@ async def save_session_usage(
     """
     Save detailed session usage for analytics.
 
+    NOTE: Automatically skips saving in mock mode (MOCK_LLM=true) since no real API
+    calls are made. This check happens here so callers don't need to check.
+
     Args:
         company_id: Company UUID
         conversation_id: Conversation/session UUID
@@ -377,8 +395,13 @@ async def save_session_usage(
         session_type: 'council', 'chat', 'triage', or 'document'
 
     Returns:
-        True if saved successfully
+        True if saved successfully, False if skipped (mock mode) or failed
     """
+    # Skip in mock mode - no real API calls were made
+    from ... import openrouter
+    if openrouter.MOCK_LLM:
+        return False
+
     client = get_service_client()
 
     # Calculate cost
@@ -480,8 +503,15 @@ async def increment_rate_counters(
     """
     Increment rate limit counters after a session.
 
-    Returns current counter values.
+    NOTE: Automatically skips in mock mode (MOCK_LLM=true).
+
+    Returns current counter values, or empty dict if skipped.
     """
+    # Skip in mock mode - no real API calls were made
+    from ... import openrouter
+    if openrouter.MOCK_LLM:
+        return {}
+
     client = get_service_client()
 
     try:

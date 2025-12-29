@@ -5,13 +5,87 @@ This module provides:
 1. Sanitized error responses that don't leak internal details
 2. Security event logging for audit trails
 3. Centralized security configuration
+4. Structured JSON logging for log aggregation services
 """
 
 import logging
 import hashlib
+import json
+import os
 from datetime import datetime
 from typing import Optional, Dict, Any
 from fastapi import HTTPException, Request
+
+# =============================================================================
+# STRUCTURED JSON LOGGING
+# =============================================================================
+# Enable JSON logging in production for log aggregation (CloudWatch, Datadog, etc.)
+STRUCTURED_LOGGING = os.getenv("STRUCTURED_LOGGING", "false").lower() == "true"
+
+
+class StructuredJsonFormatter(logging.Formatter):
+    """
+    JSON log formatter for structured logging.
+
+    Outputs logs in JSON format for easy parsing by log aggregation services.
+    Includes timestamp, level, correlation ID, and all extra fields.
+    """
+
+    def format(self, record: logging.LogRecord) -> str:
+        log_data = {
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+            "correlation_id": getattr(record, "correlation_id", "no-ctx"),
+        }
+
+        # Add extra fields (excluding standard LogRecord attributes)
+        standard_attrs = {
+            "name", "msg", "args", "created", "filename", "funcName",
+            "levelname", "levelno", "lineno", "module", "msecs",
+            "pathname", "process", "processName", "relativeCreated",
+            "stack_info", "exc_info", "exc_text", "thread", "threadName",
+            "message", "correlation_id"
+        }
+
+        for key, value in record.__dict__.items():
+            if key not in standard_attrs and not key.startswith("_"):
+                # Ensure value is JSON serializable
+                try:
+                    json.dumps(value)
+                    log_data[key] = value
+                except (TypeError, ValueError):
+                    log_data[key] = str(value)
+
+        # Add exception info if present
+        if record.exc_info:
+            log_data["exception"] = self.formatException(record.exc_info)
+
+        return json.dumps(log_data)
+
+
+def get_log_formatter() -> logging.Formatter:
+    """Get the appropriate log formatter based on environment."""
+    if STRUCTURED_LOGGING:
+        return StructuredJsonFormatter()
+    return None  # Use default formatter
+
+# =============================================================================
+# CORRELATION ID HELPER
+# =============================================================================
+def _get_correlation_id() -> str:
+    """Get correlation ID from main module context, with fallback."""
+    try:
+        from .main import get_correlation_id
+        return get_correlation_id()
+    except ImportError:
+        try:
+            from backend.main import get_correlation_id
+            return get_correlation_id()
+        except ImportError:
+            return "no-ctx"
+
 
 # =============================================================================
 # SECURITY LOGGING
@@ -23,9 +97,13 @@ security_logger.setLevel(logging.INFO)
 # Create handler if not exists
 if not security_logger.handlers:
     handler = logging.StreamHandler()
-    handler.setFormatter(logging.Formatter(
-        '[SECURITY] %(asctime)s - %(levelname)s - %(message)s'
-    ))
+    formatter = get_log_formatter()
+    if formatter:
+        handler.setFormatter(formatter)
+    else:
+        handler.setFormatter(logging.Formatter(
+            '[SECURITY] %(asctime)s - %(levelname)s - [%(correlation_id)s] %(message)s'
+        ))
     security_logger.addHandler(handler)
 
 
@@ -79,12 +157,15 @@ def log_security_event(
         if safe_details:
             message += f" | details={safe_details}"
 
+    # Add correlation ID to log record
+    extra = {"correlation_id": _get_correlation_id()}
+
     if severity == "WARNING":
-        security_logger.warning(message)
+        security_logger.warning(message, extra=extra)
     elif severity == "ERROR":
-        security_logger.error(message)
+        security_logger.error(message, extra=extra)
     else:
-        security_logger.info(message)
+        security_logger.info(message, extra=extra)
 
 
 def mask_id(id_value: str) -> str:
@@ -231,17 +312,47 @@ class SecureHTTPException:
     def rate_limited(
         user_id: Optional[str] = None,
         ip_address: Optional[str] = None,
-        limit_type: str = "request"
+        limit_type: str = "request",
+        retry_after: int = 60,
+        limit: Optional[int] = None,
+        remaining: int = 0
     ) -> HTTPException:
-        """Return 429 for rate limiting."""
+        """
+        Return 429 for rate limiting with standard headers.
+
+        Args:
+            user_id: User ID for logging
+            ip_address: IP address for logging
+            limit_type: Type of limit exceeded (for logging)
+            retry_after: Seconds until limit resets
+            limit: The rate limit value
+            remaining: Remaining requests (usually 0 when rate limited)
+        """
         log_security_event(
             "RATE_LIMITED",
             user_id=user_id,
             ip_address=ip_address,
-            details={"limit_type": limit_type},
+            details={"limit_type": limit_type, "retry_after": retry_after},
             severity="WARNING"
         )
-        return HTTPException(status_code=429, detail="Too many requests")
+        # Include rate limit info in response headers
+        # These follow the IETF draft standard for rate limit headers
+        headers = {
+            "Retry-After": str(retry_after),
+            "X-RateLimit-Remaining": str(remaining),
+        }
+        if limit is not None:
+            headers["X-RateLimit-Limit"] = str(limit)
+
+        return HTTPException(
+            status_code=429,
+            detail={
+                "error": "Too many requests",
+                "retry_after": retry_after,
+                "limit_type": limit_type
+            },
+            headers=headers
+        )
 
     @staticmethod
     def payment_required(remaining: int = 0) -> HTTPException:
@@ -254,6 +365,39 @@ class SecureHTTPException:
                 "remaining": remaining
             }
         )
+
+
+def build_rate_limit_headers(
+    limit: int,
+    remaining: int,
+    reset_seconds: Optional[int] = None
+) -> Dict[str, str]:
+    """
+    Build standard rate limit headers for API responses.
+
+    Follows IETF draft for rate limit headers:
+    https://datatracker.ietf.org/doc/draft-ietf-httpapi-ratelimit-headers/
+
+    Args:
+        limit: Maximum requests allowed in the window
+        remaining: Requests remaining in current window
+        reset_seconds: Seconds until the window resets
+
+    Returns:
+        Dict of headers to add to response
+
+    Usage:
+        from fastapi.responses import JSONResponse
+        headers = build_rate_limit_headers(100, 95, 3600)
+        return JSONResponse(content=data, headers=headers)
+    """
+    headers = {
+        "X-RateLimit-Limit": str(limit),
+        "X-RateLimit-Remaining": str(max(0, remaining)),
+    }
+    if reset_seconds is not None:
+        headers["X-RateLimit-Reset"] = str(reset_seconds)
+    return headers
 
 
 # =============================================================================
@@ -323,9 +467,13 @@ app_logger.setLevel(logging.INFO)
 
 if not app_logger.handlers:
     handler = logging.StreamHandler()
-    handler.setFormatter(logging.Formatter(
-        '[APP] %(asctime)s - %(levelname)s - %(name)s - %(message)s'
-    ))
+    formatter = get_log_formatter()
+    if formatter:
+        handler.setFormatter(formatter)
+    else:
+        handler.setFormatter(logging.Formatter(
+            '[APP] %(asctime)s - %(levelname)s - [%(correlation_id)s] %(message)s'
+        ))
     app_logger.addHandler(handler)
 
 
@@ -406,14 +554,17 @@ def log_app_event(
 
     message = " | ".join(msg_parts)
 
+    # Add correlation ID to log record
+    extra = {"correlation_id": _get_correlation_id()}
+
     if level == "WARNING":
-        app_logger.warning(message)
+        app_logger.warning(message, extra=extra)
     elif level == "ERROR":
-        app_logger.error(message)
+        app_logger.error(message, extra=extra)
     elif level == "DEBUG":
-        app_logger.debug(message)
+        app_logger.debug(message, extra=extra)
     else:
-        app_logger.info(message)
+        app_logger.info(message, extra=extra)
 
 
 def log_error(

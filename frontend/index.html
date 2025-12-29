@@ -1,17 +1,16 @@
 <!doctype html>
 <html lang="en" class="">
-  <script>
-    // Sync dark mode class with system preference - runs before any paint
-    (function() {
-      var isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (isDark) document.documentElement.classList.add('dark');
-      // Listen for changes
-      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
-        document.documentElement.classList.toggle('dark', e.matches);
-      });
-    })();
-  </script>
   <head>
+    <!-- Dark mode sync - runs before any paint to prevent FOUC -->
+    <script>
+      (function() {
+        var isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (isDark) document.documentElement.classList.add('dark');
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+          document.documentElement.classList.toggle('dark', e.matches);
+        });
+      })();
+    </script>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />

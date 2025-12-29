@@ -40,7 +40,6 @@ from .company.utils import (
     calculate_cost_cents,
     create_budget_alert
 )
-from ..openrouter import MOCK_LLM
 
 # Import rate limiter from main module
 from slowapi import Limiter
@@ -297,7 +296,9 @@ async def send_message(
             # Pass company_uuid for internal LLM usage tracking
             title_task = None
             title_emitted = False
+            log_app_event("TITLE_GEN_CHECK", level="INFO", is_first_message=is_first_message, conversation_id=conversation_id, msg_count=len(conversation["messages"]))
             if is_first_message:
+                log_app_event("TITLE_GEN_START", level="INFO", conversation_id=conversation_id, query=body.content[:50])
                 title_task = asyncio.create_task(generate_conversation_title(body.content, company_id=company_uuid))
 
             async def check_and_emit_title():
@@ -305,10 +306,12 @@ async def send_message(
                 if title_task and not title_emitted and title_task.done():
                     try:
                         title = title_task.result()
+                        log_app_event("TITLE_GEN_COMPLETE", level="INFO", conversation_id=conversation_id, title=title)
                         storage.update_conversation_title(conversation_id, title, access_token=access_token)
                         title_emitted = True
                         return f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
-                    except Exception:
+                    except Exception as e:
+                        log_app_event("TITLE_GEN_ERROR", level="ERROR", conversation_id=conversation_id, error=str(e))
                         title_emitted = True
                 return None
 
@@ -439,13 +442,15 @@ async def send_message(
                     yield f"data: {json.dumps({'type': 'stage3_complete', 'data': stage3_result})}\n\n"
 
             # Final check for title if not emitted yet
+            log_app_event("TITLE_FINAL_CHECK", level="INFO", has_task=bool(title_task), title_emitted=title_emitted)
             if title_task and not title_emitted:
                 try:
                     title = await title_task
+                    log_app_event("TITLE_FINAL_EMIT", level="INFO", conversation_id=conversation_id, title=title)
                     storage.update_conversation_title(conversation_id, title, access_token=access_token)
                     yield f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
-                except Exception:
-                    pass
+                except Exception as e:
+                    log_app_event("TITLE_FINAL_ERROR", level="ERROR", conversation_id=conversation_id, error=str(e))
 
             # Update department on first message
             if is_first_message and body.department:
@@ -467,8 +472,8 @@ async def send_message(
             billing.increment_query_usage(user_id, access_token=access_token)
 
             # Log usage event for analytics with actual token counts
-            # Skip all usage tracking in mock mode - no real API calls were made
-            if company_uuid and not MOCK_LLM:
+            # NOTE: These functions internally skip in mock mode (MOCK_LLM=true)
+            if company_uuid:
                 try:
                     await company_router.log_usage_event(
                         company_id=company_uuid,
@@ -502,16 +507,17 @@ async def send_message(
                         cost_cents=cost_cents
                     )
 
-                    # Check for warning thresholds and create alerts
-                    rate_check = await check_rate_limits(company_uuid)
-                    for warning in rate_check.get('warnings', []):
-                        details = rate_check['details'].get(warning, {})
-                        await create_budget_alert(
-                            company_id=company_uuid,
-                            alert_type=f"{warning}_warning",
-                            current_value=details.get('current', 0),
-                            limit_value=details.get('limit', 0)
-                        )
+                    # Check for warning thresholds and create alerts (only if counters returned)
+                    if counters:
+                        rate_check = await check_rate_limits(company_uuid)
+                        for warning in rate_check.get('warnings', []):
+                            details = rate_check['details'].get(warning, {})
+                            await create_budget_alert(
+                                company_id=company_uuid,
+                                alert_type=f"{warning}_warning",
+                                current_value=details.get('current', 0),
+                                limit_value=details.get('limit', 0)
+                            )
                 except Exception:
                     pass
 

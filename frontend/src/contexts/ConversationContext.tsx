@@ -112,8 +112,12 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
 
   // Local UI state (not server state)
   const [conversationSortBy, setConversationSortBy] = useState<ConversationSortBy>('date');
-  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+  const [currentConversationIdInternal, setCurrentConversationIdInternal] = useState<string | null>(null);
   const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null);
+
+  // Alias for simpler access
+  const setCurrentConversationId = setCurrentConversationIdInternal;
+  const currentConversationId = currentConversationIdInternal;
 
   // General loading state (for streaming - managed by App.tsx)
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -185,8 +189,28 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
             return [...prev, ...newConvs];
           });
         } else {
-          // Replace (initial load or refresh)
-          setConversations(conversationsData.conversations);
+          // Replace (initial load or refresh) - but preserve local titles that are better
+          // This prevents title_complete events from being overwritten by stale server data
+          setConversations(prev => {
+            // Build a map of local titles that are meaningful (not default)
+            const localTitles = new Map<string, string>();
+            prev.forEach(c => {
+              if (c.title && c.title !== 'New Conversation' && c.title !== '') {
+                localTitles.set(c.id, c.title);
+              }
+            });
+
+            // Merge: use server data but preserve local titles if server has default
+            return conversationsData.conversations.map((serverConv: Conversation) => {
+              const localTitle = localTitles.get(serverConv.id);
+              const serverHasDefaultTitle = !serverConv.title || serverConv.title === 'New Conversation' || serverConv.title === '';
+
+              if (localTitle && serverHasDefaultTitle) {
+                return { ...serverConv, title: localTitle };
+              }
+              return serverConv;
+            });
+          });
         }
         setHasMoreConversations(conversationsData.hasMore);
       });
@@ -240,7 +264,19 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
 
       // Defer state update to avoid synchronous setState in effect
       const frameId = requestAnimationFrame(() => {
-        setCurrentConversation(fetchedConversation);
+        // Preserve local title if it's more meaningful than fetched title
+        // This prevents the title_complete event from being overwritten by stale cache
+        const currentTitle = currentConversation?.title;
+        const fetchedTitle = fetchedConversation.title;
+        const isCurrentTitleMeaningful = currentTitle && currentTitle !== 'New Conversation' && currentTitle !== '';
+        const isFetchedTitleDefault = !fetchedTitle || fetchedTitle === 'New Conversation' || fetchedTitle === '';
+
+        if (isCurrentTitleMeaningful && isFetchedTitleDefault) {
+          // Merge: use fetched data but preserve our better title
+          setCurrentConversation({ ...fetchedConversation, title: currentTitle });
+        } else {
+          setCurrentConversation(fetchedConversation);
+        }
       });
       return () => cancelAnimationFrame(frameId);
     }

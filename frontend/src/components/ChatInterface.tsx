@@ -433,8 +433,10 @@ export default function ChatInterface({
             selectedProject={selectedProject || undefined}
             departments={departments}
             selectedDepartment={selectedDepartment || undefined}
-            roles={roles}
+            selectedDepartments={selectedDepartments}
+            roles={allRoles}
             selectedRole={selectedRole || undefined}
+            selectedRoles={selectedRoles}
             question={firstUserQuestion || undefined}
             conversationTitle={conversation?.title}
           />
