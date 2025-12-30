@@ -679,9 +679,11 @@ Return valid JSON with exactly these fields:
                     if result.data and len(result.data) > 0:
                         saved_decision_id = result.data[0].get("id")
 
+                        # Fire-and-forget: generate summary in background (don't block response)
                         try:
+                            import asyncio
                             from ..routers.company import generate_decision_summary_internal
-                            await generate_decision_summary_internal(saved_decision_id, company_uuid)
+                            asyncio.create_task(generate_decision_summary_internal(saved_decision_id, company_uuid))
                         except Exception:
                             pass
                 except Exception as insert_err:

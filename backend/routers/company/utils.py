@@ -347,7 +347,8 @@ async def save_internal_llm_usage(
 
     data = {
         'company_id': company_id,
-        'conversation_id': related_id,  # Reuse field for related resource
+        'related_id': related_id,  # Use dedicated column (no FK constraint)
+        # Note: conversation_id has FK to conversations table, don't use for non-conversation IDs
         'tokens_input': prompt_tokens,
         'tokens_output': completion_tokens,
         'tokens_total': total_tokens,
