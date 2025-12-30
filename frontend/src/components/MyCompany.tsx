@@ -12,7 +12,6 @@ import {
   AddFormModal,
   EditingModal,
   PromoteModal,
-  ConfirmActionModal,
 } from './mycompany/MyCompanyModals';
 
 import { ActivityTab, OverviewTab, TeamTab, PlaybooksTab, ProjectsTab, DecisionsTab } from './mycompany/tabs';
@@ -54,14 +53,6 @@ interface EditingItem {
   data: Department | Role | Project | Playbook | Decision | Record<string, unknown>;
 }
 
-interface ConfirmModalState {
-  type: 'archivePlaybook' | 'deletePlaybook';
-  item: Playbook;
-  title: string;
-  message: string;
-  confirmText?: string;
-  variant?: 'warning' | 'danger';
-}
 
 interface MyCompanyProps {
   companyId: string;
@@ -103,7 +94,6 @@ export default function MyCompany({
   const [editingItem, setEditingItem] = useState<EditingItem | null>(null);
   const [showAddForm, setShowAddForm] = useState<AddFormType>(null);
   const [saving, setSaving] = useState<boolean>(false);
-  const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
 
   // Highlight states for auto-opening items
   const [highlightedDecisionId, setHighlightedDecisionId] = useState<string | null>(initialDecisionId);
@@ -352,47 +342,29 @@ export default function MyCompany({
     }
   };
 
-  // Playbook actions
-  const handleArchivePlaybook = (playbook: Playbook) => {
-    setConfirmModal({
-      type: 'archivePlaybook',
-      item: playbook,
-      title: 'Archive Playbook',
-      message: `Are you sure you want to archive "${playbook.title}"? It will be hidden from the list but can be restored later.`,
-      confirmText: 'Archive',
-      variant: 'warning'
-    });
-  };
-
-  const handleDeletePlaybook = (playbook: Playbook) => {
-    setConfirmModal({
-      type: 'deletePlaybook',
-      item: playbook,
-      title: 'Delete Playbook',
-      message: `Are you sure you want to permanently delete "${playbook.title}"? This action cannot be undone.`,
-      confirmText: 'Delete',
-      variant: 'danger'
-    });
-  };
-
-  const handleConfirmAction = async () => {
-    if (!confirmModal) return;
-    setSaving(true);
+  // Playbook actions - optimistic UI (inline confirmation handled in PlaybooksTab)
+  const handleArchivePlaybook = async (playbook: Playbook) => {
+    // Optimistic: remove from list immediately
+    companyData.setPlaybooks(prev => prev.filter(p => p.id !== playbook.id));
     try {
-      switch (confirmModal.type) {
-        case 'archivePlaybook':
-          await api.updatePlaybook(companyId, confirmModal.item.id, { status: 'archived' });
-          break;
-        case 'deletePlaybook':
-          await api.deletePlaybook(companyId, confirmModal.item.id);
-          break;
-      }
-      await companyData.loadData();
-      setConfirmModal(null);
+      await api.updatePlaybook(companyId, playbook.id, { status: 'archived' });
     } catch (err) {
-      log.error(`Failed to ${confirmModal.type}`, { error: err });
+      log.error('Failed to archive playbook', { error: err });
+      // Rollback on error
+      companyData.setPlaybooks(prev => [...prev, playbook]);
     }
-    setSaving(false);
+  };
+
+  const handleDeletePlaybook = async (playbook: Playbook) => {
+    // Optimistic: remove from list immediately
+    companyData.setPlaybooks(prev => prev.filter(p => p.id !== playbook.id));
+    try {
+      await api.deletePlaybook(companyId, playbook.id);
+    } catch (err) {
+      log.error('Failed to delete playbook', { error: err });
+      // Rollback on error
+      companyData.setPlaybooks(prev => [...prev, playbook]);
+    }
   };
 
   // CRUD handlers
@@ -650,7 +622,7 @@ export default function MyCompany({
                       department_id: p.department_id,
                       department_name: undefined,
                       department_slug: undefined,
-                      additional_departments: p.department_ids?.slice(1),
+                      additional_departments: p.additional_departments,
                     }))}
                   departments={companyData.departments}
                   playbookTypeFilter={playbookFilters.playbookTypeFilter}
@@ -756,13 +728,6 @@ export default function MyCompany({
           saving={decisionActions.saving}
           decisionActions={decisionActions as unknown as Parameters<typeof PromoteModal>[0]['decisionActions']}
           onNavigateToConversation={onNavigateToConversation}
-        />
-
-        <ConfirmActionModal
-          confirmModal={confirmModal as Parameters<typeof ConfirmActionModal>[0]['confirmModal']}
-          saving={saving}
-          onConfirm={handleConfirmAction}
-          onCancel={() => setConfirmModal(null)}
         />
       </div>
     </div>

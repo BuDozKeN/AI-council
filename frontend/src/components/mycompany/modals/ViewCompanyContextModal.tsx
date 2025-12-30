@@ -6,6 +6,7 @@
  */
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { AppModal } from '../../ui/AppModal';
 import { AIWriteAssist } from '../../ui/AIWriteAssist';
 import { FloatingContextActions } from '../../ui/FloatingContextActions';
@@ -39,8 +40,9 @@ export function ViewCompanyContextModal({ data, companyName, onClose, onSave, in
       try {
         await onSave({ context_md: editedContext });
         setIsEditing(false);
+        toast.success(`${companyName || 'Company'} context saved`, { duration: 4000 });
       } catch {
-        // Error handled by parent
+        toast.error('Failed to save company context');
       }
       setSaving(false);
     }

@@ -1,5 +1,6 @@
 import js from '@eslint/js'
 import globals from 'globals'
+import react from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from '@typescript-eslint/eslint-plugin'
@@ -32,6 +33,7 @@ export default defineConfig([
     },
     plugins: {
       '@typescript-eslint': tseslint,
+      'react': react,
     },
     rules: {
       // Use TypeScript-aware no-unused-vars
@@ -50,9 +52,15 @@ export default defineConfig([
       'react-hooks/rules-of-hooks': 'error',
       'react-hooks/exhaustive-deps': 'warn',
 
-      // Discourage inline styles - use CSS classes or Tailwind utilities instead
-      // Note: 'warn' to allow dynamic styles like style={{ '--model-color': color }}
-      // Full enforcement requires eslint-plugin-react's forbid-component-props
+      // FDF: Discourage inline styles - use CSS classes, Tailwind utilities, or design tokens
+      // Warns on style prop usage to encourage token-based styling
+      // Allowed exceptions: CSS custom properties (--var) for dynamic theming
+      'react/forbid-component-props': ['warn', {
+        forbid: [{
+          propName: 'style',
+          message: 'Avoid inline styles. Use CSS classes with design tokens or Tailwind utilities instead. Exception: CSS custom properties (--var) for dynamic values are acceptable.',
+        }],
+      }],
     },
   },
   // JavaScript source files (legacy)

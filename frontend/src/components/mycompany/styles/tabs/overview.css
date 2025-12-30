@@ -197,7 +197,8 @@
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: var(--card-padding-lg) var(--card-padding);
+  padding: var(--space-3) var(--space-4);
+  min-height: var(--space-16);
   text-align: center;
   transition: all 0.2s ease;
   position: relative;
@@ -227,7 +228,7 @@
 
 .mc-stat-icon {
   color: var(--color-indigo-500);
-  margin-bottom: 8px;
+  margin-bottom: var(--space-1);
 }
 
 .mc-stat-content {
@@ -247,10 +248,11 @@
 }
 
 .mc-stat-value {
-  font-size: 1.75rem;
-  font-weight: 700;
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
   color: var(--color-text-primary);
-  letter-spacing: -0.02em;
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-none);
 }
 
 /* Semantic stat value colors */
@@ -264,10 +266,10 @@
 .mc-stat-value.policies { color: var(--color-violet-700); }
 
 .mc-stat-label {
-  font-size: 0.8125rem;
-  font-weight: 500;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
   color: var(--color-text-secondary);
-  margin-top: 4px;
+  margin-top: var(--space-1);
 }
 
 /* Clickable stat cards */
@@ -415,9 +417,17 @@
   justify-content: space-between;
   gap: 8px;
   padding: 12px 0;
+  margin-bottom: 12px;
 
-  /* Solid background so content scrolls behind */
+  /* Solid background so content scrolls behind - MUST be opaque */
   background: var(--color-bg-primary);
+
+  /* Extend to card edges to cover content scrolling behind */
+  margin-left: calc(-1 * var(--card-padding-xl));
+  margin-right: calc(-1 * var(--card-padding-xl));
+  padding-left: var(--card-padding-xl);
+  padding-right: var(--card-padding-xl);
+  width: calc(100% + 2 * var(--card-padding-xl));
 }
 
 /* Copy button in toolbar - override CopyButton's default absolute positioning */
@@ -465,6 +475,65 @@
 /* Content area - flows naturally, parent scrolls */
 .mc-context-content {
   /* Content just flows - no scroll here */
+}
+
+/* =============================================================================
+   SCROLL TO TOP FAB - Floating action button for quick return to top
+   Positioned at bottom right, vertically aligned with copy button
+   ============================================================================= */
+
+.mc-scroll-top-fab {
+  position: sticky;
+  bottom: 20px;
+  align-self: flex-end;
+  margin-top: -36px; /* Don't add extra space */
+  margin-right: var(--card-padding-xl); /* Align with copy button's right edge */
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-default);
+  color: var(--color-slate-500);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+  opacity: 0.85;
+  z-index: var(--z-elevated);
+
+  /* Animation on appear */
+  animation: mc-fab-appear 0.2s ease-out;
+}
+
+@keyframes mc-fab-appear {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 0.85;
+    transform: translateY(0);
+  }
+}
+
+.mc-scroll-top-fab:hover {
+  opacity: 1;
+  color: var(--color-slate-700);
+  box-shadow: var(--shadow-md);
+  transform: scale(1.05);
+}
+
+.mc-scroll-top-fab:active {
+  transform: scale(0.95);
+}
+
+.mc-scroll-top-fab svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
 /* ============================================================================
@@ -947,10 +1016,10 @@
   color: var(--color-indigo-400);
 }
 
-/* Sticky toolbar - same transparent background in dark mode */
+/* Sticky toolbar - must have opaque background in dark mode too */
 .dark .mc-context-sticky-toolbar,
 [data-theme="dark"] .mc-context-sticky-toolbar {
-  background: transparent;
+  background: var(--color-bg-secondary);
 }
 
 /* Scroll top FAB */

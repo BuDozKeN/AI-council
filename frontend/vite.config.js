@@ -137,7 +137,7 @@ export default defineConfig(({ mode }) => ({
     proxy: {
       // Proxy API requests to backend - bypasses CORS in development
       '/api': {
-        target: 'http://localhost:8000',
+        target: 'http://localhost:8081',
         changeOrigin: true,
         secure: false,
         configure: (proxy, options) => {
@@ -148,7 +148,7 @@ export default defineConfig(({ mode }) => ({
         },
       },
       '/health': {
-        target: 'http://localhost:8000',
+        target: 'http://localhost:8081',
         changeOrigin: true,
       },
     },

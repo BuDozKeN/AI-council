@@ -25,8 +25,8 @@
   /* Appearance */
   cursor: pointer;
   border-radius: 9999px;
-  background: var(--color-bg-tertiary, #e5e7eb);
-  border: 1px solid var(--color-border-default, #d1d5db);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-default);
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -42,8 +42,8 @@
 
 /* Checked state */
 .switch-root[data-state="checked"] {
-  background: var(--color-brand-primary, #6366f1);
-  border-color: var(--color-brand-primary, #6366f1);
+  background: var(--color-brand-primary);
+  border-color: var(--color-brand-primary);
 }
 
 /* Thumb (the sliding circle) */
@@ -55,7 +55,7 @@
   height: 20px;
   min-height: 20px;
   max-height: 20px;
-  background: var(--color-bg-primary, #fff);
+  background: var(--color-bg-primary);
   border-radius: 9999px;
   box-shadow:
     0 2px 4px rgb(0, 0, 0, 0.1),

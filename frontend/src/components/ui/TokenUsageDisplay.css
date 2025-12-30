@@ -50,13 +50,14 @@
   align-items: center;
   gap: 2px;
   padding: 2px 6px;
-  background: rgb(34, 197, 94, 0.15);
-  color: rgb(34, 197, 94);
+  background: var(--color-green-100);
+  color: var(--color-green-600);
   border-radius: var(--radius-sm);
 }
 
 .dark .token-usage-cache {
-  background: rgb(34, 197, 94, 0.2);
+  background: rgb(var(--color-emerald-500-rgb), 0.2);
+  color: var(--color-emerald-400);
 }
 
 .token-usage-cost {
@@ -109,7 +110,11 @@
 }
 
 .token-usage-row.cache {
-  color: rgb(34, 197, 94);
+  color: var(--color-green-600);
+}
+
+.dark .token-usage-row.cache {
+  color: var(--color-emerald-400);
 }
 
 .token-usage-row-label {
@@ -161,13 +166,14 @@
 .token-usage-savings {
   margin-top: var(--space-3);
   padding: var(--space-2);
-  background: rgb(34, 197, 94, 0.1);
+  background: var(--color-green-50);
   border-radius: var(--radius-sm);
-  color: rgb(34, 197, 94);
+  color: var(--color-green-600);
   text-align: center;
   font-weight: 500;
 }
 
 .dark .token-usage-savings {
-  background: rgb(34, 197, 94, 0.15);
+  background: rgb(var(--color-emerald-500-rgb), 0.15);
+  color: var(--color-emerald-400);
 }

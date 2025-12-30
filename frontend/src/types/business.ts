@@ -44,6 +44,7 @@ export interface Playbook {
   description?: string;
   department_id?: string;
   department_ids?: string[];
+  additional_departments?: string[];
   tags?: string[];
   version?: number;
   status?: 'active' | 'archived' | 'draft';

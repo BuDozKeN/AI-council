@@ -370,10 +370,10 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
 
   const getStatusColor = (status: ProjectStatus): { bg: string; text: string } => {
     switch (status) {
-      case 'active': return { bg: '#dbeafe', text: '#1d4ed8' };
-      case 'completed': return { bg: '#dcfce7', text: '#15803d' };
-      case 'archived': return { bg: '#f3f4f6', text: '#6b7280' };
-      default: return { bg: '#f3f4f6', text: '#6b7280' };
+      case 'active': return { bg: 'var(--color-blue-100)', text: 'var(--color-blue-700)' };
+      case 'completed': return { bg: 'var(--color-green-100)', text: 'var(--color-green-700)' };
+      case 'archived': return { bg: 'var(--color-gray-100)', text: 'var(--color-gray-500)' };
+      default: return { bg: 'var(--color-gray-100)', text: 'var(--color-gray-500)' };
     }
   };
 
@@ -402,7 +402,18 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
         }
         setIsEditing(false);
         setIsEditingName(false);
-        toast.success(`"${editedName}" saved`, { duration: 3000 });
+
+        // Build descriptive success message
+        const deptNames = editedDepartmentIds
+          .map(id => departments.find(d => d.id === id)?.name)
+          .filter(Boolean);
+
+        let message = `Project "${editedName}" saved`;
+        if (deptNames.length > 0) {
+          message += ` for ${deptNames.join(', ')}`;
+        }
+
+        toast.success(message, { duration: 4000 });
       } catch {
         toast.error('Failed to save project');
       }
@@ -507,9 +518,9 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                       key={deptId || idx}
                       className="mc-dept-badge"
                       style={{
-                        background: getDeptColor(deptId)?.bg || '#f3e8ff',
-                        color: getDeptColor(deptId)?.text || '#7c3aed',
-                        borderColor: getDeptColor(deptId)?.border || '#e9d5ff'
+                        background: getDeptColor(deptId)?.bg || 'var(--color-violet-50)',
+                        color: getDeptColor(deptId)?.text || 'var(--color-violet-600)',
+                        borderColor: getDeptColor(deptId)?.border || 'var(--color-violet-200)'
                       }}
                     >
                       {name}
@@ -772,9 +783,9 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                                         key={deptId || idx}
                                         className="mc-timeline-dept-badge"
                                         style={{
-                                          background: getDeptColor(deptId)?.bg || '#f3f4f6',
-                                          color: getDeptColor(deptId)?.text || '#374151',
-                                          borderColor: getDeptColor(deptId)?.border || '#e5e7eb'
+                                          background: getDeptColor(deptId)?.bg || 'var(--color-gray-100)',
+                                          color: getDeptColor(deptId)?.text || 'var(--color-gray-700)',
+                                          borderColor: getDeptColor(deptId)?.border || 'var(--color-gray-200)'
                                         }}
                                       >
                                         {deptName}

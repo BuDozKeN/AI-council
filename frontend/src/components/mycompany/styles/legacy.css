@@ -69,61 +69,6 @@
 }
 
 /* ============================================================================
-   EDITOR TOOLBAR - Format with AI
-   ============================================================================ */
-
-.mc-editor-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.mc-btn-format-ai {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  background: var(--color-violet-600);
-  color: var(--color-text-inverse);
-  border: none;
-  border-radius: var(--radius-md);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  box-shadow: 0 2px 4px rgb(var(--color-violet-500-rgb, 139, 92, 246), 0.2);
-}
-
-.mc-btn-format-ai:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgb(var(--color-violet-500-rgb, 139, 92, 246), 0.3);
-}
-
-.mc-btn-format-ai:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.mc-btn-format-ai .mc-btn-icon {
-  width: 16px;
-  height: 16px;
-}
-
-.mc-btn-format-ai .mc-btn-icon.spinning {
-  animation: spinner-rotate 1s linear infinite;
-}
-
-.mc-editor-hint {
-  font-size: 12px;
-  color: var(--color-text-tertiary);
-  font-style: italic;
-}
-
-/* ============================================================================
    AI RESYNC BUTTON
    ============================================================================ */
 
@@ -311,22 +256,6 @@
 
 .dark .mc-section-hint,
 [data-theme="dark"] .mc-section-hint {
-  color: var(--color-text-tertiary);
-}
-
-/* Editor toolbar */
-.dark .mc-editor-toolbar,
-[data-theme="dark"] .mc-editor-toolbar {
-  border-bottom-color: var(--color-border);
-}
-
-.dark .mc-btn-format-ai,
-[data-theme="dark"] .mc-btn-format-ai {
-  background: var(--color-violet-600);
-}
-
-.dark .mc-editor-hint,
-[data-theme="dark"] .mc-editor-hint {
   color: var(--color-text-tertiary);
 }
 

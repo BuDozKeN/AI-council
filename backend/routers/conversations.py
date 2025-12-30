@@ -604,6 +604,7 @@ async def chat_with_chairman(
     async def event_generator():
         from ..openrouter import set_request_api_key, reset_request_api_key
         from ..byok import get_user_api_key
+        from ..routers import company as company_router
 
         api_key_token = None
         try:
@@ -645,6 +646,8 @@ async def chat_with_chairman(
                     pass
 
             full_content = ""
+            chat_usage = None
+            chat_model = None
             async for event in chat_stream_response(
                 history,
                 business_id=body.business_id,
@@ -662,16 +665,100 @@ async def chat_with_chairman(
                 elif event['type'] == 'chat_error':
                     yield f"data: {json.dumps(event)}\n\n"
                 elif event['type'] == 'chat_complete':
+                    # Extract usage data from chat_complete event
+                    chat_data = event.get('data', {})
+                    chat_usage = chat_data.get('usage')
+                    chat_model = chat_data.get('model')
                     yield f"data: {json.dumps(event)}\n\n"
 
             storage.add_assistant_message(
                 conversation_id,
                 stage1=[],
                 stage2=[],
-                stage3={"model": "chat", "response": full_content},
+                stage3={"model": chat_model or "chat", "response": full_content},
                 user_id=user_id,
                 access_token=access_token
             )
+
+            # Track chat usage for analytics (mirrors council session tracking)
+            if chat_usage and company_uuid:
+                # Build usage data structure matching council format
+                total_usage = {
+                    'prompt_tokens': chat_usage.get('prompt_tokens', 0),
+                    'completion_tokens': chat_usage.get('completion_tokens', 0),
+                    'total_tokens': chat_usage.get('total_tokens', 0),
+                    'cache_read_input_tokens': chat_usage.get('cache_read_input_tokens', 0),
+                    'cache_creation_input_tokens': chat_usage.get('cache_creation_input_tokens', 0),
+                    'by_model': {}
+                }
+                if chat_model:
+                    total_usage['by_model'][chat_model] = {
+                        'prompt_tokens': chat_usage.get('prompt_tokens', 0),
+                        'completion_tokens': chat_usage.get('completion_tokens', 0),
+                        'total_tokens': chat_usage.get('total_tokens', 0)
+                    }
+
+                # Log usage event for analytics
+                try:
+                    await company_router.log_usage_event(
+                        company_id=company_uuid,
+                        event_type="chat_session",
+                        tokens_input=total_usage['prompt_tokens'],
+                        tokens_output=total_usage['completion_tokens'],
+                        model_used=chat_model or "chat",
+                        session_id=conversation_id
+                    )
+                except Exception as e:
+                    log_app_event("CHAT_USAGE: Failed to log usage event", level="WARNING", error=str(e))
+
+                # Save detailed session usage for LLM ops dashboard
+                try:
+                    await save_session_usage(
+                        company_id=company_uuid,
+                        conversation_id=conversation_id,
+                        usage_data=total_usage,
+                        session_type='chat'
+                    )
+                except Exception as e:
+                    log_app_event("CHAT_USAGE: Failed to save session usage", level="WARNING", error=str(e))
+
+                # Increment rate limit counters
+                try:
+                    cost_cents = calculate_cost_cents(total_usage)
+                    counters = await increment_rate_counters(
+                        company_id=company_uuid,
+                        sessions=1,
+                        tokens=total_usage.get('total_tokens', 0),
+                        cost_cents=cost_cents
+                    )
+
+                    # Check for warning thresholds and create alerts
+                    if counters:
+                        rate_check = await check_rate_limits(company_uuid)
+                        for warning in rate_check.get('warnings', []):
+                            details = rate_check['details'].get(warning, {})
+                            await create_budget_alert(
+                                company_id=company_uuid,
+                                alert_type=f"{warning}_warning",
+                                current_value=details.get('current', 0),
+                                limit_value=details.get('limit', 0)
+                            )
+                except Exception as e:
+                    log_app_event("CHAT_USAGE: Failed to increment rate counters", level="WARNING", error=str(e))
+
+                # Log token usage summary
+                if total_usage['total_tokens'] > 0:
+                    log_app_event(
+                        "CHAT_USAGE",
+                        level="INFO",
+                        total_tokens=total_usage['total_tokens'],
+                        prompt_tokens=total_usage['prompt_tokens'],
+                        completion_tokens=total_usage['completion_tokens'],
+                        model=chat_model
+                    )
+
+                # Emit usage summary to frontend
+                yield f"data: {json.dumps({'type': 'usage', 'data': total_usage})}\n\n"
 
             yield f"data: {json.dumps({'type': 'complete'})}\n\n"
 

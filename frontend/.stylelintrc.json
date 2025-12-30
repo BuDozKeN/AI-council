@@ -1,7 +1,14 @@
 {
   "extends": ["stylelint-config-standard"],
   "rules": {
-    "color-no-hex": null,
+    "color-no-hex": [true, {
+      "message": "Avoid hex colors. Use CSS custom properties (var(--color-*)) from design tokens instead.",
+      "severity": "warning"
+    }],
+    "color-named": ["never", {
+      "message": "Avoid named colors. Use CSS custom properties (var(--color-*)) from design tokens instead.",
+      "severity": "warning"
+    }],
     "declaration-no-important": true,
     "selector-class-pattern": null,
     "custom-property-pattern": null,
@@ -29,6 +36,8 @@
   "ignoreFiles": [
     "node_modules/**",
     "dist/**",
-    "build/**"
+    "build/**",
+    "src/styles/design-tokens.css",
+    "src/styles/tailwind.css"
   ]
 }

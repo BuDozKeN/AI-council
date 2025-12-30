@@ -130,6 +130,30 @@
   color: var(--color-indigo-500);
 }
 
+/* Suggested title section */
+.ai-assist-preview-title-suggestion {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--color-emerald-50);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ai-assist-preview-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ai-assist-preview-title-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-emerald-600);
+}
+
 .ai-assist-preview-content {
   padding: 14px;
   font-size: 14px;

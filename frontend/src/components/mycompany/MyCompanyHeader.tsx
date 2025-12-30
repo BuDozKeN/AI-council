@@ -65,7 +65,6 @@ export function MyCompanyHeader({
           <span className="mc-title-suffix">Command Center</span>
         </div>
         {/* Company switcher - always show on mobile for clear company display, only show dropdown if multiple companies */}
-        {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
         <div className="mc-company-switcher" onClick={(e) => e.stopPropagation()}>
           {allCompanies.length > 1 ? (
             <Select

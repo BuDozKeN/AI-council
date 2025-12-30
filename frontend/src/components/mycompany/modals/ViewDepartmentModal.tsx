@@ -5,6 +5,7 @@
  */
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { AppModal } from '../../ui/AppModal';
 import { Button } from '../../ui/button';
 import { AIWriteAssist } from '../../ui/AIWriteAssist';
@@ -41,8 +42,9 @@ export function ViewDepartmentModal({ department, onClose, onSave }: ViewDepartm
       try {
         await onSave(department.id, { context_md: editedContext });
         setIsEditing(false);
+        toast.success(`Department "${department.name}" context saved`, { duration: 4000 });
       } catch {
-        // Error handled by parent
+        toast.error('Failed to save department');
       }
       setSaving(false);
     }

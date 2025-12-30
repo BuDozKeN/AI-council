@@ -245,6 +245,16 @@ export function AddPlaybookModal({ onSave, onClose, saving, departments = [] }: 
             context="playbook-content"
             value={content}
             onSuggestion={setContent}
+            onTitleSuggestion={(suggestedTitle) => {
+              // eslint-disable-next-line no-console
+              console.log('[AddPlaybookModal] onTitleSuggestion called with:', suggestedTitle);
+              // Only set title if user hasn't entered one
+              if (!title.trim()) {
+                // eslint-disable-next-line no-console
+                console.log('[AddPlaybookModal] Setting title to:', suggestedTitle);
+                setTitle(suggestedTitle);
+              }
+            }}
             additionalContext={title ? `Playbook: ${title}` : ''}
             playbookType={docType}
           >

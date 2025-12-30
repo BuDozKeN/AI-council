@@ -455,9 +455,14 @@
     padding: 12px 14px;
   }
 
-  /* Sticky toolbar - transparent, same offset */
+  /* Sticky toolbar - match smaller card padding for negative margins */
   .mc-context-sticky-toolbar {
-    top: 8px;
+    top: 0;
+    margin-left: -14px;
+    margin-right: -14px;
+    padding-left: 14px;
+    padding-right: 14px;
+    width: calc(100% + 28px);
   }
 }
 
@@ -857,6 +862,11 @@
   .mc-context-sticky-toolbar {
     background: var(--color-bg-primary);
     padding: 8px 0;
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-left: 16px;
+    padding-right: 16px;
+    width: calc(100% + 32px);
   }
 
   /* ========== PROJECTS TAB - MOBILE ========== */
@@ -990,6 +1000,60 @@
     padding-left: 0;
     margin-left: auto;
     flex-shrink: 0;
+  }
+
+  /*
+   * Playbooks: tap-to-reveal actions on mobile
+   * Row needs position: relative for absolute-positioned actions
+   */
+  .mc-playbooks .mc-elegant-row {
+    position: relative;
+  }
+
+  /* Subtle highlight when row is active (tapped) */
+  .mc-playbooks .mc-elegant-row.mobile-active {
+    background: var(--color-bg-secondary);
+  }
+
+  /* When row is long-pressed (has .mobile-active class), show the actions */
+  .mc-playbooks .mc-elegant-row.mobile-active .mc-elegant-actions {
+    display: flex;
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 1;
+    background: transparent;
+    padding: 0;
+    gap: 12px;
+    z-index: 10;
+  }
+
+  /* Playbooks action buttons on mobile - tiny subtle text */
+  .mc-playbooks .mc-elegant-row.mobile-active .mc-text-btn {
+    font-size: 11px;
+    padding: 4px 6px;
+    background: transparent;
+    border: none;
+    font-weight: 500;
+    min-height: auto;
+  }
+
+  .mc-playbooks .mc-elegant-row.mobile-active .mc-text-btn.archive {
+    color: var(--color-amber-600);
+  }
+
+  .mc-playbooks .mc-elegant-row.mobile-active .mc-text-btn.delete {
+    color: var(--color-red-500);
+  }
+
+  /* Dark mode for revealed actions */
+  .dark .mc-playbooks .mc-elegant-row.mobile-active .mc-text-btn.archive {
+    color: var(--color-amber-400);
+  }
+
+  .dark .mc-playbooks .mc-elegant-row.mobile-active .mc-text-btn.delete {
+    color: var(--color-red-400);
   }
 
   /* Activity source button styling on mobile */

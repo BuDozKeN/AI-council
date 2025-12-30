@@ -56,8 +56,8 @@
   min-width: 8rem;
   overflow: hidden;
   border-radius: var(--radius-lg, 12px);
-  border: 1px solid var(--color-gray-200, #e5e7eb);
-  background: var(--color-bg-primary, white);
+  border: 1px solid var(--color-gray-200);
+  background: var(--color-bg-primary);
   box-shadow: var(--shadow-lg);
 }
 
@@ -108,20 +108,20 @@
   padding-right: 36px;
   font-size: 14px;
   font-weight: 500;
-  color: var(--color-gray-700, #374151);
+  color: var(--color-gray-700);
   outline: none;
   transition: all 0.1s ease;
 }
 
 /* Hover state */
 .role-select-item[data-highlighted] {
-  background: var(--color-brand-primary-light, #f0f7ff);
+  background: var(--color-brand-primary-light);
 }
 
 /* Selected/checked state */
 .role-select-item[data-state="checked"] {
-  background: var(--color-brand-primary-light, #f0f7ff);
-  color: var(--color-brand-primary, #4a90e2);
+  background: var(--color-brand-primary-light);
+  color: var(--color-brand-primary);
 }
 
 /* Disabled state */
@@ -139,7 +139,7 @@
   width: 16px;
   align-items: center;
   justify-content: center;
-  color: var(--color-brand-primary, #4a90e2);
+  color: var(--color-brand-primary);
 }
 
 /* Dark mode */

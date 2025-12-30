@@ -48,77 +48,134 @@
   margin-bottom: var(--space-4);
 }
 
+/* ============================================================================
+   HEADER & PERIOD TOGGLE
+   ============================================================================ */
+
 .mc-usage-header {
   display: flex;
-  justify-content: flex-end;
-  padding: 0 var(--space-1);
+  align-items: center;
+  justify-content: space-between;
   flex-shrink: 0;
 }
 
-/* ============================================================================
-   PERIOD SELECTOR
-   ============================================================================ */
-
-.mc-usage-period-selector {
-  display: flex;
-  gap: var(--space-1);
-  background: var(--color-bg-secondary);
-  padding: var(--space-1);
-  border-radius: var(--radius-md);
+.mc-usage-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
 }
 
-.mc-usage-period-btn {
-  padding: var(--space-1-5) var(--space-3);
-  font-size: 0.8125rem;
+.mc-usage-period-toggle {
+  display: flex;
+  align-items: center;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: 3px;
+  gap: 1px;
+  border: 1px solid var(--color-border-subtle);
+}
+
+.mc-usage-period-opt {
+  padding: 6px 14px;
+  font-size: 0.75rem;
   font-weight: 500;
-  color: var(--color-text-secondary);
+  color: var(--color-text-tertiary);
   background: transparent;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: calc(var(--radius-md) - 2px);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
 }
 
-.mc-usage-period-btn:hover {
-  color: var(--color-text-primary);
-  background: var(--color-bg-tertiary);
+.mc-usage-period-opt:hover:not(.active):not(:disabled) {
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary);
 }
 
-.mc-usage-period-btn.active {
+.mc-usage-period-opt.active {
   color: var(--color-text-primary);
   background: var(--color-bg-primary);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 1px 3px rgb(0,0,0,0.08);
+  font-weight: 600;
 }
 
-.mc-usage-period-btn:disabled {
+.mc-usage-period-opt:disabled {
   cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Loading state */
+.mc-usage-period-toggle.loading {
+  opacity: 0.7;
+}
+
+.mc-usage-period-toggle.loading .mc-usage-period-opt.active {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* ============================================================================
+   STATS GRID (4 stat cards)
+   ============================================================================ */
+
+.mc-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+
+.mc-stats-grid.empty-state {
   opacity: 0.6;
 }
 
-/* Refetching state - subtle loading indicator */
-.mc-usage-period-selector.refetching {
-  position: relative;
+.mc-stat-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
 }
 
-.mc-usage-period-selector.refetching::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    var(--color-primary),
-    transparent
-  );
-  animation: mc-usage-loading 1s ease-in-out infinite;
+.mc-stat-icon {
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
 }
 
-@keyframes mc-usage-loading {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+.mc-stat-card.accent .mc-stat-icon {
+  color: hsl(160deg, 70%, 42%);
+}
+
+.mc-stat-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mc-stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.mc-stat-card.accent .mc-stat-value {
+  color: hsl(160deg, 70%, 42%);
+}
+
+.mc-stat-label {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
 }
 
 /* ============================================================================
@@ -199,21 +256,8 @@
 
 .mc-usage-chart-container {
   width: 100%;
-  height: 320px; /* Base desktop height */
-}
 
-/* Larger chart on wide screens */
-@media (min-width: 1200px) {
-  .mc-usage-chart-container {
-    height: 400px;
-  }
-}
-
-/* Even larger on extra-wide screens */
-@media (min-width: 1600px) {
-  .mc-usage-chart-container {
-    height: 480px;
-  }
+  /* Height is now dynamic based on data - controlled by JS */
 }
 
 /* Recharts tooltip customization - doubled selector to override library styles */
@@ -241,67 +285,34 @@
 }
 
 /* ============================================================================
-   MODEL BREAKDOWN
+   MODEL BREAKDOWN - Horizontal Bars
    ============================================================================ */
 
-.mc-usage-models-grid {
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  gap: var(--space-4);
-  align-items: start;
-}
-
-/* Larger model grid on wide screens */
-@media (min-width: 1200px) {
-  .mc-usage-models-grid {
-    grid-template-columns: 240px 1fr;
-    gap: var(--space-6);
-  }
-}
-
-@media (max-width: 640px) {
-  .mc-usage-models-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.mc-usage-pie-container {
-  width: 200px;
-  height: 200px;
-}
-
-/* Larger pie on wide screens */
-@media (min-width: 1200px) {
-  .mc-usage-pie-container {
-    width: 240px;
-    height: 240px;
-  }
-}
-
-@media (max-width: 640px) {
-  .mc-usage-pie-container {
-    width: 100%;
-    max-width: 200px;
-    margin: 0 auto;
-  }
-}
-
-.mc-usage-models-list {
+.mc-usage-model-bars {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
-.mc-usage-model-item {
+.mc-usage-model-row {
+  display: grid;
+  grid-template-columns: 100px 1fr 80px;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+/* Wider label column on larger screens */
+@media (min-width: 1200px) {
+  .mc-usage-model-row {
+    grid-template-columns: 120px 1fr 100px;
+  }
+}
+
+.mc-usage-model-label {
   display: flex;
   align-items: center;
-  gap: var(--space-2-5);
-  padding: var(--space-2) 0;
-  border-bottom: 1px solid var(--color-border-subtle);
-}
-
-.mc-usage-model-item:last-child {
-  border-bottom: none;
+  gap: var(--space-2);
+  min-width: 0;
 }
 
 .mc-usage-model-dot {
@@ -311,29 +322,46 @@
   flex-shrink: 0;
 }
 
-.mc-usage-model-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
 .mc-usage-model-name {
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.mc-usage-model-stats {
-  font-size: 0.75rem;
-  color: var(--color-text-tertiary);
+.mc-usage-model-bar-wrapper {
+  height: 24px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.mc-usage-model-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-sm);
+  transition: width 0.3s ease;
+  min-width: 4px;
+}
+
+.mc-usage-model-values {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
 }
 
 .mc-usage-model-cost {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.mc-usage-model-tokens {
+  font-size: 0.6875rem;
+  color: var(--color-text-tertiary);
   font-variant-numeric: tabular-nums;
 }
 
@@ -503,120 +531,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ============================================================================
-   COST BREAKDOWN (Council vs Internal)
-   ============================================================================ */
-
-.mc-usage-breakdown {
-  display: flex;
-  gap: var(--space-3);
-  padding: var(--space-3);
-  background: var(--color-bg-secondary);
-  border-radius: var(--radius-md);
-  flex-shrink: 0;
-}
-
-.mc-usage-breakdown-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  flex: 1;
-  min-width: 0;
-}
-
-.mc-usage-breakdown-item svg {
-  color: var(--color-text-tertiary);
-  flex-shrink: 0;
-}
-
-.mc-usage-breakdown-label {
-  font-size: 0.75rem;
-  color: var(--color-text-secondary);
-  flex: 1;
-  min-width: 0;
-}
-
-.mc-usage-breakdown-count {
-  font-size: 0.75rem;
-  color: var(--color-text-tertiary);
-  font-variant-numeric: tabular-nums;
-}
-
-.mc-usage-breakdown-count::before {
-  content: '×';
-  margin-right: 2px;
-  opacity: 0.5;
-}
-
-.mc-usage-breakdown-cost {
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  font-variant-numeric: tabular-nums;
-}
-
-/* Mobile breakdown */
-@media (max-width: 768px) {
-  .mc-usage-breakdown {
-    flex-direction: column;
-    gap: var(--space-2);
-    padding: var(--space-2) var(--space-3);
-  }
-
-  .mc-usage-breakdown-item {
-    padding: var(--space-1) 0;
-    gap: var(--space-1-5);
-  }
-
-  .mc-usage-breakdown-item svg {
-    width: 12px;
-    height: 12px;
-  }
-
-  .mc-usage-breakdown-label {
-    font-size: 0.6875rem;
-  }
-
-  .mc-usage-breakdown-count {
-    font-size: 0.6875rem;
-  }
-
-  .mc-usage-breakdown-cost {
-    font-size: 0.75rem;
-  }
-}
-
-/* ============================================================================
-   STAT CARD ENHANCEMENTS (for usage tab)
-   ============================================================================ */
-
-.mc-usage .mc-stat-card.highlight {
-  background: linear-gradient(135deg, hsl(160deg, 84%, 95%), hsl(160deg, 84%, 98%));
-  border-color: hsl(160deg, 84%, 80%);
-}
-
-.dark .mc-usage .mc-stat-card.highlight {
-  background: linear-gradient(135deg, hsl(160deg, 84%, 10%), hsl(160deg, 84%, 8%));
-  border-color: hsl(160deg, 84%, 25%);
-}
-
-.mc-usage .mc-stat-value.cost {
-  color: var(--color-text-primary);
-}
-
-.mc-usage .mc-stat-value.saved {
-  color: hsl(160deg, 84%, 39%);
-}
-
-.mc-usage .mc-stat-label {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-.mc-usage .mc-stat-label svg {
-  opacity: 0.6;
-}
 
 /* ============================================================================
    EMPTY STATE
@@ -653,30 +567,6 @@
   color: var(--color-text-tertiary);
 }
 
-/* Pie chart placeholder for empty state */
-.mc-usage-pie-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 180px;
-  gap: var(--space-2);
-}
-
-.mc-usage-pie-ring {
-  width: 140px;
-  height: 140px;
-  border: 12px solid var(--color-bg-tertiary);
-  border-radius: 50%;
-  opacity: 0.5;
-}
-
-.mc-usage-pie-placeholder span {
-  font-size: 0.75rem;
-  color: var(--color-text-quaternary);
-}
-
 /* Empty model list */
 .mc-usage-models-empty {
   display: flex;
@@ -704,18 +594,17 @@
    ============================================================================ */
 
 @media (max-width: 768px) {
-  /* Main container - tighter layout, minimal gap */
-  /* NOTE: Padding comes from parent .mc-content - don't override here */
+  /* Main container - tighter layout */
   .mc-usage {
-    gap: var(--space-2); /* Reduced from space-3 */
+    gap: var(--space-2);
   }
 
-  /* Scroll content just needs small padding for last item visibility */
+  /* Scroll content padding */
   .mc-usage .mc-usage-scroll .scrollable-content-inner {
     padding-bottom: var(--space-4);
   }
 
-  /* Empty banner - inline and compact */
+  /* Empty banner - compact */
   .mc-usage-empty-banner {
     padding: var(--space-2) var(--space-3);
     font-size: 0.6875rem;
@@ -728,56 +617,46 @@
     height: 14px;
   }
 
-  /* Stats grid - horizontal scroll, compact cards */
-  .mc-usage .mc-stats-grid {
-    display: flex;
-    flex-direction: row;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    gap: var(--space-1-5);
-    margin: 0 -16px;
-    padding: 0 16px 2px;
-    flex-shrink: 0;
-  }
-
-  .mc-usage .mc-stats-grid::-webkit-scrollbar {
-    display: none;
-  }
-
-  .mc-usage .mc-stats-grid .mc-stat-card {
-    flex: 0 0 auto;
-    min-width: 85px;
-    padding: var(--space-2) var(--space-3);
-  }
-
-  .mc-usage .mc-stats-grid .mc-stat-value {
-    font-size: 1.125rem;
-  }
-
-  .mc-usage .mc-stats-grid .mc-stat-label {
-    font-size: 0.625rem;
-  }
-
-  /* Period selector - inline, smaller touch target */
+  /* Header - stack on small screens */
   .mc-usage-header {
-    justify-content: center;
-    padding: 0;
-    flex-shrink: 0;
+    flex-direction: row;
+    gap: var(--space-2);
   }
 
-  .mc-usage-period-selector {
-    padding: 2px;
-    gap: 2px;
+  .mc-usage-title {
+    font-size: 1rem;
   }
 
-  .mc-usage-period-btn {
-    padding: var(--space-1-5) var(--space-2-5);
+  .mc-usage-period-opt {
+    padding: 5px 10px;
     font-size: 0.6875rem;
-    min-height: 36px; /* Slightly smaller but still touch-friendly */
   }
 
-  /* ScrollableContent must fill remaining space */
+  /* Stats grid - 2x2 on mobile */
+  .mc-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-2);
+  }
+
+  .mc-stat-card {
+    padding: var(--space-3);
+    gap: var(--space-2);
+  }
+
+  .mc-stat-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .mc-stat-value {
+    font-size: 1rem;
+  }
+
+  .mc-stat-label {
+    font-size: 0.6875rem;
+  }
+
+  /* ScrollableContent */
   .mc-usage .mc-usage-scroll {
     flex: 1;
     min-height: 0;
@@ -811,43 +690,18 @@
     margin-bottom: var(--space-1-5);
   }
 
-  /* Chart container - let JS control height via ResponsiveContainer */
+  /* Chart container - dynamic height from JS */
   .mc-usage-chart-container {
-    height: auto;
-    min-height: 140px;
-    margin: 0 -4px; /* Slight negative margin for chart edges */
+    margin: 0 -4px;
   }
 
-  /* Model breakdown - stack on mobile */
-  .mc-usage-models-grid {
-    grid-template-columns: 1fr;
+  /* Model breakdown - compact on mobile */
+  .mc-usage-model-bars {
     gap: var(--space-2);
   }
 
-  .mc-usage-pie-container {
-    width: 100%;
-    max-width: 140px;
-    height: auto;
-    min-height: 140px;
-    margin: 0 auto;
-  }
-
-  .mc-usage-pie-placeholder {
-    height: 140px;
-  }
-
-  .mc-usage-pie-ring {
-    width: 120px;
-    height: 120px;
-    border-width: 10px;
-  }
-
-  .mc-usage-models-list {
-    gap: var(--space-1-5);
-  }
-
-  .mc-usage-model-item {
-    padding: var(--space-2) 0;
+  .mc-usage-model-row {
+    grid-template-columns: 80px 1fr 60px;
     gap: var(--space-2);
   }
 
@@ -855,12 +709,16 @@
     font-size: 0.75rem;
   }
 
-  .mc-usage-model-stats {
-    font-size: 0.6875rem;
+  .mc-usage-model-bar-wrapper {
+    height: 20px;
   }
 
   .mc-usage-model-cost {
     font-size: 0.75rem;
+  }
+
+  .mc-usage-model-tokens {
+    font-size: 0.625rem;
   }
 
   .mc-usage-models-empty {
@@ -968,7 +826,6 @@
 
 /* Extra small mobile (≤380px) - even more compact */
 @media (max-width: 380px) {
-  /* NOTE: Padding comes from parent .mc-content - don't override here */
   .mc-usage {
     gap: var(--space-1-5);
   }
@@ -978,32 +835,21 @@
     font-size: 0.625rem;
   }
 
-  .mc-usage .mc-stats-grid {
-    margin: 0 -12px;
-    padding: 0 12px;
-    gap: var(--space-1);
+  .mc-stats-grid {
+    gap: var(--space-1-5);
   }
 
-  .mc-usage .mc-stats-grid .mc-stat-card {
-    min-width: 75px;
-    padding: var(--space-1-5) var(--space-2);
+  .mc-stat-card {
+    padding: var(--space-2);
   }
 
-  .mc-usage .mc-stats-grid .mc-stat-value {
-    font-size: 1rem;
-  }
-
-  .mc-usage .mc-stats-grid .mc-stat-label {
-    font-size: 0.5625rem;
+  .mc-stat-value {
+    font-size: 0.875rem;
   }
 
   .mc-usage-section {
     padding: var(--space-2);
     margin-bottom: var(--space-1-5);
-  }
-
-  .mc-usage-chart-container {
-    height: 140px;
   }
 
   .mc-usage-extra-stats {
@@ -1013,19 +859,10 @@
 
 /* Landscape mode - optimize for horizontal space */
 @media (max-width: 900px) and (orientation: landscape) {
-  /* NOTE: Padding comes from parent .mc-content (mobile.css landscape) - don't override here */
-
-  /* Stats in a row in landscape */
-  .mc-usage .mc-stats-grid {
-    display: grid;
+  /* Stats grid - 4 columns in landscape */
+  .mc-stats-grid {
     grid-template-columns: repeat(4, 1fr);
-    overflow: visible;
-    margin: 0;
-    padding: 0;
-  }
-
-  .mc-usage .mc-stats-grid .mc-stat-card {
-    min-width: auto;
+    gap: var(--space-2);
   }
 
   /* Two-column layout for sections */
@@ -1040,14 +877,9 @@
     margin-bottom: 0;
   }
 
-  /* Model breakdown side-by-side in landscape */
-  .mc-usage-models-grid {
-    grid-template-columns: 140px 1fr;
-  }
-
-  .mc-usage-pie-container {
-    width: 140px;
-    height: 140px;
+  /* Model breakdown - horizontal bars work well in landscape */
+  .mc-usage-model-row {
+    grid-template-columns: 100px 1fr 80px;
   }
 }
 
@@ -1068,4 +900,43 @@
     background: var(--color-bg-tertiary);
     border-color: var(--color-border);
   }
+}
+
+/* ============================================================================
+   DARK MODE - Accent color overrides
+   Brighter colors for dark backgrounds
+   ============================================================================ */
+
+/* Accent stat card - emerald/green tones */
+.dark .mc-stat-card.accent .mc-stat-icon,
+.dark .mc-stat-card.accent .mc-stat-value {
+  color: var(--color-emerald-400);
+}
+
+/* Alert icon - amber tones */
+.dark .mc-usage-alert-icon {
+  color: var(--color-amber-400);
+}
+
+/* Budget progress bars - brighter in dark mode */
+.dark .mc-usage-budget-fill {
+  background: var(--color-blue-400);
+}
+
+.dark .mc-usage-budget-fill.warning {
+  background: var(--color-amber-400);
+}
+
+.dark .mc-usage-budget-fill.exceeded {
+  background: var(--color-red-400);
+}
+
+/* Budget warning text */
+.dark .mc-usage-budget-warning {
+  color: var(--color-amber-400);
+}
+
+/* Council roster status - emerald/green tones */
+.dark .mc-usage-roster-status {
+  color: var(--color-emerald-400);
 }

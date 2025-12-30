@@ -109,6 +109,7 @@ async def _auto_synthesize_project_context(project_id: str, user: dict):
     from ..openrouter import query_model, MOCK_LLM
     from ..database import get_supabase_service
     from ..personas import get_db_persona_with_fallback
+    from .company.utils import save_internal_llm_usage
     from datetime import datetime
 
     if MOCK_LLM:
@@ -122,6 +123,7 @@ async def _auto_synthesize_project_context(project_id: str, user: dict):
             return
 
         project = project_result.data
+        company_id = project.get('company_id')
 
         decisions_result = service_client.table("knowledge_entries") \
             .select("id, title, content, question, content_summary, created_at, department_ids") \
@@ -192,6 +194,19 @@ Today's date: {today_date}"""
                 result = await query_model(model=model, messages=messages)
 
                 if result and result.get('content'):
+                    # Track usage
+                    if company_id and result.get('usage'):
+                        try:
+                            await save_internal_llm_usage(
+                                company_id=company_id,
+                                operation_type='auto_synth_project_context',
+                                model=model,
+                                usage=result['usage'],
+                                related_id=project_id
+                            )
+                        except Exception:
+                            pass  # Don't fail if tracking fails
+
                     content = result['content']
                     if content.startswith('```'):
                         content = content.split('```')[1]
@@ -361,16 +376,17 @@ async def get_conversation_linked_project(
 ):
     """Check if a conversation has a linked project."""
     try:
-        from ..storage import get_supabase_service
-        service_client = get_supabase_service()
+        from ..database import get_supabase_with_auth, get_supabase_service
         access_token = user.get("access_token")
 
-        if service_client is None:
+        # SECURITY: Use RLS-authenticated client when possible
+        client = get_supabase_with_auth(access_token) if access_token else get_supabase_service()
+        if client is None:
             return {"project": None}
 
         company_uuid = storage.resolve_company_id(company_id, access_token)
 
-        project_result = service_client.table("projects") \
+        project_result = client.table("projects") \
             .select("id, name, description, status, source_conversation_id") \
             .eq("company_id", company_uuid) \
             .eq("source_conversation_id", conversation_id) \
@@ -380,7 +396,7 @@ async def get_conversation_linked_project(
         if project_result.data and project_result.data[0]:
             return {"project": project_result.data[0]}
 
-        ke_result = service_client.table("knowledge_entries") \
+        ke_result = client.table("knowledge_entries") \
             .select("project_id") \
             .eq("company_id", company_uuid) \
             .eq("source_conversation_id", conversation_id) \
@@ -394,7 +410,7 @@ async def get_conversation_linked_project(
 
         project_id = ke_result.data[0]["project_id"]
 
-        project_result = service_client.table("projects") \
+        project_result = client.table("projects") \
             .select("id, name, description, status") \
             .eq("id", project_id) \
             .single() \
@@ -419,11 +435,12 @@ async def get_conversation_decision(
 ):
     """Check if a specific decision exists for this conversation and response index."""
     try:
-        from ..storage import get_supabase_service
-        service_client = get_supabase_service()
+        from ..database import get_supabase_with_auth, get_supabase_service
         access_token = user.get("access_token")
 
-        if service_client is None:
+        # SECURITY: Use RLS-authenticated client when possible
+        client = get_supabase_with_auth(access_token) if access_token else get_supabase_service()
+        if client is None:
             return {"decision": None}
 
         try:
@@ -432,7 +449,7 @@ async def get_conversation_decision(
             return {"decision": None}
 
         try:
-            result = service_client.table("knowledge_entries") \
+            result = client.table("knowledge_entries") \
                 .select("id, title, project_id, department_ids, created_at, response_index") \
                 .eq("company_id", company_uuid) \
                 .eq("source_conversation_id", conversation_id) \
@@ -449,7 +466,7 @@ async def get_conversation_decision(
         # Legacy fallback
         if response_index == 1:
             try:
-                legacy_result = service_client.table("knowledge_entries") \
+                legacy_result = client.table("knowledge_entries") \
                     .select("id, title, project_id, department_ids, created_at, response_index") \
                     .eq("company_id", company_uuid) \
                     .eq("source_conversation_id", conversation_id) \
@@ -517,6 +534,22 @@ async def delete_knowledge_entry(
 # AI-ASSISTED EXTRACTION
 # =============================================================================
 
+async def _get_user_company_id(user: dict) -> str:
+    """Get the user's primary company ID for usage tracking."""
+    from ..database import get_supabase_service
+    user_id = user.get('id') if isinstance(user, dict) else getattr(user, 'id', None)
+    if not user_id:
+        return None
+    try:
+        client = get_supabase_service()
+        result = client.table("companies").select("id").eq("user_id", user_id).limit(1).execute()
+        if result.data and len(result.data) > 0:
+            return result.data[0]["id"]
+        return None
+    except Exception:
+        return None
+
+
 @router.post("/knowledge/extract")
 @limiter.limit("10/minute;50/hour")
 async def extract_decision_from_response(
@@ -530,8 +563,12 @@ async def extract_decision_from_response(
     """
     from ..openrouter import query_model, MOCK_LLM
     from ..knowledge_fallback import extract_knowledge_fallback
+    from .company.utils import save_internal_llm_usage
 
     summarizer_model = await model_registry.get_primary_model('decision_summarizer') or 'anthropic/claude-3-5-haiku-20241022'
+
+    # Get user's company for usage tracking
+    company_id = await _get_user_company_id(user)
 
     if MOCK_LLM:
         return {
@@ -596,6 +633,18 @@ RULES:
             model=summarizer_model,
             messages=messages
         )
+
+        # Track usage
+        if company_id and result and result.get('usage'):
+            try:
+                await save_internal_llm_usage(
+                    company_id=company_id,
+                    operation_type='knowledge_extraction',
+                    model=summarizer_model,
+                    usage=result['usage']
+                )
+            except Exception:
+                pass  # Don't fail if tracking fails
 
         if result and result.get('content'):
             content = result['content'].strip()

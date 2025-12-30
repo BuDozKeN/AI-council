@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { BottomSheet } from '../ui/BottomSheet';
 import { FolderKanban, ChevronDown, Plus } from 'lucide-react';
 import type { Project } from '../../types/business';
+import '../Stage3.css';
 
 interface ProjectWithContext {
   id: string;
@@ -200,28 +201,14 @@ export function ProjectDropdown({
         <div
           className="save-project-dropdown-portal"
           style={{
-            position: 'fixed',
             top: Math.max(8, dropdownPosition.top),
             left: dropdownPosition.left,
-            zIndex: 9999,
-            minWidth: '300px',
-            maxWidth: '400px',
-            background: 'var(--color-bg-primary)',
-            border: '1px solid var(--color-slate-200)',
-            borderRadius: '10px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.05)',
-            overflow: 'hidden'
           }}
         >
-          <div className="save-project-dropdown-header" style={{ flexShrink: 0 }}>Select Project</div>
+          <div className="save-project-dropdown-header">Select Project</div>
           <div
             ref={listRef}
             className="save-project-list"
-            style={{
-              maxHeight: '300px',
-              overflowY: 'auto',
-              overscrollBehavior: 'contain'
-            }}
           >
             {/* No project option */}
             <button
@@ -255,7 +242,7 @@ export function ProjectDropdown({
             ))}
           </div>
           {/* Create new project - ALWAYS visible at bottom */}
-          <div className="save-project-create" style={{ flexShrink: 0, borderTop: '1px solid var(--color-slate-200)', padding: '8px', background: 'var(--color-slate-50)' }}>
+          <div className="save-project-create">
             <button
               className="save-project-create-btn"
               onClick={() => {
@@ -267,20 +254,6 @@ export function ProjectDropdown({
                     departmentIds: selectedDeptIds
                   });
                 }
-              }}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                width: '100%',
-                padding: '8px 10px',
-                background: 'transparent',
-                border: '1px dashed var(--color-slate-300)',
-                borderRadius: '6px',
-                fontSize: '12px',
-                fontWeight: 500,
-                color: 'var(--color-slate-500)',
-                cursor: 'pointer'
               }}
             >
               <Plus className="h-3.5 w-3.5" />

@@ -1,14 +1,14 @@
 # AxCouncil Audit Dashboard
 
 > Last Updated: 2025-12-30 UTC
-> Last Audit: resilience (Resilience & Observability)
+> Last Audit: data (Data Architecture & RLS Security)
 > Branch: master
 
 ---
 
 ## Executive Summary
 
-### Overall Health: 8.3/10
+### Overall Health: 8.5/10
 
 | Category | Score | Trend | Critical | High | Medium | Last Checked |
 |----------|-------|-------|----------|------|--------|--------------|
@@ -19,7 +19,7 @@
 | Accessibility | 8/10 | ↑ | 0 | 0 | 2 | 2024-12-29 |
 | Mobile | --/10 | -- | -- | -- | -- | -- |
 | LLM Operations | --/10 | -- | -- | -- | -- | -- |
-| Data Architecture | --/10 | -- | -- | -- | -- | -- |
+| Data Architecture | 9/10 | ↑ | 0 | 0 | 0 | 2025-12-30 |
 | Billing | --/10 | -- | -- | -- | -- | -- |
 | Resilience | 9/10 | ↑ | 0 | 0 | 1 | 2025-12-30 |
 | API Governance | --/10 | -- | -- | -- | -- | -- |
@@ -28,9 +28,9 @@
 
 ### Key Metrics
 - **Total Findings**: 8 (Critical: 0, High: 0, Medium: 5, Low: 3)
-- **Fixed Since Last Run**: 14 (all resilience critical/high/medium/low items)
-- **New This Run**: 1 (resilience medium - observability dashboard)
-- **$25M Readiness**: Near Ready (Performance + Accessibility + Resilience on track)
+- **Fixed Since Last Run**: 5 (all data architecture critical RLS vulnerabilities)
+- **New This Run**: 0
+- **$25M Readiness**: Near Ready (Performance + Accessibility + Resilience + Data Architecture on track)
 
 ---
 
@@ -38,6 +38,7 @@
 
 | Date | Scope | Overall | Sec | Code | UI | Perf | A11y | Mobile | LLM | Data | Bill | Resil | API |
 |------|-------|---------|-----|------|-----|------|------|--------|-----|------|------|-------|-----|
+| 2025-12-30 | data | 8.5 | -- | -- | -- | 8 | 8 | -- | -- | 9 | -- | 9 | -- |
 | 2025-12-30 | resilience | 8.3 | -- | -- | -- | 8 | 8 | -- | -- | -- | -- | 9 | -- |
 | 2025-12-29 | perf | 7.5 | -- | -- | -- | 8 | 8 | -- | -- | -- | -- | -- | -- |
 | 2024-12-29 | a11y | 7.0 | -- | -- | -- | -- | 8 | -- | -- | -- | -- | -- | -- |
@@ -299,10 +300,81 @@ Run `/audit-dashboard llm-ops` to populate.
 
 </details>
 
-<details>
-<summary>Data Architecture (--/10) - Not yet audited</summary>
+<details open>
+<summary>Data Architecture (9/10) - Last checked: 2025-12-30</summary>
 
-Run `/audit-dashboard data` to populate.
+### RLS Security Score: 9/10 | Multi-Tenant Isolation: 9/10
+
+### What's Implemented ✅
+
+#### Critical RLS Fixes (All Applied)
+
+| Issue | Fix Applied | Migration |
+|-------|-------------|-----------|
+| `USING (true)` policies | Replaced with `is_company_member()` checks | `20251230000000_fix_rls_critical_vulnerabilities.sql` |
+| `auth.role() = 'authenticated'` | Replaced with proper company ownership checks | `20251230000000_fix_rls_critical_vulnerabilities.sql` |
+| SECURITY DEFINER missing search_path | Added `SET search_path = ''` to 5 functions | `20251230000000_fix_rls_critical_vulnerabilities.sql` |
+| Missing INSERT policies | Added for rate_limits, budget_alerts, etc. | `20251230100000_fix_rls_medium_priority.sql` |
+| Audit log tampering | Added SHA-256 integrity hashes + immutability triggers | `20251230300000_audit_log_tamper_protection.sql` |
+
+#### Tables with Proper RLS
+
+| Table | Policy Pattern | Status |
+|-------|---------------|--------|
+| `companies` | Owner only (`user_id = auth.uid()`) | ✅ |
+| `company_members` | Member of company | ✅ |
+| `departments` | `is_company_member(company_id)` | ✅ |
+| `roles` | `is_company_member(company_id)` | ✅ |
+| `org_documents` | `is_company_member(company_id)` | ✅ |
+| `knowledge_entries` | `is_company_member(company_id)` | ✅ |
+| `conversations` | `is_company_member(company_id)` | ✅ |
+| `activity_logs` | `is_company_member(company_id)` + immutable | ✅ |
+| `rate_limits` | `is_company_admin(company_id)` | ✅ |
+| `budget_alerts` | `is_company_admin(company_id)` | ✅ |
+| `session_usage` | Member can insert own company | ✅ |
+| `usage_events` | Member can insert own company | ✅ |
+
+#### Backend Security
+
+| Area | Implementation | Location |
+|------|----------------|----------|
+| RLS-Authenticated Client | `get_supabase_with_auth(access_token)` | `backend/database.py` |
+| Knowledge Entry Updates | Uses auth client, RLS enforced | `backend/knowledge.py:320-337` |
+| Knowledge Entry Deletes | Uses auth client, RLS enforced | `backend/knowledge.py:367-383` |
+| Context Loader | Accepts access_token, uses auth client | `backend/context_loader.py` |
+| Fallback Verification | `verify_user_entry_access()` when no token | `backend/knowledge.py` |
+
+#### Audit Log Protection
+
+| Feature | Implementation |
+|---------|----------------|
+| Integrity Hash | SHA-256 of key fields on INSERT |
+| Immutable Records | UPDATE trigger raises exception |
+| Delete Protection | Only service_role can delete |
+| Actor Tracking | `actor_id` column references `auth.users` |
+| Verification Function | `verify_activity_log_integrity(log_id)` |
+| Batch Verification | `verify_company_audit_logs(company_id)` |
+
+### Helper Functions
+
+| Function | Purpose | Security |
+|----------|---------|----------|
+| `is_company_member(uuid)` | Check if user is member of company | SECURITY DEFINER + search_path |
+| `is_company_admin(uuid)` | Check if user is owner/admin of company | SECURITY DEFINER + search_path |
+| `verify_user_entry_access(user, entry, table)` | Backend fallback access check | Called from Python |
+
+### What Could Be Better
+
+1. **Real-time RLS Testing** - Automated cross-tenant isolation tests in CI
+2. **Policy Documentation** - Generate RLS policy docs from schema
+3. **Audit Log Rotation** - Retention policy for old activity logs
+
+### Migrations Applied
+
+1. `20251230000000_fix_rls_critical_vulnerabilities.sql` ✅
+2. `20251230100000_fix_rls_medium_priority.sql` ✅
+3. `20251230200000_drop_legacy_decisions_table.sql` ✅ (already dropped)
+4. `20251230300000_audit_log_tamper_protection.sql` ✅
 
 </details>
 

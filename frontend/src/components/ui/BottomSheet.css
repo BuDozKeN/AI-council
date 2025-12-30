@@ -39,13 +39,13 @@
 .bottom-sheet-handle-bar {
   width: 36px;
   height: 4px;
-  background: var(--color-border-dark, #d1d5db);
+  background: var(--color-border-dark);
   border-radius: var(--radius-xs);
   transition: background 0.15s ease;
 }
 
 .bottom-sheet-handle:hover .bottom-sheet-handle-bar {
-  background: var(--color-text-muted, #888);
+  background: var(--color-text-muted);
 }
 
 /* Header */
@@ -73,7 +73,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-bg-tertiary, #f5f5f5);
+  background: var(--color-bg-tertiary);
   border: none;
   cursor: pointer;
   color: var(--color-text-secondary);
@@ -81,7 +81,7 @@
 }
 
 .bottom-sheet-close:hover {
-  background: var(--color-bg-active, #e5e7eb);
+  background: var(--color-bg-active);
   color: var(--color-text-primary);
 }
 
@@ -113,7 +113,7 @@
 
   .bottom-sheet-header {
     padding: 20px 24px 16px;
-    border-bottom: 1px solid var(--color-border, #e5e7eb);
+    border-bottom: 1px solid var(--color-border);
   }
 
   .bottom-sheet-body {

@@ -312,18 +312,22 @@ def update_knowledge_entry(
     Returns:
         The updated entry dict, or None if access denied or entry not found
     """
-    # SECURITY: Verify user has access to this entry's company
-    if not verify_user_entry_access(user_id, entry_id, "knowledge_entries"):
-        log_security_event("UPDATE_BLOCKED", user_id=user_id,
-                          resource_type="knowledge_entry", resource_id=entry_id,
-                          severity="WARNING")
-        return None
-
-    client = get_supabase_service()
-
     # Filter out None values and empty updates
     if not updates:
         return None
+
+    # SECURITY: Use RLS-authenticated client when possible
+    if access_token:
+        client = get_supabase_with_auth(access_token)
+        # RLS will enforce access control
+    else:
+        # Fallback: Verify access manually when no token available
+        if not verify_user_entry_access(user_id, entry_id, "knowledge_entries"):
+            log_security_event("UPDATE_BLOCKED", user_id=user_id,
+                              resource_type="knowledge_entry", resource_id=entry_id,
+                              severity="WARNING")
+            return None
+        client = get_supabase_service()
 
     # The updated_at will be handled by the database trigger
     result = (client
@@ -363,14 +367,18 @@ def deactivate_knowledge_entry(
     Returns:
         True if deleted successfully, False if access denied or entry not found
     """
-    # SECURITY: Verify user has access to this entry's company
-    if not verify_user_entry_access(user_id, entry_id, "knowledge_entries"):
-        log_security_event("DELETE_BLOCKED", user_id=user_id,
-                          resource_type="knowledge_entry", resource_id=entry_id,
-                          severity="WARNING")
-        return False
-
-    client = get_supabase_service()
+    # SECURITY: Use RLS-authenticated client when possible
+    if access_token:
+        client = get_supabase_with_auth(access_token)
+        # RLS will enforce access control (only admins can delete)
+    else:
+        # Fallback: Verify access manually when no token available
+        if not verify_user_entry_access(user_id, entry_id, "knowledge_entries"):
+            log_security_event("DELETE_BLOCKED", user_id=user_id,
+                              resource_type="knowledge_entry", resource_id=entry_id,
+                              severity="WARNING")
+            return False
+        client = get_supabase_service()
 
     result = (client
         .table("knowledge_entries")

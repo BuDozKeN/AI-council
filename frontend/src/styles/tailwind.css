@@ -71,30 +71,16 @@
     --z-modal-dropdown: 1100; /* Dropdowns inside modals */
     --z-toast: 1200;        /* Toast notifications */
 
-    /* Shadow scale - premium layered 3x depth */
-    --shadow-sm:
-      0 2px 4px rgb(0, 0, 0, 0.12),
-      0 1px 2px rgb(0, 0, 0, 0.08),
-      0 0 1px rgb(0, 0, 0, 0.04);
-    --shadow-md:
-      0 8px 16px -4px rgb(0, 0, 0, 0.16),
-      0 4px 8px -2px rgb(0, 0, 0, 0.12),
-      0 0 1px rgb(0, 0, 0, 0.08);
-    --shadow-lg:
-      0 16px 32px -8px rgb(0, 0, 0, 0.2),
-      0 8px 16px -4px rgb(0, 0, 0, 0.14),
-      0 0 1px rgb(0, 0, 0, 0.08);
+    /* Shadow & Radius scales - CANONICAL SOURCE: design-tokens.css
+       --shadow-xs, --shadow-sm, --shadow-md, --shadow-lg, --shadow-xl, --shadow-2xl
+       --radius-xs, --radius-sm, --radius-default, --radius-md, --radius-lg, --radius-xl, --radius-2xl, --radius-3xl, --radius-full */
+
+    /* Additional shadows not in design-tokens.css */
     --shadow-modal:
       0 32px 64px -16px rgb(0, 0, 0, 0.35),
       0 16px 32px -8px rgb(0, 0, 0, 0.25),
       0 0 1px rgb(0, 0, 0, 0.08);
     --shadow-focus: 0 0 0 3px rgb(99, 102, 241, 0.25);
-
-    /* Border radius scale - use these instead of arbitrary pixel values */
-    --radius-sm: 4px;
-    --radius-md: 8px;
-    --radius-lg: 12px;
-    --radius-full: 9999px;
 
     /* ===== COLOR TOKENS ===== */
 
@@ -212,11 +198,18 @@
     --color-code-border: var(--color-slate-700);
 
     /* Gray scale */
+    --color-gray-50: #f9fafb;
+    --color-gray-100: #f3f4f6;
+    --color-gray-200: #e5e7eb;
+    --color-gray-300: #d1d5db;
     --color-gray-400: #9ca3af;
     --color-gray-500: #6b7280;
+    --color-gray-600: #4b5563;
     --color-gray-700: #374151;
+    --color-gray-800: #1f2937;
 
     /* Blue scale - for SOP type, links, info */
+    --color-blue-50: #eff6ff;
     --color-blue-100: #dbeafe;
     --color-blue-200: #bfdbfe;
     --color-blue-300: #93c5fd;
@@ -230,11 +223,17 @@
     /* Green scale - for success states */
     --color-green-50: #f0fdf4;
     --color-green-100: #dcfce7;
+    --color-green-200: #bbf7d0;
     --color-green-300: #86efac;
     --color-green-500: #22c55e;
     --color-green-600: #16a34a;
+    --color-green-700: #15803d;
+    --color-green-800: #166534;
 
     /* Emerald scale - for save buttons */
+    --color-emerald-50: #ecfdf5;
+    --color-emerald-100: #d1fae5;
+    --color-emerald-200: #a7f3d0;
     --color-emerald-300: #6ee7b7;
     --color-emerald-400: #34d399;
     --color-emerald-500: #10b981;
@@ -258,12 +257,46 @@
     --color-purple-900: #581c87;
 
     /* Violet scale - for project hover states */
+    --color-violet-50: #f5f3ff;
     --color-violet-100: #ede9fe;
     --color-violet-200: #ddd6fe;
     --color-violet-300: #c4b5fd;
     --color-violet-400: #a78bfa;
+    --color-violet-500: #8b5cf6;
+    --color-violet-600: #7c3aed;
     --color-violet-700: #6d28d9;
     --color-violet-900: #4c1d95;
+
+    /* Red scale - for error/delete states */
+    --color-red-50: #fef2f2;
+    --color-red-100: #fee2e2;
+    --color-red-200: #fecaca;
+    --color-red-300: #fca5a5;
+    --color-red-400: #f87171;
+    --color-red-500: #ef4444;
+    --color-red-600: #dc2626;
+    --color-red-700: #b91c1c;
+
+    /* Yellow scale - for warning states */
+    --color-yellow-50: #fefce8;
+    --color-yellow-100: #fef9c3;
+    --color-yellow-200: #fef08a;
+    --color-yellow-500: #eab308;
+    --color-yellow-600: #ca8a04;
+    --color-yellow-700: #a16207;
+
+    /* Teal scale - for project types */
+    --color-teal-50: #f0fdfa;
+    --color-teal-100: #ccfbf1;
+    --color-teal-500: #14b8a6;
+    --color-teal-600: #0d9488;
+
+    /* Stone scale - for neutral/archived states */
+    --color-stone-100: #f5f5f4;
+    --color-stone-200: #e7e5e4;
+    --color-stone-300: #d6d3d1;
+    --color-stone-500: #78716c;
+    --color-stone-600: #57534e;
 
     /* Indigo extended scale */
     --color-indigo-50: #eef2ff;
@@ -514,8 +547,13 @@
     --skeleton-base: #e2e8f0;      /* slate-200 - matches bg-secondary feel */
     --skeleton-shimmer: #f1f5f9;   /* slate-100 - subtle lighter pulse */
   }
+}
 
-  .dark {
+/* =============================================================================
+   DARK MODE TOKENS - Outside @layer for proper specificity
+   Applied via next-themes ThemeProvider (class="dark" on html element)
+   ============================================================================= */
+html.dark, .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
     --card: 0 0% 3.9%;
@@ -548,7 +586,7 @@
     --color-text-secondary: #94a3b8;
     --color-text-tertiary: #64748b;
     --color-text-muted: #475569;
-    --color-text-inverse: #0f172a;
+    --color-text-inverse: #fff;          /* White text on inverse (dark) backgrounds */
 
     /* Background colors */
     --color-bg-primary: #0f172a;
@@ -556,7 +594,7 @@
     --color-bg-tertiary: #334155;
     --color-bg-hover: #334155;
     --color-bg-active: #475569;
-    --color-bg-inverse: #0f172a;         /* Dark bg for headers/banners */
+    --color-bg-inverse: #1e293b;         /* Slightly lighter for dark mode contrast */
 
     /* Border colors */
     --color-border: #334155;
@@ -697,7 +735,6 @@
     --sidebar-icon-color: #a0a0a0;
     --sidebar-icon-active: #f5f5f5;
     --sidebar-scrollbar-thumb: rgb(255, 255, 255, 0.15);
-  }
 }
 
 @layer base {

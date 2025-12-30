@@ -11,7 +11,7 @@ import re
 
 from . import storage
 from . import knowledge
-from .database import get_supabase_service
+from .database import get_supabase_service, get_supabase_with_auth
 from .utils.cache import company_cache, cache_key
 
 
@@ -165,19 +165,21 @@ def load_business_context(business_id: str) -> Optional[str]:
     return load_company_context_from_db(business_id)
 
 
-def load_company_context_from_db(company_id: str) -> Optional[str]:
+def load_company_context_from_db(company_id: str, access_token: Optional[str] = None) -> Optional[str]:
     """
     Load company context from Supabase companies.context_md column.
 
     Args:
         company_id: The company UUID or slug
+        access_token: Optional JWT token for RLS-authenticated access
 
     Returns:
         The context_md content, or None if not found
     """
     from .security import log_error
 
-    client = get_supabase_service()
+    # SECURITY: Use RLS-authenticated client when possible
+    client = get_supabase_with_auth(access_token) if access_token else get_supabase_service()
     if not client:
         log_app_event("load_company_context", level="WARNING", reason="no_client")
         return None
@@ -199,19 +201,21 @@ def load_company_context_from_db(company_id: str) -> Optional[str]:
         return None
 
 
-def load_department_context_from_db(department_id: str) -> Optional[str]:
+def load_department_context_from_db(department_id: str, access_token: Optional[str] = None) -> Optional[str]:
     """
     Load department context from Supabase departments.context_md column.
 
     Args:
         department_id: The department UUID or slug
+        access_token: Optional JWT token for RLS-authenticated access
 
     Returns:
         The context_md content, or None if not found
     """
     from .security import log_error
 
-    client = get_supabase_service()
+    # SECURITY: Use RLS-authenticated client when possible
+    client = get_supabase_with_auth(access_token) if access_token else get_supabase_service()
     if not client:
         return None
 
@@ -232,17 +236,19 @@ def load_department_context_from_db(department_id: str) -> Optional[str]:
         return None
 
 
-def load_role_prompt_from_db(role_id: str) -> Optional[Dict[str, Any]]:
+def load_role_prompt_from_db(role_id: str, access_token: Optional[str] = None) -> Optional[Dict[str, Any]]:
     """
     Load role system_prompt from Supabase roles table.
 
     Args:
         role_id: The role UUID or slug
+        access_token: Optional JWT token for RLS-authenticated access
 
     Returns:
         Dict with name, description, system_prompt, or None if not found
     """
-    client = get_supabase_service()
+    # SECURITY: Use RLS-authenticated client when possible
+    client = get_supabase_with_auth(access_token) if access_token else get_supabase_service()
     if not client:
         return None
 
@@ -263,17 +269,19 @@ def load_role_prompt_from_db(role_id: str) -> Optional[Dict[str, Any]]:
         return None
 
 
-def get_company_departments(company_id: str) -> List[Dict[str, Any]]:
+def get_company_departments(company_id: str, access_token: Optional[str] = None) -> List[Dict[str, Any]]:
     """
     Get all departments for a company from Supabase.
 
     Args:
         company_id: The company UUID
+        access_token: Optional JWT token for RLS-authenticated access
 
     Returns:
         List of department dicts with id, name, slug, description
     """
-    client = get_supabase_service()
+    # SECURITY: Use RLS-authenticated client when possible
+    client = get_supabase_with_auth(access_token) if access_token else get_supabase_service()
     if not client:
         return []
 
@@ -312,17 +320,19 @@ async def get_company_departments_cached(company_id: str) -> List[Dict[str, Any]
     return departments
 
 
-def get_department_roles(department_id: str) -> List[Dict[str, Any]]:
+def get_department_roles(department_id: str, access_token: Optional[str] = None) -> List[Dict[str, Any]]:
     """
     Get all roles for a department from Supabase.
 
     Args:
         department_id: The department UUID
+        access_token: Optional JWT token for RLS-authenticated access
 
     Returns:
         List of role dicts with id, name, slug, description
     """
-    client = get_supabase_service()
+    # SECURITY: Use RLS-authenticated client when possible
+    client = get_supabase_with_auth(access_token) if access_token else get_supabase_service()
     if not client:
         return []
 
@@ -337,7 +347,8 @@ def get_department_roles(department_id: str) -> List[Dict[str, Any]]:
 def get_playbooks_for_context(
     company_id: str,
     department_id: Optional[str] = None,
-    doc_types: Optional[List[str]] = None
+    doc_types: Optional[List[str]] = None,
+    access_token: Optional[str] = None
 ) -> List[Dict[str, Any]]:
     """
     Get playbooks (SOPs, frameworks, policies) from database for context injection.
@@ -347,11 +358,13 @@ def get_playbooks_for_context(
         company_id: The company UUID
         department_id: Optional department UUID to filter by
         doc_types: Optional list of doc types to filter ('sop', 'framework', 'policy')
+        access_token: Optional JWT token for RLS-authenticated access
 
     Returns:
         List of playbook dicts with title, doc_type, content, etc.
     """
-    client = get_supabase_service()
+    # SECURITY: Use RLS-authenticated client when possible
+    client = get_supabase_with_auth(access_token) if access_token else get_supabase_service()
     if not client:
         return []
 

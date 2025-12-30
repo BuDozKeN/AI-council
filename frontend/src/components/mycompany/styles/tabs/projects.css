@@ -1066,9 +1066,9 @@
 }
 
 .mc-timeline-copy-btn:hover {
-  background: var(--color-success-light, #dcfce7);
-  border-color: var(--color-success, #22c55e);
-  color: var(--color-success-dark, #166534);
+  background: var(--color-success-light);
+  border-color: var(--color-success);
+  color: var(--color-success-dark);
 }
 
 .mc-timeline-copy-btn svg,
@@ -1079,9 +1079,9 @@
 }
 
 .mc-timeline-copy-btn.copied {
-  background: var(--color-success-light, #dcfce7);
-  border-color: var(--color-success, #22c55e);
-  color: var(--color-success-dark, #166534);
+  background: var(--color-success-light);
+  border-color: var(--color-success);
+  color: var(--color-success-dark);
 }
 
 /* Decision summary in expanded body - NEVER truncate */

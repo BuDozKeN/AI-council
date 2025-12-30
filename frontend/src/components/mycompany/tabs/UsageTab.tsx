@@ -22,11 +22,8 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Cell,
-  PieChart,
-  Pie,
 } from 'recharts';
-import { Gauge, AlertTriangle, Zap, TrendingUp, DollarSign, Users, Bot, Sparkles } from 'lucide-react';
+import { Gauge, AlertTriangle, Zap, TrendingUp, Bot } from 'lucide-react';
 import { ScrollableContent } from '../../ui/ScrollableContent';
 import { Skeleton } from '../../ui/Skeleton';
 import { getModelPersona, getModelColor as getModelColorFromPersona } from '../../../config/modelPersonas';
@@ -50,22 +47,21 @@ const PERIOD_OPTIONS: { value: UsagePeriod; label: string }[] = [
 // Responsive breakpoint (matches CSS media queries)
 const MOBILE_BREAKPOINT = 768;
 
-// Chart dimensions (responsive)
+// Chart dimensions (responsive) - compact, data-driven
 const CHART_CONFIG = {
   bar: {
-    height: { mobile: 180, desktop: 300 },
+    // Base height + per-bar height for dynamic sizing
+    baseHeight: { mobile: 60, desktop: 80 },
+    perBarHeight: { mobile: 28, desktop: 32 },
+    maxHeight: { mobile: 200, desktop: 220 },
+    minHeight: { mobile: 100, desktop: 120 },
     margin: {
-      mobile: { top: 10, right: 8, left: 0, bottom: 10 },
-      desktop: { top: 20, right: 20, left: 10, bottom: 20 },
+      mobile: { top: 8, right: 8, left: 0, bottom: 8 },
+      desktop: { top: 12, right: 16, left: 8, bottom: 12 },
     },
-    fontSize: { mobile: 10, desktop: 12 },
-    yAxisWidth: { mobile: 35, desktop: 50 },
-    xAxisHeight: { mobile: 30, desktop: 40 },
-  },
-  pie: {
-    height: { mobile: 140, desktop: 180 },
-    innerRadius: { mobile: 35, desktop: 45 },
-    outerRadius: { mobile: 55, desktop: 70 },
+    fontSize: { mobile: 10, desktop: 11 },
+    yAxisWidth: { mobile: 32, desktop: 45 },
+    xAxisHeight: { mobile: 24, desktop: 28 },
   },
 } as const;
 
@@ -104,6 +100,20 @@ function getModelColor(model: string): string {
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr);
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+/**
+ * Calculate dynamic chart height based on number of data points
+ */
+function getChartHeight(dataPoints: number, isMobile: boolean): number {
+  const config = CHART_CONFIG.bar;
+  const base = isMobile ? config.baseHeight.mobile : config.baseHeight.desktop;
+  const perBar = isMobile ? config.perBarHeight.mobile : config.perBarHeight.desktop;
+  const min = isMobile ? config.minHeight.mobile : config.minHeight.desktop;
+  const max = isMobile ? config.maxHeight.mobile : config.maxHeight.desktop;
+
+  const calculated = base + (dataPoints * perBar);
+  return Math.min(max, Math.max(min, calculated));
 }
 
 // ============================================================================
@@ -178,16 +188,6 @@ export function UsageTab({
       }));
   }, [usage]);
 
-  // Model breakdown for pie chart
-  const modelChartData = useMemo(() => {
-    if (!usage || usage.models.length === 0) return [];
-    return usage.models.map(m => ({
-      name: getModelShortName(m.model),
-      value: m.cost_cents,
-      fullName: m.model,
-    }));
-  }, [usage]);
-
   // Budget progress
   const budgetProgress = useMemo(() => {
     if (!rateLimits) return null;
@@ -237,9 +237,6 @@ export function UsageTab({
   // Check if we have data or showing empty state
   const hasData = usage && usage.summary.total_sessions > 0;
 
-  // Use only real data - no mock/placeholder data
-  const displayModelData = hasData ? modelChartData : [];
-
   return (
     <div className="mc-usage">
       {/* Empty state banner */}
@@ -273,69 +270,54 @@ export function UsageTab({
         </div>
       )}
 
-      {/* Stats grid */}
+      {/* Stats Cards */}
       <div className={`mc-stats-grid ${!hasData ? 'empty-state' : ''}`}>
         <div className="mc-stat-card">
-          <div className="mc-stat-value cost">
-            {hasData ? formatCost(usage.summary.estimated_cost_cents) : '$0.00'}
-          </div>
-          <div className="mc-stat-label">
-            <DollarSign size={12} />
-            Total Cost
-          </div>
-        </div>
-        <div className="mc-stat-card">
-          <div className="mc-stat-value">{hasData ? usage.summary.total_sessions : '0'}</div>
-          <div className="mc-stat-label">
-            <Users size={12} />
-            Sessions
+          <Gauge size={18} className="mc-stat-icon" />
+          <div className="mc-stat-content">
+            <span className="mc-stat-value">
+              {hasData ? formatCost(usage.summary.estimated_cost_cents) : '$0.00'}
+            </span>
+            <span className="mc-stat-label">Total Cost</span>
           </div>
         </div>
         <div className="mc-stat-card">
-          <div className="mc-stat-value">
-            {hasData ? formatTokens(usage.summary.total_tokens) : '0'}
-          </div>
-          <div className="mc-stat-label">
-            <TrendingUp size={12} />
-            Tokens
+          <Bot size={18} className="mc-stat-icon" />
+          <div className="mc-stat-content">
+            <span className="mc-stat-value">
+              {hasData ? usage.summary.total_sessions : 0}
+            </span>
+            <span className="mc-stat-label">Sessions</span>
           </div>
         </div>
-        <div className="mc-stat-card highlight">
-          <div className="mc-stat-value saved">
-            {hasData ? formatCost(cacheSavings) : '$0.00'}
+        <div className="mc-stat-card">
+          <TrendingUp size={18} className="mc-stat-icon" />
+          <div className="mc-stat-content">
+            <span className="mc-stat-value">
+              {hasData ? formatTokens(usage.summary.total_tokens) : '0'}
+            </span>
+            <span className="mc-stat-label">Tokens</span>
           </div>
-          <div className="mc-stat-label">
-            <Zap size={12} />
-            Cache Saved
+        </div>
+        <div className="mc-stat-card accent">
+          <Zap size={18} className="mc-stat-icon" />
+          <div className="mc-stat-content">
+            <span className="mc-stat-value">
+              {hasData ? formatCost(cacheSavings) : '$0.00'}
+            </span>
+            <span className="mc-stat-label">Cache Saved</span>
           </div>
         </div>
       </div>
 
-      {/* Cost breakdown by type */}
-      {hasData && (usage.summary.council_cost_cents > 0 || usage.summary.internal_cost_cents > 0) && (
-        <div className="mc-usage-breakdown">
-          <div className="mc-usage-breakdown-item">
-            <Bot size={14} />
-            <span className="mc-usage-breakdown-label">Council Sessions</span>
-            <span className="mc-usage-breakdown-count">{usage.summary.council_sessions}</span>
-            <span className="mc-usage-breakdown-cost">{formatCost(usage.summary.council_cost_cents)}</span>
-          </div>
-          <div className="mc-usage-breakdown-item">
-            <Sparkles size={14} />
-            <span className="mc-usage-breakdown-label">Internal Operations</span>
-            <span className="mc-usage-breakdown-count">{usage.summary.internal_sessions}</span>
-            <span className="mc-usage-breakdown-cost">{formatCost(usage.summary.internal_cost_cents)}</span>
-          </div>
-        </div>
-      )}
-
-      {/* Period selector */}
+      {/* Header with period selector */}
       <div className="mc-usage-header">
-        <div className={`mc-usage-period-selector ${isRefetching ? 'refetching' : ''}`}>
+        <h2 className="mc-usage-title">Usage</h2>
+        <div className={`mc-usage-period-toggle ${isRefetching ? 'loading' : ''}`}>
           {PERIOD_OPTIONS.map(opt => (
             <button
               key={opt.value}
-              className={`mc-usage-period-btn ${period === opt.value ? 'active' : ''}`}
+              className={`mc-usage-period-opt ${period === opt.value ? 'active' : ''}`}
               onClick={() => onPeriodChange?.(opt.value)}
               disabled={isRefetching}
             >
@@ -353,7 +335,7 @@ export function UsageTab({
             {chartData.length > 0 ? (
               <ResponsiveContainer
                 width="100%"
-                height={isMobile ? CHART_CONFIG.bar.height.mobile : CHART_CONFIG.bar.height.desktop}
+                height={getChartHeight(chartData.length, isMobile)}
                 debounce={50}
               >
                 <BarChart
@@ -411,80 +393,51 @@ export function UsageTab({
           </div>
         </div>
 
-        {/* Model breakdown */}
+        {/* Model breakdown - clean horizontal bars */}
         <div className={`mc-usage-section ${!hasData ? 'empty-state' : ''}`}>
           <h3 className="mc-usage-section-title">Cost by Model</h3>
-          <div className="mc-usage-models-grid">
-            <div className="mc-usage-pie-container">
-              {displayModelData.length > 0 ? (
-                <ResponsiveContainer
-                  width="100%"
-                  height={isMobile ? CHART_CONFIG.pie.height.mobile : CHART_CONFIG.pie.height.desktop}
-                  debounce={50}
-                >
-                  <PieChart>
-                    <Pie
-                      data={displayModelData}
-                      dataKey="value"
-                      nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={isMobile ? CHART_CONFIG.pie.innerRadius.mobile : CHART_CONFIG.pie.innerRadius.desktop}
-                      outerRadius={isMobile ? CHART_CONFIG.pie.outerRadius.mobile : CHART_CONFIG.pie.outerRadius.desktop}
-                      paddingAngle={2}
-                    >
-                      {displayModelData.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={getModelColor(entry.fullName)}
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{
-                        background: 'var(--color-bg-primary)',
-                        border: '1px solid var(--color-border)',
-                        borderRadius: 'var(--radius-md)',
-                      }}
-                      formatter={(value) => [formatCost(value as number), 'Cost']}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="mc-usage-pie-placeholder">
-                  <div className="mc-usage-pie-ring" />
-                  <span>No model data</span>
-                </div>
-              )}
-            </div>
-            <div className="mc-usage-models-list">
-              {hasData && usage.models.length > 0 ? (
-                usage.models.map((model) => (
-                  <div key={model.model} className="mc-usage-model-item">
-                    <div
-                      className="mc-usage-model-dot"
-                      style={{ background: getModelColor(model.model) }}
-                    />
-                    <div className="mc-usage-model-info">
+          {hasData && usage.models.length > 0 ? (
+            <div className="mc-usage-model-bars">
+              {usage.models.map((model) => {
+                const maxCost = Math.max(...usage.models.map(m => m.cost_cents));
+                const percentage = maxCost > 0 ? (model.cost_cents / maxCost) * 100 : 0;
+                return (
+                  <div key={model.model} className="mc-usage-model-row">
+                    <div className="mc-usage-model-label">
+                      <div
+                        className="mc-usage-model-dot"
+                        style={{ background: getModelColor(model.model) }}
+                      />
                       <span className="mc-usage-model-name">
                         {getModelShortName(model.model)}
                       </span>
-                      <span className="mc-usage-model-stats">
-                        {formatTokens(model.tokens_input + model.tokens_output)} tokens
+                    </div>
+                    <div className="mc-usage-model-bar-wrapper">
+                      <div
+                        className="mc-usage-model-bar-fill"
+                        style={{
+                          width: `${percentage}%`,
+                          background: getModelColor(model.model),
+                        }}
+                      />
+                    </div>
+                    <div className="mc-usage-model-values">
+                      <span className="mc-usage-model-cost">
+                        {formatCost(model.cost_cents)}
+                      </span>
+                      <span className="mc-usage-model-tokens">
+                        {formatTokens(model.tokens_input + model.tokens_output)}
                       </span>
                     </div>
-                    <span className="mc-usage-model-cost">
-                      {formatCost(model.cost_cents)}
-                    </span>
                   </div>
-                ))
-              ) : (
-                <div className="mc-usage-models-empty">
-                  <p>Model usage breakdown will appear here after your first council session.</p>
-                </div>
-              )}
+                );
+              })}
             </div>
-          </div>
+          ) : (
+            <div className="mc-usage-models-empty">
+              <p>Model usage will appear here after your first council session.</p>
+            </div>
+          )}
         </div>
 
         {/* Budget progress */}

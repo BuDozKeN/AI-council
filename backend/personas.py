@@ -28,104 +28,13 @@ _db_persona_cache: Dict[str, tuple] = {}
 PERSONA_CACHE_TTL = 300  # 5 minutes
 
 # =============================================================================
-# WRITE ASSIST PERSONAS
-# Used by /api/ai/write-assist endpoint for helping users write form content
+# WRITE ASSIST PERSONAS - NON-PLAYBOOK CONTEXTS ONLY
+# Playbook personas (sop, framework, policy) are fetched from the database.
+# These are for general form field assistance only.
 # =============================================================================
 
 WRITE_ASSIST_PERSONAS = {
-    # Playbook types - different personas for different document types
-    "sop": {
-        "name": "Operations Manager",
-        "description": "Writes clear, actionable standard operating procedures",
-        "prompt": """You are an Operations Manager who writes clear, actionable SOPs.
-
-Your style:
-- Step-by-step and practical
-- No ambiguity - every step is clear
-- Actionable language (do this, then do that)
-
-Focus on:
-- WHO does WHAT, WHEN, and HOW
-- Clear ownership for each step
-- Time estimates where relevant
-- Success criteria (how to know it worked)
-
-Structure your SOPs with:
-- Purpose (one sentence on why this exists)
-- Scope (who this applies to)
-- Steps (numbered, with responsible party)
-- Success criteria
-- Common mistakes to avoid
-
-Avoid:
-- Vague language ("consider doing X")
-- Assumptions about reader knowledge
-- Jargon without explanation
-- Optional steps (either it's needed or it's not)"""
-    },
-
-    "framework": {
-        "name": "Strategy Consultant",
-        "description": "Creates decision-making frameworks and guidelines",
-        "prompt": """You are a Strategy Consultant who creates decision frameworks.
-
-Your style:
-- Principles-based, not prescriptive
-- Empowering, not controlling
-- Flexible enough to apply to multiple situations
-
-Focus on:
-- WHEN to use this framework
-- WHAT factors to consider
-- HOW to weigh trade-offs
-- Examples of application
-
-Structure your frameworks with:
-- Purpose (what decisions this helps with)
-- Guiding principles (3-5 core ideas)
-- Decision criteria (what to evaluate)
-- Example scenarios
-- When NOT to use this framework
-
-Avoid:
-- Rigid step-by-step procedures (that's an SOP)
-- Being too abstract (give concrete examples)
-- One-size-fits-all solutions
-- Ignoring context and nuance"""
-    },
-
-    "policy": {
-        "name": "Compliance Officer",
-        "description": "Writes clear, enforceable policies",
-        "prompt": """You are a Compliance Officer who writes clear policies.
-
-Your style:
-- Authoritative and unambiguous
-- Clear about what's required vs prohibited
-- Enforceable and measurable
-
-Focus on:
-- WHAT is required or prohibited
-- WHO this applies to
-- WHEN it applies
-- CONSEQUENCES of non-compliance
-
-Structure your policies with:
-- Purpose (why this policy exists)
-- Scope (who must follow this)
-- Definitions (key terms)
-- Requirements (what must/must not be done)
-- Exceptions process (how to request an exception)
-- Enforcement (what happens if violated)
-
-Avoid:
-- Vague suggestions ("employees should consider...")
-- Optional language ("it would be nice if...")
-- Unenforceable requirements
-- Missing edge cases"""
-    },
-
-    # Context-specific personas for other form fields
+    # Context-specific personas for form fields (NOT playbooks)
     "company-context": {
         "name": "Business Strategist",
         "description": "Documents company information clearly",
@@ -484,27 +393,6 @@ FORMATTING RULES (CRITICAL):
 # HELPER FUNCTIONS
 # =============================================================================
 
-def get_write_assist_persona(context: str, playbook_type: str = None) -> str:
-    """
-    Get the appropriate persona prompt for a write-assist context.
-    SYNC version - uses hardcoded fallbacks only.
-    For database-backed personas, use get_write_assist_persona_async.
-
-    Args:
-        context: The context type (e.g., 'playbook-content', 'company-context')
-        playbook_type: For playbook content, the specific type ('sop', 'framework', 'policy')
-
-    Returns:
-        The persona prompt string
-    """
-    if context == "playbook-content" and playbook_type:
-        persona = WRITE_ASSIST_PERSONAS.get(playbook_type, WRITE_ASSIST_PERSONAS["sop"])
-    else:
-        persona = WRITE_ASSIST_PERSONAS.get(context, WRITE_ASSIST_PERSONAS["generic"])
-
-    return persona["prompt"]
-
-
 # Mapping from playbook types to database persona keys
 PLAYBOOK_TYPE_TO_PERSONA = {
     "sop": "sop_writer",
@@ -513,16 +401,23 @@ PLAYBOOK_TYPE_TO_PERSONA = {
 }
 
 
+class PersonaNotFoundError(Exception):
+    """Raised when a required persona is not found in the database."""
+    pass
+
+
 async def get_write_assist_persona_async(
     context: str,
     playbook_type: str = None,
     company_id: str = None
 ) -> Dict[str, Any]:
     """
-    Get the appropriate persona for write-assist, using database personas for playbook types.
+    Get the appropriate persona for write-assist.
 
     For playbook types (sop, framework, policy), fetches the expert persona from the database.
-    For other contexts, returns the hardcoded persona from WRITE_ASSIST_PERSONAS.
+    Raises PersonaNotFoundError if the database persona is not found - NO FALLBACK.
+
+    For other contexts (company-context, project-context, etc.), returns from WRITE_ASSIST_PERSONAS.
 
     Args:
         context: The context type (e.g., 'playbook-content', 'company-context')
@@ -531,34 +426,42 @@ async def get_write_assist_persona_async(
 
     Returns:
         Dict with 'system_prompt' and 'model_preferences' keys
+
+    Raises:
+        PersonaNotFoundError: If playbook persona not found in database
     """
-    # For playbook content with a type, use database personas
+    # For playbook content with a type, use database personas ONLY
     if context == "playbook-content" and playbook_type:
         persona_key = PLAYBOOK_TYPE_TO_PERSONA.get(playbook_type.lower())
-        if persona_key:
-            db_persona = await get_db_persona(persona_key, company_id)
-            if db_persona:
-                # Get model preferences from DB persona, or fall back to registry
-                model_prefs = db_persona.get("model_preferences")
-                if not model_prefs:
-                    # Use the persona_key role from model_registry (e.g., 'sop_writer')
-                    model_prefs = await get_models(persona_key) or ["openai/gpt-4o"]
-                return {
-                    "system_prompt": db_persona.get("system_prompt", ""),
-                    "model_preferences": model_prefs
-                }
-    # Fallback to hardcoded personas
-    if context == "playbook-content" and playbook_type:
-        persona = WRITE_ASSIST_PERSONAS.get(playbook_type, WRITE_ASSIST_PERSONAS["sop"])
-    else:
-        persona = WRITE_ASSIST_PERSONAS.get(context, WRITE_ASSIST_PERSONAS["generic"])
+        if not persona_key:
+            raise PersonaNotFoundError(f"Unknown playbook type: {playbook_type}")
 
-    # Get default model from registry for non-playbook contexts
+        db_persona = await get_db_persona(persona_key, company_id)
+        if not db_persona:
+            raise PersonaNotFoundError(
+                f"Persona '{persona_key}' not found in database. "
+                f"Please ensure the ai_personas table is populated."
+            )
+
+        # Get model preferences from DB persona, or fall back to registry
+        model_prefs = db_persona.get("model_preferences")
+        if not model_prefs:
+            model_prefs = await get_models(persona_key) or ["openai/gpt-4o"]
+
+        return {
+            "system_prompt": db_persona.get("system_prompt", ""),
+            "model_preferences": model_prefs,
+            "persona_name": db_persona.get("name", persona_key)
+        }
+
+    # For non-playbook contexts, use WRITE_ASSIST_PERSONAS
+    persona = WRITE_ASSIST_PERSONAS.get(context, WRITE_ASSIST_PERSONAS["generic"])
     default_models = await get_models('ai_write_assist') or ["openai/gpt-4o-mini"]
 
     return {
         "system_prompt": persona["prompt"],
-        "model_preferences": default_models
+        "model_preferences": default_models,
+        "persona_name": persona["name"]
     }
 
 

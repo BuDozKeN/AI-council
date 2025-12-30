@@ -10,7 +10,7 @@
  * Extracted from MyCompany.jsx for better maintainability.
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useCallback, useEffect, useRef } from 'react';
 import { BookOpen, Plus } from 'lucide-react';
 import { Button } from '../../ui/button';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
@@ -87,6 +87,86 @@ export function PlaybooksTab({
   onArchivePlaybook,
   onDeletePlaybook
 }: PlaybooksTabProps) {
+  // Track which playbook row is "active" for mobile long-press actions
+  const [mobileActiveId, setMobileActiveId] = useState<string | null>(null);
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressTriggeredRef = useRef(false);
+
+  // Inline confirmation state: { id: string, action: 'archive' | 'delete' } | null
+  const [confirmingAction, setConfirmingAction] = useState<{ id: string; action: 'archive' | 'delete' } | null>(null);
+
+  // Track which items are being removed (for fade-out animation)
+  const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
+
+  const LONG_PRESS_DURATION = 500; // ms - standard mobile long-press duration
+  const FADE_OUT_DURATION = 200; // ms - animation duration
+
+  // Start long-press timer on touch/mouse down
+  const handlePressStart = useCallback((doc: ExtendedPlaybook) => {
+    longPressTriggeredRef.current = false;
+    longPressTimerRef.current = setTimeout(() => {
+      longPressTriggeredRef.current = true;
+      setMobileActiveId(doc.id);
+    }, LONG_PRESS_DURATION);
+  }, []);
+
+  // Cancel long-press on touch/mouse up or move
+  const handlePressEnd = useCallback(() => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  }, []);
+
+  // Handle click - only open detail if long-press wasn't triggered
+  const handleRowClick = useCallback((doc: ExtendedPlaybook, e: React.MouseEvent) => {
+    // If long-press was triggered, don't open detail
+    if (longPressTriggeredRef.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      longPressTriggeredRef.current = false;
+      return;
+    }
+
+    // If actions are visible (from long-press), clicking row closes them
+    if (mobileActiveId === doc.id) {
+      setMobileActiveId(null);
+      return;
+    }
+
+    // Normal click: open detail view
+    onViewPlaybook && onViewPlaybook(doc);
+  }, [mobileActiveId, onViewPlaybook]);
+
+  // Clear mobile active state when clicking outside
+  useEffect(() => {
+    if (!mobileActiveId) return;
+
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as HTMLElement;
+      // If click is outside any playbook row, clear active state
+      if (!target.closest('.mc-elegant-row')) {
+        setMobileActiveId(null);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    document.addEventListener('touchend', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('touchend', handleClickOutside);
+    };
+  }, [mobileActiveId]);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current);
+      }
+    };
+  }, []);
+
   // Memoize stats to prevent recalculation on every render
   const stats = useMemo(() => ({
     sops: playbooks.filter(p => p.doc_type === 'sop').length,
@@ -272,11 +352,19 @@ export function PlaybooksTab({
 
                     const typeLabel = TYPE_SHORT_LABELS[doc.doc_type] || doc.doc_type;
 
+                    const isRemoving = removingIds.has(doc.id);
+
                     return (
                       <div
                         key={doc.id}
-                        className="mc-elegant-row"
-                        onClick={() => onViewPlaybook && onViewPlaybook(doc)}
+                        className={`mc-elegant-row ${mobileActiveId === doc.id ? 'mobile-active' : ''} ${isRemoving ? 'removing' : ''}`}
+                        onClick={(e) => handleRowClick(doc, e)}
+                        onTouchStart={() => handlePressStart(doc)}
+                        onTouchEnd={handlePressEnd}
+                        onTouchMove={handlePressEnd}
+                        onMouseDown={() => handlePressStart(doc)}
+                        onMouseUp={handlePressEnd}
+                        onMouseLeave={handlePressEnd}
                       >
                         {/* Type indicator dot */}
                         <div className={`mc-type-dot ${doc.doc_type}`} />
@@ -315,22 +403,60 @@ export function PlaybooksTab({
                           </div>
                         </div>
 
-                        {/* Actions on hover - Archive and Delete */}
-                        <div className="mc-elegant-actions">
-                          <button
-                            className="mc-text-btn archive"
-                            onClick={(e) => { e.stopPropagation(); onArchivePlaybook && onArchivePlaybook(doc); }}
-                            title="Archive playbook"
-                          >
-                            Archive
-                          </button>
-                          <button
-                            className="mc-text-btn delete"
-                            onClick={(e) => { e.stopPropagation(); onDeletePlaybook && onDeletePlaybook(doc); }}
-                            title="Delete playbook"
-                          >
-                            Delete
-                          </button>
+                        {/* Right side: Actions (appear on hover on desktop, tap-to-reveal on mobile) */}
+                        <div className="mc-elegant-right">
+                          <div className="mc-elegant-actions">
+                            {confirmingAction?.id === doc.id ? (
+                              // Inline confirmation: "Sure? No / Yes"
+                              <>
+                                <span className="mc-confirm-label">Sure?</span>
+                                <button
+                                  className="mc-text-btn no"
+                                  onClick={(e) => { e.stopPropagation(); setConfirmingAction(null); }}
+                                >
+                                  No
+                                </button>
+                                <button
+                                  className="mc-text-btn yes"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setMobileActiveId(null);
+                                    setConfirmingAction(null);
+                                    // Start fade-out animation
+                                    setRemovingIds(prev => new Set(prev).add(doc.id));
+                                    // After animation completes, call the handler
+                                    setTimeout(() => {
+                                      if (confirmingAction.action === 'archive') {
+                                        onArchivePlaybook && onArchivePlaybook(doc);
+                                      } else {
+                                        onDeletePlaybook && onDeletePlaybook(doc);
+                                      }
+                                    }, FADE_OUT_DURATION);
+                                  }}
+                                >
+                                  Yes
+                                </button>
+                              </>
+                            ) : (
+                              // Normal actions
+                              <>
+                                <button
+                                  className="mc-text-btn archive"
+                                  onClick={(e) => { e.stopPropagation(); setConfirmingAction({ id: doc.id, action: 'archive' }); }}
+                                  title="Archive playbook"
+                                >
+                                  Archive
+                                </button>
+                                <button
+                                  className="mc-text-btn delete"
+                                  onClick={(e) => { e.stopPropagation(); setConfirmingAction({ id: doc.id, action: 'delete' }); }}
+                                  title="Delete playbook"
+                                >
+                                  Delete
+                                </button>
+                              </>
+                            )}
+                          </div>
                         </div>
                       </div>
                     );

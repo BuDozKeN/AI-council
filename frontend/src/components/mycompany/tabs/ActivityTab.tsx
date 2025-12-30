@@ -25,29 +25,30 @@ const PROMOTED_TYPE_LABELS: Record<string, string> = {
   project: 'PROJECT'
 };
 
+// Color mappings use CSS custom properties for dark mode support
 const PROMOTED_TYPE_COLORS: Record<string, { bg: string; text: string }> = {
-  sop: { bg: '#eef2ff', text: '#4338ca' },
-  framework: { bg: '#dbeafe', text: '#2563eb' },
-  policy: { bg: '#ede9fe', text: '#7c3aed' },
-  project: { bg: '#d1fae5', text: '#059669' }
+  sop: { bg: 'var(--color-indigo-50)', text: 'var(--color-indigo-700)' },
+  framework: { bg: 'var(--color-blue-100)', text: 'var(--color-blue-600)' },
+  policy: { bg: 'var(--color-violet-100)', text: 'var(--color-violet-600)' },
+  project: { bg: 'var(--color-emerald-100)', text: 'var(--color-emerald-600)' }
 };
 
 const EVENT_COLORS: Record<string, string> = {
-  decision: '#22c55e',
-  playbook: '#3b82f6',
-  project: '#14b8a6',
-  role: '#8b5cf6',
-  department: '#6366f1',
-  default: '#64748b'
+  decision: 'var(--color-green-500)',
+  playbook: 'var(--color-blue-500)',
+  project: 'var(--color-teal-500)',
+  role: 'var(--color-violet-500)',
+  department: 'var(--color-indigo-500)',
+  default: 'var(--color-slate-500)'
 };
 
 const ACTION_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  deleted: { bg: '#fef2f2', text: '#dc2626', border: '#fecaca' },
-  promoted: { bg: '#ecfdf5', text: '#059669', border: '#a7f3d0' },
-  saved: { bg: '#eff6ff', text: '#2563eb', border: '#bfdbfe' },
-  created: { bg: '#ecfdf5', text: '#059669', border: '#a7f3d0' },
-  updated: { bg: '#fefce8', text: '#ca8a04', border: '#fef08a' },
-  archived: { bg: '#f5f5f4', text: '#78716c', border: '#d6d3d1' }
+  deleted: { bg: 'var(--color-red-50)', text: 'var(--color-red-600)', border: 'var(--color-red-200)' },
+  promoted: { bg: 'var(--color-emerald-50)', text: 'var(--color-emerald-600)', border: 'var(--color-emerald-200)' },
+  saved: { bg: 'var(--color-blue-50)', text: 'var(--color-blue-600)', border: 'var(--color-blue-200)' },
+  created: { bg: 'var(--color-emerald-50)', text: 'var(--color-emerald-600)', border: 'var(--color-emerald-200)' },
+  updated: { bg: 'var(--color-yellow-50)', text: 'var(--color-yellow-600)', border: 'var(--color-yellow-200)' },
+  archived: { bg: 'var(--color-stone-100)', text: 'var(--color-stone-500)', border: 'var(--color-stone-300)' }
 };
 
 interface ActivityLog {
@@ -161,8 +162,8 @@ export function ActivityTab({
                           <span
                             className="mc-elegant-badge activity-type"
                             style={{
-                              background: PROMOTED_TYPE_COLORS[log.promoted_to_type]?.bg || '#f1f5f9',
-                              color: PROMOTED_TYPE_COLORS[log.promoted_to_type]?.text || '#64748b'
+                              background: PROMOTED_TYPE_COLORS[log.promoted_to_type]?.bg || 'var(--color-slate-100)',
+                              color: PROMOTED_TYPE_COLORS[log.promoted_to_type]?.text || 'var(--color-slate-500)'
                             }}
                           >
                             {PROMOTED_TYPE_LABELS[log.promoted_to_type]}

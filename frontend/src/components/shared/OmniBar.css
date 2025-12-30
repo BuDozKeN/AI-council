@@ -30,7 +30,7 @@
   padding: 8px 16px;
   border: none;
   background: transparent;
-  color: var(--color-text-secondary, #64748b);
+  color: var(--color-text-secondary);
   font-size: 13px;
   font-weight: 500;
   border-radius: var(--radius-default);
@@ -39,7 +39,7 @@
 }
 
 .omni-mode-btn:hover {
-  color: var(--color-text-primary, #1e293b);
+  color: var(--color-text-primary);
   background: var(--overlay-black-5);
 }
 
@@ -127,7 +127,7 @@
   padding: 8px;
   border: none;
   background: transparent;
-  color: var(--color-text-secondary, #64748b);
+  color: var(--color-text-secondary);
   border-radius: var(--radius-default);
   cursor: pointer;
   transition: all 0.15s ease;
@@ -135,8 +135,8 @@
 }
 
 .omni-attach-btn:hover:not(:disabled) {
-  background: var(--color-slate-100, #f1f5f9);
-  color: var(--color-text-primary, #1e293b);
+  background: var(--color-slate-100);
+  color: var(--color-text-primary);
 }
 
 .omni-attach-btn:disabled {
@@ -151,7 +151,7 @@
   background: transparent;
   font-size: 15px;
   font-family: inherit;
-  color: var(--color-text-primary, #1e293b);
+  color: var(--color-text-primary);
   line-height: 1.5;
   resize: none;
   outline: none;
@@ -159,7 +159,7 @@
 }
 
 .omni-bar-input::placeholder {
-  color: var(--color-text-muted, #94a3b8);
+  color: var(--color-text-muted);
 }
 
 .omni-bar-input:disabled {
@@ -172,12 +172,12 @@
   align-items: center;
   justify-content: center;
   padding: 4px 8px;
-  background: var(--color-slate-100, #f1f5f9);
-  border: 1px solid var(--color-slate-200, #e2e8f0);
+  background: var(--color-slate-100);
+  border: 1px solid var(--color-slate-200);
   border-radius: var(--radius-md);
   font-size: 11px;
   font-family: var(--font-mono);
-  color: var(--color-text-secondary, #64748b);
+  color: var(--color-text-secondary);
   flex-shrink: 0;
 }
 
@@ -281,7 +281,7 @@
 
 .dark .omni-bar:focus-within {
   background: var(--glass-bg-focus, rgb(30, 41, 59, 0.95));
-  border-color: var(--color-brand-primary, #60a5fa);
+  border-color: var(--color-brand-primary);
   box-shadow:
     0 4px 24px var(--overlay-blue-20),
     0 2px 8px var(--overlay-black-30),
@@ -306,44 +306,44 @@
 }
 
 .dark .omni-bar-input {
-  color: var(--color-text-primary, #f1f5f9);
+  color: var(--color-text-primary);
 }
 
 .dark .omni-bar-input::placeholder {
-  color: var(--color-text-tertiary, #64748b);
+  color: var(--color-text-tertiary);
 }
 
 .dark .omni-attach-btn {
-  color: var(--color-text-secondary, #94a3b8);
+  color: var(--color-text-secondary);
 }
 
 .dark .omni-attach-btn:hover:not(:disabled) {
-  background: var(--color-bg-hover, #334155);
-  color: var(--color-text-primary, #f1f5f9);
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
 }
 
 .dark .omni-bar-kbd {
-  background: var(--color-bg-tertiary, #334155);
-  border-color: var(--color-border, #334155);
-  color: var(--color-text-secondary, #94a3b8);
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
 }
 
 .dark .omni-mode-toggle {
-  background: rgb(30, 41, 59, 0.8);
-  border-color: var(--color-border, #334155);
+  background: rgb(var(--color-slate-800-rgb), 0.8);
+  border-color: var(--color-border);
 }
 
 .dark .omni-mode-btn {
-  color: var(--color-text-secondary, #94a3b8);
+  color: var(--color-text-secondary);
 }
 
 .dark .omni-mode-btn:hover {
-  color: var(--color-text-primary, #f1f5f9);
+  color: var(--color-text-primary);
   background: var(--overlay-white-5);
 }
 
 .dark .omni-mode-btn.active {
-  background: var(--color-bg-tertiary, #334155);
-  color: var(--color-brand-primary, #60a5fa);
+  background: var(--color-bg-tertiary);
+  color: var(--color-brand-primary);
   box-shadow: var(--shadow-xs);
 }

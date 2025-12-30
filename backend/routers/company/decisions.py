@@ -586,6 +586,7 @@ async def create_project_from_decision(company_id: str, decision_id: str, data: 
     try:
         from ...personas import get_db_persona_with_fallback
         from ...openrouter import query_model, MOCK_LLM
+        from .utils import save_internal_llm_usage
         import json as json_module
 
         if not MOCK_LLM and decision_content:
@@ -624,6 +625,19 @@ Use sections: ## Objective, ## Key Insights, ## Deliverables, ## Success Criteri
                     result = await query_model(model=model, messages=messages)
 
                     if result and result.get('content'):
+                        # Track usage
+                        if company_uuid and result.get('usage'):
+                            try:
+                                await save_internal_llm_usage(
+                                    company_id=company_uuid,
+                                    operation_type='project_from_decision',
+                                    model=model,
+                                    usage=result['usage'],
+                                    related_id=decision_id
+                                )
+                            except Exception:
+                                pass  # Don't fail if tracking fails
+
                         content = result['content']
                         if content.startswith('```'):
                             content = content.split('```')[1]

@@ -43,10 +43,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-bg-primary, #fff);
-  border: 1px solid var(--color-slate-200, #e2e8f0);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
   border-radius: var(--radius-md);
-  color: var(--color-slate-500, #64748b);
+  color: var(--color-slate-500);
   cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
@@ -56,7 +56,7 @@
 
 .scrollable-copy-btn:hover {
   opacity: 1;
-  color: var(--color-slate-700, #334155);
+  color: var(--color-slate-700);
   box-shadow: var(--shadow-md);
 }
 
@@ -70,9 +70,9 @@
 }
 
 .scrollable-copy-btn.copied {
-  color: var(--color-green-600, #16a34a);
-  border-color: var(--color-green-200, #bbf7d0);
-  background: var(--color-green-50, #f0fdf4);
+  color: var(--color-green-600);
+  border-color: var(--color-green-200);
+  background: var(--color-green-50);
 }
 
 /* ===========================================
@@ -88,10 +88,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-bg-primary, #fff);
-  border: 1px solid var(--color-slate-200, #e2e8f0);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
   border-radius: 50%;
-  color: var(--color-slate-500, #64748b);
+  color: var(--color-slate-500);
   cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
@@ -101,7 +101,7 @@
 
 .scrollable-scroll-top-btn:hover {
   opacity: 1;
-  color: var(--color-slate-700, #334155);
+  color: var(--color-slate-700);
   box-shadow: var(--shadow-md);
 }
 

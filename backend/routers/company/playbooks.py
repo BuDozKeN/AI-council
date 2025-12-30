@@ -206,18 +206,29 @@ async def get_playbook(company_id: ValidCompanyId, playbook_id: str, user=Depend
 @router.post("/{company_id}/playbooks")
 async def create_playbook(company_id: ValidCompanyId, data: PlaybookCreate, user=Depends(get_current_user)):
     """Create a new playbook with initial version."""
+    import re
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
 
     if data.doc_type not in ['sop', 'framework', 'policy']:
         raise HTTPException(status_code=400, detail="doc_type must be 'sop', 'framework', or 'policy'")
 
+    # Auto-generate slug from title if not provided
+    slug = data.slug
+    if not slug:
+        # Convert title to slug: lowercase, replace spaces with hyphens, remove special chars
+        slug = data.title.lower().strip()
+        slug = re.sub(r'[^\w\s-]', '', slug)  # Remove special characters except hyphens
+        slug = re.sub(r'[\s_]+', '-', slug)   # Replace spaces/underscores with hyphens
+        slug = re.sub(r'-+', '-', slug)       # Collapse multiple hyphens
+        slug = slug.strip('-')                # Remove leading/trailing hyphens
+
     doc_result = client.table("org_documents").insert({
         "company_id": company_uuid,
         "department_id": data.department_id,
         "doc_type": data.doc_type,
         "title": data.title,
-        "slug": data.slug,
+        "slug": slug,
         "summary": data.summary,
         "auto_inject": data.auto_inject,
         "tags": data.tags

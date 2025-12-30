@@ -46,7 +46,7 @@
 .council-loader__text {
   margin: 0;
   font-size: 14px;
-  color: var(--text-secondary, #6b7280);
+  color: var(--text-secondary);
   text-align: center;
   animation: council-text-fade 1.5s ease-in-out infinite;
 }

@@ -1,0 +1,119 @@
+/**
+ * ThemeToggle Styles
+ * Subtle fixed top-right dropdown for theme switching
+ */
+
+/* Container - fixed position top-right */
+.theme-toggle-container {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: var(--z-fixed, 100);
+}
+
+/* The trigger button - very subtle */
+.theme-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-primary);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  opacity: 0.6;
+}
+
+.theme-toggle-btn:hover {
+  opacity: 1;
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-primary);
+}
+
+.theme-toggle-btn:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+.theme-toggle-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* Dropdown menu */
+.theme-toggle-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 140px;
+  padding: 6px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  animation: themeDropdownIn 0.15s ease-out;
+}
+
+@keyframes themeDropdownIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Dropdown option */
+.theme-toggle-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  text-align: left;
+}
+
+.theme-toggle-option:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+.theme-toggle-option.active {
+  background: var(--color-brand-primary-light);
+  color: var(--color-brand-primary);
+}
+
+.theme-toggle-check {
+  margin-left: auto;
+  color: var(--color-brand-primary);
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .theme-toggle-container {
+    top: 12px;
+    right: 12px;
+  }
+
+  .theme-toggle-btn {
+    width: 36px;
+    height: 36px;
+  }
+}

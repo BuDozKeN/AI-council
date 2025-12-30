@@ -41,10 +41,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-bg-primary, #fff);
-  border: 1px solid var(--color-slate-200, #e2e8f0);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
   border-radius: 50%;
-  color: var(--color-slate-500, #64748b);
+  color: var(--color-slate-500);
   cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
@@ -55,7 +55,7 @@
 
 .mc-modal-scroll-top:hover {
   opacity: 1;
-  color: var(--color-slate-700, #334155);
+  color: var(--color-slate-700);
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
 }
@@ -352,12 +352,6 @@
   .mc-edit-preview .mc-context-content {
     max-height: 200px;
   }
-}
-
-.mc-editor-hint {
-  font-size: 12px;
-  color: var(--color-text-tertiary);
-  font-style: italic;
 }
 
 /* ============================================================================
@@ -1359,6 +1353,14 @@
   border-bottom: 1px solid var(--color-border);
 }
 
+/* Department badges container in view mode */
+.mc-dept-badges-view {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 /* Inline department editing */
 .mc-dept-edit-inline {
   display: flex;
@@ -1512,11 +1514,6 @@
 [data-theme="dark"] .mc-edit-preview .mc-context-content {
   background: var(--color-bg-tertiary);
   border-color: var(--color-border);
-}
-
-.dark .mc-editor-hint,
-[data-theme="dark"] .mc-editor-hint {
-  color: var(--color-text-tertiary);
 }
 
 /* Department/Role modals */
@@ -2041,4 +2038,140 @@
 .dark .mc-dept-label,
 [data-theme="dark"] .mc-dept-label {
   color: var(--color-text-tertiary);
+}
+
+/* ============================================================================
+   DEPARTMENT CHIPS - MINI SELECTION BUTTONS
+   ============================================================================ */
+
+/* Mini department chip for inline editing */
+.mc-dept-chip-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-tertiary);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-dept-chip-mini:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-secondary);
+}
+
+.mc-dept-chip-mini.selected {
+  border-style: solid;
+  cursor: pointer;
+}
+
+.mc-dept-chip-mini:disabled {
+  cursor: default;
+  opacity: 0.9;
+}
+
+/* Dark mode */
+.dark .mc-dept-chip-mini,
+[data-theme="dark"] .mc-dept-chip-mini {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-dept-chip-mini:hover:not(:disabled),
+[data-theme="dark"] .mc-dept-chip-mini:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-secondary);
+}
+
+/* ============================================================================
+   DEPARTMENT BADGES - CLICKABLE EDIT
+   ============================================================================ */
+
+/* Clickable container for department badges */
+.mc-dept-badges-clickable {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 4px 8px;
+  margin: -4px -8px;
+  border-radius: var(--radius-default);
+  transition: background 0.15s ease;
+}
+
+.mc-dept-badges-clickable[style*="pointer"]:hover {
+  background: var(--color-bg-hover);
+}
+
+/* Small pencil icon for department editing hint */
+.mc-pencil-icon-small {
+  width: 14px;
+  height: 14px;
+  color: var(--color-text-tertiary);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  flex-shrink: 0;
+}
+
+.mc-dept-badges-clickable:hover .mc-pencil-icon-small {
+  opacity: 1;
+}
+
+/* Done button for department editing */
+.mc-dept-done-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: var(--color-green-100);
+  border: 1px solid var(--color-green-300);
+  border-radius: var(--radius-sm);
+  color: var(--color-green-700);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-left: 4px;
+}
+
+.mc-dept-done-btn:hover {
+  background: var(--color-green-200);
+  border-color: var(--color-green-400);
+}
+
+.mc-dept-done-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Dark mode */
+.dark .mc-dept-badges-clickable[style*="pointer"]:hover,
+[data-theme="dark"] .mc-dept-badges-clickable[style*="pointer"]:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .mc-pencil-icon-small,
+[data-theme="dark"] .mc-pencil-icon-small {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-dept-done-btn,
+[data-theme="dark"] .mc-dept-done-btn {
+  background: var(--overlay-green-15);
+  border-color: var(--overlay-green-30, rgb(var(--color-green-500-rgb), 0.3));
+  color: var(--color-green-400);
+}
+
+.dark .mc-dept-done-btn:hover,
+[data-theme="dark"] .mc-dept-done-btn:hover {
+  background: var(--overlay-green-20);
+  border-color: var(--overlay-green-40, rgb(var(--color-green-500-rgb), 0.4));
 }

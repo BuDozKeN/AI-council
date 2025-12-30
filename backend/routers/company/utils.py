@@ -1071,7 +1071,7 @@ class RoleUpdate(BaseModel):
 class PlaybookCreate(BaseModel):
     """Create a new playbook (SOP/framework/policy)."""
     title: str
-    slug: str
+    slug: Optional[str] = None  # Auto-generated from title if not provided
     doc_type: str
     content: str
     summary: Optional[str] = None

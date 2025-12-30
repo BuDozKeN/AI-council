@@ -489,10 +489,17 @@ async def query_model(
         "model": model,
         "messages": cached_messages,
         "max_tokens": 4096,  # Explicit limit to prevent truncation (especially for DeepSeek)
-        # Exclude reasoning/thinking tokens from response - users should only see final answer
-        # This affects reasoning models like o1, o3, GPT-5.1, and Gemini thinking models
-        "reasoning": {"exclude": True},
     }
+
+    # Only add reasoning parameter for models that support it
+    # Gemini 3 Pro has mandatory thinking that cannot be excluded - skip it
+    # Gemini 2.5 models use thinkingBudget instead of reasoning parameter
+    is_gemini_3 = "gemini-3" in model.lower()
+    is_gemini_2_5 = "gemini-2.5" in model.lower()
+    if not is_gemini_3 and not is_gemini_2_5:
+        # Exclude reasoning/thinking tokens from response - users should only see final answer
+        # This affects reasoning models like o1, o3, GPT-5.1
+        payload["reasoning"] = {"exclude": True}
 
     try:
         # Use shared HTTP client for connection pooling (same as streaming)
@@ -594,10 +601,17 @@ async def query_model_stream(
         "messages": cached_messages,
         "stream": True,
         "max_tokens": 16384,  # Higher limit to prevent truncation
-        # Exclude reasoning/thinking tokens from response - users should only see final answer
-        # This affects reasoning models like o1, o3, GPT-5.1, and Gemini thinking models
-        "reasoning": {"exclude": True},
     }
+
+    # Only add reasoning parameter for models that support it
+    # Gemini 3 Pro has mandatory thinking that cannot be excluded - skip it
+    # Gemini 2.5 models use thinkingBudget instead of reasoning parameter
+    is_gemini_3 = "gemini-3" in model.lower()
+    is_gemini_2_5 = "gemini-2.5" in model.lower()
+    if not is_gemini_3 and not is_gemini_2_5:
+        # Exclude reasoning/thinking tokens from response - users should only see final answer
+        # This affects reasoning models like o1, o3, GPT-5.1
+        payload["reasoning"] = {"exclude": True}
 
     retries = 0
     should_retry = False

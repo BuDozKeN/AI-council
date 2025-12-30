@@ -84,7 +84,7 @@ SelectScrollDownButton.displayName = SelectPrimitive.ScrollDownButton.displayNam
 const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
->(({ className, children, position = "popper", onPointerDownOutside, onEscapeKeyDown, onInteractOutside, ...props }, ref) => {
+>(({ className, children, position = "popper", onPointerDownOutside, ...props }, ref) => {
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
@@ -101,12 +101,6 @@ const SelectContent = React.forwardRef<
           (window as Window & { __radixSelectJustDismissed?: number }).__radixSelectJustDismissed = Date.now();
 
           onPointerDownOutside?.(e);
-        }}
-        onInteractOutside={(e) => {
-          // Also mark for touch/interact events (mobile)
-          (window as Window & { __radixSelectJustDismissed?: number }).__radixSelectJustDismissed = Date.now();
-
-          onInteractOutside?.(e);
         }}
         {...props}
       >

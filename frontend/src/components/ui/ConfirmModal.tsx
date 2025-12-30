@@ -2,7 +2,6 @@ import * as React from "react"
 import { AppModal } from "./AppModal"
 import { Button } from "./button"
 import { Spinner } from "./Spinner"
-import { AlertTriangle, Trash2, Info, AlertCircle } from "lucide-react"
 import "./ConfirmModal.css"
 
 type ConfirmModalVariant = 'danger' | 'warning' | 'info' | 'error';
@@ -46,7 +45,6 @@ interface ConfirmModalProps {
  */
 function ConfirmModal({
   title,
-  message,
   variant = 'warning',
   confirmText = 'Confirm',
   cancelText = 'Cancel',
@@ -56,12 +54,6 @@ function ConfirmModal({
   processing = false, // Alias for isLoading (backwards compat)
 }: ConfirmModalProps) {
   const loading = isLoading || processing;
-  const iconMap: Record<ConfirmModalVariant, React.ReactNode> = {
-    danger: <Trash2 size={24} />,
-    warning: <AlertTriangle size={24} />,
-    info: <Info size={24} />,
-    error: <AlertCircle size={24} />
-  }
 
   const handleConfirm = async () => {
     if (onConfirm) {
@@ -75,16 +67,9 @@ function ConfirmModal({
       isOpen={true}
       size="sm"
       closeOnOverlayClick={!loading}
+      title={title}
       {...(onCancel !== undefined && { onClose: onCancel })}
-      {...(title !== undefined && { title })}
     >
-      <div className="confirm-modal-content">
-        <div className={`confirm-modal-icon confirm-modal-icon-${variant}`}>
-          {iconMap[variant] || iconMap.warning}
-        </div>
-        {title && <h3 className="confirm-modal-title">{title}</h3>}
-        <p className="confirm-modal-message">{message}</p>
-      </div>
       <AppModal.Footer>
         <Button
           type="button"

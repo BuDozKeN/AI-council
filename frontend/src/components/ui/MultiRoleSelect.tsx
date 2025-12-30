@@ -151,14 +151,6 @@ export function MultiRoleSelect({
           className="multi-role-content"
           align="start"
           sideOffset={4}
-          style={{
-            borderRadius: '12px',
-            border: '1px solid #e5e7eb',
-            background: 'white',
-            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-            overflow: 'hidden',
-            zIndex: 9999,
-          }}
         >
           {roleList(false)}
         </Popover.Content>

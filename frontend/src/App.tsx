@@ -11,6 +11,7 @@ import type { Project } from './types/business';
 import type { MyCompanyTab } from './components/mycompany/hooks';
 import { Toaster, toast } from './components/ui/sonner';
 import { MockModeBanner } from './components/ui/MockModeBanner';
+import { ThemeToggle } from './components/ui/ThemeToggle';
 import { logger } from './utils/logger';
 import type { Conversation, Message } from './types/conversation';
 import type { UsageData } from './components/ui/TokenUsageDisplay';
@@ -1189,6 +1190,9 @@ function App() {
     >
       {/* Mock mode banner - shown when mock mode is enabled */}
       {mockModeEnabled && <MockModeBanner />}
+
+      {/* Theme toggle - subtle top-right dropdown */}
+      <ThemeToggle />
 
       {/* Skip to main content link for accessibility */}
       <a href="#main-content" className="sr-only focus:not-sr-only">

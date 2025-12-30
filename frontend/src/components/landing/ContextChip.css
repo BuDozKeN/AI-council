@@ -193,9 +193,9 @@
 
 /* Role chip colors */
 .context-desktop-chip.role.selected {
-  --chip-bg: var(--color-indigo-50, #eef2ff);
-  --chip-border: var(--color-indigo-400, #818cf8);
-  --chip-text: var(--color-indigo-600, #4f46e5);
+  --chip-bg: var(--color-indigo-50);
+  --chip-border: var(--color-indigo-400);
+  --chip-text: var(--color-indigo-600);
 }
 
 /* Playbook chips by type */
@@ -914,9 +914,9 @@
 }
 
 .context-strip-chip.company.selected {
-  --chip-bg: var(--color-brand-primary-light, #e0f2fe);
-  --chip-border: var(--color-brand-primary, #0ea5e9);
-  --chip-text: var(--color-brand-primary-hover, #0284c7);
+  --chip-bg: var(--color-brand-primary-light);
+  --chip-border: var(--color-brand-primary);
+  --chip-text: var(--color-brand-primary-hover);
 }
 
 /* Role chip colors */
@@ -927,9 +927,9 @@
 }
 
 .context-strip-chip.role.selected {
-  --chip-bg: var(--color-indigo-50, #eef2ff);
-  --chip-border: var(--color-indigo-400, #818cf8);
-  --chip-text: var(--color-indigo-600, #4f46e5);
+  --chip-bg: var(--color-indigo-50);
+  --chip-border: var(--color-indigo-400);
+  --chip-text: var(--color-indigo-600);
 }
 
 /* Project chip colors */
@@ -940,9 +940,9 @@
 }
 
 .context-strip-chip.project.selected {
-  --chip-bg: var(--color-amber-50, #fffbeb);
-  --chip-border: var(--color-amber-400, #fbbf24);
-  --chip-text: var(--color-amber-600, #d97706);
+  --chip-bg: var(--color-amber-50);
+  --chip-border: var(--color-amber-400);
+  --chip-text: var(--color-amber-600);
 }
 
 /* Playbook chip colors - by type */

@@ -7,6 +7,12 @@
  * - Import this file FIRST in your CSS chain
  * - Always use CSS variables, never hardcode values
  * - Use semantic tokens (--color-text-primary) not scale tokens (--gray-700)
+ *
+ * TOKEN OWNERSHIP:
+ * - This file (design-tokens.css): Spacing, typography, shadows, radius, animations
+ * - tailwind.css: Z-index scale (higher values for modals), color palettes, overlays
+ *
+ * NEVER hardcode hex colors, rgba(), or pixel values in components.
  */
 
 :root {
@@ -149,19 +155,7 @@
   --noise-opacity-medium: 0.025;
   --noise-opacity-strong: 0.04;
 
-  /* ============================================================================
-     Z-INDEX SCALE (Predictable stacking)
-     ============================================================================ */
-  --z-base: 0;
-  --z-above: 1;
-  --z-sticky: 10;
-  --z-header: 20;
-  --z-dropdown: 50;
-  --z-overlay: 100;
-  --z-modal: 200;
-  --z-popover: 300;
-  --z-tooltip: 400;
-  --z-toast: 500;
+  /* Z-INDEX SCALE: Defined in tailwind.css (canonical source) */
 
   /* ============================================================================
      LIGHT THEME COLORS (Default - Notion/Figma inspired)
@@ -226,27 +220,7 @@
   --color-focus: #6366f1;
   --color-focus-rgb: 99, 102, 241;    /* For rgba() usage */
 
-  /* --- Notion-style tag/badge colors --- */
-  --color-tag-gray: #e3e2e0;
-  --color-tag-brown: #eee0da;
-  --color-tag-orange: #fadec9;
-  --color-tag-yellow: #fdecc8;
-  --color-tag-green: #dbeddb;
-  --color-tag-blue: #d3e5ef;
-  --color-tag-purple: #e8deee;
-  --color-tag-pink: #f5e0e9;
-  --color-tag-red: #ffe2dd;
-
-  /* --- Department colors (semantic) --- */
-  --color-dept-engineering: #2383e2;
-  --color-dept-design: #9065b0;
-  --color-dept-product: #0f7b6c;
-  --color-dept-marketing: #cb912f;
-  --color-dept-sales: #6940a5;
-  --color-dept-hr: #d44c8a;
-  --color-dept-finance: #337ea9;
-  --color-dept-legal: #787774;
-  --color-dept-operations: #eb5757;
+  /* Tag & Department colors: Defined in tailwind.css (canonical source) */
 
   /* ============================================================================
      ANIMATION & TRANSITIONS - Spring-like Premium Motion
@@ -372,107 +346,7 @@
   --sidebar-border: var(--color-border-default);
 }
 
-/* ============================================================================
-   UTILITY CLASSES
-   ============================================================================ */
-
-/* Text utilities */
-.text-default { color: var(--color-text-default); }
-.text-muted { color: var(--color-text-muted); }
-.text-subtle { color: var(--color-text-subtle); }
-
-/* Background utilities */
-.bg-base { background-color: var(--color-bg-base); }
-.bg-subtle { background-color: var(--color-bg-subtle); }
-.bg-muted { background-color: var(--color-bg-muted); }
-
-/* Border utilities */
-.border-default { border-color: var(--color-border-default); }
-.border-muted { border-color: var(--color-border-muted); }
-
-/* Radius utilities */
-.rounded-xs { border-radius: var(--radius-xs); }
-.rounded-sm { border-radius: var(--radius-sm); }
-.rounded { border-radius: var(--radius-default); }
-.rounded-md { border-radius: var(--radius-md); }
-.rounded-lg { border-radius: var(--radius-lg); }
-.rounded-xl { border-radius: var(--radius-xl); }
-.rounded-2xl { border-radius: var(--radius-2xl); }
-.rounded-3xl { border-radius: var(--radius-3xl); }
-.rounded-full { border-radius: var(--radius-full); }
-
-/* Shadow utilities */
-.shadow-sm { box-shadow: var(--shadow-sm); }
-.shadow-md { box-shadow: var(--shadow-md); }
-.shadow-lg { box-shadow: var(--shadow-lg); }
-
-/* Transition utilities - Spring-like premium motion */
-.transition-colors {
-  transition: background-color var(--duration-fast) var(--ease-snappy),
-              border-color var(--duration-fast) var(--ease-snappy),
-              color var(--duration-fast) var(--ease-snappy);
-}
-
-.transition-all {
-  transition: all var(--duration-normal) var(--ease-snappy);
-}
-
-.transition-transform {
-  transition: transform var(--duration-fast) var(--ease-spring);
-}
-
-.transition-spring {
-  transition: all var(--duration-normal) var(--ease-spring);
-}
-
-/* Interactive hover/press states - apply spring-like transform */
-.hover-lift {
-  transition: transform var(--duration-fast) var(--ease-spring),
-              box-shadow var(--duration-fast) var(--ease-snappy);
-}
-
-.hover-lift:hover {
-  transform: translateY(-2px);
-}
-
-.hover-lift:active {
-  transform: translateY(0) scale(0.98);
-}
-
-/* Card hover effect */
-.card-interactive {
-  transition: transform var(--duration-fast) var(--ease-spring),
-              box-shadow var(--duration-fast) var(--ease-snappy);
-}
-
-.card-interactive:hover {
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: var(--shadow-md);
-}
-
-.card-interactive:active {
-  transform: scale(0.98);
-}
-
-/* Button press effect */
-.btn-spring {
-  transition: transform var(--duration-fast) var(--ease-spring),
-              background-color var(--duration-fast) var(--ease-snappy);
-}
-
-.btn-spring:hover {
-  transform: scale(1.02);
-}
-
-.btn-spring:active {
-  transform: scale(0.95);
-}
-
-/* Focus visible (accessibility) */
-.focus-ring:focus-visible {
-  outline: none;
-  box-shadow: var(--shadow-focus);
-}
+/* UTILITY CLASSES: Use Tailwind utilities instead. These are not used. */
 
 /* =============================================================================
    COMPLETION & CELEBRATION ANIMATIONS

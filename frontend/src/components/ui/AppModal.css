@@ -45,7 +45,7 @@
 }
 
 .app-modal-content:focus-visible {
-  outline: 2px solid var(--color-brand-primary, #4a90e2);
+  outline: 2px solid var(--color-brand-primary);
   outline-offset: 2px;
 }
 
@@ -83,7 +83,7 @@
   align-items: flex-start;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--color-border-light, #f1f5f9);
+  border-bottom: 1px solid var(--color-border-light);
   flex-shrink: 0;
 }
 
@@ -121,8 +121,8 @@
 
 /* Badge variants */
 .app-modal-badge-default {
-  background: var(--color-slate-100, #f1f5f9);
-  color: var(--color-slate-600, #475569);
+  background: var(--color-slate-100);
+  color: var(--color-slate-600);
 }
 
 .app-modal-badge-success {
@@ -151,7 +151,7 @@
   margin: 0;
   font-size: 18px;
   font-weight: 600;
-  color: var(--color-text-primary, #333);
+  color: var(--color-text-primary);
   line-height: 1.4;
   vertical-align: middle;
 }
@@ -163,8 +163,8 @@
   padding: 2px 8px;
   font-size: 12px;
   font-weight: 500;
-  color: var(--color-text-secondary, #666);
-  background: var(--color-slate-100, #f1f5f9);
+  color: var(--color-text-secondary);
+  background: var(--color-slate-100);
   border-radius: var(--radius-full, 9999px);
   vertical-align: middle;
 }
@@ -173,7 +173,7 @@
   display: block;
   margin: 4px 0 0;
   font-size: 14px;
-  color: var(--color-text-secondary, #666);
+  color: var(--color-text-secondary);
 }
 
 /* Close button */
@@ -188,19 +188,19 @@
   background: transparent;
   border: none;
   border-radius: var(--radius-md, 8px);
-  color: var(--color-text-secondary, #666);
+  color: var(--color-text-secondary);
   cursor: pointer;
   transition: all 0.15s ease;
   flex-shrink: 0;
 }
 
 .app-modal-close:hover {
-  background: var(--color-bg-hover, #f3f4f6);
-  color: var(--color-text-primary, #333);
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
 }
 
 .app-modal-close:focus-visible {
-  outline: 2px solid var(--color-brand-primary, #4a90e2);
+  outline: 2px solid var(--color-brand-primary);
   outline-offset: 2px;
 }
 
@@ -218,7 +218,7 @@
   justify-content: flex-end;
   gap: 8px;
   padding: 16px 20px;
-  border-top: 1px solid var(--color-border-light, #e5e7eb);
+  border-top: 1px solid var(--color-border-light);
   flex-shrink: 0;
 }
 
@@ -259,12 +259,12 @@
 /* Secondary button - subtle outline */
 .app-modal-btn-secondary {
   background: transparent;
-  color: var(--color-text-primary, #374151);
-  border: 1px solid var(--color-border, #d1d5db);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
 }
 
 .app-modal-btn-secondary:hover:not(:disabled) {
-  background: var(--color-gray-50, #f9fafb);
+  background: var(--color-gray-50);
 }
 
 /* Icon in buttons */
@@ -281,7 +281,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 16px 20px;
-  border-top: 1px solid var(--color-border-light, #e5e7eb);
+  border-top: 1px solid var(--color-border-light);
   flex-shrink: 0;
 }
 
@@ -304,23 +304,23 @@
 }
 
 .app-modal-btn-success {
-  background: var(--color-green-600, #16a34a);
+  background: var(--color-green-600);
   color: var(--color-text-inverse);
   border: none;
 }
 
 .app-modal-btn-success:hover:not(:disabled) {
-  background: var(--color-green-700, #15803d);
+  background: var(--color-green-700);
 }
 
 .app-modal-btn-danger {
   background: transparent;
-  color: var(--color-red-600, #dc2626);
-  border: 1px solid var(--color-red-300, #fca5a5);
+  color: var(--color-red-600);
+  border: 1px solid var(--color-red-300);
 }
 
 .app-modal-btn-danger:hover:not(:disabled) {
-  background: var(--color-red-50, #fef2f2);
+  background: var(--color-red-50);
 }
 
 /* Small button variants */
@@ -330,12 +330,12 @@
 }
 
 .app-modal-btn-danger-sm {
-  background: var(--color-red-600, #dc2626);
+  background: var(--color-red-600);
   color: var(--color-text-inverse);
 }
 
 .app-modal-btn-danger-sm:hover:not(:disabled) {
-  background: var(--color-red-700, #b91c1c);
+  background: var(--color-red-700);
 }
 
 /* Inline confirmation styling */
@@ -344,7 +344,7 @@
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: var(--color-red-600, #dc2626);
+  color: var(--color-red-600);
   font-weight: 500;
 }
 
@@ -400,12 +400,12 @@
 
 /* Gradient header (like Leaderboard) */
 .app-modal-header-gradient {
-  background: var(--color-brand-primary, #4a90e2);
+  background: var(--color-brand-primary);
   border-bottom-color: transparent;
 }
 
 .app-modal-header-gradient .app-modal-title-display {
-  color: var(--color-text-inverse, #fff);
+  color: var(--color-text-inverse);
 }
 
 .app-modal-header-gradient .app-modal-description {
@@ -413,7 +413,7 @@
 }
 
 .app-modal-header-gradient .app-modal-close {
-  color: var(--color-text-inverse, #fff);
+  color: var(--color-text-inverse);
   opacity: 0.8;
 }
 
@@ -542,7 +542,7 @@
     transform: translateX(-50%);
     width: 36px;
     height: 4px;
-    background: var(--color-slate-300, #cbd5e1);
+    background: var(--color-slate-300);
     border-radius: var(--radius-xs);
     z-index: var(--z-elevated);
   }
@@ -553,7 +553,7 @@
     flex-shrink: 0;
     position: relative;
     z-index: 1;
-    background: var(--color-bg-primary, #fff);
+    background: var(--color-bg-primary);
   }
 
   /* Body - fills available space and scrolls */
@@ -753,10 +753,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-bg-primary, #fff);
-  border: 1px solid var(--color-slate-200, #e2e8f0);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
   border-radius: var(--radius-md);
-  color: var(--color-slate-500, #64748b);
+  color: var(--color-slate-500);
   cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
@@ -766,7 +766,7 @@
 
 .app-modal-copy-btn:hover {
   opacity: 1;
-  color: var(--color-slate-700, #334155);
+  color: var(--color-slate-700);
   box-shadow: var(--shadow-md);
 }
 
@@ -780,9 +780,9 @@
 }
 
 .app-modal-copy-btn.copied {
-  color: var(--color-green-600, #16a34a);
-  border-color: var(--color-green-200, #bbf7d0);
-  background: var(--color-green-50, #f0fdf4);
+  color: var(--color-green-600);
+  border-color: var(--color-green-200);
+  background: var(--color-green-50);
 }
 
 /* ===========================================
@@ -798,10 +798,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-bg-primary, #fff);
-  border: 1px solid var(--color-slate-200, #e2e8f0);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
   border-radius: 50%;
-  color: var(--color-slate-500, #64748b);
+  color: var(--color-slate-500);
   cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
@@ -811,7 +811,7 @@
 
 .app-modal-scroll-top-btn:hover {
   opacity: 1;
-  color: var(--color-slate-700, #334155);
+  color: var(--color-slate-700);
   box-shadow: var(--shadow-md);
 }
 

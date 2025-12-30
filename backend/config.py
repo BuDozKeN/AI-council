@@ -70,15 +70,14 @@ ENABLE_PROMPT_CACHING = os.getenv("ENABLE_PROMPT_CACHING", "false").lower() == "
 
 # Models that support cache_control via OpenRouter
 # Anthropic: explicit cache_control required (max 4 breakpoints)
-# Gemini: implicit + explicit supported
-# Others: may have automatic caching, no explicit support needed
+# NOTE: Gemini models removed - they have implicit caching via OpenRouter and
+# explicit cache_control with multipart format causes issues (hallucinations,
+# weird outputs like "REDACTED", mid-stream stops). Let Gemini use implicit caching.
+# See: https://github.com/sst/opencode/issues/4912
 CACHE_SUPPORTED_MODELS = [
     "anthropic/claude-opus-4.5",
     "anthropic/claude-sonnet-4",
     "anthropic/claude-3.5-sonnet",
-    "google/gemini-3-pro-preview",
-    "google/gemini-2.5-pro",
-    "google/gemini-2.5-flash",
 ]
 
 # =============================================================================

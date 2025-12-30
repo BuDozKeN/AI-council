@@ -9,9 +9,9 @@ import MarkdownViewer from '../../MarkdownViewer';
 import { AppModal } from '../../ui/AppModal';
 import { Button } from '../../ui/button';
 import { FloatingContextActions } from '../../ui/FloatingContextActions';
+import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { toast } from '../../ui/sonner';
 import { getDeptColor } from '../../../lib/colors';
-import smartTextToMarkdown from '../../../lib/smartTextToMarkdown';
 import type { Department, Playbook } from '../../../types/business';
 
 type DocType = 'sop' | 'framework' | 'policy';
@@ -44,23 +44,9 @@ export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave,
   const [isEditing, setIsEditing] = useState(startEditing);
   const [editedContent, setEditedContent] = useState(playbook.content || playbook.current_version?.content || '');
   const [editedTitle, setEditedTitle] = useState(playbook.title || '');
-  const [selectedDepts, setSelectedDepts] = useState(playbook.additional_departments || []);
+  const [selectedDepts, setSelectedDepts] = useState<string[]>(playbook.additional_departments || []);
   const [saving, setSaving] = useState(false);
-  const [formatting, setFormatting] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [deptSearch, setDeptSearch] = useState('');
-
-  // Format content using local smart converter (no AI needed)
-  const handleFormatWithAI = () => {
-    if (!editedContent.trim()) return;
-    setFormatting(true);
-
-    // Use the local smart text-to-markdown converter
-    // Pass forceConvert=true to always process, even if content looks like markdown
-    const formatted = smartTextToMarkdown(editedContent, true);
-    setEditedContent(formatted);
-    setFormatting(false);
-  };
 
   // API returns content directly, not nested in current_version
   const content = playbook.content || playbook.current_version?.content || '';
@@ -68,23 +54,10 @@ export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave,
   // Find owner department name
   const ownerDept = departments.find(d => d.id === playbook.department_id);
 
-  // Get names of linked departments
+  // Get names of linked departments for display in view mode
   const linkedDeptNames = selectedDepts
     .map(id => departments.find(d => d.id === id))
     .filter((d): d is Department => Boolean(d));
-
-  // Filter departments by search
-  const filteredDepts = departments.filter(dept =>
-    dept.name.toLowerCase().includes(deptSearch.toLowerCase())
-  );
-
-  const handleToggleDept = (deptId: string) => {
-    setSelectedDepts(prev =>
-      prev.includes(deptId)
-        ? prev.filter(id => id !== deptId)
-        : [...prev, deptId]
-    );
-  };
 
   const handleSave = async () => {
     if (onSave) {
@@ -98,8 +71,22 @@ export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave,
         });
         setIsEditing(false);
         setIsEditingTitle(false);
+
+        // Build descriptive success message
         const docTypeLabel = docType === 'sop' ? 'SOP' : docType.charAt(0).toUpperCase() + docType.slice(1);
-        toast.success(`${docTypeLabel} "${editedTitle || playbook.title}" saved`, { duration: 3000 });
+        const title = editedTitle || playbook.title;
+        const deptNames = selectedDepts
+          .map(id => departments.find(d => d.id === id)?.name)
+          .filter(Boolean);
+
+        let message = `${docTypeLabel} "${title}" saved`;
+        if (deptNames.length > 0) {
+          message += ` for ${deptNames.join(', ')}`;
+        } else {
+          message += ' as company-wide';
+        }
+
+        toast.success(message, { duration: 4000 });
       } catch {
         toast.error('Failed to save changes');
       }
@@ -113,7 +100,6 @@ export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave,
     setEditedContent(content);
     setEditedTitle(playbook.title || '');
     setSelectedDepts(playbook.additional_departments || []);
-    setDeptSearch('');
   };
 
   // Type badge styling - uses CSS variables for theming
@@ -172,35 +158,16 @@ export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave,
             {docType.toUpperCase()}
           </span>
 
-          {/* Department badges - inline with type */}
+          {/* Department selection - dropdown in edit mode, badges in view mode */}
           {isEditing ? (
-            <div className="mc-dept-edit-inline">
-              <span className="mc-dept-label">Departments:</span>
-              {filteredDepts.slice(0, 5).map(dept => {
-                const isOwner = dept.id === playbook.department_id;
-                const isSelected = selectedDepts.includes(dept.id);
-                const color = getDeptColor(dept.id);
-                return (
-                  <button
-                    key={dept.id}
-                    type="button"
-                    className={`mc-dept-chip-mini ${isOwner || isSelected ? 'selected' : ''}`}
-                    style={isOwner || isSelected ? {
-                      background: color.bg,
-                      color: color.text,
-                      borderColor: color.border
-                    } : {}}
-                    onClick={() => !isOwner && handleToggleDept(dept.id)}
-                    disabled={isOwner}
-                  >
-                    {dept.name.split(' ')[0]}
-                    {isOwner && <span className="mc-owner-star">*</span>}
-                  </button>
-                );
-              })}
-            </div>
+            <MultiDepartmentSelect
+              value={selectedDepts}
+              onValueChange={setSelectedDepts}
+              departments={departments}
+              placeholder="Company-wide (all departments)"
+            />
           ) : (
-            <>
+            <div className="mc-dept-badges-view">
               {ownerDept && (() => {
                 const color = getDeptColor(ownerDept.id);
                 return (
@@ -227,47 +194,21 @@ export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave,
               {!ownerDept && linkedDeptNames.length === 0 && (
                 <span className="mc-scope-badge company-wide">Company-wide</span>
               )}
-            </>
+            </div>
           )}
         </div>
 
-        {/* Content Section - Preview by default, markdown when editing */}
+        {/* Content Section - Preview by default, textarea when editing */}
         <div className="mc-content-section">
           {isEditing ? (
             <div className="mc-edit-full">
-              <div className="mc-editor-toolbar">
-                <button
-                  className="mc-btn-format-ai"
-                  onClick={handleFormatWithAI}
-                  disabled={formatting || !editedContent.trim()}
-                  title="Convert plain text to formatted Markdown"
-                >
-                  {formatting ? (
-                    <>
-                      <svg className="mc-btn-icon spinning" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M12 2v4m0 12v4m-8-10h4m12 0h4m-5.66-5.66l-2.83 2.83m-5.02 5.02l-2.83 2.83m0-11.32l2.83 2.83m5.02 5.02l2.83 2.83"/>
-                      </svg>
-                      Formatting...
-                    </>
-                  ) : (
-                    <>
-                      <svg className="mc-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                      </svg>
-                      Smart Format
-                    </>
-                  )}
-                </button>
-                <span className="mc-editor-hint">Converts tables, headers, and lists to Markdown</span>
-              </div>
               <textarea
                 className="mc-edit-textarea-full"
                 value={editedContent}
                 onChange={(e) => setEditedContent(e.target.value)}
                 rows={18}
-                placeholder="Paste any text here... then click Smart Format to convert to Markdown"
+                placeholder="Enter content here... Markdown formatting is supported."
                 autoFocus={!startEditing}
-                enterKeyHint="done"
               />
             </div>
           ) : (

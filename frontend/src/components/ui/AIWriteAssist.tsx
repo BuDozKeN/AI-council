@@ -167,6 +167,8 @@ interface AIWriteAssistProps {
   context?: ContextType | undefined;
   value?: string | undefined;
   onSuggestion?: ((suggestion: string) => void) | undefined;
+  /** Callback for AI-generated title (only for playbook content) */
+  onTitleSuggestion?: ((title: string) => void) | undefined;
   additionalContext?: string | undefined;
   buttonLabel?: string | null | undefined;
   playbookType?: PlaybookType | null | undefined;
@@ -183,6 +185,7 @@ export function AIWriteAssist({
   context = 'generic',
   value = '',
   onSuggestion,
+  onTitleSuggestion,
   additionalContext = '',
   buttonLabel = null,
   playbookType = null,
@@ -195,6 +198,7 @@ export function AIWriteAssist({
   const [error, setError] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState<boolean>(false);
   const [suggestion, setSuggestion] = useState<string>('');
+  const [suggestedTitle, setSuggestedTitle] = useState<string | null>(null);
 
   const config = CONTEXT_PROMPTS[context] || CONTEXT_PROMPTS.generic;
   const hasContent = value && value.trim().length > 0;
@@ -205,6 +209,7 @@ export function AIWriteAssist({
 
     setLoading(true);
     setError(null);
+    setSuggestedTitle(null);
 
     try {
       // Build the prompt
@@ -220,9 +225,19 @@ export function AIWriteAssist({
         apiParams.playbookType = playbookType;
       }
       const result = await api.aiWriteAssist(apiParams);
+      logger.info('[AIWriteAssist] API response received:', {
+        hasTitle: !!result.title,
+        titleValue: result.title,
+        suggestionLength: result.suggestion?.length
+      });
 
       if (result.suggestion) {
         setSuggestion(result.suggestion);
+        // Capture title if returned (for playbook content)
+        if (result.title) {
+          logger.info('[AIWriteAssist] Setting suggestedTitle:', result.title);
+          setSuggestedTitle(result.title);
+        }
         setShowPreview(true);
       } else {
         setError('No suggestion returned');
@@ -237,16 +252,30 @@ export function AIWriteAssist({
   }, [value, hasContent, loading, config.instruction, additionalContext, context, playbookType]);
 
   const handleAccept = useCallback(() => {
+    logger.info('[AIWriteAssist] Accept clicked', {
+      hasSuggestion: !!suggestion,
+      hasTitle: !!suggestedTitle,
+      titleValue: suggestedTitle,
+      hasCallback: !!onTitleSuggestion
+    });
+
     if (suggestion && onSuggestion) {
       onSuggestion(suggestion);
     }
+    // Also pass the title if available
+    if (suggestedTitle && onTitleSuggestion) {
+      logger.info('[AIWriteAssist] Calling onTitleSuggestion with:', suggestedTitle);
+      onTitleSuggestion(suggestedTitle);
+    }
     setShowPreview(false);
     setSuggestion('');
-  }, [suggestion, onSuggestion]);
+    setSuggestedTitle(null);
+  }, [suggestion, onSuggestion, suggestedTitle, onTitleSuggestion]);
 
   const handleReject = useCallback(() => {
     setShowPreview(false);
     setSuggestion('');
+    setSuggestedTitle(null);
   }, []);
 
   // If wrapping children, add the button alongside
@@ -282,6 +311,12 @@ export function AIWriteAssist({
             <div className="ai-assist-preview-header">
               <span className="ai-assist-preview-title">✨ AI Suggestion</span>
             </div>
+            {suggestedTitle && (
+              <div className="ai-assist-preview-title-suggestion">
+                <span className="ai-assist-preview-label">Suggested title:</span>
+                <span className="ai-assist-preview-title-text">{suggestedTitle}</span>
+              </div>
+            )}
             <div className="ai-assist-preview-content">
               {suggestion}
             </div>
@@ -334,6 +369,12 @@ export function AIWriteAssist({
           <div className="ai-assist-preview-header">
             <span className="ai-assist-preview-title">✨ AI Suggestion</span>
           </div>
+          {suggestedTitle && (
+            <div className="ai-assist-preview-title-suggestion">
+              <span className="ai-assist-preview-label">Suggested title:</span>
+              <span className="ai-assist-preview-title-text">{suggestedTitle}</span>
+            </div>
+          )}
           <div className="ai-assist-preview-content">
             {suggestion}
           </div>

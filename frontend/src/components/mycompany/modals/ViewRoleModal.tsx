@@ -5,6 +5,7 @@
  */
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { AppModal } from '../../ui/AppModal';
 import { Button } from '../../ui/button';
 import { AIWriteAssist } from '../../ui/AIWriteAssist';
@@ -28,9 +29,14 @@ export function ViewRoleModal({ role, onClose, onSave }: ViewRoleModalProps) {
   const handleSave = async () => {
     if (onSave && role.departmentId) {
       setSaving(true);
-      await onSave(role.id, role.departmentId, { system_prompt: editedPrompt });
+      try {
+        await onSave(role.id, role.departmentId, { system_prompt: editedPrompt });
+        setIsEditing(false);
+        toast.success(`Role "${role.name}" prompt saved`, { duration: 4000 });
+      } catch {
+        toast.error('Failed to save role');
+      }
       setSaving(false);
-      setIsEditing(false);
     }
   };
 

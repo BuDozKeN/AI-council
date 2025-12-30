@@ -50,7 +50,7 @@ h2 { letter-spacing: -0.025em; }
   clip: auto;
   white-space: normal;
   background: var(--color-focus);
-  color: white;
+  color: var(--color-text-inverse);
   font-weight: 600;
   font-size: 14px;
   border-radius: var(--radius-md);
@@ -169,7 +169,15 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background: var(--color-bg-tertiary);
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+/* Dark mode - explicit background for theme toggle */
+html.dark body {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
 }
 
 #root {

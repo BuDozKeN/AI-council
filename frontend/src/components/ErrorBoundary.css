@@ -138,3 +138,55 @@
   overflow-wrap: break-word;
   margin: 0;
 }
+
+/* ============================================================================
+   DARK MODE
+   ============================================================================ */
+
+.dark .error-boundary {
+  background-color: var(--color-bg-primary);
+}
+
+.dark .error-boundary-card {
+  background-color: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .error-boundary-title {
+  color: var(--color-text-primary);
+}
+
+.dark .error-boundary-message {
+  color: var(--color-text-secondary);
+}
+
+.dark .error-boundary-btn.secondary {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+.dark .error-boundary-btn.secondary:hover {
+  background-color: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+}
+
+.dark .error-boundary-summary {
+  color: var(--color-text-secondary);
+}
+
+.dark .error-boundary-copy-btn {
+  background-color: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+}
+
+.dark .error-boundary-copy-btn:hover {
+  background-color: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+}
+
+.dark .error-boundary-error-text {
+  background-color: rgb(var(--color-red-500-rgb), 0.15);
+  border-color: var(--color-red-500);
+  color: var(--color-red-400);
+}

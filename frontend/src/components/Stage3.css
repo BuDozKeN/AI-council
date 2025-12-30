@@ -152,23 +152,23 @@ h2, h3 {
 
 /* Stage3-specific copy button - subtle green theme */
 .stage3-copy-btn.copy-btn-unified {
-  border-color: var(--color-success-border, #86efac);
-  color: var(--color-success, #22c55e);
+  border-color: var(--color-success-border);
+  color: var(--color-success);
   background: var(--overlay-white-95);
   backdrop-filter: blur(4px);
   box-shadow: var(--shadow-sm);
 }
 
 .stage3-copy-btn.copy-btn-unified:hover {
-  border-color: var(--color-success, #22c55e);
-  color: var(--color-success-dark, #16a34a);
-  background: var(--color-success-light, #dcfce7);
+  border-color: var(--color-success);
+  color: var(--color-success-dark);
+  background: var(--color-success-light);
 }
 
 .stage3-copy-btn.copy-btn-unified.copied {
-  border-color: var(--color-success, #22c55e);
-  color: var(--color-success, #22c55e);
-  background: var(--color-success-light, #dcfce7);
+  border-color: var(--color-success);
+  color: var(--color-success);
+  background: var(--color-success-light);
 }
 
 /* Mobile: smaller copy button */
@@ -883,6 +883,19 @@ h2, h3 {
   overflow: hidden;
 }
 
+/* Portal version - fixed position for createPortal usage */
+.save-project-dropdown-portal {
+  position: fixed;
+  z-index: var(--z-modal);
+  min-width: 300px;
+  max-width: 400px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
 .save-project-dropdown-header {
   padding: 10px 12px;
   font-size: 11px;
@@ -895,6 +908,7 @@ h2, h3 {
 }
 
 .save-project-list {
+  max-height: 300px;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
@@ -1020,20 +1034,20 @@ h2, h3 {
 /* Dark mode Stage3 copy button - subtle green style */
 .dark .stage3-copy-btn.copy-btn-unified {
   border-color: var(--overlay-green-20);
-  color: var(--color-success, #22c55e);
+  color: var(--color-success);
   background: var(--overlay-black-80);
   backdrop-filter: blur(4px);
 }
 
 .dark .stage3-copy-btn.copy-btn-unified:hover {
-  border-color: var(--color-success, #22c55e);
-  color: var(--color-success, #22c55e);
+  border-color: var(--color-success);
+  color: var(--color-success);
   background: var(--overlay-green-15);
 }
 
 .dark .stage3-copy-btn.copy-btn-unified.copied {
-  border-color: var(--color-success, #22c55e);
-  color: var(--color-success, #22c55e);
+  border-color: var(--color-success);
+  color: var(--color-success);
   background: var(--overlay-green-20);
 }
 

@@ -151,6 +151,7 @@ async def merge_company_context(
     """
     from ...openrouter import query_model, MOCK_LLM
     from ...personas import WRITE_ASSIST_PERSONAS
+    from .utils import save_internal_llm_usage
 
     client = get_service_client()
 
@@ -208,6 +209,8 @@ Do not include any explanation or commentary - just the document."""
     models = ["anthropic/claude-3-5-haiku-20241022", "openai/gpt-4o-mini"]
 
     merged = None
+    model_used = None
+    usage_data = None
 
     for model in models:
         try:
@@ -220,9 +223,23 @@ Do not include any explanation or commentary - just the document."""
 
             if result and result.get("content"):
                 merged = result["content"].strip()
+                model_used = model
+                usage_data = result.get('usage')
                 break
         except Exception:
             continue
+
+    # Track usage if successful
+    if company_uuid and model_used and usage_data:
+        try:
+            await save_internal_llm_usage(
+                company_id=company_uuid,
+                operation_type='context_merge',
+                model=model_used,
+                usage=usage_data
+            )
+        except Exception:
+            pass  # Don't fail if tracking fails
 
     if merged is None:
         merged = existing + f"\n\n## Additional Information\n\n**{question}**\n{answer}"

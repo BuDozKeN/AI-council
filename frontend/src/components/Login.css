@@ -42,7 +42,9 @@
 }
 
 .aurora-radial-mask {
+  /* stylelint-disable-next-line color-named -- mask gradients require black/transparent for opacity control */
   mask-image: radial-gradient(ellipse at 100% 0%, black 10%, transparent 70%);
+  /* stylelint-disable-next-line color-named -- mask gradients require black/transparent for opacity control */
   -webkit-mask-image: radial-gradient(ellipse at 100% 0%, black 10%, transparent 70%);
 }
 

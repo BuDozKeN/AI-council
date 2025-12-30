@@ -11,8 +11,8 @@
  * - Sticky toolbar inside context card for TOC + copy button
  */
 
-import { useRef } from 'react';
-import { Building2, Pencil } from 'lucide-react';
+import { useRef, useState, useCallback } from 'react';
+import { Building2, Pencil, ChevronUp } from 'lucide-react';
 import MarkdownViewer from '../../MarkdownViewer';
 import { TableOfContents } from '../../ui/TableOfContents';
 import { CopyButton } from '../../ui/CopyButton';
@@ -63,6 +63,16 @@ export function OverviewTab({
 }: OverviewTabProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // Track scroll position to show/hide scroll-to-top button
+  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    setShowScrollTop(e.currentTarget.scrollTop > 200);
+  }, []);
+
+  const scrollToTop = useCallback(() => {
+    scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
 
   if (!overview) {
     return (
@@ -78,7 +88,7 @@ export function OverviewTab({
   const { lastUpdated, version } = parseContextMetadata(contextMd);
 
   return (
-    <div ref={scrollContainerRef} className="mc-overview">
+    <div ref={scrollContainerRef} className="mc-overview" onScroll={handleScroll}>
       {/* Hero section - scrolls with content */}
       <div className="mc-overview-hero">
         <div className="mc-overview-hero-content">
@@ -156,6 +166,17 @@ export function OverviewTab({
           )}
         </div>
       </div>
+
+      {/* Scroll to top button - bottom right, vertically aligned with copy button */}
+      {showScrollTop && (
+        <button
+          className="mc-scroll-top-fab"
+          onClick={scrollToTop}
+          aria-label="Scroll to top"
+        >
+          <ChevronUp size={16} />
+        </button>
+      )}
     </div>
   );
 }

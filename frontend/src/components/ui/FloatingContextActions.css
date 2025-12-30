@@ -29,6 +29,13 @@
   padding: 20px;
 }
 
+/* Invisible sentinel for IntersectionObserver scroll detection */
+.floating-scroll-sentinel {
+  height: 1px;
+  width: 100%;
+  pointer-events: none;
+}
+
 /* ===========================================
    Sticky Header Row - Contains TOC and copy button aligned
    =========================================== */
@@ -45,7 +52,7 @@
   margin-bottom: 12px;
 
   /* Background to cover content scrolling behind - use explicit color */
-  background: var(--color-bg-primary, #fff);
+  background: var(--color-bg-primary);
 
   /* Extend to full width to cover scrolling content */
   margin-left: -20px;
@@ -53,6 +60,62 @@
   padding-left: 20px;
   padding-right: 20px;
   width: calc(100% + 40px);
+}
+
+/* ===========================================
+   Sticky Copy Button Wrapper - Sticks to top while scrolling
+   =========================================== */
+
+.floating-copy-sticky-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-raised, 10);
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: -36px; /* Pull content up behind button */
+  padding-bottom: 8px;
+  pointer-events: none; /* Allow clicks through the wrapper */
+}
+
+.floating-copy-btn-sticky {
+  pointer-events: auto; /* Re-enable clicks on the button */
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-default);
+  color: var(--color-slate-500);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+  opacity: 0.9;
+}
+
+.floating-copy-btn-sticky:hover {
+  opacity: 1;
+  color: var(--color-slate-700);
+  box-shadow: var(--shadow-md);
+  transform: scale(1.05);
+}
+
+.floating-copy-btn-sticky:active {
+  transform: scale(0.95);
+}
+
+.floating-copy-btn-sticky svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.floating-copy-btn-sticky.copied {
+  color: var(--color-green-600);
+  border-color: var(--color-green-300);
+  background: var(--color-green-50);
+  opacity: 1;
 }
 
 .floating-sticky-left {
@@ -80,10 +143,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-bg-primary, #fff);
-  border: 1px solid var(--color-slate-200, #e2e8f0);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
   border-radius: var(--radius-default);
-  color: var(--color-slate-500, #64748b);
+  color: var(--color-slate-500);
   cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
@@ -92,7 +155,7 @@
 
 .floating-copy-btn:hover {
   opacity: 1;
-  color: var(--color-slate-700, #334155);
+  color: var(--color-slate-700);
   box-shadow: var(--shadow-md);
   transform: scale(1.05);
 }
@@ -108,9 +171,9 @@
 }
 
 .floating-copy-btn.copied {
-  color: var(--color-green-600, #16a34a);
-  border-color: var(--color-green-300, #86efac);
-  background: var(--color-green-50, #f0fdf4);
+  color: var(--color-green-600);
+  border-color: var(--color-green-300);
+  background: var(--color-green-50);
   opacity: 1;
 }
 
@@ -127,10 +190,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-bg-primary, #fff);
-  border: 1px solid var(--color-slate-200, #e2e8f0);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
   border-radius: 50%;
-  color: var(--color-slate-500, #64748b);
+  color: var(--color-slate-500);
   cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
@@ -155,7 +218,7 @@
 
 .floating-scroll-top-btn:hover {
   opacity: 1;
-  color: var(--color-slate-700, #334155);
+  color: var(--color-slate-700);
   box-shadow: var(--shadow-md);
   transform: scale(1.1);
 }
@@ -181,6 +244,17 @@
   }
 
   .floating-copy-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Sticky copy button on mobile - larger touch target */
+  .floating-copy-btn-sticky {
+    width: 36px;
+    height: 36px;
+  }
+
+  .floating-copy-btn-sticky svg {
     width: 16px;
     height: 16px;
   }
@@ -219,12 +293,43 @@
   max-height: none;
 }
 
-/* No border variant - inherits parent styling (.mc-content-preview, .mc-content-section, etc.) */
-.floating-context-wrapper.no-border .floating-context-content {
-  border: 1px solid var(--color-gray-100, #f3f4f6);
+/* No border variant - when parent handles scrolling (e.g., modal body)
+   CRITICAL: Removes overflow so sticky works relative to parent scroll container
+   Using doubled selector for specificity instead of !important */
+.floating-context-wrapper.no-border.no-border {
+  overflow: visible;
+}
+
+.floating-context-wrapper.no-border.no-border .floating-context-content {
+  border: 1px solid var(--color-gray-100);
   border-radius: var(--radius-md);
   padding: 20px;
-  background: var(--color-bg-primary, #fff);
+  background: var(--color-bg-primary);
+  overflow: visible; /* Let parent handle scrolling - required for sticky to work */
+}
+
+/* Tables in no-border variant need horizontal scroll wrapper */
+.floating-context-wrapper.no-border .floating-context-content table {
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Sticky scroll-to-top wrapper for no-border variant */
+.floating-scroll-top-sticky-wrapper {
+  position: sticky;
+  bottom: 12px;
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: none;
+  margin-top: -40px; /* Don't add extra space */
+  z-index: var(--z-elevated);
+}
+
+.floating-scroll-top-sticky-wrapper .floating-scroll-top-btn {
+  position: static;
+  pointer-events: auto;
 }
 
 /* Compact variant (smaller min-height) */
@@ -244,33 +349,54 @@
 
 .dark .floating-copy-btn,
 [data-theme="dark"] .floating-copy-btn {
-  background: var(--color-bg-secondary, #1e293b);
-  border-color: var(--color-border, #334155);
-  color: var(--color-text-secondary, #94a3b8);
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
 }
 
 .dark .floating-copy-btn:hover,
 [data-theme="dark"] .floating-copy-btn:hover {
-  background: var(--color-bg-tertiary, #334155);
-  color: var(--color-text-primary, #f1f5f9);
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
 }
 
 .dark .floating-copy-btn.copied,
 [data-theme="dark"] .floating-copy-btn.copied {
-  color: var(--color-green-400, #4ade80);
-  border-color: var(--color-green-700, #15803d);
+  color: var(--color-green-400);
+  border-color: var(--color-green-700);
+  background: var(--overlay-green-15);
+}
+
+/* Sticky copy button dark mode */
+.dark .floating-copy-btn-sticky,
+[data-theme="dark"] .floating-copy-btn-sticky {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .floating-copy-btn-sticky:hover,
+[data-theme="dark"] .floating-copy-btn-sticky:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.dark .floating-copy-btn-sticky.copied,
+[data-theme="dark"] .floating-copy-btn-sticky.copied {
+  color: var(--color-green-400);
+  border-color: var(--color-green-700);
   background: var(--overlay-green-15);
 }
 
 .dark .floating-scroll-top-btn,
 [data-theme="dark"] .floating-scroll-top-btn {
-  background: var(--color-bg-secondary, #1e293b);
-  border-color: var(--color-border, #334155);
-  color: var(--color-text-secondary, #94a3b8);
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
 }
 
 .dark .floating-scroll-top-btn:hover,
 [data-theme="dark"] .floating-scroll-top-btn:hover {
-  background: var(--color-bg-tertiary, #334155);
-  color: var(--color-text-primary, #f1f5f9);
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
 }

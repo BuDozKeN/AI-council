@@ -1962,10 +1962,10 @@ export const api = {
    * Update a playbook (creates new version).
    * @param {string} companyId - Company ID
    * @param {string} playbookId - Playbook ID
-   * @param {Object} data - {content, change_summary}
+   * @param {Object} data - {content, change_summary, title, status, additional_departments}
    * @returns {Promise<Object>} Updated playbook with new version
    */
-  async updateCompanyPlaybook(companyId: string, playbookId: string, data: { content?: string; change_summary?: string; title?: string; status?: string }) {
+  async updateCompanyPlaybook(companyId: string, playbookId: string, data: { content?: string; change_summary?: string; title?: string; status?: string; additional_departments?: string[] }) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}/api/company/${companyId}/playbooks/${playbookId}`, {
       method: 'PUT',
@@ -1980,7 +1980,7 @@ export const api = {
   },
 
   // Alias for updateCompanyPlaybook for consistency with MyCompany.jsx naming
-  async updatePlaybook(companyId: string, playbookId: string, data: { content?: string; change_summary?: string; title?: string; status?: string }) {
+  async updatePlaybook(companyId: string, playbookId: string, data: { content?: string; change_summary?: string; title?: string; status?: string; additional_departments?: string[] }) {
     return this.updateCompanyPlaybook(companyId, playbookId, data);
   },
 
@@ -2247,9 +2247,9 @@ export const api = {
    * @param {string} params.prompt - Full prompt including instructions and user text
    * @param {string} params.context - Context type (e.g., 'project-title', 'decision-statement')
    * @param {string} [params.playbookType] - For playbook content: 'sop', 'framework', or 'policy'
-   * @returns {Promise<{suggestion: string}>} AI-generated suggestion
+   * @returns {Promise<{suggestion: string, title?: string}>} AI-generated suggestion and optional title
    */
-  async aiWriteAssist({ prompt, context, playbookType }: { prompt: string; context: string; playbookType?: string }) {
+  async aiWriteAssist({ prompt, context, playbookType }: { prompt: string; context: string; playbookType?: string }): Promise<{ suggestion: string; title?: string }> {
     const headers = await getAuthHeaders();
     const body: Record<string, string> = { prompt, context };
     if (playbookType) {

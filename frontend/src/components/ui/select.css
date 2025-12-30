@@ -80,12 +80,14 @@
 
 .select-trigger--compact:focus {
   border-color: var(--color-border-dark);
+
   /* No focus shadow for compact variant - it's too prominent in dense UIs */
   box-shadow: none;
 }
 
 .select-trigger--compact:focus-visible {
   border-color: var(--color-border-dark);
+
   /* Only show subtle focus for keyboard navigation */
   box-shadow: 0 0 0 2px var(--color-bg-hover);
 }
@@ -110,6 +112,7 @@
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
   box-shadow: var(--shadow-dropdown);
+
   /* Ensure pointer events work correctly for dismiss */
   pointer-events: auto;
 }

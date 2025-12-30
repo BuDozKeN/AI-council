@@ -37,31 +37,31 @@ interface StatusColor {
 // Check if we're on mobile/tablet for bottom sheet vs dropdown
 const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
 
-// Status color definitions
+// Status color definitions using CSS custom properties for dark mode support
 const statusColors: Record<StatusValue, StatusColor> = {
   all: {
-    bg: '#f3f4f6',
-    text: '#374151',
-    border: '#d1d5db',
-    hoverBg: '#e5e7eb',
+    bg: 'var(--color-gray-100)',
+    text: 'var(--color-gray-700)',
+    border: 'var(--color-gray-300)',
+    hoverBg: 'var(--color-gray-200)',
   },
   active: {
-    bg: '#dcfce7',
-    text: '#166534',
-    border: '#86efac',
-    hoverBg: '#f0fdf4',
+    bg: 'var(--color-green-100)',
+    text: 'var(--color-green-800)',
+    border: 'var(--color-green-300)',
+    hoverBg: 'var(--color-green-50)',
   },
   completed: {
-    bg: '#dbeafe',
-    text: '#1e40af',
-    border: '#93c5fd',
-    hoverBg: '#eff6ff',
+    bg: 'var(--color-blue-100)',
+    text: 'var(--color-blue-800)',
+    border: 'var(--color-blue-300)',
+    hoverBg: 'var(--color-blue-50)',
   },
   archived: {
-    bg: '#f3f4f6',
-    text: '#4b5563',
-    border: '#d1d5db',
-    hoverBg: '#f9fafb',
+    bg: 'var(--color-gray-100)',
+    text: 'var(--color-gray-600)',
+    border: 'var(--color-gray-300)',
+    hoverBg: 'var(--color-gray-50)',
   },
 };
 
