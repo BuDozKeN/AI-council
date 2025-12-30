@@ -38,7 +38,7 @@
   height: 60px;
   border: none;
   border-radius: 0 12px 12px 0;
-  background: rgb(0, 0, 0, 0.08);
+  background: var(--overlay-black-8);
   cursor: pointer;
   align-items: center;
   justify-content: center;
@@ -48,11 +48,11 @@
 
 .sidebar-edge-indicator:hover {
   width: 28px;
-  background: rgb(0, 0, 0, 0.15);
+  background: var(--overlay-black-15);
 }
 
 .sidebar-edge-indicator:active {
-  background: rgb(0, 0, 0, 0.2);
+  background: var(--overlay-black-20);
 }
 
 .sidebar-edge-indicator svg {
@@ -71,17 +71,17 @@
 /* Dark mode edge indicator */
 .dark .sidebar-edge-indicator,
 [data-theme="dark"] .sidebar-edge-indicator {
-  background: rgb(255, 255, 255, 0.08);
+  background: var(--overlay-white-8);
 }
 
 .dark .sidebar-edge-indicator:hover,
 [data-theme="dark"] .sidebar-edge-indicator:hover {
-  background: rgb(255, 255, 255, 0.15);
+  background: var(--overlay-white-15);
 }
 
 .dark .sidebar-edge-indicator:active,
 [data-theme="dark"] .sidebar-edge-indicator:active {
-  background: rgb(255, 255, 255, 0.2);
+  background: var(--overlay-white-20);
 }
 
 /* Mobile overlay backdrop */
@@ -89,7 +89,7 @@
   display: none;
   position: fixed;
   inset: 0;
-  background: rgb(0, 0, 0, 0.5);
+  background: var(--overlay-black-50);
 
   /* Must be just below sidebar (z-modal) but above everything else */
   z-index: calc(var(--z-modal) - 1);
@@ -182,7 +182,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgb(0, 0, 0, 0.1);
+  background: var(--overlay-black-10);
   backdrop-filter: blur(4px);
   z-index: var(--z-modal);
 }

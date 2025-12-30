@@ -271,8 +271,8 @@
 
 /* ===== DARK MODE ===== */
 .dark .omni-bar {
-  background: var(--glass-bg, rgb(30, 41, 59, 0.85));
-  border-color: var(--glass-border, rgb(51, 65, 85, 0.6));
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
   box-shadow:
     0 4px 16px var(--overlay-black-30),
     0 1px 4px var(--overlay-black-20),
@@ -280,7 +280,7 @@
 }
 
 .dark .omni-bar:focus-within {
-  background: var(--glass-bg-focus, rgb(30, 41, 59, 0.95));
+  background: var(--glass-bg-focus);
   border-color: var(--color-brand-primary);
   box-shadow:
     0 4px 24px var(--overlay-blue-20),
@@ -289,8 +289,8 @@
 }
 
 .dark .omni-bar-landing .omni-bar {
-  background: var(--glass-bg, rgb(30, 41, 59, 0.75));
-  border-color: var(--glass-border, rgb(51, 65, 85, 0.5));
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
   box-shadow:
     0 8px 32px var(--overlay-black-40),
     0 2px 8px var(--overlay-black-20),
@@ -298,7 +298,7 @@
 }
 
 .dark .omni-bar-landing .omni-bar:focus-within {
-  background: var(--glass-bg-focus, rgb(30, 41, 59, 0.9));
+  background: var(--glass-bg-focus);
   box-shadow:
     0 8px 40px var(--overlay-blue-15),
     0 4px 16px var(--overlay-black-30),

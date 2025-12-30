@@ -286,3 +286,80 @@
     min-height: 24px;
   }
 }
+
+/* ============================================================================
+   DARK MODE
+   ============================================================================ */
+
+.dark .multi-role-trigger {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .multi-role-trigger:hover {
+  border-color: var(--color-border-dark);
+}
+
+.dark .multi-role-placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.dark .multi-role-count {
+  color: var(--color-text-secondary);
+}
+
+.dark .multi-role-badge {
+  background: rgb(var(--color-indigo-rgb), 0.2);
+  color: var(--color-indigo-400);
+  border-color: var(--color-indigo-500);
+}
+
+.dark .multi-role-content {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .multi-role-empty {
+  color: var(--color-text-tertiary);
+}
+
+.dark .multi-role-item {
+  color: var(--color-text-primary);
+}
+
+.dark .multi-role-item:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .multi-role-item.selected {
+  background: rgb(var(--color-indigo-rgb), 0.15);
+}
+
+.dark .multi-role-checkbox {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+.dark .multi-role-checkbox.checked {
+  background: var(--color-indigo-500);
+  border-color: var(--color-indigo-500);
+}
+
+.dark .multi-role-item-desc {
+  color: var(--color-text-tertiary);
+}
+
+/* Mobile dark mode */
+.dark .multi-role-item-mobile {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.dark .multi-role-item-mobile:active {
+  background: var(--color-bg-hover);
+}
+
+.dark .multi-role-item-mobile.selected {
+  background: rgb(var(--color-indigo-rgb), 0.15);
+}

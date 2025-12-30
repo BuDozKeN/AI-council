@@ -345,3 +345,110 @@
     min-height: 24px;
   }
 }
+
+/* ============================================================================
+   DARK MODE
+   ============================================================================ */
+
+.dark .multi-playbook-trigger {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .multi-playbook-trigger:hover {
+  border-color: var(--color-border-dark);
+}
+
+.dark .multi-playbook-placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.dark .multi-playbook-count {
+  color: var(--color-text-secondary);
+}
+
+.dark .multi-playbook-badge {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+/* Type-specific dark mode badge colors */
+.dark .multi-playbook-badge.playbook-badge-sop {
+  background: rgb(var(--color-amber-500-rgb), 0.2);
+  color: var(--color-amber-400);
+  border-color: var(--color-amber-500);
+}
+
+.dark .multi-playbook-badge.playbook-badge-framework {
+  background: rgb(var(--color-blue-500-rgb), 0.2);
+  color: var(--color-blue-400);
+  border-color: var(--color-blue-500);
+}
+
+.dark .multi-playbook-badge.playbook-badge-policy {
+  background: rgb(var(--color-purple-500-rgb), 0.2);
+  color: var(--color-violet-400);
+  border-color: var(--color-violet-500);
+}
+
+.dark .multi-playbook-content {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .multi-playbook-empty {
+  color: var(--color-text-tertiary);
+}
+
+.dark .multi-playbook-group-header {
+  color: var(--color-text-tertiary);
+  border-bottom-color: var(--color-border);
+}
+
+.dark .multi-playbook-group-count {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.dark .multi-playbook-item {
+  color: var(--color-text-primary);
+}
+
+.dark .multi-playbook-item:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .multi-playbook-item.selected {
+  background: rgb(var(--color-indigo-rgb), 0.15);
+}
+
+.dark .multi-playbook-checkbox {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+.dark .multi-playbook-checkbox.checked {
+  background: var(--color-indigo-500);
+  border-color: var(--color-indigo-500);
+}
+
+/* Mobile dark mode */
+.dark .multi-playbook-group-header-mobile {
+  color: var(--color-text-tertiary);
+  border-bottom-color: var(--color-border);
+}
+
+.dark .multi-playbook-item-mobile {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.dark .multi-playbook-item-mobile:active {
+  background: var(--color-bg-hover);
+}
+
+.dark .multi-playbook-item-mobile.selected {
+  background: rgb(var(--color-indigo-rgb), 0.15);
+}

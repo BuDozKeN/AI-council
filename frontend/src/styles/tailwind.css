@@ -383,7 +383,11 @@
     --overlay-amber-10: rgb(245, 158, 11, 0.1);
     --overlay-amber-15: rgb(245, 158, 11, 0.15);
     --overlay-amber-20: rgb(245, 158, 11, 0.2);
+    --overlay-orange-30: rgb(249, 115, 22, 0.3);
+    --overlay-orange-40: rgb(249, 115, 22, 0.4);
+    --overlay-orange-60: rgb(249, 115, 22, 0.6);
     --overlay-green-10: rgb(34, 197, 94, 0.1);
+    --overlay-green-30: rgb(34, 197, 94, 0.3);
     --overlay-green-15: rgb(34, 197, 94, 0.15);
     --overlay-green-20: rgb(34, 197, 94, 0.2);
     --overlay-emerald-10: rgb(16, 185, 129, 0.1);
@@ -699,7 +703,11 @@ html.dark, .dark {
     --overlay-amber-10: rgb(245, 158, 11, 0.15);
     --overlay-amber-15: rgb(245, 158, 11, 0.2);
     --overlay-amber-20: rgb(245, 158, 11, 0.25);
+    --overlay-orange-30: rgb(249, 115, 22, 0.35);
+    --overlay-orange-40: rgb(249, 115, 22, 0.45);
+    --overlay-orange-60: rgb(249, 115, 22, 0.65);
     --overlay-green-10: rgb(34, 197, 94, 0.15);
+    --overlay-green-30: rgb(34, 197, 94, 0.35);
     --overlay-green-15: rgb(34, 197, 94, 0.2);
     --overlay-green-20: rgb(34, 197, 94, 0.25);
     --overlay-emerald-10: rgb(16, 185, 129, 0.15);

@@ -2066,9 +2066,9 @@
 }
 
 .dev-info-box.info {
-  background: var(--overlay-purple-10, rgb(168, 85, 247, 0.1));
+  background: var(--overlay-purple-10);
   color: var(--color-purple-500);
-  border: 1px solid var(--overlay-purple-20, rgb(168, 85, 247, 0.2));
+  border: 1px solid var(--overlay-purple-20);
 }
 
 .dev-info-box svg {

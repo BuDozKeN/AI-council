@@ -113,20 +113,20 @@ select:focus-visible {
 .dark [role="button"]:focus-visible,
 .dark a:focus-visible {
   outline-color: var(--color-blue-500);
-  box-shadow: 0 0 0 4px rgb(96, 165, 250, 0.2);
+  box-shadow: 0 0 0 4px var(--overlay-blue-20);
 }
 
 .dark .model-card:focus-visible,
 .dark [role="article"]:focus-visible {
   outline-color: var(--color-blue-500);
-  box-shadow: 0 0 0 4px rgb(96, 165, 250, 0.2);
+  box-shadow: 0 0 0 4px var(--overlay-blue-20);
 }
 
 .dark input:focus-visible,
 .dark textarea:focus-visible,
 .dark select:focus-visible {
   border-color: var(--color-blue-500);
-  box-shadow: 0 0 0 3px rgb(96, 165, 250, 0.2);
+  box-shadow: 0 0 0 3px var(--overlay-blue-20);
 }
 
 /* Box-sizing is handled in tailwind.css @layer base */
@@ -317,7 +317,7 @@ html.dark body {
     left: 0;
     background: var(--color-bg-primary);
     z-index: var(--z-base);
-    box-shadow: 2px 0 4px rgb(0, 0, 0, 0.05);
+    box-shadow: 2px 0 4px var(--overlay-black-5);
   }
 
   .markdown-content tr:nth-child(even) td:first-child {
