@@ -69,3 +69,16 @@
 .popover-arrow {
   fill: var(--color-bg-primary);
 }
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .popover-content {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .popover-arrow {
+  fill: var(--color-bg-secondary);
+}

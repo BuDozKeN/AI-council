@@ -290,3 +290,25 @@
     font-size: 18px;
   }
 }
+
+/* =============================================================================
+   DARK MODE
+   The login page uses a dark aurora background by default, which works well
+   in both modes. These adjustments ensure the glassmorphism card adapts.
+   ============================================================================= */
+
+/* In dark mode, the card can be slightly more transparent since
+   we're already on a dark background - adds depth */
+.dark .login-card {
+  background: rgb(var(--color-gray-900-rgb), 0.7);
+  border-color: var(--overlay-white-15);
+}
+
+.dark .google-button {
+  background: var(--color-gray-100);
+  color: var(--color-gray-900);
+}
+
+.dark .google-button:hover:not(:disabled) {
+  background: var(--color-gray-200);
+}

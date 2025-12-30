@@ -125,3 +125,21 @@
     20%, 80% { opacity: 0.4; }
   }
 }
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .swipeable-row-content {
+  background: var(--color-bg-primary);
+}
+
+.dark .swipeable-action.default {
+  background: var(--color-slate-600);
+}
+
+@media (hover: none) {
+  .dark .swipeable-row-container:first-child::after {
+    background: var(--color-slate-500);
+  }
+}

@@ -409,3 +409,180 @@
   white-space: pre-wrap;
   overflow-wrap: break-word;
 }
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .org-actions {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+}
+
+.dark .org-action-btn {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-gray-300);
+}
+
+.dark .org-action-btn:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+.dark .org-action-btn.primary {
+  background: var(--color-indigo-600);
+  color: var(--color-text-inverse);
+}
+
+.dark .org-action-btn.primary:hover {
+  background: var(--color-indigo-500);
+}
+
+.dark .org-loading p,
+.dark .org-error p {
+  color: var(--color-gray-400);
+}
+
+.dark .org-empty-title {
+  color: var(--color-gray-200);
+}
+
+.dark .org-empty-hint {
+  color: var(--color-gray-400);
+}
+
+.dark .org-dept {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .org-dept-header:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .org-dept-name {
+  color: var(--color-gray-100);
+}
+
+.dark .org-dept-meta {
+  color: var(--color-gray-400);
+  background: var(--color-bg-tertiary);
+}
+
+.dark .org-dept-desc {
+  color: var(--color-gray-400);
+}
+
+.dark .org-expand-icon {
+  color: var(--color-gray-500);
+}
+
+.dark .org-roles {
+  border-color: var(--color-border);
+  background: var(--color-bg-primary);
+}
+
+.dark .org-role {
+  background: var(--color-bg-secondary);
+}
+
+.dark .org-role-name {
+  color: var(--color-gray-200);
+}
+
+.dark .org-role-desc {
+  color: var(--color-gray-500);
+}
+
+.dark .org-text-btn {
+  color: var(--color-indigo-400);
+}
+
+.dark .org-no-roles {
+  color: var(--color-gray-500);
+}
+
+.dark .org-add-role-btn {
+  border-color: var(--color-border);
+  color: var(--color-gray-400);
+}
+
+.dark .org-add-role-btn:hover {
+  border-color: var(--color-indigo-400);
+  color: var(--color-indigo-400);
+  background: var(--overlay-indigo-15);
+}
+
+.dark .org-add-form {
+  background: var(--overlay-amber-15);
+  border-color: var(--color-amber-600);
+}
+
+.dark .org-add-form input {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .org-add-form input:focus {
+  border-color: var(--color-indigo-400);
+}
+
+.dark .org-form-group label {
+  color: var(--color-gray-300);
+}
+
+.dark .org-form-group input,
+.dark .org-form-group textarea {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .org-form-group input:focus,
+.dark .org-form-group textarea:focus {
+  border-color: var(--color-indigo-400);
+}
+
+.dark .org-form-hint {
+  color: var(--color-gray-500);
+}
+
+.dark .org-btn {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-gray-300);
+}
+
+.dark .org-btn:hover:not(:disabled) {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .org-btn.primary {
+  background: var(--color-indigo-600);
+  color: var(--color-text-inverse);
+}
+
+.dark .org-btn.primary:hover:not(:disabled) {
+  background: var(--color-indigo-500);
+}
+
+.dark .org-btn.secondary {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+}
+
+.dark .org-prompt-path {
+  color: var(--color-gray-400);
+  background: var(--color-bg-tertiary);
+}
+
+.dark .org-prompt-missing {
+  color: var(--color-amber-400);
+}
+
+.dark .org-prompt-content {
+  background: var(--color-gray-900);
+  color: var(--color-gray-300);
+}

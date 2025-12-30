@@ -39,6 +39,14 @@ interface Role {
   name: string;
 }
 
+interface Playbook {
+  id: string;
+  name?: string;
+  title?: string;
+  type?: 'sop' | 'framework' | 'policy';
+  doc_type?: 'sop' | 'framework' | 'policy';
+}
+
 interface ContextIndicatorProps {
   businesses?: Business[];
   selectedBusiness?: string | undefined;
@@ -50,6 +58,8 @@ interface ContextIndicatorProps {
   roles?: Role[];
   selectedRole?: string | undefined;
   selectedRoles?: string[];  // Multi-select support
+  playbooks?: Playbook[];
+  selectedPlaybooks?: string[];  // Selected playbook IDs
   question?: string | undefined;
   conversationTitle?: string;
 }
@@ -65,6 +75,8 @@ export function ContextIndicator({
   roles = [],
   selectedRole,
   selectedRoles = [],
+  playbooks = [],
+  selectedPlaybooks = [],
   question,
   conversationTitle,
 }: ContextIndicatorProps) {
@@ -98,6 +110,18 @@ export function ContextIndicator({
     }
   });
 
+  // Get playbook names with type info
+  type PlaybookType = 'sop' | 'framework' | 'policy';
+  const playbookItems: { name: string; type: PlaybookType }[] = selectedPlaybooks
+    .map(id => {
+      const playbook = playbooks.find(p => p.id === id);
+      if (!playbook) return null;
+      const name = playbook.title || playbook.name || 'Playbook';
+      const type: PlaybookType = playbook.doc_type || playbook.type || 'framework';
+      return { name, type };
+    })
+    .filter((item): item is { name: string; type: PlaybookType } => item !== null);
+
   return (
     <div className="context-indicator" data-stage="question">
       {/* Question line */}
@@ -126,6 +150,11 @@ export function ContextIndicator({
           {roleNames.map((name, idx) => (
             <span key={`role-${idx}`} className="context-indicator-item role">
               {name}
+            </span>
+          ))}
+          {playbookItems.map((item, idx) => (
+            <span key={`playbook-${idx}`} className={`context-indicator-item playbook ${item.type}`}>
+              {item.name}
             </span>
           ))}
         </div>

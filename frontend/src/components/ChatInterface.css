@@ -232,6 +232,57 @@
   color: var(--color-green-300);
 }
 
+/* Playbook pills - uses established color scheme from colors.ts:
+   - SOP: blue-100/blue-700
+   - Framework: amber-100/amber-700
+   - Policy: purple-100/purple-600
+*/
+.context-indicator-item.playbook {
+  background: var(--color-blue-100);
+  color: var(--color-blue-700);
+}
+
+/* Playbook type variants - match PLAYBOOK_TYPE_COLORS */
+.context-indicator-item.playbook.sop {
+  background: var(--color-blue-100);
+  color: var(--color-blue-700);
+}
+
+.context-indicator-item.playbook.framework {
+  background: var(--color-amber-100);
+  color: var(--color-amber-700);
+}
+
+.context-indicator-item.playbook.policy {
+  background: var(--color-purple-100);
+  color: var(--color-purple-600);
+}
+
+/* Dark mode playbook pills */
+.dark .context-indicator-item.playbook,
+[data-theme="dark"] .context-indicator-item.playbook {
+  background: var(--overlay-blue-15);
+  color: var(--color-blue-300);
+}
+
+.dark .context-indicator-item.playbook.sop,
+[data-theme="dark"] .context-indicator-item.playbook.sop {
+  background: var(--overlay-blue-15);
+  color: var(--color-blue-300);
+}
+
+.dark .context-indicator-item.playbook.framework,
+[data-theme="dark"] .context-indicator-item.playbook.framework {
+  background: var(--overlay-amber-15);
+  color: var(--color-amber-300);
+}
+
+.dark .context-indicator-item.playbook.policy,
+[data-theme="dark"] .context-indicator-item.playbook.policy {
+  background: var(--overlay-purple-15);
+  color: var(--color-purple-300);
+}
+
 .messages-container {
   flex: 1;
   overflow: hidden auto;

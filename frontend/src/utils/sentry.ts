@@ -49,6 +49,26 @@ export function initSentry() {
       'AbortError',
       // ResizeObserver loop errors (benign)
       'ResizeObserver loop',
+      // Vite chunk preload errors (stale cache after deployments)
+      // These self-resolve when user gets fresh assets
+      /Unable to preload CSS/,
+      /dynamically imported module/,
+      /Failed to fetch dynamically/,
+      // Service worker registration failures (non-critical PWA feature)
+      // Common causes: network issues, ad blockers, browser restrictions
+      /serviceWorker/i,
+      /sw\.js/,
+    ],
+
+    // Filter errors by URL pattern (external scripts, extensions)
+    denyUrls: [
+      // Browser extensions
+      /extensions\//i,
+      /^chrome:\/\//i,
+      /^chrome-extension:\/\//i,
+      /^moz-extension:\/\//i,
+      // Vercel/analytics scripts that may cause SW errors
+      /registerSW\.js/i,
     ],
 
     // Don't send PII

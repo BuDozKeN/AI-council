@@ -71,3 +71,31 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .confirm-modal-icon-danger,
+.dark .confirm-modal-icon-error {
+  background: var(--overlay-red-15);
+  color: var(--color-red-400);
+}
+
+.dark .confirm-modal-icon-warning {
+  background: var(--overlay-amber-15);
+  color: var(--color-amber-400);
+}
+
+.dark .confirm-modal-icon-info {
+  background: var(--overlay-blue-15);
+  color: var(--color-blue-400);
+}
+
+.dark .app-modal-btn-danger-solid {
+  background: var(--color-red-500);
+}
+
+.dark .app-modal-btn-danger-solid:hover:not(:disabled) {
+  background: var(--color-red-600);
+}

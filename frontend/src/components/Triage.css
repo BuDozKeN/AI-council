@@ -275,3 +275,59 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .message-bubble.user {
+  background: var(--overlay-blue-15);
+  border-color: var(--color-blue-700);
+}
+
+.dark .message-bubble.ai {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-indigo-400);
+}
+
+.dark .message-bubble.ai.ready {
+  border-color: var(--color-emerald-500);
+}
+
+.dark .constraints-summary {
+  background: var(--overlay-emerald-15);
+}
+
+.dark .constraint-row {
+  border-bottom-color: var(--overlay-emerald-20);
+}
+
+.dark .constraint-label {
+  color: var(--color-emerald-400);
+}
+
+.dark .constraint-edit {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-emerald-500);
+}
+
+.dark .constraint-edit:focus {
+  box-shadow: 0 0 0 2px var(--overlay-emerald-20);
+}
+
+.dark .triage-input textarea {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .triage-input textarea:focus {
+  border-color: var(--color-indigo-400);
+}
+
+.dark .skip-btn {
+  border-color: var(--color-border);
+}
+
+.dark .skip-btn:hover:not(:disabled) {
+  background: var(--color-bg-tertiary);
+}

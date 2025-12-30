@@ -139,7 +139,7 @@ def _verify_conversation_ownership(conversation: dict, user: dict) -> None:
 # ENDPOINTS
 # =============================================================================
 
-@router.get("/conversations")
+@router.get("")
 async def list_conversations(
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
@@ -175,7 +175,7 @@ async def list_conversations(
     return {"conversations": conversations, "has_more": result.get("has_more", False)}
 
 
-@router.post("/conversations")
+@router.post("")
 async def create_conversation(
     request: CreateConversationRequest = None,
     user: dict = Depends(get_current_user)
@@ -193,7 +193,7 @@ async def create_conversation(
     return conversation
 
 
-@router.get("/conversations/{conversation_id}")
+@router.get("/{conversation_id}")
 async def get_conversation(conversation_id: str, user: dict = Depends(get_current_user)):
     """Get a specific conversation by ID."""
     access_token = user.get("access_token")
@@ -205,7 +205,7 @@ async def get_conversation(conversation_id: str, user: dict = Depends(get_curren
     return conversation
 
 
-@router.post("/conversations/{conversation_id}/messages")
+@router.post("/{conversation_id}/messages")
 @limiter.limit("60/minute;300/hour")
 async def send_message(
     request: Request,
@@ -567,7 +567,7 @@ async def send_message(
     )
 
 
-@router.post("/conversations/{conversation_id}/chat/stream")
+@router.post("/{conversation_id}/chat/stream")
 @limiter.limit("60/minute;300/hour")
 async def chat_with_chairman(
     request: Request,
@@ -780,7 +780,7 @@ async def chat_with_chairman(
     )
 
 
-@router.patch("/conversations/{conversation_id}/rename")
+@router.patch("/{conversation_id}/rename")
 async def rename_conversation(
     conversation_id: str,
     request: RenameRequest,
@@ -798,7 +798,7 @@ async def rename_conversation(
     return {"success": True, "title": request.title}
 
 
-@router.patch("/conversations/{conversation_id}/department")
+@router.patch("/{conversation_id}/department")
 async def update_conversation_department(
     conversation_id: str,
     request: DepartmentUpdateRequest,
@@ -816,7 +816,7 @@ async def update_conversation_department(
     return {"success": True, "department": request.department}
 
 
-@router.post("/conversations/{conversation_id}/star")
+@router.post("/{conversation_id}/star")
 async def star_conversation(
     conversation_id: str,
     request: StarRequest,
@@ -834,7 +834,7 @@ async def star_conversation(
     return {"success": True, "starred": request.starred}
 
 
-@router.post("/conversations/{conversation_id}/archive")
+@router.post("/{conversation_id}/archive")
 async def archive_conversation(
     conversation_id: str,
     request: ArchiveRequest,
@@ -852,7 +852,7 @@ async def archive_conversation(
     return {"success": True, "archived": request.archived}
 
 
-@router.delete("/conversations/{conversation_id}")
+@router.delete("/{conversation_id}")
 async def delete_conversation(conversation_id: str, user: dict = Depends(get_current_user)):
     """Permanently delete a conversation (must be owner)."""
     access_token = user.get("access_token")
@@ -868,7 +868,7 @@ async def delete_conversation(conversation_id: str, user: dict = Depends(get_cur
     return {"success": True}
 
 
-@router.post("/conversations/bulk-delete")
+@router.post("/bulk-delete")
 async def bulk_delete_conversations(
     request: BulkDeleteRequest,
     user: dict = Depends(get_current_user)
@@ -906,7 +906,7 @@ async def bulk_delete_conversations(
     return {"deleted": deleted, "failed": failed, "deleted_count": len(deleted)}
 
 
-@router.get("/conversations/{conversation_id}/export")
+@router.get("/{conversation_id}/export")
 async def export_conversation_markdown(
     conversation_id: str,
     user: dict = Depends(get_current_user)

@@ -47,3 +47,24 @@
     display: none;
   }
 }
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .pull-to-refresh-indicator {
+  background: var(--color-bg-secondary);
+}
+
+.dark .pull-refresh-icon {
+  color: var(--color-gray-400);
+}
+
+.dark .pull-refresh-icon.ready,
+.dark .pull-refresh-icon.refreshing {
+  color: var(--color-indigo-400);
+}
+
+.dark .pull-refresh-text {
+  color: var(--color-gray-400);
+}

@@ -128,3 +128,33 @@
     height: 32px;
   }
 }
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .scrollable-copy-btn {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-gray-400);
+}
+
+.dark .scrollable-copy-btn:hover {
+  color: var(--color-gray-200);
+}
+
+.dark .scrollable-copy-btn.copied {
+  color: var(--color-green-400);
+  border-color: var(--color-green-600);
+  background: var(--overlay-emerald-15);
+}
+
+.dark .scrollable-scroll-top-btn {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-gray-400);
+}
+
+.dark .scrollable-scroll-top-btn:hover {
+  color: var(--color-gray-200);
+}

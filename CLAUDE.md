@@ -291,11 +291,13 @@ Use consistent button variants:
 ## Key Commands
 
 ```bash
-# Frontend development
-cd frontend && npm run dev
+# ONE-CLICK DEV ENVIRONMENT (recommended)
+dev.bat                       # Starts Chrome+Backend+Frontend, enables Claude browser access
 
-# Backend development (MUST run from project root, not from backend/)
-python -m backend.main
+# Individual services (if needed separately)
+cd frontend && npm run dev    # Frontend only
+python -m backend.main        # Backend only (run from project root)
+start-chrome-debug.bat        # Chrome with debug port only
 
 # Full lint check
 cd frontend && npm run lint && npm run type-check
@@ -319,17 +321,25 @@ See `.env.example` for required variables:
 - `VITE_SENTRY_DSN` - Error tracking
 - `OPENROUTER_API_KEY` - LLM access
 
-## MCP Server (Claude Code Integration)
+## MCP Servers (Claude Code Integration)
 
-To enable direct Supabase schema access in Claude Code sessions:
+The project has two MCP servers configured in `.mcp.json`:
 
-```bash
-cp .mcp.json.example .mcp.json
-# Edit .mcp.json and replace YOUR_PROJECT_REF with your Supabase project reference
-# (the subdomain from your Supabase URL, e.g., "abcdefghij" from https://abcdefghij.supabase.co)
-```
+### 1. Supabase MCP
+Enables Claude to query the database schema and generate accurate TypeScript types.
 
-This enables Claude Code to query your database schema and generate accurate TypeScript types.
+### 2. Chrome DevTools MCP
+Enables Claude to read browser console logs, network requests, and take screenshots.
+
+**Setup for browser debugging:**
+1. Run `start-chrome-debug.bat` (or launch Chrome with `--remote-debugging-port=9222`)
+2. Navigate to your app in that Chrome instance
+3. Claude can then use tools like:
+   - `chrome_console_logs` - Read console errors/warnings
+   - `chrome_network_logs` - See failed requests
+   - `chrome_screenshot` - Capture the current page
+
+This eliminates the need to copy-paste console errors manually.
 
 ## Architecture Decisions
 

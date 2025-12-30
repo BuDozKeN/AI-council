@@ -159,3 +159,59 @@
 .leaderboard-legend strong {
   color: var(--color-text-primary);
 }
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .leaderboard-tabs {
+  border-bottom-color: var(--color-border);
+}
+
+.dark .tab-btn {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .tab-btn:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .leaderboard-stats {
+  background: var(--color-bg-secondary);
+  border-bottom-color: var(--color-border);
+}
+
+.dark .leaderboard-table th {
+  background: var(--color-bg-primary);
+}
+
+.dark .leaderboard-table th,
+.dark .leaderboard-table td {
+  border-bottom-color: var(--color-border);
+}
+
+.dark .leaderboard-table tr:hover {
+  background: var(--color-bg-secondary);
+}
+
+.dark .leaderboard-table tr.leader {
+  background: var(--overlay-amber-15);
+}
+
+.dark .leaderboard-table tr.leader:hover {
+  background: var(--overlay-amber-20);
+}
+
+.dark .score-col {
+  color: var(--color-blue-400);
+}
+
+.dark .rate-col {
+  color: var(--color-emerald-400);
+}
+
+.dark .leaderboard-legend {
+  background: var(--color-bg-secondary);
+  border-top-color: var(--color-border);
+}

@@ -154,3 +154,39 @@
     padding: 0.5rem 0.875rem;
   }
 }
+
+/* ============================================================================
+   DARK MODE
+   Flip to light capsule for contrast against dark backgrounds
+   ============================================================================ */
+
+.dark .capsule-inner {
+  background: var(--color-gray-100);
+  color: var(--color-gray-800);
+  border-color: var(--color-gray-300);
+}
+
+.dark .pulse-ring {
+  background-color: var(--color-emerald-500);
+}
+
+.dark .pulse-dot {
+  background-color: var(--color-emerald-500);
+}
+
+/* Stopped state dark mode */
+.dark .council-progress-capsule.stopped .capsule-inner {
+  background: var(--color-gray-200);
+  border-color: var(--color-gray-400);
+}
+
+.dark .stopped-square {
+  background-color: var(--color-gray-500);
+}
+
+/* Uploading state dark mode */
+.dark .council-progress-capsule.uploading .capsule-inner {
+  background: var(--color-blue-100);
+  border-color: var(--color-blue-300);
+  color: var(--color-blue-800);
+}

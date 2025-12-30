@@ -366,3 +366,83 @@
     padding: 8px 0;
   }
 }
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .select-trigger {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-gray-300);
+}
+
+.dark .select-trigger:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+.dark .select-trigger:focus {
+  border-color: var(--color-indigo-400);
+}
+
+.dark .select-trigger[data-placeholder] {
+  color: var(--color-gray-500);
+}
+
+.dark .select-trigger--compact {
+  color: var(--color-gray-400);
+}
+
+.dark .select-trigger--compact:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-gray-300);
+}
+
+.dark .select-trigger--compact:focus-visible {
+  box-shadow: 0 0 0 2px var(--color-bg-tertiary);
+}
+
+.dark .select-content {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .select-scroll-btn {
+  color: var(--color-gray-400);
+}
+
+.dark .select-label {
+  color: var(--color-gray-500);
+}
+
+.dark .select-item {
+  color: var(--color-gray-300);
+}
+
+.dark .select-item:hover,
+.dark .select-item[data-highlighted] {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .select-item:focus {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .select-item[data-state="checked"] {
+  background: var(--overlay-orange-15);
+  color: var(--color-orange-400);
+}
+
+.dark .select-item[data-state="checked"]:hover,
+.dark .select-item[data-state="checked"][data-highlighted] {
+  background: var(--overlay-orange-20);
+}
+
+.dark .select-item-check {
+  color: var(--color-indigo-400);
+}
+
+.dark .select-separator {
+  background: var(--color-border);
+}

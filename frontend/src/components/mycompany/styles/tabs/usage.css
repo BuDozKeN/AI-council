@@ -150,7 +150,7 @@
 }
 
 .mc-stat-card.accent .mc-stat-icon {
-  color: hsl(160deg, 70%, 42%);
+  color: var(--color-emerald-500);
 }
 
 .mc-stat-content {
@@ -169,7 +169,7 @@
 }
 
 .mc-stat-card.accent .mc-stat-value {
-  color: hsl(160deg, 70%, 42%);
+  color: var(--color-emerald-500);
 }
 
 .mc-stat-label {
@@ -194,19 +194,19 @@
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2-5) var(--space-3);
-  background: hsl(45deg, 100%, 96%);
-  border: 1px solid hsl(45deg, 100%, 80%);
+  background: var(--color-amber-100);
+  border: 1px solid var(--color-amber-300);
   border-radius: var(--radius-md);
   font-size: 0.8125rem;
 }
 
 .dark .mc-usage-alert {
-  background: hsl(45deg, 100%, 10%);
-  border-color: hsl(45deg, 100%, 30%);
+  background: var(--overlay-amber-10);
+  border-color: var(--color-amber-600);
 }
 
 .mc-usage-alert-icon {
-  color: hsl(45deg, 100%, 40%);
+  color: var(--color-amber-500);
   flex-shrink: 0;
 }
 
@@ -403,17 +403,17 @@
 
 .mc-usage-budget-fill {
   height: 100%;
-  background: hsl(217deg, 91%, 60%);
+  background: var(--color-blue-500);
   border-radius: var(--radius-full);
   transition: width 0.3s ease;
 }
 
 .mc-usage-budget-fill.warning {
-  background: hsl(45deg, 100%, 50%);
+  background: var(--color-amber-500);
 }
 
 .mc-usage-budget-fill.exceeded {
-  background: hsl(0deg, 84%, 60%);
+  background: var(--color-red-500);
 }
 
 .mc-usage-budget-footer {
@@ -432,7 +432,7 @@
   align-items: center;
   gap: var(--space-1);
   font-size: 0.75rem;
-  color: hsl(45deg, 100%, 40%);
+  color: var(--color-amber-500);
 }
 
 /* ============================================================================
@@ -455,7 +455,7 @@
 }
 
 .mc-usage-roster-status {
-  color: hsl(160deg, 84%, 39%);
+  color: var(--color-emerald-500);
   flex-shrink: 0;
 }
 

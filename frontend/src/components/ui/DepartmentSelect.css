@@ -227,3 +227,43 @@
     font-size: 15px;
   }
 }
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .dept-select-trigger {
+  color: var(--color-gray-400);
+}
+
+.dark .dept-select-trigger:hover:not(.has-selection) {
+  background: var(--color-bg-secondary);
+  color: var(--color-gray-200);
+}
+
+.dark .dept-select-content {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .dept-select-item {
+  color: var(--color-gray-300);
+}
+
+.dark .dept-select-item[data-highlighted] {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .dept-select-item-mobile {
+  background: var(--color-bg-tertiary);
+  color: var(--color-gray-300);
+}
+
+.dark .dept-select-item-mobile:active {
+  background: var(--color-bg-secondary);
+}
+
+.dark .dept-select-radio {
+  border-color: var(--color-border);
+  background: var(--color-bg-secondary);
+}

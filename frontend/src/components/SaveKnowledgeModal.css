@@ -792,3 +792,64 @@
     flex: none;
   }
 }
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .form-group input,
+.dark .form-group select,
+.dark .form-group textarea {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .context-info {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .tooltip-icon {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+}
+
+.dark .tooltip-text {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .tooltip-text::before {
+  border-top-color: var(--color-bg-secondary);
+}
+
+.dark .project-preview-form {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .project-preview-field input,
+.dark .project-preview-field textarea {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .save-mode-option {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .save-mode-option:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .save-mode-option.selected {
+  background: var(--overlay-blue-15);
+}
+
+.dark .tags-input-container input {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .success-message .success-location {
+  background: var(--color-bg-tertiary);
+}

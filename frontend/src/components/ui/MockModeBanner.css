@@ -67,3 +67,13 @@
     height: 14px;
   }
 }
+
+/* =============================================================================
+   DARK MODE
+   Banner is already high-contrast (amber background), works in both modes.
+   Only slight adjustments needed.
+   ============================================================================= */
+
+.dark .mock-mode-banner {
+  background: var(--color-amber-500);
+}

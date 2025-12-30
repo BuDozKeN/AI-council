@@ -16,4 +16,5 @@ from .encryption import (
     decrypt_api_key,
     get_key_suffix,
     mask_api_key,
+    DecryptionError,
 )

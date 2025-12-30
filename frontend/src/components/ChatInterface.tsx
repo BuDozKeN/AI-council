@@ -437,6 +437,8 @@ export default function ChatInterface({
             roles={allRoles}
             selectedRole={selectedRole || undefined}
             selectedRoles={selectedRoles}
+            playbooks={playbooks}
+            selectedPlaybooks={selectedPlaybooks}
             question={firstUserQuestion || undefined}
             conversationTitle={conversation?.title}
           />

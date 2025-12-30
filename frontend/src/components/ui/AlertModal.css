@@ -55,3 +55,27 @@
   color: var(--color-text-secondary);
   max-width: 320px;
 }
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .alert-modal-icon-success {
+  background: var(--overlay-emerald-15);
+  color: var(--color-emerald-400);
+}
+
+.dark .alert-modal-icon-error {
+  background: var(--overlay-red-15);
+  color: var(--color-red-400);
+}
+
+.dark .alert-modal-icon-info {
+  background: var(--overlay-blue-15);
+  color: var(--color-blue-400);
+}
+
+.dark .alert-modal-icon-warning {
+  background: var(--overlay-amber-15);
+  color: var(--color-amber-400);
+}

@@ -66,26 +66,19 @@
   }
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .mobile-header {
-    background: var(--color-surface-primary-dark);
-    border-bottom-color: var(--color-border-dark);
-  }
+/* =============================================================================
+   DARK MODE (class-based, not media query)
+   ============================================================================= */
 
-  .mobile-header-back {
-    color: var(--color-text-primary-dark);
-  }
+.dark .mobile-header {
+  background: var(--color-bg-secondary);
+  border-bottom-color: var(--color-border);
+}
 
-  .mobile-header-back:hover {
-    background: var(--color-surface-hover-dark);
-  }
+.dark .mobile-header-back:hover {
+  background: var(--color-bg-tertiary);
+}
 
-  .mobile-header-back:active {
-    background: var(--color-surface-active-dark);
-  }
-
-  .mobile-header-title {
-    color: var(--color-text-primary-dark);
-  }
+.dark .mobile-header-back:active {
+  background: var(--color-bg-active);
 }

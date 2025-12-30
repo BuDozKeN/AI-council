@@ -193,3 +193,34 @@
     font-size: 15px;
   }
 }
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .status-select-content {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .status-select-item {
+  color: var(--color-gray-300);
+}
+
+.dark .status-select-item[data-highlighted] {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .status-select-item-mobile {
+  background: var(--color-bg-tertiary);
+  color: var(--color-gray-300);
+}
+
+.dark .status-select-item-mobile:active {
+  background: var(--color-bg-secondary);
+}
+
+.dark .status-select-radio {
+  border-color: var(--color-border);
+  background: var(--color-bg-secondary);
+}

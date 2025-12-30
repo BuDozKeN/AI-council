@@ -45,3 +45,16 @@
 .empty-state-action {
   margin-top: 8px;
 }
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .empty-state-icon {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-tertiary);
+}
+
+.dark .empty-state-message {
+  color: var(--color-text-tertiary);
+}

@@ -195,3 +195,35 @@
     animation: none;
   }
 }
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .bottom-sheet-content {
+  background: var(--color-bg-secondary);
+}
+
+.dark .bottom-sheet-handle-bar {
+  background: var(--color-gray-600);
+}
+
+.dark .bottom-sheet-handle:hover .bottom-sheet-handle-bar {
+  background: var(--color-gray-500);
+}
+
+.dark .bottom-sheet-close {
+  background: var(--color-bg-tertiary);
+  color: var(--color-gray-400);
+}
+
+.dark .bottom-sheet-close:hover {
+  background: var(--color-bg-active);
+  color: var(--color-gray-200);
+}
+
+@media (min-width: 769px) {
+  .dark .bottom-sheet-header {
+    border-color: var(--color-border);
+  }
+}

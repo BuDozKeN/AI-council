@@ -65,3 +65,29 @@
 .error-state-retry:active {
   background: var(--color-blue-200);
 }
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .error-state-icon {
+  background: var(--overlay-red-15);
+  color: var(--color-red-400);
+}
+
+.dark .error-state-message {
+  color: var(--color-text-tertiary);
+}
+
+.dark .error-state-retry {
+  background: var(--overlay-blue-15);
+  color: var(--color-blue-400);
+}
+
+.dark .error-state-retry:hover {
+  background: var(--overlay-blue-20);
+}
+
+.dark .error-state-retry:active {
+  background: var(--overlay-blue-25);
+}

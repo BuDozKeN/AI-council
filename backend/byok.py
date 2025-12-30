@@ -15,7 +15,7 @@ import os
 from datetime import datetime, timezone
 from typing import Optional, Tuple, Dict, Any
 from .database import get_supabase_service
-from .utils.encryption import decrypt_api_key
+from .utils.encryption import decrypt_api_key, DecryptionError
 from .security import log_app_event, log_error
 
 
@@ -101,6 +101,22 @@ async def get_user_api_key(user_id: str, log_usage: bool = True) -> Optional[str
         # SECURITY: Use per-user derived key for decryption
         return decrypt_api_key(result.data["encrypted_key"], user_id=user_id)
 
+    except DecryptionError as e:
+        # Key is corrupted or was encrypted with a different master key
+        # Mark the key as invalid so the user knows to re-enter it
+        log_app_event(
+            "get_user_api_key_failed",
+            user_id=user_id,
+            level="ERROR",
+            details={"error": str(e), "action": "key_invalidated"}
+        )
+        try:
+            db.table("user_api_keys").update({
+                "is_valid": False
+            }).eq("user_id", user_id).execute()
+        except Exception:
+            pass  # Best effort - don't fail if we can't update
+        return None
     except Exception as e:
         log_error("get_user_api_key", e, user_id=user_id)
         return None

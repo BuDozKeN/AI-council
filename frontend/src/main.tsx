@@ -17,6 +17,32 @@ import { initWebVitals } from './utils/webVitals'
 import { initSentry } from './utils/sentry'
 import { initPWA } from './pwa'
 
+// Handle Vite CSS preload errors from stale chunks after deployments
+// When a new version is deployed, old cached JS may reference CSS files that no longer exist
+// This gracefully handles the error and triggers a page reload to get fresh assets
+window.addEventListener('error', (event) => {
+  const target = event.target as HTMLElement | null
+  // Check if it's a link element (CSS preload) that failed to load
+  if (target?.tagName === 'LINK' && (target as HTMLLinkElement).rel === 'modulepreload') {
+    const href = (target as HTMLLinkElement).href
+    // Only handle /assets/ chunk failures (Vite's hashed chunks)
+    if (href?.includes('/assets/')) {
+      console.warn('[Stale chunk detected] Reloading to get fresh assets:', href)
+      // Prevent the error from being reported to Sentry
+      event.preventDefault()
+      // Force reload without cache to get fresh assets
+      window.location.reload()
+    }
+  }
+}, true) // Use capture phase to catch before Sentry
+
+// Also handle CSS preload failures (fired as generic errors on link elements)
+window.addEventListener('vite:preloadError', (event) => {
+  console.warn('[Vite preload error] Reloading to get fresh assets')
+  event.preventDefault()
+  window.location.reload()
+})
+
 // Initialize Sentry error tracking (before anything else)
 initSentry()
 

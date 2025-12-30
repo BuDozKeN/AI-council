@@ -55,3 +55,25 @@
     display: none;
   }
 }
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .pull-refresh-icon {
+  background: var(--color-bg-secondary);
+  color: var(--color-indigo-400);
+}
+
+.dark .pull-refresh-text {
+  background: var(--color-bg-secondary);
+  color: var(--color-gray-400);
+}
+
+.dark .pull-refresh-indicator.refreshing .pull-refresh-icon {
+  color: var(--color-indigo-400);
+}
+
+.dark .pull-refresh-indicator.refreshing .pull-refresh-text {
+  color: var(--color-indigo-400);
+}

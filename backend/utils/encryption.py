@@ -171,9 +171,18 @@ def decrypt_api_key(encrypted_key: str, user_id: Optional[str] = None) -> str:
 
     Returns:
         The plaintext API key
+
+    Raises:
+        ValueError: If the encrypted key is empty or malformed
+        DecryptionError: If the key cannot be decrypted (wrong cipher, corrupted data)
     """
     if not encrypted_key:
         raise ValueError("Encrypted key cannot be empty")
+
+    try:
+        from cryptography.fernet import InvalidToken
+    except ImportError:
+        InvalidToken = Exception
 
     if user_id:
         cipher = get_cipher_for_user(user_id)
@@ -181,8 +190,27 @@ def decrypt_api_key(encrypted_key: str, user_id: Optional[str] = None) -> str:
         # Fallback to legacy behavior (not recommended)
         cipher = get_cipher()
 
-    decrypted = cipher.decrypt(encrypted_key.encode())
-    return decrypted.decode()
+    try:
+        decrypted = cipher.decrypt(encrypted_key.encode())
+        return decrypted.decode()
+    except InvalidToken as e:
+        # Fernet raises InvalidToken for bad padding, wrong key, or corrupted data
+        raise DecryptionError(
+            f"Failed to decrypt API key: data is corrupted or was encrypted with a different key"
+        ) from e
+    except Exception as e:
+        # Catch base64 decoding errors ("Incorrect padding") and other issues
+        error_msg = str(e)
+        if "padding" in error_msg.lower() or "base64" in error_msg.lower():
+            raise DecryptionError(
+                f"Failed to decrypt API key: invalid encrypted data format"
+            ) from e
+        raise DecryptionError(f"Failed to decrypt API key: {error_msg}") from e
+
+
+class DecryptionError(Exception):
+    """Raised when decryption fails due to corrupted data or wrong key."""
+    pass
 
 
 def get_key_suffix(raw_key: str) -> str:
