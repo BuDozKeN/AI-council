@@ -1,14 +1,14 @@
 # AxCouncil Audit Dashboard
 
 > Last Updated: 2025-12-30 UTC
-> Last Audit: data (Data Architecture & RLS Security)
+> Last Audit: api (API Governance)
 > Branch: master
 
 ---
 
 ## Executive Summary
 
-### Overall Health: 8.5/10
+### Overall Health: 8.7/10
 
 | Category | Score | Trend | Critical | High | Medium | Last Checked |
 |----------|-------|-------|----------|------|--------|--------------|
@@ -22,15 +22,15 @@
 | Data Architecture | 9/10 | ↑ | 0 | 0 | 0 | 2025-12-30 |
 | Billing | --/10 | -- | -- | -- | -- | -- |
 | Resilience | 9/10 | ↑ | 0 | 0 | 1 | 2025-12-30 |
-| API Governance | --/10 | -- | -- | -- | -- | -- |
+| API Governance | 10/10 | ↑ | 0 | 0 | 0 | 2025-12-30 |
 
 > Categories not run in this audit retain their previous scores and "Last Checked" dates.
 
 ### Key Metrics
 - **Total Findings**: 8 (Critical: 0, High: 0, Medium: 5, Low: 3)
-- **Fixed Since Last Run**: 5 (all data architecture critical RLS vulnerabilities)
+- **Fixed Since Last Run**: 5 (response envelope, error standardization, HTTP caching, OpenAPI docs, frontend error handling)
 - **New This Run**: 0
-- **$25M Readiness**: Near Ready (Performance + Accessibility + Resilience + Data Architecture on track)
+- **$25M Readiness**: Near Ready (Performance + Accessibility + Resilience + Data Architecture + API Governance complete)
 
 ---
 
@@ -38,6 +38,7 @@
 
 | Date | Scope | Overall | Sec | Code | UI | Perf | A11y | Mobile | LLM | Data | Bill | Resil | API |
 |------|-------|---------|-----|------|-----|------|------|--------|-----|------|------|-------|-----|
+| 2025-12-30 | api | 8.7 | -- | -- | -- | 8 | 8 | -- | -- | 9 | -- | 9 | 10 |
 | 2025-12-30 | data | 8.5 | -- | -- | -- | 8 | 8 | -- | -- | 9 | -- | 9 | -- |
 | 2025-12-30 | resilience | 8.3 | -- | -- | -- | 8 | 8 | -- | -- | -- | -- | 9 | -- |
 | 2025-12-29 | perf | 7.5 | -- | -- | -- | 8 | 8 | -- | -- | -- | -- | -- | -- |
@@ -116,6 +117,18 @@
 - **Impact**: Teams cannot monitor circuit breaker states or cache metrics in real-time
 - **Recommendation**: Add `/api/health/metrics` endpoint exposing Prometheus-compatible metrics
 - **Status**: Open
+
+### ~~[API-001] API Governance: Response envelope standardization~~ ✅ FIXED
+- **Location**: `backend/schemas/responses.py`, `backend/main.py`
+- **Fix Applied**: Created standardized `{error, meta}` format for all error responses
+- **Fixed**: 2025-12-30
+- **Status**: ✅ Fixed
+
+### ~~[API-002] API Governance: HTTP caching headers~~ ✅ FIXED
+- **Location**: `backend/main.py:APIVersionMiddleware`
+- **Fix Applied**: Added `Cache-Control` headers to all GET endpoints (public caching for plans/leaderboard, no-cache for sensitive data)
+- **Fixed**: 2025-12-30
+- **Status**: ✅ Fixed
 
 ---
 
@@ -460,10 +473,99 @@ All 14 resilience items were implemented and verified:
 
 </details>
 
-<details>
-<summary>API Governance (--/10) - Not yet audited</summary>
+<details open>
+<summary>API Governance (10/10) - Last checked: 2025-12-30</summary>
 
-Run `/audit-dashboard api` to populate.
+### API Governance Score: 10/10 | Developer Experience Score: 10/10
+
+### What's Implemented ✅
+
+#### API Versioning (Critical - Fixed)
+
+| Area | Implementation | Location |
+|------|----------------|----------|
+| Version Prefix | All endpoints under `/api/v1/` | `backend/routers/v1.py` |
+| Router Aggregation | v1_router includes all sub-routers | `backend/routers/v1.py:24-39` |
+| Frontend Migration | All API calls use `/api/v1/` prefix | `frontend/src/api.ts:15` |
+| Version Header | `X-API-Version: v1` on all responses | `backend/main.py:APIVersionMiddleware` |
+
+#### Rate Limiting (High - Fixed)
+
+| Endpoint | Limit | Location |
+|----------|-------|----------|
+| `POST /billing/checkout` | 10/minute | `backend/routers/billing.py:68` |
+| `POST /billing/portal` | 10/minute | `backend/routers/billing.py:88` |
+| `POST /attachments/upload` | 30/minute, 100/hour | `backend/routers/attachments.py:43` |
+| `POST /company/.../members` | 20/minute | `backend/routers/company/members.py:45` |
+| `POST /company/.../playbooks` | 20/minute | `backend/routers/company/playbooks.py:66` |
+| `POST /settings/openrouter-key` | 5/minute | `backend/routers/settings.py:71` |
+| Council queries | 5/minute per user | `backend/routers/conversations.py:195` |
+
+#### Response Envelope & Error Standardization (Medium - Fixed)
+
+| Feature | Implementation | Location |
+|---------|----------------|----------|
+| Response Schemas | `APIResponse`, `ErrorResponse`, `PaginatedResponse` models | `backend/schemas/responses.py` |
+| Error Format | Standardized `{error: {code, message, reference}, meta}` | `backend/main.py:529-597` |
+| Error Codes | `ErrorCodes` constants for machine-readable codes | `backend/schemas/responses.py:210-240` |
+| Frontend Support | `APIError` class + `handleErrorResponse` helper | `frontend/src/api.ts:40-98` |
+
+#### HTTP Caching Headers (Medium - Fixed)
+
+| Cache Policy | Endpoints | Max-Age |
+|--------------|-----------|---------|
+| Public Cache | `/billing/plans`, `/leaderboard` | 1 hour, 5 min |
+| No Cache | Conversations, knowledge, settings, subscriptions | no-store |
+| Private Cache | Other GET endpoints | 60 seconds |
+
+#### OpenAPI Documentation (Medium - Fixed)
+
+| Feature | URL | Description |
+|---------|-----|-------------|
+| Swagger UI | `/api/docs` | Interactive API explorer |
+| ReDoc | `/api/redoc` | Beautiful API reference |
+| OpenAPI JSON | `/api/openapi.json` | Machine-readable spec |
+
+#### Middleware & Headers
+
+| Feature | Implementation | Location |
+|---------|----------------|----------|
+| APIVersionMiddleware | Version + caching headers | `backend/main.py:426-469` |
+| Request correlation | UUID correlation IDs for tracing | `backend/main.py:302-328` |
+| Rate limit headers | IETF standard `X-RateLimit-*` headers | `backend/security.py:450-470` |
+
+### Router Structure
+
+| Router | Prefix | Endpoints |
+|--------|--------|-----------|
+| conversations | `/conversations` | CRUD, streaming, messages |
+| projects | `/projects` | Project management |
+| knowledge | `/knowledge` | Knowledge entries |
+| billing | `/billing` | Stripe checkout, portal, webhooks |
+| settings | `/settings` | User settings, API keys |
+| attachments | `/attachments` | File uploads |
+| profile | `/profile` | User profile |
+| leaderboard | `/leaderboard` | Usage leaderboard |
+| company | `/company` | Company sub-routers |
+| ai_utils | `/` | AI-related utilities |
+
+### What Could Be Better
+
+1. **Client SDK** - Generate TypeScript types from OpenAPI spec
+2. **ETag Support** - Add entity tags for fine-grained cache invalidation
+
+### Implementation Summary
+
+| Item | Status | Commit |
+|------|--------|--------|
+| API versioning `/api/v1/` | ✅ Fixed | `2b0b4d5` |
+| Rate limiting on 6 endpoints | ✅ Fixed | `2b0b4d5` |
+| X-API-Version header | ✅ Fixed | `2b0b4d5` |
+| Frontend migration to v1 | ✅ Fixed | `2b0b4d5` |
+| Response envelope | ✅ Fixed | pending |
+| Error standardization | ✅ Fixed | pending |
+| HTTP caching | ✅ Fixed | pending |
+| OpenAPI docs | ✅ Fixed | pending |
 
 </details>
 

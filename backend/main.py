@@ -195,16 +195,33 @@ try:
     from .context_loader import list_available_businesses
     from .auth import get_current_user
     from .routers import v1_router
+    from .schemas import error_response, ErrorCodes
 except ImportError:
     from backend.context_loader import list_available_businesses
     from backend.auth import get_current_user
     from backend.routers import v1_router
+    from backend.schemas import error_response, ErrorCodes
 
 
 # =============================================================================
 # APP INITIALIZATION
 # =============================================================================
-app = FastAPI(title="LLM Council API")
+app = FastAPI(
+    title="LLM Council API",
+    description="AI-powered decision council platform API",
+    version="1.0.0",
+    docs_url="/api/docs",
+    redoc_url="/api/redoc",
+    openapi_url="/api/openapi.json",
+    openapi_tags=[
+        {"name": "conversations", "description": "Council conversations and queries"},
+        {"name": "knowledge", "description": "Knowledge entries and decisions"},
+        {"name": "company", "description": "Company management"},
+        {"name": "billing", "description": "Subscription and billing"},
+        {"name": "settings", "description": "User settings"},
+        {"name": "health", "description": "Health checks"},
+    ]
+)
 
 # Add rate limiter to app state
 app.state.limiter = limiter
@@ -407,15 +424,47 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
 
 class APIVersionMiddleware(BaseHTTPMiddleware):
-    """Add API version header to all API responses."""
+    """Add API version header and caching headers to API responses."""
+
+    # Cacheable GET endpoints with their max-age in seconds
+    CACHEABLE_PATHS = {
+        "/api/v1/billing/plans": 3600,  # 1 hour - plans rarely change
+        "/api/v1/leaderboard": 300,  # 5 minutes
+    }
+
+    # Paths that should never be cached
+    NO_CACHE_PATTERNS = [
+        "/api/v1/conversations",
+        "/api/v1/knowledge",
+        "/api/v1/settings",
+        "/api/v1/billing/subscription",
+        "/api/v1/billing/can-query",
+    ]
 
     async def dispatch(self, request, call_next):
         response = await call_next(request)
 
-        # Add version header to all /api/ responses
         path = request.url.path
+        method = request.method
+
+        # Add version header to all /api/ responses
         if path.startswith("/api/"):
             response.headers["X-API-Version"] = "v1"
+
+            # Add caching headers for GET requests
+            if method == "GET" and response.status_code == 200:
+                # Check if path should be cached
+                cache_time = self.CACHEABLE_PATHS.get(path)
+
+                if cache_time:
+                    # Cacheable endpoint
+                    response.headers["Cache-Control"] = f"public, max-age={cache_time}"
+                elif any(path.startswith(p) for p in self.NO_CACHE_PATTERNS):
+                    # Explicitly no cache for sensitive endpoints
+                    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
+                else:
+                    # Default: short cache for other GET endpoints
+                    response.headers["Cache-Control"] = "private, max-age=60"
 
         return response
 
@@ -435,7 +484,7 @@ app.add_middleware(
         "Cache-Control",
         "X-Correlation-ID",
     ],
-    expose_headers=["Content-Disposition", "X-Correlation-ID", "X-Response-Time", "X-API-Version"],
+    expose_headers=["Content-Disposition", "X-Correlation-ID", "X-Response-Time", "X-API-Version", "Cache-Control"],
 )
 # Performance: Lower threshold to compress smaller API responses (e.g., JSON lists)
 app.add_middleware(GZipMiddleware, minimum_size=500)
@@ -450,19 +499,48 @@ app.add_middleware(RequestSizeLimitMiddleware)
 # =============================================================================
 # EXCEPTION HANDLERS
 # =============================================================================
-@app.exception_handler(HTTPException)
-async def cors_exception_handler(request: Request, exc: HTTPException):
+
+def _get_cors_headers(request: Request) -> dict:
+    """Get CORS headers if origin is allowed."""
     origin = request.headers.get("origin", "")
-    headers = {}
     if origin in CORS_ORIGINS:
-        headers = {
+        return {
             "Access-Control-Allow-Origin": origin,
             "Access-Control-Allow-Credentials": "true",
         }
+    return {}
+
+
+def _map_status_to_error_code(status_code: int) -> str:
+    """Map HTTP status codes to error codes."""
+    mapping = {
+        400: ErrorCodes.INVALID_INPUT,
+        401: ErrorCodes.AUTH_TOKEN_INVALID,
+        403: ErrorCodes.ACCESS_DENIED,
+        404: ErrorCodes.RESOURCE_NOT_FOUND,
+        422: ErrorCodes.VALIDATION_ERROR,
+        429: ErrorCodes.RATE_LIMITED,
+        500: ErrorCodes.INTERNAL_ERROR,
+        503: ErrorCodes.SERVICE_UNAVAILABLE,
+    }
+    return mapping.get(status_code, ErrorCodes.INTERNAL_ERROR)
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    """Handle HTTP exceptions with standardized error response."""
+    error_code = _map_status_to_error_code(exc.status_code)
+
+    # Handle detail that might be a string or dict
+    message = exc.detail if isinstance(exc.detail, str) else str(exc.detail)
+
     return JSONResponse(
         status_code=exc.status_code,
-        content={"detail": exc.detail},
-        headers=headers
+        content=error_response(
+            code=error_code,
+            message=message
+        ),
+        headers=_get_cors_headers(request)
     )
 
 
@@ -471,23 +549,30 @@ from fastapi.exceptions import RequestValidationError
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """Handle validation errors with standardized error response."""
     log_app_event(f"VALIDATION: Validation error on {request.url.path}", level="WARNING", errors=str(exc.errors())[:200])
-    origin = request.headers.get("origin", "")
-    headers = {}
-    if origin in CORS_ORIGINS:
-        headers = {
-            "Access-Control-Allow-Origin": origin,
-            "Access-Control-Allow-Credentials": "true",
-        }
+
+    # Extract first error for user-friendly message
+    errors = exc.errors()
+    first_error = errors[0] if errors else {}
+    field = ".".join(str(loc) for loc in first_error.get("loc", [])) or None
+    message = first_error.get("msg", "Validation error")
+
     return JSONResponse(
         status_code=422,
-        content={"detail": exc.errors()},
-        headers=headers
+        content=error_response(
+            code=ErrorCodes.VALIDATION_ERROR,
+            message=message,
+            field=field,
+            details={"errors": errors} if len(errors) > 1 else None
+        ),
+        headers=_get_cors_headers(request)
     )
 
 
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
+    """Handle unhandled exceptions with standardized error response."""
     import traceback
     import hashlib
 
@@ -501,18 +586,14 @@ async def general_exception_handler(request: Request, exc: Exception):
     if environment != "production":
         traceback.print_exc()
 
-    origin = request.headers.get("origin", "")
-    headers = {}
-    if origin in CORS_ORIGINS:
-        headers = {
-            "Access-Control-Allow-Origin": origin,
-            "Access-Control-Allow-Credentials": "true",
-        }
-
     return JSONResponse(
         status_code=500,
-        content={"detail": f"An error occurred. Reference: {error_ref}"},
-        headers=headers
+        content=error_response(
+            code=ErrorCodes.INTERNAL_ERROR,
+            message="An unexpected error occurred",
+            reference=error_ref
+        ),
+        headers=_get_cors_headers(request)
     )
 
 

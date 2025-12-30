@@ -15,6 +15,90 @@ const API_BASE = import.meta.env.PROD
 const API_VERSION = '/api/v1';
 
 // =============================================================================
+// Error Response Types (matching backend schema)
+// =============================================================================
+
+interface APIErrorDetail {
+  code: string;
+  message: string;
+  reference?: string;
+  field?: string;
+  details?: Record<string, unknown>;
+}
+
+interface APIErrorResponse {
+  error: APIErrorDetail;
+  meta?: {
+    api_version: string;
+    timestamp: string;
+  };
+}
+
+/**
+ * Custom API error class with structured error information.
+ */
+export class APIError extends Error {
+  code: string;
+  reference: string | undefined;
+  field: string | undefined;
+  details: Record<string, unknown> | undefined;
+  statusCode: number;
+
+  constructor(
+    message: string,
+    code: string,
+    statusCode: number,
+    options?: { reference?: string | undefined; field?: string | undefined; details?: Record<string, unknown> | undefined }
+  ) {
+    super(message);
+    this.name = 'APIError';
+    this.code = code;
+    this.statusCode = statusCode;
+    this.reference = options?.reference;
+    this.field = options?.field;
+    this.details = options?.details;
+  }
+}
+
+/**
+ * Parse an error response and throw an appropriate error.
+ * Handles both new standardized format and legacy format.
+ */
+async function handleErrorResponse(response: Response, fallbackMessage: string): Promise<never> {
+  let errorData: unknown;
+  try {
+    errorData = await response.json();
+  } catch {
+    throw new APIError(fallbackMessage, 'UNKNOWN_ERROR', response.status);
+  }
+
+  // New standardized format: { error: { code, message, ... }, meta: { ... } }
+  if (typeof errorData === 'object' && errorData !== null && 'error' in errorData) {
+    const apiError = errorData as APIErrorResponse;
+    throw new APIError(
+      apiError.error.message,
+      apiError.error.code,
+      response.status,
+      {
+        reference: apiError.error.reference,
+        field: apiError.error.field,
+        details: apiError.error.details,
+      }
+    );
+  }
+
+  // Legacy format: { detail: string | object }
+  if (typeof errorData === 'object' && errorData !== null && 'detail' in errorData) {
+    const legacy = errorData as { detail: string | unknown };
+    const message = typeof legacy.detail === 'string' ? legacy.detail : fallbackMessage;
+    throw new APIError(message, 'LEGACY_ERROR', response.status);
+  }
+
+  // Unknown format
+  throw new APIError(fallbackMessage, 'UNKNOWN_ERROR', response.status);
+}
+
+// =============================================================================
 // Type Definitions
 // =============================================================================
 
@@ -125,7 +209,7 @@ export const api = {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}${API_VERSION}/businesses`, { headers });
     if (!response.ok) {
-      throw new Error('Failed to list businesses');
+      await handleErrorResponse(response, 'Failed to list businesses');
     }
     const data = await response.json();
     // Backend returns { companies: [...], has_more: bool }, but callers expect an array
@@ -161,7 +245,7 @@ export const api = {
     }
     const response = await fetch(`${API_BASE}${API_VERSION}/conversations?${params}`, { headers });
     if (!response.ok) {
-      throw new Error('Failed to list conversations');
+      await handleErrorResponse(response, 'Failed to list conversations');
     }
     return response.json();
   },
