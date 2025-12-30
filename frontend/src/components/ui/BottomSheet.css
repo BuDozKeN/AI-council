@@ -27,13 +27,15 @@
   overflow: hidden;
 }
 
-/* Drag handle - iOS style */
+/* Drag handle - iOS style, tappable to close */
 .bottom-sheet-handle {
   display: flex;
   justify-content: center;
   padding: 12px 0 8px;
-  cursor: grab;
+  cursor: pointer;
   flex-shrink: 0;
+  min-height: 44px; /* Touch target */
+  -webkit-tap-highlight-color: transparent;
 }
 
 .bottom-sheet-handle-bar {
@@ -44,8 +46,13 @@
   transition: background 0.15s ease;
 }
 
-.bottom-sheet-handle:hover .bottom-sheet-handle-bar {
+.bottom-sheet-handle:hover .bottom-sheet-handle-bar,
+.bottom-sheet-handle:active .bottom-sheet-handle-bar {
   background: var(--color-text-muted);
+}
+
+.bottom-sheet-handle:active {
+  opacity: 0.7;
 }
 
 /* Header */

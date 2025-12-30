@@ -1,4 +1,4 @@
-import { useRef, useEffect, useCallback, ReactNode } from 'react';
+import { useRef, useEffect, useCallback, ReactNode, MouseEvent as ReactMouseEvent } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { motion, AnimatePresence } from 'framer-motion';
 import './BottomSheet.css';
@@ -76,8 +76,46 @@ export function BottomSheet({
     };
   }, [isOpen, handleTouchStart, handleTouchEnd]);
 
+  // Handle Escape key to close (since we disabled onOpenChange)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        // Don't close if a Select dropdown is open (it will handle its own Escape)
+        const selectContent = document.querySelector('[data-radix-select-content]');
+        if (selectContent) return;
+
+        onClose?.();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  // Handle clicks on empty space within the sheet body to close
+  const handleBodyClick = useCallback((e: ReactMouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    // Only close if clicking directly on the body background (not any child elements)
+    // This allows tap-to-dismiss behavior when tapping empty space
+    if (target.classList.contains('bottom-sheet-body')) {
+      onClose?.();
+    }
+  }, [onClose]);
+
   return (
-    <Dialog.Root open={isOpen} onOpenChange={(open) => !open && onClose?.()}>
+    <Dialog.Root
+      open={isOpen}
+      onOpenChange={(open) => {
+        // Only handle explicit close requests (not from nested Radix components)
+        // The overlay onClick and handle onClick will handle closing directly
+        if (!open) {
+          // Don't auto-close - let explicit handlers do it
+          // This prevents Radix Select dropdown closing from bubbling up
+        }
+      }}
+    >
       <AnimatePresence>
         {isOpen && (
           <Dialog.Portal forceMount>
@@ -89,7 +127,7 @@ export function BottomSheet({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                onClick={onClose}
+                onClick={() => onClose?.()}
               />
             </Dialog.Overlay>
 
@@ -107,8 +145,14 @@ export function BottomSheet({
                   stiffness: 300,
                 }}
               >
-                {/* Drag handle for mobile */}
-                <div className="bottom-sheet-handle">
+                {/* Drag handle for mobile - tap to close */}
+                <div
+                  className="bottom-sheet-handle"
+                  onClick={() => onClose?.()}
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Close sheet"
+                >
                   <div className="bottom-sheet-handle-bar" />
                 </div>
 
@@ -140,8 +184,8 @@ export function BottomSheet({
                   {title ? `${title} dialog` : 'Dialog content'}
                 </Dialog.Description>
 
-                {/* Body */}
-                <div className="bottom-sheet-body">
+                {/* Body - tap empty space to close */}
+                <div className="bottom-sheet-body" onClick={handleBodyClick}>
                   {children}
                 </div>
               </motion.div>

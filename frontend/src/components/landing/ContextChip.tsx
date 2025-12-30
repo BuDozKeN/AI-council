@@ -10,14 +10,176 @@
  * - Projects & Playbooks (behind "See more" toggle)
  */
 
-import { useState, useEffect, useMemo } from 'react';
-import { ChevronDown, ChevronRight, Sparkles, Building2, Users, Briefcase, Check, FileText, ScrollText, Shield } from 'lucide-react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
+import { ChevronDown, Sparkles, Building2, Users, Briefcase, Check, FileText, ScrollText, Shield } from 'lucide-react';
 import { Popover, PopoverTrigger, PopoverContent } from '../ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { BottomSheet } from '../ui/BottomSheet';
 import { getDeptColor } from '../../lib/colors';
 import type { Business, Department, Role, Project, Playbook, UserPreferences } from '../../types/business';
 import './ContextChip.css';
+
+// Multi-select dropdown component for mobile
+interface MultiSelectDropdownProps {
+  label: string;
+  icon: React.ReactNode;
+  placeholder: string;
+  items: { id: string; name: string }[];
+  selectedIds: string[];
+  onToggle: (id: string) => void;
+  getItemStyle?: (id: string, isSelected: boolean) => React.CSSProperties;
+}
+
+function MultiSelectDropdown({
+  label,
+  icon,
+  placeholder,
+  items,
+  selectedIds,
+  onToggle,
+  getItemStyle,
+}: MultiSelectDropdownProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [tooltipPosition, setTooltipPosition] = useState<{ top: number; left: number } | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const badgeRef = useRef<HTMLButtonElement>(null);
+
+  // Close on click outside
+  useEffect(() => {
+    if (!isOpen && !showTooltip) return;
+
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as HTMLElement;
+
+      // Don't close if clicking on the backdrop (let backdrop handle closing the whole sheet)
+      if (target.closest('.bottom-sheet-overlay')) {
+        return;
+      }
+
+      // Don't close if clicking on the tooltip itself
+      if (target.closest('.context-badge-tooltip-portal')) {
+        return;
+      }
+
+      // Close if clicking outside this dropdown
+      if (dropdownRef.current && !dropdownRef.current.contains(target)) {
+        setIsOpen(false);
+        setShowTooltip(false);
+      }
+    };
+
+    // Use capture phase to handle before other handlers
+    document.addEventListener('mousedown', handleClickOutside, true);
+    document.addEventListener('touchstart', handleClickOutside as EventListener, true);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside, true);
+      document.removeEventListener('touchstart', handleClickOutside as EventListener, true);
+    };
+  }, [isOpen, showTooltip]);
+
+  // Get selected item names for tooltip
+  const selectedNames = selectedIds
+    .map(id => items.find(i => i.id === id)?.name)
+    .filter(Boolean) as string[];
+
+  // Handle badge click to show tooltip
+  const handleBadgeClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    // Calculate position based on badge location
+    if (badgeRef.current) {
+      const rect = badgeRef.current.getBoundingClientRect();
+      setTooltipPosition({
+        top: rect.bottom + 8, // 8px below the badge
+        left: rect.left + rect.width / 2, // Center horizontally
+      });
+    }
+
+    setShowTooltip(!showTooltip);
+    setIsOpen(false); // Close dropdown if open
+  };
+
+  // Tooltip rendered via portal to escape overflow:hidden containers
+  const tooltipContent = showTooltip && tooltipPosition && selectedNames.length > 0 && createPortal(
+    <div
+      className="context-badge-tooltip-portal"
+      style={{
+        position: 'fixed',
+        top: tooltipPosition.top,
+        left: tooltipPosition.left,
+        transform: 'translateX(-50%)',
+        zIndex: 9999,
+      }}
+    >
+      <div className="context-badge-tooltip-arrow" />
+      {selectedNames.map((name, i) => (
+        <div key={i} className="context-badge-tooltip-item">{name}</div>
+      ))}
+    </div>,
+    document.body
+  );
+
+  return (
+    <div className="context-field-mobile" ref={dropdownRef}>
+      <label className="context-field-label-mobile">
+        {label}
+        {selectedIds.length > 0 && (
+          <span className="context-badge-wrapper">
+            <button
+              ref={badgeRef}
+              type="button"
+              className="context-field-count"
+              onClick={handleBadgeClick}
+              aria-label={`${selectedIds.length} selected. Click to see list.`}
+            >
+              {selectedIds.length}
+            </button>
+          </span>
+        )}
+      </label>
+
+      {/* Trigger button - simple "X selected" text */}
+      <button
+        type="button"
+        className={`context-multiselect-trigger ${isOpen ? 'open' : ''}`}
+        onClick={() => { setIsOpen(!isOpen); setShowTooltip(false); }}
+      >
+        {icon}
+        <span className="context-select-placeholder">
+          {selectedIds.length === 0 ? placeholder : `${selectedIds.length} selected`}
+        </span>
+        <ChevronDown size={16} className={`context-multiselect-chevron ${isOpen ? 'rotated' : ''}`} />
+      </button>
+
+      {/* Dropdown list */}
+      {isOpen && (
+        <div className="context-multiselect-dropdown">
+          {items.map((item) => {
+            const isSelected = selectedIds.includes(item.id);
+            const style = getItemStyle ? getItemStyle(item.id, isSelected) : {};
+            return (
+              <button
+                key={item.id}
+                type="button"
+                className={`context-multiselect-item ${isSelected ? 'selected' : ''}`}
+                onClick={() => onToggle(item.id)}
+                style={style}
+              >
+                <span className="context-multiselect-item-text">{item.name}</span>
+                {isSelected && <Check size={16} />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Tooltip via portal - escapes overflow:hidden */}
+      {tooltipContent}
+    </div>
+  );
+}
 
 // Check if we're on mobile for bottom sheet vs popover
 const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
@@ -173,9 +335,6 @@ export function ContextChip({
     }
   };
 
-  // Count of project/playbook selections for badge
-  const moreCount = (selectedProject ? 1 : 0) + (selectedPlaybooks?.length || 0);
-
   // Trigger button
   const triggerButton = (
     <button
@@ -199,96 +358,77 @@ export function ContextChip({
     return allRoles.filter(role => role.department_id && selectedDepartments.includes(role.department_id));
   }, [allRoles, selectedDepartments]);
 
-  // Desktop content - compact with playbooks behind toggle
+  // Helper to get department tag styles
+  const getDeptTagStyle = (deptId: string, isSelected: boolean): React.CSSProperties => {
+    if (!isSelected) return {};
+    const colors = getDeptColor(deptId);
+    return {
+      '--tag-bg': colors.bg,
+      '--tag-text': colors.text,
+    } as React.CSSProperties;
+  };
+
+  // Desktop content - same dropdown pattern as mobile for consistency
   const renderDesktopContent = () => (
     <div className="context-desktop-wrapper">
-      {/* Company dropdown - STICKY at top, never scrolls away */}
+      {/* Company - single select */}
       {businesses.length > 0 && (
-        <div className="context-desktop-header">
-          <div className="context-desktop-field">
-            <label className="context-desktop-label">Company</label>
-            <Select
-              value={selectedBusiness || '__none__'}
-              onValueChange={(v) => onSelectBusiness?.(v === '__none__' ? null : v)}
-            >
-              <SelectTrigger className="context-desktop-select">
-                <Building2 size={14} className="context-desktop-select-icon" />
-                <SelectValue placeholder="Select company" />
-              </SelectTrigger>
-              <SelectContent>
-                {businesses.map((biz) => (
-                  <SelectItem key={biz.id} value={biz.id}>
-                    {biz.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="context-field-mobile">
+          <label className="context-field-label-mobile">Company</label>
+          <Select
+            value={selectedBusiness || '__none__'}
+            onValueChange={(v) => onSelectBusiness?.(v === '__none__' ? null : v)}
+          >
+            <SelectTrigger className="context-multiselect-trigger">
+              <Building2 size={16} className="context-select-icon" />
+              <SelectValue placeholder="Select company" />
+            </SelectTrigger>
+            <SelectContent>
+              {businesses.map((biz) => (
+                <SelectItem key={biz.id} value={biz.id}>
+                  {biz.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       )}
 
-      {/* Scrollable content area */}
-      <div className="context-desktop-content">
-      {/* Departments - multi-select chips */}
+      {/* Departments - multi-select dropdown */}
       {selectedBusiness && departments.length > 0 && (
-        <div className="context-desktop-field">
-          <label className="context-desktop-label">Departments</label>
-          <div className="context-desktop-chips">
-            {departments.map((dept) => {
-              const isSelected = selectedDepartments.includes(dept.id);
-              const colors = getDeptColor(dept.id);
-              return (
-                <button
-                  key={dept.id}
-                  className={`context-desktop-chip ${isSelected ? 'selected' : ''}`}
-                  onClick={() => toggleDepartment(dept.id)}
-                  style={{
-                    '--chip-bg': isSelected ? colors.bg : undefined,
-                    '--chip-border': isSelected ? colors.text : undefined,
-                    '--chip-text': isSelected ? colors.text : undefined,
-                  } as React.CSSProperties}
-                >
-                  {dept.name}
-                  {isSelected && <Check size={10} />}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        <MultiSelectDropdown
+          label="Departments"
+          icon={<Users size={16} className="context-select-icon" />}
+          placeholder="All departments"
+          items={departments}
+          selectedIds={selectedDepartments}
+          onToggle={toggleDepartment}
+          getItemStyle={getDeptTagStyle}
+        />
       )}
 
-      {/* Roles - multi-select chips */}
+      {/* Roles - multi-select dropdown */}
       {selectedBusiness && filteredRoles.length > 0 && (
-        <div className="context-desktop-field">
-          <label className="context-desktop-label">Roles</label>
-          <div className="context-desktop-chips">
-            {filteredRoles.map((role) => {
-              const isSelected = selectedRoles.includes(role.id);
-              return (
-                <button
-                  key={role.id}
-                  className={`context-desktop-chip role ${isSelected ? 'selected' : ''}`}
-                  onClick={() => toggleRole(role.id)}
-                >
-                  {role.name}
-                  {isSelected && <Check size={10} />}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        <MultiSelectDropdown
+          label="Roles"
+          icon={<Users size={16} className="context-select-icon" />}
+          placeholder="All roles"
+          items={filteredRoles}
+          selectedIds={selectedRoles}
+          onToggle={toggleRole}
+        />
       )}
 
-      {/* Project dropdown */}
+      {/* Project - single select */}
       {selectedBusiness && projects.length > 0 && (
-        <div className="context-desktop-field">
-          <label className="context-desktop-label">Project</label>
+        <div className="context-field-mobile">
+          <label className="context-field-label-mobile">Project</label>
           <Select
             value={selectedProject || '__none__'}
             onValueChange={(v) => onSelectProject?.(v === '__none__' ? null : v)}
           >
-            <SelectTrigger className="context-desktop-select">
-              <Briefcase size={14} className="context-desktop-select-icon" />
+            <SelectTrigger className="context-multiselect-trigger">
+              <Briefcase size={16} className="context-select-icon" />
               <SelectValue placeholder="Company-wide" />
             </SelectTrigger>
             <SelectContent>
@@ -303,317 +443,207 @@ export function ContextChip({
         </div>
       )}
 
-      {/* Playbooks - behind "See more" toggle */}
+      {/* Playbooks - behind toggle */}
       {selectedBusiness && playbooks.length > 0 && (
         <>
           <button
-            className={`context-desktop-more-btn ${showMore ? 'expanded' : ''}`}
+            type="button"
+            className={`context-see-more-btn-mobile ${showMore ? 'expanded' : ''}`}
             onClick={() => setShowMore(!showMore)}
           >
+            <FileText size={16} className="context-select-icon" />
             <span>Playbooks</span>
             {selectedPlaybooks.length > 0 && (
               <span className="context-more-badge">{selectedPlaybooks.length}</span>
             )}
-            <ChevronRight size={14} className={`context-desktop-more-chevron ${showMore ? 'rotated' : ''}`} />
+            <ChevronDown size={16} className={`context-multiselect-chevron ${showMore ? 'rotated' : ''}`} />
           </button>
 
           {showMore && (
-            <div className="context-desktop-playbooks">
-              {/* Frameworks */}
+            <div className="context-playbooks-expanded">
               {groupedPlaybooks.framework.length > 0 && (
-                <div className="context-desktop-pb-group">
-                  <span className="context-desktop-pb-type">
-                    <FileText size={10} /> Frameworks
-                  </span>
-                  <div className="context-desktop-pb-chips">
-                    {groupedPlaybooks.framework.map((pb) => {
-                      const isSelected = selectedPlaybooks.includes(pb.id);
-                      return (
-                        <button
-                          key={pb.id}
-                          className={`context-desktop-chip playbook framework ${isSelected ? 'selected' : ''}`}
-                          onClick={() => togglePlaybook(pb.id)}
-                          title={pb.name}
-                        >
-                          <span className="chip-truncate">{pb.name}</span>
-                          {isSelected && <Check size={10} />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+                <MultiSelectDropdown
+                  label="Frameworks"
+                  icon={<FileText size={16} className="context-select-icon" />}
+                  placeholder="None selected"
+                  items={groupedPlaybooks.framework}
+                  selectedIds={selectedPlaybooks.filter(id =>
+                    groupedPlaybooks.framework.some(pb => pb.id === id)
+                  )}
+                  onToggle={togglePlaybook}
+                />
               )}
 
-              {/* SOPs */}
               {groupedPlaybooks.sop.length > 0 && (
-                <div className="context-desktop-pb-group">
-                  <span className="context-desktop-pb-type">
-                    <ScrollText size={10} /> SOPs
-                  </span>
-                  <div className="context-desktop-pb-chips">
-                    {groupedPlaybooks.sop.map((pb) => {
-                      const isSelected = selectedPlaybooks.includes(pb.id);
-                      return (
-                        <button
-                          key={pb.id}
-                          className={`context-desktop-chip playbook sop ${isSelected ? 'selected' : ''}`}
-                          onClick={() => togglePlaybook(pb.id)}
-                          title={pb.name}
-                        >
-                          <span className="chip-truncate">{pb.name}</span>
-                          {isSelected && <Check size={10} />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+                <MultiSelectDropdown
+                  label="SOPs"
+                  icon={<ScrollText size={16} className="context-select-icon" />}
+                  placeholder="None selected"
+                  items={groupedPlaybooks.sop}
+                  selectedIds={selectedPlaybooks.filter(id =>
+                    groupedPlaybooks.sop.some(pb => pb.id === id)
+                  )}
+                  onToggle={togglePlaybook}
+                />
               )}
 
-              {/* Policies */}
               {groupedPlaybooks.policy.length > 0 && (
-                <div className="context-desktop-pb-group">
-                  <span className="context-desktop-pb-type">
-                    <Shield size={10} /> Policies
-                  </span>
-                  <div className="context-desktop-pb-chips">
-                    {groupedPlaybooks.policy.map((pb) => {
-                      const isSelected = selectedPlaybooks.includes(pb.id);
-                      return (
-                        <button
-                          key={pb.id}
-                          className={`context-desktop-chip playbook policy ${isSelected ? 'selected' : ''}`}
-                          onClick={() => togglePlaybook(pb.id)}
-                          title={pb.name}
-                        >
-                          <span className="chip-truncate">{pb.name}</span>
-                          {isSelected && <Check size={10} />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+                <MultiSelectDropdown
+                  label="Policies"
+                  icon={<Shield size={16} className="context-select-icon" />}
+                  placeholder="None selected"
+                  items={groupedPlaybooks.policy}
+                  selectedIds={selectedPlaybooks.filter(id =>
+                    groupedPlaybooks.policy.some(pb => pb.id === id)
+                  )}
+                  onToggle={togglePlaybook}
+                />
               )}
             </div>
           )}
         </>
       )}
 
-      </div>{/* End scrollable content */}
-
-      {/* Apply button - fixed footer */}
-      <div className="context-desktop-footer">
-        <button
-          className="context-desktop-apply-btn"
-          onClick={() => setIsOpen(false)}
-        >
-          Use this context
-        </button>
-      </div>
+      {/* Apply button */}
+      <button
+        className="context-apply-btn-mobile"
+        onClick={() => setIsOpen(false)}
+      >
+        Use this context
+      </button>
     </div>
   );
 
-  // Mobile content - chip strips
+  // Mobile content - proper multi-select dropdowns
   const renderMobileContent = () => (
     <div className="context-mobile-content">
-      {/* Company selection */}
+      {/* Company - single select dropdown */}
       {businesses.length > 0 && (
-        <div className="context-section-mobile">
-          <h4 className="context-section-title-mobile">Company</h4>
-          <div className="context-chip-strip">
-            {businesses.map((biz) => (
-              <button
-                key={biz.id}
-                className={`context-strip-chip company ${selectedBusiness === biz.id ? 'selected' : ''}`}
-                onClick={() => onSelectBusiness?.(biz.id)}
-              >
-                <Building2 size={16} />
-                {biz.name}
-                {selectedBusiness === biz.id && <Check size={14} className="strip-chip-check" />}
-              </button>
-            ))}
-          </div>
+        <div className="context-field-mobile">
+          <label className="context-field-label-mobile">Company</label>
+          <Select
+            value={selectedBusiness || '__none__'}
+            onValueChange={(v) => onSelectBusiness?.(v === '__none__' ? null : v)}
+          >
+            <SelectTrigger className="context-select-mobile">
+              <Building2 size={16} className="context-select-icon" />
+              <SelectValue placeholder="Select company" />
+            </SelectTrigger>
+            <SelectContent>
+              {businesses.map((biz) => (
+                <SelectItem key={biz.id} value={biz.id}>
+                  {biz.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       )}
 
-      {/* Department selection */}
+      {/* Departments - multi-select */}
       {selectedBusiness && departments.length > 0 && (
-        <div className="context-section-mobile">
-          <h4 className="context-section-title-mobile">Departments</h4>
-          <div className="context-chip-strip">
-            {departments.map((dept) => {
-              const isSelected = selectedDepartments.includes(dept.id);
-              const colors = getDeptColor(dept.id);
-              return (
-                <button
-                  key={dept.id}
-                  className={`context-strip-chip ${isSelected ? 'selected' : ''}`}
-                  onClick={() => toggleDepartment(dept.id)}
-                  style={{
-                    '--chip-bg': isSelected ? colors.bg : 'var(--color-bg-secondary)',
-                    '--chip-border': isSelected ? colors.text : 'var(--color-border)',
-                    '--chip-text': isSelected ? colors.text : 'var(--color-text-secondary)',
-                  } as React.CSSProperties}
-                >
-                  {dept.name}
-                  {isSelected && <Check size={14} className="strip-chip-check" />}
-                </button>
-              );
-            })}
-          </div>
+        <MultiSelectDropdown
+          label="Departments"
+          icon={<Users size={16} className="context-select-icon" />}
+          placeholder="All departments"
+          items={departments}
+          selectedIds={selectedDepartments}
+          onToggle={toggleDepartment}
+          getItemStyle={getDeptTagStyle}
+        />
+      )}
+
+      {/* Roles - multi-select */}
+      {selectedBusiness && filteredRoles.length > 0 && (
+        <MultiSelectDropdown
+          label="Roles"
+          icon={<Users size={16} className="context-select-icon" />}
+          placeholder="All roles"
+          items={filteredRoles}
+          selectedIds={selectedRoles}
+          onToggle={toggleRole}
+        />
+      )}
+
+      {/* Project - single select dropdown */}
+      {selectedBusiness && projects.length > 0 && (
+        <div className="context-field-mobile">
+          <label className="context-field-label-mobile">Project</label>
+          <Select
+            value={selectedProject || '__none__'}
+            onValueChange={(v) => onSelectProject?.(v === '__none__' ? null : v)}
+          >
+            <SelectTrigger className="context-select-mobile">
+              <Briefcase size={16} className="context-select-icon" />
+              <SelectValue placeholder="Company-wide" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__none__">Company-wide</SelectItem>
+              {sortedProjects.map((proj) => (
+                <SelectItem key={proj.id} value={proj.id}>
+                  {proj.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       )}
 
-      {/* Role selection */}
-      {selectedBusiness && allRoles.length > 0 && (
-        <div className="context-section-mobile">
-          <h4 className="context-section-title-mobile">Roles</h4>
-          <div className="context-chip-strip">
-            {allRoles.map((role) => {
-              const isSelected = selectedRoles.includes(role.id);
-              return (
-                <button
-                  key={role.id}
-                  className={`context-strip-chip role ${isSelected ? 'selected' : ''}`}
-                  onClick={() => toggleRole(role.id)}
-                >
-                  <Users size={14} />
-                  {role.name}
-                  {isSelected && <Check size={14} className="strip-chip-check" />}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* See more toggle for Projects & Playbooks */}
-      {selectedBusiness && (projects.length > 0 || playbooks.length > 0) && (
+      {/* Playbooks - behind toggle to reduce clutter */}
+      {selectedBusiness && playbooks.length > 0 && (
         <>
-          {/* Toggle button */}
           <button
+            type="button"
             className={`context-see-more-btn-mobile ${showMore ? 'expanded' : ''}`}
             onClick={() => setShowMore(!showMore)}
           >
-            <span>Projects & Playbooks</span>
-            {moreCount > 0 && (
-              <span className="context-more-badge">{moreCount}</span>
+            <FileText size={16} className="context-select-icon" />
+            <span>Playbooks</span>
+            {selectedPlaybooks.length > 0 && (
+              <span className="context-more-badge">{selectedPlaybooks.length}</span>
             )}
-            <ChevronRight size={16} className={`context-see-more-chevron ${showMore ? 'rotated' : ''}`} />
+            <ChevronDown size={16} className={`context-multiselect-chevron ${showMore ? 'rotated' : ''}`} />
           </button>
 
-          {/* Expanded content */}
           {showMore && (
-            <div className="context-section-mobile context-more-content">
-              {/* Projects */}
-              {projects.length > 0 && (
-                <>
-                  <h4 className="context-section-title-mobile">Project</h4>
-                  <div className="context-chip-strip">
-                    <button
-                      className={`context-strip-chip project ${!selectedProject ? 'selected' : ''}`}
-                      onClick={() => onSelectProject?.(null)}
-                    >
-                      <Briefcase size={14} />
-                      Company-wide
-                      {!selectedProject && <Check size={14} className="strip-chip-check" />}
-                    </button>
-                    {sortedProjects.map((proj) => {
-                      const isSelected = selectedProject === proj.id;
-                      return (
-                        <button
-                          key={proj.id}
-                          className={`context-strip-chip project ${isSelected ? 'selected' : ''}`}
-                          onClick={() => onSelectProject?.(proj.id)}
-                        >
-                          <Briefcase size={14} />
-                          <span className="chip-text">{proj.name}</span>
-                          {isSelected && <Check size={14} className="strip-chip-check" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </>
+            <div className="context-playbooks-expanded">
+              {groupedPlaybooks.framework.length > 0 && (
+                <MultiSelectDropdown
+                  label="Frameworks"
+                  icon={<FileText size={16} className="context-select-icon" />}
+                  placeholder="None selected"
+                  items={groupedPlaybooks.framework}
+                  selectedIds={selectedPlaybooks.filter(id =>
+                    groupedPlaybooks.framework.some(pb => pb.id === id)
+                  )}
+                  onToggle={togglePlaybook}
+                />
               )}
 
-              {/* Playbooks */}
-              {playbooks.length > 0 && (
-                <>
-                  <h4 className="context-section-title-mobile mt-4">Playbooks</h4>
-                  {/* Frameworks */}
-                  {groupedPlaybooks.framework.length > 0 && (
-                    <div className="context-playbook-group">
-                      <span className="context-playbook-type-label">
-                        <FileText size={12} />
-                        Frameworks
-                      </span>
-                      <div className="context-chip-strip">
-                        {groupedPlaybooks.framework.map((pb) => {
-                          const isSelected = selectedPlaybooks.includes(pb.id);
-                          return (
-                            <button
-                              key={pb.id}
-                              className={`context-strip-chip playbook framework ${isSelected ? 'selected' : ''}`}
-                              onClick={() => togglePlaybook(pb.id)}
-                            >
-                              {pb.name}
-                              {isSelected && <Check size={14} className="strip-chip-check" />}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
+              {groupedPlaybooks.sop.length > 0 && (
+                <MultiSelectDropdown
+                  label="SOPs"
+                  icon={<ScrollText size={16} className="context-select-icon" />}
+                  placeholder="None selected"
+                  items={groupedPlaybooks.sop}
+                  selectedIds={selectedPlaybooks.filter(id =>
+                    groupedPlaybooks.sop.some(pb => pb.id === id)
                   )}
+                  onToggle={togglePlaybook}
+                />
+              )}
 
-                  {/* SOPs */}
-                  {groupedPlaybooks.sop.length > 0 && (
-                    <div className="context-playbook-group">
-                      <span className="context-playbook-type-label">
-                        <ScrollText size={12} />
-                        SOPs
-                      </span>
-                      <div className="context-chip-strip">
-                        {groupedPlaybooks.sop.map((pb) => {
-                          const isSelected = selectedPlaybooks.includes(pb.id);
-                          return (
-                            <button
-                              key={pb.id}
-                              className={`context-strip-chip playbook sop ${isSelected ? 'selected' : ''}`}
-                              onClick={() => togglePlaybook(pb.id)}
-                            >
-                              {pb.name}
-                              {isSelected && <Check size={14} className="strip-chip-check" />}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
+              {groupedPlaybooks.policy.length > 0 && (
+                <MultiSelectDropdown
+                  label="Policies"
+                  icon={<Shield size={16} className="context-select-icon" />}
+                  placeholder="None selected"
+                  items={groupedPlaybooks.policy}
+                  selectedIds={selectedPlaybooks.filter(id =>
+                    groupedPlaybooks.policy.some(pb => pb.id === id)
                   )}
-
-                  {/* Policies */}
-                  {groupedPlaybooks.policy.length > 0 && (
-                    <div className="context-playbook-group">
-                      <span className="context-playbook-type-label">
-                        <Shield size={12} />
-                        Policies
-                      </span>
-                      <div className="context-chip-strip">
-                        {groupedPlaybooks.policy.map((pb) => {
-                          const isSelected = selectedPlaybooks.includes(pb.id);
-                          return (
-                            <button
-                              key={pb.id}
-                              className={`context-strip-chip playbook policy ${isSelected ? 'selected' : ''}`}
-                              onClick={() => togglePlaybook(pb.id)}
-                            >
-                              {pb.name}
-                              {isSelected && <Check size={14} className="strip-chip-check" />}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-                </>
+                  onToggle={togglePlaybook}
+                />
               )}
             </div>
           )}
