@@ -14,7 +14,7 @@ from ..auth import get_current_user
 from .. import config
 
 
-router = APIRouter(prefix="/api/settings", tags=["dev-settings"])
+router = APIRouter(prefix="/settings", tags=["dev-settings"])
 
 
 # =============================================================================

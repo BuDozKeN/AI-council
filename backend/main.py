@@ -194,35 +194,11 @@ def ValidUUID(field_name: str = "id"):
 try:
     from .context_loader import list_available_businesses
     from .auth import get_current_user
-    from .routers import (
-        company_router,
-        settings_router,
-        conversations_router,
-        projects_router,
-        billing_router,
-        knowledge_router,
-        attachments_router,
-        leaderboard_router,
-        dev_settings_router,
-        ai_utils_router,
-        profile_router,
-    )
+    from .routers import v1_router
 except ImportError:
     from backend.context_loader import list_available_businesses
     from backend.auth import get_current_user
-    from backend.routers import (
-        company_router,
-        settings_router,
-        conversations_router,
-        projects_router,
-        billing_router,
-        knowledge_router,
-        attachments_router,
-        leaderboard_router,
-        dev_settings_router,
-        ai_utils_router,
-        profile_router,
-    )
+    from backend.routers import v1_router
 
 
 # =============================================================================
@@ -430,6 +406,20 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         return response
 
 
+class APIVersionMiddleware(BaseHTTPMiddleware):
+    """Add API version header to all API responses."""
+
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+
+        # Add version header to all /api/ responses
+        path = request.url.path
+        if path.startswith("/api/"):
+            response.headers["X-API-Version"] = "v1"
+
+        return response
+
+
 # Add middleware in order (innermost to outermost on request)
 app.add_middleware(
     CORSMiddleware,
@@ -445,10 +435,11 @@ app.add_middleware(
         "Cache-Control",
         "X-Correlation-ID",
     ],
-    expose_headers=["Content-Disposition", "X-Correlation-ID", "X-Response-Time"],
+    expose_headers=["Content-Disposition", "X-Correlation-ID", "X-Response-Time", "X-API-Version"],
 )
 # Performance: Lower threshold to compress smaller API responses (e.g., JSON lists)
 app.add_middleware(GZipMiddleware, minimum_size=500)
+app.add_middleware(APIVersionMiddleware)  # Add API version header
 app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(RequestDurationMiddleware)  # Track request timing
 app.add_middleware(CorrelationIdMiddleware)
@@ -528,17 +519,8 @@ async def general_exception_handler(request: Request, exc: Exception):
 # =============================================================================
 # INCLUDE ROUTERS
 # =============================================================================
-app.include_router(company_router)
-app.include_router(settings_router)
-app.include_router(conversations_router)
-app.include_router(projects_router)
-app.include_router(billing_router)
-app.include_router(knowledge_router)
-app.include_router(attachments_router)
-app.include_router(leaderboard_router)
-app.include_router(dev_settings_router)
-app.include_router(ai_utils_router)
-app.include_router(profile_router)
+# Mount all API routers under /api/v1 prefix for versioned API
+app.include_router(v1_router, prefix="/api/v1")
 
 
 # =============================================================================
@@ -785,7 +767,7 @@ async def readiness_check():
         )
 
 
-@app.get("/api/businesses")
+@app.get("/api/v1/businesses")
 async def get_businesses(
     user: dict = Depends(get_current_user),
     limit: int = Query(default=50, ge=1, le=100, description="Max companies to return"),

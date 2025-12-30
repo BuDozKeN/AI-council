@@ -7,7 +7,7 @@ Endpoints for managing file attachments:
 - Delete attachments
 """
 
-from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile, Form, Request
 from typing import Optional
 import re
 
@@ -15,8 +15,13 @@ from ..auth import get_current_user
 from .. import attachments
 from ..security import SecureHTTPException
 
+# Import rate limiter
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+limiter = Limiter(key_func=get_remote_address)
 
-router = APIRouter(prefix="/api/attachments", tags=["attachments"])
+
+router = APIRouter(prefix="/attachments", tags=["attachments"])
 
 
 # =============================================================================
@@ -41,7 +46,9 @@ def validate_uuid(value: str, field_name: str = "id") -> str:
 # =============================================================================
 
 @router.post("/upload")
+@limiter.limit("30/minute;100/hour")
 async def upload_attachment(
+    request: Request,
     file: UploadFile = File(...),
     conversation_id: Optional[str] = Form(None),
     message_index: Optional[int] = Form(None),

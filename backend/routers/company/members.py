@@ -8,7 +8,7 @@ Endpoints for team member management:
 - Usage statistics (owners/admins only)
 """
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from datetime import datetime
 
 from ...auth import get_current_user
@@ -23,8 +23,13 @@ from .utils import (
     MemberUpdate,
 )
 
+# Import rate limiter
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+limiter = Limiter(key_func=get_remote_address)
 
-router = APIRouter(prefix="/api/company", tags=["company-members"])
+
+router = APIRouter(prefix="/company", tags=["company-members"])
 
 
 # =============================================================================
@@ -81,7 +86,9 @@ async def get_company_members(
 
 
 @router.post("/{company_id}/members")
+@limiter.limit("20/minute")
 async def add_company_member(
+    request: Request,
     company_id: ValidCompanyId,
     data: MemberInvite,
     user=Depends(get_current_user)

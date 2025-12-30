@@ -47,7 +47,7 @@ from slowapi.util import get_remote_address
 limiter = Limiter(key_func=get_remote_address)
 
 
-router = APIRouter(prefix="/api", tags=["conversations"])
+router = APIRouter(prefix="/conversations", tags=["conversations"])
 
 
 # =============================================================================

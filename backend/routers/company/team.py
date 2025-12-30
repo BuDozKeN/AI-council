@@ -26,7 +26,7 @@ from .utils import (
 )
 
 
-router = APIRouter(prefix="/api/company", tags=["company-team"])
+router = APIRouter(prefix="/company", tags=["company-team"])
 
 
 # =============================================================================

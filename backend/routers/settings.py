@@ -16,11 +16,16 @@ import httpx
 from ..auth import get_current_user
 from ..database import get_supabase_with_auth
 from ..security import log_app_event
-from ..utils.encryption import encrypt_api_key, decrypt_api_key, get_key_suffix, mask_api_key
+from ..utils.encryption import encrypt_api_key, decrypt_api_key, get_key_suffix, mask_api_key, DecryptionError
 from ..byok import KEY_EXPIRY_DAYS, log_api_key_event, get_key_expiry_info
 
+# Import rate limiter
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+limiter = Limiter(key_func=get_remote_address)
 
-router = APIRouter(prefix="/api/settings", tags=["settings"])
+
+router = APIRouter(prefix="/settings", tags=["settings"])
 
 
 # =============================================================================
@@ -179,9 +184,10 @@ async def get_openrouter_key_status(
 
 
 @router.post("/openrouter-key")
+@limiter.limit("5/minute")
 async def save_openrouter_key(
-    request: OpenRouterKeyRequest,
     http_request: Request,
+    request: OpenRouterKeyRequest,
     current_user=Depends(get_current_user)
 ) -> OpenRouterKeyResponse:
     """
@@ -309,12 +315,15 @@ async def test_openrouter_key(
     # SECURITY: Use per-user derived key for decryption
     try:
         raw_key = decrypt_api_key(result.data["encrypted_key"], user_id=current_user["id"])
-    except Exception as e:
-        # Key corruption - delete it
-        db.table("user_api_keys").delete().eq(
-            "user_id", current_user["id"]
-        ).execute()
-        raise HTTPException(status_code=400, detail="Stored key is corrupted. Please add a new key.")
+    except DecryptionError:
+        # Key corruption or master key changed - mark as invalid and prompt re-entry
+        db.table("user_api_keys").update({
+            "is_valid": False
+        }).eq("user_id", current_user["id"]).execute()
+        raise HTTPException(
+            status_code=400,
+            detail="Stored key cannot be decrypted. Please delete and add a new key."
+        )
 
     is_valid = await validate_openrouter_key(raw_key)
     is_active = result.data.get("is_active", True)

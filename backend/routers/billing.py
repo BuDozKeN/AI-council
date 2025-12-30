@@ -17,8 +17,13 @@ from ..auth import get_current_user
 from .. import billing
 from ..security import SecureHTTPException
 
+# Import rate limiter
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+limiter = Limiter(key_func=get_remote_address)
 
-router = APIRouter(prefix="/api/billing", tags=["billing"])
+
+router = APIRouter(prefix="/billing", tags=["billing"])
 
 
 # =============================================================================
@@ -60,15 +65,16 @@ async def check_can_query(user: dict = Depends(get_current_user)):
 
 
 @router.post("/checkout")
-async def create_checkout(request: CheckoutRequest, user: dict = Depends(get_current_user)):
+@limiter.limit("10/minute")
+async def create_checkout(request: Request, checkout: CheckoutRequest, user: dict = Depends(get_current_user)):
     """Create a Stripe Checkout session for subscription."""
     try:
         result = billing.create_checkout_session(
             user_id=user["id"],
             email=user["email"],
-            tier_id=request.tier_id,
-            success_url=request.success_url,
-            cancel_url=request.cancel_url,
+            tier_id=checkout.tier_id,
+            success_url=checkout.success_url,
+            cancel_url=checkout.cancel_url,
             access_token=user.get("access_token")
         )
         return result
@@ -79,13 +85,14 @@ async def create_checkout(request: CheckoutRequest, user: dict = Depends(get_cur
 
 
 @router.post("/portal")
-async def create_billing_portal(request: BillingPortalRequest, user: dict = Depends(get_current_user)):
+@limiter.limit("10/minute")
+async def create_billing_portal(request: Request, portal: BillingPortalRequest, user: dict = Depends(get_current_user)):
     """Create a Stripe Billing Portal session for managing subscription."""
     try:
         result = billing.create_billing_portal_session(
             user_id=user["id"],
             email=user["email"],
-            return_url=request.return_url,
+            return_url=portal.return_url,
             access_token=user.get("access_token")
         )
         return result

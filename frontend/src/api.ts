@@ -11,6 +11,9 @@ const API_BASE = import.meta.env.PROD
   ? (import.meta.env.VITE_API_URL || 'http://localhost:8000')
   : '';
 
+// API version prefix - all endpoints use v1
+const API_VERSION = '/api/v1';
+
 // =============================================================================
 // Type Definitions
 // =============================================================================
@@ -120,7 +123,7 @@ export const api = {
    */
   async listBusinesses() {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/businesses`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/businesses`, { headers });
     if (!response.ok) {
       throw new Error('Failed to list businesses');
     }
@@ -156,7 +159,7 @@ export const api = {
     if (companyId) {
       params.set('company_id', companyId);
     }
-    const response = await fetch(`${API_BASE}/api/conversations?${params}`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/conversations?${params}`, { headers });
     if (!response.ok) {
       throw new Error('Failed to list conversations');
     }
@@ -173,7 +176,7 @@ export const api = {
   async starConversation(conversationId: string, starred = true) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/conversations/${conversationId}/star`,
+      `${API_BASE}${API_VERSION}/conversations/${conversationId}/star`,
       {
         method: 'POST',
         headers,
@@ -192,7 +195,7 @@ export const api = {
    */
   async createConversation(companyId: string | null = null) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/conversations`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/conversations`, {
       method: 'POST',
       headers,
       body: JSON.stringify({ company_id: companyId }),
@@ -209,7 +212,7 @@ export const api = {
   async getConversation(conversationId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/conversations/${conversationId}`,
+      `${API_BASE}${API_VERSION}/conversations/${conversationId}`,
       { headers }
     );
     if (!response.ok) {
@@ -227,7 +230,7 @@ export const api = {
   async sendMessage(conversationId: string, content: string, businessId: string | null = null) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/conversations/${conversationId}/message`,
+      `${API_BASE}${API_VERSION}/conversations/${conversationId}/message`,
       {
         method: 'POST',
         headers,
@@ -260,7 +263,7 @@ export const api = {
     const { businessId = null, department = 'standard', role = null, departments = null, roles = null, playbooks = null, projectId = null, attachmentIds = null, signal = null } = options;
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/conversations/${conversationId}/messages`,
+      `${API_BASE}${API_VERSION}/conversations/${conversationId}/messages`,
       {
         method: 'POST',
         headers,
@@ -348,7 +351,7 @@ export const api = {
     const { businessId = null, departmentId = null, departmentIds = null, roleIds = null, playbookIds = null, projectId = null, signal = null } = options;
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/conversations/${conversationId}/chat/stream`,
+      `${API_BASE}${API_VERSION}/conversations/${conversationId}/chat/stream`,
       {
         method: 'POST',
         headers,
@@ -416,7 +419,7 @@ export const api = {
    */
   async getLeaderboardSummary() {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/leaderboard`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/leaderboard`, { headers });
     if (!response.ok) {
       throw new Error('Failed to get leaderboard');
     }
@@ -428,7 +431,7 @@ export const api = {
    */
   async getOverallLeaderboard() {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/leaderboard/overall`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/leaderboard/overall`, { headers });
     if (!response.ok) {
       throw new Error('Failed to get overall leaderboard');
     }
@@ -441,7 +444,7 @@ export const api = {
    */
   async getDepartmentLeaderboard(department: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/leaderboard/department/${department}`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/leaderboard/department/${department}`, { headers });
     if (!response.ok) {
       throw new Error('Failed to get department leaderboard');
     }
@@ -455,7 +458,7 @@ export const api = {
    * @returns {Promise<{ready: boolean, constraints: object, missing: string[], questions: string|null, enhanced_query: string}>}
    */
   async analyzeTriage(content: string, businessId: string | null = null) {
-    const response = await fetch(`${API_BASE}/api/triage/analyze`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/triage/analyze`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -477,7 +480,7 @@ export const api = {
    * @returns {Promise<{ready: boolean, constraints: object, missing: string[], questions: string|null, enhanced_query: string}>}
    */
   async continueTriage(originalQuery: string, previousConstraints: Record<string, unknown>, userResponse: string, businessId: string | null = null) {
-    const response = await fetch(`${API_BASE}/api/triage/continue`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/triage/continue`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -503,7 +506,7 @@ export const api = {
   async exportConversation(conversationId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/conversations/${conversationId}/export`,
+      `${API_BASE}${API_VERSION}/conversations/${conversationId}/export`,
       { headers }
     );
     if (!response.ok) {
@@ -540,7 +543,7 @@ export const api = {
   async renameConversation(conversationId: string, title: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/conversations/${conversationId}/rename`,
+      `${API_BASE}${API_VERSION}/conversations/${conversationId}/rename`,
       {
         method: 'PATCH',
         headers,
@@ -561,7 +564,7 @@ export const api = {
   async archiveConversation(conversationId: string, archived = true) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/conversations/${conversationId}/archive`,
+      `${API_BASE}${API_VERSION}/conversations/${conversationId}/archive`,
       {
         method: 'POST',
         headers,
@@ -584,7 +587,7 @@ export const api = {
   async updateConversationDepartment(conversationId: string, department: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/conversations/${conversationId}/department`,
+      `${API_BASE}${API_VERSION}/conversations/${conversationId}/department`,
       {
         method: 'PATCH',
         headers,
@@ -604,7 +607,7 @@ export const api = {
   async deleteConversation(conversationId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/conversations/${conversationId}`,
+      `${API_BASE}${API_VERSION}/conversations/${conversationId}`,
       {
         method: 'DELETE',
         headers,
@@ -626,7 +629,7 @@ export const api = {
   async bulkDeleteConversations(conversationIds: string[]) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/conversations/bulk-delete`,
+      `${API_BASE}${API_VERSION}/conversations/bulk-delete`,
       {
         method: 'POST',
         headers,
@@ -649,7 +652,7 @@ export const api = {
   async curateConversation(conversationId: string, businessId: string, departmentId: string | null = null) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/conversations/${conversationId}/curate`,
+      `${API_BASE}${API_VERSION}/conversations/${conversationId}/curate`,
       {
         method: 'POST',
         headers,
@@ -674,7 +677,7 @@ export const api = {
    */
   async applySuggestion(businessId: string, suggestion: Record<string, unknown>) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/context/apply-suggestion`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/context/apply-suggestion`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -698,7 +701,7 @@ export const api = {
    */
   async getContextSection(businessId: string, sectionName: string, department: string | null = null) {
     const headers = await getAuthHeaders();
-    let url = `${API_BASE}/api/context/${businessId}/section/${encodeURIComponent(sectionName)}`;
+    let url = `${API_BASE}${API_VERSION}/context/${businessId}/section/${encodeURIComponent(sectionName)}`;
     if (department && department !== 'company') {
       url += `?department=${encodeURIComponent(department)}`;
     }
@@ -721,7 +724,7 @@ export const api = {
   async saveCuratorRun(conversationId: string, businessId: string, suggestionsCount: number, acceptedCount: number, rejectedCount: number) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/conversations/${conversationId}/curator-history`,
+      `${API_BASE}${API_VERSION}/conversations/${conversationId}/curator-history`,
       {
         method: 'POST',
         headers,
@@ -747,7 +750,7 @@ export const api = {
   async getCuratorHistory(conversationId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/conversations/${conversationId}/curator-history`,
+      `${API_BASE}${API_VERSION}/conversations/${conversationId}/curator-history`,
       { headers }
     );
     if (!response.ok) {
@@ -762,7 +765,7 @@ export const api = {
    */
   async getMockMode() {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/settings/mock-mode`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/settings/mock-mode`, { headers });
     if (!response.ok) {
       throw new Error('Failed to get mock mode status');
     }
@@ -776,7 +779,7 @@ export const api = {
    */
   async setMockMode(enabled: boolean) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/settings/mock-mode`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/settings/mock-mode`, {
       method: 'POST',
       headers,
       body: JSON.stringify({ enabled }),
@@ -793,7 +796,7 @@ export const api = {
    */
   async getCachingMode() {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/settings/caching-mode`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/settings/caching-mode`, { headers });
     if (!response.ok) {
       throw new Error('Failed to get caching mode status');
     }
@@ -807,7 +810,7 @@ export const api = {
    */
   async setCachingMode(enabled: boolean) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/settings/caching-mode`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/settings/caching-mode`, {
       method: 'POST',
       headers,
       body: JSON.stringify({ enabled }),
@@ -827,7 +830,7 @@ export const api = {
   async getContextLastUpdated(businessId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/context/${businessId}/last-updated`,
+      `${API_BASE}${API_VERSION}/context/${businessId}/last-updated`,
       { headers }
     );
     if (!response.ok) {
@@ -925,7 +928,7 @@ export const api = {
   async getRoleContext(companyId: string, departmentId: string, roleId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/company/${companyId}/departments/${departmentId}/roles/${roleId}`,
+      `${API_BASE}${API_VERSION}/company/${companyId}/departments/${departmentId}/roles/${roleId}`,
       { headers }
     );
     if (!response.ok) {
@@ -950,7 +953,7 @@ export const api = {
   async listProjects(companyId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/companies/${companyId}/projects`,
+      `${API_BASE}${API_VERSION}/companies/${companyId}/projects`,
       { headers }
     );
     if (!response.ok) {
@@ -973,7 +976,7 @@ export const api = {
   async createProject(companyId: string, project: { name: string; description?: string; context_md?: string; department_ids?: string[]; source?: 'ai' | 'manual' }) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/companies/${companyId}/projects`,
+      `${API_BASE}${API_VERSION}/companies/${companyId}/projects`,
       {
         method: 'POST',
         headers,
@@ -1002,7 +1005,7 @@ export const api = {
   async getProject(projectId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/projects/${projectId}`,
+      `${API_BASE}${API_VERSION}/projects/${projectId}`,
       { headers }
     );
     if (!response.ok) {
@@ -1020,7 +1023,7 @@ export const api = {
   async updateProject(projectId: string, updates: Record<string, unknown>) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/projects/${projectId}`,
+      `${API_BASE}${API_VERSION}/projects/${projectId}`,
       {
         method: 'PATCH',
         headers,
@@ -1042,7 +1045,7 @@ export const api = {
   async touchProject(projectId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/projects/${projectId}/touch`,
+      `${API_BASE}${API_VERSION}/projects/${projectId}/touch`,
       {
         method: 'POST',
         headers,
@@ -1063,7 +1066,7 @@ export const api = {
   async regenerateProjectContext(projectId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/projects/${projectId}/regenerate-context`,
+      `${API_BASE}${API_VERSION}/projects/${projectId}/regenerate-context`,
       {
         method: 'POST',
         headers,
@@ -1084,7 +1087,7 @@ export const api = {
   async deleteProject(projectId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/projects/${projectId}`,
+      `${API_BASE}${API_VERSION}/projects/${projectId}`,
       {
         method: 'DELETE',
         headers,
@@ -1113,7 +1116,7 @@ export const api = {
     if (options.status) params.append('status', options.status);
     if (options.includeArchived) params.append('include_archived', 'true');
 
-    const url = `${API_BASE}/api/companies/${companyId}/projects/stats${params.toString() ? '?' + params.toString() : ''}`;
+    const url = `${API_BASE}${API_VERSION}/companies/${companyId}/projects/stats${params.toString() ? '?' + params.toString() : ''}`;
     const response = await fetch(url, { headers });
     if (!response.ok) {
       throw new Error('Failed to list projects with stats');
@@ -1132,7 +1135,7 @@ export const api = {
   async polishText(text: string, fieldType: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/utils/polish-text`,
+      `${API_BASE}${API_VERSION}/utils/polish-text`,
       {
         method: 'POST',
         headers,
@@ -1158,7 +1161,7 @@ export const api = {
    */
   async getProfile() {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/profile`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/profile`, {
       headers,
     });
     if (!response.ok) {
@@ -1178,7 +1181,7 @@ export const api = {
    */
   async updateProfile(profile: { display_name?: string; company?: string; phone?: string; bio?: string }) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/profile`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/profile`, {
       method: 'PUT',
       headers,
       body: JSON.stringify(profile),
@@ -1199,7 +1202,7 @@ export const api = {
    * @returns {Promise<Array>} List of available plans
    */
   async getBillingPlans() {
-    const response = await fetch(`${API_BASE}/api/billing/plans`);
+    const response = await fetch(`${API_BASE}${API_VERSION}/billing/plans`);
     if (!response.ok) {
       throw new Error('Failed to get billing plans');
     }
@@ -1212,7 +1215,7 @@ export const api = {
    */
   async getSubscription() {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/billing/subscription`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/billing/subscription`, {
       headers,
     });
     if (!response.ok) {
@@ -1227,7 +1230,7 @@ export const api = {
    */
   async canQuery() {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/billing/can-query`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/billing/can-query`, {
       headers,
     });
     if (!response.ok) {
@@ -1243,7 +1246,7 @@ export const api = {
    */
   async createCheckout(tierId: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/billing/checkout`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/billing/checkout`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -1265,7 +1268,7 @@ export const api = {
    */
   async createBillingPortal() {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/billing/portal`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/billing/portal`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -1302,7 +1305,7 @@ export const api = {
       formData.append('message_index', messageIndex.toString());
     }
 
-    const response = await fetch(`${API_BASE}/api/attachments/upload`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/attachments/upload`, {
       method: 'POST',
       headers: token ? { 'Authorization': `Bearer ${token}` } : {},
       body: formData,
@@ -1322,7 +1325,7 @@ export const api = {
    */
   async getAttachment(attachmentId: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/attachments/${attachmentId}`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/attachments/${attachmentId}`, { headers });
     if (!response.ok) {
       throw new Error('Failed to get attachment');
     }
@@ -1336,7 +1339,7 @@ export const api = {
    */
   async getAttachmentUrl(attachmentId: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/attachments/${attachmentId}/url`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/attachments/${attachmentId}/url`, { headers });
     if (!response.ok) {
       throw new Error('Failed to get attachment URL');
     }
@@ -1350,7 +1353,7 @@ export const api = {
    */
   async deleteAttachment(attachmentId: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/attachments/${attachmentId}`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/attachments/${attachmentId}`, {
       method: 'DELETE',
       headers,
     });
@@ -1397,7 +1400,7 @@ export const api = {
     tags?: string[] | null;
   }) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/knowledge`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/knowledge`, {
       method: 'POST',
       headers,
       body: JSON.stringify(entry),
@@ -1431,7 +1434,7 @@ export const api = {
     if (options.search) params.append('search', options.search);
     if (options.limit) params.append('limit', options.limit.toString());
 
-    const url = `${API_BASE}/api/knowledge/${companyId}${params.toString() ? '?' + params.toString() : ''}`;
+    const url = `${API_BASE}${API_VERSION}/knowledge/${companyId}${params.toString() ? '?' + params.toString() : ''}`;
     const response = await fetch(url, { headers });
     if (!response.ok) {
       throw new Error('Failed to get knowledge entries');
@@ -1456,7 +1459,7 @@ export const api = {
    */
   async updateKnowledgeEntry(entryId: string, updates: Record<string, unknown>) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/knowledge/${entryId}`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/knowledge/${entryId}`, {
       method: 'PATCH',
       headers,
       body: JSON.stringify(updates),
@@ -1475,7 +1478,7 @@ export const api = {
    */
   async deactivateKnowledgeEntry(entryId: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/knowledge/${entryId}`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/knowledge/${entryId}`, {
       method: 'DELETE',
       headers,
     });
@@ -1502,7 +1505,7 @@ export const api = {
    */
   async getProjectReport(projectId: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/projects/${projectId}/report`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/projects/${projectId}/report`, { headers });
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Failed to generate report' }));
       throw new Error(error.detail || 'Failed to generate report');
@@ -1520,7 +1523,7 @@ export const api = {
     const headers = await getAuthHeaders();
     const params = new URLSearchParams({ company_id: companyId });
     const response = await fetch(
-      `${API_BASE}/api/conversations/${conversationId}/knowledge-count?${params.toString()}`,
+      `${API_BASE}${API_VERSION}/conversations/${conversationId}/knowledge-count?${params.toString()}`,
       { headers }
     );
     if (!response.ok) {
@@ -1539,7 +1542,7 @@ export const api = {
     const headers = await getAuthHeaders();
     const params = new URLSearchParams({ company_id: companyId });
     const response = await fetch(
-      `${API_BASE}/api/conversations/${conversationId}/linked-project?${params.toString()}`,
+      `${API_BASE}${API_VERSION}/conversations/${conversationId}/linked-project?${params.toString()}`,
       { headers }
     );
     if (!response.ok) {
@@ -1562,7 +1565,7 @@ export const api = {
       response_index: responseIndex.toString()
     });
     const response = await fetch(
-      `${API_BASE}/api/conversations/${conversationId}/decision?${params.toString()}`,
+      `${API_BASE}${API_VERSION}/conversations/${conversationId}/decision?${params.toString()}`,
       { headers }
     );
     if (!response.ok) {
@@ -1588,7 +1591,7 @@ export const api = {
    */
   async extractDecision(userQuestion: string, councilResponse: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/knowledge/extract`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/knowledge/extract`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -1613,7 +1616,7 @@ export const api = {
    */
   async extractProject(userQuestion: string, councilResponse: string, companyId?: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/projects/extract`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/projects/extract`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -1642,7 +1645,7 @@ export const api = {
    */
   async structureProjectContext(freeText: string, projectName: string = '', companyId?: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/projects/structure-context`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/projects/structure-context`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -1705,7 +1708,7 @@ export const api = {
 
     try {
       log.info('Starting merge-decision request');
-      const response = await fetch(`${API_BASE}/api/projects/${projectId}/merge-decision`, {
+      const response = await fetch(`${API_BASE}${API_VERSION}/projects/${projectId}/merge-decision`, {
         method: 'POST',
         headers,
         body: JSON.stringify(body),
@@ -1747,7 +1750,7 @@ export const api = {
    */
   async getCompanyOverview(companyId: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/overview`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/overview`, { headers });
     if (!response.ok) {
       throw new Error('Failed to get company overview');
     }
@@ -1762,7 +1765,7 @@ export const api = {
    */
   async updateCompanyOverview(companyId: string, data: { name?: string; description?: string }) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/overview`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/overview`, {
       method: 'POST',
       headers,
       body: JSON.stringify(data),
@@ -1782,7 +1785,7 @@ export const api = {
    */
   async updateCompanyContext(companyId: string, data: { context_md: string }) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/context`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/context`, {
       method: 'PUT',
       headers,
       body: JSON.stringify(data),
@@ -1801,7 +1804,7 @@ export const api = {
    */
   async getCompanyTeam(companyId: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/team`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/team`, { headers });
     if (!response.ok) {
       throw new Error('Failed to get team structure');
     }
@@ -1816,7 +1819,7 @@ export const api = {
    */
   async createCompanyDepartment(companyId: string, dept: { name: string; slug?: string; description?: string; purpose?: string }) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/departments`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/departments`, {
       method: 'POST',
       headers,
       body: JSON.stringify(dept),
@@ -1837,7 +1840,7 @@ export const api = {
    */
   async updateCompanyDepartment(companyId: string, deptId: string, data: { name?: string; slug?: string; description?: string; purpose?: string }) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/departments/${deptId}`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/departments/${deptId}`, {
       method: 'PUT',
       headers,
       body: JSON.stringify(data),
@@ -1858,7 +1861,7 @@ export const api = {
    */
   async createCompanyRole(companyId: string, deptId: string, role: { name: string; slug?: string; title?: string; responsibilities?: string; system_prompt?: string }) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/departments/${deptId}/roles`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/departments/${deptId}/roles`, {
       method: 'POST',
       headers,
       body: JSON.stringify(role),
@@ -1880,7 +1883,7 @@ export const api = {
    */
   async updateCompanyRole(companyId: string, deptId: string, roleId: string, updates: { name?: string; title?: string; responsibilities?: string; system_prompt?: string }) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/departments/${deptId}/roles/${roleId}`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/departments/${deptId}/roles/${roleId}`, {
       method: 'PUT',
       headers,
       body: JSON.stringify(updates),
@@ -1901,7 +1904,7 @@ export const api = {
   async getCompanyPlaybooks(companyId: string, docType: string | null = null) {
     const headers = await getAuthHeaders();
     const params = docType ? `?doc_type=${docType}` : '';
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/playbooks${params}`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/playbooks${params}`, { headers });
     if (!response.ok) {
       throw new Error('Failed to get playbooks');
     }
@@ -1915,7 +1918,7 @@ export const api = {
    */
   async getCompanyPlaybookTags(companyId: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/playbooks/tags`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/playbooks/tags`, { headers });
     if (!response.ok) {
       throw new Error('Failed to get playbook tags');
     }
@@ -1930,7 +1933,7 @@ export const api = {
    */
   async getPlaybook(companyId: string, playbookId: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/playbooks/${playbookId}`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/playbooks/${playbookId}`, { headers });
     if (!response.ok) {
       if (response.status === 404) return null;
       throw new Error('Failed to get playbook');
@@ -1946,7 +1949,7 @@ export const api = {
    */
   async createCompanyPlaybook(companyId: string, playbook: { title: string; doc_type: string; content?: string | undefined; department_id?: string | undefined; department_ids?: string[] | null | undefined }) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/playbooks`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/playbooks`, {
       method: 'POST',
       headers,
       body: JSON.stringify(playbook),
@@ -1967,7 +1970,7 @@ export const api = {
    */
   async updateCompanyPlaybook(companyId: string, playbookId: string, data: { content?: string; change_summary?: string; title?: string; status?: string; additional_departments?: string[] }) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/playbooks/${playbookId}`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/playbooks/${playbookId}`, {
       method: 'PUT',
       headers,
       body: JSON.stringify(data),
@@ -1992,7 +1995,7 @@ export const api = {
    */
   async deletePlaybook(companyId: string, playbookId: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/playbooks/${playbookId}`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/playbooks/${playbookId}`, {
       method: 'DELETE',
       headers,
     });
@@ -2012,7 +2015,7 @@ export const api = {
    */
   async getCompanyDecisions(companyId: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/decisions`, { headers });
     if (!response.ok) {
       throw new Error('Failed to get decisions');
     }
@@ -2027,7 +2030,7 @@ export const api = {
    */
   async getDecision(companyId: string, decisionId: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions/${decisionId}`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/decisions/${decisionId}`, { headers });
     if (!response.ok) {
       if (response.status === 404) return null;
       throw new Error('Failed to get decision');
@@ -2045,7 +2048,7 @@ export const api = {
    */
   async createCompanyDecision(companyId: string, decision: { title: string; content: string; department_id?: string | undefined; department_ids?: string[] | undefined; project_id?: string | undefined; source_conversation_id?: string | undefined; user_question?: string | undefined; response_index?: number | undefined; tags?: string[] | undefined }) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/decisions`, {
       method: 'POST',
       headers,
       body: JSON.stringify(decision),
@@ -2066,7 +2069,7 @@ export const api = {
   async getProjectDecisions(companyId: string, projectId: string) {
     const headers = await getAuthHeaders();
     const response = await fetch(
-      `${API_BASE}/api/company/${companyId}/projects/${projectId}/decisions`,
+      `${API_BASE}${API_VERSION}/company/${companyId}/projects/${projectId}/decisions`,
       { headers }
     );
     if (!response.ok) {
@@ -2084,7 +2087,7 @@ export const api = {
    */
   async promoteDecisionToPlaybook(companyId: string, decisionId: string, data: { doc_type: string; title?: string; department_id?: string; department_ids?: string[] }) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions/${decisionId}/promote`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/decisions/${decisionId}/promote`, {
       method: 'POST',
       headers,
       body: JSON.stringify(data),
@@ -2105,7 +2108,7 @@ export const api = {
    */
   async linkDecisionToProject(companyId: string, decisionId: string, projectId: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions/${decisionId}/link-project`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/decisions/${decisionId}/link-project`, {
       method: 'POST',
       headers,
       body: JSON.stringify({ project_id: projectId }),
@@ -2126,7 +2129,7 @@ export const api = {
    */
   async createProjectFromDecision(companyId: string, decisionId: string, data: { name: string; department_ids?: string[] }) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions/${decisionId}/create-project`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/decisions/${decisionId}/create-project`, {
       method: 'POST',
       headers,
       body: JSON.stringify(data),
@@ -2146,7 +2149,7 @@ export const api = {
    */
   async archiveDecision(companyId: string, decisionId: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions/${decisionId}/archive`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/decisions/${decisionId}/archive`, {
       method: 'POST',
       headers,
     });
@@ -2166,7 +2169,7 @@ export const api = {
    */
   async syncProjectDepartments(companyId: string, projectId: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/projects/${projectId}/sync-departments`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/projects/${projectId}/sync-departments`, {
       method: 'POST',
       headers,
     });
@@ -2185,7 +2188,7 @@ export const api = {
    */
   async deleteDecision(companyId: string, decisionId: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions/${decisionId}`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/decisions/${decisionId}`, {
       method: 'DELETE',
       headers,
     });
@@ -2207,7 +2210,7 @@ export const api = {
    */
   async generateDecisionSummary(companyId: string, decisionId: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/decisions/${decisionId}/generate-summary`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/decisions/${decisionId}/generate-summary`, {
       method: 'POST',
       headers,
     });
@@ -2233,7 +2236,7 @@ export const api = {
     if (eventType) params.append('event_type', eventType);
     if (days) params.append('days', String(days));
     const queryString = params.toString() ? `?${params.toString()}` : '';
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/activity${queryString}`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/activity${queryString}`, { headers });
     if (!response.ok) {
       throw new Error('Failed to get activity logs');
     }
@@ -2255,7 +2258,7 @@ export const api = {
     if (playbookType) {
       body.playbook_type = playbookType;
     }
-    const response = await fetch(`${API_BASE}/api/ai/write-assist`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/ai/write-assist`, {
       method: 'POST',
       headers,
       body: JSON.stringify(body),
@@ -2281,7 +2284,7 @@ export const api = {
    */
   async mergeCompanyContext({ companyId, existingContext, question, answer }: { companyId: string; existingContext: string; question: string; answer: string }) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/context/merge`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/context/merge`, {
       method: 'POST',
       headers,
       body: JSON.stringify({
@@ -2306,7 +2309,7 @@ export const api = {
    */
   async getCompanyMembers(companyId: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/members`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/members`, { headers });
     if (!response.ok) {
       throw new Error('Failed to get company members');
     }
@@ -2322,7 +2325,7 @@ export const api = {
    */
   async addCompanyMember(companyId: string, email: string, role: 'admin' | 'member' = 'member') {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/members`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/members`, {
       method: 'POST',
       headers,
       body: JSON.stringify({ email, role }),
@@ -2343,7 +2346,7 @@ export const api = {
    */
   async updateCompanyMember(companyId: string, memberId: string, role: 'admin' | 'member') {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/members/${memberId}`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/members/${memberId}`, {
       method: 'PATCH',
       headers,
       body: JSON.stringify({ role }),
@@ -2363,7 +2366,7 @@ export const api = {
    */
   async removeCompanyMember(companyId: string, memberId: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/members/${memberId}`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/members/${memberId}`, {
       method: 'DELETE',
       headers,
     });
@@ -2386,7 +2389,7 @@ export const api = {
    */
   async getCompanyUsage(companyId: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/usage`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/usage`, { headers });
     if (!response.ok) {
       throw new Error('Failed to get company usage');
     }
@@ -2401,7 +2404,7 @@ export const api = {
    */
   async getOpenRouterKeyStatus() {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/settings/openrouter-key`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/settings/openrouter-key`, { headers });
     if (!response.ok) {
       throw new Error('Failed to get API key status');
     }
@@ -2416,7 +2419,7 @@ export const api = {
    */
   async saveOpenRouterKey(key: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/settings/openrouter-key`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/settings/openrouter-key`, {
       method: 'POST',
       headers,
       body: JSON.stringify({ key }),
@@ -2434,7 +2437,7 @@ export const api = {
    */
   async deleteOpenRouterKey() {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/settings/openrouter-key`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/settings/openrouter-key`, {
       method: 'DELETE',
       headers,
     });
@@ -2452,7 +2455,7 @@ export const api = {
    */
   async testOpenRouterKey() {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/settings/openrouter-key/test`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/settings/openrouter-key/test`, {
       method: 'POST',
       headers,
     });
@@ -2469,7 +2472,7 @@ export const api = {
    */
   async toggleOpenRouterKey() {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/settings/openrouter-key/toggle`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/settings/openrouter-key/toggle`, {
       method: 'POST',
       headers,
     });
@@ -2486,7 +2489,7 @@ export const api = {
    */
   async getUserSettings() {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/settings`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/settings`, { headers });
     if (!response.ok) {
       throw new Error('Failed to get user settings');
     }
@@ -2501,7 +2504,7 @@ export const api = {
    */
   async updateUserSettings(updates: { default_mode?: 'quick' | 'full_council' }) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/settings`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/settings`, {
       method: 'PATCH',
       headers,
       body: JSON.stringify(updates),
@@ -2524,7 +2527,7 @@ export const api = {
    */
   async getLlmUsage(companyId: string, days: number = 30) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/llm-ops/usage?days=${days}`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/llm-ops/usage?days=${days}`, { headers });
     if (!response.ok) {
       if (response.status === 403) {
         throw new Error('Admin access required to view usage data');
@@ -2546,7 +2549,7 @@ export const api = {
    */
   async getRateLimits(companyId: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/llm-ops/rate-limits`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/llm-ops/rate-limits`, { headers });
     if (!response.ok) {
       throw new Error('Failed to get rate limits');
     }
@@ -2568,7 +2571,7 @@ export const api = {
     alert_threshold_percent?: number;
   }) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/llm-ops/rate-limits`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/llm-ops/rate-limits`, {
       method: 'PUT',
       headers,
       body: JSON.stringify(updates),
@@ -2597,7 +2600,7 @@ export const api = {
       params.append('limit', String(options.limit));
     }
     const queryString = params.toString() ? `?${params.toString()}` : '';
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/llm-ops/alerts${queryString}`, { headers });
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/llm-ops/alerts${queryString}`, { headers });
     if (!response.ok) {
       throw new Error('Failed to get budget alerts');
     }
@@ -2612,7 +2615,7 @@ export const api = {
    */
   async acknowledgeBudgetAlert(companyId: string, alertId: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}/api/company/${companyId}/llm-ops/alerts/${alertId}/acknowledge`, {
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/llm-ops/alerts/${alertId}/acknowledge`, {
       method: 'POST',
       headers,
     });

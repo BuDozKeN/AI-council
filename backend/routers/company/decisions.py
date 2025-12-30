@@ -31,7 +31,7 @@ from .utils import (
 )
 
 
-router = APIRouter(prefix="/api/company", tags=["company-decisions"])
+router = APIRouter(prefix="/company", tags=["company-decisions"])
 
 
 # =============================================================================

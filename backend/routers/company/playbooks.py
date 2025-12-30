@@ -7,7 +7,7 @@ Endpoints for SOP, framework, and policy management:
 - Get/Create/Update/Delete playbooks
 """
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from typing import Optional
 from datetime import datetime
 import uuid
@@ -24,8 +24,13 @@ from .utils import (
     PlaybookUpdate,
 )
 
+# Import rate limiter
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+limiter = Limiter(key_func=get_remote_address)
 
-router = APIRouter(prefix="/api/company", tags=["company-playbooks"])
+
+router = APIRouter(prefix="/company", tags=["company-playbooks"])
 
 
 # =============================================================================
@@ -204,7 +209,8 @@ async def get_playbook(company_id: ValidCompanyId, playbook_id: str, user=Depend
 
 
 @router.post("/{company_id}/playbooks")
-async def create_playbook(company_id: ValidCompanyId, data: PlaybookCreate, user=Depends(get_current_user)):
+@limiter.limit("20/minute")
+async def create_playbook(request: Request, company_id: ValidCompanyId, data: PlaybookCreate, user=Depends(get_current_user)):
     """Create a new playbook with initial version."""
     import re
     client = get_client(user)

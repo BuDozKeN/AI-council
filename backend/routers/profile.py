@@ -15,7 +15,7 @@ from .. import storage
 from ..security import SecureHTTPException, log_app_event
 
 
-router = APIRouter(prefix="/api/profile", tags=["profile"])
+router = APIRouter(prefix="/profile", tags=["profile"])
 
 
 # =============================================================================

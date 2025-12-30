@@ -25,7 +25,7 @@ from .utils import (
 from ...security import log_app_event
 
 
-router = APIRouter(prefix="/api/company", tags=["llm-ops"])
+router = APIRouter(prefix="/company", tags=["llm-ops"])
 
 
 # =============================================================================

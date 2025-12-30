@@ -46,7 +46,7 @@ async def _get_user_company_id(user: dict) -> Optional[str]:
         return None
 
 
-router = APIRouter(prefix="/api", tags=["ai-utils"])
+router = APIRouter(prefix="", tags=["ai-utils"])
 
 
 # =============================================================================
