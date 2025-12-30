@@ -153,6 +153,11 @@
   .bottom-sheet-body {
     padding: 0 16px 16px;
   }
+
+  /* Allow body to expand and fit content naturally */
+  .bottom-sheet-body > * {
+    min-height: min-content;
+  }
 }
 
 /* Very small phones - full screen sheet */

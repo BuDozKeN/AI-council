@@ -1,7 +1,9 @@
 /**
  * MultiDepartmentSelect - A multi-select component for departments
  *
- * Uses Radix Popover for the dropdown and checkboxes for multi-select.
+ * Uses Radix Popover for the dropdown and DepartmentCheckboxItem for items.
+ * DepartmentCheckboxItem is the SINGLE SOURCE OF TRUTH for department
+ * checkbox styling - shared with Omnibar for consistency.
  *
  * Usage:
  * <MultiDepartmentSelect
@@ -15,10 +17,11 @@
 
 import * as React from 'react';
 import * as Popover from '@radix-ui/react-popover';
-import { Building2, Check, ChevronDown } from 'lucide-react';
+import { Building2, ChevronDown } from 'lucide-react';
 import { getDeptColor } from '../../lib/colors';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from './BottomSheet';
+import { DepartmentCheckboxItem } from './DepartmentCheckboxItem';
 import type { Department } from '../../types/business';
 import './MultiDepartmentSelect.css';
 
@@ -50,6 +53,13 @@ export function MultiDepartmentSelect({
   const selectedDepts = value
     .map(id => departments.find(d => d.id === id))
     .filter((d): d is Department => Boolean(d));
+
+  // Build tooltip text showing all selected departments
+  const tooltipText = selectedDepts.length === 0
+    ? placeholder
+    : selectedDepts.length === 1
+      ? selectedDepts[0]?.name
+      : `Selected departments:\n${selectedDepts.map(d => `• ${d.name}`).join('\n')}`;
 
   const toggleDepartment = (deptId: string) => {
     if (value.includes(deptId)) {
@@ -95,38 +105,21 @@ export function MultiDepartmentSelect({
     </>
   );
 
-  // Shared department list content
+  // Shared department list content - uses DepartmentCheckboxItem for consistency
   const departmentList = (isMobile: boolean = false) => (
     <div className={isMobile ? "multi-dept-list-mobile" : "multi-dept-list"}>
       {departments.length === 0 ? (
         <div className="multi-dept-empty">No departments available</div>
       ) : (
-        departments.map(dept => {
-          const isSelected = value.includes(dept.id);
-          const colors = getDeptColor(dept.id);
-
-          return (
-            <button
-              key={dept.id}
-              className={cn(
-                isMobile ? "multi-dept-item-mobile" : "multi-dept-item",
-                isSelected && "selected"
-              )}
-              onClick={() => toggleDepartment(dept.id)}
-              style={{
-                '--dept-hover-bg': colors.hoverBg,
-                '--dept-selected-bg': colors.bg,
-                '--dept-selected-text': colors.text,
-              } as React.CSSProperties}
-              type="button"
-            >
-              <div className={cn("multi-dept-checkbox", isSelected && "checked")}>
-                {isSelected && <Check className="h-3 w-3" />}
-              </div>
-              <span className="multi-dept-item-label">{dept.name}</span>
-            </button>
-          );
-        })
+        departments.map(dept => (
+          <DepartmentCheckboxItem
+            key={dept.id}
+            department={dept}
+            isSelected={value.includes(dept.id)}
+            onToggle={toggleDepartment}
+            isMobile={isMobile}
+          />
+        ))
       )}
     </div>
   );
@@ -140,6 +133,7 @@ export function MultiDepartmentSelect({
           disabled={disabled}
           onClick={() => setOpen(true)}
           type="button"
+          title={tooltipText}
         >
           {triggerContent}
         </button>
@@ -161,6 +155,7 @@ export function MultiDepartmentSelect({
       <Popover.Trigger
         className={cn("multi-dept-trigger", className)}
         disabled={disabled}
+        title={tooltipText}
       >
         {triggerContent}
       </Popover.Trigger>

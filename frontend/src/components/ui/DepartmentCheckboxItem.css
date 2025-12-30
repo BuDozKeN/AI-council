@@ -1,0 +1,146 @@
+/**
+ * DepartmentCheckboxItem Styles
+ *
+ * SINGLE SOURCE OF TRUTH for department checkbox styling.
+ * Used by both Omnibar and Stage3 department dropdowns.
+ */
+
+/* =============================================================================
+   DESKTOP STYLES
+   ============================================================================= */
+
+.dept-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  padding-left: 10px;
+  border: none;
+  border-left: 3px solid transparent;
+  background: transparent;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-gray-700);
+  cursor: pointer;
+  transition: all 0.1s ease;
+  text-align: left;
+}
+
+.dept-checkbox-item:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dept-checkbox-item.selected {
+  border-left-color: var(--dept-color, var(--color-slate-500));
+  background: var(--color-bg-tertiary);
+}
+
+/* Checkbox */
+.dept-checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--color-border-dark);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-primary);
+  transition: all 0.1s ease;
+  flex-shrink: 0;
+}
+
+.dept-checkbox.checked {
+  background: var(--dept-color, var(--color-indigo-500));
+  border-color: var(--dept-color, var(--color-indigo-500));
+  color: var(--color-text-inverse);
+}
+
+.dept-checkbox-icon {
+  width: 12px;
+  height: 12px;
+}
+
+/* Label */
+.dept-checkbox-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =============================================================================
+   MOBILE STYLES
+   ============================================================================= */
+
+.dept-checkbox-item.mobile {
+  gap: 14px;
+  min-height: 56px;
+  padding: 14px 16px;
+  padding-left: 14px;
+  border-left-width: 4px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  font-size: 16px;
+}
+
+.dept-checkbox-item.mobile:active {
+  background: var(--color-bg-tertiary);
+  transform: scale(0.98);
+}
+
+.dept-checkbox-item.mobile.selected {
+  border-left-color: var(--dept-color, var(--color-slate-500));
+  background: var(--color-bg-tertiary);
+}
+
+.dept-checkbox-item.mobile .dept-checkbox {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-md);
+}
+
+.dept-checkbox-item.mobile .dept-checkbox-icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .dept-checkbox-item {
+  color: var(--color-text-primary);
+}
+
+.dark .dept-checkbox-item:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .dept-checkbox-item.selected {
+  border-left-color: var(--dept-color, var(--color-slate-400));
+  background: var(--color-bg-tertiary);
+}
+
+.dark .dept-checkbox {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+.dark .dept-checkbox.checked {
+  background: var(--dept-color, var(--color-indigo-500));
+  border-color: var(--dept-color, var(--color-indigo-500));
+}
+
+/* Mobile dark mode */
+.dark .dept-checkbox-item.mobile {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .dept-checkbox-item.mobile:active {
+  background: var(--color-bg-hover);
+}
+
+.dark .dept-checkbox-item.mobile.selected {
+  background: var(--color-bg-hover);
+}

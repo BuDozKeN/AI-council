@@ -355,10 +355,70 @@ h2, h3 {
   color: inherit;
 }
 
+/* =============================================================================
+   PREMIUM TYPOGRAPHY - Chairman Synthesis
+   Elevated typography for the flagship output
+   ============================================================================= */
+
 .final-text {
   color: var(--color-text-primary);
-  line-height: 1.7;
-  font-size: 15px;
+
+  /* Premium typography: 18px with relaxed line-height for synthesis */
+  font-size: var(--text-lg); /* 18px */
+  line-height: var(--leading-relaxed); /* 1.625 */
+  letter-spacing: var(--tracking-normal); /* Slight negative for modern look */
+}
+
+/* Prose heading hierarchy - clear visual structure */
+.final-text .prose h2 {
+  font-size: var(--text-2xl); /* 24px */
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-tight);
+  margin-top: var(--space-8); /* 32px - major section spacing */
+  margin-bottom: var(--space-4); /* 16px */
+  color: var(--color-text-default);
+}
+
+.final-text .prose h3 {
+  font-size: var(--text-xl); /* 20px */
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-tight);
+  margin-top: var(--space-6); /* 24px */
+  margin-bottom: var(--space-3); /* 12px */
+  color: var(--color-text-default);
+}
+
+.final-text .prose h4 {
+  font-size: var(--text-lg); /* 18px */
+  font-weight: var(--font-semibold);
+  margin-top: var(--space-5); /* 20px */
+  margin-bottom: var(--space-2); /* 8px */
+  color: var(--color-text-default);
+}
+
+/* Paragraph spacing */
+.final-text .prose p {
+  margin-bottom: var(--space-4); /* 16px between paragraphs */
+}
+
+/* List styling */
+.final-text .prose ul,
+.final-text .prose ol {
+  margin-bottom: var(--space-4);
+  padding-left: var(--space-6);
+}
+
+.final-text .prose li {
+  margin-bottom: var(--space-2);
+}
+
+/* Blockquote - premium callout styling */
+.final-text .prose blockquote {
+  border-left: 3px solid var(--color-success);
+  padding-left: var(--space-4);
+  margin: var(--space-6) 0;
+  font-style: italic;
+  color: var(--color-text-muted);
 }
 
 .final-text.error-text {
@@ -673,22 +733,22 @@ h2, h3 {
   opacity: 1;
 }
 
-/* Main save button - prominent CTA */
+/* Main save button - matches toolbar-pill height for symmetry */
 .save-action-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
+  gap: 5px;
+  padding: 6px 12px;
   background: var(--color-emerald-600);
   border: none;
   border-radius: var(--radius-md);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--color-text-inverse);
   cursor: pointer;
   transition: all 0.2s ease;
   white-space: nowrap;
-  box-shadow: 0 2px 4px var(--overlay-emerald-20);
+  box-shadow: 0 1px 2px var(--overlay-emerald-20);
 }
 
 .save-action-btn:hover:not(:disabled) {
@@ -809,21 +869,18 @@ h2, h3 {
 }
 
 /* ===========================================
-   Project Selector - Inline pill style (between dept and type pills)
+   UNIFIED DROPDOWN SYSTEM
+   Standard dropdown components for Stage3 toolbar
    =========================================== */
 
-.save-project-selector-inline {
-  position: relative;
-  flex-shrink: 0;
-}
-
-.save-project-pill {
+/* --- Trigger Pills (shared base) --- */
+.toolbar-pill {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
+  gap: 5px;
+  padding: 6px 10px;
   background: transparent;
-  border: 1px solid transparent;
+  border: none;
   border-radius: var(--radius-md);
   font-size: 12px;
   font-weight: 500;
@@ -831,64 +888,33 @@ h2, h3 {
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
-  max-width: 160px;
-  overflow: hidden;
 }
 
-.save-project-pill:hover:not(:disabled) {
-  background: var(--color-slate-100);
+.toolbar-pill:hover:not(:disabled) {
+  background: var(--color-bg-primary);
   color: var(--color-gray-700);
 }
 
-.save-project-pill.has-project {
-  background: var(--color-purple-100);
-  border-color: var(--color-purple-200);
-  color: var(--color-purple-600);
-  font-weight: 600;
-}
-
-.save-project-pill.has-project:hover:not(:disabled) {
-  background: var(--color-violet-100);
-  border-color: var(--color-violet-200);
-}
-
-.save-project-pill:disabled {
+.toolbar-pill:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.save-project-pill span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 100px;
-}
-
-/* Ensure icons don't shrink when text truncates */
-.save-project-pill svg {
+.toolbar-pill svg {
   flex-shrink: 0;
 }
 
-/* Project dropdown */
-.save-project-dropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  z-index: var(--z-dropdown);
-  min-width: 300px;
-  max-width: 400px;
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-slate-200);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+.toolbar-pill span {
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Portal version - fixed position for createPortal usage */
-.save-project-dropdown-portal {
+/* --- Portal Dropdown (shared base) --- */
+.toolbar-dropdown-portal {
   position: fixed;
   z-index: var(--z-modal);
-  min-width: 300px;
-  max-width: 400px;
+  min-width: 260px;
+  max-width: 340px;
   background: var(--color-bg-primary);
   border: 1px solid var(--color-slate-200);
   border-radius: var(--radius-lg);
@@ -896,7 +922,7 @@ h2, h3 {
   overflow: hidden;
 }
 
-.save-project-dropdown-header {
+.toolbar-dropdown-header {
   padding: 10px 12px;
   font-size: 11px;
   font-weight: 600;
@@ -907,69 +933,81 @@ h2, h3 {
   border-bottom: 1px solid var(--color-slate-200);
 }
 
-.save-project-list {
+.toolbar-dropdown-list {
+  padding: 4px;
   max-height: 300px;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
 
-.save-project-option {
+/* --- Dropdown Option (shared base) --- */
+.toolbar-dropdown-option {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  gap: 10px;
   width: 100%;
   padding: 10px 12px;
   background: transparent;
   border: none;
-  border-bottom: 1px solid var(--color-slate-100);
+  border-radius: var(--radius-md);
   cursor: pointer;
   text-align: left;
   transition: background 0.15s ease;
 }
 
-.save-project-option:last-child {
-  border-bottom: none;
-}
-
-.save-project-option:hover {
+.toolbar-dropdown-option:hover {
   background: var(--color-slate-50);
 }
 
-.save-project-option.selected {
-  background: var(--color-purple-100);
+.toolbar-dropdown-option.selected {
+  background: var(--color-slate-100);
 }
 
-.save-project-option-name {
+.toolbar-dropdown-option svg {
+  flex-shrink: 0;
+  color: var(--color-slate-400);
+}
+
+.toolbar-dropdown-option.selected svg {
+  color: var(--color-slate-600);
+}
+
+.toolbar-dropdown-option-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.toolbar-dropdown-option-name {
   font-size: 13px;
   font-weight: 500;
   color: var(--color-slate-800);
 }
 
-.save-project-option.selected .save-project-option-name {
-  color: var(--color-purple-600);
+.toolbar-dropdown-option.selected .toolbar-dropdown-option-name {
+  font-weight: 600;
 }
 
-.save-project-option-desc {
+.toolbar-dropdown-option-desc {
   font-size: 11px;
   color: var(--color-slate-500);
-  margin-top: 2px;
   line-height: 1.4;
-
-  /* Allow 2 lines before truncating */
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-/* Create new project */
-.save-project-create {
+/* --- Dropdown Footer (for create actions) --- */
+.toolbar-dropdown-footer {
   padding: 8px;
   border-top: 1px solid var(--color-slate-200);
   background: var(--color-slate-50);
 }
 
-.save-project-create-btn {
+.toolbar-dropdown-create-btn {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -985,10 +1023,397 @@ h2, h3 {
   transition: all 0.15s ease;
 }
 
-.save-project-create-btn:hover {
+.toolbar-dropdown-create-btn:hover {
   background: var(--color-bg-primary);
-  border-color: var(--color-purple-600);
+  border-color: var(--color-indigo-500);
+  color: var(--color-indigo-600);
+}
+
+/* --- Mobile Bottom Sheet Options (shared) --- */
+.toolbar-list-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+}
+
+.toolbar-option-mobile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--color-slate-50);
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.toolbar-option-mobile:active {
+  transform: scale(0.98);
+}
+
+.toolbar-option-mobile.selected {
+  background: var(--color-slate-100);
+  border-color: var(--color-slate-300);
+}
+
+.toolbar-option-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--color-slate-100);
+  border-radius: var(--radius-md);
+  color: var(--color-slate-500);
+  flex-shrink: 0;
+}
+
+.toolbar-option-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.toolbar-option-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-slate-800);
+}
+
+.toolbar-option-desc {
+  font-size: 12px;
+  color: var(--color-slate-500);
+}
+
+.toolbar-create-btn-mobile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  background: transparent;
+  border: 1px dashed var(--color-slate-300);
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-slate-500);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-top: 4px;
+}
+
+.toolbar-create-btn-mobile:active {
+  background: var(--color-slate-50);
+  border-color: var(--color-indigo-500);
+  color: var(--color-indigo-600);
+}
+
+/* ===========================================
+   PROJECT DROPDOWN - Extends unified system
+   =========================================== */
+
+.save-project-selector-inline {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Project pill extends toolbar-pill */
+.save-project-pill {
+  max-width: 160px;
+}
+
+.save-project-pill span {
+  max-width: 100px;
+}
+
+.save-project-pill.has-project {
+  background: var(--color-violet-100);
+  color: var(--color-violet-700);
+}
+
+.save-project-pill.has-project:hover:not(:disabled) {
+  background: var(--color-violet-200);
+}
+
+/* Project-specific selected state */
+.toolbar-dropdown-option.project-option.selected {
+  background: var(--color-violet-50);
+}
+
+.toolbar-dropdown-option.project-option.selected svg {
+  color: var(--color-violet-600);
+}
+
+.toolbar-dropdown-option.project-option.selected .toolbar-dropdown-option-name {
+  color: var(--color-violet-700);
+}
+
+.toolbar-option-mobile.project-option.selected {
+  background: var(--color-violet-50);
+  border-color: var(--color-violet-300);
+}
+
+.toolbar-option-mobile.project-option.selected .toolbar-option-icon {
+  background: var(--color-violet-100);
+  color: var(--color-violet-600);
+}
+
+/* Legacy class aliases for backwards compatibility */
+.save-project-dropdown-portal {
+  /* Extends toolbar-dropdown-portal */
+}
+
+.save-project-dropdown-header {
+  /* Extends toolbar-dropdown-header */
+}
+
+.save-project-list {
+  /* Extends toolbar-dropdown-list */
+}
+
+.save-project-option {
+  /* Extends toolbar-dropdown-option */
+}
+
+.save-project-option-name {
+  /* Extends toolbar-dropdown-option-name */
+}
+
+.save-project-option-desc {
+  /* Extends toolbar-dropdown-option-desc */
+}
+
+.save-project-create {
+  /* Extends toolbar-dropdown-footer */
+}
+
+.save-project-create-btn {
+  /* Extends toolbar-dropdown-create-btn */
+}
+
+/* ===========================================
+   PLAYBOOK DROPDOWN - Extends unified system
+   =========================================== */
+
+.playbook-selector-inline {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Playbook trigger pill - type-specific colors */
+.playbook-trigger-pill.has-type.sop {
+  background: var(--color-blue-100);
+  color: var(--color-blue-700);
+}
+
+.playbook-trigger-pill.has-type.framework {
+  background: var(--color-amber-100);
+  color: var(--color-amber-700);
+}
+
+.playbook-trigger-pill.has-type.policy {
+  background: var(--color-purple-100);
   color: var(--color-purple-600);
+}
+
+.playbook-trigger-pill.has-type.sop:hover:not(:disabled) {
+  background: var(--color-blue-200);
+}
+
+.playbook-trigger-pill.has-type.framework:hover:not(:disabled) {
+  background: var(--color-amber-200);
+}
+
+.playbook-trigger-pill.has-type.policy:hover:not(:disabled) {
+  background: var(--color-purple-200);
+}
+
+.playbook-trigger-pill.saved {
+  cursor: default;
+}
+
+/* Playbook options - type-specific colors (desktop) */
+.toolbar-dropdown-option.playbook-option.sop:hover,
+.toolbar-dropdown-option.playbook-option.sop.selected {
+  background: var(--color-blue-50);
+}
+
+.toolbar-dropdown-option.playbook-option.sop.selected svg {
+  color: var(--color-blue-600);
+}
+
+.toolbar-dropdown-option.playbook-option.sop.selected .toolbar-dropdown-option-name {
+  color: var(--color-blue-700);
+}
+
+.toolbar-dropdown-option.playbook-option.framework:hover,
+.toolbar-dropdown-option.playbook-option.framework.selected {
+  background: var(--color-amber-50);
+}
+
+.toolbar-dropdown-option.playbook-option.framework.selected svg {
+  color: var(--color-amber-600);
+}
+
+.toolbar-dropdown-option.playbook-option.framework.selected .toolbar-dropdown-option-name {
+  color: var(--color-amber-700);
+}
+
+.toolbar-dropdown-option.playbook-option.policy:hover,
+.toolbar-dropdown-option.playbook-option.policy.selected {
+  background: var(--color-purple-50);
+}
+
+.toolbar-dropdown-option.playbook-option.policy.selected svg {
+  color: var(--color-purple-600);
+}
+
+.toolbar-dropdown-option.playbook-option.policy.selected .toolbar-dropdown-option-name {
+  color: var(--color-purple-700);
+}
+
+/* Playbook options - type-specific colors (mobile) */
+.toolbar-option-mobile.playbook-option.sop.selected {
+  background: var(--color-blue-50);
+  border-color: var(--color-blue-300);
+}
+
+.toolbar-option-mobile.playbook-option.sop .toolbar-option-icon {
+  background: var(--color-blue-100);
+  color: var(--color-blue-600);
+}
+
+.toolbar-option-mobile.playbook-option.framework.selected {
+  background: var(--color-amber-50);
+  border-color: var(--color-amber-300);
+}
+
+.toolbar-option-mobile.playbook-option.framework .toolbar-option-icon {
+  background: var(--color-amber-100);
+  color: var(--color-amber-600);
+}
+
+.toolbar-option-mobile.playbook-option.policy.selected {
+  background: var(--color-purple-50);
+  border-color: var(--color-purple-300);
+}
+
+.toolbar-option-mobile.playbook-option.policy .toolbar-option-icon {
+  background: var(--color-purple-100);
+  color: var(--color-purple-600);
+}
+
+/* ===========================================
+   DARK MODE - Unified dropdown system
+   Subdued colors that blend with dark UI
+   =========================================== */
+
+.dark .toolbar-dropdown-portal,
+[data-theme="dark"] .toolbar-dropdown-portal {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-lg);
+}
+
+.dark .toolbar-dropdown-header,
+[data-theme="dark"] .toolbar-dropdown-header {
+  background: var(--overlay-black-40);
+  border-color: var(--color-border);
+  color: var(--color-text-tertiary);
+}
+
+.dark .toolbar-dropdown-option,
+[data-theme="dark"] .toolbar-dropdown-option {
+  color: var(--color-text-secondary);
+}
+
+.dark .toolbar-dropdown-option:hover,
+[data-theme="dark"] .toolbar-dropdown-option:hover {
+  background: var(--overlay-white-5);
+}
+
+.dark .toolbar-dropdown-option.selected,
+[data-theme="dark"] .toolbar-dropdown-option.selected {
+  background: var(--overlay-white-10);
+}
+
+.dark .toolbar-dropdown-option svg,
+[data-theme="dark"] .toolbar-dropdown-option svg {
+  color: var(--color-text-tertiary);
+}
+
+.dark .toolbar-dropdown-option.selected svg,
+[data-theme="dark"] .toolbar-dropdown-option.selected svg {
+  color: var(--color-text-secondary);
+}
+
+.dark .toolbar-dropdown-option-name,
+[data-theme="dark"] .toolbar-dropdown-option-name {
+  color: var(--color-text-primary);
+}
+
+.dark .toolbar-dropdown-option-desc,
+[data-theme="dark"] .toolbar-dropdown-option-desc {
+  color: var(--color-text-tertiary);
+}
+
+.dark .toolbar-dropdown-footer,
+[data-theme="dark"] .toolbar-dropdown-footer {
+  background: var(--overlay-black-40);
+  border-color: var(--color-border);
+}
+
+.dark .toolbar-dropdown-create-btn,
+[data-theme="dark"] .toolbar-dropdown-create-btn {
+  border-color: var(--color-border);
+  color: var(--color-text-tertiary);
+}
+
+.dark .toolbar-dropdown-create-btn:hover,
+[data-theme="dark"] .toolbar-dropdown-create-btn:hover {
+  background: var(--overlay-white-5);
+  border-color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
+}
+
+/* Mobile dark mode */
+.dark .toolbar-option-mobile,
+[data-theme="dark"] .toolbar-option-mobile {
+  background: var(--overlay-white-5);
+  border-color: transparent;
+}
+
+.dark .toolbar-option-mobile.selected,
+[data-theme="dark"] .toolbar-option-mobile.selected {
+  background: var(--overlay-white-10);
+  border-color: var(--color-border);
+}
+
+.dark .toolbar-option-icon,
+[data-theme="dark"] .toolbar-option-icon {
+  background: var(--overlay-white-10);
+  color: var(--color-text-tertiary);
+}
+
+.dark .toolbar-option-name,
+[data-theme="dark"] .toolbar-option-name {
+  color: var(--color-text-primary);
+}
+
+.dark .toolbar-option-desc,
+[data-theme="dark"] .toolbar-option-desc {
+  color: var(--color-text-tertiary);
+}
+
+.dark .toolbar-create-btn-mobile,
+[data-theme="dark"] .toolbar-create-btn-mobile {
+  border-color: var(--color-border);
+  color: var(--color-text-tertiary);
 }
 
 /* ===== DARK MODE ===== */

@@ -3,9 +3,11 @@
  *
  * Displays the user's question (AI-summarized) and context pills.
  * Always visible sticky header - NOT collapsible.
+ * Department pills use standardized colors from getDeptColor().
  */
 
 import { MessageCircleQuestion } from 'lucide-react';
+import { getDeptColor } from '../../lib/colors';
 
 /**
  * Truncate and clean up a question for display
@@ -84,16 +86,16 @@ export function ContextIndicator({
 
   const displayQuestion = conversationTitle || summarizeQuestion(question);
 
-  // Get department names (support both single and multi-select)
-  const departmentNames: string[] = [];
+  // Get department data with IDs for color lookup (support both single and multi-select)
+  const departmentItems: { id: string; name: string }[] = [];
   if (selectedDepartment) {
     const dept = departments.find(d => d.id === selectedDepartment);
-    if (dept) departmentNames.push(dept.name);
+    if (dept) departmentItems.push({ id: dept.id, name: dept.name });
   }
   selectedDepartments.forEach(id => {
     if (id !== selectedDepartment) { // Avoid duplicates
       const dept = departments.find(d => d.id === id);
-      if (dept) departmentNames.push(dept.name);
+      if (dept) departmentItems.push({ id: dept.id, name: dept.name });
     }
   });
 
@@ -142,11 +144,21 @@ export function ContextIndicator({
               {projects.find(p => p.id === selectedProject)?.name || 'Project'}
             </span>
           )}
-          {departmentNames.map((name, idx) => (
-            <span key={`dept-${idx}`} className="context-indicator-item department">
-              {name}
-            </span>
-          ))}
+          {departmentItems.map((dept) => {
+            const colors = getDeptColor(dept.id);
+            return (
+              <span
+                key={dept.id}
+                className="context-indicator-item department"
+                style={{
+                  '--dept-bg': colors.bg,
+                  '--dept-text': colors.text,
+                } as React.CSSProperties}
+              >
+                {dept.name}
+              </span>
+            );
+          })}
           {roleNames.map((name, idx) => (
             <span key={`role-${idx}`} className="context-indicator-item role">
               {name}

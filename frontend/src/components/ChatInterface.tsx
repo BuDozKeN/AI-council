@@ -10,7 +10,6 @@ import {
   ConversationEmptyState,
   ContextIndicator,
   ContextBar,
-  ModeToggle,
   MessageList,
   ChatInput,
 } from './chat';
@@ -376,19 +375,21 @@ export default function ChatInterface({
     }
   };
 
-  // Loading conversation - show council loader
-  if (!conversation && isLoadingConversation) {
-    return (
-      <main id="main-content" className="chat-interface" aria-label="Chat interface">
-        <div className="council-loader-overlay">
-          <CouncilLoader text="Getting your conversation ready..." />
-        </div>
-      </main>
-    );
-  }
-
-  // No conversation - show welcome state
+  // No conversation state - either show loader or welcome
   if (!conversation) {
+    // Show loader if actively loading OR if we're in a transition state
+    // (isLoadingConversation might lag behind the conversation being cleared)
+    if (isLoadingConversation) {
+      return (
+        <main id="main-content" className="chat-interface" aria-label="Chat interface">
+          <div className="council-loader-overlay">
+            <CouncilLoader text="Getting your conversation ready..." />
+          </div>
+        </main>
+      );
+    }
+
+    // Only show welcome state when truly idle (no loading expected)
     return <WelcomeState />;
   }
 
@@ -522,19 +523,19 @@ export default function ChatInterface({
         })()}
 
         <div ref={messagesEndRef} />
-
-        {/* Floating scroll-to-top button - inside messages container */}
-        {showScrollTop && (
-          <button
-            className="scroll-to-top-fab"
-            onClick={scrollToTop}
-            title="Scroll to top"
-            aria-label="Scroll to top"
-          >
-            <ArrowUp size={20} />
-          </button>
-        )}
       </div>
+
+      {/* Floating scroll-to-top button - fixed position outside container */}
+      {showScrollTop && (
+        <button
+          className="scroll-to-top-fab"
+          onClick={scrollToTop}
+          title="Scroll to top"
+          aria-label="Scroll to top"
+        >
+          <ArrowUp size={20} />
+        </button>
+      )}
 
       {/* Input form when no triage active */}
       {!triageState && (
@@ -587,32 +588,7 @@ export default function ChatInterface({
             />
           )}
 
-          {/* Mode toggle - only show for follow-up messages */}
-          {hasMessages && (
-            <ModeToggle
-              chatMode={chatMode}
-              onChatModeChange={setChatMode}
-              // Multi-select props (primary)
-              departments={departments}
-              selectedDepartments={selectedDepartments}
-              onSelectDepartments={onSelectDepartments}
-              allRoles={allRoles}
-              selectedRoles={selectedRoles}
-              onSelectRoles={onSelectRoles}
-              playbooks={playbooks}
-              selectedPlaybooks={selectedPlaybooks}
-              onSelectPlaybooks={onSelectPlaybooks}
-              // Legacy single-select props (fallback)
-              selectedDepartment={selectedDepartment}
-              onSelectDepartment={onSelectDepartment}
-              roles={roles}
-              selectedRole={selectedRole}
-              onSelectRole={onSelectRole}
-              selectedBusiness={selectedBusiness}
-              isLoading={isLoading}
-            />
-          )}
-
+          {/* ChatInput with context icons inside (omnibar) */}
           <ChatInput
             input={input}
             onInputChange={setInput}
@@ -620,10 +596,21 @@ export default function ChatInterface({
             onSubmit={() => handleSubmit({ preventDefault: () => {} } as React.FormEvent)}
             isLoading={isLoading}
             onStopGeneration={onStopGeneration}
-            chatMode={chatMode}
             hasMessages={hasMessages}
             hasImages={attachedImages.length > 0}
             imageUpload={imageUpload}
+            // Context props for follow-ups (icons inside omnibar)
+            chatMode={chatMode}
+            onChatModeChange={setChatMode}
+            departments={departments}
+            selectedDepartments={selectedDepartments}
+            onSelectDepartments={onSelectDepartments}
+            roles={allRoles}
+            selectedRoles={selectedRoles}
+            onSelectRoles={onSelectRoles}
+            playbooks={playbooks}
+            selectedPlaybooks={selectedPlaybooks}
+            onSelectPlaybooks={onSelectPlaybooks}
           />
         </form>
       )}

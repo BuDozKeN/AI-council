@@ -233,7 +233,8 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
 
   const {
     data: fetchedConversation,
-    isLoading: isLoadingConversation,
+    isLoading: isQueryLoading,
+    isFetching: isQueryFetching,
     error: conversationError,
   } = useQuery({
     queryKey: conversationKeys.detail(currentConversationId || ''),
@@ -241,6 +242,11 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
     enabled: shouldFetchConversation,
     staleTime: 1000 * 60 * 5,
   });
+
+  // Derive loading state: loading if query is fetching OR if we're expecting to fetch
+  // (currentConversationId is set but we haven't loaded the conversation yet)
+  const isLoadingConversation = isQueryLoading || isQueryFetching ||
+    (shouldFetchConversation && !currentConversation && !fetchedConversation);
 
   // Sync fetched conversation to local state
   // IMPORTANT: Skip sync when actively loading/streaming to prevent overwriting local streaming state
@@ -341,7 +347,7 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
   }, []);
 
   // Select an existing conversation
-  // Note: isLoadingConversation is now managed by the TanStack Query above
+  // Note: isLoadingConversation is derived above to cover the transition gap
   const handleSelectConversation = useCallback((id: string): void => {
     setCurrentConversation(null);
     setCurrentConversationId(id);

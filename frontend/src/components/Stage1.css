@@ -30,44 +30,12 @@
     0 0 40px 4px var(--overlay-emerald-10);
 }
 
-/* Living Feed Grid - shows all models simultaneously */
+/* Living Feed Grid - single column for premium reading experience
+   Consistent with ChatGPT/Claude patterns - vertical progression */
 .stage1 .model-grid {
   display: grid;
-  grid-template-columns: repeat(1, 1fr);
+  grid-template-columns: 1fr; /* Always single column */
   gap: 12px;
-}
-
-/* Container queries for responsive grid (adapts to sidebar state) */
-@container stage1 (min-width: 500px) {
-  .stage1 .model-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@container stage1 (min-width: 800px) {
-  .stage1 .model-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* Fallback for browsers without container query support */
-@supports not (container-type: inline-size) {
-  @media (min-width: 768px) {
-    .stage1 .model-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .stage1 .model-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-}
-
-/* When a card is expanded, show single column (CSS :has() - no JS needed) */
-.stage1 .model-grid:has(.model-card.expanded) {
-  grid-template-columns: 1fr;
 }
 
 /* Model card styles */

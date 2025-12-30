@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { MultiDepartmentSelect } from '../ui/MultiDepartmentSelect';
 import { Spinner } from '../ui/Spinner';
 import { ProjectDropdown } from './ProjectDropdown';
-import { Bookmark, FileText, Layers, ScrollText, LucideIcon } from 'lucide-react';
+import { PlaybookDropdown } from './PlaybookDropdown';
+import { Bookmark } from 'lucide-react';
 import type { Department, Project } from '../../types/business';
 
 interface ProjectWithContext {
@@ -17,22 +18,7 @@ interface ProjectWithContext {
   updated_at?: string;
 }
 
-type DocType = 'sop' | 'framework' | 'policy';
 type SaveState = 'idle' | 'saving' | 'promoting' | 'saved' | 'promoted' | 'error';
-
-interface DocTypeDefinition {
-  value: DocType;
-  label: string;
-  icon: LucideIcon;
-  description: string;
-}
-
-// Playbook type definitions with icons
-const DOC_TYPES: DocTypeDefinition[] = [
-  { value: 'sop', label: 'SOP', icon: ScrollText, description: 'Standard Operating Procedure - step-by-step instructions' },
-  { value: 'framework', label: 'Framework', icon: Layers, description: 'Framework - guidelines and best practices' },
-  { value: 'policy', label: 'Policy', icon: FileText, description: 'Policy - rules and requirements' }
-];
 
 interface Stage3ActionsProps {
   companyId?: string | undefined;
@@ -134,26 +120,12 @@ export function Stage3Actions({
 
           <div className="save-divider" />
 
-          {/* Type selector pills */}
-          <div className="save-type-pills" title="Optionally classify as a document type">
-            {DOC_TYPES.map(type => {
-              const Icon = type.icon;
-              const isSaved = saveState === 'saved' || saveState === 'promoted';
-              const isSelected = selectedDocType === type.value;
-              return (
-                <button
-                  key={type.value}
-                  className={`save-type-pill ${type.value} ${isSelected ? 'selected' : ''} ${isSaved && isSelected ? 'saved' : ''}`}
-                  onClick={() => !isSaved && setSelectedDocType(isSelected ? '' : type.value)}
-                  disabled={saveState === 'saving' || saveState === 'promoting'}
-                  title={isSaved && isSelected ? `Saved as ${type.label}` : type.description}
-                >
-                  <Icon className="h-3.5 w-3.5" />
-                  <span>{type.label}</span>
-                </button>
-              );
-            })}
-          </div>
+          {/* Playbook type dropdown */}
+          <PlaybookDropdown
+            selectedDocType={selectedDocType}
+            setSelectedDocType={setSelectedDocType}
+            saveState={saveState}
+          />
         </div>
 
         {/* Save/Access button */}
@@ -191,7 +163,7 @@ export function Stage3Actions({
             title={currentProject
               ? 'Save this answer and add it to your project'
               : selectedDocType
-                ? `Save as ${DOC_TYPES.find(t => t.value === selectedDocType)?.label} to your knowledge base`
+                ? `Save as ${selectedDocType.toUpperCase()} to your knowledge base`
                 : 'Save this answer to access it later from My Company'}
           >
             {(saveState === 'saving' || saveState === 'promoting') ? (
