@@ -216,6 +216,8 @@ export const ConversationItem = memo(function ConversationItem({
           <div className="conversation-title-edit">
             <input
               ref={editInputRef}
+              id={`edit-conversation-${conversation.id}`}
+              name="conversation-title"
               type="text"
               value={editingTitle}
               onChange={(e) => onEditTitleChange(e.target.value)}

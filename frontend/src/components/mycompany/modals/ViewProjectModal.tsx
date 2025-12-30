@@ -448,6 +448,8 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
           <div className="mc-header-title-row">
             {isEditingName || isNew ? (
               <input
+                id="project-name-edit"
+                name="project-name"
                 type="text"
                 className="mc-title-inline-edit"
                 value={editedName}
@@ -565,7 +567,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
           {/* Description - stripped of markdown for clean display */}
           {isEditing ? (
             <div className="mc-field-group">
-              <label className="mc-field-label">Description</label>
+              <label htmlFor="project-description" className="mc-field-label">Description</label>
               <AIWriteAssist
                 context="project-description"
                 value={editedDescription}
@@ -574,6 +576,8 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                 inline
               >
                 <input
+                  id="project-description"
+                  name="project-description"
                   type="text"
                   className="mc-input-unified"
                   value={editedDescription}
@@ -714,6 +718,8 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                       additionalContext={editedName ? `Project: ${editedName}` : ''}
                     >
                       <textarea
+                        id="project-context-edit"
+                        name="project-context"
                         className="mc-edit-textarea-full"
                         value={editedContext}
                         onChange={(e) => setEditedContext(e.target.value)}

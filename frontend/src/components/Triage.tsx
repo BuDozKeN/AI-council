@@ -113,6 +113,8 @@ Context:
                   <span className="constraint-label">Who:</span>
                   {isEditing ? (
                     <textarea
+                      id="triage-constraint-who"
+                      name="constraint-who"
                       className="constraint-edit"
                       value={typeof editedConstraints?.who === 'string' ? editedConstraints.who : ''}
                       onChange={(e) => updateConstraint('who', e.target.value)}
@@ -128,6 +130,8 @@ Context:
                   <span className="constraint-label">Goal:</span>
                   {isEditing ? (
                     <textarea
+                      id="triage-constraint-goal"
+                      name="constraint-goal"
                       className="constraint-edit"
                       value={typeof editedConstraints?.goal === 'string' ? editedConstraints.goal : ''}
                       onChange={(e) => updateConstraint('goal', e.target.value)}
@@ -143,6 +147,8 @@ Context:
                   <span className="constraint-label">Budget:</span>
                   {isEditing ? (
                     <textarea
+                      id="triage-constraint-budget"
+                      name="constraint-budget"
                       className="constraint-edit"
                       value={typeof editedConstraints?.budget === 'string' ? editedConstraints.budget : ''}
                       onChange={(e) => updateConstraint('budget', e.target.value)}
@@ -158,6 +164,8 @@ Context:
                   <span className="constraint-label">Priority:</span>
                   {isEditing ? (
                     <textarea
+                      id="triage-constraint-priority"
+                      name="constraint-priority"
                       className="constraint-edit"
                       value={typeof editedConstraints?.risk === 'string' ? editedConstraints.risk : ''}
                       onChange={(e) => updateConstraint('risk', e.target.value)}
@@ -246,6 +254,8 @@ Context:
       <div className="triage-input">
         <form onSubmit={handleSubmit}>
           <textarea
+            id="triage-response"
+            name="triage-response"
             value={response}
             onChange={(e) => setResponse(e.target.value)}
             onKeyDown={handleKeyDown}

@@ -124,6 +124,8 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
             <form onSubmit={handleAddMember} className="add-member-form">
               <div className="form-row">
                 <input
+                  id="new-member-email"
+                  name="member-email"
                   type="email"
                   placeholder="Email address"
                   value={newEmail}

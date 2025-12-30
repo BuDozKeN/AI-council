@@ -201,6 +201,8 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                   }
                 }}>
                   <input
+                    id="replace-api-key"
+                    name="api-key"
                     type="password"
                     value={apiKeyInput}
                     onChange={(e) => setApiKeyInput(e.target.value)}
@@ -344,8 +346,10 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
 
                   <form onSubmit={handleSaveApiKey} className="api-key-form">
                     <div className="form-group">
-                      <label>Your OpenRouter API Key</label>
+                      <label htmlFor="openrouter-api-key">Your OpenRouter API Key</label>
                       <input
+                        id="openrouter-api-key"
+                        name="openrouter-api-key"
                         type="password"
                         value={apiKeyInput}
                         onChange={(e) => setApiKeyInput(e.target.value)}

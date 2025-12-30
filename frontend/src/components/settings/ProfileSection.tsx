@@ -74,8 +74,10 @@ export function ProfileSection({ user, isOpen }: ProfileSectionProps) {
         </CardHeader>
         <CardContent>
           <div className="form-group">
-            <label>Email</label>
+            <label htmlFor="profile-email">Email</label>
             <input
+              id="profile-email"
+              name="email"
               type="email"
               value={user?.email || ''}
               disabled
@@ -95,8 +97,10 @@ export function ProfileSection({ user, isOpen }: ProfileSectionProps) {
         <CardContent>
           <form onSubmit={handleSaveProfile}>
             <div className="form-group">
-              <label>Display Name</label>
+              <label htmlFor="profile-display-name">Display Name</label>
               <input
+                id="profile-display-name"
+                name="display_name"
                 type="text"
                 autoComplete="name"
                 value={profile.display_name}
@@ -105,8 +109,10 @@ export function ProfileSection({ user, isOpen }: ProfileSectionProps) {
               />
             </div>
             <div className="form-group">
-              <label>Company</label>
+              <label htmlFor="profile-company">Company</label>
               <input
+                id="profile-company"
+                name="company"
                 type="text"
                 autoComplete="organization"
                 value={profile.company}
@@ -115,8 +121,10 @@ export function ProfileSection({ user, isOpen }: ProfileSectionProps) {
               />
             </div>
             <div className="form-group">
-              <label>Phone</label>
+              <label htmlFor="profile-phone">Phone</label>
               <input
+                id="profile-phone"
+                name="phone"
                 type="tel"
                 inputMode="tel"
                 autoComplete="tel"
@@ -126,8 +134,10 @@ export function ProfileSection({ user, isOpen }: ProfileSectionProps) {
               />
             </div>
             <div className="form-group">
-              <label>Bio</label>
+              <label htmlFor="profile-bio">Bio</label>
               <textarea
+                id="profile-bio"
+                name="bio"
                 value={profile.bio}
                 onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
                 placeholder="Tell us about yourself or your business..."

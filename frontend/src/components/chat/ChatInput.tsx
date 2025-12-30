@@ -59,6 +59,8 @@ export function ChatInput({
       <div className="input-row">
         <div className="textarea-wrapper">
           <textarea
+            id="chat-message-input"
+            name="message"
             className="message-input"
             placeholder={placeholder}
             aria-label="Message input"

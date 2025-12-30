@@ -45,6 +45,8 @@ export const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(function Searc
         </svg>
         <input
           ref={inputRef}
+          id="sidebar-search"
+          name="search"
           type="search"
           inputMode="search"
           placeholder="Search conversations... (⌘K)"

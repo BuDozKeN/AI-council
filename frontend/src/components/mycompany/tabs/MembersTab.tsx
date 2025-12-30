@@ -190,6 +190,8 @@ export function MembersTab({
         <form className="mc-add-member-form" onSubmit={handleAddMember}>
           <div className="mc-form-row">
             <input
+              id="mc-new-member-email"
+              name="member-email"
               type="email"
               placeholder="Email address"
               value={newEmail}
@@ -198,6 +200,8 @@ export function MembersTab({
               autoFocus
             />
             <select
+              id="mc-new-member-role"
+              name="member-role"
               value={newRole}
               onChange={(e) => setNewRole(e.target.value as MemberRole)}
               className="mc-select"

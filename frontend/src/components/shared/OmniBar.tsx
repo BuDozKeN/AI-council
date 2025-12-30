@@ -195,6 +195,8 @@ export function OmniBar({
 
         <TextareaAutosize
           ref={textareaRef}
+          id="omni-bar-input"
+          name="omni-query"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={handleKeyDown}

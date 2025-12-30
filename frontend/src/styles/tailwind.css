@@ -585,12 +585,12 @@ html.dark, .dark {
 
     /* ===== DARK MODE COLOR TOKENS ===== */
 
-    /* Text colors */
-    --color-text-primary: #f1f5f9;
-    --color-text-secondary: #94a3b8;
-    --color-text-tertiary: #64748b;
-    --color-text-muted: #475569;
-    --color-text-inverse: #fff;          /* White text on inverse (dark) backgrounds */
+    /* Text colors - improved contrast for WCAG AA compliance */
+    --color-text-primary: #f8fafc;        /* slate-50 - brightest for primary text */
+    --color-text-secondary: #cbd5e1;      /* slate-300 - clearly readable secondary */
+    --color-text-tertiary: #94a3b8;       /* slate-400 - labels, captions (was too dark) */
+    --color-text-muted: #64748b;          /* slate-500 - very subtle, decorative only */
+    --color-text-inverse: #fff;           /* White text on inverse (dark) backgrounds */
 
     /* Background colors */
     --color-bg-primary: #0f172a;

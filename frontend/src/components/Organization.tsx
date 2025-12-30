@@ -388,6 +388,8 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
                       {showAddRole === dept.id ? (
                         <div className="org-add-form">
                           <input
+                            id={`new-role-name-${dept.id}`}
+                            name="new-role-name"
                             type="text"
                             placeholder="Role name (e.g., CTO)"
                             value={newRole.name}
@@ -401,6 +403,8 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
                             additionalContext={newRole.name ? `Role: ${newRole.name}` : ''}
                           >
                             <input
+                              id={`new-role-desc-${dept.id}`}
+                              name="new-role-description"
                               type="text"
                               placeholder="Description (optional)"
                               value={newRole.description}
@@ -453,8 +457,10 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
           size="sm"
         >
           <div className="org-form-group">
-            <label>Department Name *</label>
+            <label htmlFor="new-dept-name">Department Name *</label>
             <input
+              id="new-dept-name"
+              name="department-name"
               type="text"
               placeholder="e.g., Human Resources"
               value={newDept.name}
@@ -463,8 +469,10 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
             />
           </div>
           <div className="org-form-group">
-            <label>Slug (auto-generated)</label>
+            <label htmlFor="new-dept-slug">Slug (auto-generated)</label>
             <input
+              id="new-dept-slug"
+              name="department-slug"
               type="text"
               value={newDept.id || generateSlug(newDept.name)}
               onChange={e => setNewDept({ ...newDept, id: e.target.value })}
@@ -496,15 +504,17 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
           {editingDept && (
             <>
               <div className="org-form-group">
-                <label>Department Name</label>
+                <label htmlFor="edit-dept-name">Department Name</label>
                 <input
+                  id="edit-dept-name"
+                  name="department-name"
                   type="text"
                   value={editingDept.name}
                   onChange={e => setEditingDept({ ...editingDept, name: e.target.value })}
                 />
               </div>
               <div className="org-form-group">
-                <label>Description</label>
+                <label htmlFor="edit-dept-description">Description</label>
                 <AIWriteAssist
                   context="department-description"
                   value={editingDept.description || ''}
@@ -512,6 +522,8 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
                   additionalContext={editingDept.name ? `Department: ${editingDept.name}` : ''}
                 >
                   <textarea
+                    id="edit-dept-description"
+                    name="department-description"
                     value={editingDept.description || ''}
                     onChange={e => setEditingDept({ ...editingDept, description: e.target.value })}
                     rows={3}
@@ -545,8 +557,10 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
           {editingRole && (
             <>
               <div className="org-form-group">
-                <label>Role Name</label>
+                <label htmlFor="edit-role-name">Role Name</label>
                 <input
+                  id="edit-role-name"
+                  name="role-name"
                   type="text"
                   value={editingRole.role.name}
                   onChange={e => setEditingRole({
@@ -556,7 +570,7 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
                 />
               </div>
               <div className="org-form-group">
-                <label>Description</label>
+                <label htmlFor="edit-role-description">Description</label>
                 <AIWriteAssist
                   context="role-description"
                   value={editingRole.role.description || ''}
@@ -567,6 +581,8 @@ export default function Organization({ companyId, companyName, onClose, onOpenKn
                   additionalContext={editingRole.role.name ? `Role: ${editingRole.role.name}` : ''}
                 >
                   <textarea
+                    id="edit-role-description"
+                    name="role-description"
                     value={editingRole.role.description || ''}
                     onChange={e => setEditingRole({
                       ...editingRole,

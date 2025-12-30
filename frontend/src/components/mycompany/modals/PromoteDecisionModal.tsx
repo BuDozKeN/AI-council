@@ -121,8 +121,10 @@ export function PromoteDecisionModal({ decision, departments, projects = [], com
           <div className="mc-promote-sidebar">
             {/* Title Input */}
             <div className="mc-form-unified">
-              <label className="mc-label-unified">Title</label>
+              <label htmlFor="promote-decision-title" className="mc-label-unified">Title</label>
               <input
+                id="promote-decision-title"
+                name="promote-title"
                 type="text"
                 className="mc-input-unified"
                 value={title}

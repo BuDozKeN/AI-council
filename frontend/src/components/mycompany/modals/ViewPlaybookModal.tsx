@@ -119,6 +119,8 @@ export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave,
           {/* Title with pencil on hover - always editable */}
           {isEditingTitle ? (
             <input
+              id="playbook-title-edit"
+              name="playbook-title"
               type="text"
               className="mc-title-inline-edit"
               value={editedTitle}
@@ -203,6 +205,8 @@ export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave,
           {isEditing ? (
             <div className="mc-edit-full">
               <textarea
+                id="playbook-content-edit"
+                name="playbook-content"
                 className="mc-edit-textarea-full"
                 value={editedContent}
                 onChange={(e) => setEditedContent(e.target.value)}
