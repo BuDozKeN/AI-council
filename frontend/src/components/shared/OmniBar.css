@@ -130,14 +130,14 @@
     0 32px 64px var(--overlay-black-30);
 }
 
+/* Focus state - no visible ring, just subtle shadow enhancement */
 .omni-bar-wrapper.omni-bar-landing .omni-bar:focus-within,
 .omni-bar-wrapper.omni-bar-landing.council-mode .omni-bar:focus-within {
   border: none;
   box-shadow:
-    0 0 0 2px var(--color-indigo-400),
-    0 1px 2px var(--overlay-black-5),
-    0 8px 24px var(--overlay-black-10),
-    0 20px 56px var(--overlay-black-15);
+    0 2px 4px var(--overlay-black-10),
+    0 12px 32px var(--overlay-black-20),
+    0 32px 64px var(--overlay-black-30);
 }
 
 /* Compact variant - smaller for follow-up messages */
@@ -156,7 +156,7 @@
 }
 
 .omni-bar-landing .omni-bar-top {
-  padding: 12px 18px 8px;
+  padding: 16px 20px 12px;
 }
 
 .omni-bar-compact .omni-bar-top {
@@ -180,10 +180,22 @@
 }
 
 .omni-bar-landing .omni-bar-input {
-  font-size: 15px;
+  font-size: 16px;
+  font-weight: 400;
   min-height: 28px;
   max-height: 280px;
-  line-height: 1.5;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+}
+
+/* Remove browser focus outline from textarea - high specificity to override defaults */
+.omni-bar .omni-bar-input:focus,
+.omni-bar .omni-bar-input:focus-visible,
+.omni-bar-wrapper .omni-bar .omni-bar-input:focus,
+.omni-bar-wrapper .omni-bar .omni-bar-input:focus-visible {
+  outline: none;
+  box-shadow: none;
+  border: none;
 }
 
 .omni-bar-compact .omni-bar-input {
@@ -229,7 +241,7 @@
 }
 
 .omni-bar-landing .omni-bar-bottom {
-  padding: 8px 16px 10px;
+  padding: 10px 18px 14px;
   border-top: none;
 }
 
@@ -452,6 +464,7 @@
     opacity: 0;
     transform: translateY(2px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -480,6 +493,7 @@
     opacity: 0;
     transform: scale(0.95) translateY(-4px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -743,14 +757,21 @@
     inset 0 1px 0 var(--overlay-white-5);
 }
 
+.dark .omni-bar-wrapper.omni-bar-landing .omni-bar:hover {
+  box-shadow:
+    0 12px 40px var(--overlay-black-50),
+    0 4px 12px var(--overlay-black-30),
+    inset 0 1px 0 var(--overlay-white-5);
+}
+
+/* Focus state - no visible ring, just subtle shadow enhancement */
 .dark .omni-bar-wrapper.omni-bar-landing .omni-bar:focus-within,
 .dark .omni-bar-wrapper.omni-bar-landing.council-mode .omni-bar:focus-within {
   background: var(--glass-bg-focus);
   border: none;
   box-shadow:
-    0 0 0 2px var(--color-indigo-500),
-    0 8px 40px var(--overlay-blue-15),
-    0 4px 16px var(--overlay-black-30),
+    0 12px 40px var(--overlay-black-50),
+    0 4px 12px var(--overlay-black-30),
     inset 0 1px 0 var(--overlay-white-8);
 }
 

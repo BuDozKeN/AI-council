@@ -32,7 +32,16 @@ import { api } from '../api';
 import { userPreferencesApi } from '../supabase';
 import { useAuth } from '../AuthContext';
 import { logger } from '../utils/logger';
-import type { Business, Department, Role, Channel, Style, Playbook, Project, UserPreferences } from '../types';
+import type {
+  Business,
+  Department,
+  Role,
+  Channel,
+  Style,
+  Playbook,
+  Project,
+  UserPreferences,
+} from '../types';
 
 // Query key factory for consistent cache management
 export const businessKeys = {
@@ -174,10 +183,7 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
   // ═══════════════════════════════════════════════════════════════════════════
   // TanStack Query: Projects for selected business
   // ═══════════════════════════════════════════════════════════════════════════
-  const {
-    data: projectsData,
-    error: projectsError,
-  } = useQuery({
+  const { data: projectsData, error: projectsError } = useQuery({
     queryKey: businessKeys.projects(selectedBusiness || ''),
     queryFn: () => api.listProjects(selectedBusiness!),
     enabled: !!selectedBusiness,
@@ -195,17 +201,17 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
   // ═══════════════════════════════════════════════════════════════════════════
   // TanStack Query: Playbooks for selected business
   // ═══════════════════════════════════════════════════════════════════════════
-  const {
-    data: playbooksData,
-    error: playbooksError,
-  } = useQuery({
+  const { data: playbooksData, error: playbooksError } = useQuery({
     queryKey: businessKeys.playbooks(selectedBusiness || ''),
     queryFn: () => api.getCompanyPlaybooks(selectedBusiness!),
     enabled: !!selectedBusiness,
     staleTime: 1000 * 60 * 5,
   });
 
-  const availablePlaybooks = useMemo(() => playbooksData?.playbooks || [], [playbooksData?.playbooks]);
+  const availablePlaybooks = useMemo(
+    () => playbooksData?.playbooks || [],
+    [playbooksData?.playbooks]
+  );
 
   useEffect(() => {
     if (playbooksError) {
@@ -281,23 +287,18 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
   useEffect(() => {
     if (businesses.length > 0 && !hasLoadedInitialData.current) {
       // Load user preferences and apply them
-      userPreferencesApi.get().then(prefs => {
+      // Only restore company selection by default - departments, roles, playbooks start empty
+      // for a cleaner, less cluttered initial experience
+      userPreferencesApi.get().then((prefs) => {
         setUserPreferences(prefs);
 
-        if (prefs?.last_company_id && businesses.some((b: Business) => b.id === prefs.last_company_id)) {
+        if (
+          prefs?.last_company_id &&
+          businesses.some((b: Business) => b.id === prefs.last_company_id)
+        ) {
           setSelectedBusiness(prefs.last_company_id);
-          if ((prefs.last_department_ids?.length ?? 0) > 0) {
-            setSelectedDepartments(prefs.last_department_ids ?? []);
-          }
-          if ((prefs.last_role_ids?.length ?? 0) > 0) {
-            setSelectedRoles(prefs.last_role_ids ?? []);
-          }
-          if (prefs.last_project_id) {
-            setSelectedProject(prefs.last_project_id);
-          }
-          if ((prefs.last_playbook_ids?.length ?? 0) > 0) {
-            setSelectedPlaybooks(prefs.last_playbook_ids ?? []);
-          }
+          // Note: We intentionally don't restore departments, roles, playbooks here
+          // They should start empty for a cleaner UX - user can select what they need
         } else {
           setSelectedBusiness(businesses[0].id);
         }
@@ -326,7 +327,6 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
       return () => cancelAnimationFrame(frameId);
     }
     return undefined;
-
   }, [selectedBusiness]);
 
   // Validate selectedProject when projects change
@@ -356,7 +356,6 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
       return () => cancelAnimationFrame(frameId);
     }
     return undefined;
-
   }, [selectedDepartment]);
 
   // Save context preferences when they change (debounced)
@@ -369,17 +368,19 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
     }
 
     savePrefsTimeoutRef.current = setTimeout(() => {
-      userPreferencesApi.saveLastUsed({
-        companyId: selectedBusiness,
-        departmentIds: selectedDepartments,
-        roleIds: selectedRoles,
-        projectId: selectedProject,
-        playbookIds: selectedPlaybooks,
-      }).then((saved) => {
-        if (saved) {
-          setUserPreferences(saved);
-        }
-      });
+      userPreferencesApi
+        .saveLastUsed({
+          companyId: selectedBusiness,
+          departmentIds: selectedDepartments,
+          roleIds: selectedRoles,
+          projectId: selectedProject,
+          playbookIds: selectedPlaybooks,
+        })
+        .then((saved) => {
+          if (saved) {
+            setUserPreferences(saved);
+          }
+        });
     }, 1000);
 
     return () => {
@@ -387,7 +388,14 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
         clearTimeout(savePrefsTimeoutRef.current);
       }
     };
-  }, [isAuthenticated, selectedBusiness, selectedDepartments, selectedRoles, selectedProject, selectedPlaybooks]);
+  }, [
+    isAuthenticated,
+    selectedBusiness,
+    selectedDepartments,
+    selectedRoles,
+    selectedProject,
+    selectedPlaybooks,
+  ]);
 
   // Refresh projects - invalidate TanStack cache
   const refreshProjects = useCallback(async () => {
@@ -402,86 +410,90 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
   }, [selectedBusiness, queryClient]);
 
   // Memoize state value - changes when data changes
-  const stateValue = useMemo<BusinessStateValue>(() => ({
-    businesses,
-    selectedBusiness,
-    currentBusiness,
-    selectedDepartment,
-    selectedRole,
-    selectedChannel,
-    selectedStyle,
-    selectedDepartments,
-    selectedRoles,
-    availablePlaybooks,
-    selectedPlaybooks,
-    projects,
-    selectedProject,
-    useCompanyContext,
-    useDepartmentContext,
-    userPreferences,
-    isLoading,
-    availableDepartments,
-    availableRoles,
-    allRoles,
-    availableChannels,
-    availableStyles,
-  }), [
-    businesses,
-    selectedBusiness,
-    currentBusiness,
-    selectedDepartment,
-    selectedRole,
-    selectedChannel,
-    selectedStyle,
-    selectedDepartments,
-    selectedRoles,
-    availablePlaybooks,
-    selectedPlaybooks,
-    projects,
-    selectedProject,
-    useCompanyContext,
-    useDepartmentContext,
-    userPreferences,
-    isLoading,
-    availableDepartments,
-    availableRoles,
-    allRoles,
-    availableChannels,
-    availableStyles,
-  ]);
+  const stateValue = useMemo<BusinessStateValue>(
+    () => ({
+      businesses,
+      selectedBusiness,
+      currentBusiness,
+      selectedDepartment,
+      selectedRole,
+      selectedChannel,
+      selectedStyle,
+      selectedDepartments,
+      selectedRoles,
+      availablePlaybooks,
+      selectedPlaybooks,
+      projects,
+      selectedProject,
+      useCompanyContext,
+      useDepartmentContext,
+      userPreferences,
+      isLoading,
+      availableDepartments,
+      availableRoles,
+      allRoles,
+      availableChannels,
+      availableStyles,
+    }),
+    [
+      businesses,
+      selectedBusiness,
+      currentBusiness,
+      selectedDepartment,
+      selectedRole,
+      selectedChannel,
+      selectedStyle,
+      selectedDepartments,
+      selectedRoles,
+      availablePlaybooks,
+      selectedPlaybooks,
+      projects,
+      selectedProject,
+      useCompanyContext,
+      useDepartmentContext,
+      userPreferences,
+      isLoading,
+      availableDepartments,
+      availableRoles,
+      allRoles,
+      availableChannels,
+      availableStyles,
+    ]
+  );
 
   // Memoize actions value - STABLE reference, never changes
   // React guarantees useState setters are stable, and our callbacks use useCallback
-  const actionsValue = useMemo<BusinessActionsValue>(() => ({
-    setSelectedBusiness,
-    setSelectedDepartment,
-    setSelectedRole,
-    setSelectedChannel,
-    setSelectedStyle,
-    setSelectedDepartments,
-    setSelectedRoles,
-    setSelectedPlaybooks,
-    setSelectedProject,
-    setUseCompanyContext,
-    setUseDepartmentContext,
-    setProjects,
-    loadBusinesses,
-    refreshProjects,
-    refreshPlaybooks,
-  }), [
-    // Note: useState setters are stable by React guarantee
-    // Only include callbacks that might change
-    setProjects,
-    loadBusinesses,
-    refreshProjects,
-    refreshPlaybooks,
-  ]);
+  const actionsValue = useMemo<BusinessActionsValue>(
+    () => ({
+      setSelectedBusiness,
+      setSelectedDepartment,
+      setSelectedRole,
+      setSelectedChannel,
+      setSelectedStyle,
+      setSelectedDepartments,
+      setSelectedRoles,
+      setSelectedPlaybooks,
+      setSelectedProject,
+      setUseCompanyContext,
+      setUseDepartmentContext,
+      setProjects,
+      loadBusinesses,
+      refreshProjects,
+      refreshPlaybooks,
+    }),
+    [
+      // Note: useState setters are stable by React guarantee
+      // Only include callbacks that might change
+      setProjects,
+      loadBusinesses,
+      refreshProjects,
+      refreshPlaybooks,
+    ]
+  );
 
   return (
     <BusinessActionsContext.Provider value={actionsValue}>
-      <BusinessStateContext.Provider value={stateValue}>
-        {children}
-      </BusinessStateContext.Provider>
+      <BusinessStateContext.Provider value={stateValue}>{children}</BusinessStateContext.Provider>
     </BusinessActionsContext.Provider>
   );
 }
