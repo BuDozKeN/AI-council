@@ -4,7 +4,15 @@ import ReactMarkdown, { ExtraProps } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Spinner } from './ui/Spinner';
 import { CopyButton } from './ui/CopyButton';
-import { Activity, CheckCircle2, AlertCircle, StopCircle, ChevronDown, X, Check } from 'lucide-react';
+import {
+  Activity,
+  CheckCircle2,
+  AlertCircle,
+  StopCircle,
+  ChevronDown,
+  X,
+  Check,
+} from 'lucide-react';
 import { getModelPersona } from '../config/modelPersonas';
 import { hapticLight } from '../lib/haptics';
 import { springs, interactionStates } from '../lib/animations';
@@ -43,7 +51,13 @@ function getModelIconPath(modelId: string): string | null {
   // Fallback: match common model name patterns
   const lowerModel = modelId.toLowerCase();
   if (lowerModel.includes('gpt') || lowerModel.includes('o1')) return '/icons/openai.svg';
-  if (lowerModel.includes('claude') || lowerModel.includes('opus') || lowerModel.includes('sonnet') || lowerModel.includes('haiku')) return '/icons/anthropic.svg';
+  if (
+    lowerModel.includes('claude') ||
+    lowerModel.includes('opus') ||
+    lowerModel.includes('sonnet') ||
+    lowerModel.includes('haiku')
+  )
+    return '/icons/anthropic.svg';
   if (lowerModel.includes('gemini')) return '/icons/gemini.svg';
   if (lowerModel.includes('grok')) return '/icons/grok.svg';
   if (lowerModel.includes('deepseek')) return '/icons/deepseek.svg';
@@ -86,14 +100,16 @@ function stripMarkdown(text: string): string {
     result = result.replace(/^#{1,6}\s+/gm, '').replace(/\s#{1,6}\s+/g, ' ');
   }
 
-  return result
-    // Remove any remaining standalone asterisks or hash symbols
-    .replace(/\*+/g, '')
-    .replace(/(?<=\s)#+(?=\s|$)/g, '')
-    // Remove extra whitespace/newlines
-    .replace(/\n+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
+  return (
+    result
+      // Remove any remaining standalone asterisks or hash symbols
+      .replace(/\*+/g, '')
+      .replace(/(?<=\s)#+(?=\s|$)/g, '')
+      // Remove extra whitespace/newlines
+      .replace(/\n+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+  );
 }
 
 // Custom code block renderer with copy button
@@ -119,7 +135,13 @@ function CodeBlock({ children, className }: CodeBlockProps) {
 }
 
 // Individual model card in the grid - memoized to prevent re-renders when other cards update
-const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExpand, isExpanded, rankData }: ModelCardProps) {
+const ModelCard = memo(function ModelCard({
+  data,
+  isComplete: _isComplete,
+  onExpand,
+  isExpanded,
+  rankData,
+}: ModelCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<TouchStartData | null>(null);
 
@@ -161,28 +183,34 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
   }, [isExpanded]);
 
   // Swipe-to-dismiss for expanded cards on mobile
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (!isExpanded) return;
-    const touch = e.touches[0];
-    if (!touch) return;
-    touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
-  }, [isExpanded]);
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      if (!isExpanded) return;
+      const touch = e.touches[0];
+      if (!touch) return;
+      touchStartRef.current = { x: touch.clientX, y: touch.clientY, time: Date.now() };
+    },
+    [isExpanded]
+  );
 
-  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    if (!isExpanded || !touchStartRef.current) return;
-    const touch = e.changedTouches[0];
-    if (!touch) return;
-    const deltaY = touch.clientY - touchStartRef.current.y;
-    const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
-    const deltaTime = Date.now() - touchStartRef.current.time;
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (!isExpanded || !touchStartRef.current) return;
+      const touch = e.changedTouches[0];
+      if (!touch) return;
+      const deltaY = touch.clientY - touchStartRef.current.y;
+      const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
+      const deltaTime = Date.now() - touchStartRef.current.time;
 
-    // Swipe down to dismiss (>80px, mostly vertical, <400ms)
-    if (deltaY > 80 && deltaY > deltaX && deltaTime < 400) {
-      e.stopPropagation();
-      onExpand(null);
-    }
-    touchStartRef.current = null;
-  }, [isExpanded, onExpand]);
+      // Swipe down to dismiss (>80px, mostly vertical, <400ms)
+      if (deltaY > 80 && deltaY > deltaX && deltaTime < 400) {
+        e.stopPropagation();
+        onExpand(null);
+      }
+      touchStartRef.current = null;
+    },
+    [isExpanded, onExpand]
+  );
 
   // Build CSS class list
   const cardClasses = [
@@ -190,7 +218,9 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
     data.isStreaming && 'streaming',
     (data.hasError || data.isEmpty) && 'error',
     isExpanded && 'expanded',
-  ].filter(Boolean).join(' ');
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -205,10 +235,12 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
   };
 
   // Motion props - only apply hover/tap when not expanded
-  const motionProps = !isExpanded ? {
-    whileHover: interactionStates.cardHover,
-    whileTap: interactionStates.cardTap,
-  } : {};
+  const motionProps = !isExpanded
+    ? {
+        whileHover: interactionStates.cardHover,
+        whileTap: interactionStates.cardTap,
+      }
+    : {};
 
   return (
     <motion.div
@@ -219,7 +251,10 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
       transition={springs.smooth}
       {...motionProps}
       className={cardClasses}
-      onClick={() => { hapticLight(); onExpand(isExpanded ? null : data.model); }}
+      onClick={() => {
+        hapticLight();
+        onExpand(isExpanded ? null : data.model);
+      }}
       onKeyDown={handleKeyDown}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
@@ -232,9 +267,19 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
       <div className="model-card-header">
         <div className="model-card-header-left">
           {/* LLM Icon with status indicator */}
-          <div className="llm-icon-wrapper" style={{ '--model-color': modelColor } as React.CSSProperties} title={tooltipName}>
+          <div
+            className="llm-icon-wrapper"
+            style={{ '--model-color': modelColor } as React.CSSProperties}
+            title={tooltipName}
+          >
             {iconPath ? (
-              <img src={iconPath} alt={displayName} className="llm-icon" loading="lazy" decoding="async" />
+              <img
+                src={iconPath}
+                alt={displayName}
+                className="llm-icon"
+                loading="lazy"
+                decoding="async"
+              />
             ) : (
               <span className="llm-icon-fallback" style={{ background: modelColor }}>
                 {displayName.charAt(0)}
@@ -263,14 +308,13 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
             )}
           </div>
 
-          <span className="model-card-name" title={tooltipName}>{displayName}</span>
+          <span className="model-card-name" title={tooltipName}>
+            {displayName}
+          </span>
 
           {/* Rank badge - shows position after rankings are complete */}
           {rankData && (
-            <span
-              className={`model-card-rank rank-${rankData.position}`}
-              title={getRankTooltip()}
-            >
+            <span className={`model-card-rank rank-${rankData.position}`} title={getRankTooltip()}>
               {getRankLabel(rankData.position)}
             </span>
           )}
@@ -290,11 +334,7 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
               }}
               aria-label={isExpanded ? 'Collapse response' : 'Expand response'}
             >
-              {isExpanded ? (
-                <X className="w-4 h-4" />
-              ) : (
-                <ChevronDown className="w-4 h-4" />
-              )}
+              {isExpanded ? <X className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </button>
           )}
         </div>
@@ -319,15 +359,28 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{
-                pre(props: React.ClassAttributes<HTMLPreElement> & React.HTMLAttributes<HTMLPreElement> & ExtraProps) {
+                pre(
+                  props: React.ClassAttributes<HTMLPreElement> &
+                    React.HTMLAttributes<HTMLPreElement> &
+                    ExtraProps
+                ) {
                   const { node } = props;
-                  const codeElement = node?.children?.[0] as { properties?: { className?: string[] }; children?: Array<{ value?: string }> } | undefined;
+                  const codeElement = node?.children?.[0] as
+                    | {
+                        properties?: { className?: string[] };
+                        children?: Array<{ value?: string }>;
+                      }
+                    | undefined;
                   const className = codeElement?.properties?.className?.[0] || '';
                   const codeContent = codeElement?.children?.[0]?.value || '';
                   return <CodeBlock className={className}>{codeContent}</CodeBlock>;
                 },
                 code({ className, children, ...props }: React.ComponentPropsWithoutRef<'code'>) {
-                  return <code className={className} {...props}>{children}</code>;
+                  return (
+                    <code className={className} {...props}>
+                      {children}
+                    </code>
+                  );
                 },
                 table({ children, ...props }: React.ComponentPropsWithoutRef<'table'>) {
                   return (
@@ -335,7 +388,7 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
                       <table {...props}>{children}</table>
                     </div>
                   );
-                }
+                },
               }}
             >
               {data.response || ''}
@@ -350,7 +403,6 @@ const ModelCard = memo(function ModelCard({ data, isComplete: _isComplete, onExp
           </div>
         )}
       </div>
-
     </motion.div>
   );
 });
@@ -373,7 +425,8 @@ function Stage1({
   const [userToggled, setUserToggled] = useState(false);
 
   // Use external control if provided, otherwise use internal state
-  const expandedModel = externalExpandedModel !== undefined ? externalExpandedModel : internalExpandedModel;
+  const expandedModel =
+    externalExpandedModel !== undefined ? externalExpandedModel : internalExpandedModel;
   const setExpandedModel = onExpandedModelChange || setInternalExpandedModel;
 
   // Auto-expand Stage1 when a model is selected from external control (e.g., clicking ranking)
@@ -397,12 +450,14 @@ function Stage1({
   const textLooksLikeError = (text: string): boolean => {
     if (!text) return false;
     const lower = text.toLowerCase();
-    return lower.includes('[error:') ||
-           lower.includes('status 429') ||
-           lower.includes('rate limit') ||
-           lower.includes('api error') ||
-           lower.includes('timeout') ||
-           lower.includes('service unavailable');
+    return (
+      lower.includes('[error:') ||
+      lower.includes('status 429') ||
+      lower.includes('rate limit') ||
+      lower.includes('api error') ||
+      lower.includes('timeout') ||
+      lower.includes('service unavailable')
+    );
   };
 
   if (streaming && Object.keys(streaming).length > 0) {
@@ -450,8 +505,9 @@ function Stage1({
   }
 
   // Check if all models are complete
-  const allComplete = displayData.length > 0 && displayData.every(d => d.isComplete || d.isStopped || d.hasError);
-  const streamingCount = displayData.filter(d => d.isStreaming).length;
+  const allComplete =
+    displayData.length > 0 && displayData.every((d) => d.isComplete || d.isStopped || d.hasError);
+  const streamingCount = displayData.filter((d) => d.isStreaming).length;
 
   // Use the reusable celebration hook for stage completion
   const { isCelebrating: showCompleteCelebration } = useCompletionCelebration(
@@ -494,9 +550,7 @@ function Stage1({
                 <span className="expand-hint">(click to collapse)</span>
               </summary>
               <div className="image-analysis-content">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {imageAnalysis}
-                </ReactMarkdown>
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{imageAnalysis}</ReactMarkdown>
               </div>
             </details>
           </div>
@@ -537,15 +591,22 @@ function Stage1({
   }, {});
 
   return (
-    <div className={`stage stage1 ${isCollapsed ? 'collapsed' : ''} ${showCompleteCelebration ? 'celebrating' : ''}`} data-stage="stage1">
+    <div
+      className={`stage stage1 ${isCollapsed ? 'collapsed' : ''} ${showCompleteCelebration ? 'celebrating' : ''}`}
+      data-stage="stage1"
+    >
       <h3 className="stage-title clickable" onClick={toggleCollapsed}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
         {streamingCount > 0 ? (
           <Activity className="h-5 w-5 text-blue-500 animate-pulse flex-shrink-0" />
         ) : (
-          <CheckCircle2 className={`h-5 w-5 text-green-600 flex-shrink-0 ${showCompleteCelebration ? 'animate-stage-complete' : ''}`} />
+          <CheckCircle2
+            className={`h-5 w-5 text-green-600 flex-shrink-0 ${showCompleteCelebration ? 'animate-stage-complete' : ''}`}
+          />
         )}
-        <span className="font-semibold tracking-tight">{expertCount} AI Expert{expertCount !== 1 ? 's' : ''} Respond</span>
+        <span className="font-semibold tracking-tight">
+          {expertCount} AI Expert{expertCount !== 1 ? 's' : ''} Respond
+        </span>
       </h3>
 
       {/* Collapsed model summary - provider pills */}
@@ -555,14 +616,30 @@ function Stage1({
             <span
               key={provider}
               className={`model-summary-pill ${group.allComplete ? 'complete' : ''} ${group.hasStreaming ? 'streaming' : ''} ${group.hasError ? 'error' : ''}`}
-              title={group.hasError ? `${group.label} encountered an error` : group.allComplete ? `${group.label} completed` : `${group.label} in progress`}
+              title={
+                group.hasError
+                  ? `${group.label} encountered an error`
+                  : group.allComplete
+                    ? `${group.label} completed`
+                    : `${group.label} in progress`
+              }
             >
-              {/* Only show error indicator - success is the expected state, no visual noise */}
-              {group.hasError && (
-                <span className="pill-error">✕</span>
+              {/* Streaming indicator - pulsing blue dot to show "thinking" */}
+              {group.hasStreaming && (
+                <span className="pill-thinking-indicator">
+                  <span className="pill-thinking-dot" />
+                </span>
               )}
+              {/* Only show error indicator - success is the expected state, no visual noise */}
+              {group.hasError && <span className="pill-error">✕</span>}
               {group.iconPath && (
-                <img src={group.iconPath} alt="" className="pill-icon" loading="lazy" decoding="async" />
+                <img
+                  src={group.iconPath}
+                  alt=""
+                  className="pill-icon"
+                  loading="lazy"
+                  decoding="async"
+                />
               )}
               <span className="pill-label">{group.label}</span>
             </span>
@@ -582,9 +659,7 @@ function Stage1({
                   <span className="expand-hint">(click to expand)</span>
                 </summary>
                 <div className="image-analysis-content">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {imageAnalysis}
-                  </ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{imageAnalysis}</ReactMarkdown>
                 </div>
               </details>
             </div>
@@ -597,14 +672,15 @@ function Stage1({
                 // Find ranking data for this model (includes position, avg_rank, rankings_count)
                 const rankIndex = aggregateRankings?.findIndex((r) => r.model === data.model) ?? -1;
                 const aggRanking = aggregateRankings?.[rankIndex];
-                const rankData = rankIndex >= 0 && aggRanking
-                  ? {
-                      position: rankIndex + 1,
-                      average_rank: aggRanking.average_rank,
-                      rankings_count: aggRanking.rankings_count,
-                      totalVoters: aggregateRankings?.length ?? 0,
-                    }
-                  : null;
+                const rankData =
+                  rankIndex >= 0 && aggRanking
+                    ? {
+                        position: rankIndex + 1,
+                        average_rank: aggRanking.average_rank,
+                        rankings_count: aggRanking.rankings_count,
+                        totalVoters: aggregateRankings?.length ?? 0,
+                      }
+                    : null;
                 return (
                   <ModelCard
                     key={data.model}
