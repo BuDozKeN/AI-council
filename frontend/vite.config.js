@@ -1,24 +1,30 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import { VitePWA } from 'vite-plugin-pwa'
-import { visualizer } from 'rollup-plugin-visualizer'
-import path from 'path'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { VitePWA } from 'vite-plugin-pwa';
+import { visualizer } from 'rollup-plugin-visualizer';
+import path from 'path';
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     // Bundle analyzer - only in analyze mode
-    mode === 'analyze' && visualizer({
-      filename: 'dist/stats.html',
-      open: true,
-      gzipSize: true,
-      brotliSize: true,
-    }),
+    mode === 'analyze' &&
+      visualizer({
+        filename: 'dist/stats.html',
+        open: true,
+        gzipSize: true,
+        brotliSize: true,
+      }),
     VitePWA({
       registerType: 'prompt',
       injectRegister: false,
-      includeAssets: ['favicon.svg', 'favicon-32x32.png', 'favicon-16x16.png', 'apple-touch-icon.png'],
+      includeAssets: [
+        'favicon.svg',
+        'favicon-32x32.png',
+        'favicon-16x16.png',
+        'apple-touch-icon.png',
+      ],
       manifest: {
         name: 'AxCouncil - Strategic AI Advisory Platform',
         short_name: 'AxCouncil',
@@ -31,20 +37,20 @@ export default defineConfig(({ mode }) => ({
           {
             src: 'favicon-32x32.png',
             sizes: '32x32',
-            type: 'image/png'
+            type: 'image/png',
           },
           {
             src: 'apple-touch-icon.png',
             sizes: '180x180',
-            type: 'image/png'
+            type: 'image/png',
           },
           {
             src: 'favicon.svg',
             sizes: 'any',
             type: 'image/svg+xml',
-            purpose: 'any maskable'
-          }
-        ]
+            purpose: 'any maskable',
+          },
+        ],
       },
       workbox: {
         // Force clean update - clear old caches on activate
@@ -61,9 +67,9 @@ export default defineConfig(({ mode }) => ({
               cacheName: 'google-fonts-stylesheets',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
-              }
-            }
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+              },
+            },
           },
           {
             // Cache Google Fonts webfont files
@@ -73,9 +79,9 @@ export default defineConfig(({ mode }) => ({
               cacheName: 'google-fonts-webfonts',
               expiration: {
                 maxEntries: 20,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
-              }
-            }
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+              },
+            },
           },
           {
             // Cache static assets (hashed files from Vite)
@@ -85,9 +91,9 @@ export default defineConfig(({ mode }) => ({
               cacheName: 'static-assets',
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year (immutable)
-              }
-            }
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year (immutable)
+              },
+            },
           },
           {
             // Cache images with StaleWhileRevalidate
@@ -97,9 +103,9 @@ export default defineConfig(({ mode }) => ({
               cacheName: 'images',
               expiration: {
                 maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-              }
-            }
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+              },
+            },
           },
           {
             // Network-first for API requests (auth required, always need fresh data)
@@ -110,25 +116,25 @@ export default defineConfig(({ mode }) => ({
               networkTimeoutSeconds: 10,
               expiration: {
                 maxEntries: 50,
-                maxAgeSeconds: 60 * 5 // 5 minutes
+                maxAgeSeconds: 60 * 5, // 5 minutes
               },
               cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          }
+                statuses: [0, 200],
+              },
+            },
+          },
         ],
         // Don't precache everything - just the app shell
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         // Skip waiting to activate new SW immediately
         skipWaiting: true,
-        clientsClaim: true
-      }
-    })
+        clientsClaim: true,
+      },
+    }),
   ],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      '@': path.resolve(__dirname, './src'),
     },
   },
   server: {
@@ -137,18 +143,24 @@ export default defineConfig(({ mode }) => ({
     proxy: {
       // Proxy API requests to backend - bypasses CORS in development
       '/api': {
-        target: 'http://localhost:8081',
+        target: 'http://localhost:8080',
         changeOrigin: true,
         secure: false,
         configure: (proxy, options) => {
           proxy.on('proxyReq', (proxyReq, req, res) => {
             // Log proxy requests for debugging
-            console.log('[Proxy]', req.method, req.url, '-> Authorization:', req.headers.authorization ? 'present' : 'missing');
+            console.log(
+              '[Proxy]',
+              req.method,
+              req.url,
+              '-> Authorization:',
+              req.headers.authorization ? 'present' : 'missing'
+            );
           });
         },
       },
       '/health': {
-        target: 'http://localhost:8081',
+        target: 'http://localhost:8080',
         changeOrigin: true,
       },
     },
@@ -171,7 +183,7 @@ export default defineConfig(({ mode }) => ({
             '@radix-ui/react-popover',
             '@radix-ui/react-accordion',
             '@radix-ui/react-slot',
-            '@radix-ui/react-visually-hidden'
+            '@radix-ui/react-visually-hidden',
           ],
           // Monitoring/analytics
           'vendor-monitoring': ['@sentry/react', 'web-vitals'],
@@ -181,10 +193,10 @@ export default defineConfig(({ mode }) => ({
           'vendor-query': [
             '@tanstack/react-query',
             '@tanstack/query-async-storage-persister',
-            '@tanstack/react-query-persist-client'
+            '@tanstack/react-query-persist-client',
           ],
-        }
-      }
+        },
+      },
     },
     // Warn if any chunk exceeds 500KB (reasonable target for code splitting)
     chunkSizeWarningLimit: 500,
@@ -197,4 +209,4 @@ export default defineConfig(({ mode }) => ({
       drop: ['console', 'debugger'],
     },
   },
-}))
+}));

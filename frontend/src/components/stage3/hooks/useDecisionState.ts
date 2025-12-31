@@ -43,13 +43,15 @@ export function useDecisionState({
   companyId,
   responseIndex = 0,
   currentProjectId = null,
-  departmentId = null
+  departmentId = null,
 }: UseDecisionStateOptions): UseDecisionStateReturn {
   const [saveState, setSaveState] = useState<SaveState>('idle');
   const [savedDecisionId, setSavedDecisionId] = useState<string | null>(null);
   const [promotedPlaybookId, setPromotedPlaybookId] = useState<string | null>(null);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(currentProjectId);
-  const [selectedDeptIds, setSelectedDeptIds] = useState<string[]>(departmentId ? [departmentId] : []);
+  const [selectedDeptIds, setSelectedDeptIds] = useState<string[]>(
+    departmentId ? [departmentId] : []
+  );
   const [selectedDocType, setSelectedDocType] = useState<string>('');
 
   // Refs for throttling and deduplication
@@ -62,41 +64,44 @@ export function useDecisionState({
   const isInitialMount = useRef<boolean>(true);
 
   // Unified decision status check - throttled and deduped
-  const checkDecisionStatus = useCallback(async (force = false) => {
-    if (!conversationId || !companyId || conversationId.startsWith('temp-')) return;
-    if (!savedDecisionId && !force) return;
-    if (isCheckingDecision.current) return;
+  const checkDecisionStatus = useCallback(
+    async (force = false) => {
+      if (!conversationId || !companyId || conversationId.startsWith('temp-')) return;
+      if (!savedDecisionId && !force) return;
+      if (isCheckingDecision.current) return;
 
-    const now = Date.now();
-    if (!force && now - lastDecisionCheck.current < DECISION_CHECK_THROTTLE) return;
+      const now = Date.now();
+      if (!force && now - lastDecisionCheck.current < DECISION_CHECK_THROTTLE) return;
 
-    isCheckingDecision.current = true;
-    lastDecisionCheck.current = now;
+      isCheckingDecision.current = true;
+      lastDecisionCheck.current = now;
 
-    try {
-      const data = await api.getConversationDecision(conversationId, companyId, responseIndex);
-      if (data?.decision) {
-        if (!savedDecisionId) {
-          setSavedDecisionId(data.decision.id);
-          setSaveState('saved');
+      try {
+        const data = await api.getConversationDecision(conversationId, companyId, responseIndex);
+        if (data?.decision) {
+          if (!savedDecisionId) {
+            setSavedDecisionId(data.decision.id);
+            setSaveState('saved');
+          }
+          if (data.decision.project_id && !selectedProjectId) {
+            setSelectedProjectId(data.decision.project_id);
+          }
+        } else if (savedDecisionId) {
+          log.debug('Decision was deleted, clearing state');
+          setSavedDecisionId(null);
+          setSaveState('idle');
         }
-        if (data.decision.project_id && !selectedProjectId) {
-          setSelectedProjectId(data.decision.project_id);
+      } catch {
+        if (savedDecisionId) {
+          setSavedDecisionId(null);
+          setSaveState('idle');
         }
-      } else if (savedDecisionId) {
-        log.debug('Decision was deleted, clearing state');
-        setSavedDecisionId(null);
-        setSaveState('idle');
+      } finally {
+        isCheckingDecision.current = false;
       }
-    } catch {
-      if (savedDecisionId) {
-        setSavedDecisionId(null);
-        setSaveState('idle');
-      }
-    } finally {
-      isCheckingDecision.current = false;
-    }
-  }, [conversationId, companyId, responseIndex, savedDecisionId, selectedProjectId]);
+    },
+    [conversationId, companyId, responseIndex, savedDecisionId, selectedProjectId]
+  );
 
   // Reset saved decision state when conversation changes
   useEffect(() => {
@@ -148,8 +153,9 @@ export function useDecisionState({
 
     log.debug(`[${responseIndex}] Initial load - checking for existing decision`);
 
-    api.getConversationDecision(conversationId, companyId, responseIndex)
-      .then(decisionData => {
+    api
+      .getConversationDecision(conversationId, companyId, responseIndex)
+      .then((decisionData) => {
         log.debug(`[${responseIndex}] getConversationDecision response:`, decisionData);
         if (decisionData?.decision) {
           const decision = decisionData.decision;
@@ -168,8 +174,13 @@ export function useDecisionState({
         }
         lastDecisionCheck.current = Date.now();
       })
-      .catch(err => {
-        log.error(`[${responseIndex}] Error checking decision:`, err);
+      .catch((err) => {
+        // 404 is expected when no decision exists - don't log as error
+        if (err?.message?.includes('404') || err?.status === 404) {
+          log.debug(`[${responseIndex}] No existing decision found`);
+        } else {
+          log.error(`[${responseIndex}] Error checking decision:`, err);
+        }
       });
   }, [conversationId, companyId, responseIndex]);
 
@@ -201,6 +212,6 @@ export function useDecisionState({
     selectedDocType,
     setSelectedDocType,
     checkDecisionStatus,
-    lastSyncedProjectIdRef
+    lastSyncedProjectIdRef,
   };
 }

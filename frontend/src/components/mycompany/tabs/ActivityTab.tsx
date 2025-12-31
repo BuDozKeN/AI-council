@@ -15,14 +15,15 @@ const EVENT_LABELS: Record<string, string> = {
   playbook: 'Playbook',
   project: 'Project',
   role: 'Role Change',
-  department: 'Department'
+  department: 'Department',
+  council_session: 'Council',
 };
 
 const PROMOTED_TYPE_LABELS: Record<string, string> = {
   sop: 'SOP',
   framework: 'FRAMEWORK',
   policy: 'POLICY',
-  project: 'PROJECT'
+  project: 'PROJECT',
 };
 
 // Color mappings use CSS custom properties for dark mode support
@@ -30,7 +31,7 @@ const PROMOTED_TYPE_COLORS: Record<string, { bg: string; text: string }> = {
   sop: { bg: 'var(--color-indigo-50)', text: 'var(--color-indigo-700)' },
   framework: { bg: 'var(--color-blue-100)', text: 'var(--color-blue-600)' },
   policy: { bg: 'var(--color-violet-100)', text: 'var(--color-violet-600)' },
-  project: { bg: 'var(--color-emerald-100)', text: 'var(--color-emerald-600)' }
+  project: { bg: 'var(--color-emerald-100)', text: 'var(--color-emerald-600)' },
 };
 
 const EVENT_COLORS: Record<string, string> = {
@@ -39,16 +40,41 @@ const EVENT_COLORS: Record<string, string> = {
   project: 'var(--color-teal-500)',
   role: 'var(--color-violet-500)',
   department: 'var(--color-indigo-500)',
-  default: 'var(--color-slate-500)'
+  council_session: 'var(--color-amber-500)',
+  default: 'var(--color-slate-500)',
 };
 
 const ACTION_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  deleted: { bg: 'var(--color-red-50)', text: 'var(--color-red-600)', border: 'var(--color-red-200)' },
-  promoted: { bg: 'var(--color-emerald-50)', text: 'var(--color-emerald-600)', border: 'var(--color-emerald-200)' },
-  saved: { bg: 'var(--color-blue-50)', text: 'var(--color-blue-600)', border: 'var(--color-blue-200)' },
-  created: { bg: 'var(--color-emerald-50)', text: 'var(--color-emerald-600)', border: 'var(--color-emerald-200)' },
-  updated: { bg: 'var(--color-yellow-50)', text: 'var(--color-yellow-600)', border: 'var(--color-yellow-200)' },
-  archived: { bg: 'var(--color-stone-100)', text: 'var(--color-stone-500)', border: 'var(--color-stone-300)' }
+  deleted: {
+    bg: 'var(--color-red-50)',
+    text: 'var(--color-red-600)',
+    border: 'var(--color-red-200)',
+  },
+  promoted: {
+    bg: 'var(--color-emerald-50)',
+    text: 'var(--color-emerald-600)',
+    border: 'var(--color-emerald-200)',
+  },
+  saved: {
+    bg: 'var(--color-blue-50)',
+    text: 'var(--color-blue-600)',
+    border: 'var(--color-blue-200)',
+  },
+  created: {
+    bg: 'var(--color-emerald-50)',
+    text: 'var(--color-emerald-600)',
+    border: 'var(--color-emerald-200)',
+  },
+  updated: {
+    bg: 'var(--color-yellow-50)',
+    text: 'var(--color-yellow-600)',
+    border: 'var(--color-yellow-200)',
+  },
+  archived: {
+    bg: 'var(--color-stone-100)',
+    text: 'var(--color-stone-500)',
+    border: 'var(--color-stone-300)',
+  },
 };
 
 interface ActivityLog {
@@ -90,7 +116,7 @@ export function ActivityTab({
   activityLoadingMore = false,
   onActivityClick,
   onLoadMore,
-  onNavigateToConversation
+  onNavigateToConversation,
 }: ActivityTabProps) {
   // Only show empty state if data has been loaded (not during initial load)
   if (activityLogs.length === 0 && activityLoaded) {
@@ -99,7 +125,8 @@ export function ActivityTab({
         <ClipboardList className="mc-empty-icon" size={48} />
         <p className="mc-empty-title">All quiet here</p>
         <p className="mc-empty-hint">
-          Your team's activity will show up as you use the council, save decisions, and build playbooks.
+          Your team's activity will show up as you use the council, save decisions, and build
+          playbooks.
         </p>
       </div>
     );
@@ -123,7 +150,7 @@ export function ActivityTab({
           <div key={date} className="mc-activity-group">
             <h4 className="mc-group-title">{date}</h4>
             <div className="mc-elegant-list">
-              {logs.map(log => {
+              {logs.map((log) => {
                 const dotColor = EVENT_COLORS[log.event_type] || EVENT_COLORS.default;
                 // Use explicit action column from database (no more title parsing)
                 const action = log.promoted_to_type ? 'Promoted' : log.action;
@@ -133,24 +160,24 @@ export function ActivityTab({
 
                 // Deleted items are never clickable (the item no longer exists)
                 // For other items, check if we have related_id and related_type
-                // Consultations are clickable if they have a conversation_id
-                const isClickable = !isDeleted && (
-                  (log.related_id && log.related_type) ||
-                  (log.related_type === 'conversation' && log.conversation_id)
-                );
+                // Council sessions are clickable if they have a conversation_id
+                const isClickable =
+                  !isDeleted &&
+                  ((log.related_id && log.related_type) ||
+                    (log.related_type === 'conversation' && log.conversation_id) ||
+                    (log.event_type === 'council_session' && log.conversation_id));
 
                 return (
                   <div
                     key={log.id}
                     className={`mc-elegant-row ${isClickable ? '' : 'no-hover'} ${isDeleted ? 'deleted-item' : ''}`}
-                    onClick={isClickable && onActivityClick ? () => onActivityClick(log) : undefined}
+                    onClick={
+                      isClickable && onActivityClick ? () => onActivityClick(log) : undefined
+                    }
                     title={isDeleted ? 'This item has been deleted' : undefined}
                   >
                     {/* Event type indicator */}
-                    <div
-                      className="mc-event-dot"
-                      style={{ background: dotColor }}
-                    />
+                    <div className="mc-event-dot" style={{ background: dotColor }} />
 
                     {/* Main content */}
                     <div className="mc-elegant-content mc-activity-content-wrap">
@@ -162,14 +189,21 @@ export function ActivityTab({
                           <span
                             className="mc-elegant-badge activity-type"
                             style={{
-                              background: PROMOTED_TYPE_COLORS[log.promoted_to_type]?.bg || 'var(--color-slate-100)',
-                              color: PROMOTED_TYPE_COLORS[log.promoted_to_type]?.text || 'var(--color-slate-500)'
+                              background:
+                                PROMOTED_TYPE_COLORS[log.promoted_to_type]?.bg ||
+                                'var(--color-slate-100)',
+                              color:
+                                PROMOTED_TYPE_COLORS[log.promoted_to_type]?.text ||
+                                'var(--color-slate-500)',
                             }}
                           >
                             {PROMOTED_TYPE_LABELS[log.promoted_to_type]}
                           </span>
                         ) : (
-                          <span className="mc-elegant-badge activity-type" style={{ background: `${dotColor}20`, color: dotColor }}>
+                          <span
+                            className="mc-elegant-badge activity-type"
+                            style={{ background: `${dotColor}20`, color: dotColor }}
+                          >
                             {EVENT_LABELS[log.event_type] || log.event_type}
                           </span>
                         )}

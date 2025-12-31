@@ -62,8 +62,10 @@ export function LandingHero({
   const [input, setInput] = useState('');
 
   // Filter roles to those belonging to selected departments
-  const availableRoles = allRoles.filter(role =>
-    selectedDepartments.length === 0 || (role.departmentId && selectedDepartments.includes(role.departmentId))
+  const availableRoles = allRoles.filter(
+    (role) =>
+      selectedDepartments.length === 0 ||
+      (role.departmentId && selectedDepartments.includes(role.departmentId))
   );
 
   return (
@@ -85,8 +87,40 @@ export function LandingHero({
             <span className="landing-logo-text">AxCouncil</span>
           </div>
           <h1 className="landing-headline">
-            What high-stakes decision can we help you solve?
+            The only AI worth <span className="headline-emphasis">trusting.</span>
           </h1>
+          <div className="landing-stats">
+            <div className="stat-pill">
+              <span className="stat-number">5</span>
+              <span className="stat-label">AIs</span>
+            </div>
+            <svg className="stat-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M5 12h14m-4-4l4 4-4 4"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <div className="stat-pill">
+              <span className="stat-number">3</span>
+              <span className="stat-label">rounds</span>
+            </div>
+            <svg className="stat-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M5 12h14m-4-4l4 4-4 4"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <div className="stat-pill stat-pill-highlight">
+              <span className="stat-number">1</span>
+              <span className="stat-label">answer</span>
+            </div>
+          </div>
         </motion.div>
 
         {/* OmniBar with context icons INSIDE */}

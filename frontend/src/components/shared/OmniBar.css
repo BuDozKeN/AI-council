@@ -16,43 +16,151 @@
   max-width: 720px;
 }
 
-/* Mode toggle for landing variant (external toggle above the bar) */
+/* Mode toggle for landing variant - Premium segmented control */
 .omni-mode-toggle {
   display: flex;
   justify-content: center;
-  gap: 4px;
-  margin-bottom: 12px;
+  gap: 0;
+  margin-bottom: 16px;
   padding: 4px;
-  background: var(--overlay-white-70);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border-radius: var(--radius-lg);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: 100px;
   width: fit-content;
   margin-left: auto;
   margin-right: auto;
 }
 
 .omni-mode-btn {
-  padding: 8px 16px;
+  position: relative;
+  padding: 10px 20px;
   border: none;
   background: transparent;
-  color: var(--color-text-secondary);
-  font-size: 13px;
+  color: var(--color-text-tertiary);
+  font-size: 14px;
   font-weight: 500;
-  border-radius: var(--radius-default);
+  border-radius: 100px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.omni-mode-btn::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentcolor;
+  opacity: 0.4;
+  transition: all 0.2s ease;
 }
 
 .omni-mode-btn:hover {
-  color: var(--color-text-primary);
-  background: var(--overlay-black-5);
+  color: var(--color-text-secondary);
 }
 
 .omni-mode-btn.active {
   background: var(--color-bg-primary);
-  color: var(--color-indigo-500);
-  box-shadow: var(--shadow-xs);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.omni-mode-btn.active::before {
+  background: var(--color-indigo-500);
+  opacity: 1;
+}
+
+/* Quick mode indicator - single dot */
+.omni-mode-btn:first-child::before {
+  width: 6px;
+  height: 6px;
+}
+
+/* Council mode indicator - triple dot effect */
+.omni-mode-btn:last-child::before {
+  width: 16px;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(
+    90deg,
+    currentcolor 0%,
+    currentcolor 20%,
+    transparent 20%,
+    transparent 40%,
+    currentcolor 40%,
+    currentcolor 60%,
+    transparent 60%,
+    transparent 80%,
+    currentcolor 80%,
+    currentcolor 100%
+  );
+}
+
+.omni-mode-btn:last-child.active::before {
+  background: linear-gradient(
+    90deg,
+    var(--color-indigo-500) 0%,
+    var(--color-indigo-500) 20%,
+    transparent 20%,
+    transparent 40%,
+    var(--color-indigo-500) 40%,
+    var(--color-indigo-500) 60%,
+    transparent 60%,
+    transparent 80%,
+    var(--color-indigo-500) 80%,
+    var(--color-indigo-500) 100%
+  );
+  opacity: 1;
+}
+
+/* =============================================================================
+   INLINE MODE TOGGLE - Compact pill inside input bar (Perplexity pattern)
+   ============================================================================= */
+
+.omni-inline-mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 2px;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-light);
+  border-radius: 100px;
+  margin-left: 4px;
+}
+
+.inline-mode-btn {
+  padding: 4px 10px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.inline-mode-btn:hover:not(:disabled) {
+  color: var(--color-text-secondary);
+}
+
+.inline-mode-btn.active {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  box-shadow: 0 1px 2px var(--overlay-black-10);
+}
+
+.inline-mode-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Council mode active state - subtle indigo accent */
+.inline-mode-btn:last-child.active {
+  color: var(--color-indigo-600);
 }
 
 /* =============================================================================
@@ -349,20 +457,6 @@
 
 .omni-icon-btn.playbook .omni-icon-badge {
   background: var(--color-blue-500);
-}
-
-/* Mode toggle icon */
-.omni-icon-btn.mode-toggle {
-  margin-left: 4px;
-  border-left: 1px solid var(--color-border-light);
-  padding-left: 6px;
-  border-radius: 0;
-  width: auto;
-  padding-right: 2px;
-}
-
-.omni-icon-btn.mode-toggle.council {
-  color: var(--color-indigo-500);
 }
 
 /* Attach button - slightly larger */
@@ -721,6 +815,17 @@
     width: 44px;
     height: 44px;
   }
+
+  /* Inline mode toggle - larger for touch */
+  .omni-inline-mode-toggle {
+    padding: 3px;
+  }
+
+  .inline-mode-btn {
+    padding: 8px 14px;
+    font-size: 12px;
+    min-height: 32px;
+  }
 }
 
 /* =============================================================================
@@ -818,14 +923,6 @@
   color: var(--color-blue-400);
 }
 
-.dark .omni-icon-btn.mode-toggle {
-  border-left-color: var(--color-border);
-}
-
-.dark .omni-icon-btn.mode-toggle.council {
-  color: var(--color-brand-primary);
-}
-
 .dark .omni-bar-submit {
   background: transparent;
   color: var(--color-text-tertiary);
@@ -837,23 +934,66 @@
 }
 
 .dark .omni-mode-toggle {
-  background: rgb(var(--color-slate-800-rgb), 0.8);
-  border-color: var(--color-border);
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border-secondary);
 }
 
 .dark .omni-mode-btn {
-  color: var(--color-text-secondary);
+  color: var(--color-text-quaternary);
 }
 
 .dark .omni-mode-btn:hover {
-  color: var(--color-text-primary);
-  background: var(--overlay-white-5);
+  color: var(--color-text-tertiary);
 }
 
 .dark .omni-mode-btn.active {
   background: var(--color-bg-tertiary);
-  color: var(--color-brand-primary);
-  box-shadow: var(--shadow-xs);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.dark .omni-mode-btn.active::before {
+  background: var(--color-indigo-400);
+}
+
+.dark .omni-mode-btn:last-child.active::before {
+  background: linear-gradient(
+    90deg,
+    var(--color-indigo-400) 0%,
+    var(--color-indigo-400) 20%,
+    transparent 20%,
+    transparent 40%,
+    var(--color-indigo-400) 40%,
+    var(--color-indigo-400) 60%,
+    transparent 60%,
+    transparent 80%,
+    var(--color-indigo-400) 80%,
+    var(--color-indigo-400) 100%
+  );
+}
+
+/* Inline mode toggle dark mode */
+.dark .omni-inline-mode-toggle {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .inline-mode-btn {
+  color: var(--color-text-quaternary);
+}
+
+.dark .inline-mode-btn:hover:not(:disabled) {
+  color: var(--color-text-tertiary);
+}
+
+.dark .inline-mode-btn.active {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  box-shadow: 0 1px 2px var(--overlay-black-20);
+}
+
+.dark .inline-mode-btn:last-child.active {
+  color: var(--color-indigo-400);
 }
 
 .dark .omni-tooltip {

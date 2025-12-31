@@ -25,7 +25,6 @@ import {
   Briefcase,
   Users,
   BookOpen,
-  Zap,
   Check,
   FileText,
   ScrollText,
@@ -41,25 +40,25 @@ import './OmniBar.css';
 
 // Rotating placeholder examples for empty state
 const PLACEHOLDER_EXAMPLES = [
-  "How should I price my SaaS product?",
-  "Draft a response to this customer complaint...",
+  'How should I price my SaaS product?',
+  'Draft a response to this customer complaint...',
   "What's the best approach to entering a new market?",
-  "Review this contract for potential risks...",
-  "Help me plan a product launch strategy",
-  "How do I handle a difficult employee situation?",
+  'Review this contract for potential risks...',
+  'Help me plan a product launch strategy',
+  'How do I handle a difficult employee situation?',
 ];
 
 // Mom-friendly tooltip descriptions - actionable, clear
 const TOOLTIPS = {
   company: "Choose which company's context to use",
   departments: "Include your team's expertise in the answer",
-  roles: "Add specific expert perspectives (CEO, Analyst, etc.)",
+  roles: 'Add specific expert perspectives (CEO, Analyst, etc.)',
   playbooks: "Apply your company's guides to the answer",
-  councilMode: "Multiple AI experts discuss and give you a combined answer",
-  chatMode: "Quick answer from one AI — faster, simpler",
-  attach: "Add a photo or screenshot",
-  send: "Send your question",
-  stop: "Stop the AI from writing more",
+  councilMode: 'Multiple AI experts discuss and give you a combined answer',
+  chatMode: 'Quick answer from one AI — faster, simpler',
+  attach: 'Add a photo or screenshot',
+  send: 'Send your question',
+  stop: 'Stop the AI from writing more',
 };
 
 // Check if we're on mobile/tablet for bottom sheet vs popover
@@ -190,11 +189,12 @@ export function OmniBar({
   const hasDepartments = departments.length > 0 && onSelectDepartments;
   const hasRoles = roles.length > 0 && onSelectRoles;
   const hasPlaybooks = playbooks.length > 0 && onSelectPlaybooks;
-  const hasAnyContextIcons = showContextIcons && (hasBusinesses || hasDepartments || hasRoles || hasPlaybooks);
+  const hasAnyContextIcons =
+    showContextIcons && (hasBusinesses || hasDepartments || hasRoles || hasPlaybooks);
 
   // Get selected company name for display
   const selectedCompanyName = selectedBusiness
-    ? businesses.find(b => b.id === selectedBusiness)?.name
+    ? businesses.find((b) => b.id === selectedBusiness)?.name
     : null;
 
   // Rotate placeholder text
@@ -240,9 +240,13 @@ export function OmniBar({
     }
   };
 
-  const currentPlaceholder = placeholder ||
-    (variant === 'landing' ? PLACEHOLDER_EXAMPLES[placeholderIndex] :
-     chatMode === 'chat' ? "Quick follow-up..." : "Ask the council...");
+  const currentPlaceholder =
+    placeholder ||
+    (variant === 'landing'
+      ? PLACEHOLDER_EXAMPLES[placeholderIndex]
+      : chatMode === 'chat'
+        ? 'Quick follow-up...'
+        : 'Ask the council...');
 
   const hasContent = value.trim().length > 0 || hasImages;
 
@@ -250,7 +254,7 @@ export function OmniBar({
   const toggleDepartment = (id: string) => {
     if (!onSelectDepartments) return;
     const newSelection = selectedDepartments.includes(id)
-      ? selectedDepartments.filter(d => d !== id)
+      ? selectedDepartments.filter((d) => d !== id)
       : [...selectedDepartments, id];
     onSelectDepartments(newSelection);
   };
@@ -258,7 +262,7 @@ export function OmniBar({
   const toggleRole = (id: string) => {
     if (!onSelectRoles) return;
     const newSelection = selectedRoles.includes(id)
-      ? selectedRoles.filter(r => r !== id)
+      ? selectedRoles.filter((r) => r !== id)
       : [...selectedRoles, id];
     onSelectRoles(newSelection);
   };
@@ -266,7 +270,7 @@ export function OmniBar({
   const togglePlaybook = (id: string) => {
     if (!onSelectPlaybooks) return;
     const newSelection = selectedPlaybooks.includes(id)
-      ? selectedPlaybooks.filter(p => p !== id)
+      ? selectedPlaybooks.filter((p) => p !== id)
       : [...selectedPlaybooks, id];
     onSelectPlaybooks(newSelection);
   };
@@ -277,19 +281,19 @@ export function OmniBar({
       {businesses.length === 0 ? (
         <div className="context-popover-empty">No companies</div>
       ) : (
-        businesses.map(biz => {
+        businesses.map((biz) => {
           const isSelected = selectedBusiness === biz.id;
           return (
             <button
               key={biz.id}
-              className={cn("context-popover-item", isSelected && "selected")}
+              className={cn('context-popover-item', isSelected && 'selected')}
               onClick={() => {
                 onSelectBusiness?.(isSelected ? null : biz.id);
                 setCompanyOpen(false);
               }}
               type="button"
             >
-              <div className={cn("context-popover-radio", isSelected && "checked")}>
+              <div className={cn('context-popover-radio', isSelected && 'checked')}>
                 {isSelected && <Check size={10} />}
               </div>
               <span>{biz.name}</span>
@@ -306,7 +310,7 @@ export function OmniBar({
       {departments.length === 0 ? (
         <div className="context-popover-empty">No departments</div>
       ) : (
-        departments.map(dept => (
+        departments.map((dept) => (
           <DepartmentCheckboxItem
             key={dept.id}
             department={dept}
@@ -325,16 +329,16 @@ export function OmniBar({
       {roles.length === 0 ? (
         <div className="context-popover-empty">No roles</div>
       ) : (
-        roles.map(role => {
+        roles.map((role) => {
           const isSelected = selectedRoles.includes(role.id);
           return (
             <button
               key={role.id}
-              className={cn("context-popover-item", isSelected && "selected")}
+              className={cn('context-popover-item', isSelected && 'selected')}
               onClick={() => toggleRole(role.id)}
               type="button"
             >
-              <div className={cn("context-popover-checkbox", isSelected && "checked")}>
+              <div className={cn('context-popover-checkbox', isSelected && 'checked')}>
                 {isSelected && <Check size={12} />}
               </div>
               <span>{role.name}</span>
@@ -346,12 +350,15 @@ export function OmniBar({
   );
 
   // Group playbooks by type
-  const groupedPlaybooks = playbooks.reduce((acc, pb) => {
-    const type = pb.type || pb.doc_type || 'other';
-    if (!acc[type]) acc[type] = [];
-    acc[type].push(pb);
-    return acc;
-  }, {} as Record<string, Playbook[]>);
+  const groupedPlaybooks = playbooks.reduce(
+    (acc, pb) => {
+      const type = pb.type || pb.doc_type || 'other';
+      if (!acc[type]) acc[type] = [];
+      acc[type].push(pb);
+      return acc;
+    },
+    {} as Record<string, Playbook[]>
+  );
 
   // Playbook type config with icons and labels
   const playbookTypeConfig: Record<string, { label: string; icon: React.ReactNode }> = {
@@ -364,12 +371,12 @@ export function OmniBar({
   const playbookTypeOrder = ['framework', 'sop', 'policy', 'other'];
 
   const toggleSection = (type: string) => {
-    setExpandedSections(prev => ({ ...prev, [type]: !prev[type] }));
+    setExpandedSections((prev) => ({ ...prev, [type]: !prev[type] }));
   };
 
   const getSelectedCount = (type: string) => {
     const items = groupedPlaybooks[type] ?? [];
-    return items.filter(pb => selectedPlaybooks.includes(pb.id)).length;
+    return items.filter((pb) => selectedPlaybooks.includes(pb.id)).length;
   };
 
   // Playbook list content - grouped by type with collapsible sections
@@ -379,8 +386,8 @@ export function OmniBar({
         <div className="context-popover-empty">No playbooks</div>
       ) : (
         playbookTypeOrder
-          .filter(type => (groupedPlaybooks[type]?.length ?? 0) > 0)
-          .map(type => {
+          .filter((type) => (groupedPlaybooks[type]?.length ?? 0) > 0)
+          .map((type) => {
             const config = playbookTypeConfig[type]!;
             const items = groupedPlaybooks[type] ?? [];
             const isExpanded = expandedSections[type] ?? false;
@@ -389,12 +396,12 @@ export function OmniBar({
               <div key={type} className="context-popover-group">
                 <button
                   type="button"
-                  className={cn("context-popover-group-header clickable", type)}
+                  className={cn('context-popover-group-header clickable', type)}
                   onClick={() => toggleSection(type)}
                 >
                   <ChevronRight
                     size={12}
-                    className={cn("section-chevron", isExpanded && "expanded")}
+                    className={cn('section-chevron', isExpanded && 'expanded')}
                   />
                   {config.icon}
                   <span className="section-label">{config.label}</span>
@@ -405,16 +412,16 @@ export function OmniBar({
                 </button>
                 {isExpanded && (
                   <div className="context-popover-group-items">
-                    {items.map(pb => {
+                    {items.map((pb) => {
                       const isSelected = selectedPlaybooks.includes(pb.id);
                       return (
                         <button
                           key={pb.id}
-                          className={cn("context-popover-item", isSelected && "selected")}
+                          className={cn('context-popover-item', isSelected && 'selected')}
                           onClick={() => togglePlaybook(pb.id)}
                           type="button"
                         >
-                          <div className={cn("context-popover-checkbox", isSelected && "checked")}>
+                          <div className={cn('context-popover-checkbox', isSelected && 'checked')}>
                             {isSelected && <Check size={12} />}
                           </div>
                           <span>{pb.title || pb.name}</span>
@@ -434,9 +441,7 @@ export function OmniBar({
   const withTooltip = (button: React.ReactNode, tooltipText: string) => (
     <Tooltip.Provider delayDuration={400}>
       <Tooltip.Root>
-        <Tooltip.Trigger asChild>
-          {button}
-        </Tooltip.Trigger>
+        <Tooltip.Trigger asChild>{button}</Tooltip.Trigger>
         <Tooltip.Portal>
           <Tooltip.Content className="omni-tooltip" sideOffset={8}>
             {tooltipText}
@@ -461,8 +466,8 @@ export function OmniBar({
     const iconButton = (
       <button
         type="button"
-        className={cn("omni-icon-btn", count > 0 && "has-selection", colorClass)}
-        onClick={() => isMobile ? setOpen(true) : undefined}
+        className={cn('omni-icon-btn', count > 0 && 'has-selection', colorClass)}
+        onClick={() => (isMobile ? setOpen(true) : undefined)}
         disabled={disabled}
         aria-label={label}
       >
@@ -475,11 +480,7 @@ export function OmniBar({
       return (
         <>
           {withTooltip(iconButton, tooltipText)}
-          <BottomSheet
-            isOpen={open}
-            onClose={() => setOpen(false)}
-            title={label}
-          >
+          <BottomSheet isOpen={open} onClose={() => setOpen(false)} title={label}>
             {content}
           </BottomSheet>
         </>
@@ -491,9 +492,7 @@ export function OmniBar({
         <Tooltip.Provider delayDuration={400}>
           <Tooltip.Root>
             <Popover.Trigger asChild>
-              <Tooltip.Trigger asChild>
-                {iconButton}
-              </Tooltip.Trigger>
+              <Tooltip.Trigger asChild>{iconButton}</Tooltip.Trigger>
             </Popover.Trigger>
             <Tooltip.Portal>
               <Tooltip.Content className="omni-tooltip" sideOffset={8}>
@@ -504,11 +503,7 @@ export function OmniBar({
           </Tooltip.Root>
         </Tooltip.Provider>
         <Popover.Portal>
-          <Popover.Content
-            className="context-popover-content"
-            align="start"
-            sideOffset={8}
-          >
+          <Popover.Content className="context-popover-content" align="start" sideOffset={8}>
             <div className="context-popover-header">{label}</div>
             {content}
           </Popover.Content>
@@ -518,13 +513,13 @@ export function OmniBar({
   };
 
   const containerClasses = cn(
-    "omni-bar-wrapper",
-    variant === 'landing' && "omni-bar-landing",
-    variant === 'compact' && "omni-bar-compact",
-    hasContent && "has-content",
-    isLoading && "is-loading",
-    hasAnyContextIcons && "has-context-icons",
-    isCouncilMode && hasAnyContextIcons && "council-mode",
+    'omni-bar-wrapper',
+    variant === 'landing' && 'omni-bar-landing',
+    variant === 'compact' && 'omni-bar-compact',
+    hasContent && 'has-content',
+    isLoading && 'is-loading',
+    hasAnyContextIcons && 'has-context-icons',
+    isCouncilMode && hasAnyContextIcons && 'council-mode',
     className
   );
 
@@ -532,20 +527,24 @@ export function OmniBar({
     <div className={containerClasses}>
       {/* Mode toggle - only for landing variant when showModeToggle is true */}
       {showModeToggle && variant === 'landing' && onChatModeChange && (
-        <div className="omni-mode-toggle">
+        <div className="omni-mode-toggle" role="radiogroup" aria-label="Response mode">
           <button
             type="button"
             className={`omni-mode-btn ${chatMode === 'chat' ? 'active' : ''}`}
             onClick={() => onChatModeChange('chat')}
+            role="radio"
+            aria-checked={chatMode === 'chat'}
           >
-            Quick
+            1 AI
           </button>
           <button
             type="button"
             className={`omni-mode-btn ${chatMode === 'council' ? 'active' : ''}`}
             onClick={() => onChatModeChange('council')}
+            role="radio"
+            aria-checked={chatMode === 'council'}
           >
-            Full Council
+            5 AIs
           </button>
         </div>
       )}
@@ -589,59 +588,85 @@ export function OmniBar({
           <div className="omni-bar-left">
             {hasAnyContextIcons && (
               <>
-                {hasBusinesses && renderContextIcon(
-                  <Briefcase size={16} />,
-                  selectedCompanyName || "Company",
-                  TOOLTIPS.company,
-                  selectedBusiness ? 1 : 0,
-                  companyOpen,
-                  setCompanyOpen,
-                  companyList,
-                  "company"
-                )}
-                {hasDepartments && renderContextIcon(
-                  <Building2 size={16} />,
-                  "Departments",
-                  TOOLTIPS.departments,
-                  selectedDepartments.length,
-                  deptOpen,
-                  setDeptOpen,
-                  departmentList,
-                  "dept"
-                )}
-                {hasRoles && renderContextIcon(
-                  <Users size={16} />,
-                  "Roles",
-                  TOOLTIPS.roles,
-                  selectedRoles.length,
-                  roleOpen,
-                  setRoleOpen,
-                  roleList,
-                  "role"
-                )}
-                {hasPlaybooks && renderContextIcon(
-                  <BookOpen size={16} />,
-                  "Playbooks",
-                  TOOLTIPS.playbooks,
-                  selectedPlaybooks.length,
-                  playbookOpen,
-                  setPlaybookOpen,
-                  playbookList,
-                  "playbook"
-                )}
+                {hasBusinesses &&
+                  renderContextIcon(
+                    <Briefcase size={16} />,
+                    selectedCompanyName || 'Company',
+                    TOOLTIPS.company,
+                    selectedBusiness ? 1 : 0,
+                    companyOpen,
+                    setCompanyOpen,
+                    companyList,
+                    'company'
+                  )}
+                {hasDepartments &&
+                  renderContextIcon(
+                    <Building2 size={16} />,
+                    'Departments',
+                    TOOLTIPS.departments,
+                    selectedDepartments.length,
+                    deptOpen,
+                    setDeptOpen,
+                    departmentList,
+                    'dept'
+                  )}
+                {hasRoles &&
+                  renderContextIcon(
+                    <Users size={16} />,
+                    'Roles',
+                    TOOLTIPS.roles,
+                    selectedRoles.length,
+                    roleOpen,
+                    setRoleOpen,
+                    roleList,
+                    'role'
+                  )}
+                {hasPlaybooks &&
+                  renderContextIcon(
+                    <BookOpen size={16} />,
+                    'Playbooks',
+                    TOOLTIPS.playbooks,
+                    selectedPlaybooks.length,
+                    playbookOpen,
+                    setPlaybookOpen,
+                    playbookList,
+                    'playbook'
+                  )}
 
-                {/* Mode toggle icon */}
-                {onChatModeChange && withTooltip(
-                  <button
-                    type="button"
-                    className={cn("omni-icon-btn mode-toggle", isCouncilMode && "council")}
-                    onClick={() => !disabled && onChatModeChange(chatMode === 'chat' ? 'council' : 'chat')}
-                    disabled={disabled}
-                    aria-label={isCouncilMode ? 'Council mode (click for quick chat)' : 'Quick mode (click for council)'}
+                {/* Inline mode toggle - compact pill showing current mode */}
+                {onChatModeChange && !showModeToggle && (
+                  <div
+                    className="omni-inline-mode-toggle"
+                    role="radiogroup"
+                    aria-label="Response mode"
                   >
-                    <Zap size={16} />
-                  </button>,
-                  isCouncilMode ? TOOLTIPS.councilMode : TOOLTIPS.chatMode
+                    {withTooltip(
+                      <button
+                        type="button"
+                        className={cn('inline-mode-btn', chatMode === 'chat' && 'active')}
+                        onClick={() => !disabled && onChatModeChange('chat')}
+                        disabled={disabled}
+                        role="radio"
+                        aria-checked={chatMode === 'chat'}
+                      >
+                        1 AI
+                      </button>,
+                      TOOLTIPS.chatMode
+                    )}
+                    {withTooltip(
+                      <button
+                        type="button"
+                        className={cn('inline-mode-btn', chatMode === 'council' && 'active')}
+                        onClick={() => !disabled && onChatModeChange('council')}
+                        disabled={disabled}
+                        role="radio"
+                        aria-checked={chatMode === 'council'}
+                      >
+                        5 AIs
+                      </button>,
+                      TOOLTIPS.councilMode
+                    )}
+                  </div>
                 )}
               </>
             )}
@@ -650,18 +675,20 @@ export function OmniBar({
           {/* Right side: Attach + Send */}
           <div className="omni-bar-right">
             {/* Image attach button */}
-            {showImageButton && onImageClick && withTooltip(
-              <button
-                type="button"
-                className="omni-icon-btn attach"
-                onClick={onImageClick}
-                disabled={isLoading}
-                aria-label="Attach image"
-              >
-                <ImageIcon size={18} />
-              </button>,
-              TOOLTIPS.attach
-            )}
+            {showImageButton &&
+              onImageClick &&
+              withTooltip(
+                <button
+                  type="button"
+                  className="omni-icon-btn attach"
+                  onClick={onImageClick}
+                  disabled={isLoading}
+                  aria-label="Attach image"
+                >
+                  <ImageIcon size={18} />
+                </button>,
+                TOOLTIPS.attach
+              )}
 
             {/* Submit/Stop button */}
             <AnimatePresence mode="wait">
@@ -683,7 +710,7 @@ export function OmniBar({
                 <motion.button
                   key="submit"
                   type="submit"
-                  className={cn("omni-bar-submit", hasContent && "active")}
+                  className={cn('omni-bar-submit', hasContent && 'active')}
                   disabled={!hasContent}
                   onClick={handleSubmit}
                   initial={{ opacity: 0, scale: 0.8 }}

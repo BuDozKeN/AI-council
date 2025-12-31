@@ -117,14 +117,14 @@
 }
 
 .dark .scroll-to-top-fab,
-[data-theme="dark"] .scroll-to-top-fab {
+[data-theme='dark'] .scroll-to-top-fab {
   background: var(--overlay-black-50);
   color: var(--color-text-tertiary);
   box-shadow: var(--shadow-xs);
 }
 
 .dark .scroll-to-top-fab:hover,
-[data-theme="dark"] .scroll-to-top-fab:hover {
+[data-theme='dark'] .scroll-to-top-fab:hover {
   background: var(--overlay-black-60);
   color: var(--color-text-secondary);
 }
@@ -178,27 +178,27 @@
 
 /* Dark mode pills */
 .dark .context-indicator-item.company,
-[data-theme="dark"] .context-indicator-item.company {
+[data-theme='dark'] .context-indicator-item.company {
   background: var(--overlay-blue-15);
   color: var(--color-blue-300);
 }
 
 .dark .context-indicator-item.project,
-[data-theme="dark"] .context-indicator-item.project {
+[data-theme='dark'] .context-indicator-item.project {
   background: var(--overlay-purple-15);
   color: var(--color-purple-300);
 }
 
 /* Department pills - dark mode uses slightly transparent version of dynamic color */
 .dark .context-indicator-item.department,
-[data-theme="dark"] .context-indicator-item.department {
+[data-theme='dark'] .context-indicator-item.department {
   background: var(--dept-bg, var(--overlay-amber-15));
   color: var(--dept-text, var(--color-amber-300));
   opacity: 0.9; /* Slightly muted for dark mode */
 }
 
 .dark .context-indicator-item.role,
-[data-theme="dark"] .context-indicator-item.role {
+[data-theme='dark'] .context-indicator-item.role {
   background: var(--overlay-green-15);
   color: var(--color-green-300);
 }
@@ -231,25 +231,25 @@
 
 /* Dark mode playbook pills */
 .dark .context-indicator-item.playbook,
-[data-theme="dark"] .context-indicator-item.playbook {
+[data-theme='dark'] .context-indicator-item.playbook {
   background: var(--overlay-blue-15);
   color: var(--color-blue-300);
 }
 
 .dark .context-indicator-item.playbook.sop,
-[data-theme="dark"] .context-indicator-item.playbook.sop {
+[data-theme='dark'] .context-indicator-item.playbook.sop {
   background: var(--overlay-blue-15);
   color: var(--color-blue-300);
 }
 
 .dark .context-indicator-item.playbook.framework,
-[data-theme="dark"] .context-indicator-item.playbook.framework {
+[data-theme='dark'] .context-indicator-item.playbook.framework {
   background: var(--overlay-amber-15);
   color: var(--color-amber-300);
 }
 
 .dark .context-indicator-item.playbook.policy,
-[data-theme="dark"] .context-indicator-item.playbook.policy {
+[data-theme='dark'] .context-indicator-item.playbook.policy {
   background: var(--overlay-purple-15);
   color: var(--color-purple-300);
 }
@@ -262,8 +262,7 @@
 
 .messages-container {
   flex: 1;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden auto;
 
   /* Bottom padding provides space for gradient fade effect */
   padding: 0 24px 48px;
@@ -434,11 +433,34 @@
 
 /* User stage card - single box, no nested containers */
 .stage-user {
+  position: relative;
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: 12px 16px;
   box-shadow: var(--shadow-sm);
+}
+
+/* User message copy button - sticky for long content, subtle but visible */
+.stage-user .user-copy-btn {
+  position: sticky;
+  top: 8px;
+  float: right;
+  margin-left: 8px;
+  margin-bottom: 4px;
+  z-index: 10;
+
+  /* Override default hidden state - always subtly visible */
+  opacity: 0.5;
+  pointer-events: auto;
+}
+
+.stage-user .user-copy-btn:hover {
+  opacity: 1;
+}
+
+.stage-user .user-copy-btn.copied {
+  opacity: 1;
 }
 
 /* Collapse row - arrow + inline preview */
@@ -475,6 +497,15 @@
 .dark .stage-user {
   background: var(--color-bg-secondary);
   border-color: var(--color-border);
+}
+
+/* Dark mode user copy button - subtle visibility */
+.dark .stage-user .user-copy-btn {
+  opacity: 0.4;
+}
+
+.dark .stage-user .user-copy-btn:hover {
+  opacity: 1;
 }
 
 .loading-indicator {
@@ -532,11 +563,7 @@
   left: 0;
   right: 0;
   height: 40px;
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    var(--color-bg-primary) 100%
-  );
+  background: linear-gradient(to bottom, transparent 0%, var(--color-bg-primary) 100%);
   pointer-events: none;
 }
 
@@ -546,11 +573,7 @@
 }
 
 .dark .input-form::before {
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    var(--color-bg-primary) 100%
-  );
+  background: linear-gradient(to bottom, transparent 0%, var(--color-bg-primary) 100%);
 }
 
 /* Input form children constrained to reading column - use same centering as messages */
@@ -571,7 +594,9 @@
   border-radius: var(--radius-2xl); /* More rounded, pill-like */
   padding: 4px 4px 4px 16px;
   box-shadow: var(--shadow-md);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .input-row:focus-within {
@@ -687,8 +712,9 @@ button[data-radix-collection-item].context-select-trigger {
   font-weight: var(--font-medium);
   color: var(--color-text-default);
   cursor: pointer;
-  transition: background-color var(--duration-fast) var(--ease-default),
-              border-color var(--duration-fast) var(--ease-default);
+  transition:
+    background-color var(--duration-fast) var(--ease-default),
+    border-color var(--duration-fast) var(--ease-default);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -1732,7 +1758,7 @@ button.role-select-trigger:focus {
 
 .toggle-slider::before {
   position: absolute;
-  content: "";
+  content: '';
   height: 18px;
   width: 18px;
   left: 3px;
@@ -2256,8 +2282,14 @@ button.role-select-trigger:focus {
 }
 
 @keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
 }
 
 /* Project selector group - combines dropdown and add button */
@@ -2583,7 +2615,7 @@ button.mobile-role-select {
 
 /* Dark mode mobile */
 @media (max-width: 768px) {
-  [data-theme="dark"] .input-form,
+  [data-theme='dark'] .input-form,
   .dark .input-form {
     background: var(--color-bg-primary);
   }
@@ -2621,12 +2653,16 @@ button.mobile-role-select {
 /* Council mode visual feedback - subtle indigo accent */
 .omnibar.council-mode {
   border-color: var(--color-indigo-300);
-  box-shadow: 0 0 0 1px var(--color-indigo-100), var(--shadow-md);
+  box-shadow:
+    0 0 0 1px var(--color-indigo-100),
+    var(--shadow-md);
 }
 
 .omnibar.council-mode:focus-within {
   border-color: var(--color-indigo-400);
-  box-shadow: 0 0 0 2px var(--color-indigo-100), var(--shadow-lg);
+  box-shadow:
+    0 0 0 2px var(--color-indigo-100),
+    var(--shadow-lg);
 }
 
 /* Top row: Just the textarea */
@@ -2779,10 +2815,52 @@ button.mobile-role-select {
   opacity: 0.8;
 }
 
-/* Mode toggle icon - very subtle when active */
-.omni-icon-btn.mode-toggle.council {
-  color: var(--color-indigo-300);
-  opacity: 0.6;
+/* =============================================================================
+   INLINE MODE TOGGLE - Clear "1 AI / 5 AIs" pill (replaces Zap icon)
+   ============================================================================= */
+
+.omni-inline-mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 2px;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-light);
+  border-radius: 100px;
+  margin-left: 4px;
+}
+
+.inline-mode-btn {
+  padding: 4px 10px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.inline-mode-btn:hover:not(:disabled) {
+  color: var(--color-text-secondary);
+}
+
+.inline-mode-btn.active {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  box-shadow: 0 1px 2px var(--overlay-black-10);
+}
+
+.inline-mode-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Council mode active state - subtle indigo accent */
+.inline-mode-btn:last-child.active {
+  color: var(--color-indigo-600);
 }
 
 /* Attach button - uses same size as other icons, no special override needed */
@@ -2896,12 +2974,16 @@ button.mobile-role-select {
 /* Dark mode council mode visual feedback */
 .dark .omnibar.council-mode {
   border-color: var(--color-indigo-500);
-  box-shadow: 0 0 0 1px var(--overlay-indigo-20), 0 4px 12px var(--overlay-black-30);
+  box-shadow:
+    0 0 0 1px var(--overlay-indigo-20),
+    0 4px 12px var(--overlay-black-30);
 }
 
 .dark .omnibar.council-mode:focus-within {
   border-color: var(--color-indigo-400);
-  box-shadow: 0 0 0 2px var(--overlay-indigo-30), 0 4px 20px var(--overlay-black-40);
+  box-shadow:
+    0 0 0 2px var(--overlay-indigo-30),
+    0 4px 20px var(--overlay-black-40);
 }
 
 /* Dark mode bottom row border */
@@ -2973,9 +3055,28 @@ button.mobile-role-select {
   opacity: 0.7;
 }
 
-.dark .omni-icon-btn.mode-toggle.council {
+/* Inline mode toggle dark mode */
+.dark .omni-inline-mode-toggle {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .inline-mode-btn {
+  color: var(--color-text-quaternary);
+}
+
+.dark .inline-mode-btn:hover:not(:disabled) {
+  color: var(--color-text-tertiary);
+}
+
+.dark .inline-mode-btn.active {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  box-shadow: 0 1px 2px var(--overlay-black-20);
+}
+
+.dark .inline-mode-btn:last-child.active {
   color: var(--color-indigo-400);
-  opacity: 0.5;
 }
 
 .dark .omni-send-btn {
@@ -3029,6 +3130,17 @@ button.mobile-role-select {
 
   .omni-right {
     gap: 4px;
+  }
+
+  /* Inline mode toggle - larger for touch on mobile */
+  .omni-inline-mode-toggle {
+    padding: 3px;
+  }
+
+  .inline-mode-btn {
+    padding: 8px 14px;
+    font-size: 12px;
+    min-height: 32px;
   }
 }
 

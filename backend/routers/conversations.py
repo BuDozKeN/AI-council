@@ -38,7 +38,8 @@ from .company.utils import (
     check_rate_limits,
     increment_rate_counters,
     calculate_cost_cents,
-    create_budget_alert
+    create_budget_alert,
+    log_activity
 )
 
 # Import rate limiter from main module
@@ -133,6 +134,60 @@ def _verify_conversation_ownership(conversation: dict, user: dict) -> None:
     """Verify user owns the conversation. Raises HTTPException if not."""
     if conversation.get("user_id") and conversation.get("user_id") != user["id"]:
         raise HTTPException(status_code=403, detail="Access denied")
+
+
+def _build_council_conversation_history(conversation: dict) -> List[Dict[str, str]]:
+    """
+    Build conversation history for council follow-up queries.
+
+    Includes previous user questions and comprehensive council responses
+    (Stage 1 expert insights + Stage 3 synthesis) so the council can
+    provide contextual follow-up analysis.
+
+    Returns:
+        List of {"role": "user/assistant", "content": "..."} messages
+    """
+    history = []
+
+    for msg in conversation.get("messages", []):
+        if msg.get("role") == "user":
+            history.append({
+                "role": "user",
+                "content": msg.get("content", "")
+            })
+        elif msg.get("role") == "assistant":
+            # Build comprehensive council response summary
+            parts = []
+
+            # Include Stage 1 expert responses (summarized)
+            stage1 = msg.get("stage1", [])
+            if stage1:
+                parts.append("## Previous Council Expert Responses\n")
+                for expert in stage1:
+                    model_name = expert.get("model", "Unknown Expert")
+                    # Use a friendly name for the model
+                    friendly_name = model_name.split("/")[-1] if "/" in model_name else model_name
+                    response = expert.get("response", "")
+                    if response:
+                        # Include full response for context (truncate if extremely long)
+                        if len(response) > 3000:
+                            response = response[:3000] + "... [truncated]"
+                        parts.append(f"### {friendly_name}\n{response}\n")
+
+            # Include Stage 3 synthesis (the chairman's final answer)
+            stage3 = msg.get("stage3", {})
+            synthesis = stage3.get("response") or stage3.get("content", "")
+            if synthesis:
+                parts.append("## Previous Council Synthesis (Final Answer)\n")
+                parts.append(synthesis)
+
+            if parts:
+                history.append({
+                    "role": "assistant",
+                    "content": "\n".join(parts)
+                })
+
+    return history
 
 
 # =============================================================================
@@ -356,6 +411,11 @@ async def send_message(
                 total_usage['by_model'][model]['completion_tokens'] += usage_data.get('completion_tokens', 0)
                 total_usage['by_model'][model]['total_tokens'] += usage_data.get('total_tokens', 0)
 
+            # Build conversation history for follow-up council queries
+            # This includes previous questions and council responses so
+            # the experts can provide contextual follow-up analysis
+            council_history = _build_council_conversation_history(conversation)
+
             # Stage 1: Collect responses with streaming
             yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
             stage1_results = []
@@ -364,7 +424,7 @@ async def send_message(
                 business_id=body.business_id,
                 department_id=body.department,
                 role_id=body.role,
-                conversation_history=None,
+                conversation_history=council_history,
                 project_id=body.project_id,
                 access_token=access_token,
                 company_uuid=company_uuid,
@@ -425,7 +485,8 @@ async def send_message(
                 company_uuid=company_uuid,
                 department_ids=body.departments,
                 role_ids=body.roles,
-                playbook_ids=body.playbooks
+                playbook_ids=body.playbooks,
+                conversation_history=council_history
             ):
                 title_event = await check_and_emit_title()
                 if title_event:
@@ -496,6 +557,21 @@ async def send_message(
                     )
                 except Exception:
                     pass
+
+                # Log activity for the Activity tab
+                try:
+                    # Use generated title, or truncate user message as fallback
+                    activity_title = title if title else (body.message[:80] + '...' if len(body.message) > 80 else body.message)
+                    await log_activity(
+                        company_id=company_uuid,
+                        event_type="council_session",
+                        title=activity_title,
+                        action="created",
+                        conversation_id=conversation_id,
+                        department_id=body.department
+                    )
+                except Exception:
+                    pass  # Don't fail if activity logging fails
 
                 # Increment rate limit counters and check for budget alerts
                 try:

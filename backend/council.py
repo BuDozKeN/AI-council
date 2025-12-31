@@ -439,7 +439,8 @@ async def stage3_stream_synthesis(
     # Multi-select support (new)
     department_ids: Optional[List[str]] = None,
     role_ids: Optional[List[str]] = None,
-    playbook_ids: Optional[List[str]] = None
+    playbook_ids: Optional[List[str]] = None,
+    conversation_history: Optional[List[Dict[str, str]]] = None
 ) -> AsyncGenerator[Dict[str, Any], None]:
     """
     Stage 3 with streaming: Chairman synthesizes final response,
@@ -449,6 +450,7 @@ async def stage3_stream_synthesis(
         project_id: Optional project ID to load project-specific context
         access_token: User's JWT access token for RLS authentication
         playbook_ids: Optional list of playbook UUIDs to inject
+        conversation_history: Optional list of previous messages for follow-up context
 
     Yields:
         Dicts with event type and data
@@ -464,9 +466,30 @@ async def stage3_stream_synthesis(
         for result in stage2_results
     ])
 
-    chairman_prompt = f"""You are the Chairman of an LLM Council. Multiple AI models have provided responses to a user's question, and then ranked each other's responses.
+    # Build conversation history context for follow-up questions
+    history_context = ""
+    if conversation_history:
+        history_parts = []
+        for msg in conversation_history:
+            role = msg.get("role", "unknown")
+            content = msg.get("content", "")
+            if role == "user":
+                history_parts.append(f"User Question: {content}")
+            elif role == "assistant":
+                history_parts.append(f"Previous Council Response:\n{content}")
+        if history_parts:
+            history_context = f"""
+PREVIOUS CONVERSATION CONTEXT:
+This is a follow-up question. Here is the previous discussion for context:
 
-Original Question: {user_query}
+{"---".join(history_parts)}
+
+--- END OF PREVIOUS CONTEXT ---
+"""
+
+    chairman_prompt = f"""You are the Chairman of an LLM Council. Multiple AI models have provided responses to a user's question, and then ranked each other's responses.
+{history_context}
+Current Question: {user_query}
 
 STAGE 1 - Individual Responses:
 {stage1_text}

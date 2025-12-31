@@ -10,7 +10,16 @@
 import { useState } from 'react';
 import * as Popover from '@radix-ui/react-popover';
 import * as Tooltip from '@radix-ui/react-tooltip';
-import { Building2, Users, BookOpen, Zap, Check, FileText, ScrollText, Shield, ChevronRight } from 'lucide-react';
+import {
+  Building2,
+  Users,
+  BookOpen,
+  Check,
+  FileText,
+  ScrollText,
+  Shield,
+  ChevronRight,
+} from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from '../ui/BottomSheet';
 import { DepartmentCheckboxItem } from '../ui/DepartmentCheckboxItem';
@@ -20,12 +29,12 @@ import type { Department, Role, Playbook } from '../../types/business';
 // Mom-friendly tooltip descriptions - actionable, clear
 const TOOLTIPS = {
   departments: "Include your team's expertise in the answer",
-  roles: "Add specific expert perspectives (CEO, Analyst, etc.)",
+  roles: 'Add specific expert perspectives (CEO, Analyst, etc.)',
   playbooks: "Apply your company's guides to the answer",
-  councilMode: "Multiple AI experts discuss and give you a combined answer",
-  chatMode: "Quick answer from one AI — faster, simpler",
-  send: "Send your question",
-  stop: "Stop the AI from writing more",
+  councilMode: 'Multiple AI experts discuss and give you a combined answer',
+  chatMode: 'Quick answer from one AI — faster, simpler',
+  send: 'Send your question',
+  stop: 'Stop the AI from writing more',
 };
 
 // Check if we're on mobile/tablet for bottom sheet vs popover
@@ -93,10 +102,10 @@ export function ChatInput({
 
   // Dynamic placeholder based on mode and state
   const placeholder = !hasMessages
-    ? "Ask the council a question..."
+    ? 'Ask the council a question...'
     : chatMode === 'council'
-      ? "Ask a follow-up (council will discuss)..."
-      : "Ask a quick follow-up...";
+      ? 'Ask a follow-up (council will discuss)...'
+      : 'Ask a quick follow-up...';
 
   const canSend = input.trim() || hasImages;
   const disabled = isLoading;
@@ -113,7 +122,7 @@ export function ChatInput({
   const toggleDepartment = (id: string) => {
     if (!onSelectDepartments) return;
     const newSelection = selectedDepartments.includes(id)
-      ? selectedDepartments.filter(d => d !== id)
+      ? selectedDepartments.filter((d) => d !== id)
       : [...selectedDepartments, id];
     onSelectDepartments(newSelection);
   };
@@ -121,7 +130,7 @@ export function ChatInput({
   const toggleRole = (id: string) => {
     if (!onSelectRoles) return;
     const newSelection = selectedRoles.includes(id)
-      ? selectedRoles.filter(r => r !== id)
+      ? selectedRoles.filter((r) => r !== id)
       : [...selectedRoles, id];
     onSelectRoles(newSelection);
   };
@@ -129,7 +138,7 @@ export function ChatInput({
   const togglePlaybook = (id: string) => {
     if (!onSelectPlaybooks) return;
     const newSelection = selectedPlaybooks.includes(id)
-      ? selectedPlaybooks.filter(p => p !== id)
+      ? selectedPlaybooks.filter((p) => p !== id)
       : [...selectedPlaybooks, id];
     onSelectPlaybooks(newSelection);
   };
@@ -140,7 +149,7 @@ export function ChatInput({
       {departments.length === 0 ? (
         <div className="context-popover-empty">No departments</div>
       ) : (
-        departments.map(dept => (
+        departments.map((dept) => (
           <DepartmentCheckboxItem
             key={dept.id}
             department={dept}
@@ -159,16 +168,16 @@ export function ChatInput({
       {roles.length === 0 ? (
         <div className="context-popover-empty">No roles</div>
       ) : (
-        roles.map(role => {
+        roles.map((role) => {
           const isSelected = selectedRoles.includes(role.id);
           return (
             <button
               key={role.id}
-              className={cn("context-popover-item", isSelected && "selected")}
+              className={cn('context-popover-item', isSelected && 'selected')}
               onClick={() => toggleRole(role.id)}
               type="button"
             >
-              <div className={cn("context-popover-checkbox", isSelected && "checked")}>
+              <div className={cn('context-popover-checkbox', isSelected && 'checked')}>
                 {isSelected && <Check size={12} />}
               </div>
               <span>{role.name}</span>
@@ -180,12 +189,15 @@ export function ChatInput({
   );
 
   // Group playbooks by type
-  const groupedPlaybooks = playbooks.reduce((acc, pb) => {
-    const type = pb.type || pb.doc_type || 'other';
-    if (!acc[type]) acc[type] = [];
-    acc[type].push(pb);
-    return acc;
-  }, {} as Record<string, Playbook[]>);
+  const groupedPlaybooks = playbooks.reduce(
+    (acc, pb) => {
+      const type = pb.type || pb.doc_type || 'other';
+      if (!acc[type]) acc[type] = [];
+      acc[type].push(pb);
+      return acc;
+    },
+    {} as Record<string, Playbook[]>
+  );
 
   // Playbook type config with icons and labels
   const playbookTypeConfig: Record<string, { label: string; icon: React.ReactNode }> = {
@@ -200,13 +212,13 @@ export function ChatInput({
 
   // Toggle section expansion
   const toggleSection = (type: string) => {
-    setExpandedSections(prev => ({ ...prev, [type]: !prev[type] }));
+    setExpandedSections((prev) => ({ ...prev, [type]: !prev[type] }));
   };
 
   // Count selected items per type
   const getSelectedCount = (type: string) => {
     const items = groupedPlaybooks[type] ?? [];
-    return items.filter(pb => selectedPlaybooks.includes(pb.id)).length;
+    return items.filter((pb) => selectedPlaybooks.includes(pb.id)).length;
   };
 
   // Playbook list content - grouped by type with collapsible sections
@@ -216,8 +228,8 @@ export function ChatInput({
         <div className="context-popover-empty">No playbooks</div>
       ) : (
         playbookTypeOrder
-          .filter(type => (groupedPlaybooks[type]?.length ?? 0) > 0)
-          .map(type => {
+          .filter((type) => (groupedPlaybooks[type]?.length ?? 0) > 0)
+          .map((type) => {
             const config = playbookTypeConfig[type]!;
             const items = groupedPlaybooks[type] ?? [];
             const isExpanded = expandedSections[type] ?? false;
@@ -226,12 +238,12 @@ export function ChatInput({
               <div key={type} className="context-popover-group">
                 <button
                   type="button"
-                  className={cn("context-popover-group-header clickable", type)}
+                  className={cn('context-popover-group-header clickable', type)}
                   onClick={() => toggleSection(type)}
                 >
                   <ChevronRight
                     size={12}
-                    className={cn("section-chevron", isExpanded && "expanded")}
+                    className={cn('section-chevron', isExpanded && 'expanded')}
                   />
                   {config.icon}
                   <span className="section-label">{config.label}</span>
@@ -242,16 +254,16 @@ export function ChatInput({
                 </button>
                 {isExpanded && (
                   <div className="context-popover-group-items">
-                    {items.map(pb => {
+                    {items.map((pb) => {
                       const isSelected = selectedPlaybooks.includes(pb.id);
                       return (
                         <button
                           key={pb.id}
-                          className={cn("context-popover-item", isSelected && "selected")}
+                          className={cn('context-popover-item', isSelected && 'selected')}
                           onClick={() => togglePlaybook(pb.id)}
                           type="button"
                         >
-                          <div className={cn("context-popover-checkbox", isSelected && "checked")}>
+                          <div className={cn('context-popover-checkbox', isSelected && 'checked')}>
                             {isSelected && <Check size={12} />}
                           </div>
                           <span>{pb.title || pb.name}</span>
@@ -271,9 +283,7 @@ export function ChatInput({
   const withTooltip = (button: React.ReactNode, tooltipText: string) => (
     <Tooltip.Provider delayDuration={400}>
       <Tooltip.Root>
-        <Tooltip.Trigger asChild>
-          {button}
-        </Tooltip.Trigger>
+        <Tooltip.Trigger asChild>{button}</Tooltip.Trigger>
         <Tooltip.Portal>
           <Tooltip.Content className="omni-tooltip" sideOffset={8}>
             {tooltipText}
@@ -298,8 +308,8 @@ export function ChatInput({
     const iconButton = (
       <button
         type="button"
-        className={cn("omni-icon-btn", count > 0 && "has-selection", colorClass)}
-        onClick={() => isMobile ? setOpen(true) : undefined}
+        className={cn('omni-icon-btn', count > 0 && 'has-selection', colorClass)}
+        onClick={() => (isMobile ? setOpen(true) : undefined)}
         disabled={disabled}
         aria-label={label}
       >
@@ -312,11 +322,7 @@ export function ChatInput({
       return (
         <>
           {withTooltip(iconButton, tooltipText)}
-          <BottomSheet
-            isOpen={open}
-            onClose={() => setOpen(false)}
-            title={label}
-          >
+          <BottomSheet isOpen={open} onClose={() => setOpen(false)} title={label}>
             {content}
           </BottomSheet>
         </>
@@ -328,9 +334,7 @@ export function ChatInput({
         <Tooltip.Provider delayDuration={400}>
           <Tooltip.Root>
             <Popover.Trigger asChild>
-              <Tooltip.Trigger asChild>
-                {iconButton}
-              </Tooltip.Trigger>
+              <Tooltip.Trigger asChild>{iconButton}</Tooltip.Trigger>
             </Popover.Trigger>
             <Tooltip.Portal>
               <Tooltip.Content className="omni-tooltip" sideOffset={8}>
@@ -341,11 +345,7 @@ export function ChatInput({
           </Tooltip.Root>
         </Tooltip.Provider>
         <Popover.Portal>
-          <Popover.Content
-            className="context-popover-content"
-            align="start"
-            sideOffset={8}
-          >
+          <Popover.Content className="context-popover-content" align="start" sideOffset={8}>
             <div className="context-popover-header">{label}</div>
             {content}
           </Popover.Content>
@@ -362,7 +362,7 @@ export function ChatInput({
       {/* Image previews */}
       {imageUpload.previews}
 
-      <div className={cn("omnibar", isCouncilMode && showContextIcons && "council-mode")}>
+      <div className={cn('omnibar', isCouncilMode && showContextIcons && 'council-mode')}>
         {/* Top row: Just the textarea */}
         <div className="omni-top">
           <textarea
@@ -386,85 +386,106 @@ export function ChatInput({
           <div className="omni-left">
             {showContextIcons && (
               <>
-                {hasDepartments && renderContextIcon(
-                  <Building2 size={16} />,
-                  "Departments",
-                  TOOLTIPS.departments,
-                  selectedDepartments.length,
-                  deptOpen,
-                  setDeptOpen,
-                  departmentList,
-                  "dept"
-                )}
-                {hasRoles && renderContextIcon(
-                  <Users size={16} />,
-                  "Roles",
-                  TOOLTIPS.roles,
-                  selectedRoles.length,
-                  roleOpen,
-                  setRoleOpen,
-                  roleList,
-                  "role"
-                )}
-                {hasPlaybooks && renderContextIcon(
-                  <BookOpen size={16} />,
-                  "Playbooks",
-                  TOOLTIPS.playbooks,
-                  selectedPlaybooks.length,
-                  playbookOpen,
-                  setPlaybookOpen,
-                  playbookList,
-                  "playbook"
-                )}
+                {hasDepartments &&
+                  renderContextIcon(
+                    <Building2 size={16} />,
+                    'Departments',
+                    TOOLTIPS.departments,
+                    selectedDepartments.length,
+                    deptOpen,
+                    setDeptOpen,
+                    departmentList,
+                    'dept'
+                  )}
+                {hasRoles &&
+                  renderContextIcon(
+                    <Users size={16} />,
+                    'Roles',
+                    TOOLTIPS.roles,
+                    selectedRoles.length,
+                    roleOpen,
+                    setRoleOpen,
+                    roleList,
+                    'role'
+                  )}
+                {hasPlaybooks &&
+                  renderContextIcon(
+                    <BookOpen size={16} />,
+                    'Playbooks',
+                    TOOLTIPS.playbooks,
+                    selectedPlaybooks.length,
+                    playbookOpen,
+                    setPlaybookOpen,
+                    playbookList,
+                    'playbook'
+                  )}
 
-                {/* Mode toggle */}
-                {withTooltip(
-                  <button
-                    type="button"
-                    className={cn("omni-icon-btn mode-toggle", isCouncilMode && "council")}
-                    onClick={() => !disabled && onChatModeChange?.(chatMode === 'chat' ? 'council' : 'chat')}
-                    disabled={disabled}
-                    aria-label={isCouncilMode ? 'Council mode (click for quick chat)' : 'Quick mode (click for council)'}
-                  >
-                    <Zap size={16} />
-                  </button>,
-                  isCouncilMode ? TOOLTIPS.councilMode : TOOLTIPS.chatMode
-                )}
+                {/* Mode toggle - clear "1 AI / 5 AIs" pill */}
+                <div
+                  className="omni-inline-mode-toggle"
+                  role="radiogroup"
+                  aria-label="Response mode"
+                >
+                  {withTooltip(
+                    <button
+                      type="button"
+                      className={cn('inline-mode-btn', chatMode === 'chat' && 'active')}
+                      onClick={() => !disabled && onChatModeChange?.('chat')}
+                      disabled={disabled}
+                      role="radio"
+                      aria-checked={chatMode === 'chat'}
+                    >
+                      1 AI
+                    </button>,
+                    TOOLTIPS.chatMode
+                  )}
+                  {withTooltip(
+                    <button
+                      type="button"
+                      className={cn('inline-mode-btn', chatMode === 'council' && 'active')}
+                      onClick={() => !disabled && onChatModeChange?.('council')}
+                      disabled={disabled}
+                      role="radio"
+                      aria-checked={chatMode === 'council'}
+                    >
+                      5 AIs
+                    </button>,
+                    TOOLTIPS.councilMode
+                  )}
+                </div>
               </>
             )}
           </div>
 
           {/* Right side: Send button only */}
           <div className="omni-right">
-            {isLoading ? (
-              withTooltip(
-                <button
-                  type="button"
-                  className="omni-send-btn stop"
-                  onClick={onStopGeneration}
-                  aria-label="Stop generation"
-                >
-                  <span className="stop-icon" />
-                </button>,
-                TOOLTIPS.stop
-              )
-            ) : (
-              withTooltip(
-                <button
-                  type="submit"
-                  className={cn("omni-send-btn", canSend && "active")}
-                  disabled={!canSend}
-                  onClick={onSubmit}
-                  aria-label="Send message"
-                >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <line x1="12" y1="19" x2="12" y2="5"/>
-                    <polyline points="5 12 12 5 19 12"/>
-                  </svg>
-                </button>,
-                TOOLTIPS.send
-              )
-            )}
+            {isLoading
+              ? withTooltip(
+                  <button
+                    type="button"
+                    className="omni-send-btn stop"
+                    onClick={onStopGeneration}
+                    aria-label="Stop generation"
+                  >
+                    <span className="stop-icon" />
+                  </button>,
+                  TOOLTIPS.stop
+                )
+              : withTooltip(
+                  <button
+                    type="submit"
+                    className={cn('omni-send-btn', canSend && 'active')}
+                    disabled={!canSend}
+                    onClick={onSubmit}
+                    aria-label="Send message"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <line x1="12" y1="19" x2="12" y2="5" />
+                      <polyline points="5 12 12 5 19 12" />
+                    </svg>
+                  </button>,
+                  TOOLTIPS.send
+                )}
           </div>
         </div>
       </div>
