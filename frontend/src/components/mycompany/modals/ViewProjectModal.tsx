@@ -558,7 +558,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                 }}
                 title="View the original conversation that created this project"
               >
-                <ExternalLink size={12} />
+                <ExternalLink size={16} />
                 <span>View source</span>
               </button>
             )}
@@ -608,7 +608,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                 className={`mc-project-tab ${activeTab === 'decisions' ? 'active' : ''}`}
                 onClick={() => setActiveTab('decisions')}
               >
-                <Bookmark size={14} />
+                <Bookmark size={16} />
                 Decisions
                 {(project.decision_count ?? 0) > 0 && (
                   <span className="mc-tab-badge">{project.decision_count}</span>
@@ -660,7 +660,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                           </>
                         ) : (
                           <>
-                            <Sparkles size={14} />
+                            <Sparkles size={16} />
                             <span>AI Enhance</span>
                           </>
                         )}
@@ -698,7 +698,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                           onClick={() => setIsEditing(true)}
                           title="Edit project context"
                         >
-                          <PenLine size={14} />
+                          <PenLine size={16} />
                           <span>Edit</span>
                         </Button>
                       )}
@@ -963,7 +963,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                       disabled={actionLoading || saving}
                       title="Mark project as completed"
                     >
-                      <CheckCircle size={14} />
+                      <CheckCircle size={16} />
                       <span>Complete</span>
                     </Button>
                   )}
@@ -984,7 +984,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                       disabled={actionLoading || saving}
                       title="Restore project to active"
                     >
-                      <RotateCcw size={14} />
+                      <RotateCcw size={16} />
                       <span>Restore</span>
                     </Button>
                   ) : (
@@ -1003,7 +1003,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                       disabled={actionLoading || saving}
                       title="Archive this project"
                     >
-                      <Archive size={14} />
+                      <Archive size={16} />
                       <span>Archive</span>
                     </Button>
                   )}
@@ -1016,7 +1016,7 @@ export function ViewProjectModal({ project: initialProject, companyId, departmen
                     title="Delete this project"
                     className="text-[var(--color-error)] hover:bg-[var(--color-error)]/10"
                   >
-                    <Trash2 size={14} />
+                    <Trash2 size={16} />
                     <span>Delete</span>
                   </Button>
                 </>

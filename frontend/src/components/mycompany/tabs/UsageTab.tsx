@@ -242,7 +242,7 @@ export function UsageTab({
       {/* Empty state banner */}
       {!hasData && (
         <div className="mc-usage-empty-banner">
-          <Gauge size={18} />
+          <Gauge size={20} />
           <span>Start a council session to see usage analytics</span>
         </div>
       )}
@@ -273,7 +273,7 @@ export function UsageTab({
       {/* Stats Cards */}
       <div className={`mc-stats-grid ${!hasData ? 'empty-state' : ''}`}>
         <div className="mc-stat-card">
-          <Gauge size={18} className="mc-stat-icon" />
+          <Gauge size={20} className="mc-stat-icon" />
           <div className="mc-stat-content">
             <span className="mc-stat-value">
               {hasData ? formatCost(usage.summary.estimated_cost_cents) : '$0.00'}
@@ -282,7 +282,7 @@ export function UsageTab({
           </div>
         </div>
         <div className="mc-stat-card">
-          <Bot size={18} className="mc-stat-icon" />
+          <Bot size={20} className="mc-stat-icon" />
           <div className="mc-stat-content">
             <span className="mc-stat-value">
               {hasData ? usage.summary.total_sessions : 0}
@@ -291,7 +291,7 @@ export function UsageTab({
           </div>
         </div>
         <div className="mc-stat-card">
-          <TrendingUp size={18} className="mc-stat-icon" />
+          <TrendingUp size={20} className="mc-stat-icon" />
           <div className="mc-stat-content">
             <span className="mc-stat-value">
               {hasData ? formatTokens(usage.summary.total_tokens) : '0'}
@@ -300,7 +300,7 @@ export function UsageTab({
           </div>
         </div>
         <div className="mc-stat-card accent">
-          <Zap size={18} className="mc-stat-icon" />
+          <Zap size={20} className="mc-stat-icon" />
           <div className="mc-stat-content">
             <span className="mc-stat-value">
               {hasData ? formatCost(cacheSavings) : '$0.00'}
@@ -464,7 +464,7 @@ export function UsageTab({
               </span>
               {rateLimits?.warnings.length ? (
                 <span className="mc-usage-budget-warning">
-                  <AlertTriangle size={12} />
+                  <AlertTriangle size={16} />
                   {rateLimits.warnings[0]}
                 </span>
               ) : null}

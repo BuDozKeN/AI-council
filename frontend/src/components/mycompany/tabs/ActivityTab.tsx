@@ -195,7 +195,7 @@ export function ActivityTab({
                         title="View source conversation"
                         aria-label="View source conversation"
                       >
-                        <ExternalLink size={14} />
+                        <ExternalLink size={16} />
                       </button>
                     )}
                   </div>
