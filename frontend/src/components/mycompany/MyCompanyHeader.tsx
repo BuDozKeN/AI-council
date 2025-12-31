@@ -72,7 +72,7 @@ export function MyCompanyHeader({
               onValueChange={(val) => { if (val !== companyId) onSelectCompany?.(val); }}
             >
               <SelectTrigger className="mc-company-select-trigger">
-                <Building2 size={14} />
+                <Building2 size={16} />
                 <SelectValue placeholder="Switch company" />
               </SelectTrigger>
               <SelectContent>
@@ -85,7 +85,7 @@ export function MyCompanyHeader({
             </Select>
           ) : (
             <div className="mc-company-display">
-              <Building2 size={14} />
+              <Building2 size={16} />
               <span>{companyName || 'Your Company'}</span>
             </div>
           )}

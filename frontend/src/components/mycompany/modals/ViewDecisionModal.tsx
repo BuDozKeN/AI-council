@@ -131,7 +131,7 @@ export function ViewDecisionModal({
         {linkedProject ? (
           <div className="mc-promoted-info-row">
             <span className="mc-promoted-label project">
-              <FolderKanban size={14} className="icon" />
+              <FolderKanban size={16} className="icon" />
               Project
             </span>
             <button
@@ -197,7 +197,7 @@ export function ViewDecisionModal({
                 }
               }}
             >
-              <ExternalLink size={14} />
+              <ExternalLink size={16} />
               View original conversation →
             </button>
           )}
@@ -207,7 +207,7 @@ export function ViewDecisionModal({
         {/* Only show Promote to Playbook if NOT already a playbook AND NOT linked to a project */}
         {!isAlreadyPromoted && onPromote && (
           <Button variant="default" onClick={() => onPromote(decision)}>
-            <Bookmark size={14} />
+            <Bookmark size={16} />
             Promote to Playbook
           </Button>
         )}

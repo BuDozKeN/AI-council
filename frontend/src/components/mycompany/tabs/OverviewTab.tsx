@@ -121,7 +121,7 @@ export function OverviewTab({
               context_md: contextMd
             })}
           >
-            <Pencil size={14} />
+            <Pencil size={16} />
             Edit
           </Button>
         </div>

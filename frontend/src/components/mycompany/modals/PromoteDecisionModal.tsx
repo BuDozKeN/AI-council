@@ -251,7 +251,7 @@ export function PromoteDecisionModal({ decision, departments, projects = [], com
                         </>
                       ) : (
                         <>
-                          <RefreshCw size={12} />
+                          <RefreshCw size={16} />
                           Generate
                         </>
                       )}
