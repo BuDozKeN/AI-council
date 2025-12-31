@@ -65,7 +65,7 @@ The audit dashboard system is **well-architected** with a sophisticated 13-categ
 | UI Excellence | ❌ Not Run | -- | Never | 🟡 High |
 | UX Quality | ❌ Not Run | -- | Never | 🟡 High |
 | Mobile | ❌ Not Run | -- | Never | 🟡 High |
-| Accessibility | ✅ Complete | 8/10 | 2024-12-29 | - |
+| Accessibility | ✅ Complete | 8/10 | 2025-12-29 | - |
 | Performance | ✅ Complete | 8/10 | 2025-12-29 | - |
 | LLM Operations | ❌ Not Run | -- | Never | 🟠 Medium |
 | Data Architecture | ✅ Complete | 9/10 | 2025-12-30 | - |
@@ -83,11 +83,6 @@ The audit dashboard system is **well-architected** with a sophisticated 13-categ
 - **Impact**: False confidence in $25M readiness
 - **Fix**: Show "8/13 categories complete" + weighted score, OR show "--" until all run
 - **Location**: AUDIT_DASHBOARD.md:11
-
-**🟡 High: Accessibility Audit Outdated**
-- **Last Checked**: 2024-12-29 (over 1 year old)
-- **Impact**: A11y issues may have been introduced since
-- **Fix**: Re-run `/audit-dashboard a11y`
 
 **🟠 Medium: No Trend Indicators**
 - **Issue**: "Trend" column shows ↑/↓/→ but no historical comparison
@@ -335,13 +330,7 @@ AxCouncil maintains [enterprise-grade quality standards](./AUDIT_DASHBOARD.md) t
   ```
 - **Why**: User-facing quality is critical for adoption
 
-#### 6. Re-run Accessibility Audit
-- **Effort**: 30 minutes
-- **Impact**: Medium - Last run over 1 year ago
-- **Command**: `/audit-dashboard a11y`
-- **Why**: A11y regressions may have been introduced
-
-#### 7. Run LLM Ops & Billing Audits
+#### 6. Run LLM Ops & Billing Audits
 - **Effort**: 1-2 hours
 - **Impact**: High - Core business operations
 - **Commands**:
@@ -350,7 +339,7 @@ AxCouncil maintains [enterprise-grade quality standards](./AUDIT_DASHBOARD.md) t
   ```
 - **Why**: Token costs and revenue are business-critical
 
-#### 8. Document Score Calculation Methodology
+#### 7. Document Score Calculation Methodology
 - **Effort**: 20 minutes
 - **Impact**: Medium - Transparency & reproducibility
 - **Location**: AUDIT_DASHBOARD.md bottom or new section
@@ -531,7 +520,6 @@ From `audit-dashboard.md:216-233`:
 
 **Day 4**
 - [ ] Run `/audit-dashboard llm-ops billing`
-- [ ] Re-run `/audit-dashboard a11y` (refresh old data)
 
 **Day 5**
 - [ ] Review all audit findings
@@ -572,7 +560,7 @@ From `audit-dashboard.md:216-233`:
 | CLAUDE.md mentions audit | 0 | ≥5 | Section, examples, workflow |
 | README.md mentions audit | 0 | ≥1 | Quality standards section |
 | Categories audited | 8/13 (62%) | 13/13 (100%) | All categories complete |
-| Audit freshness | 1 year old (a11y) | ≤7 days | All audits <1 week old |
+| Audit freshness | 2 days (most recent) | ≤7 days | All audits <1 week old |
 | Overall health accuracy | Misleading (8.8) | Accurate | Calculated from all 13 |
 | $25M readiness | Premature claim | Evidence-based | All categories ≥8/10 |
 | Critical issues | Unknown (5 cats not run) | 0 | Full audit complete |
@@ -619,7 +607,7 @@ The **Audit Dashboard system is well-architected** with excellent selective audi
 2. Add quality section to README.md
 3. Fix overall health score calculation
 
-**This Week (4-6 hours)**:
+**This Week (4-5 hours)**:
 4. Run security + attack audits
 5. Run ui + ux + mobile audits
 6. Run llm-ops + billing audits
@@ -650,7 +638,7 @@ The **Audit Dashboard system is well-architected** with excellent selective audi
 | UI Excellence | ❌ Never run | 🟡 High | 1h | Unknown |
 | UX Quality | ❌ Never run | 🟡 High | 1h | Unknown |
 | Mobile | ❌ Never run | 🟡 High | 1h | Unknown |
-| Accessibility | ⚠️ 8/10 (2024-12-29) | 🟡 High | 0.5h | 8/10 (refresh) |
+| Accessibility | ✅ 8/10 (2025-12-29) | ✅ Complete | - | 8/10 |
 | Performance | ✅ 8/10 (2025-12-29) | ✅ Complete | - | 8/10 |
 | LLM Operations | ❌ Never run | 🟠 Medium | 1h | Unknown |
 | Data Architecture | ✅ 9/10 (2025-12-30) | ✅ Complete | - | 9/10 |
@@ -658,7 +646,7 @@ The **Audit Dashboard system is well-architected** with excellent selective audi
 | Resilience | ✅ 9/10 (2025-12-30) | ✅ Complete | - | 9/10 |
 | API Governance | ✅ 10/10 (2025-12-30) | ✅ Complete | - | 10/10 |
 
-**Total Estimated Effort to Complete**: 11.5 hours
+**Total Estimated Effort to Complete**: 11 hours
 
 ---
 

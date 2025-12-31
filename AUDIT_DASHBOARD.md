@@ -16,7 +16,7 @@
 | Code Quality | 9/10 | ↑ | 0 | 0 | 1 | 2025-12-31 |
 | UI/UX | --/10 | -- | -- | -- | -- | -- |
 | Performance | 8/10 | ↑ | 0 | 0 | 2 | 2025-12-29 |
-| Accessibility | 8/10 | ↑ | 0 | 0 | 2 | 2024-12-29 |
+| Accessibility | 8/10 | ↑ | 0 | 0 | 2 | 2025-12-29 |
 | Mobile | --/10 | -- | -- | -- | -- | -- |
 | LLM Operations | --/10 | -- | -- | -- | -- | -- |
 | Data Architecture | 9/10 | ↑ | 0 | 0 | 0 | 2025-12-30 |
@@ -56,21 +56,21 @@
 - **Location**: `frontend/src/components/ui/FormField.tsx:27-35`
 - **Impact**: Screen readers couldn't announce labels when focusing inputs
 - **Fix Applied**: Added `useId()`, `htmlFor`, `aria-describedby`, `aria-invalid`
-- **Fixed**: 2024-12-29
+- **Fixed**: 2025-12-29
 - **Status**: ✅ Fixed
 
 ### ~~[A11Y-002] Accessibility: ChatInput textarea missing accessible label~~ ✅ FIXED
 - **Location**: `frontend/src/components/chat/ChatInput.tsx:61-70`
 - **Impact**: Screen readers announced "edit text" with no context
 - **Fix Applied**: Added `aria-label="Message input"`
-- **Fixed**: 2024-12-29
+- **Fixed**: 2025-12-29
 - **Status**: ✅ Fixed
 
 ### ~~[A11Y-003] Accessibility: Image attach button missing aria-label~~ ✅ FIXED
 - **Location**: `frontend/src/components/chat/ChatInput.tsx:72-85`
 - **Impact**: Only `title` attribute present, not accessible to screen readers
 - **Fix Applied**: Changed `title` to `aria-label`
-- **Fixed**: 2024-12-29
+- **Fixed**: 2025-12-29
 - **Status**: ✅ Fixed
 
 ---
@@ -325,7 +325,7 @@ Run `/audit-dashboard ui ux` to populate.
 </details>
 
 <details open>
-<summary>Accessibility (8/10) - Last checked: 2024-12-29</summary>
+<summary>Accessibility (8/10) - Last checked: 2025-12-29</summary>
 
 ### WCAG 2.1 AA Compliance: Partial → Near Complete
 
