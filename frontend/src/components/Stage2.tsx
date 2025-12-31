@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Spinner } from './ui/Spinner';
 import { CopyButton } from './ui/CopyButton';
-import { Users, Trophy, CheckCircle2 } from 'lucide-react';
+import { Users, CheckCircle2 } from 'lucide-react';
 import { getModelPersona } from '../config/modelPersonas';
 import { useCompletionCelebration } from '../hooks/useCelebration';
 import { CELEBRATION } from '../lib/animation-constants';
@@ -52,6 +52,14 @@ function deAnonymizeText(text: string, labelToModel?: Record<string, string>): s
   return result;
 }
 
+// Rank label helper - medal emojis for top 3, numbers for rest
+function getRankLabel(position: number): string {
+  if (position === 1) return '🥇';
+  if (position === 2) return '🥈';
+  if (position === 3) return '🥉';
+  return `#${position}`;
+}
+
 function Stage2({
   rankings,
   streaming,
@@ -60,7 +68,6 @@ function Stage2({
   isLoading,
   isComplete,
   defaultCollapsed = true,
-  conversationTitle,
   onModelClick,
 }: Stage2Props) {
   const [activeTab, setActiveTab] = useState(0);
@@ -154,8 +161,7 @@ function Stage2({
       <div className="stage stage2">
         <h3 className="stage-title">
           <Users className="h-5 w-5 text-violet-500 flex-shrink-0" />
-          <span className="font-semibold tracking-tight">Step 2: Cross-checking Answers</span>
-          {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
+          <span className="font-semibold tracking-tight">Experts Review Each Other</span>
         </h3>
         <div className="stage-loading">
           <Spinner size="md" />
@@ -189,16 +195,15 @@ function Stage2({
         ) : (
           <CheckCircle2 className={`h-5 w-5 text-violet-600 flex-shrink-0 ${showCompleteCelebration ? 'animate-stage-complete' : ''}`} />
         )}
-        <span className="font-semibold tracking-tight">Step 2: Cross-checking Answers</span>
-        {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
+        <span className="font-semibold tracking-tight">Experts Review Each Other</span>
 
-        {/* Winner badge - just trophy + icon, details on hover */}
+        {/* Winner badge - medal emoji with icon, modern clean style */}
         {winnerModel && (
           <span
             className={`stage2-winner ${showCompleteCelebration ? 'animate-winner-reveal' : ''}`}
             title={`Winner: ${winnerPersona?.fullName || winnerPersona?.shortName || 'Unknown'} — Voted #1 by ${aggregateRankings?.length || 5} AI experts with avg score ${winnerAvg} (1 = best)`}
           >
-            <Trophy className="w-3.5 h-3.5" />
+            <span className="winner-medal">🥇</span>
             {winnerIconPath && (
               <img
                 src={winnerIconPath}
@@ -325,14 +330,14 @@ function Stage2({
                   return (
                     <div
                       key={index}
-                      className={`aggregate-item ${isClickable ? 'clickable' : ''}`}
+                      className={`aggregate-item rank-${index + 1} ${isClickable ? 'clickable' : ''}`}
                       title={`${persona.fullName} - Average rank: ${agg.average_rank.toFixed(1)} (${agg.rankings_count} of ${totalVoters} experts voted). Lower is better - #1 is the top answer.${isClickable ? ' Click to view response.' : ''}`}
                       onClick={isClickable && onModelClick ? () => onModelClick(agg.model) : undefined}
                       role={isClickable ? 'button' : undefined}
                       tabIndex={isClickable ? 0 : undefined}
                       onKeyDown={isClickable && onModelClick ? (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onModelClick(agg.model); } } : undefined}
                     >
-                      <span className="rank-position">#{index + 1}</span>
+                      <span className="rank-position">{getRankLabel(index + 1)}</span>
                       <span className="rank-model">
                         {iconPath && <img src={iconPath} alt="" className="rank-model-icon" loading="lazy" decoding="async" />}
                         {displayName}

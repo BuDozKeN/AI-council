@@ -863,11 +863,8 @@ Title:"""
 
     # Get title generator model from registry
     title_model = await get_primary_model('title_generator') or 'google/gemini-2.5-flash'
-    print(f"[TITLE DEBUG] Calling LLM with model: {title_model}")
-    print(f"[TITLE DEBUG] Prompt starts with: {title_prompt[:80]}...")
     log_app_event("TITLE_LLM_CALL", level="INFO", model=title_model, query_preview=user_query[:30])
     response = await query_model(title_model, messages, timeout=30.0)
-    print(f"[TITLE DEBUG] LLM response content: {response.get('content') if response else 'None'}")
     log_app_event("TITLE_LLM_RESPONSE", level="INFO", response_type=type(response).__name__, has_content=bool(response and response.get('content')))
 
     # Track usage if company_id provided

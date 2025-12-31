@@ -300,7 +300,7 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
       return () => cancelAnimationFrame(frameId);
     }
     return undefined;
-  }, [conversationError]);
+  }, [conversationError, setCurrentConversationId]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Wrapper functions (maintain existing API for components)
@@ -330,7 +330,7 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
   // Load a single conversation - just set the ID, query handles the rest
   const loadConversation = useCallback(async (id: string): Promise<void> => {
     setCurrentConversationId(id);
-  }, []);
+  }, [setCurrentConversationId]);
 
   // Create a new temporary conversation
   const handleNewConversation = useCallback((): void => {
@@ -344,14 +344,14 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
     };
     setCurrentConversationId(tempId);
     setCurrentConversation(tempConv);
-  }, []);
+  }, [setCurrentConversationId]);
 
   // Select an existing conversation
   // Note: isLoadingConversation is derived above to cover the transition gap
   const handleSelectConversation = useCallback((id: string): void => {
     setCurrentConversation(null);
     setCurrentConversationId(id);
-  }, []);
+  }, [setCurrentConversationId]);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // TanStack Mutations with Optimistic Updates
@@ -528,7 +528,7 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
       onDismiss: executeDelete,
       onAutoClose: executeDelete,
     });
-  }, [conversations, currentConversationId, deleteMutation]);
+  }, [conversations, currentConversationId, deleteMutation, setCurrentConversationId]);
 
   // Rename a conversation
   const handleRenameConversation = useCallback(async (id: string, title: string): Promise<void> => {
@@ -609,7 +609,8 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
     handleSortByChange,
   }), [
     // Note: useState setters and refs are stable by React guarantee
-    // Only include callbacks that might change
+    // Include setCurrentConversationId to satisfy ESLint (it's stable)
+    setCurrentConversationId,
     loadConversations,
     loadConversation,
     handleNewConversation,

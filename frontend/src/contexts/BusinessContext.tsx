@@ -184,7 +184,7 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
     staleTime: 1000 * 60 * 5,
   });
 
-  const projects = projectsData?.projects || [];
+  const projects = useMemo(() => projectsData?.projects || [], [projectsData?.projects]);
 
   useEffect(() => {
     if (projectsError) {
@@ -205,7 +205,7 @@ export function BusinessProvider({ children }: BusinessProviderProps) {
     staleTime: 1000 * 60 * 5,
   });
 
-  const availablePlaybooks = playbooksData?.playbooks || [];
+  const availablePlaybooks = useMemo(() => playbooksData?.playbooks || [], [playbooksData?.playbooks]);
 
   useEffect(() => {
     if (playbooksError) {

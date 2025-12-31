@@ -72,7 +72,7 @@
   }
 }
 
-/* Omni-bar container */
+/* Omni-bar container - just layout, all OmniBar styles in OmniBar.css */
 .omni-bar-container {
   width: 100%;
   display: flex;
@@ -80,183 +80,11 @@
   gap: 12px;
 }
 
-/* Omni-bar input */
-.omni-bar {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-3xl);
-  box-shadow: var(--shadow-lg);
-  transition: all 0.3s ease;
-  overflow: hidden;
-}
-
-.omni-bar:focus-within {
-  border-color: var(--color-brand-primary);
-  box-shadow: var(--shadow-lg), 0 0 0 3px var(--overlay-blue-10);
-}
-
-.omni-bar.has-content {
-  border-color: var(--color-brand-primary);
-}
-
-.omni-bar.is-loading {
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-.omni-bar-input {
-  flex: 1;
-  width: 100%;
-  min-height: 56px;
-  padding: 16px 60px 16px 24px;
-  border: none;
-  background: transparent;
-  font-size: 16px;
-  font-family: inherit;
-  color: var(--color-text-primary);
-  resize: none;
-  outline: none;
-  line-height: 1.5;
-}
-
-.omni-bar-input::placeholder {
-  color: var(--color-text-tertiary);
-  transition: opacity 0.3s ease;
-}
-
-.omni-bar-input:focus::placeholder {
-  opacity: 0.6;
-}
-
-/* Keyboard shortcut hint */
-.omni-bar-kbd {
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  padding: 4px 8px;
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--color-text-tertiary);
-  pointer-events: none;
-}
-
-/* Submit button */
-.omni-bar-submit {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-brand-primary);
-  border: none;
-  border-radius: var(--radius-lg);
-  color: var(--color-text-inverse);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: var(--shadow-sm);
-}
-
-.omni-bar-submit:hover:not(:disabled) {
-  background: var(--color-brand-primary-hover);
-  box-shadow: var(--shadow-md);
-}
-
-.omni-bar-submit:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.omni-bar-submit svg {
-  width: 20px;
-  height: 20px;
-}
-
-.omni-bar-spinner {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* Controls row */
-.omni-bar-controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 0 4px;
-}
-
-/* Mode toggle - landing variant */
-.mode-toggle-landing {
-  display: flex;
-  gap: 4px;
-  background: var(--overlay-white-80);
-  backdrop-filter: blur(8px);
-  border-radius: var(--radius-full);
-  padding: 4px;
-  border: 1px solid var(--color-border);
-}
-
-.mode-btn-landing {
-  padding: 8px 16px;
-  border: none;
-  border-radius: var(--radius-full);
-  background: transparent;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.mode-btn-landing:hover {
-  color: var(--color-text-primary);
-}
-
-.mode-btn-landing.active {
-  background: var(--color-bg-primary);
-  color: var(--color-brand-primary);
-  box-shadow: var(--shadow-sm);
-}
-
 /* Responsive */
 @media (max-width: 640px) {
   .landing-hero {
     padding: 16px;
     gap: 24px;
-  }
-
-  .omni-bar-controls {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-  }
-
-  .mode-toggle-landing {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .mode-btn-landing {
-    flex: 1;
-    text-align: center;
-    min-height: 44px; /* Touch-friendly */
   }
 }
 
@@ -275,35 +103,6 @@
   .logo-text {
     font-size: 24px;
   }
-
-  .omni-bar-input {
-    min-height: 48px;
-    padding: 12px 50px 12px 16px;
-    font-size: 16px; /* Prevent iOS zoom */
-  }
-
-  .omni-bar-submit {
-    width: 40px;
-    height: 40px;
-    min-width: 44px;
-    min-height: 44px;
-    right: 4px;
-  }
-
-  .mode-btn-landing {
-    padding: 10px 14px;
-    font-size: 13px;
-    min-height: 44px;
-  }
-
-  .context-chip {
-    font-size: 12px;
-    padding: 6px 10px;
-  }
-
-  .omni-bar-controls {
-    gap: 10px;
-  }
 }
 
 /* Very small phones */
@@ -319,17 +118,6 @@
 
   .logo-text {
     font-size: 22px;
-  }
-
-  .omni-bar-input {
-    min-height: 44px;
-    padding: 10px 44px 10px 12px;
-    font-size: 15px;
-  }
-
-  .mode-btn-landing {
-    padding: 8px 12px;
-    font-size: 12px;
   }
 }
 
@@ -360,23 +148,4 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-}
-
-.dark .mode-toggle-landing {
-  background: rgb(var(--color-slate-800-rgb), 0.8);
-  border-color: var(--color-border);
-}
-
-.dark .mode-btn-landing {
-  color: var(--color-text-secondary);
-}
-
-.dark .mode-btn-landing:hover {
-  color: var(--color-text-primary);
-}
-
-.dark .mode-btn-landing.active {
-  background: var(--color-bg-tertiary);
-  color: var(--color-brand-primary);
-  box-shadow: 0 1px 3px var(--overlay-black-30);
 }

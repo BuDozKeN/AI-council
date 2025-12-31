@@ -554,6 +554,25 @@
 }
 
 /* =============================================================================
+   LIGHT MODE TOKENS - Explicit override for prefers-color-scheme: dark
+   When user explicitly chooses light mode, this overrides system preference
+   ============================================================================= */
+html.light {
+    --color-text-primary: #333;
+    --color-text-secondary: #666;
+    --color-text-tertiary: #9ca3af;
+    --color-text-muted: #888;
+    --color-bg-primary: #fff;
+    --color-bg-secondary: #f9fafb;
+    --color-bg-tertiary: #f5f5f5;
+    --color-bg-hover: #f3f4f6;
+    --color-bg-active: #e5e7eb;
+    --color-border: #e5e7eb;
+    --color-border-light: #f1f5f9;
+    --color-border-dark: #d1d5db;
+}
+
+/* =============================================================================
    DARK MODE TOKENS - Outside @layer for proper specificity
    Applied via next-themes ThemeProvider (class="dark" on html element)
    ============================================================================= */

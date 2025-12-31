@@ -126,7 +126,7 @@ Based on this role:`,
 
 Make it easy to follow:`,
     placeholder: 'Describe what you need (e.g., "how we onboard new customers")...',
-    buttonText: 'Let AI write this',
+    buttonText: 'Let our expert write this', // Dynamic: updated based on playbookType
     emptyHint: 'Type a brief description - AI will write the full document',
   },
   'decision-title': {
@@ -202,7 +202,23 @@ export function AIWriteAssist({
 
   const config = CONTEXT_PROMPTS[context] || CONTEXT_PROMPTS.generic;
   const hasContent = value && value.trim().length > 0;
-  const displayButtonText = buttonLabel || config.buttonText;
+
+  // Generate dynamic button text for playbook content based on type
+  const getPlaybookButtonText = (type: PlaybookType | null): string => {
+    switch (type) {
+      case 'sop':
+        return 'Let our SOP expert write this';
+      case 'framework':
+        return 'Let our framework expert write this';
+      case 'policy':
+        return 'Let our policy expert write this';
+      default:
+        return 'Let our expert write this';
+    }
+  };
+
+  const displayButtonText = buttonLabel
+    || (context === 'playbook-content' && playbookType ? getPlaybookButtonText(playbookType) : config.buttonText);
 
   const handleAssist = useCallback(async () => {
     if (!hasContent || loading) return;

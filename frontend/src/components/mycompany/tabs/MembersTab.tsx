@@ -253,7 +253,7 @@ export function MembersTab({
                 {/* User info */}
                 <div className="mc-member-info">
                   <span className="mc-member-name">
-                    {/* TODO: Display email when we have user lookup */}
+                    {/* Email display requires backend user lookup (auth.users view) */}
                     {isCurrentUser ? 'You' : `User ${member.user_id.slice(0, 8)}...`}
                   </span>
                   <span className="mc-member-role-label" style={{ color: roleConfig.color }}>

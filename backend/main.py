@@ -1,5 +1,6 @@
 """FastAPI backend for LLM Council."""
 
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
@@ -12,7 +13,7 @@ import uuid
 import signal
 import asyncio
 import contextvars
-from datetime import datetime
+from datetime import datetime, timezone
 
 # =============================================================================
 # GRACEFUL SHUTDOWN MANAGEMENT
@@ -204,12 +205,55 @@ except ImportError:
 
 
 # =============================================================================
+# APPLICATION LIFESPAN
+# =============================================================================
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Application lifespan manager.
+
+    Startup:
+    - Log application start
+    - Set up signal handlers for graceful shutdown (Unix only)
+
+    Shutdown:
+    - Perform graceful shutdown with request draining
+    - Clean up resources (HTTP clients, caches)
+    """
+    # === STARTUP ===
+    log_app_event("APP_STARTUP", level="INFO", service="LLM Council API")
+
+    # Set up signal handlers for graceful shutdown (Unix only)
+    if sys.platform != "win32":
+        loop = asyncio.get_event_loop()
+
+        def signal_handler(sig):
+            log_app_event(
+                "SHUTDOWN_SIGNAL_RECEIVED",
+                level="WARNING",
+                signal=sig.name
+            )
+            asyncio.create_task(_graceful_shutdown())
+
+        for sig in (signal.SIGTERM, signal.SIGINT):
+            loop.add_signal_handler(sig, lambda s=sig: signal_handler(s))
+
+    yield  # Application runs here
+
+    # === SHUTDOWN ===
+    # If graceful shutdown wasn't triggered by signal, do cleanup now
+    if not _shutdown_manager.is_shutting_down:
+        await _graceful_shutdown()
+
+
+# =============================================================================
 # APP INITIALIZATION
 # =============================================================================
 app = FastAPI(
     title="LLM Council API",
     description="AI-powered decision council platform API",
     version="1.0.0",
+    lifespan=lifespan,
     docs_url="/api/docs",
     redoc_url="/api/redoc",
     openapi_url="/api/openapi.json",
@@ -577,7 +621,7 @@ async def general_exception_handler(request: Request, exc: Exception):
     import hashlib
 
     error_ref = hashlib.sha256(
-        f"{datetime.utcnow().isoformat()}{type(exc).__name__}{str(exc)}".encode()
+        f"{datetime.now(timezone.utc).isoformat()}{type(exc).__name__}{str(exc)}".encode()
     ).hexdigest()[:8].upper()
 
     log_app_event(f"ERROR: Unhandled exception: {type(exc).__name__}", level="ERROR", ref=error_ref, path=request.url.path)
@@ -605,29 +649,8 @@ app.include_router(v1_router, prefix="/api/v1")
 
 
 # =============================================================================
-# APPLICATION LIFECYCLE
+# GRACEFUL SHUTDOWN HELPERS
 # =============================================================================
-@app.on_event("startup")
-async def startup_event():
-    """Initialize application and set up signal handlers."""
-    log_app_event("APP_STARTUP", level="INFO", service="LLM Council API")
-
-    # Set up signal handlers for graceful shutdown (Unix only)
-    if sys.platform != "win32":
-        loop = asyncio.get_event_loop()
-
-        def signal_handler(sig):
-            log_app_event(
-                "SHUTDOWN_SIGNAL_RECEIVED",
-                level="WARNING",
-                signal=sig.name
-            )
-            asyncio.create_task(_graceful_shutdown())
-
-        for sig in (signal.SIGTERM, signal.SIGINT):
-            loop.add_signal_handler(sig, lambda s=sig: signal_handler(s))
-
-
 async def _graceful_shutdown():
     """
     Graceful shutdown procedure:
@@ -689,14 +712,6 @@ async def _cleanup_resources():
     log_app_event("SHUTDOWN_COMPLETE", level="INFO")
 
 
-@app.on_event("shutdown")
-async def shutdown_event():
-    """FastAPI shutdown hook - clean up resources."""
-    # If graceful shutdown wasn't triggered by signal, do cleanup now
-    if not _shutdown_manager.is_shutting_down:
-        await _graceful_shutdown()
-
-
 # =============================================================================
 # CORE ENDPOINTS (not in routers)
 # =============================================================================
@@ -726,7 +741,7 @@ async def health_check():
             status_code=503,
             content={
                 "status": "draining",
-                "timestamp": datetime.utcnow().isoformat() + "Z",
+                "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
                 "active_requests": _shutdown_manager.active_requests,
                 "checks": {}
             }
@@ -804,7 +819,7 @@ async def health_check():
 
     response = {
         "status": status,
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "checks": checks
     }
 

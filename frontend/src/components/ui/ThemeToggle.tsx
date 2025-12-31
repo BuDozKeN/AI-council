@@ -1,13 +1,13 @@
 /**
- * ThemeToggle - Subtle top-right theme switcher with dropdown
+ * ThemeToggle - Single-click theme cycler
  *
- * Shows current theme icon, click to reveal dropdown with 3 options:
- * Light, Dark, System
+ * Click to cycle: Light → Dark → System → Light...
+ * Hover shows what the current theme is and what clicking will do.
  */
 
 import { useTheme } from 'next-themes';
-import { useSyncExternalStore, useState, useRef, useEffect } from 'react';
-import { Sun, Moon, Monitor, Check } from 'lucide-react';
+import { useSyncExternalStore, useCallback } from 'react';
+import { Sun, Moon, Monitor } from 'lucide-react';
 import './ThemeToggle.css';
 
 // SSR-safe mount detection
@@ -19,43 +19,28 @@ function useIsMounted() {
   return useSyncExternalStore(emptySubscribe, getSnapshot, getServerSnapshot);
 }
 
-const themes = [
-  { value: 'light', label: 'Light', icon: Sun },
-  { value: 'dark', label: 'Dark', icon: Moon },
-  { value: 'system', label: 'System', icon: Monitor },
-] as const;
+// Theme cycle order
+const themeCycle = ['light', 'dark', 'system'] as const;
+type ThemeValue = (typeof themeCycle)[number];
+
+// Theme info for tooltips
+const themeInfo: Record<ThemeValue, { label: string; description: string }> = {
+  light: { label: 'Light', description: 'Bright background with dark text' },
+  dark: { label: 'Dark', description: 'Dark background with light text' },
+  system: { label: 'System', description: 'Matches your device settings' },
+};
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme } = useTheme();
   const mounted = useIsMounted();
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close on click outside
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen]);
-
-  // Close on escape
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsOpen(false);
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen]);
+  // Cycle to next theme on click
+  const handleClick = useCallback(() => {
+    const currentTheme = (theme ?? 'system') as ThemeValue;
+    const currentIndex = themeCycle.indexOf(currentTheme);
+    const nextIndex = (currentIndex + 1) % themeCycle.length;
+    setTheme(themeCycle[nextIndex] as string);
+  }, [theme, setTheme]);
 
   if (!mounted) {
     return (
@@ -67,41 +52,34 @@ export function ThemeToggle() {
     );
   }
 
-  const currentTheme = theme || 'system';
-  const CurrentIcon = themes.find(t => t.value === currentTheme)?.icon || Monitor;
+  // Current theme info
+  const currentTheme = ((theme ?? 'system') as ThemeValue);
+  const currentInfo = themeInfo[currentTheme];
+
+  // Next theme info (what clicking will do)
+  const currentIndex = themeCycle.indexOf(currentTheme);
+  const nextTheme = themeCycle[(currentIndex + 1) % themeCycle.length] as ThemeValue;
+  const nextInfo = themeInfo[nextTheme];
+
+  // Icon based on current theme
+  const Icon = currentTheme === 'system' ? Monitor : currentTheme === 'dark' ? Moon : Sun;
+
+  // For system theme, show what it resolved to
+  const currentLabel =
+    currentTheme === 'system'
+      ? `System (${resolvedTheme === 'dark' ? 'Dark' : 'Light'})`
+      : currentInfo.label;
 
   return (
-    <div className="theme-toggle-container" ref={dropdownRef}>
+    <div className="theme-toggle-container">
       <button
         className="theme-toggle-btn"
-        onClick={() => setIsOpen(!isOpen)}
-        aria-label="Change theme"
-        aria-expanded={isOpen}
-        aria-haspopup="listbox"
+        onClick={handleClick}
+        aria-label={`Current: ${currentLabel}. Click to switch to ${nextInfo.label}.`}
+        title={`${currentLabel} — Click for ${nextInfo.label}`}
       >
-        <CurrentIcon size={16} />
+        <Icon size={16} />
       </button>
-
-      {isOpen && (
-        <div className="theme-toggle-dropdown" role="listbox" aria-label="Select theme">
-          {themes.map(({ value, label, icon: Icon }) => (
-            <button
-              key={value}
-              className={`theme-toggle-option ${currentTheme === value ? 'active' : ''}`}
-              onClick={() => {
-                setTheme(value);
-                setIsOpen(false);
-              }}
-              role="option"
-              aria-selected={currentTheme === value}
-            >
-              <Icon size={14} />
-              <span>{label}</span>
-              {currentTheme === value && <Check size={14} className="theme-toggle-check" />}
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

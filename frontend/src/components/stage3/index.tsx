@@ -9,7 +9,8 @@ import { useDecisionState } from './hooks/useDecisionState';
 import { useSaveActions } from './hooks/useSaveActions';
 import Stage3Content from './Stage3Content';
 import { Stage3Actions } from './Stage3Actions';
-import { TableOfContents } from '../ui/TableOfContents';
+// TableOfContents import removed - TOC hidden for now
+// import { TableOfContents } from '../ui/TableOfContents';
 import type { Department, Project } from '../../types/business';
 import '../Stage3.css';
 
@@ -285,8 +286,7 @@ function Stage3({
       <div className="stage stage3">
         <h3 className="stage-title">
           <Sparkles className="h-5 w-5 text-emerald-500 flex-shrink-0" />
-          <span className="font-semibold tracking-tight">Step 3: Final Recommendation</span>
-          {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
+          <span className="font-semibold tracking-tight">The Best Answer</span>
         </h3>
         <div className="final-response noise-overlay">
           <div className="thinking-container">
@@ -312,8 +312,7 @@ function Stage3({
       >
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
         <Sparkles className="h-5 w-5 text-amber-500 flex-shrink-0" />
-        <span className="font-semibold tracking-tight">Step 3: Final Recommendation</span>
-        {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
+        <span className="font-semibold tracking-tight">The Best Answer</span>
         {isCollapsed && savedDecisionId && (
           <span className="collapsed-summary">
             <span className="kb-saved-badge">Saved</span>
@@ -323,20 +322,10 @@ function Stage3({
 
       {!isCollapsed && (
         <div className="final-response noise-overlay" ref={finalResponseRef}>
-          {/* Sticky toolbar - TOC trigger + copy button together */}
-          {isComplete && (
+          {/* Sticky toolbar - copy button only (TOC hidden for now) */}
+          {isComplete && displayText && (
             <div className="stage3-sticky-toolbar">
-              <TableOfContents
-                variant="sheet"
-                contentRef={finalResponseRef}
-                isStreamingComplete={isComplete}
-                title={getTitle()}
-                headingLevels={['h2', 'h3']}
-                minHeadings={2}
-              />
-              {displayText && (
-                <CopyButton text={displayText} size="sm" className="stage3-copy-btn" />
-              )}
+              <CopyButton text={displayText} size="sm" className="stage3-copy-btn" />
             </div>
           )}
 
@@ -348,16 +337,7 @@ function Stage3({
             chairmanIconPath={chairmanIconPath}
           />
 
-          {/* Floating TOC - overlays content on the right edge */}
-          <TableOfContents
-            variant="floating"
-            contentRef={finalResponseRef}
-            containerRef={containerRef}
-            isStreamingComplete={isComplete}
-            title={getTitle()}
-            headingLevels={['h2']}
-            minHeadings={1}
-          />
+          {/* Floating TOC hidden for now */}
 
           {isComplete && companyId && (
             <Stage3Actions

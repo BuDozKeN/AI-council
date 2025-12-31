@@ -71,11 +71,13 @@ function MultiSelectDropdown({
     };
 
     // Use capture phase to handle before other handlers
+    // Cast to EventListener type (DOM global) for touchstart compatibility
+    const handler = handleClickOutside as (e: Event) => void;
     document.addEventListener('mousedown', handleClickOutside, true);
-    document.addEventListener('touchstart', handleClickOutside as EventListener, true);
+    document.addEventListener('touchstart', handler, true);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside, true);
-      document.removeEventListener('touchstart', handleClickOutside as EventListener, true);
+      document.removeEventListener('touchstart', handler, true);
     };
   }, [isOpen, showTooltip]);
 

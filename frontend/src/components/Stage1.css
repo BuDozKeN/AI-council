@@ -450,9 +450,10 @@
   transition: all 0.2s ease;
 }
 
+/* Success state is subtle - no green highlight, just normal pill */
+/* Success is the expected state, we only highlight errors/streaming */
 .stage1 .model-summary-pill.complete {
-  border-color: var(--color-success);
-  background: var(--color-success-bg);
+  /* Intentionally same as default - success doesn't need visual emphasis */
 }
 
 .stage1 .model-summary-pill.streaming {
@@ -496,9 +497,9 @@
   color: var(--color-text-secondary);
 }
 
+/* Dark mode: success state stays subtle */
 .dark .stage1 .model-summary-pill.complete {
-  border-color: var(--color-success);
-  background: var(--overlay-green-10);
+  /* Intentionally same as default dark mode - success doesn't need visual emphasis */
 }
 
 .dark .stage1 .model-summary-pill.streaming {

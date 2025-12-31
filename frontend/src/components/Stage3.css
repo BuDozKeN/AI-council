@@ -150,25 +150,28 @@ h2, h3 {
   position: relative;
 }
 
-/* Stage3-specific copy button - subtle green theme */
+/* Stage3-specific copy button - ghost style, blends in until hover */
 .stage3-copy-btn.copy-btn-unified {
-  border-color: var(--color-success-border);
-  color: var(--color-success);
-  background: var(--overlay-white-95);
-  backdrop-filter: blur(4px);
-  box-shadow: var(--shadow-sm);
+  border-color: transparent;
+  color: var(--color-text-tertiary);
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+  opacity: 0.4;
 }
 
 .stage3-copy-btn.copy-btn-unified:hover {
-  border-color: var(--color-success);
-  color: var(--color-success-dark);
-  background: var(--color-success-light);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-hover);
+  opacity: 1;
 }
 
 .stage3-copy-btn.copy-btn-unified.copied {
   border-color: var(--color-success);
   color: var(--color-success);
   background: var(--color-success-light);
+  opacity: 1;
 }
 
 /* Mobile: smaller copy button */
@@ -203,19 +206,19 @@ h2, h3 {
   pointer-events: auto;
 }
 
-/* Copy button in toolbar */
+/* Copy button in toolbar - ghost style, very subtle */
 .stage3-sticky-toolbar .stage3-copy-btn {
   width: 32px;
   height: 32px;
   padding: 6px;
-  box-shadow: var(--shadow-xs);
-  background: var(--overlay-white-90);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid var(--overlay-black-5);
+  box-shadow: none;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid transparent;
   border-radius: var(--radius-md);
   color: var(--color-text-tertiary);
-  opacity: 0.7;
+  opacity: 0.4;
   transition: all 0.2s ease;
   flex-shrink: 0;
   margin-left: auto;
@@ -223,9 +226,10 @@ h2, h3 {
 
 .stage3-sticky-toolbar .stage3-copy-btn:hover {
   opacity: 1;
-  background: var(--overlay-white-95);
+  background: var(--color-bg-hover);
+  border-color: var(--color-border);
   color: var(--color-text-secondary);
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
 }
 
 .stage3-sticky-toolbar .stage3-copy-btn:active {
@@ -245,15 +249,18 @@ h2, h3 {
 
 .dark .stage3-sticky-toolbar .stage3-copy-btn,
 [data-theme="dark"] .stage3-sticky-toolbar .stage3-copy-btn {
-  background: var(--overlay-black-80);
-  border-color: var(--overlay-white-10);
+  background: transparent;
+  border-color: transparent;
   color: var(--color-text-tertiary);
+  opacity: 0.4;
 }
 
 .dark .stage3-sticky-toolbar .stage3-copy-btn:hover,
 [data-theme="dark"] .stage3-sticky-toolbar .stage3-copy-btn:hover {
-  background: var(--overlay-black-80);
+  background: var(--color-bg-hover);
+  border-color: var(--color-border);
   color: var(--color-text-secondary);
+  opacity: 1;
 }
 
 /* Mobile toolbar adjustments */
@@ -1456,24 +1463,27 @@ h2, h3 {
   color: var(--color-text-primary);
 }
 
-/* Dark mode Stage3 copy button - subtle green style */
+/* Dark mode Stage3 copy button - ghost style */
 .dark .stage3-copy-btn.copy-btn-unified {
-  border-color: var(--overlay-green-20);
-  color: var(--color-success);
-  background: var(--overlay-black-80);
-  backdrop-filter: blur(4px);
+  border-color: transparent;
+  color: var(--color-text-tertiary);
+  background: transparent;
+  backdrop-filter: none;
+  opacity: 0.4;
 }
 
 .dark .stage3-copy-btn.copy-btn-unified:hover {
-  border-color: var(--color-success);
-  color: var(--color-success);
-  background: var(--overlay-green-15);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-hover);
+  opacity: 1;
 }
 
 .dark .stage3-copy-btn.copy-btn-unified.copied {
   border-color: var(--color-success);
   color: var(--color-success);
-  background: var(--overlay-green-20);
+  background: var(--overlay-green-15);
+  opacity: 1;
 }
 
 .dark .stage3 .code-block-wrapper {

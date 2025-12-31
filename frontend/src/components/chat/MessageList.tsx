@@ -118,7 +118,7 @@ function CouncilStages({ msg, conversation }: CouncilStagesProps) {
 
   return (
     <>
-      {/* Stage 1 - show with streaming or final responses */}
+      {/* Stage 1 - show with streaming or final responses (collapsed by default) */}
       {(msg.loading?.stage1 || msg.stage1 || (msg.stage1Streaming && Object.keys(msg.stage1Streaming).length > 0)) && (
         <Stage1
           {...(msg.stage1 ? { responses: msg.stage1 } : {})}
@@ -126,6 +126,7 @@ function CouncilStages({ msg, conversation }: CouncilStagesProps) {
           isLoading={msg.loading?.stage1 ?? false}
           {...(msg.stopped !== undefined ? { stopped: msg.stopped } : {})}
           isComplete={isStageComplete}
+          defaultCollapsed={true}
           {...(conversation?.title ? { conversationTitle: conversation.title } : {})}
           {...(msg.imageAnalysis ? { imageAnalysis: msg.imageAnalysis } : {})}
           expandedModel={expandedModel}
@@ -152,6 +153,48 @@ function CouncilStages({ msg, conversation }: CouncilStagesProps) {
         );
       })()}
     </>
+  );
+}
+
+/**
+ * UserMessage - Collapsible user message for archival reference
+ * Shows the original question asked, collapsed by default
+ * Important for reviewing past conversations
+ */
+function UserMessage({ content }: { content: string }) {
+  const [isCollapsed, setIsCollapsed] = useState(true);
+
+  // Truncate content for collapsed preview (first 120 chars)
+  const previewText = content.length > 120
+    ? content.substring(0, 120).trim() + '...'
+    : content;
+
+  return (
+    <div className="user-message-wrapper">
+      <div className="message-label">You</div>
+      <motion.div
+        className="stage stage-user"
+        data-stage="user"
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+      >
+        <div className="user-collapse-row" onClick={() => setIsCollapsed(!isCollapsed)}>
+          <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
+          {/* Collapsed preview */}
+          {isCollapsed && (
+            <span className="user-preview-inline">{previewText}</span>
+          )}
+        </div>
+
+        {/* Expanded content - no extra wrapper box */}
+        {!isCollapsed && (
+          <div className="markdown-content user-expanded" onClick={() => setIsCollapsed(true)}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
+          </div>
+        )}
+      </motion.div>
+    </div>
   );
 }
 
@@ -205,19 +248,7 @@ export function MessageList({
           layout
         >
           {msg.role === 'user' ? (
-            <motion.div
-              className="user-message"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 35 }}
-            >
-              <div className="message-label">You</div>
-              <div className="message-content">
-                <div className="markdown-content">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content ?? ''}</ReactMarkdown>
-                </div>
-              </div>
-            </motion.div>
+            <UserMessage content={msg.content ?? ''} />
           ) : (
             <motion.div
               className="assistant-message"
@@ -226,7 +257,12 @@ export function MessageList({
               transition={{ type: 'spring', stiffness: 500, damping: 35, delay: 0.05 }}
             >
               <div className="message-label">
-                {msg.isChat ? 'AI Advisor' : 'AI Council'}
+                {msg.isChat ? 'AI Advisor' : (
+                  <span className="axcouncil-wordmark">
+                    <img src="/favicon.svg" alt="" className="axcouncil-icon" />
+                    <span>AxCouncil</span>
+                  </span>
+                )}
               </div>
 
               {/* For chat-only messages, show a simpler response */}

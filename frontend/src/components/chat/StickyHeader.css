@@ -1,0 +1,75 @@
+/**
+ * StickyHeader Styles
+ *
+ * Self-contained sticky header matching Omnibar width.
+ * Full-width background covers scrolling content.
+ * Blur fade at bottom for smooth content transition.
+ */
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+
+  /* Match Omnibar reading column width */
+  width: 100%;
+  max-width: 72ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Background layer - extends full width to cover scrolling content */
+.sticky-header-bg {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  height: calc(100% + 24px); /* Extend for blur fade */
+  background: linear-gradient(
+    to bottom,
+    var(--color-bg-primary) 0%,
+    var(--color-bg-primary) calc(100% - 24px),
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* Content layer - matches Omnibar width */
+.sticky-header-content {
+  position: relative;
+  z-index: 1;
+  padding: 12px 20px; /* Match Omnibar padding */
+  background: var(--color-bg-primary);
+}
+
+/* Dark mode */
+.dark .sticky-header-bg {
+  background: linear-gradient(
+    to bottom,
+    var(--color-bg-primary) 0%,
+    var(--color-bg-primary) calc(100% - 24px),
+    transparent 100%
+  );
+}
+
+
+/* =============================================================================
+   MOBILE RESPONSIVE
+   ============================================================================= */
+
+@media (max-width: 768px) {
+  .sticky-header {
+    max-width: none; /* Full width on tablet */
+  }
+
+  .sticky-header-content {
+    padding: 10px 16px; /* Match mobile Omnibar padding */
+  }
+}
+
+@media (max-width: 480px) {
+  .sticky-header-content {
+    padding: 8px 14px; /* Match small phone Omnibar padding */
+  }
+}

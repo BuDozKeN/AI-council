@@ -2,15 +2,21 @@
  * OmniBar - Unified input styles
  *
  * Premium input component used across landing and in-app contexts.
+ * Two-row layout: textarea on top, icons + actions on bottom.
  */
 
 .omni-bar-wrapper {
   width: 100%;
-  max-width: 720px;
+  max-width: 640px;
   margin: 0 auto;
 }
 
-/* Mode toggle for landing variant */
+/* Landing variant - wider for hero */
+.omni-bar-landing {
+  max-width: 720px;
+}
+
+/* Mode toggle for landing variant (external toggle above the bar) */
 .omni-mode-toggle {
   display: flex;
   justify-content: center;
@@ -49,12 +55,13 @@
   box-shadow: var(--shadow-xs);
 }
 
-/* Main omni-bar container - glass morphism effect */
+/* =============================================================================
+   MAIN CONTAINER - Glass morphism effect
+   ============================================================================= */
+
 .omni-bar {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
+  flex-direction: column;
   background: var(--overlay-white-75);
   backdrop-filter: blur(32px) saturate(180%);
   -webkit-backdrop-filter: blur(32px) saturate(180%);
@@ -64,6 +71,7 @@
     var(--shadow-md),
     inset 0 1px 0 var(--overlay-white-80);
   transition: all 0.25s ease;
+  overflow: hidden;
 }
 
 .omni-bar:focus-within {
@@ -83,70 +91,81 @@
   opacity: 0.8;
 }
 
-/* Landing variant - larger, more prominent glass effect */
-.omni-bar-landing .omni-bar {
-  padding: 16px 20px;
-  border-radius: var(--radius-2xl);
-  background: var(--overlay-white-65);
-  backdrop-filter: blur(40px) saturate(180%);
-  -webkit-backdrop-filter: blur(40px) saturate(180%);
-  border: 1px solid var(--overlay-white-35);
+/* Council mode accent */
+.omni-bar-wrapper.council-mode .omni-bar {
+  border-color: var(--color-indigo-400);
+}
+
+.omni-bar-wrapper.council-mode .omni-bar:focus-within {
+  border-color: var(--color-indigo-500);
   box-shadow:
-    0 8px 32px var(--overlay-black-10),
+    0 4px 24px var(--overlay-indigo-20),
     0 2px 8px var(--overlay-black-5),
-    inset 0 1px 0 var(--overlay-white-50);
+    inset 0 1px 0 var(--overlay-white-90);
 }
 
-.omni-bar-landing .omni-bar:focus-within {
-  background: var(--overlay-white-90);
+/* =============================================================================
+   LANDING VARIANT - Premium elevated card with sophisticated shadow
+   Higher specificity to override council-mode and has-content states
+   ============================================================================= */
+
+.omni-bar-wrapper.omni-bar-landing .omni-bar,
+.omni-bar-wrapper.omni-bar-landing.has-content .omni-bar,
+.omni-bar-wrapper.omni-bar-landing.council-mode .omni-bar,
+.omni-bar-wrapper.omni-bar-landing.council-mode.has-content .omni-bar {
+  border-radius: 20px;
+  background: var(--color-bg-primary);
+  border: none;
   box-shadow:
-    0 8px 40px var(--overlay-indigo-15),
-    0 4px 16px var(--overlay-black-5),
-    inset 0 1px 0 var(--overlay-white-80);
+    0 2px 4px var(--overlay-black-10),
+    0 8px 24px var(--overlay-black-15),
+    0 24px 48px var(--overlay-black-20);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.omni-bar-landing .omni-bar-input {
-  font-size: 16px;
+.omni-bar-wrapper.omni-bar-landing .omni-bar:hover {
+  box-shadow:
+    0 2px 4px var(--overlay-black-10),
+    0 12px 32px var(--overlay-black-20),
+    0 32px 64px var(--overlay-black-30);
+}
+
+.omni-bar-wrapper.omni-bar-landing .omni-bar:focus-within,
+.omni-bar-wrapper.omni-bar-landing.council-mode .omni-bar:focus-within {
+  border: none;
+  box-shadow:
+    0 0 0 2px var(--color-indigo-400),
+    0 1px 2px var(--overlay-black-5),
+    0 8px 24px var(--overlay-black-10),
+    0 20px 56px var(--overlay-black-15);
 }
 
 /* Compact variant - smaller for follow-up messages */
 .omni-bar-compact .omni-bar {
-  padding: 10px 14px;
   border-radius: var(--radius-lg);
 }
 
-.omni-bar-compact .omni-bar-input {
-  font-size: 14px;
+/* =============================================================================
+   TWO-ROW LAYOUT: Top (textarea) + Bottom (icons + actions)
+   ============================================================================= */
+
+/* Top row: Textarea with optional keyboard hint */
+.omni-bar-top {
+  position: relative;
+  padding: 10px 16px 6px;
 }
 
-/* Attach button */
-.omni-attach-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-  border: none;
-  background: transparent;
-  color: var(--color-text-secondary);
-  border-radius: var(--radius-default);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  flex-shrink: 0;
+.omni-bar-landing .omni-bar-top {
+  padding: 12px 18px 8px;
 }
 
-.omni-attach-btn:hover:not(:disabled) {
-  background: var(--color-slate-100);
-  color: var(--color-text-primary);
+.omni-bar-compact .omni-bar-top {
+  padding: 8px 12px 4px;
 }
 
-.omni-attach-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Input textarea */
+/* Input textarea - compact like Perplexity but with scroll room */
 .omni-bar-input {
-  flex: 1;
+  width: 100%;
   border: none;
   background: transparent;
   font-size: 15px;
@@ -156,6 +175,21 @@
   resize: none;
   outline: none;
   min-height: 24px;
+  max-height: 200px;
+  padding: 0;
+}
+
+.omni-bar-landing .omni-bar-input {
+  font-size: 15px;
+  min-height: 28px;
+  max-height: 280px;
+  line-height: 1.5;
+}
+
+.omni-bar-compact .omni-bar-input {
+  font-size: 14px;
+  min-height: 22px;
+  max-height: 150px;
 }
 
 .omni-bar-input::placeholder {
@@ -166,42 +200,194 @@
   opacity: 0.7;
 }
 
-/* Keyboard shortcut hint */
+/* Keyboard shortcut hint - positioned at top-right corner, doesn't block input */
 .omni-bar-kbd {
+  position: absolute;
+  top: 16px;
+  right: 20px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 4px 8px;
-  background: var(--color-slate-100);
-  border: 1px solid var(--color-slate-200);
+  background: var(--overlay-black-8);
+  border: 1px solid var(--overlay-black-5);
   border-radius: var(--radius-md);
   font-size: 11px;
   font-family: var(--font-mono);
-  color: var(--color-text-secondary);
-  flex-shrink: 0;
+  color: var(--color-text-tertiary);
+  pointer-events: none;
+  opacity: 0.6;
 }
 
-/* Submit/Stop button */
+/* Bottom row: Context icons (left) + Actions (right) */
+.omni-bar-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px 8px;
+  border-top: 1px solid var(--color-border-light);
+}
+
+.omni-bar-landing .omni-bar-bottom {
+  padding: 8px 16px 10px;
+  border-top: none;
+}
+
+.omni-bar-compact .omni-bar-bottom {
+  padding: 4px 10px 6px;
+}
+
+/* When no context icons, hide the bottom row divider */
+.omni-bar-wrapper:not(.has-context-icons) .omni-bar-bottom {
+  border-top: none;
+  padding-top: 0;
+}
+
+/* Left side: Context icons - flex-start to align left */
+.omni-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  justify-content: flex-start;
+}
+
+/* Right side: Attach + Send */
+.omni-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* =============================================================================
+   ICON BUTTONS - Context selectors and actions
+   ============================================================================= */
+
+.omni-icon-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.omni-icon-btn:hover:not(:disabled) {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.omni-icon-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Selection badge */
+.omni-icon-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-slate-600);
+  color: var(--color-text-inverse);
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 14px;
+  text-align: center;
+}
+
+/* Color-coded icons when selected */
+.omni-icon-btn.company.has-selection {
+  color: var(--color-emerald-600);
+}
+
+.omni-icon-btn.company .omni-icon-badge {
+  background: var(--color-emerald-500);
+}
+
+.omni-icon-btn.dept.has-selection {
+  color: var(--color-amber-600);
+}
+
+.omni-icon-btn.dept .omni-icon-badge {
+  background: var(--color-amber-500);
+}
+
+.omni-icon-btn.role.has-selection {
+  color: var(--color-purple-600);
+}
+
+.omni-icon-btn.role .omni-icon-badge {
+  background: var(--color-purple-500);
+}
+
+.omni-icon-btn.playbook.has-selection {
+  color: var(--color-blue-600);
+}
+
+.omni-icon-btn.playbook .omni-icon-badge {
+  background: var(--color-blue-500);
+}
+
+/* Mode toggle icon */
+.omni-icon-btn.mode-toggle {
+  margin-left: 4px;
+  border-left: 1px solid var(--color-border-light);
+  padding-left: 6px;
+  border-radius: 0;
+  width: auto;
+  padding-right: 2px;
+}
+
+.omni-icon-btn.mode-toggle.council {
+  color: var(--color-indigo-500);
+}
+
+/* Attach button - slightly larger */
+.omni-icon-btn.attach {
+  width: 36px;
+  height: 36px;
+}
+
+/* =============================================================================
+   SUBMIT/STOP BUTTON
+   ============================================================================= */
+
 .omni-bar-submit {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border: none;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-full);
   cursor: pointer;
   transition: all 0.15s ease;
   flex-shrink: 0;
-  background: var(--color-indigo-500);
-  color: var(--color-text-inverse);
-  box-shadow: 0 2px 8px rgb(var(--color-indigo-rgb), 0.3);
+  background: transparent;
+  color: var(--color-text-tertiary);
 }
 
-.omni-bar-submit:hover:not(:disabled) {
+.omni-bar-submit.active {
+  background: var(--color-indigo-500);
+  color: var(--color-text-inverse);
+  box-shadow: 0 2px 8px var(--overlay-indigo-30);
+}
+
+.omni-bar-submit.active:hover:not(:disabled) {
   transform: translateY(-1px);
   background: var(--color-indigo-600);
-  box-shadow: 0 4px 12px rgb(var(--color-indigo-rgb), 0.4);
+  box-shadow: 0 4px 12px var(--overlay-indigo-40);
 }
 
 .omni-bar-submit:active:not(:disabled) {
@@ -217,42 +403,285 @@
 /* Stop button variant */
 .omni-bar-stop {
   background: var(--color-error);
-  box-shadow: var(--shadow-sm), 0 0 0 1px var(--overlay-red-20);
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-sm);
 }
 
 .omni-bar-stop:hover:not(:disabled) {
   background: var(--color-error-dark);
-  box-shadow: var(--shadow-md), 0 0 0 1px var(--overlay-red-30, rgb(var(--color-red-500-rgb), 0.3));
+  box-shadow: var(--shadow-md);
 }
 
-/* Compact variant submit button */
-.omni-bar-compact .omni-bar-submit {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-lg);
-}
-
-/* Landing variant submit button */
+/* Landing variant - same size as default */
 .omni-bar-landing .omni-bar-submit {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-xl);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
 }
 
-/* Mobile adjustments */
+/* Compact variant - smaller submit */
+.omni-bar-compact .omni-bar-submit {
+  width: 28px;
+  height: 28px;
+}
+
+/* =============================================================================
+   TOOLTIPS
+   ============================================================================= */
+
+.omni-tooltip {
+  padding: 8px 12px;
+  max-width: 220px;
+  background: var(--color-slate-800);
+  color: var(--color-text-inverse);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 99999;
+  animation: omniTooltipFadeIn 0.15s ease-out;
+}
+
+.omni-tooltip-arrow {
+  fill: var(--color-slate-800);
+}
+
+@keyframes omniTooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =============================================================================
+   CONTEXT POPOVER - Selection list dropdown
+   ============================================================================= */
+
+.context-popover-content {
+  z-index: 99999;
+  min-width: 180px;
+  max-width: 260px;
+  max-height: 300px;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-primary);
+  box-shadow: var(--shadow-lg);
+  animation: contextPopoverIn 0.15s ease-out;
+}
+
+@keyframes contextPopoverIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.context-popover-header {
+  padding: 10px 12px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.context-popover-list {
+  padding: 6px;
+  overflow-y: auto;
+  max-height: 250px;
+}
+
+.context-popover-empty {
+  padding: 12px;
+  text-align: center;
+  color: var(--color-text-tertiary);
+  font-size: 13px;
+}
+
+.context-popover-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.1s ease;
+  text-align: left;
+}
+
+.context-popover-item:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.context-popover-item.selected {
+  background: var(--color-bg-tertiary);
+}
+
+.context-popover-checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--color-border-dark);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-primary);
+  transition: all 0.1s ease;
+  flex-shrink: 0;
+}
+
+.context-popover-checkbox.checked {
+  background: var(--color-indigo-500);
+  border-color: var(--color-indigo-500);
+  color: var(--color-text-inverse);
+}
+
+.context-popover-radio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--color-border-dark);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-primary);
+  transition: all 0.1s ease;
+  flex-shrink: 0;
+}
+
+.context-popover-radio.checked {
+  background: var(--color-emerald-500);
+  border-color: var(--color-emerald-500);
+  color: var(--color-text-inverse);
+}
+
+/* Playbook grouping */
+.context-popover-group {
+  margin-bottom: 4px;
+}
+
+.context-popover-group:last-child {
+  margin-bottom: 0;
+}
+
+.context-popover-group-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.context-popover-group-header svg {
+  width: 12px;
+  height: 12px;
+  opacity: 0.7;
+}
+
+.context-popover-group-header.clickable {
+  width: 100%;
+  padding: 10px;
+  margin: 0;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-tertiary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.context-popover-group-header.clickable:hover {
+  background: var(--color-bg-hover);
+}
+
+.context-popover-group-header .section-chevron {
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.context-popover-group-header .section-chevron.expanded {
+  transform: rotate(90deg);
+}
+
+.context-popover-group-header .section-label {
+  flex: 1;
+  text-align: left;
+}
+
+.context-popover-group-header .section-count {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-text-quaternary);
+  margin-left: auto;
+}
+
+.context-popover-group-header .section-count .selected-count {
+  color: inherit;
+  font-weight: 600;
+}
+
+.context-popover-group-items {
+  padding-left: 8px;
+  margin-top: 4px;
+  border-left: 2px solid var(--color-border-light);
+  margin-left: 16px;
+}
+
+/* Playbook type colors */
+.context-popover-group-header.sop {
+  color: var(--color-blue-700);
+}
+
+.context-popover-group-header.framework {
+  color: var(--color-amber-700);
+}
+
+.context-popover-group-header.policy {
+  color: var(--color-purple-600);
+}
+
+/* =============================================================================
+   MOBILE ADJUSTMENTS
+   ============================================================================= */
+
 @media (max-width: 640px) {
   .omni-bar-wrapper {
     max-width: 100%;
   }
 
-  .omni-bar {
-    padding: 10px 12px;
-    border-radius: var(--radius-xl);
+  .omni-bar-top {
+    padding: 10px 12px 6px;
   }
 
-  .omni-bar-landing .omni-bar {
-    padding: 12px 14px;
-    border-radius: var(--radius-xl);
+  .omni-bar-landing .omni-bar-top {
+    padding: 12px 14px 8px;
+  }
+
+  .omni-bar-bottom {
+    padding: 6px 10px 10px;
+  }
+
+  .omni-bar-landing .omni-bar-bottom {
+    padding: 8px 12px 12px;
   }
 
   .omni-bar-input {
@@ -267,9 +696,23 @@
   .omni-mode-btn {
     flex: 1;
   }
+
+  /* Larger touch targets on mobile */
+  .omni-icon-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .omni-bar-submit {
+    width: 44px;
+    height: 44px;
+  }
 }
 
-/* ===== DARK MODE ===== */
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
 .dark .omni-bar {
   background: var(--glass-bg);
   border-color: var(--glass-border);
@@ -288,21 +731,31 @@
     inset 0 1px 0 var(--overlay-white-8);
 }
 
-.dark .omni-bar-landing .omni-bar {
+.dark .omni-bar-wrapper.omni-bar-landing .omni-bar,
+.dark .omni-bar-wrapper.omni-bar-landing.has-content .omni-bar,
+.dark .omni-bar-wrapper.omni-bar-landing.council-mode .omni-bar,
+.dark .omni-bar-wrapper.omni-bar-landing.council-mode.has-content .omni-bar {
   background: var(--glass-bg);
-  border-color: var(--glass-border);
+  border: none;
   box-shadow:
     0 8px 32px var(--overlay-black-40),
     0 2px 8px var(--overlay-black-20),
     inset 0 1px 0 var(--overlay-white-5);
 }
 
-.dark .omni-bar-landing .omni-bar:focus-within {
+.dark .omni-bar-wrapper.omni-bar-landing .omni-bar:focus-within,
+.dark .omni-bar-wrapper.omni-bar-landing.council-mode .omni-bar:focus-within {
   background: var(--glass-bg-focus);
+  border: none;
   box-shadow:
+    0 0 0 2px var(--color-indigo-500),
     0 8px 40px var(--overlay-blue-15),
     0 4px 16px var(--overlay-black-30),
     inset 0 1px 0 var(--overlay-white-8);
+}
+
+.dark .omni-bar-bottom {
+  border-top-color: var(--color-border);
 }
 
 .dark .omni-bar-input {
@@ -313,19 +766,53 @@
   color: var(--color-text-tertiary);
 }
 
-.dark .omni-attach-btn {
-  color: var(--color-text-secondary);
-}
-
-.dark .omni-attach-btn:hover:not(:disabled) {
-  background: var(--color-bg-hover);
-  color: var(--color-text-primary);
-}
-
 .dark .omni-bar-kbd {
   background: var(--color-bg-tertiary);
   border-color: var(--color-border);
   color: var(--color-text-secondary);
+}
+
+.dark .omni-icon-btn {
+  color: var(--color-text-secondary);
+}
+
+.dark .omni-icon-btn:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+.dark .omni-icon-btn.company.has-selection {
+  color: var(--color-emerald-400);
+}
+
+.dark .omni-icon-btn.dept.has-selection {
+  color: var(--color-amber-400);
+}
+
+.dark .omni-icon-btn.role.has-selection {
+  color: var(--color-purple-400);
+}
+
+.dark .omni-icon-btn.playbook.has-selection {
+  color: var(--color-blue-400);
+}
+
+.dark .omni-icon-btn.mode-toggle {
+  border-left-color: var(--color-border);
+}
+
+.dark .omni-icon-btn.mode-toggle.council {
+  color: var(--color-brand-primary);
+}
+
+.dark .omni-bar-submit {
+  background: transparent;
+  color: var(--color-text-tertiary);
+}
+
+.dark .omni-bar-submit.active {
+  background: var(--color-brand-primary);
+  color: var(--color-text-inverse);
 }
 
 .dark .omni-mode-toggle {
@@ -346,4 +833,92 @@
   background: var(--color-bg-tertiary);
   color: var(--color-brand-primary);
   box-shadow: var(--shadow-xs);
+}
+
+.dark .omni-tooltip {
+  background: var(--color-slate-100);
+  color: var(--color-slate-800);
+}
+
+.dark .omni-tooltip-arrow {
+  fill: var(--color-slate-100);
+}
+
+/* Context popover dark mode */
+.dark .context-popover-content {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  box-shadow:
+    0 8px 32px var(--overlay-black-40),
+    0 2px 8px var(--overlay-black-20);
+}
+
+.dark .context-popover-header {
+  color: var(--color-text-secondary);
+  border-bottom-color: var(--color-border);
+}
+
+.dark .context-popover-item {
+  color: var(--color-text-primary);
+}
+
+.dark .context-popover-item:hover {
+  background: var(--color-bg-hover);
+}
+
+.dark .context-popover-item.selected {
+  background: var(--color-bg-hover);
+}
+
+.dark .context-popover-empty {
+  color: var(--color-text-tertiary);
+}
+
+.dark .context-popover-checkbox {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+.dark .context-popover-checkbox.checked {
+  background: var(--color-indigo-500);
+  border-color: var(--color-indigo-500);
+}
+
+.dark .context-popover-radio {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+.dark .context-popover-radio.checked {
+  background: var(--color-emerald-500);
+  border-color: var(--color-emerald-500);
+}
+
+.dark .context-popover-group-header {
+  color: var(--color-text-secondary);
+}
+
+.dark .context-popover-group-header.clickable {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .context-popover-group-header.clickable:hover {
+  background: var(--color-bg-hover);
+}
+
+.dark .context-popover-group-items {
+  border-left-color: var(--color-border);
+}
+
+/* Playbook type colors in dark mode */
+.dark .context-popover-group-header.sop {
+  color: var(--color-blue-400);
+}
+
+.dark .context-popover-group-header.framework {
+  color: var(--color-amber-400);
+}
+
+.dark .context-popover-group-header.policy {
+  color: var(--color-purple-400);
 }

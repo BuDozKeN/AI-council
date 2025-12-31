@@ -42,6 +42,7 @@ interface SidebarProps {
   onOpenLeaderboard?: () => void;
   onOpenSettings?: () => void;
   onOpenMyCompany?: () => void;
+  onPreloadMyCompany?: () => void;
   onExportConversation?: (id: string) => void;
   onArchiveConversation?: (id: string, archived?: boolean) => void | Promise<void>;
   onStarConversation?: (id: string, starred?: boolean) => void | Promise<void>;
@@ -77,6 +78,7 @@ export default function Sidebar({
   onOpenLeaderboard,
   onOpenSettings,
   onOpenMyCompany,
+  onPreloadMyCompany,
   onExportConversation,
   onArchiveConversation,
   onStarConversation,
@@ -99,6 +101,16 @@ export default function Sidebar({
 }: SidebarProps) {
   // Prefetch company data on hover for instant navigation
   const { allHoverHandlers: prefetchMyCompanyHandlers } = usePrefetchCompany(companyId);
+
+  // Combined hover handlers: preload JS chunk + prefetch API data
+  const myCompanyHoverHandlers = useMemo(() => ({
+    onMouseEnter: () => {
+      onPreloadMyCompany?.(); // Load JS chunk
+      prefetchMyCompanyHandlers.onMouseEnter(); // Prefetch API data
+    },
+    onMouseLeave: prefetchMyCompanyHandlers.onMouseLeave,
+  }), [onPreloadMyCompany, prefetchMyCompanyHandlers]);
+
   // Sidebar state: 'collapsed' | 'hovered' | 'pinned'
   const [sidebarState, setSidebarState] = useState(() => {
     // Load saved preference from localStorage
@@ -753,8 +765,8 @@ export default function Sidebar({
           onSignOut={onSignOut ?? (() => {})}
           onMouseEnter={handleExpandedAreaEnter}
           onMouseLeave={handleExpandedAreaLeave}
-          onCompanyMouseEnter={prefetchMyCompanyHandlers.onMouseEnter}
-          onCompanyMouseLeave={prefetchMyCompanyHandlers.onMouseLeave}
+          onCompanyMouseEnter={myCompanyHoverHandlers.onMouseEnter}
+          onCompanyMouseLeave={myCompanyHoverHandlers.onMouseLeave}
         />
       ) : (
         // Collapsed footer - icon buttons only
@@ -768,8 +780,8 @@ export default function Sidebar({
             icon={<Building2 className="h-4 w-4" />}
             title="My Company"
             onClick={onOpenMyCompany ?? (() => {})}
-            onMouseEnter={prefetchMyCompanyHandlers.onMouseEnter}
-            onMouseLeave={prefetchMyCompanyHandlers.onMouseLeave}
+            onMouseEnter={myCompanyHoverHandlers.onMouseEnter}
+            onMouseLeave={myCompanyHoverHandlers.onMouseLeave}
           />
           <SidebarIconButton
             icon={<Settings className="h-4 w-4" />}

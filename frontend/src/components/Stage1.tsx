@@ -362,7 +362,7 @@ function Stage1({
   stopped,
   isComplete,
   defaultCollapsed = false,
-  conversationTitle,
+  conversationTitle: _conversationTitle,
   imageAnalysis,
   expandedModel: externalExpandedModel,
   onExpandedModelChange,
@@ -473,14 +473,16 @@ function Stage1({
     return null;
   }
 
+  // Calculate expert count dynamically
+  const expertCount = displayData.length || (streaming ? Object.keys(streaming).length : 0);
+
   // Show loading state if stage1 is loading but no streaming data yet
   if (displayData.length === 0 && isLoading) {
     return (
       <div className="stage stage1">
         <h3 className="stage-title flex items-center gap-2">
           <Activity className="h-5 w-5 text-blue-500 animate-pulse" />
-          <span className="font-semibold tracking-tight">Step 1: Gathering Expert Opinions</span>
-          {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
+          <span className="font-semibold tracking-tight">AI Experts Respond</span>
         </h3>
 
         {imageAnalysis && (
@@ -543,8 +545,7 @@ function Stage1({
         ) : (
           <CheckCircle2 className={`h-5 w-5 text-green-600 flex-shrink-0 ${showCompleteCelebration ? 'animate-stage-complete' : ''}`} />
         )}
-        <span className="font-semibold tracking-tight">Step 1: Gathering Expert Opinions</span>
-        {conversationTitle && <span className="stage-topic">({conversationTitle})</span>}
+        <span className="font-semibold tracking-tight">{expertCount} AI Expert{expertCount !== 1 ? 's' : ''} Respond</span>
       </h3>
 
       {/* Collapsed model summary - provider pills */}
@@ -556,9 +557,7 @@ function Stage1({
               className={`model-summary-pill ${group.allComplete ? 'complete' : ''} ${group.hasStreaming ? 'streaming' : ''} ${group.hasError ? 'error' : ''}`}
               title={group.hasError ? `${group.label} encountered an error` : group.allComplete ? `${group.label} completed` : `${group.label} in progress`}
             >
-              {group.allComplete && !group.hasError && (
-                <span className="pill-check">✓</span>
-              )}
+              {/* Only show error indicator - success is the expected state, no visual noise */}
               {group.hasError && (
                 <span className="pill-error">✕</span>
               )}

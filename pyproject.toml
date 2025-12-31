@@ -19,7 +19,17 @@ dev = [
     "pre-commit>=3.6.0",
     "bandit>=1.7.7",
     "detect-secrets>=1.4.0",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-cov>=4.1.0",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 
 # Bandit security linter configuration
 [tool.bandit]

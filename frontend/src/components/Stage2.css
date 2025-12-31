@@ -53,24 +53,34 @@
   color: var(--color-text-primary);
 }
 
-/* Winner badge - compact trophy + icon only */
+/* Winner badge - modern medal emoji + icon style (matches Stage 1 rank badges) */
 .stage2-winner {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   margin-left: auto;
-  padding: 4px 8px;
+  padding: 4px 10px;
   background: var(--color-indigo-500);
   color: var(--color-text-inverse);
   border-radius: var(--radius-lg);
   flex-shrink: 0;
   font-weight: 600;
+  font-size: 14px;
+  box-shadow: var(--shadow-sm);
+}
+
+.stage2-winner .winner-medal {
+  font-size: 16px;
+  line-height: 1;
 }
 
 .stage2-winner .winner-model-icon {
   width: 18px;
   height: 18px;
   object-fit: contain;
+  border-radius: 50%;
+  background: var(--overlay-white-20);
+  padding: 1px;
 }
 
 /* Accordion content */
@@ -179,8 +189,34 @@
 .rank-position {
   color: var(--color-blue-600);
   font-weight: 700;
-  font-size: 14px;
+  font-size: 16px;
   min-width: 28px;
+  line-height: 1;
+}
+
+/* Medal emoji sizing for top 3 ranks */
+.aggregate-item.rank-1 .rank-position,
+.aggregate-item.rank-2 .rank-position,
+.aggregate-item.rank-3 .rank-position {
+  font-size: 18px;
+}
+
+/* Gold winner - highlighted row */
+.aggregate-item.rank-1 {
+  background: var(--color-indigo-50);
+  border-color: var(--color-indigo-300);
+}
+
+/* Silver - subtle highlight */
+.aggregate-item.rank-2 {
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+}
+
+/* Bronze - very subtle */
+.aggregate-item.rank-3 {
+  background: var(--color-bg-primary);
+  border-color: var(--color-slate-200);
 }
 
 .rank-model {
@@ -648,8 +684,12 @@
 }
 
 .dark .stage2-winner {
-  background: var(--overlay-indigo-15);
-  color: var(--color-iris-400);
+  background: var(--color-indigo-500);
+  color: var(--color-text-inverse);
+}
+
+.dark .stage2-winner .winner-model-icon {
+  background: var(--overlay-white-15);
 }
 
 .dark .stage2-section-title {
@@ -715,6 +755,22 @@
 
 .dark .rank-position {
   color: var(--color-violet-400);
+}
+
+/* Dark mode ranked items */
+.dark .aggregate-item.rank-1 {
+  background: var(--overlay-indigo-15);
+  border-color: var(--color-indigo-500);
+}
+
+.dark .aggregate-item.rank-2 {
+  background: var(--overlay-slate-10);
+  border-color: var(--color-slate-500);
+}
+
+.dark .aggregate-item.rank-3 {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
 }
 
 .dark .rank-model {

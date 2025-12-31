@@ -12,7 +12,7 @@ import logging
 import hashlib
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, Dict, Any
 from fastapi import HTTPException, Request
 
@@ -33,7 +33,7 @@ class StructuredJsonFormatter(logging.Formatter):
 
     def format(self, record: logging.LogRecord) -> str:
         log_data = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
@@ -136,7 +136,7 @@ def log_security_event(
         "resource_type": resource_type,
         "resource_id": masked_resource,
         "ip": ip_address,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
     if details:
@@ -291,7 +291,7 @@ class SecureHTTPException:
         """
         # Generate a reference ID for support tickets
         ref_id = hashlib.sha256(
-            f"{datetime.utcnow().isoformat()}{log_message}".encode()
+            f"{datetime.now(timezone.utc).isoformat()}{log_message}".encode()
         ).hexdigest()[:8].upper()
 
         log_security_event(

@@ -8,6 +8,8 @@
 import { useState, useCallback } from 'react';
 import { api } from '../api';
 import { logger } from '../utils/logger';
+import type { TriageState } from '../contexts/UIContext';
+import type { ImageAttachment } from './useMessageStreaming';
 
 const log = logger.scope('Triage');
 
@@ -15,7 +17,7 @@ interface UseTriageOptions {
   currentConversationId: string | null;
   selectedBusiness: string | null;
   useCompanyContext: boolean;
-  onSendToCouncil: (content: string, images?: any[] | null) => Promise<void>;
+  onSendToCouncil: (content: string, images?: ImageAttachment[] | null) => Promise<void>;
 }
 
 export function useTriage({
@@ -24,9 +26,22 @@ export function useTriage({
   useCompanyContext,
   onSendToCouncil,
 }: UseTriageOptions) {
-  const [triageState, setTriageState] = useState<any>(null); // null, 'analyzing', or triage result
+  const [triageState, setTriageState] = useState<TriageState>(null);
   const [originalQuery, setOriginalQuery] = useState('');
   const [isTriageLoading, setIsTriageLoading] = useState(false);
+
+  // Define handleSendToCouncil first so other callbacks can reference it
+  const handleSendToCouncil = useCallback(
+    async (content: string, images: ImageAttachment[] | null = null) => {
+      // Clear triage state
+      setTriageState(null);
+      setOriginalQuery('');
+
+      // Delegate to the actual send function
+      await onSendToCouncil(content, images);
+    },
+    [onSendToCouncil]
+  );
 
   const handleStartTriage = useCallback(
     async (content: string) => {
@@ -50,7 +65,7 @@ export function useTriage({
         setIsTriageLoading(false);
       }
     },
-    [currentConversationId, selectedBusiness, useCompanyContext]
+    [currentConversationId, selectedBusiness, useCompanyContext, handleSendToCouncil]
   );
 
   const handleTriageRespond = useCallback(
@@ -73,37 +88,26 @@ export function useTriage({
       } catch (error) {
         log.error('Triage continue failed:', error);
         // On error, proceed with what we have
-        handleSendToCouncil(triageState.enhanced_query || originalQuery);
+        const enhancedQuery = (triageState as { enhanced_query?: string }).enhanced_query;
+        handleSendToCouncil(enhancedQuery || originalQuery);
       } finally {
         setIsTriageLoading(false);
       }
     },
-    [triageState, originalQuery, selectedBusiness, useCompanyContext]
+    [triageState, originalQuery, selectedBusiness, useCompanyContext, handleSendToCouncil]
   );
 
   const handleTriageSkip = useCallback(() => {
     // Skip triage and send original query to council
     handleSendToCouncil(originalQuery);
-  }, [originalQuery]);
+  }, [originalQuery, handleSendToCouncil]);
 
   const handleTriageProceed = useCallback(
     (enhancedQuery: string) => {
       // Proceed with the enhanced query
       handleSendToCouncil(enhancedQuery);
     },
-    []
-  );
-
-  const handleSendToCouncil = useCallback(
-    async (content: string, images: any[] | null = null) => {
-      // Clear triage state
-      setTriageState(null);
-      setOriginalQuery('');
-
-      // Delegate to the actual send function
-      await onSendToCouncil(content, images);
-    },
-    [onSendToCouncil]
+    [handleSendToCouncil]
   );
 
   const clearTriageState = useCallback(() => {

@@ -134,7 +134,7 @@ export function useCompletionCelebration(
       wasCompleteRef.current = true;
       celebration.triggerCelebration();
     }
-  }, [isComplete, celebration.triggerCelebration]);
+  }, [isComplete, celebration]);
 
   return celebration;
 }

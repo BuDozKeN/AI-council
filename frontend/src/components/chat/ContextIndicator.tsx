@@ -4,10 +4,13 @@
  * Displays the user's question (AI-summarized) and context pills.
  * Always visible sticky header - NOT collapsible.
  * Department pills use standardized colors from getDeptColor().
+ *
+ * Uses StickyHeader wrapper for proper sticky positioning.
  */
 
 import { MessageCircleQuestion } from 'lucide-react';
 import { getDeptColor } from '../../lib/colors';
+import { StickyHeader } from './StickyHeader';
 
 /**
  * Truncate and clean up a question for display
@@ -125,52 +128,54 @@ export function ContextIndicator({
     .filter((item): item is { name: string; type: PlaybookType } => item !== null);
 
   return (
-    <div className="context-indicator" data-stage="question">
-      {/* Question line */}
-      <div className="context-indicator-question">
-        <MessageCircleQuestion className="context-question-icon" size={14} />
-        <span className="context-question-text">{displayQuestion || 'Question'}</span>
-      </div>
-
-      {/* Context pills - company, project, departments, roles */}
-      {selectedBusiness && (
-        <div className="context-indicator-pills">
-          <span className="context-indicator-label">Context:</span>
-          <span className="context-indicator-item company">
-            {businesses.find(b => b.id === selectedBusiness)?.name || 'Company'}
-          </span>
-          {selectedProject && (
-            <span className="context-indicator-item project">
-              {projects.find(p => p.id === selectedProject)?.name || 'Project'}
-            </span>
-          )}
-          {departmentItems.map((dept) => {
-            const colors = getDeptColor(dept.id);
-            return (
-              <span
-                key={dept.id}
-                className="context-indicator-item department"
-                style={{
-                  '--dept-bg': colors.bg,
-                  '--dept-text': colors.text,
-                } as React.CSSProperties}
-              >
-                {dept.name}
-              </span>
-            );
-          })}
-          {roleNames.map((name, idx) => (
-            <span key={`role-${idx}`} className="context-indicator-item role">
-              {name}
-            </span>
-          ))}
-          {playbookItems.map((item, idx) => (
-            <span key={`playbook-${idx}`} className={`context-indicator-item playbook ${item.type}`}>
-              {item.name}
-            </span>
-          ))}
+    <StickyHeader>
+      <div className="context-indicator" data-stage="question">
+        {/* Question line */}
+        <div className="context-indicator-question">
+          <MessageCircleQuestion className="context-question-icon" size={14} />
+          <span className="context-question-text">{displayQuestion || 'Question'}</span>
         </div>
-      )}
-    </div>
+
+        {/* Context pills - company, project, departments, roles */}
+        {selectedBusiness && (
+          <div className="context-indicator-pills">
+            <span className="context-indicator-label">Context:</span>
+            <span className="context-indicator-item company">
+              {businesses.find(b => b.id === selectedBusiness)?.name || 'Company'}
+            </span>
+            {selectedProject && (
+              <span className="context-indicator-item project">
+                {projects.find(p => p.id === selectedProject)?.name || 'Project'}
+              </span>
+            )}
+            {departmentItems.map((dept) => {
+              const colors = getDeptColor(dept.id);
+              return (
+                <span
+                  key={dept.id}
+                  className="context-indicator-item department"
+                  style={{
+                    '--dept-bg': colors.bg,
+                    '--dept-text': colors.text,
+                  } as React.CSSProperties}
+                >
+                  {dept.name}
+                </span>
+              );
+            })}
+            {roleNames.map((name, idx) => (
+              <span key={`role-${idx}`} className="context-indicator-item role">
+                {name}
+              </span>
+            ))}
+            {playbookItems.map((item, idx) => (
+              <span key={`playbook-${idx}`} className={`context-indicator-item playbook ${item.type}`}>
+                {item.name}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+    </StickyHeader>
   );
 }

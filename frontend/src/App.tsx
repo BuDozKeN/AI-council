@@ -65,6 +65,12 @@ const preloadChatInterface = () => {
   import('./components/ChatInterface');
 };
 
+// Performance: Preload MyCompany on hover so click is instant
+// This loads the JS chunk before the user clicks, eliminating the first loading spinner
+const preloadMyCompany = () => {
+  import('./components/MyCompany');
+};
+
 // Minimal loading fallback for lazy modal components
 const LazyFallback = () => (
   <div className="lazy-loading-fallback" aria-label="Loading...">
@@ -141,7 +147,7 @@ function App() {
     setUseCompanyContext,
     useDepartmentContext,
     setUseDepartmentContext,
-    userPreferences,
+    userPreferences: _userPreferences,
     availableDepartments,
     availableRoles,
     allRoles,
@@ -1250,6 +1256,7 @@ function App() {
           onOpenLeaderboard={handleOpenLeaderboard}
           onOpenSettings={handleOpenSettings}
           onOpenMyCompany={handleOpenMyCompany}
+          onPreloadMyCompany={preloadMyCompany}
           onArchiveConversation={(id: string, archived?: boolean) => handleArchiveConversation(id, archived ?? true)}
           onStarConversation={(id: string, starred?: boolean) => handleStarConversation(id, starred ?? true)}
           onDeleteConversation={handleDeleteConversation}
@@ -1296,9 +1303,6 @@ function App() {
               allRoles={allRoles}
               selectedRoles={selectedRoles}
               onSelectRoles={setSelectedRoles}
-              projects={projects}
-              selectedProject={selectedProject}
-              onSelectProject={setSelectedProject}
               playbooks={availablePlaybooks}
               selectedPlaybooks={selectedPlaybooks}
               onSelectPlaybooks={setSelectedPlaybooks}
@@ -1306,7 +1310,6 @@ function App() {
               onChatModeChange={setLandingChatMode}
               onSubmit={handleLandingSubmit}
               isLoading={isLoading}
-              userPreferences={userPreferences}
             />
           </motion.div>
         ) : (

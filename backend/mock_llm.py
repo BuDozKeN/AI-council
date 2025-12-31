@@ -4,9 +4,19 @@ Bypasses OpenRouter API calls when MOCK_LLM=true
 """
 
 import asyncio
+import os
 import random
 from typing import List, Dict, Optional, AsyncGenerator
 from .config import MOCK_LLM_SCENARIO
+
+# Enable verbose debug output only when DEBUG=true
+_DEBUG = os.getenv("DEBUG", "").lower() == "true"
+
+
+def _debug(msg: str) -> None:
+    """Print debug message if DEBUG mode is enabled."""
+    if _DEBUG:
+        print(msg)
 
 # Simulate realistic network latency (seconds)
 MOCK_DELAY_MIN = 0.3
@@ -19,16 +29,16 @@ def _detect_stage(messages: List[Dict]) -> str:
     Works with your existing prompt structure in council.py.
     """
     if not messages:
-        print("[MOCK DETECT] No messages, defaulting to stage1")
+        _debug("[MOCK DETECT] No messages, defaulting to stage1")
         return "stage1"
 
     last_content = (messages[-1].get("content") or "").lower()
-    print(f"[MOCK DETECT] Last message content (first 100 chars): {last_content[:100]}")
+    _debug(f"[MOCK DETECT] Last message content (first 100 chars): {last_content[:100]}")
 
     # Title generation - check FIRST since it's a short prompt
     # Must check before stage1 (default) since title prompts don't have other markers
     if "short title" in last_content or "conversation title" in last_content or "generate a title" in last_content:
-        print(f"[MOCK DETECT] -> TITLE")
+        _debug("[MOCK DETECT] -> TITLE")
         return "title"
 
     # Curator: Knowledge curation requests
@@ -384,11 +394,11 @@ async def generate_mock_response(model: str, messages: List[Dict]) -> Optional[D
     if MOCK_LLM_SCENARIO == "one_model_fails":
         # Fail models with "gpt" in name, or 20% random failure
         if "gpt" in model.lower() or random.random() < 0.2:
-            print(f"[MOCK FAIL] Simulating failure for {model}")
+            _debug(f"[MOCK FAIL] Simulating failure for {model}")
             return None
 
     stage = _detect_stage(messages)
-    print(f"[MOCK] {model} -> {stage}")
+    _debug(f"[MOCK] {model} -> {stage}")
 
     if stage == "stage1":
         content = _stage1_content(model)
@@ -424,12 +434,12 @@ async def generate_mock_response_stream(model: str, messages: List[Dict]) -> Asy
     # Simulate model failure in failure scenario
     if MOCK_LLM_SCENARIO == "one_model_fails":
         if "gpt" in model.lower() or random.random() < 0.2:
-            print(f"[MOCK STREAM FAIL] Simulating failure for {model}")
+            _debug(f"[MOCK STREAM FAIL] Simulating failure for {model}")
             yield "[Error: Model overloaded (mock failure)]"
             return
 
     stage = _detect_stage(messages)
-    print(f"[MOCK STREAM] {model} -> {stage}")
+    _debug(f"[MOCK STREAM] {model} -> {stage}")
 
     if stage == "stage1":
         content = _stage1_content(model)

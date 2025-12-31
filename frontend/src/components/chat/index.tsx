@@ -11,3 +11,4 @@ export { FollowUpBar } from './FollowUpBar';
 export { ModeToggle } from './ModeToggle';
 export { MessageList } from './MessageList';
 export { ChatInput } from './ChatInput';
+export { StickyHeader } from './StickyHeader';

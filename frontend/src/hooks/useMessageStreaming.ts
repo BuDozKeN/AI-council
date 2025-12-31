@@ -11,8 +11,47 @@
 import { useCallback, useRef, useEffect } from 'react';
 import { api } from '../api';
 import { logger } from '../utils/logger';
+import type { Conversation, Message, StreamingState } from '../types/conversation';
 
 const log = logger.scope('MessageStreaming');
+
+// ============================================================================
+// Types
+// ============================================================================
+
+/** Extended conversation type with internal streaming state */
+interface StreamableConversation extends Omit<Conversation, 'messages'> {
+  messages: StreamableMessage[];
+  /** Internal timestamp for tracking stream updates */
+  _streamTick?: number;
+}
+
+/** Message with streaming-specific fields - extends Message with optional streaming state */
+interface StreamableMessage extends Message {
+  stage1Streaming?: Record<string, StreamingState>;
+  stage2Streaming?: Record<string, StreamingState>;
+  stage3Streaming?: StreamingState;
+  isChat?: boolean;
+  imageAnalysis?: unknown;
+  loading?: { stage1: boolean; stage2: boolean; stage3: boolean };
+}
+
+/** Image attachment for upload */
+interface ImageAttachment {
+  file: File;
+  preview?: string;
+}
+
+/** Uploaded attachment response */
+interface UploadedAttachment {
+  id: string;
+}
+
+/** Stream event data - typed as Record for API compatibility with narrowing helpers */
+type StreamEventData = Record<string, unknown>;
+
+/** State updater function type for conversation state */
+type ConversationUpdater = (prev: StreamableConversation | null) => StreamableConversation | null;
 
 // ============================================================================
 // Performance: Token batching with requestAnimationFrame
@@ -24,7 +63,7 @@ interface PendingTokens {
   chat: string;
 }
 
-function useTokenBatcher(setCurrentConversation: (updater: any) => void) {
+function useTokenBatcher(setCurrentConversation: (updater: ConversationUpdater) => void) {
   const pendingTokens = useRef<PendingTokens>({
     stage1: {},
     stage2: {},
@@ -56,9 +95,9 @@ function useTokenBatcher(setCurrentConversation: (updater: any) => void) {
 
     if (!hasStage1 && !hasStage2 && !hasStage3 && !hasChat) return;
 
-    setCurrentConversation((prev: any) => {
+    setCurrentConversation((prev) => {
       if (!prev?.messages) return prev;
-      const messages = [...prev.messages];
+      const messages = [...prev.messages] as StreamableMessage[];
       const lastIdx = messages.length - 1;
       if (lastIdx < 0) return prev;
 
@@ -68,7 +107,7 @@ function useTokenBatcher(setCurrentConversation: (updater: any) => void) {
         const stage1Streaming = { ...msg.stage1Streaming };
         for (const [model, tokens] of Object.entries(pending.stage1)) {
           const current = stage1Streaming[model] || { text: '', complete: false };
-          stage1Streaming[model] = { text: current.text + tokens, complete: false };
+          stage1Streaming[model] = { text: (current.text || '') + tokens, complete: false };
         }
         msg.stage1Streaming = stage1Streaming;
       }
@@ -77,7 +116,7 @@ function useTokenBatcher(setCurrentConversation: (updater: any) => void) {
         const stage2Streaming = { ...msg.stage2Streaming };
         for (const [model, tokens] of Object.entries(pending.stage2)) {
           const current = stage2Streaming[model] || { text: '', complete: false };
-          stage2Streaming[model] = { text: current.text + tokens, complete: false };
+          stage2Streaming[model] = { text: (current.text || '') + tokens, complete: false };
         }
         msg.stage2Streaming = stage2Streaming;
       }
@@ -85,12 +124,12 @@ function useTokenBatcher(setCurrentConversation: (updater: any) => void) {
       if (hasStage3 || hasChat) {
         const currentStreaming = msg.stage3Streaming || { text: '', complete: false };
         msg.stage3Streaming = {
-          text: currentStreaming.text + pending.stage3 + pending.chat,
+          text: (currentStreaming.text || '') + pending.stage3 + pending.chat,
           complete: false,
         };
       }
 
-      messages[lastIdx] = msg;
+      messages[lastIdx] = msg as StreamableMessage;
       pendingTokens.current = { stage1: {}, stage2: {}, stage3: '', chat: '' };
 
       return { ...prev, messages, _streamTick: Date.now() };
@@ -217,12 +256,20 @@ interface StreamingContext {
   useDepartmentContext: boolean;
 }
 
+/** Summarized conversation for list display */
+interface ConversationListItem {
+  id: string;
+  title?: string;
+  created_at?: string;
+  message_count?: number;
+}
+
 interface ConversationState {
   currentConversationId: string | null;
-  currentConversation: any;
+  currentConversation: StreamableConversation | null;
   setCurrentConversationId: (id: string | null) => void;
-  setCurrentConversation: (updater: any) => void;
-  setConversations: (updater: any) => void;
+  setCurrentConversation: (updater: ConversationUpdater) => void;
+  setConversations: (updater: (prev: ConversationListItem[]) => ConversationListItem[]) => void;
   skipNextLoadRef: React.MutableRefObject<boolean>;
   loadConversations: () => void;
 }
@@ -279,36 +326,40 @@ export function useMessageStreaming({
 
   // Create streaming event handler with batched token updates
   const createStreamEventHandler = useCallback(
-    (conversationId: string) => (eventType: string, event: any) => {
+    (conversationId: string) => (eventType: string, event: StreamEventData) => {
       if (eventType.includes('error') || eventType.includes('Error')) {
         log.error('[SSE Event]', eventType, event);
       }
 
       switch (eventType) {
         case 'stage1_start':
-          setCurrentConversation((prev: any) => {
+          setCurrentConversation((prev) => {
             if (!prev?.messages) return prev;
-            const messages = prev.messages.map((msg: any, idx: number) =>
+            const messages = prev.messages.map((msg, idx) =>
               idx === prev.messages.length - 1
                 ? { ...msg, loading: { ...msg.loading, stage1: true }, stage1Streaming: {} }
                 : msg
-            );
+            ) as StreamableMessage[];
             return { ...prev, messages };
           });
           break;
 
-        case 'stage1_token':
+        case 'stage1_token': {
           // Performance: Batched with RAF instead of per-token state updates
-          addStage1Token(event.model, event.content);
+          const model = event.model as string;
+          const content = event.content as string;
+          addStage1Token(model, content);
           break;
+        }
 
-        case 'stage1_model_complete':
+        case 'stage1_model_complete': {
           // Flush pending tokens before marking complete
+          const model = event.model as string;
+          const response = event.response as string | undefined;
           flushNow();
-          setCurrentConversation((prev: any) => {
+          setCurrentConversation((prev) => {
             if (!prev?.messages) return prev;
-            const model = event.model;
-            const messages = prev.messages.map((msg: any, idx: number) => {
+            const messages = prev.messages.map((msg, idx) => {
               if (idx !== prev.messages.length - 1) return msg;
               const currentStreaming = msg.stage1Streaming?.[model];
               return {
@@ -317,71 +368,80 @@ export function useMessageStreaming({
                   ...msg.stage1Streaming,
                   [model]: currentStreaming
                     ? { ...currentStreaming, complete: true }
-                    : { text: event.response, complete: true },
+                    : { text: response || '', complete: true },
                 },
               };
-            });
+            }) as StreamableMessage[];
             return { ...prev, messages };
           });
           break;
+        }
 
-        case 'stage1_model_error':
-          log.error(`[Stage1 Error] Model ${event.model}:`, event.error);
+        case 'stage1_model_error': {
+          const model = event.model as string;
+          const error = event.error as string;
+          log.error(`[Stage1 Error] Model ${model}:`, error);
           flushNow();
-          setCurrentConversation((prev: any) => {
+          setCurrentConversation((prev) => {
             if (!prev?.messages) return prev;
-            const model = event.model;
-            const messages = prev.messages.map((msg: any, idx: number) =>
+            const messages = prev.messages.map((msg, idx) =>
               idx === prev.messages.length - 1
                 ? {
                     ...msg,
                     stage1Streaming: {
                       ...msg.stage1Streaming,
-                      [model]: { text: `Error: ${event.error}`, complete: true, error: true },
+                      [model]: { text: `Error: ${error}`, complete: true, error: true },
                     },
                   }
                 : msg
-            );
+            ) as StreamableMessage[];
             return { ...prev, messages };
           });
           break;
+        }
 
-        case 'stage1_complete':
+        case 'stage1_complete': {
+          const data = event.data;
           flushNow();
-          setCurrentConversation((prev: any) => {
+          setCurrentConversation((prev) => {
             if (!prev?.messages) return prev;
-            const messages = prev.messages.map((msg: any, idx: number) =>
+            const messages = prev.messages.map((msg, idx) =>
               idx === prev.messages.length - 1
-                ? { ...msg, stage1: event.data, loading: { ...msg.loading, stage1: false } }
+                ? { ...msg, stage1: data, loading: { ...msg.loading, stage1: false } }
                 : msg
-            );
+            ) as StreamableMessage[];
             return { ...prev, messages };
           });
           break;
+        }
 
         case 'stage2_start':
-          setCurrentConversation((prev: any) => {
+          setCurrentConversation((prev) => {
             if (!prev?.messages) return prev;
-            const messages = prev.messages.map((msg: any, idx: number) =>
+            const messages = prev.messages.map((msg, idx) =>
               idx === prev.messages.length - 1
                 ? { ...msg, loading: { ...msg.loading, stage2: true }, stage2Streaming: {} }
                 : msg
-            );
+            ) as StreamableMessage[];
             return { ...prev, messages };
           });
           break;
 
-        case 'stage2_token':
+        case 'stage2_token': {
           // Performance: Batched with RAF instead of per-token state updates
-          addStage2Token(event.model, event.content);
+          const model = event.model as string;
+          const content = event.content as string;
+          addStage2Token(model, content);
           break;
+        }
 
-        case 'stage2_model_complete':
+        case 'stage2_model_complete': {
+          const model = event.model as string;
+          const ranking = event.ranking as string | undefined;
           flushNow();
-          setCurrentConversation((prev: any) => {
+          setCurrentConversation((prev) => {
             if (!prev?.messages) return prev;
-            const model = event.model;
-            const messages = prev.messages.map((msg: any, idx: number) => {
+            const messages = prev.messages.map((msg, idx) => {
               if (idx !== prev.messages.length - 1) return msg;
               const currentStreaming = msg.stage2Streaming?.[model];
               return {
@@ -390,56 +450,62 @@ export function useMessageStreaming({
                   ...msg.stage2Streaming,
                   [model]: currentStreaming
                     ? { ...currentStreaming, complete: true }
-                    : { text: event.ranking, complete: true },
+                    : { text: ranking || '', complete: true },
                 },
               };
-            });
+            }) as StreamableMessage[];
             return { ...prev, messages };
           });
           break;
+        }
 
-        case 'stage2_model_error':
+        case 'stage2_model_error': {
+          const model = event.model as string;
+          const error = event.error as string;
           flushNow();
-          setCurrentConversation((prev: any) => {
+          setCurrentConversation((prev) => {
             if (!prev?.messages) return prev;
-            const model = event.model;
-            const messages = prev.messages.map((msg: any, idx: number) =>
+            const messages = prev.messages.map((msg, idx) =>
               idx === prev.messages.length - 1
                 ? {
                     ...msg,
                     stage2Streaming: {
                       ...msg.stage2Streaming,
-                      [model]: { text: `Error: ${event.error}`, complete: true, error: true },
+                      [model]: { text: `Error: ${error}`, complete: true, error: true },
                     },
                   }
                 : msg
-            );
+            ) as StreamableMessage[];
             return { ...prev, messages };
           });
           break;
+        }
 
-        case 'stage2_complete':
+        case 'stage2_complete': {
+          const data = event.data;
+          const metadata = event.metadata;
           flushNow();
-          setCurrentConversation((prev: any) => {
+          setCurrentConversation((prev) => {
             if (!prev?.messages) return prev;
-            const messages = prev.messages.map((msg: any, idx: number) =>
+            const messages = prev.messages.map((msg, idx) =>
               idx === prev.messages.length - 1
                 ? {
                     ...msg,
-                    stage2: event.data,
-                    metadata: event.metadata,
+                    stage2: data,
+                    metadata: metadata,
                     loading: { ...msg.loading, stage2: false },
                   }
                 : msg
-            );
+            ) as StreamableMessage[];
             return { ...prev, messages };
           });
           break;
+        }
 
         case 'stage3_start':
-          setCurrentConversation((prev: any) => {
+          setCurrentConversation((prev) => {
             if (!prev?.messages) return prev;
-            const messages = prev.messages.map((msg: any, idx: number) =>
+            const messages = prev.messages.map((msg, idx) =>
               idx === prev.messages.length - 1
                 ? {
                     ...msg,
@@ -447,62 +513,69 @@ export function useMessageStreaming({
                     stage3Streaming: { text: '', complete: false },
                   }
                 : msg
-            );
+            ) as StreamableMessage[];
             return { ...prev, messages };
           });
           break;
 
-        case 'stage3_token':
+        case 'stage3_token': {
           // Performance: Batched with RAF instead of per-token state updates
-          addStage3Token(event.content);
+          const content = event.content as string;
+          addStage3Token(content);
           break;
+        }
 
-        case 'stage3_error':
+        case 'stage3_error': {
+          const error = event.error as string;
           flushNow();
-          setCurrentConversation((prev: any) => {
+          setCurrentConversation((prev) => {
             if (!prev?.messages) return prev;
-            const messages = prev.messages.map((msg: any, idx: number) =>
+            const messages = prev.messages.map((msg, idx) =>
               idx === prev.messages.length - 1
                 ? {
                     ...msg,
-                    stage3Streaming: { text: `Error: ${event.error}`, complete: true, error: true },
+                    stage3Streaming: { text: `Error: ${error}`, complete: true, error: true },
                   }
                 : msg
-            );
+            ) as StreamableMessage[];
             return { ...prev, messages };
           });
           break;
+        }
 
-        case 'stage3_complete':
+        case 'stage3_complete': {
+          const data = event.data as { response?: string } | undefined;
           flushNow();
-          setCurrentConversation((prev: any) => {
+          setCurrentConversation((prev) => {
             if (!prev?.messages) return prev;
-            const messages = prev.messages.map((msg: any, idx: number) =>
+            const messages = prev.messages.map((msg, idx) =>
               idx === prev.messages.length - 1
                 ? {
                     ...msg,
-                    stage3: event.data,
+                    stage3: data,
                     stage3Streaming: msg.stage3Streaming
                       ? { ...msg.stage3Streaming, complete: true }
-                      : { text: event.data.response, complete: true },
+                      : { text: data?.response || '', complete: true },
                     loading: { ...msg.loading, stage3: false },
                   }
                 : msg
-            );
+            ) as StreamableMessage[];
             return { ...prev, messages };
           });
           break;
+        }
 
         case 'title_complete': {
           // Backend sends: { type: 'title_complete', data: { title: '...' } }
-          const newTitle = event.data?.title;
+          const data = event.data as { title?: string } | undefined;
+          const newTitle = data?.title;
           if (newTitle) {
-            setConversations((prev: any[]) =>
+            setConversations((prev) =>
               prev.map((conv) =>
                 conv.id === conversationId ? { ...conv, title: newTitle } : conv
               )
             );
-            setCurrentConversation((prev: any) => {
+            setCurrentConversation((prev) => {
               if (!prev || prev.id !== conversationId) return prev;
               return { ...prev, title: newTitle };
             });
@@ -516,23 +589,25 @@ export function useMessageStreaming({
           setIsLoading(false);
           break;
 
-        case 'error':
-          log.error('Stream error:', event.message);
+        case 'error': {
+          const message = event.message as string | undefined;
+          log.error('Stream error:', message);
           flushNow();
-          setCurrentConversation((prev: any) => {
+          setCurrentConversation((prev) => {
             if (!prev || !prev.messages || prev.messages.length === 0) return prev;
-            const messages = prev.messages.map((msg: any, idx: number) =>
+            const messages = prev.messages.map((msg, idx) =>
               idx === prev.messages.length - 1
                 ? {
                     ...msg,
                     loading: { stage1: false, stage2: false, stage3: false },
                   }
                 : msg
-            );
+            ) as StreamableMessage[];
             return { ...prev, messages };
           });
           setIsLoading(false);
           break;
+        }
 
         case 'cancelled':
           log.debug('Request cancelled');
@@ -540,36 +615,43 @@ export function useMessageStreaming({
           setIsLoading(false);
           break;
 
-        case 'image_analysis_start':
-          log.debug('[IMAGE] Starting analysis of', event.count, 'images');
+        case 'image_analysis_start': {
+          const count = event.count as number | undefined;
+          log.debug('[IMAGE] Starting analysis of', count, 'images');
           break;
+        }
 
-        case 'image_analysis_complete':
-          log.debug('[IMAGE] Analysis complete:', event.analyzed, 'images analyzed');
-          if (event.analysis) {
-            setCurrentConversation((prev: any) => {
+        case 'image_analysis_complete': {
+          const analyzed = event.analyzed as number | undefined;
+          const analysis = event.analysis;
+          log.debug('[IMAGE] Analysis complete:', analyzed, 'images analyzed');
+          if (analysis) {
+            setCurrentConversation((prev) => {
               if (!prev?.messages) return prev;
               const lastIdx = prev.messages.length - 1;
-              const messages = prev.messages.map((msg: any, idx: number) =>
-                idx === lastIdx ? { ...msg, imageAnalysis: event.analysis } : msg
-              );
+              const messages = prev.messages.map((msg, idx) =>
+                idx === lastIdx ? { ...msg, imageAnalysis: analysis } : msg
+              ) as StreamableMessage[];
               return { ...prev, messages };
             });
           }
           break;
+        }
 
-        case 'usage':
+        case 'usage': {
           // Token usage data for developer display
-          log.debug('[USAGE]', event.data);
-          setCurrentConversation((prev: any) => {
+          const data = event.data;
+          log.debug('[USAGE]', data);
+          setCurrentConversation((prev) => {
             if (!prev?.messages) return prev;
             const lastIdx = prev.messages.length - 1;
-            const messages = prev.messages.map((msg: any, idx: number) =>
-              idx === lastIdx ? { ...msg, usage: event.data } : msg
-            );
+            const messages = prev.messages.map((msg, idx) =>
+              idx === lastIdx ? { ...msg, usage: data } : msg
+            ) as StreamableMessage[];
             return { ...prev, messages };
           });
           break;
+        }
 
         default:
           log.warn('Unknown event type:', eventType);
@@ -580,7 +662,7 @@ export function useMessageStreaming({
 
   // Send message to council (full deliberation)
   const sendToCouncil = useCallback(
-    async (content: string, images: any[] | null = null) => {
+    async (content: string, images: ImageAttachment[] | null = null) => {
       if (!currentConversationId) return;
 
       abortControllerRef.current = new AbortController();
@@ -593,8 +675,8 @@ export function useMessageStreaming({
           setIsUploading(true);
           log.debug(`Uploading ${images.length} images...`);
           const uploadPromises = images.map((img) => api.uploadAttachment(img.file));
-          const uploadedAttachments = await Promise.all(uploadPromises);
-          attachmentIds = uploadedAttachments.map((a: any) => a.id);
+          const uploadedAttachments = await Promise.all(uploadPromises) as UploadedAttachment[];
+          attachmentIds = uploadedAttachments.map((a) => a.id);
           log.debug(`Uploaded attachments:`, attachmentIds);
         } catch (error) {
           log.error('Failed to upload images:', error);
@@ -616,12 +698,12 @@ export function useMessageStreaming({
           const initialTitle = generateInitialTitle(content);
 
           setCurrentConversationId(conversationId);
-          setCurrentConversation((prev: any) => {
+          setCurrentConversation((prev) => {
             if (!prev) return prev;
             return { ...prev, id: conversationId, isTemp: false, title: initialTitle };
           });
 
-          setConversations((prev: any[]) => [
+          setConversations((prev) => [
             { id: conversationId, created_at: newConv.created_at, message_count: 0, title: initialTitle },
             ...prev,
           ]);
@@ -634,25 +716,21 @@ export function useMessageStreaming({
 
       try {
         // Add user message optimistically
-        const userMessage = { id: generateMessageId(), role: 'user', content };
-        setCurrentConversation((prev: any) => {
+        const userMessage = { id: generateMessageId(), role: 'user' as const, content };
+        setCurrentConversation((prev) => {
           if (!prev) return prev;
-          return { ...prev, messages: [...prev.messages, userMessage] };
+          return { ...prev, messages: [...prev.messages, userMessage as StreamableMessage] };
         });
 
         // Create partial assistant message
         const assistantMessage = {
           id: generateMessageId(),
-          role: 'assistant',
-          stage1: null,
+          role: 'assistant' as const,
           stage1Streaming: {},
-          stage2: null,
-          stage3: null,
-          metadata: null,
           loading: { stage1: true, stage2: false, stage3: false },
-        };
+        } satisfies Partial<StreamableMessage> & { id: string; role: 'assistant' };
 
-        setCurrentConversation((prev: any) => {
+        setCurrentConversation((prev) => {
           if (!prev) return prev;
           return { ...prev, messages: [...prev.messages, assistantMessage] };
         });
@@ -676,14 +754,14 @@ export function useMessageStreaming({
           attachmentIds: attachmentIds,
           signal: abortControllerRef.current?.signal,
         });
-      } catch (error: any) {
-        if (error.name === 'AbortError') {
+      } catch (error: unknown) {
+        if (error instanceof Error && error.name === 'AbortError') {
           log.debug('Request was cancelled');
           setIsLoading(false);
           return;
         }
         log.error('Failed to send message:', error);
-        setCurrentConversation((prev: any) => {
+        setCurrentConversation((prev) => {
           if (!prev?.messages) return prev;
           return { ...prev, messages: prev.messages.slice(0, -2) };
         });
@@ -724,25 +802,24 @@ export function useMessageStreaming({
 
       try {
         // Add user message optimistically
-        const userMessage = { id: generateMessageId(), role: 'user', content };
-        setCurrentConversation((prev: any) => {
+        const userMessage = { id: generateMessageId(), role: 'user' as const, content };
+        setCurrentConversation((prev) => {
           if (!prev) return prev;
-          return { ...prev, messages: [...prev.messages, userMessage] };
+          return { ...prev, messages: [...prev.messages, userMessage as StreamableMessage] };
         });
 
         // Create partial assistant message for chat
         const assistantMessage = {
           id: generateMessageId(),
-          role: 'assistant',
+          role: 'assistant' as const,
           stage1: [],
           stage2: [],
-          stage3: null,
           stage3Streaming: { text: '', complete: false },
           isChat: true,
           loading: { stage1: false, stage2: false, stage3: true },
-        };
+        } satisfies Partial<StreamableMessage> & { id: string; role: 'assistant' };
 
-        setCurrentConversation((prev: any) => {
+        setCurrentConversation((prev) => {
           if (!prev) return prev;
           return { ...prev, messages: [...prev.messages, assistantMessage] };
         });
@@ -758,57 +835,65 @@ export function useMessageStreaming({
         await api.sendChatStream(
           currentConversationId,
           content,
-          (eventType: string, event: any) => {
+          (eventType: string, event: StreamEventData) => {
             switch (eventType) {
               case 'chat_start':
                 break;
 
-              case 'chat_token':
+              case 'chat_token': {
                 // Performance: Batched with RAF instead of per-token state updates
-                addChatToken(event.content);
+                const content = event.content as string;
+                addChatToken(content);
                 break;
+              }
 
-              case 'chat_error':
-                log.error('Chat error:', event.error);
+              case 'chat_error': {
+                const error = event.error as string | undefined;
+                log.error('Chat error:', error);
                 break;
+              }
 
-              case 'chat_complete':
+              case 'chat_complete': {
+                const data = event.data as { model: string; content: string };
                 flushNow();
-                setCurrentConversation((prev: any) => {
+                setCurrentConversation((prev) => {
                   if (!prev?.messages) return prev;
-                  const messages = prev.messages.map((msg: any, idx: number) =>
+                  const messages = prev.messages.map((msg, idx) =>
                     idx === prev.messages.length - 1
                       ? {
                           ...msg,
-                          stage3: { model: event.data.model, response: event.data.content },
-                          stage3Streaming: { text: event.data.content, complete: true },
+                          stage3: { model: data.model, response: data.content },
+                          stage3Streaming: { text: data.content, complete: true },
                           loading: { ...msg.loading, stage3: false },
                         }
                       : msg
-                  );
+                  ) as StreamableMessage[];
                   return { ...prev, messages };
                 });
                 break;
+              }
 
               case 'complete':
                 flushNow();
                 setIsLoading(false);
                 break;
 
-              case 'error':
-                log.error('Chat stream error:', event.message);
+              case 'error': {
+                const message = event.message as string | undefined;
+                log.error('Chat stream error:', message);
                 flushNow();
-                setCurrentConversation((prev: any) => {
+                setCurrentConversation((prev) => {
                   if (!prev?.messages) return prev;
-                  const messages = prev.messages.map((msg: any, idx: number) =>
+                  const messages = prev.messages.map((msg, idx) =>
                     idx === prev.messages.length - 1
                       ? { ...msg, loading: { stage1: false, stage2: false, stage3: false } }
                       : msg
-                  );
+                  ) as StreamableMessage[];
                   return { ...prev, messages };
                 });
                 setIsLoading(false);
                 break;
+              }
 
               case 'cancelled':
                 log.debug('Chat request cancelled');
@@ -830,14 +915,14 @@ export function useMessageStreaming({
             signal: abortControllerRef.current?.signal,
           }
         );
-      } catch (error: any) {
-        if (error.name === 'AbortError') {
+      } catch (error: unknown) {
+        if (error instanceof Error && error.name === 'AbortError') {
           log.debug('Chat request was cancelled');
           setIsLoading(false);
           return;
         }
         log.error('Failed to send chat message:', error);
-        setCurrentConversation((prev: any) => {
+        setCurrentConversation((prev) => {
           if (!prev?.messages) return prev;
           return { ...prev, messages: prev.messages.slice(0, -2) };
         });
@@ -872,4 +957,4 @@ export function useMessageStreaming({
   };
 }
 
-export type { StreamingContext, ConversationState, UseMessageStreamingOptions };
+export type { StreamingContext, ConversationState, UseMessageStreamingOptions, ImageAttachment };

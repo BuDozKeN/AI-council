@@ -10,7 +10,7 @@
 import { useState } from 'react';
 import * as Popover from '@radix-ui/react-popover';
 import * as Tooltip from '@radix-ui/react-tooltip';
-import { Building2, Users, BookOpen, Zap, Check, ImageIcon, FileText, ScrollText, Shield, ChevronRight } from 'lucide-react';
+import { Building2, Users, BookOpen, Zap, Check, FileText, ScrollText, Shield, ChevronRight } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from '../ui/BottomSheet';
 import { DepartmentCheckboxItem } from '../ui/DepartmentCheckboxItem';
@@ -24,7 +24,6 @@ const TOOLTIPS = {
   playbooks: "Apply your company's guides to the answer",
   councilMode: "Multiple AI experts discuss and give you a combined answer",
   chatMode: "Quick answer from one AI — faster, simpler",
-  attach: "Add a photo or screenshot",
   send: "Send your question",
   stop: "Stop the AI from writing more",
 };
@@ -435,21 +434,8 @@ export function ChatInput({
             )}
           </div>
 
-          {/* Right side: Attach + Send */}
+          {/* Right side: Send button only */}
           <div className="omni-right">
-            {withTooltip(
-              <button
-                type="button"
-                className="omni-icon-btn attach"
-                onClick={imageUpload.openFilePicker}
-                disabled={isLoading}
-                aria-label="Attach image"
-              >
-                <ImageIcon size={18} />
-              </button>,
-              TOOLTIPS.attach
-            )}
-
             {isLoading ? (
               withTooltip(
                 <button

@@ -47,46 +47,14 @@
 }
 
 /* =============================================================================
-   PERSISTENT CONTEXT INDICATOR
-   Shows question (AI-summarized) + context pills at top of messages
-   Sticky positioning so user always knows context while scrolling
+   CONTEXT INDICATOR CONTENT STYLES
+   The sticky positioning is handled by StickyHeader component.
+   These styles are for the content inside the indicator only.
    ============================================================================= */
 
 .context-indicator {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 6px 12px;
-  margin: 0 0 8px;
-
-  /* Premium glass effect - stronger blur and saturation */
-  background: var(--overlay-white-80);
-  backdrop-filter: blur(32px) saturate(180%);
-  -webkit-backdrop-filter: blur(32px) saturate(180%);
-  border: 1px solid var(--overlay-white-40);
-  border-radius: 0 0 var(--radius-md) var(--radius-md); /* Flat top, rounded bottom */
-  border-top: none; /* No top border - flush with container */
   font-size: 11px;
   color: var(--color-text-secondary);
-
-  /* Sticky - stays visible at top with NO gap */
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky); /* Higher than content elements like badges */
-
-  /* Premium layered shadow */
-  box-shadow: var(--shadow-md);
-}
-
-/* Dark mode context indicator - matches LandingHero dark mode */
-.dark .context-indicator,
-[data-theme="dark"] .context-indicator {
-  background: rgb(var(--color-slate-800-rgb), 0.85);
-  border-color: var(--overlay-white-10);
-  border-top: none;
-  box-shadow:
-    0 2px 6px var(--overlay-black-20),
-    0 8px 24px var(--overlay-black-40);
 }
 
 /* Question line - what the user asked (AI-summarized) */
@@ -94,6 +62,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  margin-bottom: 4px; /* Gap between question and pills since parent is block now */
 }
 
 .context-question-icon {
@@ -295,12 +264,9 @@
   flex: 1;
   overflow-x: hidden;
   overflow-y: auto;
-  scrollbar-gutter: stable both-edges; /* Reserve space on both sides for symmetric centering */
-
-  /* Horizontal padding creates the reading column effect */
 
   /* Bottom padding provides space for gradient fade effect */
-  padding: 0 24px 48px; /* Extra bottom padding for smooth scroll fade */
+  padding: 0 24px 48px;
 
   /* Center the content flow on wide screens */
   display: flex;
@@ -339,11 +305,6 @@
   max-width: 72ch; /* ~680-720px based on typography - optimal reading width */
   margin-left: auto;
   margin-right: auto;
-}
-
-/* Allow certain elements to break out of reading column */
-.messages-container > .context-indicator {
-  max-width: none; /* Sticky header spans full width */
 }
 
 /* Scroll button is now fixed position, not in flow */
@@ -439,24 +400,79 @@
   font-weight: 600;
   color: var(--color-text-secondary);
   margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  text-transform: none; /* Remove uppercase for proper brand display */
+  letter-spacing: 0.3px;
 }
 
-/* User message card - matches stage card styling for visual consistency */
-.user-message .message-content {
+/* AxCouncil wordmark - icon + text */
+.axcouncil-wordmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.axcouncil-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.axcouncil-wordmark span {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+/* =============================================================================
+   USER QUESTION STAGE - Styled like Stage 1/2 for consistency
+   Collapsible with "Your Question" title, collapsed by default
+   ============================================================================= */
+
+/* User message wrapper - contains label + card like assistant messages */
+.user-message-wrapper {
+  margin-top: 16px;
+}
+
+/* User stage card - single box, no nested containers */
+.stage-user {
   background: var(--color-bg-secondary);
-  padding: 20px;
-  border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 12px 16px;
   box-shadow: var(--shadow-sm);
+}
+
+/* Collapse row - arrow + inline preview */
+.user-collapse-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.stage-user .collapse-arrow {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Inline preview text when collapsed */
+.user-preview-inline {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+/* Expanded content - same box, just more content visible */
+.user-expanded {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+  cursor: pointer;
   color: var(--color-text-primary);
   line-height: 1.6;
-  white-space: pre-wrap;
 }
 
-/* Dark mode user message */
-.dark .user-message .message-content {
+/* Dark mode user stage */
+.dark .stage-user {
   background: var(--color-bg-secondary);
   border-color: var(--color-border);
 }
@@ -1101,7 +1117,7 @@ button.role-select-trigger:focus {
    ============================================================================= */
 
 .context-popover-content {
-  z-index: var(--z-modal-dropdown);
+  z-index: 99999;
   min-width: 180px;
   max-width: 260px;
   max-height: 300px;
@@ -1192,6 +1208,26 @@ button.role-select-trigger:focus {
 .context-popover-checkbox.checked {
   background: var(--item-color, var(--color-indigo-500));
   border-color: var(--item-color, var(--color-indigo-500));
+  color: var(--color-text-inverse);
+}
+
+/* Radio button variant for single-select (company) */
+.context-popover-radio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--color-border-dark);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-primary);
+  transition: all 0.1s ease;
+  flex-shrink: 0;
+}
+
+.context-popover-radio.checked {
+  background: var(--color-emerald-500);
+  border-color: var(--color-emerald-500);
   color: var(--color-text-inverse);
 }
 
@@ -1468,6 +1504,17 @@ button.role-select-trigger:focus {
 .dark .context-popover-checkbox.checked {
   background: var(--item-color, var(--color-indigo-500));
   border-color: var(--item-color, var(--color-indigo-500));
+}
+
+/* Dark mode radio button for single-select (company) */
+.dark .context-popover-radio {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+.dark .context-popover-radio.checked {
+  background: var(--color-emerald-500);
+  border-color: var(--color-emerald-500);
 }
 
 /* =============================================================================
@@ -2273,7 +2320,7 @@ button.role-select-trigger:focus {
   }
 
   .messages-container {
-    padding: 0 16px 16px; /* No top padding on mobile either */
+    padding: 0 16px 16px;
   }
 
   /* Remove max-width constraint on tablet - content fills available space */
@@ -2337,7 +2384,7 @@ button.role-select-trigger:focus {
 /* Small phones */
 @media (max-width: 480px) {
   .messages-container {
-    padding: 0 12px 12px; /* No top padding on small phones either */
+    padding: 0 12px 12px;
   }
 
   .input-form {
@@ -2599,18 +2646,20 @@ button.mobile-role-select {
   border-top: 1px solid var(--color-border-light);
 }
 
-/* Left side: Context icons */
+/* Left side: Context icons - flex: 1 pushes them left, actions stay right */
 .omni-left {
   display: flex;
   align-items: center;
   gap: 2px;
+  flex: 1;
+  justify-content: flex-start;
 }
 
-/* Textarea input */
+/* Textarea input - larger field for writing */
 .omni-input {
   width: 100%;
   min-width: 0;
-  padding: 8px 4px 8px 4px; /* Minimal padding - parent provides alignment */
+  padding: 4px 0;
   background: transparent;
   border: none;
   color: var(--color-text-primary);
@@ -2619,8 +2668,8 @@ button.mobile-role-select {
   line-height: 1.5;
   outline: none;
   resize: none;
-  min-height: 24px;
-  max-height: 150px;
+  min-height: 44px;
+  max-height: 200px;
   overflow-wrap: break-word;
   white-space: pre-wrap;
 }
@@ -2809,7 +2858,7 @@ button.mobile-role-select {
   line-height: 1.4;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg);
-  z-index: var(--z-tooltip);
+  z-index: 99999;
   animation: tooltipFadeIn 0.15s ease-out;
 }
 
