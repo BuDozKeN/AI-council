@@ -2,6 +2,61 @@
 
 > This file provides context for Claude Code to maintain consistency across development sessions.
 
+## Quick Start (New Terminal/Session)
+
+### Prerequisites
+
+1. **Node.js** (v18+) - [Download](https://nodejs.org/)
+2. **Python** (3.10+) - [Download](https://www.python.org/)
+3. **Git** - [Download](https://git-scm.com/)
+4. **Google Chrome** - For MCP DevTools integration
+
+### Installation (First Time Only)
+
+```bash
+# Clone and enter project
+git clone <repo-url>
+cd AI-council
+
+# Frontend dependencies
+cd frontend
+npm install
+cd ..
+
+# Backend dependencies (from project root)
+pip install -e ".[dev]"
+
+# Pre-commit hooks (optional but recommended)
+pre-commit install
+```
+
+### Starting Development
+
+**One-click startup (Windows - recommended):**
+```bash
+dev.bat
+```
+This starts Chrome (debug mode), Backend, and Frontend together.
+
+**Manual startup:**
+```bash
+# Terminal 1: Frontend
+cd frontend && npm run dev
+
+# Terminal 2: Backend (from project root)
+python -m backend.main
+
+# Terminal 3: Chrome with debugging (for Claude browser access)
+start-chrome-debug.bat
+```
+
+### Environment Variables
+
+Copy `.env.example` to `.env` and fill in:
+- `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` - Supabase project
+- `VITE_API_URL` - Usually `http://localhost:8081`
+- `OPENROUTER_API_KEY` - For LLM API access
+
 ## Project Overview
 
 AxCouncil is an AI-powered decision council platform that orchestrates multiple LLM models (Claude, GPT, Gemini, Grok, DeepSeek) through a 3-stage deliberation pipeline: individual responses → peer review → synthesis.
@@ -325,21 +380,47 @@ See `.env.example` for required variables:
 
 The project has two MCP servers configured in `.mcp.json`:
 
+### Configuration File (`.mcp.json`)
+
+```json
+{
+  "mcpServers": {
+    "supabase": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp?project_ref=ywoodvmtbkinopixoyfc"
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["chrome-devtools-mcp@latest"]
+    }
+  }
+}
+```
+
 ### 1. Supabase MCP
 Enables Claude to query the database schema and generate accurate TypeScript types.
+- **No setup required** - Works automatically via HTTP connection
+- Provides schema introspection for all tables (companies, departments, roles, etc.)
 
 ### 2. Chrome DevTools MCP
 Enables Claude to read browser console logs, network requests, and take screenshots.
 
 **Setup for browser debugging:**
-1. Run `start-chrome-debug.bat` (or launch Chrome with `--remote-debugging-port=9222`)
-2. Navigate to your app in that Chrome instance
-3. Claude can then use tools like:
-   - `chrome_console_logs` - Read console errors/warnings
-   - `chrome_network_logs` - See failed requests
-   - `chrome_screenshot` - Capture the current page
+1. Run `dev.bat` (recommended) OR `start-chrome-debug.bat` separately
+2. Chrome must be running with `--remote-debugging-port=9222`
+3. Navigate to your app in that Chrome instance (http://localhost:5173)
 
-This eliminates the need to copy-paste console errors manually.
+**Available tools:**
+- `mcp__chrome-devtools__take_snapshot` - Get page accessibility tree
+- `mcp__chrome-devtools__take_screenshot` - Capture the current page
+- `mcp__chrome-devtools__list_console_messages` - Read console logs/errors
+- `mcp__chrome-devtools__list_network_requests` - See all network requests
+- `mcp__chrome-devtools__click`, `fill`, `hover` - Interact with elements
+
+**Troubleshooting:**
+- If Chrome DevTools MCP doesn't connect, ensure no other Chrome instance is running
+- Kill stale Chrome processes: Close all Chrome windows, then run `start-chrome-debug.bat`
+- The `dev.bat` script auto-kills stale processes on ports 9222, 8081, 5173
 
 ## Architecture Decisions
 
@@ -348,3 +429,48 @@ This eliminates the need to copy-paste console errors manually.
 3. **Streaming first** - Real-time token streaming for LLM responses
 4. **Resilience patterns** - Circuit breaker, timeouts, graceful degradation
 5. **Mobile-first** - Base styles for mobile, enhanced on desktop
+
+## Deployment
+
+### Vercel (Frontend)
+- Auto-deploys on push to `master`
+- Build command: `cd frontend && npm run build`
+- Output directory: `frontend/dist`
+
+### Render (Backend)
+- Deploy trigger URL configured in project
+- Manual deploy: `curl -s -X POST "https://api.render.com/deploy/srv-cskimfrtq21c73fdr250?key=oNABP2tPJo0"`
+- Or deploy via Render dashboard
+
+### Deploy Commands
+```bash
+# Push to master (triggers Vercel auto-deploy)
+git push origin master
+
+# Trigger Render deploy
+curl -s -X POST "https://api.render.com/deploy/srv-cskimfrtq21c73fdr250?key=oNABP2tPJo0"
+```
+
+## CSS Specificity Notes
+
+When creating variant styles for components, match the specificity of base styles:
+
+```css
+/* Base has 3 class selectors */
+.omni-bar-wrapper.council-mode .omni-bar { border: 1px solid var(--color); }
+
+/* Variant must also have 3+ to override */
+.omni-bar-wrapper.omni-bar-landing .omni-bar { border: none; }
+
+/* Cover all state combinations */
+.omni-bar-wrapper.omni-bar-landing .omni-bar,
+.omni-bar-wrapper.omni-bar-landing.has-content .omni-bar,
+.omni-bar-wrapper.omni-bar-landing.council-mode .omni-bar { ... }
+```
+
+### Available CSS Overlay Variables
+Only use these defined overlay variables (from `tailwind.css`):
+- `--overlay-white-10`, `--overlay-white-20`, `--overlay-white-40`
+- `--overlay-black-10`, `--overlay-black-15`, `--overlay-black-20`, `--overlay-black-30`, `--overlay-black-40`, `--overlay-black-50`
+
+Do NOT use non-existent variables like `--overlay-black-12` or `--overlay-black-18`.
