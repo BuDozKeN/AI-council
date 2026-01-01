@@ -210,7 +210,11 @@ New dedicated Stage 2 reviewer lineup (3 cheap, diverse models):
   - Updated UI description: "Claude, GPT & DeepSeek" (was "Claude & Gemini")
   - QC: Fixed model ID mismatch (claude-3.5 → claude-3-5 for substring matching)
 - No SQL migration needed (code-only change)
-- Deploy backend to activate
+
+- **ALL PHASES 1-3 DEPLOYED**
+  - Commit: `7d4b1a0` - feat: LLM cost optimization phases 1-3
+  - Pushed to master (Vercel auto-deploy triggered)
+  - Render: Deploy manually via dashboard (hook expired)
 
 ---
 
