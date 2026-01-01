@@ -103,9 +103,9 @@ INSERT INTO model_registry (role, model_id, display_name, priority, notes) VALUE
 -- Chairman (Stage 3 - synthesizes final response)
 -- Primary model with fallbacks in case of failure
 INSERT INTO model_registry (role, model_id, display_name, priority, notes) VALUES
-('chairman', 'anthropic/claude-opus-4.5', 'Claude Opus 4.5', 0, 'Primary chairman - best synthesis'),
+('chairman', 'openai/gpt-5.1', 'GPT-5.1', 0, 'Primary chairman - best synthesis'),
 ('chairman', 'google/gemini-3-pro-preview', 'Gemini 3 Pro', 1, 'Fallback 1'),
-('chairman', 'openai/gpt-5.1', 'GPT-5.1', 2, 'Fallback 2');
+('chairman', 'anthropic/claude-opus-4.5', 'Claude Opus 4.5', 2, 'Fallback 2');
 
 -- Title Generator (fast, cheap model for generating conversation titles)
 INSERT INTO model_registry (role, model_id, display_name, priority, notes) VALUES
