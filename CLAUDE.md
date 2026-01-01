@@ -485,9 +485,9 @@ See `todo/LLM-COST-OPTIMIZATION-PLAN.md` for detailed optimization documentation
 - Output directory: `frontend/dist`
 
 ### Render (Backend)
-- Deploy trigger URL configured in project
-- Manual deploy: `curl -s -X POST "https://api.render.com/deploy/srv-cskimfrtq21c73fdr250?key=oNABP2tPJo0"`
-- Or deploy via Render dashboard
+- Service: `axcouncil-backend` at https://axcouncil-backend.onrender.com
+- Deploy hook: `curl -s -X POST "https://api.render.com/deploy/srv-d4pfrai4i8rc73e6h28g?key=M17Ys96WsOs"`
+- Or deploy via [Render Dashboard](https://dashboard.render.com)
 
 ### Deploy Commands
 ```bash
@@ -495,7 +495,7 @@ See `todo/LLM-COST-OPTIMIZATION-PLAN.md` for detailed optimization documentation
 git push origin master
 
 # Trigger Render deploy
-curl -s -X POST "https://api.render.com/deploy/srv-cskimfrtq21c73fdr250?key=oNABP2tPJo0"
+curl -s -X POST "https://api.render.com/deploy/srv-d4pfrai4i8rc73e6h28g?key=M17Ys96WsOs"
 ```
 
 ## CSS Specificity Notes
