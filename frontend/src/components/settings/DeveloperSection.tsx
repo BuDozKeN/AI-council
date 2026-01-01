@@ -165,7 +165,7 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
       <Card className="settings-card">
         <CardHeader>
           <h3>Prompt Caching</h3>
-          <p>Cache prompts to reduce costs (Claude & Gemini)</p>
+          <p>Cache prompts to reduce costs (Claude, GPT & DeepSeek)</p>
         </CardHeader>
         <CardContent>
           <div className="dev-toggle-row">

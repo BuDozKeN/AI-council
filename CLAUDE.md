@@ -430,6 +430,53 @@ Enables Claude to read browser console logs, network requests, and take screensh
 4. **Resilience patterns** - Circuit breaker, timeouts, graceful degradation
 5. **Mobile-first** - Base styles for mobile, enhanced on desktop
 
+## LLM Model Configuration
+
+### Model Registry
+
+Models are configured in two places with database taking priority:
+
+| Source | File | Purpose |
+|--------|------|---------|
+| Database | `model_registry` table | Production config, runtime updates |
+| Fallbacks | `backend/model_registry.py` | Used if DB unavailable |
+
+**Key roles:**
+- `council_member` - Stage 1 deliberation (5 premium models)
+- `stage2_reviewer` - Stage 2 peer review (3 cheap models)
+- `chairman` - Stage 3 synthesis
+- `triage`, `title_generator`, `ai_polish`, etc. - Utility tasks
+
+### Changing Models
+
+1. **Database (preferred):** Update `model_registry` table in Supabase
+2. **Code fallbacks:** Edit `FALLBACK_MODELS` in `backend/model_registry.py`
+3. **SQL migrations:** Add to `supabase/migrations/` for tracked changes
+
+### Cost Optimization
+
+The 3-stage pipeline is optimized for cost:
+
+| Stage | Models | Cost Strategy |
+|-------|--------|---------------|
+| Stage 1 | 5 premium models | Full power for quality responses |
+| Stage 2 | 3 cheap models | Grok Fast, DeepSeek, GPT-4o-mini for ranking |
+| Stage 3 | 1 chairman | Single model synthesizes final answer |
+
+**Prompt Caching:**
+- Enabled by default (`ENABLE_PROMPT_CACHING=true`)
+- Supports: Claude, GPT, DeepSeek (explicit `cache_control`)
+- Auto-cached: Gemini, Grok (implicit caching, no config needed)
+- Toggle: Settings → Developer → Prompt Caching
+- Kill switch: Set `ENABLE_PROMPT_CACHING=false` in `.env`
+
+**Config files:**
+- `backend/config.py` - `CACHE_SUPPORTED_MODELS`, feature flags
+- `backend/council.py` - 3-stage orchestration
+- `backend/openrouter.py` - API calls, caching logic
+
+See `todo/LLM-COST-OPTIMIZATION-PLAN.md` for detailed optimization documentation.
+
 ## Deployment
 
 ### Vercel (Frontend)

@@ -5,7 +5,7 @@ from typing import List, Dict, Any, Tuple, Optional, AsyncGenerator
 from .openrouter import query_models_parallel, query_model, query_model_stream
 from .config import COUNCIL_MODELS, CHAIRMAN_MODEL, CHAIRMAN_MODELS, MIN_STAGE1_RESPONSES, MIN_STAGE2_RANKINGS
 from .context_loader import get_system_prompt_with_context
-from .model_registry import get_primary_model
+from .model_registry import get_primary_model, get_models_sync
 from .security import log_app_event
 
 
@@ -307,6 +307,13 @@ Now provide your evaluation and ranking:"""
 
     messages.append({"role": "user", "content": ranking_prompt})
 
+    # Use dedicated Stage 2 reviewer models (cost-optimized)
+    # These are cheaper models optimized for ranking/review tasks
+    STAGE2_MODELS = get_models_sync('stage2_reviewer')
+    if not STAGE2_MODELS:
+        # Fallback to council models if stage2_reviewer not configured
+        STAGE2_MODELS = COUNCIL_MODELS
+
     # Use a queue to collect events from all models
     # maxsize=1000 provides backpressure if consumer is slower than producers
     queue: asyncio.Queue = asyncio.Queue(maxsize=1000)
@@ -344,14 +351,14 @@ Now provide your evaluation and ranking:"""
     # Start all model streams with staggered delays
     tasks = []
     completed_count = 0
-    total_models = len(COUNCIL_MODELS)
+    total_models = len(STAGE2_MODELS)
 
-    for i, model in enumerate(COUNCIL_MODELS):
+    for i, model in enumerate(STAGE2_MODELS):
         tasks.append(asyncio.create_task(stream_single_model(model)))
 
         if i < total_models - 1:
-            # Wait 2s before starting next model, but yield events during the wait
-            wait_end = asyncio.get_event_loop().time() + 2.0
+            # Wait 1.5s before starting next model (reduced from 2s since fewer models)
+            wait_end = asyncio.get_event_loop().time() + 1.5
             while asyncio.get_event_loop().time() < wait_end:
                 try:
                     # Short timeout to check for events frequently
@@ -383,7 +390,7 @@ Now provide your evaluation and ranking:"""
     stage2_results = []
     for model, content in model_content.items():
         if content:
-            parsed = parse_ranking_from_text(content)
+            parsed = parse_ranking_from_text(content, model=model)
             stage2_results.append({
                 "model": model,
                 "ranking": content,
@@ -392,7 +399,7 @@ Now provide your evaluation and ranking:"""
 
     # Check minimum viable rankings
     successful_count = len(stage2_results)
-    total_models = len(COUNCIL_MODELS)
+    total_reviewer_models = len(STAGE2_MODELS)
 
     if MIN_STAGE2_RANKINGS > 0 and successful_count < MIN_STAGE2_RANKINGS:
         log_app_event(
@@ -400,14 +407,14 @@ Now provide your evaluation and ranking:"""
             level="WARNING",
             received=successful_count,
             required=MIN_STAGE2_RANKINGS,
-            total=total_models,
-            failed_models=[m for m in COUNCIL_MODELS if m not in model_content or not model_content.get(m)]
+            total=total_reviewer_models,
+            failed_models=[m for m in STAGE2_MODELS if m not in model_content or not model_content.get(m)]
         )
         yield {
             "type": "stage2_insufficient",
             "received": successful_count,
             "required": MIN_STAGE2_RANKINGS,
-            "total": total_models,
+            "total": total_reviewer_models,
             "data": stage2_results,
             "label_to_model": label_to_model
         }
@@ -673,15 +680,20 @@ Now provide your evaluation and ranking:"""
 
     messages.append({"role": "user", "content": ranking_prompt})
 
-    # Get rankings from all council models in parallel
-    responses = await query_models_parallel(COUNCIL_MODELS, messages)
+    # Use dedicated Stage 2 reviewer models (cost-optimized)
+    STAGE2_MODELS = get_models_sync('stage2_reviewer')
+    if not STAGE2_MODELS:
+        STAGE2_MODELS = COUNCIL_MODELS
+
+    # Get rankings from all Stage 2 reviewer models in parallel
+    responses = await query_models_parallel(STAGE2_MODELS, messages)
 
     # Format results
     stage2_results = []
     for model, response in responses.items():
         if response is not None:
             full_text = response.get('content', '')
-            parsed = parse_ranking_from_text(full_text)
+            parsed = parse_ranking_from_text(full_text, model=model)
             stage2_results.append({
                 "model": model,
                 "ranking": full_text,
@@ -780,12 +792,13 @@ Provide a clear, well-reasoned final answer that represents the council's collec
     }
 
 
-def parse_ranking_from_text(ranking_text: str) -> List[str]:
+def parse_ranking_from_text(ranking_text: str, model: str = "unknown") -> List[str]:
     """
     Parse the FINAL RANKING section from the model's response.
 
     Args:
         ranking_text: The full text response from the model
+        model: Model name for logging parse failures
 
     Returns:
         List of response labels in ranked order
@@ -807,10 +820,32 @@ def parse_ranking_from_text(ranking_text: str) -> List[str]:
 
             # Fallback: Extract all "Response X" patterns in order
             matches = re.findall(r'Response [A-Z]', ranking_section)
-            return matches
+            if matches:
+                return matches
+
+            # Log parse failure - has FINAL RANKING header but no valid entries
+            log_app_event(
+                "RANKING_PARSE_FAILURE",
+                level="WARNING",
+                model=model,
+                reason="no_valid_entries_after_header",
+                ranking_section_preview=ranking_section[:200] if ranking_section else None
+            )
+            return []
 
     # Fallback: try to find any "Response X" patterns in order
     matches = re.findall(r'Response [A-Z]', ranking_text)
+
+    # Log if no FINAL RANKING section found
+    if not matches:
+        log_app_event(
+            "RANKING_PARSE_FAILURE",
+            level="WARNING",
+            model=model,
+            reason="no_final_ranking_section",
+            text_preview=ranking_text[:200] if ranking_text else None
+        )
+
     return matches
 
 
@@ -835,9 +870,10 @@ def calculate_aggregate_rankings(
 
     for ranking in stage2_results:
         ranking_text = ranking['ranking']
+        ranker_model = ranking.get('model', 'unknown')
 
         # Parse the ranking from the structured format
-        parsed_ranking = parse_ranking_from_text(ranking_text)
+        parsed_ranking = parse_ranking_from_text(ranking_text, model=ranker_model)
 
         for position, label in enumerate(parsed_ranking, start=1):
             if label in label_to_model:

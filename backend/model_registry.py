@@ -51,17 +51,17 @@ FALLBACK_MODELS = {
         'anthropic/claude-3-5-haiku-20241022',
     ],
     'sop_writer': [
-        'openai/gpt-4o',
+        'openai/gpt-4o-mini',  # Cost-optimized: was gpt-4o (94% cheaper)
         'anthropic/claude-3-5-sonnet-20241022',
         'google/gemini-2.0-flash-001',
     ],
     'framework_author': [
-        'openai/gpt-4o',
+        'openai/gpt-4o-mini',  # Cost-optimized: was gpt-4o (94% cheaper)
         'anthropic/claude-3-5-sonnet-20241022',
         'google/gemini-2.0-flash-001',
     ],
     'policy_writer': [
-        'openai/gpt-4o',
+        'openai/gpt-4o-mini',  # Cost-optimized: was gpt-4o (94% cheaper)
         'anthropic/claude-3-5-sonnet-20241022',
         'google/gemini-2.0-flash-001',
     ],
@@ -73,8 +73,15 @@ FALLBACK_MODELS = {
         'openai/gpt-4o',
     ],
     'ai_polish': [
-        'google/gemini-3-pro-preview',
-        'openai/gpt-4o',
+        'google/gemini-2.5-flash',  # Cost-optimized: was gemini-3-pro (95% cheaper)
+        'openai/gpt-4o-mini',
+    ],
+    # Stage 2 peer reviewers - separate from Stage 1 council for cost optimization
+    # These models review/rank Stage 1 responses at ~90% lower cost
+    'stage2_reviewer': [
+        'x-ai/grok-4-fast',                # $0.20/$0.50 - very cheap, huge context
+        'deepseek/deepseek-chat-v3-0324',  # $0.28/$0.42 - strong reasoning
+        'openai/gpt-4o-mini',              # $0.15/$0.60 - diverse architecture
     ],
 }
 

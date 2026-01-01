@@ -66,18 +66,27 @@ MOCK_LLM_SCENARIO = os.getenv("MOCK_LLM_SCENARIO", "happy_path").lower()
 # - Standard message format (no cache_control)
 # - Identical behavior to before this feature was added
 # =============================================================================
-ENABLE_PROMPT_CACHING = os.getenv("ENABLE_PROMPT_CACHING", "false").lower() == "true"
+ENABLE_PROMPT_CACHING = os.getenv("ENABLE_PROMPT_CACHING", "true").lower() == "true"
 
 # Models that support cache_control via OpenRouter
 # Anthropic: explicit cache_control required (max 4 breakpoints)
+# OpenAI: supports caching via OpenRouter
+# DeepSeek: supports caching via OpenRouter
 # NOTE: Gemini models removed - they have implicit caching via OpenRouter and
 # explicit cache_control with multipart format causes issues (hallucinations,
 # weird outputs like "REDACTED", mid-stream stops). Let Gemini use implicit caching.
 # See: https://github.com/sst/opencode/issues/4912
 CACHE_SUPPORTED_MODELS = [
-    "anthropic/claude-opus-4.5",
-    "anthropic/claude-sonnet-4",
-    "anthropic/claude-3.5-sonnet",
+    # Anthropic models (use base names for substring matching)
+    "anthropic/claude-opus-4",      # Matches claude-opus-4.5
+    "anthropic/claude-sonnet-4",    # Matches claude-sonnet-4
+    "anthropic/claude-3-5-sonnet",  # Matches claude-3-5-sonnet-20241022
+    "anthropic/claude-3-5-haiku",   # Matches claude-3-5-haiku-20241022
+    # OpenAI models
+    "openai/gpt-5",                 # Matches gpt-5.1
+    "openai/gpt-4o",                # Matches gpt-4o and gpt-4o-mini
+    # DeepSeek models
+    "deepseek/deepseek-chat",       # Matches deepseek-chat and deepseek-chat-v3-0324
 ]
 
 # =============================================================================

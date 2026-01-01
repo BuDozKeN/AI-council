@@ -464,6 +464,9 @@ async def query_model(
     Raises:
         CircuitBreakerOpen: If circuit breaker is open due to repeated failures
     """
+    # === TIMING INSTRUMENTATION ===
+    request_start_time = time.time()
+
     # === MOCK MODE INTERCEPT ===
     if MOCK_LLM:
         return await generate_mock_response(model, messages)
@@ -519,6 +522,7 @@ async def query_model(
 
         # Extract usage data for cost tracking
         usage = data.get('usage', {})
+        total_latency = time.time() - request_start_time
 
         return {
             'content': message.get('content'),
@@ -530,6 +534,8 @@ async def query_model(
                 # Cache-specific metrics (Anthropic/Gemini)
                 'cache_creation_input_tokens': usage.get('cache_creation_input_tokens', 0),
                 'cache_read_input_tokens': usage.get('cache_read_input_tokens', 0),
+                # Timing metrics for observability
+                'total_latency_ms': round(total_latency * 1000),
             },
             'model': model,
         }
@@ -571,6 +577,10 @@ async def query_model_stream(
     Yields:
         Text chunks as they arrive from the model
     """
+    # === TIMING INSTRUMENTATION ===
+    request_start_time = time.time()
+    time_to_first_token: Optional[float] = None
+
     # === MOCK MODE INTERCEPT ===
     if MOCK_LLM:
         async for chunk in generate_mock_response_stream(model, messages):
@@ -681,6 +691,7 @@ async def query_model_stream(
                             # Capture usage data (sent in final chunk before [DONE])
                             if 'usage' in data:
                                 usage = data['usage']
+                                total_latency = time.time() - request_start_time
                                 usage_data = {
                                     'prompt_tokens': usage.get('prompt_tokens', 0),
                                     'completion_tokens': usage.get('completion_tokens', 0),
@@ -688,6 +699,9 @@ async def query_model_stream(
                                     'cache_creation_input_tokens': usage.get('cache_creation_input_tokens', 0),
                                     'cache_read_input_tokens': usage.get('cache_read_input_tokens', 0),
                                     'model': model,
+                                    # Timing metrics for observability
+                                    'time_to_first_token_ms': round(time_to_first_token * 1000) if time_to_first_token else None,
+                                    'total_latency_ms': round(total_latency * 1000),
                                 }
 
                             choice = data.get('choices', [{}])[0]
@@ -705,6 +719,9 @@ async def query_model_stream(
 
                             # Yield content if present (the actual answer)
                             if content:
+                                # Capture time to first token
+                                if time_to_first_token is None:
+                                    time_to_first_token = time.time() - request_start_time
                                 token_count += 1
                                 yield content
                             # NOTE: We intentionally do NOT yield 'reasoning' field
