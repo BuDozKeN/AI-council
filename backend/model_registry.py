@@ -32,9 +32,9 @@ FALLBACK_MODELS = {
         'deepseek/deepseek-chat-v3-0324',
     ],
     'chairman': [
-        'anthropic/claude-opus-4.5',
-        'google/gemini-3-pro-preview',
         'openai/gpt-5.1',
+        'google/gemini-3-pro-preview',
+        'anthropic/claude-opus-4.5',
     ],
     'title_generator': [
         'google/gemini-2.5-flash',
