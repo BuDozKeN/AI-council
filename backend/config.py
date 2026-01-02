@@ -117,6 +117,23 @@ from .model_registry import (
 MIN_STAGE1_RESPONSES = int(os.getenv("MIN_STAGE1_RESPONSES", "3"))  # Need 3 of 5 models
 MIN_STAGE2_RANKINGS = int(os.getenv("MIN_STAGE2_RANKINGS", "2"))    # Need 2 of 5 rankers
 
+# =============================================================================
+# AI SECURITY CONFIGURATION
+# =============================================================================
+# Per-query token limits to prevent DoS via expensive queries
+# Queries exceeding this will be rejected before being sent to models
+MAX_QUERY_CHARS = int(os.getenv("MAX_QUERY_CHARS", "50000"))  # ~12.5K tokens
+MAX_QUERY_TOKENS_ESTIMATE = MAX_QUERY_CHARS // 4  # Rough estimate
+
+# Per-stage timeouts (seconds) - prevents hanging requests
+STAGE1_TIMEOUT = int(os.getenv("STAGE1_TIMEOUT", "90"))   # 90s for 5 parallel models
+STAGE2_TIMEOUT = int(os.getenv("STAGE2_TIMEOUT", "60"))   # 60s for 3 ranking models
+STAGE3_TIMEOUT = int(os.getenv("STAGE3_TIMEOUT", "120"))  # 120s for chairman synthesis
+
+# Require access_token for RLS-protected queries (recommended: true in production)
+# When false, falls back to service client (bypasses RLS) - only for backwards compat
+REQUIRE_ACCESS_TOKEN = os.getenv("REQUIRE_ACCESS_TOKEN", "false").lower() == "true"
+
 # OpenRouter API endpoint
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
 

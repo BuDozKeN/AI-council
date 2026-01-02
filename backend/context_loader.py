@@ -178,8 +178,12 @@ def load_company_context_from_db(company_id: str, access_token: Optional[str] = 
     """
     from .security import log_error
 
-    # SECURITY: Use RLS-authenticated client when possible
-    client = get_supabase_with_auth(access_token) if access_token else get_supabase_service()
+    # AI-SEC-008: Use secure client with RLS logging and optional enforcement
+    try:
+        client = get_secure_client(access_token, "load_company_context")
+    except ValueError as e:
+        log_app_event("load_company_context", level="ERROR", reason=str(e))
+        return None
     if not client:
         log_app_event("load_company_context", level="WARNING", reason="no_client")
         return None
@@ -214,8 +218,11 @@ def load_department_context_from_db(department_id: str, access_token: Optional[s
     """
     from .security import log_error
 
-    # SECURITY: Use RLS-authenticated client when possible
-    client = get_supabase_with_auth(access_token) if access_token else get_supabase_service()
+    # AI-SEC-008: Use secure client with RLS logging and optional enforcement
+    try:
+        client = get_secure_client(access_token, "load_department_context")
+    except ValueError:
+        return None
     if not client:
         return None
 
@@ -247,8 +254,11 @@ def load_role_prompt_from_db(role_id: str, access_token: Optional[str] = None) -
     Returns:
         Dict with name, description, system_prompt, or None if not found
     """
-    # SECURITY: Use RLS-authenticated client when possible
-    client = get_supabase_with_auth(access_token) if access_token else get_supabase_service()
+    # AI-SEC-008: Use secure client with RLS logging and optional enforcement
+    try:
+        client = get_secure_client(access_token, "load_role_prompt")
+    except ValueError:
+        return None
     if not client:
         return None
 
@@ -280,8 +290,11 @@ def get_company_departments(company_id: str, access_token: Optional[str] = None)
     Returns:
         List of department dicts with id, name, slug, description
     """
-    # SECURITY: Use RLS-authenticated client when possible
-    client = get_supabase_with_auth(access_token) if access_token else get_supabase_service()
+    # AI-SEC-008: Use secure client with RLS logging and optional enforcement
+    try:
+        client = get_secure_client(access_token, "get_company_departments")
+    except ValueError:
+        return []
     if not client:
         return []
 
@@ -331,8 +344,11 @@ def get_department_roles(department_id: str, access_token: Optional[str] = None)
     Returns:
         List of role dicts with id, name, slug, description
     """
-    # SECURITY: Use RLS-authenticated client when possible
-    client = get_supabase_with_auth(access_token) if access_token else get_supabase_service()
+    # AI-SEC-008: Use secure client with RLS logging and optional enforcement
+    try:
+        client = get_secure_client(access_token, "get_department_roles")
+    except ValueError:
+        return []
     if not client:
         return []
 
@@ -363,8 +379,11 @@ def get_playbooks_for_context(
     Returns:
         List of playbook dicts with title, doc_type, content, etc.
     """
-    # SECURITY: Use RLS-authenticated client when possible
-    client = get_supabase_with_auth(access_token) if access_token else get_supabase_service()
+    # AI-SEC-008: Use secure client with RLS logging and optional enforcement
+    try:
+        client = get_secure_client(access_token, "get_playbooks_for_context")
+    except ValueError:
+        return []
     if not client:
         return []
 
@@ -828,6 +847,256 @@ def validate_llm_output(output: str) -> dict:
         'is_safe': risk_level in ('none', 'low'),
         'issues': issues,
         'filtered_output': filtered_output,
+        'risk_level': risk_level,
+        'risk_score': risk_score
+    }
+
+
+def validate_query_length(query: str) -> dict:
+    """
+    Validate query length to prevent DoS via expensive context injection.
+
+    AI-SEC-006: Reject queries exceeding token limits before sending to models.
+
+    Args:
+        query: The user's query
+
+    Returns:
+        Dict with 'is_valid', 'char_count', 'estimated_tokens', 'error'
+    """
+    from .config import MAX_QUERY_CHARS, MAX_QUERY_TOKENS_ESTIMATE
+
+    char_count = len(query)
+    estimated_tokens = char_count // 4
+
+    if char_count > MAX_QUERY_CHARS:
+        return {
+            'is_valid': False,
+            'char_count': char_count,
+            'estimated_tokens': estimated_tokens,
+            'max_chars': MAX_QUERY_CHARS,
+            'max_tokens': MAX_QUERY_TOKENS_ESTIMATE,
+            'error': f'Query too long: {char_count} chars (~{estimated_tokens} tokens). Maximum: {MAX_QUERY_CHARS} chars.'
+        }
+
+    return {
+        'is_valid': True,
+        'char_count': char_count,
+        'estimated_tokens': estimated_tokens,
+        'error': None
+    }
+
+
+def get_secure_client(access_token: Optional[str], operation: str = "unknown"):
+    """
+    Get Supabase client with security logging for missing access tokens.
+
+    AI-SEC-008: Log when access_token is None (RLS bypass) and optionally enforce.
+
+    Args:
+        access_token: User's JWT token for RLS authentication
+        operation: Name of the operation for logging
+
+    Returns:
+        Supabase client (with auth if token provided, service client otherwise)
+    """
+    from .config import REQUIRE_ACCESS_TOKEN
+    from .security import log_app_event
+
+    if access_token:
+        return get_supabase_with_auth(access_token)
+
+    # Log when falling back to service client (potential RLS bypass)
+    log_app_event(
+        "RLS_BYPASS_WARNING",
+        level="WARNING",
+        operation=operation,
+        reason="access_token not provided, using service client"
+    )
+
+    if REQUIRE_ACCESS_TOKEN:
+        # In strict mode, raise error instead of bypassing RLS
+        raise ValueError(f"access_token required for operation: {operation}")
+
+    return get_supabase_service()
+
+
+def detect_ranking_manipulation(rankings: List[Dict[str, Any]]) -> dict:
+    """
+    Detect potential ranking manipulation in Stage 2 results.
+
+    AI-SEC-007: Flag suspicious patterns where one response always wins.
+
+    Args:
+        rankings: List of Stage 2 ranking results
+
+    Returns:
+        Dict with 'is_suspicious', 'patterns', 'confidence'
+    """
+    import re
+    from collections import Counter
+
+    patterns = []
+    first_place_counts = Counter()
+
+    # Extract first-place votes from each ranking
+    for ranking in rankings:
+        ranking_text = ranking.get('ranking', '')
+
+        # Look for FINAL RANKING patterns
+        final_match = re.search(r'FINAL RANKING[:\s]*\n(.*?)(?:\n\n|\Z)', ranking_text, re.IGNORECASE | re.DOTALL)
+        if final_match:
+            lines = final_match.group(1).strip().split('\n')
+            if lines:
+                # First line should be first place
+                first_line = lines[0].strip()
+                # Extract response letter (A, B, C, etc.)
+                letter_match = re.search(r'Response\s+([A-Z])', first_line, re.IGNORECASE)
+                if letter_match:
+                    first_place_counts[letter_match.group(1).upper()] += 1
+
+    # Check for manipulation patterns
+    total_rankings = len(rankings)
+    if total_rankings >= 2:
+        for letter, count in first_place_counts.items():
+            # If one response got 100% of first-place votes
+            if count == total_rankings:
+                patterns.append({
+                    'type': 'unanimous_first_place',
+                    'response': letter,
+                    'severity': 'medium',
+                    'description': f'Response {letter} ranked #1 by all {total_rankings} reviewers'
+                })
+
+            # If one response got significantly more first places than others
+            elif count >= total_rankings * 0.8 and total_rankings >= 3:
+                patterns.append({
+                    'type': 'dominant_ranking',
+                    'response': letter,
+                    'severity': 'low',
+                    'description': f'Response {letter} ranked #1 by {count}/{total_rankings} reviewers'
+                })
+
+    # Calculate suspicion score
+    if not patterns:
+        return {
+            'is_suspicious': False,
+            'patterns': [],
+            'confidence': 'none'
+        }
+
+    max_severity = max(p['severity'] for p in patterns)
+    return {
+        'is_suspicious': True,
+        'patterns': patterns,
+        'confidence': max_severity
+    }
+
+
+def detect_multi_turn_attack(conversation_history: List[Dict[str, str]], current_query: str) -> dict:
+    """
+    Detect potential multi-turn prompt extraction attacks.
+
+    AI-SEC-010: Flag patterns across conversation that suggest gradual prompt extraction.
+
+    Args:
+        conversation_history: Previous messages in conversation
+        current_query: The current user query
+
+    Returns:
+        Dict with 'is_suspicious', 'patterns', 'risk_level'
+    """
+    import re
+
+    patterns = []
+    risk_score = 0
+
+    # Extract all user messages
+    user_messages = [msg['content'] for msg in conversation_history if msg.get('role') == 'user']
+    user_messages.append(current_query)
+
+    # Multi-turn extraction patterns
+    extraction_keywords = [
+        r'what\s+(are|were)\s+your\s+instructions?',
+        r'tell\s+me\s+(about\s+)?your\s+(system\s+)?prompt',
+        r'how\s+(are|were)\s+you\s+configured',
+        r'what\s+(is|was)\s+your\s+role',
+        r'what\s+context\s+(do|did)\s+you\s+have',
+        r'reveal\s+your\s+(instructions?|prompt|context)',
+        r'show\s+me\s+your\s+(system\s+)?prompt',
+        r'repeat\s+(back\s+)?your\s+instructions?',
+    ]
+
+    extraction_count = 0
+    for msg in user_messages:
+        msg_lower = msg.lower()
+        for pattern in extraction_keywords:
+            if re.search(pattern, msg_lower):
+                extraction_count += 1
+                break
+
+    # Flag if multiple extraction attempts across conversation
+    if extraction_count >= 2:
+        patterns.append({
+            'type': 'repeated_extraction_attempt',
+            'count': extraction_count,
+            'severity': 'high'
+        })
+        risk_score += 5
+
+    # Look for gradual probing patterns
+    probe_patterns = [
+        r'what\s+do\s+you\s+know\s+about',
+        r'what\s+information\s+do\s+you\s+have',
+        r'tell\s+me\s+more\s+about\s+your',
+        r'can\s+you\s+describe\s+your',
+        r'what\s+company\s+are\s+you\s+helping',
+    ]
+
+    probe_count = 0
+    for msg in user_messages:
+        msg_lower = msg.lower()
+        for pattern in probe_patterns:
+            if re.search(pattern, msg_lower):
+                probe_count += 1
+                break
+
+    if probe_count >= 3:
+        patterns.append({
+            'type': 'gradual_context_probing',
+            'count': probe_count,
+            'severity': 'medium'
+        })
+        risk_score += 3
+
+    # Check for injection attempts escalating across turns
+    injection_escalation = 0
+    for i, msg in enumerate(user_messages):
+        suspicious = detect_suspicious_query(msg)
+        if suspicious['is_suspicious']:
+            injection_escalation += 1
+
+    if injection_escalation >= 2:
+        patterns.append({
+            'type': 'repeated_injection_attempts',
+            'count': injection_escalation,
+            'severity': 'high'
+        })
+        risk_score += 5
+
+    # Determine risk level
+    if risk_score >= 8:
+        risk_level = 'high'
+    elif risk_score >= 4:
+        risk_level = 'medium'
+    elif risk_score >= 1:
+        risk_level = 'low'
+    else:
+        risk_level = 'none'
+
+    return {
+        'is_suspicious': len(patterns) > 0,
+        'patterns': patterns,
         'risk_level': risk_level,
         'risk_score': risk_score
     }
