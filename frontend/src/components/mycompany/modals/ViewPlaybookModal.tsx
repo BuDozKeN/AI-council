@@ -130,7 +130,7 @@ export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave,
               autoFocus
             />
           ) : (
-            <h2
+            <h1
               className="mc-title-display editable"
               onClick={() => setIsEditingTitle(true)}
               title="Click to edit title"
@@ -139,7 +139,7 @@ export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave,
               <svg className="mc-pencil-icon" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
               </svg>
-            </h2>
+            </h1>
           )}
         </div>
         <button className="mc-modal-close-clean" onClick={onClose} aria-label="Close">

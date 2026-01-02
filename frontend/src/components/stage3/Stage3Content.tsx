@@ -1,4 +1,4 @@
-import { memo, useState, useEffect, useRef } from 'react';
+import { memo, useState, useEffect, useRef, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
@@ -7,8 +7,60 @@ import { CheckCircle2 } from 'lucide-react';
 import { hapticSuccess } from '../../lib/haptics';
 import { CELEBRATION } from '../../lib/animation-constants';
 import type { Stage3ContentProps, CodeBlockProps } from '../../types/stages';
+import type { UsageData } from '../../types/conversation';
 // Import shared prose styling for consistent rendering with playbooks/SOPs
 import '../MarkdownViewer.css';
+
+// Model pricing (per 1M tokens) - must match backend utils.py
+// Last verified: 2025-01-02 via OpenRouter/official docs
+const MODEL_PRICING: Record<string, { input: number; output: number }> = {
+  // Anthropic
+  'anthropic/claude-opus-4.5': { input: 5, output: 25 },
+  'anthropic/claude-sonnet-4': { input: 3, output: 15 },
+  'anthropic/claude-3-5-haiku-20241022': { input: 0.80, output: 4.0 },  // Fixed: was 1/5
+  // OpenAI
+  'openai/gpt-4o': { input: 5, output: 15 },
+  'openai/gpt-4o-mini': { input: 0.15, output: 0.60 },
+  'openai/gpt-5.1': { input: 1.25, output: 10 },  // Fixed: was 5/20
+  // Google
+  'google/gemini-3-pro-preview': { input: 2, output: 12 },
+  'google/gemini-2.5-flash': { input: 0.30, output: 2.50 },  // Fixed: was 0.075/0.30
+  // xAI
+  'x-ai/grok-4': { input: 3, output: 15 },
+  'x-ai/grok-4-fast': { input: 0.20, output: 0.50 },
+  // DeepSeek
+  'deepseek/deepseek-chat-v3-0324': { input: 0.28, output: 0.42 },
+  // Meta (Llama) - Stage 2 reviewer
+  'meta-llama/llama-4-maverick': { input: 0.15, output: 0.60 },
+  // Moonshot (Kimi) - Stage 2 reviewer
+  'moonshotai/kimi-k2': { input: 0.456, output: 1.84 },
+  default: { input: 2, output: 8 },
+};
+
+function getModelPricing(model: string): { input: number; output: number } {
+  const exact = MODEL_PRICING[model];
+  if (exact) return exact;
+  for (const [key, pricing] of Object.entries(MODEL_PRICING)) {
+    if (key !== 'default' && (model.includes(key) || key.includes(model))) return pricing;
+  }
+  return { input: 2, output: 8 }; // Default fallback
+}
+
+function calculateCost(usage: UsageData): number {
+  let totalCost = 0;
+  for (const [model, modelUsage] of Object.entries(usage.by_model)) {
+    const pricing = getModelPricing(model);
+    const inputCost = (modelUsage.prompt_tokens / 1_000_000) * pricing.input;
+    const outputCost = (modelUsage.completion_tokens / 1_000_000) * pricing.output;
+    totalCost += inputCost + outputCost;
+  }
+  return totalCost;
+}
+
+function formatCost(cost: number): string {
+  if (cost < 0.01) return `$${cost.toFixed(3)}`;
+  return `$${cost.toFixed(2)}`;
+}
 
 // Custom code block renderer with hover-reveal copy button
 function CodeBlock({ children, className }: CodeBlockProps) {
@@ -44,7 +96,15 @@ function Stage3Content({
   isStreaming,
   isComplete,
   chairmanIconPath,
+  usage,
 }: Stage3ContentProps) {
+  // Calculate cost from usage data
+  const costDisplay = useMemo(() => {
+    if (!usage || !isComplete) return null;
+    const cost = calculateCost(usage);
+    return formatCost(cost);
+  }, [usage, isComplete]);
+
   // Track completion celebration
   const [showCompleteCelebration, setShowCompleteCelebration] = useState(false);
   const [cursorFading, setCursorFading] = useState(false);
@@ -86,7 +146,7 @@ function Stage3Content({
 
   return (
     <>
-      {/* Header row: Chairman LLM icon + status + copy button */}
+      {/* Header row: Chairman LLM icon + status + cost badge */}
       <div className="stage3-header-row">
         <div className={`chairman-indicator ${showCompleteCelebration ? 'celebrating' : ''}`}>
           {chairmanIconPath && (
@@ -100,6 +160,11 @@ function Stage3Content({
           )}
           {hasError && <span className="error-badge">Error</span>}
         </div>
+        {costDisplay && (
+          <span className="stage3-cost-badge" title="Estimated cost for this council deliberation">
+            {costDisplay}
+          </span>
+        )}
       </div>
 
       {/* Content wrapper */}

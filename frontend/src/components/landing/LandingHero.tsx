@@ -11,7 +11,7 @@ import { motion } from 'framer-motion';
 import { AuroraBackground } from '../ui/aurora-background';
 import { OmniBar } from '../shared';
 import { springs, springWithDelay } from '../../lib/animations';
-import type { Business, Department, Role, Playbook } from '../../types/business';
+import type { Business, Department, Role, Playbook, Project } from '../../types/business';
 import './LandingHero.css';
 
 interface LandingHeroProps {
@@ -19,6 +19,10 @@ interface LandingHeroProps {
   businesses?: Business[];
   selectedBusiness?: string | null;
   onSelectBusiness: (id: string | null) => void;
+  // Project selection (passed to OmniBar icons)
+  projects?: Project[];
+  selectedProject?: string | null;
+  onSelectProject: (id: string | null) => void;
   // Context selection (passed to OmniBar icons)
   departments?: Department[];
   selectedDepartments?: string[];
@@ -34,6 +38,8 @@ interface LandingHeroProps {
   onChatModeChange: (mode: 'chat' | 'council') => void;
   // Submit handler
   onSubmit: (content: string, mode?: string) => void;
+  // Reset all selections
+  onResetAll?: () => void;
   isLoading?: boolean;
 }
 
@@ -42,6 +48,10 @@ export function LandingHero({
   businesses = [],
   selectedBusiness = null,
   onSelectBusiness,
+  // Project selection
+  projects = [],
+  selectedProject = null,
+  onSelectProject,
   // Context selection
   departments = [],
   selectedDepartments = [],
@@ -57,13 +67,18 @@ export function LandingHero({
   onChatModeChange,
   // Submit handler
   onSubmit,
+  // Reset all selections
+  onResetAll,
   isLoading = false,
 }: LandingHeroProps) {
   const [input, setInput] = useState('');
 
   // Filter roles to those belonging to selected departments
+  // IMPORTANT: Always include selected roles even if they're from a different department
+  // This prevents the confusing UX where selected items disappear from the list
   const availableRoles = allRoles.filter(
     (role) =>
+      selectedRoles.includes(role.id) || // Always show selected roles
       selectedDepartments.length === 0 ||
       (role.departmentId && selectedDepartments.includes(role.departmentId))
   );
@@ -148,6 +163,10 @@ export function LandingHero({
             businesses={businesses}
             selectedBusiness={selectedBusiness}
             onSelectBusiness={onSelectBusiness}
+            // Project selection
+            projects={projects}
+            selectedProject={selectedProject}
+            onSelectProject={onSelectProject}
             // Departments, roles, playbooks
             departments={departments}
             selectedDepartments={selectedDepartments}
@@ -158,6 +177,7 @@ export function LandingHero({
             playbooks={playbooks}
             selectedPlaybooks={selectedPlaybooks}
             onSelectPlaybooks={onSelectPlaybooks}
+            onResetAll={onResetAll}
           />
         </motion.div>
       </motion.div>

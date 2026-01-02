@@ -12,6 +12,7 @@ import type { MyCompanyTab } from './components/mycompany/hooks';
 import { Toaster, toast } from './components/ui/sonner';
 import { MockModeBanner } from './components/ui/MockModeBanner';
 import { ThemeToggle } from './components/ui/ThemeToggle';
+import MobileBottomNav from './components/ui/MobileBottomNav';
 import { logger } from './utils/logger';
 import type { Conversation, Message } from './types/conversation';
 import type { UsageData } from './components/ui/TokenUsageDisplay';
@@ -241,10 +242,21 @@ function App() {
   // Determine if we should show the landing hero (Perplexity-style)
   // Show when: authenticated, has a temp conversation with no messages
   const showLandingHero = useMemo(() => {
-    if (!isAuthenticated || needsPasswordReset) return false;
-    if (!currentConversation) return false;
-    // Show landing when it's a temp conversation with no messages
-    return currentConversation.isTemp && currentConversation.messages?.length === 0;
+    if (!isAuthenticated || needsPasswordReset) {
+      log.debug('[showLandingHero] false: not authenticated or needs password reset');
+      return false;
+    }
+    if (!currentConversation) {
+      log.debug('[showLandingHero] false: no current conversation');
+      return false;
+    }
+    const result = currentConversation.isTemp && currentConversation.messages?.length === 0;
+    log.debug('[showLandingHero]', result, {
+      isTemp: currentConversation.isTemp,
+      messagesLength: currentConversation.messages?.length,
+      id: currentConversation.id,
+    });
+    return result;
   }, [isAuthenticated, needsPasswordReset, currentConversation]);
 
   // Performance: Preload ChatInterface while user is on LandingHero
@@ -265,6 +277,7 @@ function App() {
 
   // Conversation action handlers - wrap context handlers with App-specific logic
   const handleNewConversation = useCallback(() => {
+    log.debug('[handleNewConversation] Creating new temp conversation');
     contextNewConversation();
     setSelectedProject(null);
     clearReturnState();
@@ -416,6 +429,15 @@ function App() {
   const handleMockModeChange = useCallback((enabled: boolean) => {
     setMockModeEnabled(enabled);
   }, []);
+
+  // Reset all context selections (company, project, departments, roles, playbooks)
+  const handleResetAllSelections = useCallback(() => {
+    setSelectedBusiness(null);
+    setSelectedProject(null);
+    setSelectedDepartments([]);
+    setSelectedRoles([]);
+    setSelectedPlaybooks([]);
+  }, [setSelectedBusiness, setSelectedProject, setSelectedDepartments, setSelectedRoles, setSelectedPlaybooks]);
 
   // Load businesses on mount (with token ready check)
   // Conversations are now loaded by BusinessContext when business changes
@@ -1297,6 +1319,9 @@ function App() {
               businesses={businesses}
               selectedBusiness={selectedBusiness}
               onSelectBusiness={setSelectedBusiness}
+              projects={projects}
+              selectedProject={selectedProject}
+              onSelectProject={setSelectedProject}
               departments={availableDepartments}
               selectedDepartments={selectedDepartments}
               onSelectDepartments={setSelectedDepartments}
@@ -1309,6 +1334,7 @@ function App() {
               chatMode={landingChatMode}
               onChatModeChange={setLandingChatMode}
               onSubmit={handleLandingSubmit}
+              onResetAll={handleResetAllSelections}
               isLoading={isLoading}
             />
           </motion.div>
@@ -1447,7 +1473,12 @@ function App() {
         <Suspense fallback={<LazyFallback />}>
           <Settings
             isOpen={isSettingsOpen}
-            onClose={closeSettings}
+            onClose={() => {
+              log.debug('[Settings.onClose] Closing settings and returning to landing');
+              closeSettings();
+              // Return to landing page by creating a new temp conversation
+              handleNewConversation();
+            }}
             companyId={selectedBusiness}
             onMockModeChange={handleMockModeChange}
           />
@@ -1509,6 +1540,17 @@ function App() {
       )}
       {/* Toast notifications for undo actions */}
       <Toaster />
+
+      {/* Mobile bottom navigation - thumb-friendly access to main sections */}
+      {!isMyCompanyOpen && !isSettingsOpen && !isLeaderboardOpen && !isProjectModalOpen && (
+        <MobileBottomNav
+          onNewChat={handleNewConversation}
+          onOpenHistory={() => setIsMobileSidebarOpen(true)}
+          onOpenMyCompany={handleOpenMyCompany}
+          onOpenSettings={handleOpenSettings}
+          activeTab={isMobileSidebarOpen ? 'history' : 'chat'}
+        />
+      )}
       </div>
     </motion.div>
   );

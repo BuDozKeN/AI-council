@@ -382,6 +382,7 @@ export default function ChatInterface({
     if (isLoadingConversation) {
       return (
         <main id="main-content" className="chat-interface" aria-label="Chat interface">
+          <h1 className="sr-only">Loading Conversation</h1>
           <div className="council-loader-overlay">
             <CouncilLoader text="Getting your conversation ready..." />
           </div>
@@ -411,6 +412,7 @@ export default function ChatInterface({
 
   return (
     <main id="main-content" className="chat-interface" aria-label="Chat interface">
+      <h1 className="sr-only">{conversation?.title || 'Chat with Council'}</h1>
       {/* Back to My Company floating button */}
       {returnToMyCompanyTab && onReturnToMyCompany && (
         <button
@@ -602,6 +604,9 @@ export default function ChatInterface({
             // Context props for follow-ups (icons inside omnibar)
             chatMode={chatMode}
             onChatModeChange={setChatMode}
+            projects={projects}
+            selectedProject={selectedProject}
+            onSelectProject={onSelectProject}
             departments={departments}
             selectedDepartments={selectedDepartments}
             onSelectDepartments={onSelectDepartments}
@@ -611,6 +616,12 @@ export default function ChatInterface({
             playbooks={playbooks}
             selectedPlaybooks={selectedPlaybooks}
             onSelectPlaybooks={onSelectPlaybooks}
+            onResetAll={() => {
+              onSelectProject(null);
+              onSelectDepartments([]);
+              onSelectRoles([]);
+              onSelectPlaybooks([]);
+            }}
           />
         </form>
       )}

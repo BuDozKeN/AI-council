@@ -218,7 +218,7 @@ const AppModalBase = React.forwardRef<HTMLDivElement, AppModalProps>(({
               <div className={cn("app-modal-header", headerClassName)}>
                 <div className="app-modal-header-text">
                   {title && (
-                    <span className="app-modal-title-display">{title}</span>
+                    <h1 className="app-modal-title-display">{title}</h1>
                   )}
                   {badge && (
                     <span

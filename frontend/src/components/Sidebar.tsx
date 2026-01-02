@@ -593,13 +593,12 @@ export default function Sidebar({
             {/* History - hover to see conversations */}
             <SidebarIconButton
               icon={<History className="h-5 w-5" />}
-              title={`History (${totalConversations})`}
+              title="History"
               onClick={togglePin}
               onMouseEnter={() => { if (totalConversations > 0) handleIconHover('history'); }}
               onMouseLeave={handleIconLeave}
               isActive={hoveredIcon === 'history'}
               disabled={totalConversations === 0}
-              badge={totalConversations > 0 ? totalConversations : undefined}
             />
 
             {/* Leaderboard - if available */}

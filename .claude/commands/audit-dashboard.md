@@ -24,7 +24,7 @@ You are running the AxCouncil audit dashboard. This command supports **selective
 | `mobile` | Mobile | PWA, responsive, touch |
 | `a11y` | Accessibility | WCAG 2.1 AA |
 | `perf` | Performance | Core Web Vitals, bundle |
-| `llm-ops` | LLM Operations | Token costs, models |
+| `llm-ops` | LLM Operations | Token costs, models, **pricing verification** |
 | `data` | Data Architecture | RLS, schema, multi-tenancy |
 | `billing` | Billing Economics | Revenue, Stripe, abuse |
 | `resilience` | Resilience | Error handling, observability |
@@ -131,7 +131,7 @@ Update `AUDIT_DASHBOARD.md` in the repository root:
 | Performance | X/10 | ↑/↓/→ | N | N | N | [date] |
 | Accessibility | X/10 | ↑/↓/→ | N | N | N | [date] |
 | Mobile | X/10 | ↑/↓/→ | N | N | N | [date] |
-| LLM Operations | X/10 | ↑/↓/→ | N | N | N | [date] |
+| LLM Operations | X/10 | ↑/↓/→ | N | N | N | [date] | <!-- Includes pricing verification -->
 | Data Architecture | X/10 | ↑/↓/→ | N | N | N | [date] |
 | Billing | X/10 | ↑/↓/→ | N | N | N | [date] |
 | Resilience | X/10 | ↑/↓/→ | N | N | N | [date] |
@@ -304,6 +304,9 @@ All audits measure against $25M / Silicon Valley standards:
 - `backend/council.py`
 - `backend/openrouter.py`
 - `backend/model_registry.py`
+- `backend/routers/company/utils.py` - **Verify pricing tables online**
+- `frontend/src/components/stage3/Stage3Content.tsx` - **Verify pricing matches backend**
+- **REQUIRED**: Use WebSearch to verify all model pricing against OpenRouter/official docs
 
 #### data
 - `supabase/migrations/**`
@@ -415,6 +418,7 @@ All audits measure against $25M / Silicon Valley standards:
 3. **Update "Last Checked" date** - Only for categories you ran
 4. **Preserve score history** - Append new row, keep last 10
 5. **Be honest** - Don't inflate scores
+6. **LLM-ops requires WebSearch** - Always verify model pricing online before reporting
 
 ---
 

@@ -53,39 +53,30 @@
   color: var(--color-text-primary);
 }
 
-/* Winner badge - modern medal emoji + icon style (matches Stage 1 rank badges) */
+/* Winner badge - minimal, just medal + icon */
 .stage2-winner {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   margin-left: auto;
-  padding: 4px 10px;
-  background: var(--color-indigo-500);
-  color: var(--color-text-inverse);
-  border-radius: var(--radius-lg);
   flex-shrink: 0;
-  font-weight: 600;
-  font-size: 14px;
-  box-shadow: var(--shadow-sm);
 }
 
 .stage2-winner .winner-medal {
-  font-size: 16px;
+  font-size: 18px;
   line-height: 1;
 }
 
 .stage2-winner .winner-model-icon {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   object-fit: contain;
   border-radius: 50%;
-  background: var(--overlay-white-20);
-  padding: 1px;
 }
 
 /* Accordion content */
 .stage2-content {
-  padding-top: 16px;
+  padding-top: 0; /* Tabs provide their own margin-top to match Stage 1 */
 }
 
 .stage2-section-title {
@@ -238,54 +229,47 @@
 .stage2 .tabs {
   display: flex;
   gap: 8px;
+  margin-top: 12px; /* Match Stage 1 pills margin-top */
   margin-bottom: 16px;
   flex-wrap: wrap;
 }
 
 .stage2 .tab {
+  /* Reset button defaults to match Stage 1 span-based pills */
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  font-family: inherit;
+  line-height: normal;
+  letter-spacing: inherit;
+  text-align: left;
+  /* Actual styles - must match Stage 1 .model-summary-pill exactly */
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 16px;
+  padding: 8px 14px;
   background: var(--color-bg-primary);
-  border: 1px solid var(--color-border-dark);
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   color: var(--color-text-secondary);
   cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 
-/* Icon wrapper with status badge - matches Stage 1 pattern exactly */
+/* Icon - simple, no wrapper border (matches Stage 1 pill style) */
 .stage2 .tab .tab-icon-wrapper {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: var(--color-bg-secondary);
-  border: 2px solid var(--color-border);
   flex-shrink: 0;
-  overflow: visible;
-}
-
-.stage2 .tab.complete .tab-icon-wrapper {
-  border-color: var(--color-success);
-}
-
-.stage2 .tab.error .tab-icon-wrapper {
-  border-color: var(--color-error);
-}
-
-.stage2 .tab.streaming .tab-icon-wrapper {
-  border-color: var(--color-info);
 }
 
 .stage2 .tab .tab-model-icon {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
   object-fit: contain;
 }
@@ -358,11 +342,9 @@
 }
 
 .stage2 .tab.active {
-  background: var(--color-bg-primary);
+  background: var(--color-brand-primary-light);
   color: var(--color-brand-primary);
   border-color: var(--color-brand-primary);
-  border-bottom-color: var(--color-bg-primary);
-  font-weight: 600;
 }
 
 .stage2 .tab-content {
@@ -435,6 +417,7 @@
   align-items: center;
   gap: 8px;
   flex-wrap: nowrap;
+  margin-bottom: 0; /* Match Stage 1 collapsed - tabs provide their own margin-top */
 }
 
 .stage2 .stage-title.clickable {
@@ -479,85 +462,9 @@
   margin-bottom: 0;
 }
 
-/* =============================================================================
-   MODEL SUMMARY PILLS - Collapsed view showing provider groups
-   Matches Stage 1's collapsed summary style
-   ============================================================================= */
-
-.model-summary-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.model-summary-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-  transition: all 0.2s ease;
-}
-
-.model-summary-pill.complete {
-  border-color: var(--color-success);
-  background: var(--color-success-bg);
-}
-
-.model-summary-pill.streaming {
-  border-color: var(--color-info);
-  background: var(--color-info-light);
-}
-
-.model-summary-pill.error {
-  border-color: var(--color-warning);
-  background: var(--color-warning-light);
-}
-
-.model-summary-pill .pill-check {
-  color: var(--color-success);
-  font-weight: 700;
-  font-size: 14px;
-}
-
-.model-summary-pill .pill-icon {
-  width: 18px;
-  height: 18px;
-  object-fit: contain;
-}
-
-.model-summary-pill .pill-label {
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-/* Dark mode pills */
-.dark .model-summary-pill {
-  background: var(--color-bg-secondary);
-  border-color: var(--color-border);
-  color: var(--color-text-secondary);
-}
-
-.dark .model-summary-pill.complete {
-  border-color: var(--color-success);
-  background: var(--overlay-green-10);
-}
-
-.dark .model-summary-pill.streaming {
-  border-color: var(--color-info);
-  background: var(--overlay-blue-10);
-}
-
-.dark .model-summary-pill.error {
-  border-color: var(--color-warning);
-  background: var(--overlay-amber-10);
-}
+/* NOTE: .model-summary-pill styles are defined ONLY in Stage1.css
+   Stage 2 uses .tab class for its reviewer pills - see below.
+   This ensures one source of truth for pill styles. */
 
 .ranking-content {
   color: var(--color-text-primary);
@@ -603,13 +510,8 @@
   border-color: var(--color-success);
 }
 
-.stage2 .tab.error {
-  border-color: var(--color-error);
-  color: var(--color-error-hover);
-}
-
 .stage2 .tab.streaming {
-  border-color: var(--color-success);
+  border-color: var(--color-info);
 }
 
 .stage2 .typing-indicator {
@@ -683,14 +585,6 @@
   color: var(--color-text-primary);
 }
 
-.dark .stage2-winner {
-  background: var(--color-indigo-500);
-  color: var(--color-text-inverse);
-}
-
-.dark .stage2-winner .winner-model-icon {
-  background: var(--overlay-white-15);
-}
 
 .dark .stage2-section-title {
   color: var(--color-violet-400);
@@ -867,10 +761,6 @@
     padding: 12px;
   }
 
-  .stage2-content {
-    padding-top: 12px;
-  }
-
   /* Stage title - ensure single line on mobile */
   .stage2 .stage-title {
     gap: 6px;
@@ -909,45 +799,35 @@
     height: 14px;
   }
 
-  /* Tabs - horizontal scroll with proper touch targets */
+  /* Tabs - compact wrapping pills to match Stage 1 exactly */
   .stage2 .tabs {
     display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    gap: 8px;
-    padding-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 10px;
     margin-bottom: 12px;
-    flex-wrap: nowrap;
-
-    /* Hide scrollbar but keep functionality */
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  .stage2 .tabs::-webkit-scrollbar {
-    display: none;
   }
 
   .stage2 .tab {
-    flex-shrink: 0;
-    scroll-snap-align: start;
-    min-height: 44px;
-    min-width: 44px;
-    padding: 10px 14px;
-    font-size: 14px;
-    white-space: nowrap;
-    border-radius: var(--radius-md);
+    /* Match Stage 1 pills exactly */
+    padding: 6px 10px;
+    font-size: 11px;
+    line-height: 1;
   }
 
   .stage2 .tab .tab-icon-wrapper {
-    width: 28px;
-    height: 28px;
+    width: 16px;
+    height: 16px;
+  }
+
+  .stage2 .tab .tab-status-badge {
+    /* Hide badge on mobile to match Stage 1 simplicity */
+    display: none;
   }
 
   .stage2 .tab .tab-model-icon {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
   }
 
   /* Tab content - more padding for readability */
@@ -1129,8 +1009,8 @@
   }
 
   .stage2 .tab {
-    padding: 8px 12px;
-    font-size: 13px;
+    padding: 5px 8px;
+    font-size: 10px;
   }
 
   .aggregate-item {

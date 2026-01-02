@@ -76,12 +76,16 @@ FALLBACK_MODELS = {
         'google/gemini-2.5-flash',  # Cost-optimized: was gemini-3-pro (95% cheaper)
         'openai/gpt-4o-mini',
     ],
-    # Stage 2 peer reviewers - separate from Stage 1 council for cost optimization
-    # These models review/rank Stage 1 responses at ~90% lower cost
+    # Stage 2 peer reviewers - 6 models for robust consensus rankings
+    # More reviewers = better statistical confidence in rankings
+    # Cost optimized but quality-assured with Claude Sonnet as anchor
     'stage2_reviewer': [
-        'x-ai/grok-4-fast',                # $0.20/$0.50 - very cheap, huge context
-        'deepseek/deepseek-chat-v3-0324',  # $0.28/$0.42 - strong reasoning
-        'openai/gpt-4o-mini',              # $0.15/$0.60 - diverse architecture
+        'anthropic/claude-sonnet-4',       # $3.00/$15.00 - quality anchor
+        'openai/gpt-4o-mini',              # $0.15/$0.60 - smart & cheap
+        'x-ai/grok-4-fast',                # $0.20/$0.50 - fast variant
+        'google/gemini-2.5-flash',         # $0.15/$0.60 - fast & economical Google
+        'moonshotai/kimi-k2',              # $0.46/$1.84 - Chinese AI (Moonshot)
+        'deepseek/deepseek-chat-v3-0324',  # $0.28/$0.42 - Chinese AI (DeepSeek) + top reasoning
     ],
 }
 

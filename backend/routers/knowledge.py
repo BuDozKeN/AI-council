@@ -23,7 +23,24 @@ from .. import model_registry
 # Import rate limiter
 from slowapi import Limiter
 from slowapi.util import get_remote_address
-limiter = Limiter(key_func=get_remote_address)
+
+
+def get_user_id_or_ip(request):
+    """
+    SECURITY: Get user ID from request state for rate limiting.
+    Falls back to IP address only for unauthenticated requests.
+    Using user ID prevents IP spoofing bypass via X-Forwarded-For.
+    """
+    # Try to get user ID from request state (set by auth middleware)
+    if hasattr(request.state, 'user') and request.state.user:
+        user_id = request.state.user.get('id') or request.state.user.get('sub')
+        if user_id:
+            return f"user:{user_id}"
+    # Fallback to IP for unauthenticated requests
+    return get_remote_address(request)
+
+
+limiter = Limiter(key_func=get_user_id_or_ip)
 
 
 router = APIRouter(prefix="/knowledge", tags=["knowledge"])
@@ -376,11 +393,17 @@ async def get_conversation_linked_project(
 ):
     """Check if a conversation has a linked project."""
     try:
-        from ..database import get_supabase_with_auth, get_supabase_service
+        from ..database import get_supabase_with_auth
         access_token = user.get("access_token")
 
-        # SECURITY: Use RLS-authenticated client when possible
-        client = get_supabase_with_auth(access_token) if access_token else get_supabase_service()
+        # SECURITY: Always require access token - no service client fallback
+        # This ensures RLS policies are enforced for all queries
+        if not access_token:
+            raise SecureHTTPException.unauthorized(
+                details={"reason": "Access token required for project lookup"}
+            )
+
+        client = get_supabase_with_auth(access_token)
         if client is None:
             return {"project": None}
 

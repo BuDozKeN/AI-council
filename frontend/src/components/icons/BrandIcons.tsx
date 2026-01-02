@@ -3,13 +3,15 @@
  * Brand Icons for AI Providers
  *
  * Official SVG icons from Simple Icons (https://simpleicons.org)
- * for the 5 council members + chairman:
+ * for council members + chairman:
  * - Claude (Anthropic) - Official "A" logo
  * - ChatGPT (OpenAI) - Official hexagonal knot logo
  * - Gemini (Google) - Official 4-point sparkle logo
  * - Grok (xAI) - X logo
  * - DeepSeek - Custom whale icon
- * - Chairman (Council synthesis) - Gavel icon
+ * - Meta (Llama) - Meta infinity logo
+ * - Moonshot (Kimi) - Moonshot crescent logo
+ * - Chairman (Council synthesis) - Scale icon
  */
 
 interface IconProps {
@@ -113,6 +115,39 @@ export function DeepSeekIcon({ size = 24, className = '' }: IconProps) {
   );
 }
 
+// Meta (Llama) - Official Meta infinity logo from Simple Icons
+export function MetaIcon({ size = 24, className = '' }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-label="Meta"
+    >
+      <path d="M6.915 4.03c-1.968 0-3.683 1.28-4.871 3.113C.704 9.208 0 11.883 0 14.449c0 .706.07 1.369.21 1.973a4.883 4.883 0 0 0 1.271 2.15c.656.614 1.52.928 2.553.928 1.14 0 2.127-.36 2.942-.972.81-.617 1.597-1.462 2.414-2.524l.03-.04.03.04c.816 1.062 1.603 1.907 2.413 2.524.816.611 1.802.972 2.942.972 1.033 0 1.897-.314 2.552-.928a4.878 4.878 0 0 0 1.272-2.15c.139-.604.209-1.267.209-1.973 0-2.566-.703-5.24-2.044-7.306C15.598 5.31 13.883 4.03 11.915 4.03c-1.87 0-3.424.812-4.5 2.086C6.34 4.842 4.785 4.03 2.915 4.03zm0 1.5c1.34 0 2.53.682 3.457 1.763.697.813 1.277 1.852 1.694 3.036l.086.256a20.15 20.15 0 0 1 .69 2.865c.06.322.108.645.145.967.014.12.027.24.037.36l.003.037a2.655 2.655 0 0 1-.216-.4 6.68 6.68 0 0 1-.354-.863 15.45 15.45 0 0 1-.49-1.655c-.238-.929-.388-1.74-.388-2.345v-.004c0-.602.15-1.161.41-1.653.262-.496.647-.925 1.136-1.257.485-.33 1.068-.552 1.71-.66a6.57 6.57 0 0 1 1.015-.077c.347 0 .687.026 1.016.077.642.108 1.225.33 1.71.66.49.332.875.761 1.137 1.257.26.492.41 1.051.41 1.653v.004c0 .605-.15 1.416-.388 2.345a15.45 15.45 0 0 1-.49 1.655 6.68 6.68 0 0 1-.355.863 2.655 2.655 0 0 1-.216.4l.004-.037c.01-.12.022-.24.036-.36.037-.322.086-.645.145-.967.156-.858.388-1.83.69-2.865l.087-.256c.417-1.184.997-2.223 1.694-3.036.927-1.081 2.117-1.763 3.457-1.763 1.34 0 2.515.679 3.427 1.758.905 1.072 1.6 2.573 2.015 4.229.41 1.64.562 3.377.38 4.991a5.633 5.633 0 0 1-.577 1.998c-.258.517-.597.95-1.016 1.259a2.566 2.566 0 0 1-1.51.48c-.642 0-1.225-.172-1.712-.455a5.467 5.467 0 0 1-1.263-1.049 14.892 14.892 0 0 1-1.384-1.803l-.1-.148-.1.148a14.892 14.892 0 0 1-1.384 1.803c-.417.476-.85.847-1.263 1.05-.487.282-1.07.454-1.711.454a2.566 2.566 0 0 1-1.511-.48c-.42-.308-.758-.742-1.016-1.259a5.633 5.633 0 0 1-.576-1.998 15.21 15.21 0 0 1 .38-4.991c.414-1.656 1.11-3.157 2.014-4.229.912-1.079 2.087-1.758 3.427-1.758z" />
+    </svg>
+  );
+}
+
+// Moonshot (Kimi) - Crescent moon icon representing Moonshot AI
+export function MoonshotIcon({ size = 24, className = '' }: IconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={className}
+      aria-label="Moonshot"
+    >
+      {/* Stylized crescent moon for Moonshot/Kimi */}
+      <path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z" />
+    </svg>
+  );
+}
+
 // Chairman/Council - Scale icon (balance/synthesis) - Lucide style
 export function ChairmanIcon({ size = 24, className = '' }: IconProps) {
   return (
@@ -145,6 +180,8 @@ export const PROVIDER_ICONS = {
   google: GeminiIcon,
   xai: GrokIcon,
   deepseek: DeepSeekIcon,
+  meta: MetaIcon,
+  moonshot: MoonshotIcon,
   council: ChairmanIcon
 };
 

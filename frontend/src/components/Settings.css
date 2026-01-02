@@ -5,6 +5,11 @@
   padding: 0;
 }
 
+/* Remove the header border line for Settings modal - cleaner look */
+.app-modal-content:has(.settings-modal-body) .app-modal-header {
+  border-bottom: none;
+}
+
 .settings-content {
   display: flex;
   flex: 1;
@@ -20,8 +25,12 @@
   width: 180px;
   min-width: 180px;
   background: var(--color-bg-tertiary);
-  border-right: 1px solid var(--color-border);
-  padding: 16px 12px;
+  /* No border - cleaner look */
+  padding: 24px 12px; /* Match panel padding for alignment */
+  /* Rounded corners on all sides */
+  border-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
 }
 
 .settings-tab {
@@ -58,7 +67,7 @@
 /* Panel */
 .settings-panel {
   flex: 1;
-  padding: 24px;
+  padding: 12px 24px 24px; /* Top padding adjusted so card header aligns with sidebar buttons */
   overflow-y: auto;
 
   /* Fixed height to prevent layout shift between tabs */
@@ -73,14 +82,8 @@
   /* Content fills the panel, panel controls min-height */
 }
 
-.loading-state {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
-  color: var(--color-text-muted);
-  font-size: 14px;
-}
+/* NOTE: .loading-state styles are in ui/LoadingState.css
+   Use the <LoadingState /> component instead of custom loading divs */
 
 /* =============================================================================
    SETTINGS CARDS - Override shadcn Card styles for Settings context
@@ -493,12 +496,17 @@
     /* Vertical icon-only sidebar on left */
     width: 56px;
     min-width: 56px;
+    /* height controlled by flexbox align-self: stretch */
     border-right: 1px solid var(--color-border);
     border-bottom: none;
-    padding: 12px 8px;
+    padding: 20px 8px 16px; /* Top padding matches card header for alignment */
     flex-direction: column;
     gap: 4px;
     flex-shrink: 0;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0; /* Rounded top corners to match sheet */
+    overflow: hidden; /* Clip content to rounded corners */
+    /* Flexbox: stretch to fill parent height */
+    align-self: stretch;
   }
 
   .settings-tab {
@@ -527,33 +535,42 @@
 
   .settings-panel {
     flex: 1;
-
-    /* Fixed height panel - content scrolls inside */
-    height: 100%;
-    padding: 20px;
+    min-height: 0; /* Critical: allow flex item to shrink below content size */
+    overflow-y: auto; /* Enable scrolling */
+    padding: 0 16px 16px; /* No top padding - card header provides spacing to align with sidebar icons */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
   }
 
   .plans-grid {
     grid-template-columns: 1fr;
   }
 
-  /* Inside BottomSheet: prevent nested scroll containers
-     BottomSheet handles scrolling at the body level, so settings
-     shouldn't create its own scroll container */
+  /* Inside BottomSheet: fill available space */
+  .bottom-sheet-body:has(.settings-content) {
+    /* Make body a flex container so settings-content can fill it */
+    display: flex;
+    flex-direction: column;
+  }
+
   .bottom-sheet-body .settings-content {
-    /* Let content size naturally - no fixed height that forces scrolling */
-    height: auto;
-    min-height: auto;
-    overflow: visible;
+    /* Fill the body container */
+    flex: 1;
+    min-height: 0; /* Critical: allow shrinking for scroll to work */
+    max-height: 100%; /* Constrain to parent */
+    overflow: hidden;
+  }
+
+  .bottom-sheet-body .settings-sidebar {
+    /* Sidebar must stretch to fill content height in flexbox */
+    align-self: stretch;
   }
 
   .bottom-sheet-body .settings-panel {
-    /* Remove scroll - bottom-sheet-body is the scroll container */
-    overflow: visible;
-
-    /* Remove min-height that forces empty scrollable space */
-    min-height: auto;
-    height: auto;
+    /* Panel scrolls internally for long content */
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0; /* Critical: allow shrinking */
+    -webkit-overflow-scrolling: touch;
   }
 }
 
@@ -576,7 +593,11 @@
   .settings-sidebar {
     width: 52px;
     min-width: 52px;
-    padding: 10px 6px;
+    /* height controlled by flexbox align-self: stretch */
+    padding: 16px 6px 12px; /* Top padding matches card header for alignment */
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0; /* Rounded top corners to match sheet */
+    overflow: hidden; /* Clip content to rounded corners */
+    align-self: stretch;
   }
 
   .settings-tab {
@@ -586,26 +607,35 @@
   }
 
   .settings-panel {
-    padding: 16px;
-    height: 100%;
+    flex: 1;
+    min-height: 0; /* Critical: allow flex item to shrink below content size */
+    overflow-y: auto; /* Enable scrolling */
+    padding: 0 12px 12px; /* No top padding - card header provides spacing */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
   }
 
-  /* Inside BottomSheet: let bottom-sheet-body handle scrolling, not settings-panel */
-  .bottom-sheet-body .settings-content {
-    /* Remove fixed height - let content determine size naturally */
-    height: auto;
-    min-height: auto;
+  /* Inside BottomSheet: fill available space */
+  .bottom-sheet-body:has(.settings-content) {
+    display: flex;
+    flex-direction: column;
+  }
 
-    /* Ensure content doesn't overflow horizontally */
-    overflow: visible;
+  .bottom-sheet-body .settings-content {
+    flex: 1;
+    min-height: 0; /* Critical: allow shrinking for scroll to work */
+    max-height: 100%; /* Constrain to parent */
+    overflow: hidden;
+  }
+
+  .bottom-sheet-body .settings-sidebar {
+    align-self: stretch;
   }
 
   .bottom-sheet-body .settings-panel {
-    /* Remove scroll from panel - bottom-sheet-body scrolls */
-    overflow: visible;
-
-    /* Remove fixed min-height that forces empty space */
-    min-height: auto;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0; /* Critical: allow shrinking */
+    -webkit-overflow-scrolling: touch;
   }
 
   .settings-section h3 {
@@ -630,7 +660,9 @@
   .settings-sidebar {
     width: 48px;
     min-width: 48px;
-    padding: 8px 4px;
+    padding: 14px 4px 10px; /* Top padding for alignment */
+    border-top-left-radius: 0; /* Full screen on very small phones, no rounded corners */
+    overflow: hidden;
   }
 
   .settings-tab {
@@ -640,7 +672,7 @@
   }
 
   .settings-panel {
-    padding: 12px;
+    padding: 0 10px 10px; /* No top padding - card provides spacing */
   }
 }
 

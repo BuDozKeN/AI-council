@@ -326,24 +326,15 @@ def increment_query_usage(user_id: str, access_token: Optional[str] = None) -> i
         # Function might not exist yet, fall back to non-atomic version
         log_billing_event(f"Atomic increment failed: {type(e).__name__}", user_id=user_id, status="warning")
 
-    # Fallback: non-atomic increment (only used if migration not applied)
-    # This maintains backwards compatibility during deployment
-    supabase_client = _get_client(access_token)
-    result = supabase_client.table('user_profiles').select('queries_used_this_period').eq('user_id', user_id).execute()
-
-    current = 0
-    if result.data:
-        current = result.data[0].get('queries_used_this_period', 0) or 0
-
-    new_count = current + 1
-
-    supabase_client.table('user_profiles').upsert({
-        'user_id': user_id,
-        'queries_used_this_period': new_count,
-        'updated_at': datetime.utcnow().isoformat() + 'Z'
-    }, on_conflict='user_id').execute()
-
-    return new_count
+    # SECURITY: Fallback removed - atomic increment is now required
+    # If the RPC function doesn't exist, fail safely rather than use non-atomic increment
+    # which could allow race condition bypass of query limits
+    log_billing_event(
+        "SECURITY: Atomic increment required but unavailable - denying request",
+        user_id=user_id,
+        status="error"
+    )
+    raise ValueError("Query limit check unavailable - please try again")
 
 
 def handle_webhook_event(payload: bytes, sig_header: str) -> Dict[str, Any]:

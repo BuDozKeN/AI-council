@@ -3,14 +3,14 @@
  */
 
 import type { ReactNode } from 'react';
-import type { StreamingState } from './conversation';
+import type { StreamingState, UsageData } from './conversation';
 
 // =============================================================================
 // SHARED TYPES
 // =============================================================================
 
 /** Provider names for icon mapping */
-export type Provider = 'anthropic' | 'openai' | 'google' | 'xai' | 'deepseek';
+export type Provider = 'anthropic' | 'openai' | 'google' | 'xai' | 'deepseek' | 'meta' | 'moonshot';
 
 /** Provider icon path mapping */
 export type ProviderIconPaths = Record<Provider, string>;
@@ -118,6 +118,7 @@ export interface Stage3ContentProps {
   isStreaming: boolean;
   isComplete: boolean;
   chairmanIconPath: string | null;
+  usage?: UsageData;
 }
 
 /** Props for Stage3 component */

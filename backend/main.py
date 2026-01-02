@@ -395,12 +395,24 @@ class RequestDurationMiddleware(BaseHTTPMiddleware):
 
     - Logs slow requests (>1s warning, >5s error)
     - Adds X-Response-Time header to all responses
-    - Excludes health check endpoints from slow request logging
+    - Excludes health check and LLM-heavy endpoints from slow request logging
     """
 
     SLOW_REQUEST_THRESHOLD = 1.0  # seconds - log warning
     VERY_SLOW_THRESHOLD = 5.0  # seconds - log error
     EXCLUDED_PATHS = {"/health", "/health/live", "/health/ready", "/"}
+    # LLM-heavy endpoints that naturally take longer (5-30s is normal)
+    LLM_PATH_PATTERNS = (
+        "/messages",           # Council deliberation
+        "/chat/stream",        # Chat mode
+        "/merge-decision",     # Decision merging
+        "/triage/analyze",     # Triage analysis
+        "/triage/continue",    # Triage continuation
+    )
+
+    def _is_llm_endpoint(self, path: str) -> bool:
+        """Check if path is an LLM-heavy endpoint that's expected to be slow."""
+        return any(pattern in path for pattern in self.LLM_PATH_PATTERNS)
 
     async def dispatch(self, request, call_next):
         import time
@@ -414,9 +426,9 @@ class RequestDurationMiddleware(BaseHTTPMiddleware):
         # Add timing header
         response.headers["X-Response-Time"] = f"{duration_ms}ms"
 
-        # Log slow requests (except health checks)
+        # Log slow requests (except health checks and LLM endpoints)
         path = request.url.path
-        if path not in self.EXCLUDED_PATHS:
+        if path not in self.EXCLUDED_PATHS and not self._is_llm_endpoint(path):
             if duration >= self.VERY_SLOW_THRESHOLD:
                 log_app_event(
                     "VERY_SLOW_REQUEST",
@@ -861,6 +873,68 @@ async def readiness_check():
             status_code=503,
             content={"status": "not_ready", "reason": "database_unavailable"}
         )
+
+
+@app.get("/health/metrics")
+async def metrics_endpoint():
+    """
+    Real-time observability metrics endpoint.
+
+    Returns Prometheus-compatible metrics for:
+    - Circuit breaker states (per-model)
+    - Cache hit rates and sizes
+    - Request counts
+
+    Use this for monitoring dashboards and alerting.
+    """
+    try:
+        from .openrouter import get_all_circuit_breaker_statuses
+    except ImportError:
+        from backend.openrouter import get_all_circuit_breaker_statuses
+
+    try:
+        from .utils.cache import user_cache, company_cache
+    except ImportError:
+        from backend.utils.cache import user_cache, company_cache
+
+    # Get circuit breaker states
+    cb_statuses = get_all_circuit_breaker_statuses()
+
+    # Count circuit breaker states
+    cb_summary = {
+        "total": len(cb_statuses),
+        "closed": sum(1 for s in cb_statuses.values() if s.get("state") == "closed"),
+        "open": sum(1 for s in cb_statuses.values() if s.get("state") == "open"),
+        "half_open": sum(1 for s in cb_statuses.values() if s.get("state") == "half_open"),
+    }
+
+    # Get cache metrics
+    user_stats = user_cache.stats()
+    company_stats = company_cache.stats()
+
+    return {
+        "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "circuit_breakers": {
+            "summary": cb_summary,
+            "models": cb_statuses,
+        },
+        "caches": {
+            "user_cache": {
+                "size": user_stats["size"],
+                "max_size": user_stats["max_size"],
+                "metrics": user_stats["metrics"],
+            },
+            "company_cache": {
+                "size": company_stats["size"],
+                "max_size": company_stats["max_size"],
+                "metrics": company_stats["metrics"],
+            },
+        },
+        "server": {
+            "is_shutting_down": _shutdown_manager.is_shutting_down,
+            "active_requests": _shutdown_manager.active_requests,
+        },
+    }
 
 
 @app.get("/api/v1/businesses")

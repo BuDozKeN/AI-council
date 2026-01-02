@@ -3,7 +3,15 @@
 
    Centered empty state with icon, text, and optional action.
    Use this instead of custom empty state implementations in components.
+
+   Variants:
+   - default: Subtle, for lists/panels (smaller icon, text)
+   - large: Prominent, for welcome screens (larger icon, text, with hints)
    ============================================================================= */
+
+/* -----------------------------------------------------------------------------
+   BASE STYLES (default variant)
+   ----------------------------------------------------------------------------- */
 
 .empty-state {
   display: flex;
@@ -28,6 +36,14 @@
   margin-bottom: 4px;
 }
 
+/* Custom icon wrapper - no background, let the custom icon handle it */
+.empty-state-icon-custom {
+  width: auto;
+  height: auto;
+  background: transparent;
+  border-radius: 0;
+}
+
 .empty-state-title {
   margin: 0;
   font-size: 15px;
@@ -40,21 +56,90 @@
   font-size: 14px;
   color: var(--color-slate-500);
   max-width: 280px;
+  line-height: 1.5;
 }
 
 .empty-state-action {
   margin-top: 8px;
 }
 
-/* =============================================================================
+/* -----------------------------------------------------------------------------
+   LARGE VARIANT (for welcome screens, chat empty states)
+   ----------------------------------------------------------------------------- */
+
+.empty-state-large {
+  height: 100%;
+  min-height: 300px;
+  gap: 0;
+}
+
+.empty-state-large .empty-state-icon {
+  width: 64px;
+  height: 64px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: var(--color-indigo-100);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 4px 12px var(--overlay-indigo-15);
+  color: var(--color-indigo-500);
+}
+
+.empty-state-large .empty-state-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.empty-state-large .empty-state-title {
+  margin-bottom: 8px;
+  font-size: 24px;
+}
+
+.empty-state-large .empty-state-message {
+  margin-bottom: 20px;
+  font-size: 15px;
+  max-width: 360px;
+  color: var(--color-text-secondary);
+}
+
+/* -----------------------------------------------------------------------------
+   HINTS (optional tips below message)
+   ----------------------------------------------------------------------------- */
+
+.empty-state-hints {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.empty-state-hint {
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+  padding: 6px 12px;
+  background: var(--color-slate-50);
+  border-radius: var(--radius-md);
+}
+
+/* -----------------------------------------------------------------------------
    DARK MODE
-   ============================================================================= */
+   ----------------------------------------------------------------------------- */
 
 .dark .empty-state-icon {
   background: var(--color-bg-tertiary);
   color: var(--color-text-tertiary);
 }
 
+.dark .empty-state-large .empty-state-icon {
+  background: var(--color-indigo-900);
+  color: var(--color-indigo-300);
+  box-shadow: 0 4px 12px var(--overlay-black-20);
+}
+
 .dark .empty-state-message {
   color: var(--color-text-tertiary);
+}
+
+.dark .empty-state-hint {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-muted);
 }

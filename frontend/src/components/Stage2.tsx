@@ -3,7 +3,6 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Spinner } from './ui/Spinner';
 import { CopyButton } from './ui/CopyButton';
-import { Users, CheckCircle2 } from 'lucide-react';
 import { getModelPersona } from '../config/modelPersonas';
 import { useCompletionCelebration } from '../hooks/useCelebration';
 import { CELEBRATION } from '../lib/animation-constants';
@@ -17,6 +16,8 @@ const PROVIDER_ICON_PATH: ProviderIconPaths = {
   google: '/icons/gemini.svg',
   xai: '/icons/grok.svg',
   deepseek: '/icons/deepseek.svg',
+  meta: '/icons/meta.svg',
+  moonshot: '/icons/moonshot.svg',
 };
 
 // Get icon path for a model - with fallback pattern matching
@@ -35,6 +36,8 @@ function getModelIconPath(modelId: string): string | null {
   if (lowerModel.includes('gemini')) return '/icons/gemini.svg';
   if (lowerModel.includes('grok')) return '/icons/grok.svg';
   if (lowerModel.includes('deepseek')) return '/icons/deepseek.svg';
+  if (lowerModel.includes('llama') || lowerModel.includes('meta')) return '/icons/meta.svg';
+  if (lowerModel.includes('kimi') || lowerModel.includes('moonshot')) return '/icons/moonshot.svg';
 
   return null;
 }
@@ -124,7 +127,6 @@ function Stage2({
 
   // Check if all models are complete
   const allComplete = displayData.every(d => d.isComplete || d.hasError);
-  const streamingCount = displayData.filter(d => d.isStreaming).length;
 
   // Use the reusable celebration hook for stage completion
   const { isCelebrating: showCompleteCelebration } = useCompletionCelebration(
@@ -160,7 +162,6 @@ function Stage2({
     return (
       <div className="stage stage2">
         <h3 className="stage-title">
-          <Users className="h-5 w-5 text-violet-500 flex-shrink-0" />
           <span className="font-semibold tracking-tight">Experts Review Each Other</span>
         </h3>
         <div className="stage-loading">
@@ -190,18 +191,13 @@ function Stage2({
     <div className={`stage stage2 ${isCollapsed ? 'collapsed' : ''} ${showCompleteCelebration ? 'celebrating' : ''}`} data-stage="stage2">
       <h3 className="stage-title clickable" onClick={toggleCollapsed}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
-        {streamingCount > 0 ? (
-          <Users className="h-5 w-5 text-violet-500 animate-pulse flex-shrink-0" />
-        ) : (
-          <CheckCircle2 className={`h-5 w-5 text-violet-600 flex-shrink-0 ${showCompleteCelebration ? 'animate-stage-complete' : ''}`} />
-        )}
         <span className="font-semibold tracking-tight">Experts Review Each Other</span>
 
         {/* Winner badge - medal emoji with icon, modern clean style */}
         {winnerModel && (
           <span
             className={`stage2-winner ${showCompleteCelebration ? 'animate-winner-reveal' : ''}`}
-            title={`Winner: ${winnerPersona?.fullName || winnerPersona?.shortName || 'Unknown'} — Voted #1 by ${aggregateRankings?.length || 5} AI experts with avg score ${winnerAvg} (1 = best)`}
+            title={`Winner: ${winnerPersona?.fullName || winnerPersona?.shortName || 'Unknown'} — Voted #1 by ${displayData.length} AI experts with avg score ${winnerAvg} (1 = best)`}
           >
             <span className="winner-medal">🥇</span>
             {winnerIconPath && (
@@ -228,7 +224,7 @@ function Stage2({
               return (
                 <button
                   key={data.model}
-                  className={`tab ${activeTab === index ? 'active' : ''} ${data.isStreaming ? 'streaming' : ''} ${data.hasError || data.isEmpty ? 'error' : ''} ${data.isComplete && !data.isEmpty ? 'complete' : ''}`}
+                  className={`tab no-touch-target ${activeTab === index ? 'active' : ''} ${data.isStreaming ? 'streaming' : ''} ${data.hasError || data.isEmpty ? 'error' : ''} ${data.isComplete && !data.isEmpty ? 'complete' : ''}`}
                   onClick={() => setActiveTab(index)}
                   title={persona.fullName}
                 >
@@ -325,7 +321,7 @@ function Stage2({
                   const persona = getModelPersona(agg.model);
                   const iconPath = getModelIconPath(agg.model);
                   const displayName = persona.providerLabel || persona.shortName;
-                  const totalVoters = aggregateRankings.length;
+                  const totalVoters = displayData.length;
                   const isClickable = !!onModelClick;
                   return (
                     <div

@@ -102,7 +102,8 @@
 
 .stat-pill {
   display: flex;
-  align-items: baseline;
+  align-items: center;
+  justify-content: center;
   gap: 6px;
   padding: 8px 16px;
   background: var(--overlay-black-10);
@@ -178,13 +179,40 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  margin-top: 16px; /* Extra breathing room from pills above */
 }
 
 /* Responsive */
 @media (max-width: 640px) {
+  /* Mobile: Fill height and position OmniBar at bottom like Perplexity */
+  .landing-hero-aurora {
+    align-items: stretch;
+    justify-content: stretch;
+  }
+
   .landing-hero {
+    flex: 1;
+    height: 100%;
     padding: 16px;
-    gap: 24px;
+    padding-bottom: 16px; /* Space above bottom nav */
+    gap: 0; /* Remove gap - use flex spacing instead */
+    justify-content: flex-end; /* Push everything toward bottom */
+  }
+
+  /* Header section - centered in remaining space above OmniBar */
+  .landing-header {
+    flex: 1; /* Take up remaining space */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Center content vertically */
+    padding: 0;
+  }
+
+  /* OmniBar container stays at bottom */
+  .omni-bar-container {
+    flex-shrink: 0;
+    margin-top: 24px; /* Space between header and input */
   }
 }
 

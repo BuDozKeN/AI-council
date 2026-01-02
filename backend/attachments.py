@@ -5,10 +5,16 @@ It does NOT fetch images from URLs, so SSRF (Server-Side Request Forgery) is not
 All images are validated using magic bytes to prevent MIME type spoofing.
 """
 
+import io
 import uuid
+import logging
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Tuple
+from PIL import Image
 from .database import get_supabase_with_auth, get_supabase_service
+from .security import SecureHTTPException, log_security_event
+
+logger = logging.getLogger(__name__)
 
 # Constants
 BUCKET_NAME = "attachments"
@@ -17,6 +23,12 @@ MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
 # Allowed file extensions (must match ALLOWED_MIME_TYPES)
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+# Image optimization settings
+MAX_IMAGE_DIMENSION = 2048  # Max width or height in pixels
+JPEG_QUALITY = 85  # JPEG compression quality (1-100)
+WEBP_QUALITY = 85  # WebP compression quality (1-100)
+PNG_COMPRESSION = 6  # PNG compression level (0-9)
 
 # Magic bytes for image file validation
 # These are the first few bytes that identify file types
@@ -59,6 +71,69 @@ def validate_image_magic_bytes(file_data: bytes, claimed_mime_type: str) -> bool
     return False
 
 
+def optimize_image(file_data: bytes, file_type: str) -> Tuple[bytes, str]:
+    """
+    Optimize an image by resizing and compressing it.
+
+    - Resizes images larger than MAX_IMAGE_DIMENSION (2048px)
+    - Compresses JPEG/WebP with quality setting
+    - Strips EXIF metadata for privacy
+    - GIFs are returned unchanged (animated)
+
+    Args:
+        file_data: Raw image bytes
+        file_type: MIME type of the image
+
+    Returns:
+        Tuple of (optimized_bytes, output_mime_type)
+    """
+    # Skip optimization for GIFs (may be animated)
+    if file_type == "image/gif":
+        return file_data, file_type
+
+    try:
+        # Open image with PIL
+        img = Image.open(io.BytesIO(file_data))
+
+        # Convert RGBA to RGB for JPEG (JPEG doesn't support alpha)
+        if file_type == "image/jpeg" and img.mode in ('RGBA', 'LA', 'P'):
+            background = Image.new('RGB', img.size, (255, 255, 255))
+            if img.mode == 'P':
+                img = img.convert('RGBA')
+            background.paste(img, mask=img.split()[-1] if img.mode == 'RGBA' else None)
+            img = background
+
+        # Resize if larger than max dimension
+        width, height = img.size
+        if width > MAX_IMAGE_DIMENSION or height > MAX_IMAGE_DIMENSION:
+            # Calculate new size maintaining aspect ratio
+            ratio = min(MAX_IMAGE_DIMENSION / width, MAX_IMAGE_DIMENSION / height)
+            new_size = (int(width * ratio), int(height * ratio))
+            img = img.resize(new_size, Image.Resampling.LANCZOS)
+
+        # Save to buffer with compression
+        output = io.BytesIO()
+
+        if file_type == "image/jpeg":
+            # JPEG: compress with quality setting
+            img.save(output, format='JPEG', quality=JPEG_QUALITY, optimize=True)
+        elif file_type == "image/webp":
+            # WebP: compress with quality setting
+            img.save(output, format='WEBP', quality=WEBP_QUALITY, method=4)
+        elif file_type == "image/png":
+            # PNG: compress with compression level
+            img.save(output, format='PNG', compress_level=PNG_COMPRESSION, optimize=True)
+        else:
+            # Fallback: save as-is
+            img.save(output, format=img.format or 'PNG')
+
+        return output.getvalue(), file_type
+
+    except Exception:
+        # If optimization fails, return original data
+        return file_data, file_type
+
+
 async def upload_attachment(
     user_id: str,
     access_token: str,
@@ -99,6 +174,9 @@ async def upload_attachment(
     if not validate_image_magic_bytes(file_data, file_type):
         raise ValueError(f"File content does not match claimed type '{file_type}'")
 
+    # Optimize image: resize large images and compress
+    file_data, file_type = optimize_image(file_data, file_type)
+
     # Generate unique file path: user_id/uuid.extension
     # SECURITY: Validate and whitelist file extension
     file_ext = file_name.split('.')[-1].lower() if '.' in file_name else 'png'
@@ -130,7 +208,17 @@ async def upload_attachment(
             file_options={"content-type": file_type}
         )
     except Exception as e:
-        raise ValueError(f"Failed to upload file to storage: {str(e)}")
+        # SECURITY: Log internal error but don't expose details to client
+        log_security_event(
+            "STORAGE_UPLOAD_FAILED",
+            user_id=user_id,
+            details={"error": str(e), "file_type": file_type},
+            severity="ERROR"
+        )
+        raise SecureHTTPException.internal_error(
+            log_message=f"Storage upload failed: {str(e)}",
+            user_id=user_id
+        )
 
     # Create attachment record in database
     attachment_data = {
@@ -155,7 +243,17 @@ async def upload_attachment(
             storage_client.storage.from_(BUCKET_NAME).remove([storage_path])
         except:
             pass
-        raise ValueError(f"Failed to create attachment record: {str(e)}")
+        # SECURITY: Log internal error but don't expose details to client
+        log_security_event(
+            "ATTACHMENT_RECORD_FAILED",
+            user_id=user_id,
+            details={"error": str(e)},
+            severity="ERROR"
+        )
+        raise SecureHTTPException.internal_error(
+            log_message=f"Failed to create attachment record: {str(e)}",
+            user_id=user_id
+        )
 
     # Generate a signed URL for the image (valid for 1 hour)
     try:

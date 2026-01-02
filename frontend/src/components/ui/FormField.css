@@ -54,7 +54,7 @@
   padding: 10px 14px;
   border: 1px solid var(--color-border-dark);
   border-radius: var(--radius-md);
-  font-size: 14px;
+  font-size: 16px; /* 16px prevents iOS auto-zoom on focus */
   font-weight: 500;
   color: var(--color-text-primary);
   background: var(--color-bg-primary);
@@ -91,7 +91,7 @@
   padding: 12px 14px;
   border: 1px solid var(--color-border-dark);
   border-radius: var(--radius-md);
-  font-size: 14px;
+  font-size: 16px; /* 16px prevents iOS auto-zoom on focus */
   font-family: inherit;
   font-weight: 500;
   line-height: 1.6;
@@ -133,7 +133,7 @@
   padding-right: 36px;
   border: 1px solid var(--color-border-dark);
   border-radius: var(--radius-md);
-  font-size: 14px;
+  font-size: 16px; /* 16px prevents iOS auto-zoom on focus */
   font-weight: 500;
   color: var(--color-text-primary);
   background: var(--color-bg-primary);
@@ -213,7 +213,7 @@
   padding: 10px 14px;
   border: 1px solid var(--color-border-dark);
   border-radius: var(--radius-md);
-  font-size: 14px;
+  font-size: 16px; /* 16px prevents iOS auto-zoom on focus */
   color: var(--color-text-primary);
   background: var(--color-bg-primary);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;

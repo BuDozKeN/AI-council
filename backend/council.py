@@ -18,6 +18,7 @@ from .context_loader import (
 from .config import STAGE1_TIMEOUT, STAGE2_TIMEOUT, STAGE3_TIMEOUT, MAX_QUERY_CHARS
 from .model_registry import get_primary_model, get_models_sync
 from .security import log_app_event
+from .database import get_supabase_service
 
 
 class QueryTooLongError(Exception):
@@ -504,7 +505,7 @@ Now provide your evaluation and ranking:"""
     stage2_results = []
     for model, content in model_content.items():
         if content:
-            parsed = parse_ranking_from_text(content, model=model)
+            parsed = parse_ranking_from_text(content, model=model, company_id=business_id)
             stage2_results.append({
                 "model": model,
                 "ranking": content,
@@ -875,7 +876,7 @@ Now provide your evaluation and ranking:"""
     for model, response in responses.items():
         if response is not None:
             full_text = response.get('content', '')
-            parsed = parse_ranking_from_text(full_text, model=model)
+            parsed = parse_ranking_from_text(full_text, model=model, company_id=business_id)
             stage2_results.append({
                 "model": model,
                 "ranking": full_text,
@@ -978,13 +979,42 @@ Provide a clear, well-reasoned final answer that represents the council's collec
     }
 
 
-def parse_ranking_from_text(ranking_text: str, model: str = "unknown") -> List[str]:
+def _track_parse_failure(
+    company_id: Optional[str],
+    model: str,
+    reason: str,
+    text_preview: Optional[str]
+) -> None:
+    """Write parse failure to database for analytics."""
+    if not company_id:
+        return
+
+    try:
+        client = get_supabase_service()
+        if client:
+            client.table("parse_failures").insert({
+                "company_id": company_id,
+                "model": model,
+                "reason": reason,
+                "text_preview": text_preview[:200] if text_preview else None
+            }).execute()
+    except Exception as e:
+        # Don't fail the main flow if tracking fails
+        log_app_event("PARSE_FAILURE_TRACKING_ERROR", level="WARNING", error=str(e))
+
+
+def parse_ranking_from_text(
+    ranking_text: str,
+    model: str = "unknown",
+    company_id: Optional[str] = None
+) -> List[str]:
     """
     Parse the FINAL RANKING section from the model's response.
 
     Args:
         ranking_text: The full text response from the model
         model: Model name for logging parse failures
+        company_id: Optional company UUID for tracking failures in database
 
     Returns:
         List of response labels in ranked order
@@ -1017,6 +1047,7 @@ def parse_ranking_from_text(ranking_text: str, model: str = "unknown") -> List[s
                 reason="no_valid_entries_after_header",
                 ranking_section_preview=ranking_section[:200] if ranking_section else None
             )
+            _track_parse_failure(company_id, model, "no_valid_entries_after_header", ranking_section)
             return []
 
     # Fallback: try to find any "Response X" patterns in order
@@ -1031,6 +1062,7 @@ def parse_ranking_from_text(ranking_text: str, model: str = "unknown") -> List[s
             reason="no_final_ranking_section",
             text_preview=ranking_text[:200] if ranking_text else None
         )
+        _track_parse_failure(company_id, model, "no_final_ranking_section", ranking_text)
 
     return matches
 
@@ -1055,11 +1087,12 @@ def calculate_aggregate_rankings(
     model_positions = defaultdict(list)
 
     for ranking in stage2_results:
-        ranking_text = ranking['ranking']
-        ranker_model = ranking.get('model', 'unknown')
-
-        # Parse the ranking from the structured format
-        parsed_ranking = parse_ranking_from_text(ranking_text, model=ranker_model)
+        # Use pre-parsed ranking if available, otherwise parse now
+        parsed_ranking = ranking.get('parsed_ranking')
+        if parsed_ranking is None:
+            ranking_text = ranking['ranking']
+            ranker_model = ranking.get('model', 'unknown')
+            parsed_ranking = parse_ranking_from_text(ranking_text, model=ranker_model)
 
         for position, label in enumerate(parsed_ranking, start=1):
             if label in label_to_model:

@@ -367,9 +367,27 @@
 .omni-bar-left {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   flex: 1;
   justify-content: flex-start;
+}
+
+/* Context icons capsule - groups icons in a subtle pill (desktop only) */
+/* Height matches the 1AI/5AIs toggle for visual alignment */
+.context-icons-capsule {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 2px;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-full);
+}
+
+/* Icons inside capsule - smaller to match toggle height */
+.context-icons-capsule .omni-icon-btn {
+  width: 24px;
+  height: 24px;
 }
 
 /* Right side: Attach + Send */
@@ -457,6 +475,14 @@
 
 .omni-icon-btn.playbook .omni-icon-badge {
   background: var(--color-blue-500);
+}
+
+.omni-icon-btn.project.has-selection {
+  color: var(--color-cyan-600);
+}
+
+.omni-icon-btn.project .omni-icon-badge {
+  background: var(--color-cyan-500);
 }
 
 /* Attach button - slightly larger */
@@ -595,6 +621,9 @@
 }
 
 .context-popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 10px 12px 8px;
   font-size: 11px;
   font-weight: 600;
@@ -604,7 +633,59 @@
   border-bottom: 1px solid var(--color-border-light);
 }
 
+/* Clear button inside popover header */
+.context-popover-clear {
+  padding: 4px 8px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-tertiary);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.context-popover-clear:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.context-popover-clear:active {
+  background: var(--color-bg-hover);
+}
+
+/* Reset all button - small, outside capsule */
+.omni-reset-all {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-quaternary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.omni-reset-all:hover:not(:disabled) {
+  color: var(--color-text-secondary);
+}
+
+.omni-reset-all:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .context-popover-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px; /* Small gap between items */
   padding: 6px;
   overflow-y: auto;
   max-height: 250px;
@@ -771,7 +852,7 @@
    MOBILE ADJUSTMENTS
    ============================================================================= */
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .omni-bar-wrapper {
     max-width: 100%;
   }
@@ -805,8 +886,22 @@
     flex: 1;
   }
 
+  /* On mobile, remove capsule background - icons are larger and spaced out */
+  .context-icons-capsule {
+    background: transparent;
+    border: none;
+    padding: 0;
+    gap: 0;
+  }
+
   /* Larger touch targets on mobile */
   .omni-icon-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  /* Reset button - larger touch target on mobile */
+  .omni-reset-all {
     width: 44px;
     height: 44px;
   }
@@ -825,6 +920,79 @@
     padding: 8px 14px;
     font-size: 12px;
     min-height: 32px;
+  }
+
+  /* Context popover on mobile - card-style items like DepartmentCheckboxItem */
+  .context-popover-list {
+    gap: 6px; /* Gap between card items */
+    padding: 8px;
+  }
+
+  .context-popover-item {
+    padding: 14px 16px; /* Match DepartmentCheckboxItem mobile padding */
+    font-size: 16px; /* Match DepartmentCheckboxItem mobile font */
+    min-height: 56px; /* Match DepartmentCheckboxItem mobile height */
+    background: var(--color-bg-tertiary); /* Card background - visible in light mode */
+    border-radius: var(--radius-lg); /* Match DepartmentCheckboxItem */
+  }
+
+  .context-popover-item:active {
+    background: var(--color-bg-hover);
+    transform: scale(0.98);
+  }
+
+  .context-popover-item.selected {
+    background: var(--color-bg-hover);
+  }
+
+  /* Larger checkbox/radio on mobile */
+  .context-popover-checkbox,
+  .context-popover-radio {
+    width: 22px;
+    height: 22px;
+    border-radius: var(--radius-md);
+  }
+
+  .context-popover-checkbox svg,
+  .context-popover-radio svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Larger accordion headers for Playbooks */
+  .context-popover-group-header.clickable {
+    padding: 14px 12px;
+    font-size: 13px;
+    min-height: 48px;
+    gap: 10px;
+  }
+
+  .context-popover-group-header .section-chevron {
+    width: 16px;
+    height: 16px;
+  }
+
+  .context-popover-group-header svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .context-popover-group-header .section-count {
+    font-size: 13px;
+  }
+
+  /* Larger expanded items container */
+  .context-popover-group-items {
+    margin-left: 20px;
+    padding-left: 12px;
+    margin-top: 8px;
+  }
+
+  /* Items inside expanded sections (Playbooks) */
+  .context-popover-group-items .context-popover-item {
+    padding: 12px 14px;
+    font-size: 15px;
+    min-height: 48px;
   }
 }
 
@@ -884,6 +1052,12 @@
   border-top-color: var(--color-border);
 }
 
+/* Dark mode capsule - slightly lighter to stand out from dark glass bg */
+.dark .context-icons-capsule {
+  background: var(--overlay-white-10);
+  border-color: var(--color-border);
+}
+
 .dark .omni-bar-input {
   color: var(--color-text-primary);
 }
@@ -921,6 +1095,10 @@
 
 .dark .omni-icon-btn.playbook.has-selection {
   color: var(--color-blue-400);
+}
+
+.dark .omni-icon-btn.project.has-selection {
+  color: var(--color-cyan-400);
 }
 
 .dark .omni-bar-submit {
@@ -1019,6 +1197,24 @@
   border-bottom-color: var(--color-border);
 }
 
+.dark .context-popover-clear {
+  color: var(--color-text-tertiary);
+}
+
+.dark .context-popover-clear:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+}
+
+.dark .omni-reset-all {
+  color: var(--color-text-tertiary); /* More muted to blend with other icons */
+}
+
+.dark .omni-reset-all:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+}
+
 .dark .context-popover-item {
   color: var(--color-text-primary);
 }
@@ -1082,4 +1278,23 @@
 
 .dark .context-popover-group-header.policy {
   color: var(--color-purple-400);
+}
+
+/* =============================================================================
+   MOBILE DARK MODE OVERRIDES
+   ============================================================================= */
+
+@media (max-width: 768px) {
+  /* Mobile dark mode - card items with proper background */
+  .dark .context-popover-item {
+    background: var(--color-bg-tertiary);
+  }
+
+  .dark .context-popover-item:active {
+    background: var(--color-bg-hover);
+  }
+
+  .dark .context-popover-item.selected {
+    background: var(--color-bg-hover);
+  }
 }

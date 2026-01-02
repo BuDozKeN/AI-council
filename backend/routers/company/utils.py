@@ -222,24 +222,35 @@ async def log_usage_event(
 # LLM OPS: SESSION USAGE & RATE LIMITING
 # =============================================================================
 
-# Model pricing (per 1M tokens) - must match frontend TokenUsageDisplay.tsx
+# Model pricing (per 1M tokens) - must match frontend Stage3Content.tsx
+# Last verified: 2025-01-02 via OpenRouter/official docs
 MODEL_PRICING = {
+    # Anthropic
     'anthropic/claude-opus-4.5': {'input': 5.0, 'output': 25.0},
     'anthropic/claude-opus-4': {'input': 15.0, 'output': 75.0},
     'anthropic/claude-sonnet-4': {'input': 3.0, 'output': 15.0},
     'anthropic/claude-3-5-sonnet-20241022': {'input': 3.0, 'output': 15.0},
-    'anthropic/claude-3-5-haiku-20241022': {'input': 1.0, 'output': 5.0},
+    'anthropic/claude-3-5-haiku-20241022': {'input': 0.80, 'output': 4.0},  # Fixed: was 1.0/5.0
+    # OpenAI
     'openai/gpt-4o': {'input': 5.0, 'output': 15.0},
     'openai/gpt-4o-mini': {'input': 0.15, 'output': 0.60},
-    'openai/gpt-5.1': {'input': 5.0, 'output': 20.0},
+    'openai/gpt-5.1': {'input': 1.25, 'output': 10.0},  # Fixed: was 5.0/20.0
+    # Google
     'google/gemini-3-pro-preview': {'input': 2.0, 'output': 12.0},
     'google/gemini-2.5-pro-preview': {'input': 1.25, 'output': 10.0},
-    'google/gemini-2.5-flash': {'input': 0.075, 'output': 0.30},
+    'google/gemini-2.5-flash': {'input': 0.30, 'output': 2.50},  # Fixed: was 0.075/0.30
     'google/gemini-2.0-flash-001': {'input': 0.10, 'output': 0.40},
+    # xAI
     'x-ai/grok-3': {'input': 3.0, 'output': 15.0},
     'x-ai/grok-4': {'input': 3.0, 'output': 15.0},
+    'x-ai/grok-4-fast': {'input': 0.20, 'output': 0.50},  # New: Stage 2 reviewer
+    # DeepSeek
     'deepseek/deepseek-chat': {'input': 0.28, 'output': 0.42},
     'deepseek/deepseek-chat-v3-0324': {'input': 0.28, 'output': 0.42},
+    # Meta (Llama)
+    'meta-llama/llama-4-maverick': {'input': 0.15, 'output': 0.60},  # New: Stage 2 reviewer
+    # Moonshot (Kimi)
+    'moonshotai/kimi-k2': {'input': 0.456, 'output': 1.84},  # New: Stage 2 reviewer
 }
 
 DEFAULT_PRICING = {'input': 2.0, 'output': 8.0}
