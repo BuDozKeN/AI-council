@@ -88,8 +88,12 @@ interface ConversationActionsValue {
 }
 
 // Split contexts: Actions are stable (never cause re-renders), State changes trigger re-renders
-const ConversationStateContext = createContext<ConversationStateValue>({} as ConversationStateValue);
-const ConversationActionsContext = createContext<ConversationActionsValue>({} as ConversationActionsValue);
+const ConversationStateContext = createContext<ConversationStateValue>(
+  {} as ConversationStateValue
+);
+const ConversationActionsContext = createContext<ConversationActionsValue>(
+  {} as ConversationActionsValue
+);
 
 // Convenience hook for components that need everything (backwards compatible)
 export const useConversation = () => {
@@ -112,7 +116,9 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
 
   // Local UI state (not server state)
   const [conversationSortBy, setConversationSortBy] = useState<ConversationSortBy>('date');
-  const [currentConversationIdInternal, setCurrentConversationIdInternal] = useState<string | null>(null);
+  const [currentConversationIdInternal, setCurrentConversationIdInternal] = useState<string | null>(
+    null
+  );
   const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null);
 
   // Alias for simpler access
@@ -160,7 +166,7 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
       const result = await api.listConversations({
         limit,
         sortBy: apiSortBy,
-        offset: currentOffset
+        offset: currentOffset,
       });
 
       // Reset the loading more flag after fetch completes
@@ -169,7 +175,10 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
 
       return {
         conversations: result.conversations || result,
-        hasMore: result.has_more !== undefined ? result.has_more : (result.conversations || result).length >= limit,
+        hasMore:
+          result.has_more !== undefined
+            ? result.has_more
+            : (result.conversations || result).length >= limit,
         isAppend: wasLoadingMore && currentOffset > 0, // Flag to indicate this should append
       };
     },
@@ -183,18 +192,20 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
       const frameId = requestAnimationFrame(() => {
         if (conversationsData.isAppend) {
           // Append with deduplication
-          setConversations(prev => {
-            const existingIds = new Set(prev.map(c => c.id));
-            const newConvs = conversationsData.conversations.filter((c: Conversation) => !existingIds.has(c.id));
+          setConversations((prev) => {
+            const existingIds = new Set(prev.map((c) => c.id));
+            const newConvs = conversationsData.conversations.filter(
+              (c: Conversation) => !existingIds.has(c.id)
+            );
             return [...prev, ...newConvs];
           });
         } else {
           // Replace (initial load or refresh) - but preserve local titles that are better
           // This prevents title_complete events from being overwritten by stale server data
-          setConversations(prev => {
+          setConversations((prev) => {
             // Build a map of local titles that are meaningful (not default)
             const localTitles = new Map<string, string>();
-            prev.forEach(c => {
+            prev.forEach((c) => {
               if (c.title && c.title !== 'New Conversation' && c.title !== '') {
                 localTitles.set(c.id, c.title);
               }
@@ -203,7 +214,10 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
             // Merge: use server data but preserve local titles if server has default
             return conversationsData.conversations.map((serverConv: Conversation) => {
               const localTitle = localTitles.get(serverConv.id);
-              const serverHasDefaultTitle = !serverConv.title || serverConv.title === 'New Conversation' || serverConv.title === '';
+              const serverHasDefaultTitle =
+                !serverConv.title ||
+                serverConv.title === 'New Conversation' ||
+                serverConv.title === '';
 
               if (localTitle && serverHasDefaultTitle) {
                 return { ...serverConv, title: localTitle };
@@ -229,7 +243,8 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
   // ═══════════════════════════════════════════════════════════════════════════
   // TanStack Query: Single Conversation
   // ═══════════════════════════════════════════════════════════════════════════
-  const shouldFetchConversation = !!currentConversationId && !currentConversationId.startsWith('temp-');
+  const shouldFetchConversation =
+    !!currentConversationId && !currentConversationId.startsWith('temp-');
 
   const {
     data: fetchedConversation,
@@ -244,9 +259,12 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
   });
 
   // Derive loading state: loading if query is fetching OR if we're expecting to fetch
-  // (currentConversationId is set but we haven't loaded the conversation yet)
-  const isLoadingConversation = isQueryLoading || isQueryFetching ||
-    (shouldFetchConversation && !currentConversation && !fetchedConversation);
+  // (currentConversationId is set but we haven't synced the conversation to state yet)
+  // NOTE: We check !currentConversation instead of !fetchedConversation to prevent a 1-frame
+  // gap where fetchedConversation exists but hasn't been synced to currentConversation yet.
+  // This gap caused WelcomeState to flash briefly when clicking on a conversation.
+  const isLoadingConversation =
+    isQueryLoading || isQueryFetching || (shouldFetchConversation && !currentConversation);
 
   // Sync fetched conversation to local state
   // IMPORTANT: Skip sync when actively loading/streaming to prevent overwriting local streaming state
@@ -260,7 +278,8 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
       // Skip sync if current conversation has more messages (we've added streaming content)
       // or if the last message has streaming data that server doesn't have yet
       const lastMsg = currentConversation?.messages?.[currentMsgCount - 1];
-      const hasStreamingData = lastMsg?.stage1Streaming || lastMsg?.stage2Streaming || lastMsg?.stage3Streaming;
+      const hasStreamingData =
+        lastMsg?.stage1Streaming || lastMsg?.stage2Streaming || lastMsg?.stage3Streaming;
       const hasFinalData = lastMsg?.stage1 || lastMsg?.stage2 || lastMsg?.stage3;
 
       if (currentMsgCount > fetchedMsgCount || hasStreamingData || hasFinalData) {
@@ -274,8 +293,10 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
         // This prevents the title_complete event from being overwritten by stale cache
         const currentTitle = currentConversation?.title;
         const fetchedTitle = fetchedConversation.title;
-        const isCurrentTitleMeaningful = currentTitle && currentTitle !== 'New Conversation' && currentTitle !== '';
-        const isFetchedTitleDefault = !fetchedTitle || fetchedTitle === 'New Conversation' || fetchedTitle === '';
+        const isCurrentTitleMeaningful =
+          currentTitle && currentTitle !== 'New Conversation' && currentTitle !== '';
+        const isFetchedTitleDefault =
+          !fetchedTitle || fetchedTitle === 'New Conversation' || fetchedTitle === '';
 
         if (isCurrentTitleMeaningful && isFetchedTitleDefault) {
           // Merge: use fetched data but preserve our better title
@@ -307,30 +328,36 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
   // ═══════════════════════════════════════════════════════════════════════════
 
   // Load conversations - now just triggers refetch or pagination
-  const loadConversations = useCallback(async (options: LoadConversationsOptions = {}): Promise<Conversation[]> => {
-    const newOffset = options.offset && options.offset > 0 ? options.offset : 0;
+  const loadConversations = useCallback(
+    async (options: LoadConversationsOptions = {}): Promise<Conversation[]> => {
+      const newOffset = options.offset && options.offset > 0 ? options.offset : 0;
 
-    if (newOffset === 0) {
-      // Reset: invalidate to force refetch from the beginning
-      // isLoadingMoreRef stays false so queryFn uses offset=0
-      await queryClient.invalidateQueries({ queryKey: conversationKeys.lists() });
-    } else {
-      // Pagination: set flags BEFORE triggering refetch
-      isLoadingMoreRef.current = true;
-      pendingOffsetRef.current = newOffset;
-      await queryClient.refetchQueries({ queryKey: listQueryKey });
-    }
+      if (newOffset === 0) {
+        // Reset: invalidate to force refetch from the beginning
+        // isLoadingMoreRef stays false so queryFn uses offset=0
+        await queryClient.invalidateQueries({ queryKey: conversationKeys.lists() });
+      } else {
+        // Pagination: set flags BEFORE triggering refetch
+        isLoadingMoreRef.current = true;
+        pendingOffsetRef.current = newOffset;
+        await queryClient.refetchQueries({ queryKey: listQueryKey });
+      }
 
-    if (options.sortBy && options.sortBy !== conversationSortBy) {
-      setConversationSortBy(options.sortBy);
-    }
-    return conversations;
-  }, [queryClient, listQueryKey, conversations, conversationSortBy]);
+      if (options.sortBy && options.sortBy !== conversationSortBy) {
+        setConversationSortBy(options.sortBy);
+      }
+      return conversations;
+    },
+    [queryClient, listQueryKey, conversations, conversationSortBy]
+  );
 
   // Load a single conversation - just set the ID, query handles the rest
-  const loadConversation = useCallback(async (id: string): Promise<void> => {
-    setCurrentConversationId(id);
-  }, [setCurrentConversationId]);
+  const loadConversation = useCallback(
+    async (id: string): Promise<void> => {
+      setCurrentConversationId(id);
+    },
+    [setCurrentConversationId]
+  );
 
   // Create a new temporary conversation
   const handleNewConversation = useCallback((): void => {
@@ -348,10 +375,13 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
 
   // Select an existing conversation
   // Note: isLoadingConversation is derived above to cover the transition gap
-  const handleSelectConversation = useCallback((id: string): void => {
-    setCurrentConversation(null);
-    setCurrentConversationId(id);
-  }, [setCurrentConversationId]);
+  const handleSelectConversation = useCallback(
+    (id: string): void => {
+      setCurrentConversation(null);
+      setCurrentConversationId(id);
+    },
+    [setCurrentConversationId]
+  );
 
   // ═══════════════════════════════════════════════════════════════════════════
   // TanStack Mutations with Optimistic Updates
@@ -366,10 +396,10 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
       await queryClient.cancelQueries({ queryKey: conversationKeys.lists() });
       // Snapshot
       const previousConversations = conversations;
-      const conversation = conversations.find(c => c.id === id);
+      const conversation = conversations.find((c) => c.id === id);
       // Optimistic update
-      setConversations(prev =>
-        prev.map(conv => conv.id === id ? { ...conv, is_archived: archived } : conv)
+      setConversations((prev) =>
+        prev.map((conv) => (conv.id === id ? { ...conv, is_archived: archived } : conv))
       );
       return { previousConversations, conversationTitle: conversation?.title };
     },
@@ -396,10 +426,10 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
     onMutate: async ({ id, starred }) => {
       await queryClient.cancelQueries({ queryKey: conversationKeys.lists() });
       const previousConversations = conversations;
-      const conversation = conversations.find(c => c.id === id);
+      const conversation = conversations.find((c) => c.id === id);
       // Optimistic update with sort
-      setConversations(prev => {
-        const updated = prev.map(conv =>
+      setConversations((prev) => {
+        const updated = prev.map((conv) =>
           conv.id === id ? { ...conv, is_starred: starred } : conv
         );
         return updated.sort((a, b) => {
@@ -428,19 +458,14 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
 
   // Rename mutation
   const renameMutation = useMutation({
-    mutationFn: ({ id, title }: { id: string; title: string }) =>
-      api.renameConversation(id, title),
+    mutationFn: ({ id, title }: { id: string; title: string }) => api.renameConversation(id, title),
     onMutate: async ({ id, title }) => {
       await queryClient.cancelQueries({ queryKey: conversationKeys.lists() });
       const previousConversations = conversations;
       const previousCurrentConversation = currentConversation;
       // Optimistic update
-      setConversations(prev =>
-        prev.map(conv => conv.id === id ? { ...conv, title } : conv)
-      );
-      setCurrentConversation(prev =>
-        prev && prev.id === id ? { ...prev, title } : prev
-      );
+      setConversations((prev) => prev.map((conv) => (conv.id === id ? { ...conv, title } : conv)));
+      setCurrentConversation((prev) => (prev && prev.id === id ? { ...prev, title } : prev));
       return { previousConversations, previousCurrentConversation };
     },
     onSuccess: (_, { title }) => {
@@ -475,65 +500,77 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
   });
 
   // Archive/unarchive a conversation
-  const handleArchiveConversation = useCallback(async (id: string, archived: boolean): Promise<void> => {
-    archiveMutation.mutate({ id, archived });
-  }, [archiveMutation]);
+  const handleArchiveConversation = useCallback(
+    async (id: string, archived: boolean): Promise<void> => {
+      archiveMutation.mutate({ id, archived });
+    },
+    [archiveMutation]
+  );
 
   // Star/unstar a conversation
-  const handleStarConversation = useCallback(async (id: string, starred: boolean): Promise<void> => {
-    starMutation.mutate({ id, starred });
-  }, [starMutation]);
+  const handleStarConversation = useCallback(
+    async (id: string, starred: boolean): Promise<void> => {
+      starMutation.mutate({ id, starred });
+    },
+    [starMutation]
+  );
 
   // Delete a conversation with undo
-  const handleDeleteConversation = useCallback(async (id: string): Promise<void> => {
-    const conversationToDelete = conversations.find(c => c.id === id);
-    if (!conversationToDelete) return;
+  const handleDeleteConversation = useCallback(
+    async (id: string): Promise<void> => {
+      const conversationToDelete = conversations.find((c) => c.id === id);
+      if (!conversationToDelete) return;
 
-    const originalIndex = conversations.findIndex(c => c.id === id);
-    const wasCurrentConversation = currentConversationId === id;
+      const originalIndex = conversations.findIndex((c) => c.id === id);
+      const wasCurrentConversation = currentConversationId === id;
 
-    // Optimistic removal (local state)
-    setConversations(prev => prev.filter(conv => conv.id !== id));
-    if (wasCurrentConversation) {
-      setCurrentConversation(null);
-      setCurrentConversationId(null);
-    }
-
-    let undoClicked = false;
-
-    const executeDelete = () => {
-      if (!undoClicked) {
-        deleteMutation.mutate(id);
+      // Optimistic removal (local state)
+      setConversations((prev) => prev.filter((conv) => conv.id !== id));
+      if (wasCurrentConversation) {
+        setCurrentConversation(null);
+        setCurrentConversationId(null);
       }
-    };
 
-    toast('Conversation deleted', {
-      description: conversationToDelete.title || 'New Conversation',
-      action: {
-        label: 'Undo',
-        onClick: () => {
-          undoClicked = true;
-          setConversations(prev => {
-            const newList = [...prev];
-            newList.splice(originalIndex, 0, conversationToDelete);
-            return newList;
-          });
-          if (wasCurrentConversation) {
-            setCurrentConversationId(id);
-          }
-          toast.success('Conversation restored');
+      let undoClicked = false;
+
+      const executeDelete = () => {
+        if (!undoClicked) {
+          deleteMutation.mutate(id);
+        }
+      };
+
+      toast('Conversation deleted', {
+        description: conversationToDelete.title || 'New Conversation',
+        action: {
+          label: 'Undo',
+          onClick: () => {
+            undoClicked = true;
+            setConversations((prev) => {
+              const newList = [...prev];
+              newList.splice(originalIndex, 0, conversationToDelete);
+              return newList;
+            });
+            if (wasCurrentConversation) {
+              setCurrentConversationId(id);
+            }
+            toast.success('Conversation restored');
+          },
         },
-      },
-      duration: 5000,
-      onDismiss: executeDelete,
-      onAutoClose: executeDelete,
-    });
-  }, [conversations, currentConversationId, deleteMutation, setCurrentConversationId]);
+        duration: 5000,
+        onDismiss: executeDelete,
+        onAutoClose: executeDelete,
+      });
+    },
+    [conversations, currentConversationId, deleteMutation, setCurrentConversationId]
+  );
 
   // Rename a conversation
-  const handleRenameConversation = useCallback(async (id: string, title: string): Promise<void> => {
-    renameMutation.mutate({ id, title });
-  }, [renameMutation]);
+  const handleRenameConversation = useCallback(
+    async (id: string, title: string): Promise<void> => {
+      renameMutation.mutate({ id, title });
+    },
+    [renameMutation]
+  );
 
   // Stop generation
   const handleStopGeneration = useCallback((): void => {
@@ -542,7 +579,7 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
       abortControllerRef.current = null;
       setIsLoading(false);
 
-      setCurrentConversation(prev => {
+      setCurrentConversation((prev) => {
         if (!prev?.messages?.length) return prev;
         const messages = [...prev.messages];
         const lastMsg = messages[messages.length - 1];
@@ -569,60 +606,66 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
   }, []);
 
   // Memoize state value - changes when data changes
-  const stateValue = useMemo<ConversationStateValue>(() => ({
-    conversations,
-    hasMoreConversations,
-    conversationSortBy,
-    currentConversationId,
-    currentConversation,
-    isLoadingConversation,
-    isLoading,
-  }), [
-    conversations,
-    hasMoreConversations,
-    conversationSortBy,
-    currentConversationId,
-    currentConversation,
-    isLoadingConversation,
-    isLoading,
-  ]);
+  const stateValue = useMemo<ConversationStateValue>(
+    () => ({
+      conversations,
+      hasMoreConversations,
+      conversationSortBy,
+      currentConversationId,
+      currentConversation,
+      isLoadingConversation,
+      isLoading,
+    }),
+    [
+      conversations,
+      hasMoreConversations,
+      conversationSortBy,
+      currentConversationId,
+      currentConversation,
+      isLoadingConversation,
+      isLoading,
+    ]
+  );
 
   // Memoize actions value - STABLE reference, never changes
   // React guarantees useState setters are stable, refs are stable objects
-  const actionsValue = useMemo<ConversationActionsValue>(() => ({
-    skipNextLoadRef,
-    abortControllerRef,
-    setConversations,
-    setCurrentConversation,
-    setCurrentConversationId,
-    setIsLoading,
-    loadConversations,
-    loadConversation,
-    handleNewConversation,
-    handleSelectConversation,
-    handleArchiveConversation,
-    handleStarConversation,
-    handleDeleteConversation,
-    handleRenameConversation,
-    handleStopGeneration,
-    refreshConversations,
-    handleSortByChange,
-  }), [
-    // Note: useState setters and refs are stable by React guarantee
-    // Include setCurrentConversationId to satisfy ESLint (it's stable)
-    setCurrentConversationId,
-    loadConversations,
-    loadConversation,
-    handleNewConversation,
-    handleSelectConversation,
-    handleArchiveConversation,
-    handleStarConversation,
-    handleDeleteConversation,
-    handleRenameConversation,
-    handleStopGeneration,
-    refreshConversations,
-    handleSortByChange,
-  ]);
+  const actionsValue = useMemo<ConversationActionsValue>(
+    () => ({
+      skipNextLoadRef,
+      abortControllerRef,
+      setConversations,
+      setCurrentConversation,
+      setCurrentConversationId,
+      setIsLoading,
+      loadConversations,
+      loadConversation,
+      handleNewConversation,
+      handleSelectConversation,
+      handleArchiveConversation,
+      handleStarConversation,
+      handleDeleteConversation,
+      handleRenameConversation,
+      handleStopGeneration,
+      refreshConversations,
+      handleSortByChange,
+    }),
+    [
+      // Note: useState setters and refs are stable by React guarantee
+      // Include setCurrentConversationId to satisfy ESLint (it's stable)
+      setCurrentConversationId,
+      loadConversations,
+      loadConversation,
+      handleNewConversation,
+      handleSelectConversation,
+      handleArchiveConversation,
+      handleStarConversation,
+      handleDeleteConversation,
+      handleRenameConversation,
+      handleStopGeneration,
+      refreshConversations,
+      handleSortByChange,
+    ]
+  );
 
   return (
     <ConversationActionsContext.Provider value={actionsValue}>
