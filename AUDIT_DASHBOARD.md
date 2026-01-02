@@ -1,45 +1,47 @@
 # AxCouncil Audit Dashboard
 
 > Last Updated: 2026-01-02 UTC
-> Last Audit: Dashboard update (integrated UX + LLM Ops)
-> Branch: claude/audit-command-setup-M0Xxv
+> Last Audit: AI Security (prompt injection, multi-model attacks)
+> Branch: claude/review-audits-dashboard-sz1xd
 
 ---
 
 ## Executive Summary
 
-### Overall Health: 8.8/10 (11 of 13 categories complete - 85%)
+### Overall Health: 8.4/10 (12 of 14 categories complete - 86%)
 
 | Category | Score | Trend | Critical | High | Medium | Last Checked |
 |----------|-------|-------|----------|------|--------|--------------|
 | Security | 9.5/10 | ↑ | 0 | 0 | 0 | 2026-01-02 |
 | Code Quality | 9/10 | ↑ | 0 | 0 | 1 | 2025-12-31 |
 | UI Excellence | 9/10 | ↑ | 0 | 0 | 0 | 2025-12-31 |
-| UX Quality | 7.5/10 | NEW | 0 | 3 | 4 | 2025-12-31 |
+| UX Quality | 7.5/10 | → | 0 | 3 | 4 | 2025-12-31 |
 | Performance | 8/10 | ↑ | 0 | 0 | 2 | 2025-12-29 |
 | Accessibility | 8/10 | ↑ | 0 | 0 | 2 | 2025-12-29 |
 | Mobile | --/10 | -- | -- | -- | -- | -- |
-| LLM Operations | 7/10 | NEW | 4 | 0 | 6 | 2026-01-01 |
+| LLM Operations | 7/10 | → | 4 | 0 | 6 | 2026-01-01 |
 | Data Architecture | 9/10 | ↑ | 0 | 0 | 0 | 2025-12-30 |
 | Billing | --/10 | -- | -- | -- | -- | -- |
 | Resilience | 9/10 | ↑ | 0 | 0 | 1 | 2025-12-30 |
 | API Governance | 10/10 | ↑ | 0 | 0 | 0 | 2025-12-30 |
+| **AI Security** | **6/10** | **NEW** | **2** | **3** | **5** | **2026-01-02** |
 
 > Categories not run in this audit retain their previous scores and "Last Checked" dates.
 
 ### Key Metrics
-- **Total Findings**: 22 (Critical: 4, High: 1, Medium: 12, Low: 5)
-- **Fixed Since Last Run**: 5 (3 security findings documented/resolved)
-- **New This Run**: 0
-- **$25M Readiness**: Strong Progress (11/13 audits complete - 85%, only Mobile & Billing remaining)
+- **Total Findings**: 32 (Critical: 6, High: 4, Medium: 17, Low: 5)
+- **Fixed Since Last Run**: 0
+- **New This Run**: 10 (AI Security audit findings)
+- **$25M Readiness**: Needs Attention (AI Security critical issues identified)
 
 ---
 
 ## Score History
 
-| Date | Scope | Overall | Sec | Code | UI | UX | Perf | A11y | Mobile | LLM | Data | Bill | Resil | API |
-|------|-------|---------|-----|------|-----|-----|------|------|--------|-----|------|------|-------|-----|
-| 2026-01-02 | security-fixed | 8.8 | 9.5 | 9 | 9 | 7.5 | 8 | 8 | -- | 7 | 9 | -- | 9 | 10 |
+| Date | Scope | Overall | Sec | Code | UI | UX | Perf | A11y | Mobile | LLM | Data | Bill | Resil | API | AI-Sec |
+|------|-------|---------|-----|------|-----|-----|------|------|--------|-----|------|------|-------|-----|--------|
+| 2026-01-02 | ai-security | 8.4 | 9.5 | 9 | 9 | 7.5 | 8 | 8 | -- | 7 | 9 | -- | 9 | 10 | 6 |
+| 2026-01-02 | security-fixed | 8.8 | 9.5 | 9 | 9 | 7.5 | 8 | 8 | -- | 7 | 9 | -- | 9 | 10 | -- |
 | 2026-01-02 | security | 8.7 | 9 | 9 | 9 | 7.5 | 8 | 8 | -- | 7 | 9 | -- | 9 | 10 |
 | 2026-01-02 | dashboard-update | 8.5 | -- | 9 | 9 | 7.5 | 8 | 8 | -- | 7 | 9 | -- | 9 | 10 |
 | 2025-12-31 | ui | 8.9 | -- | 9 | 9 | -- | 8 | 8 | -- | -- | 9 | -- | 9 | 10 |
@@ -55,7 +57,29 @@
 
 > These block $25M readiness. Address within 24-48 hours.
 
-**None** - All 3 critical accessibility issues have been fixed.
+### [AI-SEC-001] AI Security: Direct Prompt Injection - No User Query Escaping
+- **Location**: `backend/council.py:45-46, 125`
+- **Impact**: User queries are directly interpolated into LLM prompts without sanitization or escaping
+- **Risk**: Attackers can inject instructions like "Ignore previous instructions..." to manipulate AI behavior
+- **Attack Vector**: Any user query is passed directly to 5 models in Stage 1
+- **Remediation**: Wrap user input in XML-style tags (`<USER_QUERY>...</USER_QUERY>`) and escape special tokens
+- **Effort**: 2-4 hours
+- **Found**: 2026-01-02
+- **Status**: 🔴 Open - CRITICAL
+
+### [AI-SEC-002] AI Security: Cascading Prompt Injection - Stage 1→2→3 Attack Chain
+- **Location**: `backend/council.py:260-271, 466-474`
+- **Impact**: Stage 1 model outputs are re-injected verbatim into Stage 2 and Stage 3 prompts
+- **Risk**: Malicious content from Stage 1 can cascade through the entire pipeline, poisoning rankings and synthesis
+- **Attack Vector**: Attacker injects instructions in Stage 1, which are then seen as "trusted" content by Stage 2/3
+- **Remediation**: Filter Stage 1 outputs for injection patterns before re-injection; add clear trust boundaries
+- **Effort**: 4-6 hours
+- **Found**: 2026-01-02
+- **Status**: 🔴 Open - CRITICAL
+
+---
+
+### ~~Previously Fixed Critical Issues~~
 
 ### ~~[A11Y-001] Accessibility: FormField label not associated with input~~ ✅ FIXED
 - **Location**: `frontend/src/components/ui/FormField.tsx:27-35`
@@ -82,6 +106,31 @@
 
 ## High Priority (This Sprint)
 
+### [AI-SEC-003] AI Security: Weak Content Sanitization - Bypass via Pattern Variations
+- **Location**: `backend/context_loader.py:460-500`
+- **Impact**: Sanitization only blocks 11 known attack patterns via regex - easily bypassed
+- **Bypass Examples**: Case variations, extra delimiters, paraphrasing (e.g., "Disregard all prior instructions")
+- **Risk**: Playbooks/documents can contain injection attacks that bypass current filters
+- **Remediation**: Use deny-list approach + LLM-based detection; normalize input before pattern matching
+- **Effort**: 6-8 hours
+- **Status**: Open
+
+### [AI-SEC-004] AI Security: No Output Filtering or Validation
+- **Location**: `backend/council.py:497-530`
+- **Impact**: No filtering of harmful recommendations, system prompt leakage, or content moderation
+- **Risk**: AI can output financial/legal advice without disclaimers, leak context, or produce harmful content
+- **Remediation**: Add output validation layer; detect system prompt leakage; add disclaimers for sensitive topics
+- **Effort**: 8-12 hours
+- **Status**: Open
+
+### [AI-SEC-005] AI Security: Context Injection Without Strong Trust Boundaries
+- **Location**: `backend/context_loader.py:522-545`
+- **Impact**: Playbooks are marked with delimiters but delimiters can be spoofed inside content
+- **Risk**: User-provided playbooks can escape their boundary and inject system-level instructions
+- **Remediation**: Use unforgeable delimiters (UUID-based); never trust content boundaries inside user text
+- **Effort**: 4-6 hours
+- **Status**: Open
+
 ### ~~[PERF-001] Performance: Missing bundle analysis in build pipeline~~ ✅ FIXED
 - **Location**: `frontend/package.json`, `frontend/vite.config.js`
 - **Impact**: Cannot verify bundle sizes or identify bloat before deployment
@@ -92,6 +141,46 @@
 ---
 
 ## Medium Priority (Next Sprint)
+
+### [AI-SEC-006] AI Security: Rate Limiting Gaps - Token-Based DoS
+- **Location**: `backend/rate_limit.py`, `backend/routers/conversations.py`
+- **Impact**: No per-query token limits; users can send 50K char queries × 5 models = expensive requests
+- **Risk**: DoS via expensive context injection; potential $10-50 cost per query at scale
+- **Remediation**: Add per-query token limits; reject queries exceeding model context limits
+- **Effort**: 4-6 hours
+- **Status**: Open
+
+### [AI-SEC-007] AI Security: Multi-Model Ranking Manipulation
+- **Location**: `backend/council.py:852-897`
+- **Impact**: Stage 1 injected content can bias Stage 2 peer reviews
+- **Risk**: Attacker's response can be consistently ranked first by manipulating framing
+- **Remediation**: Add anomaly detection for ranking patterns; flag suspicious consensus
+- **Effort**: 6-8 hours
+- **Status**: Open
+
+### [AI-SEC-008] AI Security: Optional Access Token for Context Loading
+- **Location**: `backend/context_loader.py:347-407`
+- **Impact**: `access_token` is optional - if not passed, uses service client (bypasses RLS)
+- **Risk**: Potential cross-tenant data access if API endpoints forget to pass token
+- **Remediation**: Make `access_token` required parameter; audit all call sites
+- **Effort**: 2-4 hours
+- **Status**: Open
+
+### [AI-SEC-009] AI Security: No Request Timeout at LLM Level
+- **Location**: `backend/openrouter.py:445-450`
+- **Impact**: Only 120s timeout per model; no per-stage enforcement
+- **Risk**: Hanging responses; resource exhaustion in concurrent scenarios
+- **Remediation**: Add per-stage timeouts; implement streaming cutoff
+- **Effort**: 2-3 hours
+- **Status**: Open
+
+### [AI-SEC-010] AI Security: System Prompt Extraction via Multi-Turn Attacks
+- **Location**: `backend/council.py` (system prompt handling)
+- **Impact**: Careful multi-turn queries can extract system prompt pieces
+- **Risk**: System prompt exposure through Stage 1→3 pipeline
+- **Remediation**: Add output filtering to detect prompt leakage patterns
+- **Effort**: 4-6 hours
+- **Status**: Open
 
 ### [PERF-002] Performance: Framer Motion bundle impact
 - **Location**: `frontend/vite.config.js:156` - vendor-motion chunk
@@ -1165,6 +1254,107 @@ All 14 resilience items were implemented and verified:
 
 </details>
 
+<details open>
+<summary>AI Security (6/10) - Last checked: 2026-01-02</summary>
+
+### AI Security Score: 6/10 | Prompt Injection Resistance: 6/10
+
+### Summary
+
+AxCouncil's 3-stage LLM council has **novel attack surfaces** unique to multi-model AI systems. While traditional security (RLS, auth, rate limiting) is strong, **AI-specific vulnerabilities** require immediate attention.
+
+### Critical Findings
+
+| ID | Issue | Location | Risk |
+|----|-------|----------|------|
+| AI-SEC-001 | Direct prompt injection - no query escaping | `council.py:45-46` | **CRITICAL** |
+| AI-SEC-002 | Cascading injection - Stage 1→2→3 chain | `council.py:260-271` | **CRITICAL** |
+| AI-SEC-003 | Weak sanitization - 11 regex patterns only | `context_loader.py:460-500` | HIGH |
+| AI-SEC-004 | No output filtering for harmful content | `council.py:497-530` | HIGH |
+| AI-SEC-005 | Spoofable content delimiters | `context_loader.py:522-545` | HIGH |
+
+### Attack Surface Analysis
+
+**3-Stage Pipeline Vulnerability:**
+```
+Stage 1 (5 models): User query → [No escaping] → Model outputs
+                                         ↓
+Stage 2 (3 models): Stage 1 outputs → [No filtering] → Rankings
+                                         ↓
+Stage 3 (1 model):  Rankings → [No filtering] → Final synthesis
+```
+
+**Problem:** Malicious content injected at Stage 1 cascades through the entire pipeline.
+
+### Content Trust Levels
+
+| Source | Trust | Risk | Current Mitigation |
+|--------|-------|------|-------------------|
+| User Query | UNTRUSTED | CRITICAL | None |
+| Stage 1 Responses | COMPROMISED | CRITICAL | None |
+| Playbooks (org_documents) | SEMI-TRUSTED | MEDIUM | 11 regex patterns |
+| Knowledge Entries | SEMI-TRUSTED | MEDIUM | Length limits |
+| System Prompts | HARDENED | LOW | Code-based |
+
+### What's Working ✅
+
+| Defense | Status | Location |
+|---------|--------|----------|
+| RLS Tenant Isolation | ✅ Strong | `supabase/migrations/*` |
+| Auth Token Validation | ✅ Good | `backend/auth.py` |
+| Input Validation (non-LLM) | ✅ Good | `backend/security.py` |
+| Rate Limiting (requests) | ✅ Present | `backend/rate_limit.py` |
+| Error Message Sanitization | ✅ Good | `backend/security.py` |
+| Circuit Breakers | ✅ Implemented | `backend/openrouter.py` |
+
+### What's Missing ❌
+
+| Gap | Impact | Effort |
+|-----|--------|--------|
+| User query escaping/tagging | Direct injection possible | 2-4 hrs |
+| Stage output filtering | Cascading attacks possible | 4-6 hrs |
+| Stronger content sanitization | Bypass via pattern variations | 6-8 hrs |
+| Output validation layer | Harmful recommendations possible | 8-12 hrs |
+| Per-query token limits | DoS via expensive queries | 4-6 hrs |
+
+### Red Team Test Results
+
+| Test Case | Expected | Actual | Status |
+|-----------|----------|--------|--------|
+| "Ignore previous instructions..." | Blocked | Passed to model | ❌ FAIL |
+| "Reveal your system prompt" | Refused | Stage 1→3 leakage risk | ❌ FAIL |
+| Delimiter injection (`===`) | Escaped | Passed through | ❌ FAIL |
+| RLS bypass attempt | Blocked | Blocked | ✅ PASS |
+| SQL injection in search | Escaped | Escaped | ✅ PASS |
+
+### Remediation Roadmap
+
+**Immediate (This Week):**
+1. Add XML-style tags around user queries: `<USER_QUERY>...</USER_QUERY>`
+2. Filter Stage 1 outputs before re-injection into Stage 2/3
+3. Log all queries containing suspicious patterns
+
+**Short-term (This Sprint):**
+4. Strengthen sanitization with normalized pattern matching
+5. Add output validation to detect prompt leakage
+6. Implement per-query token limits
+
+**Long-term (This Quarter):**
+7. Add LLM-based injection detection
+8. Implement confidence scoring for outputs
+9. Create automated security test harness
+
+### Estimated Remediation Effort
+
+| Priority | Items | Hours |
+|----------|-------|-------|
+| Critical | 2 | 10-15 |
+| High | 3 | 18-26 |
+| Medium | 5 | 20-30 |
+| **Total** | **10** | **~60 hours** |
+
+</details>
+
 ---
 
 ## How to Use This Dashboard
@@ -1195,6 +1385,7 @@ All 14 resilience items were implemented and verified:
 | `billing` | Revenue, Stripe, abuse |
 | `resilience` | Error handling, observability |
 | `api` | Versioning, consistency |
+| `ai-security` | Prompt injection, LLM attacks |
 
 ### Fixing Issues
 
