@@ -1,4 +1,9 @@
-"""Attachment handling for image uploads to Supabase Storage."""
+"""Attachment handling for image uploads to Supabase Storage.
+
+SECURITY NOTE: This module handles direct file uploads only (multipart/form-data).
+It does NOT fetch images from URLs, so SSRF (Server-Side Request Forgery) is not applicable.
+All images are validated using magic bytes to prevent MIME type spoofing.
+"""
 
 import uuid
 from datetime import datetime

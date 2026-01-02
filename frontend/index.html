@@ -2,6 +2,10 @@
 <html lang="en" class="">
   <head>
     <!-- Dark mode sync - runs before any paint to prevent FOUC -->
+    <!-- SECURITY NOTE: This inline script is required to prevent flash of unstyled content (FOUC). -->
+    <!-- CSP allows 'unsafe-inline' for this critical path. For production hardening, consider: -->
+    <!-- 1. Using a script hash in CSP instead of 'unsafe-inline' -->
+    <!-- 2. Moving to a nonce-based CSP with server-side rendering -->
     <script>
       (function() {
         var isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -42,7 +46,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
     <!-- Load Inter font (CSP-safe: no inline JS handlers) -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <!-- Note: SRI not used for Google Fonts as they update frequently. For maximum security, -->
+    <!-- consider self-hosting fonts. Current approach: CORS + preconnect for performance. -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" crossorigin="anonymous">
 
     <!-- Critical CSS: Inline styles for instant first paint (prevents FOUC) -->
     <style>
