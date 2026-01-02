@@ -4,14 +4,7 @@ import ReactMarkdown, { ExtraProps } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Spinner } from './ui/Spinner';
 import { CopyButton } from './ui/CopyButton';
-import {
-  Activity,
-  AlertCircle,
-  StopCircle,
-  ChevronDown,
-  X,
-  Check,
-} from 'lucide-react';
+import { Activity, AlertCircle, StopCircle, ChevronDown, X, Check } from 'lucide-react';
 import { getModelPersona } from '../config/modelPersonas';
 import { hapticLight } from '../lib/haptics';
 import { springs, interactionStates } from '../lib/animations';
@@ -510,7 +503,6 @@ function Stage1({
   // Check if all models are complete
   const allComplete =
     displayData.length > 0 && displayData.every((d) => d.isComplete || d.isStopped || d.hasError);
-  const streamingCount = displayData.filter((d) => d.isStreaming).length;
 
   // Use the reusable celebration hook for stage completion
   const { isCelebrating: showCompleteCelebration } = useCompletionCelebration(
