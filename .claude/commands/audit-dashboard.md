@@ -11,8 +11,9 @@ You are running the AxCouncil audit dashboard. This command supports **selective
 /audit-dashboard llm-ops billing data     # LLM + Billing + Data architecture
 ```
 
-## Available Audit Categories
+## Available Audit Categories (28 Total)
 
+### Core Product Quality (13)
 | Shorthand | Full Name | What It Checks |
 |-----------|-----------|----------------|
 | `security` | Security | OWASP, auth, data protection |
@@ -28,7 +29,42 @@ You are running the AxCouncil audit dashboard. This command supports **selective
 | `billing` | Billing Economics | Revenue, Stripe, abuse |
 | `resilience` | Resilience | Error handling, observability |
 | `api` | API Governance | Versioning, consistency |
-| `all` | Full Audit | Everything above |
+
+### Enterprise & Compliance (5)
+| Shorthand | Full Name | What It Checks |
+|-----------|-----------|----------------|
+| `legal` | Legal & Compliance | GDPR, CCPA, SOC 2, HIPAA readiness |
+| `license` | Open Source License | License compliance, SBOM, IP risk |
+| `sso` | Enterprise SSO | SAML, OIDC, SCIM, MFA |
+| `dr` | Disaster Recovery | RTO/RPO, backups, business continuity |
+| `multitenancy` | Multi-Tenancy | White-label, tenant isolation |
+
+### AI-Specific (2)
+| Shorthand | Full Name | What It Checks |
+|-----------|-----------|----------------|
+| `ai-security` | AI Prompt Injection | LLM attack vectors, data exfil |
+| `ai-ethics` | AI Quality & Ethics | Hallucination, bias, EU AI Act |
+
+### Engineering Excellence (3)
+| Shorthand | Full Name | What It Checks |
+|-----------|-----------|----------------|
+| `tests` | Test Coverage | Unit, integration, E2E, mutation |
+| `devops` | DevOps/CI-CD | DORA metrics, deployment velocity |
+| `docs` | Documentation | API docs, user guides, runbooks |
+
+### Growth & Market (5)
+| Shorthand | Full Name | What It Checks |
+|-----------|-----------|----------------|
+| `i18n` | Internationalization | Translation, RTL, locale handling |
+| `scale` | Scalability | Load testing, 10x/100x readiness |
+| `analytics` | Analytics | Event tracking, funnels, metrics |
+| `seo` | SEO | Meta tags, Core Web Vitals, structured data |
+| `competitive` | Competitive Intel | Feature parity, differentiation |
+
+### Meta
+| Shorthand | Full Name | What It Checks |
+|-----------|-----------|----------------|
+| `all` | Full Audit | All 28 categories |
 
 ## Your Mission
 
@@ -233,58 +269,144 @@ All audits measure against $25M / Silicon Valley standards:
 
 ## Files to Analyze Per Category
 
-### security
+### Core Product Quality
+
+#### security
 - `backend/auth.py`, `backend/security.py`
 - `backend/routers/*.py` (auth checks)
 - `supabase/migrations/*` (RLS policies)
 
-### code
+#### code
 - `frontend/src/**/*.ts{x}` (TypeScript)
 - `backend/**/*.py` (Python)
 - Config files
 
-### ui, ux
+#### ui, ux
 - `frontend/src/components/**`
 - `frontend/src/styles/**`
 
-### perf
+#### perf
 - `frontend/vite.config.js`
 - Bundle analysis
 - API response times
 
-### mobile
+#### mobile
 - Responsive styles
 - Touch targets
 - PWA config
 
-### a11y
+#### a11y
 - Component ARIA
 - Keyboard navigation
 - Color contrast
 
-### llm-ops
+#### llm-ops
 - `backend/council.py`
 - `backend/openrouter.py`
 - `backend/model_registry.py`
 
-### data
+#### data
 - `supabase/migrations/**`
 - `backend/database.py`
 - RLS policies
 
-### billing
+#### billing
 - `backend/routers/billing.py`
 - Stripe integration
 
-### resilience
+#### resilience
 - Error handling patterns
 - Circuit breakers
 - Health checks
 
-### api
+#### api
 - `backend/routers/**`
 - Response formats
 - Versioning
+
+### Enterprise & Compliance
+
+#### legal
+- Privacy Policy, Terms of Service
+- Cookie consent implementation
+- Data processing documentation
+- Compliance certifications
+
+#### license
+- `package.json`, `package-lock.json`
+- `requirements.txt`, `pyproject.toml`
+- NOTICE files, license attributions
+
+#### sso
+- `backend/auth.py` - Auth flows
+- Supabase Auth configuration
+- SSO/SAML/OIDC endpoints (if any)
+
+#### dr
+- Backup configurations
+- Recovery runbooks
+- Incident response plan
+
+#### multitenancy
+- `supabase/migrations/*` (RLS policies)
+- `backend/database.py` - Tenant context
+- Branding/customization capabilities
+
+### AI-Specific
+
+#### ai-security
+- `backend/council.py` - Prompt construction
+- `backend/context_loader.py` - Context injection
+- System prompts - Injection protection
+
+#### ai-ethics
+- AI output quality metrics
+- Bias testing scenarios
+- Transparency/disclosure in UI
+
+### Engineering Excellence
+
+#### tests
+- `frontend/vitest.config.ts`
+- `backend/tests/**`
+- Test coverage reports
+
+#### devops
+- `.github/workflows/**`
+- `render.yaml`, `vercel.json`
+- Deployment scripts
+
+#### docs
+- `README.md`, `CLAUDE.md`
+- API documentation (`/api/docs`)
+- User guides, runbooks
+
+### Growth & Market
+
+#### i18n
+- All `frontend/src/components/**/*.tsx` for hardcoded strings
+- Locale configuration files
+- Translation infrastructure
+
+#### scale
+- Database query performance
+- Load testing results
+- Capacity planning docs
+
+#### analytics
+- Event tracking implementation
+- Analytics tool configuration
+- Dashboard definitions
+
+#### seo
+- `frontend/index.html` - Meta tags
+- `frontend/public/` - robots.txt, sitemap
+- Schema.org structured data
+
+#### competitive
+- Product comparison analysis
+- Feature matrix
+- Market positioning
 
 ## Important Rules
 
