@@ -1,0 +1,25 @@
+#!/bin/sh
+# Pre-push hook: Run full lint and type-check before pushing
+# This catches errors that lint-staged might miss on partial changes
+
+echo "🔍 Running pre-push checks..."
+
+cd frontend
+
+# Run ESLint on entire codebase
+echo "Running ESLint..."
+npm run lint --silent
+if [ $? -ne 0 ]; then
+  echo "❌ ESLint failed. Fix errors before pushing."
+  exit 1
+fi
+
+# Run TypeScript type-check
+echo "Running TypeScript check..."
+npm run type-check --silent
+if [ $? -ne 0 ]; then
+  echo "❌ TypeScript check failed. Fix errors before pushing."
+  exit 1
+fi
+
+echo "✅ Pre-push checks passed!"
