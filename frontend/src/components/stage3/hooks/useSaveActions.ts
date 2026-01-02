@@ -67,7 +67,7 @@ export function useSaveActions({
   setSavedDecisionId,
   setPromotedPlaybookId,
   setFullProjectData,
-  getTitle
+  getTitle,
 }: UseSaveActionsOptions): UseSaveActionsReturn {
   // Save as Decision (for later promotion)
   // If a project is selected, also merge into project context
@@ -78,7 +78,7 @@ export function useSaveActions({
       savedDecisionId,
       selectedProjectId,
       responseIndex,
-      conversationId
+      conversationId,
     });
 
     if (!companyId || saveState === 'saving') {
@@ -94,26 +94,26 @@ export function useSaveActions({
     try {
       let projectToUse = currentProject;
 
-      if (selectedProjectId && !projectToUse) {
-        log.debug('Project selected but no current data, fetching project:', selectedProjectId);
+      // IMPORTANT: Always fetch full project data if context_md is missing
+      // The projects list doesn't include context_md, so we need to fetch it
+      if (selectedProjectId && (!projectToUse || projectToUse.context_md === undefined)) {
+        log.debug('Project selected but no context_md, fetching full project:', selectedProjectId);
         try {
           const data = await api.getProject(selectedProjectId);
           projectToUse = data.project || data;
           setFullProjectData(projectToUse);
         } catch (err) {
           log.error('Failed to fetch project:', err);
+          // Fall back to existing data if fetch fails
+          if (!projectToUse && selectedProjectId) {
+            const projectFromList = projects.find((p) => p.id === selectedProjectId);
+            projectToUse = {
+              id: selectedProjectId,
+              name: projectFromList?.name || 'Project',
+              context_md: '',
+            };
+          }
         }
-      }
-
-      // Create fallback if needed
-      if (!projectToUse && selectedProjectId) {
-        log.warn('Project data not available, creating minimal project object for merge');
-        const projectFromList = projects.find(p => p.id === selectedProjectId);
-        projectToUse = {
-          id: selectedProjectId,
-          name: projectFromList?.name || 'Project',
-          context_md: ''
-        };
       }
 
       if (selectedProjectId && projectToUse) {
@@ -128,11 +128,13 @@ export function useSaveActions({
           {
             saveDecision: true,
             companyId: companyId ?? undefined,
-            conversationId: conversationId?.startsWith('temp-') ? undefined : (conversationId ?? undefined),
+            conversationId: conversationId?.startsWith('temp-')
+              ? undefined
+              : (conversationId ?? undefined),
             responseIndex,
             decisionTitle: getTitle(),
             departmentId: selectedDeptIds.length > 0 ? selectedDeptIds[0] : null,
-            departmentIds: selectedDeptIds
+            departmentIds: selectedDeptIds,
           }
         );
 
@@ -140,7 +142,7 @@ export function useSaveActions({
 
         if (mergeResult?.merged?.context_md) {
           await api.updateProject(selectedProjectId, {
-            context_md: mergeResult.merged.context_md
+            context_md: mergeResult.merged.context_md,
           });
         }
 
@@ -170,10 +172,12 @@ export function useSaveActions({
           content: displayText,
           user_question: userQuestion ?? undefined,
           department_ids: selectedDeptIds,
-          source_conversation_id: conversationId?.startsWith('temp-') ? undefined : (conversationId ?? undefined),
+          source_conversation_id: conversationId?.startsWith('temp-')
+            ? undefined
+            : (conversationId ?? undefined),
           response_index: responseIndex,
           project_id: selectedProjectId ?? undefined,
-          tags: []
+          tags: [],
         });
 
         log.debug('Save result:', result);
@@ -200,7 +204,7 @@ export function useSaveActions({
       companyId,
       selectedDocType,
       saveState,
-      selectedProjectId
+      selectedProjectId,
     });
 
     if (!companyId || !selectedDocType || saveState === 'saving' || saveState === 'promoting') {
@@ -217,22 +221,23 @@ export function useSaveActions({
         log.debug('handleSaveAndPromote - saving with project merge');
 
         let projectToUse = currentProject;
-        if (!projectToUse) {
+        // IMPORTANT: Always fetch full project data if context_md is missing
+        if (!projectToUse || projectToUse.context_md === undefined) {
           try {
             const data = await api.getProject(selectedProjectId);
             projectToUse = data.project || data;
           } catch (err) {
             log.error('Failed to fetch project:', err);
+            // Fall back to existing data if fetch fails
+            if (!projectToUse) {
+              const projectFromList = projects.find((p) => p.id === selectedProjectId);
+              projectToUse = {
+                id: selectedProjectId,
+                name: projectFromList?.name || 'Project',
+                context_md: '',
+              };
+            }
           }
-        }
-
-        if (!projectToUse) {
-          const projectFromList = projects.find(p => p.id === selectedProjectId);
-          projectToUse = {
-            id: selectedProjectId,
-            name: projectFromList?.name || 'Project',
-            context_md: ''
-          };
         }
 
         const mergeResult = await api.mergeDecisionIntoProject(
@@ -243,17 +248,19 @@ export function useSaveActions({
           {
             saveDecision: true,
             companyId: companyId ?? undefined,
-            conversationId: conversationId?.startsWith('temp-') ? undefined : (conversationId ?? undefined),
+            conversationId: conversationId?.startsWith('temp-')
+              ? undefined
+              : (conversationId ?? undefined),
             responseIndex,
             decisionTitle: getTitle(),
             departmentId: selectedDeptIds.length > 0 ? selectedDeptIds[0] : null,
-            departmentIds: selectedDeptIds
+            departmentIds: selectedDeptIds,
           }
         );
 
         if (mergeResult?.merged?.context_md) {
           await api.updateProject(selectedProjectId, {
-            context_md: mergeResult.merged.context_md
+            context_md: mergeResult.merged.context_md,
           });
         }
 
@@ -271,9 +278,11 @@ export function useSaveActions({
           title: getTitle(),
           content: displayText,
           department_ids: selectedDeptIds,
-          source_conversation_id: conversationId?.startsWith('temp-') ? undefined : (conversationId ?? undefined),
+          source_conversation_id: conversationId?.startsWith('temp-')
+            ? undefined
+            : (conversationId ?? undefined),
           project_id: undefined,
-          tags: []
+          tags: [],
         });
 
         decisionId = saveResult?.decision?.id || saveResult?.id;
@@ -291,7 +300,7 @@ export function useSaveActions({
       const promoteResult = await api.promoteDecisionToPlaybook(companyId!, decisionId, {
         doc_type: selectedDocType,
         title: getTitle(),
-        department_ids: selectedDeptIds
+        department_ids: selectedDeptIds,
       });
 
       log.debug('Promote result:', promoteResult);
@@ -307,6 +316,6 @@ export function useSaveActions({
 
   return {
     handleSaveForLater,
-    handleSaveAndPromote
+    handleSaveAndPromote,
   };
 }

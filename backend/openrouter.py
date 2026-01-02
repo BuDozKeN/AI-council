@@ -492,6 +492,7 @@ async def query_model(
         "model": model,
         "messages": cached_messages,
         "max_tokens": 4096,  # Explicit limit to prevent truncation (especially for DeepSeek)
+        "usage": {"include": True},  # Explicitly request token usage data
     }
 
     # Only add reasoning parameter for models that support it
@@ -611,6 +612,7 @@ async def query_model_stream(
         "messages": cached_messages,
         "stream": True,
         "max_tokens": 16384,  # Higher limit to prevent truncation
+        "usage": {"include": True},  # Required for token usage in streaming responses
     }
 
     # Only add reasoning parameter for models that support it

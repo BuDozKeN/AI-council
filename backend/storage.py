@@ -617,9 +617,9 @@ def get_projects(company_id_or_slug: str, access_token: str) -> List[Dict[str, A
         company_uuid = resolve_company_id(company_id_or_slug, access_token)
 
         client = _get_client(access_token)
-        # Simplified query - order by created_at desc to avoid potential column issues
+        # Include context_md so frontend can merge decisions without extra API call
         result = client.table("projects")\
-            .select("id, name, description, status, created_at")\
+            .select("id, name, description, status, created_at, context_md")\
             .eq("company_id", company_uuid)\
             .eq("status", "active")\
             .order("created_at", desc=True)\
