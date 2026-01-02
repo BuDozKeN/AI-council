@@ -23,7 +23,16 @@ vi.mock('../../../utils/logger', () => ({
   },
 }));
 
+// Mock sonner toast
+vi.mock('../../ui/sonner', () => ({
+  toast: {
+    success: vi.fn(),
+    error: vi.fn(),
+  },
+}));
+
 import { api } from '../../../api';
+import { toast } from '../../ui/sonner';
 
 describe('useProfile', () => {
   const mockUser = {
@@ -105,7 +114,7 @@ describe('useProfile', () => {
 
     expect(mockEvent.preventDefault).toHaveBeenCalled();
     expect(api.updateProfile).toHaveBeenCalled();
-    expect(result.current.saveMessage.type).toBe('success');
+    expect(toast.success).toHaveBeenCalledWith('Profile saved', { duration: 3000 });
   });
 
   it('should handle save error', async () => {
@@ -124,8 +133,7 @@ describe('useProfile', () => {
       await result.current.handleSaveProfile(mockEvent);
     });
 
-    expect(result.current.saveMessage.type).toBe('error');
-    expect(result.current.saveMessage.text).toBe('Save failed');
+    expect(toast.error).toHaveBeenCalledWith('Failed to save profile');
   });
 
   it('should allow updating profile fields', async () => {

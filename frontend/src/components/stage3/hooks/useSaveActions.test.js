@@ -109,7 +109,7 @@ describe('useSaveActions', () => {
       department_ids: [],
       source_conversation_id: 'conv-456',
       response_index: 0,
-      project_id: null,
+      project_id: undefined,
       tags: [],
     });
     expect(defaultProps.setSavedDecisionId).toHaveBeenCalledWith('dec-123');
@@ -216,7 +216,7 @@ describe('useSaveActions', () => {
     expect(api.createCompanyDecision).toHaveBeenCalledWith(
       'comp-123',
       expect.objectContaining({
-        source_conversation_id: null,
+        source_conversation_id: undefined,
       })
     );
   });

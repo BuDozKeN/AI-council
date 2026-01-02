@@ -9,7 +9,7 @@ import { http, HttpResponse } from 'msw';
 
 // Use the same API base as the app, but default to test port
 // In tests, import.meta.env is not available so we use a sensible default
-const API_BASE = 'http://localhost:8000';
+const API_BASE = '';
 
 // Mock data
 export const mockBusinesses = [
@@ -98,11 +98,11 @@ export const mockDecisions = [
 // Request handlers
 export const handlers = [
   // Businesses
-  http.get(`${API_BASE}/api/businesses`, () => {
+  http.get(`${API_BASE}/api/v1/businesses`, () => {
     return HttpResponse.json(mockBusinesses);
   }),
 
-  http.get(`${API_BASE}/api/businesses/:id`, ({ params }) => {
+  http.get(`${API_BASE}/api/v1/businesses/:id`, ({ params }) => {
     const business = mockBusinesses.find((b) => b.id === params.id);
     if (!business) {
       return new HttpResponse(null, { status: 404 });
@@ -111,7 +111,7 @@ export const handlers = [
   }),
 
   // Conversations
-  http.get(`${API_BASE}/api/conversations`, ({ request }) => {
+  http.get(`${API_BASE}/api/v1/conversations`, ({ request }) => {
     const url = new URL(request.url);
     const search = url.searchParams.get('search') || '';
     const limit = parseInt(url.searchParams.get('limit') || '20');
@@ -130,14 +130,14 @@ export const handlers = [
     });
   }),
 
-  http.get(`${API_BASE}/api/conversations/:id`, ({ params }) => {
+  http.get(`${API_BASE}/api/v1/conversations/:id`, ({ params }) => {
     if (params.id === 'conv-1') {
       return HttpResponse.json(mockConversationDetail);
     }
     return new HttpResponse(null, { status: 404 });
   }),
 
-  http.post(`${API_BASE}/api/conversations`, async ({ request }) => {
+  http.post(`${API_BASE}/api/v1/conversations`, async ({ request }) => {
     const body = (await request.json()) as Record<string, unknown>;
     return HttpResponse.json({
       id: `conv-${Date.now()}`,
@@ -147,24 +147,24 @@ export const handlers = [
     });
   }),
 
-  http.delete(`${API_BASE}/api/conversations/:id`, () => {
+  http.delete(`${API_BASE}/api/v1/conversations/:id`, () => {
     return HttpResponse.json({ success: true });
   }),
 
-  http.post(`${API_BASE}/api/conversations/:id/star`, () => {
+  http.post(`${API_BASE}/api/v1/conversations/:id/star`, () => {
     return HttpResponse.json({ success: true });
   }),
 
-  http.post(`${API_BASE}/api/conversations/:id/archive`, () => {
+  http.post(`${API_BASE}/api/v1/conversations/:id/archive`, () => {
     return HttpResponse.json({ success: true });
   }),
 
   // Projects
-  http.get(`${API_BASE}/api/companies/:companyId/projects`, () => {
+  http.get(`${API_BASE}/api/v1/companies/:companyId/projects`, () => {
     return HttpResponse.json(mockProjects);
   }),
 
-  http.post(`${API_BASE}/api/companies/:companyId/projects`, async ({ request }) => {
+  http.post(`${API_BASE}/api/v1/companies/:companyId/projects`, async ({ request }) => {
     const body = (await request.json()) as Record<string, unknown>;
     return HttpResponse.json({
       id: `proj-${Date.now()}`,
@@ -174,32 +174,32 @@ export const handlers = [
   }),
 
   // Decisions
-  http.get(`${API_BASE}/api/companies/:companyId/decisions`, () => {
+  http.get(`${API_BASE}/api/v1/companies/:companyId/decisions`, () => {
     return HttpResponse.json(mockDecisions);
   }),
 
   // Departments
-  http.get(`${API_BASE}/api/companies/:companyId/departments`, () => {
+  http.get(`${API_BASE}/api/v1/companies/:companyId/departments`, () => {
     return HttpResponse.json(mockBusinesses[0]?.departments || []);
   }),
 
   // Roles
-  http.get(`${API_BASE}/api/companies/:companyId/roles`, () => {
+  http.get(`${API_BASE}/api/v1/companies/:companyId/roles`, () => {
     return HttpResponse.json(mockBusinesses[0]?.roles || []);
   }),
 
   // Playbooks
-  http.get(`${API_BASE}/api/companies/:companyId/playbooks`, () => {
+  http.get(`${API_BASE}/api/v1/companies/:companyId/playbooks`, () => {
     return HttpResponse.json([]);
   }),
 
   // Members
-  http.get(`${API_BASE}/api/companies/:companyId/members`, () => {
+  http.get(`${API_BASE}/api/v1/companies/:companyId/members`, () => {
     return HttpResponse.json([{ id: 'user-1', email: 'test@example.com', role: 'admin' }]);
   }),
 
   // Company context
-  http.get(`${API_BASE}/api/companies/:companyId/context`, () => {
+  http.get(`${API_BASE}/api/v1/companies/:companyId/context`, () => {
     return HttpResponse.json({ context: 'Test company context' });
   }),
 
