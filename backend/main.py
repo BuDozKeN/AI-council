@@ -395,12 +395,24 @@ class RequestDurationMiddleware(BaseHTTPMiddleware):
 
     - Logs slow requests (>1s warning, >5s error)
     - Adds X-Response-Time header to all responses
-    - Excludes health check endpoints from slow request logging
+    - Excludes health check and LLM-heavy endpoints from slow request logging
     """
 
     SLOW_REQUEST_THRESHOLD = 1.0  # seconds - log warning
     VERY_SLOW_THRESHOLD = 5.0  # seconds - log error
     EXCLUDED_PATHS = {"/health", "/health/live", "/health/ready", "/"}
+    # LLM-heavy endpoints that naturally take longer (5-30s is normal)
+    LLM_PATH_PATTERNS = (
+        "/messages",           # Council deliberation
+        "/chat/stream",        # Chat mode
+        "/merge-decision",     # Decision merging
+        "/triage/analyze",     # Triage analysis
+        "/triage/continue",    # Triage continuation
+    )
+
+    def _is_llm_endpoint(self, path: str) -> bool:
+        """Check if path is an LLM-heavy endpoint that's expected to be slow."""
+        return any(pattern in path for pattern in self.LLM_PATH_PATTERNS)
 
     async def dispatch(self, request, call_next):
         import time
@@ -414,9 +426,9 @@ class RequestDurationMiddleware(BaseHTTPMiddleware):
         # Add timing header
         response.headers["X-Response-Time"] = f"{duration_ms}ms"
 
-        # Log slow requests (except health checks)
+        # Log slow requests (except health checks and LLM endpoints)
         path = request.url.path
-        if path not in self.EXCLUDED_PATHS:
+        if path not in self.EXCLUDED_PATHS and not self._is_llm_endpoint(path):
             if duration >= self.VERY_SLOW_THRESHOLD:
                 log_app_event(
                     "VERY_SLOW_REQUEST",
