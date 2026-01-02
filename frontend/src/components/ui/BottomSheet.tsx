@@ -1,4 +1,11 @@
-import { useRef, useEffect, useCallback, useState, ReactNode, MouseEvent as ReactMouseEvent } from 'react';
+import {
+  useRef,
+  useEffect,
+  useCallback,
+  useState,
+  ReactNode,
+  MouseEvent as ReactMouseEvent,
+} from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { motion, AnimatePresence, PanInfo, useMotionValue, useTransform } from 'framer-motion';
 import './BottomSheet.css';
@@ -11,6 +18,147 @@ interface BottomSheetProps {
   showCloseButton?: boolean | undefined;
   className?: string | undefined;
   headerAction?: ReactNode | undefined;
+}
+
+interface SheetContentProps {
+  onClose?: (() => void) | undefined;
+  title?: string | undefined;
+  children: ReactNode;
+  showCloseButton?: boolean | undefined;
+  className?: string | undefined;
+  headerAction?: ReactNode | undefined;
+}
+
+/**
+ * Inner component that manages drag state - remounts fresh each time sheet opens
+ */
+function SheetContent({
+  onClose,
+  title,
+  children,
+  showCloseButton,
+  className = '',
+  headerAction,
+}: SheetContentProps) {
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [hasEntered, setHasEntered] = useState(false);
+
+  // Motion values for drag gesture
+  const y = useMotionValue(0);
+  const opacity = useTransform(y, [0, 200], [1, 0.5]);
+
+  // Handle drag end - close if dragged down enough or with enough velocity
+  const handleDragEnd = useCallback(
+    (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+      setIsDragging(false);
+      const shouldClose = info.offset.y > 100 || info.velocity.y > 500;
+      if (shouldClose) {
+        onClose?.();
+      }
+    },
+    [onClose]
+  );
+
+  // Check if we should allow dragging (only at top of scroll)
+  const handleDragStart = useCallback(() => {
+    const content = contentRef.current;
+    if (content && content.scrollTop > 0) {
+      return false; // Prevent drag if scrolled down
+    }
+    setIsDragging(true);
+    return true;
+  }, []);
+
+  // Handle clicks on empty space within the sheet body to close
+  const handleBodyClick = useCallback(
+    (e: ReactMouseEvent<HTMLDivElement>) => {
+      const target = e.target as HTMLElement;
+      // Only close if clicking directly on the body background (not any child elements)
+      // This allows tap-to-dismiss behavior when tapping empty space
+      if (target.classList.contains('bottom-sheet-body')) {
+        onClose?.();
+      }
+    },
+    [onClose]
+  );
+
+  return (
+    <motion.div
+      ref={contentRef}
+      className={`bottom-sheet-content ${isDragging ? 'is-dragging' : ''} ${className}`}
+      initial={{ y: '100%' }}
+      animate={{ y: 0 }}
+      exit={{ y: '100%' }}
+      // Only apply drag motion value AFTER entry animation completes
+      // This prevents the y=0 from conflicting with initial={{ y: '100%' }}
+      {...(hasEntered && { style: { y, opacity: isDragging ? opacity : 1 } })}
+      drag={hasEntered ? 'y' : false}
+      dragDirectionLock
+      dragConstraints={{ top: 0, bottom: 0 }}
+      dragElastic={{ top: 0, bottom: 0.5 }}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onAnimationComplete={() => setHasEntered(true)}
+      transition={{
+        type: 'spring',
+        damping: 30,
+        stiffness: 300,
+      }}
+    >
+      {/* Drag handle for mobile - tap to close */}
+      <div
+        className="bottom-sheet-handle"
+        onClick={() => onClose?.()}
+        role="button"
+        tabIndex={0}
+        aria-label="Close sheet"
+      >
+        <div className="bottom-sheet-handle-bar" />
+      </div>
+
+      {/* Header */}
+      {(title || showCloseButton || headerAction) && (
+        <div className="bottom-sheet-header">
+          <Dialog.Title asChild>
+            <h1 className="bottom-sheet-title">{title}</h1>
+          </Dialog.Title>
+          <div className="bottom-sheet-header-actions">
+            {headerAction}
+            {showCloseButton && (
+              <button
+                type="button"
+                className="bottom-sheet-close"
+                onClick={() => onClose?.()}
+                aria-label="Close"
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                >
+                  <path d="M4 4l8 8M12 4l-8 8" />
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+      {/* Visually hidden description for accessibility */}
+      <Dialog.Description className="sr-only">
+        {title ? `${title} dialog` : 'Dialog content'}
+      </Dialog.Description>
+
+      {/* Body - tap empty space to close */}
+      <div className="bottom-sheet-body" onClick={handleBodyClick}>
+        {children}
+      </div>
+    </motion.div>
+  );
 }
 
 /**
@@ -27,41 +175,6 @@ export function BottomSheet({
   className = '',
   headerAction,
 }: BottomSheetProps) {
-  const contentRef = useRef<HTMLDivElement | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [hasEntered, setHasEntered] = useState(false);
-
-  // Motion values for drag gesture
-  const y = useMotionValue(0);
-  const opacity = useTransform(y, [0, 200], [1, 0.5]);
-
-  // Reset motion value and entry state when sheet opens/closes
-  useEffect(() => {
-    if (isOpen) {
-      y.set(0); // Reset drag position
-      setHasEntered(false); // Reset entry state
-    }
-  }, [isOpen, y]);
-
-  // Handle drag end - close if dragged down enough or with enough velocity
-  const handleDragEnd = useCallback((_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    setIsDragging(false);
-    const shouldClose = info.offset.y > 100 || info.velocity.y > 500;
-    if (shouldClose) {
-      onClose?.();
-    }
-  }, [onClose]);
-
-  // Check if we should allow dragging (only at top of scroll)
-  const handleDragStart = useCallback(() => {
-    const content = contentRef.current;
-    if (content && content.scrollTop > 0) {
-      return false; // Prevent drag if scrolled down
-    }
-    setIsDragging(true);
-    return true;
-  }, []);
-
   // Handle Escape key to close (since we disabled onOpenChange)
   useEffect(() => {
     if (!isOpen) return;
@@ -79,16 +192,6 @@ export function BottomSheet({
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
-
-  // Handle clicks on empty space within the sheet body to close
-  const handleBodyClick = useCallback((e: ReactMouseEvent<HTMLDivElement>) => {
-    const target = e.target as HTMLElement;
-    // Only close if clicking directly on the body background (not any child elements)
-    // This allows tap-to-dismiss behavior when tapping empty space
-    if (target.classList.contains('bottom-sheet-body')) {
-      onClose?.();
-    }
-  }, [onClose]);
 
   return (
     <Dialog.Root
@@ -117,7 +220,7 @@ export function BottomSheet({
               />
             </Dialog.Overlay>
 
-            {/* Sheet content */}
+            {/* Sheet content - inner component remounts fresh each open */}
             <Dialog.Content
               asChild
               onInteractOutside={(e) => {
@@ -135,80 +238,15 @@ export function BottomSheet({
                 }
               }}
             >
-              <motion.div
-                ref={contentRef}
-                className={`bottom-sheet-content ${isDragging ? 'is-dragging' : ''} ${className}`}
-                initial={{ y: '100%' }}
-                animate={{ y: 0 }}
-                exit={{ y: '100%' }}
-                // Only apply drag motion value AFTER entry animation completes
-                // This prevents the y=0 from conflicting with initial={{ y: '100%' }}
-                {...(hasEntered && { style: { y, opacity: isDragging ? opacity : 1 } })}
-                drag={hasEntered ? 'y' : false}
-                dragDirectionLock
-                dragConstraints={{ top: 0, bottom: 0 }}
-                dragElastic={{ top: 0, bottom: 0.5 }}
-                onDragStart={handleDragStart}
-                onDragEnd={handleDragEnd}
-                onAnimationComplete={() => setHasEntered(true)}
-                transition={{
-                  type: 'spring',
-                  damping: 30,
-                  stiffness: 300,
-                }}
+              <SheetContent
+                onClose={onClose}
+                title={title}
+                showCloseButton={showCloseButton}
+                className={className}
+                headerAction={headerAction}
               >
-                {/* Drag handle for mobile - tap to close */}
-                <div
-                  className="bottom-sheet-handle"
-                  onClick={() => onClose?.()}
-                  role="button"
-                  tabIndex={0}
-                  aria-label="Close sheet"
-                >
-                  <div className="bottom-sheet-handle-bar" />
-                </div>
-
-                {/* Header */}
-                {(title || showCloseButton || headerAction) && (
-                  <div className="bottom-sheet-header">
-                    <Dialog.Title asChild>
-                      <h1 className="bottom-sheet-title">{title}</h1>
-                    </Dialog.Title>
-                    <div className="bottom-sheet-header-actions">
-                      {headerAction}
-                      {showCloseButton && (
-                        <button
-                          type="button"
-                          className="bottom-sheet-close"
-                          onClick={() => onClose?.()}
-                          aria-label="Close"
-                        >
-                          <svg
-                            width="16"
-                            height="16"
-                            viewBox="0 0 16 16"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                          >
-                            <path d="M4 4l8 8M12 4l-8 8" />
-                          </svg>
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                )}
-                {/* Visually hidden description for accessibility */}
-                <Dialog.Description className="sr-only">
-                  {title ? `${title} dialog` : 'Dialog content'}
-                </Dialog.Description>
-
-                {/* Body - tap empty space to close */}
-                <div className="bottom-sheet-body" onClick={handleBodyClick}>
-                  {children}
-                </div>
-              </motion.div>
+                {children}
+              </SheetContent>
             </Dialog.Content>
           </Dialog.Portal>
         )}
