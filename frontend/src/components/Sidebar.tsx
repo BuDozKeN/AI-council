@@ -1,7 +1,16 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { Button } from './ui/button';
-import { Plus, PanelLeftClose, PanelLeft, History, Settings, Building2, LogOut, Trophy } from 'lucide-react';
+import {
+  Plus,
+  PanelLeftClose,
+  PanelLeft,
+  History,
+  Settings,
+  Building2,
+  LogOut,
+  Trophy,
+} from 'lucide-react';
 import {
   useMockMode,
   useCachingMode,
@@ -18,7 +27,13 @@ import {
 } from './sidebar/index.jsx';
 import type { SearchBarRef } from './sidebar/SearchBar';
 import { ConversationSkeletonGroup } from './ui/Skeleton';
-import { usePullToRefresh, useKeyboardShortcuts, useListNavigation, useDragAndDrop, usePrefetchCompany } from '../hooks';
+import {
+  usePullToRefresh,
+  useKeyboardShortcuts,
+  useListNavigation,
+  useDragAndDrop,
+  usePrefetchCompany,
+} from '../hooks';
 import type { DraggableConversation } from '../hooks/useDragAndDrop';
 import { PullToRefreshIndicator } from './ui/PullToRefresh';
 import { toast } from './ui/sonner';
@@ -103,13 +118,16 @@ export default function Sidebar({
   const { allHoverHandlers: prefetchMyCompanyHandlers } = usePrefetchCompany(companyId);
 
   // Combined hover handlers: preload JS chunk + prefetch API data
-  const myCompanyHoverHandlers = useMemo(() => ({
-    onMouseEnter: () => {
-      onPreloadMyCompany?.(); // Load JS chunk
-      prefetchMyCompanyHandlers.onMouseEnter(); // Prefetch API data
-    },
-    onMouseLeave: prefetchMyCompanyHandlers.onMouseLeave,
-  }), [onPreloadMyCompany, prefetchMyCompanyHandlers]);
+  const myCompanyHoverHandlers = useMemo(
+    () => ({
+      onMouseEnter: () => {
+        onPreloadMyCompany?.(); // Load JS chunk
+        prefetchMyCompanyHandlers.onMouseEnter(); // Prefetch API data
+      },
+      onMouseLeave: prefetchMyCompanyHandlers.onMouseLeave,
+    }),
+    [onPreloadMyCompany, prefetchMyCompanyHandlers]
+  );
 
   // Sidebar state: 'collapsed' | 'hovered' | 'pinned'
   const [sidebarState, setSidebarState] = useState(() => {
@@ -139,25 +157,28 @@ export default function Sidebar({
   const contextMenu = useContextMenu();
 
   // Drag and drop for moving conversations between departments
-  const handleDragDrop = useCallback(async (conversationId: string, targetDepartment: string, item: DraggableConversation) => {
-    // Optimistically update UI (parent will handle via callback)
-    if (onUpdateConversationDepartment) {
-      onUpdateConversationDepartment(conversationId, targetDepartment);
-    }
-
-    // Persist to backend
-    try {
-      await api.updateConversationDepartment(conversationId, targetDepartment);
-      toast.success(`Moved to ${targetDepartment}`);
-    } catch (error) {
-      logger.error('Failed to update department:', error);
-      toast.error("Couldn't move that conversation. Please try again.");
-      // Revert optimistic update
-      if (onUpdateConversationDepartment && item.department) {
-        onUpdateConversationDepartment(conversationId, item.department);
+  const handleDragDrop = useCallback(
+    async (conversationId: string, targetDepartment: string, item: DraggableConversation) => {
+      // Optimistically update UI (parent will handle via callback)
+      if (onUpdateConversationDepartment) {
+        onUpdateConversationDepartment(conversationId, targetDepartment);
       }
-    }
-  }, [onUpdateConversationDepartment]);
+
+      // Persist to backend
+      try {
+        await api.updateConversationDepartment(conversationId, targetDepartment);
+        toast.success(`Moved to ${targetDepartment}`);
+      } catch (error) {
+        logger.error('Failed to update department:', error);
+        toast.error("Couldn't move that conversation. Please try again.");
+        // Revert optimistic update
+        if (onUpdateConversationDepartment && item.department) {
+          onUpdateConversationDepartment(conversationId, item.department);
+        }
+      }
+    },
+    [onUpdateConversationDepartment]
+  );
 
   const {
     draggedItem,
@@ -178,7 +199,11 @@ export default function Sidebar({
 
   // Mode toggles
   const { mockMode, isToggling: isTogglingMock, toggle: toggleMockMode } = useMockMode();
-  const { cachingMode, isToggling: isTogglingCaching, toggle: toggleCachingMode } = useCachingMode();
+  const {
+    cachingMode,
+    isToggling: isTogglingCaching,
+    toggle: toggleCachingMode,
+  } = useCachingMode();
 
   // Derived state
   const isPinned = sidebarState === 'pinned';
@@ -221,7 +246,8 @@ export default function Sidebar({
   // NOTE: This effect depends on hasSelection, so it must be defined after
   useEffect(() => {
     const isDesktop = typeof window !== 'undefined' && window.innerWidth > 768;
-    const isExpandedOnDesktop = isDesktop && !isMobileOpen && (hoveredIcon || isPinned || hasSelection);
+    const isExpandedOnDesktop =
+      isDesktop && !isMobileOpen && (hoveredIcon || isPinned || hasSelection);
 
     if (!isExpandedOnDesktop) return;
 
@@ -243,16 +269,16 @@ export default function Sidebar({
       // Also check for select triggers which are inside the sidebar
       const isRadixElement = target.closest?.(
         '[data-radix-popper-content-wrapper], ' +
-        '[data-radix-select-content], ' +
-        '[data-radix-select-trigger], ' +
-        '[data-radix-menu-content], ' +
-        '[data-radix-dialog-content], ' +
-        '.select-content, ' +
-        '.select-item, ' +
-        '.select-trigger, ' +
-        '[role="listbox"], ' +
-        '[role="option"], ' +
-        '[role="combobox"]'
+          '[data-radix-select-content], ' +
+          '[data-radix-select-trigger], ' +
+          '[data-radix-menu-content], ' +
+          '[data-radix-dialog-content], ' +
+          '.select-content, ' +
+          '.select-item, ' +
+          '.select-trigger, ' +
+          '[role="listbox"], ' +
+          '[role="option"], ' +
+          '[role="combobox"]'
       );
       if (isRadixElement) {
         return;
@@ -281,7 +307,6 @@ export default function Sidebar({
       localStorage.setItem('sidebar-pinned', newState === 'pinned' ? 'true' : 'false');
     }
   }, [isPinned]);
-
 
   // Pull to refresh (mobile only)
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
@@ -345,7 +370,7 @@ export default function Sidebar({
   // Multi-select handlers
   const toggleSelection = (convId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setSelectedIds(prev => {
+    setSelectedIds((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(convId)) {
         newSet.delete(convId);
@@ -375,8 +400,8 @@ export default function Sidebar({
 
   // Separate active and archived conversations
   const { activeConversations, archivedConversations } = useMemo(() => {
-    const active = conversations.filter(conv => !conv.is_archived);
-    const archived = conversations.filter(conv => conv.is_archived);
+    const active = conversations.filter((conv) => !conv.is_archived);
+    const archived = conversations.filter((conv) => conv.is_archived);
     return { activeConversations: active, archivedConversations: archived };
   }, [conversations]);
 
@@ -387,8 +412,7 @@ export default function Sidebar({
     }
     const query = searchQuery.toLowerCase();
     const matchesSearch = (conv: Conversation) =>
-      conv.title?.toLowerCase().includes(query) ||
-      conv.department?.toLowerCase().includes(query);
+      conv.title?.toLowerCase().includes(query) || conv.department?.toLowerCase().includes(query);
     return {
       active: activeConversations.filter(matchesSearch),
       archived: archivedConversations.filter(matchesSearch),
@@ -399,17 +423,12 @@ export default function Sidebar({
   const flatConversationList = useMemo(() => {
     const list: Conversation[] = [];
     const convsToShow = filter === 'archived' ? filteredBySearch.archived : filteredBySearch.active;
-    convsToShow.forEach(conv => list.push(conv));
+    convsToShow.forEach((conv) => list.push(conv));
     return list;
   }, [filter, filteredBySearch]);
 
   // List navigation for keyboard support
-  const {
-    getFocusedId,
-    navigateUp,
-    navigateDown,
-    selectCurrent,
-  } = useListNavigation({
+  const { getFocusedId, navigateUp, navigateDown, selectCurrent } = useListNavigation({
     items: flatConversationList as unknown as { id: string; [key: string]: unknown }[],
     currentId: currentConversationId,
     onSelect: onSelectConversation,
@@ -453,10 +472,11 @@ export default function Sidebar({
   // while departments from the API have both id (UUID) and slug fields
   const groupedConversations = useMemo(() => {
     const groups: Record<string, DepartmentConversationGroup> = {};
-    const convsToGroup = filter === 'archived' ? filteredBySearch.archived : filteredBySearch.active;
+    const convsToGroup =
+      filter === 'archived' ? filteredBySearch.archived : filteredBySearch.active;
 
     // Create groups keyed by slug (or id for legacy/default departments)
-    departments.forEach(dept => {
+    departments.forEach((dept) => {
       const key = dept.slug || dept.id;
       groups[key] = { name: dept.name, conversations: [], deptId: dept.id };
     });
@@ -465,10 +485,14 @@ export default function Sidebar({
       groups['standard'] = { name: 'Standard', conversations: [], deptId: 'standard' };
     }
 
-    convsToGroup.forEach(conv => {
+    convsToGroup.forEach((conv) => {
       const deptSlug = conv.department || 'standard';
       if (!groups[deptSlug]) {
-        groups[deptSlug] = { name: deptSlug.charAt(0).toUpperCase() + deptSlug.slice(1), conversations: [], deptId: deptSlug };
+        groups[deptSlug] = {
+          name: deptSlug.charAt(0).toUpperCase() + deptSlug.slice(1),
+          conversations: [],
+          deptId: deptSlug,
+        };
       }
       groups[deptSlug].conversations.push(conv);
     });
@@ -485,7 +509,7 @@ export default function Sidebar({
   }, [groupedConversations, filter]);
 
   const toggleGroup = (groupId: string) => {
-    setExpandedGroups(prev => ({ ...prev, [groupId]: !prev[groupId] }));
+    setExpandedGroups((prev) => ({ ...prev, [groupId]: !prev[groupId] }));
   };
 
   const isGroupExpanded = (groupId: string): boolean => {
@@ -528,21 +552,15 @@ export default function Sidebar({
 
   // Determine visual state for CSS
   // When items are selected, treat as 'hovered' to keep expanded panel visible but preserve icon rail
-  const visualState = isPinned ? 'pinned' : (hoveredIcon || hasSelection ? 'hovered' : 'collapsed');
+  const visualState = isPinned ? 'pinned' : hoveredIcon || hasSelection ? 'hovered' : 'collapsed';
 
   // Build sidebar CSS classes
-  const sidebarClasses = [
-    'sidebar',
-    `sidebar--${visualState}`,
-    isMobileOpen ? 'mobile-open' : '',
-  ].filter(Boolean).join(' ');
+  const sidebarClasses = ['sidebar', `sidebar--${visualState}`, isMobileOpen ? 'mobile-open' : '']
+    .filter(Boolean)
+    .join(' ');
 
   return (
-    <aside
-      ref={sidebarRef}
-      className={sidebarClasses}
-      aria-label="Conversation history"
-    >
+    <aside ref={sidebarRef} className={sidebarClasses} aria-label="Conversation history">
       {/* Header with New Chat and Pin toggle */}
       <div
         className="sidebar-header"
@@ -551,10 +569,7 @@ export default function Sidebar({
       >
         {isExpanded ? (
           <>
-            <Button
-              onClick={onNewConversation}
-              className="sidebar-new-btn"
-            >
+            <Button onClick={onNewConversation} className="sidebar-new-btn">
               <Plus className="h-4 w-4" />
               <span className="sidebar-btn-text">New Chat</span>
             </Button>
@@ -595,7 +610,9 @@ export default function Sidebar({
               icon={<History className="h-5 w-5" />}
               title="History"
               onClick={togglePin}
-              onMouseEnter={() => { if (totalConversations > 0) handleIconHover('history'); }}
+              onMouseEnter={() => {
+                if (totalConversations > 0) handleIconHover('history');
+              }}
               onMouseLeave={handleIconLeave}
               isActive={hoveredIcon === 'history'}
               disabled={totalConversations === 0}
@@ -652,7 +669,13 @@ export default function Sidebar({
             />
 
             {/* Conversation List */}
-            <div className="conversation-list" ref={(el: HTMLDivElement | null) => { pullToRefreshRef.current = el; listContainerRef.current = el; }}>
+            <div
+              className="conversation-list"
+              ref={(el: HTMLDivElement | null) => {
+                pullToRefreshRef.current = el;
+                listContainerRef.current = el;
+              }}
+            >
               {/* Skeleton loading state */}
               {isLoading && totalConversations === 0 ? (
                 <ConversationSkeletonGroup count={5} />
@@ -690,44 +713,59 @@ export default function Sidebar({
                   onSaveEdit={handleSaveEdit}
                   onCancelEdit={handleCancelEdit}
                   onToggleSelection={toggleSelection}
-                  onStarConversation={onStarConversation ? (id: string) => onStarConversation(id) : undefined}
-                  onArchiveConversation={onArchiveConversation ? (id: string) => onArchiveConversation(id) : undefined}
+                  onStarConversation={
+                    onStarConversation ? (id: string) => onStarConversation(id) : undefined
+                  }
+                  onArchiveConversation={
+                    onArchiveConversation ? (id: string) => onArchiveConversation(id) : undefined
+                  }
                   onDeleteConversation={onDeleteConversation}
                   onToggleGroup={toggleGroup}
                   onContextMenu={contextMenu.open}
                   height={listHeight}
                 />
               ) : (
-                Object.entries(filteredGroups).map(([groupId, group]) => group && (
-                  <ConversationGroup
-                    key={groupId}
-                    groupId={groupId}
-                    groupName={group.name}
-                    conversations={group.conversations}
-                    isExpanded={isGroupExpanded(groupId)}
-                    onToggleExpand={toggleGroup}
-                    currentConversationId={currentConversationId}
-                    focusedConversationId={focusedConversationId}
-                    selectedIds={selectedIds}
-                    editingId={editingId}
-                    editingTitle={editingTitle}
-                    onSelectConversation={onSelectConversation}
-                    onStartEdit={handleStartEdit}
-                    onEditTitleChange={setEditingTitle}
-                    onSaveEdit={handleSaveEdit}
-                    onCancelEdit={handleCancelEdit}
-                    onToggleSelection={toggleSelection}
-                    onStarConversation={onStarConversation ? (id: string) => onStarConversation(id) : undefined}
-                    onArchiveConversation={onArchiveConversation ? (id: string) => onArchiveConversation(id) : undefined}
-                    onDeleteConversation={onDeleteConversation}
-                    onContextMenu={contextMenu.open}
-                    // Drag and drop props
-                    dropHandlers={getDropHandlers(groupId)}
-                    isDropTarget={dragOverTarget === groupId}
-                    getDragHandlers={(conv: Conversation) => getDragHandlers(conv as unknown as DraggableConversation)}
-                    draggedItemId={draggedItem?.id ?? null}
-                  />
-                ))
+                Object.entries(filteredGroups).map(
+                  ([groupId, group]) =>
+                    group && (
+                      <ConversationGroup
+                        key={groupId}
+                        groupId={groupId}
+                        groupName={group.name}
+                        conversations={group.conversations}
+                        isExpanded={isGroupExpanded(groupId)}
+                        onToggleExpand={toggleGroup}
+                        currentConversationId={currentConversationId}
+                        focusedConversationId={focusedConversationId}
+                        selectedIds={selectedIds}
+                        editingId={editingId}
+                        editingTitle={editingTitle}
+                        onSelectConversation={onSelectConversation}
+                        onStartEdit={handleStartEdit}
+                        onEditTitleChange={setEditingTitle}
+                        onSaveEdit={handleSaveEdit}
+                        onCancelEdit={handleCancelEdit}
+                        onToggleSelection={toggleSelection}
+                        onStarConversation={
+                          onStarConversation ? (id: string) => onStarConversation(id) : undefined
+                        }
+                        onArchiveConversation={
+                          onArchiveConversation
+                            ? (id: string) => onArchiveConversation(id)
+                            : undefined
+                        }
+                        onDeleteConversation={onDeleteConversation}
+                        onContextMenu={contextMenu.open}
+                        // Drag and drop props
+                        dropHandlers={getDropHandlers(groupId)}
+                        isDropTarget={dragOverTarget === groupId}
+                        getDragHandlers={(conv: Conversation) =>
+                          getDragHandlers(conv as unknown as DraggableConversation)
+                        }
+                        draggedItemId={draggedItem?.id ?? null}
+                      />
+                    )
+                )
               )}
 
               {/* Load more indicator - shown when more conversations exist */}

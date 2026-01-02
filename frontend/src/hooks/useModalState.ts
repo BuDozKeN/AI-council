@@ -143,7 +143,9 @@ function modalReducer(state: ModalState, action: ModalAction): ModalState {
         returnToMyCompanyTab: null,
         returnToProjectId: null,
         returnToDecisionId: null,
-        myCompanyPromoteDecision: action.payload?.clearPromoteDecision ? null : state.myCompanyPromoteDecision,
+        myCompanyPromoteDecision: action.payload?.clearPromoteDecision
+          ? null
+          : state.myCompanyPromoteDecision,
         myCompanyInitialTab: action.payload?.tab || 'overview',
         myCompanyInitialDecisionId: action.payload?.decisionId || null,
         myCompanyInitialPlaybookId: action.payload?.playbookId || null,
@@ -227,17 +229,13 @@ export function useModalState() {
   const [state, dispatch] = useReducer(modalReducer, initialState);
 
   // Memoized action creators
-  const openLeaderboard = useCallback(() =>
-    dispatch({ type: 'OPEN_LEADERBOARD' }), []);
+  const openLeaderboard = useCallback(() => dispatch({ type: 'OPEN_LEADERBOARD' }), []);
 
-  const closeLeaderboard = useCallback(() =>
-    dispatch({ type: 'CLOSE_LEADERBOARD' }), []);
+  const closeLeaderboard = useCallback(() => dispatch({ type: 'CLOSE_LEADERBOARD' }), []);
 
-  const openSettings = useCallback(() =>
-    dispatch({ type: 'OPEN_SETTINGS' }), []);
+  const openSettings = useCallback(() => dispatch({ type: 'OPEN_SETTINGS' }), []);
 
-  const closeSettings = useCallback(() =>
-    dispatch({ type: 'CLOSE_SETTINGS' }), []);
+  const closeSettings = useCallback(() => dispatch({ type: 'CLOSE_SETTINGS' }), []);
 
   const openProjectModal = useCallback((context?: ProjectModalContext): void => {
     if (context) {
@@ -247,8 +245,7 @@ export function useModalState() {
     }
   }, []);
 
-  const closeProjectModal = useCallback((): void =>
-    dispatch({ type: 'CLOSE_PROJECT_MODAL' }), []);
+  const closeProjectModal = useCallback((): void => dispatch({ type: 'CLOSE_PROJECT_MODAL' }), []);
 
   const openMyCompany = useCallback((options?: OpenMyCompanyPayload): void => {
     if (options) {
@@ -258,31 +255,38 @@ export function useModalState() {
     }
   }, []);
 
-  const closeMyCompany = useCallback((): void =>
-    dispatch({ type: 'CLOSE_MY_COMPANY' }), []);
+  const closeMyCompany = useCallback((): void => dispatch({ type: 'CLOSE_MY_COMPANY' }), []);
 
-  const resetMyCompanyInitial = useCallback((): void =>
-    dispatch({ type: 'RESET_MY_COMPANY_INITIAL' }), []);
+  const resetMyCompanyInitial = useCallback(
+    (): void => dispatch({ type: 'RESET_MY_COMPANY_INITIAL' }),
+    []
+  );
 
-  const setMyCompanyPromoteDecision = useCallback((decision: PromoteDecision | null): void =>
-    dispatch({ type: 'SET_MY_COMPANY_PROMOTE_DECISION', payload: decision }), []);
+  const setMyCompanyPromoteDecision = useCallback(
+    (decision: PromoteDecision | null): void =>
+      dispatch({ type: 'SET_MY_COMPANY_PROMOTE_DECISION', payload: decision }),
+    []
+  );
 
-  const navigateToConversation = useCallback((
-    fromTab: MyCompanyTab | null,
-    responseIndex: number | null,
-    projectId: string | null = null,
-    decisionId: string | null = null
-  ): void =>
-    dispatch({ type: 'NAVIGATE_TO_CONVERSATION', payload: { fromTab, responseIndex, projectId, decisionId } }), []);
+  const navigateToConversation = useCallback(
+    (
+      fromTab: MyCompanyTab | null,
+      responseIndex: number | null,
+      projectId: string | null = null,
+      decisionId: string | null = null
+    ): void =>
+      dispatch({
+        type: 'NAVIGATE_TO_CONVERSATION',
+        payload: { fromTab, responseIndex, projectId, decisionId },
+      }),
+    []
+  );
 
-  const clearScrollState = useCallback(() =>
-    dispatch({ type: 'CLEAR_SCROLL_STATE' }), []);
+  const clearScrollState = useCallback(() => dispatch({ type: 'CLEAR_SCROLL_STATE' }), []);
 
-  const setScrollToStage3 = useCallback(() =>
-    dispatch({ type: 'SET_SCROLL_TO_STAGE3' }), []);
+  const setScrollToStage3 = useCallback(() => dispatch({ type: 'SET_SCROLL_TO_STAGE3' }), []);
 
-  const clearReturnState = useCallback(() =>
-    dispatch({ type: 'CLEAR_RETURN_STATE' }), []);
+  const clearReturnState = useCallback(() => dispatch({ type: 'CLEAR_RETURN_STATE' }), []);
 
   return {
     // State

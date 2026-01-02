@@ -277,7 +277,7 @@
 
 /* Source icon button hover - needs special rgba background */
 .dark .mc-source-icon-btn:hover,
-[data-theme="dark"] .mc-source-icon-btn:hover {
+[data-theme='dark'] .mc-source-icon-btn:hover {
   background: var(--overlay-blue-15);
   color: var(--color-blue-400);
 }

@@ -1,4 +1,14 @@
-import { Crown, Shield, UserIcon, Plus, Trash2, ChevronUp, ChevronDown, AlertCircle, LucideIcon } from 'lucide-react';
+import {
+  Crown,
+  Shield,
+  UserIcon,
+  Plus,
+  Trash2,
+  ChevronUp,
+  ChevronDown,
+  AlertCircle,
+  LucideIcon,
+} from 'lucide-react';
 import { Skeleton } from '../ui/Skeleton';
 import { Spinner } from '../ui/Spinner';
 import { Button } from '../ui/button';
@@ -18,14 +28,33 @@ interface TeamSectionProps {
   user: User | null;
   isOpen: boolean;
   companyId: string;
-  onRemoveMember: (memberId: string, role: TeamRole, handler: (memberId: string) => Promise<void>) => void;
+  onRemoveMember: (
+    memberId: string,
+    role: TeamRole,
+    handler: (memberId: string) => Promise<void>
+  ) => void;
 }
 
 // Role configuration for display - uses CSS variables for theming
 const ROLE_CONFIG: Record<TeamRole, RoleConfigEntry> = {
-  owner: { label: 'Owner', icon: Crown, color: 'var(--color-indigo-500)', description: 'Full control' },
-  admin: { label: 'Admin', icon: Shield, color: 'var(--color-blue-500)', description: 'Manage members' },
-  member: { label: 'Member', icon: UserIcon, color: 'var(--color-gray-500)', description: 'View & contribute' }
+  owner: {
+    label: 'Owner',
+    icon: Crown,
+    color: 'var(--color-indigo-500)',
+    description: 'Full control',
+  },
+  admin: {
+    label: 'Admin',
+    icon: Shield,
+    color: 'var(--color-blue-500)',
+    description: 'Manage members',
+  },
+  member: {
+    label: 'Member',
+    icon: UserIcon,
+    color: 'var(--color-gray-500)',
+    description: 'View & contribute',
+  },
 };
 
 const TeamSkeleton = () => (
@@ -53,7 +82,6 @@ const TeamSkeleton = () => (
         </div>
       </CardContent>
     </Card>
-
   </>
 );
 
@@ -89,7 +117,9 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
         <CardContent className="flex items-center justify-center p-6 gap-3 text-red-500">
           <AlertCircle size={20} />
           <span>{teamError}</span>
-          <Button variant="outline" onClick={loadTeamData}>Retry</Button>
+          <Button variant="outline" onClick={loadTeamData}>
+            Retry
+          </Button>
         </CardContent>
       </Card>
     );
@@ -103,7 +133,9 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>Team Members</CardTitle>
-              <CardDescription>{members.length} {members.length === 1 ? 'member' : 'members'}</CardDescription>
+              <CardDescription>
+                {members.length} {members.length === 1 ? 'member' : 'members'}
+              </CardDescription>
             </div>
             {canManageMembers && (
               <Button
@@ -133,7 +165,10 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                   className="form-input"
                   autoFocus
                 />
-                <Select value={newRole} onValueChange={(value: string) => setNewRole(value as TeamRole)}>
+                <Select
+                  value={newRole}
+                  onValueChange={(value: string) => setNewRole(value as TeamRole)}
+                >
                   <SelectTrigger className="form-select">
                     <SelectValue />
                   </SelectTrigger>
@@ -161,19 +196,26 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
 
           {/* Members list */}
           <div className="members-list">
-            {members.map(member => {
+            {members.map((member) => {
               const roleConfig = ROLE_CONFIG[member.role] || ROLE_CONFIG.member;
               const RoleIcon = roleConfig.icon;
               const isCurrentUser = member.user_id === user?.id;
               const isLoading = memberActionLoading === member.id;
 
               const canModify = canManageMembers && !isCurrentUser && member.role !== 'owner';
-              const canPromote = canModify && currentUserRole === 'owner' && member.role === 'member';
+              const canPromote =
+                canModify && currentUserRole === 'owner' && member.role === 'member';
               const canDemote = canModify && currentUserRole === 'owner' && member.role === 'admin';
-              const canRemove = canModify && (currentUserRole === 'owner' || (currentUserRole === 'admin' && member.role === 'member'));
+              const canRemove =
+                canModify &&
+                (currentUserRole === 'owner' ||
+                  (currentUserRole === 'admin' && member.role === 'member'));
 
               return (
-                <div key={member.id} className={`member-row-compact ${isCurrentUser ? 'current' : ''}`}>
+                <div
+                  key={member.id}
+                  className={`member-row-compact ${isCurrentUser ? 'current' : ''}`}
+                >
                   <div className="member-role-icon" style={{ color: roleConfig.color }}>
                     <RoleIcon size={16} />
                   </div>
@@ -222,7 +264,6 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
           </div>
         </CardContent>
       </Card>
-
     </>
   );
 }

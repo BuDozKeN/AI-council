@@ -35,18 +35,16 @@ export function DepartmentCheckboxItem({
   return (
     <button
       type="button"
-      className={cn(
-        "dept-checkbox-item",
-        isMobile && "mobile",
-        isSelected && "selected"
-      )}
+      className={cn('dept-checkbox-item', isMobile && 'mobile', isSelected && 'selected')}
       onClick={() => onToggle(department.id)}
-      style={{
-        '--dept-color': colors.text,
-        '--dept-bg': colors.bg,
-      } as React.CSSProperties}
+      style={
+        {
+          '--dept-color': colors.text,
+          '--dept-bg': colors.bg,
+        } as React.CSSProperties
+      }
     >
-      <div className={cn("dept-checkbox", isSelected && "checked")}>
+      <div className={cn('dept-checkbox', isSelected && 'checked')}>
         {isSelected && <Check className="dept-checkbox-icon" />}
       </div>
       <span className="dept-checkbox-label">{department.name}</span>

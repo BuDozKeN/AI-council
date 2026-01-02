@@ -52,13 +52,10 @@ interface ProfileSectionProps {
 }
 
 export function ProfileSection({ user, isOpen }: ProfileSectionProps) {
-  const {
-    profile,
-    setProfile,
-    profileLoading,
-    isSaving,
-    handleSaveProfile,
-  } = useProfile(isOpen, user);
+  const { profile, setProfile, profileLoading, isSaving, handleSaveProfile } = useProfile(
+    isOpen,
+    user
+  );
 
   if (profileLoading) {
     return <ProfileSkeleton />;

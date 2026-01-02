@@ -10,7 +10,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { MultiDepartmentSelect } from '../ui/MultiDepartmentSelect';
 import { MultiRoleSelect } from '../ui/MultiRoleSelect';
 import { MultiPlaybookSelect } from '../ui/MultiPlaybookSelect';
-import type { Business, Department, Role, Channel, Style, Project, Playbook } from '../../types/business';
+import type {
+  Business,
+  Department,
+  Role,
+  Channel,
+  Style,
+  Project,
+  Playbook,
+} from '../../types/business';
 
 // Extended playbook type expected by MultiPlaybookSelect
 type PlaybookType = 'sop' | 'framework' | 'policy';
@@ -87,7 +95,7 @@ export function ContextBar({
   onToggleCompanyContext,
   useDepartmentContext,
   onToggleDepartmentContext,
-  isLoading
+  isLoading,
 }: ContextBarProps) {
   // Determine if we're using multi-select mode
   const useMultiSelect = onSelectDepartments && onSelectRoles;
@@ -98,10 +106,11 @@ export function ContextBar({
 
   // Convert playbooks to extended format expected by MultiPlaybookSelect
   const extendedPlaybooks: ExtendedPlaybook[] = playbooks
-    .filter((p): p is Playbook & { doc_type: PlaybookType } =>
-      p.doc_type !== undefined && ['sop', 'framework', 'policy'].includes(p.doc_type)
+    .filter(
+      (p): p is Playbook & { doc_type: PlaybookType } =>
+        p.doc_type !== undefined && ['sop', 'framework', 'policy'].includes(p.doc_type)
     )
-    .map(p => ({
+    .map((p) => ({
       id: p.id,
       title: p.title ?? p.name ?? 'Untitled',
       doc_type: p.doc_type,
@@ -259,10 +268,17 @@ export function ContextBar({
                       disabled={disabled}
                     >
                       <SelectTrigger className="context-select-trigger role-select-trigger">
-                        <SelectValue placeholder={`All ${departments.find(d => d.id === selectedDepartment)?.name || 'Department'} Roles`} />
+                        <SelectValue
+                          placeholder={`All ${departments.find((d) => d.id === selectedDepartment)?.name || 'Department'} Roles`}
+                        />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="__none__">All {departments.find(d => d.id === selectedDepartment)?.name || 'Department'} Roles</SelectItem>
+                        <SelectItem value="__none__">
+                          All{' '}
+                          {departments.find((d) => d.id === selectedDepartment)?.name ||
+                            'Department'}{' '}
+                          Roles
+                        </SelectItem>
                         {roles.map((role) => (
                           <SelectItem key={role.id} value={role.id}>
                             {role.name}

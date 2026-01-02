@@ -31,7 +31,9 @@ import './DepartmentSelect.css';
 // Check if we're on mobile/tablet for bottom sheet vs dropdown
 const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
 
-interface DepartmentSelectItemProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> {
+interface DepartmentSelectItemProps extends React.ComponentPropsWithoutRef<
+  typeof SelectPrimitive.Item
+> {
   deptId: string | null;
 }
 
@@ -39,26 +41,20 @@ interface DepartmentSelectItemProps extends React.ComponentPropsWithoutRef<typeo
 const DepartmentSelectItem = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Item>,
   DepartmentSelectItemProps
->(({
-  className,
-  children,
-  deptId,
-  ...props
-}, ref) => {
+>(({ className, children, deptId, ...props }, ref) => {
   const colors = getDeptColor(deptId);
 
   return (
     <SelectPrimitive.Item
       ref={ref}
-      className={cn(
-        "dept-select-item",
-        className
-      )}
-      style={{
-        '--dept-hover-bg': colors.hoverBg,
-        '--dept-checked-bg': colors.bg,
-        '--dept-checked-text': colors.text,
-      } as React.CSSProperties}
+      className={cn('dept-select-item', className)}
+      style={
+        {
+          '--dept-hover-bg': colors.hoverBg,
+          '--dept-checked-bg': colors.bg,
+          '--dept-checked-text': colors.text,
+        } as React.CSSProperties
+      }
       {...props}
     >
       <span className="dept-select-item-indicator">
@@ -98,7 +94,7 @@ export function DepartmentSelect({
   const [open, setOpen] = React.useState(false);
 
   // Get display name and color for current value
-  const selectedDept = value && value !== 'all' ? departments.find(d => d.id === value) : null;
+  const selectedDept = value && value !== 'all' ? departments.find((d) => d.id === value) : null;
   const selectedColor = selectedDept ? getDeptColor(selectedDept.id) : null;
 
   const getDisplayName = () => {
@@ -110,11 +106,13 @@ export function DepartmentSelect({
   };
 
   // Style for trigger when a department is selected
-  const triggerStyle = selectedColor ? {
-    background: selectedColor.bg,
-    color: selectedColor.text,
-    borderColor: selectedColor.border,
-  } : {};
+  const triggerStyle = selectedColor
+    ? {
+        background: selectedColor.bg,
+        color: selectedColor.text,
+        borderColor: selectedColor.border,
+      }
+    : {};
 
   const handleSelect = (deptValue: string) => {
     onValueChange(deptValue);
@@ -122,17 +120,14 @@ export function DepartmentSelect({
   };
 
   // Build items list for mobile
-  const allItems = [
-    ...(includeAll ? [{ id: 'all', name: allLabel }] : []),
-    ...departments
-  ];
+  const allItems = [...(includeAll ? [{ id: 'all', name: allLabel }] : []), ...departments];
 
   // Mobile: use BottomSheet
   if (isMobileDevice()) {
     return (
       <>
         <button
-          className={cn("dept-select-trigger", selectedColor && "has-selection", className)}
+          className={cn('dept-select-trigger', selectedColor && 'has-selection', className)}
           disabled={disabled}
           onClick={() => setOpen(true)}
           style={triggerStyle}
@@ -143,30 +138,28 @@ export function DepartmentSelect({
           <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
         </button>
 
-        <BottomSheet
-          isOpen={open}
-          onClose={() => setOpen(false)}
-          title="Select Department"
-        >
+        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title="Select Department">
           <div className="dept-select-list-mobile">
-            {allItems.map(dept => {
-              const isSelected = (dept.id === 'all' && (!value || value === 'all')) ||
-                               (dept.id === value);
+            {allItems.map((dept) => {
+              const isSelected =
+                (dept.id === 'all' && (!value || value === 'all')) || dept.id === value;
               const colors = getDeptColor(dept.id === 'all' ? null : dept.id);
               return (
                 <button
                   key={dept.id}
-                  className={cn("dept-select-item-mobile", isSelected && "selected")}
+                  className={cn('dept-select-item-mobile', isSelected && 'selected')}
                   onClick={() => handleSelect(dept.id)}
-                  style={{
-                    '--dept-bg': colors.bg,
-                    '--dept-text': colors.text,
-                    '--radio-checked-bg': colors.text,
-                    '--radio-checked-border': colors.text
-                  } as React.CSSProperties}
+                  style={
+                    {
+                      '--dept-bg': colors.bg,
+                      '--dept-text': colors.text,
+                      '--radio-checked-bg': colors.text,
+                      '--radio-checked-border': colors.text,
+                    } as React.CSSProperties
+                  }
                   type="button"
                 >
-                  <div className={cn("dept-select-radio", isSelected && "checked")}>
+                  <div className={cn('dept-select-radio', isSelected && 'checked')}>
                     {isSelected && <Check className="h-3 w-3" />}
                   </div>
                   <span className="dept-select-item-label">{dept.name}</span>
@@ -183,7 +176,7 @@ export function DepartmentSelect({
   return (
     <SelectPrimitive.Root value={value || 'all'} onValueChange={onValueChange} disabled={disabled}>
       <SelectPrimitive.Trigger
-        className={cn("dept-select-trigger", selectedColor && "has-selection", className)}
+        className={cn('dept-select-trigger', selectedColor && 'has-selection', className)}
         style={triggerStyle}
       >
         {showIcon && <Building2 className="h-3.5 w-3.5" />}
@@ -206,7 +199,7 @@ export function DepartmentSelect({
                 {allLabel}
               </DepartmentSelectItem>
             )}
-            {departments.map(dept => (
+            {departments.map((dept) => (
               <DepartmentSelectItem key={dept.id} value={dept.id} deptId={dept.id}>
                 {dept.name}
               </DepartmentSelectItem>

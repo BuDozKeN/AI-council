@@ -35,20 +35,17 @@ export function FilterSortBar({
   departments = [],
   groupedConversations = {},
   activeCount = 0,
-  archivedCount = 0
+  archivedCount = 0,
 }: FilterSortBarProps) {
   return (
-    <div
-      className="sidebar-filter"
-      onClick={(e) => e.stopPropagation()}
-    >
+    <div className="sidebar-filter" onClick={(e) => e.stopPropagation()}>
       <Select value={filter} onValueChange={onFilterChange}>
         <SelectTrigger variant="compact" className="filter-select-trigger">
           <SelectValue placeholder="All Conversations" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Conversations ({activeCount})</SelectItem>
-          {departments.map(dept => {
+          {departments.map((dept) => {
             // Use slug for grouping key (conversations store department as slug)
             const deptKey = dept.slug || dept.id;
             const deptCount = groupedConversations[deptKey]?.conversations.length || 0;

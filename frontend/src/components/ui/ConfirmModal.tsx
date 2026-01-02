@@ -1,8 +1,8 @@
-import * as React from "react"
-import { AppModal } from "./AppModal"
-import { Button } from "./button"
-import { Spinner } from "./Spinner"
-import "./ConfirmModal.css"
+import * as React from 'react';
+import { AppModal } from './AppModal';
+import { Button } from './button';
+import { Spinner } from './Spinner';
+import './ConfirmModal.css';
 
 type ConfirmModalVariant = 'danger' | 'warning' | 'info' | 'error';
 
@@ -57,10 +57,10 @@ function ConfirmModal({
 
   const handleConfirm = async () => {
     if (onConfirm) {
-      await onConfirm()
+      await onConfirm();
     }
-    onCancel?.()
-  }
+    onCancel?.();
+  };
 
   return (
     <AppModal
@@ -71,12 +71,7 @@ function ConfirmModal({
       {...(onCancel !== undefined && { onClose: onCancel })}
     >
       <AppModal.Footer>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCancel}
-          disabled={loading}
-        >
+        <Button type="button" variant="outline" onClick={onCancel} disabled={loading}>
           {cancelText}
         </Button>
         <Button
@@ -91,12 +86,14 @@ function ConfirmModal({
               <Spinner size="sm" variant="muted" />
               Processing...
             </>
-          ) : confirmText}
+          ) : (
+            confirmText
+          )}
         </Button>
       </AppModal.Footer>
     </AppModal>
-  )
+  );
 }
 
-export { ConfirmModal }
-export type { ConfirmModalProps, ConfirmModalVariant }
+export { ConfirmModal };
+export type { ConfirmModalProps, ConfirmModalVariant };

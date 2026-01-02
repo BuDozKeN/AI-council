@@ -11,14 +11,7 @@
  * - Upload state
  */
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useCallback,
-  useMemo,
-  type ReactNode,
-} from 'react';
+import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react';
 import { api } from '../api';
 import { logger } from '../utils/logger';
 
@@ -93,47 +86,53 @@ export function UIProvider({ children }: UIProviderProps) {
   // Mobile sidebar handlers
   const openMobileSidebar = useCallback((): void => setIsMobileSidebarOpen(true), []);
   const closeMobileSidebar = useCallback((): void => setIsMobileSidebarOpen(false), []);
-  const toggleMobileSidebar = useCallback((): void => setIsMobileSidebarOpen(prev => !prev), []);
+  const toggleMobileSidebar = useCallback((): void => setIsMobileSidebarOpen((prev) => !prev), []);
 
   // Triage handlers
-  const startTriage = useCallback(async (content: string, businessId: string): Promise<TriageResult> => {
-    setOriginalQuery(content);
-    setIsTriageLoading(true);
-    setTriageState('analyzing');
+  const startTriage = useCallback(
+    async (content: string, businessId: string): Promise<TriageResult> => {
+      setOriginalQuery(content);
+      setIsTriageLoading(true);
+      setTriageState('analyzing');
 
-    try {
-      const result = await api.analyzeTriage(content, businessId);
-      setTriageState(result);
-      return result;
-    } catch (error) {
-      log.error('Triage analysis failed:', error);
-      throw error;
-    } finally {
-      setIsTriageLoading(false);
-    }
-  }, []);
+      try {
+        const result = await api.analyzeTriage(content, businessId);
+        setTriageState(result);
+        return result;
+      } catch (error) {
+        log.error('Triage analysis failed:', error);
+        throw error;
+      } finally {
+        setIsTriageLoading(false);
+      }
+    },
+    []
+  );
 
-  const continueTriage = useCallback(async (response: string, businessId: string): Promise<TriageResult | null> => {
-    if (!triageState || triageState === 'analyzing') return null;
+  const continueTriage = useCallback(
+    async (response: string, businessId: string): Promise<TriageResult | null> => {
+      if (!triageState || triageState === 'analyzing') return null;
 
-    setIsTriageLoading(true);
+      setIsTriageLoading(true);
 
-    try {
-      const result = await api.continueTriage(
-        originalQuery,
-        (triageState as TriageResult).constraints || {},
-        response,
-        businessId
-      );
-      setTriageState(result);
-      return result;
-    } catch (error) {
-      log.error('Triage continue failed:', error);
-      throw error;
-    } finally {
-      setIsTriageLoading(false);
-    }
-  }, [originalQuery, triageState]);
+      try {
+        const result = await api.continueTriage(
+          originalQuery,
+          (triageState as TriageResult).constraints || {},
+          response,
+          businessId
+        );
+        setTriageState(result);
+        return result;
+      } catch (error) {
+        log.error('Triage continue failed:', error);
+        throw error;
+      } finally {
+        setIsTriageLoading(false);
+      }
+    },
+    [originalQuery, triageState]
+  );
 
   const clearTriage = useCallback((): void => {
     setTriageState(null);
@@ -141,49 +140,48 @@ export function UIProvider({ children }: UIProviderProps) {
     setIsTriageLoading(false);
   }, []);
 
-  const value = useMemo((): UIContextValue => ({
-    // Mobile sidebar
-    isMobileSidebarOpen,
-    setIsMobileSidebarOpen,
-    openMobileSidebar,
-    closeMobileSidebar,
-    toggleMobileSidebar,
+  const value = useMemo(
+    (): UIContextValue => ({
+      // Mobile sidebar
+      isMobileSidebarOpen,
+      setIsMobileSidebarOpen,
+      openMobileSidebar,
+      closeMobileSidebar,
+      toggleMobileSidebar,
 
-    // Landing mode
-    landingChatMode,
-    setLandingChatMode,
+      // Landing mode
+      landingChatMode,
+      setLandingChatMode,
 
-    // Triage
-    triageState,
-    originalQuery,
-    isTriageLoading,
-    setTriageState,
-    setOriginalQuery,
-    startTriage,
-    continueTriage,
-    clearTriage,
+      // Triage
+      triageState,
+      originalQuery,
+      isTriageLoading,
+      setTriageState,
+      setOriginalQuery,
+      startTriage,
+      continueTriage,
+      clearTriage,
 
-    // Upload
-    isUploading,
-    setIsUploading,
-  }), [
-    isMobileSidebarOpen,
-    openMobileSidebar,
-    closeMobileSidebar,
-    toggleMobileSidebar,
-    landingChatMode,
-    triageState,
-    originalQuery,
-    isTriageLoading,
-    startTriage,
-    continueTriage,
-    clearTriage,
-    isUploading,
-  ]);
-
-  return (
-    <UIContext.Provider value={value}>
-      {children}
-    </UIContext.Provider>
+      // Upload
+      isUploading,
+      setIsUploading,
+    }),
+    [
+      isMobileSidebarOpen,
+      openMobileSidebar,
+      closeMobileSidebar,
+      toggleMobileSidebar,
+      landingChatMode,
+      triageState,
+      originalQuery,
+      isTriageLoading,
+      startTriage,
+      continueTriage,
+      clearTriage,
+      isUploading,
+    ]
   );
+
+  return <UIContext.Provider value={value}>{children}</UIContext.Provider>;
 }

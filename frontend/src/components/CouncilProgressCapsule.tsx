@@ -53,12 +53,12 @@ export default function CouncilProgressCapsule({
   const getStatus = (): StatusResult | null => {
     // If stopped, show stopped message
     if (stopped) {
-      return { text: "Stopped", isStopped: true };
+      return { text: 'Stopped', isStopped: true };
     }
 
     // If uploading images, show analysis status (more informative than just "uploading")
     if (isUploading) {
-      return { text: "Analysing your image...", isUploading: true };
+      return { text: 'Analysing your image...', isUploading: true };
     }
 
     if (!loading) return null;
@@ -68,7 +68,7 @@ export default function CouncilProgressCapsule({
       const models = stage1Streaming ? Object.keys(stage1Streaming) : [];
 
       if (models.length === 0) {
-        return { text: "Waking up the council..." };
+        return { text: 'Waking up the council...' };
       }
 
       // Find which models are still thinking (not complete)
@@ -115,7 +115,7 @@ export default function CouncilProgressCapsule({
       });
 
       if (reviewingModels.length === 0) {
-        return { text: "Reviews complete, tallying votes..." };
+        return { text: 'Reviews complete, tallying votes...' };
       }
 
       const reviewingNames = reviewingModels.map(getFriendlyName);
@@ -125,13 +125,13 @@ export default function CouncilProgressCapsule({
       } else if (reviewingNames.length === 2) {
         return { text: `${reviewingNames[0]} and ${reviewingNames[1]} are discussing...` };
       } else {
-        return { text: "Council is debating the best answer..." };
+        return { text: 'Council is debating the best answer...' };
       }
     }
 
     // Stage 3: Chairman making final decision
     if (loading.stage3) {
-      return { text: "Chairman is writing the final answer..." };
+      return { text: 'Chairman is writing the final answer...' };
     }
 
     return null;
@@ -143,7 +143,9 @@ export default function CouncilProgressCapsule({
   if (!status || (isComplete && !status.isUploading)) return null;
 
   return (
-    <div className={`council-progress-capsule fade-in ${status.isStopped ? 'stopped' : ''} ${status.isUploading ? 'uploading' : ''}`}>
+    <div
+      className={`council-progress-capsule fade-in ${status.isStopped ? 'stopped' : ''} ${status.isUploading ? 'uploading' : ''}`}
+    >
       <div className="capsule-inner">
         {/* Pulsing dot - like the "typing" indicator in chat apps */}
         {/* For stopped state: show static gray square instead of pulsing green dot */}

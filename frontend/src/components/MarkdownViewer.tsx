@@ -60,7 +60,12 @@ interface MarkdownViewerProps {
   skipSmartConvert?: boolean | undefined;
 }
 
-export default function MarkdownViewer({ content, className = '', skipCleanup = false, skipSmartConvert = false }: MarkdownViewerProps) {
+export default function MarkdownViewer({
+  content,
+  className = '',
+  skipCleanup = false,
+  skipSmartConvert = false,
+}: MarkdownViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Handle clicks on anchor links to scroll within the container (works in modals)

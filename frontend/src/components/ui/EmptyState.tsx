@@ -1,7 +1,7 @@
-import * as React from "react"
-import { Inbox, LucideIcon } from "lucide-react"
-import { cn } from "@/lib/utils"
-import "./EmptyState.css"
+import * as React from 'react';
+import { Inbox, LucideIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import './EmptyState.css';
 
 interface EmptyStateProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Lucide icon component (default: Inbox) */
@@ -55,55 +55,52 @@ interface EmptyStateProps extends React.HTMLAttributes<HTMLDivElement> {
  *   title="Welcome to AxCouncil"
  * />
  */
-const EmptyState = React.forwardRef<HTMLDivElement, EmptyStateProps>(({
-  icon: Icon = Inbox,
-  customIcon,
-  title,
-  message,
-  action,
-  className,
-  variant = 'default',
-  hints,
-  ...props
-}, ref) => {
-  return (
-    <div
-      ref={ref}
-      className={cn("empty-state", variant === 'large' && "empty-state-large", className)}
-      {...props}
-    >
-      {customIcon ? (
-        <div className="empty-state-icon empty-state-icon-custom">
-          {customIcon}
-        </div>
-      ) : (
-        <div className="empty-state-icon">
-          <Icon size={variant === 'large' ? 32 : 24} strokeWidth={1.5} />
-        </div>
-      )}
-      {title && (
-        <h3 className="empty-state-title">{title}</h3>
-      )}
-      {message && (
-        <p className="empty-state-message">{message}</p>
-      )}
-      {hints && hints.length > 0 && (
-        <div className="empty-state-hints">
-          {hints.map((hint, i) => (
-            <span key={i} className="empty-state-hint">{hint}</span>
-          ))}
-        </div>
-      )}
-      {action && (
-        <div className="empty-state-action">
-          {action}
-        </div>
-      )}
-    </div>
-  )
-})
+const EmptyState = React.forwardRef<HTMLDivElement, EmptyStateProps>(
+  (
+    {
+      icon: Icon = Inbox,
+      customIcon,
+      title,
+      message,
+      action,
+      className,
+      variant = 'default',
+      hints,
+      ...props
+    },
+    ref
+  ) => {
+    return (
+      <div
+        ref={ref}
+        className={cn('empty-state', variant === 'large' && 'empty-state-large', className)}
+        {...props}
+      >
+        {customIcon ? (
+          <div className="empty-state-icon empty-state-icon-custom">{customIcon}</div>
+        ) : (
+          <div className="empty-state-icon">
+            <Icon size={variant === 'large' ? 32 : 24} strokeWidth={1.5} />
+          </div>
+        )}
+        {title && <h3 className="empty-state-title">{title}</h3>}
+        {message && <p className="empty-state-message">{message}</p>}
+        {hints && hints.length > 0 && (
+          <div className="empty-state-hints">
+            {hints.map((hint, i) => (
+              <span key={i} className="empty-state-hint">
+                {hint}
+              </span>
+            ))}
+          </div>
+        )}
+        {action && <div className="empty-state-action">{action}</div>}
+      </div>
+    );
+  }
+);
 
-EmptyState.displayName = "EmptyState"
+EmptyState.displayName = 'EmptyState';
 
-export { EmptyState }
-export type { EmptyStateProps }
+export { EmptyState };
+export type { EmptyStateProps };

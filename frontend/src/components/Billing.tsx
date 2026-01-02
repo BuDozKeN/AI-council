@@ -63,7 +63,8 @@ export default function Billing({ onClose }: BillingProps) {
       window.location.href = result.checkout_url;
     } catch (err) {
       log.error('Failed to create checkout:', err);
-      const errorMessage = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+      const errorMessage =
+        err instanceof Error ? err.message : 'Something went wrong. Please try again.';
       setError(errorMessage);
       setCheckoutLoading(null);
     }
@@ -78,7 +79,8 @@ export default function Billing({ onClose }: BillingProps) {
       window.location.href = result.portal_url;
     } catch (err) {
       log.error('Failed to open billing portal:', err);
-      const errorMessage = err instanceof Error ? err.message : "Couldn't open billing portal. Please try again.";
+      const errorMessage =
+        err instanceof Error ? err.message : "Couldn't open billing portal. Please try again.";
       setError(errorMessage);
       setCheckoutLoading(null);
     }
@@ -104,12 +106,12 @@ export default function Billing({ onClose }: BillingProps) {
       <div className="billing-modal" onClick={(e) => e.stopPropagation()}>
         <div className="billing-header">
           <h2>Subscription Plans</h2>
-          <button className="billing-close" onClick={onClose}>&times;</button>
+          <button className="billing-close" onClick={onClose}>
+            &times;
+          </button>
         </div>
 
-        {error && (
-          <div className="billing-error">{error}</div>
-        )}
+        {error && <div className="billing-error">{error}</div>}
 
         {/* Current Usage */}
         <div className="billing-usage">
@@ -118,15 +120,16 @@ export default function Billing({ onClose }: BillingProps) {
             <div
               className="usage-bar"
               style={{
-                width: isUnlimited ? '10%' : `${Math.min((queriesUsed / queriesLimit) * 100, 100)}%`
+                width: isUnlimited
+                  ? '10%'
+                  : `${Math.min((queriesUsed / queriesLimit) * 100, 100)}%`,
               }}
             />
           </div>
           <div className="usage-text">
             {isUnlimited
               ? `${queriesUsed} queries used (Unlimited)`
-              : `${queriesUsed} / ${queriesLimit} queries this month`
-            }
+              : `${queriesUsed} / ${queriesLimit} queries this month`}
           </div>
         </div>
 
@@ -134,9 +137,11 @@ export default function Billing({ onClose }: BillingProps) {
         <div className="billing-plans">
           {plans.map((plan) => {
             const isCurrentPlan = plan.id === currentTier;
-            const isUpgrade = !plan.is_free && (currentTier === 'free' ||
-              (currentTier === 'pro' && plan.id === 'enterprise'));
-            const isDowngrade = (plan.is_free && currentTier !== 'free') ||
+            const isUpgrade =
+              !plan.is_free &&
+              (currentTier === 'free' || (currentTier === 'pro' && plan.id === 'enterprise'));
+            const isDowngrade =
+              (plan.is_free && currentTier !== 'free') ||
               (plan.id === 'pro' && currentTier === 'enterprise');
 
             return (
@@ -158,9 +163,7 @@ export default function Billing({ onClose }: BillingProps) {
                   )}
                 </div>
 
-                <div className="plan-queries">
-                  {plan.queries_display}
-                </div>
+                <div className="plan-queries">{plan.queries_display}</div>
 
                 <ul className="plan-features">
                   {plan.features.map((feature, idx) => (
@@ -188,7 +191,11 @@ export default function Billing({ onClose }: BillingProps) {
                       onClick={() => handleSubscribe(plan.id)}
                       disabled={checkoutLoading !== null}
                     >
-                      {checkoutLoading === plan.id ? 'Loading...' : isUpgrade ? 'Upgrade' : 'Subscribe'}
+                      {checkoutLoading === plan.id
+                        ? 'Loading...'
+                        : isUpgrade
+                          ? 'Upgrade'
+                          : 'Subscribe'}
                     </Button>
                   )}
                 </div>

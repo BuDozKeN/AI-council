@@ -49,7 +49,11 @@ interface ViewDecisionModalProps {
   onClose: () => void;
   onPromote?: (decision: ExtendedDecision) => void;
   onViewProject?: (projectId: string) => void;
-  onNavigateToConversation?: (conversationId: string, source: string, responseIndex: number) => void;
+  onNavigateToConversation?: (
+    conversationId: string,
+    source: string,
+    responseIndex: number
+  ) => void;
 }
 
 export function ViewDecisionModal({
@@ -60,17 +64,19 @@ export function ViewDecisionModal({
   onClose,
   onPromote,
   onViewProject,
-  onNavigateToConversation
+  onNavigateToConversation,
 }: ViewDecisionModalProps) {
   // Get linked playbook (source of truth for promoted decisions)
-  const linkedPlaybook = decision.promoted_to_id && playbooks.length > 0
-    ? playbooks.find(p => p.id === decision.promoted_to_id)
-    : null;
+  const linkedPlaybook =
+    decision.promoted_to_id && playbooks.length > 0
+      ? playbooks.find((p) => p.id === decision.promoted_to_id)
+      : null;
 
   // Get linked project (if decision was saved as part of a project)
-  const linkedProject = decision.project_id && projects.length > 0
-    ? projects.find(p => p.id === decision.project_id)
-    : null;
+  const linkedProject =
+    decision.project_id && projects.length > 0
+      ? projects.find((p) => p.id === decision.project_id)
+      : null;
 
   // Decision is "promoted" if it has promoted_to_id OR is linked to a project
   const isAlreadyPromoted = decision.promoted_to_id || decision.project_id;
@@ -81,10 +87,12 @@ export function ViewDecisionModal({
     const typeLabels: Record<PlaybookDocType, string> = {
       sop: 'SOP',
       framework: 'Framework',
-      policy: 'Policy'
+      policy: 'Policy',
     };
     // Try linkedPlaybook first, then fall back to decision.promoted_to_type
-    const docType = (linkedPlaybook?.doc_type || decision.promoted_to_type) as PlaybookDocType | undefined;
+    const docType = (linkedPlaybook?.doc_type || decision.promoted_to_type) as
+      | PlaybookDocType
+      | undefined;
     return docType ? typeLabels[docType] || null : null;
   };
 
@@ -101,14 +109,14 @@ export function ViewDecisionModal({
     const deptIds = new Set<string>();
     if (linkedPlaybook.department_id) deptIds.add(linkedPlaybook.department_id);
     if (linkedPlaybook.linked_departments) {
-      linkedPlaybook.linked_departments.forEach(ld => {
+      linkedPlaybook.linked_departments.forEach((ld) => {
         if (ld.department_id) deptIds.add(ld.department_id);
       });
     }
 
     // Map to department objects
     return Array.from(deptIds)
-      .map(id => departments.find(d => d.id === id))
+      .map((id) => departments.find((d) => d.id === id))
       .filter((d): d is Department => Boolean(d));
   };
 
@@ -122,7 +130,9 @@ export function ViewDecisionModal({
       {(decision.question_summary || decision.question) && (
         <div className="mc-decision-question">
           <span className="mc-decision-question-label">Question:</span>
-          <p className="mc-decision-question-text">{decision.question_summary || decision.question}</p>
+          <p className="mc-decision-question-text">
+            {decision.question_summary || decision.question}
+          </p>
         </div>
       )}
 
@@ -147,23 +157,20 @@ export function ViewDecisionModal({
               <span className="icon">✓</span>
               Playbook
             </span>
-            {typeLabel && (
-              <span className={`mc-type-badge ${typeValue}`}>
-                {typeLabel}
-              </span>
-            )}
-            {playbookDepts.length > 0 && playbookDepts.map(dept => {
-              const color = getDeptColor(dept.id);
-              return (
-                <span
-                  key={dept.id}
-                  className="mc-dept-badge"
-                  style={{ background: color.bg, color: color.text, borderColor: color.border }}
-                >
-                  {dept.name}
-                </span>
-              );
-            })}
+            {typeLabel && <span className={`mc-type-badge ${typeValue}`}>{typeLabel}</span>}
+            {playbookDepts.length > 0 &&
+              playbookDepts.map((dept) => {
+                const color = getDeptColor(dept.id);
+                return (
+                  <span
+                    key={dept.id}
+                    className="mc-dept-badge"
+                    style={{ background: color.bg, color: color.text, borderColor: color.border }}
+                  >
+                    {dept.name}
+                  </span>
+                );
+              })}
             {playbookDepts.length === 0 && (
               <span className="mc-scope-badge company-wide">Company-wide</span>
             )}
@@ -171,14 +178,14 @@ export function ViewDecisionModal({
         ) : (
           <span className="mc-pending-label">Saved decision</span>
         )}
-        <span className="mc-date">
-          {formatDate(decision.created_at)}
-        </span>
+        <span className="mc-date">{formatDate(decision.created_at)}</span>
       </div>
       {decision.tags && decision.tags.length > 0 && (
         <div className="mc-tags">
-          {decision.tags.map(tag => (
-            <span key={tag} className="mc-tag">{tag}</span>
+          {decision.tags.map((tag) => (
+            <span key={tag} className="mc-tag">
+              {tag}
+            </span>
           ))}
         </div>
       )}
@@ -187,20 +194,26 @@ export function ViewDecisionModal({
           <MarkdownViewer content={decision.content || ''} />
 
           {/* Source link - at the bottom of the content */}
-          {decision.source_conversation_id && !decision.source_conversation_id.startsWith('temp-') && onNavigateToConversation && (
-            <button
-              className="mc-decision-source-link"
-              onClick={() => {
-                // Pass response_index to scroll to the correct response in multi-turn conversations
-                if (decision.source_conversation_id) {
-                  onNavigateToConversation(decision.source_conversation_id, 'decisions', decision.response_index || 0);
-                }
-              }}
-            >
-              <ExternalLink size={16} />
-              View original conversation →
-            </button>
-          )}
+          {decision.source_conversation_id &&
+            !decision.source_conversation_id.startsWith('temp-') &&
+            onNavigateToConversation && (
+              <button
+                className="mc-decision-source-link"
+                onClick={() => {
+                  // Pass response_index to scroll to the correct response in multi-turn conversations
+                  if (decision.source_conversation_id) {
+                    onNavigateToConversation(
+                      decision.source_conversation_id,
+                      'decisions',
+                      decision.response_index || 0
+                    );
+                  }
+                }}
+              >
+                <ExternalLink size={16} />
+                View original conversation →
+              </button>
+            )}
         </FloatingContextActions>
       </div>
       <AppModal.Footer>

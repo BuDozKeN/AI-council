@@ -40,11 +40,21 @@ interface ViewPlaybookModalProps {
   startEditing?: boolean;
 }
 
-export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave, startEditing = false }: ViewPlaybookModalProps) {
+export function ViewPlaybookModal({
+  playbook,
+  departments = [],
+  onClose,
+  onSave,
+  startEditing = false,
+}: ViewPlaybookModalProps) {
   const [isEditing, setIsEditing] = useState(startEditing);
-  const [editedContent, setEditedContent] = useState(playbook.content || playbook.current_version?.content || '');
+  const [editedContent, setEditedContent] = useState(
+    playbook.content || playbook.current_version?.content || ''
+  );
   const [editedTitle, setEditedTitle] = useState(playbook.title || '');
-  const [selectedDepts, setSelectedDepts] = useState<string[]>(playbook.additional_departments || []);
+  const [selectedDepts, setSelectedDepts] = useState<string[]>(
+    playbook.additional_departments || []
+  );
   const [saving, setSaving] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
 
@@ -52,11 +62,11 @@ export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave,
   const content = playbook.content || playbook.current_version?.content || '';
 
   // Find owner department name
-  const ownerDept = departments.find(d => d.id === playbook.department_id);
+  const ownerDept = departments.find((d) => d.id === playbook.department_id);
 
   // Get names of linked departments for display in view mode
   const linkedDeptNames = selectedDepts
-    .map(id => departments.find(d => d.id === id))
+    .map((id) => departments.find((d) => d.id === id))
     .filter((d): d is Department => Boolean(d));
 
   const handleSave = async () => {
@@ -67,16 +77,17 @@ export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave,
           title: editedTitle,
           content: editedContent,
           additional_departments: selectedDepts,
-          change_summary: 'Updated via My Company interface'
+          change_summary: 'Updated via My Company interface',
         });
         setIsEditing(false);
         setIsEditingTitle(false);
 
         // Build descriptive success message
-        const docTypeLabel = docType === 'sop' ? 'SOP' : docType.charAt(0).toUpperCase() + docType.slice(1);
+        const docTypeLabel =
+          docType === 'sop' ? 'SOP' : docType.charAt(0).toUpperCase() + docType.slice(1);
         const title = editedTitle || playbook.title;
         const deptNames = selectedDepts
-          .map(id => departments.find(d => d.id === id)?.name)
+          .map((id) => departments.find((d) => d.id === id)?.name)
           .filter(Boolean);
 
         let message = `${docTypeLabel} "${title}" saved`;
@@ -106,13 +117,19 @@ export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave,
   const typeStyles: Record<DocType, { bg: string; color: string }> = {
     sop: { bg: 'var(--color-blue-100)', color: 'var(--color-blue-700)' },
     framework: { bg: 'var(--color-amber-100)', color: 'var(--color-amber-700)' },
-    policy: { bg: 'var(--color-violet-100)', color: 'var(--color-violet-700)' }
+    policy: { bg: 'var(--color-violet-100)', color: 'var(--color-violet-700)' },
   };
   const docType: DocType = playbook.doc_type ?? 'sop';
   const typeStyle = typeStyles[docType];
 
   return (
-    <AppModal isOpen={true} onClose={onClose} size="lg" showCloseButton={false} contentClassName="mc-modal-no-padding">
+    <AppModal
+      isOpen={true}
+      onClose={onClose}
+      size="lg"
+      showCloseButton={false}
+      contentClassName="mc-modal-no-padding"
+    >
       {/* Clean header with title and close */}
       <div className="mc-modal-header-clean">
         <div className="mc-header-title-row">
@@ -170,18 +187,19 @@ export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave,
             />
           ) : (
             <div className="mc-dept-badges-view">
-              {ownerDept && (() => {
-                const color = getDeptColor(ownerDept.id);
-                return (
-                  <span
-                    className="mc-dept-badge"
-                    style={{ background: color.bg, color: color.text, borderColor: color.border }}
-                  >
-                    {ownerDept.name}
-                  </span>
-                );
-              })()}
-              {linkedDeptNames.map(d => {
+              {ownerDept &&
+                (() => {
+                  const color = getDeptColor(ownerDept.id);
+                  return (
+                    <span
+                      className="mc-dept-badge"
+                      style={{ background: color.bg, color: color.text, borderColor: color.border }}
+                    >
+                      {ownerDept.name}
+                    </span>
+                  );
+                })()}
+              {linkedDeptNames.map((d) => {
                 const color = getDeptColor(d.id);
                 return (
                   <span
@@ -247,7 +265,9 @@ export function ViewPlaybookModal({ playbook, departments = [], onClose, onSave,
                 Edit
               </Button>
             )}
-            <Button variant="default" onClick={onClose}>Done</Button>
+            <Button variant="default" onClick={onClose}>
+              Done
+            </Button>
           </>
         )}
       </AppModal.Footer>

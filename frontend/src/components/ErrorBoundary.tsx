@@ -27,7 +27,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
       hasError: false,
       error: null,
       errorInfo: null,
-      copied: false
+      copied: false,
     };
   }
 
@@ -95,7 +95,13 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
               >
                 <circle cx="12" cy="12" r="10" />
                 <line x1="12" y1="7" x2="12" y2="13" />
-                <circle cx="12" cy="16.5" r="0.5" fill="var(--color-orange-500, #f97316)" stroke="none" />
+                <circle
+                  cx="12"
+                  cy="16.5"
+                  r="0.5"
+                  fill="var(--color-orange-500, #f97316)"
+                  stroke="none"
+                />
               </svg>
             </div>
 
@@ -106,16 +112,10 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
             </p>
 
             <div className="error-boundary-buttons">
-              <Button
-                onClick={this.handleReload}
-                variant="default"
-              >
+              <Button onClick={this.handleReload} variant="default">
                 Reload Page
               </Button>
-              <Button
-                onClick={this.handleGoHome}
-                variant="outline"
-              >
+              <Button onClick={this.handleGoHome} variant="outline">
                 Go to Home
               </Button>
             </div>

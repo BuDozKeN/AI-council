@@ -197,6 +197,6 @@
 
 /* Edit hint hover - special color */
 .dark .mc-playbook-item.clickable:hover .mc-edit-hint,
-[data-theme="dark"] .mc-playbook-item.clickable:hover .mc-edit-hint {
+[data-theme='dark'] .mc-playbook-item.clickable:hover .mc-edit-hint {
   color: var(--color-indigo-400);
 }

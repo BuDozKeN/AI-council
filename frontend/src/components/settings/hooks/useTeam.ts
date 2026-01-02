@@ -41,7 +41,7 @@ export function useTeam(isOpen: boolean, companyId: string | null, user: User | 
     if (isOpen && companyId) {
       loadTeamData();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- loadTeamData is stable
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadTeamData is stable
   }, [isOpen, companyId]);
 
   const loadTeamData = async () => {
@@ -75,7 +75,11 @@ export function useTeam(isOpen: boolean, companyId: string | null, user: User | 
     try {
       setAddingMember(true);
       setAddError(null);
-      await api.addCompanyMember(companyId, newEmail.trim(), newRole === 'owner' ? 'admin' : newRole);
+      await api.addCompanyMember(
+        companyId,
+        newEmail.trim(),
+        newRole === 'owner' ? 'admin' : newRole
+      );
       await loadTeamData();
       setNewEmail('');
       setNewRole('member');
@@ -117,7 +121,7 @@ export function useTeam(isOpen: boolean, companyId: string | null, user: User | 
   };
 
   // Derived state
-  const currentMember = members.find(m => m.user_id === user?.id);
+  const currentMember = members.find((m) => m.user_id === user?.id);
   const currentUserRole = currentMember?.role || 'member';
   const canManageMembers = ['owner', 'admin'].includes(currentUserRole);
 

@@ -47,12 +47,7 @@ export interface UseCelebrationReturn {
 }
 
 export function useCelebration(options: UseCelebrationOptions = {}): UseCelebrationReturn {
-  const {
-    duration = 800,
-    haptic = true,
-    delay = 0,
-    once = true,
-  } = options;
+  const { duration = 800, haptic = true, delay = 0, once = true } = options;
 
   const [isCelebrating, setIsCelebrating] = useState(false);
   const [hasFired, setHasFired] = useState(false);

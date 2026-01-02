@@ -69,7 +69,7 @@ export function ModeToggle({
   selectedRole,
   onSelectRole,
   selectedBusiness,
-  isLoading
+  isLoading,
 }: ModeToggleProps) {
   const isMobile = useIsMobile();
 
@@ -135,10 +135,10 @@ export function ModeToggle({
                 <MultiPlaybookSelect
                   value={selectedPlaybooks}
                   onValueChange={onSelectPlaybooks}
-                  playbooks={playbooks.map(p => ({
+                  playbooks={playbooks.map((p) => ({
                     id: p.id,
                     title: p.title ?? p.name ?? 'Untitled',
-                    doc_type: p.doc_type ?? p.type ?? 'sop'
+                    doc_type: p.doc_type ?? p.type ?? 'sop',
                   }))}
                   disabled={isLoading ?? false}
                   placeholder="Playbooks..."

@@ -5,9 +5,20 @@ import { Spinner } from './Spinner';
 import { logger } from '../../utils/logger';
 import './AIWriteAssist.css';
 
-type ContextType = 'project-title' | 'project-description' | 'project-context' | 'company-context' |
-  'department-description' | 'role-description' | 'role-prompt' | 'playbook-content' |
-  'decision-title' | 'decision-statement' | 'knowledge-reasoning' | 'question-refine' | 'generic';
+type ContextType =
+  | 'project-title'
+  | 'project-description'
+  | 'project-context'
+  | 'company-context'
+  | 'department-description'
+  | 'role-description'
+  | 'role-prompt'
+  | 'playbook-content'
+  | 'decision-title'
+  | 'decision-statement'
+  | 'knowledge-reasoning'
+  | 'question-refine'
+  | 'generic';
 
 interface ContextPromptConfig {
   instruction: string;
@@ -64,7 +75,7 @@ const CONTEXT_PROMPTS: Record<ContextType, ContextPromptConfig> = {
     instruction: 'Write a clear 1-2 sentence project description based on this:',
     placeholder: 'What is this project about?',
     buttonText: 'AI, rewrite this better',
-    emptyHint: 'Describe what you\'re building',
+    emptyHint: "Describe what you're building",
   },
   'project-context': {
     instruction: `Take what I wrote and turn it into a clear, well-organized project document.
@@ -100,7 +111,7 @@ If I only gave a few words, expand them into a proper sentence or two.`,
     emptyHint: 'Describe what this team does',
   },
   'role-description': {
-    instruction: 'Write a clear description of this role\'s responsibilities based on:',
+    instruction: "Write a clear description of this role's responsibilities based on:",
     placeholder: 'What does this role do?',
     buttonText: 'Help me write this',
     emptyHint: 'Describe what this person does',
@@ -130,7 +141,8 @@ Make it easy to follow:`,
     emptyHint: 'Type a brief description - AI will write the full document',
   },
   'decision-title': {
-    instruction: 'Generate a clear, searchable title for this decision (format: "[Action] [Subject] [Context]"):',
+    instruction:
+      'Generate a clear, searchable title for this decision (format: "[Action] [Subject] [Context]"):',
     placeholder: 'What was decided?',
     buttonText: 'Write title for me',
     emptyHint: 'Summarize the decision briefly',
@@ -153,7 +165,7 @@ Make it easy to follow:`,
     buttonText: 'Help me ask better',
     emptyHint: 'Type your question',
   },
-  'generic': {
+  generic: {
     instruction: 'Improve the clarity of this text while keeping the same meaning:',
     placeholder: 'Enter your text...',
     buttonText: 'Help me write this',
@@ -217,8 +229,11 @@ export function AIWriteAssist({
     }
   };
 
-  const displayButtonText = buttonLabel
-    || (context === 'playbook-content' && playbookType ? getPlaybookButtonText(playbookType) : config.buttonText);
+  const displayButtonText =
+    buttonLabel ||
+    (context === 'playbook-content' && playbookType
+      ? getPlaybookButtonText(playbookType)
+      : config.buttonText);
 
   const handleAssist = useCallback(async () => {
     if (!hasContent || loading) return;
@@ -236,7 +251,10 @@ export function AIWriteAssist({
       prompt += `User input:\n${value}`;
 
       // Call the API with playbook type if applicable
-      const apiParams: { prompt: string; context: string; playbookType?: string } = { prompt, context };
+      const apiParams: { prompt: string; context: string; playbookType?: string } = {
+        prompt,
+        context,
+      };
       if (playbookType) {
         apiParams.playbookType = playbookType;
       }
@@ -244,7 +262,7 @@ export function AIWriteAssist({
       logger.info('[AIWriteAssist] API response received:', {
         hasTitle: !!result.title,
         titleValue: result.title,
-        suggestionLength: result.suggestion?.length
+        suggestionLength: result.suggestion?.length,
       });
 
       if (result.suggestion) {
@@ -272,7 +290,7 @@ export function AIWriteAssist({
       hasSuggestion: !!suggestion,
       hasTitle: !!suggestedTitle,
       titleValue: suggestedTitle,
-      hasCallback: !!onTitleSuggestion
+      hasCallback: !!onTitleSuggestion,
     });
 
     if (suggestion && onSuggestion) {
@@ -298,9 +316,7 @@ export function AIWriteAssist({
   if (children) {
     return (
       <div className={`ai-assist-wrapper ${inline ? 'ai-assist-inline' : ''} ${className}`}>
-        <div className="ai-assist-input-area">
-          {children}
-        </div>
+        <div className="ai-assist-input-area">{children}</div>
         <div className="ai-assist-controls">
           <button
             type="button"
@@ -333,22 +349,12 @@ export function AIWriteAssist({
                 <span className="ai-assist-preview-title-text">{suggestedTitle}</span>
               </div>
             )}
-            <div className="ai-assist-preview-content">
-              {suggestion}
-            </div>
+            <div className="ai-assist-preview-content">{suggestion}</div>
             <div className="ai-assist-preview-actions">
-              <button
-                type="button"
-                className="ai-assist-preview-btn reject"
-                onClick={handleReject}
-              >
+              <button type="button" className="ai-assist-preview-btn reject" onClick={handleReject}>
                 Keep Original
               </button>
-              <button
-                type="button"
-                className="ai-assist-preview-btn accept"
-                onClick={handleAccept}
-              >
+              <button type="button" className="ai-assist-preview-btn accept" onClick={handleAccept}>
                 Use Suggestion
               </button>
             </div>
@@ -391,22 +397,12 @@ export function AIWriteAssist({
               <span className="ai-assist-preview-title-text">{suggestedTitle}</span>
             </div>
           )}
-          <div className="ai-assist-preview-content">
-            {suggestion}
-          </div>
+          <div className="ai-assist-preview-content">{suggestion}</div>
           <div className="ai-assist-preview-actions">
-            <button
-              type="button"
-              className="ai-assist-preview-btn reject"
-              onClick={handleReject}
-            >
+            <button type="button" className="ai-assist-preview-btn reject" onClick={handleReject}>
               Keep Original
             </button>
-            <button
-              type="button"
-              className="ai-assist-preview-btn accept"
-              onClick={handleAccept}
-            >
+            <button type="button" className="ai-assist-preview-btn accept" onClick={handleAccept}>
               Use Suggestion
             </button>
           </div>
@@ -451,7 +447,7 @@ export function SmartInput({
         type="text"
         className={`form-input ${className}`}
         value={value}
-        onChange={e => onChange(e.target.value)}
+        onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder || config.placeholder}
         {...props}
       />
@@ -494,7 +490,7 @@ export function SmartTextarea({
       <textarea
         className={`form-textarea ${className}`}
         value={value}
-        onChange={e => onChange(e.target.value)}
+        onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder || config.placeholder}
         rows={rows}
         {...props}

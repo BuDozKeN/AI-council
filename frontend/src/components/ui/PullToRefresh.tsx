@@ -28,7 +28,7 @@ export function PullToRefreshIndicator({
 
   const rotation = progress * 180;
   const opacity = Math.min(progress * 1.5, 1);
-  const scale = 0.5 + (progress * 0.5);
+  const scale = 0.5 + progress * 0.5;
   const isReady = progress >= 1;
 
   return (
@@ -58,11 +58,7 @@ export function PullToRefreshIndicator({
         <RefreshCw size={20} />
       </motion.div>
       <span className="pull-refresh-text">
-        {isRefreshing
-          ? 'Refreshing...'
-          : isReady
-          ? 'Release to refresh'
-          : 'Pull to refresh'}
+        {isRefreshing ? 'Refreshing...' : isReady ? 'Release to refresh' : 'Pull to refresh'}
       </span>
     </motion.div>
   );

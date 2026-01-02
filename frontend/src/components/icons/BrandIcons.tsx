@@ -182,7 +182,7 @@ export const PROVIDER_ICONS = {
   deepseek: DeepSeekIcon,
   meta: MetaIcon,
   moonshot: MoonshotIcon,
-  council: ChairmanIcon
+  council: ChairmanIcon,
 };
 
 type ProviderName = keyof typeof PROVIDER_ICONS;
@@ -192,6 +192,8 @@ type ProviderName = keyof typeof PROVIDER_ICONS;
  * @param provider - Provider name
  * @returns React component for the icon
  */
-export function getProviderIcon(provider: string): ((props: IconProps) => React.JSX.Element) | null {
+export function getProviderIcon(
+  provider: string
+): ((props: IconProps) => React.JSX.Element) | null {
   return PROVIDER_ICONS[provider as ProviderName] ?? null;
 }

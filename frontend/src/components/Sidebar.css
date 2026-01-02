@@ -170,7 +170,6 @@
   }
 }
 
-
 /* =============================================================================
    SIDEBAR HEADER
    ============================================================================= */
@@ -213,8 +212,9 @@ button.sidebar-new-btn {
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
   cursor: pointer;
-  transition: background-color var(--duration-fast) var(--ease-default),
-              border-color var(--duration-fast) var(--ease-default);
+  transition:
+    background-color var(--duration-fast) var(--ease-default),
+    border-color var(--duration-fast) var(--ease-default);
 }
 
 .sidebar .sidebar-new-btn:hover,
@@ -528,8 +528,8 @@ button.sidebar-new-btn:hover {
    ============================================================================= */
 
 .conversation-list {
-  flex: 1 1 0;       /* Full shorthand: grow, shrink, basis=0 */
-  min-height: 0;     /* Required for flex item to shrink below content height */
+  flex: 1 1 0; /* Full shorthand: grow, shrink, basis=0 */
+  min-height: 0; /* Required for flex item to shrink below content height */
   overflow: hidden auto; /* Prevent horizontal overflow */
   padding: 8px 4px;
 }
@@ -665,7 +665,11 @@ button.sidebar-new-btn:hover {
   border-radius: var(--radius-md);
   border: none;
   cursor: pointer;
-  transition: background 0.12s ease, transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    background 0.12s ease,
+    transform 0.15s ease,
+    opacity 0.15s ease,
+    box-shadow 0.15s ease;
   gap: 8px;
 }
 
@@ -1323,8 +1327,14 @@ button.sidebar-new-btn:hover {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
 }
 
 .mode-toggle-btn:disabled {
@@ -1507,7 +1517,10 @@ button.sidebar-new-btn:hover {
   transform: rotate(-2deg) scale(1.02);
   box-shadow: var(--shadow-lg);
   z-index: var(--z-dropdown);
-  transition: transform 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .conversation-item.dragging .drag-handle {

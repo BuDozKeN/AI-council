@@ -30,9 +30,9 @@ export function computeInlineDiff(oldText: string, newText: string): DiffPart[] 
 
   const diff = diffWords(oldText, newText);
 
-  return diff.map(part => ({
+  return diff.map((part) => ({
     type: part.added ? 'added' : part.removed ? 'removed' : 'unchanged',
-    value: part.value
+    value: part.value,
   }));
 }
 

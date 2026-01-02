@@ -1,4 +1,13 @@
-import { useState, useEffect, useRef, useMemo, useCallback, lazy, Suspense, ComponentType } from 'react';
+import {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+  lazy,
+  Suspense,
+  ComponentType,
+} from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from './components/Sidebar';
 import { LandingHero } from './components/landing';
@@ -41,13 +50,13 @@ interface UploadedImage {
   preview: string;
 }
 
-
 // =============================================================================
 // Performance: Route-based code splitting
 // These components are lazily loaded to reduce initial bundle size (~70% reduction)
 // =============================================================================
 
-const lazyWithType = <T extends ComponentType<any>>(factory: () => Promise<{ default: T }>) => lazy(factory);
+const lazyWithType = <T extends ComponentType<any>>(factory: () => Promise<{ default: T }>) =>
+  lazy(factory);
 
 // Login is lazy-loaded since it's only shown when NOT authenticated
 // Most returning users skip this, reducing initial bundle
@@ -81,9 +90,7 @@ const LazyFallback = () => (
 
 // Subtle fallback for ChatInterface - no spinner, just empty space
 // The framer-motion animation handles the visual transition
-const ChatFallback = () => (
-  <div className="chat-loading-fallback" aria-label="Loading chat..." />
-);
+const ChatFallback = () => <div className="chat-loading-fallback" aria-label="Loading chat..." />;
 
 // Helper to update the last message in a conversation with proper typing
 const updateLastMessage = (
@@ -112,12 +119,18 @@ const generateInitialTitle = (content: string, maxLength = 60): string => {
   return (lastSpace > maxLength * 0.7 ? truncated.substring(0, lastSpace) : truncated) + '...';
 };
 
-
 // Create scoped logger for App component
 const log = logger.scope('App');
 
 function App() {
-  const { user, loading: authLoading, signOut, isAuthenticated, needsPasswordReset, getAccessToken } = useAuth();
+  const {
+    user,
+    loading: authLoading,
+    signOut,
+    isAuthenticated,
+    needsPasswordReset,
+    getAccessToken,
+  } = useAuth();
 
   // Business state from context
   const {
@@ -268,12 +281,15 @@ function App() {
   }, [showLandingHero]);
 
   // Handler for search
-  const handleSearchConversations = useCallback(async (searchQuery: string) => {
-    return loadConversations({
-      offset: 0,
-      ...(searchQuery ? { search: searchQuery } : {}),
-    });
-  }, [loadConversations]);
+  const handleSearchConversations = useCallback(
+    async (searchQuery: string) => {
+      return loadConversations({
+        offset: 0,
+        ...(searchQuery ? { search: searchQuery } : {}),
+      });
+    },
+    [loadConversations]
+  );
 
   // Conversation action handlers - wrap context handlers with App-specific logic
   const handleNewConversation = useCallback(() => {
@@ -283,108 +299,130 @@ function App() {
     clearReturnState();
   }, [contextNewConversation, setSelectedProject, clearReturnState]);
 
-  const handleSelectConversation = useCallback((id: string) => {
-    contextSelectConversation(id);
-    clearReturnState();
-    setScrollToStage3();
-  }, [contextSelectConversation, clearReturnState, setScrollToStage3]);
+  const handleSelectConversation = useCallback(
+    (id: string) => {
+      contextSelectConversation(id);
+      clearReturnState();
+      setScrollToStage3();
+    },
+    [contextSelectConversation, clearReturnState, setScrollToStage3]
+  );
 
-  const handleBulkDeleteConversations = useCallback(async (ids: string[]) => {
-    // Store conversations for potential undo
-    const conversationsToDelete = conversations.filter(c => ids.includes(c.id));
-    if (conversationsToDelete.length === 0) return { deleted: [] as string[] };
+  const handleBulkDeleteConversations = useCallback(
+    async (ids: string[]) => {
+      // Store conversations for potential undo
+      const conversationsToDelete = conversations.filter((c) => ids.includes(c.id));
+      if (conversationsToDelete.length === 0) return { deleted: [] as string[] };
 
-    // Store original positions for restore
-    const originalPositions = ids.map(id => ({
-      id,
-      index: conversations.findIndex(c => c.id === id),
-      conversation: conversations.find(c => c.id === id),
-    })).filter((item): item is { id: string; index: number; conversation: Conversation } => !!item.conversation);
+      // Store original positions for restore
+      const originalPositions = ids
+        .map((id) => ({
+          id,
+          index: conversations.findIndex((c) => c.id === id),
+          conversation: conversations.find((c) => c.id === id),
+        }))
+        .filter(
+          (item): item is { id: string; index: number; conversation: Conversation } =>
+            !!item.conversation
+        );
 
-    const wasCurrentConversationDeleted = ids.includes(currentConversationId ?? '');
+      const wasCurrentConversationDeleted = ids.includes(currentConversationId ?? '');
 
-    // Optimistically remove from UI immediately
-    setConversations((prev) => prev.filter((conv) => !ids.includes(conv.id)));
-    if (wasCurrentConversationDeleted) {
-      setCurrentConversation(null);
-      setCurrentConversationId(null);
-    }
-
-    // Track whether undo was clicked
-    let undoClicked = false;
-
-    const executeDelete = async () => {
-      if (!undoClicked) {
-        try {
-          await api.bulkDeleteConversations(ids);
-        } catch (error) {
-          log.error('Failed to bulk delete conversations:', error);
-          // Restore on error
-          setConversations((prev) => {
-            const newList = [...prev];
-            originalPositions
-              .sort((a, b) => a.index - b.index)
-              .forEach(({ index, conversation }) => {
-                newList.splice(index, 0, conversation);
-              });
-            return newList;
-          });
-          toast.error('Failed to delete conversations');
-        }
+      // Optimistically remove from UI immediately
+      setConversations((prev) => prev.filter((conv) => !ids.includes(conv.id)));
+      if (wasCurrentConversationDeleted) {
+        setCurrentConversation(null);
+        setCurrentConversationId(null);
       }
-    };
 
-    // Show toast with undo action
-    toast(`${conversationsToDelete.length} conversations deleted`, {
-      action: {
-        label: 'Undo',
-        onClick: () => {
-          undoClicked = true;
-          // Restore conversations at original positions
-          setConversations((prev) => {
-            const newList = [...prev];
-            // Sort by original index to insert in correct order
-            originalPositions
-              .sort((a, b) => a.index - b.index)
-              .forEach(({ index, conversation }) => {
-                newList.splice(index, 0, conversation);
-              });
-            return newList;
-          });
-          // Restore selection if it was a deleted conversation
-          if (wasCurrentConversationDeleted && currentConversationId) {
-            setCurrentConversationId(currentConversationId);
+      // Track whether undo was clicked
+      let undoClicked = false;
+
+      const executeDelete = async () => {
+        if (!undoClicked) {
+          try {
+            await api.bulkDeleteConversations(ids);
+          } catch (error) {
+            log.error('Failed to bulk delete conversations:', error);
+            // Restore on error
+            setConversations((prev) => {
+              const newList = [...prev];
+              originalPositions
+                .sort((a, b) => a.index - b.index)
+                .forEach(({ index, conversation }) => {
+                  newList.splice(index, 0, conversation);
+                });
+              return newList;
+            });
+            toast.error('Failed to delete conversations');
           }
-          toast.success(`${conversationsToDelete.length} conversations restored`);
-        },
-      },
-      duration: 5000,
-      onDismiss: executeDelete,
-      onAutoClose: executeDelete,
-    });
+        }
+      };
 
-    return { deleted: ids };
-  }, [conversations, currentConversationId, setConversations, setCurrentConversation, setCurrentConversationId]);
+      // Show toast with undo action
+      toast(`${conversationsToDelete.length} conversations deleted`, {
+        action: {
+          label: 'Undo',
+          onClick: () => {
+            undoClicked = true;
+            // Restore conversations at original positions
+            setConversations((prev) => {
+              const newList = [...prev];
+              // Sort by original index to insert in correct order
+              originalPositions
+                .sort((a, b) => a.index - b.index)
+                .forEach(({ index, conversation }) => {
+                  newList.splice(index, 0, conversation);
+                });
+              return newList;
+            });
+            // Restore selection if it was a deleted conversation
+            if (wasCurrentConversationDeleted && currentConversationId) {
+              setCurrentConversationId(currentConversationId);
+            }
+            toast.success(`${conversationsToDelete.length} conversations restored`);
+          },
+        },
+        duration: 5000,
+        onDismiss: executeDelete,
+        onAutoClose: executeDelete,
+      });
+
+      return { deleted: ids };
+    },
+    [
+      conversations,
+      currentConversationId,
+      setConversations,
+      setCurrentConversation,
+      setCurrentConversationId,
+    ]
+  );
 
   // Handler for updating conversation department (drag and drop)
-  const handleUpdateConversationDepartment = useCallback((conversationId: string, newDepartment: string) => {
-    setConversations((prev) =>
-      prev.map((conv) =>
-        conv.id === conversationId ? { ...conv, department: newDepartment } : conv
-      )
-    );
-    // Also update current conversation if it's the one being moved
-    setCurrentConversation((prev) =>
-      prev && prev.id === conversationId ? { ...prev, department: newDepartment } : prev
-    );
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- Context setters are stable
-  }, []);
+  const handleUpdateConversationDepartment = useCallback(
+    (conversationId: string, newDepartment: string) => {
+      setConversations((prev) =>
+        prev.map((conv) =>
+          conv.id === conversationId ? { ...conv, department: newDepartment } : conv
+        )
+      );
+      // Also update current conversation if it's the one being moved
+      setCurrentConversation((prev) =>
+        prev && prev.id === conversationId ? { ...prev, department: newDepartment } : prev
+      );
+    },
+    []
+  );
 
   // Memoized Sidebar handlers to prevent unnecessary re-renders
-  const handleSidebarSelectConversation = useCallback((id: string) => {
-    handleSelectConversation(id);
-    setIsMobileSidebarOpen(false);
-  }, [handleSelectConversation]);
+  const handleSidebarSelectConversation = useCallback(
+    (id: string) => {
+      handleSelectConversation(id);
+      setIsMobileSidebarOpen(false);
+    },
+    [handleSelectConversation]
+  );
 
   const handleSidebarNewConversation = useCallback(() => {
     handleNewConversation();
@@ -417,9 +455,10 @@ function App() {
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    api.getMockMode()
-      .then(result => setMockModeEnabled(result.enabled))
-      .catch(err => {
+    api
+      .getMockMode()
+      .then((result) => setMockModeEnabled(result.enabled))
+      .catch((err) => {
         log.error('Failed to get mock mode:', err);
         setMockModeEnabled(false);
       });
@@ -437,7 +476,13 @@ function App() {
     setSelectedDepartments([]);
     setSelectedRoles([]);
     setSelectedPlaybooks([]);
-  }, [setSelectedBusiness, setSelectedProject, setSelectedDepartments, setSelectedRoles, setSelectedPlaybooks]);
+  }, [
+    setSelectedBusiness,
+    setSelectedProject,
+    setSelectedDepartments,
+    setSelectedRoles,
+    setSelectedPlaybooks,
+  ]);
 
   // Load businesses on mount (with token ready check)
   // Conversations are now loaded by BusinessContext when business changes
@@ -468,7 +513,13 @@ function App() {
       }
     };
     loadData();
-  }, [isAuthenticated, needsPasswordReset, getAccessToken, loadBusinesses, setCurrentConversationId]);
+  }, [
+    isAuthenticated,
+    needsPasswordReset,
+    getAccessToken,
+    loadBusinesses,
+    setCurrentConversationId,
+  ]);
 
   // Auto-create a temp conversation when authenticated but no conversation selected
   useEffect(() => {
@@ -490,7 +541,7 @@ function App() {
         handleSendMessage(question, null);
       }, 100);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- handleSendMessage has dependencies that would cause loops
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- handleSendMessage has dependencies that would cause loops
   }, [currentConversation, selectedBusiness]);
 
   // Load conversations when authenticated and business is selected
@@ -498,7 +549,7 @@ function App() {
     if (isAuthenticated && selectedBusiness) {
       loadConversations({ company_id: selectedBusiness });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- Only reload when business changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only reload when business changes
   }, [isAuthenticated, selectedBusiness]);
 
   // Load conversation details when selected (skip temp conversations)
@@ -573,7 +624,6 @@ function App() {
     }
   };
 
-
   const handleTriageRespond = async (response: string) => {
     if (!triageState || triageState === 'analyzing') return;
     const triageResult = triageState as TriageResult;
@@ -600,12 +650,10 @@ function App() {
     }
   };
 
-
   const handleTriageSkip = () => {
     // Skip triage and send original query to council
     handleSendToCouncil(originalQuery);
   };
-
 
   const handleTriageProceed = (enhancedQuery: string) => {
     // Proceed with the enhanced query
@@ -642,9 +690,9 @@ function App() {
       try {
         setIsUploading(true);
         log.debug(`Uploading ${images.length} images...`);
-        const uploadPromises = images.map(img => api.uploadAttachment(img.file));
+        const uploadPromises = images.map((img) => api.uploadAttachment(img.file));
         const uploadedAttachments = await Promise.all(uploadPromises);
-        attachmentIds = uploadedAttachments.map(a => a.id);
+        attachmentIds = uploadedAttachments.map((a) => a.id);
         log.debug(`Uploaded attachments:`, attachmentIds);
       } catch (error) {
         log.error('Failed to upload images:', error);
@@ -717,7 +765,7 @@ function App() {
         role: 'assistant' as const,
         stage1Streaming: {}, // Track streaming text per model: { 'model-id': { text: '', complete: false } }
         loading: {
-          stage1: true,  // Start as true so Stage1 shows immediately
+          stage1: true, // Start as true so Stage1 shows immediately
           stage2: false,
           stage3: false,
         },
@@ -738,303 +786,365 @@ function App() {
       const effectiveBusinessId = useCompanyContext ? selectedBusiness : null;
       const effectiveDepartment = useDepartmentContext ? selectedDepartment : null;
       // Multi-select: pass arrays if they have values
-      const effectiveDepartments = useDepartmentContext && selectedDepartments.length > 0 ? selectedDepartments : null;
+      const effectiveDepartments =
+        useDepartmentContext && selectedDepartments.length > 0 ? selectedDepartments : null;
       const effectiveRoles = selectedRoles.length > 0 ? selectedRoles : null;
       const effectivePlaybooks = selectedPlaybooks.length > 0 ? selectedPlaybooks : null;
-      await api.sendMessageStream(conversationId, content, (eventType, event) => {
-        // Debug: Log all SSE events
-        if (eventType.includes('error') || eventType.includes('Error')) {
-          log.error('[SSE Event]', eventType, event);
-        }
-        switch (eventType) {
-          case 'stage1_start':
-            setCurrentConversation((prev) => updateLastMessage(prev, (msg) => ({
-              loading: { stage1: true, stage2: msg.loading?.stage2 ?? false, stage3: msg.loading?.stage3 ?? false },
-              stage1Streaming: {},
-            })));
-            break;
-
-          case 'stage1_token': {
-            // Append token to the specific model's streaming text (IMMUTABLE)
-            // Force new array reference to ensure React detects the change
-            const model = event.model as string;
-            const tokenContent = event.content as string;
-            setCurrentConversation((prev) => {
-              if (!prev?.messages) return prev;
-              const messages: Message[] = [...prev.messages];
-              const lastIdx = messages.length - 1;
-              const lastMsg = messages[lastIdx];
-              if (lastIdx >= 0 && lastMsg) {
-                const currentStreaming = lastMsg.stage1Streaming?.[model] || { text: '', complete: false };
-                messages[lastIdx] = {
-                  ...lastMsg,
-                  stage1Streaming: {
-                    ...lastMsg.stage1Streaming,
-                    [model]: {
-                      text: currentStreaming.text + tokenContent,
-                      complete: false,
-                    },
+      await api.sendMessageStream(
+        conversationId,
+        content,
+        (eventType, event) => {
+          // Debug: Log all SSE events
+          if (eventType.includes('error') || eventType.includes('Error')) {
+            log.error('[SSE Event]', eventType, event);
+          }
+          switch (eventType) {
+            case 'stage1_start':
+              setCurrentConversation((prev) =>
+                updateLastMessage(prev, (msg) => ({
+                  loading: {
+                    stage1: true,
+                    stage2: msg.loading?.stage2 ?? false,
+                    stage3: msg.loading?.stage3 ?? false,
                   },
-                };
-              }
-              return { ...prev, messages, _streamTick: Date.now() };
-            });
-            break;
-          }
-
-          case 'stage1_model_complete': {
-            // Mark a single model as complete (IMMUTABLE)
-            const model = event.model as string;
-            const response = event.response as string | undefined;
-            setCurrentConversation((prev) => updateLastMessage(prev, (msg) => {
-              const currentStreaming = msg.stage1Streaming?.[model];
-              return {
-                stage1Streaming: {
-                  ...msg.stage1Streaming,
-                  [model]: currentStreaming
-                    ? { ...currentStreaming, complete: true }
-                    : { text: response ?? '', complete: true },
-                },
-              };
-            }));
-            break;
-          }
-
-          case 'stage1_model_error': {
-            // Handle model error (IMMUTABLE)
-            const model = event.model as string;
-            const errorMsg = event.error as string;
-            log.error(`[Stage1 Error] Model ${model}:`, errorMsg);
-            setCurrentConversation((prev) => updateLastMessage(prev, (msg) => ({
-              stage1Streaming: {
-                ...msg.stage1Streaming,
-                [model]: { text: `Error: ${errorMsg}`, complete: true, error: true },
-              },
-            })));
-            break;
-          }
-
-          case 'stage1_complete': {
-            const stage1Data = event.data as import('./types/conversation').Stage1Response[];
-            setCurrentConversation((prev) => updateLastMessage(prev, (msg) => ({
-              stage1: stage1Data,
-              loading: { stage1: false, stage2: msg.loading?.stage2 ?? false, stage3: msg.loading?.stage3 ?? false },
-            })));
-            break;
-          }
-
-          case 'stage2_start':
-            setCurrentConversation((prev) => updateLastMessage(prev, (msg) => ({
-              loading: { stage1: msg.loading?.stage1 ?? false, stage2: true, stage3: msg.loading?.stage3 ?? false },
-              stage2Streaming: {},
-            })));
-            break;
-
-          case 'stage2_token': {
-            // Append token to the specific model's stage2 streaming text (IMMUTABLE)
-            const model = event.model as string;
-            const tokenContent = event.content as string;
-            setCurrentConversation((prev) => {
-              if (!prev?.messages) return prev;
-              const messages: Message[] = [...prev.messages];
-              const lastIdx = messages.length - 1;
-              const lastMsg = messages[lastIdx];
-              if (lastIdx >= 0 && lastMsg) {
-                const currentStreaming = lastMsg.stage2Streaming?.[model] || { text: '', complete: false };
-                messages[lastIdx] = {
-                  ...lastMsg,
-                  stage2Streaming: {
-                    ...lastMsg.stage2Streaming,
-                    [model]: {
-                      text: currentStreaming.text + tokenContent,
-                      complete: false,
-                    },
-                  },
-                };
-              }
-              return { ...prev, messages, _streamTick: Date.now() };
-            });
-            break;
-          }
-
-          case 'stage2_model_complete': {
-            // Mark a single model's stage2 evaluation as complete (IMMUTABLE)
-            const model = event.model as string;
-            const ranking = event.ranking as string | undefined;
-            setCurrentConversation((prev) => updateLastMessage(prev, (msg) => {
-              const currentStreaming = msg.stage2Streaming?.[model];
-              return {
-                stage2Streaming: {
-                  ...msg.stage2Streaming,
-                  [model]: currentStreaming
-                    ? { ...currentStreaming, complete: true }
-                    : { text: ranking ?? '', complete: true },
-                },
-              };
-            }));
-            break;
-          }
-
-          case 'stage2_model_error': {
-            // Handle stage2 model error (IMMUTABLE)
-            const model = event.model as string;
-            const errorMsg = event.error as string;
-            setCurrentConversation((prev) => updateLastMessage(prev, (msg) => ({
-              stage2Streaming: {
-                ...msg.stage2Streaming,
-                [model]: { text: `Error: ${errorMsg}`, complete: true, error: true },
-              },
-            })));
-            break;
-          }
-
-          case 'stage2_complete': {
-            const stage2Data = event.data as import('./types/conversation').Stage2Evaluation[];
-            const metadata = event.metadata as import('./types/conversation').MessageMetadata | undefined;
-            setCurrentConversation((prev) => updateLastMessage(prev, (msg) => ({
-              stage2: stage2Data,
-              ...(metadata ? { metadata } : {}),
-              loading: { stage1: msg.loading?.stage1 ?? false, stage2: false, stage3: msg.loading?.stage3 ?? false },
-            })));
-            break;
-          }
-
-          case 'stage3_start':
-            setCurrentConversation((prev) => updateLastMessage(prev, (msg) => ({
-              loading: { stage1: msg.loading?.stage1 ?? false, stage2: msg.loading?.stage2 ?? false, stage3: true },
-              stage3Streaming: { text: '', complete: false },
-            })));
-            break;
-
-          case 'stage3_token': {
-            // Append token to stage3 streaming text (IMMUTABLE)
-            const tokenContent = event.content as string;
-            setCurrentConversation((prev) => {
-              if (!prev?.messages) return prev;
-              const messages: Message[] = [...prev.messages];
-              const lastIdx = messages.length - 1;
-              const lastMsg = messages[lastIdx];
-              if (lastIdx >= 0 && lastMsg) {
-                const currentStreaming = lastMsg.stage3Streaming || { text: '', complete: false };
-                messages[lastIdx] = {
-                  ...lastMsg,
-                  stage3Streaming: {
-                    text: currentStreaming.text + tokenContent,
-                    complete: false,
-                  },
-                };
-              }
-              return { ...prev, messages, _streamTick: Date.now() };
-            });
-            break;
-          }
-
-          case 'stage3_error': {
-            // Handle stage3 error (IMMUTABLE)
-            const errorMsg = event.error as string;
-            setCurrentConversation((prev) => updateLastMessage(prev, () => ({
-              stage3Streaming: { text: `Error: ${errorMsg}`, complete: true, error: true },
-            })));
-            break;
-          }
-
-          case 'stage3_complete': {
-            const stage3Data = event.data as import('./types/conversation').Stage3Synthesis;
-            setCurrentConversation((prev) => updateLastMessage(prev, (msg) => ({
-              stage3: stage3Data,
-              stage3Streaming: msg.stage3Streaming
-                ? { ...msg.stage3Streaming, complete: true }
-                : { text: stage3Data.content ?? '', complete: true },
-              loading: { stage1: msg.loading?.stage1 ?? false, stage2: msg.loading?.stage2 ?? false, stage3: false },
-            })));
-            break;
-          }
-
-          case 'title_complete': {
-            // Title updated - update both sidebar and current conversation
-            // Backend sends: { type: 'title_complete', data: { title: '...' } }
-            const titleData = event.data as { title?: string } | undefined;
-            const newTitle = titleData?.title;
-            if (newTitle) {
-              // Update sidebar list
-              setConversations((prev) =>
-                prev.map((conv) =>
-                  conv.id === conversationId ? { ...conv, title: newTitle } : conv
-                )
+                  stage1Streaming: {},
+                }))
               );
-              // Update current conversation so header shows AI-generated title
-              setCurrentConversation((prev) => {
-                if (!prev || prev.id !== conversationId) return prev;
-                return { ...prev, title: newTitle };
-              });
-            }
-            break;
-          }
+              break;
 
-          case 'complete':
-            // Stream complete, reload conversations list
-            loadConversations();
-            setIsLoading(false);
-            break;
-
-          case 'usage':
-            // Usage data event - store on the last message for display
-            setCurrentConversation((prev) => updateLastMessage(prev, () => ({
-              usage: (event.data ?? event) as UsageData,
-            })));
-            break;
-
-          case 'error': {
-            const errorMessage = event.message as string | undefined;
-            log.error('Stream error:', errorMessage);
-            // Reset all loading states in the message
-            setCurrentConversation((prev) => updateLastMessage(prev, () => ({
-              loading: { stage1: false, stage2: false, stage3: false },
-            })));
-            setIsLoading(false);
-            break;
-          }
-
-          case 'cancelled':
-            log.debug('Request cancelled');
-            setIsLoading(false);
-            break;
-
-          case 'image_analysis_start':
-            log.debug('[IMAGE] Starting analysis of', event.count, 'images');
-            break;
-
-          case 'image_analysis_complete':
-            log.debug('[IMAGE] Analysis complete:', event.analyzed, 'images analyzed');
-            if (event.analysis) {
-              // Store the image analysis in the message so it can be displayed
+            case 'stage1_token': {
+              // Append token to the specific model's streaming text (IMMUTABLE)
+              // Force new array reference to ensure React detects the change
+              const model = event.model as string;
+              const tokenContent = event.content as string;
               setCurrentConversation((prev) => {
                 if (!prev?.messages) return prev;
-                const lastIdx = prev.messages.length - 1;
-                const messages = prev.messages.map((msg, idx) =>
-                  idx === lastIdx
-                    ? { ...msg, imageAnalysis: event.analysis }
-                    : msg
-                );
-                return { ...prev, messages };
+                const messages: Message[] = [...prev.messages];
+                const lastIdx = messages.length - 1;
+                const lastMsg = messages[lastIdx];
+                if (lastIdx >= 0 && lastMsg) {
+                  const currentStreaming = lastMsg.stage1Streaming?.[model] || {
+                    text: '',
+                    complete: false,
+                  };
+                  messages[lastIdx] = {
+                    ...lastMsg,
+                    stage1Streaming: {
+                      ...lastMsg.stage1Streaming,
+                      [model]: {
+                        text: currentStreaming.text + tokenContent,
+                        complete: false,
+                      },
+                    },
+                  };
+                }
+                return { ...prev, messages, _streamTick: Date.now() };
               });
+              break;
             }
-            break;
 
-          default:
-            log.warn('Unknown event type:', eventType);
+            case 'stage1_model_complete': {
+              // Mark a single model as complete (IMMUTABLE)
+              const model = event.model as string;
+              const response = event.response as string | undefined;
+              setCurrentConversation((prev) =>
+                updateLastMessage(prev, (msg) => {
+                  const currentStreaming = msg.stage1Streaming?.[model];
+                  return {
+                    stage1Streaming: {
+                      ...msg.stage1Streaming,
+                      [model]: currentStreaming
+                        ? { ...currentStreaming, complete: true }
+                        : { text: response ?? '', complete: true },
+                    },
+                  };
+                })
+              );
+              break;
+            }
+
+            case 'stage1_model_error': {
+              // Handle model error (IMMUTABLE)
+              const model = event.model as string;
+              const errorMsg = event.error as string;
+              log.error(`[Stage1 Error] Model ${model}:`, errorMsg);
+              setCurrentConversation((prev) =>
+                updateLastMessage(prev, (msg) => ({
+                  stage1Streaming: {
+                    ...msg.stage1Streaming,
+                    [model]: { text: `Error: ${errorMsg}`, complete: true, error: true },
+                  },
+                }))
+              );
+              break;
+            }
+
+            case 'stage1_complete': {
+              const stage1Data = event.data as import('./types/conversation').Stage1Response[];
+              setCurrentConversation((prev) =>
+                updateLastMessage(prev, (msg) => ({
+                  stage1: stage1Data,
+                  loading: {
+                    stage1: false,
+                    stage2: msg.loading?.stage2 ?? false,
+                    stage3: msg.loading?.stage3 ?? false,
+                  },
+                }))
+              );
+              break;
+            }
+
+            case 'stage2_start':
+              setCurrentConversation((prev) =>
+                updateLastMessage(prev, (msg) => ({
+                  loading: {
+                    stage1: msg.loading?.stage1 ?? false,
+                    stage2: true,
+                    stage3: msg.loading?.stage3 ?? false,
+                  },
+                  stage2Streaming: {},
+                }))
+              );
+              break;
+
+            case 'stage2_token': {
+              // Append token to the specific model's stage2 streaming text (IMMUTABLE)
+              const model = event.model as string;
+              const tokenContent = event.content as string;
+              setCurrentConversation((prev) => {
+                if (!prev?.messages) return prev;
+                const messages: Message[] = [...prev.messages];
+                const lastIdx = messages.length - 1;
+                const lastMsg = messages[lastIdx];
+                if (lastIdx >= 0 && lastMsg) {
+                  const currentStreaming = lastMsg.stage2Streaming?.[model] || {
+                    text: '',
+                    complete: false,
+                  };
+                  messages[lastIdx] = {
+                    ...lastMsg,
+                    stage2Streaming: {
+                      ...lastMsg.stage2Streaming,
+                      [model]: {
+                        text: currentStreaming.text + tokenContent,
+                        complete: false,
+                      },
+                    },
+                  };
+                }
+                return { ...prev, messages, _streamTick: Date.now() };
+              });
+              break;
+            }
+
+            case 'stage2_model_complete': {
+              // Mark a single model's stage2 evaluation as complete (IMMUTABLE)
+              const model = event.model as string;
+              const ranking = event.ranking as string | undefined;
+              setCurrentConversation((prev) =>
+                updateLastMessage(prev, (msg) => {
+                  const currentStreaming = msg.stage2Streaming?.[model];
+                  return {
+                    stage2Streaming: {
+                      ...msg.stage2Streaming,
+                      [model]: currentStreaming
+                        ? { ...currentStreaming, complete: true }
+                        : { text: ranking ?? '', complete: true },
+                    },
+                  };
+                })
+              );
+              break;
+            }
+
+            case 'stage2_model_error': {
+              // Handle stage2 model error (IMMUTABLE)
+              const model = event.model as string;
+              const errorMsg = event.error as string;
+              setCurrentConversation((prev) =>
+                updateLastMessage(prev, (msg) => ({
+                  stage2Streaming: {
+                    ...msg.stage2Streaming,
+                    [model]: { text: `Error: ${errorMsg}`, complete: true, error: true },
+                  },
+                }))
+              );
+              break;
+            }
+
+            case 'stage2_complete': {
+              const stage2Data = event.data as import('./types/conversation').Stage2Evaluation[];
+              const metadata = event.metadata as
+                | import('./types/conversation').MessageMetadata
+                | undefined;
+              setCurrentConversation((prev) =>
+                updateLastMessage(prev, (msg) => ({
+                  stage2: stage2Data,
+                  ...(metadata ? { metadata } : {}),
+                  loading: {
+                    stage1: msg.loading?.stage1 ?? false,
+                    stage2: false,
+                    stage3: msg.loading?.stage3 ?? false,
+                  },
+                }))
+              );
+              break;
+            }
+
+            case 'stage3_start':
+              setCurrentConversation((prev) =>
+                updateLastMessage(prev, (msg) => ({
+                  loading: {
+                    stage1: msg.loading?.stage1 ?? false,
+                    stage2: msg.loading?.stage2 ?? false,
+                    stage3: true,
+                  },
+                  stage3Streaming: { text: '', complete: false },
+                }))
+              );
+              break;
+
+            case 'stage3_token': {
+              // Append token to stage3 streaming text (IMMUTABLE)
+              const tokenContent = event.content as string;
+              setCurrentConversation((prev) => {
+                if (!prev?.messages) return prev;
+                const messages: Message[] = [...prev.messages];
+                const lastIdx = messages.length - 1;
+                const lastMsg = messages[lastIdx];
+                if (lastIdx >= 0 && lastMsg) {
+                  const currentStreaming = lastMsg.stage3Streaming || { text: '', complete: false };
+                  messages[lastIdx] = {
+                    ...lastMsg,
+                    stage3Streaming: {
+                      text: currentStreaming.text + tokenContent,
+                      complete: false,
+                    },
+                  };
+                }
+                return { ...prev, messages, _streamTick: Date.now() };
+              });
+              break;
+            }
+
+            case 'stage3_error': {
+              // Handle stage3 error (IMMUTABLE)
+              const errorMsg = event.error as string;
+              setCurrentConversation((prev) =>
+                updateLastMessage(prev, () => ({
+                  stage3Streaming: { text: `Error: ${errorMsg}`, complete: true, error: true },
+                }))
+              );
+              break;
+            }
+
+            case 'stage3_complete': {
+              const stage3Data = event.data as import('./types/conversation').Stage3Synthesis;
+              setCurrentConversation((prev) =>
+                updateLastMessage(prev, (msg) => ({
+                  stage3: stage3Data,
+                  stage3Streaming: msg.stage3Streaming
+                    ? { ...msg.stage3Streaming, complete: true }
+                    : { text: stage3Data.content ?? '', complete: true },
+                  loading: {
+                    stage1: msg.loading?.stage1 ?? false,
+                    stage2: msg.loading?.stage2 ?? false,
+                    stage3: false,
+                  },
+                }))
+              );
+              break;
+            }
+
+            case 'title_complete': {
+              // Title updated - update both sidebar and current conversation
+              // Backend sends: { type: 'title_complete', data: { title: '...' } }
+              const titleData = event.data as { title?: string } | undefined;
+              const newTitle = titleData?.title;
+              if (newTitle) {
+                // Update sidebar list
+                setConversations((prev) =>
+                  prev.map((conv) =>
+                    conv.id === conversationId ? { ...conv, title: newTitle } : conv
+                  )
+                );
+                // Update current conversation so header shows AI-generated title
+                setCurrentConversation((prev) => {
+                  if (!prev || prev.id !== conversationId) return prev;
+                  return { ...prev, title: newTitle };
+                });
+              }
+              break;
+            }
+
+            case 'complete':
+              // Stream complete, reload conversations list
+              loadConversations();
+              setIsLoading(false);
+              break;
+
+            case 'usage':
+              // Usage data event - store on the last message for display
+              setCurrentConversation((prev) =>
+                updateLastMessage(prev, () => ({
+                  usage: (event.data ?? event) as UsageData,
+                }))
+              );
+              break;
+
+            case 'error': {
+              const errorMessage = event.message as string | undefined;
+              log.error('Stream error:', errorMessage);
+              // Reset all loading states in the message
+              setCurrentConversation((prev) =>
+                updateLastMessage(prev, () => ({
+                  loading: { stage1: false, stage2: false, stage3: false },
+                }))
+              );
+              setIsLoading(false);
+              break;
+            }
+
+            case 'cancelled':
+              log.debug('Request cancelled');
+              setIsLoading(false);
+              break;
+
+            case 'image_analysis_start':
+              log.debug('[IMAGE] Starting analysis of', event.count, 'images');
+              break;
+
+            case 'image_analysis_complete':
+              log.debug('[IMAGE] Analysis complete:', event.analyzed, 'images analyzed');
+              if (event.analysis) {
+                // Store the image analysis in the message so it can be displayed
+                setCurrentConversation((prev) => {
+                  if (!prev?.messages) return prev;
+                  const lastIdx = prev.messages.length - 1;
+                  const messages = prev.messages.map((msg, idx) =>
+                    idx === lastIdx ? { ...msg, imageAnalysis: event.analysis } : msg
+                  );
+                  return { ...prev, messages };
+                });
+              }
+              break;
+
+            default:
+              log.warn('Unknown event type:', eventType);
+          }
+        },
+        {
+          businessId: effectiveBusinessId,
+          department: effectiveDepartment,
+          role: selectedRole,
+          departments: effectiveDepartments, // Multi-select support
+          roles: effectiveRoles, // Multi-select support
+          playbooks: effectivePlaybooks, // Playbook IDs to inject
+          projectId: selectedProject,
+          attachmentIds: attachmentIds, // Pass uploaded image attachment IDs
+          signal: abortControllerRef.current?.signal,
         }
-      }, {
-        businessId: effectiveBusinessId,
-        department: effectiveDepartment,
-        role: selectedRole,
-        departments: effectiveDepartments,  // Multi-select support
-        roles: effectiveRoles,              // Multi-select support
-        playbooks: effectivePlaybooks,      // Playbook IDs to inject
-        projectId: selectedProject,
-        attachmentIds: attachmentIds,  // Pass uploaded image attachment IDs
-        signal: abortControllerRef.current?.signal,
-      });
+      );
     } catch (error: unknown) {
       // Don't treat cancellation as an error
       if (error instanceof Error && error.name === 'AbortError') {
@@ -1101,76 +1211,92 @@ function App() {
       const effectiveBusinessId = useCompanyContext ? selectedBusiness : null;
       const effectiveDepartmentId = useDepartmentContext ? selectedDepartment : null;
       // Multi-select: pass arrays if they have values
-      const effectiveDepartmentIds = useDepartmentContext && selectedDepartments.length > 0 ? selectedDepartments : null;
+      const effectiveDepartmentIds =
+        useDepartmentContext && selectedDepartments.length > 0 ? selectedDepartments : null;
       const effectiveRoleIds = selectedRoles.length > 0 ? selectedRoles : null;
       const effectivePlaybookIds = selectedPlaybooks.length > 0 ? selectedPlaybooks : null;
 
-      await api.sendChatStream(currentConversationId, content, (eventType, event) => {
-        switch (eventType) {
-          case 'chat_start':
-            // Chat stream started
-            break;
+      await api.sendChatStream(
+        currentConversationId,
+        content,
+        (eventType, event) => {
+          switch (eventType) {
+            case 'chat_start':
+              // Chat stream started
+              break;
 
-          case 'chat_token': {
-            // Append token to streaming text
-            const tokenContent = event.content as string;
-            setCurrentConversation((prev) => updateLastMessage(prev, (msg) => {
-              const currentStreaming = msg.stage3Streaming || { text: '', complete: false };
-              return {
-                stage3Streaming: {
-                  ...currentStreaming,
-                  text: currentStreaming.text + tokenContent,
-                },
-              };
-            }));
-            break;
+            case 'chat_token': {
+              // Append token to streaming text
+              const tokenContent = event.content as string;
+              setCurrentConversation((prev) =>
+                updateLastMessage(prev, (msg) => {
+                  const currentStreaming = msg.stage3Streaming || { text: '', complete: false };
+                  return {
+                    stage3Streaming: {
+                      ...currentStreaming,
+                      text: currentStreaming.text + tokenContent,
+                    },
+                  };
+                })
+              );
+              break;
+            }
+
+            case 'chat_error':
+              log.error('Chat error:', event.error);
+              break;
+
+            case 'chat_complete': {
+              const chatData = event.data as { model?: string; content?: string } | undefined;
+              const model = chatData?.model ?? '';
+              const responseContent = chatData?.content ?? '';
+              setCurrentConversation((prev) =>
+                updateLastMessage(prev, (msg) => ({
+                  stage3: { content: responseContent, model },
+                  stage3Streaming: { text: responseContent, complete: true },
+                  loading: {
+                    stage1: msg.loading?.stage1 ?? false,
+                    stage2: msg.loading?.stage2 ?? false,
+                    stage3: false,
+                  },
+                }))
+              );
+              break;
+            }
+
+            case 'complete':
+              setIsLoading(false);
+              break;
+
+            case 'error':
+              log.error('Chat stream error:', event.message);
+              setCurrentConversation((prev) =>
+                updateLastMessage(prev, () => ({
+                  loading: { stage1: false, stage2: false, stage3: false },
+                }))
+              );
+              setIsLoading(false);
+              break;
+
+            case 'cancelled':
+              log.debug('Chat request cancelled');
+              setIsLoading(false);
+              break;
+
+            default:
+              log.warn('Unknown chat event type:', eventType);
           }
-
-          case 'chat_error':
-            log.error('Chat error:', event.error);
-            break;
-
-          case 'chat_complete': {
-            const chatData = event.data as { model?: string; content?: string } | undefined;
-            const model = chatData?.model ?? '';
-            const responseContent = chatData?.content ?? '';
-            setCurrentConversation((prev) => updateLastMessage(prev, (msg) => ({
-              stage3: { content: responseContent, model },
-              stage3Streaming: { text: responseContent, complete: true },
-              loading: { stage1: msg.loading?.stage1 ?? false, stage2: msg.loading?.stage2 ?? false, stage3: false },
-            })));
-            break;
-          }
-
-          case 'complete':
-            setIsLoading(false);
-            break;
-
-          case 'error':
-            log.error('Chat stream error:', event.message);
-            setCurrentConversation((prev) => updateLastMessage(prev, () => ({
-              loading: { stage1: false, stage2: false, stage3: false },
-            })));
-            setIsLoading(false);
-            break;
-
-          case 'cancelled':
-            log.debug('Chat request cancelled');
-            setIsLoading(false);
-            break;
-
-          default:
-            log.warn('Unknown chat event type:', eventType);
+        },
+        {
+          businessId: effectiveBusinessId,
+          departmentId: effectiveDepartmentId,
+          departmentIds: effectiveDepartmentIds, // Multi-select support
+          roleIds: effectiveRoleIds, // Multi-select support
+          playbookIds: effectivePlaybookIds, // Playbook IDs to inject
+          projectId: selectedProject,
+          signal: abortControllerRef.current?.signal,
         }
-      }, {
-        businessId: effectiveBusinessId,
-        departmentId: effectiveDepartmentId,
-        departmentIds: effectiveDepartmentIds,  // Multi-select support
-        roleIds: effectiveRoleIds,              // Multi-select support
-        playbookIds: effectivePlaybookIds,      // Playbook IDs to inject
-        projectId: selectedProject,
-        signal: abortControllerRef.current?.signal,
-      });
+      );
     } catch (error: unknown) {
       if (error instanceof Error && error.name === 'AbortError') {
         log.debug('Chat request was cancelled');
@@ -1214,7 +1340,7 @@ function App() {
       className="app-wrapper"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
     >
       {/* Mock mode banner - shown when mock mode is enabled */}
       {mockModeEnabled && <MockModeBanner />}
@@ -1233,7 +1359,14 @@ function App() {
         onClick={() => setIsMobileSidebarOpen(true)}
         aria-label="Open sidebar"
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <polyline points="9 18 15 12 9 6" />
         </svg>
       </button>
@@ -1245,9 +1378,9 @@ function App() {
           // Don't close if a Radix portal (dropdown, dialog) is open
           const isRadixPortalActive = document.querySelector(
             '[data-radix-popper-content-wrapper], ' +
-            '[data-radix-select-content], ' +
-            '[data-state="open"][data-radix-select-trigger], ' +
-            '[data-radix-menu-content]'
+              '[data-radix-select-content], ' +
+              '[data-state="open"][data-radix-select-trigger], ' +
+              '[data-radix-menu-content]'
           );
           if (isRadixPortalActive) {
             e.stopPropagation();
@@ -1256,7 +1389,8 @@ function App() {
 
           // Don't close if a dropdown was just dismissed (within 100ms)
           // This prevents the same click that closes a dropdown from also closing the sidebar
-          const dismissedAt = (window as Window & { __radixSelectJustDismissed?: number }).__radixSelectJustDismissed;
+          const dismissedAt = (window as Window & { __radixSelectJustDismissed?: number })
+            .__radixSelectJustDismissed;
           if (dismissedAt && Date.now() - dismissedAt < 100) {
             e.stopPropagation();
             return;
@@ -1279,8 +1413,12 @@ function App() {
           onOpenSettings={handleOpenSettings}
           onOpenMyCompany={handleOpenMyCompany}
           onPreloadMyCompany={preloadMyCompany}
-          onArchiveConversation={(id: string, archived?: boolean) => handleArchiveConversation(id, archived ?? true)}
-          onStarConversation={(id: string, starred?: boolean) => handleStarConversation(id, starred ?? true)}
+          onArchiveConversation={(id: string, archived?: boolean) =>
+            handleArchiveConversation(id, archived ?? true)
+          }
+          onStarConversation={(id: string, starred?: boolean) =>
+            handleStarConversation(id, starred ?? true)
+          }
           onDeleteConversation={handleDeleteConversation}
           onBulkDeleteConversations={handleBulkDeleteConversations}
           onRenameConversation={handleRenameConversation}
@@ -1296,261 +1434,272 @@ function App() {
           companyId={selectedBusiness}
         />
 
-      {/* Main content area - Landing Hero or Chat Interface */}
-      {/* Transition: Landing slides up and fades out while chat slides up from below */}
-      <AnimatePresence mode="wait">
-        {showLandingHero ? (
-          <motion.div
-            key="landing"
-            className="main-content-landing"
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{
-              opacity: 0,
-              y: -60,
-              scale: 0.96,
-            }}
-            transition={{
-              duration: 0.5,
-              ease: [0.32, 0.72, 0, 1], // Custom easing for smooth feel
-            }}
-          >
-            <LandingHero
-              businesses={businesses}
-              selectedBusiness={selectedBusiness}
-              onSelectBusiness={setSelectedBusiness}
-              projects={projects}
-              selectedProject={selectedProject}
-              onSelectProject={setSelectedProject}
-              departments={availableDepartments}
-              selectedDepartments={selectedDepartments}
-              onSelectDepartments={setSelectedDepartments}
-              allRoles={allRoles}
-              selectedRoles={selectedRoles}
-              onSelectRoles={setSelectedRoles}
-              playbooks={availablePlaybooks}
-              selectedPlaybooks={selectedPlaybooks}
-              onSelectPlaybooks={setSelectedPlaybooks}
-              chatMode={landingChatMode}
-              onChatModeChange={setLandingChatMode}
-              onSubmit={handleLandingSubmit}
-              onResetAll={handleResetAllSelections}
-              isLoading={isLoading}
-            />
-          </motion.div>
-        ) : (
-          <motion.div
-            key="chat"
-            className="main-content-chat"
-            initial={{ opacity: 0, y: 40, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{
-              duration: 0.5,
-              ease: [0.32, 0.72, 0, 1],
-              delay: 0.1, // Slight delay so landing clears first
-            }}
-          >
-            <Suspense fallback={<ChatFallback />}>
-            <ChatInterface
-              conversation={currentConversation}
-              onSendMessage={handleSendMessage}
-              onSendChatMessage={handleSendChatMessage}
-              onStopGeneration={handleStopGeneration}
-              isLoading={isLoading}
-              businesses={businesses}
-              selectedBusiness={selectedBusiness}
-              onSelectBusiness={setSelectedBusiness}
-              departments={availableDepartments}
-              selectedDepartment={selectedDepartment}
-              onSelectDepartment={setSelectedDepartment}
-              // Multi-select support
-              selectedDepartments={selectedDepartments}
-              onSelectDepartments={setSelectedDepartments}
-              allRoles={allRoles}
-              selectedRoles={selectedRoles}
-              onSelectRoles={setSelectedRoles}
-              // Playbooks
-              playbooks={availablePlaybooks}
-              selectedPlaybooks={selectedPlaybooks}
-              onSelectPlaybooks={setSelectedPlaybooks}
-              // Legacy single-select
-              roles={availableRoles}
-              selectedRole={selectedRole}
-              onSelectRole={setSelectedRole}
-              channels={availableChannels}
-              selectedChannel={selectedChannel}
-              onSelectChannel={setSelectedChannel}
-              styles={availableStyles}
-              selectedStyle={selectedStyle}
-              onSelectStyle={setSelectedStyle}
-              // Projects
-              projects={projects}
-              selectedProject={selectedProject}
-              onSelectProject={(projectId: string | null) => {
-                setSelectedProject(projectId);
-                // Touch project to update last_accessed_at for sorting
-                if (projectId) {
-                  api.touchProject(projectId).catch((err: unknown) => {
-                    log.error('Failed to touch project:', err);
-                  });
-                }
+        {/* Main content area - Landing Hero or Chat Interface */}
+        {/* Transition: Landing slides up and fades out while chat slides up from below */}
+        <AnimatePresence mode="wait">
+          {showLandingHero ? (
+            <motion.div
+              key="landing"
+              className="main-content-landing"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{
+                opacity: 0,
+                y: -60,
+                scale: 0.96,
               }}
-              onOpenProjectModal={(context: ProjectModalContext) => {
-                openProjectModal(context);
+              transition={{
+                duration: 0.5,
+                ease: [0.32, 0.72, 0, 1], // Custom easing for smooth feel
               }}
-              onProjectCreated={(newProject: Project) => {
-                // Add to projects list so it appears in dropdown immediately
-                setProjects((prev) => [...prev, newProject]);
+            >
+              <LandingHero
+                businesses={businesses}
+                selectedBusiness={selectedBusiness}
+                onSelectBusiness={setSelectedBusiness}
+                projects={projects}
+                selectedProject={selectedProject}
+                onSelectProject={setSelectedProject}
+                departments={availableDepartments}
+                selectedDepartments={selectedDepartments}
+                onSelectDepartments={setSelectedDepartments}
+                allRoles={allRoles}
+                selectedRoles={selectedRoles}
+                onSelectRoles={setSelectedRoles}
+                playbooks={availablePlaybooks}
+                selectedPlaybooks={selectedPlaybooks}
+                onSelectPlaybooks={setSelectedPlaybooks}
+                chatMode={landingChatMode}
+                onChatModeChange={setLandingChatMode}
+                onSubmit={handleLandingSubmit}
+                onResetAll={handleResetAllSelections}
+                isLoading={isLoading}
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="chat"
+              className="main-content-chat"
+              initial={{ opacity: 0, y: 40, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{
+                duration: 0.5,
+                ease: [0.32, 0.72, 0, 1],
+                delay: 0.1, // Slight delay so landing clears first
               }}
-              // Independent context toggles
-              useCompanyContext={useCompanyContext}
-              onToggleCompanyContext={setUseCompanyContext}
-              useDepartmentContext={useDepartmentContext}
-              onToggleDepartmentContext={setUseDepartmentContext}
-              // Triage props
-              triageState={triageState}
-              originalQuestion={originalQuery}
-              isTriageLoading={isTriageLoading}
-              onTriageRespond={handleTriageRespond}
-              onTriageSkip={handleTriageSkip}
-              onTriageProceed={handleTriageProceed}
-              // Upload progress
-              isUploading={isUploading}
-              // Knowledge Base navigation (now part of My Company)
-              onViewKnowledgeBase={() => {
-                openMyCompany({ clearPromoteDecision: true });
-              }}
-              // Scroll target - for navigating from decision source
-              scrollToStage3={scrollToStage3}
-              scrollToResponseIndex={scrollToResponseIndex}
-              onScrollToStage3Complete={() => {
-                clearScrollState();
-              }}
-              // Decision/Playbook/Project navigation - open My Company to appropriate tab
-              onViewDecision={(decisionId: string, type = 'decision', targetId: string | null = null) => {
-                if (type === 'playbook' && targetId) {
-                  openMyCompany({ tab: 'playbooks', playbookId: targetId, clearPromoteDecision: true });
-                } else if (type === 'project' && targetId) {
-                  openMyCompany({ tab: 'projects', projectId: targetId, clearPromoteDecision: true });
-                  // Also select the project in the main app for context
-                  setSelectedProject(targetId);
-                } else {
-                  openMyCompany({ tab: 'decisions', decisionId, clearPromoteDecision: true });
-                }
-              }}
-              // Return to My Company button (after navigating from source)
-              returnToMyCompanyTab={returnToMyCompanyTab}
-              returnToProjectId={returnToProjectId}
-              returnToDecisionId={returnToDecisionId}
-              returnPromoteDecision={myCompanyPromoteDecision}
-              onReturnToMyCompany={(tab: MyCompanyTab, projectId: string | null, decisionId: string | null) => {
-                // Don't clear myCompanyPromoteDecision here - let MyCompany use it to re-open modal
-                // If returning to a specific project/decision, pass those IDs
-                openMyCompany({ tab, projectId, projectDecisionId: decisionId });
-              }}
-              // Loading state for conversation fetch
-              isLoadingConversation={isLoadingConversation}
-              // Mobile sidebar toggle
-              onOpenSidebar={() => setIsMobileSidebarOpen(true)}
-            />
-            </Suspense>
-          </motion.div>
+            >
+              <Suspense fallback={<ChatFallback />}>
+                <ChatInterface
+                  conversation={currentConversation}
+                  onSendMessage={handleSendMessage}
+                  onSendChatMessage={handleSendChatMessage}
+                  onStopGeneration={handleStopGeneration}
+                  isLoading={isLoading}
+                  businesses={businesses}
+                  selectedBusiness={selectedBusiness}
+                  onSelectBusiness={setSelectedBusiness}
+                  departments={availableDepartments}
+                  selectedDepartment={selectedDepartment}
+                  onSelectDepartment={setSelectedDepartment}
+                  // Multi-select support
+                  selectedDepartments={selectedDepartments}
+                  onSelectDepartments={setSelectedDepartments}
+                  allRoles={allRoles}
+                  selectedRoles={selectedRoles}
+                  onSelectRoles={setSelectedRoles}
+                  // Playbooks
+                  playbooks={availablePlaybooks}
+                  selectedPlaybooks={selectedPlaybooks}
+                  onSelectPlaybooks={setSelectedPlaybooks}
+                  // Legacy single-select
+                  roles={availableRoles}
+                  selectedRole={selectedRole}
+                  onSelectRole={setSelectedRole}
+                  channels={availableChannels}
+                  selectedChannel={selectedChannel}
+                  onSelectChannel={setSelectedChannel}
+                  styles={availableStyles}
+                  selectedStyle={selectedStyle}
+                  onSelectStyle={setSelectedStyle}
+                  // Projects
+                  projects={projects}
+                  selectedProject={selectedProject}
+                  onSelectProject={(projectId: string | null) => {
+                    setSelectedProject(projectId);
+                    // Touch project to update last_accessed_at for sorting
+                    if (projectId) {
+                      api.touchProject(projectId).catch((err: unknown) => {
+                        log.error('Failed to touch project:', err);
+                      });
+                    }
+                  }}
+                  onOpenProjectModal={(context: ProjectModalContext) => {
+                    openProjectModal(context);
+                  }}
+                  onProjectCreated={(newProject: Project) => {
+                    // Add to projects list so it appears in dropdown immediately
+                    setProjects((prev) => [...prev, newProject]);
+                  }}
+                  // Independent context toggles
+                  useCompanyContext={useCompanyContext}
+                  onToggleCompanyContext={setUseCompanyContext}
+                  useDepartmentContext={useDepartmentContext}
+                  onToggleDepartmentContext={setUseDepartmentContext}
+                  // Triage props
+                  triageState={triageState}
+                  originalQuestion={originalQuery}
+                  isTriageLoading={isTriageLoading}
+                  onTriageRespond={handleTriageRespond}
+                  onTriageSkip={handleTriageSkip}
+                  onTriageProceed={handleTriageProceed}
+                  // Upload progress
+                  isUploading={isUploading}
+                  // Knowledge Base navigation (now part of My Company)
+                  onViewKnowledgeBase={() => {
+                    openMyCompany({ clearPromoteDecision: true });
+                  }}
+                  // Scroll target - for navigating from decision source
+                  scrollToStage3={scrollToStage3}
+                  scrollToResponseIndex={scrollToResponseIndex}
+                  onScrollToStage3Complete={() => {
+                    clearScrollState();
+                  }}
+                  // Decision/Playbook/Project navigation - open My Company to appropriate tab
+                  onViewDecision={(
+                    decisionId: string,
+                    type = 'decision',
+                    targetId: string | null = null
+                  ) => {
+                    if (type === 'playbook' && targetId) {
+                      openMyCompany({
+                        tab: 'playbooks',
+                        playbookId: targetId,
+                        clearPromoteDecision: true,
+                      });
+                    } else if (type === 'project' && targetId) {
+                      openMyCompany({
+                        tab: 'projects',
+                        projectId: targetId,
+                        clearPromoteDecision: true,
+                      });
+                      // Also select the project in the main app for context
+                      setSelectedProject(targetId);
+                    } else {
+                      openMyCompany({ tab: 'decisions', decisionId, clearPromoteDecision: true });
+                    }
+                  }}
+                  // Return to My Company button (after navigating from source)
+                  returnToMyCompanyTab={returnToMyCompanyTab}
+                  returnToProjectId={returnToProjectId}
+                  returnToDecisionId={returnToDecisionId}
+                  returnPromoteDecision={myCompanyPromoteDecision}
+                  onReturnToMyCompany={(
+                    tab: MyCompanyTab,
+                    projectId: string | null,
+                    decisionId: string | null
+                  ) => {
+                    // Don't clear myCompanyPromoteDecision here - let MyCompany use it to re-open modal
+                    // If returning to a specific project/decision, pass those IDs
+                    openMyCompany({ tab, projectId, projectDecisionId: decisionId });
+                  }}
+                  // Loading state for conversation fetch
+                  isLoadingConversation={isLoadingConversation}
+                  // Mobile sidebar toggle
+                  onOpenSidebar={() => setIsMobileSidebarOpen(true)}
+                />
+              </Suspense>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Lazy-loaded modals wrapped in Suspense for code splitting */}
+        {/* Only render when open to avoid loading spinner on initial page load */}
+        {isLeaderboardOpen && (
+          <Suspense fallback={<LazyFallback />}>
+            <Leaderboard isOpen={isLeaderboardOpen} onClose={closeLeaderboard} />
+          </Suspense>
         )}
-      </AnimatePresence>
+        {isSettingsOpen && (
+          <Suspense fallback={<LazyFallback />}>
+            <Settings
+              isOpen={isSettingsOpen}
+              onClose={() => {
+                log.debug('[Settings.onClose] Closing settings and returning to landing');
+                closeSettings();
+                // Return to landing page by creating a new temp conversation
+                handleNewConversation();
+              }}
+              companyId={selectedBusiness}
+              onMockModeChange={handleMockModeChange}
+            />
+          </Suspense>
+        )}
+        {isProjectModalOpen && selectedBusiness && (
+          <Suspense fallback={<LazyFallback />}>
+            <ProjectModal
+              companyId={selectedBusiness}
+              departments={availableDepartments}
+              initialContext={projectModalContext as any}
+              onClose={closeProjectModal}
+              onProjectCreated={(newProject: Project) => {
+                // Add to projects list and select it
+                setProjects((prev) => [...prev, newProject]);
+                setSelectedProject(newProject.id);
+              }}
+            />
+          </Suspense>
+        )}
+        {isMyCompanyOpen && selectedBusiness && (
+          <Suspense fallback={<LazyFallback />}>
+            <MyCompany
+              companyId={selectedBusiness}
+              companyName={currentBusiness?.name ?? ''}
+              allCompanies={businesses}
+              onSelectCompany={(newCompanyId: string) => {
+                setSelectedBusiness(newCompanyId);
+                resetMyCompanyInitial();
+              }}
+              onClose={() => {
+                closeMyCompany();
+                // Return to landing page by creating a new temp conversation
+                handleNewConversation();
+              }}
+              onNavigateToConversation={(conversationId: string, source: string) => {
+                // Map source string to tab if possible
+                const tabMap: Record<string, MyCompanyTab> = {
+                  decisions: 'decisions',
+                  playbooks: 'playbooks',
+                  projects: 'projects',
+                  activity: 'overview',
+                };
+                const fromTab = tabMap[source] ?? null;
+                navigateToConversation(fromTab, null, null, null);
+                setCurrentConversationId(conversationId);
+              }}
+              initialTab={myCompanyInitialTab}
+              initialDecisionId={myCompanyInitialDecisionId}
+              initialPlaybookId={myCompanyInitialPlaybookId}
+              initialProjectId={myCompanyInitialProjectId}
+              initialProjectDecisionId={myCompanyInitialProjectDecisionId}
+              initialPromoteDecision={myCompanyPromoteDecision as any}
+              onConsumePromoteDecision={() => setMyCompanyPromoteDecision(null)}
+            />
+          </Suspense>
+        )}
+        {/* Toast notifications for undo actions */}
+        <Toaster />
 
-      {/* Lazy-loaded modals wrapped in Suspense for code splitting */}
-      {/* Only render when open to avoid loading spinner on initial page load */}
-      {isLeaderboardOpen && (
-        <Suspense fallback={<LazyFallback />}>
-          <Leaderboard
-            isOpen={isLeaderboardOpen}
-            onClose={closeLeaderboard}
+        {/* Mobile bottom navigation - thumb-friendly access to main sections */}
+        {!isMyCompanyOpen && !isSettingsOpen && !isLeaderboardOpen && !isProjectModalOpen && (
+          <MobileBottomNav
+            onNewChat={handleNewConversation}
+            onOpenHistory={() => setIsMobileSidebarOpen(true)}
+            onOpenMyCompany={handleOpenMyCompany}
+            onOpenSettings={handleOpenSettings}
+            activeTab={isMobileSidebarOpen ? 'history' : 'chat'}
           />
-        </Suspense>
-      )}
-      {isSettingsOpen && (
-        <Suspense fallback={<LazyFallback />}>
-          <Settings
-            isOpen={isSettingsOpen}
-            onClose={() => {
-              log.debug('[Settings.onClose] Closing settings and returning to landing');
-              closeSettings();
-              // Return to landing page by creating a new temp conversation
-              handleNewConversation();
-            }}
-            companyId={selectedBusiness}
-            onMockModeChange={handleMockModeChange}
-          />
-        </Suspense>
-      )}
-      {isProjectModalOpen && selectedBusiness && (
-        <Suspense fallback={<LazyFallback />}>
-          <ProjectModal
-            companyId={selectedBusiness}
-            departments={availableDepartments}
-
-            initialContext={projectModalContext as any}
-            onClose={closeProjectModal}
-            onProjectCreated={(newProject: Project) => {
-              // Add to projects list and select it
-              setProjects((prev) => [...prev, newProject]);
-              setSelectedProject(newProject.id);
-            }}
-          />
-        </Suspense>
-      )}
-      {isMyCompanyOpen && selectedBusiness && (
-        <Suspense fallback={<LazyFallback />}>
-          <MyCompany
-            companyId={selectedBusiness}
-            companyName={currentBusiness?.name ?? ''}
-            allCompanies={businesses}
-            onSelectCompany={(newCompanyId: string) => {
-              setSelectedBusiness(newCompanyId);
-              resetMyCompanyInitial();
-            }}
-            onClose={() => {
-              closeMyCompany();
-              // Return to landing page by creating a new temp conversation
-              handleNewConversation();
-            }}
-            onNavigateToConversation={(conversationId: string, source: string) => {
-              // Map source string to tab if possible
-              const tabMap: Record<string, MyCompanyTab> = {
-                'decisions': 'decisions',
-                'playbooks': 'playbooks',
-                'projects': 'projects',
-                'activity': 'overview',
-              };
-              const fromTab = tabMap[source] ?? null;
-              navigateToConversation(fromTab, null, null, null);
-              setCurrentConversationId(conversationId);
-            }}
-            initialTab={myCompanyInitialTab}
-            initialDecisionId={myCompanyInitialDecisionId}
-            initialPlaybookId={myCompanyInitialPlaybookId}
-            initialProjectId={myCompanyInitialProjectId}
-            initialProjectDecisionId={myCompanyInitialProjectDecisionId}
-
-            initialPromoteDecision={myCompanyPromoteDecision as any}
-            onConsumePromoteDecision={() => setMyCompanyPromoteDecision(null)}
-          />
-        </Suspense>
-      )}
-      {/* Toast notifications for undo actions */}
-      <Toaster />
-
-      {/* Mobile bottom navigation - thumb-friendly access to main sections */}
-      {!isMyCompanyOpen && !isSettingsOpen && !isLeaderboardOpen && !isProjectModalOpen && (
-        <MobileBottomNav
-          onNewChat={handleNewConversation}
-          onOpenHistory={() => setIsMobileSidebarOpen(true)}
-          onOpenMyCompany={handleOpenMyCompany}
-          onOpenSettings={handleOpenSettings}
-          activeTab={isMobileSidebarOpen ? 'history' : 'chat'}
-        />
-      )}
+        )}
       </div>
     </motion.div>
   );

@@ -164,21 +164,21 @@
    ============================================================================= */
 
 .dark .copy-btn-unified,
-[data-theme="dark"] .copy-btn-unified {
+[data-theme='dark'] .copy-btn-unified {
   background: var(--overlay-black-80);
   border-color: var(--overlay-white-10);
   color: var(--color-text-tertiary);
 }
 
 .dark .copy-btn-unified:hover,
-[data-theme="dark"] .copy-btn-unified:hover {
+[data-theme='dark'] .copy-btn-unified:hover {
   border-color: var(--color-brand-primary);
   color: var(--color-brand-primary);
   background: var(--overlay-black-80);
 }
 
 .dark .copy-btn-unified.copied,
-[data-theme="dark"] .copy-btn-unified.copied {
+[data-theme='dark'] .copy-btn-unified.copied {
   border-color: var(--color-success);
   color: var(--color-success);
   background: var(--overlay-black-80);

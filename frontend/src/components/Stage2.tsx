@@ -32,7 +32,13 @@ function getModelIconPath(modelId: string): string | null {
   // Fallback: match common model name patterns
   const lowerModel = modelId.toLowerCase();
   if (lowerModel.includes('gpt') || lowerModel.includes('o1')) return '/icons/openai.svg';
-  if (lowerModel.includes('claude') || lowerModel.includes('opus') || lowerModel.includes('sonnet') || lowerModel.includes('haiku')) return '/icons/anthropic.svg';
+  if (
+    lowerModel.includes('claude') ||
+    lowerModel.includes('opus') ||
+    lowerModel.includes('sonnet') ||
+    lowerModel.includes('haiku')
+  )
+    return '/icons/anthropic.svg';
   if (lowerModel.includes('gemini')) return '/icons/gemini.svg';
   if (lowerModel.includes('grok')) return '/icons/grok.svg';
   if (lowerModel.includes('deepseek')) return '/icons/deepseek.svg';
@@ -84,12 +90,14 @@ function Stage2({
   const textLooksLikeError = (text: string): boolean => {
     if (!text) return false;
     const lower = text.toLowerCase();
-    return lower.includes('[error:') ||
-           lower.includes('status 429') ||
-           lower.includes('rate limit') ||
-           lower.includes('api error') ||
-           lower.includes('timeout') ||
-           lower.includes('service unavailable');
+    return (
+      lower.includes('[error:') ||
+      lower.includes('status 429') ||
+      lower.includes('rate limit') ||
+      lower.includes('api error') ||
+      lower.includes('timeout') ||
+      lower.includes('service unavailable')
+    );
   };
 
   if (streaming && Object.keys(streaming).length > 0) {
@@ -126,7 +134,7 @@ function Stage2({
   }
 
   // Check if all models are complete
-  const allComplete = displayData.every(d => d.isComplete || d.hasError);
+  const allComplete = displayData.every((d) => d.isComplete || d.hasError);
 
   // Use the reusable celebration hook for stage completion
   const { isCelebrating: showCompleteCelebration } = useCompletionCelebration(
@@ -188,7 +196,10 @@ function Stage2({
   };
 
   return (
-    <div className={`stage stage2 ${isCollapsed ? 'collapsed' : ''} ${showCompleteCelebration ? 'celebrating' : ''}`} data-stage="stage2">
+    <div
+      className={`stage stage2 ${isCollapsed ? 'collapsed' : ''} ${showCompleteCelebration ? 'celebrating' : ''}`}
+      data-stage="stage2"
+    >
       <h3 className="stage-title clickable" onClick={toggleCollapsed}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
         <span className="font-semibold tracking-tight">Experts Review Each Other</span>
@@ -213,7 +224,6 @@ function Stage2({
         )}
       </h3>
 
-
       {!isCollapsed && (
         <div className="stage2-content">
           <div className="tabs">
@@ -230,10 +240,26 @@ function Stage2({
                 >
                   {/* Icon with status badge overlay - matches Stage 1 */}
                   <span className="tab-icon-wrapper">
-                    {iconPath && <img src={iconPath} alt="" className="tab-model-icon" loading="lazy" decoding="async" />}
-                    {data.isStreaming && <span className="tab-status-badge streaming"><span className="tab-status-ping"></span></span>}
-                    {data.isComplete && !data.isEmpty && !data.hasError && <span className="tab-status-badge complete">✓</span>}
-                    {(data.hasError || data.isEmpty) && <span className="tab-status-badge error">✕</span>}
+                    {iconPath && (
+                      <img
+                        src={iconPath}
+                        alt=""
+                        className="tab-model-icon"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    )}
+                    {data.isStreaming && (
+                      <span className="tab-status-badge streaming">
+                        <span className="tab-status-ping"></span>
+                      </span>
+                    )}
+                    {data.isComplete && !data.isEmpty && !data.hasError && (
+                      <span className="tab-status-badge complete">✓</span>
+                    )}
+                    {(data.hasError || data.isEmpty) && (
+                      <span className="tab-status-badge error">✕</span>
+                    )}
                   </span>
                   {displayName}
                 </button>
@@ -250,13 +276,23 @@ function Stage2({
                   const displayName = persona.providerLabel || persona.shortName;
                   return (
                     <>
-                      {iconPath && <img src={iconPath} alt="" className="model-info-icon" loading="lazy" decoding="async" />}
+                      {iconPath && (
+                        <img
+                          src={iconPath}
+                          alt=""
+                          className="model-info-icon"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      )}
                       {displayName}
                     </>
                   );
                 })()}
                 {activeData.isStreaming && <span className="typing-indicator">●</span>}
-                {activeData.isComplete && !activeData.isEmpty && <span className="complete-badge">Done</span>}
+                {activeData.isComplete && !activeData.isEmpty && (
+                  <span className="complete-badge">Done</span>
+                )}
                 {activeData.isEmpty && <span className="error-badge">No Response</span>}
                 {activeData.hasError && <span className="error-badge">Error</span>}
               </span>
@@ -264,11 +300,15 @@ function Stage2({
                 <CopyButton text={activeData.ranking} size="sm" />
               )}
             </div>
-            <div className={`ranking-content ${activeData.hasError || activeData.isEmpty ? 'error-text' : ''}`}>
+            <div
+              className={`ranking-content ${activeData.hasError || activeData.isEmpty ? 'error-text' : ''}`}
+            >
               {activeData.isEmpty ? (
                 <p className="empty-message">This model did not return an evaluation.</p>
               ) : activeData.hasError ? (
-                <p className="empty-message">{activeData.ranking || 'An error occurred while generating the evaluation.'}</p>
+                <p className="empty-message">
+                  {activeData.ranking || 'An error occurred while generating the evaluation.'}
+                </p>
               ) : (
                 <>
                   <article className="prose prose-slate prose-sm max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:tracking-tight prose-h1:text-xl prose-h2:text-lg prose-h3:text-base prose-p:leading-relaxed prose-li:my-0.5 prose-ul:my-1 prose-ol:my-1 prose-code:before:content-none prose-code:after:content-none prose-code:bg-slate-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-emerald-700 prose-pre:bg-slate-50 prose-pre:border prose-pre:border-slate-200">
@@ -282,7 +322,7 @@ function Stage2({
                               <table {...props}>{children}</table>
                             </div>
                           );
-                        }
+                        },
                       }}
                     >
                       {deAnonymizeText(activeData.ranking || '', labelToModel)}
@@ -293,15 +333,16 @@ function Stage2({
               )}
             </div>
 
-            {activeData.parsed_ranking &&
-             activeData.parsed_ranking.length > 0 && (
+            {activeData.parsed_ranking && activeData.parsed_ranking.length > 0 && (
               <div className="parsed-ranking">
                 <strong>Ranking order:</strong>
                 <ol>
                   {activeData.parsed_ranking.map((label: string, i: number) => {
                     const model = labelToModel && labelToModel[label];
                     const persona = model ? getModelPersona(model) : null;
-                    const displayName = persona ? (persona.providerLabel || persona.shortName) : label;
+                    const displayName = persona
+                      ? persona.providerLabel || persona.shortName
+                      : label;
                     return (
                       <li key={i} title={persona?.fullName}>
                         {displayName}
@@ -328,14 +369,33 @@ function Stage2({
                       key={index}
                       className={`aggregate-item rank-${index + 1} ${isClickable ? 'clickable' : ''}`}
                       title={`${persona.fullName} - Average rank: ${agg.average_rank.toFixed(1)} (${agg.rankings_count} of ${totalVoters} experts voted). Lower is better - #1 is the top answer.${isClickable ? ' Click to view response.' : ''}`}
-                      onClick={isClickable && onModelClick ? () => onModelClick(agg.model) : undefined}
+                      onClick={
+                        isClickable && onModelClick ? () => onModelClick(agg.model) : undefined
+                      }
                       role={isClickable ? 'button' : undefined}
                       tabIndex={isClickable ? 0 : undefined}
-                      onKeyDown={isClickable && onModelClick ? (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onModelClick(agg.model); } } : undefined}
+                      onKeyDown={
+                        isClickable && onModelClick
+                          ? (e: React.KeyboardEvent) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                onModelClick(agg.model);
+                              }
+                            }
+                          : undefined
+                      }
                     >
                       <span className="rank-position">{getRankLabel(index + 1)}</span>
                       <span className="rank-model">
-                        {iconPath && <img src={iconPath} alt="" className="rank-model-icon" loading="lazy" decoding="async" />}
+                        {iconPath && (
+                          <img
+                            src={iconPath}
+                            alt=""
+                            className="rank-model-icon"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        )}
                         {displayName}
                       </span>
                       <span className="rank-score">{agg.average_rank.toFixed(1)}</span>

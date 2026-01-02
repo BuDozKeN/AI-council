@@ -37,7 +37,9 @@ export function SidebarIconButton({
     isActive && 'sidebar-icon-btn--active',
     disabled && 'sidebar-icon-btn--disabled',
     className,
-  ].filter(Boolean).join(' ');
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <button

@@ -31,65 +31,71 @@ export function useSwipeGesture({
   const touchStartRef = useRef<TouchStartData | null>(null);
   const elementRef = useRef<HTMLElement | null>(null);
 
-  const handleTouchStart = useCallback((e: TouchEvent): void => {
-    if (!enabled) return;
+  const handleTouchStart = useCallback(
+    (e: TouchEvent): void => {
+      if (!enabled) return;
 
-    const touch = e.touches[0];
-    if (!touch) return;
-    touchStartRef.current = {
-      x: touch.clientX,
-      y: touch.clientY,
-      time: Date.now(),
-    };
-  }, [enabled]);
+      const touch = e.touches[0];
+      if (!touch) return;
+      touchStartRef.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+        time: Date.now(),
+      };
+    },
+    [enabled]
+  );
 
-  const handleTouchEnd = useCallback((e: TouchEvent): void => {
-    if (!enabled || !touchStartRef.current) return;
+  const handleTouchEnd = useCallback(
+    (e: TouchEvent): void => {
+      if (!enabled || !touchStartRef.current) return;
 
-    const touch = e.changedTouches[0];
-    if (!touch) return;
-    const startData = touchStartRef.current;
+      const touch = e.changedTouches[0];
+      if (!touch) return;
+      const startData = touchStartRef.current;
 
-    const deltaX = touch.clientX - startData.x;
-    const deltaY = touch.clientY - startData.y;
-    const deltaTime = Date.now() - startData.time;
+      const deltaX = touch.clientX - startData.x;
+      const deltaY = touch.clientY - startData.y;
+      const deltaTime = Date.now() - startData.time;
 
-    // Ignore slow swipes (> 500ms)
-    if (deltaTime > 500) {
-      touchStartRef.current = null;
-      return;
-    }
-
-    // Check if swipe started from edge (left edge for right swipe)
-    const isFromLeftEdge = startData.x <= edgeWidth;
-    const isFromRightEdge = startData.x >= window.innerWidth - edgeWidth;
-
-    const absX = Math.abs(deltaX);
-    const absY = Math.abs(deltaY);
-
-    // Swipe must be predominantly horizontal or vertical
-    const isHorizontal = absX > absY;
-
-    if (isHorizontal && absX >= threshold) {
-      // Horizontal swipe
-      if (deltaX > 0) {
-        // Swipe right
-        if (!edgeOnly || isFromLeftEdge) {
-          onSwipeRight?.();
-        }
-      } else {
-        // Swipe left
-        if (!edgeOnly || isFromRightEdge) {
-          onSwipeLeft?.();
-        }
+      // Ignore slow swipes (> 500ms)
+      if (deltaTime > 500) {
+        touchStartRef.current = null;
+        return;
       }
-    } else if (!isHorizontal && absY >= threshold && deltaY > 0) {
-      // Swipe down
-      onSwipeDown?.();
-    }
 
-    touchStartRef.current = null;
-  }, [enabled, threshold, edgeOnly, edgeWidth, onSwipeLeft, onSwipeRight, onSwipeDown]);
+      // Check if swipe started from edge (left edge for right swipe)
+      const isFromLeftEdge = startData.x <= edgeWidth;
+      const isFromRightEdge = startData.x >= window.innerWidth - edgeWidth;
+
+      const absX = Math.abs(deltaX);
+      const absY = Math.abs(deltaY);
+
+      // Swipe must be predominantly horizontal or vertical
+      const isHorizontal = absX > absY;
+
+      if (isHorizontal && absX >= threshold) {
+        // Horizontal swipe
+        if (deltaX > 0) {
+          // Swipe right
+          if (!edgeOnly || isFromLeftEdge) {
+            onSwipeRight?.();
+          }
+        } else {
+          // Swipe left
+          if (!edgeOnly || isFromRightEdge) {
+            onSwipeLeft?.();
+          }
+        }
+      } else if (!isHorizontal && absY >= threshold && deltaY > 0) {
+        // Swipe down
+        onSwipeDown?.();
+      }
+
+      touchStartRef.current = null;
+    },
+    [enabled, threshold, edgeOnly, edgeWidth, onSwipeLeft, onSwipeRight, onSwipeDown]
+  );
 
   // Attach event listeners
   useEffect(() => {

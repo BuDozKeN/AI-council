@@ -15,7 +15,15 @@ import {
 } from './chat';
 import { hapticLight } from '../lib/haptics';
 import type { Conversation } from '../types/conversation';
-import type { Business, Department, Role, Channel, Style, Project, Playbook } from '../types/business';
+import type {
+  Business,
+  Department,
+  Role,
+  Channel,
+  Style,
+  Project,
+  Playbook,
+} from '../types/business';
 import type { MyCompanyTab } from './mycompany/hooks';
 import type { ProjectModalContext, PromoteDecision } from '../hooks/useModalState';
 import './ChatInterface.css';
@@ -104,7 +112,11 @@ interface ChatInterfaceProps {
   returnToProjectId: string | null;
   returnToDecisionId: string | null;
   returnPromoteDecision?: PromoteDecision | null;
-  onReturnToMyCompany: (tab: MyCompanyTab, projectId: string | null, decisionId: string | null) => void;
+  onReturnToMyCompany: (
+    tab: MyCompanyTab,
+    projectId: string | null,
+    decisionId: string | null
+  ) => void;
   // Initial loading state (for conversation fetch)
   isLoadingConversation?: boolean;
   // Knowledge Base navigation
@@ -264,9 +276,11 @@ export default function ChatInterface({
           const allMessageGroups = messagesContainerRef.current?.querySelectorAll('.message-group');
           if (allMessageGroups && allMessageGroups.length > scrollToResponseIndex) {
             const messageGroup = allMessageGroups[scrollToResponseIndex];
-            targetElement = messageGroup?.querySelector('.stage3') ??
-                           messageGroup?.querySelector('.chat-response') ??
-                           messageGroup ?? null;
+            targetElement =
+              messageGroup?.querySelector('.stage3') ??
+              messageGroup?.querySelector('.chat-response') ??
+              messageGroup ??
+              null;
           }
         }
 
@@ -338,7 +352,8 @@ export default function ChatInterface({
     if (!lastMsg || lastMsg.role !== 'assistant') return;
 
     // Check if any stage is actively streaming
-    const isStreaming = lastMsg.loading?.stage1 || lastMsg.loading?.stage2 || lastMsg.loading?.stage3;
+    const isStreaming =
+      lastMsg.loading?.stage1 || lastMsg.loading?.stage2 || lastMsg.loading?.stage3;
     if (!isStreaming) return;
 
     // Scroll to bottom during streaming
@@ -397,13 +412,13 @@ export default function ChatInterface({
   // Format tab name for display
   const formatTabName = (tab: MyCompanyTab): string => {
     const tabNames: Record<MyCompanyTab, string> = {
-      'decisions': 'Decisions',
-      'activity': 'Activity',
-      'playbooks': 'Playbooks',
-      'projects': 'Projects',
-      'team': 'Team',
-      'overview': 'Overview',
-      'usage': 'Usage'
+      decisions: 'Decisions',
+      activity: 'Activity',
+      playbooks: 'Playbooks',
+      projects: 'Projects',
+      team: 'Team',
+      overview: 'Overview',
+      usage: 'Usage',
     };
     return tabNames[tab] || 'My Company';
   };
@@ -417,9 +432,18 @@ export default function ChatInterface({
       {returnToMyCompanyTab && onReturnToMyCompany && (
         <button
           className="back-to-company-btn"
-          onClick={() => onReturnToMyCompany(returnToMyCompanyTab, returnToProjectId, returnToDecisionId)}
+          onClick={() =>
+            onReturnToMyCompany(returnToMyCompanyTab, returnToProjectId, returnToDecisionId)
+          }
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
           <span>Back to {formatTabName(returnToMyCompanyTab)}</span>
@@ -478,14 +502,18 @@ export default function ChatInterface({
           <ConversationEmptyState />
         ) : hasMessages ? (
           <MessageList
-            messages={conversation.messages as unknown as Parameters<typeof MessageList>[0]['messages']}
+            messages={
+              conversation.messages as unknown as Parameters<typeof MessageList>[0]['messages']
+            }
             conversation={conversation}
             selectedBusiness={selectedBusiness || undefined}
             selectedDepartment={selectedDepartment || undefined}
             selectedProject={selectedProject || undefined}
             projects={projects}
             onSelectProject={onSelectProject}
-            onOpenProjectModal={(context) => onOpenProjectModal(context ? { type: 'new', ...context } : { type: 'new' })}
+            onOpenProjectModal={(context) =>
+              onOpenProjectModal(context ? { type: 'new', ...context } : { type: 'new' })
+            }
             onProjectCreated={onProjectCreated}
             onViewDecision={(decisionId: string | null, viewType?: string, contextId?: string) => {
               if (decisionId) {
@@ -496,33 +524,47 @@ export default function ChatInterface({
         ) : null}
 
         {/* Loading indicator during initial setup - only show before any streaming begins */}
-        {isLoading && hasMessages && (() => {
-          const lastMsg = conversation.messages[conversation.messages.length - 1];
-          if (lastMsg?.role === 'assistant') {
-            // Hide if any stage is actively loading
-            if (lastMsg?.loading?.stage1 || lastMsg?.loading?.stage2 || lastMsg?.loading?.stage3) {
-              return null;
+        {isLoading &&
+          hasMessages &&
+          (() => {
+            const lastMsg = conversation.messages[conversation.messages.length - 1];
+            if (lastMsg?.role === 'assistant') {
+              // Hide if any stage is actively loading
+              if (
+                lastMsg?.loading?.stage1 ||
+                lastMsg?.loading?.stage2 ||
+                lastMsg?.loading?.stage3
+              ) {
+                return null;
+              }
+              // Hide if any streaming data exists (prevents flicker between stages)
+              const hasStage1Streaming =
+                lastMsg?.stage1Streaming && Object.keys(lastMsg.stage1Streaming).length > 0;
+              const hasStage2Streaming =
+                lastMsg?.stage2Streaming && Object.keys(lastMsg.stage2Streaming).length > 0;
+              const hasStage3Streaming = lastMsg?.stage3Streaming && lastMsg.stage3Streaming.text;
+              // Hide if any final stage data exists
+              const hasStage1Data = lastMsg?.stage1 && lastMsg.stage1.length > 0;
+              const hasStage2Data = lastMsg?.stage2 && lastMsg.stage2.length > 0;
+              const hasStage3Data = lastMsg?.stage3;
+              if (
+                hasStage1Streaming ||
+                hasStage2Streaming ||
+                hasStage3Streaming ||
+                hasStage1Data ||
+                hasStage2Data ||
+                hasStage3Data
+              ) {
+                return null;
+              }
             }
-            // Hide if any streaming data exists (prevents flicker between stages)
-            const hasStage1Streaming = lastMsg?.stage1Streaming && Object.keys(lastMsg.stage1Streaming).length > 0;
-            const hasStage2Streaming = lastMsg?.stage2Streaming && Object.keys(lastMsg.stage2Streaming).length > 0;
-            const hasStage3Streaming = lastMsg?.stage3Streaming && lastMsg.stage3Streaming.text;
-            // Hide if any final stage data exists
-            const hasStage1Data = lastMsg?.stage1 && lastMsg.stage1.length > 0;
-            const hasStage2Data = lastMsg?.stage2 && lastMsg.stage2.length > 0;
-            const hasStage3Data = lastMsg?.stage3;
-            if (hasStage1Streaming || hasStage2Streaming || hasStage3Streaming ||
-                hasStage1Data || hasStage2Data || hasStage3Data) {
-              return null;
-            }
-          }
-          return (
-            <div className="loading-indicator">
-              <Spinner size="md" />
-              <span>Preparing your council...</span>
-            </div>
-          );
-        })()}
+            return (
+              <div className="loading-indicator">
+                <Spinner size="md" />
+                <span>Preparing your council...</span>
+              </div>
+            );
+          })()}
 
         <div ref={messagesEndRef} />
       </div>
@@ -639,8 +681,12 @@ export default function ChatInterface({
         if (!isAnyLoading && !isComplete && !isStopped && !isUploading) return null;
 
         // Use type assertion since both types have compatible shapes
-        const s1 = lastMsg?.stage1Streaming as Record<string, { complete?: boolean; text?: string }> | undefined;
-        const s2 = lastMsg?.stage2Streaming as Record<string, { complete?: boolean; text?: string }> | undefined;
+        const s1 = lastMsg?.stage1Streaming as
+          | Record<string, { complete?: boolean; text?: string }>
+          | undefined;
+        const s2 = lastMsg?.stage2Streaming as
+          | Record<string, { complete?: boolean; text?: string }>
+          | undefined;
 
         return (
           <CouncilProgressCapsule

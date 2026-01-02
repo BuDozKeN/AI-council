@@ -4,7 +4,9 @@
   box-shadow: var(--shadow-sm);
 
   /* Transition for celebration state */
-  transition: box-shadow 0.4s ease-out, border-color 0.3s ease;
+  transition:
+    box-shadow 0.4s ease-out,
+    border-color 0.3s ease;
 }
 
 /* Stage completion celebration - subtle violet glow effect */
@@ -156,7 +158,10 @@
   background: var(--color-bg-primary);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-blue-200);
-  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.1s ease;
 }
 
 .aggregate-item.clickable {
@@ -243,6 +248,7 @@
   line-height: normal;
   letter-spacing: inherit;
   text-align: left;
+
   /* Actual styles - must match Stage 1 .model-summary-pill exactly */
   display: inline-flex;
   align-items: center;
@@ -299,9 +305,17 @@
 }
 
 @keyframes badge-pop {
-  0% { transform: scale(0); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(0);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 .stage2 .tab .tab-status-badge.error {
@@ -502,8 +516,14 @@
 
 /* Pulse animation for streaming badge */
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
 }
 
 .stage2 .tab.complete {
@@ -546,8 +566,14 @@
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
 }
 
 .stage2 .cursor {
@@ -584,7 +610,6 @@
 .dark .stage2-title {
   color: var(--color-text-primary);
 }
-
 
 .dark .stage2-section-title {
   color: var(--color-violet-400);
@@ -722,7 +747,11 @@
       linear-gradient(to right, var(--overlay-black-10), transparent),
       linear-gradient(to right, transparent, var(--overlay-black-10)) 100% 0;
     background-repeat: no-repeat;
-    background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
+    background-size:
+      40px 100%,
+      40px 100%,
+      14px 100%,
+      14px 100%;
     background-attachment: local, local, scroll, scroll;
   }
 
@@ -733,7 +762,11 @@
       linear-gradient(to right, var(--overlay-white-5), transparent),
       linear-gradient(to right, transparent, var(--overlay-white-5)) 100% 0;
     background-repeat: no-repeat;
-    background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
+    background-size:
+      40px 100%,
+      40px 100%,
+      14px 100%,
+      14px 100%;
     background-attachment: local, local, scroll, scroll;
   }
 

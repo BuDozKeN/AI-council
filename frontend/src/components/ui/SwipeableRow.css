@@ -121,8 +121,15 @@
   }
 
   @keyframes swipe-hint-fade {
-    0%, 100% { opacity: 0; }
-    20%, 80% { opacity: 0.4; }
+    0%,
+    100% {
+      opacity: 0;
+    }
+
+    20%,
+    80% {
+      opacity: 0.4;
+    }
   }
 }
 

@@ -32,7 +32,15 @@ const COUNCIL_MEMBERS = COUNCIL_PROVIDERS.map((provider: Provider) => {
     color: PROVIDER_COLORS[provider],
     name: PROVIDER_LABELS[provider],
   };
-}).filter((member): member is { icon: NonNullable<ReturnType<typeof getProviderIcon>>; color: string; name: string } => member.icon !== null);
+}).filter(
+  (
+    member
+  ): member is {
+    icon: NonNullable<ReturnType<typeof getProviderIcon>>;
+    color: string;
+    name: string;
+  } => member.icon !== null
+);
 
 export function CouncilLoader({
   size = 'medium',

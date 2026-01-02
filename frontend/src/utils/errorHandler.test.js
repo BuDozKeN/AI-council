@@ -131,10 +131,7 @@ describe('errorHandler', () => {
       const handler = createErrorHandler('MyComponent');
       handler.handle(new Error('Test'), 'loadData');
 
-      expect(logger.error).toHaveBeenCalledWith(
-        '[MyComponent.loadData]',
-        expect.any(Error)
-      );
+      expect(logger.error).toHaveBeenCalledWith('[MyComponent.loadData]', expect.any(Error));
     });
   });
 });

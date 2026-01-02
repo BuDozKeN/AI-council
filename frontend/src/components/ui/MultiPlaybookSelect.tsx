@@ -67,7 +67,7 @@ export function MultiPlaybookSelect({
 
   // Get selected playbooks with their data
   const selectedPlaybooks = value
-    .map(id => playbooks.find(p => p.id === id))
+    .map((id) => playbooks.find((p) => p.id === id))
     .filter((p): p is ExtendedPlaybook => Boolean(p));
 
   // Group playbooks by type, sorted alphabetically within each group
@@ -87,7 +87,7 @@ export function MultiPlaybookSelect({
 
   const togglePlaybook = (playbookId: string) => {
     if (value.includes(playbookId)) {
-      onValueChange(value.filter(id => id !== playbookId));
+      onValueChange(value.filter((id) => id !== playbookId));
     } else {
       onValueChange([...value, playbookId]);
     }
@@ -96,16 +96,20 @@ export function MultiPlaybookSelect({
   // Utility function to remove a playbook - used by tag close buttons
   const removePlaybook = (e: React.MouseEvent, playbookId: string) => {
     e.stopPropagation();
-    onValueChange(value.filter(id => id !== playbookId));
+    onValueChange(value.filter((id) => id !== playbookId));
   };
 
   // Get type badge color - used for styling
   const getTypeBadgeClass = (docType: PlaybookType): string => {
     switch (docType) {
-      case 'sop': return 'playbook-badge-sop';
-      case 'framework': return 'playbook-badge-framework';
-      case 'policy': return 'playbook-badge-policy';
-      default: return '';
+      case 'sop':
+        return 'playbook-badge-sop';
+      case 'framework':
+        return 'playbook-badge-framework';
+      case 'policy':
+        return 'playbook-badge-policy';
+      default:
+        return '';
     }
   };
 
@@ -134,46 +138,55 @@ export function MultiPlaybookSelect({
 
   // Shared playbook list content
   const playbookList = (isMobile = false) => (
-    <div className={isMobile ? "multi-playbook-list-mobile" : "multi-playbook-list"}>
+    <div className={isMobile ? 'multi-playbook-list-mobile' : 'multi-playbook-list'}>
       {playbooks.length === 0 ? (
         <div className="multi-playbook-empty">No playbooks available</div>
       ) : (
-        (Object.entries(groupedPlaybooks) as [PlaybookType, ExtendedPlaybook[]][]).map(([type, items]) => {
-          if (items.length === 0) return null;
+        (Object.entries(groupedPlaybooks) as [PlaybookType, ExtendedPlaybook[]][]).map(
+          ([type, items]) => {
+            if (items.length === 0) return null;
 
-          const TypeIcon = TYPE_ICONS[type] || BookOpen;
+            const TypeIcon = TYPE_ICONS[type] || BookOpen;
 
-          return (
-            <div key={type} className={isMobile ? "multi-playbook-group-mobile" : "multi-playbook-group"}>
-              <div className={isMobile ? "multi-playbook-group-header-mobile" : "multi-playbook-group-header"}>
-                <TypeIcon className="h-3.5 w-3.5" />
-                <span>{TYPE_LABELS[type] || type}</span>
-                <span className="multi-playbook-group-count">{items.length}</span>
+            return (
+              <div
+                key={type}
+                className={isMobile ? 'multi-playbook-group-mobile' : 'multi-playbook-group'}
+              >
+                <div
+                  className={
+                    isMobile ? 'multi-playbook-group-header-mobile' : 'multi-playbook-group-header'
+                  }
+                >
+                  <TypeIcon className="h-3.5 w-3.5" />
+                  <span>{TYPE_LABELS[type] || type}</span>
+                  <span className="multi-playbook-group-count">{items.length}</span>
+                </div>
+
+                {items.map((playbook: ExtendedPlaybook) => {
+                  const isSelected = value.includes(playbook.id);
+
+                  return (
+                    <button
+                      key={playbook.id}
+                      className={cn(
+                        isMobile ? 'multi-playbook-item-mobile' : 'multi-playbook-item',
+                        isSelected && 'selected'
+                      )}
+                      onClick={() => togglePlaybook(playbook.id)}
+                      type="button"
+                    >
+                      <div className={cn('multi-playbook-checkbox', isSelected && 'checked')}>
+                        {isSelected && <Check className="h-3 w-3" />}
+                      </div>
+                      <span className="multi-playbook-item-label">{playbook.title}</span>
+                    </button>
+                  );
+                })}
               </div>
-
-              {items.map((playbook: ExtendedPlaybook) => {
-                const isSelected = value.includes(playbook.id);
-
-                return (
-                  <button
-                    key={playbook.id}
-                    className={cn(
-                      isMobile ? "multi-playbook-item-mobile" : "multi-playbook-item",
-                      isSelected && "selected"
-                    )}
-                    onClick={() => togglePlaybook(playbook.id)}
-                    type="button"
-                  >
-                    <div className={cn("multi-playbook-checkbox", isSelected && "checked")}>
-                      {isSelected && <Check className="h-3 w-3" />}
-                    </div>
-                    <span className="multi-playbook-item-label">{playbook.title}</span>
-                  </button>
-                );
-              })}
-            </div>
-          );
-        })
+            );
+          }
+        )
       )}
     </div>
   );
@@ -183,7 +196,7 @@ export function MultiPlaybookSelect({
     return (
       <>
         <button
-          className={cn("multi-playbook-trigger", className)}
+          className={cn('multi-playbook-trigger', className)}
           disabled={disabled}
           onClick={() => setOpen(true)}
           type="button"
@@ -191,11 +204,7 @@ export function MultiPlaybookSelect({
           {triggerContent}
         </button>
 
-        <BottomSheet
-          isOpen={open}
-          onClose={() => setOpen(false)}
-          title="Select Playbooks"
-        >
+        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title="Select Playbooks">
           {playbookList(true)}
         </BottomSheet>
       </>
@@ -205,19 +214,12 @@ export function MultiPlaybookSelect({
   // Desktop: use Popover
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
-      <Popover.Trigger
-        className={cn("multi-playbook-trigger", className)}
-        disabled={disabled}
-      >
+      <Popover.Trigger className={cn('multi-playbook-trigger', className)} disabled={disabled}>
         {triggerContent}
       </Popover.Trigger>
 
       <Popover.Portal>
-        <Popover.Content
-          className="multi-playbook-content"
-          align="start"
-          sideOffset={4}
-        >
+        <Popover.Content className="multi-playbook-content" align="start" sideOffset={4}>
           {playbookList(false)}
         </Popover.Content>
       </Popover.Portal>

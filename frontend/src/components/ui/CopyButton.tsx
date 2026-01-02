@@ -23,12 +23,7 @@ interface CopyButtonProps {
   className?: string;
 }
 
-export function CopyButton({
-  text,
-  size = 'md',
-  inline = false,
-  className = ''
-}: CopyButtonProps) {
+export function CopyButton({ text, size = 'md', inline = false, className = '' }: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async (e: React.MouseEvent) => {
@@ -57,11 +52,7 @@ export function CopyButton({
       title={copied ? 'Copied!' : 'Copy'}
       aria-label={copied ? 'Copied to clipboard' : 'Copy to clipboard'}
     >
-      {copied ? (
-        <Check className="copy-btn-icon" />
-      ) : (
-        <Copy className="copy-btn-icon" />
-      )}
+      {copied ? <Check className="copy-btn-icon" /> : <Copy className="copy-btn-icon" />}
     </button>
   );
 }

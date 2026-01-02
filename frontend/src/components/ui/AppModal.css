@@ -14,7 +14,7 @@
   animation: app-modal-overlay-show 150ms ease-out;
 }
 
-.app-modal-overlay[data-state="closed"] {
+.app-modal-overlay[data-state='closed'] {
   animation: app-modal-overlay-hide 150ms ease-in;
 }
 
@@ -35,7 +35,7 @@
   animation: app-modal-content-show 200ms ease-out;
 }
 
-.app-modal-content[data-state="closed"] {
+.app-modal-content[data-state='closed'] {
   animation: app-modal-content-hide 150ms ease-in;
 }
 
@@ -529,7 +529,7 @@
     overflow: hidden;
   }
 
-  .app-modal-content[data-state="closed"] {
+  .app-modal-content[data-state='closed'] {
     animation: app-modal-slide-down 200ms ease-in;
   }
 
@@ -846,12 +846,12 @@
 
 @media (max-width: 768px) {
   /* Text inputs inside modals - prevent iOS zoom with 16px font */
-  .app-modal-body input[type="text"],
-  .app-modal-body input[type="email"],
-  .app-modal-body input[type="password"],
-  .app-modal-body input[type="search"],
-  .app-modal-body input[type="url"],
-  .app-modal-body input[type="number"],
+  .app-modal-body input[type='text'],
+  .app-modal-body input[type='email'],
+  .app-modal-body input[type='password'],
+  .app-modal-body input[type='search'],
+  .app-modal-body input[type='url'],
+  .app-modal-body input[type='number'],
   .app-modal-body textarea {
     font-size: 16px; /* Prevents iOS auto-zoom on focus */
     min-height: 44px; /* Touch-friendly target */

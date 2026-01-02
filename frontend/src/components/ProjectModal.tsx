@@ -42,7 +42,13 @@ interface ProjectModalProps {
  * @param {string} initialContext.councilResponse - The council's response
  * @param {string[]} initialContext.departmentIds - Pre-selected department IDs from Stage3
  */
-export default function ProjectModal({ companyId, departments = [], onClose, onProjectCreated, initialContext }: ProjectModalProps) {
+export default function ProjectModal({
+  companyId,
+  departments = [],
+  onClose,
+  onProjectCreated,
+  initialContext,
+}: ProjectModalProps) {
   // Step state: 'input', 'review', 'manual', or 'success'
   const [step, setStep] = useState('input');
   const hasAutoProcessed = useRef(false);
@@ -73,8 +79,10 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
       // Build the context text from council Q&A
       const contextText = [
         initialContext.userQuestion && `Question: ${initialContext.userQuestion}`,
-        initialContext.councilResponse && `Council Response:\n${initialContext.councilResponse}`
-      ].filter(Boolean).join('\n\n');
+        initialContext.councilResponse && `Council Response:\n${initialContext.councilResponse}`,
+      ]
+        .filter(Boolean)
+        .join('\n\n');
 
       if (contextText) {
         setFreeText(contextText);
@@ -82,7 +90,7 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
         processWithAI(contextText);
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- Only run once on mount with initial context
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only run once on mount with initial context
   }, [initialContext]);
 
   // Process with AI (can be called with custom text for auto-processing)
@@ -106,11 +114,13 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
         setIsAIGenerated(true);
         setStep('review');
       } else {
-        setError("We couldn't quite understand that. Try adding more detail, or skip AI and enter it manually.");
+        setError(
+          "We couldn't quite understand that. Try adding more detail, or skip AI and enter it manually."
+        );
       }
     } catch (err) {
       logger.error('Failed to structure context:', err);
-      setError("Something went wrong with AI. You can try again or skip to manual entry.");
+      setError('Something went wrong with AI. You can try again or skip to manual entry.');
     } finally {
       setStructuring(false);
     }
@@ -140,7 +150,9 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
       setError(null);
 
       // Use edited context if available, otherwise generate basic context
-      const contextMd = editedContext.trim() || `# ${editedName.trim()}\n\n${editedDescription.trim() || 'No description provided.'}`;
+      const contextMd =
+        editedContext.trim() ||
+        `# ${editedName.trim()}\n\n${editedDescription.trim() || 'No description provided.'}`;
 
       // Build project data, only including optional fields if they have values
       // (required by exactOptionalPropertyTypes)
@@ -177,7 +189,9 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
       }, CELEBRATION.PROJECT_SUCCESS);
     } catch (err) {
       logger.error('Failed to create project:', err);
-      setError(err instanceof Error ? err.message : "Couldn't create your project. Please try again.");
+      setError(
+        err instanceof Error ? err.message : "Couldn't create your project. Please try again."
+      );
       setSaving(false);
     }
   };
@@ -217,358 +231,363 @@ export default function ProjectModal({ companyId, departments = [], onClose, onP
         </div>
       )}
 
-        {/* STEP 1: Input */}
-        {step === 'input' && (
-          <div className="pm-form">
-            {/* AI Intro */}
-            <div className="pm-field pm-context-field">
-              <div className="pm-ai-intro">
-                <Sparkles className="pm-ai-intro-icon" />
-                <span>Just describe your project - AI will structure it beautifully</span>
+      {/* STEP 1: Input */}
+      {step === 'input' && (
+        <div className="pm-form">
+          {/* AI Intro */}
+          <div className="pm-field pm-context-field">
+            <div className="pm-ai-intro">
+              <Sparkles className="pm-ai-intro-icon" />
+              <span>Just describe your project - AI will structure it beautifully</span>
+            </div>
+            <textarea
+              id="project-context"
+              value={freeText}
+              onChange={(e) => setFreeText(e.target.value)}
+              placeholder="What's this project about? Goals, constraints, background... just type whatever comes to mind"
+              disabled={structuring}
+              rows={5}
+              autoFocus
+              enterKeyHint="done"
+            />
+            {structuring && (
+              <div className="pm-ai-structuring">
+                <Spinner size="sm" variant="brand" />
+                <span>AI is structuring your project...</span>
               </div>
-              <textarea
-                id="project-context"
-                value={freeText}
-                onChange={(e) => setFreeText(e.target.value)}
-                placeholder="What's this project about? Goals, constraints, background... just type whatever comes to mind"
-                disabled={structuring}
-                rows={5}
-                autoFocus
-                enterKeyHint="done"
-              />
-              {structuring && (
-                <div className="pm-ai-structuring">
-                  <Spinner size="sm" variant="brand" />
-                  <span>AI is structuring your project...</span>
-                </div>
-              )}
-            </div>
-
-            {/* Departments - multi-select */}
-            <div className="pm-field">
-              <label>Departments <span className="pm-optional">(optional)</span></label>
-              <MultiDepartmentSelect
-                value={selectedDeptIds}
-                onValueChange={setSelectedDeptIds}
-                departments={departments}
-                placeholder="Select departments"
-                disabled={structuring}
-              />
-            </div>
-
-            {/* Actions */}
-            <div className="pm-actions">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                disabled={structuring}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={handleSkipAI}
-                disabled={structuring}
-              >
-                <FileText size={16} />
-                Skip AI
-              </Button>
-              <Button
-                type="button"
-                variant="default"
-                onClick={handleProcessWithAI}
-                disabled={structuring || !freeText.trim()}
-              >
-                {structuring ? (
-                  <>
-                    <Spinner size="sm" variant="muted" />
-                    AI Processing...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles size={16} />
-                    Create with AI
-                  </>
-                )}
-              </Button>
-            </div>
+            )}
           </div>
-        )}
 
-        {/* STEP 2: Review AI output */}
-        {step === 'review' && (
-          <div className="pm-form">
-            {/* AI Success badge */}
-            <div className="pm-ai-success">
-              <Check className="pm-ai-success-icon" />
-              <span>AI created your project. Make any changes you want, then save.</span>
-            </div>
+          {/* Departments - multi-select */}
+          <div className="pm-field">
+            <label>
+              Departments <span className="pm-optional">(optional)</span>
+            </label>
+            <MultiDepartmentSelect
+              value={selectedDeptIds}
+              onValueChange={setSelectedDeptIds}
+              departments={departments}
+              placeholder="Select departments"
+              disabled={structuring}
+            />
+          </div>
 
-            {/* Editable Name */}
-            <div className="pm-field">
-              <label htmlFor="project-name">Project Name</label>
-              <input
-                id="project-name"
-                type="text"
-                value={editedName}
-                onChange={(e) => setEditedName(e.target.value)}
-                placeholder="Project name"
-                disabled={saving}
-                autoFocus
-              />
-            </div>
-
-            {/* Editable Description */}
-            <div className="pm-field">
-              <label htmlFor="project-desc">Description</label>
-              <textarea
-                id="project-desc"
-                value={editedDescription}
-                onChange={(e) => setEditedDescription(e.target.value)}
-                placeholder="One or two sentences about what this project is for..."
-                disabled={saving}
-                rows={2}
-                enterKeyHint="next"
-              />
-            </div>
-
-            {/* Departments - always show selector, no toggle needed */}
-            <div className="pm-field">
-              <label>Departments</label>
-              <MultiDepartmentSelect
-                value={selectedDeptIds}
-                onValueChange={setSelectedDeptIds}
-                departments={departments}
-                placeholder="Select departments"
-                disabled={saving}
-              />
-            </div>
-
-            {/* Project Details - show formatted, click to edit */}
-            <div className="pm-field">
-              <div className="pm-context-header">
-                <label>Project Details</label>
-                {!isEditingDetails ? (
-                  <button
-                    type="button"
-                    className="pm-context-toggle"
-                    onClick={() => setIsEditingDetails(true)}
-                    disabled={saving}
-                  >
-                    <Edit3 className="pm-btn-icon-tiny" />
-                    <span>Edit</span>
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="pm-context-toggle"
-                    onClick={() => setIsEditingDetails(false)}
-                    disabled={saving}
-                  >
-                    <Check className="pm-btn-icon-tiny" />
-                    <span>Done</span>
-                  </button>
-                )}
-              </div>
-              {isEditingDetails ? (
-                <AIWriteAssist
-                  context="project-context"
-                  value={editedContext}
-                  onSuggestion={setEditedContext}
-                  additionalContext={editedName ? `Project: ${editedName}\nDescription: ${editedDescription || 'None'}` : ''}
-                >
-                  <textarea
-                    value={editedContext}
-                    onChange={(e) => setEditedContext(e.target.value)}
-                    placeholder="Add any details about your project - goals, background, constraints, requirements..."
-                    disabled={saving}
-                    rows={8}
-                    className="pm-context-editor"
-                    autoFocus
-                  />
-                </AIWriteAssist>
+          {/* Actions */}
+          <div className="pm-actions">
+            <Button type="button" variant="outline" onClick={onClose} disabled={structuring}>
+              Cancel
+            </Button>
+            <Button type="button" variant="ghost" onClick={handleSkipAI} disabled={structuring}>
+              <FileText size={16} />
+              Skip AI
+            </Button>
+            <Button
+              type="button"
+              variant="default"
+              onClick={handleProcessWithAI}
+              disabled={structuring || !freeText.trim()}
+            >
+              {structuring ? (
+                <>
+                  <Spinner size="sm" variant="muted" />
+                  AI Processing...
+                </>
               ) : (
-                <div className="pm-preview" onClick={() => setIsEditingDetails(true)}>
-                  <div className="pm-preview-content clickable">
-                    {editedContext ? (
-                      <MarkdownViewer content={editedContext} />
-                    ) : (
-                      <p className="pm-no-context">Click to add project details...</p>
-                    )}
-                  </div>
-                </div>
+                <>
+                  <Sparkles size={16} />
+                  Create with AI
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* STEP 2: Review AI output */}
+      {step === 'review' && (
+        <div className="pm-form">
+          {/* AI Success badge */}
+          <div className="pm-ai-success">
+            <Check className="pm-ai-success-icon" />
+            <span>AI created your project. Make any changes you want, then save.</span>
+          </div>
+
+          {/* Editable Name */}
+          <div className="pm-field">
+            <label htmlFor="project-name">Project Name</label>
+            <input
+              id="project-name"
+              type="text"
+              value={editedName}
+              onChange={(e) => setEditedName(e.target.value)}
+              placeholder="Project name"
+              disabled={saving}
+              autoFocus
+            />
+          </div>
+
+          {/* Editable Description */}
+          <div className="pm-field">
+            <label htmlFor="project-desc">Description</label>
+            <textarea
+              id="project-desc"
+              value={editedDescription}
+              onChange={(e) => setEditedDescription(e.target.value)}
+              placeholder="One or two sentences about what this project is for..."
+              disabled={saving}
+              rows={2}
+              enterKeyHint="next"
+            />
+          </div>
+
+          {/* Departments - always show selector, no toggle needed */}
+          <div className="pm-field">
+            <label>Departments</label>
+            <MultiDepartmentSelect
+              value={selectedDeptIds}
+              onValueChange={setSelectedDeptIds}
+              departments={departments}
+              placeholder="Select departments"
+              disabled={saving}
+            />
+          </div>
+
+          {/* Project Details - show formatted, click to edit */}
+          <div className="pm-field">
+            <div className="pm-context-header">
+              <label>Project Details</label>
+              {!isEditingDetails ? (
+                <button
+                  type="button"
+                  className="pm-context-toggle"
+                  onClick={() => setIsEditingDetails(true)}
+                  disabled={saving}
+                >
+                  <Edit3 className="pm-btn-icon-tiny" />
+                  <span>Edit</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="pm-context-toggle"
+                  onClick={() => setIsEditingDetails(false)}
+                  disabled={saving}
+                >
+                  <Check className="pm-btn-icon-tiny" />
+                  <span>Done</span>
+                </button>
               )}
             </div>
-
-            {/* Actions */}
-            <div className="pm-actions pm-actions-review">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={handleBackToEdit}
-                disabled={saving}
-                title="Go back and change your original description"
-              >
-                <Edit3 size={16} />
-                Start Over
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleRegenerate}
-                disabled={saving || structuring}
-                title="Ask AI to write this differently"
-              >
-                <RefreshCw size={16} className={structuring ? 'pm-spinning' : ''} />
-                Try Again
-              </Button>
-              <Button
-                type="button"
-                variant="default"
-                onClick={handleSave}
-                disabled={saving || !editedName.trim()}
-              >
-                {saving ? (
-                  <>
-                    <Spinner size="sm" variant="muted" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Check size={16} />
-                    Save
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* MANUAL: Direct entry without AI */}
-        {step === 'manual' && (
-          <div className="pm-form">
-            {/* Manual mode badge */}
-            <div className="pm-manual-badge">
-              <FileText className="pm-manual-badge-icon" />
-              <span>Manual entry - create your project from scratch</span>
-            </div>
-
-            {/* Project Name */}
-            <div className="pm-field">
-              <label htmlFor="manual-name">Project Name <span className="pm-required">*</span></label>
-              <input
-                id="manual-name"
-                type="text"
-                value={editedName}
-                onChange={(e) => setEditedName(e.target.value)}
-                placeholder="Enter project name"
-                disabled={saving}
-                autoFocus
-              />
-            </div>
-
-            {/* Description */}
-            <div className="pm-field">
-              <label htmlFor="manual-desc">Description <span className="pm-optional">(optional)</span></label>
-              <textarea
-                id="manual-desc"
-                value={editedDescription}
-                onChange={(e) => setEditedDescription(e.target.value)}
-                placeholder="Brief description of the project..."
-                disabled={saving}
-                rows={3}
-                enterKeyHint="next"
-              />
-            </div>
-
-            {/* Departments */}
-            <div className="pm-field">
-              <label>Departments <span className="pm-optional">(optional)</span></label>
-              <MultiDepartmentSelect
-                value={selectedDeptIds}
-                onValueChange={setSelectedDeptIds}
-                departments={departments}
-                placeholder="Select departments"
-                disabled={saving}
-              />
-            </div>
-
-            {/* Context */}
-            <div className="pm-field">
-              <label htmlFor="manual-context">Project Details <span className="pm-optional">(optional)</span></label>
+            {isEditingDetails ? (
               <AIWriteAssist
                 context="project-context"
                 value={editedContext}
                 onSuggestion={setEditedContext}
-                additionalContext={editedName ? `Project: ${editedName}\nDescription: ${editedDescription || 'None'}` : ''}
+                additionalContext={
+                  editedName
+                    ? `Project: ${editedName}\nDescription: ${editedDescription || 'None'}`
+                    : ''
+                }
               >
                 <textarea
-                  id="manual-context"
                   value={editedContext}
                   onChange={(e) => setEditedContext(e.target.value)}
-                  placeholder="What should the AI know about this project? Add goals, background, constraints, technical details..."
+                  placeholder="Add any details about your project - goals, background, constraints, requirements..."
                   disabled={saving}
                   rows={8}
                   className="pm-context-editor"
-                  enterKeyHint="done"
+                  autoFocus
                 />
               </AIWriteAssist>
-              <p className="pm-field-hint">AI will use this info when you ask questions about this project.</p>
-            </div>
-
-            {/* Actions */}
-            <div className="pm-actions">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                disabled={saving}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => setStep('input')}
-                disabled={saving}
-              >
-                <Sparkles size={16} />
-                Use AI
-              </Button>
-              <Button
-                type="button"
-                variant="default"
-                onClick={handleSave}
-                disabled={saving || !editedName.trim()}
-              >
-                {saving ? (
-                  <>
-                    <Spinner size="sm" variant="muted" />
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    <Check size={16} />
-                    Create Project
-                  </>
-                )}
-              </Button>
-            </div>
+            ) : (
+              <div className="pm-preview" onClick={() => setIsEditingDetails(true)}>
+                <div className="pm-preview-content clickable">
+                  {editedContext ? (
+                    <MarkdownViewer content={editedContext} />
+                  ) : (
+                    <p className="pm-no-context">Click to add project details...</p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
-        )}
 
-        {/* SUCCESS: Celebration moment */}
-        {step === 'success' && (
-          <div className="pm-success-state">
-            <div className="pm-success-icon-wrapper">
-              <CheckCircle2 className="pm-success-icon animate-success-pop" />
-            </div>
-            <h3 className="pm-success-title">{editedName || 'Project'} Created!</h3>
-            <p className="pm-success-message">Your project is ready. Redirecting...</p>
+          {/* Actions */}
+          <div className="pm-actions pm-actions-review">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={handleBackToEdit}
+              disabled={saving}
+              title="Go back and change your original description"
+            >
+              <Edit3 size={16} />
+              Start Over
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleRegenerate}
+              disabled={saving || structuring}
+              title="Ask AI to write this differently"
+            >
+              <RefreshCw size={16} className={structuring ? 'pm-spinning' : ''} />
+              Try Again
+            </Button>
+            <Button
+              type="button"
+              variant="default"
+              onClick={handleSave}
+              disabled={saving || !editedName.trim()}
+            >
+              {saving ? (
+                <>
+                  <Spinner size="sm" variant="muted" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Check size={16} />
+                  Save
+                </>
+              )}
+            </Button>
           </div>
-        )}
+        </div>
+      )}
+
+      {/* MANUAL: Direct entry without AI */}
+      {step === 'manual' && (
+        <div className="pm-form">
+          {/* Manual mode badge */}
+          <div className="pm-manual-badge">
+            <FileText className="pm-manual-badge-icon" />
+            <span>Manual entry - create your project from scratch</span>
+          </div>
+
+          {/* Project Name */}
+          <div className="pm-field">
+            <label htmlFor="manual-name">
+              Project Name <span className="pm-required">*</span>
+            </label>
+            <input
+              id="manual-name"
+              type="text"
+              value={editedName}
+              onChange={(e) => setEditedName(e.target.value)}
+              placeholder="Enter project name"
+              disabled={saving}
+              autoFocus
+            />
+          </div>
+
+          {/* Description */}
+          <div className="pm-field">
+            <label htmlFor="manual-desc">
+              Description <span className="pm-optional">(optional)</span>
+            </label>
+            <textarea
+              id="manual-desc"
+              value={editedDescription}
+              onChange={(e) => setEditedDescription(e.target.value)}
+              placeholder="Brief description of the project..."
+              disabled={saving}
+              rows={3}
+              enterKeyHint="next"
+            />
+          </div>
+
+          {/* Departments */}
+          <div className="pm-field">
+            <label>
+              Departments <span className="pm-optional">(optional)</span>
+            </label>
+            <MultiDepartmentSelect
+              value={selectedDeptIds}
+              onValueChange={setSelectedDeptIds}
+              departments={departments}
+              placeholder="Select departments"
+              disabled={saving}
+            />
+          </div>
+
+          {/* Context */}
+          <div className="pm-field">
+            <label htmlFor="manual-context">
+              Project Details <span className="pm-optional">(optional)</span>
+            </label>
+            <AIWriteAssist
+              context="project-context"
+              value={editedContext}
+              onSuggestion={setEditedContext}
+              additionalContext={
+                editedName
+                  ? `Project: ${editedName}\nDescription: ${editedDescription || 'None'}`
+                  : ''
+              }
+            >
+              <textarea
+                id="manual-context"
+                value={editedContext}
+                onChange={(e) => setEditedContext(e.target.value)}
+                placeholder="What should the AI know about this project? Add goals, background, constraints, technical details..."
+                disabled={saving}
+                rows={8}
+                className="pm-context-editor"
+                enterKeyHint="done"
+              />
+            </AIWriteAssist>
+            <p className="pm-field-hint">
+              AI will use this info when you ask questions about this project.
+            </p>
+          </div>
+
+          {/* Actions */}
+          <div className="pm-actions">
+            <Button type="button" variant="outline" onClick={onClose} disabled={saving}>
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setStep('input')}
+              disabled={saving}
+            >
+              <Sparkles size={16} />
+              Use AI
+            </Button>
+            <Button
+              type="button"
+              variant="default"
+              onClick={handleSave}
+              disabled={saving || !editedName.trim()}
+            >
+              {saving ? (
+                <>
+                  <Spinner size="sm" variant="muted" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  <Check size={16} />
+                  Create Project
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* SUCCESS: Celebration moment */}
+      {step === 'success' && (
+        <div className="pm-success-state">
+          <div className="pm-success-icon-wrapper">
+            <CheckCircle2 className="pm-success-icon animate-success-pop" />
+          </div>
+          <h3 className="pm-success-title">{editedName || 'Project'} Created!</h3>
+          <p className="pm-success-message">Your project is ready. Redirecting...</p>
+        </div>
+      )}
     </AppModal>
   );
 }

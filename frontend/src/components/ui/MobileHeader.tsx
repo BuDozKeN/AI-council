@@ -27,29 +27,21 @@ interface MobileHeaderProps {
 export function MobileHeader({
   title,
   onBack,
-  backLabel = "Back",
+  backLabel = 'Back',
   actions,
   sticky = true,
-  className = "",
+  className = '',
 }: MobileHeaderProps) {
   return (
     <div className={`mobile-header ${sticky ? 'sticky' : ''} ${className}`}>
-      <button
-        className="mobile-header-back"
-        onClick={onBack}
-        aria-label={backLabel}
-      >
+      <button className="mobile-header-back" onClick={onBack} aria-label={backLabel}>
         <ChevronLeft size={20} />
         <span>{backLabel}</span>
       </button>
 
       <h1 className="mobile-header-title">{title}</h1>
 
-      {actions && (
-        <div className="mobile-header-actions">
-          {actions}
-        </div>
-      )}
+      {actions && <div className="mobile-header-actions">{actions}</div>}
     </div>
   );
 }

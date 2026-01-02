@@ -10,8 +10,8 @@ import { useProjectActions } from './useProjectActions';
 vi.mock('../../../api', () => ({
   api: {
     updateProject: vi.fn(),
-    deleteProject: vi.fn()
-  }
+    deleteProject: vi.fn(),
+  },
 }));
 
 // Mock the logger module
@@ -21,9 +21,9 @@ vi.mock('../../../utils/logger', () => ({
       debug: vi.fn(),
       info: vi.fn(),
       warn: vi.fn(),
-      error: vi.fn()
-    })
-  }
+      error: vi.fn(),
+    }),
+  },
 }));
 
 import { api } from '../../../api';
@@ -49,7 +49,7 @@ describe('useProjectActions', () => {
     const { result } = renderHook(() =>
       useProjectActions({
         setProjects: mockSetProjects,
-        loadData: mockLoadData
+        loadData: mockLoadData,
       })
     );
 
@@ -61,7 +61,7 @@ describe('useProjectActions', () => {
     const { result } = renderHook(() =>
       useProjectActions({
         setProjects: mockSetProjects,
-        loadData: mockLoadData
+        loadData: mockLoadData,
       })
     );
 
@@ -76,7 +76,7 @@ describe('useProjectActions', () => {
     const { result } = renderHook(() =>
       useProjectActions({
         setProjects: mockSetProjects,
-        loadData: mockLoadData
+        loadData: mockLoadData,
       })
     );
 
@@ -95,7 +95,7 @@ describe('useProjectActions', () => {
     const { result } = renderHook(() =>
       useProjectActions({
         setProjects: mockSetProjects,
-        loadData: mockLoadData
+        loadData: mockLoadData,
       })
     );
 
@@ -118,7 +118,7 @@ describe('useProjectActions', () => {
     const { result } = renderHook(() =>
       useProjectActions({
         setProjects: mockSetProjects,
-        loadData: mockLoadData
+        loadData: mockLoadData,
       })
     );
 
@@ -135,7 +135,7 @@ describe('useProjectActions', () => {
     const { result } = renderHook(() =>
       useProjectActions({
         setProjects: mockSetProjects,
-        loadData: mockLoadData
+        loadData: mockLoadData,
       })
     );
 
@@ -152,7 +152,7 @@ describe('useProjectActions', () => {
     const { result } = renderHook(() =>
       useProjectActions({
         setProjects: mockSetProjects,
-        loadData: mockLoadData
+        loadData: mockLoadData,
       })
     );
 
@@ -172,7 +172,7 @@ describe('useProjectActions', () => {
     const { result } = renderHook(() =>
       useProjectActions({
         setProjects: mockSetProjects,
-        loadData: mockLoadData
+        loadData: mockLoadData,
       })
     );
 
@@ -207,13 +207,15 @@ describe('useProjectActions', () => {
     const { result } = renderHook(() =>
       useProjectActions({
         setProjects: mockSetProjects,
-        loadData: mockLoadData
+        loadData: mockLoadData,
       })
     );
 
     let returnedProject;
     await act(async () => {
-      returnedProject = await result.current.handleUpdateProject('proj-123', { name: 'Updated Name' });
+      returnedProject = await result.current.handleUpdateProject('proj-123', {
+        name: 'Updated Name',
+      });
     });
 
     expect(api.updateProject).toHaveBeenCalledWith('proj-123', { name: 'Updated Name' });
@@ -225,7 +227,7 @@ describe('useProjectActions', () => {
     const { result } = renderHook(() =>
       useProjectActions({
         setProjects: mockSetProjects,
-        loadData: mockLoadData
+        loadData: mockLoadData,
       })
     );
 

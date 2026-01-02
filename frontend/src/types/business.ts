@@ -5,9 +5,9 @@
 export interface Department {
   id: string;
   name: string;
-  slug?: string;  // Department slug (e.g., "technology", "sales") - used for conversation grouping
+  slug?: string; // Department slug (e.g., "technology", "sales") - used for conversation grouping
   description?: string;
-  context_md?: string;  // Department-specific context for AI
+  context_md?: string; // Department-specific context for AI
   roles?: Role[];
   channels?: Channel[];
 }

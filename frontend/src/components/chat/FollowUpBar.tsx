@@ -57,7 +57,7 @@ export function FollowUpBar({
   const toggleDepartment = (id: string) => {
     if (!onSelectDepartments) return;
     const newSelection = selectedDepartments.includes(id)
-      ? selectedDepartments.filter(d => d !== id)
+      ? selectedDepartments.filter((d) => d !== id)
       : [...selectedDepartments, id];
     onSelectDepartments(newSelection);
   };
@@ -65,7 +65,7 @@ export function FollowUpBar({
   const toggleRole = (id: string) => {
     if (!onSelectRoles) return;
     const newSelection = selectedRoles.includes(id)
-      ? selectedRoles.filter(r => r !== id)
+      ? selectedRoles.filter((r) => r !== id)
       : [...selectedRoles, id];
     onSelectRoles(newSelection);
   };
@@ -73,7 +73,7 @@ export function FollowUpBar({
   const togglePlaybook = (id: string) => {
     if (!onSelectPlaybooks) return;
     const newSelection = selectedPlaybooks.includes(id)
-      ? selectedPlaybooks.filter(p => p !== id)
+      ? selectedPlaybooks.filter((p) => p !== id)
       : [...selectedPlaybooks, id];
     onSelectPlaybooks(newSelection);
   };
@@ -84,21 +84,23 @@ export function FollowUpBar({
       {departments.length === 0 ? (
         <div className="context-popover-empty">No departments</div>
       ) : (
-        departments.map(dept => {
+        departments.map((dept) => {
           const isSelected = selectedDepartments.includes(dept.id);
           const colors = getDeptColor(dept.id);
           return (
             <button
               key={dept.id}
-              className={cn("context-popover-item", isSelected && "selected")}
+              className={cn('context-popover-item', isSelected && 'selected')}
               onClick={() => toggleDepartment(dept.id)}
               type="button"
-              style={{
-                '--item-color': colors.text,
-                '--item-bg': colors.bg,
-              } as React.CSSProperties}
+              style={
+                {
+                  '--item-color': colors.text,
+                  '--item-bg': colors.bg,
+                } as React.CSSProperties
+              }
             >
-              <div className={cn("context-popover-checkbox", isSelected && "checked")}>
+              <div className={cn('context-popover-checkbox', isSelected && 'checked')}>
                 {isSelected && <Check size={12} />}
               </div>
               <span>{dept.name}</span>
@@ -115,16 +117,16 @@ export function FollowUpBar({
       {roles.length === 0 ? (
         <div className="context-popover-empty">No roles</div>
       ) : (
-        roles.map(role => {
+        roles.map((role) => {
           const isSelected = selectedRoles.includes(role.id);
           return (
             <button
               key={role.id}
-              className={cn("context-popover-item", isSelected && "selected")}
+              className={cn('context-popover-item', isSelected && 'selected')}
               onClick={() => toggleRole(role.id)}
               type="button"
             >
-              <div className={cn("context-popover-checkbox", isSelected && "checked")}>
+              <div className={cn('context-popover-checkbox', isSelected && 'checked')}>
                 {isSelected && <Check size={12} />}
               </div>
               <span>{role.name}</span>
@@ -141,16 +143,16 @@ export function FollowUpBar({
       {playbooks.length === 0 ? (
         <div className="context-popover-empty">No playbooks</div>
       ) : (
-        playbooks.map(pb => {
+        playbooks.map((pb) => {
           const isSelected = selectedPlaybooks.includes(pb.id);
           return (
             <button
               key={pb.id}
-              className={cn("context-popover-item", isSelected && "selected")}
+              className={cn('context-popover-item', isSelected && 'selected')}
               onClick={() => togglePlaybook(pb.id)}
               type="button"
             >
-              <div className={cn("context-popover-checkbox", isSelected && "checked")}>
+              <div className={cn('context-popover-checkbox', isSelected && 'checked')}>
                 {isSelected && <Check size={12} />}
               </div>
               <span>{pb.title || pb.name}</span>
@@ -176,7 +178,7 @@ export function FollowUpBar({
         <>
           <button
             type="button"
-            className={cn("context-icon-btn", count > 0 && "has-selection", colorClass)}
+            className={cn('context-icon-btn', count > 0 && 'has-selection', colorClass)}
             onClick={() => setOpen(true)}
             disabled={disabled}
             aria-label={label}
@@ -185,11 +187,7 @@ export function FollowUpBar({
             {icon}
             {count > 0 && <span className="context-icon-badge">{count}</span>}
           </button>
-          <BottomSheet
-            isOpen={open}
-            onClose={() => setOpen(false)}
-            title={label}
-          >
+          <BottomSheet isOpen={open} onClose={() => setOpen(false)} title={label}>
             {content}
           </BottomSheet>
         </>
@@ -201,7 +199,7 @@ export function FollowUpBar({
         <Popover.Trigger asChild>
           <button
             type="button"
-            className={cn("context-icon-btn", count > 0 && "has-selection", colorClass)}
+            className={cn('context-icon-btn', count > 0 && 'has-selection', colorClass)}
             disabled={disabled}
             aria-label={label}
             title={label}
@@ -211,11 +209,7 @@ export function FollowUpBar({
           </button>
         </Popover.Trigger>
         <Popover.Portal>
-          <Popover.Content
-            className="context-popover-content"
-            align="start"
-            sideOffset={8}
-          >
+          <Popover.Content className="context-popover-content" align="start" sideOffset={8}>
             <div className="context-popover-header">{label}</div>
             {content}
           </Popover.Content>
@@ -232,42 +226,49 @@ export function FollowUpBar({
     <div className="followup-bar">
       {/* Left side: Context icon buttons */}
       <div className="followup-context-icons">
-        {hasDepartments && renderContextButton(
-          <Building2 size={16} />,
-          "Departments",
-          selectedDepartments.length,
-          deptOpen,
-          setDeptOpen,
-          departmentList,
-          "dept"
-        )}
-        {hasRoles && renderContextButton(
-          <Users size={16} />,
-          "Roles",
-          selectedRoles.length,
-          roleOpen,
-          setRoleOpen,
-          roleList,
-          "role"
-        )}
-        {hasPlaybooks && renderContextButton(
-          <BookOpen size={16} />,
-          "Playbooks",
-          selectedPlaybooks.length,
-          playbookOpen,
-          setPlaybookOpen,
-          playbookList,
-          "playbook"
-        )}
+        {hasDepartments &&
+          renderContextButton(
+            <Building2 size={16} />,
+            'Departments',
+            selectedDepartments.length,
+            deptOpen,
+            setDeptOpen,
+            departmentList,
+            'dept'
+          )}
+        {hasRoles &&
+          renderContextButton(
+            <Users size={16} />,
+            'Roles',
+            selectedRoles.length,
+            roleOpen,
+            setRoleOpen,
+            roleList,
+            'role'
+          )}
+        {hasPlaybooks &&
+          renderContextButton(
+            <BookOpen size={16} />,
+            'Playbooks',
+            selectedPlaybooks.length,
+            playbookOpen,
+            setPlaybookOpen,
+            playbookList,
+            'playbook'
+          )}
 
         {/* Mode toggle - subtle icon */}
         <button
           type="button"
-          className={cn("context-icon-btn mode-toggle", chatMode === 'council' && "council")}
+          className={cn('context-icon-btn mode-toggle', chatMode === 'council' && 'council')}
           onClick={() => !disabled && onChatModeChange(chatMode === 'chat' ? 'council' : 'chat')}
           disabled={disabled}
           aria-label={chatMode === 'chat' ? 'Switch to full council' : 'Switch to quick chat'}
-          title={chatMode === 'chat' ? 'Quick mode (click for council)' : 'Council mode (click for quick)'}
+          title={
+            chatMode === 'chat'
+              ? 'Quick mode (click for council)'
+              : 'Council mode (click for quick)'
+          }
         >
           <Zap size={16} />
         </button>

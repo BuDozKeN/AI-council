@@ -21,13 +21,10 @@ export interface SearchBarRef {
   blur: () => void;
 }
 
-export const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(function SearchBar({
-  searchQuery,
-  onSearchChange,
-  onClear,
-  isSearching,
-  resultCount
-}, ref) {
+export const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(function SearchBar(
+  { searchQuery, onSearchChange, onClear, isSearching, resultCount },
+  ref
+) {
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Expose focus method to parent
@@ -39,7 +36,13 @@ export const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(function Searc
   return (
     <div className="sidebar-search">
       <div className="search-input-wrapper">
-        <svg className="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg
+          className="search-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
           <circle cx="11" cy="11" r="8" />
           <path d="M21 21l-4.35-4.35" />
         </svg>
@@ -51,7 +54,7 @@ export const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(function Searc
           inputMode="search"
           placeholder="Search conversations... (⌘K)"
           aria-label="Search conversations"
-          aria-describedby={searchQuery ? "search-results-count" : undefined}
+          aria-describedby={searchQuery ? 'search-results-count' : undefined}
           value={searchQuery}
           onChange={onSearchChange}
           onKeyDown={(e) => {

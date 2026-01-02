@@ -51,19 +51,20 @@ export function MultiDepartmentSelect({
 
   // Get selected departments with their data
   const selectedDepts = value
-    .map(id => departments.find(d => d.id === id))
+    .map((id) => departments.find((d) => d.id === id))
     .filter((d): d is Department => Boolean(d));
 
   // Build tooltip text showing all selected departments
-  const tooltipText = selectedDepts.length === 0
-    ? placeholder
-    : selectedDepts.length === 1
-      ? selectedDepts[0]?.name
-      : `Selected departments:\n${selectedDepts.map(d => `• ${d.name}`).join('\n')}`;
+  const tooltipText =
+    selectedDepts.length === 0
+      ? placeholder
+      : selectedDepts.length === 1
+        ? selectedDepts[0]?.name
+        : `Selected departments:\n${selectedDepts.map((d) => `• ${d.name}`).join('\n')}`;
 
   const toggleDepartment = (deptId: string) => {
     if (value.includes(deptId)) {
-      onValueChange(value.filter(id => id !== deptId));
+      onValueChange(value.filter((id) => id !== deptId));
     } else {
       onValueChange([...value, deptId]);
     }
@@ -89,7 +90,7 @@ export function MultiDepartmentSelect({
         // Multiple departments: show count with color dots
         <span className="multi-dept-count">
           <span className="multi-dept-dots">
-            {selectedDepts.slice(0, 3).map(dept => (
+            {selectedDepts.slice(0, 3).map((dept) => (
               <span
                 key={dept.id}
                 className="multi-dept-dot"
@@ -107,11 +108,11 @@ export function MultiDepartmentSelect({
 
   // Shared department list content - uses DepartmentCheckboxItem for consistency
   const departmentList = (isMobile: boolean = false) => (
-    <div className={isMobile ? "multi-dept-list-mobile" : "multi-dept-list"}>
+    <div className={isMobile ? 'multi-dept-list-mobile' : 'multi-dept-list'}>
       {departments.length === 0 ? (
         <div className="multi-dept-empty">No departments available</div>
       ) : (
-        departments.map(dept => (
+        departments.map((dept) => (
           <DepartmentCheckboxItem
             key={dept.id}
             department={dept}
@@ -129,7 +130,7 @@ export function MultiDepartmentSelect({
     return (
       <>
         <button
-          className={cn("multi-dept-trigger", className)}
+          className={cn('multi-dept-trigger', className)}
           disabled={disabled}
           onClick={() => setOpen(true)}
           type="button"
@@ -138,11 +139,7 @@ export function MultiDepartmentSelect({
           {triggerContent}
         </button>
 
-        <BottomSheet
-          isOpen={open}
-          onClose={() => setOpen(false)}
-          title="Select Departments"
-        >
+        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title="Select Departments">
           {departmentList(true)}
         </BottomSheet>
       </>
@@ -153,7 +150,7 @@ export function MultiDepartmentSelect({
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
       <Popover.Trigger
-        className={cn("multi-dept-trigger", className)}
+        className={cn('multi-dept-trigger', className)}
         disabled={disabled}
         title={tooltipText}
       >
@@ -161,11 +158,7 @@ export function MultiDepartmentSelect({
       </Popover.Trigger>
 
       <Popover.Portal>
-        <Popover.Content
-          className="multi-dept-content"
-          align="start"
-          sideOffset={4}
-        >
+        <Popover.Content className="multi-dept-content" align="start" sideOffset={4}>
           {departmentList(false)}
         </Popover.Content>
       </Popover.Portal>

@@ -113,22 +113,19 @@ export function usePrefetchCompany(companyId: string | null | undefined) {
   }, [prefetchTeam, prefetchPlaybooks, prefetchProjects, prefetchDecisions]);
 
   // Create delayed prefetch handlers (prevents prefetch on quick mouse movements)
-  const createDelayedPrefetch = useCallback(
-    (prefetchFn: () => void) => {
-      return {
-        onMouseEnter: () => {
-          timeoutRef.current = setTimeout(prefetchFn, PREFETCH_DELAY_MS);
-        },
-        onMouseLeave: () => {
-          if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-            timeoutRef.current = null;
-          }
-        },
-      };
-    },
-    []
-  );
+  const createDelayedPrefetch = useCallback((prefetchFn: () => void) => {
+    return {
+      onMouseEnter: () => {
+        timeoutRef.current = setTimeout(prefetchFn, PREFETCH_DELAY_MS);
+      },
+      onMouseLeave: () => {
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
+      },
+    };
+  }, []);
 
   return {
     prefetchTeam,

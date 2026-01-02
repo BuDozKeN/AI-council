@@ -83,11 +83,11 @@ export function DecisionsTab({
   // Actions
   onPromoteDecision,
   onDeleteDecision,
-  onNavigateToConversation
+  onNavigateToConversation,
 }: DecisionsTabProps) {
   // Memoized pending decisions (not promoted)
-  const pendingDecisions = useMemo(() =>
-    decisions.filter(d => !d.promoted_to_id && !d.project_id),
+  const pendingDecisions = useMemo(
+    () => decisions.filter((d) => !d.promoted_to_id && !d.project_id),
     [decisions]
   );
 
@@ -97,24 +97,26 @@ export function DecisionsTab({
 
     // Department filter
     if (decisionDeptFilter.length > 0) {
-      filtered = filtered.filter(d => {
+      filtered = filtered.filter((d) => {
         const deptIds = d.department_ids || [];
-        return deptIds.some(id => decisionDeptFilter.includes(id));
+        return deptIds.some((id) => decisionDeptFilter.includes(id));
       });
     }
 
     // Keyword search (title + content + question)
     if (decisionSearch.trim()) {
       const searchLower = decisionSearch.toLowerCase().trim();
-      filtered = filtered.filter(d => {
+      filtered = filtered.filter((d) => {
         const title = (d.title || '').toLowerCase();
         const content = (d.content || '').toLowerCase();
         const question = (d.question || '').toLowerCase();
         const contentSummary = (d.content_summary || '').toLowerCase();
-        return title.includes(searchLower) ||
-               content.includes(searchLower) ||
-               question.includes(searchLower) ||
-               contentSummary.includes(searchLower);
+        return (
+          title.includes(searchLower) ||
+          content.includes(searchLower) ||
+          question.includes(searchLower) ||
+          contentSummary.includes(searchLower)
+        );
       });
     }
 
@@ -149,7 +151,15 @@ export function DecisionsTab({
 
         {/* Search input */}
         <div className="mc-search-input-wrapper">
-          <svg className="mc-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            className="mc-search-icon"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <circle cx="11" cy="11" r="8" />
             <path d="m21 21-4.35-4.35" />
           </svg>
@@ -178,7 +188,8 @@ export function DecisionsTab({
       {/* Results count */}
       {(decisionSearch || decisionDeptFilter.length > 0) && (
         <div className="mc-filter-results">
-          {filteredDecisions.length} of {pendingDecisions.length} decision{pendingDecisions.length !== 1 ? 's' : ''}
+          {filteredDecisions.length} of {pendingDecisions.length} decision
+          {pendingDecisions.length !== 1 ? 's' : ''}
           {(decisionSearch || decisionDeptFilter.length > 0) && (
             <button
               className="mc-clear-filters"
@@ -197,9 +208,7 @@ export function DecisionsTab({
       {filteredDecisions.length === 0 && (
         <div className="mc-empty">
           <p className="mc-empty-title">No matching decisions</p>
-          <p className="mc-empty-hint">
-            Try adjusting your search or department filter.
-          </p>
+          <p className="mc-empty-hint">Try adjusting your search or department filter.</p>
         </div>
       )}
 
@@ -235,7 +244,7 @@ export function DecisionsTab({
                             className="mc-elegant-dept"
                             style={{
                               background: color.bg,
-                              color: color.text
+                              color: color.text,
                             }}
                           >
                             {dept.name}
@@ -251,24 +260,38 @@ export function DecisionsTab({
                       {formatDateCompact(decision.created_at)}
                     </span>
                     <div className="mc-elegant-actions">
-                      {decision.source_conversation_id && !decision.source_conversation_id.startsWith('temp-') && onNavigateToConversation && (
-                        <button
-                          className="mc-text-btn source"
-                          onClick={(e) => { e.stopPropagation(); onNavigateToConversation(decision.source_conversation_id!, 'decisions'); }}
-                          title="View original conversation"
-                        >
-                          Source
-                        </button>
-                      )}
+                      {decision.source_conversation_id &&
+                        !decision.source_conversation_id.startsWith('temp-') &&
+                        onNavigateToConversation && (
+                          <button
+                            className="mc-text-btn source"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onNavigateToConversation(
+                                decision.source_conversation_id!,
+                                'decisions'
+                              );
+                            }}
+                            title="View original conversation"
+                          >
+                            Source
+                          </button>
+                        )}
                       <button
                         className="mc-text-btn promote"
-                        onClick={(e) => { e.stopPropagation(); onPromoteDecision && onPromoteDecision(decision); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onPromoteDecision && onPromoteDecision(decision);
+                        }}
                       >
                         Promote
                       </button>
                       <button
                         className="mc-text-btn delete"
-                        onClick={(e) => { e.stopPropagation(); onDeleteDecision && onDeleteDecision(decision); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteDecision && onDeleteDecision(decision);
+                        }}
                       >
                         Delete
                       </button>

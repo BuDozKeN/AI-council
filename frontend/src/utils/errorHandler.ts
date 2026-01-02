@@ -78,12 +78,12 @@ function extractErrorMessage(error: unknown): string {
  * @param {boolean} options.silent - If true, don't log or show toast (default: false)
  * @returns {{ error: true, message: string }}
  */
-export function handleError(error: unknown, context: string, options: HandleErrorOptions = {}): HandleErrorResult {
-  const {
-    showToast = true,
-    userMessage = null,
-    silent = false,
-  } = options;
+export function handleError(
+  error: unknown,
+  context: string,
+  options: HandleErrorOptions = {}
+): HandleErrorResult {
+  const { showToast = true, userMessage = null, silent = false } = options;
 
   const message = userMessage || extractErrorMessage(error);
 
@@ -109,7 +109,11 @@ export function handleError(error: unknown, context: string, options: HandleErro
  * @param {Object} options - Same options as handleError
  * @returns {{ error: true, message: string, status?: number }}
  */
-export function handleApiError(error: unknown, context: string, options: HandleErrorOptions = {}): HandleApiErrorResult {
+export function handleApiError(
+  error: unknown,
+  context: string,
+  options: HandleErrorOptions = {}
+): HandleApiErrorResult {
   let status: number | null = null;
   let message = extractErrorMessage(error);
 
@@ -124,7 +128,7 @@ export function handleApiError(error: unknown, context: string, options: HandleE
         message = options.userMessage || 'Please sign in to continue';
         break;
       case 403:
-        message = options.userMessage || 'You don\'t have permission to do this';
+        message = options.userMessage || "You don't have permission to do this";
         break;
       case 404:
         message = options.userMessage || 'The requested resource was not found';

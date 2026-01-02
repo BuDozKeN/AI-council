@@ -14,7 +14,9 @@ interface UseBulkConversationActionsOptions {
   conversations: Conversation[];
   currentConversationId: string | null;
   setConversations: (updater: (prev: Conversation[]) => Conversation[]) => void;
-  setCurrentConversation: (conv: Conversation | null | ((prev: Conversation | null) => Conversation | null)) => void;
+  setCurrentConversation: (
+    conv: Conversation | null | ((prev: Conversation | null) => Conversation | null)
+  ) => void;
   setCurrentConversationId: (id: string | null) => void;
 }
 

@@ -73,7 +73,7 @@
   background: var(--color-slate-100);
 }
 
-.sort-select-item[data-state="checked"] {
+.sort-select-item[data-state='checked'] {
   background: var(--color-blue-50);
   font-weight: 500;
 }
@@ -191,7 +191,7 @@
   background: var(--color-bg-tertiary);
 }
 
-.dark .sort-select-item[data-state="checked"] {
+.dark .sort-select-item[data-state='checked'] {
   background: var(--overlay-blue-15);
   color: var(--color-blue-400);
 }

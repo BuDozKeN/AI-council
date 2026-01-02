@@ -68,9 +68,7 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
 
   return (
     <>
-      {billingError && (
-        <div className="error-banner">{billingError}</div>
-      )}
+      {billingError && <div className="error-banner">{billingError}</div>}
 
       {/* Usage Card */}
       <Card className="settings-card">
@@ -83,15 +81,16 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
             <div
               className="usage-fill"
               style={{
-                width: isUnlimited ? '10%' : `${Math.min((queriesUsed / queriesLimit) * 100, 100)}%`
+                width: isUnlimited
+                  ? '10%'
+                  : `${Math.min((queriesUsed / queriesLimit) * 100, 100)}%`,
               }}
             />
           </div>
           <p className="usage-text">
             {isUnlimited
               ? `${queriesUsed} queries used (Unlimited)`
-              : `${queriesUsed} / ${queriesLimit} queries this month`
-            }
+              : `${queriesUsed} / ${queriesLimit} queries this month`}
           </p>
         </CardContent>
       </Card>
@@ -102,17 +101,16 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
         <div className="plans-grid">
           {plans.map((plan) => {
             const isCurrentPlan = plan.id === currentTier;
-            const isUpgrade = !plan.is_free && (currentTier === 'free' ||
-              (currentTier === 'pro' && plan.id === 'enterprise'));
+            const isUpgrade =
+              !plan.is_free &&
+              (currentTier === 'free' || (currentTier === 'pro' && plan.id === 'enterprise'));
 
             return (
               <div
                 key={plan.id}
                 className={`plan-card ${isCurrentPlan ? 'current' : ''} ${plan.id === 'pro' ? 'popular' : ''}`}
               >
-                {plan.id === 'pro' && (
-                  <div className="popular-badge">Most Popular</div>
-                )}
+                {plan.id === 'pro' && <div className="popular-badge">Most Popular</div>}
                 <div className="plan-header">
                   <h4>{plan.name}</h4>
                   <div className="plan-price">
@@ -137,14 +135,20 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
                 </ul>
                 <div className="plan-action">
                   {isCurrentPlan ? (
-                    <Button variant="outline" disabled>Current Plan</Button>
+                    <Button variant="outline" disabled>
+                      Current Plan
+                    </Button>
                   ) : (
                     <Button
                       variant={isUpgrade ? 'default' : 'outline'}
                       onClick={() => handleSubscribe(plan.id)}
                       disabled={checkoutLoading !== null}
                     >
-                      {checkoutLoading === plan.id ? 'Loading...' : isUpgrade ? 'Upgrade' : 'Select'}
+                      {checkoutLoading === plan.id
+                        ? 'Loading...'
+                        : isUpgrade
+                          ? 'Upgrade'
+                          : 'Select'}
                     </Button>
                   )}
                 </div>

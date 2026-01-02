@@ -121,59 +121,63 @@ export function useUsageData({ companyId, initialPeriod = 30 }: UseUsageDataOpti
   const [isRefetching, setIsRefetching] = useState(false); // For period changes (keeps old data visible)
 
   // Load all data - single function without nested callbacks
-  const loadData = useCallback(async (isRefetch = false) => {
-    if (!companyId) return;
+  const loadData = useCallback(
+    async (isRefetch = false) => {
+      if (!companyId) return;
 
-    // For refetches (period changes), use isRefetching instead of loading
-    // This keeps old data visible while fetching new data
-    if (isRefetch) {
-      setIsRefetching(true);
-    } else {
-      setLoading(true);
-    }
-    setError(null);
-
-    try {
-      // Load usage, rate limits, and alerts in parallel
-      const [usageResult, rateLimitsResult, alertsResult] = await Promise.allSettled([
-        api.getLlmUsage(companyId, period),
-        api.getRateLimits(companyId),
-        api.getBudgetAlerts(companyId, { acknowledged: false, limit: 10 }),
-      ]);
-
-      // Process usage result (required)
-      if (usageResult.status === 'fulfilled') {
-        setUsage(usageResult.value);
-        setUsageLoaded(true);
+      // For refetches (period changes), use isRefetching instead of loading
+      // This keeps old data visible while fetching new data
+      if (isRefetch) {
+        setIsRefetching(true);
       } else {
-        log.error('Failed to load usage data', { error: usageResult.reason });
-        const errorMessage = usageResult.reason instanceof Error
-          ? usageResult.reason.message
-          : 'Failed to load usage data';
-        setError(errorMessage);
+        setLoading(true);
       }
+      setError(null);
 
-      // Process rate limits result (optional)
-      if (rateLimitsResult.status === 'fulfilled') {
-        setRateLimits(rateLimitsResult.value);
-      } else {
-        log.error('Failed to load rate limits', { error: rateLimitsResult.reason });
-      }
+      try {
+        // Load usage, rate limits, and alerts in parallel
+        const [usageResult, rateLimitsResult, alertsResult] = await Promise.allSettled([
+          api.getLlmUsage(companyId, period),
+          api.getRateLimits(companyId),
+          api.getBudgetAlerts(companyId, { acknowledged: false, limit: 10 }),
+        ]);
 
-      // Process alerts result (optional)
-      if (alertsResult.status === 'fulfilled') {
-        setAlerts(alertsResult.value.alerts || []);
-      } else {
-        log.error('Failed to load alerts', { error: alertsResult.reason });
+        // Process usage result (required)
+        if (usageResult.status === 'fulfilled') {
+          setUsage(usageResult.value);
+          setUsageLoaded(true);
+        } else {
+          log.error('Failed to load usage data', { error: usageResult.reason });
+          const errorMessage =
+            usageResult.reason instanceof Error
+              ? usageResult.reason.message
+              : 'Failed to load usage data';
+          setError(errorMessage);
+        }
+
+        // Process rate limits result (optional)
+        if (rateLimitsResult.status === 'fulfilled') {
+          setRateLimits(rateLimitsResult.value);
+        } else {
+          log.error('Failed to load rate limits', { error: rateLimitsResult.reason });
+        }
+
+        // Process alerts result (optional)
+        if (alertsResult.status === 'fulfilled') {
+          setAlerts(alertsResult.value.alerts || []);
+        } else {
+          log.error('Failed to load alerts', { error: alertsResult.reason });
+        }
+      } catch (err) {
+        log.error('Failed to load usage data', { error: err });
+        setError('Failed to load usage data');
+      } finally {
+        setLoading(false);
+        setIsRefetching(false);
       }
-    } catch (err) {
-      log.error('Failed to load usage data', { error: err });
-      setError('Failed to load usage data');
-    } finally {
-      setLoading(false);
-      setIsRefetching(false);
-    }
-  }, [companyId, period]);
+    },
+    [companyId, period]
+  );
 
   // Load on initial mount only
   useEffect(() => {
@@ -193,42 +197,48 @@ export function useUsageData({ companyId, initialPeriod = 30 }: UseUsageDataOpti
   }, [companyId]);
 
   // Acknowledge an alert
-  const acknowledgeAlert = useCallback(async (alertId: string) => {
-    if (!companyId) return;
-
-    try {
-      await api.acknowledgeBudgetAlert(companyId, alertId);
-      // Remove from local state
-      setAlerts(prev => prev.filter(a => a.id !== alertId));
-    } catch (err) {
-      log.error('Failed to acknowledge alert', { error: err });
-      throw err;
-    }
-  }, [companyId]);
-
-  // Change period - refetch with old data still visible
-  const changePeriod = useCallback(async (newPeriod: UsagePeriod) => {
-    if (newPeriod === period) return;
-    setPeriod(newPeriod);
-
-    // Don't clear usageLoaded - keep showing old data while fetching
-    // The isRefetching state will show a subtle loading indicator
-    if (companyId) {
-      setIsRefetching(true);
-      setError(null);
+  const acknowledgeAlert = useCallback(
+    async (alertId: string) => {
+      if (!companyId) return;
 
       try {
-        // Only refetch usage data (rate limits and alerts don't change with period)
-        const usageResult = await api.getLlmUsage(companyId, newPeriod);
-        setUsage(usageResult);
+        await api.acknowledgeBudgetAlert(companyId, alertId);
+        // Remove from local state
+        setAlerts((prev) => prev.filter((a) => a.id !== alertId));
       } catch (err) {
-        log.error('Failed to load usage data', { error: err });
-        setError('Failed to load usage data');
-      } finally {
-        setIsRefetching(false);
+        log.error('Failed to acknowledge alert', { error: err });
+        throw err;
       }
-    }
-  }, [companyId, period]);
+    },
+    [companyId]
+  );
+
+  // Change period - refetch with old data still visible
+  const changePeriod = useCallback(
+    async (newPeriod: UsagePeriod) => {
+      if (newPeriod === period) return;
+      setPeriod(newPeriod);
+
+      // Don't clear usageLoaded - keep showing old data while fetching
+      // The isRefetching state will show a subtle loading indicator
+      if (companyId) {
+        setIsRefetching(true);
+        setError(null);
+
+        try {
+          // Only refetch usage data (rate limits and alerts don't change with period)
+          const usageResult = await api.getLlmUsage(companyId, newPeriod);
+          setUsage(usageResult);
+        } catch (err) {
+          log.error('Failed to load usage data', { error: err });
+          setError('Failed to load usage data');
+        } finally {
+          setIsRefetching(false);
+        }
+      }
+    },
+    [companyId, period]
+  );
 
   return {
     // Data

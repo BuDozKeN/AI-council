@@ -30,18 +30,11 @@ interface WrapperProps {
 function AllTheProviders({ children }: WrapperProps) {
   const queryClient = createTestQueryClient();
 
-  return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  );
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 }
 
 // Custom render that includes providers
-function customRender(
-  ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>
-) {
+function customRender(ui: ReactElement, options?: Omit<RenderOptions, 'wrapper'>) {
   return render(ui, { wrapper: AllTheProviders, ...options });
 }
 

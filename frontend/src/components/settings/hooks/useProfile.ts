@@ -27,7 +27,7 @@ export function useProfile(isOpen: boolean, user: User | null) {
     if (isOpen && user) {
       loadProfile();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- loadProfile is stable
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadProfile is stable
   }, [isOpen, user]);
 
   const loadProfile = async () => {

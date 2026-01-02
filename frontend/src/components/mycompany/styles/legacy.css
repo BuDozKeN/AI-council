@@ -108,8 +108,13 @@
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ============================================================================
@@ -155,8 +160,16 @@
 }
 
 @keyframes sparkle-pulse {
-  0%, 100% { opacity: 0.7; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.1); }
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
 }
 
 /* Countdown state */
@@ -245,30 +258,30 @@
 
 /* Field labels */
 .dark .mc-field-label,
-[data-theme="dark"] .mc-field-label {
+[data-theme='dark'] .mc-field-label {
   color: var(--color-text-secondary);
 }
 
 .dark .mc-section-label,
-[data-theme="dark"] .mc-section-label {
+[data-theme='dark'] .mc-section-label {
   color: var(--color-text-primary);
 }
 
 .dark .mc-section-hint,
-[data-theme="dark"] .mc-section-hint {
+[data-theme='dark'] .mc-section-hint {
   color: var(--color-text-tertiary);
 }
 
 /* AI Resync button */
 .dark .mc-ai-resync-btn,
-[data-theme="dark"] .mc-ai-resync-btn {
+[data-theme='dark'] .mc-ai-resync-btn {
   color: var(--color-text-secondary);
   background: var(--color-bg-tertiary);
   border-color: var(--color-border);
 }
 
 .dark .mc-ai-resync-btn:hover:not(:disabled),
-[data-theme="dark"] .mc-ai-resync-btn:hover:not(:disabled) {
+[data-theme='dark'] .mc-ai-resync-btn:hover:not(:disabled) {
   background: var(--color-bg-hover);
   color: var(--color-text-primary);
   border-color: var(--color-border-dark);
@@ -276,14 +289,14 @@
 
 /* AI Synthesize button */
 .dark .mc-ai-synthesize-btn,
-[data-theme="dark"] .mc-ai-synthesize-btn {
+[data-theme='dark'] .mc-ai-synthesize-btn {
   color: var(--color-violet-400);
   background: var(--overlay-purple-15);
   border-color: var(--overlay-purple-20);
 }
 
 .dark .mc-ai-synthesize-btn:hover:not(:disabled),
-[data-theme="dark"] .mc-ai-synthesize-btn:hover:not(:disabled) {
+[data-theme='dark'] .mc-ai-synthesize-btn:hover:not(:disabled) {
   background: var(--overlay-purple-20);
   color: var(--color-violet-300);
   border-color: var(--overlay-purple-20);
@@ -291,45 +304,45 @@
 
 /* Countdown state */
 .dark .mc-ai-synthesize-btn.countdown,
-[data-theme="dark"] .mc-ai-synthesize-btn.countdown {
+[data-theme='dark'] .mc-ai-synthesize-btn.countdown {
   background: var(--overlay-indigo-15);
   border-color: var(--color-indigo-400);
   color: var(--color-indigo-400);
 }
 
 .dark .mc-ai-synthesize-btn.countdown:hover,
-[data-theme="dark"] .mc-ai-synthesize-btn.countdown:hover {
+[data-theme='dark'] .mc-ai-synthesize-btn.countdown:hover {
   background: var(--overlay-indigo-25);
   border-color: var(--color-indigo-300);
 }
 
 /* AI Synthesize row */
 .dark .mc-ai-synthesize-row,
-[data-theme="dark"] .mc-ai-synthesize-row {
+[data-theme='dark'] .mc-ai-synthesize-row {
   background: var(--overlay-purple-10);
   border-color: var(--overlay-purple-20);
 }
 
 .dark .mc-ai-synthesize-hint,
-[data-theme="dark"] .mc-ai-synthesize-hint {
+[data-theme='dark'] .mc-ai-synthesize-hint {
   color: var(--color-violet-400);
 }
 
 .dark .mc-ai-synthesize-warning,
-[data-theme="dark"] .mc-ai-synthesize-warning {
+[data-theme='dark'] .mc-ai-synthesize-warning {
   color: var(--color-text-tertiary);
 }
 
 /* Status badge */
 .dark .mc-status-badge,
-[data-theme="dark"] .mc-status-badge {
+[data-theme='dark'] .mc-status-badge {
   background: var(--color-bg-tertiary);
   color: var(--color-text-secondary);
 }
 
 /* Source badge */
 .dark .mc-source-badge,
-[data-theme="dark"] .mc-source-badge {
+[data-theme='dark'] .mc-source-badge {
   background: var(--overlay-blue-10);
   color: var(--color-sky-400);
   border-color: var(--overlay-blue-20);

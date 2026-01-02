@@ -32,16 +32,8 @@ const defaultSortOptions: SortOption[] = [
 const SortSelectItem = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Item>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
->(({
-  className,
-  children,
-  ...props
-}, ref) => (
-  <SelectPrimitive.Item
-    ref={ref}
-    className={cn("sort-select-item", className)}
-    {...props}
-  >
+>(({ className, children, ...props }, ref) => (
+  <SelectPrimitive.Item ref={ref} className={cn('sort-select-item', className)} {...props}>
     <span className="sort-select-item-indicator">
       <SelectPrimitive.ItemIndicator>
         <Check className="h-4 w-4" />
@@ -68,7 +60,8 @@ export function SortSelect({
   options = defaultSortOptions,
 }: SortSelectProps) {
   const [open, setOpen] = React.useState(false);
-  const selectedOption = options.find(o => o.value === value) ?? options[0] ?? { value: '', label: '' };
+  const selectedOption = options.find((o) => o.value === value) ??
+    options[0] ?? { value: '', label: '' };
 
   const handleSelect = (optionValue: string) => {
     onValueChange(optionValue);
@@ -80,7 +73,7 @@ export function SortSelect({
     return (
       <>
         <button
-          className={cn("sort-select-trigger", className)}
+          className={cn('sort-select-trigger', className)}
           disabled={disabled}
           onClick={() => setOpen(true)}
           type="button"
@@ -90,22 +83,18 @@ export function SortSelect({
           <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
         </button>
 
-        <BottomSheet
-          isOpen={open}
-          onClose={() => setOpen(false)}
-          title="Sort By"
-        >
+        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title="Sort By">
           <div className="sort-select-list-mobile">
-            {options.map(option => {
+            {options.map((option) => {
               const isSelected = option.value === value;
               return (
                 <button
                   key={option.value}
-                  className={cn("sort-select-item-mobile", isSelected && "selected")}
+                  className={cn('sort-select-item-mobile', isSelected && 'selected')}
                   onClick={() => handleSelect(option.value)}
                   type="button"
                 >
-                  <div className={cn("sort-select-radio", isSelected && "checked")}>
+                  <div className={cn('sort-select-radio', isSelected && 'checked')}>
                     {isSelected && <Check className="h-3 w-3" />}
                   </div>
                   <span className="sort-select-item-label">{option.label}</span>
@@ -121,9 +110,7 @@ export function SortSelect({
   // Desktop: use Radix Select
   return (
     <SelectPrimitive.Root value={value} onValueChange={onValueChange} disabled={disabled}>
-      <SelectPrimitive.Trigger
-        className={cn("sort-select-trigger", className)}
-      >
+      <SelectPrimitive.Trigger className={cn('sort-select-trigger', className)}>
         <ArrowUpDown className="h-3.5 w-3.5" />
         <SelectPrimitive.Value>{selectedOption.label}</SelectPrimitive.Value>
         <SelectPrimitive.Icon asChild>
@@ -139,7 +126,7 @@ export function SortSelect({
           sideOffset={4}
         >
           <SelectPrimitive.Viewport className="sort-select-viewport">
-            {options.map(option => (
+            {options.map((option) => (
               <SortSelectItem key={option.value} value={option.value}>
                 {option.label}
               </SortSelectItem>

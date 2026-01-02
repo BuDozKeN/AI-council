@@ -205,7 +205,8 @@ export function OmniBar({
   const hasRoles = roles.length > 0 && onSelectRoles;
   const hasPlaybooks = playbooks.length > 0 && onSelectPlaybooks;
   const hasAnyContextIcons =
-    showContextIcons && (hasBusinesses || hasProjects || hasDepartments || hasRoles || hasPlaybooks);
+    showContextIcons &&
+    (hasBusinesses || hasProjects || hasDepartments || hasRoles || hasPlaybooks);
 
   // Check if there are any selections (for showing reset button)
   const hasAnySelections =
@@ -346,25 +347,27 @@ export function OmniBar({
       {projects.length === 0 ? (
         <div className="context-popover-empty">No projects</div>
       ) : (
-        projects.filter((p) => p.status === 'active').map((proj) => {
-          const isSelected = selectedProject === proj.id;
-          return (
-            <button
-              key={proj.id}
-              className={cn('context-popover-item', isSelected && 'selected')}
-              onClick={() => {
-                onSelectProject?.(isSelected ? null : proj.id);
-                setProjectOpen(false);
-              }}
-              type="button"
-            >
-              <div className={cn('context-popover-radio', isSelected && 'checked')}>
-                {isSelected && <Check size={10} />}
-              </div>
-              <span>{proj.name}</span>
-            </button>
-          );
-        })
+        projects
+          .filter((p) => p.status === 'active')
+          .map((proj) => {
+            const isSelected = selectedProject === proj.id;
+            return (
+              <button
+                key={proj.id}
+                className={cn('context-popover-item', isSelected && 'selected')}
+                onClick={() => {
+                  onSelectProject?.(isSelected ? null : proj.id);
+                  setProjectOpen(false);
+                }}
+                type="button"
+              >
+                <div className={cn('context-popover-radio', isSelected && 'checked')}>
+                  {isSelected && <Check size={10} />}
+                </div>
+                <span>{proj.name}</span>
+              </button>
+            );
+          })
       )}
     </div>
   );
@@ -569,18 +572,20 @@ export function OmniBar({
             isOpen={open}
             onClose={() => setOpen(false)}
             title={label}
-            headerAction={count > 0 && onClear ? (
-              <button
-                type="button"
-                className="context-popover-clear"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onClear();
-                }}
-              >
-                Clear
-              </button>
-            ) : undefined}
+            headerAction={
+              count > 0 && onClear ? (
+                <button
+                  type="button"
+                  className="context-popover-clear"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClear();
+                  }}
+                >
+                  Clear
+                </button>
+              ) : undefined
+            }
           >
             {content}
           </BottomSheet>
@@ -768,7 +773,8 @@ export function OmniBar({
                 </div>
 
                 {/* Reset All button - outside capsule, smaller */}
-                {hasAnySelections && onResetAll && (
+                {hasAnySelections &&
+                  onResetAll &&
                   withTooltip(
                     <button
                       type="button"
@@ -780,8 +786,7 @@ export function OmniBar({
                       <RotateCcw size={12} />
                     </button>,
                     'Clear all selections'
-                  )
-                )}
+                  )}
 
                 {/* Inline mode toggle - compact pill showing current mode */}
                 {onChatModeChange && !showModeToggle && (

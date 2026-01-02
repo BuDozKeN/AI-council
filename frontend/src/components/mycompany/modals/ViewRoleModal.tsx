@@ -58,7 +58,6 @@ export function ViewRoleModal({ role, onClose, onSave }: ViewRoleModalProps) {
       contentClassName="mc-modal-no-padding"
     >
       <div className="mc-modal-body">
-
         {/* Content Section - Preview by default, markdown when editing */}
         <div className="mc-content-section">
           {isEditing ? (
@@ -67,7 +66,9 @@ export function ViewRoleModal({ role, onClose, onSave }: ViewRoleModalProps) {
                 context="role-prompt"
                 value={editedPrompt}
                 onSuggestion={setEditedPrompt}
-                additionalContext={role.name ? `Role: ${role.name}${role.title ? ` (${role.title})` : ''}` : ''}
+                additionalContext={
+                  role.name ? `Role: ${role.name}${role.title ? ` (${role.title})` : ''}` : ''
+                }
               >
                 <textarea
                   className="mc-edit-textarea-full"
@@ -112,7 +113,9 @@ export function ViewRoleModal({ role, onClose, onSave }: ViewRoleModalProps) {
                 Edit
               </Button>
             )}
-            <Button variant="default" onClick={onClose}>Done</Button>
+            <Button variant="default" onClick={onClose}>
+              Done
+            </Button>
           </>
         )}
       </AppModal.Footer>

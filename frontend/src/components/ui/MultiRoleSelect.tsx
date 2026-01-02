@@ -46,17 +46,16 @@ export function MultiRoleSelect({
 
   // Get selected roles with their data
   const selectedRoles = value
-    .map(id => roles.find(r => r.id === id))
+    .map((id) => roles.find((r) => r.id === id))
     .filter((r): r is Role => Boolean(r));
 
   const toggleRole = (roleId: string) => {
     if (value.includes(roleId)) {
-      onValueChange(value.filter(id => id !== roleId));
+      onValueChange(value.filter((id) => id !== roleId));
     } else {
       onValueChange([...value, roleId]);
     }
   };
-
 
   // Shared trigger content - compact format like departments
   const triggerContent = (
@@ -79,24 +78,24 @@ export function MultiRoleSelect({
 
   // Shared role list content
   const roleList = (isMobile = false) => (
-    <div className={isMobile ? "multi-role-list-mobile" : "multi-role-list"}>
+    <div className={isMobile ? 'multi-role-list-mobile' : 'multi-role-list'}>
       {roles.length === 0 ? (
         <div className="multi-role-empty">No roles available</div>
       ) : (
-        roles.map(role => {
+        roles.map((role) => {
           const isSelected = value.includes(role.id);
 
           return (
             <button
               key={role.id}
               className={cn(
-                isMobile ? "multi-role-item-mobile" : "multi-role-item",
-                isSelected && "selected"
+                isMobile ? 'multi-role-item-mobile' : 'multi-role-item',
+                isSelected && 'selected'
               )}
               onClick={() => toggleRole(role.id)}
               type="button"
             >
-              <div className={cn("multi-role-checkbox", isSelected && "checked")}>
+              <div className={cn('multi-role-checkbox', isSelected && 'checked')}>
                 {isSelected && <Check className="h-3 w-3" />}
               </div>
               <div className="multi-role-item-info">
@@ -117,7 +116,7 @@ export function MultiRoleSelect({
     return (
       <>
         <button
-          className={cn("multi-role-trigger", className)}
+          className={cn('multi-role-trigger', className)}
           disabled={disabled}
           onClick={() => setOpen(true)}
           type="button"
@@ -125,11 +124,7 @@ export function MultiRoleSelect({
           {triggerContent}
         </button>
 
-        <BottomSheet
-          isOpen={open}
-          onClose={() => setOpen(false)}
-          title="Select Roles"
-        >
+        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title="Select Roles">
           {roleList(true)}
         </BottomSheet>
       </>
@@ -139,19 +134,12 @@ export function MultiRoleSelect({
   // Desktop: use Popover
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
-      <Popover.Trigger
-        className={cn("multi-role-trigger", className)}
-        disabled={disabled}
-      >
+      <Popover.Trigger className={cn('multi-role-trigger', className)} disabled={disabled}>
         {triggerContent}
       </Popover.Trigger>
 
       <Popover.Portal>
-        <Popover.Content
-          className="multi-role-content"
-          align="start"
-          sideOffset={4}
-        >
+        <Popover.Content className="multi-role-content" align="start" sideOffset={4}>
           {roleList(false)}
         </Popover.Content>
       </Popover.Portal>

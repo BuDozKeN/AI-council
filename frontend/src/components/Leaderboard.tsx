@@ -68,8 +68,9 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
   const getAvailableDepartments = (): string[] => {
     if (!leaderboardData) return [];
     // Filter out any department names that look like UUIDs (failed to resolve)
-    const isUuidLike = (str: string): boolean => /^[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}$/.test(str);
-    return Object.keys(leaderboardData.departments ?? {}).filter(dept => !isUuidLike(dept));
+    const isUuidLike = (str: string): boolean =>
+      /^[0-9a-zA-Z]{8}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{4}-[0-9a-zA-Z]{12}$/.test(str);
+    return Object.keys(leaderboardData.departments ?? {}).filter((dept) => !isUuidLike(dept));
   };
 
   const currentLeaderboard = getCurrentLeaderboard();
@@ -105,23 +106,47 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
             <table>
               <thead>
                 <tr>
-                  <th className="rank-col"><Skeleton width={20} height={14} /></th>
-                  <th className="model-col"><Skeleton width={50} height={14} /></th>
-                  <th className="score-col"><Skeleton width={60} height={14} /></th>
-                  <th className="wins-col"><Skeleton width={35} height={14} /></th>
-                  <th className="rate-col"><Skeleton width={55} height={14} /></th>
-                  <th className="sessions-col"><Skeleton width={55} height={14} /></th>
+                  <th className="rank-col">
+                    <Skeleton width={20} height={14} />
+                  </th>
+                  <th className="model-col">
+                    <Skeleton width={50} height={14} />
+                  </th>
+                  <th className="score-col">
+                    <Skeleton width={60} height={14} />
+                  </th>
+                  <th className="wins-col">
+                    <Skeleton width={35} height={14} />
+                  </th>
+                  <th className="rate-col">
+                    <Skeleton width={55} height={14} />
+                  </th>
+                  <th className="sessions-col">
+                    <Skeleton width={55} height={14} />
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {[1, 2, 3, 4, 5].map((i) => (
                   <tr key={i}>
-                    <td className="rank-col"><Skeleton width={24} height={20} /></td>
-                    <td className="model-col"><Skeleton width={120} height={18} /></td>
-                    <td className="score-col"><Skeleton width={40} height={18} /></td>
-                    <td className="wins-col"><Skeleton width={28} height={18} /></td>
-                    <td className="rate-col"><Skeleton width={45} height={18} /></td>
-                    <td className="sessions-col"><Skeleton width={28} height={18} /></td>
+                    <td className="rank-col">
+                      <Skeleton width={24} height={20} />
+                    </td>
+                    <td className="model-col">
+                      <Skeleton width={120} height={18} />
+                    </td>
+                    <td className="score-col">
+                      <Skeleton width={40} height={18} />
+                    </td>
+                    <td className="wins-col">
+                      <Skeleton width={28} height={18} />
+                    </td>
+                    <td className="rate-col">
+                      <Skeleton width={45} height={18} />
+                    </td>
+                    <td className="sessions-col">
+                      <Skeleton width={28} height={18} />
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -190,9 +215,7 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
                       <td className="rank-col">
                         {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
                       </td>
-                      <td className="model-col">
-                        {entry.model.split('/')[1] || entry.model}
-                      </td>
+                      <td className="model-col">{entry.model.split('/')[1] || entry.model}</td>
                       <td className="score-col">{entry.avg_rank.toFixed(2)}</td>
                       <td className="wins-col">{entry.wins}</td>
                       <td className="rate-col">{entry.win_rate}%</td>
@@ -205,8 +228,12 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
           </div>
 
           <div className="leaderboard-legend">
-            <p><strong>Avg Rank:</strong> Lower is better (1 = always ranked first)</p>
-            <p><strong>Wins:</strong> Number of times ranked #1</p>
+            <p>
+              <strong>Avg Rank:</strong> Lower is better (1 = always ranked first)
+            </p>
+            <p>
+              <strong>Wins:</strong> Number of times ranked #1
+            </p>
           </div>
         </>
       )}

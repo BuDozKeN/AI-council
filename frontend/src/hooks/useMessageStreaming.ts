@@ -170,25 +170,37 @@ function useTokenBatcher(setCurrentConversation: (updater: ConversationUpdater) 
     }
   }, [flushTokens, startFallbackInterval]);
 
-  const addStage1Token = useCallback((model: string, content: string) => {
-    pendingTokens.current.stage1[model] = (pendingTokens.current.stage1[model] || '') + content;
-    scheduleFlush();
-  }, [scheduleFlush]);
+  const addStage1Token = useCallback(
+    (model: string, content: string) => {
+      pendingTokens.current.stage1[model] = (pendingTokens.current.stage1[model] || '') + content;
+      scheduleFlush();
+    },
+    [scheduleFlush]
+  );
 
-  const addStage2Token = useCallback((model: string, content: string) => {
-    pendingTokens.current.stage2[model] = (pendingTokens.current.stage2[model] || '') + content;
-    scheduleFlush();
-  }, [scheduleFlush]);
+  const addStage2Token = useCallback(
+    (model: string, content: string) => {
+      pendingTokens.current.stage2[model] = (pendingTokens.current.stage2[model] || '') + content;
+      scheduleFlush();
+    },
+    [scheduleFlush]
+  );
 
-  const addStage3Token = useCallback((content: string) => {
-    pendingTokens.current.stage3 += content;
-    scheduleFlush();
-  }, [scheduleFlush]);
+  const addStage3Token = useCallback(
+    (content: string) => {
+      pendingTokens.current.stage3 += content;
+      scheduleFlush();
+    },
+    [scheduleFlush]
+  );
 
-  const addChatToken = useCallback((content: string) => {
-    pendingTokens.current.chat += content;
-    scheduleFlush();
-  }, [scheduleFlush]);
+  const addChatToken = useCallback(
+    (content: string) => {
+      pendingTokens.current.chat += content;
+      scheduleFlush();
+    },
+    [scheduleFlush]
+  );
 
   const flushNow = useCallback(() => {
     if (rafRef.current !== null) {
@@ -571,9 +583,7 @@ export function useMessageStreaming({
           const newTitle = data?.title;
           if (newTitle) {
             setConversations((prev) =>
-              prev.map((conv) =>
-                conv.id === conversationId ? { ...conv, title: newTitle } : conv
-              )
+              prev.map((conv) => (conv.id === conversationId ? { ...conv, title: newTitle } : conv))
             );
             setCurrentConversation((prev) => {
               if (!prev || prev.id !== conversationId) return prev;
@@ -657,7 +667,16 @@ export function useMessageStreaming({
           log.warn('Unknown event type:', eventType);
       }
     },
-    [setCurrentConversation, setConversations, loadConversations, setIsLoading, addStage1Token, addStage2Token, addStage3Token, flushNow]
+    [
+      setCurrentConversation,
+      setConversations,
+      loadConversations,
+      setIsLoading,
+      addStage1Token,
+      addStage2Token,
+      addStage3Token,
+      flushNow,
+    ]
   );
 
   // Send message to council (full deliberation)
@@ -675,7 +694,7 @@ export function useMessageStreaming({
           setIsUploading(true);
           log.debug(`Uploading ${images.length} images...`);
           const uploadPromises = images.map((img) => api.uploadAttachment(img.file));
-          const uploadedAttachments = await Promise.all(uploadPromises) as UploadedAttachment[];
+          const uploadedAttachments = (await Promise.all(uploadPromises)) as UploadedAttachment[];
           attachmentIds = uploadedAttachments.map((a) => a.id);
           log.debug(`Uploaded attachments:`, attachmentIds);
         } catch (error) {
@@ -704,7 +723,12 @@ export function useMessageStreaming({
           });
 
           setConversations((prev) => [
-            { id: conversationId, created_at: newConv.created_at, message_count: 0, title: initialTitle },
+            {
+              id: conversationId,
+              created_at: newConv.created_at,
+              message_count: 0,
+              title: initialTitle,
+            },
             ...prev,
           ]);
         } catch (error) {
@@ -743,17 +767,22 @@ export function useMessageStreaming({
         const effectiveRoles = selectedRoles.length > 0 ? selectedRoles : null;
         const effectivePlaybooks = selectedPlaybooks.length > 0 ? selectedPlaybooks : null;
 
-        await api.sendMessageStream(conversationId, content, createStreamEventHandler(conversationId), {
-          businessId: effectiveBusinessId,
-          department: effectiveDepartment,
-          role: selectedRole,
-          departments: effectiveDepartments,
-          roles: effectiveRoles,
-          playbooks: effectivePlaybooks,
-          projectId: selectedProject,
-          attachmentIds: attachmentIds,
-          signal: abortControllerRef.current?.signal,
-        });
+        await api.sendMessageStream(
+          conversationId,
+          content,
+          createStreamEventHandler(conversationId),
+          {
+            businessId: effectiveBusinessId,
+            department: effectiveDepartment,
+            role: selectedRole,
+            departments: effectiveDepartments,
+            roles: effectiveRoles,
+            playbooks: effectivePlaybooks,
+            projectId: selectedProject,
+            attachmentIds: attachmentIds,
+            signal: abortControllerRef.current?.signal,
+          }
+        );
       } catch (error: unknown) {
         if (error instanceof Error && error.name === 'AbortError') {
           log.debug('Request was cancelled');

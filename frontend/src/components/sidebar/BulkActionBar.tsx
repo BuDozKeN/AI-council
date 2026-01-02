@@ -21,21 +21,13 @@ export function BulkActionBar({
   selectedCount,
   isDeleting,
   onClearSelection,
-  onBulkDelete
+  onBulkDelete,
 }: BulkActionBarProps) {
   if (selectedCount === 0) return null;
 
   return (
-    <div
-      className="bulk-action-bar"
-      role="region"
-      aria-label="Bulk actions"
-    >
-      <span
-        className="bulk-count"
-        role="status"
-        aria-live="polite"
-      >
+    <div className="bulk-action-bar" role="region" aria-label="Bulk actions">
+      <span className="bulk-count" role="status" aria-live="polite">
         {selectedCount} selected
       </span>
       <div className="bulk-action-buttons">
@@ -53,7 +45,11 @@ export function BulkActionBar({
           size="sm"
           onClick={onBulkDelete}
           disabled={isDeleting}
-          aria-label={isDeleting ? 'Deleting conversations' : `Delete ${selectedCount} conversation${selectedCount !== 1 ? 's' : ''}`}
+          aria-label={
+            isDeleting
+              ? 'Deleting conversations'
+              : `Delete ${selectedCount} conversation${selectedCount !== 1 ? 's' : ''}`
+          }
           className="bulk-delete-btn"
         >
           <Trash2 size={14} aria-hidden="true" />

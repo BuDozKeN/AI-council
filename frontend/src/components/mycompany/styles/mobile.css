@@ -288,7 +288,7 @@
   .mc-btn-clean,
   .mc-action-btn,
   .mc-text-btn,
-  button[class*="mc-"] {
+  button[class*='mc-'] {
     min-height: 44px;
   }
 
@@ -305,7 +305,6 @@
     min-width: 44px;
     min-height: 44px;
   }
-
 }
 
 /* ============================================================================
@@ -331,7 +330,9 @@
 
     /* Modal content safe area - use fallbacks to prevent calc failures */
     .app-modal-content {
-      max-height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 40px);
+      max-height: calc(
+        100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 40px
+      );
     }
 
     /* Floating action buttons */
@@ -548,7 +549,7 @@
     max-width: 100%;
   }
 
-  .mc-dept-badges > *:nth-child(n+3) {
+  .mc-dept-badges > *:nth-child(n + 3) {
     display: none;
   }
 
@@ -597,7 +598,9 @@
     color: var(--color-text-inverse);
     border: none;
     border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-lg), 0 0 0 1px var(--overlay-indigo-20);
+    box-shadow:
+      var(--shadow-lg),
+      0 0 0 1px var(--overlay-indigo-20);
     cursor: pointer;
     z-index: var(--z-overlay);
     transition: all 0.2s ease;
@@ -655,8 +658,13 @@
 }
 
 @keyframes mc-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ============================================================================
@@ -683,8 +691,14 @@
   }
 
   @keyframes swipe-hint {
-    0%, 100% { transform: translateY(-50%) translateX(0); }
-    50% { transform: translateY(-50%) translateX(-4px); }
+    0%,
+    100% {
+      transform: translateY(-50%) translateX(0);
+    }
+
+    50% {
+      transform: translateY(-50%) translateX(-4px);
+    }
   }
 }
 
@@ -920,7 +934,7 @@
     padding: 2px 6px;
   }
 
-  .mc-project-dept-badge:nth-child(n+4) {
+  .mc-project-dept-badge:nth-child(n + 4) {
     display: none;
   }
 
@@ -1104,7 +1118,7 @@
   }
 
   /* Show max 2 department badges */
-  .mc-elegant-dept:nth-of-type(n+3) {
+  .mc-elegant-dept:nth-of-type(n + 3) {
     display: none;
   }
 

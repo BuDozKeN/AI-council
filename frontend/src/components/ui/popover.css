@@ -17,27 +17,27 @@
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.popover-content[data-state="open"] {
+.popover-content[data-state='open'] {
   animation-name: popover-in;
 }
 
-.popover-content[data-state="closed"] {
+.popover-content[data-state='closed'] {
   animation-name: popover-out;
 }
 
-.popover-content[data-side="bottom"] {
+.popover-content[data-side='bottom'] {
   --popover-origin: top;
 }
 
-.popover-content[data-side="top"] {
+.popover-content[data-side='top'] {
   --popover-origin: bottom;
 }
 
-.popover-content[data-side="left"] {
+.popover-content[data-side='left'] {
   --popover-origin: right;
 }
 
-.popover-content[data-side="right"] {
+.popover-content[data-side='right'] {
   --popover-origin: left;
 }
 

@@ -61,7 +61,7 @@ function sendToAnalytics(metric: Metric): void {
     rating: metric.rating, // 'good', 'needs-improvement', or 'poor'
     delta: metric.delta,
     id: metric.id,
-    timestamp: Date.now()
+    timestamp: Date.now(),
   };
   sessionStorage.setItem('webVitals', JSON.stringify(vitals));
 }
@@ -71,7 +71,7 @@ function getMetricColor(metric: Metric): string {
   const colors: Record<string, string> = {
     good: '#4CAF50',
     'needs-improvement': '#FF9800',
-    poor: '#F44336'
+    poor: '#F44336',
   };
   return colors[metric.rating] ?? '#2196F3';
 }
@@ -83,7 +83,7 @@ function getMetricUnit(name: MetricName): string {
     FCP: 'ms',
     LCP: 'ms',
     TTFB: 'ms',
-    INP: 'ms'
+    INP: 'ms',
   };
   return units[name] ?? '';
 }
@@ -102,7 +102,7 @@ export function initWebVitals() {
     onFCP(sendToAnalytics);
     onLCP(sendToAnalytics);
     onTTFB(sendToAnalytics);
-    onINP(sendToAnalytics);  // INP replaced FID in web-vitals v4+
+    onINP(sendToAnalytics); // INP replaced FID in web-vitals v4+
   } catch (error) {
     console.warn('Failed to initialize Web Vitals:', error);
   }

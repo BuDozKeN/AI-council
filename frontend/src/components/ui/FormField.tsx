@@ -1,4 +1,15 @@
-import { forwardRef, useId, ReactNode, InputHTMLAttributes, TextareaHTMLAttributes, SelectHTMLAttributes, isValidElement, cloneElement, Children, ReactElement } from 'react';
+import {
+  forwardRef,
+  useId,
+  ReactNode,
+  InputHTMLAttributes,
+  TextareaHTMLAttributes,
+  SelectHTMLAttributes,
+  isValidElement,
+  cloneElement,
+  Children,
+  ReactElement,
+} from 'react';
 import './FormField.css';
 
 interface FormFieldProps {
@@ -25,7 +36,7 @@ export function FormField({
   required,
   className = '',
   children,
-  inputId: explicitInputId
+  inputId: explicitInputId,
 }: FormFieldProps) {
   const generatedId = useId();
   const inputId = explicitInputId || generatedId;
@@ -38,9 +49,10 @@ export function FormField({
       // Build aria-describedby from hint and error IDs
       const describedBy = [hintId, errorId].filter(Boolean).join(' ') || undefined;
 
-      const additionalProps: { id: string; 'aria-describedby'?: string; 'aria-invalid'?: boolean } = {
-        id: inputId,
-      };
+      const additionalProps: { id: string; 'aria-describedby'?: string; 'aria-invalid'?: boolean } =
+        {
+          id: inputId,
+        };
       if (describedBy) {
         additionalProps['aria-describedby'] = describedBy;
       }
@@ -57,15 +69,25 @@ export function FormField({
       {label && (
         <label htmlFor={inputId} className="form-field-label">
           {label}
-          {required && <span className="form-field-required" aria-hidden="true">*</span>}
+          {required && (
+            <span className="form-field-required" aria-hidden="true">
+              *
+            </span>
+          )}
           {required && <span className="sr-only">(required)</span>}
         </label>
       )}
-      {hint && <p id={hintId} className="form-field-hint">{hint}</p>}
-      <div className="form-field-input">
-        {enhancedChildren}
-      </div>
-      {error && <p id={errorId} className="form-field-error-text" role="alert">{error}</p>}
+      {hint && (
+        <p id={hintId} className="form-field-hint">
+          {hint}
+        </p>
+      )}
+      <div className="form-field-input">{enhancedChildren}</div>
+      {error && (
+        <p id={errorId} className="form-field-error-text" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
@@ -100,13 +122,11 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
  * // Numeric input (no decimals)
  * <Input inputMode="numeric" pattern="[0-9]*" />
  */
-export const Input = forwardRef<HTMLInputElement, InputProps>(({ className = '', ...props }, ref) => (
-  <input
-    ref={ref}
-    className={`form-input ${className}`}
-    {...props}
-  />
-));
+export const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ className = '', ...props }, ref) => (
+    <input ref={ref} className={`form-input ${className}`} {...props} />
+  )
+);
 Input.displayName = 'Input';
 
 interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -117,14 +137,11 @@ interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 /**
  * Textarea - Styled textarea
  */
-export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(({ className = '', rows = 3, ...props }, ref) => (
-  <textarea
-    ref={ref}
-    className={`form-textarea ${className}`}
-    rows={rows}
-    {...props}
-  />
-));
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ className = '', rows = 3, ...props }, ref) => (
+    <textarea ref={ref} className={`form-textarea ${className}`} rows={rows} {...props} />
+  )
+);
 Textarea.displayName = 'Textarea';
 
 interface NativeSelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
@@ -136,15 +153,13 @@ interface NativeSelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
  * NativeSelect - Styled native select (for simple cases)
  * For complex selects, use the Radix Select component
  */
-export const NativeSelect = forwardRef<HTMLSelectElement, NativeSelectProps>(({ className = '', children, ...props }, ref) => (
-  <select
-    ref={ref}
-    className={`form-select ${className}`}
-    {...props}
-  >
-    {children}
-  </select>
-));
+export const NativeSelect = forwardRef<HTMLSelectElement, NativeSelectProps>(
+  ({ className = '', children, ...props }, ref) => (
+    <select ref={ref} className={`form-select ${className}`} {...props}>
+      {children}
+    </select>
+  )
+);
 NativeSelect.displayName = 'NativeSelect';
 
 export default FormField;

@@ -277,7 +277,11 @@ export function MessageList({
               {/* For chat-only messages, show a simpler response */}
               {msg.isChat ? (
                 /* Chat-only response - just show the response directly */
-                <div className="chat-response" aria-busy={msg.loading?.stage3 || !!msg.stage3Streaming} aria-live="polite">
+                <div
+                  className="chat-response"
+                  aria-busy={msg.loading?.stage3 || !!msg.stage3Streaming}
+                  aria-live="polite"
+                >
                   <div className="chat-label">Response</div>
                   {msg.stage3Streaming ? (
                     <div className="markdown-content" aria-label="Streaming response">

@@ -105,9 +105,10 @@ function flattenGroups(
     if (!group?.conversations?.length) return;
 
     // Check if group is expanded - default to true if undefined
-    const isExpanded = expandedGroups[groupId] !== undefined
-      ? expandedGroups[groupId]
-      : (groupedConversations[groupId]?.conversations?.length ?? 0) > 0;
+    const isExpanded =
+      expandedGroups[groupId] !== undefined
+        ? expandedGroups[groupId]
+        : (groupedConversations[groupId]?.conversations?.length ?? 0) > 0;
 
     // Add group header
     items.push({
@@ -120,7 +121,7 @@ function flattenGroups(
 
     // Add conversations if expanded
     if (isExpanded) {
-      group.conversations.forEach(conv => {
+      group.conversations.forEach((conv) => {
         items.push({
           type: 'conversation',
           groupId,
@@ -136,7 +137,14 @@ function flattenGroups(
 /**
  * Memoized group header component with ARIA support
  */
-const GroupHeader = memo(function GroupHeader({ groupId, groupName, count, isExpanded, onToggle, style }: GroupHeaderProps) {
+const GroupHeader = memo(function GroupHeader({
+  groupId,
+  groupName,
+  count,
+  isExpanded,
+  onToggle,
+  style,
+}: GroupHeaderProps) {
   const regionId = `group-${groupId}`;
 
   return (
@@ -155,9 +163,13 @@ const GroupHeader = memo(function GroupHeader({ groupId, groupName, count, isExp
       }}
       style={style}
     >
-      <span className={`chevron ${isExpanded ? 'expanded' : ''}`} aria-hidden="true">›</span>
+      <span className={`chevron ${isExpanded ? 'expanded' : ''}`} aria-hidden="true">
+        ›
+      </span>
       <span className="group-name">{groupName}</span>
-      <span className="group-count" aria-label={`${count} conversations`}>{count}</span>
+      <span className="group-count" aria-label={`${count} conversations`}>
+        {count}
+      </span>
     </div>
   );
 });
@@ -281,43 +293,46 @@ export function VirtualizedConversationList({
   const shouldVirtualize = items.length > 20;
 
   // Row props for the list component (react-window v2 API)
-  const rowProps: RowProps = useMemo(() => ({
-    items,
-    currentConversationId,
-    focusedConversationId,
-    selectedIds,
-    editingId,
-    editingTitle,
-    onSelectConversation,
-    onStartEdit,
-    onEditTitleChange,
-    onSaveEdit,
-    onCancelEdit,
-    onToggleSelection,
-    onStarConversation,
-    onArchiveConversation,
-    onDeleteConversation,
-    onToggleGroup,
-    onContextMenu,
-  }), [
-    items,
-    currentConversationId,
-    focusedConversationId,
-    selectedIds,
-    editingId,
-    editingTitle,
-    onSelectConversation,
-    onStartEdit,
-    onEditTitleChange,
-    onSaveEdit,
-    onCancelEdit,
-    onToggleSelection,
-    onStarConversation,
-    onArchiveConversation,
-    onDeleteConversation,
-    onToggleGroup,
-    onContextMenu,
-  ]);
+  const rowProps: RowProps = useMemo(
+    () => ({
+      items,
+      currentConversationId,
+      focusedConversationId,
+      selectedIds,
+      editingId,
+      editingTitle,
+      onSelectConversation,
+      onStartEdit,
+      onEditTitleChange,
+      onSaveEdit,
+      onCancelEdit,
+      onToggleSelection,
+      onStarConversation,
+      onArchiveConversation,
+      onDeleteConversation,
+      onToggleGroup,
+      onContextMenu,
+    }),
+    [
+      items,
+      currentConversationId,
+      focusedConversationId,
+      selectedIds,
+      editingId,
+      editingTitle,
+      onSelectConversation,
+      onStartEdit,
+      onEditTitleChange,
+      onSaveEdit,
+      onCancelEdit,
+      onToggleSelection,
+      onStarConversation,
+      onArchiveConversation,
+      onDeleteConversation,
+      onToggleGroup,
+      onContextMenu,
+    ]
+  );
 
   // For small lists, render without virtualization
   if (!shouldVirtualize) {
@@ -328,7 +343,11 @@ export function VirtualizedConversationList({
             key={item.type === 'header' ? `h-${item.groupId}` : item.conversation.id}
             index={index}
             style={{}}
-            ariaAttributes={{ 'aria-posinset': index + 1, 'aria-setsize': items.length, role: 'listitem' }}
+            ariaAttributes={{
+              'aria-posinset': index + 1,
+              'aria-setsize': items.length,
+              role: 'listitem',
+            }}
             {...rowProps}
           />
         ))}
@@ -338,11 +357,12 @@ export function VirtualizedConversationList({
 
   // Calculate average item height for the list
   // Since we have mixed heights, use a weighted average
-  const headerCount = items.filter(i => i.type === 'header').length;
+  const headerCount = items.filter((i) => i.type === 'header').length;
   const convCount = items.length - headerCount;
-  const avgHeight = items.length > 0
-    ? (headerCount * GROUP_HEADER_HEIGHT + convCount * CONVERSATION_ITEM_HEIGHT) / items.length
-    : CONVERSATION_ITEM_HEIGHT;
+  const avgHeight =
+    items.length > 0
+      ? (headerCount * GROUP_HEADER_HEIGHT + convCount * CONVERSATION_ITEM_HEIGHT) / items.length
+      : CONVERSATION_ITEM_HEIGHT;
 
   return (
     <List

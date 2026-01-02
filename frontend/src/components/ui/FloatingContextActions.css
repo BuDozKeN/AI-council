@@ -343,25 +343,25 @@
    =========================================== */
 
 .dark .floating-sticky-row,
-[data-theme="dark"] .floating-sticky-row {
+[data-theme='dark'] .floating-sticky-row {
   background: inherit;
 }
 
 .dark .floating-copy-btn,
-[data-theme="dark"] .floating-copy-btn {
+[data-theme='dark'] .floating-copy-btn {
   background: var(--color-bg-secondary);
   border-color: var(--color-border);
   color: var(--color-text-secondary);
 }
 
 .dark .floating-copy-btn:hover,
-[data-theme="dark"] .floating-copy-btn:hover {
+[data-theme='dark'] .floating-copy-btn:hover {
   background: var(--color-bg-tertiary);
   color: var(--color-text-primary);
 }
 
 .dark .floating-copy-btn.copied,
-[data-theme="dark"] .floating-copy-btn.copied {
+[data-theme='dark'] .floating-copy-btn.copied {
   color: var(--color-green-400);
   border-color: var(--color-green-700);
   background: var(--overlay-green-15);
@@ -369,34 +369,34 @@
 
 /* Sticky copy button dark mode */
 .dark .floating-copy-btn-sticky,
-[data-theme="dark"] .floating-copy-btn-sticky {
+[data-theme='dark'] .floating-copy-btn-sticky {
   background: var(--color-bg-secondary);
   border-color: var(--color-border);
   color: var(--color-text-secondary);
 }
 
 .dark .floating-copy-btn-sticky:hover,
-[data-theme="dark"] .floating-copy-btn-sticky:hover {
+[data-theme='dark'] .floating-copy-btn-sticky:hover {
   background: var(--color-bg-tertiary);
   color: var(--color-text-primary);
 }
 
 .dark .floating-copy-btn-sticky.copied,
-[data-theme="dark"] .floating-copy-btn-sticky.copied {
+[data-theme='dark'] .floating-copy-btn-sticky.copied {
   color: var(--color-green-400);
   border-color: var(--color-green-700);
   background: var(--overlay-green-15);
 }
 
 .dark .floating-scroll-top-btn,
-[data-theme="dark"] .floating-scroll-top-btn {
+[data-theme='dark'] .floating-scroll-top-btn {
   background: var(--color-bg-secondary);
   border-color: var(--color-border);
   color: var(--color-text-secondary);
 }
 
 .dark .floating-scroll-top-btn:hover,
-[data-theme="dark"] .floating-scroll-top-btn:hover {
+[data-theme='dark'] .floating-scroll-top-btn:hover {
   background: var(--color-bg-tertiary);
   color: var(--color-text-primary);
 }

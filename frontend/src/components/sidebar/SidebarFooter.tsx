@@ -49,11 +49,7 @@ export function SidebarFooter({
   if (!user) return null;
 
   return (
-    <div
-      className="sidebar-footer"
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-    >
+    <div className="sidebar-footer" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
       {/* Mode Toggles - Dev only */}
       {DEV_MODE && (
         <div className="mode-toggle-section">
@@ -61,19 +57,31 @@ export function SidebarFooter({
             className={`mode-toggle-btn ${mockMode ? 'mock' : 'production'} ${isTogglingMock ? 'toggling' : ''}`}
             onClick={onToggleMockMode}
             disabled={isTogglingMock || mockMode === null}
-            title={mockMode ? 'Mock Mode: Using simulated responses (free)' : 'Production Mode: Using real API calls (costs credits)'}
+            title={
+              mockMode
+                ? 'Mock Mode: Using simulated responses (free)'
+                : 'Production Mode: Using real API calls (costs credits)'
+            }
           >
             <span className="mode-indicator"></span>
-            <span className="mode-label">{mockMode === null ? '...' : mockMode ? 'Mock' : 'Prod'}</span>
+            <span className="mode-label">
+              {mockMode === null ? '...' : mockMode ? 'Mock' : 'Prod'}
+            </span>
           </button>
           <button
             className={`mode-toggle-btn caching ${cachingMode ? 'enabled' : 'disabled'} ${isTogglingCaching ? 'toggling' : ''}`}
             onClick={onToggleCachingMode}
             disabled={isTogglingCaching || cachingMode === null}
-            title={cachingMode ? 'Caching ON: Reduces costs by caching context (Claude/Gemini)' : 'Caching OFF: Standard API calls'}
+            title={
+              cachingMode
+                ? 'Caching ON: Reduces costs by caching context (Claude/Gemini)'
+                : 'Caching OFF: Standard API calls'
+            }
           >
             <span className="mode-indicator"></span>
-            <span className="mode-label">{cachingMode === null ? '...' : cachingMode ? 'Cache' : 'No Cache'}</span>
+            <span className="mode-label">
+              {cachingMode === null ? '...' : cachingMode ? 'Cache' : 'No Cache'}
+            </span>
           </button>
         </div>
       )}

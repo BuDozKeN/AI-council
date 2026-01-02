@@ -1,4 +1,12 @@
-import { useState, useCallback, useRef, ReactNode, DragEvent, ChangeEvent, ClipboardEvent } from 'react';
+import {
+  useState,
+  useCallback,
+  useRef,
+  ReactNode,
+  DragEvent,
+  ChangeEvent,
+  ClipboardEvent,
+} from 'react';
 import './ImageUpload.css';
 
 interface UploadedImage {
@@ -70,45 +78,47 @@ export default function ImageUpload({
     return null;
   };
 
-  const processFiles = useCallback((files: File[]) => {
-    if (disabled) return;
+  const processFiles = useCallback(
+    (files: File[]) => {
+      if (disabled) return;
 
-    const newImages: UploadedImage[] = [];
-    const errors: string[] = [];
+      const newImages: UploadedImage[] = [];
+      const errors: string[] = [];
 
-    for (const file of files) {
-      if (images.length + newImages.length >= maxImages) {
-        errors.push(`Maximum ${maxImages} images allowed`);
-        break;
+      for (const file of files) {
+        if (images.length + newImages.length >= maxImages) {
+          errors.push(`Maximum ${maxImages} images allowed`);
+          break;
+        }
+
+        const validationError = validateFile(file);
+        if (validationError) {
+          errors.push(validationError);
+          continue;
+        }
+
+        // Create preview URL
+        const preview = URL.createObjectURL(file);
+        newImages.push({
+          file,
+          preview,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+        });
       }
 
-      const validationError = validateFile(file);
-      if (validationError) {
-        errors.push(validationError);
-        continue;
+      if (newImages.length > 0) {
+        onImagesChange([...images, ...newImages]);
       }
 
-      // Create preview URL
-      const preview = URL.createObjectURL(file);
-      newImages.push({
-        file,
-        preview,
-        name: file.name,
-        size: file.size,
-        type: file.type,
-      });
-    }
-
-    if (newImages.length > 0) {
-      onImagesChange([...images, ...newImages]);
-    }
-
-    if (errors.length > 0) {
-      setError(errors.join('. '));
-      setTimeout(() => setError(null), 5000);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- validateFile is stable within component
-  }, [images, onImagesChange, disabled, maxImages, maxSizeBytes]);
+      if (errors.length > 0) {
+        setError(errors.join('. '));
+        setTimeout(() => setError(null), 5000);
+      }
+    },
+    [images, onImagesChange, disabled, maxImages, maxSizeBytes]
+  );
 
   const removeImage = (index: number) => {
     const newImages = [...images];
@@ -122,25 +132,28 @@ export default function ImageUpload({
   };
 
   // Handle paste event
-  const handlePaste = useCallback((e: ClipboardEvent) => {
-    if (disabled) return;
+  const handlePaste = useCallback(
+    (e: ClipboardEvent) => {
+      if (disabled) return;
 
-    const items = e.clipboardData?.items;
-    if (!items) return;
+      const items = e.clipboardData?.items;
+      if (!items) return;
 
-    const imageFiles: File[] = [];
-    for (const item of Array.from(items)) {
-      if (item.type.startsWith('image/')) {
-        const file = item.getAsFile();
-        if (file) imageFiles.push(file);
+      const imageFiles: File[] = [];
+      for (const item of Array.from(items)) {
+        if (item.type.startsWith('image/')) {
+          const file = item.getAsFile();
+          if (file) imageFiles.push(file);
+        }
       }
-    }
 
-    if (imageFiles.length > 0) {
-      e.preventDefault();
-      processFiles(imageFiles);
-    }
-  }, [processFiles, disabled]);
+      if (imageFiles.length > 0) {
+        e.preventDefault();
+        processFiles(imageFiles);
+      }
+    },
+    [processFiles, disabled]
+  );
 
   // Drag and drop handlers - using counter to prevent flicker on child elements
   const handleDragEnter = (e: DragEvent<HTMLElement>) => {
@@ -191,9 +204,7 @@ export default function ImageUpload({
 
     // Only process image files - silently ignore non-images since we already
     // showed the warning during drag (no need for ugly error banners)
-    const imageFiles = Array.from(e.dataTransfer.files).filter(f =>
-      f.type.startsWith('image/')
-    );
+    const imageFiles = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith('image/'));
 
     if (imageFiles.length > 0) {
       processFiles(imageFiles);
@@ -244,40 +255,39 @@ export default function ImageUpload({
       />
     ),
     // Image preview component
-    previews: images.length > 0 ? (
-      <div className="image-previews">
-        {images.map((img, index) => (
-          <div key={index} className="image-preview-item">
-            <img src={img.preview} alt={img.name} />
+    previews:
+      images.length > 0 ? (
+        <div className="image-previews">
+          {images.map((img, index) => (
+            <div key={index} className="image-preview-item">
+              <img src={img.preview} alt={img.name} />
+              <button
+                type="button"
+                className="remove-image-btn"
+                onClick={() => removeImage(index)}
+                disabled={disabled}
+                aria-label="Remove image"
+              >
+                &times;
+              </button>
+              <span className="image-name">{img.name}</span>
+            </div>
+          ))}
+          {images.length < maxImages && (
             <button
               type="button"
-              className="remove-image-btn"
-              onClick={() => removeImage(index)}
+              className="add-more-images-btn"
+              onClick={openFilePicker}
               disabled={disabled}
-              aria-label="Remove image"
             >
-              &times;
+              <span>+</span>
+              <span className="add-label">Add</span>
             </button>
-            <span className="image-name">{img.name}</span>
-          </div>
-        ))}
-        {images.length < maxImages && (
-          <button
-            type="button"
-            className="add-more-images-btn"
-            onClick={openFilePicker}
-            disabled={disabled}
-          >
-            <span>+</span>
-            <span className="add-label">Add</span>
-          </button>
-        )}
-      </div>
-    ) : null,
+          )}
+        </div>
+      ) : null,
     // Error display
-    errorDisplay: error ? (
-      <div className="image-upload-error">{error}</div>
-    ) : null,
+    errorDisplay: error ? <div className="image-upload-error">{error}</div> : null,
     // Drag overlay - shows different message for images vs non-images
     dragOverlay: isDragging ? (
       <div className={`drag-overlay ${dragHasImages ? '' : 'invalid'}`}>
@@ -285,14 +295,14 @@ export default function ImageUpload({
           {dragHasImages ? (
             <>
               <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor">
-                <path d="M19 7v2.99s-1.99.01-2 0V7h-3s.01-1.99 0-2h3V2h2v3h3v2h-3zm-3 4V8h-3V5H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8h-3zM5 19l3-4 2 3 3-4 4 5H5z"/>
+                <path d="M19 7v2.99s-1.99.01-2 0V7h-3s.01-1.99 0-2h3V2h2v3h3v2h-3zm-3 4V8h-3V5H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8h-3zM5 19l3-4 2 3 3-4 4 5H5z" />
               </svg>
               <span>Drop images here</span>
             </>
           ) : (
             <>
               <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v2h-2v-2zm0-10h2v8h-2V7z"/>
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v2h-2v-2zm0-10h2v8h-2V7z" />
               </svg>
               <span className="invalid-message">Only images are supported</span>
               <span className="invalid-hint">PNG, JPG, GIF, or WebP</span>

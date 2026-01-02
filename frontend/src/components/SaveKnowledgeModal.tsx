@@ -59,7 +59,11 @@ interface SaveKnowledgeModalProps {
 }
 
 const CATEGORIES: CategoryOption[] = [
-  { id: 'technical_decision', label: 'Technical Decision', description: 'Architecture choices, tech stack decisions' },
+  {
+    id: 'technical_decision',
+    label: 'Technical Decision',
+    description: 'Architecture choices, tech stack decisions',
+  },
   { id: 'ux_pattern', label: 'UX Pattern', description: 'UI/UX decisions and best practices' },
   { id: 'feature', label: 'Feature', description: 'New features and functionality' },
   { id: 'policy', label: 'Policy', description: 'Business rules and policies' },
@@ -73,27 +77,27 @@ const SAVE_MODES: SaveModeOption[] = [
     id: 'just_save',
     label: 'Just Save',
     icon: '📄',
-    description: 'Save for reference, won\'t auto-inject into future councils'
+    description: "Save for reference, won't auto-inject into future councils",
   },
   {
     id: 'remember',
     label: 'Remember This',
     icon: '🧠',
-    description: 'Auto-inject into future council sessions for this project/department'
+    description: 'Auto-inject into future council sessions for this project/department',
   },
   {
     id: 'playbook',
     label: 'Make Playbook',
     icon: '📋',
-    description: 'Promote to SOP/Framework/Policy for formal documentation'
-  }
+    description: 'Promote to SOP/Framework/Policy for formal documentation',
+  },
 ];
 
 // Scope options
 const SCOPES: ScopeOption[] = [
   { id: 'department', label: 'Department', description: 'Visible to this department only' },
   { id: 'company', label: 'Company-wide', description: 'Visible to all departments' },
-  { id: 'project', label: 'Project Only', description: 'Visible only within this project' }
+  { id: 'project', label: 'Project Only', description: 'Visible only within this project' },
 ];
 
 const DEPARTMENTS: DepartmentOption[] = [
@@ -118,15 +122,15 @@ export default function SaveKnowledgeModal({
   isOpen,
   onClose,
   suggestedTitle,
-  suggestedSummary: _suggestedSummary,  // Reserved for future use
-  fullResponseText,  // The chairman's full response
+  suggestedSummary: _suggestedSummary, // Reserved for future use
+  fullResponseText, // The chairman's full response
   companyId,
   departmentId,
   conversationId,
-  userQuestion,  // The original user question
+  userQuestion, // The original user question
   projects = [],
   currentProjectId = null,
-  onProjectCreated,  // Callback when a new project is created
+  onProjectCreated, // Callback when a new project is created
 }: SaveKnowledgeModalProps) {
   const [title, setTitle] = useState<string>('');
   const [summary, setSummary] = useState<string>('');
@@ -193,8 +197,9 @@ export default function SaveKnowledgeModal({
 
       // Call backend extraction API
       // Backend will use AI if available, or sanitized fallback if not
-      api.extractDecision(userQuestion, fullResponseText || '')
-        .then(result => {
+      api
+        .extractDecision(userQuestion, fullResponseText || '')
+        .then((result) => {
           if (result.success && result.extracted) {
             const extracted = result.extracted;
 
@@ -209,21 +214,28 @@ export default function SaveKnowledgeModal({
             const dept = extracted.department || departmentId || 'technology';
             setDepartment(dept);
             setOriginalDepartment(dept);
-            setDepartmentReason(extracted.used_ai
-              ? 'AI extracted based on content analysis'
-              : 'Auto-detected from content keywords');
+            setDepartmentReason(
+              extracted.used_ai
+                ? 'AI extracted based on content analysis'
+                : 'Auto-detected from content keywords'
+            );
 
             // Set category
             const cat = extracted.category || 'technical_decision';
             setCategory(cat);
             setOriginalCategory(cat);
-            setCategoryReason(extracted.used_ai
-              ? 'AI extracted based on decision type'
-              : 'Auto-detected from content keywords');
+            setCategoryReason(
+              extracted.used_ai
+                ? 'AI extracted based on decision type'
+                : 'Auto-detected from content keywords'
+            );
 
             // Build summary from structured fields
-            setSummary([extracted.problem_statement, extracted.decision_text, extracted.reasoning]
-              .filter(Boolean).join(' | '));
+            setSummary(
+              [extracted.problem_statement, extracted.decision_text, extracted.reasoning]
+                .filter(Boolean)
+                .join(' | ')
+            );
           } else {
             // API call succeeded but extraction failed - show editable placeholders
             log.warn('Extraction failed:', result.error);
@@ -236,7 +248,7 @@ export default function SaveKnowledgeModal({
             setCategory('technical_decision');
           }
         })
-        .catch(err => {
+        .catch((err) => {
           log.error('Extraction error:', err);
           // Network/API error - show editable placeholders
           setTitle(suggestedTitle || 'Council Discussion');
@@ -263,7 +275,11 @@ export default function SaveKnowledgeModal({
       // Call backend to extract project details
       // Backend handles sanitization - no garbage will come through
       // Pass companyId for usage tracking
-      const result = await api.extractProject(userQuestion ?? '', fullResponseText ?? '', companyId);
+      const result = await api.extractProject(
+        userQuestion ?? '',
+        fullResponseText ?? '',
+        companyId
+      );
 
       if (result.success && result.extracted) {
         setNewProjectName(result.extracted.name || 'New Project');
@@ -271,12 +287,16 @@ export default function SaveKnowledgeModal({
       } else {
         // Fallback - editable placeholders
         setNewProjectName(title || 'New Project');
-        setNewProjectDescription('Project created from council discussion.\n\nUse this project to track related decisions.');
+        setNewProjectDescription(
+          'Project created from council discussion.\n\nUse this project to track related decisions.'
+        );
       }
     } catch (err) {
       log.error('Project extraction error:', err);
       setNewProjectName(title || 'New Project');
-      setNewProjectDescription('Project created from council discussion.\n\nUse this project to track related decisions.');
+      setNewProjectDescription(
+        'Project created from council discussion.\n\nUse this project to track related decisions.'
+      );
     } finally {
       setExtractingProject(false);
     }
@@ -304,7 +324,7 @@ export default function SaveKnowledgeModal({
       });
 
       if (result.project) {
-        setAvailableProjects(prev => [...prev, result.project]);
+        setAvailableProjects((prev) => [...prev, result.project]);
         setProjectId(result.project.id);
         setShowProjectPreview(false);
         toast.success(`"${newProjectName.trim()}" project created`, { duration: 3000 });
@@ -316,7 +336,8 @@ export default function SaveKnowledgeModal({
         }
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Couldn't create that project. Please try again.";
+      const errorMessage =
+        err instanceof Error ? err.message : "Couldn't create that project. Please try again.";
       setError(errorMessage);
     } finally {
       setCreatingProject(false);
@@ -336,7 +357,7 @@ export default function SaveKnowledgeModal({
 
   // Remove a tag
   const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter(t => t !== tagToRemove));
+    setTags(tags.filter((t) => t !== tagToRemove));
   };
 
   // Handle tag input keypress
@@ -359,7 +380,9 @@ export default function SaveKnowledgeModal({
 
     // If playbook mode, we need to redirect to playbook creation (future enhancement)
     if (saveMode === 'playbook') {
-      setError('Playbook creation coming soon! For now, save as "Remember This" and promote later from My Company.');
+      setError(
+        'Playbook creation coming soon! For now, save as "Remember This" and promote later from My Company.'
+      );
       return;
     }
 
@@ -367,8 +390,8 @@ export default function SaveKnowledgeModal({
     setError(null);
 
     try {
-      const effectiveSummary = summary.trim() ||
-        [problemStatement, decisionText, reasoning].filter(Boolean).join(' | ');
+      const effectiveSummary =
+        summary.trim() || [problemStatement, decisionText, reasoning].filter(Boolean).join(' | ');
 
       // Determine auto_inject based on save mode
       const autoInject = saveMode === 'remember';
@@ -380,9 +403,9 @@ export default function SaveKnowledgeModal({
       const payload = {
         company_id: companyId,
         title: title.trim(),
-        content: effectiveSummary,  // Use canonical content field
+        content: effectiveSummary, // Use canonical content field
         category,
-        department_ids: department ? [department] : [],  // Use canonical array field
+        department_ids: department ? [department] : [], // Use canonical array field
         project_id: projectId || null,
         source_conversation_id: conversationId || null,
         problem_statement: problemStatement.trim() || null,
@@ -400,12 +423,14 @@ export default function SaveKnowledgeModal({
       log.debug('Save successful:', result);
 
       // Show success toast and close modal
-      const modeText = saveMode === 'remember' ? 'Decision saved and will be remembered' : 'Decision saved';
+      const modeText =
+        saveMode === 'remember' ? 'Decision saved and will be remembered' : 'Decision saved';
       toast.success(`"${title.trim()}" - ${modeText}`, { duration: 4000 });
       onClose(true); // Close modal immediately with saved=true
     } catch (err) {
       log.error('Save failed:', err);
-      const errorMessage = err instanceof Error ? err.message : "Couldn't save your decision. Please try again.";
+      const errorMessage =
+        err instanceof Error ? err.message : "Couldn't save your decision. Please try again.";
       setError(errorMessage);
     } finally {
       setSaving(false);
@@ -421,400 +446,426 @@ export default function SaveKnowledgeModal({
       contentClassName="save-knowledge-modal-body"
     >
       {success ? (
-          <div className="success-message">
-            <span className="success-icon">&#10003;</span>
-            <p className="success-title">
-              {saveMode === 'remember' ? 'Saved & Will Be Remembered' : 'Saved to Knowledge Base'}
-            </p>
-            <p className="success-detail">
-              {saveMode === 'remember'
-                ? 'This will be automatically injected into future council discussions.'
-                : 'This decision has been saved for reference.'}
-            </p>
-            <div className="success-location">
+        <div className="success-message">
+          <span className="success-icon">&#10003;</span>
+          <p className="success-title">
+            {saveMode === 'remember' ? 'Saved & Will Be Remembered' : 'Saved to Knowledge Base'}
+          </p>
+          <p className="success-detail">
+            {saveMode === 'remember'
+              ? 'This will be automatically injected into future council discussions.'
+              : 'This decision has been saved for reference.'}
+          </p>
+          <div className="success-location">
+            <div className="success-location-row">
+              <span className="success-location-label">Department</span>
+              <span className="success-location-value">
+                {DEPARTMENTS.find((d) => d.id === department)?.label || department}
+              </span>
+            </div>
+            {projectId && (
               <div className="success-location-row">
-                <span className="success-location-label">Department</span>
+                <span className="success-location-label">Project</span>
                 <span className="success-location-value">
-                  {DEPARTMENTS.find(d => d.id === department)?.label || department}
+                  {availableProjects.find((p) => p.id === projectId)?.name || 'Selected Project'}
                 </span>
               </div>
-              {projectId && (
-                <div className="success-location-row">
-                  <span className="success-location-label">Project</span>
-                  <span className="success-location-value">
-                    {availableProjects.find(p => p.id === projectId)?.name || 'Selected Project'}
-                  </span>
-                </div>
-              )}
-              <div className="success-location-row">
-                <span className="success-location-label">Category</span>
-                <span className="success-location-value">
-                  {CATEGORIES.find(c => c.id === category)?.label || category}
-                </span>
+            )}
+            <div className="success-location-row">
+              <span className="success-location-label">Category</span>
+              <span className="success-location-value">
+                {CATEGORIES.find((c) => c.id === category)?.label || category}
+              </span>
+            </div>
+          </div>
+          <Button variant="default" onClick={() => onClose(true)}>
+            Done
+          </Button>
+        </div>
+      ) : extracting ? (
+        <div className="extracting-message">
+          <Spinner size="xl" variant="brand" />
+          <p>AI is extracting key insights...</p>
+          <p className="extracting-hint">
+            Analyzing the council response to identify the important decision
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="modal-body">
+            {/* Save Mode Selector - Progressive Disclosure */}
+            <div className="save-mode-selector">
+              <label className="save-mode-label">What would you like to do?</label>
+              <div className="save-mode-options">
+                {SAVE_MODES.map((mode) => (
+                  <button
+                    key={mode.id}
+                    type="button"
+                    className={`save-mode-option ${saveMode === mode.id ? 'selected' : ''}`}
+                    onClick={() => setSaveMode(mode.id)}
+                  >
+                    <span className="save-mode-icon">{mode.icon}</span>
+                    <span className="save-mode-text">
+                      <span className="save-mode-name">{mode.label}</span>
+                      <span className="save-mode-desc">{mode.description}</span>
+                    </span>
+                  </button>
+                ))}
               </div>
             </div>
-            <Button variant="default" onClick={() => onClose(true)}>
-              Done
-            </Button>
-          </div>
-        ) : extracting ? (
-          <div className="extracting-message">
-            <Spinner size="xl" variant="brand" />
-            <p>AI is extracting key insights...</p>
-            <p className="extracting-hint">Analyzing the council response to identify the important decision</p>
-          </div>
-        ) : (
-          <>
-            <div className="modal-body">
-              {/* Save Mode Selector - Progressive Disclosure */}
-              <div className="save-mode-selector">
-                <label className="save-mode-label">What would you like to do?</label>
-                <div className="save-mode-options">
-                  {SAVE_MODES.map(mode => (
+
+            {/* Show context: AI-cleaned summary of what was asked */}
+            {(contextSummary || userQuestion) && (
+              <div className="context-info">
+                <div className="context-header">
+                  <span className="context-label">Context</span>
+                  {!contextSummary && userQuestion && userQuestion.length > 150 && (
                     <button
-                      key={mode.id}
                       type="button"
-                      className={`save-mode-option ${saveMode === mode.id ? 'selected' : ''}`}
-                      onClick={() => setSaveMode(mode.id)}
+                      className="expand-btn"
+                      onClick={() => setShowFullQuestion(!showFullQuestion)}
                     >
-                      <span className="save-mode-icon">{mode.icon}</span>
-                      <span className="save-mode-text">
-                        <span className="save-mode-name">{mode.label}</span>
-                        <span className="save-mode-desc">{mode.description}</span>
-                      </span>
+                      {showFullQuestion ? 'Show less' : 'Show full'}
                     </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Show context: AI-cleaned summary of what was asked */}
-              {(contextSummary || userQuestion) && (
-                <div className="context-info">
-                  <div className="context-header">
-                    <span className="context-label">Context</span>
-                    {!contextSummary && userQuestion && userQuestion.length > 150 && (
-                      <button
-                        type="button"
-                        className="expand-btn"
-                        onClick={() => setShowFullQuestion(!showFullQuestion)}
-                      >
-                        {showFullQuestion ? 'Show less' : 'Show full'}
-                      </button>
-                    )}
-                  </div>
-                  <p className="context-text">
-                    {contextSummary || (showFullQuestion ? userQuestion : truncateForDisplay(userQuestion, 150))}
-                  </p>
-                </div>
-              )}
-
-              <div className="form-group">
-                <label htmlFor="knowledge-title">Title</label>
-                <AIWriteAssist
-                  context="decision-title"
-                  value={title}
-                  onSuggestion={setTitle}
-                  additionalContext={userQuestion ? `Question: ${userQuestion.slice(0, 200)}` : ''}
-                  inline
-                >
-                  <input
-                    id="knowledge-title"
-                    type="text"
-                    value={title}
-                    onChange={e => setTitle(e.target.value)}
-                    placeholder="e.g., Supabase-based Context Storage Decision"
-                    maxLength={200}
-                  />
-                </AIWriteAssist>
-                <p className="hint">A clear, searchable title for this decision or pattern</p>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group form-group-half">
-                  <label htmlFor="knowledge-department">Department</label>
-                  <div className="field-with-tooltip">
-                    <select
-                      id="knowledge-department"
-                      value={department}
-                      onChange={e => setDepartment(e.target.value)}
-                    >
-                      {DEPARTMENTS.map(dept => (
-                        <option key={dept.id} value={dept.id}>
-                          {dept.label}{dept.id === originalDepartment ? ' *' : ''}
-                        </option>
-                      ))}
-                    </select>
-                    {departmentReason && (
-                      <span className="detection-tooltip" title={departmentReason}>
-                        <span className="tooltip-icon">?</span>
-                        <span className="tooltip-text">
-                          <strong>Suggested:</strong> {DEPARTMENTS.find(d => d.id === originalDepartment)?.label || originalDepartment}
-                          <br /><br />
-                          <strong>Why:</strong> {departmentReason}
-                          {department !== originalDepartment && (
-                            <>
-                              <br /><br />
-                              <em className="tooltip-changed">You changed this from the suggestion</em>
-                            </>
-                          )}
-                        </span>
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="form-group form-group-half">
-                  <label htmlFor="knowledge-category">Category</label>
-                  <div className="field-with-tooltip">
-                    <select
-                      id="knowledge-category"
-                      value={category}
-                      onChange={e => setCategory(e.target.value)}
-                    >
-                      {CATEGORIES.map(cat => (
-                        <option key={cat.id} value={cat.id}>
-                          {cat.label}{cat.id === originalCategory ? ' *' : ''}
-                        </option>
-                      ))}
-                    </select>
-                    {categoryReason && (
-                      <span className="detection-tooltip" title={categoryReason}>
-                        <span className="tooltip-icon">?</span>
-                        <span className="tooltip-text">
-                          <strong>Suggested:</strong> {CATEGORIES.find(c => c.id === originalCategory)?.label || originalCategory}
-                          <br /><br />
-                          <strong>Why:</strong> {categoryReason}
-                          {category !== originalCategory && (
-                            <>
-                              <br /><br />
-                              <em className="tooltip-changed">You changed this from the suggestion</em>
-                            </>
-                          )}
-                        </span>
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Project selector */}
-              <div className="form-group">
-                <label htmlFor="knowledge-project">
-                  Project {currentProjectId ? '' : '(optional)'}
-                </label>
-                <select
-                  id="knowledge-project"
-                  value={projectId || ''}
-                  onChange={e => {
-                    const val = e.target.value;
-                    if (val === '__new__') {
-                      handleShowProjectPreview();
-                    } else if (val === '') {
-                      setProjectId(null);
-                    } else {
-                      setProjectId(val);
-                    }
-                  }}
-                  disabled={creatingProject || showProjectPreview}
-                >
-                  {currentProjectId && availableProjects.find(p => p.id === currentProjectId) && (
-                    <option value={currentProjectId}>
-                      {availableProjects.find(p => p.id === currentProjectId)?.name}
-                    </option>
                   )}
-                  {availableProjects
-                    .filter(p => p.id !== currentProjectId)
-                    .map(proj => (
-                      <option key={proj.id} value={proj.id}>
-                        {proj.name}
-                      </option>
-                    ))}
-                  <option value="">No Project (company-wide)</option>
-                  <option value="__new__">
-                    {creatingProject ? 'Creating...' : 'New Project'}
-                  </option>
-                </select>
-
-                {/* Project preview/edit form */}
-                {showProjectPreview ? (
-                  <div className="project-preview-form">
-                    {extractingProject ? (
-                      <div className="project-extracting">
-                        <Spinner size="lg" variant="brand" />
-                        <p>AI is generating project details...</p>
-                        <span className="project-extracting-hint">Creating a clear name and description</span>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="project-preview-header">
-                          <span className="project-preview-label">New Project Details</span>
-                          <span className="project-preview-hint">Review and edit before creating</span>
-                        </div>
-                        <div className="project-preview-field">
-                          <label htmlFor="new-project-name">Project Name</label>
-                          <input
-                            id="new-project-name"
-                            type="text"
-                            value={newProjectName}
-                            onChange={e => setNewProjectName(e.target.value)}
-                            placeholder="Enter project name"
-                            disabled={creatingProject}
-                            autoFocus
-                          />
-                        </div>
-                        <div className="project-preview-field">
-                          <label htmlFor="new-project-description">Description</label>
-                          <textarea
-                            id="new-project-description"
-                            value={newProjectDescription}
-                            onChange={e => setNewProjectDescription(e.target.value)}
-                            placeholder="Project description"
-                            rows={4}
-                            disabled={creatingProject}
-                          />
-                          <span className="field-hint">This description helps anyone understand what this project is about</span>
-                        </div>
-                        <div className="project-preview-actions">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={handleCancelProjectPreview}
-                            disabled={creatingProject}
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="default"
-                            onClick={handleConfirmCreateProject}
-                            disabled={creatingProject || !newProjectName.trim()}
-                          >
-                            {creatingProject ? 'Creating...' : 'Create Project'}
-                          </Button>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                ) : (
-                  <p className="hint">
-                    {creatingProject
-                      ? 'Creating project...'
-                      : projectId
-                        ? 'This will be saved to your project for client reports.'
-                        : 'Select a project or create one from this discussion.'}
-                  </p>
-                )}
+                </div>
+                <p className="context-text">
+                  {contextSummary ||
+                    (showFullQuestion ? userQuestion : truncateForDisplay(userQuestion, 150))}
+                </p>
               </div>
+            )}
 
-              {/* Structured Decision Fields - compact layout */}
-              <div className="form-group">
-                <label htmlFor="knowledge-problem">Problem / Question (optional)</label>
-                <textarea
-                  id="knowledge-problem"
-                  value={problemStatement}
-                  onChange={e => setProblemStatement(e.target.value)}
-                  placeholder="What problem or question led to this decision?"
-                  rows={2}
-                  enterKeyHint="next"
+            <div className="form-group">
+              <label htmlFor="knowledge-title">Title</label>
+              <AIWriteAssist
+                context="decision-title"
+                value={title}
+                onSuggestion={setTitle}
+                additionalContext={userQuestion ? `Question: ${userQuestion.slice(0, 200)}` : ''}
+                inline
+              >
+                <input
+                  id="knowledge-title"
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g., Supabase-based Context Storage Decision"
+                  maxLength={200}
                 />
-              </div>
+              </AIWriteAssist>
+              <p className="hint">A clear, searchable title for this decision or pattern</p>
+            </div>
 
-              <div className="form-group">
-                <label htmlFor="knowledge-decision">Decision *</label>
-                <textarea
-                  id="knowledge-decision"
-                  value={decisionText}
-                  onChange={e => setDecisionText(e.target.value)}
-                  placeholder="What was decided? Be specific and actionable."
-                  rows={2}
-                  enterKeyHint="next"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="knowledge-reasoning">Reasoning (optional)</label>
-                <textarea
-                  id="knowledge-reasoning"
-                  value={reasoning}
-                  onChange={e => setReasoning(e.target.value)}
-                  placeholder="Why was this decision made?"
-                  rows={2}
-                  enterKeyHint="next"
-                />
-              </div>
-
-              {/* Scope selector - only show for "Remember This" mode */}
-              {saveMode === 'remember' && (
-                <div className="form-group">
-                  <label htmlFor="knowledge-scope">Visibility Scope</label>
+            <div className="form-row">
+              <div className="form-group form-group-half">
+                <label htmlFor="knowledge-department">Department</label>
+                <div className="field-with-tooltip">
                   <select
-                    id="knowledge-scope"
-                    value={scope}
-                    onChange={e => setScope(e.target.value)}
+                    id="knowledge-department"
+                    value={department}
+                    onChange={(e) => setDepartment(e.target.value)}
                   >
-                    {SCOPES.map(s => (
-                      <option key={s.id} value={s.id}>
-                        {s.label} - {s.description}
+                    {DEPARTMENTS.map((dept) => (
+                      <option key={dept.id} value={dept.id}>
+                        {dept.label}
+                        {dept.id === originalDepartment ? ' *' : ''}
                       </option>
                     ))}
                   </select>
-                  <p className="hint">
-                    {scope === 'company' && 'This will be injected into ALL council sessions for this company'}
-                    {scope === 'department' && 'This will be injected into council sessions for this department'}
-                    {scope === 'project' && 'This will only be injected when this project is selected'}
-                  </p>
-                </div>
-              )}
-
-              {/* Tags input */}
-              <div className="form-group">
-                <label htmlFor="knowledge-tags">Tags (optional)</label>
-                <div className="tags-input-container">
-                  <div className="tags-list">
-                    {tags.map(tag => (
-                      <span key={tag} className="tag-chip">
-                        {tag}
-                        <button
-                          type="button"
-                          className="tag-remove"
-                          onClick={() => handleRemoveTag(tag)}
-                        >
-                          &times;
-                        </button>
+                  {departmentReason && (
+                    <span className="detection-tooltip" title={departmentReason}>
+                      <span className="tooltip-icon">?</span>
+                      <span className="tooltip-text">
+                        <strong>Suggested:</strong>{' '}
+                        {DEPARTMENTS.find((d) => d.id === originalDepartment)?.label ||
+                          originalDepartment}
+                        <br />
+                        <br />
+                        <strong>Why:</strong> {departmentReason}
+                        {department !== originalDepartment && (
+                          <>
+                            <br />
+                            <br />
+                            <em className="tooltip-changed">
+                              You changed this from the suggestion
+                            </em>
+                          </>
+                        )}
                       </span>
-                    ))}
-                  </div>
-                  <input
-                    id="knowledge-tags"
-                    type="text"
-                    value={tagInput}
-                    onChange={e => setTagInput(e.target.value)}
-                    onKeyDown={handleTagKeyPress}
-                    onBlur={handleAddTag}
-                    placeholder="Add tags (press Enter or comma)"
-                    enterKeyHint="enter"
-                  />
+                    </span>
+                  )}
                 </div>
-                <p className="hint">Tags help organize and find this later</p>
               </div>
 
-              {error && <div className="error-message">{error}</div>}
+              <div className="form-group form-group-half">
+                <label htmlFor="knowledge-category">Category</label>
+                <div className="field-with-tooltip">
+                  <select
+                    id="knowledge-category"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                  >
+                    {CATEGORIES.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.label}
+                        {cat.id === originalCategory ? ' *' : ''}
+                      </option>
+                    ))}
+                  </select>
+                  {categoryReason && (
+                    <span className="detection-tooltip" title={categoryReason}>
+                      <span className="tooltip-icon">?</span>
+                      <span className="tooltip-text">
+                        <strong>Suggested:</strong>{' '}
+                        {CATEGORIES.find((c) => c.id === originalCategory)?.label ||
+                          originalCategory}
+                        <br />
+                        <br />
+                        <strong>Why:</strong> {categoryReason}
+                        {category !== originalCategory && (
+                          <>
+                            <br />
+                            <br />
+                            <em className="tooltip-changed">
+                              You changed this from the suggestion
+                            </em>
+                          </>
+                        )}
+                      </span>
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
 
-            <AppModal.Footer>
-              <Button variant="outline" onClick={() => onClose()} disabled={saving}>
-                Cancel
-              </Button>
-              <Button variant="default" onClick={handleSave} disabled={saving}>
-                {saving ? 'Saving...' : (
-                  saveMode === 'just_save' ? 'Save' :
-                  saveMode === 'remember' ? 'Save & Remember' :
-                  'Create Playbook'
+            {/* Project selector */}
+            <div className="form-group">
+              <label htmlFor="knowledge-project">
+                Project {currentProjectId ? '' : '(optional)'}
+              </label>
+              <select
+                id="knowledge-project"
+                value={projectId || ''}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === '__new__') {
+                    handleShowProjectPreview();
+                  } else if (val === '') {
+                    setProjectId(null);
+                  } else {
+                    setProjectId(val);
+                  }
+                }}
+                disabled={creatingProject || showProjectPreview}
+              >
+                {currentProjectId && availableProjects.find((p) => p.id === currentProjectId) && (
+                  <option value={currentProjectId}>
+                    {availableProjects.find((p) => p.id === currentProjectId)?.name}
+                  </option>
                 )}
-              </Button>
-            </AppModal.Footer>
-          </>
-        )}
+                {availableProjects
+                  .filter((p) => p.id !== currentProjectId)
+                  .map((proj) => (
+                    <option key={proj.id} value={proj.id}>
+                      {proj.name}
+                    </option>
+                  ))}
+                <option value="">No Project (company-wide)</option>
+                <option value="__new__">{creatingProject ? 'Creating...' : 'New Project'}</option>
+              </select>
+
+              {/* Project preview/edit form */}
+              {showProjectPreview ? (
+                <div className="project-preview-form">
+                  {extractingProject ? (
+                    <div className="project-extracting">
+                      <Spinner size="lg" variant="brand" />
+                      <p>AI is generating project details...</p>
+                      <span className="project-extracting-hint">
+                        Creating a clear name and description
+                      </span>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="project-preview-header">
+                        <span className="project-preview-label">New Project Details</span>
+                        <span className="project-preview-hint">
+                          Review and edit before creating
+                        </span>
+                      </div>
+                      <div className="project-preview-field">
+                        <label htmlFor="new-project-name">Project Name</label>
+                        <input
+                          id="new-project-name"
+                          type="text"
+                          value={newProjectName}
+                          onChange={(e) => setNewProjectName(e.target.value)}
+                          placeholder="Enter project name"
+                          disabled={creatingProject}
+                          autoFocus
+                        />
+                      </div>
+                      <div className="project-preview-field">
+                        <label htmlFor="new-project-description">Description</label>
+                        <textarea
+                          id="new-project-description"
+                          value={newProjectDescription}
+                          onChange={(e) => setNewProjectDescription(e.target.value)}
+                          placeholder="Project description"
+                          rows={4}
+                          disabled={creatingProject}
+                        />
+                        <span className="field-hint">
+                          This description helps anyone understand what this project is about
+                        </span>
+                      </div>
+                      <div className="project-preview-actions">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleCancelProjectPreview}
+                          disabled={creatingProject}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="default"
+                          onClick={handleConfirmCreateProject}
+                          disabled={creatingProject || !newProjectName.trim()}
+                        >
+                          {creatingProject ? 'Creating...' : 'Create Project'}
+                        </Button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <p className="hint">
+                  {creatingProject
+                    ? 'Creating project...'
+                    : projectId
+                      ? 'This will be saved to your project for client reports.'
+                      : 'Select a project or create one from this discussion.'}
+                </p>
+              )}
+            </div>
+
+            {/* Structured Decision Fields - compact layout */}
+            <div className="form-group">
+              <label htmlFor="knowledge-problem">Problem / Question (optional)</label>
+              <textarea
+                id="knowledge-problem"
+                value={problemStatement}
+                onChange={(e) => setProblemStatement(e.target.value)}
+                placeholder="What problem or question led to this decision?"
+                rows={2}
+                enterKeyHint="next"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="knowledge-decision">Decision *</label>
+              <textarea
+                id="knowledge-decision"
+                value={decisionText}
+                onChange={(e) => setDecisionText(e.target.value)}
+                placeholder="What was decided? Be specific and actionable."
+                rows={2}
+                enterKeyHint="next"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="knowledge-reasoning">Reasoning (optional)</label>
+              <textarea
+                id="knowledge-reasoning"
+                value={reasoning}
+                onChange={(e) => setReasoning(e.target.value)}
+                placeholder="Why was this decision made?"
+                rows={2}
+                enterKeyHint="next"
+              />
+            </div>
+
+            {/* Scope selector - only show for "Remember This" mode */}
+            {saveMode === 'remember' && (
+              <div className="form-group">
+                <label htmlFor="knowledge-scope">Visibility Scope</label>
+                <select
+                  id="knowledge-scope"
+                  value={scope}
+                  onChange={(e) => setScope(e.target.value)}
+                >
+                  {SCOPES.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.label} - {s.description}
+                    </option>
+                  ))}
+                </select>
+                <p className="hint">
+                  {scope === 'company' &&
+                    'This will be injected into ALL council sessions for this company'}
+                  {scope === 'department' &&
+                    'This will be injected into council sessions for this department'}
+                  {scope === 'project' &&
+                    'This will only be injected when this project is selected'}
+                </p>
+              </div>
+            )}
+
+            {/* Tags input */}
+            <div className="form-group">
+              <label htmlFor="knowledge-tags">Tags (optional)</label>
+              <div className="tags-input-container">
+                <div className="tags-list">
+                  {tags.map((tag) => (
+                    <span key={tag} className="tag-chip">
+                      {tag}
+                      <button
+                        type="button"
+                        className="tag-remove"
+                        onClick={() => handleRemoveTag(tag)}
+                      >
+                        &times;
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <input
+                  id="knowledge-tags"
+                  type="text"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={handleTagKeyPress}
+                  onBlur={handleAddTag}
+                  placeholder="Add tags (press Enter or comma)"
+                  enterKeyHint="enter"
+                />
+              </div>
+              <p className="hint">Tags help organize and find this later</p>
+            </div>
+
+            {error && <div className="error-message">{error}</div>}
+          </div>
+
+          <AppModal.Footer>
+            <Button variant="outline" onClick={() => onClose()} disabled={saving}>
+              Cancel
+            </Button>
+            <Button variant="default" onClick={handleSave} disabled={saving}>
+              {saving
+                ? 'Saving...'
+                : saveMode === 'just_save'
+                  ? 'Save'
+                  : saveMode === 'remember'
+                    ? 'Save & Remember'
+                    : 'Create Playbook'}
+            </Button>
+          </AppModal.Footer>
+        </>
+      )}
     </AppModal>
   );
 }

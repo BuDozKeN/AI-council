@@ -32,9 +32,12 @@ export function ScrollableContent({
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    setShowScrollTop((e.target as HTMLDivElement).scrollTop > scrollThreshold);
-  }, [scrollThreshold]);
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      setShowScrollTop((e.target as HTMLDivElement).scrollTop > scrollThreshold);
+    },
+    [scrollThreshold]
+  );
 
   const scrollToTop = () => {
     contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
@@ -53,11 +56,7 @@ export function ScrollableContent({
 
   return (
     <div className={`scrollable-content-wrapper ${className}`} {...props}>
-      <div
-        ref={contentRef}
-        className="scrollable-content-inner"
-        onScroll={handleScroll}
-      >
+      <div ref={contentRef} className="scrollable-content-inner" onScroll={handleScroll}>
         {/* Copy button - sticky top-right, inside scrollable content */}
         {copyText && (
           <button

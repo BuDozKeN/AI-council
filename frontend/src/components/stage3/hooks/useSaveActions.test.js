@@ -13,8 +13,8 @@ vi.mock('../../../api', () => ({
     mergeDecisionIntoProject: vi.fn(),
     updateProject: vi.fn(),
     getProject: vi.fn(),
-    promoteDecisionToPlaybook: vi.fn()
-  }
+    promoteDecisionToPlaybook: vi.fn(),
+  },
 }));
 
 // Mock the logger module
@@ -24,9 +24,9 @@ vi.mock('../../../utils/logger', () => ({
       debug: vi.fn(),
       info: vi.fn(),
       warn: vi.fn(),
-      error: vi.fn()
-    })
-  }
+      error: vi.fn(),
+    }),
+  },
 }));
 
 import { api } from '../../../api';
@@ -51,7 +51,7 @@ describe('useSaveActions', () => {
     setSavedDecisionId: vi.fn(),
     setPromotedPlaybookId: vi.fn(),
     setFullProjectData: vi.fn(),
-    getTitle: vi.fn(() => 'Test Decision Title')
+    getTitle: vi.fn(() => 'Test Decision Title'),
   };
 
   beforeEach(() => {
@@ -92,7 +92,7 @@ describe('useSaveActions', () => {
 
   it('should save standalone decision without project', async () => {
     api.createCompanyDecision.mockResolvedValueOnce({
-      decision: { id: 'dec-123' }
+      decision: { id: 'dec-123' },
     });
 
     const { result } = renderHook(() => useSaveActions(defaultProps));
@@ -110,7 +110,7 @@ describe('useSaveActions', () => {
       source_conversation_id: 'conv-456',
       response_index: 0,
       project_id: null,
-      tags: []
+      tags: [],
     });
     expect(defaultProps.setSavedDecisionId).toHaveBeenCalledWith('dec-123');
     expect(defaultProps.setSaveState).toHaveBeenCalledWith('saved');
@@ -118,18 +118,18 @@ describe('useSaveActions', () => {
 
   it('should merge decision into project when project is selected', async () => {
     api.getProject.mockResolvedValueOnce({
-      project: { id: 'proj-123', name: 'Test Project', context_md: '' }
+      project: { id: 'proj-123', name: 'Test Project', context_md: '' },
     });
     api.mergeDecisionIntoProject.mockResolvedValueOnce({
       saved_decision_id: 'dec-456',
-      merged: { context_md: 'Updated context' }
+      merged: { context_md: 'Updated context' },
     });
     api.updateProject.mockResolvedValueOnce({});
 
     const props = {
       ...defaultProps,
       selectedProjectId: 'proj-123',
-      projects: [{ id: 'proj-123', name: 'Test Project' }]
+      projects: [{ id: 'proj-123', name: 'Test Project' }],
     };
     const { result } = renderHook(() => useSaveActions(props));
 
@@ -140,7 +140,7 @@ describe('useSaveActions', () => {
     expect(api.getProject).toHaveBeenCalledWith('proj-123');
     expect(api.mergeDecisionIntoProject).toHaveBeenCalled();
     expect(api.updateProject).toHaveBeenCalledWith('proj-123', {
-      context_md: 'Updated context'
+      context_md: 'Updated context',
     });
     expect(props.setSavedDecisionId).toHaveBeenCalledWith('dec-456');
     expect(props.setSaveState).toHaveBeenCalledWith('saved');
@@ -172,16 +172,16 @@ describe('useSaveActions', () => {
 
   it('should save and promote to playbook', async () => {
     api.createCompanyDecision.mockResolvedValueOnce({
-      decision: { id: 'dec-789' }
+      decision: { id: 'dec-789' },
     });
     api.promoteDecisionToPlaybook.mockResolvedValueOnce({
-      playbook: { id: 'pb-123' }
+      playbook: { id: 'pb-123' },
     });
 
     const props = {
       ...defaultProps,
       selectedDocType: 'sop',
-      selectedDeptIds: ['dept-1']
+      selectedDeptIds: ['dept-1'],
     };
     const { result } = renderHook(() => useSaveActions(props));
 
@@ -194,7 +194,7 @@ describe('useSaveActions', () => {
     expect(api.promoteDecisionToPlaybook).toHaveBeenCalledWith('comp-123', 'dec-789', {
       doc_type: 'sop',
       title: 'Test Decision Title',
-      department_ids: ['dept-1']
+      department_ids: ['dept-1'],
     });
     expect(props.setPromotedPlaybookId).toHaveBeenCalledWith('pb-123');
     expect(props.setSaveState).toHaveBeenCalledWith('promoted');
@@ -202,7 +202,7 @@ describe('useSaveActions', () => {
 
   it('should not save temp conversations with actual ID', async () => {
     api.createCompanyDecision.mockResolvedValueOnce({
-      decision: { id: 'dec-123' }
+      decision: { id: 'dec-123' },
     });
 
     const props = { ...defaultProps, conversationId: 'temp-123' };
@@ -213,9 +213,10 @@ describe('useSaveActions', () => {
     });
 
     // Should use null for temp conversation IDs
-    expect(api.createCompanyDecision).toHaveBeenCalledWith('comp-123',
+    expect(api.createCompanyDecision).toHaveBeenCalledWith(
+      'comp-123',
       expect.objectContaining({
-        source_conversation_id: null
+        source_conversation_id: null,
       })
     );
   });

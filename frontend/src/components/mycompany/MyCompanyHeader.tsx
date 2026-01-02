@@ -38,7 +38,10 @@ export function MyCompanyHeader({
     >
       <button
         className="mc-mobile-back-btn"
-        onClick={(e: React.MouseEvent) => { e.stopPropagation(); onClose?.(); }}
+        onClick={(e: React.MouseEvent) => {
+          e.stopPropagation();
+          onClose?.();
+        }}
         aria-label="Close My Company"
       >
         <ChevronLeft size={20} />
@@ -69,14 +72,16 @@ export function MyCompanyHeader({
           {allCompanies.length > 1 ? (
             <Select
               value={companyId}
-              onValueChange={(val) => { if (val !== companyId) onSelectCompany?.(val); }}
+              onValueChange={(val) => {
+                if (val !== companyId) onSelectCompany?.(val);
+              }}
             >
               <SelectTrigger className="mc-company-select-trigger">
                 <Building2 size={16} />
                 <SelectValue placeholder="Switch company" />
               </SelectTrigger>
               <SelectContent>
-                {allCompanies.map(company => (
+                {allCompanies.map((company) => (
                   <SelectItem key={company.id} value={company.id}>
                     {company.name}
                   </SelectItem>
@@ -91,7 +96,15 @@ export function MyCompanyHeader({
           )}
         </div>
       </div>
-      <button className="mc-close-btn" onClick={(e: React.MouseEvent) => { e.stopPropagation(); onClose?.(); }}>&times;</button>
+      <button
+        className="mc-close-btn"
+        onClick={(e: React.MouseEvent) => {
+          e.stopPropagation();
+          onClose?.();
+        }}
+      >
+        &times;
+      </button>
     </header>
   );
 }

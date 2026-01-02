@@ -82,10 +82,7 @@ export function ConversationGroup({
   const regionId = `group-${groupId}`;
 
   return (
-    <div
-      className={`conversation-group ${isDropTarget ? 'drop-target' : ''}`}
-      {...dropHandlers}
-    >
+    <div className={`conversation-group ${isDropTarget ? 'drop-target' : ''}`} {...dropHandlers}>
       <div
         className="group-header"
         role="button"

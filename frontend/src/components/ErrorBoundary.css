@@ -10,7 +10,13 @@
   justify-content: center;
   background-color: var(--color-gray-50);
   padding: 20px;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
 }
 
 .error-boundary-card {

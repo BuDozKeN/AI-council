@@ -130,14 +130,18 @@ export function ConversationContextMenu({
         onClose();
       },
     },
-    ...(onExport ? [{
-      label: 'Export',
-      icon: Download,
-      onClick: () => {
-        onExport(conversation.id);
-        onClose();
-      },
-    }] : []),
+    ...(onExport
+      ? [
+          {
+            label: 'Export',
+            icon: Download,
+            onClick: () => {
+              onExport(conversation.id);
+              onClose();
+            },
+          },
+        ]
+      : []),
     { type: 'separator' },
     {
       label: 'Delete',

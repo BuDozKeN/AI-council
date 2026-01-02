@@ -14,7 +14,11 @@ export interface DraggableConversation {
 }
 
 export interface UseDragAndDropOptions {
-  onDrop: (conversationId: string, targetDepartment: string, item: DraggableConversation) => void | Promise<void>;
+  onDrop: (
+    conversationId: string,
+    targetDepartment: string,
+    item: DraggableConversation
+  ) => void | Promise<void>;
 }
 
 export interface DragHandlers {
@@ -47,19 +51,22 @@ export function useDragAndDrop({ onDrop }: UseDragAndDropOptions): UseDragAndDro
   const dragCounter = useRef<number>(0);
 
   // Called when drag starts on a conversation
-  const handleDragStart = useCallback((e: React.DragEvent, conversation: DraggableConversation): void => {
-    setDraggedItem(conversation);
+  const handleDragStart = useCallback(
+    (e: React.DragEvent, conversation: DraggableConversation): void => {
+      setDraggedItem(conversation);
 
-    // Set drag data for transfer
-    e.dataTransfer.setData('text/plain', conversation.id);
-    e.dataTransfer.effectAllowed = 'move';
+      // Set drag data for transfer
+      e.dataTransfer.setData('text/plain', conversation.id);
+      e.dataTransfer.effectAllowed = 'move';
 
-    // Add dragging class to element for styling
-    const target = e.target as HTMLElement;
-    if (target.classList) {
-      target.classList.add('dragging');
-    }
-  }, []);
+      // Add dragging class to element for styling
+      const target = e.target as HTMLElement;
+      if (target.classList) {
+        target.classList.add('dragging');
+      }
+    },
+    []
+  );
 
   // Called when drag ends (regardless of drop success)
   const handleDragEnd = useCallback((e: React.DragEvent): void => {
@@ -81,15 +88,18 @@ export function useDragAndDrop({ onDrop }: UseDragAndDropOptions): UseDragAndDro
   }, []);
 
   // Called when entering a drop target
-  const handleDragEnter = useCallback((e: React.DragEvent, targetDepartment: string): void => {
-    e.preventDefault();
-    dragCounter.current++;
+  const handleDragEnter = useCallback(
+    (e: React.DragEvent, targetDepartment: string): void => {
+      e.preventDefault();
+      dragCounter.current++;
 
-    // Only update if we have a dragged item and target is different
-    if (draggedItem && targetDepartment !== draggedItem.department) {
-      setDragOverTarget(targetDepartment);
-    }
-  }, [draggedItem]);
+      // Only update if we have a dragged item and target is different
+      if (draggedItem && targetDepartment !== draggedItem.department) {
+        setDragOverTarget(targetDepartment);
+      }
+    },
+    [draggedItem]
+  );
 
   // Called when leaving a drop target
   const handleDragLeave = useCallback((_e: React.DragEvent): void => {
@@ -102,20 +112,23 @@ export function useDragAndDrop({ onDrop }: UseDragAndDropOptions): UseDragAndDro
   }, []);
 
   // Called when dropping on a target
-  const handleDrop = useCallback((e: React.DragEvent, targetDepartment: string): void => {
-    e.preventDefault();
-    dragCounter.current = 0;
+  const handleDrop = useCallback(
+    (e: React.DragEvent, targetDepartment: string): void => {
+      e.preventDefault();
+      dragCounter.current = 0;
 
-    const conversationId = e.dataTransfer.getData('text/plain');
+      const conversationId = e.dataTransfer.getData('text/plain');
 
-    // Only trigger if actually moving to a different department
-    if (draggedItem && targetDepartment !== draggedItem.department) {
-      onDrop(conversationId, targetDepartment, draggedItem);
-    }
+      // Only trigger if actually moving to a different department
+      if (draggedItem && targetDepartment !== draggedItem.department) {
+        onDrop(conversationId, targetDepartment, draggedItem);
+      }
 
-    setDraggedItem(null);
-    setDragOverTarget(null);
-  }, [draggedItem, onDrop]);
+      setDraggedItem(null);
+      setDragOverTarget(null);
+    },
+    [draggedItem, onDrop]
+  );
 
   return {
     // State
@@ -124,18 +137,24 @@ export function useDragAndDrop({ onDrop }: UseDragAndDropOptions): UseDragAndDro
     isDragging: draggedItem !== null,
 
     // Handlers for draggable items (ConversationItem)
-    getDragHandlers: useCallback((conversation: DraggableConversation): DragHandlers => ({
-      draggable: true,
-      onDragStart: (e: React.DragEvent) => handleDragStart(e, conversation),
-      onDragEnd: handleDragEnd,
-    }), [handleDragStart, handleDragEnd]),
+    getDragHandlers: useCallback(
+      (conversation: DraggableConversation): DragHandlers => ({
+        draggable: true,
+        onDragStart: (e: React.DragEvent) => handleDragStart(e, conversation),
+        onDragEnd: handleDragEnd,
+      }),
+      [handleDragStart, handleDragEnd]
+    ),
 
     // Handlers for drop targets (ConversationGroup)
-    getDropHandlers: useCallback((departmentId: string): DropHandlers => ({
-      onDragOver: handleDragOver,
-      onDragEnter: (e: React.DragEvent) => handleDragEnter(e, departmentId),
-      onDragLeave: handleDragLeave,
-      onDrop: (e: React.DragEvent) => handleDrop(e, departmentId),
-    }), [handleDragOver, handleDragEnter, handleDragLeave, handleDrop]),
+    getDropHandlers: useCallback(
+      (departmentId: string): DropHandlers => ({
+        onDragOver: handleDragOver,
+        onDragEnter: (e: React.DragEvent) => handleDragEnter(e, departmentId),
+        onDragLeave: handleDragLeave,
+        onDrop: (e: React.DragEvent) => handleDrop(e, departmentId),
+      }),
+      [handleDragOver, handleDragEnter, handleDragLeave, handleDrop]
+    ),
   };
 }

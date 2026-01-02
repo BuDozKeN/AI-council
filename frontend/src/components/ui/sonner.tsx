@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components -- Re-exporting toast helper alongside Toaster is intentional */
-"use client";
-import { Toaster as Sonner, toast } from "sonner"
+'use client';
+import { Toaster as Sonner, toast } from 'sonner';
 
 /**
  * Toast component using sonner library
@@ -9,12 +9,10 @@ import { Toaster as Sonner, toast } from "sonner"
  * Mobile: bottom-center for better thumb reach
  * Desktop: bottom-right to stay out of main content
  */
-const Toaster = ({
-  ...props
-}) => {
+const Toaster = ({ ...props }) => {
   // Detect theme from document class (dark mode support)
-  const isDark = typeof document !== 'undefined' &&
-    document.documentElement.classList.contains('dark');
+  const isDark =
+    typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
 
   // Use bottom-center on mobile for better accessibility
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -30,16 +28,15 @@ const Toaster = ({
       toastOptions={{
         classNames: {
           toast:
-            "group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg",
-          description: "group-[.toast]:text-muted-foreground",
-          actionButton:
-            "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
-          cancelButton:
-            "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
+            'group toast group-[.toaster]:bg-background group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg',
+          description: 'group-[.toast]:text-muted-foreground',
+          actionButton: 'group-[.toast]:bg-primary group-[.toast]:text-primary-foreground',
+          cancelButton: 'group-[.toast]:bg-muted group-[.toast]:text-muted-foreground',
         },
       }}
-      {...props} />
+      {...props}
+    />
   );
-}
+};
 
-export { Toaster, toast }
+export { Toaster, toast };

@@ -221,10 +221,7 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
               <span className={`dev-status-badge ${showTokenUsage ? 'active' : 'inactive'}`}>
                 {showTokenUsage ? 'Visible' : 'Hidden'}
               </span>
-              <Switch
-                checked={showTokenUsage}
-                onCheckedChange={handleToggleTokenUsage}
-              />
+              <Switch checked={showTokenUsage} onCheckedChange={handleToggleTokenUsage} />
             </div>
           </div>
 

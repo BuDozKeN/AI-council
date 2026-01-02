@@ -134,9 +134,9 @@ export const STATE_CLASS = {
 // TYPE EXPORTS
 // =============================================================================
 
-export type Duration = typeof DURATION[keyof typeof DURATION];
-export type Celebration = typeof CELEBRATION[keyof typeof CELEBRATION];
-export type Easing = typeof EASING[keyof typeof EASING];
-export type SpringConfig = typeof SPRING[keyof typeof SPRING];
-export type AnimationClass = typeof ANIMATION_CLASS[keyof typeof ANIMATION_CLASS];
-export type StateClass = typeof STATE_CLASS[keyof typeof STATE_CLASS];
+export type Duration = (typeof DURATION)[keyof typeof DURATION];
+export type Celebration = (typeof CELEBRATION)[keyof typeof CELEBRATION];
+export type Easing = (typeof EASING)[keyof typeof EASING];
+export type SpringConfig = (typeof SPRING)[keyof typeof SPRING];
+export type AnimationClass = (typeof ANIMATION_CLASS)[keyof typeof ANIMATION_CLASS];
+export type StateClass = (typeof STATE_CLASS)[keyof typeof STATE_CLASS];

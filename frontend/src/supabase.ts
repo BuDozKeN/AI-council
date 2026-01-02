@@ -31,9 +31,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
   log.warn('Supabase credentials not found. Auth features will be disabled.');
 }
 
-export const supabase = supabaseUrl && supabaseAnonKey
-  ? createClient(supabaseUrl, supabaseAnonKey)
-  : null;
+export const supabase =
+  supabaseUrl && supabaseAnonKey ? createClient(supabaseUrl, supabaseAnonKey) : null;
 
 /**
  * User Preferences API for Smart Auto context persistence
@@ -45,7 +44,9 @@ export const userPreferencesApi = {
    */
   async get() {
     if (!supabase) return null;
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) return null;
 
     const { data, error } = await supabase
@@ -67,18 +68,23 @@ export const userPreferencesApi = {
    */
   async update(prefs: Partial<Omit<UserPreferencesData, 'user_id'>>) {
     if (!supabase) return null;
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) return null;
 
     const { data, error } = await supabase
       .from('user_preferences')
-      .upsert({
-        user_id: user.id,
-        ...prefs,
-        updated_at: new Date().toISOString(),
-      }, {
-        onConflict: 'user_id',
-      })
+      .upsert(
+        {
+          user_id: user.id,
+          ...prefs,
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: 'user_id',
+        }
+      )
       .select()
       .single();
 
@@ -92,7 +98,13 @@ export const userPreferencesApi = {
   /**
    * Save the current context as last-used (for Smart Auto).
    */
-  async saveLastUsed({ companyId, departmentIds, roleIds, projectId, playbookIds }: SaveLastUsedParams) {
+  async saveLastUsed({
+    companyId,
+    departmentIds,
+    roleIds,
+    projectId,
+    playbookIds,
+  }: SaveLastUsedParams) {
     return this.update({
       last_company_id: companyId || null,
       last_department_ids: departmentIds || [],

@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @config "../../tailwind.config.js";
 
@@ -6,17 +6,22 @@
    Additional app-specific base styles below */
 @layer base {
   /* Ensure form elements inherit app fonts */
-  button, input, textarea, select {
+  button,
+  input,
+  textarea,
+  select {
     font: inherit;
   }
 
   /* Remove list styles */
-  ol, ul {
+  ol,
+  ul {
     list-style: none;
   }
 
   /* Remove quotes */
-  blockquote, q {
+  blockquote,
+  q {
     quotes: none;
   }
 
@@ -60,16 +65,16 @@
 
     /* Z-index scale - use these instead of arbitrary values */
     --z-base: 1;
-    --z-above: 2;           /* Just above siblings (badges, overlays) */
-    --z-raised: 5;          /* Slightly elevated (floating actions) */
-    --z-elevated: 10;       /* Cards, tooltips, popovers */
-    --z-header: 20;         /* Fixed headers, navbars */
-    --z-overlay: 40;        /* Overlays below sticky */
-    --z-sticky: 50;         /* Sticky elements */
-    --z-dropdown: 100;      /* Dropdowns, context menus */
-    --z-modal: 1000;        /* Modal dialogs */
+    --z-above: 2; /* Just above siblings (badges, overlays) */
+    --z-raised: 5; /* Slightly elevated (floating actions) */
+    --z-elevated: 10; /* Cards, tooltips, popovers */
+    --z-header: 20; /* Fixed headers, navbars */
+    --z-overlay: 40; /* Overlays below sticky */
+    --z-sticky: 50; /* Sticky elements */
+    --z-dropdown: 100; /* Dropdowns, context menus */
+    --z-modal: 1000; /* Modal dialogs */
     --z-modal-dropdown: 1100; /* Dropdowns inside modals */
-    --z-toast: 1200;        /* Toast notifications */
+    --z-toast: 1200; /* Toast notifications */
 
     /* Shadow & Radius scales - CANONICAL SOURCE: design-tokens.css
        --shadow-xs, --shadow-sm, --shadow-md, --shadow-lg, --shadow-xl, --shadow-2xl
@@ -77,8 +82,7 @@
 
     /* Additional shadows not in design-tokens.css */
     --shadow-modal:
-      0 32px 64px -16px rgb(0, 0, 0, 0.35),
-      0 16px 32px -8px rgb(0, 0, 0, 0.25),
+      0 32px 64px -16px rgb(0, 0, 0, 0.35), 0 16px 32px -8px rgb(0, 0, 0, 0.25),
       0 0 1px rgb(0, 0, 0, 0.08);
     --shadow-focus: 0 0 0 3px rgb(99, 102, 241, 0.25);
 
@@ -97,7 +101,7 @@
     --color-bg-tertiary: #f5f5f5;
     --color-bg-hover: #f3f4f6;
     --color-bg-active: #e5e7eb;
-    --color-bg-inverse: #1e293b;         /* Dark bg for headers/banners */
+    --color-bg-inverse: #1e293b; /* Dark bg for headers/banners */
 
     /* Border colors */
     --color-border: #e5e7eb;
@@ -122,21 +126,21 @@
     --color-indigo-light: rgb(99, 102, 241, 0.1);
 
     /* Button component tokens - direct values to avoid variable resolution issues */
-    --color-primary: #6366f1;           /* Indigo-500 */
+    --color-primary: #6366f1; /* Indigo-500 */
     --color-primary-text: #fff;
-    --color-primary-hover: #4f46e5;     /* Indigo-600 */
-    --color-primary-active: #4338ca;    /* Indigo-700 */
+    --color-primary-hover: #4f46e5; /* Indigo-600 */
+    --color-primary-active: #4338ca; /* Indigo-700 */
     --color-bg-base: #fff;
-    --color-bg-muted: #f1f5f9;          /* Slate-100 */
-    --color-bg-subtle: #f8fafc;         /* Slate-50 */
-    --color-bg-emphasis: #e2e8f0;       /* Slate-200 */
+    --color-bg-muted: #f1f5f9; /* Slate-100 */
+    --color-bg-subtle: #f8fafc; /* Slate-50 */
+    --color-bg-emphasis: #e2e8f0; /* Slate-200 */
     --color-text-default: #333;
     --color-border-default: #e5e7eb;
-    --color-border-emphasis: #cbd5e1;   /* Slate-300 */
+    --color-border-emphasis: #cbd5e1; /* Slate-300 */
     --color-error-text: #fff;
-    --color-error-hover: #dc2626;       /* Red-600 */
+    --color-error-hover: #dc2626; /* Red-600 */
     --color-success-text: #fff;
-    --color-success-hover: #059669;     /* Emerald-600 */
+    --color-success-hover: #059669; /* Emerald-600 */
 
     /* Semantic colors - Success */
     --color-success: #10b981;
@@ -307,7 +311,7 @@
     --color-indigo-600: #4f46e5;
     --color-indigo-700: #4338ca;
     --color-indigo-900: #312e81;
-    --color-indigo-rgb: 99, 102, 241;  /* For rgba() usage */
+    --color-indigo-rgb: 99, 102, 241; /* For rgba() usage */
 
     /* ===== RGB COLOR TOKENS (for alpha transparency) ===== */
 
@@ -548,8 +552,8 @@
     --overlay-shimmer: rgb(255, 255, 255, 0.4);
 
     /* Skeleton loading - subtle shimmer animation */
-    --skeleton-base: #e2e8f0;      /* slate-200 - matches bg-secondary feel */
-    --skeleton-shimmer: #f1f5f9;   /* slate-100 - subtle lighter pulse */
+    --skeleton-base: #e2e8f0; /* slate-200 - matches bg-secondary feel */
+    --skeleton-shimmer: #f1f5f9; /* slate-100 - subtle lighter pulse */
   }
 }
 
@@ -558,210 +562,211 @@
    When user explicitly chooses light mode, this overrides system preference
    ============================================================================= */
 html.light {
-    --color-text-primary: #333;
-    --color-text-secondary: #666;
-    --color-text-tertiary: #9ca3af;
-    --color-text-muted: #666666; /* WCAG AA: 5.74:1 contrast on white */
-    --color-bg-primary: #fff;
-    --color-bg-secondary: #f9fafb;
-    --color-bg-tertiary: #f5f5f5;
-    --color-bg-hover: #f3f4f6;
-    --color-bg-active: #e5e7eb;
-    --color-border: #e5e7eb;
-    --color-border-light: #f1f5f9;
-    --color-border-dark: #d1d5db;
+  --color-text-primary: #333;
+  --color-text-secondary: #666;
+  --color-text-tertiary: #9ca3af;
+  --color-text-muted: #666666; /* WCAG AA: 5.74:1 contrast on white */
+  --color-bg-primary: #fff;
+  --color-bg-secondary: #f9fafb;
+  --color-bg-tertiary: #f5f5f5;
+  --color-bg-hover: #f3f4f6;
+  --color-bg-active: #e5e7eb;
+  --color-border: #e5e7eb;
+  --color-border-light: #f1f5f9;
+  --color-border-dark: #d1d5db;
 }
 
 /* =============================================================================
    DARK MODE TOKENS - Outside @layer for proper specificity
    Applied via next-themes ThemeProvider (class="dark" on html element)
    ============================================================================= */
-html.dark, .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+html.dark,
+.dark {
+  --background: 0 0% 3.9%;
+  --foreground: 0 0% 98%;
+  --card: 0 0% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --popover: 0 0% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 0 0% 98%;
+  --primary-foreground: 0 0% 9%;
+  --secondary: 0 0% 14.9%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 0 0% 14.9%;
+  --muted-foreground: 0 0% 63.9%;
+  --accent: 0 0% 14.9%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 0 0% 14.9%;
+  --input: 0 0% 14.9%;
+  --ring: 0 0% 83.1%;
+  --chart-1: 220 70% 50%;
+  --chart-2: 160 60% 45%;
+  --chart-3: 30 80% 55%;
+  --chart-4: 280 65% 60%;
+  --chart-5: 340 75% 55%;
 
-    /* ===== DARK MODE COLOR TOKENS ===== */
+  /* ===== DARK MODE COLOR TOKENS ===== */
 
-    /* Text colors - improved contrast for WCAG AA compliance */
-    --color-text-primary: #f8fafc;        /* slate-50 - brightest for primary text */
-    --color-text-secondary: #cbd5e1;      /* slate-300 - clearly readable secondary */
-    --color-text-tertiary: #94a3b8;       /* slate-400 - labels, captions (was too dark) */
-    --color-text-muted: #64748b;          /* slate-500 - very subtle, decorative only */
-    --color-text-inverse: #fff;           /* White text on inverse (dark) backgrounds */
+  /* Text colors - improved contrast for WCAG AA compliance */
+  --color-text-primary: #f8fafc; /* slate-50 - brightest for primary text */
+  --color-text-secondary: #cbd5e1; /* slate-300 - clearly readable secondary */
+  --color-text-tertiary: #94a3b8; /* slate-400 - labels, captions (was too dark) */
+  --color-text-muted: #64748b; /* slate-500 - very subtle, decorative only */
+  --color-text-inverse: #fff; /* White text on inverse (dark) backgrounds */
 
-    /* Background colors */
-    --color-bg-primary: #0f172a;
-    --color-bg-secondary: #1e293b;
-    --color-bg-tertiary: #334155;
-    --color-bg-hover: #334155;
-    --color-bg-active: #475569;
-    --color-bg-inverse: #1e293b;         /* Slightly lighter for dark mode contrast */
+  /* Background colors */
+  --color-bg-primary: #0f172a;
+  --color-bg-secondary: #1e293b;
+  --color-bg-tertiary: #334155;
+  --color-bg-hover: #334155;
+  --color-bg-active: #475569;
+  --color-bg-inverse: #1e293b; /* Slightly lighter for dark mode contrast */
 
-    /* Border colors */
-    --color-border: #334155;
-    --color-border-light: #1e293b;
-    --color-border-dark: #475569;
-    --color-border-muted: #334155;
+  /* Border colors */
+  --color-border: #334155;
+  --color-border-light: #1e293b;
+  --color-border-dark: #475569;
+  --color-border-muted: #334155;
 
-    /* Brand colors - slightly brighter for dark mode */
-    --color-brand-primary: #60a5fa;
-    --color-brand-primary-hover: #3b82f6;
-    --color-brand-primary-light: rgb(59, 130, 246, 0.15);
+  /* Brand colors - slightly brighter for dark mode */
+  --color-brand-primary: #60a5fa;
+  --color-brand-primary-hover: #3b82f6;
+  --color-brand-primary-light: rgb(59, 130, 246, 0.15);
 
-    /* Button component tokens - dark mode (direct values) */
-    --color-primary: #6366f1;           /* Indigo-500 */
-    --color-primary-text: #fff;
-    --color-primary-hover: #818cf8;     /* Indigo-400 - brighter for dark */
-    --color-primary-active: #a5b4fc;    /* Indigo-300 */
-    --color-bg-base: #0f172a;
-    --color-bg-muted: #334155;          /* Dark slate */
-    --color-bg-subtle: #1e293b;
-    --color-bg-emphasis: #475569;
-    --color-text-default: #f1f5f9;
-    --color-border-default: #334155;
-    --color-border-emphasis: #64748b;
-    --color-error-text: #fff;
-    --color-error-hover: #ef4444;       /* Red-500 */
-    --color-success-text: #fff;
-    --color-success-hover: #10b981;     /* Emerald-500 */
+  /* Button component tokens - dark mode (direct values) */
+  --color-primary: #6366f1; /* Indigo-500 */
+  --color-primary-text: #fff;
+  --color-primary-hover: #818cf8; /* Indigo-400 - brighter for dark */
+  --color-primary-active: #a5b4fc; /* Indigo-300 */
+  --color-bg-base: #0f172a;
+  --color-bg-muted: #334155; /* Dark slate */
+  --color-bg-subtle: #1e293b;
+  --color-bg-emphasis: #475569;
+  --color-text-default: #f1f5f9;
+  --color-border-default: #334155;
+  --color-border-emphasis: #64748b;
+  --color-error-text: #fff;
+  --color-error-hover: #ef4444; /* Red-500 */
+  --color-success-text: #fff;
+  --color-success-hover: #10b981; /* Emerald-500 */
 
-    /* Semantic colors - adjusted for dark */
-    --color-success-light: rgb(16, 185, 129, 0.15);
-    --color-error-light: rgb(239, 68, 68, 0.15);
-    --color-warning-light: rgb(245, 158, 11, 0.15);
-    --color-info-light: rgb(59, 130, 246, 0.15);
+  /* Semantic colors - adjusted for dark */
+  --color-success-light: rgb(16, 185, 129, 0.15);
+  --color-error-light: rgb(239, 68, 68, 0.15);
+  --color-warning-light: rgb(245, 158, 11, 0.15);
+  --color-info-light: rgb(59, 130, 246, 0.15);
 
-    /* Slate scale - inverted for dark mode UI */
-    --color-slate-50: #1e293b;
-    --color-slate-100: #334155;
-    --color-slate-200: #475569;
-    --color-slate-300: #64748b;
-    --color-slate-500: #94a3b8;
-    --color-slate-600: #cbd5e1;
-    --color-slate-700: #e2e8f0;
-    --color-slate-800: #f1f5f9;
-    --color-slate-900: #f8fafc;
+  /* Slate scale - inverted for dark mode UI */
+  --color-slate-50: #1e293b;
+  --color-slate-100: #334155;
+  --color-slate-200: #475569;
+  --color-slate-300: #64748b;
+  --color-slate-500: #94a3b8;
+  --color-slate-600: #cbd5e1;
+  --color-slate-700: #e2e8f0;
+  --color-slate-800: #f1f5f9;
+  --color-slate-900: #f8fafc;
 
-    /* Code blocks - remain dark even in dark mode for contrast */
-    --color-code-bg: #0f172a;
-    --color-code-text: #e2e8f0;
-    --color-code-border: #334155;
+  /* Code blocks - remain dark even in dark mode for contrast */
+  --color-code-bg: #0f172a;
+  --color-code-text: #e2e8f0;
+  --color-code-border: #334155;
 
-    /* Stage colors - dark variants */
-    --stage1-bg-gradient-start: #1e293b;
-    --stage1-bg-gradient-end: #0f172a;
-    --stage1-border: #3b82f6;
-    --stage1-text-primary: #93c5fd;
-    --stage2-bg-gradient-start: #1e293b;
-    --stage2-bg-gradient-end: #0f172a;
-    --stage2-border: #8b5cf6;
-    --stage2-text-primary: #c4b5fd;
-    --stage2-shadow-color: rgb(139, 92, 246, 0.25);
-    --stage3-bg-gradient-start: #1e293b;
-    --stage3-bg-gradient-end: #0f172a;
-    --stage3-border: #10b981;
-    --stage3-text-primary: #6ee7b7;
+  /* Stage colors - dark variants */
+  --stage1-bg-gradient-start: #1e293b;
+  --stage1-bg-gradient-end: #0f172a;
+  --stage1-border: #3b82f6;
+  --stage1-text-primary: #93c5fd;
+  --stage2-bg-gradient-start: #1e293b;
+  --stage2-bg-gradient-end: #0f172a;
+  --stage2-border: #8b5cf6;
+  --stage2-text-primary: #c4b5fd;
+  --stage2-shadow-color: rgb(139, 92, 246, 0.25);
+  --stage3-bg-gradient-start: #1e293b;
+  --stage3-bg-gradient-end: #0f172a;
+  --stage3-border: #10b981;
+  --stage3-text-primary: #6ee7b7;
 
-    /* Overlays - dark variants */
-    --overlay-bg: rgb(15, 23, 42, 0.95);
-    --overlay-shimmer: rgb(255, 255, 255, 0.05);
+  /* Overlays - dark variants */
+  --overlay-bg: rgb(15, 23, 42, 0.95);
+  --overlay-shimmer: rgb(255, 255, 255, 0.05);
 
-    /* Dark mode overlay tokens - inverted for dark backgrounds */
+  /* Dark mode overlay tokens - inverted for dark backgrounds */
 
-    /* In dark mode, use white overlays to lighten, black to darken further */
-    --overlay-black-5: rgb(0, 0, 0, 0.15);
-    --overlay-black-8: rgb(0, 0, 0, 0.2);
-    --overlay-black-10: rgb(0, 0, 0, 0.25);
-    --overlay-black-15: rgb(0, 0, 0, 0.3);
-    --overlay-black-20: rgb(0, 0, 0, 0.35);
-    --overlay-black-30: rgb(0, 0, 0, 0.45);
-    --overlay-black-40: rgb(0, 0, 0, 0.5);
-    --overlay-black-50: rgb(0, 0, 0, 0.6);
-    --overlay-white-5: rgb(255, 255, 255, 0.05);
-    --overlay-white-8: rgb(255, 255, 255, 0.08);
-    --overlay-white-10: rgb(255, 255, 255, 0.1);
-    --overlay-white-15: rgb(255, 255, 255, 0.15);
-    --overlay-white-20: rgb(255, 255, 255, 0.2);
-    --overlay-white-30: rgb(255, 255, 255, 0.25);
-    --overlay-white-40: rgb(255, 255, 255, 0.3);
-    --overlay-white-50: rgb(255, 255, 255, 0.4);
-    --overlay-white-60: rgb(255, 255, 255, 0.5);
-    --overlay-white-80: rgb(255, 255, 255, 0.6);
-    --overlay-white-90: rgb(255, 255, 255, 0.7);
-    --overlay-white-95: rgb(255, 255, 255, 0.8);
+  /* In dark mode, use white overlays to lighten, black to darken further */
+  --overlay-black-5: rgb(0, 0, 0, 0.15);
+  --overlay-black-8: rgb(0, 0, 0, 0.2);
+  --overlay-black-10: rgb(0, 0, 0, 0.25);
+  --overlay-black-15: rgb(0, 0, 0, 0.3);
+  --overlay-black-20: rgb(0, 0, 0, 0.35);
+  --overlay-black-30: rgb(0, 0, 0, 0.45);
+  --overlay-black-40: rgb(0, 0, 0, 0.5);
+  --overlay-black-50: rgb(0, 0, 0, 0.6);
+  --overlay-white-5: rgb(255, 255, 255, 0.05);
+  --overlay-white-8: rgb(255, 255, 255, 0.08);
+  --overlay-white-10: rgb(255, 255, 255, 0.1);
+  --overlay-white-15: rgb(255, 255, 255, 0.15);
+  --overlay-white-20: rgb(255, 255, 255, 0.2);
+  --overlay-white-30: rgb(255, 255, 255, 0.25);
+  --overlay-white-40: rgb(255, 255, 255, 0.3);
+  --overlay-white-50: rgb(255, 255, 255, 0.4);
+  --overlay-white-60: rgb(255, 255, 255, 0.5);
+  --overlay-white-80: rgb(255, 255, 255, 0.6);
+  --overlay-white-90: rgb(255, 255, 255, 0.7);
+  --overlay-white-95: rgb(255, 255, 255, 0.8);
 
-    /* Color overlays - same values work in dark mode */
-    --overlay-blue-10: rgb(59, 130, 246, 0.15);
-    --overlay-blue-15: rgb(59, 130, 246, 0.2);
-    --overlay-blue-20: rgb(59, 130, 246, 0.25);
-    --overlay-purple-10: rgb(139, 92, 246, 0.15);
-    --overlay-purple-15: rgb(139, 92, 246, 0.2);
-    --overlay-purple-20: rgb(139, 92, 246, 0.25);
-    --overlay-amber-10: rgb(245, 158, 11, 0.15);
-    --overlay-amber-15: rgb(245, 158, 11, 0.2);
-    --overlay-amber-20: rgb(245, 158, 11, 0.25);
-    --overlay-orange-30: rgb(249, 115, 22, 0.35);
-    --overlay-orange-40: rgb(249, 115, 22, 0.45);
-    --overlay-orange-60: rgb(249, 115, 22, 0.65);
-    --overlay-green-10: rgb(34, 197, 94, 0.15);
-    --overlay-green-30: rgb(34, 197, 94, 0.35);
-    --overlay-green-15: rgb(34, 197, 94, 0.2);
-    --overlay-green-20: rgb(34, 197, 94, 0.25);
-    --overlay-emerald-10: rgb(16, 185, 129, 0.15);
-    --overlay-emerald-15: rgb(16, 185, 129, 0.2);
-    --overlay-emerald-20: rgb(16, 185, 129, 0.25);
-    --overlay-red-10: rgb(239, 68, 68, 0.15);
-    --overlay-red-15: rgb(239, 68, 68, 0.2);
-    --overlay-red-20: rgb(239, 68, 68, 0.25);
-    --overlay-indigo-10: rgb(99, 102, 241, 0.15);
-    --overlay-indigo-15: rgb(99, 102, 241, 0.2);
-    --overlay-indigo-20: rgb(99, 102, 241, 0.25);
-    --overlay-indigo-25: rgb(99, 102, 241, 0.3);
+  /* Color overlays - same values work in dark mode */
+  --overlay-blue-10: rgb(59, 130, 246, 0.15);
+  --overlay-blue-15: rgb(59, 130, 246, 0.2);
+  --overlay-blue-20: rgb(59, 130, 246, 0.25);
+  --overlay-purple-10: rgb(139, 92, 246, 0.15);
+  --overlay-purple-15: rgb(139, 92, 246, 0.2);
+  --overlay-purple-20: rgb(139, 92, 246, 0.25);
+  --overlay-amber-10: rgb(245, 158, 11, 0.15);
+  --overlay-amber-15: rgb(245, 158, 11, 0.2);
+  --overlay-amber-20: rgb(245, 158, 11, 0.25);
+  --overlay-orange-30: rgb(249, 115, 22, 0.35);
+  --overlay-orange-40: rgb(249, 115, 22, 0.45);
+  --overlay-orange-60: rgb(249, 115, 22, 0.65);
+  --overlay-green-10: rgb(34, 197, 94, 0.15);
+  --overlay-green-30: rgb(34, 197, 94, 0.35);
+  --overlay-green-15: rgb(34, 197, 94, 0.2);
+  --overlay-green-20: rgb(34, 197, 94, 0.25);
+  --overlay-emerald-10: rgb(16, 185, 129, 0.15);
+  --overlay-emerald-15: rgb(16, 185, 129, 0.2);
+  --overlay-emerald-20: rgb(16, 185, 129, 0.25);
+  --overlay-red-10: rgb(239, 68, 68, 0.15);
+  --overlay-red-15: rgb(239, 68, 68, 0.2);
+  --overlay-red-20: rgb(239, 68, 68, 0.25);
+  --overlay-indigo-10: rgb(99, 102, 241, 0.15);
+  --overlay-indigo-15: rgb(99, 102, 241, 0.2);
+  --overlay-indigo-20: rgb(99, 102, 241, 0.25);
+  --overlay-indigo-25: rgb(99, 102, 241, 0.3);
 
-    /* Skeleton loading - dark mode (subtle, not jarring) */
-    --skeleton-base: #1e293b;      /* slate-800 - dark base */
-    --skeleton-shimmer: #334155;   /* slate-700 - subtle lighter shimmer */
+  /* Skeleton loading - dark mode (subtle, not jarring) */
+  --skeleton-base: #1e293b; /* slate-800 - dark base */
+  --skeleton-shimmer: #334155; /* slate-700 - subtle lighter shimmer */
 
-    /* Glass morphism - dark mode */
-    --glass-bg: rgb(30, 41, 59, 0.85);
-    --glass-bg-focus: rgb(30, 41, 59, 0.95);
-    --glass-border: rgb(51, 65, 85, 0.6);
-    --glass-shadow: 0 4px 16px rgb(0, 0, 0, 0.3);
+  /* Glass morphism - dark mode */
+  --glass-bg: rgb(30, 41, 59, 0.85);
+  --glass-bg-focus: rgb(30, 41, 59, 0.95);
+  --glass-border: rgb(51, 65, 85, 0.6);
+  --glass-shadow: 0 4px 16px rgb(0, 0, 0, 0.3);
 
-    /* Sidebar - dark mode (Perplexity-style dark) */
-    --sidebar-bg: #171717;
-    --sidebar-bg-solid: #171717;
-    --sidebar-border: #2a2a2a;
-    --sidebar-text-primary: #f5f5f5;
-    --sidebar-text-secondary: #a0a0a0;
-    --sidebar-text-muted: #666;
-    --sidebar-hover-bg: rgb(255, 255, 255, 0.06);
-    --sidebar-active-bg: rgb(255, 255, 255, 0.08);
-    --sidebar-icon-color: #a0a0a0;
-    --sidebar-icon-active: #f5f5f5;
-    --sidebar-scrollbar-thumb: rgb(255, 255, 255, 0.15);
+  /* Sidebar - dark mode (Perplexity-style dark) */
+  --sidebar-bg: #171717;
+  --sidebar-bg-solid: #171717;
+  --sidebar-border: #2a2a2a;
+  --sidebar-text-primary: #f5f5f5;
+  --sidebar-text-secondary: #a0a0a0;
+  --sidebar-text-muted: #666;
+  --sidebar-hover-bg: rgb(255, 255, 255, 0.06);
+  --sidebar-active-bg: rgb(255, 255, 255, 0.08);
+  --sidebar-icon-color: #a0a0a0;
+  --sidebar-icon-active: #f5f5f5;
+  --sidebar-scrollbar-thumb: rgb(255, 255, 255, 0.15);
 }
 
 @layer base {
@@ -778,11 +783,15 @@ html.dark, .dark {
 /* Aurora animation keyframes */
 @keyframes aurora {
   from {
-    background-position: 50% 50%, 50% 50%;
+    background-position:
+      50% 50%,
+      50% 50%;
   }
 
   to {
-    background-position: 350% 50%, 350% 50%;
+    background-position:
+      350% 50%,
+      350% 50%;
   }
 }
 
@@ -831,7 +840,7 @@ html.dark, .dark {
   }
 
   /* Modal optimization - reduce height */
-  [data-state="open"].app-modal-content,
+  [data-state='open'].app-modal-content,
   .modal-overlay .mc-panel {
     max-height: 85vh;
   }
@@ -880,7 +889,7 @@ html.dark, .dark {
   }
 
   .modal-overlay .mc-panel,
-  [data-state="open"].mc-panel {
+  [data-state='open'].mc-panel {
     height: 100vh;
     max-height: 100vh;
     border-radius: 0;
@@ -897,7 +906,7 @@ html.dark, .dark {
   /* Components with custom sizing should use .no-touch-target class to opt out */
   button:not(.no-touch-target),
   .button:not(.no-touch-target),
-  [role="button"]:not(.no-touch-target),
+  [role='button']:not(.no-touch-target),
   a.clickable:not(.no-touch-target) {
     min-width: 44px;
     min-height: 44px;
@@ -980,10 +989,10 @@ html {
 @media (max-width: 768px) {
   /* Prevent iOS zoom on input focus - 16px minimum prevents Safari auto-zoom */
   /* stylelint-disable declaration-no-important */
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="search"],
+  input[type='text'],
+  input[type='email'],
+  input[type='password'],
+  input[type='search'],
   textarea,
   select {
     font-size: 16px !important;
@@ -1003,23 +1012,31 @@ html {
 
 /* Only transition theme-aware elements, not everything */
 .theme-transition {
-  transition: background-color 0.15s ease-out, border-color 0.15s ease-out, color 0.15s ease-out;
+  transition:
+    background-color 0.15s ease-out,
+    border-color 0.15s ease-out,
+    color 0.15s ease-out;
 }
 
 /* Interactive element transitions */
 button,
 a,
-[role="button"],
+[role='button'],
 .btn,
 .button {
-  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.1s ease,
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
 }
 
 /* Disable transitions for reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
   button,
   a,
-  [role="button"],
+  [role='button'],
   .btn,
   .button,
   .theme-transition {
@@ -1087,13 +1104,13 @@ a,
 /* Subtle scale on hover for premium feel */
 button:not(:disabled):hover,
 .button:not(:disabled):hover,
-[role="button"]:not(:disabled):hover {
+[role='button']:not(:disabled):hover {
   transform: translateY(-1px);
 }
 
 button:not(:disabled):active,
 .button:not(:disabled):active,
-[role="button"]:not(:disabled):active {
+[role='button']:not(:disabled):active {
   transform: translateY(0) scale(0.98);
 }
 
@@ -1101,13 +1118,13 @@ button:not(:disabled):active,
 @media (hover: none) {
   button:hover,
   .button:hover,
-  [role="button"]:hover {
+  [role='button']:hover {
     transform: none;
   }
 
   button:active,
   .button:active,
-  [role="button"]:active {
+  [role='button']:active {
     transform: scale(0.98);
   }
 }
@@ -1318,13 +1335,13 @@ button.btn-variant-link:hover:not(:disabled),
 
 /* Tablet (768px) - slightly smaller buttons */
 @media (max-width: 768px) {
-  [class*="btn-variant-"].h-10 {
+  [class*='btn-variant-'].h-10 {
     padding: 8px 16px;
     min-height: 36px;
     font-size: 13px;
   }
 
-  [class*="btn-variant-"].h-11 {
+  [class*='btn-variant-'].h-11 {
     padding: 10px 20px;
     min-height: 40px;
     font-size: 13px;
@@ -1333,13 +1350,13 @@ button.btn-variant-link:hover:not(:disabled),
 
 /* Mobile (640px) - compact buttons */
 @media (max-width: 640px) {
-  [class*="btn-variant-"].h-10 {
+  [class*='btn-variant-'].h-10 {
     padding: 6px 12px;
     min-height: 32px;
     font-size: 12px;
   }
 
-  [class*="btn-variant-"].h-11 {
+  [class*='btn-variant-'].h-11 {
     padding: 8px 14px;
     min-height: 36px;
     font-size: 12px;
@@ -1348,13 +1365,13 @@ button.btn-variant-link:hover:not(:disabled),
 
 /* Extra small (380px) - most compact */
 @media (max-width: 380px) {
-  [class*="btn-variant-"].h-10 {
+  [class*='btn-variant-'].h-10 {
     padding: 5px 10px;
     min-height: 28px;
     font-size: 11px;
   }
 
-  [class*="btn-variant-"].h-11 {
+  [class*='btn-variant-'].h-11 {
     padding: 6px 12px;
     min-height: 32px;
     font-size: 11px;

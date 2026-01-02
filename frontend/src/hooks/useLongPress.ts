@@ -38,27 +38,30 @@ export function useLongPress({
   const isLongPressRef = useRef<boolean>(false);
   const touchStartPosRef = useRef<TouchPosition | null>(null);
 
-  const start = useCallback((e: React.TouchEvent | React.MouseEvent): void => {
-    if (!enabled) return;
+  const start = useCallback(
+    (e: React.TouchEvent | React.MouseEvent): void => {
+      if (!enabled) return;
 
-    // Record start position
-    if ('touches' in e && e.touches && e.touches[0]) {
-      touchStartPosRef.current = {
-        x: e.touches[0].clientX,
-        y: e.touches[0].clientY,
-      };
-    }
-
-    isLongPressRef.current = false;
-
-    timerRef.current = setTimeout(() => {
-      isLongPressRef.current = true;
-      if (hapticFeedback) {
-        hapticMedium();
+      // Record start position
+      if ('touches' in e && e.touches && e.touches[0]) {
+        touchStartPosRef.current = {
+          x: e.touches[0].clientX,
+          y: e.touches[0].clientY,
+        };
       }
-      onLongPress?.(e);
-    }, delay);
-  }, [enabled, delay, hapticFeedback, onLongPress]);
+
+      isLongPressRef.current = false;
+
+      timerRef.current = setTimeout(() => {
+        isLongPressRef.current = true;
+        if (hapticFeedback) {
+          hapticMedium();
+        }
+        onLongPress?.(e);
+      }, delay);
+    },
+    [enabled, delay, hapticFeedback, onLongPress]
+  );
 
   const move = useCallback((e: React.TouchEvent): void => {
     if (!touchStartPosRef.current || !timerRef.current) return;
@@ -76,23 +79,26 @@ export function useLongPress({
     }
   }, []);
 
-  const end = useCallback((e: React.TouchEvent | React.MouseEvent): void => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-    }
-    timerRef.current = null;
-    touchStartPosRef.current = null;
+  const end = useCallback(
+    (e: React.TouchEvent | React.MouseEvent): void => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+      timerRef.current = null;
+      touchStartPosRef.current = null;
 
-    // If it was a long press, don't trigger onClick
-    if (isLongPressRef.current) {
-      isLongPressRef.current = false;
-      e.preventDefault();
-      return;
-    }
+      // If it was a long press, don't trigger onClick
+      if (isLongPressRef.current) {
+        isLongPressRef.current = false;
+        e.preventDefault();
+        return;
+      }
 
-    // Regular click
-    onClick?.(e);
-  }, [onClick]);
+      // Regular click
+      onClick?.(e);
+    },
+    [onClick]
+  );
 
   const cancel = useCallback((): void => {
     if (timerRef.current) {

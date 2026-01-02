@@ -62,12 +62,12 @@
   }
 }
 
-.status-select-content[data-side="bottom"] {
+.status-select-content[data-side='bottom'] {
   transform-origin: top;
   animation: statusDropdownIn 0.15s ease-out;
 }
 
-.status-select-content[data-side="top"] {
+.status-select-content[data-side='top'] {
   transform-origin: bottom;
   animation: statusDropdownIn 0.15s ease-out;
 }
@@ -102,7 +102,7 @@
 }
 
 /* Selected/checked state */
-.status-select-item[data-state="checked"] {
+.status-select-item[data-state='checked'] {
   background: var(--status-checked-bg, var(--color-gray-100));
   color: var(--status-checked-text, var(--color-gray-700));
 }

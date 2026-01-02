@@ -64,9 +64,7 @@ export const mockConversationDetail = {
         { model: 'gpt-4', response: 'Response from GPT-4' },
         { model: 'claude', response: 'Response from Claude' },
       ],
-      stage2: [
-        { model: 'gpt-4', ranking: 'Model A provides better analysis' },
-      ],
+      stage2: [{ model: 'gpt-4', ranking: 'Model A provides better analysis' }],
       stage3: {
         model: 'chairman',
         response: 'Based on the council deliberation...',
@@ -121,9 +119,7 @@ export const handlers = [
 
     let filtered = mockConversations;
     if (search) {
-      filtered = filtered.filter((c) =>
-        c.title.toLowerCase().includes(search.toLowerCase())
-      );
+      filtered = filtered.filter((c) => c.title.toLowerCase().includes(search.toLowerCase()));
     }
 
     const paginated = filtered.slice(offset, offset + limit);
@@ -142,7 +138,7 @@ export const handlers = [
   }),
 
   http.post(`${API_BASE}/api/conversations`, async ({ request }) => {
-    const body = await request.json() as Record<string, unknown>;
+    const body = (await request.json()) as Record<string, unknown>;
     return HttpResponse.json({
       id: `conv-${Date.now()}`,
       title: 'New Conversation',
@@ -169,7 +165,7 @@ export const handlers = [
   }),
 
   http.post(`${API_BASE}/api/companies/:companyId/projects`, async ({ request }) => {
-    const body = await request.json() as Record<string, unknown>;
+    const body = (await request.json()) as Record<string, unknown>;
     return HttpResponse.json({
       id: `proj-${Date.now()}`,
       ...body,
@@ -199,9 +195,7 @@ export const handlers = [
 
   // Members
   http.get(`${API_BASE}/api/companies/:companyId/members`, () => {
-    return HttpResponse.json([
-      { id: 'user-1', email: 'test@example.com', role: 'admin' },
-    ]);
+    return HttpResponse.json([{ id: 'user-1', email: 'test@example.com', role: 'admin' }]);
   }),
 
   // Company context

@@ -36,13 +36,16 @@ export function ThemeToggle() {
 
   // Cycle to next theme on click
   // Stop propagation to prevent BottomSheet overlay from closing
-  const handleClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    const currentTheme = (theme ?? 'system') as ThemeValue;
-    const currentIndex = themeCycle.indexOf(currentTheme);
-    const nextIndex = (currentIndex + 1) % themeCycle.length;
-    setTheme(themeCycle[nextIndex] as string);
-  }, [theme, setTheme]);
+  const handleClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      const currentTheme = (theme ?? 'system') as ThemeValue;
+      const currentIndex = themeCycle.indexOf(currentTheme);
+      const nextIndex = (currentIndex + 1) % themeCycle.length;
+      setTheme(themeCycle[nextIndex] as string);
+    },
+    [theme, setTheme]
+  );
 
   if (!mounted) {
     return (
@@ -55,7 +58,7 @@ export function ThemeToggle() {
   }
 
   // Current theme info
-  const currentTheme = ((theme ?? 'system') as ThemeValue);
+  const currentTheme = (theme ?? 'system') as ThemeValue;
   const currentInfo = themeInfo[currentTheme];
 
   // Next theme info (what clicking will do)

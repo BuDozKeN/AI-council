@@ -3,7 +3,13 @@
 /* font-display: swap is included in the Google Fonts URL */
 
 :root {
-  font-family: Geist, Inter, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    Geist,
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   line-height: 1.5;
   font-weight: 400;
   letter-spacing: -0.01em;
@@ -15,13 +21,23 @@
 }
 
 /* Typography classes for premium headings */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   letter-spacing: -0.02em;
   line-height: 1.2;
 }
 
-h1 { letter-spacing: -0.03em; }
-h2 { letter-spacing: -0.025em; }
+h1 {
+  letter-spacing: -0.03em;
+}
+
+h2 {
+  letter-spacing: -0.025em;
+}
 
 /* Accessibility: Screen reader only utility class */
 .sr-only {
@@ -67,7 +83,7 @@ h2 { letter-spacing: -0.025em; }
 
 /* Enhanced focus styles for interactive elements */
 button:focus-visible,
-[role="button"]:focus-visible,
+[role='button']:focus-visible,
 a:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
@@ -76,7 +92,7 @@ a:focus-visible {
 
 /* Card focus styles */
 .model-card:focus-visible,
-[role="article"]:focus-visible {
+[role='article']:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
   box-shadow: 0 0 0 4px rgb(var(--color-focus-rgb), 0.15);
@@ -110,14 +126,14 @@ select:focus-visible {
 
 /* Dark mode focus styles */
 .dark button:focus-visible,
-.dark [role="button"]:focus-visible,
+.dark [role='button']:focus-visible,
 .dark a:focus-visible {
   outline-color: var(--color-blue-500);
   box-shadow: 0 0 0 4px var(--overlay-blue-20);
 }
 
 .dark .model-card:focus-visible,
-.dark [role="article"]:focus-visible {
+.dark [role='article']:focus-visible {
   outline-color: var(--color-blue-500);
   box-shadow: 0 0 0 4px var(--overlay-blue-20);
 }
@@ -171,7 +187,9 @@ body {
   min-height: 100vh;
   background-color: var(--color-bg-tertiary);
   color: var(--color-text-primary);
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 /* Dark mode - explicit background for theme toggle */
@@ -337,14 +355,15 @@ html.dark body {
   /* Global touch target enforcement - 44px minimum per Apple/Google guidelines */
 
   /* Components with custom sizing should use .no-touch-target class to opt out */
+
   /* NOTE: .tab is NOT included here - Stage 2 tabs match Stage 1 pills (compact size) */
   button:not(.inline-btn):not(.no-touch-target),
-  [role="button"]:not(.no-touch-target),
+  [role='button']:not(.no-touch-target),
   .copy-btn,
   .save-type-pill,
   input:not(.no-touch-target),
   select,
-  a:not(.inline-link):not([class*="prose"] a) {
+  a:not(.inline-link):not([class*='prose'] a) {
     min-height: 44px;
     touch-action: manipulation; /* Disable double-tap zoom delay */
   }
@@ -450,7 +469,7 @@ html.dark body {
 
   /* Ensure buttons remain tappable - use .no-touch-target to opt out */
   button:not(.inline-btn):not(.no-touch-target),
-  [role="button"]:not(.no-touch-target) {
+  [role='button']:not(.no-touch-target) {
     min-height: 44px;
   }
 }

@@ -26,11 +26,7 @@ function createWrapper() {
   });
 
   return function Wrapper({ children }: { children: React.ReactNode }) {
-    return (
-      <QueryClientProvider client={queryClient}>
-        {children}
-      </QueryClientProvider>
-    );
+    return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
   };
 }
 
@@ -54,10 +50,9 @@ describe('useConversations', () => {
   });
 
   it('should filter conversations by search query', async () => {
-    const { result } = renderHook(
-      () => useConversations({ search: 'Another' }),
-      { wrapper: createWrapper() }
-    );
+    const { result } = renderHook(() => useConversations({ search: 'Another' }), {
+      wrapper: createWrapper(),
+    });
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);

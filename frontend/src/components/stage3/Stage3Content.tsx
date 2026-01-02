@@ -17,21 +17,21 @@ const MODEL_PRICING: Record<string, { input: number; output: number }> = {
   // Anthropic
   'anthropic/claude-opus-4.5': { input: 5, output: 25 },
   'anthropic/claude-sonnet-4': { input: 3, output: 15 },
-  'anthropic/claude-3-5-haiku-20241022': { input: 0.80, output: 4.0 },  // Fixed: was 1/5
+  'anthropic/claude-3-5-haiku-20241022': { input: 0.8, output: 4.0 }, // Fixed: was 1/5
   // OpenAI
   'openai/gpt-4o': { input: 5, output: 15 },
-  'openai/gpt-4o-mini': { input: 0.15, output: 0.60 },
-  'openai/gpt-5.1': { input: 1.25, output: 10 },  // Fixed: was 5/20
+  'openai/gpt-4o-mini': { input: 0.15, output: 0.6 },
+  'openai/gpt-5.1': { input: 1.25, output: 10 }, // Fixed: was 5/20
   // Google
   'google/gemini-3-pro-preview': { input: 2, output: 12 },
-  'google/gemini-2.5-flash': { input: 0.30, output: 2.50 },  // Fixed: was 0.075/0.30
+  'google/gemini-2.5-flash': { input: 0.3, output: 2.5 }, // Fixed: was 0.075/0.30
   // xAI
   'x-ai/grok-4': { input: 3, output: 15 },
-  'x-ai/grok-4-fast': { input: 0.20, output: 0.50 },
+  'x-ai/grok-4-fast': { input: 0.2, output: 0.5 },
   // DeepSeek
   'deepseek/deepseek-chat-v3-0324': { input: 0.28, output: 0.42 },
   // Meta (Llama) - Stage 2 reviewer
-  'meta-llama/llama-4-maverick': { input: 0.15, output: 0.60 },
+  'meta-llama/llama-4-maverick': { input: 0.15, output: 0.6 },
   // Moonshot (Kimi) - Stage 2 reviewer
   'moonshotai/kimi-k2': { input: 0.456, output: 1.84 },
   default: { input: 2, output: 8 },
@@ -114,7 +114,13 @@ function Stage3Content({
   // Trigger celebration when streaming completes (only once per session)
   // Multi-stage: cursor fades out first, then celebration triggers
   useEffect(() => {
-    if (wasStreamingRef.current && !isStreaming && isComplete && displayText && !hasCelebratedRef.current) {
+    if (
+      wasStreamingRef.current &&
+      !isStreaming &&
+      isComplete &&
+      displayText &&
+      !hasCelebratedRef.current
+    ) {
       hasCelebratedRef.current = true;
 
       // Use requestAnimationFrame to batch state updates outside effect sync phase
@@ -150,7 +156,13 @@ function Stage3Content({
       <div className="stage3-header-row">
         <div className={`chairman-indicator ${showCompleteCelebration ? 'celebrating' : ''}`}>
           {chairmanIconPath && (
-            <img src={chairmanIconPath} alt="" className="chairman-icon" loading="lazy" decoding="async" />
+            <img
+              src={chairmanIconPath}
+              alt=""
+              className="chairman-icon"
+              loading="lazy"
+              decoding="async"
+            />
           )}
           {isStreaming && <span className="typing-indicator">●</span>}
           {isComplete && (
@@ -171,7 +183,9 @@ function Stage3Content({
       <div className={`final-content-wrapper ${showCompleteCelebration ? 'complete-glow' : ''}`}>
         <div className={`final-text ${hasError ? 'error-text' : ''}`}>
           {hasError ? (
-            <p className="empty-message">{displayText || 'An error occurred while generating the synthesis.'}</p>
+            <p className="empty-message">
+              {displayText || 'An error occurred while generating the synthesis.'}
+            </p>
           ) : (
             <>
               <article className="prose prose-slate max-w-none dark:prose-invert">
@@ -180,13 +194,19 @@ function Stage3Content({
                   rehypePlugins={[rehypeSlug]}
                   components={{
                     pre({ children: _children, node }) {
-                      const codeElement = node?.children?.[0] as { properties?: { className?: string[] }; children?: { value?: string }[] } | undefined;
+                      const codeElement = node?.children?.[0] as
+                        | { properties?: { className?: string[] }; children?: { value?: string }[] }
+                        | undefined;
                       const className = codeElement?.properties?.className?.[0] || '';
                       const codeContent = codeElement?.children?.[0]?.value || '';
                       return <CodeBlock className={className}>{codeContent}</CodeBlock>;
                     },
                     code({ className, children, ...props }) {
-                      return <code className={className} {...props}>{children}</code>;
+                      return (
+                        <code className={className} {...props}>
+                          {children}
+                        </code>
+                      );
                     },
                     table({ children, ...props }) {
                       return (
@@ -194,13 +214,15 @@ function Stage3Content({
                           <table {...props}>{children}</table>
                         </div>
                       );
-                    }
+                    },
                   }}
                 >
                   {displayText}
                 </ReactMarkdown>
               </article>
-              {isStreaming && <span className={`cursor ${cursorFading ? 'animate-cursor-fade' : ''}`}>▊</span>}
+              {isStreaming && (
+                <span className={`cursor ${cursorFading ? 'animate-cursor-fade' : ''}`}>▊</span>
+              )}
             </>
           )}
         </div>

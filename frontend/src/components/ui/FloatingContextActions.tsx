@@ -46,11 +46,14 @@ export function FloatingContextActions({
   const isParentScrollContext = className.includes('no-border');
 
   // For self-scrolling context: listen to scroll events on content
-  const handleScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
-    if (!isParentScrollContext) {
-      setShowScrollTop(e.currentTarget.scrollTop > scrollThreshold);
-    }
-  }, [scrollThreshold, isParentScrollContext]);
+  const handleScroll = useCallback(
+    (e: React.UIEvent<HTMLDivElement>) => {
+      if (!isParentScrollContext) {
+        setShowScrollTop(e.currentTarget.scrollTop > scrollThreshold);
+      }
+    },
+    [scrollThreshold, isParentScrollContext]
+  );
 
   // For parent-scrolling context: use IntersectionObserver on sentinel
   useEffect(() => {
@@ -114,11 +117,7 @@ export function FloatingContextActions({
 
   return (
     <div className={`floating-context-wrapper ${className}`}>
-      <div
-        ref={contentRef}
-        className="floating-context-content"
-        onScroll={handleScroll}
-      >
+      <div ref={contentRef} className="floating-context-content" onScroll={handleScroll}>
         {/* Sentinel for IntersectionObserver - detects when scrolled past top */}
         {isParentScrollContext && <div ref={sentinelRef} className="floating-scroll-sentinel" />}
 
@@ -139,9 +138,7 @@ export function FloatingContextActions({
         {/* Sticky row - when there's a stickyHeader (TOC etc) */}
         {hasStickyHeader && (
           <div className="floating-sticky-row">
-            <div className="floating-sticky-left">
-              {stickyHeader}
-            </div>
+            <div className="floating-sticky-left">{stickyHeader}</div>
             {copyText && (
               <button
                 className={`floating-copy-btn ${copied ? 'copied' : ''}`}

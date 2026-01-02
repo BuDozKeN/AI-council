@@ -19,9 +19,7 @@ export function StickyHeader({ children, className = '' }: StickyHeaderProps) {
       {/* Background layer - extends full width to cover scrolling content */}
       <div className="sticky-header-bg" aria-hidden="true" />
       {/* Content layer - matches reading column width */}
-      <div className="sticky-header-content">
-        {children}
-      </div>
+      <div className="sticky-header-content">{children}</div>
     </div>
   );
 }

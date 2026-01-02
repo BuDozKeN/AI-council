@@ -26,11 +26,7 @@ const RoleSelectItem = React.forwardRef<
   RoleSelectItemProps
 >(({ className, children, ...props }, ref) => {
   return (
-    <SelectPrimitive.Item
-      ref={ref}
-      className={cn("role-select-item", className)}
-      {...props}
-    >
+    <SelectPrimitive.Item ref={ref} className={cn('role-select-item', className)} {...props}>
       <span className="role-select-item-indicator">
         <SelectPrimitive.ItemIndicator>
           <Check className="h-4 w-4" />
@@ -73,7 +69,7 @@ export function RoleSelect({
   const [open, setOpen] = React.useState<boolean>(false);
 
   // Get display name for current value
-  const selectedRole = value && value !== 'all' ? roles.find(r => r.id === value) : null;
+  const selectedRole = value && value !== 'all' ? roles.find((r) => r.id === value) : null;
 
   const getDisplayName = (): string => {
     if (value === 'all' || !value) {
@@ -92,7 +88,7 @@ export function RoleSelect({
   // Build items list for mobile
   const allItems: RoleItem[] = [
     ...(includeAll ? [{ id: 'all', name: allLabel }] : []),
-    ...roles.map(r => ({ id: r.id, name: r.name }))
+    ...roles.map((r) => ({ id: r.id, name: r.name })),
   ];
 
   // Mobile: use BottomSheet
@@ -100,7 +96,7 @@ export function RoleSelect({
     return (
       <>
         <button
-          className={cn("role-select-trigger", selectedRole && "has-selection", className)}
+          className={cn('role-select-trigger', selectedRole && 'has-selection', className)}
           disabled={disabled}
           onClick={() => setOpen(true)}
           type="button"
@@ -110,23 +106,19 @@ export function RoleSelect({
           <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
         </button>
 
-        <BottomSheet
-          isOpen={open}
-          onClose={() => setOpen(false)}
-          title="Select Role"
-        >
+        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title="Select Role">
           <div className="role-select-list-mobile">
-            {allItems.map(role => {
-              const isSelected = (role.id === 'all' && (!value || value === 'all')) ||
-                               (role.id === value);
+            {allItems.map((role) => {
+              const isSelected =
+                (role.id === 'all' && (!value || value === 'all')) || role.id === value;
               return (
                 <button
                   key={role.id}
-                  className={cn("role-select-item-mobile", isSelected && "selected")}
+                  className={cn('role-select-item-mobile', isSelected && 'selected')}
                   onClick={() => handleSelect(role.id)}
                   type="button"
                 >
-                  <div className={cn("role-select-radio", isSelected && "checked")}>
+                  <div className={cn('role-select-radio', isSelected && 'checked')}>
                     {isSelected && <Check className="h-3 w-3" />}
                   </div>
                   <span className="role-select-item-label">{role.name}</span>
@@ -143,7 +135,7 @@ export function RoleSelect({
   return (
     <SelectPrimitive.Root value={value || 'all'} onValueChange={onValueChange} disabled={disabled}>
       <SelectPrimitive.Trigger
-        className={cn("role-select-trigger", selectedRole && "has-selection", className)}
+        className={cn('role-select-trigger', selectedRole && 'has-selection', className)}
       >
         {showIcon && <User className="h-3.5 w-3.5" />}
         <SelectPrimitive.Value>{getDisplayName()}</SelectPrimitive.Value>
@@ -160,12 +152,8 @@ export function RoleSelect({
           sideOffset={4}
         >
           <SelectPrimitive.Viewport className="role-select-viewport">
-            {includeAll && (
-              <RoleSelectItem value="all">
-                {allLabel}
-              </RoleSelectItem>
-            )}
-            {roles.map(role => (
+            {includeAll && <RoleSelectItem value="all">{allLabel}</RoleSelectItem>}
+            {roles.map((role) => (
               <RoleSelectItem key={role.id} value={role.id}>
                 {role.name}
               </RoleSelectItem>

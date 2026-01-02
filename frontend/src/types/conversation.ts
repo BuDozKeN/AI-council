@@ -39,11 +39,14 @@ export interface UsageData {
   total_tokens: number;
   cache_creation_input_tokens: number;
   cache_read_input_tokens: number;
-  by_model: Record<string, {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
-  }>;
+  by_model: Record<
+    string,
+    {
+      prompt_tokens: number;
+      completion_tokens: number;
+      total_tokens: number;
+    }
+  >;
 }
 
 export interface LoadingState {

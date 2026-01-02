@@ -1,4 +1,13 @@
-import { createContext, useContext, useEffect, useState, useMemo, useCallback, useRef, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+  type ReactNode,
+} from 'react';
 import type { User, AuthChangeEvent } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 import { setUserContext, clearUserContext } from './utils/sentry';
@@ -46,18 +55,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     // Get initial session (this also processes any tokens in the URL hash)
-    supabase.auth.getSession()
+    supabase.auth
+      .getSession()
       .then(({ data: { session } }) => {
         setUser(session?.user ?? null);
         setLoading(false);
       })
-      .catch(err => {
+      .catch((err) => {
         logger.error('Failed to get session:', err);
         setLoading(false);
       });
 
     // Listen for auth changes - this handles magic links, password recovery, etc.
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
       logger.debug('Auth state changed:', event, session?.user?.email);
       const currentUser = session?.user ?? null;
       setUser(currentUser);
@@ -139,7 +151,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     if (!supabase) return null;
 
     // First try to get the current session
-    const { data: { session }, error } = await supabase.auth.getSession();
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession();
 
     // If we have a session but the token might be expired, try to refresh
     if (session?.access_token) {
@@ -210,24 +225,35 @@ export function AuthProvider({ children }: AuthProviderProps) {
   setTokenGetter(getAccessToken);
 
   // Memoize context value to prevent unnecessary re-renders of all consumers
-  const value = useMemo(() => ({
-    user,
-    loading,
-    authEvent,
-    needsPasswordReset,
-    signUp,
-    signIn,
-    signInWithGoogle,
-    signOut,
-    resetPassword,
-    updatePassword,
-    getAccessToken,
-    isAuthenticated: !!user,
-  }), [user, loading, authEvent, needsPasswordReset, signUp, signIn, signInWithGoogle, signOut, resetPassword, updatePassword, getAccessToken]);
-
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo(
+    () => ({
+      user,
+      loading,
+      authEvent,
+      needsPasswordReset,
+      signUp,
+      signIn,
+      signInWithGoogle,
+      signOut,
+      resetPassword,
+      updatePassword,
+      getAccessToken,
+      isAuthenticated: !!user,
+    }),
+    [
+      user,
+      loading,
+      authEvent,
+      needsPasswordReset,
+      signUp,
+      signIn,
+      signInWithGoogle,
+      signOut,
+      resetPassword,
+      updatePassword,
+      getAccessToken,
+    ]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

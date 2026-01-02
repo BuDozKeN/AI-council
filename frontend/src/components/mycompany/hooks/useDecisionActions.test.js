@@ -12,8 +12,8 @@ vi.mock('../../../api', () => ({
     promoteDecisionToPlaybook: vi.fn(),
     createProjectFromDecision: vi.fn(),
     linkDecisionToProject: vi.fn(),
-    deleteDecision: vi.fn()
-  }
+    deleteDecision: vi.fn(),
+  },
 }));
 
 // Mock the logger module
@@ -23,9 +23,9 @@ vi.mock('../../../utils/logger', () => ({
       debug: vi.fn(),
       info: vi.fn(),
       warn: vi.fn(),
-      error: vi.fn()
-    })
-  }
+      error: vi.fn(),
+    }),
+  },
 }));
 
 import { api } from '../../../api';
@@ -64,7 +64,7 @@ describe('useDecisionActions', () => {
         setProjects: mockSetProjects,
         loadData: mockLoadData,
         setActiveTab: mockSetActiveTab,
-        setHighlightedProjectId: mockSetHighlightedProjectId
+        setHighlightedProjectId: mockSetHighlightedProjectId,
       })
     );
 
@@ -81,7 +81,7 @@ describe('useDecisionActions', () => {
         setProjects: mockSetProjects,
         loadData: mockLoadData,
         setActiveTab: mockSetActiveTab,
-        setHighlightedProjectId: mockSetHighlightedProjectId
+        setHighlightedProjectId: mockSetHighlightedProjectId,
       })
     );
 
@@ -100,7 +100,7 @@ describe('useDecisionActions', () => {
         setProjects: mockSetProjects,
         loadData: mockLoadData,
         setActiveTab: mockSetActiveTab,
-        setHighlightedProjectId: mockSetHighlightedProjectId
+        setHighlightedProjectId: mockSetHighlightedProjectId,
       })
     );
 
@@ -121,7 +121,7 @@ describe('useDecisionActions', () => {
         setProjects: mockSetProjects,
         loadData: mockLoadData,
         setActiveTab: mockSetActiveTab,
-        setHighlightedProjectId: mockSetHighlightedProjectId
+        setHighlightedProjectId: mockSetHighlightedProjectId,
       })
     );
 
@@ -140,7 +140,7 @@ describe('useDecisionActions', () => {
     expect(api.promoteDecisionToPlaybook).toHaveBeenCalledWith('comp-123', 'dec-123', {
       doc_type: 'sop',
       title: 'Custom Title',
-      department_ids: ['dept-1']
+      department_ids: ['dept-1'],
     });
     expect(mockLoadData).toHaveBeenCalled();
     expect(result.current.promoteModal).toBeNull();
@@ -154,7 +154,7 @@ describe('useDecisionActions', () => {
         setProjects: mockSetProjects,
         loadData: mockLoadData,
         setActiveTab: mockSetActiveTab,
-        setHighlightedProjectId: mockSetHighlightedProjectId
+        setHighlightedProjectId: mockSetHighlightedProjectId,
       })
     );
 
@@ -170,7 +170,7 @@ describe('useDecisionActions', () => {
 
     expect(api.createProjectFromDecision).toHaveBeenCalledWith('comp-123', 'dec-123', {
       name: 'New Project Name',
-      department_ids: ['dept-1']
+      department_ids: ['dept-1'],
     });
     expect(mockSetActiveTab).toHaveBeenCalledWith('projects');
     expect(mockSetHighlightedProjectId).toHaveBeenCalledWith('new-proj');
@@ -184,7 +184,7 @@ describe('useDecisionActions', () => {
         setProjects: mockSetProjects,
         loadData: mockLoadData,
         setActiveTab: mockSetActiveTab,
-        setHighlightedProjectId: mockSetHighlightedProjectId
+        setHighlightedProjectId: mockSetHighlightedProjectId,
       })
     );
 
@@ -211,7 +211,7 @@ describe('useDecisionActions', () => {
         setProjects: mockSetProjects,
         loadData: mockLoadData,
         setActiveTab: mockSetActiveTab,
-        setHighlightedProjectId: mockSetHighlightedProjectId
+        setHighlightedProjectId: mockSetHighlightedProjectId,
       })
     );
 
@@ -240,7 +240,7 @@ describe('useDecisionActions', () => {
         setProjects: mockSetProjects,
         loadData: mockLoadData,
         setActiveTab: mockSetActiveTab,
-        setHighlightedProjectId: mockSetHighlightedProjectId
+        setHighlightedProjectId: mockSetHighlightedProjectId,
       })
     );
 

@@ -16,9 +16,9 @@
   overflow: hidden;
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-    Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans',
+    'Droid Sans', 'Helvetica Neue', sans-serif;
 }
 
 /* Loading state - matches landing page background */
@@ -70,17 +70,17 @@
 
 /* Dark mode edge indicator */
 .dark .sidebar-edge-indicator,
-[data-theme="dark"] .sidebar-edge-indicator {
+[data-theme='dark'] .sidebar-edge-indicator {
   background: var(--overlay-white-8);
 }
 
 .dark .sidebar-edge-indicator:hover,
-[data-theme="dark"] .sidebar-edge-indicator:hover {
+[data-theme='dark'] .sidebar-edge-indicator:hover {
   background: var(--overlay-white-15);
 }
 
 .dark .sidebar-edge-indicator:active,
-[data-theme="dark"] .sidebar-edge-indicator:active {
+[data-theme='dark'] .sidebar-edge-indicator:active {
   background: var(--overlay-white-20);
 }
 

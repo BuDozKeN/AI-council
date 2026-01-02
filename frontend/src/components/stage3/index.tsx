@@ -46,7 +46,11 @@ interface Stage3Props {
   projects?: Project[];
   currentProjectId?: string | null;
   onSelectProject?: (id: string | null) => void;
-  onCreateProject?: (data: { userQuestion: string; councilResponse: string; departmentIds: string[] }) => void;
+  onCreateProject?: (data: {
+    userQuestion: string;
+    councilResponse: string;
+    departmentIds: string[];
+  }) => void;
   usage?: UsageData;
 }
 
@@ -70,7 +74,13 @@ function getModelIconPath(modelId: string | undefined): string | null {
 
   const lowerModel = modelId.toLowerCase();
   if (lowerModel.includes('gpt') || lowerModel.includes('o1')) return '/icons/openai.svg';
-  if (lowerModel.includes('claude') || lowerModel.includes('opus') || lowerModel.includes('sonnet') || lowerModel.includes('haiku')) return '/icons/anthropic.svg';
+  if (
+    lowerModel.includes('claude') ||
+    lowerModel.includes('opus') ||
+    lowerModel.includes('sonnet') ||
+    lowerModel.includes('haiku')
+  )
+    return '/icons/anthropic.svg';
   if (lowerModel.includes('gemini')) return '/icons/gemini.svg';
   if (lowerModel.includes('grok')) return '/icons/grok.svg';
   if (lowerModel.includes('deepseek')) return '/icons/deepseek.svg';
@@ -130,13 +140,13 @@ function Stage3({
     selectedDocType,
     setSelectedDocType,
     checkDecisionStatus,
-    lastSyncedProjectIdRef
+    lastSyncedProjectIdRef,
   } = useDecisionState({
     conversationId,
     companyId,
     responseIndex,
     currentProjectId,
-    departmentId
+    departmentId,
   });
 
   // Get display text
@@ -167,10 +177,13 @@ function Stage3({
   };
 
   // Get current project - cast to ProjectWithContext for consistency with useSaveActions
-  const currentProjectBasic = projects.find(p => p.id === selectedProjectId);
-  const currentProject: ProjectWithContext | null = fullProjectData?.id === selectedProjectId
-    ? fullProjectData
-    : (currentProjectBasic ? { ...currentProjectBasic } : null);
+  const currentProjectBasic = projects.find((p) => p.id === selectedProjectId);
+  const currentProject: ProjectWithContext | null =
+    fullProjectData?.id === selectedProjectId
+      ? fullProjectData
+      : currentProjectBasic
+        ? { ...currentProjectBasic }
+        : null;
 
   // Use save actions hook
   const { handleSaveForLater, handleSaveAndPromote } = useSaveActions({
@@ -192,7 +205,7 @@ function Stage3({
     setSavedDecisionId,
     setPromotedPlaybookId,
     setFullProjectData,
-    getTitle
+    getTitle,
   });
 
   // View decision handler
@@ -207,8 +220,9 @@ function Stage3({
     if (selectedProjectId && lastSyncedProjectIdRef.current !== selectedProjectId) {
       lastSyncedProjectIdRef.current = selectedProjectId;
 
-      api.getProject(selectedProjectId)
-        .then(data => {
+      api
+        .getProject(selectedProjectId)
+        .then((data) => {
           if (lastSyncedProjectIdRef.current !== selectedProjectId) return;
 
           const project = data.project || data;
@@ -225,7 +239,7 @@ function Stage3({
             setSelectedDeptIds(project.department_ids);
           }
         })
-        .catch(err => {
+        .catch((err) => {
           log.error('Failed to load project (may be deleted):', err);
           setSelectedProjectId(null);
           setFullProjectData(null);
@@ -236,25 +250,38 @@ function Stage3({
       setFullProjectData(null);
       lastSyncedProjectIdRef.current = null;
     }
-  }, [selectedProjectId, setSelectedProjectId, setSelectedDeptIds, setFullProjectData, lastSyncedProjectIdRef]);
+  }, [
+    selectedProjectId,
+    setSelectedProjectId,
+    setSelectedDeptIds,
+    setFullProjectData,
+    lastSyncedProjectIdRef,
+  ]);
 
   // Load departments
   useEffect(() => {
     if (companyId && departments.length === 0 && !streaming?.error) {
-      api.getCompanyTeam(companyId)
-        .then(data => {
+      api
+        .getCompanyTeam(companyId)
+        .then((data) => {
           setDepartments(data.departments || []);
           if (departmentId) {
             setSelectedDeptIds([departmentId]);
           }
         })
-        .catch(err => log.error('Failed to load departments:', err));
+        .catch((err) => log.error('Failed to load departments:', err));
     }
   }, [companyId, departmentId, departments.length, streaming?.error, setSelectedDeptIds]);
 
   // IntersectionObserver for re-checking when scrolled into view
   useEffect(() => {
-    if (!containerRef.current || !conversationId || !companyId || conversationId.startsWith('temp-')) return;
+    if (
+      !containerRef.current ||
+      !conversationId ||
+      !companyId ||
+      conversationId.startsWith('temp-')
+    )
+      return;
     if (!savedDecisionId) return;
 
     const observer = new IntersectionObserver(
@@ -308,11 +335,14 @@ function Stage3({
   }
 
   return (
-    <div ref={containerRef} className={`stage stage3 ${isCollapsed ? 'collapsed' : ''}`} data-stage="stage3" aria-busy={isStreaming} aria-live="polite">
-      <h3
-        className="stage-title clickable"
-        onClick={toggleCollapsed}
-      >
+    <div
+      ref={containerRef}
+      className={`stage stage3 ${isCollapsed ? 'collapsed' : ''}`}
+      data-stage="stage3"
+      aria-busy={isStreaming}
+      aria-live="polite"
+    >
+      <h3 className="stage-title clickable" onClick={toggleCollapsed}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
         <Sparkles className="h-5 w-5 text-amber-500 flex-shrink-0" />
         <span className="font-semibold tracking-tight">The Best Answer</span>

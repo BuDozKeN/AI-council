@@ -1,6 +1,6 @@
-"use client";
-import * as React from "react";
-import { cn } from "@/lib/utils";
+'use client';
+import * as React from 'react';
+import { cn } from '@/lib/utils';
 
 interface AuroraBackgroundProps extends React.HTMLAttributes<HTMLDivElement> {
   className?: string | undefined;
@@ -15,20 +15,9 @@ export const AuroraBackground = ({
   ...props
 }: AuroraBackgroundProps) => {
   return (
-    <div
-      className={cn(
-        "aurora-container",
-        className
-      )}
-      {...props}
-    >
+    <div className={cn('aurora-container', className)} {...props}>
       <div className="aurora-overlay">
-        <div
-          className={cn(
-            "aurora-gradient",
-            showRadialGradient && "aurora-radial-mask"
-          )}
-        ></div>
+        <div className={cn('aurora-gradient', showRadialGradient && 'aurora-radial-mask')}></div>
       </div>
       {children}
     </div>

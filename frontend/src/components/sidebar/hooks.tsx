@@ -30,7 +30,11 @@ interface HoverExpansionOptions {
  * @param options.hoverDelay - Delay before expanding (default: 150ms)
  * @param options.collapseDelay - Delay before collapsing (default: 200ms)
  */
-export function useHoverExpansion({ isPinned = false, hoverDelay = SIDEBAR_HOVER_DELAY, collapseDelay = SIDEBAR_COLLAPSE_DELAY }: HoverExpansionOptions = {}) {
+export function useHoverExpansion({
+  isPinned = false,
+  hoverDelay = SIDEBAR_HOVER_DELAY,
+  collapseDelay = SIDEBAR_COLLAPSE_DELAY,
+}: HoverExpansionOptions = {}) {
   const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -50,12 +54,15 @@ export function useHoverExpansion({ isPinned = false, hoverDelay = SIDEBAR_HOVER
   }, []);
 
   // Handle hover on specific icon
-  const handleIconHover = useCallback((iconName: string) => {
-    clearPendingTimeout();
-    timeoutRef.current = setTimeout(() => {
-      setHoveredIcon(iconName);
-    }, hoverDelay);
-  }, [clearPendingTimeout, hoverDelay]);
+  const handleIconHover = useCallback(
+    (iconName: string) => {
+      clearPendingTimeout();
+      timeoutRef.current = setTimeout(() => {
+        setHoveredIcon(iconName);
+      }, hoverDelay);
+    },
+    [clearPendingTimeout, hoverDelay]
+  );
 
   // Handle leaving an icon
   const handleIconLeave = useCallback(() => {
@@ -79,9 +86,9 @@ export function useHoverExpansion({ isPinned = false, hoverDelay = SIDEBAR_HOVER
         // If so, don't collapse - user is still interacting with sidebar content
         const isRadixPortalActive = document.querySelector(
           '[data-radix-popper-content-wrapper], ' +
-          '[data-radix-select-content], ' +
-          '[data-state="open"][data-radix-select-trigger], ' +
-          '[data-radix-menu-content]'
+            '[data-radix-select-content], ' +
+            '[data-state="open"][data-radix-select-trigger], ' +
+            '[data-radix-menu-content]'
         );
 
         if (isRadixPortalActive) {
@@ -128,9 +135,10 @@ export function useMockMode() {
       return;
     }
 
-    api.getMockMode()
-      .then(result => setMockMode(result.enabled))
-      .catch(err => {
+    api
+      .getMockMode()
+      .then((result) => setMockMode(result.enabled))
+      .catch((err) => {
         log.error('Failed to get mock mode:', err);
         setMockMode(false);
       });
@@ -168,9 +176,10 @@ export function useCachingMode() {
       return;
     }
 
-    api.getCachingMode()
-      .then(result => setCachingMode(result.enabled))
-      .catch(err => {
+    api
+      .getCachingMode()
+      .then((result) => setCachingMode(result.enabled))
+      .catch((err) => {
         log.error('Failed to get caching mode:', err);
         setCachingMode(false);
       });

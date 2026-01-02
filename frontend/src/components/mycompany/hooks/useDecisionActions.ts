@@ -40,85 +40,102 @@ export function useDecisionActions({
   }, []);
 
   // Execute promotion after user selects type in modal
-  const handleConfirmPromote = useCallback(async (docType: DocType, title: string | null, departmentIds: string[] | null, projectId: string | null): Promise<void> => {
-    if (!promoteModal) return;
+  const handleConfirmPromote = useCallback(
+    async (
+      docType: DocType,
+      title: string | null,
+      departmentIds: string[] | null,
+      projectId: string | null
+    ): Promise<void> => {
+      if (!promoteModal) return;
 
-    setSaving(true);
-    try {
-      if (docType === 'project') {
-        // Promote to project
-        let targetProjectId = projectId;
-        if (projectId) {
-          // Add to existing project - link decision to project
-          await api.linkDecisionToProject(companyId!, promoteModal.id, projectId);
+      setSaving(true);
+      try {
+        if (docType === 'project') {
+          // Promote to project
+          let targetProjectId = projectId;
+          if (projectId) {
+            // Add to existing project - link decision to project
+            await api.linkDecisionToProject(companyId!, promoteModal.id, projectId);
+          } else {
+            // Create new project from decision
+            const result = await api.createProjectFromDecision(companyId!, promoteModal.id, {
+              name: title || promoteModal.title,
+              department_ids: departmentIds && departmentIds.length > 0 ? departmentIds : [],
+            });
+            // Get the new project ID from the response
+            targetProjectId = result?.project?.id;
+          }
+          // Navigate to the project after promotion
+          if (targetProjectId) {
+            setPromoteModal(null);
+            await loadData();
+            setActiveTab('projects');
+            setHighlightedProjectId(targetProjectId);
+            toast.success(
+              projectId
+                ? `Decision added to project`
+                : `"${title || promoteModal.title}" created as project`,
+              { duration: 3000 }
+            );
+            setSaving(false);
+            return; // Early return - we've handled everything
+          }
         } else {
-          // Create new project from decision
-          const result = await api.createProjectFromDecision(companyId!, promoteModal.id, {
-            name: title || promoteModal.title,
-            department_ids: departmentIds && departmentIds.length > 0 ? departmentIds : []
+          // Promote to playbook (SOP, Framework, Policy)
+          await api.promoteDecisionToPlaybook(companyId!, promoteModal.id, {
+            doc_type: docType,
+            title: title || promoteModal.title,
+            department_ids: departmentIds || [],
           });
-          // Get the new project ID from the response
-          targetProjectId = result?.project?.id;
+          const docTypeLabel =
+            docType === 'sop' ? 'SOP' : docType.charAt(0).toUpperCase() + docType.slice(1);
+          toast.success(`"${title || promoteModal.title}" created as ${docTypeLabel}`, {
+            duration: 3000,
+          });
         }
-        // Navigate to the project after promotion
-        if (targetProjectId) {
-          setPromoteModal(null);
-          await loadData();
-          setActiveTab('projects');
-          setHighlightedProjectId(targetProjectId);
-          toast.success(projectId
-            ? `Decision added to project`
-            : `"${title || promoteModal.title}" created as project`,
-            { duration: 3000 }
-          );
-          setSaving(false);
-          return; // Early return - we've handled everything
-        }
-      } else {
-        // Promote to playbook (SOP, Framework, Policy)
-        await api.promoteDecisionToPlaybook(companyId!, promoteModal.id, {
-          doc_type: docType,
-          title: title || promoteModal.title,
-          department_ids: departmentIds || []
-        });
-        const docTypeLabel = docType === 'sop' ? 'SOP' : docType.charAt(0).toUpperCase() + docType.slice(1);
-        toast.success(`"${title || promoteModal.title}" created as ${docTypeLabel}`, { duration: 3000 });
+        setPromoteModal(null);
+        // Reload decisions to show promoted status
+        await loadData();
+      } catch (err) {
+        log.error('Failed to promote decision', { error: err });
+        toast.error('Failed to promote decision');
       }
-      setPromoteModal(null);
-      // Reload decisions to show promoted status
-      await loadData();
-    } catch (err) {
-      log.error('Failed to promote decision', { error: err });
-      toast.error('Failed to promote decision');
-    }
-    setSaving(false);
-  }, [promoteModal, companyId, loadData, setActiveTab, setHighlightedProjectId]);
+      setSaving(false);
+    },
+    [promoteModal, companyId, loadData, setActiveTab, setHighlightedProjectId]
+  );
 
   // Delete decision with fade-out animation
-  const handleDeleteDecision = useCallback(async (decision: Decision): Promise<void> => {
-    // Start the fade-out animation
-    setDeletingDecisionId(decision.id);
+  const handleDeleteDecision = useCallback(
+    async (decision: Decision): Promise<void> => {
+      // Start the fade-out animation
+      setDeletingDecisionId(decision.id);
 
-    // Wait for animation to complete (300ms), then remove from local state
-    setTimeout(async () => {
-      // Optimistically remove from local state
-      setDecisions(prev => prev.filter(d => d.id !== decision.id));
-      setDeletingDecisionId(null);
+      // Wait for animation to complete (300ms), then remove from local state
+      setTimeout(async () => {
+        // Optimistically remove from local state
+        setDecisions((prev) => prev.filter((d) => d.id !== decision.id));
+        setDeletingDecisionId(null);
 
-      // Then call API in background
-      try {
-        await api.deleteDecision(companyId!, decision.id);
-        toast.success(`"${decision.title}" removed from decisions`, { duration: 3000 });
-      } catch (err) {
-        log.error('Failed to delete decision', { error: err });
-        // On error, restore the decision to the list (don't reload to avoid skeleton flash)
-        setDecisions(prev => [...prev, decision].sort((a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        ));
-        toast.error('Failed to delete decision');
-      }
-    }, 300);
-  }, [companyId, setDecisions]);
+        // Then call API in background
+        try {
+          await api.deleteDecision(companyId!, decision.id);
+          toast.success(`"${decision.title}" removed from decisions`, { duration: 3000 });
+        } catch (err) {
+          log.error('Failed to delete decision', { error: err });
+          // On error, restore the decision to the list (don't reload to avoid skeleton flash)
+          setDecisions((prev) =>
+            [...prev, decision].sort(
+              (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            )
+          );
+          toast.error('Failed to delete decision');
+        }
+      }, 300);
+    },
+    [companyId, setDecisions]
+  );
 
   return {
     // State

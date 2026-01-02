@@ -44,18 +44,17 @@ export function TeamTab({
   onAddDepartment,
   onAddRole,
   onViewDepartment,
-  onViewRole
+  onViewRole,
 }: TeamTabProps) {
   if (departments.length === 0) {
     return (
       <div className="mc-empty">
         <Users size={32} className="mc-empty-icon" />
         <p className="mc-empty-title">Set up your team</p>
-        <p className="mc-empty-hint">Add departments and roles to help your council understand your organization</p>
-        <Button
-          variant="default"
-          onClick={onAddDepartment}
-        >
+        <p className="mc-empty-hint">
+          Add departments and roles to help your council understand your organization
+        </p>
+        <Button variant="default" onClick={onAddDepartment}>
           New Department
         </Button>
       </div>
@@ -65,12 +64,10 @@ export function TeamTab({
   return (
     <div className="mc-team">
       <div className="mc-team-header">
-        <span>{departments.length} departments • {totalRoles} roles</span>
-        <Button
-          variant="default"
-          size="sm"
-          onClick={onAddDepartment}
-        >
+        <span>
+          {departments.length} departments • {totalRoles} roles
+        </span>
+        <Button variant="default" size="sm" onClick={onAddDepartment}>
           New Department
         </Button>
       </div>
@@ -88,10 +85,7 @@ export function TeamTab({
                   onClick={() => onExpandDept && onExpandDept(isExpanded ? null : dept.id)}
                 >
                   {/* Department color indicator */}
-                  <div
-                    className="mc-dept-indicator"
-                    style={{ background: deptColors.text }}
-                  />
+                  <div className="mc-dept-indicator" style={{ background: deptColors.text }} />
 
                   {/* Main content */}
                   <div className="mc-elegant-content">
@@ -101,9 +95,7 @@ export function TeamTab({
 
                   {/* Expand icon */}
                   <div className="mc-elegant-actions">
-                    <span className={`mc-expand-chevron ${isExpanded ? 'expanded' : ''}`}>
-                      ›
-                    </span>
+                    <span className={`mc-expand-chevron ${isExpanded ? 'expanded' : ''}`}>›</span>
                   </div>
                 </div>
 
@@ -121,7 +113,9 @@ export function TeamTab({
                       <span className="mc-context-icon">📄</span>
                       <span>View Context</span>
                       {dept.context_md && (
-                        <span className="mc-context-size">{Math.round(dept.context_md.length / 1000)}k</span>
+                        <span className="mc-context-size">
+                          {Math.round(dept.context_md.length / 1000)}k
+                        </span>
                       )}
                     </button>
 
@@ -148,13 +142,16 @@ export function TeamTab({
                               className="mc-role-row"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                onViewRole && onViewRole({ ...role, departmentName: dept.name, departmentId: dept.id });
+                                onViewRole &&
+                                  onViewRole({
+                                    ...role,
+                                    departmentName: dept.name,
+                                    departmentId: dept.id,
+                                  });
                               }}
                             >
                               <span className="mc-role-name">{role.name}</span>
-                              {role.title && (
-                                <span className="mc-role-title">{role.title}</span>
-                              )}
+                              {role.title && <span className="mc-role-title">{role.title}</span>}
                             </div>
                           ))}
                         </div>
@@ -171,11 +168,7 @@ export function TeamTab({
       </ScrollableContent>
 
       {/* FAB - Mobile only (visible via CSS) */}
-      <button
-        className="mc-fab"
-        onClick={onAddDepartment}
-        aria-label="Create new department"
-      >
+      <button className="mc-fab" onClick={onAddDepartment} aria-label="Create new department">
         <Plus />
       </button>
     </div>

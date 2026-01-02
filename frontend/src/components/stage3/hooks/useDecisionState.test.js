@@ -9,8 +9,8 @@ import { useDecisionState } from './useDecisionState';
 // Mock the API module
 vi.mock('../../../api', () => ({
   api: {
-    getConversationDecision: vi.fn()
-  }
+    getConversationDecision: vi.fn(),
+  },
 }));
 
 // Mock the logger module
@@ -20,9 +20,9 @@ vi.mock('../../../utils/logger', () => ({
       debug: vi.fn(),
       info: vi.fn(),
       warn: vi.fn(),
-      error: vi.fn()
-    })
-  }
+      error: vi.fn(),
+    }),
+  },
 }));
 
 import { api } from '../../../api';
@@ -39,7 +39,7 @@ describe('useDecisionState', () => {
       useDecisionState({
         conversationId: 'conv-123',
         companyId: 'comp-456',
-        responseIndex: 0
+        responseIndex: 0,
       })
     );
 
@@ -57,7 +57,7 @@ describe('useDecisionState', () => {
         conversationId: 'conv-123',
         companyId: 'comp-456',
         responseIndex: 0,
-        currentProjectId: 'proj-789'
+        currentProjectId: 'proj-789',
       })
     );
 
@@ -70,7 +70,7 @@ describe('useDecisionState', () => {
         conversationId: 'conv-123',
         companyId: 'comp-456',
         responseIndex: 0,
-        departmentId: 'dept-123'
+        departmentId: 'dept-123',
       })
     );
 
@@ -82,7 +82,7 @@ describe('useDecisionState', () => {
       useDecisionState({
         conversationId: 'temp-123',
         companyId: 'comp-456',
-        responseIndex: 0
+        responseIndex: 0,
       })
     );
 
@@ -94,7 +94,7 @@ describe('useDecisionState', () => {
       useDecisionState({
         conversationId: null,
         companyId: 'comp-456',
-        responseIndex: 0
+        responseIndex: 0,
       })
     );
 
@@ -106,7 +106,7 @@ describe('useDecisionState', () => {
       useDecisionState({
         conversationId: 'conv-123',
         companyId: null,
-        responseIndex: 0
+        responseIndex: 0,
       })
     );
 
@@ -118,7 +118,7 @@ describe('useDecisionState', () => {
       useDecisionState({
         conversationId: 'conv-123',
         companyId: 'comp-456',
-        responseIndex: 0
+        responseIndex: 0,
       })
     );
 
@@ -134,7 +134,7 @@ describe('useDecisionState', () => {
       useDecisionState({
         conversationId: 'conv-123',
         companyId: 'comp-456',
-        responseIndex: 0
+        responseIndex: 0,
       })
     );
 
@@ -150,7 +150,7 @@ describe('useDecisionState', () => {
       useDecisionState({
         conversationId: 'conv-123',
         companyId: 'comp-456',
-        responseIndex: 0
+        responseIndex: 0,
       })
     );
 
@@ -166,7 +166,7 @@ describe('useDecisionState', () => {
       useDecisionState({
         conversationId: 'conv-123',
         companyId: 'comp-456',
-        responseIndex: 0
+        responseIndex: 0,
       })
     );
 
@@ -182,7 +182,7 @@ describe('useDecisionState', () => {
       useDecisionState({
         conversationId: 'conv-123',
         companyId: 'comp-456',
-        responseIndex: 0
+        responseIndex: 0,
       })
     );
 
@@ -198,7 +198,7 @@ describe('useDecisionState', () => {
       useDecisionState({
         conversationId: 'conv-123',
         companyId: 'comp-456',
-        responseIndex: 0
+        responseIndex: 0,
       })
     );
 
@@ -214,7 +214,7 @@ describe('useDecisionState', () => {
       useDecisionState({
         conversationId: 'conv-123',
         companyId: 'comp-456',
-        responseIndex: 0
+        responseIndex: 0,
       })
     );
 
@@ -226,7 +226,7 @@ describe('useDecisionState', () => {
       useDecisionState({
         conversationId: 'conv-123',
         companyId: 'comp-456',
-        responseIndex: 0
+        responseIndex: 0,
       })
     );
 

@@ -90,12 +90,12 @@
   }
 }
 
-.dept-select-content[data-side="bottom"] {
+.dept-select-content[data-side='bottom'] {
   transform-origin: top;
   animation: dropdownInBottom 0.15s ease-out;
 }
 
-.dept-select-content[data-side="top"] {
+.dept-select-content[data-side='top'] {
   transform-origin: bottom;
   animation: dropdownInTop 0.15s ease-out;
 }
@@ -130,7 +130,7 @@
 }
 
 /* Selected/checked state */
-.dept-select-item[data-state="checked"] {
+.dept-select-item[data-state='checked'] {
   background: var(--dept-checked-bg, var(--color-gray-100));
   color: var(--dept-checked-text, var(--color-gray-700));
 }

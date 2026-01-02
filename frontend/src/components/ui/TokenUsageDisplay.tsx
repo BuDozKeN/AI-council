@@ -32,14 +32,14 @@ const MODEL_PRICING: Record<string, { input: number; output: number }> = {
 
   // OpenAI models (official pricing)
   'openai/gpt-4o': { input: 5, output: 15 },
-  'openai/gpt-4o-mini': { input: 0.15, output: 0.60 },
+  'openai/gpt-4o-mini': { input: 0.15, output: 0.6 },
   'openai/gpt-5.1': { input: 5, output: 20 }, // Estimate - not yet released
 
   // Google Gemini models (official pricing)
   'google/gemini-3-pro-preview': { input: 2, output: 12 }, // Estimate based on 2.5 Pro trajectory
   'google/gemini-2.5-pro-preview': { input: 1.25, output: 10 },
-  'google/gemini-2.5-flash': { input: 0.075, output: 0.30 },
-  'google/gemini-2.0-flash-001': { input: 0.10, output: 0.40 },
+  'google/gemini-2.5-flash': { input: 0.075, output: 0.3 },
+  'google/gemini-2.0-flash-001': { input: 0.1, output: 0.4 },
 
   // xAI Grok models (official pricing)
   'x-ai/grok-3': { input: 3, output: 15 },
@@ -50,7 +50,7 @@ const MODEL_PRICING: Record<string, { input: number; output: number }> = {
   'deepseek/deepseek-chat-v3-0324': { input: 0.28, output: 0.42 },
 
   // Fallback for unknown models
-  'default': { input: 2, output: 8 },
+  default: { input: 2, output: 8 },
 };
 
 export interface UsageData {
@@ -59,11 +59,14 @@ export interface UsageData {
   total_tokens: number;
   cache_creation_input_tokens: number;
   cache_read_input_tokens: number;
-  by_model: Record<string, {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
-  }>;
+  by_model: Record<
+    string,
+    {
+      prompt_tokens: number;
+      completion_tokens: number;
+      total_tokens: number;
+    }
+  >;
 }
 
 interface TokenUsageDisplayProps {
@@ -125,7 +128,11 @@ function getModelShortName(model: string): string {
     .replace('deepseek-chat-v3-0324', 'DeepSeek');
 }
 
-export function TokenUsageDisplay({ usage, stage = 'complete', className = '' }: TokenUsageDisplayProps) {
+export function TokenUsageDisplay({
+  usage,
+  stage = 'complete',
+  className = '',
+}: TokenUsageDisplayProps) {
   const [isVisible, setIsVisible] = useState(getShowTokenUsage());
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -146,9 +153,8 @@ export function TokenUsageDisplay({ usage, stage = 'complete', className = '' }:
     if (!usage) return null;
 
     const cost = calculateCost(usage);
-    const cacheHitRate = usage.prompt_tokens > 0
-      ? (usage.cache_read_input_tokens / usage.prompt_tokens) * 100
-      : 0;
+    const cacheHitRate =
+      usage.prompt_tokens > 0 ? (usage.cache_read_input_tokens / usage.prompt_tokens) * 100 : 0;
 
     // Estimate savings from cache (assuming cached tokens cost 10% of normal)
     const cacheSavings = (usage.cache_read_input_tokens / 1_000_000) * 2 * 0.9; // Rough estimate
@@ -205,20 +211,26 @@ export function TokenUsageDisplay({ usage, stage = 'complete', className = '' }:
             </div>
             <div className="token-usage-row">
               <span className="token-usage-row-label">Output tokens</span>
-              <span className="token-usage-row-value">{formatTokenCount(stats.completionTokens)}</span>
+              <span className="token-usage-row-value">
+                {formatTokenCount(stats.completionTokens)}
+              </span>
             </div>
             {stats.cacheReadTokens > 0 && (
               <div className="token-usage-row cache">
                 <span className="token-usage-row-label">
                   <Zap size={12} /> Cache read
                 </span>
-                <span className="token-usage-row-value">{formatTokenCount(stats.cacheReadTokens)}</span>
+                <span className="token-usage-row-value">
+                  {formatTokenCount(stats.cacheReadTokens)}
+                </span>
               </div>
             )}
             {stats.cacheCreationTokens > 0 && (
               <div className="token-usage-row">
                 <span className="token-usage-row-label">Cache created</span>
-                <span className="token-usage-row-value">{formatTokenCount(stats.cacheCreationTokens)}</span>
+                <span className="token-usage-row-value">
+                  {formatTokenCount(stats.cacheCreationTokens)}
+                </span>
               </div>
             )}
           </div>
@@ -230,7 +242,8 @@ export function TokenUsageDisplay({ usage, stage = 'complete', className = '' }:
                 <div key={model} className="token-usage-model-row">
                   <span className="token-usage-model-name">{getModelShortName(model)}</span>
                   <span className="token-usage-model-tokens">
-                    {formatTokenCount(modelUsage.prompt_tokens)} / {formatTokenCount(modelUsage.completion_tokens)}
+                    {formatTokenCount(modelUsage.prompt_tokens)} /{' '}
+                    {formatTokenCount(modelUsage.completion_tokens)}
                   </span>
                 </div>
               ))}

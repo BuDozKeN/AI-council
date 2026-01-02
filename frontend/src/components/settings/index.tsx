@@ -46,7 +46,7 @@ export default function Settings({ isOpen, onClose, companyId, onMockModeChange 
       confirmText: 'Remove',
       onConfirm: async () => {
         await handleRemoveMember(memberId);
-      }
+      },
     });
   };
 
@@ -59,7 +59,7 @@ export default function Settings({ isOpen, onClose, companyId, onMockModeChange 
       confirmText: 'Remove',
       onConfirm: async () => {
         await handleDeleteApiKey();
-      }
+      },
     });
   };
 
@@ -148,10 +148,7 @@ export default function Settings({ isOpen, onClose, companyId, onMockModeChange 
 
             {activeTab === 'api' && (
               <div className="api-content">
-                <ApiKeysSection
-                  isOpen={isOpen}
-                  onDeleteApiKey={handleDeleteApiKeyConfirm}
-                />
+                <ApiKeysSection isOpen={isOpen} onDeleteApiKey={handleDeleteApiKeyConfirm} />
               </div>
             )}
 
@@ -168,12 +165,7 @@ export default function Settings({ isOpen, onClose, companyId, onMockModeChange 
       </AdaptiveModal>
 
       {/* Confirmation Modal */}
-      {confirmModal && (
-        <ConfirmModal
-          {...confirmModal}
-          onCancel={() => setConfirmModal(null)}
-        />
-      )}
+      {confirmModal && <ConfirmModal {...confirmModal} onCancel={() => setConfirmModal(null)} />}
     </>
   );
 }

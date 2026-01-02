@@ -11,7 +11,15 @@ import { Button } from '../../ui/button';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { ProjectSelect } from '../../ui/ProjectSelect';
 import { Spinner } from '../../ui/Spinner';
-import { Bookmark, ScrollText, Layers, FileText, FolderKanban, RefreshCw, LucideIcon } from 'lucide-react';
+import {
+  Bookmark,
+  ScrollText,
+  Layers,
+  FileText,
+  FolderKanban,
+  RefreshCw,
+  LucideIcon,
+} from 'lucide-react';
 import { api } from '../../../api';
 import { logger } from '../../../utils/logger';
 import type { Department, Project } from '../../../types/business';
@@ -38,7 +46,7 @@ const DOC_TYPES: DocType[] = [
   { value: 'sop', label: 'SOP', icon: ScrollText, desc: 'Step-by-step procedures' },
   { value: 'framework', label: 'Framework', icon: Layers, desc: 'Conceptual structure' },
   { value: 'policy', label: 'Policy', icon: FileText, desc: 'Rules & guidelines' },
-  { value: 'project', label: 'Project', icon: FolderKanban, desc: 'Track as a project' }
+  { value: 'project', label: 'Project', icon: FolderKanban, desc: 'Track as a project' },
 ];
 
 interface PromoteDecisionModalProps {
@@ -46,13 +54,27 @@ interface PromoteDecisionModalProps {
   departments: Department[];
   projects?: Project[];
   companyId: string;
-  onPromote: (docType: string, title: string, departmentIds: string[], projectId: string | null) => void;
+  onPromote: (
+    docType: string,
+    title: string,
+    departmentIds: string[],
+    projectId: string | null
+  ) => void;
   onClose: () => void;
   saving: boolean;
   onViewSource?: (conversationId: string) => void;
 }
 
-export function PromoteDecisionModal({ decision, departments, projects = [], companyId, onPromote, onClose, saving, onViewSource }: PromoteDecisionModalProps) {
+export function PromoteDecisionModal({
+  decision,
+  departments,
+  projects = [],
+  companyId,
+  onPromote,
+  onClose,
+  saving,
+  onViewSource,
+}: PromoteDecisionModalProps) {
   // If decision already belongs to a project, default to 'project' type
   const hasExistingProject = !!decision?.project_id;
   const [docType, setDocType] = useState(hasExistingProject ? 'project' : 'sop');
@@ -103,25 +125,34 @@ export function PromoteDecisionModal({ decision, departments, projects = [], com
     }
   };
 
-  const hasSource = decision?.source_conversation_id && !decision.source_conversation_id.startsWith('temp-');
+  const hasSource =
+    decision?.source_conversation_id && !decision.source_conversation_id.startsWith('temp-');
 
   // Filter to only show active projects
-  const activeProjects = (projects || []).filter(p => p.status === 'active');
+  const activeProjects = (projects || []).filter((p) => p.status === 'active');
 
   // Find existing project name if decision belongs to one
   const existingProject = hasExistingProject
-    ? activeProjects.find(p => p.id === decision.project_id)
+    ? activeProjects.find((p) => p.id === decision.project_id)
     : null;
 
   return (
-    <AppModal isOpen={true} onClose={onClose} title="Promote Decision" size="xl" contentClassName="mc-modal-no-padding">
+    <AppModal
+      isOpen={true}
+      onClose={onClose}
+      title="Promote Decision"
+      size="xl"
+      contentClassName="mc-modal-no-padding"
+    >
       <form onSubmit={handleSubmit}>
         <div className="mc-promote-layout-v2">
           {/* LEFT side: Options */}
           <div className="mc-promote-sidebar">
             {/* Title Input */}
             <div className="mc-form-unified">
-              <label htmlFor="promote-decision-title" className="mc-label-unified">Title</label>
+              <label htmlFor="promote-decision-title" className="mc-label-unified">
+                Title
+              </label>
               <input
                 id="promote-decision-title"
                 name="promote-title"
@@ -150,7 +181,7 @@ export function PromoteDecisionModal({ decision, departments, projects = [], com
             <div className="mc-form-unified">
               <label className="mc-label-unified">Promote To</label>
               <div className="mc-type-cards">
-                {DOC_TYPES.map(type => {
+                {DOC_TYPES.map((type) => {
                   const Icon = type.icon;
                   const isSelected = docType === type.value;
                   return (
@@ -198,7 +229,14 @@ export function PromoteDecisionModal({ decision, departments, projects = [], com
                 className="mc-source-link-compact"
                 onClick={() => onViewSource(decision.source_conversation_id!)}
               >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
                   <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" />
                 </svg>
                 View source
@@ -221,14 +259,28 @@ export function PromoteDecisionModal({ decision, departments, projects = [], com
                       title={summaryExpanded ? 'Collapse' : 'Expand'}
                     >
                       {summaryExpanded ? (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
                           <polyline points="4 14 10 14 10 20" />
                           <polyline points="20 10 14 10 14 4" />
                           <line x1="14" y1="10" x2="21" y2="3" />
                           <line x1="3" y1="21" x2="10" y2="14" />
                         </svg>
                       ) : (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
                           <polyline points="15 3 21 3 21 9" />
                           <polyline points="9 21 3 21 3 15" />
                           <line x1="21" y1="3" x2="14" y2="10" />
@@ -265,7 +317,9 @@ export function PromoteDecisionModal({ decision, departments, projects = [], com
                 ) : summary ? (
                   <MarkdownViewer content={summary} />
                 ) : (
-                  <span className="mc-no-summary">No summary available. Click "Generate" to create one.</span>
+                  <span className="mc-no-summary">
+                    No summary available. Click "Generate" to create one.
+                  </span>
                 )}
               </div>
             </div>
@@ -302,7 +356,7 @@ export function PromoteDecisionModal({ decision, departments, projects = [], com
                 ) : (
                   <>
                     <Bookmark className="h-4 w-4" />
-                    Create {DOC_TYPES.find(t => t.value === docType)?.label}
+                    Create {DOC_TYPES.find((t) => t.value === docType)?.label}
                   </>
                 )}
               </>

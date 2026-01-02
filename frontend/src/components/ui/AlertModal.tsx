@@ -1,7 +1,7 @@
-import { AppModal } from "./AppModal"
-import { Button } from "./button"
-import { CheckCircle, AlertCircle, Info, AlertTriangle } from "lucide-react"
-import "./AlertModal.css"
+import { AppModal } from './AppModal';
+import { Button } from './button';
+import { CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
+import './AlertModal.css';
 
 type AlertVariant = 'success' | 'error' | 'info' | 'warning';
 
@@ -39,21 +39,19 @@ function AlertModal({
   message,
   variant = 'info',
   onClose,
-  buttonText = 'OK'
+  buttonText = 'OK',
 }: AlertModalProps) {
   const iconMap = {
     success: <CheckCircle size={28} />,
     error: <AlertCircle size={28} />,
     info: <Info size={28} />,
-    warning: <AlertTriangle size={28} />
-  }
+    warning: <AlertTriangle size={28} />,
+  };
 
   return (
     <AppModal isOpen={true} onClose={onClose} title={title || ''} size="sm">
       <div className="alert-modal-content">
-        <div className={`alert-modal-icon alert-modal-icon-${variant}`}>
-          {iconMap[variant]}
-        </div>
+        <div className={`alert-modal-icon alert-modal-icon-${variant}`}>{iconMap[variant]}</div>
         {title && <h3 className="alert-modal-title">{title}</h3>}
         <p className="alert-modal-message">{message}</p>
       </div>
@@ -68,8 +66,8 @@ function AlertModal({
         </Button>
       </AppModal.Footer>
     </AppModal>
-  )
+  );
 }
 
-export { AlertModal }
-export type { AlertModalProps, AlertVariant }
+export { AlertModal };
+export type { AlertModalProps, AlertVariant };

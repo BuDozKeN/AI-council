@@ -21,15 +21,15 @@ function isAlreadyMarkdown(text: string): boolean {
 
   // Check for common Markdown patterns
   const mdPatterns = [
-    /^#{1,6}\s/m,           // Headers: # ## ###
-    /^\*\*[^*]+\*\*/m,      // Bold: **text**
-    /^```/m,                // Code blocks: ```
-    /^\|.+\|$/m,            // Tables: | col | col |
-    /^\s*[-*]\s+\S/m,       // Lists: - item or * item
-    /\[.+\]\(.+\)/,         // Links: [text](url)
+    /^#{1,6}\s/m, // Headers: # ## ###
+    /^\*\*[^*]+\*\*/m, // Bold: **text**
+    /^```/m, // Code blocks: ```
+    /^\|.+\|$/m, // Tables: | col | col |
+    /^\s*[-*]\s+\S/m, // Lists: - item or * item
+    /\[.+\]\(.+\)/, // Links: [text](url)
   ];
 
-  return mdPatterns.some(pattern => pattern.test(text));
+  return mdPatterns.some((pattern) => pattern.test(text));
 }
 
 /**
@@ -40,25 +40,27 @@ function detectTable(lines: string[]): boolean {
   if (lines.length < 2) return false;
 
   // Check if lines have consistent tab/multi-space separators
-  const columnCounts = lines.map(line => {
+  const columnCounts = lines.map((line) => {
     // Split by tabs or 2+ spaces
-    const cols = line.split(/\t|  +/).filter(c => c.trim());
+    const cols = line.split(/\t|  +/).filter((c) => c.trim());
     return cols.length;
   });
 
   // All rows should have same column count (2+ columns)
   const firstCount = columnCounts[0] ?? 0;
-  return firstCount >= 2 && columnCounts.every(c => c === firstCount || c === 0);
+  return firstCount >= 2 && columnCounts.every((c) => c === firstCount || c === 0);
 }
 
 /**
  * Convert table lines to Markdown table
  */
 function convertToMarkdownTable(lines: string[]): string {
-  const rows = lines.map(line => {
-    const cols = line.split(/\t|  +/).filter(c => c.trim());
-    return cols;
-  }).filter(row => row.length > 0);
+  const rows = lines
+    .map((line) => {
+      const cols = line.split(/\t|  +/).filter((c) => c.trim());
+      return cols;
+    })
+    .filter((row) => row.length > 0);
 
   if (rows.length === 0) return '';
 
@@ -210,7 +212,7 @@ export function smartTextToMarkdown(text: string | null | undefined, forceConver
     let j = i;
     while (j < lines.length && lines[j]?.trim()) {
       const currentLine = lines[j] ?? '';
-      const cols = currentLine.split(/\t|  +/).filter(c => c.trim());
+      const cols = currentLine.split(/\t|  +/).filter((c) => c.trim());
       if (cols.length >= 2) {
         tableLines.push(currentLine);
         j++;

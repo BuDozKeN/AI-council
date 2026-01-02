@@ -6,5 +6,5 @@ export {
   DeepSeekIcon,
   ChairmanIcon,
   PROVIDER_ICONS,
-  getProviderIcon
+  getProviderIcon,
 } from './BrandIcons';

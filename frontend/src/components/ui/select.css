@@ -118,11 +118,11 @@
 }
 
 /* Animation states */
-.select-content[data-state="open"] {
+.select-content[data-state='open'] {
   animation: select-fade-in 0.15s ease-out;
 }
 
-.select-content[data-state="closed"] {
+.select-content[data-state='closed'] {
   animation: select-fade-out 0.1s ease-in;
 }
 
@@ -151,19 +151,19 @@
 }
 
 /* Popper position adjustments */
-.select-content-popper[data-side="bottom"] {
+.select-content-popper[data-side='bottom'] {
   transform: translateY(4px);
 }
 
-.select-content-popper[data-side="top"] {
+.select-content-popper[data-side='top'] {
   transform: translateY(-4px);
 }
 
-.select-content-popper[data-side="left"] {
+.select-content-popper[data-side='left'] {
   transform: translateX(-4px);
 }
 
-.select-content-popper[data-side="right"] {
+.select-content-popper[data-side='right'] {
   transform: translateX(4px);
 }
 
@@ -194,11 +194,13 @@
   overflow: hidden;
   cursor: default;
   color: var(--color-text-secondary);
-  transition: height 0.1s, padding 0.1s;
+  transition:
+    height 0.1s,
+    padding 0.1s;
 }
 
 /* Only show scroll buttons when they have content to scroll to */
-.select-scroll-btn[data-state="visible"] {
+.select-scroll-btn[data-state='visible'] {
   height: auto;
   padding: 4px 0;
 }
@@ -252,13 +254,13 @@
 }
 
 /* Selected state */
-.select-item[data-state="checked"] {
+.select-item[data-state='checked'] {
   background: var(--color-orange-50);
   color: var(--color-orange-800);
 }
 
-.select-item[data-state="checked"]:hover,
-.select-item[data-state="checked"][data-highlighted] {
+.select-item[data-state='checked']:hover,
+.select-item[data-state='checked'][data-highlighted] {
   background: var(--color-orange-100);
 }
 
@@ -429,13 +431,13 @@
   background: var(--color-bg-tertiary);
 }
 
-.dark .select-item[data-state="checked"] {
+.dark .select-item[data-state='checked'] {
   background: var(--overlay-orange-15);
   color: var(--color-orange-400);
 }
 
-.dark .select-item[data-state="checked"]:hover,
-.dark .select-item[data-state="checked"][data-highlighted] {
+.dark .select-item[data-state='checked']:hover,
+.dark .select-item[data-state='checked'][data-highlighted] {
   background: var(--overlay-orange-20);
 }
 

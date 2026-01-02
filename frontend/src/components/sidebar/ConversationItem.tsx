@@ -10,7 +10,16 @@
  */
 
 import { useRef, useEffect, memo, useCallback } from 'react';
-import { Star, Trash2, Archive, ArchiveRestore, Square, CheckSquare, Pencil, GripVertical } from 'lucide-react';
+import {
+  Star,
+  Trash2,
+  Archive,
+  ArchiveRestore,
+  Square,
+  CheckSquare,
+  Pencil,
+  GripVertical,
+} from 'lucide-react';
 import { getRelativeTime } from './hooks';
 import { formatDateTime } from '../../lib/dateUtils';
 import type { Conversation } from '../../types/conversation';
@@ -84,40 +93,43 @@ export const ConversationItem = memo(function ConversationItem({
   }, [isEditing]);
 
   // Long-press handlers for mobile context menu
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    // Reset flag
-    longPressTriggered.current = false;
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      // Reset flag
+      longPressTriggered.current = false;
 
-    // Capture touch position immediately (before the event object is recycled)
-    const firstTouch = e.touches[0];
-    if (!firstTouch) return;
-    const touchX = firstTouch.clientX;
-    const touchY = firstTouch.clientY;
-    const target = e.target;
+      // Capture touch position immediately (before the event object is recycled)
+      const firstTouch = e.touches[0];
+      if (!firstTouch) return;
+      const touchX = firstTouch.clientX;
+      const touchY = firstTouch.clientY;
+      const target = e.target;
 
-    // Store initial touch position to detect scrolling
-    touchStartPos.current = { x: touchX, y: touchY };
+      // Store initial touch position to detect scrolling
+      touchStartPos.current = { x: touchX, y: touchY };
 
-    longPressTimer.current = setTimeout(() => {
-      longPressTriggered.current = true;
-      if (onContextMenu) {
-        // Create a synthetic event with captured touch position
-        const syntheticEvent = {
-          preventDefault: () => {},
-          stopPropagation: () => {},
-          clientX: touchX,
-          clientY: touchY,
-          target: target,
-        } as React.MouseEvent;
-        onContextMenu(syntheticEvent, conversation);
-        // Vibrate on supported devices for haptic feedback
-        if (navigator.vibrate) {
-          navigator.vibrate(50);
+      longPressTimer.current = setTimeout(() => {
+        longPressTriggered.current = true;
+        if (onContextMenu) {
+          // Create a synthetic event with captured touch position
+          const syntheticEvent = {
+            preventDefault: () => {},
+            stopPropagation: () => {},
+            clientX: touchX,
+            clientY: touchY,
+            target: target,
+          } as React.MouseEvent;
+          onContextMenu(syntheticEvent, conversation);
+          // Vibrate on supported devices for haptic feedback
+          if (navigator.vibrate) {
+            navigator.vibrate(50);
+          }
         }
-      }
-      longPressTimer.current = null;
-    }, LONG_PRESS_DURATION);
-  }, [conversation, onContextMenu]);
+        longPressTimer.current = null;
+      }, LONG_PRESS_DURATION);
+    },
+    [conversation, onContextMenu]
+  );
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     // Cancel long-press if user is scrolling (moved more than 10px)
@@ -165,7 +177,9 @@ export const ConversationItem = memo(function ConversationItem({
     }
   };
 
-  const relativeTime = conversation.last_updated ? getRelativeTime(conversation.last_updated) : null;
+  const relativeTime = conversation.last_updated
+    ? getRelativeTime(conversation.last_updated)
+    : null;
   const absoluteTime = conversation.last_updated ? formatDateTime(conversation.last_updated) : null;
 
   return (
@@ -230,7 +244,9 @@ export const ConversationItem = memo(function ConversationItem({
           </div>
         ) : (
           <div className="conversation-title">
-            {conversation.is_starred && <Star size={12} className="title-star" fill="currentColor" />}
+            {conversation.is_starred && (
+              <Star size={12} className="title-star" fill="currentColor" />
+            )}
             {conversation.is_archived && <span className="archived-badge">Archived</span>}
             {conversation.title || 'New Conversation'}
           </div>
@@ -238,11 +254,9 @@ export const ConversationItem = memo(function ConversationItem({
         <div className="conversation-meta">
           {conversation.message_count} messages
           {relativeTime && (
-            <span
-              className="conversation-time"
-              title={absoluteTime ?? undefined}
-            >
-              {' '}· {relativeTime}
+            <span className="conversation-time" title={absoluteTime ?? undefined}>
+              {' '}
+              · {relativeTime}
             </span>
           )}
         </div>

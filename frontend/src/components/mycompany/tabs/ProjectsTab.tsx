@@ -91,29 +91,32 @@ export function ProjectsTab({
   onCompleteProject,
   onArchiveProject,
   onRestoreProject,
-  onDeleteProject
+  onDeleteProject,
 }: ProjectsTabProps) {
   // Memoized stats - only recalculate when projects change
   // Must be before any early returns to satisfy React hooks rules
-  const stats = useMemo(() => ({
-    active: projects.filter(p => p.status === 'active').length,
-    completed: projects.filter(p => p.status === 'completed').length,
-    archived: projects.filter(p => p.status === 'archived').length,
-    totalDecisions: projects.reduce((sum, p) => sum + (p.decision_count || 0), 0)
-  }), [projects]);
+  const stats = useMemo(
+    () => ({
+      active: projects.filter((p) => p.status === 'active').length,
+      completed: projects.filter((p) => p.status === 'completed').length,
+      archived: projects.filter((p) => p.status === 'archived').length,
+      totalDecisions: projects.reduce((sum, p) => sum + (p.decision_count || 0), 0),
+    }),
+    [projects]
+  );
 
   // Memoized filtering and sorting
   const sortedProjects = useMemo(() => {
     // Filter by status
     let filtered = projects;
     if (projectStatusFilter !== 'all') {
-      filtered = filtered.filter(p => p.status === projectStatusFilter);
+      filtered = filtered.filter((p) => p.status === projectStatusFilter);
     }
 
     // Filter by department (multi-select)
     if (projectDeptFilter.length > 0) {
-      filtered = filtered.filter(p =>
-        (p.department_ids || []).some(id => projectDeptFilter.includes(id))
+      filtered = filtered.filter((p) =>
+        (p.department_ids || []).some((id) => projectDeptFilter.includes(id))
       );
     }
 
@@ -128,8 +131,10 @@ export function ProjectsTab({
           return (b.decision_count || 0) - (a.decision_count || 0);
         case 'updated':
         default:
-          return new Date(b.last_accessed_at || b.updated_at || b.created_at).getTime() -
-                 new Date(a.last_accessed_at || a.updated_at || a.created_at).getTime();
+          return (
+            new Date(b.last_accessed_at || b.updated_at || b.created_at).getTime() -
+            new Date(a.last_accessed_at || a.updated_at || a.created_at).getTime()
+          );
       }
     });
   }, [projects, projectStatusFilter, projectDeptFilter, projectSortBy]);
@@ -140,7 +145,7 @@ export function ProjectsTab({
       <div className="mc-projects">
         {/* Stats skeleton */}
         <div className="mc-stats-grid">
-          {[1, 2, 3, 4].map(i => (
+          {[1, 2, 3, 4].map((i) => (
             <div key={i} className="mc-stat-card">
               <Skeleton className="h-8 w-12 mb-1" />
               <Skeleton className="h-3 w-16" />
@@ -157,7 +162,7 @@ export function ProjectsTab({
         </div>
         {/* Project rows skeleton */}
         <div className="mc-projects-list">
-          {[1, 2, 3, 4, 5].map(i => (
+          {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="mc-project-row-compact" style={{ pointerEvents: 'none' }}>
               <Skeleton variant="circular" className="h-2.5 w-2.5" />
               <div className="mc-project-title-group">
@@ -181,7 +186,8 @@ export function ProjectsTab({
         <FolderKanban size={32} className="mc-empty-icon" />
         <p className="mc-empty-title">Start your first project</p>
         <p className="mc-empty-hint">
-          Projects help you organize related decisions and give your council persistent context across sessions.
+          Projects help you organize related decisions and give your council persistent context
+          across sessions.
         </p>
       </div>
     );
@@ -206,7 +212,8 @@ export function ProjectsTab({
         <div className="mc-project-title-group">
           <span className="mc-project-name">{project.name}</span>
           {deptIds.map((deptId: string, idx: number) => {
-            const deptName = deptNames[idx] || departments.find((d: Department) => d.id === deptId)?.name;
+            const deptName =
+              deptNames[idx] || departments.find((d: Department) => d.id === deptId)?.name;
             if (!deptName) return null;
             return (
               <span
@@ -225,9 +232,7 @@ export function ProjectsTab({
 
         {/* Meta: decision count + time - hidden on hover when actions show */}
         <div className="mc-project-meta">
-          <span className="mc-project-decision-count">
-            {project.decision_count || 0}
-          </span>
+          <span className="mc-project-decision-count">{project.decision_count || 0}</span>
           <span className="mc-project-time">
             {formatRelativeTime(project.last_accessed_at || project.updated_at)}
           </span>
@@ -275,7 +280,10 @@ export function ProjectsTab({
               </button>
               <button
                 className="mc-project-action confirm-no"
-                onClick={(e) => { e.stopPropagation(); onConfirmingDeleteChange && onConfirmingDeleteChange(null); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onConfirmingDeleteChange && onConfirmingDeleteChange(null);
+                }}
                 title="Cancel"
               >
                 <span>No</span>
@@ -302,21 +310,30 @@ export function ProjectsTab({
       <div className="mc-stats-grid">
         <div
           className={`mc-stat-card clickable ${projectStatusFilter === 'active' ? 'selected' : ''}`}
-          onClick={() => onStatusFilterChange && onStatusFilterChange(projectStatusFilter === 'active' ? 'all' : 'active')}
+          onClick={() =>
+            onStatusFilterChange &&
+            onStatusFilterChange(projectStatusFilter === 'active' ? 'all' : 'active')
+          }
         >
           <div className="mc-stat-value active">{stats.active}</div>
           <div className="mc-stat-label">Active</div>
         </div>
         <div
           className={`mc-stat-card clickable ${projectStatusFilter === 'completed' ? 'selected' : ''}`}
-          onClick={() => onStatusFilterChange && onStatusFilterChange(projectStatusFilter === 'completed' ? 'all' : 'completed')}
+          onClick={() =>
+            onStatusFilterChange &&
+            onStatusFilterChange(projectStatusFilter === 'completed' ? 'all' : 'completed')
+          }
         >
           <div className="mc-stat-value completed">{stats.completed}</div>
           <div className="mc-stat-label">Completed</div>
         </div>
         <div
           className={`mc-stat-card clickable ${projectStatusFilter === 'archived' ? 'selected' : ''}`}
-          onClick={() => onStatusFilterChange && onStatusFilterChange(projectStatusFilter === 'archived' ? 'all' : 'archived')}
+          onClick={() =>
+            onStatusFilterChange &&
+            onStatusFilterChange(projectStatusFilter === 'archived' ? 'all' : 'archived')
+          }
         >
           <div className="mc-stat-value archived">{stats.archived}</div>
           <div className="mc-stat-label">Archived</div>
@@ -341,11 +358,7 @@ export function ProjectsTab({
             onValueChange={(value: string) => onSortByChange?.(value as ProjectSortBy)}
           />
         </div>
-        <Button
-          variant="default"
-          size="sm"
-          onClick={onAddProject}
-        >
+        <Button variant="default" size="sm" onClick={onAddProject}>
           New Project
         </Button>
       </div>
@@ -353,20 +366,14 @@ export function ProjectsTab({
       {/* Projects list with scroll-to-top */}
       <ScrollableContent className="mc-projects-list">
         {sortedProjects.length === 0 ? (
-          <div className="mc-empty-filtered">
-            No projects match your filters
-          </div>
+          <div className="mc-empty-filtered">No projects match your filters</div>
         ) : (
           sortedProjects.map(renderProjectRow)
         )}
       </ScrollableContent>
 
       {/* FAB - Mobile only (visible via CSS) */}
-      <button
-        className="mc-fab"
-        onClick={onAddProject}
-        aria-label="Create new project"
-      >
+      <button className="mc-fab" onClick={onAddProject} aria-label="Create new project">
         <Plus />
       </button>
     </div>

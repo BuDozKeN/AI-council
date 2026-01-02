@@ -5,7 +5,14 @@ import type { Department, Playbook, Project, Decision } from '../../../types';
 
 const log = logger.scope('useCompanyData');
 
-export type MyCompanyTab = 'overview' | 'team' | 'playbooks' | 'decisions' | 'activity' | 'projects' | 'usage';
+export type MyCompanyTab =
+  | 'overview'
+  | 'team'
+  | 'playbooks'
+  | 'decisions'
+  | 'activity'
+  | 'projects'
+  | 'usage';
 
 export interface CompanyOverview {
   company_name: string;
@@ -46,7 +53,11 @@ interface UseCompanyDataOptions {
  * Hook for managing MyCompany data loading and state
  * Consolidates all data fetching, loading states, and data reset logic
  */
-export function useCompanyData({ companyId, activeTab, activityLimit = 20 }: UseCompanyDataOptions) {
+export function useCompanyData({
+  companyId,
+  activeTab,
+  activityLimit = 20,
+}: UseCompanyDataOptions) {
   // Data state
   const [overview, setOverview] = useState<CompanyOverview | null>(null);
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -108,7 +119,7 @@ export function useCompanyData({ companyId, activeTab, activityLimit = 20 }: Use
           // Load decisions and projects in parallel (need projects for Promote modal)
           const [decisionsData, projectsData] = await Promise.all([
             api.getCompanyDecisions(companyId),
-            api.listProjectsWithStats(companyId, { includeArchived: true })
+            api.listProjectsWithStats(companyId, { includeArchived: true }),
           ]);
           setDecisions(decisionsData.decisions || []);
           setProjects(projectsData.projects || []);
@@ -125,7 +136,7 @@ export function useCompanyData({ companyId, activeTab, activityLimit = 20 }: Use
           // Load activity and projects in parallel (need projects for click navigation)
           const [activityData, projectsData] = await Promise.all([
             api.getCompanyActivity(companyId, { limit: activityLimit + 1 }),
-            api.listProjectsWithStats(companyId, { includeArchived: true })
+            api.listProjectsWithStats(companyId, { includeArchived: true }),
           ]);
           const logs = activityData.logs || [];
           setActivityHasMore(logs.length > activityLimit);
@@ -140,14 +151,14 @@ export function useCompanyData({ companyId, activeTab, activityLimit = 20 }: Use
           if (!departmentsLoaded) {
             const [projectsData, teamData] = await Promise.all([
               api.listProjectsWithStats(companyId, { includeArchived: true }),
-              api.getCompanyTeam(companyId)
+              api.getCompanyTeam(companyId),
             ]);
             setProjects(projectsData.projects || []);
             setDepartments(teamData.departments || []);
             setDepartmentsLoaded(true);
           } else {
             const projectsData = await api.listProjectsWithStats(companyId, {
-              includeArchived: true
+              includeArchived: true,
             });
             setProjects(projectsData.projects || []);
           }
@@ -166,7 +177,6 @@ export function useCompanyData({ companyId, activeTab, activityLimit = 20 }: Use
 
   // Load data when tab changes
   useEffect(() => {
-
     loadData();
   }, [loadData]);
 
@@ -192,33 +202,56 @@ export function useCompanyData({ companyId, activeTab, activityLimit = 20 }: Use
     setDepartmentsLoaded(false);
   }, [companyId]);
 
-
   // Reset loaded flag for a specific tab (used by pull-to-refresh)
   const resetTabLoaded = useCallback((tab: MyCompanyTab): void => {
     switch (tab) {
-      case 'overview': setOverviewLoaded(false); break;
-      case 'team': setTeamLoaded(false); break;
-      case 'playbooks': setPlaybooksLoaded(false); break;
-      case 'decisions': setDecisionsLoaded(false); break;
-      case 'projects': setProjectsLoaded(false); break;
-      case 'activity': setActivityLoaded(false); break;
-      case 'usage': break; // Usage has its own hook that manages loading state
+      case 'overview':
+        setOverviewLoaded(false);
+        break;
+      case 'team':
+        setTeamLoaded(false);
+        break;
+      case 'playbooks':
+        setPlaybooksLoaded(false);
+        break;
+      case 'decisions':
+        setDecisionsLoaded(false);
+        break;
+      case 'projects':
+        setProjectsLoaded(false);
+        break;
+      case 'activity':
+        setActivityLoaded(false);
+        break;
+      case 'usage':
+        break; // Usage has its own hook that manages loading state
     }
   }, []);
 
   // Check if current tab data is loaded
-  const isTabLoaded = useCallback((tab: MyCompanyTab): boolean => {
-    switch (tab) {
-      case 'overview': return overviewLoaded;
-      case 'team': return teamLoaded;
-      case 'playbooks': return playbooksLoaded;
-      case 'decisions': return decisionsLoaded;
-      case 'projects': return projectsLoaded;
-      case 'activity': return activityLoaded;
-      case 'usage': return true; // Usage tab manages its own loading state via useUsageData
-      default: return false;
-    }
-  }, [overviewLoaded, teamLoaded, playbooksLoaded, decisionsLoaded, projectsLoaded, activityLoaded]);
+  const isTabLoaded = useCallback(
+    (tab: MyCompanyTab): boolean => {
+      switch (tab) {
+        case 'overview':
+          return overviewLoaded;
+        case 'team':
+          return teamLoaded;
+        case 'playbooks':
+          return playbooksLoaded;
+        case 'decisions':
+          return decisionsLoaded;
+        case 'projects':
+          return projectsLoaded;
+        case 'activity':
+          return activityLoaded;
+        case 'usage':
+          return true; // Usage tab manages its own loading state via useUsageData
+        default:
+          return false;
+      }
+    },
+    [overviewLoaded, teamLoaded, playbooksLoaded, decisionsLoaded, projectsLoaded, activityLoaded]
+  );
 
   return {
     // Data

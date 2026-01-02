@@ -16,7 +16,18 @@ import { formatDate } from '../../../lib/dateUtils';
 
 import { useState, useEffect, FormEvent } from 'react';
 import { api } from '../../../api';
-import { Users, Crown, Shield, User, Plus, Trash2, ChevronUp, ChevronDown, AlertCircle, LucideIcon } from 'lucide-react';
+import {
+  Users,
+  Crown,
+  Shield,
+  User,
+  Plus,
+  Trash2,
+  ChevronUp,
+  ChevronDown,
+  AlertCircle,
+  LucideIcon,
+} from 'lucide-react';
 import { Button } from '../../ui/button';
 import { Spinner } from '../../ui/Spinner';
 import { ScrollableContent } from '../../ui/ScrollableContent';
@@ -45,14 +56,29 @@ interface MembersTabProps {
 
 // Role hierarchy for display - uses CSS variables for theming
 const ROLE_CONFIG: Record<MemberRole, RoleConfigEntry> = {
-  owner: { label: 'Owner', icon: Crown, color: 'var(--color-indigo-500)', description: 'Full control' },
-  admin: { label: 'Admin', icon: Shield, color: 'var(--color-blue-500)', description: 'Manage members' },
-  member: { label: 'Member', icon: User, color: 'var(--color-gray-500)', description: 'View & contribute' }
+  owner: {
+    label: 'Owner',
+    icon: Crown,
+    color: 'var(--color-indigo-500)',
+    description: 'Full control',
+  },
+  admin: {
+    label: 'Admin',
+    icon: Shield,
+    color: 'var(--color-blue-500)',
+    description: 'Manage members',
+  },
+  member: {
+    label: 'Member',
+    icon: User,
+    color: 'var(--color-gray-500)',
+    description: 'View & contribute',
+  },
 };
 
 export function MembersTab({
   companyId,
-  currentUserId // To identify current user and their role
+  currentUserId, // To identify current user and their role
 }: MembersTabProps) {
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,14 +95,14 @@ export function MembersTab({
   const [actionLoading, setActionLoading] = useState<string | null>(null); // member id being acted on
 
   // Current user's role (derived from members list)
-  const currentMember = members.find(m => m.user_id === currentUserId);
+  const currentMember = members.find((m) => m.user_id === currentUserId);
   const currentRole = currentMember?.role || 'member';
   const canManageMembers = ['owner', 'admin'].includes(currentRole);
 
   // Load members and usage
   useEffect(() => {
     loadData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- loadData is stable
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- loadData is stable
   }, [companyId]);
 
   const loadData = async () => {
@@ -160,7 +186,9 @@ export function MembersTab({
       <div className="mc-error">
         <AlertCircle size={20} />
         <span>{error}</span>
-        <Button variant="outline" size="sm" onClick={loadData}>Retry</Button>
+        <Button variant="outline" size="sm" onClick={loadData}>
+          Retry
+        </Button>
       </div>
     );
   }
@@ -171,14 +199,12 @@ export function MembersTab({
       <div className="mc-members-header">
         <div className="mc-members-count">
           <Users size={18} />
-          <span>{members.length} {members.length === 1 ? 'member' : 'members'}</span>
+          <span>
+            {members.length} {members.length === 1 ? 'member' : 'members'}
+          </span>
         </div>
         {canManageMembers && (
-          <Button
-            variant="default"
-            size="sm"
-            onClick={() => setShowAddForm(!showAddForm)}
-          >
+          <Button variant="default" size="sm" onClick={() => setShowAddForm(!showAddForm)}>
             <Plus size={16} />
             Add Member
           </Button>
@@ -231,7 +257,7 @@ export function MembersTab({
       {/* Members list with scroll-to-top */}
       <ScrollableContent className="mc-members-list-wrapper">
         <div className="mc-members-list">
-          {members.map(member => {
+          {members.map((member) => {
             const roleConfig = ROLE_CONFIG[member.role] || ROLE_CONFIG.member;
             const RoleIcon = roleConfig.icon;
             const isCurrentUser = member.user_id === currentUserId;
@@ -241,7 +267,9 @@ export function MembersTab({
             const canModify = canManageMembers && !isCurrentUser && member.role !== 'owner';
             const canPromote = canModify && currentRole === 'owner' && member.role === 'member';
             const canDemote = canModify && currentRole === 'owner' && member.role === 'admin';
-            const canRemove = canModify && (currentRole === 'owner' || (currentRole === 'admin' && member.role === 'member'));
+            const canRemove =
+              canModify &&
+              (currentRole === 'owner' || (currentRole === 'admin' && member.role === 'member'));
 
             return (
               <div key={member.id} className={`mc-member-row ${isCurrentUser ? 'current' : ''}`}>

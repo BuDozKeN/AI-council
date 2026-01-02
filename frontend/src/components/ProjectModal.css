@@ -61,7 +61,7 @@
 }
 
 /* Text input - matches mc-input-unified */
-.pm-field input[type="text"] {
+.pm-field input[type='text'] {
   width: 100%;
   padding: 10px 14px;
   border: 1px solid var(--color-border-dark);
@@ -73,22 +73,22 @@
   transition: all 0.15s ease;
 }
 
-.pm-field input[type="text"]:hover {
+.pm-field input[type='text']:hover {
   border-color: var(--color-slate-300);
 }
 
-.pm-field input[type="text"]:focus {
+.pm-field input[type='text']:focus {
   outline: none;
   border-color: var(--color-brand-primary);
   box-shadow: var(--shadow-focus);
 }
 
-.pm-field input[type="text"]::placeholder {
+.pm-field input[type='text']::placeholder {
   color: var(--color-text-tertiary);
   font-weight: 400;
 }
 
-.pm-field input[type="text"]:disabled {
+.pm-field input[type='text']:disabled {
   background: var(--color-bg-tertiary);
   color: var(--color-text-muted);
   cursor: not-allowed;
@@ -475,8 +475,13 @@
 
 /* Spinning animation for regenerate */
 @keyframes pm-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .pm-spinning {
@@ -888,25 +893,25 @@
 }
 
 /* Text inputs */
-.dark .pm-field input[type="text"] {
+.dark .pm-field input[type='text'] {
   background: var(--color-bg-secondary);
   border-color: var(--color-border);
   color: var(--color-text-primary);
 }
 
-.dark .pm-field input[type="text"]:hover {
+.dark .pm-field input[type='text']:hover {
   border-color: var(--color-border-dark);
 }
 
-.dark .pm-field input[type="text"]:focus {
+.dark .pm-field input[type='text']:focus {
   border-color: var(--color-brand-primary);
 }
 
-.dark .pm-field input[type="text"]::placeholder {
+.dark .pm-field input[type='text']::placeholder {
   color: var(--color-text-tertiary);
 }
 
-.dark .pm-field input[type="text"]:disabled {
+.dark .pm-field input[type='text']:disabled {
   background: var(--color-bg-tertiary);
   color: var(--color-text-muted);
 }

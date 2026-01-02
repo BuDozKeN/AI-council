@@ -8,13 +8,16 @@ import { hapticLight, hapticSuccess, hapticMedium } from '../lib/haptics';
 // Extracted components
 import { MyCompanyHeader } from './mycompany/MyCompanyHeader';
 import { MyCompanyTabs } from './mycompany/MyCompanyTabs';
-import {
-  AddFormModal,
-  EditingModal,
-  PromoteModal,
-} from './mycompany/MyCompanyModals';
+import { AddFormModal, EditingModal, PromoteModal } from './mycompany/MyCompanyModals';
 
-import { ActivityTab, OverviewTab, TeamTab, PlaybooksTab, ProjectsTab, DecisionsTab } from './mycompany/tabs';
+import {
+  ActivityTab,
+  OverviewTab,
+  TeamTab,
+  PlaybooksTab,
+  ProjectsTab,
+  DecisionsTab,
+} from './mycompany/tabs';
 
 // Performance: Lazy-load UsageTab to split Recharts (~127KB gzip) into separate chunk
 // Most users never view the Usage tab, so this reduces initial MyCompany load
@@ -49,10 +52,17 @@ interface PromoteDecision {
 type AddFormType = 'department' | 'playbook' | { type: 'role'; deptId: string } | null;
 
 interface EditingItem {
-  type: 'department' | 'role' | 'project' | 'playbook' | 'decision' | 'company-context' | 'company-context-view' | 'new_project';
+  type:
+    | 'department'
+    | 'role'
+    | 'project'
+    | 'playbook'
+    | 'decision'
+    | 'company-context'
+    | 'company-context-view'
+    | 'new_project';
   data: Department | Role | Project | Playbook | Decision | Record<string, unknown>;
 }
-
 
 interface MyCompanyProps {
   companyId: string;
@@ -86,7 +96,7 @@ export default function MyCompany({
   initialProjectId = null,
   initialProjectDecisionId = null,
   initialPromoteDecision = null,
-  onConsumePromoteDecision = null
+  onConsumePromoteDecision = null,
 }: MyCompanyProps) {
   // Core UI state
   const [activeTab, setActiveTab] = useState<MyCompanyTab>(initialTab);
@@ -96,10 +106,16 @@ export default function MyCompany({
   const [saving, setSaving] = useState<boolean>(false);
 
   // Highlight states for auto-opening items
-  const [highlightedDecisionId, setHighlightedDecisionId] = useState<string | null>(initialDecisionId);
-  const [highlightedPlaybookId, setHighlightedPlaybookId] = useState<string | null>(initialPlaybookId);
+  const [highlightedDecisionId, setHighlightedDecisionId] = useState<string | null>(
+    initialDecisionId
+  );
+  const [highlightedPlaybookId, setHighlightedPlaybookId] = useState<string | null>(
+    initialPlaybookId
+  );
   const [highlightedProjectId, setHighlightedProjectId] = useState<string | null>(initialProjectId);
-  const [initialProjectDecisionToExpand, setInitialProjectDecisionToExpand] = useState<string | null>(initialProjectDecisionId);
+  const [initialProjectDecisionToExpand, setInitialProjectDecisionToExpand] = useState<
+    string | null
+  >(initialProjectDecisionId);
 
   // Filter hooks
   const playbookFilters = usePlaybookFilter();
@@ -209,7 +225,7 @@ export default function MyCompany({
   // Auto-open modals for highlighted items (syncing external prop to internal state)
   useEffect(() => {
     if (highlightedDecisionId && companyData.decisions.length > 0 && activeTab === 'decisions') {
-      const decision = companyData.decisions.find(d => d.id === highlightedDecisionId);
+      const decision = companyData.decisions.find((d) => d.id === highlightedDecisionId);
       if (decision && !editingItem) {
         // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: syncing external prop to internal state
         setEditingItem({ type: 'decision', data: decision });
@@ -220,7 +236,7 @@ export default function MyCompany({
 
   useEffect(() => {
     if (highlightedPlaybookId && companyData.playbooks.length > 0 && activeTab === 'playbooks') {
-      const playbook = companyData.playbooks.find(p => p.id === highlightedPlaybookId);
+      const playbook = companyData.playbooks.find((p) => p.id === highlightedPlaybookId);
       if (playbook && !editingItem) {
         // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: syncing external prop to internal state
         setEditingItem({ type: 'playbook', data: playbook });
@@ -230,15 +246,26 @@ export default function MyCompany({
   }, [highlightedPlaybookId, companyData.playbooks, activeTab, editingItem]);
 
   useEffect(() => {
-    if (highlightedProjectId && companyData.projects.length > 0 && activeTab === 'projects' && companyData.departments.length > 0) {
-      const project = companyData.projects.find(p => p.id === highlightedProjectId);
+    if (
+      highlightedProjectId &&
+      companyData.projects.length > 0 &&
+      activeTab === 'projects' &&
+      companyData.departments.length > 0
+    ) {
+      const project = companyData.projects.find((p) => p.id === highlightedProjectId);
       if (project && !editingItem) {
         // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: syncing external prop to internal state
         setEditingItem({ type: 'project', data: project });
         setHighlightedProjectId(null);
       }
     }
-  }, [highlightedProjectId, companyData.projects, activeTab, editingItem, companyData.departments.length]);
+  }, [
+    highlightedProjectId,
+    companyData.projects,
+    activeTab,
+    editingItem,
+    companyData.departments.length,
+  ]);
 
   // Auto-open Promote modal if returning from Source view
   useEffect(() => {
@@ -262,7 +289,10 @@ export default function MyCompany({
   };
 
   // Count stats
-  const totalRoles = companyData.departments.reduce((sum, dept) => sum + (dept.roles?.length || 0), 0);
+  const totalRoles = companyData.departments.reduce(
+    (sum, dept) => sum + (dept.roles?.length || 0),
+    0
+  );
 
   // Handle opening project details/edit modal
   const handleProjectClick = (project: Project) => {
@@ -279,7 +309,7 @@ export default function MyCompany({
 
     switch (activityLog.related_type) {
       case 'playbook': {
-        const playbook = companyData.playbooks.find(p => p.id === activityLog.related_id);
+        const playbook = companyData.playbooks.find((p) => p.id === activityLog.related_id);
         if (playbook) {
           setEditingItem({ type: 'playbook', data: playbook });
         } else {
@@ -301,7 +331,9 @@ export default function MyCompany({
           const fetchedDecision = await api.getDecision(companyId, activityLog.related_id);
           if (fetchedDecision) {
             if (fetchedDecision.project_id) {
-              const linkedProject = companyData.projects.find(p => p.id === fetchedDecision.project_id);
+              const linkedProject = companyData.projects.find(
+                (p) => p.id === fetchedDecision.project_id
+              );
               if (linkedProject) {
                 setEditingItem({ type: 'project', data: linkedProject });
               } else {
@@ -319,7 +351,7 @@ export default function MyCompany({
         break;
       }
       case 'project': {
-        const project = companyData.projects.find(p => p.id === activityLog.related_id);
+        const project = companyData.projects.find((p) => p.id === activityLog.related_id);
         if (project) {
           setEditingItem({ type: 'project', data: project });
         } else {
@@ -345,25 +377,25 @@ export default function MyCompany({
   // Playbook actions - optimistic UI (inline confirmation handled in PlaybooksTab)
   const handleArchivePlaybook = async (playbook: Playbook) => {
     // Optimistic: remove from list immediately
-    companyData.setPlaybooks(prev => prev.filter(p => p.id !== playbook.id));
+    companyData.setPlaybooks((prev) => prev.filter((p) => p.id !== playbook.id));
     try {
       await api.updatePlaybook(companyId, playbook.id, { status: 'archived' });
     } catch (err) {
       log.error('Failed to archive playbook', { error: err });
       // Rollback on error
-      companyData.setPlaybooks(prev => [...prev, playbook]);
+      companyData.setPlaybooks((prev) => [...prev, playbook]);
     }
   };
 
   const handleDeletePlaybook = async (playbook: Playbook) => {
     // Optimistic: remove from list immediately
-    companyData.setPlaybooks(prev => prev.filter(p => p.id !== playbook.id));
+    companyData.setPlaybooks((prev) => prev.filter((p) => p.id !== playbook.id));
     try {
       await api.deletePlaybook(companyId, playbook.id);
     } catch (err) {
       log.error('Failed to delete playbook', { error: err });
       // Rollback on error
-      companyData.setPlaybooks(prev => [...prev, playbook]);
+      companyData.setPlaybooks((prev) => [...prev, playbook]);
     }
   };
 
@@ -371,7 +403,10 @@ export default function MyCompany({
   const handleAddDepartment = async (name: string, description?: string) => {
     setSaving(true);
     try {
-      const deptData: { name: string; slug: string; description?: string } = { name, slug: generateSlug(name) };
+      const deptData: { name: string; slug: string; description?: string } = {
+        name,
+        slug: generateSlug(name),
+      };
       if (description) deptData.description = description;
       await api.createCompanyDepartment(companyId, deptData);
       await companyData.loadData();
@@ -394,11 +429,26 @@ export default function MyCompany({
     setSaving(false);
   };
 
-  const handleAddPlaybook = async (title: string, docType: string, content?: string, departmentId?: string | null, additionalDepartments: string[] = []) => {
+  const handleAddPlaybook = async (
+    title: string,
+    docType: string,
+    content?: string,
+    departmentId?: string | null,
+    additionalDepartments: string[] = []
+  ) => {
     setSaving(true);
     try {
-      const allDeptIds = departmentId ? [departmentId, ...additionalDepartments] : (additionalDepartments.length > 0 ? additionalDepartments : null);
-      await api.createCompanyPlaybook(companyId, { title, doc_type: docType, content, department_ids: allDeptIds });
+      const allDeptIds = departmentId
+        ? [departmentId, ...additionalDepartments]
+        : additionalDepartments.length > 0
+          ? additionalDepartments
+          : null;
+      await api.createCompanyPlaybook(companyId, {
+        title,
+        doc_type: docType,
+        content,
+        department_ids: allDeptIds,
+      });
       await companyData.loadData();
       setShowAddForm(null);
     } catch (err) {
@@ -433,7 +483,7 @@ export default function MyCompany({
     try {
       // Ensure context_md is a string for the API call
       const contextData = {
-        context_md: typeof updates.context_md === 'string' ? updates.context_md : ''
+        context_md: typeof updates.context_md === 'string' ? updates.context_md : '',
       };
       await api.updateCompanyContext(companyId, contextData);
       await companyData.loadData();
@@ -464,7 +514,9 @@ export default function MyCompany({
       {(activeTab === 'projects' || activeTab === 'playbooks') && (
         <>
           <div className="mc-skeleton-stats">
-            {[1,2,3,4].map(i => <Skeleton key={i} width={140} height={80} className="rounded-xl" />)}
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} width={140} height={80} className="rounded-xl" />
+            ))}
           </div>
           <div className="mc-skeleton-filters">
             <Skeleton width={120} height={36} />
@@ -472,7 +524,7 @@ export default function MyCompany({
             <Skeleton width={100} height={36} className="ml-auto" />
           </div>
           <div className="mc-skeleton-list">
-            {[1,2,3,4,5].map(i => (
+            {[1, 2, 3, 4, 5].map((i) => (
               <div key={i} className="mc-skeleton-row">
                 <Skeleton variant="circular" width={10} height={10} />
                 <Skeleton width="40%" height={16} />
@@ -490,7 +542,7 @@ export default function MyCompany({
             <Skeleton width={200} height={36} />
           </div>
           <div className="mc-skeleton-list">
-            {[1,2,3,4].map(i => (
+            {[1, 2, 3, 4].map((i) => (
               <div key={i} className="mc-skeleton-row">
                 <Skeleton variant="circular" width={8} height={8} />
                 <Skeleton width="50%" height={16} />
@@ -505,11 +557,13 @@ export default function MyCompany({
           <div className="mc-skeleton-filters">
             <Skeleton width={80} height={14} />
             <div className="flex gap-2 ml-auto">
-              {[1,2,3,4].map(i => <Skeleton key={i} width={80} height={28} className="rounded-2xl" />)}
+              {[1, 2, 3, 4].map((i) => (
+                <Skeleton key={i} width={80} height={28} className="rounded-2xl" />
+              ))}
             </div>
           </div>
           <div className="mc-skeleton-list">
-            {[1,2,3,4,5,6].map(i => (
+            {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="mc-skeleton-row">
                 <Skeleton variant="circular" width={8} height={8} />
                 <Skeleton width="45%" height={16} />
@@ -522,10 +576,12 @@ export default function MyCompany({
       {(activeTab === 'overview' || activeTab === 'team') && (
         <>
           <div className="mc-skeleton-stats">
-            {[1,2,3].map(i => <Skeleton key={i} width={200} height={100} className="rounded-xl" />)}
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} width={200} height={100} className="rounded-xl" />
+            ))}
           </div>
           <div className="mc-skeleton-list">
-            {[1,2,3].map(i => (
+            {[1, 2, 3].map((i) => (
               <div key={i} className="mc-skeleton-row">
                 <Skeleton width="60%" height={18} />
                 <Skeleton width={100} height={14} className="ml-auto" />
@@ -539,7 +595,11 @@ export default function MyCompany({
 
   return (
     <div className="mc-overlay" onClick={onClose}>
-      <div className="mc-panel" ref={panelSwipeRef as React.RefObject<HTMLDivElement>} onClick={e => e.stopPropagation()}>
+      <div
+        className="mc-panel"
+        ref={panelSwipeRef as React.RefObject<HTMLDivElement>}
+        onClick={(e) => e.stopPropagation()}
+      >
         <MyCompanyHeader
           companyName={companyName}
           companyId={companyId}
@@ -550,13 +610,22 @@ export default function MyCompany({
           onHeaderClick={() => handleHeaderClick()}
         />
 
-        <MyCompanyTabs activeTab={activeTab} onTabChange={(tabId: string) => setActiveTab(tabId as MyCompanyTab)} />
+        <MyCompanyTabs
+          activeTab={activeTab}
+          onTabChange={(tabId: string) => setActiveTab(tabId as MyCompanyTab)}
+        />
 
         {/* Content */}
         <div className="mc-content" ref={contentRef as React.RefObject<HTMLDivElement>}>
-          <PullToRefreshIndicator progress={pullProgress} isRefreshing={isRefreshing} pullDistance={pullDistance} />
+          <PullToRefreshIndicator
+            progress={pullProgress}
+            isRefreshing={isRefreshing}
+            pullDistance={pullDistance}
+          />
 
-          {showSkeleton ? renderSkeleton() : companyData.error ? (
+          {showSkeleton ? (
+            renderSkeleton()
+          ) : companyData.error ? (
             <div className="mc-error">
               <p>{companyData.error}</p>
               <button onClick={companyData.loadData}>Retry</button>
@@ -611,10 +680,18 @@ export default function MyCompany({
                   playbooksLoaded={companyData.playbooksLoaded}
                   loading={companyData.loading}
                   playbooks={companyData.playbooks
-                    .filter((p): p is Playbook & { title: string; doc_type: 'sop' | 'framework' | 'policy' } =>
-                      Boolean(p.title) && Boolean(p.doc_type) && ['sop', 'framework', 'policy'].includes(p.doc_type || '')
+                    .filter(
+                      (
+                        p
+                      ): p is Playbook & {
+                        title: string;
+                        doc_type: 'sop' | 'framework' | 'policy';
+                      } =>
+                        Boolean(p.title) &&
+                        Boolean(p.doc_type) &&
+                        ['sop', 'framework', 'policy'].includes(p.doc_type || '')
                     )
-                    .map(p => ({
+                    .map((p) => ({
                       id: p.id,
                       title: p.title,
                       doc_type: p.doc_type,
@@ -632,45 +709,69 @@ export default function MyCompany({
                   onDeptFilterChange={playbookFilters.setPlaybookDeptFilter}
                   onExpandedTypesChange={playbookFilters.setExpandedTypes}
                   onAddPlaybook={() => setShowAddForm('playbook')}
-                  onViewPlaybook={(doc) => setEditingItem({ type: 'playbook', data: doc as unknown as Playbook })}
-                  onArchivePlaybook={(playbook) => handleArchivePlaybook(playbook as unknown as Playbook)}
-                  onDeletePlaybook={(playbook) => handleDeletePlaybook(playbook as unknown as Playbook)}
+                  onViewPlaybook={(doc) =>
+                    setEditingItem({ type: 'playbook', data: doc as unknown as Playbook })
+                  }
+                  onArchivePlaybook={(playbook) =>
+                    handleArchivePlaybook(playbook as unknown as Playbook)
+                  }
+                  onDeletePlaybook={(playbook) =>
+                    handleDeletePlaybook(playbook as unknown as Playbook)
+                  }
                 />
               )}
               {activeTab === 'decisions' && (
                 <DecisionsTab
-                  decisions={companyData.decisions as unknown as Parameters<typeof DecisionsTab>[0]['decisions']}
+                  decisions={
+                    companyData.decisions as unknown as Parameters<
+                      typeof DecisionsTab
+                    >[0]['decisions']
+                  }
                   departments={companyData.departments}
                   decisionDeptFilter={decisionFilters.decisionDeptFilter}
                   decisionSearch={decisionFilters.decisionSearch}
                   deletingDecisionId={decisionActions.deletingDecisionId}
                   onDeptFilterChange={decisionFilters.setDecisionDeptFilter}
                   onSearchChange={decisionFilters.setDecisionSearch}
-                  onPromoteDecision={(decision) => decisionActions.handlePromoteDecision(decision as unknown as Decision)}
-                  onDeleteDecision={(decision) => decisionActions.handleDeleteDecision(decision as unknown as Decision)}
+                  onPromoteDecision={(decision) =>
+                    decisionActions.handlePromoteDecision(decision as unknown as Decision)
+                  }
+                  onDeleteDecision={(decision) =>
+                    decisionActions.handleDeleteDecision(decision as unknown as Decision)
+                  }
                   onNavigateToConversation={onNavigateToConversation}
                 />
               )}
               {activeTab === 'activity' && (
                 <ActivityTab
-                  activityLogs={companyData.activityLogs as unknown as Parameters<typeof ActivityTab>[0]['activityLogs']}
+                  activityLogs={
+                    companyData.activityLogs as unknown as Parameters<
+                      typeof ActivityTab
+                    >[0]['activityLogs']
+                  }
                   activityLoaded={companyData.activityLoaded}
                   activityHasMore={companyData.activityHasMore}
                   activityLoadingMore={activityData.activityLoadingMore}
-                  onActivityClick={(log) => handleActivityClick(log as unknown as Parameters<typeof handleActivityClick>[0])}
+                  onActivityClick={(log) =>
+                    handleActivityClick(log as unknown as Parameters<typeof handleActivityClick>[0])
+                  }
                   onLoadMore={activityData.handleLoadMoreActivity}
                   onNavigateToConversation={onNavigateToConversation}
                 />
               )}
               {activeTab === 'usage' && (
-                <Suspense fallback={
-                  <div className="mc-skeleton-container">
-                    <div className="mc-skeleton-stats">
-                      {[1,2,3,4].map(i => <Skeleton key={i} width={140} height={80} className="rounded-xl" />)}
+                <Suspense
+                  fallback={
+                    <div className="mc-skeleton-container">
+                      <div className="mc-skeleton-stats">
+                        {[1, 2, 3, 4].map((i) => (
+                          <Skeleton key={i} width={140} height={80} className="rounded-xl" />
+                        ))}
+                      </div>
+                      <Skeleton width="100%" height={240} className="rounded-xl mt-4" />
                     </div>
-                    <Skeleton width="100%" height={240} className="rounded-xl mt-4" />
-                  </div>
-                }>
+                  }
+                >
                   <UsageTab
                     usage={usageData.usage}
                     rateLimits={usageData.rateLimits}
@@ -709,15 +810,23 @@ export default function MyCompany({
           projects={companyData.projects}
           initialProjectDecisionToExpand={initialProjectDecisionToExpand}
           projectActions={projectActions}
-          decisionActions={decisionActions as unknown as Parameters<typeof EditingModal>[0]['decisionActions']}
+          decisionActions={
+            decisionActions as unknown as Parameters<typeof EditingModal>[0]['decisionActions']
+          }
           onClose={() => setEditingItem(null)}
           onConsumeInitialDecision={() => setInitialProjectDecisionToExpand(null)}
-          onUpdateCompanyContext={(data) => handleUpdateCompanyContext(data as Record<string, unknown>)}
+          onUpdateCompanyContext={(data) =>
+            handleUpdateCompanyContext(data as Record<string, unknown>)
+          }
           onUpdateDepartment={handleUpdateDepartment}
           onUpdateRole={handleUpdateRole}
           onUpdatePlaybook={handleUpdatePlaybook}
           onNavigateToConversation={onNavigateToConversation}
-          onSetProjects={companyData.setProjects as unknown as Parameters<typeof EditingModal>[0]['onSetProjects']}
+          onSetProjects={
+            companyData.setProjects as unknown as Parameters<
+              typeof EditingModal
+            >[0]['onSetProjects']
+          }
         />
 
         <PromoteModal
@@ -726,7 +835,9 @@ export default function MyCompany({
           projects={companyData.projects}
           companyId={companyId}
           saving={decisionActions.saving}
-          decisionActions={decisionActions as unknown as Parameters<typeof PromoteModal>[0]['decisionActions']}
+          decisionActions={
+            decisionActions as unknown as Parameters<typeof PromoteModal>[0]['decisionActions']
+          }
           onNavigateToConversation={onNavigateToConversation}
         />
       </div>

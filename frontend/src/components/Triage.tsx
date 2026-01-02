@@ -75,7 +75,7 @@ Context:
   };
 
   const updateConstraint = (key: string, value: string) => {
-    setEditedConstraints(prev => prev ? { ...prev, [key]: value } : { [key]: value });
+    setEditedConstraints((prev) => (prev ? { ...prev, [key]: value } : { [key]: value }));
   };
 
   if (!triageResult) return null;
@@ -101,7 +101,13 @@ Context:
               <span className="ready-icon">✓</span>
               <span>Got it! Here's what I understood:</span>
               {!isEditing && (
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={startEditing} title="Edit constraints">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={startEditing}
+                  title="Edit constraints"
+                >
                   <Pencil className="h-3.5 w-3.5" />
                 </Button>
               )}
@@ -116,7 +122,9 @@ Context:
                       id="triage-constraint-who"
                       name="constraint-who"
                       className="constraint-edit"
-                      value={typeof editedConstraints?.who === 'string' ? editedConstraints.who : ''}
+                      value={
+                        typeof editedConstraints?.who === 'string' ? editedConstraints.who : ''
+                      }
                       onChange={(e) => updateConstraint('who', e.target.value)}
                       rows={2}
                     />
@@ -133,7 +141,9 @@ Context:
                       id="triage-constraint-goal"
                       name="constraint-goal"
                       className="constraint-edit"
-                      value={typeof editedConstraints?.goal === 'string' ? editedConstraints.goal : ''}
+                      value={
+                        typeof editedConstraints?.goal === 'string' ? editedConstraints.goal : ''
+                      }
                       onChange={(e) => updateConstraint('goal', e.target.value)}
                       rows={2}
                     />
@@ -150,7 +160,11 @@ Context:
                       id="triage-constraint-budget"
                       name="constraint-budget"
                       className="constraint-edit"
-                      value={typeof editedConstraints?.budget === 'string' ? editedConstraints.budget : ''}
+                      value={
+                        typeof editedConstraints?.budget === 'string'
+                          ? editedConstraints.budget
+                          : ''
+                      }
                       onChange={(e) => updateConstraint('budget', e.target.value)}
                       rows={2}
                     />
@@ -167,7 +181,9 @@ Context:
                       id="triage-constraint-priority"
                       name="constraint-priority"
                       className="constraint-edit"
-                      value={typeof editedConstraints?.risk === 'string' ? editedConstraints.risk : ''}
+                      value={
+                        typeof editedConstraints?.risk === 'string' ? editedConstraints.risk : ''
+                      }
                       onChange={(e) => updateConstraint('risk', e.target.value)}
                       rows={2}
                     />
@@ -181,17 +197,10 @@ Context:
             <div className="ready-actions">
               {isEditing ? (
                 <>
-                  <Button
-                    onClick={saveEdits}
-                    disabled={isLoading}
-                  >
+                  <Button onClick={saveEdits} disabled={isLoading}>
                     Save & Send →
                   </Button>
-                  <Button
-                    variant="outline"
-                    onClick={cancelEditing}
-                    disabled={isLoading}
-                  >
+                  <Button variant="outline" onClick={cancelEditing} disabled={isLoading}>
                     Cancel
                   </Button>
                 </>
@@ -203,11 +212,7 @@ Context:
                   >
                     {isLoading ? 'Sending...' : 'Send to Council →'}
                   </Button>
-                  <Button
-                    variant="outline"
-                    onClick={onSkip}
-                    disabled={isLoading}
-                  >
+                  <Button variant="outline" onClick={onSkip} disabled={isLoading}>
                     Start over
                   </Button>
                 </>
@@ -265,18 +270,10 @@ Context:
             autoFocus
           />
           <div className="input-actions">
-            <Button
-              variant="ghost"
-              type="button"
-              onClick={onSkip}
-              disabled={isLoading}
-            >
+            <Button variant="ghost" type="button" onClick={onSkip} disabled={isLoading}>
               Skip
             </Button>
-            <Button
-              type="submit"
-              disabled={!response.trim() || isLoading}
-            >
+            <Button type="submit" disabled={!response.trim() || isLoading}>
               {isLoading ? '...' : 'Reply'}
             </Button>
           </div>

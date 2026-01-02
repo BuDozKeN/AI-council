@@ -13,18 +13,9 @@ interface DeleteModalProps {
   onConfirm: () => void;
 }
 
-export function DeleteModal({
-  isOpen,
-  onClose,
-  onConfirm
-}: DeleteModalProps) {
+export function DeleteModal({ isOpen, onClose, onConfirm }: DeleteModalProps) {
   return (
-    <AppModal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Delete Conversation?"
-      size="sm"
-    >
+    <AppModal isOpen={isOpen} onClose={onClose} title="Delete Conversation?" size="sm">
       <p className="delete-modal-body">
         This action cannot be undone. The conversation will be permanently deleted.
       </p>

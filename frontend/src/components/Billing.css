@@ -203,7 +203,7 @@
 }
 
 .plan-features li::before {
-  content: "\2713";
+  content: '\2713';
   position: absolute;
   left: 0;
   color: var(--color-success);

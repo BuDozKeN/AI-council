@@ -44,7 +44,10 @@ interface OverviewTabProps {
 }
 
 // Parse metadata from context markdown (Last Updated, Version)
-function parseContextMetadata(contextMd: string | undefined): { lastUpdated: string | null; version: string | null } {
+function parseContextMetadata(contextMd: string | undefined): {
+  lastUpdated: string | null;
+  version: string | null;
+} {
   if (!contextMd) return { lastUpdated: null, version: null };
 
   const lastUpdatedMatch = contextMd.match(/\*\*Last Updated:\*\*\s*(\d{4}-\d{2}-\d{2})/);
@@ -52,15 +55,11 @@ function parseContextMetadata(contextMd: string | undefined): { lastUpdated: str
 
   return {
     lastUpdated: lastUpdatedMatch?.[1] ? formatDate(lastUpdatedMatch[1] + 'T00:00:00') : null,
-    version: versionMatch?.[1] ?? null
+    version: versionMatch?.[1] ?? null,
   };
 }
 
-export function OverviewTab({
-  overview,
-  companyName,
-  onEditContext,
-}: OverviewTabProps) {
+export function OverviewTab({ overview, companyName, onEditContext }: OverviewTabProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -94,8 +93,9 @@ export function OverviewTab({
         <div className="mc-overview-hero-content">
           <h2 className="mc-overview-title">{companyName} Business Context</h2>
           <p className="mc-overview-description">
-            This document defines your company's mission, goals, constraints, and strategic decisions.
-            When selected, it's injected into Council conversations to provide relevant, contextual advice.
+            This document defines your company's mission, goals, constraints, and strategic
+            decisions. When selected, it's injected into Council conversations to provide relevant,
+            contextual advice.
           </p>
         </div>
         <div className="mc-overview-hero-right">
@@ -116,10 +116,13 @@ export function OverviewTab({
           <Button
             variant="default"
             size="sm"
-            onClick={() => onEditContext && onEditContext({
-              id: overview.company?.id,
-              context_md: contextMd
-            })}
+            onClick={() =>
+              onEditContext &&
+              onEditContext({
+                id: overview.company?.id,
+                context_md: contextMd,
+              })
+            }
           >
             <Pencil size={16} />
             Edit
@@ -161,7 +164,10 @@ export function OverviewTab({
           ) : (
             <div className="mc-empty-context">
               <p className="mc-empty-title">No business context defined yet</p>
-              <p className="mc-empty-hint">Click "Edit Context" above to add your company's mission, goals, strategy, and other important information that the AI Council should know.</p>
+              <p className="mc-empty-hint">
+                Click "Edit Context" above to add your company's mission, goals, strategy, and other
+                important information that the AI Council should know.
+              </p>
             </div>
           )}
         </div>
@@ -169,11 +175,7 @@ export function OverviewTab({
 
       {/* Scroll to top button - bottom right, vertically aligned with copy button */}
       {showScrollTop && (
-        <button
-          className="mc-scroll-top-fab"
-          onClick={scrollToTop}
-          aria-label="Scroll to top"
-        >
+        <button className="mc-scroll-top-fab" onClick={scrollToTop} aria-label="Scroll to top">
           <ChevronUp size={16} />
         </button>
       )}

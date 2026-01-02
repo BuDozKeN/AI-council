@@ -57,7 +57,7 @@
   transition: transform 0.2s ease;
 }
 
-[data-state="open"] .context-chip-chevron {
+[data-state='open'] .context-chip-chevron {
   transform: rotate(180deg);
 }
 

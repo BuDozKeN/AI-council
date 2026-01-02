@@ -1,5 +1,5 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import * as React from 'react';
+import { cn } from '@/lib/utils';
 
 /**
  * ReadingColumn - Premium content width constraint for optimal readability
@@ -22,48 +22,42 @@ export interface ReadingColumnProps extends React.HTMLAttributes<HTMLDivElement>
    * - default: 72ch for prose (optimal reading)
    * - wide: 56rem for tables and structured content
    */
-  variant?: "default" | "wide"
+  variant?: 'default' | 'wide';
 
   /**
    * Whether to center the column
    * @default true
    */
-  centered?: boolean
+  centered?: boolean;
 
   /**
    * Element type to render
    * @default "div"
    */
-  as?: "div" | "article" | "section" | "main"
+  as?: 'div' | 'article' | 'section' | 'main';
 }
 
 const ReadingColumn = React.forwardRef<HTMLDivElement, ReadingColumnProps>(
-  ({
-    className,
-    variant = "default",
-    centered = true,
-    as: Component = "div",
-    ...props
-  }, ref) => {
+  ({ className, variant = 'default', centered = true, as: Component = 'div', ...props }, ref) => {
     return (
       <Component
         ref={ref}
         className={cn(
           // Base styles
-          "w-full px-4 sm:px-6",
+          'w-full px-4 sm:px-6',
           // Width constraint based on variant
-          variant === "default" && "max-w-[72ch]",
-          variant === "wide" && "max-w-[56rem]",
+          variant === 'default' && 'max-w-[72ch]',
+          variant === 'wide' && 'max-w-[56rem]',
           // Centering
-          centered && "mx-auto",
+          centered && 'mx-auto',
           className
         )}
         {...props}
       />
-    )
+    );
   }
-)
+);
 
-ReadingColumn.displayName = "ReadingColumn"
+ReadingColumn.displayName = 'ReadingColumn';
 
-export { ReadingColumn }
+export { ReadingColumn };

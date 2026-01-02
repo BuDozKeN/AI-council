@@ -212,39 +212,39 @@
 
 /* Type badges */
 .dark .mc-type-badge.sop,
-[data-theme="dark"] .mc-type-badge.sop {
+[data-theme='dark'] .mc-type-badge.sop {
   background: var(--overlay-blue-15);
   color: var(--color-blue-400);
 }
 
 .dark .mc-type-badge.framework,
-[data-theme="dark"] .mc-type-badge.framework {
+[data-theme='dark'] .mc-type-badge.framework {
   background: var(--overlay-amber-15);
   color: var(--color-amber-400);
 }
 
 .dark .mc-type-badge.policy,
-[data-theme="dark"] .mc-type-badge.policy {
+[data-theme='dark'] .mc-type-badge.policy {
   background: var(--overlay-purple-15);
   color: var(--color-violet-400);
 }
 
 /* Scope badges */
 .dark .mc-scope-badge,
-[data-theme="dark"] .mc-scope-badge {
+[data-theme='dark'] .mc-scope-badge {
   background: var(--color-bg-tertiary);
   color: var(--color-text-secondary);
 }
 
 .dark .mc-scope-badge.company-wide,
-[data-theme="dark"] .mc-scope-badge.company-wide {
+[data-theme='dark'] .mc-scope-badge.company-wide {
   background: var(--overlay-emerald-15);
   color: var(--color-emerald-400);
   border-color: var(--overlay-emerald-20);
 }
 
 .dark .mc-scope-badge.owner,
-[data-theme="dark"] .mc-scope-badge.owner {
+[data-theme='dark'] .mc-scope-badge.owner {
   background: var(--overlay-amber-15);
   color: var(--color-amber-400);
 }
@@ -252,7 +252,7 @@
 /* Edit hint - base uses semantic tokens, only override hover state */
 
 .dark .mc-playbook-item.clickable:hover .mc-edit-hint,
-[data-theme="dark"] .mc-playbook-item.clickable:hover .mc-edit-hint {
+[data-theme='dark'] .mc-playbook-item.clickable:hover .mc-edit-hint {
   color: var(--color-indigo-400);
 }
 
@@ -260,7 +260,7 @@
 
 /* Council badge */
 .dark .mc-council-badge,
-[data-theme="dark"] .mc-council-badge {
+[data-theme='dark'] .mc-council-badge {
   background: var(--overlay-indigo-15);
   color: var(--color-indigo-400);
 }
@@ -268,18 +268,18 @@
 /* Note: Status dots use semantic tokens for archived,
    but active/pending might need slight adjustment for dark visibility */
 .dark .mc-status-dot.active,
-[data-theme="dark"] .mc-status-dot.active {
+[data-theme='dark'] .mc-status-dot.active {
   background: var(--color-green-400);
 }
 
 .dark .mc-status-dot.pending,
-[data-theme="dark"] .mc-status-dot.pending {
+[data-theme='dark'] .mc-status-dot.pending {
   background: var(--color-amber-400);
 }
 
 /* Promoted badge */
 .dark .mc-promoted-badge,
-[data-theme="dark"] .mc-promoted-badge {
+[data-theme='dark'] .mc-promoted-badge {
   background: var(--overlay-green-15);
   color: var(--color-green-400);
   border-color: var(--overlay-green-20);
@@ -287,7 +287,7 @@
 
 /* Pending badge */
 .dark .mc-pending-badge,
-[data-theme="dark"] .mc-pending-badge {
+[data-theme='dark'] .mc-pending-badge {
   background: var(--overlay-amber-15);
   color: var(--color-amber-400);
   border-color: var(--overlay-amber-20);

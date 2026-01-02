@@ -68,7 +68,6 @@ export function ViewDepartmentModal({ department, onClose, onSave }: ViewDepartm
       contentClassName="mc-modal-no-padding"
     >
       <div className="mc-modal-body">
-
         {/* Content Section - Preview by default, markdown when editing */}
         <div className="mc-content-section">
           {isEditing ? (
@@ -95,7 +94,9 @@ export function ViewDepartmentModal({ department, onClose, onSave }: ViewDepartm
               {content ? (
                 <MarkdownViewer content={content} skipCleanup={true} />
               ) : (
-                <p className="mc-no-content">No department context yet. Click Edit to add context.</p>
+                <p className="mc-no-content">
+                  No department context yet. Click Edit to add context.
+                </p>
               )}
             </FloatingContextActions>
           )}
@@ -122,7 +123,9 @@ export function ViewDepartmentModal({ department, onClose, onSave }: ViewDepartm
                 Edit
               </Button>
             )}
-            <Button variant="default" onClick={onClose}>Done</Button>
+            <Button variant="default" onClick={onClose}>
+              Done
+            </Button>
           </>
         )}
       </AppModal.Footer>

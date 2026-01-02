@@ -1,8 +1,8 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
-import "./Skeleton.css"
+import * as React from 'react';
+import { cn } from '@/lib/utils';
+import './Skeleton.css';
 
-type SkeletonVariant = "rectangular" | "circular" | "text";
+type SkeletonVariant = 'rectangular' | 'circular' | 'text';
 
 interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: SkeletonVariant;
@@ -15,7 +15,7 @@ interface SkeletonTextProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 interface MessageSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: "assistant" | "user";
+  variant?: 'assistant' | 'user';
 }
 
 interface CountProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -38,38 +38,33 @@ interface CountProps extends React.HTMLAttributes<HTMLDivElement> {
  * @param {number} height - Height in pixels (or use className)
  * @param {string} className - Additional CSS classes (supports Tailwind w-*, h-*)
  */
-const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(({
-  variant = "rectangular",
-  width,
-  height,
-  className,
-  style,
-  ...props
-}, ref) => {
-  const variantClass: Record<SkeletonVariant, string> = {
-    rectangular: "skeleton-rectangular",
-    circular: "skeleton-circular",
-    text: "skeleton-text"
+const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
+  ({ variant = 'rectangular', width, height, className, style, ...props }, ref) => {
+    const variantClass: Record<SkeletonVariant, string> = {
+      rectangular: 'skeleton-rectangular',
+      circular: 'skeleton-circular',
+      text: 'skeleton-text',
+    };
+
+    const inlineStyle: React.CSSProperties = {
+      ...style,
+      ...(width && { width: typeof width === 'number' ? `${width}px` : width }),
+      ...(height && { height: typeof height === 'number' ? `${height}px` : height }),
+    };
+
+    return (
+      <div
+        ref={ref}
+        className={cn('skeleton', variantClass[variant], className)}
+        style={Object.keys(inlineStyle).length ? inlineStyle : undefined}
+        aria-hidden="true"
+        {...props}
+      />
+    );
   }
+);
 
-  const inlineStyle: React.CSSProperties = {
-    ...style,
-    ...(width && { width: typeof width === 'number' ? `${width}px` : width }),
-    ...(height && { height: typeof height === 'number' ? `${height}px` : height })
-  }
-
-  return (
-    <div
-      ref={ref}
-      className={cn("skeleton", variantClass[variant], className)}
-      style={Object.keys(inlineStyle).length ? inlineStyle : undefined}
-      aria-hidden="true"
-      {...props}
-    />
-  )
-})
-
-Skeleton.displayName = "Skeleton"
+Skeleton.displayName = 'Skeleton';
 
 /**
  * SkeletonText - Multiple lines of skeleton text
@@ -85,23 +80,23 @@ const SkeletonText: React.FC<SkeletonTextProps> = ({ lines = 3, className, ...pr
         variant="text"
         className={cn(
           // Last line is shorter for natural look
-          i === lines - 1 ? "skeleton-text-short" : "",
+          i === lines - 1 ? 'skeleton-text-short' : '',
           className
         )}
       />
     ))}
   </div>
-)
+);
 
-SkeletonText.displayName = "SkeletonText"
+SkeletonText.displayName = 'SkeletonText';
 
 /**
  * MessageSkeleton - Loading placeholder for chat messages
  *
  * @param {string} variant - "assistant" (default) or "user"
  */
-const MessageSkeleton: React.FC<MessageSkeletonProps> = ({ variant = "assistant", ...props }) => (
-  <div className={cn("skeleton-message", variant)} {...props}>
+const MessageSkeleton: React.FC<MessageSkeletonProps> = ({ variant = 'assistant', ...props }) => (
+  <div className={cn('skeleton-message', variant)} {...props}>
     <div className="skeleton-message-header">
       <Skeleton className="skeleton-message-avatar" />
       <Skeleton className="skeleton-message-label" />
@@ -112,9 +107,9 @@ const MessageSkeleton: React.FC<MessageSkeletonProps> = ({ variant = "assistant"
       <Skeleton className="skeleton-message-line" />
     </div>
   </div>
-)
+);
 
-MessageSkeleton.displayName = "MessageSkeleton"
+MessageSkeleton.displayName = 'MessageSkeleton';
 
 /**
  * MessageSkeletonGroup - Multiple message skeletons for initial load
@@ -124,12 +119,12 @@ MessageSkeleton.displayName = "MessageSkeleton"
 const MessageSkeletonGroup: React.FC<CountProps> = ({ count = 3, ...props }) => (
   <div className="skeleton-message-group" {...props}>
     {Array.from({ length: count }).map((_, i) => (
-      <MessageSkeleton key={i} variant={i % 2 === 0 ? "assistant" : "user"} />
+      <MessageSkeleton key={i} variant={i % 2 === 0 ? 'assistant' : 'user'} />
     ))}
   </div>
-)
+);
 
-MessageSkeletonGroup.displayName = "MessageSkeletonGroup"
+MessageSkeletonGroup.displayName = 'MessageSkeletonGroup';
 
 /**
  * ConversationSkeleton - Loading placeholder for sidebar conversation items
@@ -141,9 +136,9 @@ const ConversationSkeleton: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ 
       <Skeleton className="skeleton-conversation-meta" />
     </div>
   </div>
-)
+);
 
-ConversationSkeleton.displayName = "ConversationSkeleton"
+ConversationSkeleton.displayName = 'ConversationSkeleton';
 
 /**
  * ConversationSkeletonGroup - Multiple conversation skeletons for sidebar loading
@@ -156,8 +151,15 @@ const ConversationSkeletonGroup: React.FC<CountProps> = ({ count = 5, ...props }
       <ConversationSkeleton key={i} />
     ))}
   </div>
-)
+);
 
-ConversationSkeletonGroup.displayName = "ConversationSkeletonGroup"
+ConversationSkeletonGroup.displayName = 'ConversationSkeletonGroup';
 
-export { Skeleton, SkeletonText, MessageSkeleton, MessageSkeletonGroup, ConversationSkeleton, ConversationSkeletonGroup }
+export {
+  Skeleton,
+  SkeletonText,
+  MessageSkeleton,
+  MessageSkeletonGroup,
+  ConversationSkeleton,
+  ConversationSkeletonGroup,
+};

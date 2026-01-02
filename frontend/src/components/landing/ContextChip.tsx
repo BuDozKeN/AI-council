@@ -12,12 +12,29 @@
 
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronDown, Sparkles, Building2, Users, Briefcase, Check, FileText, ScrollText, Shield } from 'lucide-react';
+import {
+  ChevronDown,
+  Sparkles,
+  Building2,
+  Users,
+  Briefcase,
+  Check,
+  FileText,
+  ScrollText,
+  Shield,
+} from 'lucide-react';
 import { Popover, PopoverTrigger, PopoverContent } from '../ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { BottomSheet } from '../ui/BottomSheet';
 import { getDeptColor } from '../../lib/colors';
-import type { Business, Department, Role, Project, Playbook, UserPreferences } from '../../types/business';
+import type {
+  Business,
+  Department,
+  Role,
+  Project,
+  Playbook,
+  UserPreferences,
+} from '../../types/business';
 import './ContextChip.css';
 
 // Multi-select dropdown component for mobile
@@ -42,7 +59,9 @@ function MultiSelectDropdown({
 }: MultiSelectDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
-  const [tooltipPosition, setTooltipPosition] = useState<{ top: number; left: number } | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState<{ top: number; left: number } | null>(
+    null
+  );
   const dropdownRef = useRef<HTMLDivElement>(null);
   const badgeRef = useRef<HTMLButtonElement>(null);
 
@@ -83,7 +102,7 @@ function MultiSelectDropdown({
 
   // Get selected item names for tooltip
   const selectedNames = selectedIds
-    .map(id => items.find(i => i.id === id)?.name)
+    .map((id) => items.find((i) => i.id === id)?.name)
     .filter(Boolean) as string[];
 
   // Handle badge click to show tooltip
@@ -104,24 +123,30 @@ function MultiSelectDropdown({
   };
 
   // Tooltip rendered via portal to escape overflow:hidden containers
-  const tooltipContent = showTooltip && tooltipPosition && selectedNames.length > 0 && createPortal(
-    <div
-      className="context-badge-tooltip-portal"
-      style={{
-        position: 'fixed',
-        top: tooltipPosition.top,
-        left: tooltipPosition.left,
-        transform: 'translateX(-50%)',
-        zIndex: 9999,
-      }}
-    >
-      <div className="context-badge-tooltip-arrow" />
-      {selectedNames.map((name, i) => (
-        <div key={i} className="context-badge-tooltip-item">{name}</div>
-      ))}
-    </div>,
-    document.body
-  );
+  const tooltipContent =
+    showTooltip &&
+    tooltipPosition &&
+    selectedNames.length > 0 &&
+    createPortal(
+      <div
+        className="context-badge-tooltip-portal"
+        style={{
+          position: 'fixed',
+          top: tooltipPosition.top,
+          left: tooltipPosition.left,
+          transform: 'translateX(-50%)',
+          zIndex: 9999,
+        }}
+      >
+        <div className="context-badge-tooltip-arrow" />
+        {selectedNames.map((name, i) => (
+          <div key={i} className="context-badge-tooltip-item">
+            {name}
+          </div>
+        ))}
+      </div>,
+      document.body
+    );
 
   return (
     <div className="context-field-mobile" ref={dropdownRef}>
@@ -146,13 +171,19 @@ function MultiSelectDropdown({
       <button
         type="button"
         className={`context-multiselect-trigger ${isOpen ? 'open' : ''}`}
-        onClick={() => { setIsOpen(!isOpen); setShowTooltip(false); }}
+        onClick={() => {
+          setIsOpen(!isOpen);
+          setShowTooltip(false);
+        }}
       >
         {icon}
         <span className="context-select-placeholder">
           {selectedIds.length === 0 ? placeholder : `${selectedIds.length} selected`}
         </span>
-        <ChevronDown size={16} className={`context-multiselect-chevron ${isOpen ? 'rotated' : ''}`} />
+        <ChevronDown
+          size={16}
+          className={`context-multiselect-chevron ${isOpen ? 'rotated' : ''}`}
+        />
       </button>
 
       {/* Dropdown list */}
@@ -265,9 +296,9 @@ export function ContextChip({
 
   // Sort projects alphabetically
   const sortedProjects = useMemo(() => {
-    return [...projects].filter(p => p && p.name).sort((a, b) =>
-      (a.name || '').localeCompare(b.name || '')
-    );
+    return [...projects]
+      .filter((p) => p && p.name)
+      .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
   }, [projects]);
 
   // Group playbooks by doc_type (framework, sop, policy)
@@ -275,16 +306,16 @@ export function ContextChip({
     const groups: Record<'framework' | 'sop' | 'policy', NormalizedPlaybook[]> = {
       framework: [],
       sop: [],
-      policy: []
+      policy: [],
     };
-    playbooks.forEach(pb => {
+    playbooks.forEach((pb) => {
       const title = pb?.title || pb?.name;
       if (!pb || !title) return;
       const docType = (pb.doc_type || pb.type) as 'framework' | 'sop' | 'policy' | undefined;
       if (!docType || !groups[docType]) return;
       groups[docType].push({ id: pb.id, name: title, type: docType });
     });
-    (Object.keys(groups) as Array<keyof typeof groups>).forEach(key => {
+    (Object.keys(groups) as Array<keyof typeof groups>).forEach((key) => {
       groups[key].sort((a, b) => a.name.localeCompare(b.name));
     });
     return groups;
@@ -313,7 +344,7 @@ export function ContextChip({
   // Toggle department selection
   const toggleDepartment = (deptId: string) => {
     if (selectedDepartments.includes(deptId)) {
-      onSelectDepartments(selectedDepartments.filter(id => id !== deptId));
+      onSelectDepartments(selectedDepartments.filter((id) => id !== deptId));
     } else {
       onSelectDepartments([...selectedDepartments, deptId]);
     }
@@ -322,7 +353,7 @@ export function ContextChip({
   // Toggle role selection
   const toggleRole = (roleId: string) => {
     if (selectedRoles.includes(roleId)) {
-      onSelectRoles(selectedRoles.filter(id => id !== roleId));
+      onSelectRoles(selectedRoles.filter((id) => id !== roleId));
     } else {
       onSelectRoles([...selectedRoles, roleId]);
     }
@@ -331,7 +362,7 @@ export function ContextChip({
   // Toggle playbook selection
   const togglePlaybook = (pbId: string) => {
     if (selectedPlaybooks.includes(pbId)) {
-      onSelectPlaybooks(selectedPlaybooks.filter(id => id !== pbId));
+      onSelectPlaybooks(selectedPlaybooks.filter((id) => id !== pbId));
     } else {
       onSelectPlaybooks([...selectedPlaybooks, pbId]);
     }
@@ -339,10 +370,7 @@ export function ContextChip({
 
   // Trigger button
   const triggerButton = (
-    <button
-      className="context-chip-trigger"
-      onClick={isMobile ? () => setIsOpen(true) : undefined}
-    >
+    <button className="context-chip-trigger" onClick={isMobile ? () => setIsOpen(true) : undefined}>
       {isSmartAuto ? (
         <Sparkles className="context-chip-icon sparkle" size={14} />
       ) : (
@@ -357,7 +385,9 @@ export function ContextChip({
   // Get filtered roles based on selected department (for single-select mode)
   const filteredRoles = useMemo(() => {
     if (selectedDepartments.length === 0) return allRoles;
-    return allRoles.filter(role => role.department_id && selectedDepartments.includes(role.department_id));
+    return allRoles.filter(
+      (role) => role.department_id && selectedDepartments.includes(role.department_id)
+    );
   }, [allRoles, selectedDepartments]);
 
   // Helper to get department tag styles
@@ -458,7 +488,10 @@ export function ContextChip({
             {selectedPlaybooks.length > 0 && (
               <span className="context-more-badge">{selectedPlaybooks.length}</span>
             )}
-            <ChevronDown size={16} className={`context-multiselect-chevron ${showMore ? 'rotated' : ''}`} />
+            <ChevronDown
+              size={16}
+              className={`context-multiselect-chevron ${showMore ? 'rotated' : ''}`}
+            />
           </button>
 
           {showMore && (
@@ -469,8 +502,8 @@ export function ContextChip({
                   icon={<FileText size={16} className="context-select-icon" />}
                   placeholder="None selected"
                   items={groupedPlaybooks.framework}
-                  selectedIds={selectedPlaybooks.filter(id =>
-                    groupedPlaybooks.framework.some(pb => pb.id === id)
+                  selectedIds={selectedPlaybooks.filter((id) =>
+                    groupedPlaybooks.framework.some((pb) => pb.id === id)
                   )}
                   onToggle={togglePlaybook}
                 />
@@ -482,8 +515,8 @@ export function ContextChip({
                   icon={<ScrollText size={16} className="context-select-icon" />}
                   placeholder="None selected"
                   items={groupedPlaybooks.sop}
-                  selectedIds={selectedPlaybooks.filter(id =>
-                    groupedPlaybooks.sop.some(pb => pb.id === id)
+                  selectedIds={selectedPlaybooks.filter((id) =>
+                    groupedPlaybooks.sop.some((pb) => pb.id === id)
                   )}
                   onToggle={togglePlaybook}
                 />
@@ -495,8 +528,8 @@ export function ContextChip({
                   icon={<Shield size={16} className="context-select-icon" />}
                   placeholder="None selected"
                   items={groupedPlaybooks.policy}
-                  selectedIds={selectedPlaybooks.filter(id =>
-                    groupedPlaybooks.policy.some(pb => pb.id === id)
+                  selectedIds={selectedPlaybooks.filter((id) =>
+                    groupedPlaybooks.policy.some((pb) => pb.id === id)
                   )}
                   onToggle={togglePlaybook}
                 />
@@ -507,10 +540,7 @@ export function ContextChip({
       )}
 
       {/* Apply button */}
-      <button
-        className="context-apply-btn-mobile"
-        onClick={() => setIsOpen(false)}
-      >
+      <button className="context-apply-btn-mobile" onClick={() => setIsOpen(false)}>
         Use this context
       </button>
     </div>
@@ -604,7 +634,10 @@ export function ContextChip({
             {selectedPlaybooks.length > 0 && (
               <span className="context-more-badge">{selectedPlaybooks.length}</span>
             )}
-            <ChevronDown size={16} className={`context-multiselect-chevron ${showMore ? 'rotated' : ''}`} />
+            <ChevronDown
+              size={16}
+              className={`context-multiselect-chevron ${showMore ? 'rotated' : ''}`}
+            />
           </button>
 
           {showMore && (
@@ -615,8 +648,8 @@ export function ContextChip({
                   icon={<FileText size={16} className="context-select-icon" />}
                   placeholder="None selected"
                   items={groupedPlaybooks.framework}
-                  selectedIds={selectedPlaybooks.filter(id =>
-                    groupedPlaybooks.framework.some(pb => pb.id === id)
+                  selectedIds={selectedPlaybooks.filter((id) =>
+                    groupedPlaybooks.framework.some((pb) => pb.id === id)
                   )}
                   onToggle={togglePlaybook}
                 />
@@ -628,8 +661,8 @@ export function ContextChip({
                   icon={<ScrollText size={16} className="context-select-icon" />}
                   placeholder="None selected"
                   items={groupedPlaybooks.sop}
-                  selectedIds={selectedPlaybooks.filter(id =>
-                    groupedPlaybooks.sop.some(pb => pb.id === id)
+                  selectedIds={selectedPlaybooks.filter((id) =>
+                    groupedPlaybooks.sop.some((pb) => pb.id === id)
                   )}
                   onToggle={togglePlaybook}
                 />
@@ -641,8 +674,8 @@ export function ContextChip({
                   icon={<Shield size={16} className="context-select-icon" />}
                   placeholder="None selected"
                   items={groupedPlaybooks.policy}
-                  selectedIds={selectedPlaybooks.filter(id =>
-                    groupedPlaybooks.policy.some(pb => pb.id === id)
+                  selectedIds={selectedPlaybooks.filter((id) =>
+                    groupedPlaybooks.policy.some((pb) => pb.id === id)
                   )}
                   onToggle={togglePlaybook}
                 />
@@ -653,10 +686,7 @@ export function ContextChip({
       )}
 
       {/* Use this context button */}
-      <button
-        className="context-apply-btn-mobile"
-        onClick={() => setIsOpen(false)}
-      >
+      <button className="context-apply-btn-mobile" onClick={() => setIsOpen(false)}>
         Use this context
       </button>
     </div>
@@ -667,11 +697,7 @@ export function ContextChip({
     return (
       <>
         {triggerButton}
-        <BottomSheet
-          isOpen={isOpen}
-          onClose={() => setIsOpen(false)}
-          title="Select Context"
-        >
+        <BottomSheet isOpen={isOpen} onClose={() => setIsOpen(false)} title="Select Context">
           {renderMobileContent()}
         </BottomSheet>
       </>
@@ -681,9 +707,7 @@ export function ContextChip({
   // Desktop: use Popover with compact dropdowns
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
-        {triggerButton}
-      </PopoverTrigger>
+      <PopoverTrigger asChild>{triggerButton}</PopoverTrigger>
 
       <PopoverContent
         className="context-popover-desktop"

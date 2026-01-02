@@ -8,5 +8,5 @@ import { ScrollText, Layers, FileText } from 'lucide-react';
 export const DOC_TYPES = [
   { value: 'sop' as const, label: 'SOP', icon: ScrollText },
   { value: 'framework' as const, label: 'Framework', icon: Layers },
-  { value: 'policy' as const, label: 'Policy', icon: FileText }
+  { value: 'policy' as const, label: 'Policy', icon: FileText },
 ];

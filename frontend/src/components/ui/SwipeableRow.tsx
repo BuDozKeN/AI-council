@@ -41,22 +41,25 @@ export function SwipeableRow({
   const actionOpacity = useTransform(x, [-actionWidth, -threshold, 0], [1, 0.8, 0]);
 
   // Handle drag end - using any for event type as framer-motion uses a complex union
-  const handleDragEnd = useCallback((_event: unknown, info: PanInfo) => {
-    setIsSwiping(false);
-    const offsetX = info.offset.x;
-    const velocityX = info.velocity.x;
+  const handleDragEnd = useCallback(
+    (_event: unknown, info: PanInfo) => {
+      setIsSwiping(false);
+      const offsetX = info.offset.x;
+      const velocityX = info.velocity.x;
 
-    // Snap open if dragged past threshold or with velocity
-    if (offsetX < -threshold || velocityX < -500) {
-      animate(x, -actionWidth, { type: 'spring', stiffness: 500, damping: 30 });
-      setIsOpen(true);
-      hapticImpact();
-    } else {
-      // Snap closed
-      animate(x, 0, { type: 'spring', stiffness: 500, damping: 30 });
-      setIsOpen(false);
-    }
-  }, [actionWidth, threshold, x]);
+      // Snap open if dragged past threshold or with velocity
+      if (offsetX < -threshold || velocityX < -500) {
+        animate(x, -actionWidth, { type: 'spring', stiffness: 500, damping: 30 });
+        setIsOpen(true);
+        hapticImpact();
+      } else {
+        // Snap closed
+        animate(x, 0, { type: 'spring', stiffness: 500, damping: 30 });
+        setIsOpen(false);
+      }
+    },
+    [actionWidth, threshold, x]
+  );
 
   // Handle drag start
   const handleDragStart = useCallback(() => {
@@ -85,24 +88,30 @@ export function SwipeableRow({
   }, [isOpen, x]);
 
   // Close on action click
-  const handleActionClick = useCallback((action: SwipeAction) => {
-    hapticLight();
-    animate(x, 0, { type: 'spring', stiffness: 500, damping: 30 });
-    setIsOpen(false);
-    action.onClick?.();
-  }, [x]);
+  const handleActionClick = useCallback(
+    (action: SwipeAction) => {
+      hapticLight();
+      animate(x, 0, { type: 'spring', stiffness: 500, damping: 30 });
+      setIsOpen(false);
+      action.onClick?.();
+    },
+    [x]
+  );
 
   // Handle row click (only if not swiping)
-  const handleRowClick = useCallback((e: React.MouseEvent) => {
-    if (isSwiping || isOpen) {
-      if (isOpen) {
-        animate(x, 0, { type: 'spring', stiffness: 500, damping: 30 });
-        setIsOpen(false);
+  const handleRowClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (isSwiping || isOpen) {
+        if (isOpen) {
+          animate(x, 0, { type: 'spring', stiffness: 500, damping: 30 });
+          setIsOpen(false);
+        }
+        return;
       }
-      return;
-    }
-    onClick?.(e);
-  }, [isSwiping, isOpen, onClick, x]);
+      onClick?.(e);
+    },
+    [isSwiping, isOpen, onClick, x]
+  );
 
   if (disabled || actions.length === 0) {
     // No swipe behavior if disabled or no actions

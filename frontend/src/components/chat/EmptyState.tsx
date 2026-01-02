@@ -42,10 +42,7 @@ export function ConversationEmptyState() {
       icon={Clock}
       title="Ask the Council"
       message="5 AI advisors will debate your question and synthesize the best answer"
-      hints={[
-        "Try: \"What's the best approach to...\"",
-        "Paste images with Ctrl+V"
-      ]}
+      hints={['Try: "What\'s the best approach to..."', 'Paste images with Ctrl+V']}
     />
   );
 }

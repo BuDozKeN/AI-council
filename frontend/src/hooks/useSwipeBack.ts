@@ -29,70 +29,79 @@ export function useSwipeBack({
   const elementRef = useRef<HTMLElement | null>(null);
   const isSwiping = useRef<boolean>(false);
 
-  const handleTouchStart = useCallback((e: TouchEvent): void => {
-    if (!enabled) return;
+  const handleTouchStart = useCallback(
+    (e: TouchEvent): void => {
+      if (!enabled) return;
 
-    const touch = e.touches[0];
-    if (!touch) return;
-    const isFromLeftEdge = touch.clientX <= edgeWidth;
+      const touch = e.touches[0];
+      if (!touch) return;
+      const isFromLeftEdge = touch.clientX <= edgeWidth;
 
-    if (!isFromLeftEdge) {
+      if (!isFromLeftEdge) {
+        touchStartRef.current = null;
+        return;
+      }
+
+      touchStartRef.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+        time: Date.now(),
+      };
+      isSwiping.current = false;
+    },
+    [enabled, edgeWidth]
+  );
+
+  const handleTouchMove = useCallback(
+    (e: TouchEvent): void => {
+      if (!enabled || !touchStartRef.current) return;
+
+      const touch = e.touches[0];
+      if (!touch) return;
+      const startData = touchStartRef.current;
+      const deltaX = touch.clientX - startData.x;
+      const deltaY = touch.clientY - startData.y;
+
+      // More horizontal than vertical = swipe gesture
+      if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 20) {
+        isSwiping.current = true;
+      }
+    },
+    [enabled]
+  );
+
+  const handleTouchEnd = useCallback(
+    (e: TouchEvent): void => {
+      if (!enabled || !touchStartRef.current) return;
+
+      const touch = e.changedTouches[0];
+      if (!touch) return;
+      const startData = touchStartRef.current;
+      const deltaX = touch.clientX - startData.x;
+      const deltaY = touch.clientY - startData.y;
+      const deltaTime = Date.now() - startData.time;
+
+      // Reset
       touchStartRef.current = null;
-      return;
-    }
 
-    touchStartRef.current = {
-      x: touch.clientX,
-      y: touch.clientY,
-      time: Date.now(),
-    };
-    isSwiping.current = false;
-  }, [enabled, edgeWidth]);
+      // Ignore slow swipes (> 500ms)
+      if (deltaTime > 500) return;
 
-  const handleTouchMove = useCallback((e: TouchEvent): void => {
-    if (!enabled || !touchStartRef.current) return;
+      const absX = Math.abs(deltaX);
+      const absY = Math.abs(deltaY);
 
-    const touch = e.touches[0];
-    if (!touch) return;
-    const startData = touchStartRef.current;
-    const deltaX = touch.clientX - startData.x;
-    const deltaY = touch.clientY - startData.y;
+      // Must be horizontal swipe to the right
+      const isHorizontal = absX > absY;
+      const isRight = deltaX > 0;
 
-    // More horizontal than vertical = swipe gesture
-    if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX > 20) {
-      isSwiping.current = true;
-    }
-  }, [enabled]);
+      if (isHorizontal && isRight && absX >= threshold && isSwiping.current) {
+        onSwipeBack?.();
+      }
 
-  const handleTouchEnd = useCallback((e: TouchEvent): void => {
-    if (!enabled || !touchStartRef.current) return;
-
-    const touch = e.changedTouches[0];
-    if (!touch) return;
-    const startData = touchStartRef.current;
-    const deltaX = touch.clientX - startData.x;
-    const deltaY = touch.clientY - startData.y;
-    const deltaTime = Date.now() - startData.time;
-
-    // Reset
-    touchStartRef.current = null;
-
-    // Ignore slow swipes (> 500ms)
-    if (deltaTime > 500) return;
-
-    const absX = Math.abs(deltaX);
-    const absY = Math.abs(deltaY);
-
-    // Must be horizontal swipe to the right
-    const isHorizontal = absX > absY;
-    const isRight = deltaX > 0;
-
-    if (isHorizontal && isRight && absX >= threshold && isSwiping.current) {
-      onSwipeBack?.();
-    }
-
-    isSwiping.current = false;
-  }, [enabled, threshold, onSwipeBack]);
+      isSwiping.current = false;
+    },
+    [enabled, threshold, onSwipeBack]
+  );
 
   useEffect(() => {
     const element = elementRef.current;

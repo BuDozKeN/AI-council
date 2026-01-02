@@ -36,7 +36,9 @@
   color: var(--color-text-tertiary);
   cursor: pointer;
   border-radius: var(--radius-md);
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
   -webkit-tap-highlight-color: transparent;
 }
 

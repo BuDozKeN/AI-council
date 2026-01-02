@@ -20,7 +20,15 @@
 
 import * as React from 'react';
 import * as SelectPrimitive from '@radix-ui/react-select';
-import { Check, ChevronDown, Circle, CheckCircle2, Archive, Layers, LucideIcon } from 'lucide-react';
+import {
+  Check,
+  ChevronDown,
+  Circle,
+  CheckCircle2,
+  Archive,
+  Layers,
+  LucideIcon,
+} from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from './BottomSheet';
 import './StatusSelect.css';
@@ -81,7 +89,9 @@ const statusLabels: Record<StatusValue, string> = {
 
 const statusOptions: StatusValue[] = ['all', 'active', 'completed', 'archived'];
 
-interface StatusSelectItemProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> {
+interface StatusSelectItemProps extends React.ComponentPropsWithoutRef<
+  typeof SelectPrimitive.Item
+> {
   status: StatusValue;
 }
 
@@ -89,24 +99,21 @@ interface StatusSelectItemProps extends React.ComponentPropsWithoutRef<typeof Se
 const StatusSelectItem = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Item>,
   StatusSelectItemProps
->(({
-  className,
-  children,
-  status,
-  ...props
-}, ref) => {
+>(({ className, children, status, ...props }, ref) => {
   const colors = statusColors[status] || statusColors.active;
   const Icon = statusIcons[status] || Circle;
 
   return (
     <SelectPrimitive.Item
       ref={ref}
-      className={cn("status-select-item", className)}
-      style={{
-        '--status-hover-bg': colors.hoverBg,
-        '--status-checked-bg': colors.bg,
-        '--status-checked-text': colors.text,
-      } as React.CSSProperties}
+      className={cn('status-select-item', className)}
+      style={
+        {
+          '--status-hover-bg': colors.hoverBg,
+          '--status-checked-bg': colors.bg,
+          '--status-checked-text': colors.text,
+        } as React.CSSProperties
+      }
       {...props}
     >
       <span className="status-select-item-indicator">
@@ -155,7 +162,7 @@ export function StatusSelect({
     return (
       <>
         <button
-          className={cn("status-select-trigger", className)}
+          className={cn('status-select-trigger', className)}
           disabled={disabled}
           onClick={() => setOpen(true)}
           style={triggerStyle}
@@ -166,33 +173,33 @@ export function StatusSelect({
           <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
         </button>
 
-        <BottomSheet
-          isOpen={open}
-          onClose={() => setOpen(false)}
-          title="Filter by Status"
-        >
+        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title="Filter by Status">
           <div className="status-select-list-mobile">
-            {statusOptions.map(status => {
+            {statusOptions.map((status) => {
               const isSelected = status === value;
               const statusColor = statusColors[status];
               const StatusIcon = statusIcons[status];
               return (
                 <button
                   key={status}
-                  className={cn("status-select-item-mobile", isSelected && "selected")}
+                  className={cn('status-select-item-mobile', isSelected && 'selected')}
                   onClick={() => handleSelect(status)}
-                  style={{
-                    '--status-bg': statusColor.bg,
-                    '--status-text': statusColor.text,
-                  } as React.CSSProperties}
+                  style={
+                    {
+                      '--status-bg': statusColor.bg,
+                      '--status-text': statusColor.text,
+                    } as React.CSSProperties
+                  }
                   type="button"
                 >
                   <div
-                    className={cn("status-select-radio", isSelected && "checked")}
-                    style={{
-                      '--radio-checked-bg': statusColor.text,
-                      '--radio-checked-border': statusColor.text
-                    } as React.CSSProperties}
+                    className={cn('status-select-radio', isSelected && 'checked')}
+                    style={
+                      {
+                        '--radio-checked-bg': statusColor.text,
+                        '--radio-checked-border': statusColor.text,
+                      } as React.CSSProperties
+                    }
                   >
                     {isSelected && <Check className="h-3 w-3" />}
                   </div>
@@ -211,7 +218,7 @@ export function StatusSelect({
   return (
     <SelectPrimitive.Root value={value} onValueChange={onValueChange} disabled={disabled}>
       <SelectPrimitive.Trigger
-        className={cn("status-select-trigger", className)}
+        className={cn('status-select-trigger', className)}
         style={triggerStyle}
       >
         <Icon className="h-3.5 w-3.5" />

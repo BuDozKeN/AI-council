@@ -79,12 +79,12 @@
   }
 }
 
-.role-select-content[data-side="bottom"] {
+.role-select-content[data-side='bottom'] {
   transform-origin: top;
   animation: dropdownIn 0.15s ease-out;
 }
 
-.role-select-content[data-side="top"] {
+.role-select-content[data-side='top'] {
   transform-origin: bottom;
   animation: dropdownIn 0.15s ease-out;
 }
@@ -119,7 +119,7 @@
 }
 
 /* Selected/checked state */
-.role-select-item[data-state="checked"] {
+.role-select-item[data-state='checked'] {
   background: var(--color-brand-primary-light);
   color: var(--color-brand-primary);
 }
@@ -165,7 +165,7 @@
   background: var(--color-gray-700);
 }
 
-.dark .role-select-item[data-state="checked"] {
+.dark .role-select-item[data-state='checked'] {
   background: var(--color-brand-primary-light);
   color: var(--color-brand-primary);
 }

@@ -59,12 +59,12 @@ interface ContextIndicatorProps {
   selectedProject?: string | undefined;
   departments?: Department[];
   selectedDepartment?: string | undefined;
-  selectedDepartments?: string[];  // Multi-select support
+  selectedDepartments?: string[]; // Multi-select support
   roles?: Role[];
   selectedRole?: string | undefined;
-  selectedRoles?: string[];  // Multi-select support
+  selectedRoles?: string[]; // Multi-select support
   playbooks?: Playbook[];
-  selectedPlaybooks?: string[];  // Selected playbook IDs
+  selectedPlaybooks?: string[]; // Selected playbook IDs
   question?: string | undefined;
   conversationTitle?: string;
 }
@@ -92,12 +92,13 @@ export function ContextIndicator({
   // Get department data with IDs for color lookup (support both single and multi-select)
   const departmentItems: { id: string; name: string }[] = [];
   if (selectedDepartment) {
-    const dept = departments.find(d => d.id === selectedDepartment);
+    const dept = departments.find((d) => d.id === selectedDepartment);
     if (dept) departmentItems.push({ id: dept.id, name: dept.name });
   }
-  selectedDepartments.forEach(id => {
-    if (id !== selectedDepartment) { // Avoid duplicates
-      const dept = departments.find(d => d.id === id);
+  selectedDepartments.forEach((id) => {
+    if (id !== selectedDepartment) {
+      // Avoid duplicates
+      const dept = departments.find((d) => d.id === id);
       if (dept) departmentItems.push({ id: dept.id, name: dept.name });
     }
   });
@@ -105,12 +106,13 @@ export function ContextIndicator({
   // Get role names (support both single and multi-select)
   const roleNames: string[] = [];
   if (selectedRole) {
-    const role = roles.find(r => r.id === selectedRole);
+    const role = roles.find((r) => r.id === selectedRole);
     if (role) roleNames.push(role.name);
   }
-  selectedRoles.forEach(id => {
-    if (id !== selectedRole) { // Avoid duplicates
-      const role = roles.find(r => r.id === id);
+  selectedRoles.forEach((id) => {
+    if (id !== selectedRole) {
+      // Avoid duplicates
+      const role = roles.find((r) => r.id === id);
       if (role) roleNames.push(role.name);
     }
   });
@@ -118,8 +120,8 @@ export function ContextIndicator({
   // Get playbook names with type info
   type PlaybookType = 'sop' | 'framework' | 'policy';
   const playbookItems: { name: string; type: PlaybookType }[] = selectedPlaybooks
-    .map(id => {
-      const playbook = playbooks.find(p => p.id === id);
+    .map((id) => {
+      const playbook = playbooks.find((p) => p.id === id);
       if (!playbook) return null;
       const name = playbook.title || playbook.name || 'Playbook';
       const type: PlaybookType = playbook.doc_type || playbook.type || 'framework';
@@ -141,11 +143,11 @@ export function ContextIndicator({
           <div className="context-indicator-pills">
             <span className="context-indicator-label">Context:</span>
             <span className="context-indicator-item company">
-              {businesses.find(b => b.id === selectedBusiness)?.name || 'Company'}
+              {businesses.find((b) => b.id === selectedBusiness)?.name || 'Company'}
             </span>
             {selectedProject && (
               <span className="context-indicator-item project">
-                {projects.find(p => p.id === selectedProject)?.name || 'Project'}
+                {projects.find((p) => p.id === selectedProject)?.name || 'Project'}
               </span>
             )}
             {departmentItems.map((dept) => {
@@ -154,10 +156,12 @@ export function ContextIndicator({
                 <span
                   key={dept.id}
                   className="context-indicator-item department"
-                  style={{
-                    '--dept-bg': colors.bg,
-                    '--dept-text': colors.text,
-                  } as React.CSSProperties}
+                  style={
+                    {
+                      '--dept-bg': colors.bg,
+                      '--dept-text': colors.text,
+                    } as React.CSSProperties
+                  }
                 >
                   {dept.name}
                 </span>
@@ -169,7 +173,10 @@ export function ContextIndicator({
               </span>
             ))}
             {playbookItems.map((item, idx) => (
-              <span key={`playbook-${idx}`} className={`context-indicator-item playbook ${item.type}`}>
+              <span
+                key={`playbook-${idx}`}
+                className={`context-indicator-item playbook ${item.type}`}
+              >
                 {item.name}
               </span>
             ))}

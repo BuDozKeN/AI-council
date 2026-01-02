@@ -74,7 +74,9 @@
 /* Ensure the portal wrapper has correct z-index for modal context */
 
 /* Use higher specificity with attribute selector */
-[data-radix-popper-content-wrapper][data-radix-popper-content-wrapper]:has(.project-select-content) {
+[data-radix-popper-content-wrapper][data-radix-popper-content-wrapper]:has(
+    .project-select-content
+  ) {
   z-index: var(--z-modal-dropdown);
 }
 
@@ -103,12 +105,12 @@
   }
 }
 
-.project-select-content[data-side="bottom"] {
+.project-select-content[data-side='bottom'] {
   transform-origin: top;
   animation: projectDropdownInBottom 0.15s ease-out;
 }
 
-.project-select-content[data-side="top"] {
+.project-select-content[data-side='top'] {
   transform-origin: bottom;
   animation: projectDropdownInTop 0.15s ease-out;
 }
@@ -144,7 +146,7 @@
 }
 
 /* Selected/checked state */
-.project-select-item[data-state="checked"] {
+.project-select-item[data-state='checked'] {
   background: var(--color-indigo-50);
   color: var(--color-indigo-700);
 }
@@ -171,7 +173,7 @@
   background: var(--color-slate-50);
 }
 
-.project-select-item-create[data-state="checked"] {
+.project-select-item-create[data-state='checked'] {
   background: var(--color-slate-50);
   color: var(--color-slate-700);
 }
@@ -341,7 +343,7 @@
   background: var(--overlay-indigo-15);
 }
 
-.dark .project-select-item[data-state="checked"] {
+.dark .project-select-item[data-state='checked'] {
   background: var(--overlay-indigo-15);
   color: var(--color-indigo-300);
 }

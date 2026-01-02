@@ -155,9 +155,10 @@ export function TableOfContents({
       if (!contentRef.current) return;
 
       // Get scroll position relative to container
-      const containerRect = scrollContainer === window
-        ? { top: 0 }
-        : (scrollContainer as HTMLElement).getBoundingClientRect();
+      const containerRect =
+        scrollContainer === window
+          ? { top: 0 }
+          : (scrollContainer as HTMLElement).getBoundingClientRect();
 
       let currentHeading: string | null = null;
 
@@ -244,32 +245,35 @@ export function TableOfContents({
     return () => document.removeEventListener('keydown', handleEscape);
   }, [variant, isCollapsed]);
 
-  const handleClick = useCallback((id: string) => (e: React.MouseEvent) => {
-    e.preventDefault();
-    const el = document.getElementById(id);
-    if (!el) return;
+  const handleClick = useCallback(
+    (id: string) => (e: React.MouseEvent) => {
+      e.preventDefault();
+      const el = document.getElementById(id);
+      if (!el) return;
 
-    // Close sheet first, then scroll after animation
-    if (variant === 'sheet') {
-      setIsSheetOpen(false);
-      setTimeout(() => {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 150);
-    } else {
-      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-      el.scrollIntoView({
-        behavior: prefersReducedMotion ? 'auto' : 'smooth',
-        block: 'start',
-      });
-    }
+      // Close sheet first, then scroll after animation
+      if (variant === 'sheet') {
+        setIsSheetOpen(false);
+        setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 150);
+      } else {
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        el.scrollIntoView({
+          behavior: prefersReducedMotion ? 'auto' : 'smooth',
+          block: 'start',
+        });
+      }
 
-    setActiveId(id);
+      setActiveId(id);
 
-    // Collapse sticky variant after navigation
-    if (variant === 'sticky') {
-      setIsCollapsed(true);
-    }
-  }, [variant]);
+      // Collapse sticky variant after navigation
+      if (variant === 'sticky') {
+        setIsCollapsed(true);
+      }
+    },
+    [variant]
+  );
 
   // Don't render if not enough headings
   if (headings.length < minHeadings) return null;
@@ -277,13 +281,14 @@ export function TableOfContents({
 
   // Progress calculation
   const activeIndex = headings.findIndex((h) => h.id === activeId);
-  const progressPercent = headings.length > 1
-    ? Math.round(((activeIndex + 1) / headings.length) * 100)
-    : 100;
+  const progressPercent =
+    headings.length > 1 ? Math.round(((activeIndex + 1) / headings.length) * 100) : 100;
 
   // Current section for sticky trigger
-  const currentSection = headings.find((h) => h.id === activeId)?.text || headings[0]?.text || 'Contents';
-  const displaySection = currentSection.length > 24 ? currentSection.slice(0, 21) + '...' : currentSection;
+  const currentSection =
+    headings.find((h) => h.id === activeId)?.text || headings[0]?.text || 'Contents';
+  const displaySection =
+    currentSection.length > 24 ? currentSection.slice(0, 21) + '...' : currentSection;
 
   // ============================================================================
   // STICKY VARIANT - Capsule at top of content
@@ -300,10 +305,7 @@ export function TableOfContents({
           aria-label={isCollapsed ? 'Expand table of contents' : 'Collapse table of contents'}
         >
           <div className="toc-sticky-progress">
-            <div
-              className="toc-sticky-progress-fill"
-              style={{ width: `${progressPercent}%` }}
-            />
+            <div className="toc-sticky-progress-fill" style={{ width: `${progressPercent}%` }} />
           </div>
           <span className="toc-sticky-label">{displaySection}</span>
           {isCollapsed ? (
@@ -346,9 +348,8 @@ export function TableOfContents({
   // ============================================================================
   if (variant === 'sheet') {
     // Longer truncation for mobile
-    const sheetDisplaySection = currentSection.length > 28
-      ? currentSection.slice(0, 25) + '...'
-      : currentSection;
+    const sheetDisplaySection =
+      currentSection.length > 28 ? currentSection.slice(0, 25) + '...' : currentSection;
 
     return (
       <>
@@ -378,17 +379,12 @@ export function TableOfContents({
             aria-modal="true"
             aria-label="Table of contents"
           >
-            <div
-              className="stage3-mobile-outline-sheet"
-              onClick={(e) => e.stopPropagation()}
-            >
+            <div className="stage3-mobile-outline-sheet" onClick={(e) => e.stopPropagation()}>
               {/* Drag handle */}
               <div className="stage3-mobile-sheet-handle" />
 
               <div className="stage3-mobile-outline-header">
-                <span className="stage3-mobile-outline-title">
-                  {title || 'On this page'}
-                </span>
+                <span className="stage3-mobile-outline-title">{title || 'On this page'}</span>
                 <button
                   type="button"
                   onClick={() => setIsSheetOpen(false)}

@@ -49,7 +49,10 @@ interface PlaybooksTabProps {
   expandedTypes?: ExpandedTypesState | Record<string, boolean> | undefined;
   onTypeFilterChange?: ((filter: PlaybookTypeFilter) => void) | undefined;
   onDeptFilterChange?: ((ids: string[]) => void) | undefined;
-  onExpandedTypesChange?: ((updater: (prev: ExpandedTypesState) => ExpandedTypesState) => void) | React.Dispatch<React.SetStateAction<Record<string, boolean>>> | undefined;
+  onExpandedTypesChange?:
+    | ((updater: (prev: ExpandedTypesState) => ExpandedTypesState) => void)
+    | React.Dispatch<React.SetStateAction<Record<string, boolean>>>
+    | undefined;
   onAddPlaybook?: (() => void) | undefined;
   onViewPlaybook?: ((playbook: ExtendedPlaybook) => void) | undefined;
   onArchivePlaybook?: ((playbook: ExtendedPlaybook) => void) | undefined;
@@ -60,12 +63,12 @@ const DOC_TYPES: DocType[] = ['sop', 'framework', 'policy'];
 const TYPE_LABELS: Record<DocType, string> = {
   sop: 'Standard Operating Procedures',
   framework: 'Frameworks',
-  policy: 'Policies'
+  policy: 'Policies',
 };
 const TYPE_SHORT_LABELS: Record<DocType, string> = {
   sop: 'SOP',
   framework: 'Framework',
-  policy: 'Policy'
+  policy: 'Policy',
 };
 
 export function PlaybooksTab({
@@ -85,7 +88,7 @@ export function PlaybooksTab({
   onAddPlaybook,
   onViewPlaybook,
   onArchivePlaybook,
-  onDeletePlaybook
+  onDeletePlaybook,
 }: PlaybooksTabProps) {
   // Track which playbook row is "active" for mobile long-press actions
   const [mobileActiveId, setMobileActiveId] = useState<string | null>(null);
@@ -93,7 +96,10 @@ export function PlaybooksTab({
   const longPressTriggeredRef = useRef(false);
 
   // Inline confirmation state: { id: string, action: 'archive' | 'delete' } | null
-  const [confirmingAction, setConfirmingAction] = useState<{ id: string; action: 'archive' | 'delete' } | null>(null);
+  const [confirmingAction, setConfirmingAction] = useState<{
+    id: string;
+    action: 'archive' | 'delete';
+  } | null>(null);
 
   // Track which items are being removed (for fade-out animation)
   const [removingIds, setRemovingIds] = useState<Set<string>>(new Set());
@@ -119,24 +125,27 @@ export function PlaybooksTab({
   }, []);
 
   // Handle click - only open detail if long-press wasn't triggered
-  const handleRowClick = useCallback((doc: ExtendedPlaybook, e: React.MouseEvent) => {
-    // If long-press was triggered, don't open detail
-    if (longPressTriggeredRef.current) {
-      e.preventDefault();
-      e.stopPropagation();
-      longPressTriggeredRef.current = false;
-      return;
-    }
+  const handleRowClick = useCallback(
+    (doc: ExtendedPlaybook, e: React.MouseEvent) => {
+      // If long-press was triggered, don't open detail
+      if (longPressTriggeredRef.current) {
+        e.preventDefault();
+        e.stopPropagation();
+        longPressTriggeredRef.current = false;
+        return;
+      }
 
-    // If actions are visible (from long-press), clicking row closes them
-    if (mobileActiveId === doc.id) {
-      setMobileActiveId(null);
-      return;
-    }
+      // If actions are visible (from long-press), clicking row closes them
+      if (mobileActiveId === doc.id) {
+        setMobileActiveId(null);
+        return;
+      }
 
-    // Normal click: open detail view
-    onViewPlaybook && onViewPlaybook(doc);
-  }, [mobileActiveId, onViewPlaybook]);
+      // Normal click: open detail view
+      onViewPlaybook && onViewPlaybook(doc);
+    },
+    [mobileActiveId, onViewPlaybook]
+  );
 
   // Clear mobile active state when clicking outside
   useEffect(() => {
@@ -168,28 +177,35 @@ export function PlaybooksTab({
   }, []);
 
   // Memoize stats to prevent recalculation on every render
-  const stats = useMemo(() => ({
-    sops: playbooks.filter(p => p.doc_type === 'sop').length,
-    frameworks: playbooks.filter(p => p.doc_type === 'framework').length,
-    policies: playbooks.filter(p => p.doc_type === 'policy').length,
-  }), [playbooks]);
+  const stats = useMemo(
+    () => ({
+      sops: playbooks.filter((p) => p.doc_type === 'sop').length,
+      frameworks: playbooks.filter((p) => p.doc_type === 'framework').length,
+      policies: playbooks.filter((p) => p.doc_type === 'policy').length,
+    }),
+    [playbooks]
+  );
 
   // Memoize filtered and grouped playbooks
   const { filteredPlaybooks, groupedPlaybooks } = useMemo(() => {
     const filtered = playbooks
-      .filter(pb => {
+      .filter((pb) => {
         const matchesType = playbookTypeFilter === 'all' || pb.doc_type === playbookTypeFilter;
-        const matchesDept = playbookDeptFilter.length === 0 ||
+        const matchesDept =
+          playbookDeptFilter.length === 0 ||
           (pb.department_id && playbookDeptFilter.includes(pb.department_id)) ||
-          (pb.additional_departments || []).some(id => playbookDeptFilter.includes(id));
+          (pb.additional_departments || []).some((id) => playbookDeptFilter.includes(id));
         return matchesType && matchesDept;
       })
       .sort((a, b) => a.title.localeCompare(b.title));
 
-    const grouped = DOC_TYPES.reduce((acc, type) => {
-      acc[type] = filtered.filter(p => p.doc_type === type);
-      return acc;
-    }, {} as Record<DocType, ExtendedPlaybook[]>);
+    const grouped = DOC_TYPES.reduce(
+      (acc, type) => {
+        acc[type] = filtered.filter((p) => p.doc_type === type);
+        return acc;
+      },
+      {} as Record<DocType, ExtendedPlaybook[]>
+    );
 
     return { filteredPlaybooks: filtered, groupedPlaybooks: grouped };
   }, [playbooks, playbookTypeFilter, playbookDeptFilter]);
@@ -205,7 +221,7 @@ export function PlaybooksTab({
       <div className="mc-playbooks">
         {/* Stats skeleton */}
         <div className="mc-stats-grid">
-          {[1, 2, 3, 4].map(i => (
+          {[1, 2, 3, 4].map((i) => (
             <div key={i} className="mc-stat-card">
               <Skeleton className="h-8 w-12 mb-1" />
               <Skeleton className="h-3 w-16" />
@@ -221,11 +237,11 @@ export function PlaybooksTab({
         </div>
         {/* Playbook groups skeleton */}
         <div className="mc-playbooks-list">
-          {[1, 2].map(groupIdx => (
+          {[1, 2].map((groupIdx) => (
             <div key={groupIdx} className="mc-playbook-group">
               <Skeleton className="h-4 w-48 mb-3" />
               <div className="mc-elegant-list">
-                {[1, 2, 3].map(i => (
+                {[1, 2, 3].map((i) => (
                   <div key={i} className="mc-elegant-row" style={{ pointerEvents: 'none' }}>
                     <Skeleton variant="circular" className="h-2.5 w-2.5" />
                     <div className="mc-elegant-content">
@@ -250,11 +266,10 @@ export function PlaybooksTab({
       <div className="mc-empty">
         <BookOpen size={32} className="mc-empty-icon" />
         <p className="mc-empty-title">Build your knowledge base</p>
-        <p className="mc-empty-hint">Create SOPs, frameworks, and policies that your AI council will reference</p>
-        <Button
-          variant="default"
-          onClick={onAddPlaybook}
-        >
+        <p className="mc-empty-hint">
+          Create SOPs, frameworks, and policies that your AI council will reference
+        </p>
+        <Button variant="default" onClick={onAddPlaybook}>
           New Playbook
         </Button>
       </div>
@@ -274,21 +289,29 @@ export function PlaybooksTab({
         </div>
         <div
           className={`mc-stat-card clickable ${playbookTypeFilter === 'sop' ? 'selected' : ''}`}
-          onClick={() => onTypeFilterChange && onTypeFilterChange(playbookTypeFilter === 'sop' ? 'all' : 'sop')}
+          onClick={() =>
+            onTypeFilterChange && onTypeFilterChange(playbookTypeFilter === 'sop' ? 'all' : 'sop')
+          }
         >
           <div className="mc-stat-value sops">{allSops.length}</div>
           <div className="mc-stat-label">SOPs</div>
         </div>
         <div
           className={`mc-stat-card clickable ${playbookTypeFilter === 'framework' ? 'selected' : ''}`}
-          onClick={() => onTypeFilterChange && onTypeFilterChange(playbookTypeFilter === 'framework' ? 'all' : 'framework')}
+          onClick={() =>
+            onTypeFilterChange &&
+            onTypeFilterChange(playbookTypeFilter === 'framework' ? 'all' : 'framework')
+          }
         >
           <div className="mc-stat-value frameworks">{allFrameworks.length}</div>
           <div className="mc-stat-label">Frameworks</div>
         </div>
         <div
           className={`mc-stat-card clickable ${playbookTypeFilter === 'policy' ? 'selected' : ''}`}
-          onClick={() => onTypeFilterChange && onTypeFilterChange(playbookTypeFilter === 'policy' ? 'all' : 'policy')}
+          onClick={() =>
+            onTypeFilterChange &&
+            onTypeFilterChange(playbookTypeFilter === 'policy' ? 'all' : 'policy')
+          }
         >
           <div className="mc-stat-value policies">{allPolicies.length}</div>
           <div className="mc-stat-label">Policies</div>
@@ -305,11 +328,7 @@ export function PlaybooksTab({
             placeholder="All Depts"
           />
         </div>
-        <Button
-          variant="default"
-          size="sm"
-          onClick={onAddPlaybook}
-        >
+        <Button variant="default" size="sm" onClick={onAddPlaybook}>
           New Playbook
         </Button>
       </div>
@@ -317,9 +336,7 @@ export function PlaybooksTab({
       {/* Playbooks list with scroll-to-top */}
       <ScrollableContent className="mc-playbooks-list">
         {filteredPlaybooks.length === 0 ? (
-          <div className="mc-empty-filtered">
-            No playbooks match your filters
-          </div>
+          <div className="mc-empty-filtered">No playbooks match your filters</div>
         ) : (
           DOC_TYPES.map((type: DocType) => {
             const docs = groupedPlaybooks[type];
@@ -339,8 +356,15 @@ export function PlaybooksTab({
                 <div className="mc-elegant-list">
                   {visibleDocs.map((doc: ExtendedPlaybook) => {
                     // Use embedded department name (or fallback to lookup for backwards compat)
-                    const dept: { id: string | undefined; name: string; slug: string | undefined } | Department | undefined = doc.department_name
-                      ? { id: doc.department_id, name: doc.department_name, slug: doc.department_slug }
+                    const dept:
+                      | { id: string | undefined; name: string; slug: string | undefined }
+                      | Department
+                      | undefined = doc.department_name
+                      ? {
+                          id: doc.department_id,
+                          name: doc.department_name,
+                          slug: doc.department_slug,
+                        }
                       : departments.find((d: Department) => d.id === doc.department_id);
                     // Find additional department names
                     const additionalDepts = (doc.additional_departments || [])
@@ -348,7 +372,9 @@ export function PlaybooksTab({
                       .filter((d): d is Department => Boolean(d));
 
                     // All departments for this playbook
-                    const allDepts = [dept, ...additionalDepts].filter((d): d is NonNullable<typeof dept> => Boolean(d));
+                    const allDepts = [dept, ...additionalDepts].filter(
+                      (d): d is NonNullable<typeof dept> => Boolean(d)
+                    );
 
                     const typeLabel = TYPE_SHORT_LABELS[doc.doc_type] || doc.doc_type;
 
@@ -385,7 +411,7 @@ export function PlaybooksTab({
                                   className="mc-elegant-dept"
                                   style={{
                                     background: color.bg,
-                                    color: color.text
+                                    color: color.text,
                                   }}
                                 >
                                   {d.name}
@@ -412,7 +438,10 @@ export function PlaybooksTab({
                                 <span className="mc-confirm-label">Sure?</span>
                                 <button
                                   className="mc-text-btn no"
-                                  onClick={(e) => { e.stopPropagation(); setConfirmingAction(null); }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setConfirmingAction(null);
+                                  }}
                                 >
                                   No
                                 </button>
@@ -423,7 +452,7 @@ export function PlaybooksTab({
                                     setMobileActiveId(null);
                                     setConfirmingAction(null);
                                     // Start fade-out animation
-                                    setRemovingIds(prev => new Set(prev).add(doc.id));
+                                    setRemovingIds((prev) => new Set(prev).add(doc.id));
                                     // After animation completes, call the handler
                                     setTimeout(() => {
                                       if (confirmingAction.action === 'archive') {
@@ -442,14 +471,20 @@ export function PlaybooksTab({
                               <>
                                 <button
                                   className="mc-text-btn archive"
-                                  onClick={(e) => { e.stopPropagation(); setConfirmingAction({ id: doc.id, action: 'archive' }); }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setConfirmingAction({ id: doc.id, action: 'archive' });
+                                  }}
                                   title="Archive playbook"
                                 >
                                   Archive
                                 </button>
                                 <button
                                   className="mc-text-btn delete"
-                                  onClick={(e) => { e.stopPropagation(); setConfirmingAction({ id: doc.id, action: 'delete' }); }}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setConfirmingAction({ id: doc.id, action: 'delete' });
+                                  }}
                                   title="Delete playbook"
                                 >
                                   Delete
@@ -466,7 +501,13 @@ export function PlaybooksTab({
                 {hasMore && (
                   <button
                     className="mc-load-more-btn"
-                    onClick={() => onExpandedTypesChange && onExpandedTypesChange((prev: ExpandedTypesState) => ({ ...prev, [type]: !prev[type] }))}
+                    onClick={() =>
+                      onExpandedTypesChange &&
+                      onExpandedTypesChange((prev: ExpandedTypesState) => ({
+                        ...prev,
+                        [type]: !prev[type],
+                      }))
+                    }
                   >
                     {isExpanded ? `Show less` : `Load more (${docs.length - MAX_VISIBLE} more)`}
                   </button>
@@ -478,11 +519,7 @@ export function PlaybooksTab({
       </ScrollableContent>
 
       {/* FAB - Mobile only (visible via CSS) */}
-      <button
-        className="mc-fab"
-        onClick={onAddPlaybook}
-        aria-label="Create new playbook"
-      >
+      <button className="mc-fab" onClick={onAddPlaybook} aria-label="Create new playbook">
         <Plus />
       </button>
     </div>

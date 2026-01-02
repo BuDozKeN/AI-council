@@ -58,7 +58,7 @@ export function AddDepartmentModal({ onSave, onClose, saving }: AddDepartmentMod
             className="mc-input-unified"
             placeholder="e.g., Human Resources"
             value={name}
-            onChange={e => setName(e.target.value)}
+            onChange={(e) => setName(e.target.value)}
             autoFocus
           />
         </div>
@@ -74,17 +74,26 @@ export function AddDepartmentModal({ onSave, onClose, saving }: AddDepartmentMod
               className="mc-input-unified mc-textarea-unified"
               placeholder="What does this department do?"
               value={description}
-              onChange={e => setDescription(e.target.value)}
+              onChange={(e) => setDescription(e.target.value)}
               rows={3}
               enterKeyHint="done"
             />
           </AIWriteAssist>
         </div>
         <AppModal.Footer>
-          <button type="button" className="app-modal-btn app-modal-btn-secondary" onClick={onClose} disabled={saving}>
+          <button
+            type="button"
+            className="app-modal-btn app-modal-btn-secondary"
+            onClick={onClose}
+            disabled={saving}
+          >
             Cancel
           </button>
-          <button type="submit" className="app-modal-btn app-modal-btn-primary" disabled={saving || !name.trim()}>
+          <button
+            type="submit"
+            className="app-modal-btn app-modal-btn-primary"
+            disabled={saving || !name.trim()}
+          >
             {saving ? (
               <>
                 <Spinner size="sm" variant="muted" />
@@ -130,7 +139,7 @@ export function AddRoleModal({ deptId, onSave, onClose, saving }: AddRoleModalPr
             className="mc-input-unified"
             placeholder="e.g., CTO"
             value={name}
-            onChange={e => setName(e.target.value)}
+            onChange={(e) => setName(e.target.value)}
             autoFocus
           />
         </div>
@@ -141,14 +150,23 @@ export function AddRoleModal({ deptId, onSave, onClose, saving }: AddRoleModalPr
             className="mc-input-unified"
             placeholder="e.g., Chief Technology Officer"
             value={title}
-            onChange={e => setTitle(e.target.value)}
+            onChange={(e) => setTitle(e.target.value)}
           />
         </div>
         <AppModal.Footer>
-          <button type="button" className="app-modal-btn app-modal-btn-secondary" onClick={onClose} disabled={saving}>
+          <button
+            type="button"
+            className="app-modal-btn app-modal-btn-secondary"
+            onClick={onClose}
+            disabled={saving}
+          >
             Cancel
           </button>
-          <button type="submit" className="app-modal-btn app-modal-btn-primary" disabled={saving || !name.trim()}>
+          <button
+            type="submit"
+            className="app-modal-btn app-modal-btn-primary"
+            disabled={saving || !name.trim()}
+          >
             {saving ? (
               <>
                 <Spinner size="sm" variant="muted" />
@@ -165,7 +183,13 @@ export function AddRoleModal({ deptId, onSave, onClose, saving }: AddRoleModalPr
 }
 
 interface AddPlaybookModalProps {
-  onSave: (title: string, docType: string, content?: string, departmentId?: string | null, additionalDepartments?: string[]) => Promise<void>;
+  onSave: (
+    title: string,
+    docType: string,
+    content?: string,
+    departmentId?: string | null,
+    additionalDepartments?: string[]
+  ) => Promise<void>;
   onClose: () => void;
   saving: boolean;
   departments?: Department[] | undefined;
@@ -176,7 +200,12 @@ interface AddPlaybookModalProps {
  */
 type PlaybookType = 'sop' | 'framework' | 'policy';
 
-export function AddPlaybookModal({ onSave, onClose, saving, departments = [] }: AddPlaybookModalProps) {
+export function AddPlaybookModal({
+  onSave,
+  onClose,
+  saving,
+  departments = [],
+}: AddPlaybookModalProps) {
   const [title, setTitle] = useState('');
   const [docType, setDocType] = useState<PlaybookType>('sop');
   const [content, setContent] = useState('');
@@ -200,7 +229,7 @@ export function AddPlaybookModal({ onSave, onClose, saving, departments = [] }: 
             className="mc-input-unified"
             placeholder="e.g., Customer Onboarding Process"
             value={title}
-            onChange={e => setTitle(e.target.value)}
+            onChange={(e) => setTitle(e.target.value)}
             autoFocus
           />
         </div>
@@ -216,7 +245,7 @@ export function AddPlaybookModal({ onSave, onClose, saving, departments = [] }: 
         <div className="mc-form-unified">
           <label className="mc-label-unified">Type *</label>
           <div className="mc-type-pills-unified">
-            {DOC_TYPES.map(type => {
+            {DOC_TYPES.map((type) => {
               const Icon = type.icon;
               const isSelected = docType === type.value;
               const colors = getPlaybookTypeColor(type.value);
@@ -225,11 +254,15 @@ export function AddPlaybookModal({ onSave, onClose, saving, departments = [] }: 
                   key={type.value}
                   type="button"
                   className={`mc-type-pill-unified ${type.value} ${isSelected ? 'selected' : ''}`}
-                  style={isSelected ? {
-                    background: colors.bg,
-                    color: colors.text,
-                    boxShadow: `0 1px 2px ${colors.shadowColor}`
-                  } : {}}
+                  style={
+                    isSelected
+                      ? {
+                          background: colors.bg,
+                          color: colors.text,
+                          boxShadow: `0 1px 2px ${colors.shadowColor}`,
+                        }
+                      : {}
+                  }
                   onClick={() => setDocType(type.value)}
                 >
                   <Icon className="h-3.5 w-3.5" />
@@ -260,16 +293,21 @@ export function AddPlaybookModal({ onSave, onClose, saving, departments = [] }: 
           >
             <textarea
               className="mc-input-unified mc-textarea-unified"
-              placeholder="Describe what you need (e.g., &quot;how we onboard customers&quot;) - AI will write the full document for you..."
+              placeholder='Describe what you need (e.g., "how we onboard customers") - AI will write the full document for you...'
               value={content}
-              onChange={e => setContent(e.target.value)}
+              onChange={(e) => setContent(e.target.value)}
               rows={10}
               enterKeyHint="done"
             />
           </AIWriteAssist>
         </div>
         <AppModal.Footer>
-          <button type="button" className="app-modal-btn app-modal-btn-secondary" onClick={onClose} disabled={saving}>
+          <button
+            type="button"
+            className="app-modal-btn app-modal-btn-secondary"
+            onClick={onClose}
+            disabled={saving}
+          >
             Cancel
           </button>
           <button
@@ -285,7 +323,7 @@ export function AddPlaybookModal({ onSave, onClose, saving, departments = [] }: 
             ) : (
               <>
                 <Bookmark className="h-4 w-4" />
-                Create {DOC_TYPES.find(t => t.value === docType)?.label || 'Playbook'}
+                Create {DOC_TYPES.find((t) => t.value === docType)?.label || 'Playbook'}
               </>
             )}
           </button>

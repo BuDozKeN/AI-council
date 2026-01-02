@@ -32,7 +32,9 @@
 
 .switch-root:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--color-bg-primary), 0 0 0 4px var(--color-brand-primary);
+  box-shadow:
+    0 0 0 2px var(--color-bg-primary),
+    0 0 0 4px var(--color-brand-primary);
 }
 
 .switch-root:disabled {
@@ -41,7 +43,7 @@
 }
 
 /* Checked state */
-.switch-root[data-state="checked"] {
+.switch-root[data-state='checked'] {
   background: var(--color-brand-primary);
   border-color: var(--color-brand-primary);
 }
@@ -64,7 +66,7 @@
   transform: translateX(3px);
 }
 
-.switch-root[data-state="checked"] .switch-thumb {
+.switch-root[data-state='checked'] .switch-thumb {
   transform: translateX(23px); /* 48px - 20px - 5px padding */
 }
 
@@ -73,7 +75,7 @@
   border-color: var(--color-border-emphasis);
 }
 
-.switch-root[data-state="checked"]:hover:not(:disabled) {
+.switch-root[data-state='checked']:hover:not(:disabled) {
   background: var(--color-indigo-600);
   border-color: var(--color-indigo-600);
 }
@@ -85,25 +87,25 @@
   max-width: 24px;
 }
 
-.switch-root[data-state="checked"]:active:not(:disabled) .switch-thumb {
+.switch-root[data-state='checked']:active:not(:disabled) .switch-thumb {
   transform: translateX(19px); /* 48px - 24px - 5px */
 }
 
 /* Dark mode adjustments */
 .dark .switch-root,
-[data-theme="dark"] .switch-root {
+[data-theme='dark'] .switch-root {
   background: var(--color-bg-secondary);
   border-color: var(--color-border-subtle);
 }
 
-.dark .switch-root[data-state="checked"],
-[data-theme="dark"] .switch-root[data-state="checked"] {
+.dark .switch-root[data-state='checked'],
+[data-theme='dark'] .switch-root[data-state='checked'] {
   background: var(--color-brand-primary);
   border-color: var(--color-brand-primary);
 }
 
 .dark .switch-thumb,
-[data-theme="dark"] .switch-thumb {
+[data-theme='dark'] .switch-thumb {
   background: var(--color-text-inverse);
   box-shadow:
     0 2px 4px var(--overlay-black-20),
@@ -119,7 +121,7 @@
 
   /* Invisible expanded touch target */
   .switch-root::after {
-    content: "";
+    content: '';
     position: absolute;
     top: 50%;
     left: 50%;

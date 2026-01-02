@@ -178,25 +178,27 @@ export function ChatInput({
       {projects.length === 0 ? (
         <div className="context-popover-empty">No projects</div>
       ) : (
-        projects.filter((p) => p.status === 'active').map((proj) => {
-          const isSelected = selectedProject === proj.id;
-          return (
-            <button
-              key={proj.id}
-              className={cn('context-popover-item', isSelected && 'selected')}
-              onClick={() => {
-                onSelectProject?.(isSelected ? null : proj.id);
-                setProjectOpen(false);
-              }}
-              type="button"
-            >
-              <div className={cn('context-popover-radio', isSelected && 'checked')}>
-                {isSelected && <Check size={10} />}
-              </div>
-              <span>{proj.name}</span>
-            </button>
-          );
-        })
+        projects
+          .filter((p) => p.status === 'active')
+          .map((proj) => {
+            const isSelected = selectedProject === proj.id;
+            return (
+              <button
+                key={proj.id}
+                className={cn('context-popover-item', isSelected && 'selected')}
+                onClick={() => {
+                  onSelectProject?.(isSelected ? null : proj.id);
+                  setProjectOpen(false);
+                }}
+                type="button"
+              >
+                <div className={cn('context-popover-radio', isSelected && 'checked')}>
+                  {isSelected && <Check size={10} />}
+                </div>
+                <span>{proj.name}</span>
+              </button>
+            );
+          })
       )}
     </div>
   );
@@ -404,18 +406,20 @@ export function ChatInput({
             isOpen={open}
             onClose={() => setOpen(false)}
             title={label}
-            headerAction={count > 0 && onClear ? (
-              <button
-                type="button"
-                className="context-popover-clear"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onClear();
-                }}
-              >
-                Clear
-              </button>
-            ) : undefined}
+            headerAction={
+              count > 0 && onClear ? (
+                <button
+                  type="button"
+                  className="context-popover-clear"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClear();
+                  }}
+                >
+                  Clear
+                </button>
+              ) : undefined
+            }
           >
             {content}
           </BottomSheet>
@@ -533,7 +537,8 @@ export function ChatInput({
                 </div>
 
                 {/* Reset All button - outside capsule, smaller */}
-                {hasAnySelections && onResetAll && (
+                {hasAnySelections &&
+                  onResetAll &&
                   withTooltip(
                     <button
                       type="button"
@@ -545,8 +550,7 @@ export function ChatInput({
                       <RotateCcw size={12} />
                     </button>,
                     TOOLTIPS.reset
-                  )
-                )}
+                  )}
 
                 {/* Mode toggle - clear "1 AI / 5 AIs" pill */}
                 <div
@@ -557,7 +561,10 @@ export function ChatInput({
                   {withTooltip(
                     <button
                       type="button"
-                      className={cn('inline-mode-btn no-touch-target', chatMode === 'chat' && 'active')}
+                      className={cn(
+                        'inline-mode-btn no-touch-target',
+                        chatMode === 'chat' && 'active'
+                      )}
                       onClick={() => !disabled && onChatModeChange?.('chat')}
                       disabled={disabled}
                       role="radio"
@@ -570,7 +577,10 @@ export function ChatInput({
                   {withTooltip(
                     <button
                       type="button"
-                      className={cn('inline-mode-btn no-touch-target', chatMode === 'council' && 'active')}
+                      className={cn(
+                        'inline-mode-btn no-touch-target',
+                        chatMode === 'council' && 'active'
+                      )}
                       onClick={() => !disabled && onChatModeChange?.('council')}
                       disabled={disabled}
                       role="radio"

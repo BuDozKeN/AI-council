@@ -40,8 +40,13 @@
 }
 
 @keyframes mc-overlay-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .mc-panel {
@@ -93,11 +98,13 @@
 }
 
 .mc-header-dismissible:hover {
-  background: linear-gradient(var(--overlay-white-5), var(--overlay-white-5)), var(--color-bg-inverse);
+  background:
+    linear-gradient(var(--overlay-white-5), var(--overlay-white-5)), var(--color-bg-inverse);
 }
 
 .mc-header-dismissible:active {
-  background: linear-gradient(var(--overlay-white-10), var(--overlay-white-10)), var(--color-bg-inverse);
+  background:
+    linear-gradient(var(--overlay-white-10), var(--overlay-white-10)), var(--color-bg-inverse);
 }
 
 /* Dismiss hint - shows "tap to close" on hover/focus */
@@ -116,7 +123,9 @@
   font-weight: 500;
   color: var(--overlay-white-50);
   opacity: 0;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
   pointer-events: none;
   z-index: var(--z-elevated);
 }
@@ -126,8 +135,14 @@
 }
 
 @keyframes bounce-down {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(2px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(2px);
+  }
 }
 
 /* Show hint on hover */
@@ -188,7 +203,8 @@
 }
 
 @keyframes pulse-attention {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     box-shadow: 0 0 8px var(--overlay-orange-40);
   }
@@ -493,81 +509,81 @@
 
 /* Panel */
 .dark .mc-panel,
-[data-theme="dark"] .mc-panel {
+[data-theme='dark'] .mc-panel {
   background: var(--color-bg-primary);
   box-shadow: 0 32px 64px var(--overlay-black-50);
 }
 
 /* Tabs - dark background */
 .dark .mc-tabs,
-[data-theme="dark"] .mc-tabs {
+[data-theme='dark'] .mc-tabs {
   background: var(--color-bg-secondary);
   border-bottom-color: var(--color-border);
 }
 
 .dark .mc-tab,
-[data-theme="dark"] .mc-tab {
+[data-theme='dark'] .mc-tab {
   color: var(--color-text-tertiary);
 }
 
 .dark .mc-tab:hover,
-[data-theme="dark"] .mc-tab:hover {
+[data-theme='dark'] .mc-tab:hover {
   color: var(--color-text-secondary);
   background: var(--overlay-white-5);
 }
 
 .dark .mc-tab.active,
-[data-theme="dark"] .mc-tab.active {
+[data-theme='dark'] .mc-tab.active {
   color: var(--color-text-primary);
   background: var(--color-bg-tertiary);
   box-shadow: 0 1px 3px var(--overlay-black-30);
 }
 
 .dark .mc-tab.active::after,
-[data-theme="dark"] .mc-tab.active::after {
+[data-theme='dark'] .mc-tab.active::after {
   background: var(--color-brand-primary);
 }
 
 /* Content area */
 .dark .mc-content,
-[data-theme="dark"] .mc-content {
+[data-theme='dark'] .mc-content {
   background: var(--color-bg-primary);
 }
 
 /* Company dropdown */
 .dark .mc-company-dropdown,
-[data-theme="dark"] .mc-company-dropdown {
+[data-theme='dark'] .mc-company-dropdown {
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   box-shadow: 0 8px 24px var(--overlay-black-40);
 }
 
 .dark .mc-company-option,
-[data-theme="dark"] .mc-company-option {
+[data-theme='dark'] .mc-company-option {
   color: var(--color-text-primary);
 }
 
 .dark .mc-company-option:hover,
-[data-theme="dark"] .mc-company-option:hover {
+[data-theme='dark'] .mc-company-option:hover {
   background: var(--color-bg-tertiary);
 }
 
 .dark .mc-company-option.active,
-[data-theme="dark"] .mc-company-option.active {
+[data-theme='dark'] .mc-company-option.active {
   background: var(--overlay-emerald-15);
 }
 
 .dark .mc-company-option-name,
-[data-theme="dark"] .mc-company-option-name {
+[data-theme='dark'] .mc-company-option-name {
   color: var(--color-text-primary);
 }
 
 .dark .mc-company-option.active .mc-company-option-name,
-[data-theme="dark"] .mc-company-option.active .mc-company-option-name {
+[data-theme='dark'] .mc-company-option.active .mc-company-option-name {
   color: var(--color-emerald-400);
 }
 
 .dark .mc-company-option:not(:last-child),
-[data-theme="dark"] .mc-company-option:not(:last-child) {
+[data-theme='dark'] .mc-company-option:not(:last-child) {
   border-bottom-color: var(--color-border);
 }

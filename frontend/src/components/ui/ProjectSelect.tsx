@@ -32,7 +32,9 @@ import './ProjectSelect.css';
 // Check if we're on mobile/tablet for bottom sheet vs dropdown
 const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
 
-interface ProjectSelectItemProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item> {
+interface ProjectSelectItemProps extends React.ComponentPropsWithoutRef<
+  typeof SelectPrimitive.Item
+> {
   isCreate?: boolean;
   isCurrent?: boolean;
 }
@@ -41,20 +43,14 @@ interface ProjectSelectItemProps extends React.ComponentPropsWithoutRef<typeof S
 const ProjectSelectItem = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Item>,
   ProjectSelectItemProps
->(({
-  className,
-  children,
-  isCreate = false,
-  isCurrent = false,
-  ...props
-}, ref) => {
+>(({ className, children, isCreate = false, isCurrent = false, ...props }, ref) => {
   return (
     <SelectPrimitive.Item
       ref={ref}
       className={cn(
-        "project-select-item",
-        isCreate && "project-select-item-create",
-        isCurrent && "project-select-item-current",
+        'project-select-item',
+        isCreate && 'project-select-item-create',
+        isCurrent && 'project-select-item-current',
         className
       )}
       {...props}
@@ -99,7 +95,8 @@ export function ProjectSelect({
   const [open, setOpen] = React.useState(false);
 
   // Get display name for current value
-  const selectedProject = value && value !== '__create__' ? projects.find(p => p.id === value) : null;
+  const selectedProject =
+    value && value !== '__create__' ? projects.find((p) => p.id === value) : null;
   const hasSelection = !!selectedProject;
 
   const getDisplayName = () => {
@@ -125,7 +122,7 @@ export function ProjectSelect({
     return (
       <>
         <button
-          className={cn("project-select-trigger", hasSelection && "has-selection", className)}
+          className={cn('project-select-trigger', hasSelection && 'has-selection', className)}
           disabled={disabled}
           onClick={() => setOpen(true)}
           type="button"
@@ -139,39 +136,40 @@ export function ProjectSelect({
           <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
         </button>
 
-        <BottomSheet
-          isOpen={open}
-          onClose={() => setOpen(false)}
-          title="Select Project"
-        >
+        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title="Select Project">
           <div className="project-select-list-mobile">
             {includeCreate && (
               <button
                 className={cn(
-                  "project-select-item-mobile project-select-item-create-mobile",
-                  (!value || value === '__create__') && "selected"
+                  'project-select-item-mobile project-select-item-create-mobile',
+                  (!value || value === '__create__') && 'selected'
                 )}
                 onClick={() => handleSelect('__create__')}
                 type="button"
               >
-                <div className={cn("project-select-radio", (!value || value === '__create__') && "checked")}>
+                <div
+                  className={cn(
+                    'project-select-radio',
+                    (!value || value === '__create__') && 'checked'
+                  )}
+                >
                   {(!value || value === '__create__') && <Check className="h-3 w-3" />}
                 </div>
                 <Plus className="h-4 w-4 project-select-create-icon-mobile" />
                 <span className="project-select-item-label">{createLabel}</span>
               </button>
             )}
-            {projects.map(project => {
+            {projects.map((project) => {
               const isSelected = project.id === value;
               const isCurrent = project.id === currentProjectId;
               return (
                 <button
                   key={project.id}
-                  className={cn("project-select-item-mobile", isSelected && "selected")}
+                  className={cn('project-select-item-mobile', isSelected && 'selected')}
                   onClick={() => handleSelect(project.id)}
                   type="button"
                 >
-                  <div className={cn("project-select-radio", isSelected && "checked")}>
+                  <div className={cn('project-select-radio', isSelected && 'checked')}>
                     {isSelected && <Check className="h-3 w-3" />}
                   </div>
                   <FolderKanban className="h-4 w-4 project-select-icon-mobile" />
@@ -188,9 +186,13 @@ export function ProjectSelect({
 
   // Desktop: use Radix Select
   return (
-    <SelectPrimitive.Root value={value || '__create__'} onValueChange={handleValueChange} disabled={disabled}>
+    <SelectPrimitive.Root
+      value={value || '__create__'}
+      onValueChange={handleValueChange}
+      disabled={disabled}
+    >
       <SelectPrimitive.Trigger
-        className={cn("project-select-trigger", hasSelection && "has-selection", className)}
+        className={cn('project-select-trigger', hasSelection && 'has-selection', className)}
       >
         {hasSelection ? (
           <FolderKanban className="h-3.5 w-3.5 project-select-trigger-icon" />
@@ -216,7 +218,7 @@ export function ProjectSelect({
                 {createLabel}
               </ProjectSelectItem>
             )}
-            {projects.map(project => (
+            {projects.map((project) => (
               <ProjectSelectItem
                 key={project.id}
                 value={project.id}

@@ -321,10 +321,7 @@ export function staggerDelay(index: number, baseDelay = 0.05): number {
 /**
  * Get spring transition with optional delay
  */
-export function springWithDelay(
-  preset: keyof typeof springs = 'smooth',
-  delay = 0
-): Transition {
+export function springWithDelay(preset: keyof typeof springs = 'smooth', delay = 0): Transition {
   return {
     ...springs[preset],
     delay,
@@ -334,9 +331,7 @@ export function springWithDelay(
 /**
  * Combine multiple transition configs
  */
-export function combineTransitions(
-  ...configs: Partial<Transition>[]
-): Transition {
+export function combineTransitions(...configs: Partial<Transition>[]): Transition {
   return configs.reduce((acc, config) => ({ ...acc, ...config }), {}) as Transition;
 }
 
