@@ -561,7 +561,7 @@ async def send_message(
                 # Log activity for the Activity tab
                 try:
                     # Use generated title, or truncate user message as fallback
-                    activity_title = title if title else (body.message[:80] + '...' if len(body.message) > 80 else body.message)
+                    activity_title = title if title else (body.content[:80] + '...' if len(body.content) > 80 else body.content)
                     await log_activity(
                         company_id=company_uuid,
                         event_type="council_session",
@@ -625,7 +625,8 @@ async def send_message(
             yield f"data: {json.dumps({'type': 'complete'})}\n\n"
 
         except Exception as e:
-            log_app_event("STREAM: Exception in event_generator", level="ERROR")
+            import traceback
+            log_app_event("STREAM: Exception in event_generator", level="ERROR", error=str(e), traceback=traceback.format_exc())
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
         finally:
             if api_key_token:
