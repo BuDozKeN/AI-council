@@ -8,7 +8,8 @@ from .context_loader import (
     get_system_prompt_with_context,
     wrap_user_query,
     detect_suspicious_query,
-    sanitize_user_content
+    sanitize_user_content,
+    validate_llm_output
 )
 from .model_registry import get_primary_model, get_models_sync
 from .security import log_app_event
@@ -629,12 +630,37 @@ Provide a clear, well-reasoned final answer that represents the council's collec
         final_content = "[Error: All chairman models failed. Please try again.]"
         successful_chairman = CHAIRMAN_MODELS[0]  # Report as primary for consistency
 
+    # SECURITY: Validate Stage 3 output before returning to user
+    # This catches system prompt leakage, harmful content, and injection echoes
+    output_validation = validate_llm_output(final_content)
+
+    if output_validation['issues']:
+        # Log security issues for monitoring
+        log_app_event(
+            "OUTPUT_VALIDATION_ISSUES",
+            level="WARNING" if output_validation['is_safe'] else "ERROR",
+            risk_level=output_validation['risk_level'],
+            issues=[{
+                'type': issue['type'],
+                'severity': issue['severity']
+            } for issue in output_validation['issues']],
+            model=successful_chairman
+        )
+
+    # Use filtered output (with sensitive data redacted) if needed
+    validated_content = output_validation['filtered_output']
+
     yield {
         "type": "stage3_complete",
         "data": {
             "model": successful_chairman,
-            "response": final_content,
-            "usage": chairman_usage
+            "response": validated_content,
+            "usage": chairman_usage,
+            "security_validation": {
+                "is_safe": output_validation['is_safe'],
+                "risk_level": output_validation['risk_level'],
+                "issue_count": len(output_validation['issues'])
+            }
         }
     }
 

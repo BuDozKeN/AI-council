@@ -683,6 +683,156 @@ def detect_suspicious_query(query: str) -> dict:
     }
 
 
+def validate_llm_output(output: str) -> dict:
+    """
+    Validate LLM output for security issues before returning to user.
+
+    Detects:
+    1. System prompt leakage (LLM accidentally revealing system instructions)
+    2. Harmful content patterns (dangerous advice, illegal activities)
+    3. Privacy leakage (personal data, internal references)
+    4. Injection echo (output reflecting injection attempts)
+
+    Args:
+        output: The LLM's generated response
+
+    Returns:
+        Dict with 'is_safe', 'issues', 'filtered_output', 'risk_level'
+    """
+    import re
+
+    if not output:
+        return {
+            'is_safe': True,
+            'issues': [],
+            'filtered_output': output,
+            'risk_level': 'none'
+        }
+
+    issues = []
+    risk_score = 0
+    filtered_output = output
+
+    # =============================================
+    # 1. SYSTEM PROMPT LEAKAGE DETECTION
+    # =============================================
+    # Patterns that suggest the model is revealing its instructions
+    leakage_patterns = [
+        # Direct instruction exposure
+        (r'my\s+(system\s+)?instructions?\s+(are|say|tell)', 'instruction_disclosure', 'high'),
+        (r'i\s+(was|am)\s+(told|instructed|programmed)\s+to', 'instruction_disclosure', 'high'),
+        (r'my\s+(system\s+)?prompt\s+(says?|is|contains?)', 'prompt_disclosure', 'critical'),
+        (r'the\s+system\s+prompt\s+(says?|is|contains?)', 'prompt_disclosure', 'critical'),
+        (r'here\s+(is|are)\s+my\s+instructions?', 'instruction_disclosure', 'critical'),
+
+        # Context leakage indicators
+        (r'=== (COMPANY|ROLE|DEPARTMENT|PROJECT) CONTEXT ===', 'context_boundary_leak', 'high'),
+        (r'=== END (COMPANY|ROLE|DEPARTMENT) ===', 'context_boundary_leak', 'high'),
+        (r'USER_QUERY_(START|END)', 'delimiter_leak', 'critical'),
+        (r'MODEL_RESPONSE_(START|END)', 'delimiter_leak', 'critical'),
+        (r'AX_SECURE_BOUNDARY', 'delimiter_leak', 'critical'),
+
+        # Internal reference patterns
+        (r'supabase[._]', 'internal_reference', 'medium'),
+        (r'api[._]key', 'internal_reference', 'high'),
+        (r'secret[._]key', 'internal_reference', 'high'),
+        (r'openrouter', 'internal_reference', 'medium'),
+    ]
+
+    # =============================================
+    # 2. HARMFUL CONTENT DETECTION
+    # =============================================
+    harmful_patterns = [
+        # Dangerous advice
+        (r'how\s+to\s+(make|build|create)\s+(a\s+)?(bomb|explosive|weapon)', 'dangerous_instructions', 'critical'),
+        (r'instructions?\s+for\s+(hacking|breaking\s+into)', 'dangerous_instructions', 'critical'),
+
+        # Self-harm indicators (should flag for review)
+        (r'(ways?|how)\s+to\s+(harm|hurt|kill)\s+(yourself|oneself)', 'self_harm_content', 'critical'),
+
+        # Illegal activity encouragement
+        (r'here\'?s?\s+how\s+to\s+(steal|fraud|evade\s+taxes)', 'illegal_advice', 'critical'),
+    ]
+
+    # =============================================
+    # 3. INJECTION ECHO DETECTION
+    # =============================================
+    # Detect if output contains injection attempts (reflected attacks)
+    injection_echo_patterns = [
+        (r'\[BLOCKED\].*\[BLOCKED\].*\[BLOCKED\]', 'injection_echo', 'high'),  # Multiple blocked markers
+        (r'<\|im_start\|>', 'chat_ml_echo', 'critical'),
+        (r'<<SYS>>', 'llama_format_echo', 'critical'),
+        (r'\[INST\]', 'llama_format_echo', 'critical'),
+        (r'IGNORE\s+(ALL\s+)?PREVIOUS\s+INSTRUCTIONS?', 'injection_echo', 'critical'),
+    ]
+
+    output_lower = output.lower()
+
+    # Check all pattern categories
+    all_patterns = leakage_patterns + harmful_patterns + injection_echo_patterns
+
+    for pattern, issue_type, severity in all_patterns:
+        if re.search(pattern, output_lower if severity != 'critical' else output, re.IGNORECASE):
+            issues.append({
+                'type': issue_type,
+                'severity': severity,
+                'pattern': pattern[:50]  # Truncate for logging
+            })
+            if severity == 'critical':
+                risk_score += 5
+            elif severity == 'high':
+                risk_score += 3
+            else:
+                risk_score += 1
+
+    # =============================================
+    # 4. SENSITIVE DATA PATTERN DETECTION
+    # =============================================
+    # Look for accidental PII or credential exposure in output
+    pii_patterns = [
+        (r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', 'email_in_output', 'medium'),
+        (r'\b(?:sk-|pk_live_|sk_live_|rk_live_)[a-zA-Z0-9]{20,}\b', 'api_key_in_output', 'critical'),
+        (r'\bpassword\s*[=:]\s*[\'"][^\'"]+[\'"]', 'password_in_output', 'critical'),
+    ]
+
+    for pattern, issue_type, severity in pii_patterns:
+        matches = re.findall(pattern, output, re.IGNORECASE)
+        if matches:
+            issues.append({
+                'type': issue_type,
+                'severity': severity,
+                'count': len(matches)
+            })
+            if severity == 'critical':
+                risk_score += 5
+                # Redact the sensitive content
+                filtered_output = re.sub(pattern, '[REDACTED]', filtered_output, flags=re.IGNORECASE)
+            elif severity == 'high':
+                risk_score += 3
+
+    # =============================================
+    # 5. DETERMINE RISK LEVEL
+    # =============================================
+    if risk_score >= 10:
+        risk_level = 'critical'
+    elif risk_score >= 5:
+        risk_level = 'high'
+    elif risk_score >= 2:
+        risk_level = 'medium'
+    elif risk_score >= 1:
+        risk_level = 'low'
+    else:
+        risk_level = 'none'
+
+    return {
+        'is_safe': risk_level in ('none', 'low'),
+        'issues': issues,
+        'filtered_output': filtered_output,
+        'risk_level': risk_level,
+        'risk_score': risk_score
+    }
+
+
 def format_playbooks_for_prompt(playbooks: List[Dict[str, Any]]) -> str:
     """Format playbooks as markdown for injection into system prompt."""
     if not playbooks:
