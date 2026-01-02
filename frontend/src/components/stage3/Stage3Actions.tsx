@@ -32,13 +32,19 @@ interface Stage3ActionsProps {
   selectedProjectId: string | null;
   setSelectedProjectId: (id: string | null) => void;
   onSelectProject?: ((id: string | null) => void) | undefined;
-  onCreateProject?: ((data: { userQuestion: string; councilResponse: string; departmentIds: string[] }) => void) | undefined;
+  onCreateProject?:
+    | ((data: { userQuestion: string; councilResponse: string; departmentIds: string[] }) => void)
+    | undefined;
   saveState: SaveState;
   savedDecisionId: string | null;
   promotedPlaybookId: string | null;
   handleSaveForLater: () => void;
   handleSaveAndPromote: () => void;
-  handleViewDecision: (decisionId: string, targetType?: string | undefined, targetId?: string | undefined) => void;
+  handleViewDecision: (
+    decisionId: string,
+    targetType?: string | undefined,
+    targetId?: string | undefined
+  ) => void;
   checkDecisionStatus: (force?: boolean | undefined) => Promise<void>;
   userQuestion: string;
   displayText: string;
@@ -68,10 +74,9 @@ export function Stage3Actions({
   handleViewDecision,
   checkDecisionStatus,
   userQuestion,
-  displayText
+  displayText,
 }: Stage3ActionsProps) {
   const [showProjectDropdown, setShowProjectDropdown] = useState(false);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
 
   return (
     <div className="stage3-actions">
@@ -108,8 +113,6 @@ export function Stage3Actions({
             setSelectedProjectId={setSelectedProjectId}
             showProjectDropdown={showProjectDropdown}
             setShowProjectDropdown={setShowProjectDropdown}
-            dropdownPosition={dropdownPosition}
-            setDropdownPosition={setDropdownPosition}
             onSelectProject={onSelectProject}
             onCreateProject={onCreateProject}
             saveState={saveState}
@@ -129,11 +132,15 @@ export function Stage3Actions({
         </div>
 
         {/* Save/Access button */}
-        {(saveState === 'saved' || saveState === 'promoted') ? (
+        {saveState === 'saved' || saveState === 'promoted' ? (
           <div className="save-status-group">
             <span className="save-status-text">
               <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                <path
+                  fillRule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
               </svg>
               Decision saved
             </span>
@@ -152,7 +159,11 @@ export function Stage3Actions({
                 }
               }}
             >
-              {promotedPlaybookId ? 'View Playbook' : currentProject ? 'View in Project' : 'View Decision'}
+              {promotedPlaybookId
+                ? 'View Playbook'
+                : currentProject
+                  ? 'View in Project'
+                  : 'View Decision'}
             </button>
           </div>
         ) : (
@@ -160,13 +171,15 @@ export function Stage3Actions({
             className={`save-action-btn ${saveState === 'saving' || saveState === 'promoting' ? 'loading' : ''}`}
             onClick={selectedDocType ? handleSaveAndPromote : handleSaveForLater}
             disabled={saveState === 'saving' || saveState === 'promoting'}
-            title={currentProject
-              ? 'Save this answer and add it to your project'
-              : selectedDocType
-                ? `Save as ${selectedDocType.toUpperCase()} to your knowledge base`
-                : 'Save this answer to access it later from My Company'}
+            title={
+              currentProject
+                ? 'Save this answer and add it to your project'
+                : selectedDocType
+                  ? `Save as ${selectedDocType.toUpperCase()} to your knowledge base`
+                  : 'Save this answer to access it later from My Company'
+            }
           >
-            {(saveState === 'saving' || saveState === 'promoting') ? (
+            {saveState === 'saving' || saveState === 'promoting' ? (
               <>
                 <Spinner size="sm" variant="muted" />
                 <span>Saving...</span>
