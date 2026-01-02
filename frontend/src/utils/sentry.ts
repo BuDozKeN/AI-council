@@ -71,8 +71,22 @@ export function initSentry() {
       /registerSW\.js/i,
     ],
 
-    // Don't send PII
+    // Don't send PII and filter out deployment-related errors
     beforeSend(event) {
+      // Get error message from exception or event
+      const errorValue = event.exception?.values?.[0]?.value || event.message || '';
+
+      // Filter out CSS/chunk preload errors (stale cache after deployments)
+      // These are handled by auto-reload in main.tsx - no need to report
+      if (
+        errorValue.includes('Unable to preload CSS') ||
+        errorValue.includes('Failed to fetch dynamically') ||
+        errorValue.includes('dynamically imported module') ||
+        (errorValue.includes('/assets/') && errorValue.includes('preload'))
+      ) {
+        return null; // Drop the event
+      }
+
       // Remove any email addresses from error messages
       if (event.message) {
         event.message = event.message.replace(
