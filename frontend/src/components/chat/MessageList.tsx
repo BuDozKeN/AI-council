@@ -186,7 +186,7 @@ function UserMessage({ content }: { content: string }) {
         transition={{ type: 'spring', stiffness: 400, damping: 30 }}
       >
         {/* Sticky copy button - stays visible when scrolling long content */}
-        <CopyButton text={content} size="sm" className="user-copy-btn" />
+        <CopyButton text={content} size="sm" className="user-copy-btn no-touch-target" />
 
         <div className="user-collapse-row" onClick={() => setIsCollapsed(!isCollapsed)}>
           <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
@@ -277,10 +277,10 @@ export function MessageList({
               {/* For chat-only messages, show a simpler response */}
               {msg.isChat ? (
                 /* Chat-only response - just show the response directly */
-                <div className="chat-response">
+                <div className="chat-response" aria-busy={msg.loading?.stage3 || !!msg.stage3Streaming} aria-live="polite">
                   <div className="chat-label">Response</div>
                   {msg.stage3Streaming ? (
-                    <div className="markdown-content">
+                    <div className="markdown-content" aria-label="Streaming response">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
                         {msg.stage3Streaming.text || ''}
                       </ReactMarkdown>
@@ -323,6 +323,7 @@ export function MessageList({
                           conversationTitle={conversation?.title ?? null}
                           responseIndex={index}
                           userQuestion={userQuestion}
+                          {...(msg.usage ? { usage: msg.usage } : {})}
                           {...(projects.length > 0 ? { projects } : {})}
                           {...(selectedProject !== undefined
                             ? { currentProjectId: selectedProject }

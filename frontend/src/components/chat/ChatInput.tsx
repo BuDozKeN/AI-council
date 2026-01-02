@@ -19,15 +19,18 @@ import {
   ScrollText,
   Shield,
   ChevronRight,
+  FolderKanban,
+  RotateCcw,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from '../ui/BottomSheet';
 import { DepartmentCheckboxItem } from '../ui/DepartmentCheckboxItem';
 import type { ReactNode, KeyboardEvent, ClipboardEvent } from 'react';
-import type { Department, Role, Playbook } from '../../types/business';
+import type { Department, Role, Playbook, Project } from '../../types/business';
 
 // Mom-friendly tooltip descriptions - actionable, clear
 const TOOLTIPS = {
+  projects: 'Focus the answer on a specific project',
   departments: "Include your team's expertise in the answer",
   roles: 'Add specific expert perspectives (CEO, Analyst, etc.)',
   playbooks: "Apply your company's guides to the answer",
@@ -35,6 +38,7 @@ const TOOLTIPS = {
   chatMode: 'Quick answer from one AI — faster, simpler',
   send: 'Send your question',
   stop: 'Stop the AI from writing more',
+  reset: 'Clear all selections',
 };
 
 // Check if we're on mobile/tablet for bottom sheet vs popover
@@ -60,6 +64,11 @@ interface ChatInputProps {
   // Context props for follow-ups
   chatMode?: 'chat' | 'council';
   onChatModeChange?: (mode: 'chat' | 'council') => void;
+  // Projects
+  projects?: Project[];
+  selectedProject?: string | null;
+  onSelectProject?: (id: string | null) => void;
+  // Departments, roles, playbooks
   departments?: Department[];
   selectedDepartments?: string[];
   onSelectDepartments?: (ids: string[]) => void;
@@ -69,6 +78,8 @@ interface ChatInputProps {
   playbooks?: Playbook[];
   selectedPlaybooks?: string[];
   onSelectPlaybooks?: (ids: string[]) => void;
+  // Reset all selections
+  onResetAll?: () => void;
 }
 
 export function ChatInput({
@@ -84,6 +95,9 @@ export function ChatInput({
   // Context props
   chatMode = 'council',
   onChatModeChange,
+  projects = [],
+  selectedProject = null,
+  onSelectProject,
   departments = [],
   selectedDepartments = [],
   onSelectDepartments,
@@ -93,7 +107,9 @@ export function ChatInput({
   playbooks = [],
   selectedPlaybooks = [],
   onSelectPlaybooks,
+  onResetAll,
 }: ChatInputProps) {
+  const [projectOpen, setProjectOpen] = useState(false);
   const [deptOpen, setDeptOpen] = useState(false);
   const [roleOpen, setRoleOpen] = useState(false);
   const [playbookOpen, setPlaybookOpen] = useState(false);
@@ -114,9 +130,22 @@ export function ChatInput({
 
   // Show context icons only for follow-ups
   const showContextIcons = hasMessages && onChatModeChange;
+  const hasProjects = projects.length > 0 && onSelectProject;
   const hasDepartments = departments.length > 0 && onSelectDepartments;
   const hasRoles = roles.length > 0 && onSelectRoles;
   const hasPlaybooks = playbooks.length > 0 && onSelectPlaybooks;
+
+  // Check if there are any selections (for showing reset button)
+  const hasAnySelections =
+    !!selectedProject ||
+    selectedDepartments.length > 0 ||
+    selectedRoles.length > 0 ||
+    selectedPlaybooks.length > 0;
+
+  // Get selected project name for display
+  const selectedProjectName = selectedProject
+    ? projects.find((p) => p.id === selectedProject)?.name
+    : null;
 
   // Toggle helpers
   const toggleDepartment = (id: string) => {
@@ -142,6 +171,35 @@ export function ChatInput({
       : [...selectedPlaybooks, id];
     onSelectPlaybooks(newSelection);
   };
+
+  // Project list content - single select (radio-style)
+  const projectList = (
+    <div className="context-popover-list">
+      {projects.length === 0 ? (
+        <div className="context-popover-empty">No projects</div>
+      ) : (
+        projects.filter((p) => p.status === 'active').map((proj) => {
+          const isSelected = selectedProject === proj.id;
+          return (
+            <button
+              key={proj.id}
+              className={cn('context-popover-item', isSelected && 'selected')}
+              onClick={() => {
+                onSelectProject?.(isSelected ? null : proj.id);
+                setProjectOpen(false);
+              }}
+              type="button"
+            >
+              <div className={cn('context-popover-radio', isSelected && 'checked')}>
+                {isSelected && <Check size={10} />}
+              </div>
+              <span>{proj.name}</span>
+            </button>
+          );
+        })
+      )}
+    </div>
+  );
 
   // Department list content - uses shared DepartmentCheckboxItem for consistency with Stage3
   const departmentList = (
@@ -303,7 +361,8 @@ export function ChatInput({
     open: boolean,
     setOpen: (open: boolean) => void,
     content: React.ReactNode,
-    colorClass?: string
+    colorClass?: string,
+    onClear?: () => void
   ) => {
     const iconButton = (
       <button
@@ -318,11 +377,46 @@ export function ChatInput({
       </button>
     );
 
+    // Header with optional Clear button (matches OmniBar)
+    const header = (
+      <div className="context-popover-header">
+        <span>{label}</span>
+        {count > 0 && onClear && (
+          <button
+            type="button"
+            className="context-popover-clear"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClear();
+            }}
+          >
+            Clear
+          </button>
+        )}
+      </div>
+    );
+
     if (isMobile) {
       return (
         <>
           {withTooltip(iconButton, tooltipText)}
-          <BottomSheet isOpen={open} onClose={() => setOpen(false)} title={label}>
+          <BottomSheet
+            isOpen={open}
+            onClose={() => setOpen(false)}
+            title={label}
+            headerAction={count > 0 && onClear ? (
+              <button
+                type="button"
+                className="context-popover-clear"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClear();
+                }}
+              >
+                Clear
+              </button>
+            ) : undefined}
+          >
             {content}
           </BottomSheet>
         </>
@@ -346,7 +440,7 @@ export function ChatInput({
         </Tooltip.Provider>
         <Popover.Portal>
           <Popover.Content className="context-popover-content" align="start" sideOffset={8}>
-            <div className="context-popover-header">{label}</div>
+            {header}
             {content}
           </Popover.Content>
         </Popover.Portal>
@@ -386,39 +480,73 @@ export function ChatInput({
           <div className="omni-left">
             {showContextIcons && (
               <>
-                {hasDepartments &&
-                  renderContextIcon(
-                    <Building2 size={16} />,
-                    'Departments',
-                    TOOLTIPS.departments,
-                    selectedDepartments.length,
-                    deptOpen,
-                    setDeptOpen,
-                    departmentList,
-                    'dept'
-                  )}
-                {hasRoles &&
-                  renderContextIcon(
-                    <Users size={16} />,
-                    'Roles',
-                    TOOLTIPS.roles,
-                    selectedRoles.length,
-                    roleOpen,
-                    setRoleOpen,
-                    roleList,
-                    'role'
-                  )}
-                {hasPlaybooks &&
-                  renderContextIcon(
-                    <BookOpen size={16} />,
-                    'Playbooks',
-                    TOOLTIPS.playbooks,
-                    selectedPlaybooks.length,
-                    playbookOpen,
-                    setPlaybookOpen,
-                    playbookList,
-                    'playbook'
-                  )}
+                {/* Context icons capsule - groups related icons visually */}
+                <div className="context-icons-capsule">
+                  {hasProjects &&
+                    renderContextIcon(
+                      <FolderKanban size={16} />,
+                      selectedProjectName || 'Project',
+                      TOOLTIPS.projects,
+                      selectedProject ? 1 : 0,
+                      projectOpen,
+                      setProjectOpen,
+                      projectList,
+                      'project',
+                      () => onSelectProject?.(null)
+                    )}
+                  {hasDepartments &&
+                    renderContextIcon(
+                      <Building2 size={16} />,
+                      'Departments',
+                      TOOLTIPS.departments,
+                      selectedDepartments.length,
+                      deptOpen,
+                      setDeptOpen,
+                      departmentList,
+                      'dept',
+                      () => onSelectDepartments?.([])
+                    )}
+                  {hasRoles &&
+                    renderContextIcon(
+                      <Users size={16} />,
+                      'Roles',
+                      TOOLTIPS.roles,
+                      selectedRoles.length,
+                      roleOpen,
+                      setRoleOpen,
+                      roleList,
+                      'role',
+                      () => onSelectRoles?.([])
+                    )}
+                  {hasPlaybooks &&
+                    renderContextIcon(
+                      <BookOpen size={16} />,
+                      'Playbooks',
+                      TOOLTIPS.playbooks,
+                      selectedPlaybooks.length,
+                      playbookOpen,
+                      setPlaybookOpen,
+                      playbookList,
+                      'playbook',
+                      () => onSelectPlaybooks?.([])
+                    )}
+                </div>
+
+                {/* Reset All button - outside capsule, smaller */}
+                {hasAnySelections && onResetAll && (
+                  withTooltip(
+                    <button
+                      type="button"
+                      className="omni-reset-all no-touch-target"
+                      onClick={onResetAll}
+                      disabled={disabled}
+                      aria-label="Reset all selections"
+                    >
+                      <RotateCcw size={12} />
+                    </button>,
+                    TOOLTIPS.reset
+                  )
+                )}
 
                 {/* Mode toggle - clear "1 AI / 5 AIs" pill */}
                 <div
@@ -429,7 +557,7 @@ export function ChatInput({
                   {withTooltip(
                     <button
                       type="button"
-                      className={cn('inline-mode-btn', chatMode === 'chat' && 'active')}
+                      className={cn('inline-mode-btn no-touch-target', chatMode === 'chat' && 'active')}
                       onClick={() => !disabled && onChatModeChange?.('chat')}
                       disabled={disabled}
                       role="radio"
@@ -442,7 +570,7 @@ export function ChatInput({
                   {withTooltip(
                     <button
                       type="button"
-                      className={cn('inline-mode-btn', chatMode === 'council' && 'active')}
+                      className={cn('inline-mode-btn no-touch-target', chatMode === 'council' && 'active')}
                       onClick={() => !disabled && onChatModeChange?.('council')}
                       disabled={disabled}
                       role="radio"

@@ -45,6 +45,17 @@ export default defineConfig(({ mode }) => ({
             type: 'image/png',
           },
           {
+            src: 'pwa-192x192.svg',
+            sizes: '192x192',
+            type: 'image/svg+xml',
+          },
+          {
+            src: 'pwa-512x512.svg',
+            sizes: '512x512',
+            type: 'image/svg+xml',
+            purpose: 'any maskable',
+          },
+          {
             src: 'favicon.svg',
             sizes: 'any',
             type: 'image/svg+xml',

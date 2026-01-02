@@ -260,6 +260,26 @@ async def get_llm_usage(
     avg_tokens = total_tokens / total_sessions if total_sessions > 0 else 0
     cache_hit_rate = (total_cache_read / total_input * 100) if total_input > 0 else 0
 
+    # Get parse failure stats
+    parse_failures = 0
+    try:
+        pf_result = client.table("parse_failures").select(
+            "id", count="exact"
+        ).eq("company_id", company_uuid).gte(
+            "created_at", f"now() - interval '{days} days'"
+        ).execute()
+        parse_failures = pf_result.count or 0
+    except Exception:
+        pass  # Table might not exist yet (migration pending)
+
+    # Calculate parse success rate
+    # Estimate total rankings: council_sessions * 6 (6 Stage 2 reviewers per session)
+    total_rankings = total_council_sessions * 6
+    parse_success_rate = (
+        ((total_rankings - parse_failures) / total_rankings * 100)
+        if total_rankings > 0 else 100.0
+    )
+
     return {
         'summary': {
             'total_sessions': total_sessions,
@@ -275,6 +295,8 @@ async def get_llm_usage(
             'council_cost_cents': total_council_cost,
             'internal_sessions': total_internal_sessions,
             'internal_cost_cents': total_internal_cost,
+            'parse_success_rate': round(parse_success_rate, 1),
+            'parse_failures': parse_failures,
         },
         'daily': daily,
         'models': models,

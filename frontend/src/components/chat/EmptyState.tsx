@@ -1,38 +1,51 @@
 /**
  * EmptyState - Welcome screen when no conversation selected or conversation has no messages
  *
+ * These components use the unified ui/EmptyState component for consistent styling.
  * Extracted from ChatInterface.jsx for better maintainability.
  */
 
+import { Clock } from 'lucide-react';
+import { EmptyState } from '../ui/EmptyState';
+
+/**
+ * Branded welcome screen shown when no conversation is selected.
+ * Uses custom AX logo icon.
+ */
 export function WelcomeState() {
+  const brandedIcon = (
+    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg">
+      <span className="text-white font-bold text-2xl">AX</span>
+    </div>
+  );
+
   return (
     <div className="chat-interface">
-      <div className="empty-state">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg">
-          <span className="text-white font-bold text-2xl">AX</span>
-        </div>
-        <h2 className="text-2xl font-semibold text-gray-900 mb-2">Welcome to AxCouncil</h2>
-        <p className="text-gray-500">Your AI council is ready. What decision can we help with?</p>
-      </div>
+      <EmptyState
+        variant="large"
+        customIcon={brandedIcon}
+        title="Welcome to AxCouncil"
+        message="Your AI council is ready. What decision can we help with?"
+      />
     </div>
   );
 }
 
+/**
+ * Empty state shown when a conversation has no messages yet.
+ * Shows hints to help users get started.
+ */
 export function ConversationEmptyState() {
   return (
-    <div className="empty-state">
-      <div className="empty-state-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-          <path d="M12 6v6l4 2" />
-          <circle cx="12" cy="12" r="10" />
-        </svg>
-      </div>
-      <h2>Ask the Council</h2>
-      <p>5 AI advisors will debate your question and synthesize the best answer</p>
-      <div className="empty-state-hints">
-        <span className="hint-item">Try: "What's the best approach to..."</span>
-        <span className="hint-item">Paste images with Ctrl+V</span>
-      </div>
-    </div>
+    <EmptyState
+      variant="large"
+      icon={Clock}
+      title="Ask the Council"
+      message="5 AI advisors will debate your question and synthesize the best answer"
+      hints={[
+        "Try: \"What's the best approach to...\"",
+        "Paste images with Ctrl+V"
+      ]}
+    />
   );
 }

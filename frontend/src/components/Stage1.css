@@ -201,44 +201,29 @@
 .stage1 .model-card-name {
   font-size: 11px;
   font-weight: 600;
-  text-transform: uppercase;
   color: var(--color-slate-500);
-  letter-spacing: 0.05em;
 }
 
 /* Rank badge - shows council ranking position */
 .stage1 .model-card-rank {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
-  padding: 2px 6px;
-  border-radius: var(--radius-sm);
-  background: var(--color-slate-100);
-  color: var(--color-slate-600);
   margin-left: auto;
   flex-shrink: 0;
+  /* No background - just show medal emoji or #N */
 }
 
-/* Rank badges - iris for winner, subtle for others */
-.stage1 .model-card-rank.rank-1 {
-  background: var(--color-indigo-500);
-  color: var(--color-text-inverse);
-  font-size: 14px;
-  padding: 2px 6px;
-  font-weight: 600;
-}
-
-.stage1 .model-card-rank.rank-2 {
-  background: var(--color-slate-200);
-  color: var(--color-slate-700);
-  font-size: 14px;
-  padding: 2px 6px;
-}
-
+/* Rank badges - just emoji, no backgrounds */
+.stage1 .model-card-rank.rank-1,
+.stage1 .model-card-rank.rank-2,
 .stage1 .model-card-rank.rank-3 {
-  background: var(--color-slate-100);
-  color: var(--color-slate-600);
   font-size: 14px;
-  padding: 2px 6px;
+}
+
+/* Non-medal ranks (#4, #5, etc.) - subtle text */
+.stage1 .model-card-rank:not(.rank-1):not(.rank-2):not(.rank-3) {
+  color: var(--color-text-tertiary);
+  font-size: 12px;
 }
 
 /* Status indicators */
@@ -497,8 +482,7 @@
 }
 
 .stage1 .model-summary-pill .pill-label {
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
+  /* No uppercase - use natural capitalization like Stage 2 */
 }
 
 /* Dark mode pills */
@@ -593,46 +577,9 @@
   background: var(--color-indigo-400);
 }
 
-.tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-}
-
-.tab {
-  padding: 8px 16px;
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-border-dark);
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.2s;
-}
-
-.tab:hover {
-  background: var(--color-bg-hover);
-  color: var(--color-text-primary);
-  border-color: var(--color-brand-primary);
-}
-
-.tab.active {
-  background: var(--color-bg-primary);
-  color: var(--color-brand-primary);
-  border-color: var(--color-brand-primary);
-  border-bottom-color: var(--color-bg-primary);
-  font-weight: 600;
-}
-
-.tab-content {
-  background: var(--color-bg-primary);
-  padding: 16px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
-  min-width: 0;
-  overflow: hidden;
-}
+/* NOTE: .tabs and .tab styles are defined ONLY in Stage2.css
+   Stage 1 uses .model-summary-pill for its collapsed pills.
+   This ensures one source of truth for tab/pill styles. */
 
 .model-name {
   color: var(--color-text-muted);
@@ -796,20 +743,6 @@
   50% {
     opacity: 0.4;
   }
-}
-
-.tab.complete {
-  border-color: var(--color-success);
-}
-
-.tab.error {
-  border-color: var(--color-warning);
-  color: var(--color-accent-hover);
-}
-
-.tab.stopped {
-  border-color: var(--color-gray-400);
-  color: var(--color-gray-500);
 }
 
 .typing-indicator {
@@ -1025,25 +958,7 @@
 }
 
 /* Dark mode rank badges */
-.dark .stage1 .model-card-rank {
-  background: var(--color-slate-700);
-  color: var(--color-slate-300);
-}
-
-.dark .stage1 .model-card-rank.rank-1 {
-  background: var(--color-indigo-500);
-  color: var(--color-text-inverse);
-}
-
-.dark .stage1 .model-card-rank.rank-2 {
-  background: var(--color-slate-500);
-  color: var(--color-slate-200);
-}
-
-.dark .stage1 .model-card-rank.rank-3 {
-  background: var(--color-stone-500);
-  color: var(--color-orange-200);
-}
+/* Dark mode rank badges - no backgrounds needed, emojis are universal */
 
 .dark .stage1 .model-card-content {
   color: var(--color-slate-600);

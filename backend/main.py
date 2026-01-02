@@ -863,6 +863,68 @@ async def readiness_check():
         )
 
 
+@app.get("/health/metrics")
+async def metrics_endpoint():
+    """
+    Real-time observability metrics endpoint.
+
+    Returns Prometheus-compatible metrics for:
+    - Circuit breaker states (per-model)
+    - Cache hit rates and sizes
+    - Request counts
+
+    Use this for monitoring dashboards and alerting.
+    """
+    try:
+        from .openrouter import get_all_circuit_breaker_statuses
+    except ImportError:
+        from backend.openrouter import get_all_circuit_breaker_statuses
+
+    try:
+        from .utils.cache import user_cache, company_cache
+    except ImportError:
+        from backend.utils.cache import user_cache, company_cache
+
+    # Get circuit breaker states
+    cb_statuses = get_all_circuit_breaker_statuses()
+
+    # Count circuit breaker states
+    cb_summary = {
+        "total": len(cb_statuses),
+        "closed": sum(1 for s in cb_statuses.values() if s.get("state") == "closed"),
+        "open": sum(1 for s in cb_statuses.values() if s.get("state") == "open"),
+        "half_open": sum(1 for s in cb_statuses.values() if s.get("state") == "half_open"),
+    }
+
+    # Get cache metrics
+    user_stats = user_cache.stats()
+    company_stats = company_cache.stats()
+
+    return {
+        "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "circuit_breakers": {
+            "summary": cb_summary,
+            "models": cb_statuses,
+        },
+        "caches": {
+            "user_cache": {
+                "size": user_stats["size"],
+                "max_size": user_stats["max_size"],
+                "metrics": user_stats["metrics"],
+            },
+            "company_cache": {
+                "size": company_stats["size"],
+                "max_size": company_stats["max_size"],
+                "metrics": company_stats["metrics"],
+            },
+        },
+        "server": {
+            "is_shutting_down": _shutdown_manager.is_shutting_down,
+            "active_requests": _shutdown_manager.active_requests,
+        },
+    }
+
+
 @app.get("/api/v1/businesses")
 async def get_businesses(
     user: dict = Depends(get_current_user),

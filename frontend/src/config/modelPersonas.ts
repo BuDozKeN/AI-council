@@ -5,7 +5,7 @@
  * Used throughout the deliberation view for consistent branding.
  */
 
-type Provider = 'openai' | 'anthropic' | 'google' | 'xai' | 'deepseek' | 'council' | 'unknown';
+type Provider = 'openai' | 'anthropic' | 'google' | 'xai' | 'deepseek' | 'meta' | 'moonshot' | 'council' | 'unknown';
 
 interface ModelPersona {
   color: string;
@@ -27,6 +27,8 @@ export const PROVIDER_COLORS: Record<Provider, string> = {
   google: '#4285f4',      // Blue
   xai: '#1da1f2',         // Twitter blue
   deepseek: '#6366f1',    // Indigo
+  meta: '#0668E1',        // Meta blue
+  moonshot: '#6B4EE6',    // Moonshot purple
   council: '#10b981',     // Emerald (chairman)
   unknown: '#6b7280'      // Gray (fallback)
 };
@@ -38,6 +40,8 @@ export const PROVIDER_LABELS: Record<Provider, string> = {
   google: 'Gemini',
   xai: 'Grok',
   deepseek: 'DeepSeek',
+  meta: 'Llama',
+  moonshot: 'Kimi',
   council: 'Council',
   unknown: 'AI'
 };
@@ -190,6 +194,13 @@ export const MODEL_PERSONAS: Record<string, ModelPersona> = {
     tagline: 'Bold Innovator',
     provider: 'xai'
   },
+  'grok-4-fast': {
+    color: PROVIDER_COLORS.xai,
+    shortName: 'Grok Fast',
+    fullName: 'Grok 4 Fast',
+    tagline: 'Speed Optimized',
+    provider: 'xai'
+  },
 
   // DeepSeek Models
   'deepseek-chat': {
@@ -205,6 +216,24 @@ export const MODEL_PERSONAS: Record<string, ModelPersona> = {
     fullName: 'DeepSeek R1',
     tagline: 'Research Pioneer',
     provider: 'deepseek'
+  },
+
+  // Meta (Llama) Models
+  'llama-4-maverick': {
+    color: PROVIDER_COLORS.meta,
+    shortName: 'Llama 4',
+    fullName: 'Llama 4 Maverick',
+    tagline: 'Open Source Leader',
+    provider: 'meta'
+  },
+
+  // Moonshot (Kimi) Models
+  'kimi-k2': {
+    color: PROVIDER_COLORS.moonshot,
+    shortName: 'Kimi K2',
+    fullName: 'Kimi K2',
+    tagline: 'Chinese AI Pioneer',
+    provider: 'moonshot'
   },
 
   // Chairman (synthesis)
@@ -268,6 +297,10 @@ export function getModelPersona(modelId: string | null | undefined): ModelPerson
     detectedProvider = 'xai';
   } else if (lowerModelId.includes('deepseek')) {
     detectedProvider = 'deepseek';
+  } else if (lowerModelId.includes('meta') || lowerModelId.includes('llama')) {
+    detectedProvider = 'meta';
+  } else if (lowerModelId.includes('moonshot') || lowerModelId.includes('kimi')) {
+    detectedProvider = 'moonshot';
   }
 
   // Return default with dynamic name and detected provider
@@ -304,6 +337,8 @@ export function getModelInitials(modelId: string | null | undefined): string {
   if (name.includes('Gemini')) return 'Ge';
   if (name.includes('Grok')) return 'Gr';
   if (name.includes('DeepSeek')) return 'D';
+  if (name.includes('Llama')) return 'L';
+  if (name.includes('Kimi')) return 'K';
   if (name === 'Chairman') return 'C';
 
   // Default: first letter

@@ -115,7 +115,7 @@ from .model_registry import (
 # Set MIN_STAGE1_RESPONSES=0 to disable this check (not recommended).
 # =============================================================================
 MIN_STAGE1_RESPONSES = int(os.getenv("MIN_STAGE1_RESPONSES", "3"))  # Need 3 of 5 models
-MIN_STAGE2_RANKINGS = int(os.getenv("MIN_STAGE2_RANKINGS", "2"))    # Need 2 of 5 rankers
+MIN_STAGE2_RANKINGS = int(os.getenv("MIN_STAGE2_RANKINGS", "2"))    # Need 2 of 6 rankers
 
 # OpenRouter API endpoint
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"

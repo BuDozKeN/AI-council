@@ -12,6 +12,7 @@ import { Stage3Actions } from './Stage3Actions';
 // TableOfContents import removed - TOC hidden for now
 // import { TableOfContents } from '../ui/TableOfContents';
 import type { Department, Project } from '../../types/business';
+import type { UsageData } from '../../types/conversation';
 import '../Stage3.css';
 
 const log = logger.scope('Stage3');
@@ -46,6 +47,7 @@ interface Stage3Props {
   currentProjectId?: string | null;
   onSelectProject?: (id: string | null) => void;
   onCreateProject?: (data: { userQuestion: string; councilResponse: string; departmentIds: string[] }) => void;
+  usage?: UsageData;
 }
 
 // Provider icon paths
@@ -92,6 +94,7 @@ function Stage3({
   currentProjectId = null,
   onSelectProject,
   onCreateProject,
+  usage,
 }: Stage3Props) {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -283,13 +286,13 @@ function Stage3({
   // Show thinking state
   if (!displayText && isLoading) {
     return (
-      <div className="stage stage3">
+      <div className="stage stage3" aria-busy="true" aria-live="polite">
         <h3 className="stage-title">
           <Sparkles className="h-5 w-5 text-emerald-500 flex-shrink-0" />
           <span className="font-semibold tracking-tight">The Best Answer</span>
         </h3>
         <div className="final-response noise-overlay">
-          <div className="thinking-container">
+          <div className="thinking-container" role="status" aria-label="Loading council response">
             <div className="thinking-message">
               <Spinner size="sm" />
               <span>Combining expert opinions...</span>
@@ -305,7 +308,7 @@ function Stage3({
   }
 
   return (
-    <div ref={containerRef} className={`stage stage3 ${isCollapsed ? 'collapsed' : ''}`} data-stage="stage3">
+    <div ref={containerRef} className={`stage stage3 ${isCollapsed ? 'collapsed' : ''}`} data-stage="stage3" aria-busy={isStreaming} aria-live="polite">
       <h3
         className="stage-title clickable"
         onClick={toggleCollapsed}
@@ -335,6 +338,7 @@ function Stage3({
             isStreaming={isStreaming}
             isComplete={isComplete}
             chairmanIconPath={chairmanIconPath}
+            {...(usage ? { usage } : {})}
           />
 
           {/* Floating TOC hidden for now */}

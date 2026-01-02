@@ -79,19 +79,19 @@
   padding: 14px 16px;
   padding-left: 14px;
   border-left-width: 4px;
-  background: var(--color-bg-secondary);
+  background: var(--color-bg-tertiary); /* Visible card in light mode */
   border-radius: var(--radius-lg);
   font-size: 16px;
 }
 
 .dept-checkbox-item.mobile:active {
-  background: var(--color-bg-tertiary);
+  background: var(--color-bg-hover);
   transform: scale(0.98);
 }
 
 .dept-checkbox-item.mobile.selected {
   border-left-color: var(--dept-color, var(--color-slate-500));
-  background: var(--color-bg-tertiary);
+  background: var(--color-bg-hover);
 }
 
 .dept-checkbox-item.mobile .dept-checkbox {
@@ -132,7 +132,7 @@
   border-color: var(--dept-color, var(--color-indigo-500));
 }
 
-/* Mobile dark mode */
+/* Mobile dark mode - same as light mode now since both use --color-bg-tertiary */
 .dark .dept-checkbox-item.mobile {
   background: var(--color-bg-tertiary);
 }

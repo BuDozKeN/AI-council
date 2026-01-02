@@ -293,6 +293,28 @@ Pre-commit hooks run `lint-staged` automatically.
 - **Do** use Tailwind for layout, tokens for theming
 - **Do** check mobile viewport when making CSS changes
 
+### Mobile Touch Targets (CRITICAL)
+
+**Global rule in `index.css` enforces 44px min-height on ALL buttons for mobile (under 640px):**
+```css
+button:not(.inline-btn):not(.no-touch-target) { min-height: 44px; }
+```
+
+**If a button needs to be smaller (e.g., compact tabs, pills, inline actions):**
+1. Add `no-touch-target` class to the button element in JSX
+2. That's it - no CSS overrides needed
+
+**Example:**
+```jsx
+// WRONG: Button will be forced to 44px on mobile
+<button className="tab">Click</button>
+
+// CORRECT: Button respects your CSS sizing
+<button className="tab no-touch-target">Click</button>
+```
+
+**DO NOT** try to override with CSS specificity hacks like `min-height: unset` - just use `no-touch-target`.
+
 ### Layout & Scrolling Patterns
 
 When building scrollable layouts with cards:

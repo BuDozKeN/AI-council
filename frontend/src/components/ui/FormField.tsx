@@ -72,10 +72,33 @@ export function FormField({
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   className?: string;
+  /**
+   * Optimizes mobile keyboard for specific input types.
+   * Common values: 'text' | 'email' | 'tel' | 'url' | 'numeric' | 'decimal' | 'search'
+   */
+  inputMode?: 'none' | 'text' | 'tel' | 'url' | 'email' | 'numeric' | 'decimal' | 'search';
+  /**
+   * Enables browser autofill. Common values:
+   * - 'email', 'tel', 'name', 'given-name', 'family-name'
+   * - 'street-address', 'postal-code', 'country'
+   * - 'username', 'current-password', 'new-password'
+   * - 'one-time-code' (for OTP inputs)
+   */
+  autoComplete?: string;
 }
 
 /**
- * Input - Styled text input
+ * Input - Styled text input with mobile keyboard optimization
+ *
+ * @example
+ * // Email input with proper keyboard
+ * <Input type="email" inputMode="email" autoComplete="email" />
+ *
+ * // Phone input
+ * <Input type="tel" inputMode="tel" autoComplete="tel" />
+ *
+ * // Numeric input (no decimals)
+ * <Input inputMode="numeric" pattern="[0-9]*" />
  */
 export const Input = forwardRef<HTMLInputElement, InputProps>(({ className = '', ...props }, ref) => (
   <input

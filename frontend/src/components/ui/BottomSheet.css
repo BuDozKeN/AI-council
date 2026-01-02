@@ -19,12 +19,22 @@
   right: 0;
   background: var(--color-bg-primary);
   border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
-  max-height: 90vh;
+  min-height: 85vh; /* Fixed height - no resize between tabs */
+  max-height: 85vh; /* Same as min to prevent jitter on tab switch */
   z-index: calc(var(--z-modal, 1000) + 1);
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-xl);
   overflow: hidden;
+  touch-action: pan-y; /* Enable vertical swipe gestures */
+  user-select: none; /* Prevent text selection during drag */
+}
+
+/* Dragging state - disable transitions for immediate feedback */
+/* stylelint-disable-next-line declaration-no-important */
+.bottom-sheet-content.is-dragging {
+  transition: none !important;
+  cursor: grabbing;
 }
 
 /* Drag handle - iOS style, tappable to close */
@@ -69,6 +79,13 @@
   font-weight: 600;
   color: var(--color-text-primary);
   margin: 0;
+}
+
+/* Header actions container - aligns Clear and Close buttons */
+.bottom-sheet-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .bottom-sheet-close {
@@ -131,6 +148,7 @@
 /* Tablet */
 @media (max-width: 768px) and (min-width: 481px) {
   .bottom-sheet-content {
+    min-height: 85vh;
     max-height: 85vh;
   }
 }
@@ -138,7 +156,8 @@
 /* Small phones */
 @media (max-width: 480px) {
   .bottom-sheet-content {
-    max-height: 95vh;
+    min-height: 85vh; /* Fixed height - same as tablet for consistency */
+    max-height: 85vh;
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   }
 
@@ -152,17 +171,16 @@
 
   .bottom-sheet-body {
     padding: 0 16px 16px;
-  }
-
-  /* Allow body to expand and fit content naturally */
-  .bottom-sheet-body > * {
-    min-height: min-content;
+    /* Fill available space in fixed-height sheet */
+    flex: 1;
+    min-height: 0;
   }
 }
 
 /* Very small phones - full screen sheet */
 @media (max-width: 360px) {
   .bottom-sheet-content {
+    min-height: 100vh;
     max-height: 100vh;
     height: 100vh;
     border-radius: 0;
@@ -172,6 +190,7 @@
 /* Landscape mode */
 @media (max-width: 900px) and (orientation: landscape) {
   .bottom-sheet-content {
+    min-height: 100vh;
     max-height: 100vh;
     height: 100vh;
     border-radius: 0;

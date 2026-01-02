@@ -32,6 +32,20 @@ export interface MessageMetadata {
   model_versions?: Record<string, string>;
 }
 
+/** Token usage data for a council query */
+export interface UsageData {
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+  cache_creation_input_tokens: number;
+  cache_read_input_tokens: number;
+  by_model: Record<string, {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+  }>;
+}
+
 export interface LoadingState {
   stage1: boolean;
   stage2: boolean;
@@ -56,19 +70,8 @@ export interface Message {
   loading?: LoadingState;
   stopped?: boolean;
 
-  // Token usage (for developer display)
-  usage?: {
-    prompt_tokens: number;
-    completion_tokens: number;
-    total_tokens: number;
-    cache_creation_input_tokens: number;
-    cache_read_input_tokens: number;
-    by_model: Record<string, {
-      prompt_tokens: number;
-      completion_tokens: number;
-      total_tokens: number;
-    }>;
-  };
+  // Token usage (for cost display)
+  usage?: UsageData;
 
   // Attachments
   attachments?: string[];

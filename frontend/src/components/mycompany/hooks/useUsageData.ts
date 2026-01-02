@@ -29,6 +29,9 @@ export interface UsageSummary {
   council_cost_cents: number;
   internal_sessions: number;
   internal_cost_cents: number;
+  // Parse quality metrics
+  parse_success_rate: number;
+  parse_failures: number;
 }
 
 export interface DailyUsage {

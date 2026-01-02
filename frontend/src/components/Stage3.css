@@ -103,6 +103,24 @@ h3 {
   margin-left: auto;
 }
 
+/* Cost badge - shows estimated query cost */
+.stage3-cost-badge {
+  margin-left: auto;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-sm);
+  cursor: default;
+  transition: opacity 0.2s ease;
+}
+
+.stage3-cost-badge:hover {
+  opacity: 0.8;
+}
+
 /* Chairman indicator - compact icon display */
 .chairman-indicator {
   display: flex;

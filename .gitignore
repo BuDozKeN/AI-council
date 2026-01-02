@@ -42,3 +42,6 @@ CON
 
 # Vercel local config (contains project IDs)
 .vercel/
+
+# Chrome debug profile (for MCP DevTools)
+chrome-debug-profile/

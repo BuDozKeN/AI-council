@@ -8,8 +8,82 @@ You are an AI/ML operations engineer auditing a multi-model LLM orchestration sy
 
 AxCouncil's 3-Stage Pipeline:
 1. **Stage 1**: 5 council members respond in parallel (Claude, GPT, Gemini, Grok, DeepSeek)
-2. **Stage 2**: Each model ranks anonymized responses from Stage 1
+2. **Stage 2**: 6 reviewers rank anonymized responses (Claude Sonnet, GPT-4o-mini, Grok Fast, Llama Maverick, Kimi K2, DeepSeek)
 3. **Stage 3**: Chairman synthesizes final response with fallback models
+
+## ⚠️ CRITICAL: Online Pricing Verification
+
+**ALWAYS START WITH THIS STEP** - Pricing changes frequently and incorrect pricing leads to wrong cost estimates.
+
+### Step 1: Verify All Model Pricing Online
+
+Use WebSearch to verify current pricing for EACH model in the system:
+
+```
+Models to verify:
+Stage 1 Council Members:
+- anthropic/claude-opus-4.5
+- openai/gpt-5.1
+- google/gemini-3-pro-preview
+- x-ai/grok-4
+- deepseek/deepseek-chat-v3-0324
+
+Stage 2 Reviewers:
+- anthropic/claude-sonnet-4
+- openai/gpt-4o-mini
+- x-ai/grok-4-fast
+- meta-llama/llama-4-maverick
+- moonshotai/kimi-k2
+- deepseek/deepseek-chat-v3-0324
+
+Stage 3 Chairman (same as Stage 1 models)
+
+Utility Models:
+- google/gemini-2.5-flash
+- anthropic/claude-3-5-haiku-20241022
+- google/gemini-2.0-flash-001
+```
+
+### Step 2: Compare with Codebase Pricing Tables
+
+**Files containing pricing tables:**
+- `backend/routers/company/utils.py` - Backend pricing (MODEL_PRICING dict)
+- `frontend/src/components/stage3/Stage3Content.tsx` - Frontend pricing (MODEL_PRICING const)
+
+```
+Check for each model:
+- [ ] Input price per 1M tokens matches online
+- [ ] Output price per 1M tokens matches online
+- [ ] Both files have matching values (frontend = backend)
+- [ ] All models in use are present in pricing tables
+```
+
+### Step 3: Flag Significant Pricing Changes
+
+Report any discrepancy >10% as it may warrant model substitution:
+
+| Model | Codebase Price | Actual Price | Difference | Action Needed |
+|-------|----------------|--------------|------------|---------------|
+| [model] | $X/$Y | $X'/$Y' | +/-N% | Update / Consider swap |
+
+### Step 4: Evaluate Model Economics
+
+If pricing has changed significantly, consider:
+```
+Questions to ask:
+- [ ] Is there a cheaper model with similar quality?
+- [ ] Has a model become expensive enough to warrant replacement?
+- [ ] Are there new budget models worth evaluating?
+- [ ] Should Stage 2 reviewer mix be adjusted for cost?
+```
+
+**Example Decision Matrix:**
+| Scenario | Action |
+|----------|--------|
+| Model 20%+ cheaper | Great, keep using, just update pricing |
+| Model 20%+ more expensive | Evaluate alternatives |
+| New model <$0.50/1M output | Consider for Stage 2 |
+| Premium model dropped price | Consider for Stage 1/Chairman |
 
 ## Audit Checklist
 
@@ -182,10 +256,11 @@ Stage 1 (5 models parallel):
 - Output: ~500-2000 tokens per model
 - Cost: Σ(input_tokens × input_price + output_tokens × output_price) for each model
 
-Stage 2 (5 models ranking):
+Stage 2 (6 models ranking):
 - Input: ranking_prompt + 5 anonymized responses
 - Output: ~200 tokens per model
-- Cost: Similar calculation
+- Cost: Similar calculation (but using budget models)
+- Reviewers: Claude Sonnet, GPT-4o-mini, Grok Fast, Llama Maverick, Kimi K2, DeepSeek
 
 Stage 3 (1-3 chairman attempts):
 - Input: synthesis_prompt + ranked responses
@@ -196,19 +271,60 @@ Total: Stage1 + Stage2 + Stage3
 ```
 
 ### Model Pricing Reference
+
+**Always verify online before reporting** - use WebSearch to check:
+- OpenRouter pricing page
+- Official provider documentation (Anthropic, OpenAI, Google, xAI, DeepSeek, Meta, Moonshot)
+
 ```
-Check current pricing for:
-- Claude Opus 4.5 (expensive, high quality)
-- GPT-5.1 (mid-tier)
-- Gemini 3 Pro (competitive)
-- Grok 4 (mid-tier)
-- DeepSeek (budget option)
+Current models to verify (per 1M tokens):
+
+Stage 1 Council:
+- anthropic/claude-opus-4.5     $5.00/$25.00 (input/output)
+- openai/gpt-5.1                $1.25/$10.00
+- google/gemini-3-pro-preview   $2.00/$12.00
+- x-ai/grok-4                   $3.00/$15.00
+- deepseek/deepseek-chat-v3     $0.28/$0.42
+
+Stage 2 Reviewers:
+- anthropic/claude-sonnet-4     $3.00/$15.00 (quality anchor)
+- openai/gpt-4o-mini            $0.15/$0.60
+- x-ai/grok-4-fast              $0.20/$0.50
+- meta-llama/llama-4-maverick   $0.15/$0.60
+- moonshotai/kimi-k2            $0.46/$1.84
+- deepseek/deepseek-chat-v3     $0.28/$0.42
+
+Utility:
+- google/gemini-2.5-flash       $0.30/$2.50
+- anthropic/claude-3-5-haiku    $0.80/$4.00
 ```
 
 ## Output Format
 
 ### LLM Operations Score: [1-10]
 ### Cost Visibility Score: [1-10]
+### Pricing Accuracy Score: [1-10]
+
+### Pricing Verification Results (ALWAYS INCLUDE)
+
+| Model | Role | Codebase (in/out) | Verified (in/out) | Difference | Status |
+|-------|------|-------------------|-------------------|------------|--------|
+| claude-opus-4.5 | Stage 1 | $X/$Y | $X'/$Y' | ±N% | ✅/⚠️/❌ |
+| gpt-5.1 | Stage 1 | $X/$Y | $X'/$Y' | ±N% | ✅/⚠️/❌ |
+| ... | ... | ... | ... | ... | ... |
+
+**Status Key:**
+- ✅ Correct (within 5%)
+- ⚠️ Needs update (5-20% difference)
+- ❌ Critical (>20% difference, evaluate alternatives)
+
+### Model Substitution Recommendations
+
+If pricing changes warrant model swaps:
+
+| Current Model | Issue | Recommended Replacement | Savings |
+|---------------|-------|------------------------|---------|
+| [model] | [became expensive] | [alternative] | $X/query |
 
 ### Critical Issues
 | Area | Issue | Cost Impact | Reliability Impact | Fix |

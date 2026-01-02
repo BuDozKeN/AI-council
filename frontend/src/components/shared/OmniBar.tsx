@@ -25,17 +25,19 @@ import {
   Briefcase,
   Users,
   BookOpen,
+  FolderKanban,
   Check,
   FileText,
   ScrollText,
   Shield,
   ChevronRight,
+  RotateCcw,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { springs, interactionStates } from '../../lib/animations';
 import { BottomSheet } from '../ui/BottomSheet';
 import { DepartmentCheckboxItem } from '../ui/DepartmentCheckboxItem';
-import type { Business, Department, Role, Playbook } from '../../types/business';
+import type { Business, Department, Role, Playbook, Project } from '../../types/business';
 import './OmniBar.css';
 
 // Rotating placeholder examples for empty state
@@ -51,6 +53,7 @@ const PLACEHOLDER_EXAMPLES = [
 // Mom-friendly tooltip descriptions - actionable, clear
 const TOOLTIPS = {
   company: "Choose which company's context to use",
+  projects: 'Focus the answer on a specific project',
   departments: "Include your team's expertise in the answer",
   roles: 'Add specific expert perspectives (CEO, Analyst, etc.)',
   playbooks: "Apply your company's guides to the answer",
@@ -110,6 +113,10 @@ interface OmniBarProps {
   businesses?: Business[];
   selectedBusiness?: string | null;
   onSelectBusiness?: (id: string | null) => void;
+  // Project selection
+  projects?: Project[];
+  selectedProject?: string | null;
+  onSelectProject?: (id: string | null) => void;
   // Departments, roles, playbooks
   departments?: Department[];
   selectedDepartments?: string[];
@@ -120,6 +127,8 @@ interface OmniBarProps {
   playbooks?: Playbook[];
   selectedPlaybooks?: string[];
   onSelectPlaybooks?: (ids: string[]) => void;
+  // Reset all selections
+  onResetAll?: (() => void) | undefined;
 }
 
 export function OmniBar({
@@ -160,6 +169,9 @@ export function OmniBar({
   businesses = [],
   selectedBusiness = null,
   onSelectBusiness,
+  projects = [],
+  selectedProject = null,
+  onSelectProject,
   departments = [],
   selectedDepartments = [],
   onSelectDepartments,
@@ -169,12 +181,14 @@ export function OmniBar({
   playbooks = [],
   selectedPlaybooks = [],
   onSelectPlaybooks,
+  onResetAll,
 }: OmniBarProps) {
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Popover states for context icons
   const [companyOpen, setCompanyOpen] = useState(false);
+  const [projectOpen, setProjectOpen] = useState(false);
   const [deptOpen, setDeptOpen] = useState(false);
   const [roleOpen, setRoleOpen] = useState(false);
   const [playbookOpen, setPlaybookOpen] = useState(false);
@@ -186,15 +200,29 @@ export function OmniBar({
 
   // Check if we have context data to show icons
   const hasBusinesses = businesses.length > 0 && onSelectBusiness;
+  const hasProjects = projects.length > 0 && onSelectProject;
   const hasDepartments = departments.length > 0 && onSelectDepartments;
   const hasRoles = roles.length > 0 && onSelectRoles;
   const hasPlaybooks = playbooks.length > 0 && onSelectPlaybooks;
   const hasAnyContextIcons =
-    showContextIcons && (hasBusinesses || hasDepartments || hasRoles || hasPlaybooks);
+    showContextIcons && (hasBusinesses || hasProjects || hasDepartments || hasRoles || hasPlaybooks);
+
+  // Check if there are any selections (for showing reset button)
+  const hasAnySelections =
+    !!selectedBusiness ||
+    !!selectedProject ||
+    selectedDepartments.length > 0 ||
+    selectedRoles.length > 0 ||
+    selectedPlaybooks.length > 0;
 
   // Get selected company name for display
   const selectedCompanyName = selectedBusiness
     ? businesses.find((b) => b.id === selectedBusiness)?.name
+    : null;
+
+  // Get selected project name for display
+  const selectedProjectName = selectedProject
+    ? projects.find((p) => p.id === selectedProject)?.name
     : null;
 
   // Rotate placeholder text
@@ -224,6 +252,14 @@ export function OmniBar({
     };
     document.addEventListener('keydown', handleGlobalKeyDown);
     return () => document.removeEventListener('keydown', handleGlobalKeyDown);
+  }, []);
+
+  // Patch hidden textarea from react-textarea-autosize to silence form field warning
+  useEffect(() => {
+    const hiddenTextarea = document.querySelector('textarea[aria-hidden="true"][tabindex="-1"]');
+    if (hiddenTextarea && !hiddenTextarea.getAttribute('name')) {
+      hiddenTextarea.setAttribute('name', 'autosize-measure');
+    }
   }, []);
 
   const handleSubmit = (e?: React.FormEvent) => {
@@ -297,6 +333,35 @@ export function OmniBar({
                 {isSelected && <Check size={10} />}
               </div>
               <span>{biz.name}</span>
+            </button>
+          );
+        })
+      )}
+    </div>
+  );
+
+  // Project list content - single select (radio-style like company)
+  const projectList = (
+    <div className="context-popover-list">
+      {projects.length === 0 ? (
+        <div className="context-popover-empty">No projects</div>
+      ) : (
+        projects.filter((p) => p.status === 'active').map((proj) => {
+          const isSelected = selectedProject === proj.id;
+          return (
+            <button
+              key={proj.id}
+              className={cn('context-popover-item', isSelected && 'selected')}
+              onClick={() => {
+                onSelectProject?.(isSelected ? null : proj.id);
+                setProjectOpen(false);
+              }}
+              type="button"
+            >
+              <div className={cn('context-popover-radio', isSelected && 'checked')}>
+                {isSelected && <Check size={10} />}
+              </div>
+              <span>{proj.name}</span>
             </button>
           );
         })
@@ -461,7 +526,8 @@ export function OmniBar({
     open: boolean,
     setOpen: (open: boolean) => void,
     content: React.ReactNode,
-    colorClass?: string
+    colorClass?: string,
+    onClear?: () => void
   ) => {
     const iconButton = (
       <button
@@ -476,11 +542,46 @@ export function OmniBar({
       </button>
     );
 
+    // Header with optional Clear button
+    const header = (
+      <div className="context-popover-header">
+        <span>{label}</span>
+        {count > 0 && onClear && (
+          <button
+            type="button"
+            className="context-popover-clear"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClear();
+            }}
+          >
+            Clear
+          </button>
+        )}
+      </div>
+    );
+
     if (isMobile) {
       return (
         <>
           {withTooltip(iconButton, tooltipText)}
-          <BottomSheet isOpen={open} onClose={() => setOpen(false)} title={label}>
+          <BottomSheet
+            isOpen={open}
+            onClose={() => setOpen(false)}
+            title={label}
+            headerAction={count > 0 && onClear ? (
+              <button
+                type="button"
+                className="context-popover-clear"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClear();
+                }}
+              >
+                Clear
+              </button>
+            ) : undefined}
+          >
             {content}
           </BottomSheet>
         </>
@@ -503,8 +604,20 @@ export function OmniBar({
           </Tooltip.Root>
         </Tooltip.Provider>
         <Popover.Portal>
-          <Popover.Content className="context-popover-content" align="start" sideOffset={8}>
-            <div className="context-popover-header">{label}</div>
+          <Popover.Content
+            className="context-popover-content"
+            side="top"
+            align="start"
+            sideOffset={8}
+            onInteractOutside={(e) => {
+              // Don't close if clicking the theme toggle
+              const target = e.target as HTMLElement;
+              if (target.closest('.theme-toggle-container')) {
+                e.preventDefault();
+              }
+            }}
+          >
+            {header}
             {content}
           </Popover.Content>
         </Popover.Portal>
@@ -530,6 +643,7 @@ export function OmniBar({
         <div className="omni-mode-toggle" role="radiogroup" aria-label="Response mode">
           <button
             type="button"
+            name="response-mode"
             className={`omni-mode-btn ${chatMode === 'chat' ? 'active' : ''}`}
             onClick={() => onChatModeChange('chat')}
             role="radio"
@@ -539,6 +653,7 @@ export function OmniBar({
           </button>
           <button
             type="button"
+            name="response-mode"
             className={`omni-mode-btn ${chatMode === 'council' ? 'active' : ''}`}
             onClick={() => onChatModeChange('council')}
             role="radio"
@@ -588,50 +703,85 @@ export function OmniBar({
           <div className="omni-bar-left">
             {hasAnyContextIcons && (
               <>
-                {hasBusinesses &&
-                  renderContextIcon(
-                    <Briefcase size={16} />,
-                    selectedCompanyName || 'Company',
-                    TOOLTIPS.company,
-                    selectedBusiness ? 1 : 0,
-                    companyOpen,
-                    setCompanyOpen,
-                    companyList,
-                    'company'
-                  )}
-                {hasDepartments &&
-                  renderContextIcon(
-                    <Building2 size={16} />,
-                    'Departments',
-                    TOOLTIPS.departments,
-                    selectedDepartments.length,
-                    deptOpen,
-                    setDeptOpen,
-                    departmentList,
-                    'dept'
-                  )}
-                {hasRoles &&
-                  renderContextIcon(
-                    <Users size={16} />,
-                    'Roles',
-                    TOOLTIPS.roles,
-                    selectedRoles.length,
-                    roleOpen,
-                    setRoleOpen,
-                    roleList,
-                    'role'
-                  )}
-                {hasPlaybooks &&
-                  renderContextIcon(
-                    <BookOpen size={16} />,
-                    'Playbooks',
-                    TOOLTIPS.playbooks,
-                    selectedPlaybooks.length,
-                    playbookOpen,
-                    setPlaybookOpen,
-                    playbookList,
-                    'playbook'
-                  )}
+                {/* Context icons capsule - groups related icons visually */}
+                <div className="context-icons-capsule">
+                  {hasBusinesses &&
+                    renderContextIcon(
+                      <Briefcase size={16} />,
+                      selectedCompanyName || 'Company',
+                      TOOLTIPS.company,
+                      selectedBusiness ? 1 : 0,
+                      companyOpen,
+                      setCompanyOpen,
+                      companyList,
+                      'company',
+                      () => onSelectBusiness?.(null)
+                    )}
+                  {hasProjects &&
+                    renderContextIcon(
+                      <FolderKanban size={16} />,
+                      selectedProjectName || 'Project',
+                      TOOLTIPS.projects,
+                      selectedProject ? 1 : 0,
+                      projectOpen,
+                      setProjectOpen,
+                      projectList,
+                      'project',
+                      () => onSelectProject?.(null)
+                    )}
+                  {hasDepartments &&
+                    renderContextIcon(
+                      <Building2 size={16} />,
+                      'Departments',
+                      TOOLTIPS.departments,
+                      selectedDepartments.length,
+                      deptOpen,
+                      setDeptOpen,
+                      departmentList,
+                      'dept',
+                      () => onSelectDepartments?.([])
+                    )}
+                  {hasRoles &&
+                    renderContextIcon(
+                      <Users size={16} />,
+                      'Roles',
+                      TOOLTIPS.roles,
+                      selectedRoles.length,
+                      roleOpen,
+                      setRoleOpen,
+                      roleList,
+                      'role',
+                      () => onSelectRoles?.([])
+                    )}
+                  {hasPlaybooks &&
+                    renderContextIcon(
+                      <BookOpen size={16} />,
+                      'Playbooks',
+                      TOOLTIPS.playbooks,
+                      selectedPlaybooks.length,
+                      playbookOpen,
+                      setPlaybookOpen,
+                      playbookList,
+                      'playbook',
+                      () => onSelectPlaybooks?.([])
+                    )}
+                </div>
+
+                {/* Reset All button - outside capsule, smaller */}
+                {hasAnySelections && onResetAll && (
+                  withTooltip(
+                    <button
+                      type="button"
+                      className="omni-reset-all"
+                      onClick={onResetAll}
+                      disabled={disabled}
+                      aria-label="Reset all selections"
+                    >
+                      <RotateCcw size={12} />
+                    </button>,
+                    'Clear all selections'
+                  )
+                )}
 
                 {/* Inline mode toggle - compact pill showing current mode */}
                 {onChatModeChange && !showModeToggle && (
@@ -643,6 +793,7 @@ export function OmniBar({
                     {withTooltip(
                       <button
                         type="button"
+                        name="inline-response-mode"
                         className={cn('inline-mode-btn', chatMode === 'chat' && 'active')}
                         onClick={() => !disabled && onChatModeChange('chat')}
                         disabled={disabled}
@@ -656,6 +807,7 @@ export function OmniBar({
                     {withTooltip(
                       <button
                         type="button"
+                        name="inline-response-mode"
                         className={cn('inline-mode-btn', chatMode === 'council' && 'active')}
                         onClick={() => !disabled && onChatModeChange('council')}
                         disabled={disabled}

@@ -1,6 +1,6 @@
-import { useRef, useEffect, useCallback, ReactNode, MouseEvent as ReactMouseEvent } from 'react';
+import { useRef, useEffect, useCallback, useState, ReactNode, MouseEvent as ReactMouseEvent } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, PanInfo, useMotionValue, useTransform } from 'framer-motion';
 import './BottomSheet.css';
 
 interface BottomSheetProps {
@@ -10,11 +10,12 @@ interface BottomSheetProps {
   children: ReactNode;
   showCloseButton?: boolean | undefined;
   className?: string | undefined;
+  headerAction?: ReactNode | undefined;
 }
 
 /**
  * BottomSheet component - iOS/Android style sheet that slides up from bottom
- * On mobile: slides up from bottom with drag handle
+ * On mobile: slides up from bottom with drag handle, swipe down to dismiss
  * On desktop: renders as centered modal
  */
 export function BottomSheet({
@@ -24,57 +25,42 @@ export function BottomSheet({
   children,
   showCloseButton = false, // Hidden by default - tap outside or swipe down to close
   className = '',
+  headerAction,
 }: BottomSheetProps) {
   const contentRef = useRef<HTMLDivElement | null>(null);
-  const dragStartY = useRef<number | null>(null);
-  const dragStartScrollTop = useRef<number | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [hasEntered, setHasEntered] = useState(false);
 
-  // Handle swipe-to-dismiss
-  const handleTouchStart = useCallback((e: TouchEvent) => {
-    const content = contentRef.current;
-    if (!content) return;
+  // Motion values for drag gesture
+  const y = useMotionValue(0);
+  const opacity = useTransform(y, [0, 200], [1, 0.5]);
 
-    // Don't interfere with button clicks
-    const touchTarget = e.target as HTMLElement;
-    if (touchTarget.closest('button, a, [role="button"], input, textarea, select')) {
-      return;
+  // Reset motion value and entry state when sheet opens/closes
+  useEffect(() => {
+    if (isOpen) {
+      y.set(0); // Reset drag position
+      setHasEntered(false); // Reset entry state
     }
+  }, [isOpen, y]);
 
-    // Only track if we're at the top of scroll or touching the handle
-    const isAtTop = content.scrollTop <= 0;
-    const isHandle = touchTarget.closest('.bottom-sheet-handle');
-
-    if (isAtTop || isHandle) {
-      dragStartY.current = e.touches[0]?.clientY ?? null;
-      dragStartScrollTop.current = content.scrollTop;
-    }
-  }, []);
-
-  const handleTouchEnd = useCallback((e: TouchEvent) => {
-    if (dragStartY.current === null) return;
-
-    const deltaY = (e.changedTouches[0]?.clientY ?? 0) - dragStartY.current;
-    dragStartY.current = null;
-
-    // If swiped down more than 100px, close the sheet
-    if (deltaY > 100) {
+  // Handle drag end - close if dragged down enough or with enough velocity
+  const handleDragEnd = useCallback((_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    setIsDragging(false);
+    const shouldClose = info.offset.y > 100 || info.velocity.y > 500;
+    if (shouldClose) {
       onClose?.();
     }
   }, [onClose]);
 
-  // Attach touch listeners
-  useEffect(() => {
+  // Check if we should allow dragging (only at top of scroll)
+  const handleDragStart = useCallback(() => {
     const content = contentRef.current;
-    if (!content || !isOpen) return;
-
-    content.addEventListener('touchstart', handleTouchStart, { passive: true });
-    content.addEventListener('touchend', handleTouchEnd, { passive: true });
-
-    return () => {
-      content.removeEventListener('touchstart', handleTouchStart);
-      content.removeEventListener('touchend', handleTouchEnd);
-    };
-  }, [isOpen, handleTouchStart, handleTouchEnd]);
+    if (content && content.scrollTop > 0) {
+      return false; // Prevent drag if scrolled down
+    }
+    setIsDragging(true);
+    return true;
+  }, []);
 
   // Handle Escape key to close (since we disabled onOpenChange)
   useEffect(() => {
@@ -132,13 +118,39 @@ export function BottomSheet({
             </Dialog.Overlay>
 
             {/* Sheet content */}
-            <Dialog.Content asChild>
+            <Dialog.Content
+              asChild
+              onInteractOutside={(e) => {
+                // Don't close if clicking the theme toggle
+                const target = e.target as HTMLElement;
+                if (target.closest('.theme-toggle-container')) {
+                  e.preventDefault();
+                }
+              }}
+              onPointerDownOutside={(e) => {
+                // Don't close if clicking the theme toggle
+                const target = e.target as HTMLElement;
+                if (target.closest('.theme-toggle-container')) {
+                  e.preventDefault();
+                }
+              }}
+            >
               <motion.div
                 ref={contentRef}
-                className={`bottom-sheet-content ${className}`}
+                className={`bottom-sheet-content ${isDragging ? 'is-dragging' : ''} ${className}`}
                 initial={{ y: '100%' }}
                 animate={{ y: 0 }}
                 exit={{ y: '100%' }}
+                // Only apply drag motion value AFTER entry animation completes
+                // This prevents the y=0 from conflicting with initial={{ y: '100%' }}
+                {...(hasEntered && { style: { y, opacity: isDragging ? opacity : 1 } })}
+                drag={hasEntered ? 'y' : false}
+                dragDirectionLock
+                dragConstraints={{ top: 0, bottom: 0 }}
+                dragElastic={{ top: 0, bottom: 0.5 }}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                onAnimationComplete={() => setHasEntered(true)}
                 transition={{
                   type: 'spring',
                   damping: 30,
@@ -157,26 +169,34 @@ export function BottomSheet({
                 </div>
 
                 {/* Header */}
-                {(title || showCloseButton) && (
+                {(title || showCloseButton || headerAction) && (
                   <div className="bottom-sheet-header">
-                    <Dialog.Title className="bottom-sheet-title">
-                      {title}
+                    <Dialog.Title asChild>
+                      <h1 className="bottom-sheet-title">{title}</h1>
                     </Dialog.Title>
-                    {showCloseButton && (
-                      <Dialog.Close className="bottom-sheet-close">
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 16 16"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
+                    <div className="bottom-sheet-header-actions">
+                      {headerAction}
+                      {showCloseButton && (
+                        <button
+                          type="button"
+                          className="bottom-sheet-close"
+                          onClick={() => onClose?.()}
+                          aria-label="Close"
                         >
-                          <path d="M4 4l8 8M12 4l-8 8" />
-                        </svg>
-                      </Dialog.Close>
-                    )}
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 16 16"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                          >
+                            <path d="M4 4l8 8M12 4l-8 8" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
                   </div>
                 )}
                 {/* Visually hidden description for accessibility */}

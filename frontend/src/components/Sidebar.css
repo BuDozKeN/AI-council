@@ -395,29 +395,6 @@ button.sidebar-new-btn:hover {
   flex: 1;
 }
 
-/* Icon with badge (for conversation count) */
-.sidebar-icon-btn {
-  position: relative;
-}
-
-.sidebar-icon-badge {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  background: var(--color-indigo-500);
-  color: var(--color-text-inverse);
-  font-size: 10px;
-  font-weight: 600;
-  border-radius: var(--radius-full);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 1;
-}
-
 .sidebar-icon-btn--disabled {
   opacity: 0.4;
   cursor: not-allowed;

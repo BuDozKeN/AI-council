@@ -303,9 +303,12 @@ export function UsageTab({
           <Zap size={20} className="mc-stat-icon" />
           <div className="mc-stat-content">
             <span className="mc-stat-value">
-              {hasData ? formatCost(cacheSavings) : '$0.00'}
+              {hasData ? `${usage.summary.cache_hit_rate.toFixed(1)}%` : '0%'}
             </span>
-            <span className="mc-stat-label">Cache Saved</span>
+            <span className="mc-stat-label">Cache Hit Rate</span>
+            {hasData && cacheSavings > 0 && (
+              <span className="mc-stat-sublabel">Saved {formatCost(cacheSavings)}</span>
+            )}
           </div>
         </div>
       </div>
@@ -483,9 +486,9 @@ export function UsageTab({
               </span>
             </div>
             <div className="mc-usage-extra-stat">
-              <span className="mc-usage-extra-label">Cache hit rate</span>
+              <span className="mc-usage-extra-label">Ranking parse rate</span>
               <span className="mc-usage-extra-value">
-                {hasData ? `${usage.summary.cache_hit_rate.toFixed(1)}%` : '0%'}
+                {hasData ? `${usage.summary.parse_success_rate?.toFixed(1) ?? 100}%` : '100%'}
               </span>
             </div>
             <div className="mc-usage-extra-stat">

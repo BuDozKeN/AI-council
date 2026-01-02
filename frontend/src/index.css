@@ -337,9 +337,9 @@ html.dark body {
   /* Global touch target enforcement - 44px minimum per Apple/Google guidelines */
 
   /* Components with custom sizing should use .no-touch-target class to opt out */
+  /* NOTE: .tab is NOT included here - Stage 2 tabs match Stage 1 pills (compact size) */
   button:not(.inline-btn):not(.no-touch-target),
   [role="button"]:not(.no-touch-target),
-  .tab,
   .copy-btn,
   .save-type-pill,
   input:not(.no-touch-target),
@@ -400,10 +400,10 @@ html.dark body {
     line-height: 1.5;
   }
 
-  /* Copy buttons - consistent across all stages */
-  .copy-btn,
-  .copy-btn-unified,
-  .copy-code-btn {
+  /* Copy buttons - consistent across all stages (use .no-touch-target to opt out) */
+  .copy-btn:not(.no-touch-target),
+  .copy-btn-unified:not(.no-touch-target),
+  .copy-code-btn:not(.no-touch-target) {
     min-height: 44px;
     min-width: 44px;
     padding: 10px;

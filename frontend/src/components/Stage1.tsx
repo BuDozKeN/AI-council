@@ -6,7 +6,6 @@ import { Spinner } from './ui/Spinner';
 import { CopyButton } from './ui/CopyButton';
 import {
   Activity,
-  CheckCircle2,
   AlertCircle,
   StopCircle,
   ChevronDown,
@@ -37,6 +36,8 @@ const PROVIDER_ICON_PATH: ProviderIconPaths = {
   google: '/icons/gemini.svg',
   xai: '/icons/grok.svg',
   deepseek: '/icons/deepseek.svg',
+  meta: '/icons/meta.svg',
+  moonshot: '/icons/moonshot.svg',
 };
 
 // Get icon path for a model - with fallback pattern matching
@@ -61,6 +62,8 @@ function getModelIconPath(modelId: string): string | null {
   if (lowerModel.includes('gemini')) return '/icons/gemini.svg';
   if (lowerModel.includes('grok')) return '/icons/grok.svg';
   if (lowerModel.includes('deepseek')) return '/icons/deepseek.svg';
+  if (lowerModel.includes('llama') || lowerModel.includes('meta')) return '/icons/meta.svg';
+  if (lowerModel.includes('kimi') || lowerModel.includes('moonshot')) return '/icons/moonshot.svg';
 
   return null;
 }
@@ -597,13 +600,6 @@ function Stage1({
     >
       <h3 className="stage-title clickable" onClick={toggleCollapsed}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
-        {streamingCount > 0 ? (
-          <Activity className="h-5 w-5 text-blue-500 animate-pulse flex-shrink-0" />
-        ) : (
-          <CheckCircle2
-            className={`h-5 w-5 text-green-600 flex-shrink-0 ${showCompleteCelebration ? 'animate-stage-complete' : ''}`}
-          />
-        )}
         <span className="font-semibold tracking-tight">
           {expertCount} AI Expert{expertCount !== 1 ? 's' : ''} Respond
         </span>

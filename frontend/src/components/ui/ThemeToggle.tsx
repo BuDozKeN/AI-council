@@ -35,7 +35,9 @@ export function ThemeToggle() {
   const mounted = useIsMounted();
 
   // Cycle to next theme on click
-  const handleClick = useCallback(() => {
+  // Stop propagation to prevent BottomSheet overlay from closing
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
     const currentTheme = (theme ?? 'system') as ThemeValue;
     const currentIndex = themeCycle.indexOf(currentTheme);
     const nextIndex = (currentIndex + 1) % themeCycle.length;
