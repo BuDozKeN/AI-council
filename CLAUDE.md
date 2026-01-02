@@ -57,6 +57,116 @@ Copy `.env.example` to `.env` and fill in:
 - `VITE_API_URL` - Usually `http://localhost:8081`
 - `OPENROUTER_API_KEY` - For LLM API access
 
+## New Computer/Terminal Setup (Full Sync)
+
+When setting up on a new computer or terminal to reach the current development state:
+
+### Step 1: Install Prerequisites
+
+**Required software:**
+- Node.js v18+ - https://nodejs.org/
+- Python 3.10+ - https://www.python.org/
+- Git - https://git-scm.com/
+- Google Chrome - https://www.google.com/chrome/
+
+### Step 2: Install GitHub CLI (Required for CI Automation)
+
+**Windows (winget):**
+```bash
+winget install --id GitHub.cli
+```
+
+**macOS:**
+```bash
+brew install gh
+```
+
+**Linux (Debian/Ubuntu):**
+```bash
+curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+sudo apt update && sudo apt install gh
+```
+
+### Step 3: Authenticate GitHub CLI
+
+```bash
+gh auth login --web --git-protocol https
+```
+This opens a browser - authorize with your GitHub account.
+
+**Verify authentication:**
+```bash
+gh auth status
+```
+
+### Step 4: Clone and Install Project
+
+```bash
+# Clone repository
+git clone https://github.com/BuDozKeN/AI-council.git
+cd AI-council
+
+# Install frontend dependencies
+cd frontend
+npm install
+cd ..
+
+# Install backend dependencies
+pip install -e ".[dev]"
+
+# Install pre-commit hooks (optional but recommended)
+pre-commit install
+```
+
+### Step 5: Set Up Environment Variables
+
+```bash
+# Copy example env file
+cp .env.example .env
+
+# Edit .env and fill in:
+# - VITE_SUPABASE_URL
+# - VITE_SUPABASE_ANON_KEY
+# - OPENROUTER_API_KEY
+```
+
+### Step 6: Configure MCP Servers for Claude Code
+
+The `.mcp.json` file is already in the repo. After cloning, **restart VS Code** (or your IDE) to activate the MCP servers:
+- **GitHub MCP** - Enables Claude to check CI status, read workflow logs
+- **Supabase MCP** - Database schema introspection
+- **Chrome DevTools MCP** - Browser debugging (requires Chrome with debug port)
+
+### Step 7: Verify Setup
+
+```bash
+# Check GitHub CLI works
+gh run list --repo BuDozKeN/AI-council --limit 3
+
+# Run tests locally
+cd frontend && npm run test:run
+
+# Start development environment (Windows)
+cd .. && dev.bat
+
+# OR manually:
+# Terminal 1: cd frontend && npm run dev
+# Terminal 2: python -m backend.main
+```
+
+### CI Automation Workflow
+
+Once set up, Claude Code can automatically:
+1. **Check CI status:** `gh run list --repo BuDozKeN/AI-council`
+2. **Get failure logs:** `gh run view <run-id> --log-failed`
+3. **Fix issues and push**
+4. **Watch CI pass:** `gh run watch <run-id> --exit-status`
+
+**No more manual copy/paste of CI errors!**
+
+---
+
 ## Project Overview
 
 AxCouncil is an AI-powered decision council platform that orchestrates multiple LLM models (Claude, GPT, Gemini, Grok, DeepSeek) through a 3-stage deliberation pipeline: individual responses → peer review → synthesis.
