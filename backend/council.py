@@ -7,7 +7,6 @@ from .config import COUNCIL_MODELS, CHAIRMAN_MODEL, CHAIRMAN_MODELS, MIN_STAGE1_
 from .context_loader import (
     get_system_prompt_with_context,
     wrap_user_query,
-    wrap_model_response,
     detect_suspicious_query,
     sanitize_user_content
 )
