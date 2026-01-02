@@ -240,6 +240,11 @@ export function useSaveActions({
           }
         }
 
+        // Ensure projectToUse is defined (TypeScript guard)
+        if (!projectToUse) {
+          throw new Error('Project data unavailable');
+        }
+
         const mergeResult = await api.mergeDecisionIntoProject(
           selectedProjectId,
           projectToUse.context_md || '',
