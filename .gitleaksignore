@@ -1,0 +1,10 @@
+# Gitleaks ignore file for historical findings that have been addressed
+# These secrets were committed in 114f8b1f and removed in aeb20db/59c5426
+# Credentials have been rotated.
+
+# OpenRouter API key (rotated)
+114f8b1f6086db9ac3fbf318430f1036e2e4f65b:.env.local:openrouter-api-key:2
+
+# Supabase anon key (public key, designed to be exposed)
+114f8b1f6086db9ac3fbf318430f1036e2e4f65b:.env.local:supabase-service-key:3
+114f8b1f6086db9ac3fbf318430f1036e2e4f65b:.env.local:supabase-service-key:7
