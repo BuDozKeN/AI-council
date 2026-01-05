@@ -15,6 +15,7 @@ dependencies = [
     "pillow>=10.0.0",  # Image optimization for uploads
     "stripe>=7.0.0",  # Billing integration
     "slowapi>=0.1.9",  # Rate limiting
+    "python-multipart>=0.0.9",  # File upload support for FastAPI
 ]
 
 [project.optional-dependencies]
