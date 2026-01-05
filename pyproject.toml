@@ -13,6 +13,8 @@ dependencies = [
     "supabase>=2.0.0",
     "gunicorn>=21.0.0",
     "pillow>=10.0.0",  # Image optimization for uploads
+    "stripe>=7.0.0",  # Billing integration
+    "slowapi>=0.1.9",  # Rate limiting
 ]
 
 [project.optional-dependencies]
