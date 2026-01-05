@@ -118,7 +118,7 @@ test.describe('Performance', () => {
     await page.waitForLoadState('networkidle');
 
     // Get initial memory (if available)
-    const initialMemory = await page.evaluate(() => {
+    const initialMemory = await page.evaluate((): number | null => {
       if ('memory' in performance) {
         return (performance as { memory: { usedJSHeapSize: number } }).memory.usedJSHeapSize;
       }
@@ -137,7 +137,7 @@ test.describe('Performance', () => {
       await page.waitForLoadState('networkidle');
     }
 
-    const finalMemory = await page.evaluate(() => {
+    const finalMemory = await page.evaluate((): number | null => {
       if ('memory' in performance) {
         return (performance as { memory: { usedJSHeapSize: number } }).memory.usedJSHeapSize;
       }
