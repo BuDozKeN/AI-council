@@ -142,7 +142,11 @@ export function MultiDepartmentSelect({
           {triggerContent}
         </button>
 
-        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title={t('departments.selectDepartments')}>
+        <BottomSheet
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          title={t('departments.selectDepartments')}
+        >
           {departmentList(true)}
         </BottomSheet>
       </>

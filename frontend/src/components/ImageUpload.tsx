@@ -78,7 +78,10 @@ export default function ImageUpload({
         return t('imageUpload.invalidFileType', { type: file.type });
       }
       if (file.size > maxSizeBytes) {
-        return t('imageUpload.fileTooLarge', { size: (file.size / 1024 / 1024).toFixed(1), max: maxSizeMB });
+        return t('imageUpload.fileTooLarge', {
+          size: (file.size / 1024 / 1024).toFixed(1),
+          max: maxSizeMB,
+        });
       }
       return null;
     },

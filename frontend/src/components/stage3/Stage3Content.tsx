@@ -186,9 +186,7 @@ function Stage3Content({
       <div className={`final-content-wrapper ${showCompleteCelebration ? 'complete-glow' : ''}`}>
         <div className={`final-text ${hasError ? 'error-text' : ''}`}>
           {hasError ? (
-            <p className="empty-message">
-              {displayText || t('stages.synthesisError')}
-            </p>
+            <p className="empty-message">{displayText || t('stages.synthesisError')}</p>
           ) : (
             <>
               <article className="prose prose-slate max-w-none dark:prose-invert">

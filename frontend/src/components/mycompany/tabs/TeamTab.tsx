@@ -91,7 +91,9 @@ export function TeamTab({
                   {/* Main content */}
                   <div className="mc-elegant-content">
                     <span className="mc-elegant-title">{dept.name}</span>
-                    <span className="mc-elegant-meta">{dept.roles?.length || 0} {t('mycompany.roles')}</span>
+                    <span className="mc-elegant-meta">
+                      {dept.roles?.length || 0} {t('mycompany.roles')}
+                    </span>
                   </div>
 
                   {/* Expand icon */}
@@ -169,7 +171,11 @@ export function TeamTab({
       </ScrollableContent>
 
       {/* FAB - Mobile only (visible via CSS) */}
-      <button className="mc-fab" onClick={onAddDepartment} aria-label={t('mycompany.createNewDepartment')}>
+      <button
+        className="mc-fab"
+        onClick={onAddDepartment}
+        aria-label={t('mycompany.createNewDepartment')}
+      >
         <Plus />
       </button>
     </div>

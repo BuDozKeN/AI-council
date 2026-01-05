@@ -29,21 +29,11 @@ import { Skeleton } from '../../ui/Skeleton';
 import { Button } from '../../ui/button';
 import { RangeSlider } from '../../ui/RangeSlider';
 import { Tooltip } from '../../ui/Tooltip';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../../ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 import { api, type Persona } from '../../../api';
 import { toast } from '../../ui/sonner';
 import { invalidateCouncilStats } from '../../../hooks/useCouncilStats';
-import type {
-  LLMPresetFull,
-  ModelRegistryEntry,
-  StageConfig,
-} from '../../../types/business';
+import type { LLMPresetFull, ModelRegistryEntry, StageConfig } from '../../../types/business';
 import '../styles/tabs/llm-hub.css';
 
 // Persona icon mapping - labels and hints come from translations (llmHub.personas.{personaKey})
@@ -76,7 +66,7 @@ const CREATIVITY_KEYS = {
 } as const;
 
 // Returns translation key for creativity level
-function getCreativityKey(temp: number): typeof CREATIVITY_KEYS[CreativityLevel] {
+function getCreativityKey(temp: number): (typeof CREATIVITY_KEYS)[CreativityLevel] {
   const level = getCreativityLevel(temp);
   return CREATIVITY_KEYS[level];
 }
@@ -93,7 +83,10 @@ const LENGTH_KEYS = {
 
 // Type-safe preset keys
 const PRESET_KEYS = {
-  conservative: { label: 'llmHub.presets.conservative.label', desc: 'llmHub.presets.conservative.desc' },
+  conservative: {
+    label: 'llmHub.presets.conservative.label',
+    desc: 'llmHub.presets.conservative.desc',
+  },
   balanced: { label: 'llmHub.presets.balanced.label', desc: 'llmHub.presets.balanced.desc' },
   creative: { label: 'llmHub.presets.creative.label', desc: 'llmHub.presets.creative.desc' },
 } as const;
@@ -114,21 +107,45 @@ const GROUP_KEYS = {
 
 // Type-safe role keys
 const ROLE_KEYS = {
-  council_member: { label: 'llmHub.roles.council_member.label', hint: 'llmHub.roles.council_member.hint' },
-  stage2_reviewer: { label: 'llmHub.roles.stage2_reviewer.label', hint: 'llmHub.roles.stage2_reviewer.hint' },
+  council_member: {
+    label: 'llmHub.roles.council_member.label',
+    hint: 'llmHub.roles.council_member.hint',
+  },
+  stage2_reviewer: {
+    label: 'llmHub.roles.stage2_reviewer.label',
+    hint: 'llmHub.roles.stage2_reviewer.hint',
+  },
   chairman: { label: 'llmHub.roles.chairman.label', hint: 'llmHub.roles.chairman.hint' },
-  document_writer: { label: 'llmHub.roles.document_writer.label', hint: 'llmHub.roles.document_writer.hint' },
+  document_writer: {
+    label: 'llmHub.roles.document_writer.label',
+    hint: 'llmHub.roles.document_writer.hint',
+  },
   utility: { label: 'llmHub.roles.utility.label', hint: 'llmHub.roles.utility.hint' },
 } as const;
 
 // Type-safe persona keys
 const PERSONA_KEYS = {
-  sop_writer: { label: 'llmHub.personas.sop_writer.label', hint: 'llmHub.personas.sop_writer.hint' },
-  framework_author: { label: 'llmHub.personas.framework_author.label', hint: 'llmHub.personas.framework_author.hint' },
-  policy_writer: { label: 'llmHub.personas.policy_writer.label', hint: 'llmHub.personas.policy_writer.hint' },
-  persona_architect: { label: 'llmHub.personas.persona_architect.label', hint: 'llmHub.personas.persona_architect.hint' },
+  sop_writer: {
+    label: 'llmHub.personas.sop_writer.label',
+    hint: 'llmHub.personas.sop_writer.hint',
+  },
+  framework_author: {
+    label: 'llmHub.personas.framework_author.label',
+    hint: 'llmHub.personas.framework_author.hint',
+  },
+  policy_writer: {
+    label: 'llmHub.personas.policy_writer.label',
+    hint: 'llmHub.personas.policy_writer.hint',
+  },
+  persona_architect: {
+    label: 'llmHub.personas.persona_architect.label',
+    hint: 'llmHub.personas.persona_architect.hint',
+  },
   sarah: { label: 'llmHub.personas.sarah.label', hint: 'llmHub.personas.sarah.hint' },
-  ai_write_assist: { label: 'llmHub.personas.ai_write_assist.label', hint: 'llmHub.personas.ai_write_assist.hint' },
+  ai_write_assist: {
+    label: 'llmHub.personas.ai_write_assist.label',
+    hint: 'llmHub.personas.ai_write_assist.hint',
+  },
 } as const;
 
 // Returns translation key for length label
@@ -147,23 +164,24 @@ function getLengthKey(tokens: number): (typeof LENGTH_KEYS)[keyof typeof LENGTH_
 // We use lower temperatures for more consistent, reliable outputs.
 // ============================================================================
 
-const DEFAULTS: Record<string, { stage1: StageConfig; stage2: StageConfig; stage3: StageConfig }> = {
-  conservative: {
-    stage1: { temperature: 0.2, max_tokens: 1024 },
-    stage2: { temperature: 0.15, max_tokens: 512 },
-    stage3: { temperature: 0.25, max_tokens: 2048 },
-  },
-  balanced: {
-    stage1: { temperature: 0.5, max_tokens: 1536 },
-    stage2: { temperature: 0.3, max_tokens: 512 },
-    stage3: { temperature: 0.4, max_tokens: 2048 },
-  },
-  creative: {
-    stage1: { temperature: 0.8, max_tokens: 2048 },
-    stage2: { temperature: 0.5, max_tokens: 512 },
-    stage3: { temperature: 0.7, max_tokens: 2048 },
-  },
-};
+const DEFAULTS: Record<string, { stage1: StageConfig; stage2: StageConfig; stage3: StageConfig }> =
+  {
+    conservative: {
+      stage1: { temperature: 0.2, max_tokens: 1024 },
+      stage2: { temperature: 0.15, max_tokens: 512 },
+      stage3: { temperature: 0.25, max_tokens: 2048 },
+    },
+    balanced: {
+      stage1: { temperature: 0.5, max_tokens: 1536 },
+      stage2: { temperature: 0.3, max_tokens: 512 },
+      stage3: { temperature: 0.4, max_tokens: 2048 },
+    },
+    creative: {
+      stage1: { temperature: 0.8, max_tokens: 2048 },
+      stage2: { temperature: 0.5, max_tokens: 512 },
+      stage3: { temperature: 0.7, max_tokens: 2048 },
+    },
+  };
 
 // ============================================================================
 // Config
@@ -211,13 +229,13 @@ const ROLES: Record<string, RoleConfig> = {
   council_member: {
     group: 'core',
     multi: true,
-    minModels: 1,  // Allow down to 1 model (user's choice)
+    minModels: 1, // Allow down to 1 model (user's choice)
     maxModels: 14, // Allow all available models
   },
   stage2_reviewer: {
     group: 'core',
     multi: true,
-    minModels: 1,  // Allow down to 1 model (user's choice)
+    minModels: 1, // Allow down to 1 model (user's choice)
     maxModels: 14, // Allow all available models
   },
   chairman: {
@@ -312,11 +330,7 @@ const DEFAULT_MODELS: Record<string, string[]> = {
     'anthropic/claude-3-5-sonnet-20241022',
     'google/gemini-2.0-flash-001',
   ],
-  utility: [
-    'google/gemini-2.5-flash',
-    'openai/gpt-4o-mini',
-    'anthropic/claude-3-5-haiku-20241022',
-  ],
+  utility: ['google/gemini-2.5-flash', 'openai/gpt-4o-mini', 'anthropic/claude-3-5-haiku-20241022'],
 };
 
 // Generate placeholder entries from defaults when DB has no data
@@ -342,7 +356,7 @@ function getEffectiveModels(
     model_id: modelId,
     priority: idx,
     is_active: true,
-    is_global: true,  // Defaults are "global"
+    is_global: true, // Defaults are "global"
   }));
 
   return { models: virtualModels, isUsingDefaults: true };
@@ -374,17 +388,9 @@ function ModelPill({ entry, canRemove, disabled, onModelChange, onRemove }: Mode
 
   return (
     <div className="llm-model-item" data-llm-select>
-      <Select
-        value={entry.model_id}
-        onValueChange={handleValueChange}
-        disabled={disabled}
-      >
+      <Select value={entry.model_id} onValueChange={handleValueChange} disabled={disabled}>
         <SelectTrigger className="llm-model-select select-trigger--llm-model">
-          <img
-            src={getProviderIcon(entry.model_id)}
-            alt=""
-            className="llm-model-icon"
-          />
+          <img src={getProviderIcon(entry.model_id)} alt="" className="llm-model-icon" />
           <span className="llm-model-name">{model?.name ?? t('common.select')}</span>
         </SelectTrigger>
         <SelectContent className="llm-model-dropdown">
@@ -399,11 +405,7 @@ function ModelPill({ entry, canRemove, disabled, onModelChange, onRemove }: Mode
           )}
           {MODELS.map((m) => (
             <SelectItem key={m.id} value={m.id}>
-              <img
-                src={getProviderIcon(m.id)}
-                alt=""
-                className="llm-model-icon"
-              />
+              <img src={getProviderIcon(m.id)} alt="" className="llm-model-icon" />
               {m.name}
             </SelectItem>
           ))}
@@ -458,11 +460,7 @@ function AddModelSelect({ usedModelIds, disabled, onAdd }: AddModelSelectProps) 
         <SelectContent className="llm-model-dropdown">
           {availableModels.map((m) => (
             <SelectItem key={m.id} value={m.id}>
-              <img
-                src={getProviderIcon(m.id)}
-                alt=""
-                className="llm-model-icon"
-              />
+              <img src={getProviderIcon(m.id)} alt="" className="llm-model-icon" />
               {m.name}
             </SelectItem>
           ))}
@@ -508,7 +506,7 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
 
   // Toggle top-level section
   const toggleSection = (id: SectionId) => {
-    setExpandedSection(prev => prev === id ? null : id);
+    setExpandedSection((prev) => (prev === id ? null : id));
     // Reset inner states when collapsing
     if (expandedSection === id) {
       setExpandedPreset(null);
@@ -556,7 +554,7 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
       setExpandedPreset(null);
       setEditValues(null);
     } else {
-      const preset = presets.find(p => p.id === id);
+      const preset = presets.find((p) => p.id === id);
       if (preset) {
         setExpandedPreset(id);
         setEditValues({
@@ -572,20 +570,25 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Auto-save function (debounced)
-  const autoSave = useCallback(async (presetId: string, values: typeof editValues) => {
-    if (!values) return;
-    try {
-      await api.updateLLMPreset(companyId, presetId, { config: values });
-      // Update local presets state to reflect saved values
-      setPresets(prev => prev.map(p =>
-        p.id === presetId ? { ...p, config: values } : p
-      ));
-    } catch {
-      toast.error(t('common.failedToSave'));
-    }
-  }, [companyId, t]);
+  const autoSave = useCallback(
+    async (presetId: string, values: typeof editValues) => {
+      if (!values) return;
+      try {
+        await api.updateLLMPreset(companyId, presetId, { config: values });
+        // Update local presets state to reflect saved values
+        setPresets((prev) => prev.map((p) => (p.id === presetId ? { ...p, config: values } : p)));
+      } catch {
+        toast.error(t('common.failedToSave'));
+      }
+    },
+    [companyId, t]
+  );
 
-  const updateValue = (stage: 'stage1' | 'stage2' | 'stage3', field: 'temperature' | 'max_tokens', value: number) => {
+  const updateValue = (
+    stage: 'stage1' | 'stage2' | 'stage3',
+    field: 'temperature' | 'max_tokens',
+    value: number
+  ) => {
     if (!editValues || !expandedPreset) return;
     const newValues = {
       ...editValues,
@@ -666,7 +669,7 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
         }
 
         // Update state with real DB entries
-        setModels(prev => ({
+        setModels((prev) => ({
           ...prev,
           [entry.role]: newModels,
         }));
@@ -681,10 +684,10 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
 
     // Optimistic update - update local state immediately for smooth UX
     const oldModelId = entry.model_id;
-    setModels(prev => {
+    setModels((prev) => {
       const updated = { ...prev };
-      const roleModels = (updated[entry.role] || []).map(m =>
-        m.id === entry.id ? { ...m, model_id: modelId } as ModelRegistryEntry : m
+      const roleModels = (updated[entry.role] || []).map((m) =>
+        m.id === entry.id ? ({ ...m, model_id: modelId } as ModelRegistryEntry) : m
       );
       updated[entry.role] = roleModels;
       return updated;
@@ -695,10 +698,10 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
       // No need to refetch - state already updated
     } catch {
       // Rollback on error
-      setModels(prev => {
+      setModels((prev) => {
         const updated = { ...prev };
-        const roleModels = (updated[entry.role] || []).map(m =>
-          m.id === entry.id ? { ...m, model_id: oldModelId } as ModelRegistryEntry : m
+        const roleModels = (updated[entry.role] || []).map((m) =>
+          m.id === entry.id ? ({ ...m, model_id: oldModelId } as ModelRegistryEntry) : m
         );
         updated[entry.role] = roleModels;
         return updated;
@@ -727,7 +730,7 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
 
       // Add new model to state (server returns the created model with ID)
       if (result.model) {
-        setModels(prev => {
+        setModels((prev) => {
           const updated = { ...prev };
           updated[role] = [...(updated[role] || []), result.model];
           return updated;
@@ -756,9 +759,9 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
 
     // Optimistic update - remove from state immediately
     const removedEntry = entry;
-    setModels(prev => {
+    setModels((prev) => {
       const updated = { ...prev };
-      updated[entry.role] = (updated[entry.role] || []).filter(m => m.id !== entry.id);
+      updated[entry.role] = (updated[entry.role] || []).filter((m) => m.id !== entry.id);
       return updated;
     });
 
@@ -770,10 +773,11 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
       }
     } catch {
       // Rollback on error
-      setModels(prev => {
+      setModels((prev) => {
         const updated = { ...prev };
-        updated[removedEntry.role] = [...(updated[removedEntry.role] || []), removedEntry]
-          .sort((a, b) => a.priority - b.priority);
+        updated[removedEntry.role] = [...(updated[removedEntry.role] || []), removedEntry].sort(
+          (a, b) => a.priority - b.priority
+        );
         return updated;
       });
       toast.error(t('llmHub.toast.failedRemoveModel'));
@@ -781,7 +785,7 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
   };
 
   const toggleGroup = (id: string) => {
-    setExpandedGroups(prev => {
+    setExpandedGroups((prev) => {
       const next = new Set(prev);
       next.has(id) ? next.delete(id) : next.add(id);
       return next;
@@ -812,15 +816,17 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
       });
 
       // Update local state
-      setPersonas(prev =>
-        prev.map(p =>
+      setPersonas((prev) =>
+        prev.map((p) =>
           p.persona_key === personaKey
             ? { ...p, system_prompt: personaEditValue, is_global: false }
             : p
         )
       );
 
-      toast.success(result.created ? t('llmHub.toast.customizationSaved') : t('llmHub.toast.promptUpdated'));
+      toast.success(
+        result.created ? t('llmHub.toast.customizationSaved') : t('llmHub.toast.promptUpdated')
+      );
       setEditingPersona(null);
       setPersonaEditValue('');
     } catch {
@@ -852,17 +858,19 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
   // Group roles and enforce order using the group's order array
   // Show ALL configured roles from ROLES, not just those returned by API
   // This ensures new roles appear in UI even before database has entries
-  const groupedRoles = Object.entries(GROUPS).map(([id, group]) => {
-    // Use the group's defined order directly - these are all the roles we want to show
-    // Filter to only roles that exist in ROLES config (defensive)
-    const orderedRoles = group.order.filter(r => ROLES[r]?.group === id);
+  const groupedRoles = Object.entries(GROUPS)
+    .map(([id, group]) => {
+      // Use the group's defined order directly - these are all the roles we want to show
+      // Filter to only roles that exist in ROLES config (defensive)
+      const orderedRoles = group.order.filter((r) => ROLES[r]?.group === id);
 
-    return {
-      id,
-      ...group,
-      roles: orderedRoles,
-    };
-  }).filter(g => g.roles.length > 0);
+      return {
+        id,
+        ...group,
+        roles: orderedRoles,
+      };
+    })
+    .filter((g) => g.roles.length > 0);
 
   if (loading) {
     return (
@@ -952,7 +960,9 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
                       <div className="llm-inner-card-info">
                         <span className="llm-inner-card-title">
                           {presetKeys ? t(presetKeys.label) : preset.name}
-                          {iconConfig?.isDefault && <span className="llm-default-tag">{t('llmHub.recommended')}</span>}
+                          {iconConfig?.isDefault && (
+                            <span className="llm-default-tag">{t('llmHub.recommended')}</span>
+                          )}
                         </span>
                         <span className="llm-inner-card-desc">
                           {presetKeys ? t(presetKeys.desc) : preset.description}
@@ -969,9 +979,15 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
                         <div className="llm-stages">
                           {/* Desktop header row */}
                           <div className="llm-stage-header">
-                            <div className="llm-stage-header-cell">{t('llmHub.stages.processStep')}</div>
-                            <div className="llm-stage-header-cell">{t('llmHub.stages.creativity')}</div>
-                            <div className="llm-stage-header-cell">{t('llmHub.stages.responseLength')}</div>
+                            <div className="llm-stage-header-cell">
+                              {t('llmHub.stages.processStep')}
+                            </div>
+                            <div className="llm-stage-header-cell">
+                              {t('llmHub.stages.creativity')}
+                            </div>
+                            <div className="llm-stage-header-cell">
+                              {t('llmHub.stages.responseLength')}
+                            </div>
                           </div>
 
                           {STAGE_KEYS.map((stageKey) => {
@@ -1010,10 +1026,14 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
                                   <div className="llm-length-wrapper llm-length-wrapper--desktop">
                                     <Select
                                       value={String(stageData.max_tokens)}
-                                      onValueChange={(v) => updateValue(stageKey, 'max_tokens', parseInt(v))}
+                                      onValueChange={(v) =>
+                                        updateValue(stageKey, 'max_tokens', parseInt(v))
+                                      }
                                     >
                                       <SelectTrigger className="llm-length-select">
-                                        <SelectValue>{t(getLengthKey(stageData.max_tokens))}</SelectValue>
+                                        <SelectValue>
+                                          {t(getLengthKey(stageData.max_tokens))}
+                                        </SelectValue>
                                       </SelectTrigger>
                                       <SelectContent>
                                         {LENGTH_OPTIONS.map((opt) => (
@@ -1046,13 +1066,19 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
 
                                 {/* Mobile: Response + dropdown on ONE line */}
                                 <div className="llm-mobile-length-row">
-                                  <span className="llm-mobile-length-label">{t('llmHub.stages.response')}</span>
+                                  <span className="llm-mobile-length-label">
+                                    {t('llmHub.stages.response')}
+                                  </span>
                                   <Select
                                     value={String(stageData.max_tokens)}
-                                    onValueChange={(v) => updateValue(stageKey, 'max_tokens', parseInt(v))}
+                                    onValueChange={(v) =>
+                                      updateValue(stageKey, 'max_tokens', parseInt(v))
+                                    }
                                   >
                                     <SelectTrigger className="llm-length-select">
-                                      <SelectValue>{t(getLengthKey(stageData.max_tokens))}</SelectValue>
+                                      <SelectValue>
+                                        {t(getLengthKey(stageData.max_tokens))}
+                                      </SelectValue>
                                     </SelectTrigger>
                                     <SelectContent>
                                       {LENGTH_OPTIONS.map((opt) => (
@@ -1164,11 +1190,17 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
                             const roleModels = models[role] || [];
                             const cfg = ROLES[role];
                             // Use effective models (defaults if DB empty)
-                            const { models: effectiveModels, isUsingDefaults } = getEffectiveModels(role, roleModels);
-                            const sortedModels = [...effectiveModels].sort((a, b) => a.priority - b.priority);
+                            const { models: effectiveModels, isUsingDefaults } = getEffectiveModels(
+                              role,
+                              roleModels
+                            );
+                            const sortedModels = [...effectiveModels].sort(
+                              (a, b) => a.priority - b.priority
+                            );
                             const canAdd = sortedModels.length < (cfg?.maxModels ?? 5);
                             // Can't remove defaults - they're virtual entries
-                            const canRemove = !isUsingDefaults && sortedModels.length > (cfg?.minModels ?? 1);
+                            const canRemove =
+                              !isUsingDefaults && sortedModels.length > (cfg?.minModels ?? 1);
                             const isMulti = cfg?.multi !== false;
                             const roleId = role as keyof typeof ROLE_KEYS;
 
@@ -1206,7 +1238,10 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
                                 ) : (
                                   <div className="llm-model-chain">
                                     {sortedModels.map((entry, idx) => {
-                                      const label = idx === 0 ? t('llmHub.primary') : t('llmHub.fallback', { num: idx });
+                                      const label =
+                                        idx === 0
+                                          ? t('llmHub.primary')
+                                          : t('llmHub.fallback', { num: idx });
                                       return (
                                         <div key={entry.id} className="llm-model-chain-item">
                                           <span className="llm-model-chain-label">{label}</span>
@@ -1286,18 +1321,26 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
                       <button
                         type="button"
                         className="llm-inner-card-header"
-                        onClick={() => isEditing ? cancelEditingPersona() : startEditingPersona(persona)}
+                        onClick={() =>
+                          isEditing ? cancelEditingPersona() : startEditingPersona(persona)
+                        }
                       >
                         <div className="llm-inner-card-icon" data-color="amber">
                           <PersonaIcon size={16} />
                         </div>
                         <div className="llm-inner-card-info">
                           <span className="llm-inner-card-title">
-                            {PERSONA_KEYS[personaId] ? t(PERSONA_KEYS[personaId].label) : persona.name}
-                            {!persona.is_global && <span className="llm-customized-tag">{t('llmHub.customized')}</span>}
+                            {PERSONA_KEYS[personaId]
+                              ? t(PERSONA_KEYS[personaId].label)
+                              : persona.name}
+                            {!persona.is_global && (
+                              <span className="llm-customized-tag">{t('llmHub.customized')}</span>
+                            )}
                           </span>
                           <span className="llm-inner-card-desc">
-                            {PERSONA_KEYS[personaId] ? t(PERSONA_KEYS[personaId].hint) : persona.description}
+                            {PERSONA_KEYS[personaId]
+                              ? t(PERSONA_KEYS[personaId].hint)
+                              : persona.description}
                           </span>
                         </div>
                         <ChevronRight

@@ -49,7 +49,12 @@ interface PromoteDecision {
   summary?: string;
 }
 
-type AddFormType = 'department' | 'playbook' | 'company-context' | { type: 'role'; deptId: string } | null;
+type AddFormType =
+  | 'department'
+  | 'playbook'
+  | 'company-context'
+  | { type: 'role'; deptId: string }
+  | null;
 
 interface EditingItem {
   type:
@@ -416,7 +421,12 @@ export default function MyCompany({
     setSaving(false);
   };
 
-  const handleAddRole = async (deptId: string, name: string, title: string, systemPrompt?: string) => {
+  const handleAddRole = async (
+    deptId: string,
+    name: string,
+    title: string,
+    systemPrompt?: string
+  ) => {
     setSaving(true);
     try {
       const roleData: { name: string; slug: string; title: string; system_prompt?: string } = {
@@ -527,7 +537,8 @@ export default function MyCompany({
   // Don't show skeleton when a modal is open (editingItem or showAddForm) - this prevents
   // skeleton flashing when mutations trigger loadData while viewing an item
   const hasOpenModal = editingItem !== null || showAddForm !== null;
-  const showSkeleton = !hasOpenModal && (companyData.loading || !companyData.isTabLoaded(activeTab));
+  const showSkeleton =
+    !hasOpenModal && (companyData.loading || !companyData.isTabLoaded(activeTab));
 
   // Render skeleton based on tab
   const renderSkeleton = () => (

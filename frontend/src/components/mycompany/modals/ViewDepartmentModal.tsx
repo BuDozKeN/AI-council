@@ -96,9 +96,7 @@ export function ViewDepartmentModal({ department, onClose, onSave }: ViewDepartm
               {content ? (
                 <MarkdownViewer content={content} skipCleanup={true} />
               ) : (
-                <p className="mc-no-content">
-                  {t('modals.noDepartmentContext')}
-                </p>
+                <p className="mc-no-content">{t('modals.noDepartmentContext')}</p>
               )}
             </FloatingContextActions>
           )}

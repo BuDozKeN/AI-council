@@ -85,7 +85,9 @@ export function ViewPlaybookModal({
         setIsEditingTitle(false);
 
         // Build descriptive success message
-        const docTypeLabel = t(`mycompany.typeShort_${docType}`, { defaultValue: docType.toUpperCase() });
+        const docTypeLabel = t(`mycompany.typeShort_${docType}`, {
+          defaultValue: docType.toUpperCase(),
+        });
         const title = editedTitle || playbook.title;
         const deptNames = selectedDepts
           .map((id) => departments.find((d) => d.id === id)?.name)

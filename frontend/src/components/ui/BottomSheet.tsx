@@ -113,7 +113,8 @@ function SheetContent({
 
       // Check if we're at scroll boundaries
       const atTop = scrollable.scrollTop <= 0;
-      const atBottom = scrollable.scrollTop + scrollable.clientHeight >= scrollable.scrollHeight - 1;
+      const atBottom =
+        scrollable.scrollTop + scrollable.clientHeight >= scrollable.scrollHeight - 1;
 
       // Scrolling up at top or down at bottom - let default behavior happen
       if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) {

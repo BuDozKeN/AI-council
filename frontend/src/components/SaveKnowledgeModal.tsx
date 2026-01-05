@@ -424,13 +424,14 @@ export default function SaveKnowledgeModal({
 
       // Show success toast and close modal
       const modeText =
-        saveMode === 'remember' ? t('modals.decisionSavedRemembered') : t('modals.decisionSavedRef');
+        saveMode === 'remember'
+          ? t('modals.decisionSavedRemembered')
+          : t('modals.decisionSavedRef');
       toast.success(`"${title.trim()}" - ${modeText}`, { duration: 4000 });
       onClose(true); // Close modal immediately with saved=true
     } catch (err) {
       log.error('Save failed:', err);
-      const errorMessage =
-        err instanceof Error ? err.message : t('errors.saveFailed');
+      const errorMessage = err instanceof Error ? err.message : t('errors.saveFailed');
       setError(errorMessage);
     } finally {
       setSaving(false);
@@ -449,12 +450,12 @@ export default function SaveKnowledgeModal({
         <div className="success-message">
           <span className="success-icon">&#10003;</span>
           <p className="success-title">
-            {saveMode === 'remember' ? t('modals.savedAndRemembered') : t('modals.savedToKnowledgeBase')}
+            {saveMode === 'remember'
+              ? t('modals.savedAndRemembered')
+              : t('modals.savedToKnowledgeBase')}
           </p>
           <p className="success-detail">
-            {saveMode === 'remember'
-              ? t('modals.willAutoInject')
-              : t('modals.savedForReference')}
+            {saveMode === 'remember' ? t('modals.willAutoInject') : t('modals.savedForReference')}
           </p>
           <div className="success-location">
             <div className="success-location-row">
@@ -486,9 +487,7 @@ export default function SaveKnowledgeModal({
         <div className="extracting-message">
           <Spinner size="xl" variant="brand" />
           <p>{t('modals.aiExtractingInsights')}</p>
-          <p className="extracting-hint">
-            {t('modals.analyzingResponse')}
-          </p>
+          <p className="extracting-hint">{t('modals.analyzingResponse')}</p>
         </div>
       ) : (
         <>
@@ -507,14 +506,18 @@ export default function SaveKnowledgeModal({
                     <span className="save-mode-icon">{mode.icon}</span>
                     <span className="save-mode-text">
                       <span className="save-mode-name">
-                        {mode.id === 'just_save' ? t('modals.justSave') :
-                         mode.id === 'remember' ? t('modals.rememberThis') :
-                         t('modals.makePlaybook')}
+                        {mode.id === 'just_save'
+                          ? t('modals.justSave')
+                          : mode.id === 'remember'
+                            ? t('modals.rememberThis')
+                            : t('modals.makePlaybook')}
                       </span>
                       <span className="save-mode-desc">
-                        {mode.id === 'just_save' ? t('modals.justSaveDesc') :
-                         mode.id === 'remember' ? t('modals.rememberThisDesc') :
-                         t('modals.makePlaybookDesc')}
+                        {mode.id === 'just_save'
+                          ? t('modals.justSaveDesc')
+                          : mode.id === 'remember'
+                            ? t('modals.rememberThisDesc')
+                            : t('modals.makePlaybookDesc')}
                       </span>
                     </span>
                   </button>
@@ -586,7 +589,10 @@ export default function SaveKnowledgeModal({
                       <span className="tooltip-icon">?</span>
                       <span className="tooltip-text">
                         <strong>{t('modals.suggested')}:</strong>{' '}
-                        {t(`knowledge.departments.${originalDepartment}` as 'knowledge.departments.executive', { defaultValue: originalDepartment })}
+                        {t(
+                          `knowledge.departments.${originalDepartment}` as 'knowledge.departments.executive',
+                          { defaultValue: originalDepartment }
+                        )}
                         <br />
                         <br />
                         <strong>{t('modals.why')}:</strong> {departmentReason}
@@ -594,9 +600,7 @@ export default function SaveKnowledgeModal({
                           <>
                             <br />
                             <br />
-                            <em className="tooltip-changed">
-                              {t('modals.changedFromSuggestion')}
-                            </em>
+                            <em className="tooltip-changed">{t('modals.changedFromSuggestion')}</em>
                           </>
                         )}
                       </span>
@@ -615,7 +619,9 @@ export default function SaveKnowledgeModal({
                   >
                     {CATEGORIES.map((cat) => (
                       <option key={cat.id} value={cat.id}>
-                        {t(`knowledge.categories.${cat.id.replace('_', '')}`, { defaultValue: cat.label })}
+                        {t(`knowledge.categories.${cat.id.replace('_', '')}`, {
+                          defaultValue: cat.label,
+                        })}
                         {cat.id === originalCategory ? ' *' : ''}
                       </option>
                     ))}
@@ -625,7 +631,10 @@ export default function SaveKnowledgeModal({
                       <span className="tooltip-icon">?</span>
                       <span className="tooltip-text">
                         <strong>{t('modals.suggested')}:</strong>{' '}
-                        {t(`knowledge.categories.${originalCategory?.replace('_', '')}` as 'knowledge.categories.bestPractices', { defaultValue: originalCategory ?? '' })}
+                        {t(
+                          `knowledge.categories.${originalCategory?.replace('_', '')}` as 'knowledge.categories.bestPractices',
+                          { defaultValue: originalCategory ?? '' }
+                        )}
                         <br />
                         <br />
                         <strong>{t('modals.why')}:</strong> {categoryReason}
@@ -633,9 +642,7 @@ export default function SaveKnowledgeModal({
                           <>
                             <br />
                             <br />
-                            <em className="tooltip-changed">
-                              {t('modals.changedFromSuggestion')}
-                            </em>
+                            <em className="tooltip-changed">{t('modals.changedFromSuggestion')}</em>
                           </>
                         )}
                       </span>
@@ -678,7 +685,9 @@ export default function SaveKnowledgeModal({
                     </option>
                   ))}
                 <option value="">{t('modals.noProjectCompanyWide')}</option>
-                <option value="__new__">{creatingProject ? t('modals.creatingOption') : t('modals.newProjectOption')}</option>
+                <option value="__new__">
+                  {creatingProject ? t('modals.creatingOption') : t('modals.newProjectOption')}
+                </option>
               </select>
 
               {/* Project preview/edit form */}
@@ -695,7 +704,9 @@ export default function SaveKnowledgeModal({
                   ) : (
                     <>
                       <div className="project-preview-header">
-                        <span className="project-preview-label">{t('modals.newProjectDetails')}</span>
+                        <span className="project-preview-label">
+                          {t('modals.newProjectDetails')}
+                        </span>
                         <span className="project-preview-hint">
                           {t('modals.reviewEditBeforeCreating')}
                         </span>
@@ -713,7 +724,9 @@ export default function SaveKnowledgeModal({
                         />
                       </div>
                       <div className="project-preview-field">
-                        <label htmlFor="new-project-description">{t('modals.projectDescription')}</label>
+                        <label htmlFor="new-project-description">
+                          {t('modals.projectDescription')}
+                        </label>
                         <textarea
                           id="new-project-description"
                           value={newProjectDescription}
@@ -722,9 +735,7 @@ export default function SaveKnowledgeModal({
                           rows={4}
                           disabled={creatingProject}
                         />
-                        <span className="field-hint">
-                          {t('modals.projectDescHelp')}
-                        </span>
+                        <span className="field-hint">{t('modals.projectDescHelp')}</span>
                       </div>
                       <div className="project-preview-actions">
                         <Button
@@ -806,7 +817,8 @@ export default function SaveKnowledgeModal({
                 >
                   {SCOPES.map((s) => (
                     <option key={s.id} value={s.id}>
-                      {t(`knowledge.scopes.${s.id}`, { defaultValue: s.label })} - {t(`knowledge.scopes.${s.id}Desc`, { defaultValue: s.description })}
+                      {t(`knowledge.scopes.${s.id}`, { defaultValue: s.label })} -{' '}
+                      {t(`knowledge.scopes.${s.id}Desc`, { defaultValue: s.description })}
                     </option>
                   ))}
                 </select>

@@ -28,12 +28,7 @@ interface AddRoleModalProps {
  *
  * Matches the ProjectModal pattern for consistent UX.
  */
-export function AddRoleModal({
-  deptId,
-  companyId,
-  onSave,
-  onClose,
-}: AddRoleModalProps) {
+export function AddRoleModal({ deptId, companyId, onSave, onClose }: AddRoleModalProps) {
   const { t } = useTranslation();
 
   // Step state: 'input', 'review', 'manual', or 'success'
@@ -182,7 +177,10 @@ export function AddRoleModal({
               id="role-description"
               value={freeText}
               onChange={(e) => setFreeText(e.target.value)}
-              placeholder={t('modals.rolePlaceholderAI', 'E.g., "Someone who writes code, reviews PRs, and mentors junior developers" or "Customer support lead who handles escalations"')}
+              placeholder={t(
+                'modals.rolePlaceholderAI',
+                'E.g., "Someone who writes code, reviews PRs, and mentors junior developers" or "Customer support lead who handles escalations"'
+              )}
               disabled={structuring}
               rows={4}
               autoFocus
@@ -290,7 +288,10 @@ export function AddRoleModal({
           {responsibilities.length > 0 && (
             <div className="pm-field">
               <label>{t('modals.keyResponsibilities', 'Key Responsibilities')}</label>
-              <div className="pm-departments-display" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '6px' }}>
+              <div
+                className="pm-departments-display"
+                style={{ flexDirection: 'column', alignItems: 'stretch', gap: '6px' }}
+              >
                 {responsibilities.map((resp, idx) => (
                   <span
                     key={idx}
@@ -321,32 +322,35 @@ export function AddRoleModal({
                 context="role-prompt"
                 value={systemPrompt}
                 onSuggestion={setSystemPrompt}
-                additionalContext={editedName ? `Role: ${editedName}${editedTitle ? ` (${editedTitle})` : ''}` : ''}
+                additionalContext={
+                  editedName ? `Role: ${editedName}${editedTitle ? ` (${editedTitle})` : ''}` : ''
+                }
               >
                 <textarea
                   id="role-prompt"
                   value={systemPrompt}
                   onChange={(e) => setSystemPrompt(e.target.value)}
-                  placeholder={t('modals.aiPersonalityPlaceholder', 'How this role should behave as an AI advisor...')}
+                  placeholder={t(
+                    'modals.aiPersonalityPlaceholder',
+                    'How this role should behave as an AI advisor...'
+                  )}
                   disabled={saving}
                   rows={6}
                   enterKeyHint="done"
                 />
               </AIWriteAssist>
               <p className="pm-field-hint">
-                {t('modals.aiPersonalityHint', 'Defines how this role behaves when acting as an AI advisor in the council')}
+                {t(
+                  'modals.aiPersonalityHint',
+                  'Defines how this role behaves when acting as an AI advisor in the council'
+                )}
               </p>
             </div>
           )}
 
           {/* Actions */}
           <div className="pm-actions pm-actions-review">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={handleBackToEdit}
-              disabled={saving}
-            >
+            <Button type="button" variant="ghost" onClick={handleBackToEdit} disabled={saving}>
               {t('modals.startOver', 'Start Over')}
             </Button>
             <Button

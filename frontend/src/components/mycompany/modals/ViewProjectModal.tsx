@@ -679,9 +679,7 @@ export function ViewProjectModal({
             <div className="mc-context-header-row">
               <div className="mc-context-header-left">
                 <label className="mc-section-label">{t('modals.projectContext')}</label>
-                <span className="mc-section-hint">
-                  {t('modals.projectContextHint')}
-                </span>
+                <span className="mc-section-hint">{t('modals.projectContextHint')}</span>
               </div>
               {/* Right side: AI Enhance + Edit/Save buttons */}
               <div className="mc-context-header-actions">
@@ -785,9 +783,7 @@ export function ViewProjectModal({
                   {content ? (
                     <MarkdownViewer content={content} skipCleanup={true} />
                   ) : (
-                    <p className="mc-no-content">
-                      {t('modals.noProjectContextYet')}
-                    </p>
+                    <p className="mc-no-content">{t('modals.noProjectContextYet')}</p>
                   )}
                 </FloatingContextActions>
               )}
@@ -807,9 +803,7 @@ export function ViewProjectModal({
               <div className="mc-empty-decisions">
                 <Bookmark size={32} className="mc-empty-icon text-slate-300 mb-3" />
                 <p className="mc-empty-title">{t('modals.noDecisionsYet')}</p>
-                <p className="mc-empty-hint">
-                  {t('modals.saveCouncilResponsesToBuildTimeline')}
-                </p>
+                <p className="mc-empty-hint">{t('modals.saveCouncilResponsesToBuildTimeline')}</p>
               </div>
             ) : (
               <div className="mc-decisions-timeline">

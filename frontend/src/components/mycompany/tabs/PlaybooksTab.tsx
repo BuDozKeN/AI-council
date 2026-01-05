@@ -512,7 +512,11 @@ export function PlaybooksTab({
       </ScrollableContent>
 
       {/* FAB - Mobile only (visible via CSS) */}
-      <button className="mc-fab" onClick={onAddPlaybook} aria-label={t('mycompany.createNewPlaybook')}>
+      <button
+        className="mc-fab"
+        onClick={onAddPlaybook}
+        aria-label={t('mycompany.createNewPlaybook')}
+      >
         <Plus />
       </button>
     </div>

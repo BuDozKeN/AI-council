@@ -138,7 +138,9 @@ const AppModalBase = React.forwardRef<HTMLDivElement, AppModalProps>(
     const shouldIgnoreClose = () => {
       // Check if a nested BottomSheet is currently open (e.g., MultiDepartmentSelect dropdown)
       // This prevents the parent modal from closing when interacting with the nested sheet
-      const hasOpenBottomSheet = document.querySelector('.bottom-sheet-content, .bottom-sheet-overlay');
+      const hasOpenBottomSheet = document.querySelector(
+        '.bottom-sheet-content, .bottom-sheet-overlay'
+      );
       if (hasOpenBottomSheet) {
         return true;
       }
@@ -236,8 +238,9 @@ const AppModalBase = React.forwardRef<HTMLDivElement, AppModalProps>(
                 return;
               }
               // Check if MultiDepartmentSelect was just clicked
-              const multiDeptClickTime = (window as Window & { __multiDeptSelectClickTime?: number })
-                .__multiDeptSelectClickTime;
+              const multiDeptClickTime = (
+                window as Window & { __multiDeptSelectClickTime?: number }
+              ).__multiDeptSelectClickTime;
               if (multiDeptClickTime && Date.now() - multiDeptClickTime < 500) {
                 e.preventDefault();
                 return;
@@ -262,8 +265,9 @@ const AppModalBase = React.forwardRef<HTMLDivElement, AppModalProps>(
                 return;
               }
               // Check if MultiDepartmentSelect was just clicked
-              const multiDeptClickTime = (window as Window & { __multiDeptSelectClickTime?: number })
-                .__multiDeptSelectClickTime;
+              const multiDeptClickTime = (
+                window as Window & { __multiDeptSelectClickTime?: number }
+              ).__multiDeptSelectClickTime;
               if (multiDeptClickTime && Date.now() - multiDeptClickTime < 500) {
                 e.preventDefault();
                 return;

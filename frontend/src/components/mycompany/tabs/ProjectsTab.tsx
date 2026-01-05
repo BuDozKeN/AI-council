@@ -238,9 +238,9 @@ export function ProjectsTab({
           <span className="mc-project-decision-count">{project.decision_count || 0}</span>
           <span className="mc-project-time">
             {formatRelativeTime(
-                project.last_accessed_at || project.updated_at,
-                t as (key: string) => string
-              )}
+              project.last_accessed_at || project.updated_at,
+              t as (key: string) => string
+            )}
           </span>
         </div>
 
@@ -379,7 +379,11 @@ export function ProjectsTab({
       </ScrollableContent>
 
       {/* FAB - Mobile only (visible via CSS) */}
-      <button className="mc-fab" onClick={onAddProject} aria-label={t('mycompany.createNewProject')}>
+      <button
+        className="mc-fab"
+        onClick={onAddProject}
+        aria-label={t('mycompany.createNewProject')}
+      >
         <Plus />
       </button>
     </div>

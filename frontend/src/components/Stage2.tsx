@@ -210,7 +210,11 @@ function Stage2({
         {winnerModel && (
           <span
             className={`stage2-winner ${showCompleteCelebration ? 'animate-winner-reveal' : ''}`}
-            title={t('stages.winnerTooltip', { model: winnerPersona?.fullName || winnerPersona?.shortName || t('common.unknown'), count: displayData.length, avg: winnerAvg })}
+            title={t('stages.winnerTooltip', {
+              model: winnerPersona?.fullName || winnerPersona?.shortName || t('common.unknown'),
+              count: displayData.length,
+              avg: winnerAvg,
+            })}
           >
             <span className="winner-medal">🥇</span>
             {winnerIconPath && (
@@ -295,7 +299,9 @@ function Stage2({
                 {activeData.isComplete && !activeData.isEmpty && (
                   <span className="complete-badge">{t('common.done')}</span>
                 )}
-                {activeData.isEmpty && <span className="error-badge">{t('stages.noResponse')}</span>}
+                {activeData.isEmpty && (
+                  <span className="error-badge">{t('stages.noResponse')}</span>
+                )}
                 {activeData.hasError && <span className="error-badge">{t('common.error')}</span>}
               </span>
               {activeData.isComplete && !activeData.isEmpty && activeData.ranking && (
@@ -308,9 +314,7 @@ function Stage2({
               {activeData.isEmpty ? (
                 <p className="empty-message">{t('stages.noEvaluation')}</p>
               ) : activeData.hasError ? (
-                <p className="empty-message">
-                  {activeData.ranking || t('stages.evaluationError')}
-                </p>
+                <p className="empty-message">{activeData.ranking || t('stages.evaluationError')}</p>
               ) : (
                 <>
                   <article className="prose prose-slate prose-sm max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:tracking-tight prose-h1:text-xl prose-h2:text-lg prose-h3:text-base prose-p:leading-relaxed prose-li:my-0.5 prose-ul:my-1 prose-ol:my-1 prose-code:before:content-none prose-code:after:content-none prose-code:bg-slate-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-emerald-700 prose-pre:bg-slate-50 prose-pre:border prose-pre:border-slate-200">
@@ -370,12 +374,14 @@ function Stage2({
                     <div
                       key={index}
                       className={`aggregate-item rank-${index + 1} ${isClickable ? 'clickable' : ''}`}
-                      title={t('stages.rankTooltipFull', {
-                        fullName: persona.fullName,
-                        avg: agg.average_rank.toFixed(1),
-                        votesReceived: agg.rankings_count,
-                        totalVoters,
-                      }) + (isClickable ? ` ${t('stages.clickToViewResponse')}` : '')}
+                      title={
+                        t('stages.rankTooltipFull', {
+                          fullName: persona.fullName,
+                          avg: agg.average_rank.toFixed(1),
+                          votesReceived: agg.rankings_count,
+                          totalVoters,
+                        }) + (isClickable ? ` ${t('stages.clickToViewResponse')}` : '')
+                      }
                       onClick={
                         isClickable && onModelClick ? () => onModelClick(agg.model) : undefined
                       }

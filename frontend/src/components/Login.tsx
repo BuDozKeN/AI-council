@@ -254,7 +254,11 @@ export default function Login() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder={mode === 'resetPassword' ? t('auth.enterNewPassword') : t('auth.passwordPlaceholder')}
+                placeholder={
+                  mode === 'resetPassword'
+                    ? t('auth.enterNewPassword')
+                    : t('auth.passwordPlaceholder')
+                }
                 required
                 minLength={6}
                 autoComplete={mode === 'signUp' ? 'new-password' : 'current-password'}

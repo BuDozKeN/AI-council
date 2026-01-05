@@ -113,7 +113,9 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
                 key={plan.id}
                 className={`plan-card ${isCurrentPlan ? 'current' : ''} ${plan.id === 'pro' ? 'popular' : ''}`}
               >
-                {plan.id === 'pro' && <div className="popular-badge">{t('settings.mostPopular')}</div>}
+                {plan.id === 'pro' && (
+                  <div className="popular-badge">{t('settings.mostPopular')}</div>
+                )}
                 <div className="plan-header">
                   <h4>{plan.name}</h4>
                   <div className="plan-price">
@@ -121,7 +123,9 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
                       <span className="price">{t('settings.free')}</span>
                     ) : (
                       <>
-                        <span className="price">{formatCurrency(plan.price, { maximumFractionDigits: 0 })}</span>
+                        <span className="price">
+                          {formatCurrency(plan.price, { maximumFractionDigits: 0 })}
+                        </span>
                         <span className="period">{t('settings.perMonth')}</span>
                       </>
                     )}

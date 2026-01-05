@@ -88,7 +88,8 @@ export function HelpButton() {
   }
 
   // Get current language name for display
-  const currentLangName = supportedLanguages.find(l => l.code === currentLang)?.nativeName || 'English';
+  const currentLangName =
+    supportedLanguages.find((l) => l.code === currentLang)?.nativeName || 'English';
 
   return (
     <div className="help-button-container" data-testid="language-button">

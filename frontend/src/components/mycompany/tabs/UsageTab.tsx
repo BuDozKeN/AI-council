@@ -298,7 +298,9 @@ export function UsageTab({
             </span>
             <span className="mc-stat-label">{t('mycompany.cacheHitRate')}</span>
             {hasData && cacheSavings > 0 && (
-              <span className="mc-stat-sublabel">{t('mycompany.saved', { amount: formatCost(cacheSavings) })}</span>
+              <span className="mc-stat-sublabel">
+                {t('mycompany.saved', { amount: formatCost(cacheSavings) })}
+              </span>
             )}
           </div>
         </div>
@@ -468,7 +470,9 @@ export function UsageTab({
             </div>
             <div className="mc-usage-budget-footer">
               <span className="mc-usage-budget-percent">
-                {t('mycompany.budgetUsed', { percent: budgetProgress ? budgetProgress.percent.toFixed(0) : 0 })}
+                {t('mycompany.budgetUsed', {
+                  percent: budgetProgress ? budgetProgress.percent.toFixed(0) : 0,
+                })}
               </span>
               {rateLimits?.warnings.length ? (
                 <span className="mc-usage-budget-warning">

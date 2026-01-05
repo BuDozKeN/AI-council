@@ -45,10 +45,30 @@ interface DocType {
 }
 
 const DOC_TYPES: DocType[] = [
-  { value: 'sop', labelKey: 'modals.promoteType_sop', icon: ScrollText, descKey: 'modals.promoteTypeDesc_sop' },
-  { value: 'framework', labelKey: 'modals.promoteType_framework', icon: Layers, descKey: 'modals.promoteTypeDesc_framework' },
-  { value: 'policy', labelKey: 'modals.promoteType_policy', icon: FileText, descKey: 'modals.promoteTypeDesc_policy' },
-  { value: 'project', labelKey: 'modals.promoteType_project', icon: FolderKanban, descKey: 'modals.promoteTypeDesc_project' },
+  {
+    value: 'sop',
+    labelKey: 'modals.promoteType_sop',
+    icon: ScrollText,
+    descKey: 'modals.promoteTypeDesc_sop',
+  },
+  {
+    value: 'framework',
+    labelKey: 'modals.promoteType_framework',
+    icon: Layers,
+    descKey: 'modals.promoteTypeDesc_framework',
+  },
+  {
+    value: 'policy',
+    labelKey: 'modals.promoteType_policy',
+    icon: FileText,
+    descKey: 'modals.promoteTypeDesc_policy',
+  },
+  {
+    value: 'project',
+    labelKey: 'modals.promoteType_project',
+    icon: FolderKanban,
+    descKey: 'modals.promoteTypeDesc_project',
+  },
 ];
 
 interface PromoteDecisionModalProps {
@@ -321,9 +341,7 @@ export function PromoteDecisionModal({
                 ) : summary ? (
                   <MarkdownViewer content={summary} />
                 ) : (
-                  <span className="mc-no-summary">
-                    {t('modals.noSummaryAvailable')}
-                  </span>
+                  <span className="mc-no-summary">{t('modals.noSummaryAvailable')}</span>
                 )}
               </div>
             </div>
@@ -360,7 +378,12 @@ export function PromoteDecisionModal({
                 ) : (
                   <>
                     <Bookmark className="h-4 w-4" />
-                    {t('modals.createType', { type: t(DOC_TYPES.find((tp) => tp.value === docType)?.labelKey ?? 'modals.promoteType_sop') })}
+                    {t('modals.createType', {
+                      type: t(
+                        DOC_TYPES.find((tp) => tp.value === docType)?.labelKey ??
+                          'modals.promoteType_sop'
+                      ),
+                    })}
                   </>
                 )}
               </>

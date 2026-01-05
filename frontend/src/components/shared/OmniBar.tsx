@@ -808,13 +808,19 @@ export function OmniBar({
                     aria-label={`Response mode: ${chatMode === 'chat' ? t('omnibar.oneAI') : t('omnibar.multiAI', { count: aiCount })}. Click to toggle.`}
                   >
                     <span
-                      className={cn('inline-mode-btn no-touch-target', chatMode === 'chat' && 'active')}
+                      className={cn(
+                        'inline-mode-btn no-touch-target',
+                        chatMode === 'chat' && 'active'
+                      )}
                       aria-hidden="true"
                     >
                       {t('omnibar.oneAI')}
                     </span>
                     <span
-                      className={cn('inline-mode-btn no-touch-target', chatMode === 'council' && 'active')}
+                      className={cn(
+                        'inline-mode-btn no-touch-target',
+                        chatMode === 'council' && 'active'
+                      )}
                       aria-hidden="true"
                     >
                       {t('omnibar.multiAI', { count: aiCount })}

@@ -87,18 +87,14 @@ const mockDepartments: Department[] = [
       { id: 'role-1', name: 'Developer', system_prompt: 'You are a developer' },
       { id: 'role-2', name: 'Architect', system_prompt: 'You are an architect' },
     ],
-    channels: [
-      { id: 'channel-1', name: 'Slack' },
-    ],
+    channels: [{ id: 'channel-1', name: 'Slack' }],
   },
   {
     id: 'dept-2',
     slug: 'sales',
     name: 'Sales',
     description: 'Sales department',
-    roles: [
-      { id: 'role-3', name: 'Account Executive', system_prompt: 'You are an AE' },
-    ],
+    roles: [{ id: 'role-3', name: 'Account Executive', system_prompt: 'You are an AE' }],
   },
 ];
 

@@ -26,11 +26,7 @@ interface AddDepartmentModalProps {
  *
  * Matches the ProjectModal pattern for consistent UX.
  */
-export function AddDepartmentModal({
-  companyId,
-  onSave,
-  onClose,
-}: AddDepartmentModalProps) {
+export function AddDepartmentModal({ companyId, onSave, onClose }: AddDepartmentModalProps) {
   const { t } = useTranslation();
 
   // Step state: 'input', 'review', 'manual', or 'success'
@@ -114,7 +110,9 @@ export function AddDepartmentModal({
     } catch (err) {
       logger.error('Failed to create department:', err);
       setError(
-        err instanceof Error ? err.message : t('modals.couldntCreateDepartment', 'Failed to create department')
+        err instanceof Error
+          ? err.message
+          : t('modals.couldntCreateDepartment', 'Failed to create department')
       );
       setSaving(false);
     }
@@ -162,13 +160,18 @@ export function AddDepartmentModal({
           <div className="pm-field pm-context-field">
             <div className="pm-ai-intro">
               <Sparkles className="pm-ai-intro-icon" />
-              <span>{t('modals.aiIntroDepartment', 'Describe your department and AI will structure it')}</span>
+              <span>
+                {t('modals.aiIntroDepartment', 'Describe your department and AI will structure it')}
+              </span>
             </div>
             <textarea
               id="department-description"
               value={freeText}
               onChange={(e) => setFreeText(e.target.value)}
-              placeholder={t('modals.departmentPlaceholderAI', 'E.g., "A team that handles customer complaints and ensures satisfaction..." or "Engineering team focused on mobile apps"')}
+              placeholder={t(
+                'modals.departmentPlaceholderAI',
+                'E.g., "A team that handles customer complaints and ensures satisfaction..." or "Engineering team focused on mobile apps"'
+              )}
               disabled={structuring}
               rows={4}
               autoFocus
@@ -177,7 +180,9 @@ export function AddDepartmentModal({
             {structuring && (
               <div className="pm-ai-structuring">
                 <Spinner size="sm" variant="brand" />
-                <span>{t('modals.aiStructuringDepartment', 'AI is structuring your department...')}</span>
+                <span>
+                  {t('modals.aiStructuringDepartment', 'AI is structuring your department...')}
+                </span>
               </div>
             )}
           </div>
@@ -277,19 +282,17 @@ export function AddDepartmentModal({
                 ))}
               </div>
               <p className="pm-field-hint">
-                {t('modals.suggestedRolesHint', 'You can add these roles after creating the department')}
+                {t(
+                  'modals.suggestedRolesHint',
+                  'You can add these roles after creating the department'
+                )}
               </p>
             </div>
           )}
 
           {/* Actions */}
           <div className="pm-actions pm-actions-review">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={handleBackToEdit}
-              disabled={saving}
-            >
+            <Button type="button" variant="ghost" onClick={handleBackToEdit} disabled={saving}>
               {t('modals.startOver', 'Start Over')}
             </Button>
             <Button
@@ -351,7 +354,8 @@ export function AddDepartmentModal({
           {/* Description */}
           <div className="pm-field">
             <label htmlFor="manual-desc">
-              {t('modals.description')} <span className="pm-optional">({t('common.optional')})</span>
+              {t('modals.description')}{' '}
+              <span className="pm-optional">({t('common.optional')})</span>
             </label>
             <AIWriteAssist
               context="department-description"

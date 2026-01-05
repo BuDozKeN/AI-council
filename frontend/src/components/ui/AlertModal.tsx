@@ -35,13 +35,7 @@ interface AlertModalProps {
  *
  * Variants: 'success', 'error', 'info', 'warning'
  */
-function AlertModal({
-  title,
-  message,
-  variant = 'info',
-  onClose,
-  buttonText,
-}: AlertModalProps) {
+function AlertModal({ title, message, variant = 'info', onClose, buttonText }: AlertModalProps) {
   const { t } = useTranslation();
   const iconMap = {
     success: <CheckCircle size={28} />,

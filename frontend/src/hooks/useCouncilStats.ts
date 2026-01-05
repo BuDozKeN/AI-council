@@ -37,7 +37,7 @@ function notifyListeners(): void {
 interface CouncilStatsData {
   aiCount: number;
   rounds: number;
-  providers: string[];  // List of active provider names (e.g., 'openai', 'anthropic')
+  providers: string[]; // List of active provider names (e.g., 'openai', 'anthropic')
 }
 
 interface UseCouncilStatsResult extends CouncilStatsData {
@@ -89,25 +89,28 @@ function triggerFetch(companyId: string | null | undefined): void {
   notifyListeners();
 
   // Start fetch
-  const fetchPromise = api.getCouncilStats(companyId || undefined).then((stats) => {
-    const data: CouncilStatsData = {
-      aiCount: stats.stage1_count,
-      rounds: stats.total_rounds,
-      providers: stats.providers,
-    };
-    cachedStatsMap.set(cacheKey, data);
-    loadingSet.delete(cacheKey);
-    fetchPromiseMap.delete(cacheKey);
-    notifyListeners();
-    return data;
-  }).catch(() => {
-    // On error, cache defaults for graceful degradation
-    cachedStatsMap.set(cacheKey, DEFAULT_STATS);
-    loadingSet.delete(cacheKey);
-    fetchPromiseMap.delete(cacheKey);
-    notifyListeners();
-    return DEFAULT_STATS;
-  });
+  const fetchPromise = api
+    .getCouncilStats(companyId || undefined)
+    .then((stats) => {
+      const data: CouncilStatsData = {
+        aiCount: stats.stage1_count,
+        rounds: stats.total_rounds,
+        providers: stats.providers,
+      };
+      cachedStatsMap.set(cacheKey, data);
+      loadingSet.delete(cacheKey);
+      fetchPromiseMap.delete(cacheKey);
+      notifyListeners();
+      return data;
+    })
+    .catch(() => {
+      // On error, cache defaults for graceful degradation
+      cachedStatsMap.set(cacheKey, DEFAULT_STATS);
+      loadingSet.delete(cacheKey);
+      fetchPromiseMap.delete(cacheKey);
+      notifyListeners();
+      return DEFAULT_STATS;
+    });
 
   fetchPromiseMap.set(cacheKey, fetchPromise);
 }

@@ -100,7 +100,9 @@ export function PlaybookDropdown({
           <BookOpen className="h-4 w-4" />
           <div className="toolbar-dropdown-option-text">
             <span className="toolbar-dropdown-option-name">{t('stages.noType')}</span>
-            <span className="toolbar-dropdown-option-desc">{t('stages.saveWithoutClassifying')}</span>
+            <span className="toolbar-dropdown-option-desc">
+              {t('stages.saveWithoutClassifying')}
+            </span>
           </div>
         </button>
 

@@ -141,7 +141,11 @@ export function DepartmentSelect({
           <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
         </button>
 
-        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title={t('departments.selectDepartments')}>
+        <BottomSheet
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          title={t('departments.selectDepartments')}
+        >
           <div className="dept-select-list-mobile">
             {allItems.map((dept) => {
               const isSelected =

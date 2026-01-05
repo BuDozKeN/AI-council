@@ -272,11 +272,12 @@
   color: var(--color-text-secondary);
 }
 
-
 .dark .help-panel {
   background: var(--color-bg-primary, #1e293b);
   border-color: var(--color-border, #334155);
-  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.3), 0 8px 10px -6px rgb(0 0 0 / 0.2);
+  box-shadow:
+    0 20px 25px -5px rgb(0 0 0 / 0.3),
+    0 8px 10px -6px rgb(0 0 0 / 0.2);
 }
 
 .dark .help-panel-header {

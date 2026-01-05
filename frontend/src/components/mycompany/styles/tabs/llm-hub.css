@@ -516,8 +516,8 @@
  * --llm-pill-height: Changes for mobile touch targets (44px minimum)
  */
 [data-llm-select] {
-  --llm-pill-width: 180px;       /* FIXED - do not override in media queries */
-  --llm-pill-height: 36px;       /* Desktop default, mobile overrides to 44px */
+  --llm-pill-width: 180px; /* FIXED - do not override in media queries */
+  --llm-pill-height: 36px; /* Desktop default, mobile overrides to 44px */
 }
 
 /* LLM Model Select - uses [data-llm-select] parent and select-trigger--llm-model class
@@ -555,7 +555,7 @@
 /* Add button - IDENTICAL size to dropdowns (uses same CSS vars) */
 .llm-model-grid .llm-model-add,
 .llm-model-chain .llm-model-add {
-  --llm-pill-width: 180px;       /* Same as [data-llm-select] */
+  --llm-pill-width: 180px; /* Same as [data-llm-select] */
   --llm-pill-height: 36px;
 
   display: flex;
@@ -1034,7 +1034,7 @@
    * This is the key pattern to prevent the "mobile override trap".
    */
   [data-llm-select] {
-    --llm-pill-height: 44px;  /* Touch target - width stays at 180px */
+    --llm-pill-height: 44px; /* Touch target - width stays at 180px */
   }
 
   .llm-model-grid .llm-model-add,

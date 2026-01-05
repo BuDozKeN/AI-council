@@ -18,10 +18,13 @@ export function DeleteModal({ isOpen, onClose, onConfirm }: DeleteModalProps) {
   const { t } = useTranslation();
 
   return (
-    <AppModal isOpen={isOpen} onClose={onClose} title={t('modals.deleteConversationConfirm')} size="sm">
-      <p className="delete-modal-body">
-        {t('modals.deleteConversationWarning')}
-      </p>
+    <AppModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={t('modals.deleteConversationConfirm')}
+      size="sm"
+    >
+      <p className="delete-modal-body">{t('modals.deleteConversationWarning')}</p>
       <AppModal.Footer>
         <Button variant="outline" onClick={onClose}>
           {t('common.cancel')}

@@ -61,7 +61,12 @@ function parseContextMetadata(contextMd: string | undefined): {
   };
 }
 
-export function OverviewTab({ overview, companyName, onEditContext, onGenerateContext }: OverviewTabProps) {
+export function OverviewTab({
+  overview,
+  companyName,
+  onEditContext,
+  onGenerateContext,
+}: OverviewTabProps) {
   const { t } = useTranslation();
   const contentRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -94,10 +99,10 @@ export function OverviewTab({ overview, companyName, onEditContext, onGenerateCo
       {/* Hero section - scrolls with content */}
       <div className="mc-overview-hero">
         <div className="mc-overview-hero-content">
-          <h2 className="mc-overview-title">{t('mycompany.businessContext', { name: companyName })}</h2>
-          <p className="mc-overview-description">
-            {t('mycompany.businessContextDesc')}
-          </p>
+          <h2 className="mc-overview-title">
+            {t('mycompany.businessContext', { name: companyName })}
+          </h2>
+          <p className="mc-overview-description">{t('mycompany.businessContextDesc')}</p>
         </div>
         <div className="mc-overview-hero-right">
           <div className="mc-overview-meta">
@@ -185,7 +190,11 @@ export function OverviewTab({ overview, companyName, onEditContext, onGenerateCo
 
       {/* Scroll to top button - bottom right, vertically aligned with copy button */}
       {showScrollTop && (
-        <button className="mc-scroll-top-fab" onClick={scrollToTop} aria-label={t('mycompany.scrollToTop')}>
+        <button
+          className="mc-scroll-top-fab"
+          onClick={scrollToTop}
+          aria-label={t('mycompany.scrollToTop')}
+        >
           <ChevronUp size={16} />
         </button>
       )}

@@ -1870,7 +1870,9 @@ export const api = {
       }),
     });
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ detail: 'Failed to structure department' }));
+      const error = await response
+        .json()
+        .catch(() => ({ detail: 'Failed to structure department' }));
       throw new Error(error.detail || 'Failed to structure department');
     }
     return response.json();
@@ -1916,7 +1918,11 @@ export const api = {
    *   - structured.doc_type: "sop" | "framework" | "policy"
    *   - structured.content: Initial markdown content with sections
    */
-  async structurePlaybook(description: string, companyId?: string, docType?: 'sop' | 'framework' | 'policy') {
+  async structurePlaybook(
+    description: string,
+    companyId?: string,
+    docType?: 'sop' | 'framework' | 'policy'
+  ) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}${API_VERSION}/company/playbooks/structure`, {
       method: 'POST',
@@ -1944,16 +1950,21 @@ export const api = {
    */
   async structureCompanyContext(companyId: string, description: string, companyName?: string) {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/context/structure`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        description,
-        company_name: companyName,
-      }),
-    });
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/company/${companyId}/context/structure`,
+      {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          description,
+          company_name: companyName,
+        }),
+      }
+    );
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ detail: 'Failed to structure company context' }));
+      const error = await response
+        .json()
+        .catch(() => ({ detail: 'Failed to structure company context' }));
       throw new Error(error.detail || 'Failed to structure company context');
     }
     return response.json();
@@ -3130,10 +3141,9 @@ export const api = {
    */
   async getLLMPresets(companyId: string): Promise<{ presets: LLMPresetFull[] }> {
     const headers = await getAuthHeaders();
-    const response = await fetch(
-      `${API_BASE}${API_VERSION}/company/${companyId}/llm-hub/presets`,
-      { headers }
-    );
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/llm-hub/presets`, {
+      headers,
+    });
     if (!response.ok) {
       throw new Error('Failed to fetch LLM presets');
     }
@@ -3227,14 +3237,11 @@ export const api = {
     data: CreateModelPayload
   ): Promise<{ success: boolean; model: ModelRegistryEntry }> {
     const headers = await getAuthHeaders();
-    const response = await fetch(
-      `${API_BASE}${API_VERSION}/company/${companyId}/llm-hub/models`,
-      {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(data),
-      }
-    );
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/llm-hub/models`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(data),
+    });
     if (!response.ok) {
       throw new Error('Failed to create model');
     }
@@ -3376,11 +3383,11 @@ export const api = {
  * Council configuration stats returned by the public endpoint.
  */
 export interface CouncilStats {
-  stage1_count: number;  // Number of AIs in Stage 1 (initial responses)
-  stage2_count: number;  // Number of AIs in Stage 2 (peer review)
-  stage3_count: number;  // Number of chairman models
-  total_rounds: number;  // Always 3 (the deliberation stages)
-  providers: string[];   // List of unique provider names for carousel display
+  stage1_count: number; // Number of AIs in Stage 1 (initial responses)
+  stage2_count: number; // Number of AIs in Stage 2 (peer review)
+  stage3_count: number; // Number of chairman models
+  total_rounds: number; // Always 3 (the deliberation stages)
+  providers: string[]; // List of unique provider names for carousel display
 }
 
 // =============================================================================

@@ -224,7 +224,9 @@ export default function Organization({
       await api.updateDepartment(companyId, editingDept.id, updates);
 
       await fetchOrganization();
-      toast.success(t('organization.toast.deptUpdated', { name: editingDept.name }), { duration: 3000 });
+      toast.success(t('organization.toast.deptUpdated', { name: editingDept.name }), {
+        duration: 3000,
+      });
       setEditingDept(null);
     } catch (err) {
       const message = err instanceof Error ? err.message : t('common.unknownError');
@@ -250,7 +252,9 @@ export default function Organization({
       await api.updateRole(companyId, editingRole.deptId, editingRole.role.id, updates);
 
       await fetchOrganization();
-      toast.success(t('organization.toast.roleUpdated', { name: editingRole.role.name }), { duration: 3000 });
+      toast.success(t('organization.toast.roleUpdated', { name: editingRole.role.name }), {
+        duration: 3000,
+      });
       setEditingRole(null);
     } catch (err) {
       const message = err instanceof Error ? err.message : t('common.unknownError');
@@ -291,7 +295,11 @@ export default function Organization({
       isOpen={true}
       onClose={onClose}
       title={t('organization.title')}
-      description={t('organization.description', { company: companyName || t('organization.yourCompany'), depts: departments.length, roles: totalRoles })}
+      description={t('organization.description', {
+        company: companyName || t('organization.yourCompany'),
+        depts: departments.length,
+        roles: totalRoles,
+      })}
       size="lg"
       contentClassName="org-modal-body"
     >
@@ -323,9 +331,7 @@ export default function Organization({
           <div className="org-empty">
             <div className="org-empty-icon">🏢</div>
             <p className="org-empty-title">{t('organization.noDepartments')}</p>
-            <p className="org-empty-hint">
-              {t('organization.addFirstDept')}
-            </p>
+            <p className="org-empty-hint">{t('organization.addFirstDept')}</p>
             <Button variant="default" onClick={() => setShowAddDept(true)}>
               {t('organization.newDepartment')}
             </Button>
@@ -341,7 +347,9 @@ export default function Organization({
                 >
                   <div className="org-dept-info">
                     <h3 className="org-dept-name">{dept.name}</h3>
-                    <span className="org-dept-meta">{t('organization.rolesCount', { count: dept.roles?.length || 0 })}</span>
+                    <span className="org-dept-meta">
+                      {t('organization.rolesCount', { count: dept.roles?.length || 0 })}
+                    </span>
                   </div>
                   <div className="org-dept-actions">
                     <button

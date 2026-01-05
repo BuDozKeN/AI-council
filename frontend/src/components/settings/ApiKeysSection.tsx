@@ -103,9 +103,7 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                           <span className="status-dot paused" title={t('settings.paused')} />
                         ))}
                     </div>
-                    <span className="provider-tagline">
-                      {t('settings.openRouterTagline')}
-                    </span>
+                    <span className="provider-tagline">{t('settings.openRouterTagline')}</span>
                   </div>
                 </div>
               </div>
@@ -213,7 +211,9 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                       setShowReplaceKeyForm(false);
                       setApiKeySuccess(t('settings.apiKeyReplaced'));
                     } catch (err: unknown) {
-                      setApiKeyError(err instanceof Error ? err.message : t('settings.failedSaveKey'));
+                      setApiKeyError(
+                        err instanceof Error ? err.message : t('settings.failedSaveKey')
+                      );
                     } finally {
                       setApiKeySaving(false);
                     }
@@ -266,7 +266,9 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                 <h4>
                   <DollarSign size={16} /> {t('settings.howBillingWorks')}
                 </h4>
-                <p><strong>{t('settings.billingExplainer')}</strong></p>
+                <p>
+                  <strong>{t('settings.billingExplainer')}</strong>
+                </p>
                 <p>{t('settings.billingNote')}</p>
               </div>
 
@@ -342,9 +344,7 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                     <p>
                       <strong>{t('settings.step4Title')}</strong>
                     </p>
-                    <p>
-                      {t('settings.step4Desc')}
-                    </p>
+                    <p>{t('settings.step4Desc')}</p>
                   </div>
                 </div>
               </div>

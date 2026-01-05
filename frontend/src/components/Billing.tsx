@@ -173,7 +173,9 @@ export default function Billing({ onClose }: BillingProps) {
                     <span className="price-free">{t('settings.free')}</span>
                   ) : (
                     <>
-                      <span className="price-amount">{formatCurrency(plan.price, { maximumFractionDigits: 0 })}</span>
+                      <span className="price-amount">
+                        {formatCurrency(plan.price, { maximumFractionDigits: 0 })}
+                      </span>
                       <span className="price-period">{t('settings.perMonth')}</span>
                     </>
                   )}

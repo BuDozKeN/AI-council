@@ -189,9 +189,7 @@ export default function ProjectModal({
       }, CELEBRATION.PROJECT_SUCCESS);
     } catch (err) {
       logger.error('Failed to create project:', err);
-      setError(
-        err instanceof Error ? err.message : t('modals.couldntCreateProject')
-      );
+      setError(err instanceof Error ? err.message : t('modals.couldntCreateProject'));
       setSaving(false);
     }
   };
@@ -414,12 +412,7 @@ export default function ProjectModal({
 
           {/* Actions */}
           <div className="pm-actions pm-actions-review">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={handleBackToEdit}
-              disabled={saving}
-            >
+            <Button type="button" variant="ghost" onClick={handleBackToEdit} disabled={saving}>
               <Edit3 size={16} />
               {t('modals.startOver')}
             </Button>
@@ -482,7 +475,8 @@ export default function ProjectModal({
           {/* Description */}
           <div className="pm-field">
             <label htmlFor="manual-desc">
-              {t('modals.projectDescription')} <span className="pm-optional">({t('common.optional')})</span>
+              {t('modals.projectDescription')}{' '}
+              <span className="pm-optional">({t('common.optional')})</span>
             </label>
             <textarea
               id="manual-desc"
@@ -512,7 +506,8 @@ export default function ProjectModal({
           {/* Context */}
           <div className="pm-field">
             <label htmlFor="manual-context">
-              {t('modals.projectDetails')} <span className="pm-optional">({t('common.optional')})</span>
+              {t('modals.projectDetails')}{' '}
+              <span className="pm-optional">({t('common.optional')})</span>
             </label>
             <AIWriteAssist
               context="project-context"
@@ -535,9 +530,7 @@ export default function ProjectModal({
                 enterKeyHint="done"
               />
             </AIWriteAssist>
-            <p className="pm-field-hint">
-              {t('modals.aiUsesInfo')}
-            </p>
+            <p className="pm-field-hint">{t('modals.aiUsesInfo')}</p>
           </div>
 
           {/* Actions */}
@@ -582,7 +575,9 @@ export default function ProjectModal({
           <div className="pm-success-icon-wrapper">
             <CheckCircle2 className="pm-success-icon animate-success-pop" />
           </div>
-          <h3 className="pm-success-title">{editedName || t('modals.projectName')} {t('modals.projectCreated').replace('!', '')}!</h3>
+          <h3 className="pm-success-title">
+            {editedName || t('modals.projectName')} {t('modals.projectCreated').replace('!', '')}!
+          </h3>
           <p className="pm-success-message">{t('modals.projectReady')}</p>
         </div>
       )}

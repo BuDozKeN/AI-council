@@ -700,7 +700,11 @@ export function ContextChip({
     return (
       <>
         {triggerButton}
-        <BottomSheet isOpen={isOpen} onClose={() => setIsOpen(false)} title={t('contextChip.selectContext')}>
+        <BottomSheet
+          isOpen={isOpen}
+          onClose={() => setIsOpen(false)}
+          title={t('contextChip.selectContext')}
+        >
           {renderMobileContent()}
         </BottomSheet>
       </>

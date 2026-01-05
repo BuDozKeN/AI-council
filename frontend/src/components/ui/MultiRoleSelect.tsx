@@ -72,7 +72,9 @@ export function MultiRoleSelect({
         <span className="multi-role-single">{selectedRoles[0].name}</span>
       ) : (
         // Multiple roles: show count
-        <span className="multi-role-count">{t('multiSelect.rolesCount', { count: selectedRoles.length })}</span>
+        <span className="multi-role-count">
+          {t('multiSelect.rolesCount', { count: selectedRoles.length })}
+        </span>
       )}
 
       <ChevronDown className="h-4 w-4 opacity-50 shrink-0 ml-auto" />

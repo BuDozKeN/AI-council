@@ -9,13 +9,7 @@
 import { useTranslation } from 'react-i18next';
 import { supportedLanguages, type SupportedLanguage } from '../../i18n';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 // SVG flags that work on all platforms (Windows doesn't render flag emojis)
 import US from 'country-flag-icons/react/3x2/US';
 import ES from 'country-flag-icons/react/3x2/ES';

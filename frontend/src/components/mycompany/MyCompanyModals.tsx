@@ -5,7 +5,12 @@ import ProjectModal from '../ProjectModal';
 import type { Department, Role, Playbook, Project, LLMPresetId } from '../../types/business';
 
 // Eagerly load small/simple modals
-import { AddDepartmentModal, AddRoleModal, AddPlaybookModal, AddCompanyContextModal } from './modals';
+import {
+  AddDepartmentModal,
+  AddRoleModal,
+  AddPlaybookModal,
+  AddCompanyContextModal,
+} from './modals';
 import { ConfirmModal } from '../ui/ConfirmModal';
 
 // Lazy load large/complex modals
@@ -32,7 +37,12 @@ const ViewDecisionModal = lazy(() =>
 );
 
 // Type definitions
-type AddFormType = 'department' | 'playbook' | 'company-context' | { type: 'role'; deptId: string } | null;
+type AddFormType =
+  | 'department'
+  | 'playbook'
+  | 'company-context'
+  | { type: 'role'; deptId: string }
+  | null;
 
 interface Decision {
   id: string;
@@ -215,7 +225,11 @@ interface EditingModalProps {
   onClose: () => void;
   onConsumeInitialDecision?: (() => void) | undefined;
   onUpdateCompanyContext: (data: { context_md: string }) => Promise<void>;
-  onUpdateDepartment: (id: string, data: Partial<Department>, options?: { keepOpen?: boolean }) => Promise<void>;
+  onUpdateDepartment: (
+    id: string,
+    data: Partial<Department>,
+    options?: { keepOpen?: boolean }
+  ) => Promise<void>;
   onUpdateRole: (roleId: string, deptId: string, data: Partial<Role>) => Promise<void>;
   onUpdatePlaybook: (id: string, data: Partial<Playbook>) => Promise<void>;
   onNavigateToConversation?:
@@ -287,7 +301,11 @@ export function EditingModal({
           <ViewDepartmentModal
             department={editingItem.data as Department}
             onClose={onClose}
-            onSave={(id: string, data: { context_md?: string; llm_preset?: LLMPresetId }, options?: { keepOpen?: boolean }) => onUpdateDepartment(id, data, options)}
+            onSave={(
+              id: string,
+              data: { context_md?: string; llm_preset?: LLMPresetId },
+              options?: { keepOpen?: boolean }
+            ) => onUpdateDepartment(id, data, options)}
           />
         </LazyWrapper>
       );

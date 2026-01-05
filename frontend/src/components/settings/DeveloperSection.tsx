@@ -165,9 +165,7 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
               <div className="dev-toggle-text">
                 <span className="dev-toggle-label">{t('settings.enableMockMode')}</span>
                 <span className="dev-toggle-desc">
-                  {mockMode
-                    ? t('settings.mockModeOn')
-                    : t('settings.mockModeOff')}
+                  {mockMode ? t('settings.mockModeOn') : t('settings.mockModeOff')}
                 </span>
               </div>
             </div>
@@ -198,9 +196,14 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
                   <Ruler size={18} />
                 </div>
                 <div className="dev-toggle-text">
-                  <span className="dev-toggle-label">{t('settings.mockLengthOverride', 'Response Length Override')}</span>
+                  <span className="dev-toggle-label">
+                    {t('settings.mockLengthOverride', 'Response Length Override')}
+                  </span>
                   <span className="dev-toggle-desc">
-                    {t('settings.mockLengthOverrideDesc', 'Test different lengths without changing LLM Hub')}
+                    {t(
+                      'settings.mockLengthOverrideDesc',
+                      'Test different lengths without changing LLM Hub'
+                    )}
                   </span>
                 </div>
               </div>
@@ -229,7 +232,11 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
             <div className="dev-info-box info">
               <Ruler size={14} />
               <span>
-                {t('settings.mockLengthOverrideActive', 'Override active: Mock will use {{tokens}} tokens regardless of LLM Hub settings', { tokens: mockLengthOverride })}
+                {t(
+                  'settings.mockLengthOverrideActive',
+                  'Override active: Mock will use {{tokens}} tokens regardless of LLM Hub settings',
+                  { tokens: mockLengthOverride }
+                )}
               </span>
             </div>
           )}
@@ -251,9 +258,7 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
               <div className="dev-toggle-text">
                 <span className="dev-toggle-label">{t('settings.enableCaching')}</span>
                 <span className="dev-toggle-desc">
-                  {cachingMode
-                    ? t('settings.cachingOn')
-                    : t('settings.cachingOff')}
+                  {cachingMode ? t('settings.cachingOn') : t('settings.cachingOff')}
                 </span>
               </div>
             </div>
@@ -286,9 +291,7 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
               <div className="dev-toggle-text">
                 <span className="dev-toggle-label">{t('settings.showTokenUsage')}</span>
                 <span className="dev-toggle-desc">
-                  {showTokenUsage
-                    ? t('settings.tokenUsageOn')
-                    : t('settings.tokenUsageOff')}
+                  {showTokenUsage ? t('settings.tokenUsageOn') : t('settings.tokenUsageOff')}
                 </span>
               </div>
             </div>

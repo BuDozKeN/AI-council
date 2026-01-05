@@ -89,46 +89,53 @@ SelectScrollDownButton.displayName = SelectPrimitive.ScrollDownButton.displayNam
 const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
->(({ className, children, position = 'popper', onPointerDownOutside, onEscapeKeyDown, ...props }, ref) => {
-  return (
-    <SelectPrimitive.Portal>
-      <SelectPrimitive.Content
-        ref={ref}
-        className={cn(
-          'select-content',
-          position === 'popper' && 'select-content-popper',
-          className
-        )}
-        position={position}
-        onPointerDownOutside={(e) => {
-          // Mark that a dropdown was just dismissed - overlay handler will check this
-          // to avoid closing the sidebar on the same click that dismissed the dropdown
-          (window as Window & { __radixSelectJustDismissed?: number }).__radixSelectJustDismissed =
-            Date.now();
+>(
+  (
+    { className, children, position = 'popper', onPointerDownOutside, onEscapeKeyDown, ...props },
+    ref
+  ) => {
+    return (
+      <SelectPrimitive.Portal>
+        <SelectPrimitive.Content
+          ref={ref}
+          className={cn(
+            'select-content',
+            position === 'popper' && 'select-content-popper',
+            className
+          )}
+          position={position}
+          onPointerDownOutside={(e) => {
+            // Mark that a dropdown was just dismissed - overlay handler will check this
+            // to avoid closing the sidebar on the same click that dismissed the dropdown
+            (
+              window as Window & { __radixSelectJustDismissed?: number }
+            ).__radixSelectJustDismissed = Date.now();
 
-          onPointerDownOutside?.(e);
-        }}
-        onEscapeKeyDown={(e) => {
-          // Mark that a dropdown was just dismissed via Escape key
-          // Parent modal's Escape handler will check this timestamp
-          (window as Window & { __radixSelectJustDismissed?: number }).__radixSelectJustDismissed =
-            Date.now();
+            onPointerDownOutside?.(e);
+          }}
+          onEscapeKeyDown={(e) => {
+            // Mark that a dropdown was just dismissed via Escape key
+            // Parent modal's Escape handler will check this timestamp
+            (
+              window as Window & { __radixSelectJustDismissed?: number }
+            ).__radixSelectJustDismissed = Date.now();
 
-          onEscapeKeyDown?.(e);
-        }}
-        {...props}
-      >
-        <SelectScrollUpButton />
-        <SelectPrimitive.Viewport
-          className={cn('select-viewport', position === 'popper' && 'select-viewport-popper')}
+            onEscapeKeyDown?.(e);
+          }}
+          {...props}
         >
-          {children}
-        </SelectPrimitive.Viewport>
-        <SelectScrollDownButton />
-      </SelectPrimitive.Content>
-    </SelectPrimitive.Portal>
-  );
-});
+          <SelectScrollUpButton />
+          <SelectPrimitive.Viewport
+            className={cn('select-viewport', position === 'popper' && 'select-viewport-popper')}
+          >
+            {children}
+          </SelectPrimitive.Viewport>
+          <SelectScrollDownButton />
+        </SelectPrimitive.Content>
+      </SelectPrimitive.Portal>
+    );
+  }
+);
 SelectContent.displayName = SelectPrimitive.Content.displayName;
 
 const SelectLabel = React.forwardRef<

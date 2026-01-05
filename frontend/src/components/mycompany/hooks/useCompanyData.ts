@@ -183,74 +183,79 @@ export function useCompanyData({
             setTabLoaded('overview', true);
             break;
           }
-        case 'team': {
-          const data = await api.getCompanyTeam(companyId);
-          setDepartments(data.departments || []);
-          setTabLoaded('team', true);
-          break;
-        }
-        case 'playbooks': {
-          // Single API call - departments now embedded in response
-          const playbooksData = await api.getCompanyPlaybooks(companyId);
-          setPlaybooks(playbooksData.playbooks || []);
-          // Use departments from playbooks endpoint
-          if (playbooksData.departments) {
-            const mappedDepts = playbooksData.departments.map((d: Department) => ({ ...d, roles: [] }));
-            setDepartments(mappedDepts);
+          case 'team': {
+            const data = await api.getCompanyTeam(companyId);
+            setDepartments(data.departments || []);
+            setTabLoaded('team', true);
+            break;
           }
-          setTabLoaded('playbooks', true);
-          break;
-        }
-        case 'decisions': {
-          // Load decisions and projects in parallel (need projects for Promote modal)
-          const [decisionsData, projectsData] = await Promise.all([
-            api.getCompanyDecisions(companyId),
-            api.listProjectsWithStats(companyId, { includeArchived: true }),
-          ]);
-          setDecisions(decisionsData.decisions || []);
-          setProjects(projectsData.projects || []);
-          setTabLoaded('projects', true);
-          // Use departments from decisions endpoint (only if not already loaded)
-          if (decisionsData.departments && !loadedRef.current.departments) {
-            setDepartments(decisionsData.departments.map((d: Department) => ({ ...d, roles: [] })));
-            loadedRef.current.departments = true;
+          case 'playbooks': {
+            // Single API call - departments now embedded in response
+            const playbooksData = await api.getCompanyPlaybooks(companyId);
+            setPlaybooks(playbooksData.playbooks || []);
+            // Use departments from playbooks endpoint
+            if (playbooksData.departments) {
+              const mappedDepts = playbooksData.departments.map((d: Department) => ({
+                ...d,
+                roles: [],
+              }));
+              setDepartments(mappedDepts);
+            }
+            setTabLoaded('playbooks', true);
+            break;
           }
-          setTabLoaded('decisions', true);
-          break;
-        }
-        case 'activity': {
-          // Load activity and projects in parallel (need projects for click navigation)
-          const [activityData, projectsData] = await Promise.all([
-            api.getCompanyActivity(companyId, { limit: activityLimit + 1 }),
-            api.listProjectsWithStats(companyId, { includeArchived: true }),
-          ]);
-          const logs = activityData.logs || [];
-          setActivityHasMore(logs.length > activityLimit);
-          setActivityLogs(logs.slice(0, activityLimit));
-          setProjects(projectsData.projects || []);
-          setTabLoaded('projects', true);
-          setTabLoaded('activity', true);
-          break;
-        }
-        case 'projects': {
-          // Load projects and departments in parallel (needed for project edit modal)
-          if (!loadedRef.current.departments) {
-            const [projectsData, teamData] = await Promise.all([
+          case 'decisions': {
+            // Load decisions and projects in parallel (need projects for Promote modal)
+            const [decisionsData, projectsData] = await Promise.all([
+              api.getCompanyDecisions(companyId),
               api.listProjectsWithStats(companyId, { includeArchived: true }),
-              api.getCompanyTeam(companyId),
             ]);
+            setDecisions(decisionsData.decisions || []);
             setProjects(projectsData.projects || []);
-            setDepartments(teamData.departments || []);
-            loadedRef.current.departments = true;
-          } else {
-            const projectsData = await api.listProjectsWithStats(companyId, {
-              includeArchived: true,
-            });
-            setProjects(projectsData.projects || []);
+            setTabLoaded('projects', true);
+            // Use departments from decisions endpoint (only if not already loaded)
+            if (decisionsData.departments && !loadedRef.current.departments) {
+              setDepartments(
+                decisionsData.departments.map((d: Department) => ({ ...d, roles: [] }))
+              );
+              loadedRef.current.departments = true;
+            }
+            setTabLoaded('decisions', true);
+            break;
           }
-          setTabLoaded('projects', true);
-          break;
-        }
+          case 'activity': {
+            // Load activity and projects in parallel (need projects for click navigation)
+            const [activityData, projectsData] = await Promise.all([
+              api.getCompanyActivity(companyId, { limit: activityLimit + 1 }),
+              api.listProjectsWithStats(companyId, { includeArchived: true }),
+            ]);
+            const logs = activityData.logs || [];
+            setActivityHasMore(logs.length > activityLimit);
+            setActivityLogs(logs.slice(0, activityLimit));
+            setProjects(projectsData.projects || []);
+            setTabLoaded('projects', true);
+            setTabLoaded('activity', true);
+            break;
+          }
+          case 'projects': {
+            // Load projects and departments in parallel (needed for project edit modal)
+            if (!loadedRef.current.departments) {
+              const [projectsData, teamData] = await Promise.all([
+                api.listProjectsWithStats(companyId, { includeArchived: true }),
+                api.getCompanyTeam(companyId),
+              ]);
+              setProjects(projectsData.projects || []);
+              setDepartments(teamData.departments || []);
+              loadedRef.current.departments = true;
+            } else {
+              const projectsData = await api.listProjectsWithStats(companyId, {
+                includeArchived: true,
+              });
+              setProjects(projectsData.projects || []);
+            }
+            setTabLoaded('projects', true);
+            break;
+          }
         }
       } catch (err) {
         log.error(`Failed to load ${activeTab}`, { error: err });

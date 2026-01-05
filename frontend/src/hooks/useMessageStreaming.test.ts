@@ -36,7 +36,9 @@ interface ConversationState {
   setCurrentConversationId: (id: string | null) => void;
   setCurrentConversation: (
     updater:
-      | ((prev: ConversationState['currentConversation']) => ConversationState['currentConversation'])
+      | ((
+          prev: ConversationState['currentConversation']
+        ) => ConversationState['currentConversation'])
       | ConversationState['currentConversation']
   ) => void;
   setConversations: (conversations: unknown[]) => void;

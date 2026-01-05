@@ -110,7 +110,9 @@ export function AddCompanyContextModal({
     } catch (err) {
       logger.error('Failed to save company context:', err);
       setError(
-        err instanceof Error ? err.message : t('modals.couldntSaveContext', 'Failed to save context')
+        err instanceof Error
+          ? err.message
+          : t('modals.couldntSaveContext', 'Failed to save context')
       );
       setSaving(false);
     }
@@ -158,13 +160,21 @@ export function AddCompanyContextModal({
           <div className="pm-field pm-context-field">
             <div className="pm-ai-intro">
               <Sparkles className="pm-ai-intro-icon" />
-              <span>{t('modals.aiIntroContext', 'Describe your company and AI will create a comprehensive context document')}</span>
+              <span>
+                {t(
+                  'modals.aiIntroContext',
+                  'Describe your company and AI will create a comprehensive context document'
+                )}
+              </span>
             </div>
             <textarea
               id="company-description"
               value={freeText}
               onChange={(e) => setFreeText(e.target.value)}
-              placeholder={t('modals.contextPlaceholderAI', 'E.g., "We\'re a B2B SaaS startup building productivity tools. Team of 8, seed-funded, focused on launching MVP this quarter. We value speed over perfection and async communication..."')}
+              placeholder={t(
+                'modals.contextPlaceholderAI',
+                'E.g., "We\'re a B2B SaaS startup building productivity tools. Team of 8, seed-funded, focused on launching MVP this quarter. We value speed over perfection and async communication..."'
+              )}
               disabled={structuring}
               rows={6}
               autoFocus
@@ -173,7 +183,9 @@ export function AddCompanyContextModal({
             {structuring && (
               <div className="pm-ai-structuring">
                 <Spinner size="sm" variant="brand" />
-                <span>{t('modals.aiStructuringContext', 'AI is creating your company context...')}</span>
+                <span>
+                  {t('modals.aiStructuringContext', 'AI is creating your company context...')}
+                </span>
               </div>
             )}
           </div>
@@ -232,25 +244,26 @@ export function AddCompanyContextModal({
                 className="mc-edit-textarea-full"
                 value={editedContext}
                 onChange={(e) => setEditedContext(e.target.value)}
-                placeholder={t('modals.companyContextPlaceholder', 'Your company context document...')}
+                placeholder={t(
+                  'modals.companyContextPlaceholder',
+                  'Your company context document...'
+                )}
                 disabled={saving}
                 rows={15}
                 enterKeyHint="done"
               />
             </AIWriteAssist>
             <p className="pm-field-hint">
-              {t('modals.contextEditHint', 'Review and edit as needed. This document will guide AI advisors in understanding your company.')}
+              {t(
+                'modals.contextEditHint',
+                'Review and edit as needed. This document will guide AI advisors in understanding your company.'
+              )}
             </p>
           </div>
 
           {/* Actions */}
           <div className="pm-actions pm-actions-review">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={handleBackToEdit}
-              disabled={saving}
-            >
+            <Button type="button" variant="ghost" onClick={handleBackToEdit} disabled={saving}>
               {t('modals.startOver', 'Start Over')}
             </Button>
             <Button
@@ -309,7 +322,10 @@ export function AddCompanyContextModal({
                 className="mc-edit-textarea-full"
                 value={editedContext}
                 onChange={(e) => setEditedContext(e.target.value)}
-                placeholder={t('modals.contextManualPlaceholder', '# Company Overview\n\nDescribe your company, mission, current priorities, constraints, and decision-making culture...')}
+                placeholder={t(
+                  'modals.contextManualPlaceholder',
+                  '# Company Overview\n\nDescribe your company, mission, current priorities, constraints, and decision-making culture...'
+                )}
                 disabled={saving}
                 rows={15}
                 autoFocus
@@ -360,11 +376,12 @@ export function AddCompanyContextModal({
           <div className="pm-success-icon-wrapper">
             <CheckCircle2 className="pm-success-icon animate-success-pop" />
           </div>
-          <h3 className="pm-success-title">
-            {t('modals.contextSaved', 'Context saved')}!
-          </h3>
+          <h3 className="pm-success-title">{t('modals.contextSaved', 'Context saved')}!</h3>
           <p className="pm-success-message">
-            {t('modals.contextReady', 'Your company context is ready. AI advisors will now use this to provide more relevant recommendations.')}
+            {t(
+              'modals.contextReady',
+              'Your company context is ready. AI advisors will now use this to provide more relevant recommendations.'
+            )}
           </p>
         </div>
       )}

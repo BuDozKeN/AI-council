@@ -49,7 +49,10 @@ export function ViewCompanyContextModal({
       try {
         await onSave({ context_md: editedContext });
         setIsEditing(false);
-        toast.success(t('modals.companyContextSaved', { name: companyName || t('modals.company') }), { duration: 4000 });
+        toast.success(
+          t('modals.companyContextSaved', { name: companyName || t('modals.company') }),
+          { duration: 4000 }
+        );
       } catch {
         toast.error(t('modals.failedToSaveCompanyContext'));
       }

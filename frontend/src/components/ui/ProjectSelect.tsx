@@ -180,7 +180,9 @@ export function ProjectSelect({
                   </div>
                   <FolderKanban className="h-4 w-4 project-select-icon-mobile" />
                   <span className="project-select-item-label">{project.name}</span>
-                  {isCurrent && <span className="project-select-current-badge">{currentBadgeLabel}</span>}
+                  {isCurrent && (
+                    <span className="project-select-current-badge">{currentBadgeLabel}</span>
+                  )}
                 </button>
               );
             })}
@@ -205,7 +207,9 @@ export function ProjectSelect({
         ) : (
           <Plus className="h-3.5 w-3.5 project-select-trigger-icon-create" />
         )}
-        <SelectPrimitive.Value placeholder={actualPlaceholder}>{getDisplayName()}</SelectPrimitive.Value>
+        <SelectPrimitive.Value placeholder={actualPlaceholder}>
+          {getDisplayName()}
+        </SelectPrimitive.Value>
         <SelectPrimitive.Icon asChild>
           <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
         </SelectPrimitive.Icon>

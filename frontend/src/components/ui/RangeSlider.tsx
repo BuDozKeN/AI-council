@@ -160,13 +160,11 @@ export function RangeSlider({
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
       >
-        <div
-          className="range-slider__thumb"
-          style={{ left: `${percentage}%` }}
-        >
+        <div className="range-slider__thumb" style={{ left: `${percentage}%` }}>
           {showTooltip && (
             <div className="range-slider__tooltip">
-              {formatValue(value)}{valueLabel && ` ${valueLabel}`}
+              {formatValue(value)}
+              {valueLabel && ` ${valueLabel}`}
             </div>
           )}
         </div>

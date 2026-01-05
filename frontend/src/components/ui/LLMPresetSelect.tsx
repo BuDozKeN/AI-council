@@ -160,49 +160,49 @@ export function LLMPresetSelect({
             </Tooltip.Content>
           </Tooltip.Portal>
           <SelectPrimitive.Portal>
-        <SelectPrimitive.Content
-          className="llm-preset-content"
-          position="popper"
-          side="bottom"
-          align="start"
-          sideOffset={4}
-        >
-          <SelectPrimitive.Viewport className="llm-preset-viewport">
-            {LLM_PRESETS.map((preset: LLMPreset) => {
-              const colors = PRESET_COLORS[preset.id]!;
-              return (
-                <SelectPrimitive.Item
-                  key={preset.id}
-                  value={preset.id}
-                  className="llm-preset-item"
-                  style={
-                    {
-                      '--preset-hover-bg': colors.bg,
-                      '--preset-checked-bg': colors.bg,
-                      '--preset-checked-text': colors.text,
-                    } as React.CSSProperties
-                  }
-                >
-                  <div className="llm-preset-item-content">
-                    <span className="llm-preset-item-name">
-                      <SelectPrimitive.ItemText>{preset.name}</SelectPrimitive.ItemText>
-                    </span>
-                    {showDescription && (
-                      <span className="llm-preset-item-desc">{preset.description}</span>
-                    )}
-                  </div>
-                  <span className="llm-preset-item-indicator">
-                    <SelectPrimitive.ItemIndicator>
-                      <Check className="h-4 w-4" />
-                    </SelectPrimitive.ItemIndicator>
-                  </span>
-                </SelectPrimitive.Item>
-              );
-            })}
-          </SelectPrimitive.Viewport>
-        </SelectPrimitive.Content>
-      </SelectPrimitive.Portal>
-    </SelectPrimitive.Root>
+            <SelectPrimitive.Content
+              className="llm-preset-content"
+              position="popper"
+              side="bottom"
+              align="start"
+              sideOffset={4}
+            >
+              <SelectPrimitive.Viewport className="llm-preset-viewport">
+                {LLM_PRESETS.map((preset: LLMPreset) => {
+                  const colors = PRESET_COLORS[preset.id]!;
+                  return (
+                    <SelectPrimitive.Item
+                      key={preset.id}
+                      value={preset.id}
+                      className="llm-preset-item"
+                      style={
+                        {
+                          '--preset-hover-bg': colors.bg,
+                          '--preset-checked-bg': colors.bg,
+                          '--preset-checked-text': colors.text,
+                        } as React.CSSProperties
+                      }
+                    >
+                      <div className="llm-preset-item-content">
+                        <span className="llm-preset-item-name">
+                          <SelectPrimitive.ItemText>{preset.name}</SelectPrimitive.ItemText>
+                        </span>
+                        {showDescription && (
+                          <span className="llm-preset-item-desc">{preset.description}</span>
+                        )}
+                      </div>
+                      <span className="llm-preset-item-indicator">
+                        <SelectPrimitive.ItemIndicator>
+                          <Check className="h-4 w-4" />
+                        </SelectPrimitive.ItemIndicator>
+                      </span>
+                    </SelectPrimitive.Item>
+                  );
+                })}
+              </SelectPrimitive.Viewport>
+            </SelectPrimitive.Content>
+          </SelectPrimitive.Portal>
+        </SelectPrimitive.Root>
       </Tooltip.Root>
     </Tooltip.Provider>
   );

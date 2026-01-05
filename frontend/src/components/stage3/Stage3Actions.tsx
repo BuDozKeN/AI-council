@@ -189,7 +189,11 @@ export function Stage3Actions({
             ) : (
               <>
                 <Bookmark className="h-4 w-4" />
-                <span>{currentProject ? t('stages.saveToProject', { name: currentProject.name }) : t('stages.saveAnswer')}</span>
+                <span>
+                  {currentProject
+                    ? t('stages.saveToProject', { name: currentProject.name })
+                    : t('stages.saveAnswer')}
+                </span>
               </>
             )}
           </button>

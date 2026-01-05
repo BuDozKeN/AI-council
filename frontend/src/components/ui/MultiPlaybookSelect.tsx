@@ -135,7 +135,9 @@ export function MultiPlaybookSelect({
         <span className="multi-playbook-single">{selectedPlaybooks[0]?.title}</span>
       ) : (
         // Multiple playbooks: show count
-        <span className="multi-playbook-count">{t('multiSelect.playbooksCount', { count: selectedPlaybooks.length })}</span>
+        <span className="multi-playbook-count">
+          {t('multiSelect.playbooksCount', { count: selectedPlaybooks.length })}
+        </span>
       )}
 
       <ChevronDown className="h-4 w-4 opacity-50 shrink-0 ml-auto" />
@@ -210,7 +212,11 @@ export function MultiPlaybookSelect({
           {triggerContent}
         </button>
 
-        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title={t('playbooks.selectPlaybooks')}>
+        <BottomSheet
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          title={t('playbooks.selectPlaybooks')}
+        >
           {playbookList(true)}
         </BottomSheet>
       </>

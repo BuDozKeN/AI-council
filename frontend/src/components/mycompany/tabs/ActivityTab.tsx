@@ -15,7 +15,13 @@ const PROMOTED_TYPES = ['sop', 'framework', 'policy', 'project'] as const;
 type PromotedType = (typeof PROMOTED_TYPES)[number];
 
 // Type-safe translation key mapping for promoted types
-const PROMOTED_TYPE_KEYS: Record<PromotedType, 'mycompany.promotedType_sop' | 'mycompany.promotedType_framework' | 'mycompany.promotedType_policy' | 'mycompany.promotedType_project'> = {
+const PROMOTED_TYPE_KEYS: Record<
+  PromotedType,
+  | 'mycompany.promotedType_sop'
+  | 'mycompany.promotedType_framework'
+  | 'mycompany.promotedType_policy'
+  | 'mycompany.promotedType_project'
+> = {
   sop: 'mycompany.promotedType_sop',
   framework: 'mycompany.promotedType_framework',
   policy: 'mycompany.promotedType_policy',
@@ -180,7 +186,10 @@ export function ActivityTab({
                       {/* Badges row: Type badge + Action badge */}
                       <div className="mc-activity-badges">
                         {/* Use promoted_to_type if available, else fall back to event_type */}
-                        {log.promoted_to_type && PROMOTED_TYPES.includes(log.promoted_to_type as typeof PROMOTED_TYPES[number]) ? (
+                        {log.promoted_to_type &&
+                        PROMOTED_TYPES.includes(
+                          log.promoted_to_type as (typeof PROMOTED_TYPES)[number]
+                        ) ? (
                           <span
                             className="mc-elegant-badge activity-type"
                             style={{
@@ -192,14 +201,19 @@ export function ActivityTab({
                                 'var(--color-slate-500)',
                             }}
                           >
-                            {t(PROMOTED_TYPE_KEYS[log.promoted_to_type as PromotedType] ?? 'mycompany.promotedType_sop')}
+                            {t(
+                              PROMOTED_TYPE_KEYS[log.promoted_to_type as PromotedType] ??
+                                'mycompany.promotedType_sop'
+                            )}
                           </span>
                         ) : (
                           <span
                             className="mc-elegant-badge activity-type"
                             style={{ background: `${dotColor}20`, color: dotColor }}
                           >
-                            {t(`mycompany.eventType_${log.event_type}`, { defaultValue: log.event_type })}
+                            {t(`mycompany.eventType_${log.event_type}`, {
+                              defaultValue: log.event_type,
+                            })}
                           </span>
                         )}
                         {action && actionColors && (

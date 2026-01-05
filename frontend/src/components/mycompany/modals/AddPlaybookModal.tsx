@@ -85,13 +85,13 @@ export function AddPlaybookModal({
         inputTextLength: inputText.length,
         companyId,
         editedDocType,
-        willSendDocType: editedDocType || undefined
+        willSendDocType: editedDocType || undefined,
       });
       const result = await api.structurePlaybook(inputText, companyId, editedDocType || undefined);
       logger.info('[AddPlaybookModal] API response:', {
         hasStructured: !!result?.structured,
         returnedTitle: result?.structured?.title,
-        returnedDocType: result?.structured?.doc_type
+        returnedDocType: result?.structured?.doc_type,
       });
       if (result?.structured) {
         setEditedTitle(result.structured.title || '');
@@ -159,7 +159,9 @@ export function AddPlaybookModal({
     } catch (err) {
       logger.error('Failed to create playbook:', err);
       setError(
-        err instanceof Error ? err.message : t('modals.couldntCreatePlaybook', 'Failed to create playbook')
+        err instanceof Error
+          ? err.message
+          : t('modals.couldntCreatePlaybook', 'Failed to create playbook')
       );
       setSaving(false);
     }
@@ -212,7 +214,9 @@ export function AddPlaybookModal({
         <div className="pm-form">
           {/* Document Type Pills - User can optionally preselect (null = AI decides) */}
           <div className="pm-field">
-            <label>{t('modals.type')} <span className="pm-optional">({t('common.optional')})</span></label>
+            <label>
+              {t('modals.type')} <span className="pm-optional">({t('common.optional')})</span>
+            </label>
             <div className="mc-type-pills-unified">
               {DOC_TYPES.map((type) => {
                 const Icon = type.icon;
@@ -242,7 +246,12 @@ export function AddPlaybookModal({
               })}
             </div>
             {!editedDocType && (
-              <p className="pm-field-hint">{t('modals.aiWillDetermineType', 'AI will determine the best type from your description')}</p>
+              <p className="pm-field-hint">
+                {t(
+                  'modals.aiWillDetermineType',
+                  'AI will determine the best type from your description'
+                )}
+              </p>
             )}
           </div>
 
@@ -250,13 +259,18 @@ export function AddPlaybookModal({
           <div className="pm-field pm-context-field">
             <div className="pm-ai-intro">
               <Sparkles className="pm-ai-intro-icon" />
-              <span>{t('modals.aiIntroPlaybook', 'Describe your playbook and AI will structure it')}</span>
+              <span>
+                {t('modals.aiIntroPlaybook', 'Describe your playbook and AI will structure it')}
+              </span>
             </div>
             <textarea
               id="playbook-description"
               value={freeText}
               onChange={(e) => setFreeText(e.target.value)}
-              placeholder={t('modals.playbookPlaceholderAI', 'E.g., "How to onboard new engineers" or "Our code review policy" or "Decision-making framework for product priorities"')}
+              placeholder={t(
+                'modals.playbookPlaceholderAI',
+                'E.g., "How to onboard new engineers" or "Our code review policy" or "Decision-making framework for product priorities"'
+              )}
               disabled={structuring}
               rows={5}
               autoFocus
@@ -265,7 +279,9 @@ export function AddPlaybookModal({
             {structuring && (
               <div className="pm-ai-structuring">
                 <Spinner size="sm" variant="brand" />
-                <span>{t('modals.aiStructuringPlaybook', 'AI is structuring your playbook...')}</span>
+                <span>
+                  {t('modals.aiStructuringPlaybook', 'AI is structuring your playbook...')}
+                </span>
               </div>
             )}
           </div>
@@ -383,7 +399,10 @@ export function AddPlaybookModal({
                 id="playbook-content"
                 value={editedContent}
                 onChange={(e) => setEditedContent(e.target.value)}
-                placeholder={t('modals.playbookContentPlaceholder', 'Write your playbook content in markdown...')}
+                placeholder={t(
+                  'modals.playbookContentPlaceholder',
+                  'Write your playbook content in markdown...'
+                )}
                 disabled={saving}
                 rows={10}
                 className="pm-context-editor"
@@ -394,12 +413,7 @@ export function AddPlaybookModal({
 
           {/* Actions */}
           <div className="pm-actions pm-actions-review">
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={handleBackToEdit}
-              disabled={saving}
-            >
+            <Button type="button" variant="ghost" onClick={handleBackToEdit} disabled={saving}>
               {t('modals.startOver', 'Start Over')}
             </Button>
             <Button
@@ -460,7 +474,9 @@ export function AddPlaybookModal({
 
           {/* Document Type Pills */}
           <div className="pm-field">
-            <label>{t('modals.type')} <span className="pm-required">*</span></label>
+            <label>
+              {t('modals.type')} <span className="pm-required">*</span>
+            </label>
             <div className="mc-type-pills-unified">
               {DOC_TYPES.map((type) => {
                 const Icon = type.icon;
@@ -494,7 +510,8 @@ export function AddPlaybookModal({
           {/* Departments */}
           <div className="pm-field">
             <label>
-              {t('modals.departments')} <span className="pm-optional">({t('common.optional')})</span>
+              {t('modals.departments')}{' '}
+              <span className="pm-optional">({t('common.optional')})</span>
             </label>
             <MultiDepartmentSelect
               value={selectedDepts}
@@ -526,7 +543,10 @@ export function AddPlaybookModal({
                 id="manual-content"
                 value={editedContent}
                 onChange={(e) => setEditedContent(e.target.value)}
-                placeholder={t('modals.playbookContentPlaceholder', 'Write your playbook content in markdown...')}
+                placeholder={t(
+                  'modals.playbookContentPlaceholder',
+                  'Write your playbook content in markdown...'
+                )}
                 disabled={saving}
                 rows={10}
                 className="pm-context-editor"

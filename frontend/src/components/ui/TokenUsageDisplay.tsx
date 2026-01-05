@@ -178,9 +178,10 @@ export function TokenUsageDisplay({
     return null;
   }
 
-  const stageLabel = stage === 'complete'
-    ? t('usage.sessionTotal')
-    : t('usage.stageLabel', { stage: stage.replace('stage', '') });
+  const stageLabel =
+    stage === 'complete'
+      ? t('usage.sessionTotal')
+      : t('usage.stageLabel', { stage: stage.replace('stage', '') });
 
   return (
     <div className={`token-usage-display ${className}`}>
@@ -188,7 +189,9 @@ export function TokenUsageDisplay({
         <div className="token-usage-summary">
           <Activity size={14} className="token-usage-icon" />
           <span className="token-usage-label">{stageLabel}:</span>
-          <span className="token-usage-total">{t('usage.tokensCount', { value: formatTokenCount(stats.totalTokens) })}</span>
+          <span className="token-usage-total">
+            {t('usage.tokensCount', { value: formatTokenCount(stats.totalTokens) })}
+          </span>
           {stats.cacheHitRate > 0 && (
             <span className="token-usage-cache">
               <Zap size={12} />

@@ -1633,9 +1633,8 @@ function App() {
                 const themeToggleClickTime = (
                   window as Window & { __themeToggleClickTime?: number }
                 ).__themeToggleClickTime;
-                const helpButtonClickTime = (
-                  window as Window & { __helpButtonClickTime?: number }
-                ).__helpButtonClickTime;
+                const helpButtonClickTime = (window as Window & { __helpButtonClickTime?: number })
+                  .__helpButtonClickTime;
                 if (
                   (themeToggleClickTime && Date.now() - themeToggleClickTime < 500) ||
                   (helpButtonClickTime && Date.now() - helpButtonClickTime < 500)
@@ -1657,9 +1656,8 @@ function App() {
                 const themeToggleClickTime = (
                   window as Window & { __themeToggleClickTime?: number }
                 ).__themeToggleClickTime;
-                const helpButtonClickTime = (
-                  window as Window & { __helpButtonClickTime?: number }
-                ).__helpButtonClickTime;
+                const helpButtonClickTime = (window as Window & { __helpButtonClickTime?: number })
+                  .__helpButtonClickTime;
                 if (
                   (themeToggleClickTime && Date.now() - themeToggleClickTime < 500) ||
                   (helpButtonClickTime && Date.now() - helpButtonClickTime < 500)
@@ -1686,9 +1684,8 @@ function App() {
                 const themeToggleClickTime = (
                   window as Window & { __themeToggleClickTime?: number }
                 ).__themeToggleClickTime;
-                const helpButtonClickTime = (
-                  window as Window & { __helpButtonClickTime?: number }
-                ).__helpButtonClickTime;
+                const helpButtonClickTime = (window as Window & { __helpButtonClickTime?: number })
+                  .__helpButtonClickTime;
                 if (
                   (themeToggleClickTime && Date.now() - themeToggleClickTime < 500) ||
                   (helpButtonClickTime && Date.now() - helpButtonClickTime < 500)
@@ -1721,9 +1718,8 @@ function App() {
                 const themeToggleClickTime = (
                   window as Window & { __themeToggleClickTime?: number }
                 ).__themeToggleClickTime;
-                const helpButtonClickTime = (
-                  window as Window & { __helpButtonClickTime?: number }
-                ).__helpButtonClickTime;
+                const helpButtonClickTime = (window as Window & { __helpButtonClickTime?: number })
+                  .__helpButtonClickTime;
                 if (
                   (themeToggleClickTime && Date.now() - themeToggleClickTime < 500) ||
                   (helpButtonClickTime && Date.now() - helpButtonClickTime < 500)

@@ -110,12 +110,15 @@ export function LandingHero({
             <span className="landing-logo-text">AxCouncil</span>
           </div>
           <h1 className="landing-headline">
-            {t('landing.headline')} <span className="headline-emphasis">{t('landing.headlineEmphasis')}</span>
+            {t('landing.headline')}{' '}
+            <span className="headline-emphasis">{t('landing.headlineEmphasis')}</span>
           </h1>
           <div className="landing-stats">
             <div className="stat-pill">
               <span className="stat-number">{aiCount}</span>
-              <span className="stat-label">{aiCount === 1 ? t('landing.statsAI') : t('landing.statsAIs')}</span>
+              <span className="stat-label">
+                {aiCount === 1 ? t('landing.statsAI') : t('landing.statsAIs')}
+              </span>
             </div>
             <svg className="stat-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path
@@ -128,7 +131,9 @@ export function LandingHero({
             </svg>
             <div className="stat-pill">
               <span className="stat-number">{rounds}</span>
-              <span className="stat-label">{rounds === 1 ? t('landing.statsRound') : t('landing.statsRounds')}</span>
+              <span className="stat-label">
+                {rounds === 1 ? t('landing.statsRound') : t('landing.statsRounds')}
+              </span>
             </div>
             <svg className="stat-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path
