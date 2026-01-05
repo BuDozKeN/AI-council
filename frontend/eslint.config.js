@@ -159,6 +159,38 @@ export default defineConfig([
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]', argsIgnorePattern: '^_' }],
     },
   },
+  // E2E test files (Playwright - Node environment)
+  {
+    files: ['e2e/**/*.ts', 'e2e/**/*.spec.ts'],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: {
+        ...globals.node,
+        // Playwright globals
+        test: 'readonly',
+        expect: 'readonly',
+        describe: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        // Node process for CI detection
+        process: 'readonly',
+      },
+      parser: tsParser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tseslint,
+    },
+    rules: {
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]', argsIgnorePattern: '^_' }],
+    },
+  },
   // Config files (Node environment)
   {
     files: ['*.config.{js,ts}', 'tailwind.config.js', 'vite.config.js'],
