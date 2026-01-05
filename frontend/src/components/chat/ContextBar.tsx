@@ -6,6 +6,7 @@
  * Extracted from ChatInterface.jsx for better maintainability.
  */
 
+import { useTranslation } from 'react-i18next';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { MultiDepartmentSelect } from '../ui/MultiDepartmentSelect';
 import { MultiRoleSelect } from '../ui/MultiRoleSelect';
@@ -97,6 +98,7 @@ export function ContextBar({
   onToggleDepartmentContext,
   isLoading,
 }: ContextBarProps) {
+  const { t } = useTranslation();
   // Determine if we're using multi-select mode
   const useMultiSelect = onSelectDepartments && onSelectRoles;
   if (businesses.length === 0) return null;
@@ -125,10 +127,10 @@ export function ContextBar({
         disabled={disabled}
       >
         <SelectTrigger className="context-select-trigger company-select-trigger">
-          <SelectValue placeholder="No company" />
+          <SelectValue placeholder={t('context.noCompany')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="__none__">No company</SelectItem>
+          <SelectItem value="__none__">{t('context.noCompany')}</SelectItem>
           {businesses.map((biz) => (
             <SelectItem key={biz.id} value={biz.id}>
               {biz.name}
@@ -146,10 +148,10 @@ export function ContextBar({
             className={`context-pill ${useCompanyContext ? 'active' : ''}`}
             onClick={() => onToggleCompanyContext?.(!useCompanyContext)}
             disabled={disabled}
-            title="Toggle company-wide context (main company knowledge)"
+            title={t('context.toggleCompanyContext')}
           >
             <span className="pill-icon">{useCompanyContext ? '✓' : '○'}</span>
-            <span className="pill-text">Company</span>
+            <span className="pill-text">{t('context.company')}</span>
           </button>
 
           {/* Project selector with add button */}
@@ -161,10 +163,10 @@ export function ContextBar({
                 disabled={disabled}
               >
                 <SelectTrigger className="context-select-trigger project-select-trigger">
-                  <SelectValue placeholder="Company-wide" />
+                  <SelectValue placeholder={t('company.companyWide')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="__none__">Company-wide</SelectItem>
+                  <SelectItem value="__none__">{t('company.companyWide')}</SelectItem>
                   {projects.map((proj) => (
                     <SelectItem key={proj.id} value={proj.id}>
                       {proj.name}
@@ -173,14 +175,14 @@ export function ContextBar({
                 </SelectContent>
               </Select>
             ) : (
-              <span className="no-projects-hint">No projects</span>
+              <span className="no-projects-hint">{t('context.noProjects')}</span>
             )}
             <button
               type="button"
               className="add-project-btn"
               onClick={() => onOpenProjectModal?.()}
               disabled={disabled}
-              title="Add a new project or client"
+              title={t('context.addProject')}
             >
               +
             </button>
@@ -197,7 +199,6 @@ export function ContextBar({
                     onValueChange={onSelectDepartments!}
                     departments={departments}
                     disabled={disabled}
-                    placeholder="Select departments..."
                     className="context-multi-select"
                   />
 
@@ -208,7 +209,6 @@ export function ContextBar({
                       onValueChange={onSelectRoles!}
                       roles={allRoles}
                       disabled={disabled}
-                      placeholder="Select roles..."
                       className="context-multi-select"
                     />
                   )}
@@ -220,7 +220,6 @@ export function ContextBar({
                       onValueChange={onSelectPlaybooks}
                       playbooks={extendedPlaybooks}
                       disabled={disabled}
-                      placeholder="Select playbooks..."
                       className="context-multi-select"
                     />
                   )}
@@ -232,10 +231,10 @@ export function ContextBar({
                       className={`context-pill ${useDepartmentContext ? 'active' : ''}`}
                       onClick={() => onToggleDepartmentContext?.(!useDepartmentContext)}
                       disabled={disabled}
-                      title="Toggle department-specific context (department knowledge)"
+                      title={t('context.toggleDeptContext')}
                     >
                       <span className="pill-icon">{useDepartmentContext ? '✓' : '○'}</span>
-                      <span className="pill-text">Dept Context</span>
+                      <span className="pill-text">{t('context.deptContext')}</span>
                     </button>
                   )}
                 </>
@@ -248,10 +247,10 @@ export function ContextBar({
                     disabled={disabled}
                   >
                     <SelectTrigger className="context-select-trigger department-select-trigger">
-                      <SelectValue placeholder="General Council" />
+                      <SelectValue placeholder={t('context.generalCouncil')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="__none__">General Council</SelectItem>
+                      <SelectItem value="__none__">{t('context.generalCouncil')}</SelectItem>
                       {departments.map((dept) => (
                         <SelectItem key={dept.id} value={dept.id}>
                           {dept.name}
@@ -295,10 +294,10 @@ export function ContextBar({
                       className={`context-pill ${useDepartmentContext ? 'active' : ''}`}
                       onClick={() => onToggleDepartmentContext?.(!useDepartmentContext)}
                       disabled={disabled}
-                      title="Toggle department-specific context (department knowledge)"
+                      title={t('context.toggleDeptContext')}
                     >
                       <span className="pill-icon">{useDepartmentContext ? '✓' : '○'}</span>
-                      <span className="pill-text">Department</span>
+                      <span className="pill-text">{t('context.department')}</span>
                     </button>
                   )}
                 </>
@@ -314,10 +313,10 @@ export function ContextBar({
               disabled={disabled}
             >
               <SelectTrigger className="context-select-trigger channel-select-trigger">
-                <SelectValue placeholder="Any channel" />
+                <SelectValue placeholder={t('context.anyChannel')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="__none__">Any channel</SelectItem>
+                <SelectItem value="__none__">{t('context.anyChannel')}</SelectItem>
                 {channels.map((channel) => (
                   <SelectItem key={channel.id} value={channel.id}>
                     {channel.name}
@@ -335,10 +334,10 @@ export function ContextBar({
               disabled={disabled}
             >
               <SelectTrigger className="context-select-trigger style-select-trigger">
-                <SelectValue placeholder="Default style" />
+                <SelectValue placeholder={t('context.defaultStyle')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="__none__">Default style</SelectItem>
+                <SelectItem value="__none__">{t('context.defaultStyle')}</SelectItem>
                 {styles.map((style) => (
                   <SelectItem key={style.id} value={style.id}>
                     {style.name}

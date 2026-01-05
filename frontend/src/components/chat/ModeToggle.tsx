@@ -6,6 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MultiDepartmentSelect } from '../ui/MultiDepartmentSelect';
 import { MultiRoleSelect } from '../ui/MultiRoleSelect';
 import { MultiPlaybookSelect } from '../ui/MultiPlaybookSelect';
@@ -71,6 +72,7 @@ export function ModeToggle({
   selectedBusiness,
   isLoading,
 }: ModeToggleProps) {
+  const { t } = useTranslation();
   const isMobile = useIsMobile();
 
   // Determine if we're using multi-select mode
@@ -85,18 +87,18 @@ export function ModeToggle({
           className={`mode-btn-compact ${chatMode === 'chat' ? 'active' : ''}`}
           onClick={() => !isLoading && onChatModeChange('chat')}
           disabled={isLoading}
-          title="Quick response from one AI"
+          title={t('chat.tooltips.chatMode')}
         >
-          <span className="mode-label">Quick</span>
+          <span className="mode-label">{t('modeToggle.quick')}</span>
         </button>
         <button
           type="button"
           className={`mode-btn-compact ${chatMode === 'council' ? 'active' : ''}`}
           onClick={() => !isLoading && onChatModeChange('council')}
           disabled={isLoading}
-          title="Full council deliberation with 5 AI models"
+          title={t('chat.tooltips.councilMode')}
         >
-          <span className="mode-label">Full Council</span>
+          <span className="mode-label">{t('modeToggle.fullCouncil')}</span>
         </button>
       </div>
 

@@ -1,7 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import { Skeleton } from '../ui/Skeleton';
 import { Button } from '../ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
 import { useBilling } from './hooks/useBilling';
+import { formatCurrency } from '../../lib/currencyUtils';
 
 const BillingSkeleton = () => (
   <>
@@ -49,6 +51,7 @@ interface BillingSectionProps {
 }
 
 export function BillingSection({ isOpen }: BillingSectionProps) {
+  const { t } = useTranslation();
   const {
     plans,
     billingLoading,
@@ -73,8 +76,8 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
       {/* Usage Card */}
       <Card className="settings-card">
         <CardHeader>
-          <CardTitle>Current Usage</CardTitle>
-          <CardDescription>Your council queries this billing period</CardDescription>
+          <CardTitle>{t('settings.currentUsage')}</CardTitle>
+          <CardDescription>{t('settings.usageDescription')}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="usage-bar">
@@ -89,15 +92,15 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
           </div>
           <p className="usage-text">
             {isUnlimited
-              ? `${queriesUsed} queries used (Unlimited)`
-              : `${queriesUsed} / ${queriesLimit} queries this month`}
+              ? t('settings.queriesUsed', { count: queriesUsed })
+              : t('settings.queriesMonthly', { count: queriesUsed, limit: queriesLimit })}
           </p>
         </CardContent>
       </Card>
 
       {/* Plans */}
       <div className="plans-section">
-        <h3>Subscription Plans</h3>
+        <h3>{t('settings.subscriptionPlans')}</h3>
         <div className="plans-grid">
           {plans.map((plan) => {
             const isCurrentPlan = plan.id === currentTier;
@@ -110,16 +113,16 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
                 key={plan.id}
                 className={`plan-card ${isCurrentPlan ? 'current' : ''} ${plan.id === 'pro' ? 'popular' : ''}`}
               >
-                {plan.id === 'pro' && <div className="popular-badge">Most Popular</div>}
+                {plan.id === 'pro' && <div className="popular-badge">{t('settings.mostPopular')}</div>}
                 <div className="plan-header">
                   <h4>{plan.name}</h4>
                   <div className="plan-price">
                     {plan.is_free ? (
-                      <span className="price">Free</span>
+                      <span className="price">{t('settings.free')}</span>
                     ) : (
                       <>
-                        <span className="price">${plan.price}</span>
-                        <span className="period">/month</span>
+                        <span className="price">{formatCurrency(plan.price, { maximumFractionDigits: 0 })}</span>
+                        <span className="period">{t('settings.perMonth')}</span>
                       </>
                     )}
                   </div>
@@ -136,7 +139,7 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
                 <div className="plan-action">
                   {isCurrentPlan ? (
                     <Button variant="outline" disabled>
-                      Current Plan
+                      {t('settings.currentPlan')}
                     </Button>
                   ) : (
                     <Button
@@ -145,10 +148,10 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
                       disabled={checkoutLoading !== null}
                     >
                       {checkoutLoading === plan.id
-                        ? 'Loading...'
+                        ? t('common.loading')
                         : isUpgrade
-                          ? 'Upgrade'
-                          : 'Select'}
+                          ? t('settings.upgrade')
+                          : t('settings.select')}
                     </Button>
                   )}
                 </div>
@@ -163,8 +166,8 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
         <Card className="settings-card manage-card">
           <CardContent className="manage-content">
             <div>
-              <p className="manage-title">Manage your subscription</p>
-              <p className="manage-desc">Update payment method, view invoices, or cancel</p>
+              <p className="manage-title">{t('settings.manageSubscription')}</p>
+              <p className="manage-desc">{t('settings.manageSubscriptionDesc')}</p>
             </div>
             <Button
               variant="outline"
@@ -172,13 +175,13 @@ export function BillingSection({ isOpen }: BillingSectionProps) {
               onClick={handleManageSubscription}
               disabled={checkoutLoading !== null}
             >
-              {checkoutLoading === 'manage' ? 'Loading...' : 'Manage Billing'}
+              {checkoutLoading === 'manage' ? t('common.loading') : t('settings.manageBilling')}
             </Button>
           </CardContent>
         </Card>
       )}
 
-      <p className="stripe-note">Secure payments powered by Stripe</p>
+      <p className="stripe-note">{t('settings.stripePowered')}</p>
     </>
   );
 }

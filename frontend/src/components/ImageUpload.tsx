@@ -7,6 +7,7 @@ import {
   ChangeEvent,
   ClipboardEvent,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import './ImageUpload.css';
 
 interface UploadedImage {
@@ -45,6 +46,9 @@ interface ImageUploadProps {
   maxSizeMB?: number;
 }
 
+// Static constant - no need to recreate on each render
+const ALLOWED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
+
 /**
  * ImageUpload component for handling image attachments.
  * Supports:
@@ -59,6 +63,7 @@ export default function ImageUpload({
   maxImages = 5,
   maxSizeMB = 10,
 }: ImageUploadProps): ImageUploadReturn {
+  const { t } = useTranslation();
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [dragHasImages, setDragHasImages] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -66,17 +71,19 @@ export default function ImageUpload({
   const dragCounterRef = useRef<number>(0);
 
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
-  const allowedTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/gif'];
 
-  const validateFile = (file: File): string | null => {
-    if (!allowedTypes.includes(file.type)) {
-      return `Invalid file type: ${file.type}. Allowed: PNG, JPG, WebP, GIF`;
-    }
-    if (file.size > maxSizeBytes) {
-      return `File too large: ${(file.size / 1024 / 1024).toFixed(1)}MB. Max: ${maxSizeMB}MB`;
-    }
-    return null;
-  };
+  const validateFile = useCallback(
+    (file: File): string | null => {
+      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        return t('imageUpload.invalidFileType', { type: file.type });
+      }
+      if (file.size > maxSizeBytes) {
+        return t('imageUpload.fileTooLarge', { size: (file.size / 1024 / 1024).toFixed(1), max: maxSizeMB });
+      }
+      return null;
+    },
+    [maxSizeBytes, maxSizeMB, t]
+  );
 
   const processFiles = useCallback(
     (files: File[]) => {
@@ -117,7 +124,7 @@ export default function ImageUpload({
         setTimeout(() => setError(null), 5000);
       }
     },
-    [images, onImagesChange, disabled, maxImages, maxSizeBytes]
+    [images, onImagesChange, disabled, maxImages, validateFile]
   );
 
   const removeImage = (index: number) => {
@@ -248,7 +255,7 @@ export default function ImageUpload({
       <input
         ref={fileInputRef}
         type="file"
-        accept={allowedTypes.join(',')}
+        accept={ALLOWED_IMAGE_TYPES.join(',')}
         multiple
         onChange={handleFileSelect}
         className="hidden"
@@ -297,15 +304,15 @@ export default function ImageUpload({
               <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor">
                 <path d="M19 7v2.99s-1.99.01-2 0V7h-3s.01-1.99 0-2h3V2h2v3h3v2h-3zm-3 4V8h-3V5H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8h-3zM5 19l3-4 2 3 3-4 4 5H5z" />
               </svg>
-              <span>Drop images here</span>
+              <span>{t('imageUpload.dropImagesHere')}</span>
             </>
           ) : (
             <>
               <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v2h-2v-2zm0-10h2v8h-2V7z" />
               </svg>
-              <span className="invalid-message">Only images are supported</span>
-              <span className="invalid-hint">PNG, JPG, GIF, or WebP</span>
+              <span className="invalid-message">{t('imageUpload.onlyImagesSupported')}</span>
+              <span className="invalid-hint">{t('imageUpload.allowedFormats')}</span>
             </>
           )}
         </div>

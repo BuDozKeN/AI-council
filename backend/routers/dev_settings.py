@@ -31,6 +31,19 @@ class CachingModeRequest(BaseModel):
     enabled: bool
 
 
+class MockLengthOverrideRequest(BaseModel):
+    """Request to set mock length override.
+
+    length_override: None to use LLM Hub settings, or a specific token count
+                     (512, 1024, 1536, 2048, 4096, 8192)
+    """
+    length_override: int | None = None
+
+
+# Valid mock length values (matching LLM Hub presets)
+VALID_MOCK_LENGTHS = {512, 1024, 1536, 2048, 4096, 8192}
+
+
 # =============================================================================
 # ENDPOINTS
 # =============================================================================
@@ -41,7 +54,8 @@ async def get_mock_mode(user: dict = Depends(get_current_user)):
     from .. import openrouter
     return {
         "enabled": openrouter.MOCK_LLM,
-        "scenario": config.MOCK_LLM_SCENARIO
+        "scenario": config.MOCK_LLM_SCENARIO,
+        "length_override": config.MOCK_LLM_LENGTH_OVERRIDE,
     }
 
 
@@ -100,4 +114,49 @@ async def set_caching_mode(request: CachingModeRequest, user: dict = Depends(get
         "success": True,
         "enabled": config.ENABLE_PROMPT_CACHING,
         "message": f"Prompt caching {'enabled' if request.enabled else 'disabled'}"
+    }
+
+
+@router.get("/mock-length-override")
+async def get_mock_length_override(user: dict = Depends(get_current_user)):
+    """Get current mock length override status. Requires authentication."""
+    return {
+        "length_override": config.MOCK_LLM_LENGTH_OVERRIDE,
+        "valid_values": sorted(VALID_MOCK_LENGTHS),
+    }
+
+
+@router.post("/mock-length-override")
+async def set_mock_length_override(
+    request: MockLengthOverrideRequest,
+    user: dict = Depends(get_current_user)
+):
+    """
+    Set mock response length override at runtime. Requires authentication.
+
+    When set to None (default), mock responses use the max_tokens from the
+    actual LLM Hub configuration. When set to a specific value, mock responses
+    will use that length regardless of LLM Hub settings.
+
+    This allows developers to test different response lengths without
+    modifying their production LLM Hub configuration.
+    """
+    # Validate the override value
+    if request.length_override is not None and request.length_override not in VALID_MOCK_LENGTHS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid length_override. Must be None or one of: {sorted(VALID_MOCK_LENGTHS)}"
+        )
+
+    config.MOCK_LLM_LENGTH_OVERRIDE = request.length_override
+
+    if request.length_override is None:
+        message = "Mock length override disabled - using LLM Hub settings"
+    else:
+        message = f"Mock length override set to {request.length_override} tokens"
+
+    return {
+        "success": True,
+        "length_override": config.MOCK_LLM_LENGTH_OVERRIDE,
+        "message": message,
     }

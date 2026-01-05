@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Crown,
   Shield,
@@ -17,13 +18,6 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '.
 import { useTeam, type TeamRole } from './hooks/useTeam';
 import type { User } from '@supabase/supabase-js';
 
-interface RoleConfigEntry {
-  label: string;
-  icon: LucideIcon;
-  color: string;
-  description: string;
-}
-
 interface TeamSectionProps {
   user: User | null;
   isOpen: boolean;
@@ -36,24 +30,32 @@ interface TeamSectionProps {
 }
 
 // Role configuration for display - uses CSS variables for theming
-const ROLE_CONFIG: Record<TeamRole, RoleConfigEntry> = {
+// Labels are translated at render time using the roleKey
+interface RoleConfigStatic {
+  roleKey: 'owner' | 'admin' | 'member';
+  icon: LucideIcon;
+  color: string;
+  descKey: 'fullControl' | 'manageMembers' | 'viewContribute';
+}
+
+const ROLE_CONFIG: Record<TeamRole, RoleConfigStatic> = {
   owner: {
-    label: 'Owner',
+    roleKey: 'owner',
     icon: Crown,
     color: 'var(--color-indigo-500)',
-    description: 'Full control',
+    descKey: 'fullControl',
   },
   admin: {
-    label: 'Admin',
+    roleKey: 'admin',
     icon: Shield,
     color: 'var(--color-blue-500)',
-    description: 'Manage members',
+    descKey: 'manageMembers',
   },
   member: {
-    label: 'Member',
+    roleKey: 'member',
     icon: UserIcon,
     color: 'var(--color-gray-500)',
-    description: 'View & contribute',
+    descKey: 'viewContribute',
   },
 };
 
@@ -86,6 +88,7 @@ const TeamSkeleton = () => (
 );
 
 export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSectionProps) {
+  const { t } = useTranslation();
   const {
     members,
     teamLoading,
@@ -118,7 +121,7 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
           <AlertCircle size={20} />
           <span>{teamError}</span>
           <Button variant="outline" onClick={loadTeamData}>
-            Retry
+            {t('common.retry')}
           </Button>
         </CardContent>
       </Card>
@@ -132,9 +135,9 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Team Members</CardTitle>
+              <CardTitle>{t('settings.teamMembers')}</CardTitle>
               <CardDescription>
-                {members.length} {members.length === 1 ? 'member' : 'members'}
+                {t('settings.memberCount', { count: members.length })}
               </CardDescription>
             </div>
             {canManageMembers && (
@@ -144,7 +147,7 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                 className="add-member-btn"
               >
                 <Plus size={16} />
-                <span className="add-member-text">Add Member</span>
+                <span className="add-member-text">{t('settings.addMember')}</span>
               </Button>
             )}
           </div>
@@ -159,7 +162,7 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                   id="new-member-email"
                   name="member-email"
                   type="email"
-                  placeholder="Email address"
+                  placeholder={t('settings.emailAddress')}
                   value={newEmail}
                   onChange={(e) => setNewEmail(e.target.value)}
                   className="form-input"
@@ -173,15 +176,15 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="member">Member</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="member">{t('settings.member')}</SelectItem>
+                    <SelectItem value="admin">{t('settings.admin')}</SelectItem>
                   </SelectContent>
                 </Select>
                 <Button type="submit" variant="default" disabled={addingMember || !newEmail.trim()}>
-                  {addingMember ? <Spinner size={14} /> : 'Add'}
+                  {addingMember ? <Spinner size={14} /> : t('common.add')}
                 </Button>
                 <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
               </div>
               {addError && (
@@ -190,7 +193,7 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                   {addError}
                 </div>
               )}
-              <p className="form-hint">User must have an existing account to be added.</p>
+              <p className="form-hint">{t('settings.userMustExist')}</p>
             </form>
           )}
 
@@ -220,10 +223,10 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                     <RoleIcon size={16} />
                   </div>
                   <span className="member-name">
-                    {isCurrentUser ? 'You' : `User ${member.user_id.slice(0, 8)}...`}
+                    {isCurrentUser ? t('settings.you') : `User ${member.user_id.slice(0, 8)}...`}
                   </span>
                   <span className="member-role-badge" style={{ color: roleConfig.color }}>
-                    {roleConfig.label}
+                    {t(`settings.${roleConfig.roleKey}`)}
                   </span>
                   {isLoading ? (
                     <Spinner size={14} />
@@ -233,7 +236,7 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                         <button
                           className="icon-btn promote"
                           onClick={() => handleChangeRole(member.id, 'admin')}
-                          title="Promote to Admin"
+                          title={t('settings.promoteToAdmin')}
                         >
                           <ChevronUp size={14} />
                         </button>
@@ -242,7 +245,7 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                         <button
                           className="icon-btn demote"
                           onClick={() => handleChangeRole(member.id, 'member')}
-                          title="Demote to Member"
+                          title={t('settings.demoteToMember')}
                         >
                           <ChevronDown size={14} />
                         </button>
@@ -251,7 +254,7 @@ export function TeamSection({ user, isOpen, companyId, onRemoveMember }: TeamSec
                         <button
                           className="icon-btn danger"
                           onClick={() => onRemoveMember(member.id, member.role, handleRemoveMember)}
-                          title="Remove from team"
+                          title={t('settings.removeFromTeam')}
                         >
                           <Trash2 size={14} />
                         </button>

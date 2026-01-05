@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { useAuth } from '../AuthContext';
 import { AuroraBackground } from './ui/aurora-background';
@@ -31,6 +32,7 @@ const GoogleIcon = () => (
 );
 
 export default function Login() {
+  const { t } = useTranslation();
   const [mode, setMode] = useState('signIn'); // 'signIn', 'signUp', 'forgotPassword', 'resetPassword'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -53,9 +55,9 @@ export default function Login() {
   useEffect(() => {
     if (needsPasswordReset) {
       setMode('resetPassword');
-      setMessage('Please enter your new password.');
+      setMessage(t('auth.enterNewPassword'));
     }
-  }, [needsPasswordReset]);
+  }, [needsPasswordReset, t]);
 
   const handleGoogleSignIn = async () => {
     setError('');
@@ -78,35 +80,35 @@ export default function Login() {
     try {
       if (mode === 'signUp') {
         await signUp(email, password);
-        setMessage('Check your email to confirm your account!');
+        setMessage(t('auth.checkEmailConfirm'));
         hapticSuccess();
       } else if (mode === 'signIn') {
         await signIn(email, password);
         hapticSuccess();
       } else if (mode === 'forgotPassword') {
         await sendPasswordReset(email);
-        setMessage('Check your email for a password reset link!');
+        setMessage(t('auth.checkEmailReset'));
         hapticSuccess();
       } else if (mode === 'resetPassword') {
         if (password !== confirmPassword) {
-          setError('Passwords do not match');
+          setError(t('validation.passwordsNoMatch'));
           setLoading(false);
           hapticError();
           return;
         }
         if (password.length < 6) {
-          setError('Password must be at least 6 characters');
+          setError(t('validation.passwordMinLength'));
           setLoading(false);
           hapticError();
           return;
         }
         await updatePassword(password);
-        setMessage('Password updated successfully! You are now signed in.');
+        setMessage(t('auth.passwordUpdated'));
         setMode('signIn');
         hapticSuccess();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : t('errors.generic'));
       hapticError();
     } finally {
       setLoading(false);
@@ -116,40 +118,40 @@ export default function Login() {
   const getTitle = () => {
     switch (mode) {
       case 'signUp':
-        return 'Create your account';
+        return t('auth.createAccount');
       case 'forgotPassword':
-        return 'Reset your password';
+        return t('auth.resetPassword');
       case 'resetPassword':
-        return 'Set new password';
+        return t('auth.setNewPassword');
       default:
-        return 'Welcome back';
+        return t('auth.welcomeBack');
     }
   };
 
   const getSubtitle = () => {
     switch (mode) {
       case 'signUp':
-        return 'Start making better decisions with AI';
+        return t('auth.startMakingDecisions');
       case 'forgotPassword':
-        return "We'll send you a reset link";
+        return t('auth.sendResetLink');
       case 'resetPassword':
-        return 'Choose a strong password';
+        return t('auth.chooseStrongPassword');
       default:
-        return 'Sign in to continue to AxCouncil';
+        return t('auth.signInToContinue');
     }
   };
 
   const getButtonText = () => {
-    if (loading) return 'Loading...';
+    if (loading) return t('common.loading');
     switch (mode) {
       case 'signUp':
-        return 'Create Account';
+        return t('auth.createAccountBtn');
       case 'forgotPassword':
-        return 'Send Reset Link';
+        return t('auth.sendResetLinkBtn');
       case 'resetPassword':
-        return 'Update Password';
+        return t('auth.updatePasswordBtn');
       default:
-        return 'Sign In';
+        return t('auth.signIn');
     }
   };
 
@@ -203,7 +205,7 @@ export default function Login() {
             whileTap={interactionStates.buttonTap}
           >
             <GoogleIcon />
-            <span>{googleLoading ? 'Connecting...' : 'Continue with Google'}</span>
+            <span>{googleLoading ? t('auth.connecting') : t('auth.continueWithGoogle')}</span>
           </motion.button>
         )}
 
@@ -215,7 +217,7 @@ export default function Login() {
             animate={{ opacity: 1 }}
             transition={springWithDelay('smooth', 0.3)}
           >
-            <span>or continue with email</span>
+            <span>{t('auth.orContinueWithEmail')}</span>
           </motion.div>
         )}
 
@@ -229,13 +231,13 @@ export default function Login() {
         >
           {mode !== 'resetPassword' && (
             <div className="form-group">
-              <label htmlFor="email">Email</label>
+              <label htmlFor="email">{t('auth.email')}</label>
               <input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                placeholder={t('auth.emailPlaceholder')}
                 required
                 autoComplete="email"
               />
@@ -245,14 +247,14 @@ export default function Login() {
           {(mode === 'signIn' || mode === 'signUp' || mode === 'resetPassword') && (
             <div className="form-group">
               <label htmlFor="password">
-                {mode === 'resetPassword' ? 'New Password' : 'Password'}
+                {mode === 'resetPassword' ? t('auth.newPassword') : t('auth.password')}
               </label>
               <input
                 id="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder={mode === 'resetPassword' ? 'Enter new password' : 'Your password'}
+                placeholder={mode === 'resetPassword' ? t('auth.enterNewPassword') : t('auth.passwordPlaceholder')}
                 required
                 minLength={6}
                 autoComplete={mode === 'signUp' ? 'new-password' : 'current-password'}
@@ -262,13 +264,13 @@ export default function Login() {
 
           {mode === 'resetPassword' && (
             <div className="form-group">
-              <label htmlFor="confirmPassword">Confirm Password</label>
+              <label htmlFor="confirmPassword">{t('auth.confirmPassword')}</label>
               <input
                 id="confirmPassword"
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm new password"
+                placeholder={t('auth.confirmNewPassword')}
                 required
                 minLength={6}
                 autoComplete="new-password"
@@ -327,7 +329,7 @@ export default function Login() {
                   setMessage('');
                 }}
               >
-                Forgot password?
+                {t('auth.forgotPassword')}
               </button>
               <button
                 type="button"
@@ -338,7 +340,7 @@ export default function Login() {
                   setMessage('');
                 }}
               >
-                Don't have an account? <strong>Sign up</strong>
+                {t('auth.noAccount')} <strong>{t('auth.signUp')}</strong>
               </button>
             </>
           )}
@@ -353,7 +355,7 @@ export default function Login() {
                 setMessage('');
               }}
             >
-              Already have an account? <strong>Sign in</strong>
+              {t('auth.hasAccount')} <strong>{t('auth.signIn')}</strong>
             </button>
           )}
 
@@ -369,7 +371,7 @@ export default function Login() {
                 setConfirmPassword('');
               }}
             >
-              Back to sign in
+              {t('auth.backToSignIn')}
             </button>
           )}
         </motion.div>

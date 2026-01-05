@@ -1,0 +1,15 @@
+# Claude Code Workspace Marker
+# This file identifies THIS folder as the primary working directory for AI-council.
+#
+# PURPOSE: Prevent working in duplicate/copy folders
+#
+# HOW IT WORKS:
+# - This file should exist ONLY in the primary repo clone
+# - If you have multiple clones, delete this file from all but ONE
+# - Claude Code should check: does .claude-workspace exist in cwd?
+#
+# RULE: Only ONE folder on your system should contain this file.
+# If you find multiple, consolidate your work into one and delete the others.
+
+workspace_name=AI-council
+repo_url=https://github.com/BuDozKeN/AI-council.git

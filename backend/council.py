@@ -4,7 +4,7 @@ import asyncio
 import time
 from typing import List, Dict, Any, Tuple, Optional, AsyncGenerator
 from .openrouter import query_models_parallel, query_model, query_model_stream
-from .config import COUNCIL_MODELS, CHAIRMAN_MODEL, CHAIRMAN_MODELS, MIN_STAGE1_RESPONSES, MIN_STAGE2_RANKINGS
+from .config import MIN_STAGE1_RESPONSES, MIN_STAGE2_RANKINGS
 from .context_loader import (
     get_system_prompt_with_context,
     wrap_user_query,
@@ -16,9 +16,10 @@ from .context_loader import (
     detect_multi_turn_attack
 )
 from .config import STAGE1_TIMEOUT, STAGE2_TIMEOUT, STAGE3_TIMEOUT, MAX_QUERY_CHARS
-from .model_registry import get_primary_model, get_models_sync
+from .model_registry import get_primary_model, get_models, get_models_sync
 from .security import log_app_event
 from .database import get_supabase_service
+from .llm_config import get_llm_config
 
 
 class QueryTooLongError(Exception):
@@ -55,6 +56,11 @@ async def stage1_collect_responses(
     Returns:
         List of dicts with 'model' and 'response' keys
     """
+    # Get council models from database (dynamic, respects settings)
+    council_models = await get_models('council_member')
+    if not council_models:
+        council_models = get_models_sync('council_member')  # Fallback
+
     # Build messages with optional business context
     messages = []
 
@@ -67,7 +73,7 @@ async def stage1_collect_responses(
     messages.append({"role": "user", "content": wrap_user_query(user_query)})
 
     # Query all models in parallel
-    responses = await query_models_parallel(COUNCIL_MODELS, messages)
+    responses = await query_models_parallel(council_models, messages)
 
     # Format results
     stage1_results = []
@@ -93,10 +99,12 @@ async def stage1_stream_responses(
     access_token: Optional[str] = None,
     company_uuid: Optional[str] = None,
     department_uuid: Optional[str] = None,
-    # Multi-select support (new)
+    # Multi-select support
     department_ids: Optional[List[str]] = None,
     role_ids: Optional[List[str]] = None,
-    playbook_ids: Optional[List[str]] = None
+    playbook_ids: Optional[List[str]] = None,
+    # LLM behavior modifier (per-conversation)
+    conversation_modifier: Optional[str] = None,
 ) -> AsyncGenerator[Dict[str, Any], None]:
     """
     Stage 1 with streaming: Collect individual responses from all council models,
@@ -182,6 +190,20 @@ async def stage1_stream_responses(
     # AI-SEC-009: Track stage start time for timeout enforcement
     stage_start_time = time.time()
 
+    # Get council models from database (dynamic, respects LLM Hub settings)
+    council_models = await get_models('council_member')
+    if not council_models:
+        council_models = get_models_sync('council_member')  # Fallback
+
+    # Get LLM config for this department/stage (department-specific behavior)
+    # Use department_uuid if available, otherwise try first of department_ids
+    effective_dept_id = department_uuid or (department_ids[0] if department_ids else None)
+    stage1_config = await get_llm_config(
+        department_id=effective_dept_id,
+        stage="stage1",
+        conversation_modifier=conversation_modifier,
+    )
+
     # Use a queue to collect events from all models
     # maxsize=1000 provides backpressure if consumer is slower than producers
     queue: asyncio.Queue = asyncio.Queue(maxsize=1000)
@@ -193,7 +215,12 @@ async def stage1_stream_responses(
         content_chunks: list[str] = []
         usage_data = None
         try:
-            async for chunk in query_model_stream(model, messages):
+            async for chunk in query_model_stream(
+                model,
+                messages,
+                temperature=stage1_config.get("temperature"),
+                max_tokens=stage1_config.get("max_tokens"),
+            ):
                 # Check for usage data marker (sent at end of stream)
                 if chunk.startswith("[USAGE:"):
                     try:
@@ -219,10 +246,10 @@ async def stage1_stream_responses(
     # Start all model streams with staggered delays to avoid rate limiting
     tasks = []
     completed_count = 0
-    total_models = len(COUNCIL_MODELS)
+    total_models = len(council_models)
     STAGGER_DELAY = 0.8  # seconds between model starts
 
-    for i, model in enumerate(COUNCIL_MODELS):
+    for i, model in enumerate(council_models):
         tasks.append(asyncio.create_task(stream_single_model(model)))
 
         if i < total_models - 1:
@@ -291,7 +318,7 @@ async def stage1_stream_responses(
 
     # Check minimum viable council
     successful_count = len(final_results)
-    total_models = len(COUNCIL_MODELS)
+    total_council_models = len(council_models)
 
     if MIN_STAGE1_RESPONSES > 0 and successful_count < MIN_STAGE1_RESPONSES:
         log_app_event(
@@ -299,14 +326,14 @@ async def stage1_stream_responses(
             level="WARNING",
             received=successful_count,
             required=MIN_STAGE1_RESPONSES,
-            total=total_models,
-            failed_models=[m for m in COUNCIL_MODELS if m not in model_content or not model_content.get(m)]
+            total=total_council_models,
+            failed_models=[m for m in council_models if m not in model_content or not model_content.get(m)]
         )
         yield {
             "type": "stage1_insufficient",
             "received": successful_count,
             "required": MIN_STAGE1_RESPONSES,
-            "total": total_models,
+            "total": total_council_models,
             "data": final_results  # Still include what we got for debugging
         }
         return
@@ -320,7 +347,8 @@ async def stage2_stream_rankings(
     business_id: Optional[str] = None,
     department_id: Optional[str] = None,
     channel_id: Optional[str] = None,
-    style_id: Optional[str] = None
+    style_id: Optional[str] = None,
+    department_uuid: Optional[str] = None,
 ) -> AsyncGenerator[Dict[str, Any], None]:
     """
     Stage 2 with streaming: Each model ranks the anonymized responses,
@@ -395,15 +423,23 @@ Now provide your evaluation and ranking:"""
 
     messages.append({"role": "user", "content": ranking_prompt})
 
-    # Use dedicated Stage 2 reviewer models (cost-optimized)
-    # These are cheaper models optimized for ranking/review tasks
-    STAGE2_MODELS = get_models_sync('stage2_reviewer')
-    if not STAGE2_MODELS:
-        # Fallback to council models if stage2_reviewer not configured
-        STAGE2_MODELS = COUNCIL_MODELS
+    # Use dedicated Stage 2 reviewer models from database (dynamic, respects LLM Hub settings)
+    stage2_models = await get_models('stage2_reviewer')
+    if not stage2_models:
+        # Fallback to hardcoded if database fails
+        stage2_models = get_models_sync('stage2_reviewer')
+    if not stage2_models:
+        # Final fallback: use council models
+        stage2_models = await get_models('council_member') or get_models_sync('council_member')
 
     # AI-SEC-009: Track stage start time for timeout enforcement
     stage_start_time = time.time()
+
+    # Get LLM config for Stage 2 (typically more conservative than Stage 1)
+    stage2_config = await get_llm_config(
+        department_id=department_uuid,
+        stage="stage2",
+    )
 
     # Use a queue to collect events from all models
     # maxsize=1000 provides backpressure if consumer is slower than producers
@@ -416,7 +452,12 @@ Now provide your evaluation and ranking:"""
         content_chunks: list[str] = []
         usage_data = None
         try:
-            async for chunk in query_model_stream(model, messages):
+            async for chunk in query_model_stream(
+                model,
+                messages,
+                temperature=stage2_config.get("temperature"),
+                max_tokens=stage2_config.get("max_tokens"),
+            ):
                 # Check for usage data marker (sent at end of stream)
                 if chunk.startswith("[USAGE:"):
                     try:
@@ -442,9 +483,9 @@ Now provide your evaluation and ranking:"""
     # Start all model streams with staggered delays
     tasks = []
     completed_count = 0
-    total_models = len(STAGE2_MODELS)
+    total_models = len(stage2_models)
 
-    for i, model in enumerate(STAGE2_MODELS):
+    for i, model in enumerate(stage2_models):
         tasks.append(asyncio.create_task(stream_single_model(model)))
 
         if i < total_models - 1:
@@ -514,7 +555,7 @@ Now provide your evaluation and ranking:"""
 
     # Check minimum viable rankings
     successful_count = len(stage2_results)
-    total_reviewer_models = len(STAGE2_MODELS)
+    total_reviewer_models = len(stage2_models)
 
     if MIN_STAGE2_RANKINGS > 0 and successful_count < MIN_STAGE2_RANKINGS:
         log_app_event(
@@ -523,7 +564,7 @@ Now provide your evaluation and ranking:"""
             received=successful_count,
             required=MIN_STAGE2_RANKINGS,
             total=total_reviewer_models,
-            failed_models=[m for m in STAGE2_MODELS if m not in model_content or not model_content.get(m)]
+            failed_models=[m for m in stage2_models if m not in model_content or not model_content.get(m)]
         )
         yield {
             "type": "stage2_insufficient",
@@ -686,12 +727,24 @@ Provide a clear, well-reasoned final answer that represents the council's collec
     # AI-SEC-009: Track stage start time for timeout enforcement
     stage_start_time = time.time()
 
+    # Get chairman models from database (dynamic, respects LLM Hub settings)
+    chairman_models = await get_models('chairman')
+    if not chairman_models:
+        chairman_models = get_models_sync('chairman')
+
+    # Get LLM config for Stage 3 (Chairman synthesis)
+    effective_dept_id = department_uuid or (department_ids[0] if department_ids else None)
+    stage3_config = await get_llm_config(
+        department_id=effective_dept_id,
+        stage="stage3",
+    )
+
     # Try each chairman model in order until one succeeds
     successful_chairman = None
     final_content = ""
     chairman_usage = None
 
-    for chairman_index, chairman_model in enumerate(CHAIRMAN_MODELS):
+    for chairman_index, chairman_model in enumerate(chairman_models):
         # AI-SEC-009: Check for stage timeout before trying next model
         elapsed = time.time() - stage_start_time
         if elapsed > STAGE3_TIMEOUT:
@@ -715,7 +768,12 @@ Provide a clear, well-reasoned final answer that represents the council's collec
         usage_data = None
 
         try:
-            async for chunk in query_model_stream(chairman_model, messages):
+            async for chunk in query_model_stream(
+                chairman_model,
+                messages,
+                temperature=stage3_config.get("temperature"),
+                max_tokens=stage3_config.get("max_tokens"),
+            ):
                 # Check if this is an error message
                 if chunk.startswith("[Error:"):
                     had_error = True
@@ -745,12 +803,12 @@ Provide a clear, well-reasoned final answer that represents the council's collec
             yield {"type": "stage3_error", "model": chairman_model, "error": str(e)}
 
         # If not the last chairman, notify we're trying fallback
-        if chairman_index < len(CHAIRMAN_MODELS) - 1:
-            yield {"type": "stage3_fallback", "failed_model": chairman_model, "next_model": CHAIRMAN_MODELS[chairman_index + 1]}
+        if chairman_index < len(chairman_models) - 1:
+            yield {"type": "stage3_fallback", "failed_model": chairman_model, "next_model": chairman_models[chairman_index + 1]}
 
     if not successful_chairman:
         final_content = "[Error: All chairman models failed. Please try again.]"
-        successful_chairman = CHAIRMAN_MODELS[0]  # Report as primary for consistency
+        successful_chairman = chairman_models[0] if chairman_models else "unknown"  # Report as primary for consistency
 
     # SECURITY: Validate Stage 3 output before returning to user
     # This catches system prompt leakage, harmful content, and injection echoes
@@ -863,13 +921,15 @@ Now provide your evaluation and ranking:"""
 
     messages.append({"role": "user", "content": ranking_prompt})
 
-    # Use dedicated Stage 2 reviewer models (cost-optimized)
-    STAGE2_MODELS = get_models_sync('stage2_reviewer')
-    if not STAGE2_MODELS:
-        STAGE2_MODELS = COUNCIL_MODELS
+    # Use dedicated Stage 2 reviewer models from database (dynamic, respects LLM Hub settings)
+    stage2_models = await get_models('stage2_reviewer')
+    if not stage2_models:
+        stage2_models = get_models_sync('stage2_reviewer')
+    if not stage2_models:
+        stage2_models = await get_models('council_member') or get_models_sync('council_member')
 
     # Get rankings from all Stage 2 reviewer models in parallel
-    responses = await query_models_parallel(STAGE2_MODELS, messages)
+    responses = await query_models_parallel(stage2_models, messages)
 
     # Format results
     stage2_results = []
@@ -963,18 +1023,23 @@ Provide a clear, well-reasoned final answer that represents the council's collec
 
     messages.append({"role": "user", "content": chairman_prompt})
 
+    # Get chairman model from database (dynamic, respects LLM Hub settings)
+    chairman_model = await get_primary_model('chairman')
+    if not chairman_model:
+        chairman_model = get_models_sync('chairman')[0] if get_models_sync('chairman') else 'openai/gpt-5.1'
+
     # Query the chairman model
-    response = await query_model(CHAIRMAN_MODEL, messages)
+    response = await query_model(chairman_model, messages)
 
     if response is None:
         # Fallback if chairman fails
         return {
-            "model": CHAIRMAN_MODEL,
+            "model": chairman_model,
             "response": "Error: Unable to generate final synthesis."
         }
 
     return {
-        "model": CHAIRMAN_MODEL,
+        "model": chairman_model,
         "response": response.get('content', '')
     }
 
@@ -1286,12 +1351,17 @@ Be helpful, concise, and reference the previous discussion when relevant. You do
     # Add the conversation history
     messages.extend(conversation_history)
 
+    # Get chairman models from database (dynamic, respects LLM Hub settings)
+    chairman_models = await get_models('chairman')
+    if not chairman_models:
+        chairman_models = get_models_sync('chairman')
+
     # Stream from chairman model(s) with fallback
     successful_chairman = None
     final_content = ""
     chat_usage = None
 
-    for chairman in CHAIRMAN_MODELS:
+    for chairman in chairman_models:
         try:
             # Use list + join to avoid O(n²) string concatenation
             content_chunks: list[str] = []
@@ -1321,7 +1391,7 @@ Be helpful, concise, and reference the previous discussion when relevant. You do
 
     if not successful_chairman:
         final_content = "[Error: All models failed. Please try again.]"
-        successful_chairman = CHAIRMAN_MODELS[0]
+        successful_chairman = chairman_models[0] if chairman_models else "unknown"
 
     yield {
         "type": "chat_complete",

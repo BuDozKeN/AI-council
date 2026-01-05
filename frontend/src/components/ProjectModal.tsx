@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api';
 import { AppModal } from './ui/AppModal';
 import { Button } from './ui/button';
@@ -49,6 +50,7 @@ export default function ProjectModal({
   onProjectCreated,
   initialContext,
 }: ProjectModalProps) {
+  const { t } = useTranslation();
   // Step state: 'input', 'review', 'manual', or 'success'
   const [step, setStep] = useState('input');
   const hasAutoProcessed = useRef(false);
@@ -97,7 +99,7 @@ export default function ProjectModal({
   const processWithAI = async (text?: string) => {
     const inputText = text || freeText;
     if (!inputText.trim()) {
-      setError('Tell us a bit about your project first');
+      setError(t('modals.tellUsAboutProject'));
       return;
     }
 
@@ -114,13 +116,11 @@ export default function ProjectModal({
         setIsAIGenerated(true);
         setStep('review');
       } else {
-        setError(
-          "We couldn't quite understand that. Try adding more detail, or skip AI and enter it manually."
-        );
+        setError(t('modals.couldntUnderstand'));
       }
     } catch (err) {
       logger.error('Failed to structure context:', err);
-      setError('Something went wrong with AI. You can try again or skip to manual entry.');
+      setError(t('modals.aiWentWrong'));
     } finally {
       setStructuring(false);
     }
@@ -141,7 +141,7 @@ export default function ProjectModal({
   // Save the project (works for both AI-assisted and manual)
   const handleSave = async () => {
     if (!editedName.trim()) {
-      setError('Your project needs a name');
+      setError(t('modals.projectNeedsName'));
       return;
     }
 
@@ -190,7 +190,7 @@ export default function ProjectModal({
     } catch (err) {
       logger.error('Failed to create project:', err);
       setError(
-        err instanceof Error ? err.message : "Couldn't create your project. Please try again."
+        err instanceof Error ? err.message : t('modals.couldntCreateProject')
       );
       setSaving(false);
     }
@@ -209,10 +209,10 @@ export default function ProjectModal({
 
   // Get title based on step
   const getTitle = () => {
-    if (step === 'input') return 'New Project';
-    if (step === 'manual') return 'Create Project';
-    if (step === 'success') return 'Project Created';
-    return 'Review Your Project';
+    if (step === 'input') return t('modals.newProject');
+    if (step === 'manual') return t('modals.createProject');
+    if (step === 'success') return t('modals.projectCreated');
+    return t('modals.reviewProject');
   };
 
   return (
@@ -238,13 +238,13 @@ export default function ProjectModal({
           <div className="pm-field pm-context-field">
             <div className="pm-ai-intro">
               <Sparkles className="pm-ai-intro-icon" />
-              <span>Just describe your project - AI will structure it beautifully</span>
+              <span>{t('modals.aiIntro')}</span>
             </div>
             <textarea
               id="project-context"
               value={freeText}
               onChange={(e) => setFreeText(e.target.value)}
-              placeholder="What's this project about? Goals, constraints, background... just type whatever comes to mind"
+              placeholder={t('modals.projectPlaceholder')}
               disabled={structuring}
               rows={5}
               autoFocus
@@ -253,7 +253,7 @@ export default function ProjectModal({
             {structuring && (
               <div className="pm-ai-structuring">
                 <Spinner size="sm" variant="brand" />
-                <span>AI is structuring your project...</span>
+                <span>{t('modals.aiStructuring')}</span>
               </div>
             )}
           </div>
@@ -261,13 +261,13 @@ export default function ProjectModal({
           {/* Departments - multi-select */}
           <div className="pm-field">
             <label>
-              Departments <span className="pm-optional">(optional)</span>
+              {t('modals.department')} <span className="pm-optional">({t('common.optional')})</span>
             </label>
             <MultiDepartmentSelect
               value={selectedDeptIds}
               onValueChange={setSelectedDeptIds}
               departments={departments}
-              placeholder="Select departments"
+              placeholder={t('modals.department')}
               disabled={structuring}
             />
           </div>
@@ -275,11 +275,11 @@ export default function ProjectModal({
           {/* Actions */}
           <div className="pm-actions">
             <Button type="button" variant="outline" onClick={onClose} disabled={structuring}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button type="button" variant="ghost" onClick={handleSkipAI} disabled={structuring}>
               <FileText size={16} />
-              Skip AI
+              {t('modals.skipAI')}
             </Button>
             <Button
               type="button"
@@ -290,12 +290,12 @@ export default function ProjectModal({
               {structuring ? (
                 <>
                   <Spinner size="sm" variant="muted" />
-                  AI Processing...
+                  {t('modals.aiProcessing')}
                 </>
               ) : (
                 <>
                   <Sparkles size={16} />
-                  Create with AI
+                  {t('modals.createWithAI')}
                 </>
               )}
             </Button>
@@ -309,18 +309,18 @@ export default function ProjectModal({
           {/* AI Success badge */}
           <div className="pm-ai-success">
             <Check className="pm-ai-success-icon" />
-            <span>AI created your project. Make any changes you want, then save.</span>
+            <span>{t('modals.aiCreatedProject')}</span>
           </div>
 
           {/* Editable Name */}
           <div className="pm-field">
-            <label htmlFor="project-name">Project Name</label>
+            <label htmlFor="project-name">{t('modals.projectName')}</label>
             <input
               id="project-name"
               type="text"
               value={editedName}
               onChange={(e) => setEditedName(e.target.value)}
-              placeholder="Project name"
+              placeholder={t('modals.projectName')}
               disabled={saving}
               autoFocus
             />
@@ -328,12 +328,12 @@ export default function ProjectModal({
 
           {/* Editable Description */}
           <div className="pm-field">
-            <label htmlFor="project-desc">Description</label>
+            <label htmlFor="project-desc">{t('modals.projectDescription')}</label>
             <textarea
               id="project-desc"
               value={editedDescription}
               onChange={(e) => setEditedDescription(e.target.value)}
-              placeholder="One or two sentences about what this project is for..."
+              placeholder={t('modals.briefDescription')}
               disabled={saving}
               rows={2}
               enterKeyHint="next"
@@ -342,12 +342,12 @@ export default function ProjectModal({
 
           {/* Departments - always show selector, no toggle needed */}
           <div className="pm-field">
-            <label>Departments</label>
+            <label>{t('modals.department')}</label>
             <MultiDepartmentSelect
               value={selectedDeptIds}
               onValueChange={setSelectedDeptIds}
               departments={departments}
-              placeholder="Select departments"
+              placeholder={t('modals.department')}
               disabled={saving}
             />
           </div>
@@ -355,7 +355,7 @@ export default function ProjectModal({
           {/* Project Details - show formatted, click to edit */}
           <div className="pm-field">
             <div className="pm-context-header">
-              <label>Project Details</label>
+              <label>{t('modals.projectDetails')}</label>
               {!isEditingDetails ? (
                 <button
                   type="button"
@@ -364,7 +364,7 @@ export default function ProjectModal({
                   disabled={saving}
                 >
                   <Edit3 className="pm-btn-icon-tiny" />
-                  <span>Edit</span>
+                  <span>{t('common.edit')}</span>
                 </button>
               ) : (
                 <button
@@ -374,7 +374,7 @@ export default function ProjectModal({
                   disabled={saving}
                 >
                   <Check className="pm-btn-icon-tiny" />
-                  <span>Done</span>
+                  <span>{t('common.done')}</span>
                 </button>
               )}
             </div>
@@ -392,7 +392,7 @@ export default function ProjectModal({
                 <textarea
                   value={editedContext}
                   onChange={(e) => setEditedContext(e.target.value)}
-                  placeholder="Add any details about your project - goals, background, constraints, requirements..."
+                  placeholder={t('modals.addProjectDetails')}
                   disabled={saving}
                   rows={8}
                   className="pm-context-editor"
@@ -405,7 +405,7 @@ export default function ProjectModal({
                   {editedContext ? (
                     <MarkdownViewer content={editedContext} />
                   ) : (
-                    <p className="pm-no-context">Click to add project details...</p>
+                    <p className="pm-no-context">{t('modals.clickToAddDetails')}</p>
                   )}
                 </div>
               </div>
@@ -419,20 +419,18 @@ export default function ProjectModal({
               variant="ghost"
               onClick={handleBackToEdit}
               disabled={saving}
-              title="Go back and change your original description"
             >
               <Edit3 size={16} />
-              Start Over
+              {t('modals.startOver')}
             </Button>
             <Button
               type="button"
               variant="outline"
               onClick={handleRegenerate}
               disabled={saving || structuring}
-              title="Ask AI to write this differently"
             >
               <RefreshCw size={16} className={structuring ? 'pm-spinning' : ''} />
-              Try Again
+              {t('modals.tryAgain')}
             </Button>
             <Button
               type="button"
@@ -443,12 +441,12 @@ export default function ProjectModal({
               {saving ? (
                 <>
                   <Spinner size="sm" variant="muted" />
-                  Saving...
+                  {t('common.saving')}
                 </>
               ) : (
                 <>
                   <Check size={16} />
-                  Save
+                  {t('common.save')}
                 </>
               )}
             </Button>
@@ -462,20 +460,20 @@ export default function ProjectModal({
           {/* Manual mode badge */}
           <div className="pm-manual-badge">
             <FileText className="pm-manual-badge-icon" />
-            <span>Manual entry - create your project from scratch</span>
+            <span>{t('modals.manualEntry')}</span>
           </div>
 
           {/* Project Name */}
           <div className="pm-field">
             <label htmlFor="manual-name">
-              Project Name <span className="pm-required">*</span>
+              {t('modals.projectName')} <span className="pm-required">*</span>
             </label>
             <input
               id="manual-name"
               type="text"
               value={editedName}
               onChange={(e) => setEditedName(e.target.value)}
-              placeholder="Enter project name"
+              placeholder={t('modals.enterProjectName')}
               disabled={saving}
               autoFocus
             />
@@ -484,13 +482,13 @@ export default function ProjectModal({
           {/* Description */}
           <div className="pm-field">
             <label htmlFor="manual-desc">
-              Description <span className="pm-optional">(optional)</span>
+              {t('modals.projectDescription')} <span className="pm-optional">({t('common.optional')})</span>
             </label>
             <textarea
               id="manual-desc"
               value={editedDescription}
               onChange={(e) => setEditedDescription(e.target.value)}
-              placeholder="Brief description of the project..."
+              placeholder={t('modals.briefDescription')}
               disabled={saving}
               rows={3}
               enterKeyHint="next"
@@ -500,13 +498,13 @@ export default function ProjectModal({
           {/* Departments */}
           <div className="pm-field">
             <label>
-              Departments <span className="pm-optional">(optional)</span>
+              {t('modals.department')} <span className="pm-optional">({t('common.optional')})</span>
             </label>
             <MultiDepartmentSelect
               value={selectedDeptIds}
               onValueChange={setSelectedDeptIds}
               departments={departments}
-              placeholder="Select departments"
+              placeholder={t('modals.department')}
               disabled={saving}
             />
           </div>
@@ -514,7 +512,7 @@ export default function ProjectModal({
           {/* Context */}
           <div className="pm-field">
             <label htmlFor="manual-context">
-              Project Details <span className="pm-optional">(optional)</span>
+              {t('modals.projectDetails')} <span className="pm-optional">({t('common.optional')})</span>
             </label>
             <AIWriteAssist
               context="project-context"
@@ -530,7 +528,7 @@ export default function ProjectModal({
                 id="manual-context"
                 value={editedContext}
                 onChange={(e) => setEditedContext(e.target.value)}
-                placeholder="What should the AI know about this project? Add goals, background, constraints, technical details..."
+                placeholder={t('modals.addProjectDetails')}
                 disabled={saving}
                 rows={8}
                 className="pm-context-editor"
@@ -538,14 +536,14 @@ export default function ProjectModal({
               />
             </AIWriteAssist>
             <p className="pm-field-hint">
-              AI will use this info when you ask questions about this project.
+              {t('modals.aiUsesInfo')}
             </p>
           </div>
 
           {/* Actions */}
           <div className="pm-actions">
             <Button type="button" variant="outline" onClick={onClose} disabled={saving}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               type="button"
@@ -554,7 +552,7 @@ export default function ProjectModal({
               disabled={saving}
             >
               <Sparkles size={16} />
-              Use AI
+              {t('modals.useAI')}
             </Button>
             <Button
               type="button"
@@ -565,12 +563,12 @@ export default function ProjectModal({
               {saving ? (
                 <>
                   <Spinner size="sm" variant="muted" />
-                  Creating...
+                  {t('modals.creating')}
                 </>
               ) : (
                 <>
                   <Check size={16} />
-                  Create Project
+                  {t('modals.createProject')}
                 </>
               )}
             </Button>
@@ -584,8 +582,8 @@ export default function ProjectModal({
           <div className="pm-success-icon-wrapper">
             <CheckCircle2 className="pm-success-icon animate-success-pop" />
           </div>
-          <h3 className="pm-success-title">{editedName || 'Project'} Created!</h3>
-          <p className="pm-success-message">Your project is ready. Redirecting...</p>
+          <h3 className="pm-success-title">{editedName || t('modals.projectName')} {t('modals.projectCreated').replace('!', '')}!</h3>
+          <p className="pm-success-message">{t('modals.projectReady')}</p>
         </div>
       )}
     </AppModal>

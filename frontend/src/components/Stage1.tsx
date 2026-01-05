@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown, { ExtraProps } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -138,6 +139,7 @@ const ModelCard = memo(function ModelCard({
   isExpanded,
   rankData,
 }: ModelCardProps) {
+  const { t } = useTranslation();
   const cardRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<TouchStartData | null>(null);
 
@@ -161,7 +163,11 @@ const ModelCard = memo(function ModelCard({
   const getRankTooltip = () => {
     if (!rankData) return '';
     const { average_rank, rankings_count, totalVoters } = rankData;
-    return `Avg score: ${average_rank.toFixed(1)} (${rankings_count}/${totalVoters} experts voted) — Lower is better`;
+    return t('stages.rankTooltip', {
+      avg: average_rank.toFixed(1),
+      votesReceived: rankings_count,
+      totalVoters,
+    });
   };
 
   // Clean preview text - strip markdown and truncate
@@ -346,9 +352,9 @@ const ModelCard = memo(function ModelCard({
       {/* Content */}
       <div className={`model-card-content ${isExpanded ? '' : 'truncated'}`}>
         {data.isEmpty ? (
-          <p className="model-card-empty">No response</p>
+          <p className="model-card-empty">{t('stages.noResponse')}</p>
         ) : data.hasError ? (
-          <p className="model-card-error">{data.response || 'Error occurred'}</p>
+          <p className="model-card-error">{data.response || t('stages.errorOccurred')}</p>
         ) : isExpanded ? (
           // Full content when expanded
           <article className="prose prose-slate prose-sm max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:tracking-tight prose-h1:text-xl prose-h2:text-lg prose-h3:text-base prose-p:leading-relaxed prose-li:my-0.5 prose-ul:my-1 prose-ol:my-1 prose-code:before:content-none prose-code:after:content-none prose-code:bg-slate-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-emerald-700 prose-pre:bg-slate-50 prose-pre:border prose-pre:border-slate-200">
@@ -416,6 +422,7 @@ function Stage1({
   onExpandedModelChange,
   aggregateRankings,
 }: Stage1Props) {
+  const { t } = useTranslation();
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [internalExpandedModel, setInternalExpandedModel] = useState<string | null>(null);
   const [userToggled, setUserToggled] = useState(false);
@@ -533,7 +540,7 @@ function Stage1({
       <div className="stage stage1">
         <h3 className="stage-title flex items-center gap-2">
           <Activity className="h-5 w-5 text-blue-500 animate-pulse" />
-          <span className="font-semibold tracking-tight">AI Experts Respond</span>
+          <span className="font-semibold tracking-tight">{t('stages.expertsRespond')}</span>
         </h3>
 
         {imageAnalysis && (
@@ -541,8 +548,8 @@ function Stage1({
             <details className="image-analysis-details" open>
               <summary className="image-analysis-summary">
                 <span className="image-icon">🖼️</span>
-                Image Analysis by GPT-4o
-                <span className="expand-hint">(click to collapse)</span>
+                {t('stages.imageAnalysis')}
+                <span className="expand-hint">({t('stages.clickToCollapse')})</span>
               </summary>
               <div className="image-analysis-content">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{imageAnalysis}</ReactMarkdown>
@@ -553,7 +560,7 @@ function Stage1({
 
         <div className="stage-loading">
           <Spinner size="md" />
-          <span>Your council is gathering their thoughts...</span>
+          <span>{t('stages.councilGathering')}</span>
         </div>
       </div>
     );
@@ -593,7 +600,7 @@ function Stage1({
       <h3 className="stage-title clickable" onClick={toggleCollapsed}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
         <span className="font-semibold tracking-tight">
-          {expertCount} AI Expert{expertCount !== 1 ? 's' : ''} Respond
+          {t('stages.expertsRespondCount', { count: expertCount })}
         </span>
       </h3>
 
@@ -643,8 +650,8 @@ function Stage1({
               <details className="image-analysis-details">
                 <summary className="image-analysis-summary">
                   <span className="image-icon">🖼️</span>
-                  Image Analysis by GPT-4o
-                  <span className="expand-hint">(click to expand)</span>
+                  {t('stages.imageAnalysis')}
+                  <span className="expand-hint">({t('stages.clickToExpand')})</span>
                 </summary>
                 <div className="image-analysis-content">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{imageAnalysis}</ReactMarkdown>

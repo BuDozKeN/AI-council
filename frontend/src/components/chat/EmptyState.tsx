@@ -5,6 +5,7 @@
  * Extracted from ChatInterface.jsx for better maintainability.
  */
 
+import { useTranslation } from 'react-i18next';
 import { Clock } from 'lucide-react';
 import { EmptyState } from '../ui/EmptyState';
 
@@ -13,6 +14,7 @@ import { EmptyState } from '../ui/EmptyState';
  * Uses custom AX logo icon.
  */
 export function WelcomeState() {
+  const { t } = useTranslation();
   const brandedIcon = (
     <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg">
       <span className="text-white font-bold text-2xl">AX</span>
@@ -24,8 +26,8 @@ export function WelcomeState() {
       <EmptyState
         variant="large"
         customIcon={brandedIcon}
-        title="Welcome to AxCouncil"
-        message="Your AI council is ready. What decision can we help with?"
+        title={t('chat.welcomeTitle')}
+        message={t('chat.welcomeMessage')}
       />
     </div>
   );
@@ -36,13 +38,14 @@ export function WelcomeState() {
  * Shows hints to help users get started.
  */
 export function ConversationEmptyState() {
+  const { t } = useTranslation();
   return (
     <EmptyState
       variant="large"
       icon={Clock}
-      title="Ask the Council"
-      message="5 AI advisors will debate your question and synthesize the best answer"
-      hints={['Try: "What\'s the best approach to..."', 'Paste images with Ctrl+V']}
+      title={t('chat.askTheCouncil')}
+      message={t('chat.councilDebateHint')}
+      hints={[t('chat.tryHint'), t('chat.pasteImageHint')]}
     />
   );
 }

@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api';
 import { Button } from './ui/button';
 import { logger } from '../utils/logger';
+import { formatCurrency } from '../lib/currencyUtils';
 import './Billing.css';
 
 const log = logger.scope('Billing');
@@ -26,6 +28,7 @@ interface BillingProps {
 }
 
 export default function Billing({ onClose }: BillingProps) {
+  const { t } = useTranslation();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -86,9 +89,22 @@ export default function Billing({ onClose }: BillingProps) {
     }
   };
 
+  // Handle overlay click - close unless clicking the ThemeToggle
+  const handleOverlayClick = useCallback(
+    (e: React.MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // Don't close if clicking the theme toggle (positioned outside the modal but visually overlapping)
+      if (target.closest('.theme-toggle-container')) {
+        return;
+      }
+      onClose();
+    },
+    [onClose]
+  );
+
   if (loading) {
     return (
-      <div className="billing-overlay" onClick={onClose}>
+      <div className="billing-overlay" onClick={handleOverlayClick}>
         <div className="billing-modal" onClick={(e) => e.stopPropagation()}>
           <div className="billing-loading">Loading billing information...</div>
         </div>
@@ -102,7 +118,7 @@ export default function Billing({ onClose }: BillingProps) {
   const isUnlimited = queriesLimit === -1;
 
   return (
-    <div className="billing-overlay" onClick={onClose}>
+    <div className="billing-overlay" onClick={handleOverlayClick}>
       <div className="billing-modal" onClick={(e) => e.stopPropagation()}>
         <div className="billing-header">
           <h2>Subscription Plans</h2>
@@ -154,11 +170,11 @@ export default function Billing({ onClose }: BillingProps) {
                 <div className="plan-name">{plan.name}</div>
                 <div className="plan-price">
                   {plan.is_free ? (
-                    <span className="price-free">Free</span>
+                    <span className="price-free">{t('settings.free')}</span>
                   ) : (
                     <>
-                      <span className="price-amount">${plan.price}</span>
-                      <span className="price-period">/month</span>
+                      <span className="price-amount">{formatCurrency(plan.price, { maximumFractionDigits: 0 })}</span>
+                      <span className="price-period">{t('settings.perMonth')}</span>
                     </>
                   )}
                 </div>

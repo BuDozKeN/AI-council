@@ -21,6 +21,7 @@ import type { MyCompanyTab } from './components/mycompany/hooks';
 import { Toaster, toast } from './components/ui/sonner';
 import { MockModeBanner } from './components/ui/MockModeBanner';
 import { ThemeToggle } from './components/ui/ThemeToggle';
+import { HelpButton } from './components/ui/HelpButton';
 import MobileBottomNav from './components/ui/MobileBottomNav';
 import { logger } from './utils/logger';
 import type { Conversation, Message } from './types/conversation';
@@ -412,7 +413,7 @@ function App() {
         prev && prev.id === conversationId ? { ...prev, department: newDepartment } : prev
       );
     },
-    []
+    [setConversations, setCurrentConversation]
   );
 
   // Memoized Sidebar handlers to prevent unnecessary re-renders
@@ -583,19 +584,24 @@ function App() {
   // Show login if not authenticated OR if user needs to reset password
   if (!isAuthenticated || needsPasswordReset) {
     return (
-      <AnimatePresence mode="wait">
-        <motion.div
-          key="login"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <Suspense fallback={<LazyFallback />}>
-            <Login />
-          </Suspense>
-        </motion.div>
-      </AnimatePresence>
+      <>
+        {/* Theme toggle and help button available on login page too */}
+        <ThemeToggle />
+        <HelpButton />
+        <AnimatePresence mode="wait">
+          <motion.div
+            key="login"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Suspense fallback={<LazyFallback />}>
+              <Login />
+            </Suspense>
+          </motion.div>
+        </AnimatePresence>
+      </>
     );
   }
 
@@ -1348,6 +1354,9 @@ function App() {
       {/* Theme toggle - subtle top-right dropdown */}
       <ThemeToggle />
 
+      {/* Help button - bottom-right floating button */}
+      <HelpButton />
+
       {/* Skip to main content link for accessibility */}
       <a href="#main-content" className="sr-only focus:not-sr-only">
         Skip to main content
@@ -1617,7 +1626,26 @@ function App() {
         {/* Only render when open to avoid loading spinner on initial page load */}
         {isLeaderboardOpen && (
           <Suspense fallback={<LazyFallback />}>
-            <Leaderboard isOpen={isLeaderboardOpen} onClose={closeLeaderboard} />
+            <Leaderboard
+              isOpen={isLeaderboardOpen}
+              onClose={() => {
+                // Check if fixed-position buttons were clicked recently (within 500ms)
+                const themeToggleClickTime = (
+                  window as Window & { __themeToggleClickTime?: number }
+                ).__themeToggleClickTime;
+                const helpButtonClickTime = (
+                  window as Window & { __helpButtonClickTime?: number }
+                ).__helpButtonClickTime;
+                if (
+                  (themeToggleClickTime && Date.now() - themeToggleClickTime < 500) ||
+                  (helpButtonClickTime && Date.now() - helpButtonClickTime < 500)
+                ) {
+                  log.debug('[Leaderboard.onClose] Ignoring close - fixed button clicked');
+                  return; // Don't close
+                }
+                closeLeaderboard();
+              }}
+            />
           </Suspense>
         )}
         {isSettingsOpen && (
@@ -1625,10 +1653,22 @@ function App() {
             <Settings
               isOpen={isSettingsOpen}
               onClose={() => {
-                log.debug('[Settings.onClose] Closing settings and returning to landing');
+                // Check if fixed-position buttons were clicked recently (within 500ms)
+                const themeToggleClickTime = (
+                  window as Window & { __themeToggleClickTime?: number }
+                ).__themeToggleClickTime;
+                const helpButtonClickTime = (
+                  window as Window & { __helpButtonClickTime?: number }
+                ).__helpButtonClickTime;
+                if (
+                  (themeToggleClickTime && Date.now() - themeToggleClickTime < 500) ||
+                  (helpButtonClickTime && Date.now() - helpButtonClickTime < 500)
+                ) {
+                  log.debug('[Settings.onClose] Ignoring close - fixed button clicked');
+                  return; // Don't close
+                }
+                log.debug('[Settings.onClose] Closing settings');
                 closeSettings();
-                // Return to landing page by creating a new temp conversation
-                handleNewConversation();
               }}
               companyId={selectedBusiness}
               onMockModeChange={handleMockModeChange}
@@ -1641,7 +1681,23 @@ function App() {
               companyId={selectedBusiness}
               departments={availableDepartments}
               initialContext={projectModalContext as any}
-              onClose={closeProjectModal}
+              onClose={() => {
+                // Check if fixed-position buttons were clicked recently (within 500ms)
+                const themeToggleClickTime = (
+                  window as Window & { __themeToggleClickTime?: number }
+                ).__themeToggleClickTime;
+                const helpButtonClickTime = (
+                  window as Window & { __helpButtonClickTime?: number }
+                ).__helpButtonClickTime;
+                if (
+                  (themeToggleClickTime && Date.now() - themeToggleClickTime < 500) ||
+                  (helpButtonClickTime && Date.now() - helpButtonClickTime < 500)
+                ) {
+                  log.debug('[ProjectModal.onClose] Ignoring close - fixed button clicked');
+                  return; // Don't close
+                }
+                closeProjectModal();
+              }}
               onProjectCreated={(newProject: Project) => {
                 // Add to projects list and select it
                 setProjects((prev) => [...prev, newProject]);
@@ -1661,9 +1717,21 @@ function App() {
                 resetMyCompanyInitial();
               }}
               onClose={() => {
+                // Check if fixed-position buttons were clicked recently (within 500ms)
+                const themeToggleClickTime = (
+                  window as Window & { __themeToggleClickTime?: number }
+                ).__themeToggleClickTime;
+                const helpButtonClickTime = (
+                  window as Window & { __helpButtonClickTime?: number }
+                ).__helpButtonClickTime;
+                if (
+                  (themeToggleClickTime && Date.now() - themeToggleClickTime < 500) ||
+                  (helpButtonClickTime && Date.now() - helpButtonClickTime < 500)
+                ) {
+                  log.debug('[MyCompany.onClose] Ignoring close - fixed button clicked');
+                  return; // Don't close
+                }
                 closeMyCompany();
-                // Return to landing page by creating a new temp conversation
-                handleNewConversation();
               }}
               onNavigateToConversation={(conversationId: string, source: string) => {
                 // Map source string to tab if possible

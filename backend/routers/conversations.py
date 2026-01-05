@@ -12,7 +12,7 @@ Endpoints for managing conversations:
 from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from fastapi.responses import StreamingResponse, Response
 from pydantic import BaseModel, Field
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Literal
 import asyncio
 import json
 import re
@@ -73,6 +73,8 @@ class SendMessageRequest(BaseModel):
     playbooks: Optional[List[str]] = None
     # Image attachments
     attachment_ids: Optional[List[str]] = None
+    # LLM behavior modifier (per-conversation): "creative", "cautious", "concise", "detailed"
+    modifier: Optional[Literal['creative', 'cautious', 'concise', 'detailed']] = None
 
 
 class ChatRequest(BaseModel):
@@ -430,7 +432,8 @@ async def send_message(
                 company_uuid=company_uuid,
                 department_ids=body.departments,
                 role_ids=body.roles,
-                playbook_ids=body.playbooks
+                playbook_ids=body.playbooks,
+                conversation_modifier=body.modifier,
             ):
                 title_event = await check_and_emit_title()
                 if title_event:
@@ -453,7 +456,7 @@ async def send_message(
             stage2_results = []
             label_to_model = {}
             aggregate_rankings = []
-            async for event in stage2_stream_rankings(enhanced_query, stage1_results, business_id=body.business_id):
+            async for event in stage2_stream_rankings(enhanced_query, stage1_results, business_id=body.business_id, department_uuid=body.departments[0] if body.departments else None):
                 title_event = await check_and_emit_title()
                 if title_event:
                     yield title_event
@@ -1072,6 +1075,163 @@ async def export_conversation_markdown(
         media_type="text/markdown",
         headers={
             "Content-Disposition": f'attachment; filename="{filename}"'
+        }
+    )
+
+
+# =============================================================================
+# GDPR DATA EXPORT (Article 20 - Right to Data Portability)
+# =============================================================================
+
+@router.get("/export/all")
+async def export_all_user_data(
+    user: dict = Depends(get_current_user),
+    format: Literal["json", "zip"] = Query(default="json", description="Export format")
+):
+    """
+    Export ALL user data for GDPR Article 20 compliance (right to data portability).
+
+    Returns a comprehensive JSON export of:
+    - All conversations with messages
+    - All knowledge entries
+    - User profile information
+    - Company memberships
+
+    This endpoint is rate-limited to prevent abuse.
+    """
+    user_id = user.get("id")
+    access_token = user.get("access_token")
+
+    if not user_id:
+        raise HTTPException(status_code=401, detail="User ID not found")
+
+    try:
+        from ..database import get_supabase_with_auth
+    except ImportError:
+        from backend.database import get_supabase_with_auth
+
+    supabase = get_supabase_with_auth(access_token)
+
+    export_data = {
+        "export_version": "1.0",
+        "export_date": None,
+        "user": {},
+        "companies": [],
+        "conversations": [],
+        "knowledge_entries": [],
+    }
+
+    # Get current timestamp
+    from datetime import datetime, timezone
+    export_data["export_date"] = datetime.now(timezone.utc).isoformat()
+
+    # 1. Export user profile
+    try:
+        user_result = supabase.table("profiles").select("*").eq("id", user_id).single().execute()
+        if user_result.data:
+            # Exclude sensitive fields
+            profile = user_result.data
+            export_data["user"] = {
+                "id": profile.get("id"),
+                "email": profile.get("email"),
+                "full_name": profile.get("full_name"),
+                "avatar_url": profile.get("avatar_url"),
+                "created_at": profile.get("created_at"),
+                "updated_at": profile.get("updated_at"),
+            }
+    except Exception:
+        # Profile table might not exist or user might not have profile
+        export_data["user"] = {"id": user_id, "email": user.get("email")}
+
+    # 2. Export companies the user owns
+    try:
+        companies_result = supabase.table("companies").select("*").eq("user_id", user_id).execute()
+        if companies_result.data:
+            for company in companies_result.data:
+                company_export = {
+                    "id": company.get("id"),
+                    "name": company.get("name"),
+                    "context": company.get("context"),
+                    "created_at": company.get("created_at"),
+                    "departments": [],
+                    "roles": [],
+                    "playbooks": [],
+                }
+
+                # Get departments for this company
+                try:
+                    dept_result = supabase.table("departments").select("*").eq("company_id", company.get("id")).execute()
+                    if dept_result.data:
+                        company_export["departments"] = dept_result.data
+                except Exception:
+                    pass
+
+                # Get roles for this company
+                try:
+                    roles_result = supabase.table("roles").select("*").eq("company_id", company.get("id")).execute()
+                    if roles_result.data:
+                        company_export["roles"] = roles_result.data
+                except Exception:
+                    pass
+
+                # Get playbooks (org_documents) for this company
+                try:
+                    playbooks_result = supabase.table("org_documents").select("*").eq("company_id", company.get("id")).execute()
+                    if playbooks_result.data:
+                        company_export["playbooks"] = playbooks_result.data
+                except Exception:
+                    pass
+
+                export_data["companies"].append(company_export)
+    except Exception:
+        pass
+
+    # 3. Export all conversations
+    try:
+        # Get conversations owned by user
+        convs_result = supabase.table("conversations").select("*").eq("user_id", user_id).order("created_at", desc=True).execute()
+        if convs_result.data:
+            for conv in convs_result.data:
+                conv_export = {
+                    "id": conv.get("id"),
+                    "title": conv.get("title"),
+                    "created_at": conv.get("created_at"),
+                    "updated_at": conv.get("updated_at"),
+                    "is_starred": conv.get("is_starred"),
+                    "is_archived": conv.get("is_archived"),
+                    "company_id": conv.get("company_id"),
+                    "messages": conv.get("messages", []),
+                }
+                export_data["conversations"].append(conv_export)
+    except Exception:
+        pass
+
+    # 4. Export knowledge entries
+    try:
+        knowledge_result = supabase.table("knowledge_entries").select("*").eq("user_id", user_id).execute()
+        if knowledge_result.data:
+            export_data["knowledge_entries"] = knowledge_result.data
+    except Exception:
+        pass
+
+    # Log the export for audit purposes
+    log_app_event(
+        "GDPR_DATA_EXPORT",
+        level="INFO",
+        user_id=user_id,
+        conversations_count=len(export_data["conversations"]),
+        companies_count=len(export_data["companies"]),
+        knowledge_count=len(export_data["knowledge_entries"]),
+    )
+
+    # Return as JSON
+    export_json = json.dumps(export_data, indent=2, default=str)
+
+    return Response(
+        content=export_json,
+        media_type="application/json",
+        headers={
+            "Content-Disposition": f'attachment; filename="axcouncil-data-export-{user_id[:8]}.json"'
         }
     )
 

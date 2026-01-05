@@ -122,6 +122,35 @@
 }
 
 /* =============================================================================
+   MOBILE: Hide carousel loader - show simple text only
+   Desktop shows the full carousel, mobile just shows the loading text
+   ============================================================================= */
+
+@media (max-width: 768px) {
+  /* Hide the icons carousel on mobile */
+  .council-loader__icons {
+    display: none;
+  }
+
+  /* Simplify the loader container */
+  .council-loader {
+    padding: 20px 16px;
+    gap: 0;
+  }
+
+  /* Just show loading text */
+  .council-loader__text {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+  }
+
+  /* Hide compact loader on mobile too */
+  .council-loader-compact {
+    display: none;
+  }
+}
+
+/* =============================================================================
    DARK MODE
    ============================================================================= */
 

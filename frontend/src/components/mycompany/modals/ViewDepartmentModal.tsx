@@ -5,6 +5,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { AppModal } from '../../ui/AppModal';
 import { Button } from '../../ui/button';
@@ -29,6 +30,7 @@ interface ViewDepartmentModalProps {
 }
 
 export function ViewDepartmentModal({ department, onClose, onSave }: ViewDepartmentModalProps) {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [editedContext, setEditedContext] = useState(department.context_md || '');
   const [saving, setSaving] = useState(false);
@@ -42,9 +44,9 @@ export function ViewDepartmentModal({ department, onClose, onSave }: ViewDepartm
       try {
         await onSave(department.id, { context_md: editedContext });
         setIsEditing(false);
-        toast.success(`Department "${department.name}" context saved`, { duration: 4000 });
+        toast.success(t('modals.departmentSaved', { name: department.name }), { duration: 4000 });
       } catch {
-        toast.error('Failed to save department');
+        toast.error(t('modals.failedToSaveDepartment'));
       }
       setSaving(false);
     }
@@ -60,10 +62,10 @@ export function ViewDepartmentModal({ department, onClose, onSave }: ViewDepartm
       isOpen={true}
       onClose={onClose}
       size="lg"
-      badge="DEPARTMENT"
+      badge={t('modals.departmentBadge')}
       badgeStyle={{ background: deptColor.bg, color: deptColor.text }}
       title={department.name}
-      titleExtra={`${department.roles?.length || 0} roles`}
+      titleExtra={t('modals.rolesCount', { count: department.roles?.length || 0 })}
       {...(department.description ? { description: department.description } : {})}
       contentClassName="mc-modal-no-padding"
     >
@@ -84,7 +86,7 @@ export function ViewDepartmentModal({ department, onClose, onSave }: ViewDepartm
                   onChange={(e) => setEditedContext(e.target.value)}
                   rows={15}
                   autoFocus
-                  placeholder="Enter the context documentation for this department..."
+                  placeholder={t('modals.enterDepartmentContext')}
                   enterKeyHint="done"
                 />
               </AIWriteAssist>
@@ -95,7 +97,7 @@ export function ViewDepartmentModal({ department, onClose, onSave }: ViewDepartm
                 <MarkdownViewer content={content} skipCleanup={true} />
               ) : (
                 <p className="mc-no-content">
-                  No department context yet. Click Edit to add context.
+                  {t('modals.noDepartmentContext')}
                 </p>
               )}
             </FloatingContextActions>
@@ -107,10 +109,10 @@ export function ViewDepartmentModal({ department, onClose, onSave }: ViewDepartm
         {isEditing ? (
           <>
             <Button variant="outline" onClick={handleCancelEdit} disabled={saving}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button variant="default" onClick={handleSave} disabled={saving}>
-              {saving ? 'Saving...' : 'Save Changes'}
+              {saving ? t('common.saving') : t('modals.saveChanges')}
             </Button>
           </>
         ) : (
@@ -120,11 +122,11 @@ export function ViewDepartmentModal({ department, onClose, onSave }: ViewDepartm
                 <svg viewBox="0 0 20 20" fill="currentColor" className="size-4">
                   <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                 </svg>
-                Edit
+                {t('common.edit')}
               </Button>
             )}
             <Button variant="default" onClick={onClose}>
-              Done
+              {t('common.done')}
             </Button>
           </>
         )}

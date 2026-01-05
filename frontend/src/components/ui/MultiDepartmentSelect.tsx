@@ -16,6 +16,7 @@
  */
 
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import * as Popover from '@radix-ui/react-popover';
 import { Building2, ChevronDown } from 'lucide-react';
 import { getDeptColor } from '../../lib/colors';
@@ -44,10 +45,12 @@ export function MultiDepartmentSelect({
   onValueChange,
   departments = [],
   disabled = false,
-  placeholder = 'Select departments...',
+  placeholder,
   className,
 }: MultiDepartmentSelectProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
+  const actualPlaceholder = placeholder || t('departments.selectDepartments');
 
   // Get selected departments with their data
   const selectedDepts = value
@@ -76,7 +79,7 @@ export function MultiDepartmentSelect({
       <Building2 className="h-3.5 w-3.5 shrink-0" />
 
       {selectedDepts.length === 0 ? (
-        <span className="multi-dept-placeholder">{placeholder}</span>
+        <span className="multi-dept-placeholder">{actualPlaceholder}</span>
       ) : selectedDepts.length === 1 && selectedDepts[0] ? (
         // Single department: show name with color dot
         <span className="multi-dept-single">
@@ -98,7 +101,7 @@ export function MultiDepartmentSelect({
               />
             ))}
           </span>
-          {selectedDepts.length} depts
+          {t('multiSelect.deptsCount', { count: selectedDepts.length })}
         </span>
       )}
 
@@ -110,7 +113,7 @@ export function MultiDepartmentSelect({
   const departmentList = (isMobile: boolean = false) => (
     <div className={isMobile ? 'multi-dept-list-mobile' : 'multi-dept-list'}>
       {departments.length === 0 ? (
-        <div className="multi-dept-empty">No departments available</div>
+        <div className="multi-dept-empty">{t('context.noDepartments')}</div>
       ) : (
         departments.map((dept) => (
           <DepartmentCheckboxItem
@@ -139,7 +142,7 @@ export function MultiDepartmentSelect({
           {triggerContent}
         </button>
 
-        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title="Select Departments">
+        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title={t('departments.selectDepartments')}>
           {departmentList(true)}
         </BottomSheet>
       </>

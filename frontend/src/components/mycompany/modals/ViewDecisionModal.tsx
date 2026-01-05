@@ -11,6 +11,7 @@
  * Extracted from MyCompany.jsx for better maintainability.
  */
 
+import { useTranslation } from 'react-i18next';
 import { AppModal } from '../../ui/AppModal';
 import { Button } from '../../ui/button';
 import { FloatingContextActions } from '../../ui/FloatingContextActions';
@@ -66,6 +67,8 @@ export function ViewDecisionModal({
   onViewProject,
   onNavigateToConversation,
 }: ViewDecisionModalProps) {
+  const { t } = useTranslation();
+
   // Get linked playbook (source of truth for promoted decisions)
   const linkedPlaybook =
     decision.promoted_to_id && playbooks.length > 0
@@ -84,16 +87,12 @@ export function ViewDecisionModal({
   // Get type from linked playbook OR decision's promoted_to_type
   // Decision.promoted_to_type is set when promoted (sop/framework/policy/project)
   const getTypeLabel = (): string | null => {
-    const typeLabels: Record<PlaybookDocType, string> = {
-      sop: 'SOP',
-      framework: 'Framework',
-      policy: 'Policy',
-    };
     // Try linkedPlaybook first, then fall back to decision.promoted_to_type
     const docType = (linkedPlaybook?.doc_type || decision.promoted_to_type) as
       | PlaybookDocType
       | undefined;
-    return docType ? typeLabels[docType] || null : null;
+    if (!docType) return null;
+    return t(`mycompany.typeShort_${docType}`, { defaultValue: docType.toUpperCase() });
   };
 
   // Get the actual type value for CSS class
@@ -129,7 +128,7 @@ export function ViewDecisionModal({
       {/* User question - show AI summary if available, fall back to raw question */}
       {(decision.question_summary || decision.question) && (
         <div className="mc-decision-question">
-          <span className="mc-decision-question-label">Question:</span>
+          <span className="mc-decision-question-label">{t('modals.questionLabel')}</span>
           <p className="mc-decision-question-text">
             {decision.question_summary || decision.question}
           </p>
@@ -142,7 +141,7 @@ export function ViewDecisionModal({
           <div className="mc-promoted-info-row">
             <span className="mc-promoted-label project">
               <FolderKanban size={16} className="icon" />
-              Project
+              {t('modals.projectLabel')}
             </span>
             <button
               className="mc-project-link-btn"
@@ -155,7 +154,7 @@ export function ViewDecisionModal({
           <div className="mc-promoted-info-row">
             <span className="mc-promoted-label">
               <span className="icon">✓</span>
-              Playbook
+              {t('modals.playbookLabel')}
             </span>
             {typeLabel && <span className={`mc-type-badge ${typeValue}`}>{typeLabel}</span>}
             {playbookDepts.length > 0 &&
@@ -172,11 +171,11 @@ export function ViewDecisionModal({
                 );
               })}
             {playbookDepts.length === 0 && (
-              <span className="mc-scope-badge company-wide">Company-wide</span>
+              <span className="mc-scope-badge company-wide">{t('mycompany.companyWide')}</span>
             )}
           </div>
         ) : (
-          <span className="mc-pending-label">Saved decision</span>
+          <span className="mc-pending-label">{t('modals.savedDecision')}</span>
         )}
         <span className="mc-date">{formatDate(decision.created_at)}</span>
       </div>
@@ -211,7 +210,7 @@ export function ViewDecisionModal({
                 }}
               >
                 <ExternalLink size={16} />
-                View original conversation →
+                {t('modals.viewOriginalConversation')}
               </button>
             )}
         </FloatingContextActions>
@@ -221,11 +220,11 @@ export function ViewDecisionModal({
         {!isAlreadyPromoted && onPromote && (
           <Button variant="default" onClick={() => onPromote(decision)}>
             <Bookmark size={16} />
-            Promote to Playbook
+            {t('modals.promoteToPlaybook')}
           </Button>
         )}
         <Button variant="outline" onClick={onClose}>
-          Close
+          {t('common.close')}
         </Button>
       </AppModal.Footer>
     </AppModal>

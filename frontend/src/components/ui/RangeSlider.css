@@ -1,0 +1,110 @@
+/**
+ * RangeSlider - Minimal, elegant slider
+ * Track is 2px, thumb is 14px - clean and easy to grab
+ */
+
+.range-slider {
+  position: relative;
+  width: 100%;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+}
+
+.range-slider:focus {
+  outline: none;
+}
+
+.range-slider:focus-visible .range-slider__thumb {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}
+
+.range-slider--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Track - gradient line */
+.range-slider__track {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  border-radius: 100px;
+  background: linear-gradient(
+    to right,
+    #3b82f6 0%,
+    #22c55e 50%,
+    #a855f7 100%
+  );
+  box-shadow: inset 0 1px 2px rgb(0, 0, 0, 0.1);
+}
+
+/* Thumb - small circle */
+.range-slider__thumb {
+  position: absolute;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-bg-primary);
+  border: 2px solid var(--color-text-primary);
+  box-shadow: 0 1px 3px var(--overlay-black-15);
+  transform: translate(-50%, -50%);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.range-slider:hover .range-slider__thumb,
+.range-slider--dragging .range-slider__thumb {
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow: 0 2px 6px var(--overlay-black-20);
+}
+
+.range-slider--dragging .range-slider__thumb {
+  cursor: grabbing;
+}
+
+/* Value tooltip - appears above thumb on hover/drag */
+.range-slider__tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  background: var(--color-text-primary);
+  color: var(--color-bg-primary);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 6px var(--overlay-black-20);
+  pointer-events: none;
+  animation: range-tooltip-fade-in 0.1s ease;
+}
+
+/* Arrow pointing down */
+.range-slider__tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid transparent;
+  border-top-color: var(--color-text-primary);
+}
+
+@keyframes range-tooltip-fade-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}

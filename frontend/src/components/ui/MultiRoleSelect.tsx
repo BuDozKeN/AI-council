@@ -15,6 +15,7 @@
  */
 
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import * as Popover from '@radix-ui/react-popover';
 import { User, Check, ChevronDown } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -39,10 +40,12 @@ export function MultiRoleSelect({
   onValueChange,
   roles = [],
   disabled = false,
-  placeholder = 'Select roles...',
+  placeholder,
   className,
 }: MultiRoleSelectProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
+  const actualPlaceholder = placeholder || t('roles.selectRoles');
 
   // Get selected roles with their data
   const selectedRoles = value
@@ -63,13 +66,13 @@ export function MultiRoleSelect({
       <User className="h-3.5 w-3.5 shrink-0" />
 
       {selectedRoles.length === 0 ? (
-        <span className="multi-role-placeholder">{placeholder}</span>
+        <span className="multi-role-placeholder">{actualPlaceholder}</span>
       ) : selectedRoles.length === 1 && selectedRoles[0] ? (
         // Single role: show name
         <span className="multi-role-single">{selectedRoles[0].name}</span>
       ) : (
         // Multiple roles: show count
-        <span className="multi-role-count">{selectedRoles.length} roles</span>
+        <span className="multi-role-count">{t('multiSelect.rolesCount', { count: selectedRoles.length })}</span>
       )}
 
       <ChevronDown className="h-4 w-4 opacity-50 shrink-0 ml-auto" />
@@ -80,7 +83,7 @@ export function MultiRoleSelect({
   const roleList = (isMobile = false) => (
     <div className={isMobile ? 'multi-role-list-mobile' : 'multi-role-list'}>
       {roles.length === 0 ? (
-        <div className="multi-role-empty">No roles available</div>
+        <div className="multi-role-empty">{t('context.noRoles')}</div>
       ) : (
         roles.map((role) => {
           const isSelected = value.includes(role.id);
@@ -124,7 +127,7 @@ export function MultiRoleSelect({
           {triggerContent}
         </button>
 
-        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title="Select Roles">
+        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title={t('roles.selectRoles')}>
           {roleList(true)}
         </BottomSheet>
       </>

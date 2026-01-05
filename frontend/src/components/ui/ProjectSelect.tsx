@@ -22,6 +22,7 @@
  */
 
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import { Check, ChevronDown, FolderKanban, Plus } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -37,13 +38,14 @@ interface ProjectSelectItemProps extends React.ComponentPropsWithoutRef<
 > {
   isCreate?: boolean;
   isCurrent?: boolean;
+  currentLabel?: string;
 }
 
 // Custom SelectItem for projects
 const ProjectSelectItem = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Item>,
   ProjectSelectItemProps
->(({ className, children, isCreate = false, isCurrent = false, ...props }, ref) => {
+>(({ className, children, isCreate = false, isCurrent = false, currentLabel, ...props }, ref) => {
   return (
     <SelectPrimitive.Item
       ref={ref}
@@ -63,7 +65,7 @@ const ProjectSelectItem = React.forwardRef<
       {isCreate && <Plus className="h-3.5 w-3.5 project-select-create-icon" />}
       {!isCreate && <FolderKanban className="h-3.5 w-3.5 project-select-icon" />}
       <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
-      {isCurrent && <span className="project-select-current-badge">current</span>}
+      {isCurrent && <span className="project-select-current-badge">{currentLabel}</span>}
     </SelectPrimitive.Item>
   );
 });
@@ -86,13 +88,17 @@ export function ProjectSelect({
   onValueChange,
   projects = [],
   includeCreate = true,
-  createLabel = 'New Project',
+  createLabel,
   currentProjectId = null,
   disabled = false,
   className,
-  placeholder = 'Select project',
+  placeholder,
 }: ProjectSelectProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
+  const actualCreateLabel = createLabel || t('modals.newProject');
+  const actualPlaceholder = placeholder || t('stages.selectProject');
+  const currentBadgeLabel = t('projects.current');
 
   // Get display name for current value
   const selectedProject =
@@ -101,9 +107,9 @@ export function ProjectSelect({
 
   const getDisplayName = () => {
     if (!value || value === '__create__') {
-      return createLabel;
+      return actualCreateLabel;
     }
-    if (!selectedProject) return createLabel;
+    if (!selectedProject) return actualCreateLabel;
     return selectedProject.name;
   };
 
@@ -136,7 +142,7 @@ export function ProjectSelect({
           <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
         </button>
 
-        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title="Select Project">
+        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title={t('stages.selectProject')}>
           <div className="project-select-list-mobile">
             {includeCreate && (
               <button
@@ -156,7 +162,7 @@ export function ProjectSelect({
                   {(!value || value === '__create__') && <Check className="h-3 w-3" />}
                 </div>
                 <Plus className="h-4 w-4 project-select-create-icon-mobile" />
-                <span className="project-select-item-label">{createLabel}</span>
+                <span className="project-select-item-label">{actualCreateLabel}</span>
               </button>
             )}
             {projects.map((project) => {
@@ -174,7 +180,7 @@ export function ProjectSelect({
                   </div>
                   <FolderKanban className="h-4 w-4 project-select-icon-mobile" />
                   <span className="project-select-item-label">{project.name}</span>
-                  {isCurrent && <span className="project-select-current-badge">current</span>}
+                  {isCurrent && <span className="project-select-current-badge">{currentBadgeLabel}</span>}
                 </button>
               );
             })}
@@ -199,7 +205,7 @@ export function ProjectSelect({
         ) : (
           <Plus className="h-3.5 w-3.5 project-select-trigger-icon-create" />
         )}
-        <SelectPrimitive.Value placeholder={placeholder}>{getDisplayName()}</SelectPrimitive.Value>
+        <SelectPrimitive.Value placeholder={actualPlaceholder}>{getDisplayName()}</SelectPrimitive.Value>
         <SelectPrimitive.Icon asChild>
           <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
         </SelectPrimitive.Icon>
@@ -215,7 +221,7 @@ export function ProjectSelect({
           <SelectPrimitive.Viewport className="project-select-viewport">
             {includeCreate && (
               <ProjectSelectItem value="__create__" isCreate>
-                {createLabel}
+                {actualCreateLabel}
               </ProjectSelectItem>
             )}
             {projects.map((project) => (
@@ -223,6 +229,7 @@ export function ProjectSelect({
                 key={project.id}
                 value={project.id}
                 isCurrent={project.id === currentProjectId}
+                currentLabel={currentBadgeLabel}
               >
                 {project.name}
               </ProjectSelectItem>

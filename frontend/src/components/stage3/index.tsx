@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Sparkles } from 'lucide-react';
 import { Spinner } from '../ui/Spinner';
 import { CopyButton } from '../ui/CopyButton';
@@ -106,6 +107,7 @@ function Stage3({
   onCreateProject,
   usage,
 }: Stage3Props) {
+  const { t } = useTranslation();
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [departments, setDepartments] = useState<Department[]>([]);
   // ProjectWithContext type matches what useSaveActions expects
@@ -316,13 +318,13 @@ function Stage3({
       <div className="stage stage3" aria-busy="true" aria-live="polite">
         <h3 className="stage-title">
           <Sparkles className="h-5 w-5 text-emerald-500 flex-shrink-0" />
-          <span className="font-semibold tracking-tight">The Best Answer</span>
+          <span className="font-semibold tracking-tight">{t('stages.bestAnswer')}</span>
         </h3>
         <div className="final-response noise-overlay">
-          <div className="thinking-container" role="status" aria-label="Loading council response">
+          <div className="thinking-container" role="status" aria-label={t('stages.loadingCouncil')}>
             <div className="thinking-message">
               <Spinner size="sm" />
-              <span>Combining expert opinions...</span>
+              <span>{t('stages.combiningOpinions')}</span>
             </div>
           </div>
         </div>
@@ -345,10 +347,10 @@ function Stage3({
       <h3 className="stage-title clickable" onClick={toggleCollapsed}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
         <Sparkles className="h-5 w-5 text-amber-500 flex-shrink-0" />
-        <span className="font-semibold tracking-tight">The Best Answer</span>
+        <span className="font-semibold tracking-tight">{t('stages.bestAnswer')}</span>
         {isCollapsed && savedDecisionId && (
           <span className="collapsed-summary">
-            <span className="kb-saved-badge">Saved</span>
+            <span className="kb-saved-badge">{t('common.saved')}</span>
           </span>
         )}
       </h3>

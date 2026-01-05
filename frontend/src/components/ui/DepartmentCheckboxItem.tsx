@@ -36,7 +36,14 @@ export function DepartmentCheckboxItem({
     <button
       type="button"
       className={cn('dept-checkbox-item', isMobile && 'mobile', isSelected && 'selected')}
-      onClick={() => onToggle(department.id)}
+      onClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        // Set timestamp to prevent parent modal from closing when selecting departments
+        (window as Window & { __multiDeptSelectClickTime?: number }).__multiDeptSelectClickTime =
+          Date.now();
+        onToggle(department.id);
+      }}
       style={
         {
           '--dept-color': colors.text,

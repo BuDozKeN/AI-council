@@ -1264,6 +1264,64 @@
 }
 
 /* ============================================================================
+   LLM PRESET SECTION - Council behavior selector
+   ============================================================================ */
+
+.mc-preset-section {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.mc-preset-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.mc-preset-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mc-preset-label-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.mc-preset-label-hint {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+}
+
+/* Mobile: stack vertically */
+@media (max-width: 480px) {
+  .mc-preset-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
+/* Dark mode */
+.dark .mc-preset-section,
+[data-theme='dark'] .mc-preset-section {
+  border-bottom-color: var(--color-border);
+}
+
+.dark .mc-preset-label-text,
+[data-theme='dark'] .mc-preset-label-text {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-preset-label-hint,
+[data-theme='dark'] .mc-preset-label-hint {
+  color: var(--color-text-tertiary);
+}
+
+/* ============================================================================
    VIEW/EDIT MODAL STYLES - Clean modal header, content sections
    ============================================================================ */
 

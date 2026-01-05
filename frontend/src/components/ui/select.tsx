@@ -33,11 +33,19 @@ const SelectTrigger = React.forwardRef<
       // Stop propagation to prevent parent handlers (like sidebar click-outside)
       // from triggering navigation when clicking to toggle the dropdown
       e.stopPropagation();
+      // Set timestamp so parent modals know a Select trigger was just clicked
+      // This prevents BottomSheet/AppModal from closing when clicking the trigger
+      // to close an open dropdown (the click can bubble to the overlay)
+      (window as Window & { __radixSelectJustDismissed?: number }).__radixSelectJustDismissed =
+        Date.now();
       onPointerDown?.(e);
     }}
     onMouseDown={(e) => {
       // Also stop mousedown for browsers/listeners that use mousedown instead of pointerdown
       e.stopPropagation();
+      // Backup timestamp on mousedown
+      (window as Window & { __radixSelectJustDismissed?: number }).__radixSelectJustDismissed =
+        Date.now();
       onMouseDown?.(e);
     }}
     {...props}
@@ -81,7 +89,7 @@ SelectScrollDownButton.displayName = SelectPrimitive.ScrollDownButton.displayNam
 const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
->(({ className, children, position = 'popper', onPointerDownOutside, ...props }, ref) => {
+>(({ className, children, position = 'popper', onPointerDownOutside, onEscapeKeyDown, ...props }, ref) => {
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
@@ -99,6 +107,14 @@ const SelectContent = React.forwardRef<
             Date.now();
 
           onPointerDownOutside?.(e);
+        }}
+        onEscapeKeyDown={(e) => {
+          // Mark that a dropdown was just dismissed via Escape key
+          // Parent modal's Escape handler will check this timestamp
+          (window as Window & { __radixSelectJustDismissed?: number }).__radixSelectJustDismissed =
+            Date.now();
+
+          onEscapeKeyDown?.(e);
         }}
         {...props}
       >

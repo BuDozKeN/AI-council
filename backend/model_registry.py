@@ -21,9 +21,38 @@ import os
 import sys
 from supabase import create_client, Client
 
+# =============================================================================
+# ROLE CONSOLIDATION
+# =============================================================================
+# Old roles are aliased to consolidated roles for backward compatibility.
+# The LLM model is just the engine; the PERSONA/PROMPT defines the expertise.
+
+# Role aliases: old role -> consolidated role
+# This allows existing code to use old role names while using consolidated model configs
+ROLE_ALIASES = {
+    # Document writing roles -> document_writer
+    'sop_writer': 'document_writer',
+    'framework_author': 'document_writer',
+    'policy_writer': 'document_writer',
+    'decision_summarizer': 'document_writer',
+    # Utility roles -> utility
+    'title_generator': 'utility',
+    'triage': 'utility',
+    'sarah': 'utility',
+    'ai_write_assist': 'utility',
+    'ai_polish': 'utility',
+}
+
+
+def _resolve_role(role: str) -> str:
+    """Resolve a role name to its canonical form (handles aliases)."""
+    return ROLE_ALIASES.get(role, role)
+
+
 # Hardcoded fallbacks - used if database is unavailable
-# These should match the seed data in the migration
+# CONSOLIDATED model configs - fewer roles, simpler management
 FALLBACK_MODELS = {
+    # Core Council - Keep separate (different requirements)
     'council_member': [
         'google/gemini-3-pro-preview',
         'openai/gpt-5.1',
@@ -31,54 +60,6 @@ FALLBACK_MODELS = {
         'x-ai/grok-4',
         'deepseek/deepseek-chat-v3-0324',
     ],
-    'chairman': [
-        'openai/gpt-5.1',
-        'google/gemini-3-pro-preview',
-        'anthropic/claude-opus-4.5',
-    ],
-    'title_generator': [
-        'google/gemini-2.5-flash',
-    ],
-    'triage': [
-        'google/gemini-2.5-flash',
-    ],
-    'sarah': [
-        'google/gemini-2.0-flash-001',
-        'openai/gpt-4o',
-        'anthropic/claude-3-5-haiku-20241022',
-    ],
-    'decision_summarizer': [
-        'anthropic/claude-3-5-haiku-20241022',
-    ],
-    'sop_writer': [
-        'openai/gpt-4o-mini',  # Cost-optimized: was gpt-4o (94% cheaper)
-        'anthropic/claude-3-5-sonnet-20241022',
-        'google/gemini-2.0-flash-001',
-    ],
-    'framework_author': [
-        'openai/gpt-4o-mini',  # Cost-optimized: was gpt-4o (94% cheaper)
-        'anthropic/claude-3-5-sonnet-20241022',
-        'google/gemini-2.0-flash-001',
-    ],
-    'policy_writer': [
-        'openai/gpt-4o-mini',  # Cost-optimized: was gpt-4o (94% cheaper)
-        'anthropic/claude-3-5-sonnet-20241022',
-        'google/gemini-2.0-flash-001',
-    ],
-    'ai_write_assist': [
-        'openai/gpt-4o-mini',
-        'google/gemini-2.0-flash-001',
-    ],
-    'vision_analyzer': [
-        'openai/gpt-4o',
-    ],
-    'ai_polish': [
-        'google/gemini-2.5-flash',  # Cost-optimized: was gemini-3-pro (95% cheaper)
-        'openai/gpt-4o-mini',
-    ],
-    # Stage 2 peer reviewers - 6 models for robust consensus rankings
-    # More reviewers = better statistical confidence in rankings
-    # Cost optimized but quality-assured with Claude Sonnet as anchor
     'stage2_reviewer': [
         'anthropic/claude-sonnet-4',       # $3.00/$15.00 - quality anchor
         'openai/gpt-4o-mini',              # $0.15/$0.60 - smart & cheap
@@ -86,6 +67,27 @@ FALLBACK_MODELS = {
         'google/gemini-2.5-flash',         # $0.15/$0.60 - fast & economical Google
         'moonshotai/kimi-k2',              # $0.46/$1.84 - Chinese AI (Moonshot)
         'deepseek/deepseek-chat-v3-0324',  # $0.28/$0.42 - Chinese AI (DeepSeek) + top reasoning
+    ],
+    'chairman': [
+        'openai/gpt-5.1',
+        'google/gemini-3-pro-preview',
+        'anthropic/claude-opus-4.5',
+    ],
+
+    # CONSOLIDATED: Document Writing - ONE config for all document types
+    # SOPs, Frameworks, Policies, Summaries all use this
+    'document_writer': [
+        'openai/gpt-4o',
+        'anthropic/claude-3-5-sonnet-20241022',
+        'google/gemini-2.0-flash-001',
+    ],
+
+    # CONSOLIDATED: Utility Tools - ONE config for helper tasks
+    # Titles, routing, writing assistance, polish all use this
+    'utility': [
+        'google/gemini-2.5-flash',
+        'openai/gpt-4o-mini',
+        'anthropic/claude-3-5-haiku-20241022',
     ],
 }
 
@@ -109,37 +111,46 @@ async def get_models(role: str, company_id: Optional[str] = None) -> List[str]:
 
     Args:
         role: The role to get models for (e.g., 'chairman', 'council_member')
+              Old role names are automatically aliased to consolidated roles.
         company_id: Optional company ID for company-specific overrides
 
     Returns:
         List of model IDs, ordered by priority
     """
+    # Resolve role aliases (e.g., 'sop_writer' -> 'document_writer')
+    resolved_role = _resolve_role(role)
+
     try:
         supabase = _get_supabase_client()
         if supabase:
-            # Try database first
-            query = supabase.table('model_registry') \
-                .select('model_id') \
-                .eq('role', role) \
-                .eq('is_active', True) \
-                .order('priority')
-
             # If company_id provided, prefer company-specific models
             if company_id:
                 # Try company-specific first
-                company_result = query.eq('company_id', company_id).execute()
+                company_query = supabase.table('model_registry') \
+                    .select('model_id') \
+                    .eq('role', resolved_role) \
+                    .eq('is_active', True) \
+                    .eq('company_id', company_id) \
+                    .order('priority')
+                company_result = company_query.execute()
                 if company_result.data and len(company_result.data) > 0:
                     return [row['model_id'] for row in company_result.data]
 
-            # Fall back to global models
-            result = query.is_('company_id', 'null').execute()
+            # Fall back to global models (company_id IS NULL)
+            global_query = supabase.table('model_registry') \
+                .select('model_id') \
+                .eq('role', resolved_role) \
+                .eq('is_active', True) \
+                .is_('company_id', 'null') \
+                .order('priority')
+            result = global_query.execute()
             if result.data and len(result.data) > 0:
                 return [row['model_id'] for row in result.data]
     except Exception as e:
-        print(f"[model_registry] get_models({role}) failed: {type(e).__name__}", file=sys.stderr)
+        print(f"[model_registry] get_models({role}->{resolved_role}) failed: {type(e).__name__}", file=sys.stderr)
 
-    # Fallback to hardcoded
-    return FALLBACK_MODELS.get(role, [])
+    # Fallback to hardcoded with resolved role
+    return FALLBACK_MODELS.get(resolved_role, [])
 
 
 async def get_primary_model(role: str, company_id: Optional[str] = None) -> Optional[str]:
@@ -161,8 +172,10 @@ def get_models_sync(role: str) -> List[str]:
     """
     Synchronous version - returns hardcoded fallbacks only.
     Use this when you can't use async (e.g., at module load time).
+    Automatically resolves role aliases.
     """
-    return FALLBACK_MODELS.get(role, [])
+    resolved_role = _resolve_role(role)
+    return FALLBACK_MODELS.get(resolved_role, [])
 
 
 def get_primary_model_sync(role: str) -> Optional[str]:

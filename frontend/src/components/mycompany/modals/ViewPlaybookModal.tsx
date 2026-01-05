@@ -5,6 +5,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import MarkdownViewer from '../../MarkdownViewer';
 import { AppModal } from '../../ui/AppModal';
 import { Button } from '../../ui/button';
@@ -47,6 +48,7 @@ export function ViewPlaybookModal({
   onSave,
   startEditing = false,
 }: ViewPlaybookModalProps) {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(startEditing);
   const [editedContent, setEditedContent] = useState(
     playbook.content || playbook.current_version?.content || ''
@@ -83,23 +85,22 @@ export function ViewPlaybookModal({
         setIsEditingTitle(false);
 
         // Build descriptive success message
-        const docTypeLabel =
-          docType === 'sop' ? 'SOP' : docType.charAt(0).toUpperCase() + docType.slice(1);
+        const docTypeLabel = t(`mycompany.typeShort_${docType}`, { defaultValue: docType.toUpperCase() });
         const title = editedTitle || playbook.title;
         const deptNames = selectedDepts
           .map((id) => departments.find((d) => d.id === id)?.name)
           .filter(Boolean);
 
-        let message = `${docTypeLabel} "${title}" saved`;
+        let message = t('modals.playbookSaved', { type: docTypeLabel, title });
         if (deptNames.length > 0) {
-          message += ` for ${deptNames.join(', ')}`;
+          message += ` ${t('modals.forDepartments', { departments: deptNames.join(', ') })}`;
         } else {
-          message += ' as company-wide';
+          message += ` ${t('modals.asCompanyWide')}`;
         }
 
         toast.success(message, { duration: 4000 });
       } catch {
-        toast.error('Failed to save changes');
+        toast.error(t('modals.failedToSaveChanges'));
       }
       setSaving(false);
     }
@@ -150,7 +151,7 @@ export function ViewPlaybookModal({
             <h1
               className="mc-title-display editable"
               onClick={() => setIsEditingTitle(true)}
-              title="Click to edit title"
+              title={t('modals.clickToEditTitle')}
             >
               {editedTitle || playbook.title}
               <svg className="mc-pencil-icon" viewBox="0 0 20 20" fill="currentColor">
@@ -159,7 +160,7 @@ export function ViewPlaybookModal({
             </h1>
           )}
         </div>
-        <button className="mc-modal-close-clean" onClick={onClose} aria-label="Close">
+        <button className="mc-modal-close-clean" onClick={onClose} aria-label={t('common.close')}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -174,7 +175,7 @@ export function ViewPlaybookModal({
             className="mc-type-badge"
             style={{ background: typeStyle.bg, color: typeStyle.color }}
           >
-            {docType.toUpperCase()}
+            {t(`mycompany.typeShort_${docType}`, { defaultValue: docType.toUpperCase() })}
           </span>
 
           {/* Department selection - dropdown in edit mode, badges in view mode */}
@@ -183,7 +184,7 @@ export function ViewPlaybookModal({
               value={selectedDepts}
               onValueChange={setSelectedDepts}
               departments={departments}
-              placeholder="Company-wide (all departments)"
+              placeholder={t('modals.companyWideAllDepts')}
             />
           ) : (
             <div className="mc-dept-badges-view">
@@ -212,7 +213,7 @@ export function ViewPlaybookModal({
                 );
               })}
               {!ownerDept && linkedDeptNames.length === 0 && (
-                <span className="mc-scope-badge company-wide">Company-wide</span>
+                <span className="mc-scope-badge company-wide">{t('mycompany.companyWide')}</span>
               )}
             </div>
           )}
@@ -229,7 +230,7 @@ export function ViewPlaybookModal({
                 value={editedContent}
                 onChange={(e) => setEditedContent(e.target.value)}
                 rows={18}
-                placeholder="Enter content here... Markdown formatting is supported."
+                placeholder={t('modals.enterContentMarkdown')}
                 autoFocus={!startEditing}
               />
             </div>
@@ -238,7 +239,7 @@ export function ViewPlaybookModal({
               {content ? (
                 <MarkdownViewer content={content} skipCleanup={true} />
               ) : (
-                <p className="mc-no-content">No content yet. Click Edit to add content.</p>
+                <p className="mc-no-content">{t('modals.noContentClickEdit')}</p>
               )}
             </FloatingContextActions>
           )}
@@ -249,10 +250,10 @@ export function ViewPlaybookModal({
         {isEditing ? (
           <>
             <Button variant="outline" onClick={handleCancelEdit} disabled={saving}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button variant="default" onClick={handleSave} disabled={saving}>
-              {saving ? 'Saving...' : 'Save Changes'}
+              {saving ? t('common.saving') : t('modals.saveChanges')}
             </Button>
           </>
         ) : (
@@ -262,11 +263,11 @@ export function ViewPlaybookModal({
                 <svg viewBox="0 0 20 20" fill="currentColor" className="size-4">
                   <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                 </svg>
-                Edit
+                {t('common.edit')}
               </Button>
             )}
             <Button variant="default" onClick={onClose}>
-              Done
+              {t('common.done')}
             </Button>
           </>
         )}

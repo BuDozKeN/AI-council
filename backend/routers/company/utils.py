@@ -5,8 +5,8 @@ Shared helpers, validators, and Pydantic models for company sub-routers.
 """
 
 from fastapi import HTTPException, Path
-from pydantic import BaseModel
-from typing import Optional, List, Annotated
+from pydantic import BaseModel, field_validator
+from typing import Optional, List, Annotated, Literal
 from datetime import datetime
 import re
 import time
@@ -1061,6 +1061,7 @@ class DepartmentUpdate(BaseModel):
     description: Optional[str] = None
     purpose: Optional[str] = None
     context_md: Optional[str] = None
+    llm_preset: Optional[Literal['conservative', 'balanced', 'creative']] = None
 
 
 class RoleCreate(BaseModel):

@@ -26,7 +26,8 @@
   flex-direction: column;
   box-shadow: var(--shadow-xl);
   overflow: hidden;
-  touch-action: pan-y; /* Enable vertical swipe gestures */
+  /* stylelint-disable-next-line declaration-no-important */
+  touch-action: pan-y !important; /* Override Framer Motion's pan-x to allow vertical scroll */
   user-select: none; /* Prevent text selection during drag */
 }
 
@@ -65,19 +66,19 @@
   opacity: 0.7;
 }
 
-/* Header */
+/* Header - subtle, content is the star */
 .bottom-sheet-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 20px 16px;
+  padding: 0 16px 8px;
   flex-shrink: 0;
 }
 
 .bottom-sheet-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--color-text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-tertiary);
   margin: 0;
 }
 
@@ -171,6 +172,7 @@
 
   .bottom-sheet-body {
     padding: 0 16px 16px;
+
     /* Fill available space in fixed-height sheet */
     flex: 1;
     min-height: 0;

@@ -11,14 +11,25 @@
  */
 
 import { useState, useEffect } from 'react';
-import { FlaskConical, Zap, AlertTriangle, CheckCircle, Activity } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { FlaskConical, Zap, AlertTriangle, CheckCircle, Activity, Ruler } from 'lucide-react';
 import { Card, CardHeader, CardContent } from '../ui/card';
 import { Switch } from '../ui/switch';
 import { Skeleton } from '../ui/Skeleton';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../ui/select';
 import { api } from '../../api';
 import { useAuth } from '../../AuthContext';
 import { logger } from '../../utils/logger';
 import { getShowTokenUsage, setShowTokenUsage } from './tokenUsageSettings';
+
+// Mock length options with human-readable labels
+const MOCK_LENGTH_OPTIONS = [
+  { value: 'null', label: 'Use LLM Hub Settings', description: 'Respects your production config' },
+  { value: '512', label: 'Short (~1 paragraph)', description: '512 tokens' },
+  { value: '1536', label: 'Medium (~1 page)', description: '1536 tokens' },
+  { value: '4096', label: 'Long (~2-3 pages)', description: '4096 tokens' },
+  { value: '8192', label: 'Very Long (~4+ pages)', description: '8192 tokens' },
+] as const;
 
 const log = logger.scope('DeveloperSection');
 
@@ -28,12 +39,15 @@ interface DeveloperSectionProps {
 }
 
 export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionProps) {
+  const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
   const [mockMode, setMockMode] = useState<boolean | null>(null);
+  const [mockLengthOverride, setMockLengthOverride] = useState<number | null>(null);
   const [cachingMode, setCachingMode] = useState<boolean | null>(null);
   const [showTokenUsage, setShowTokenUsageState] = useState<boolean>(getShowTokenUsage());
   const [isTogglingMock, setIsTogglingMock] = useState(false);
   const [isTogglingCaching, setIsTogglingCaching] = useState(false);
+  const [isChangingLength, setIsChangingLength] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Fetch mock mode and caching mode status when section opens
@@ -48,10 +62,12 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
           api.getCachingMode(),
         ]);
         setMockMode(mockResult.enabled);
+        setMockLengthOverride(mockResult.length_override ?? null);
         setCachingMode(cachingResult.enabled);
       } catch (err) {
         log.error('Failed to fetch developer settings:', err);
         setMockMode(false);
+        setMockLengthOverride(null);
         setCachingMode(false);
       } finally {
         setLoading(false);
@@ -96,6 +112,21 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
     setShowTokenUsage(newValue);
   };
 
+  const handleChangeMockLength = async (value: string) => {
+    if (isChangingLength) return;
+
+    setIsChangingLength(true);
+    try {
+      const lengthOverride = value === 'null' ? null : parseInt(value, 10);
+      const result = await api.setMockLengthOverride(lengthOverride);
+      setMockLengthOverride(result.length_override);
+    } catch (err) {
+      log.error('Failed to change mock length override:', err);
+    } finally {
+      setIsChangingLength(false);
+    }
+  };
+
   if (loading) {
     return (
       <Card className="settings-card">
@@ -116,14 +147,14 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
       {/* Warning banner */}
       <div className="dev-warning-banner">
         <AlertTriangle size={16} />
-        <span>Developer settings are for testing only. Changes affect your session.</span>
+        <span>{t('settings.devWarning')}</span>
       </div>
 
       {/* Mock Mode Card */}
       <Card className="settings-card">
         <CardHeader>
-          <h3>Mock Mode</h3>
-          <p>Use simulated AI responses instead of real API calls</p>
+          <h3>{t('settings.mockMode')}</h3>
+          <p>{t('settings.mockModeDesc')}</p>
         </CardHeader>
         <CardContent>
           <div className="dev-toggle-row">
@@ -132,17 +163,17 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
                 <FlaskConical size={18} />
               </div>
               <div className="dev-toggle-text">
-                <span className="dev-toggle-label">Enable Mock Mode</span>
+                <span className="dev-toggle-label">{t('settings.enableMockMode')}</span>
                 <span className="dev-toggle-desc">
                   {mockMode
-                    ? 'Using simulated responses — no API costs'
-                    : 'Using real API calls — credits will be consumed'}
+                    ? t('settings.mockModeOn')
+                    : t('settings.mockModeOff')}
                 </span>
               </div>
             </div>
             <div className="dev-toggle-control">
               <span className={`dev-status-badge ${mockMode ? 'active' : 'inactive'}`}>
-                {mockMode ? 'Mock' : 'Production'}
+                {mockMode ? t('settings.mock') : t('settings.production')}
               </span>
               <Switch
                 checked={mockMode ?? false}
@@ -155,7 +186,51 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
           {mockMode && (
             <div className="dev-info-box success">
               <CheckCircle size={14} />
-              <span>Mock mode active. No tokens will be consumed during this session.</span>
+              <span>{t('settings.mockModeActive')}</span>
+            </div>
+          )}
+
+          {/* Mock Length Override - only shown when mock mode is enabled */}
+          {mockMode && (
+            <div className="dev-toggle-row bordered">
+              <div className="dev-toggle-info">
+                <div className="dev-toggle-icon mock">
+                  <Ruler size={18} />
+                </div>
+                <div className="dev-toggle-text">
+                  <span className="dev-toggle-label">{t('settings.mockLengthOverride', 'Response Length Override')}</span>
+                  <span className="dev-toggle-desc">
+                    {t('settings.mockLengthOverrideDesc', 'Test different lengths without changing LLM Hub')}
+                  </span>
+                </div>
+              </div>
+              <div className="dev-toggle-control">
+                <Select
+                  value={mockLengthOverride === null ? 'null' : String(mockLengthOverride)}
+                  onValueChange={handleChangeMockLength}
+                  disabled={isChangingLength}
+                >
+                  <SelectTrigger className="min-w-[180px]">
+                    <SelectValue placeholder="Select length" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {MOCK_LENGTH_OPTIONS.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+
+          {mockMode && mockLengthOverride !== null && (
+            <div className="dev-info-box info">
+              <Ruler size={14} />
+              <span>
+                {t('settings.mockLengthOverrideActive', 'Override active: Mock will use {{tokens}} tokens regardless of LLM Hub settings', { tokens: mockLengthOverride })}
+              </span>
             </div>
           )}
         </CardContent>
@@ -164,8 +239,8 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
       {/* Prompt Caching Card */}
       <Card className="settings-card">
         <CardHeader>
-          <h3>Prompt Caching</h3>
-          <p>Cache prompts to reduce costs (Claude, GPT & DeepSeek)</p>
+          <h3>{t('settings.promptCaching')}</h3>
+          <p>{t('settings.promptCachingDesc')}</p>
         </CardHeader>
         <CardContent>
           <div className="dev-toggle-row">
@@ -174,17 +249,17 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
                 <Zap size={18} />
               </div>
               <div className="dev-toggle-text">
-                <span className="dev-toggle-label">Enable Prompt Caching</span>
+                <span className="dev-toggle-label">{t('settings.enableCaching')}</span>
                 <span className="dev-toggle-desc">
                   {cachingMode
-                    ? 'Caching ON — reduces costs by caching context'
-                    : 'Caching OFF — standard API calls'}
+                    ? t('settings.cachingOn')
+                    : t('settings.cachingOff')}
                 </span>
               </div>
             </div>
             <div className="dev-toggle-control">
               <span className={`dev-status-badge ${cachingMode ? 'active' : 'inactive'}`}>
-                {cachingMode ? 'Cache' : 'No Cache'}
+                {cachingMode ? t('settings.cache') : t('settings.noCache')}
               </span>
               <Switch
                 checked={cachingMode ?? false}
@@ -199,8 +274,8 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
       {/* Token Usage Display Card */}
       <Card className="settings-card">
         <CardHeader>
-          <h3>Token Usage Display</h3>
-          <p>Show detailed token counts per stage during council sessions</p>
+          <h3>{t('settings.tokenUsageDisplay')}</h3>
+          <p>{t('settings.tokenUsageDesc')}</p>
         </CardHeader>
         <CardContent>
           <div className="dev-toggle-row">
@@ -209,17 +284,17 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
                 <Activity size={18} />
               </div>
               <div className="dev-toggle-text">
-                <span className="dev-toggle-label">Show Token Usage</span>
+                <span className="dev-toggle-label">{t('settings.showTokenUsage')}</span>
                 <span className="dev-toggle-desc">
                   {showTokenUsage
-                    ? 'Showing tokens, cost estimates, and cache hits per stage'
-                    : 'Token usage hidden from UI'}
+                    ? t('settings.tokenUsageOn')
+                    : t('settings.tokenUsageOff')}
                 </span>
               </div>
             </div>
             <div className="dev-toggle-control">
               <span className={`dev-status-badge ${showTokenUsage ? 'active' : 'inactive'}`}>
-                {showTokenUsage ? 'Visible' : 'Hidden'}
+                {showTokenUsage ? t('settings.visible') : t('settings.hidden')}
               </span>
               <Switch checked={showTokenUsage} onCheckedChange={handleToggleTokenUsage} />
             </div>
@@ -228,7 +303,7 @@ export function DeveloperSection({ isOpen, onMockModeChange }: DeveloperSectionP
           {showTokenUsage && (
             <div className="dev-info-box info">
               <Activity size={14} />
-              <span>Token usage will be displayed below each council stage.</span>
+              <span>{t('settings.tokenUsageInfo')}</span>
             </div>
           )}
         </CardContent>

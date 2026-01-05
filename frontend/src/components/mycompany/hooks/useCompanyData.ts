@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { api } from '../../../api';
 import { logger } from '../../../utils/logger';
 import type { Department, Playbook, Project, Decision } from '../../../types';
@@ -66,42 +66,127 @@ export function useCompanyData({
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
 
-  // Loading state
-  const [loading, setLoading] = useState<boolean>(true);
+  // Loading state - start false, only true during actual fetch
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   // Activity pagination state
   const [activityHasMore, setActivityHasMore] = useState<boolean>(false);
 
   // Tab-specific loaded flags (to show skeleton until first fetch completes)
+  // Using refs to avoid stale closure issues in useCallback
+  const loadedRef = useRef({
+    overview: false,
+    team: false,
+    playbooks: false,
+    decisions: false,
+    projects: false,
+    activity: false,
+    departments: false,
+  });
+
+  // Guard against concurrent loads (prevents multiple skeleton flashes on initial mount)
+  const loadingInProgressRef = useRef<string | null>(null);
+
+  // State versions for UI reactivity (isTabLoaded callback depends on these)
   const [overviewLoaded, setOverviewLoaded] = useState<boolean>(false);
   const [teamLoaded, setTeamLoaded] = useState<boolean>(false);
   const [playbooksLoaded, setPlaybooksLoaded] = useState<boolean>(false);
   const [decisionsLoaded, setDecisionsLoaded] = useState<boolean>(false);
   const [projectsLoaded, setProjectsLoaded] = useState<boolean>(false);
   const [activityLoaded, setActivityLoaded] = useState<boolean>(false);
-  // Track if departments have been loaded (avoids re-setting on every tab load)
-  const [departmentsLoaded, setDepartmentsLoaded] = useState<boolean>(false);
+
+  // Helper to set loaded state (updates both ref and state)
+  const setTabLoaded = (tab: MyCompanyTab, value: boolean) => {
+    switch (tab) {
+      case 'overview':
+        loadedRef.current.overview = value;
+        setOverviewLoaded(value);
+        break;
+      case 'team':
+        loadedRef.current.team = value;
+        setTeamLoaded(value);
+        break;
+      case 'playbooks':
+        loadedRef.current.playbooks = value;
+        setPlaybooksLoaded(value);
+        break;
+      case 'decisions':
+        loadedRef.current.decisions = value;
+        setDecisionsLoaded(value);
+        break;
+      case 'projects':
+        loadedRef.current.projects = value;
+        setProjectsLoaded(value);
+        break;
+      case 'activity':
+        loadedRef.current.activity = value;
+        setActivityLoaded(value);
+        break;
+    }
+  };
+
+  // Check if a specific tab is already loaded (uses ref for accurate value in callbacks)
+  const isTabAlreadyLoaded = (tab: MyCompanyTab): boolean => {
+    switch (tab) {
+      case 'overview':
+        return loadedRef.current.overview;
+      case 'team':
+        return loadedRef.current.team;
+      case 'playbooks':
+        return loadedRef.current.playbooks;
+      case 'decisions':
+        return loadedRef.current.decisions;
+      case 'projects':
+        return loadedRef.current.projects;
+      case 'activity':
+        return loadedRef.current.activity;
+      case 'usage':
+        return true;
+      default:
+        return false;
+    }
+  };
 
   // Load data based on active tab
-  const loadData = useCallback(async () => {
-    if (!companyId) return;
+  const loadData = useCallback(
+    async (forceReload = false) => {
+      if (!companyId) {
+        setLoading(false);
+        return;
+      }
 
-    setLoading(true);
-    setError(null);
+      // Skip loading if tab is already loaded (unless force reload)
+      // This prevents skeleton flash when switching to already-loaded tabs
+      if (!forceReload && isTabAlreadyLoaded(activeTab)) {
+        setLoading(false);
+        return;
+      }
 
-    try {
-      switch (activeTab) {
-        case 'overview': {
-          const data = await api.getCompanyOverview(companyId);
-          setOverview(data);
-          setOverviewLoaded(true);
-          break;
-        }
+      // Guard against concurrent loads for the same tab
+      // This prevents multiple skeleton flashes when React Strict Mode or
+      // multiple effects trigger loadData simultaneously
+      const loadKey = `${companyId}-${activeTab}`;
+      if (loadingInProgressRef.current === loadKey && !forceReload) {
+        return; // Already loading this tab
+      }
+      loadingInProgressRef.current = loadKey;
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        switch (activeTab) {
+          case 'overview': {
+            const data = await api.getCompanyOverview(companyId);
+            setOverview(data);
+            setTabLoaded('overview', true);
+            break;
+          }
         case 'team': {
           const data = await api.getCompanyTeam(companyId);
           setDepartments(data.departments || []);
-          setTeamLoaded(true);
+          setTabLoaded('team', true);
           break;
         }
         case 'playbooks': {
@@ -110,9 +195,10 @@ export function useCompanyData({
           setPlaybooks(playbooksData.playbooks || []);
           // Use departments from playbooks endpoint
           if (playbooksData.departments) {
-            setDepartments(playbooksData.departments.map((d: Department) => ({ ...d, roles: [] })));
+            const mappedDepts = playbooksData.departments.map((d: Department) => ({ ...d, roles: [] }));
+            setDepartments(mappedDepts);
           }
-          setPlaybooksLoaded(true);
+          setTabLoaded('playbooks', true);
           break;
         }
         case 'decisions': {
@@ -123,13 +209,13 @@ export function useCompanyData({
           ]);
           setDecisions(decisionsData.decisions || []);
           setProjects(projectsData.projects || []);
-          setProjectsLoaded(true);
+          setTabLoaded('projects', true);
           // Use departments from decisions endpoint (only if not already loaded)
-          if (decisionsData.departments && !departmentsLoaded) {
+          if (decisionsData.departments && !loadedRef.current.departments) {
             setDepartments(decisionsData.departments.map((d: Department) => ({ ...d, roles: [] })));
-            setDepartmentsLoaded(true);
+            loadedRef.current.departments = true;
           }
-          setDecisionsLoaded(true);
+          setTabLoaded('decisions', true);
           break;
         }
         case 'activity': {
@@ -142,38 +228,42 @@ export function useCompanyData({
           setActivityHasMore(logs.length > activityLimit);
           setActivityLogs(logs.slice(0, activityLimit));
           setProjects(projectsData.projects || []);
-          setProjectsLoaded(true);
-          setActivityLoaded(true);
+          setTabLoaded('projects', true);
+          setTabLoaded('activity', true);
           break;
         }
         case 'projects': {
           // Load projects and departments in parallel (needed for project edit modal)
-          if (!departmentsLoaded) {
+          if (!loadedRef.current.departments) {
             const [projectsData, teamData] = await Promise.all([
               api.listProjectsWithStats(companyId, { includeArchived: true }),
               api.getCompanyTeam(companyId),
             ]);
             setProjects(projectsData.projects || []);
             setDepartments(teamData.departments || []);
-            setDepartmentsLoaded(true);
+            loadedRef.current.departments = true;
           } else {
             const projectsData = await api.listProjectsWithStats(companyId, {
               includeArchived: true,
             });
             setProjects(projectsData.projects || []);
           }
-          setProjectsLoaded(true);
+          setTabLoaded('projects', true);
           break;
         }
+        }
+      } catch (err) {
+        log.error(`Failed to load ${activeTab}`, { error: err });
+        setError(`Failed to load ${activeTab}`);
       }
-    } catch (err) {
-      log.error(`Failed to load ${activeTab}`, { error: err });
-      setError(`Failed to load ${activeTab}`);
-    }
-    setLoading(false);
-    // Note: departmentsLoaded is intentionally not in deps to avoid re-triggering loadData
+      setLoading(false);
+      loadingInProgressRef.current = null; // Clear the guard
+    },
+    // Note: loaded state flags are checked via isTabAlreadyLoaded but not in deps
+    // to avoid re-triggering. departmentsLoaded also intentionally excluded.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyId, activeTab, activityLimit]);
+    [companyId, activeTab, activityLimit]
+  );
 
   // Load data when tab changes
   useEffect(() => {
@@ -181,7 +271,6 @@ export function useCompanyData({
   }, [loadData]);
 
   // Reset data when company changes
-
   useEffect(() => {
     setOverview(null);
     setDepartments([]);
@@ -189,7 +278,16 @@ export function useCompanyData({
     setDecisions([]);
     setActivityLogs([]);
     setProjects([]);
-    // Reset all loaded flags so we show skeleton state for new company
+    // Reset all loaded flags (both ref and state) for new company
+    loadedRef.current = {
+      overview: false,
+      team: false,
+      playbooks: false,
+      decisions: false,
+      projects: false,
+      activity: false,
+      departments: false,
+    };
     setOverviewLoaded(false);
     setTeamLoaded(false);
     setPlaybooksLoaded(false);
@@ -198,34 +296,12 @@ export function useCompanyData({
     setActivityLoaded(false);
     // Reset activity pagination
     setActivityHasMore(false);
-    // Reset departments loaded flag
-    setDepartmentsLoaded(false);
   }, [companyId]);
 
   // Reset loaded flag for a specific tab (used by pull-to-refresh)
   const resetTabLoaded = useCallback((tab: MyCompanyTab): void => {
-    switch (tab) {
-      case 'overview':
-        setOverviewLoaded(false);
-        break;
-      case 'team':
-        setTeamLoaded(false);
-        break;
-      case 'playbooks':
-        setPlaybooksLoaded(false);
-        break;
-      case 'decisions':
-        setDecisionsLoaded(false);
-        break;
-      case 'projects':
-        setProjectsLoaded(false);
-        break;
-      case 'activity':
-        setActivityLoaded(false);
-        break;
-      case 'usage':
-        break; // Usage has its own hook that manages loading state
-    }
+    // Use setTabLoaded to update both ref and state
+    setTabLoaded(tab, false);
   }, []);
 
   // Check if current tab data is loaded

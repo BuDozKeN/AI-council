@@ -16,6 +16,7 @@
  */
 
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import * as Popover from '@radix-ui/react-popover';
 import { BookOpen, Check, ChevronDown, FileText, Scale, Cog, type LucideIcon } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -49,21 +50,26 @@ const TYPE_ICONS: Record<PlaybookType, LucideIcon> = {
   policy: FileText,
 };
 
-const TYPE_LABELS: Record<PlaybookType, string> = {
-  sop: 'SOP',
-  framework: 'Framework',
-  policy: 'Policy',
-};
+// TYPE_LABELS moved inside component for i18n - see getTypeLabels()
 
 export function MultiPlaybookSelect({
   value = [],
   onValueChange,
   playbooks = [],
   disabled = false,
-  placeholder = 'Select playbooks...',
+  placeholder,
   className,
 }: MultiPlaybookSelectProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
+  const actualPlaceholder = placeholder || t('playbooks.selectPlaybooks');
+
+  // Type labels need to be inside component for i18n
+  const TYPE_LABELS: Record<PlaybookType, string> = {
+    sop: t('context.sops'),
+    framework: t('context.frameworks'),
+    policy: t('context.policies'),
+  };
 
   // Get selected playbooks with their data
   const selectedPlaybooks = value
@@ -123,13 +129,13 @@ export function MultiPlaybookSelect({
       <BookOpen className="h-3.5 w-3.5 shrink-0" />
 
       {selectedPlaybooks.length === 0 ? (
-        <span className="multi-playbook-placeholder">{placeholder}</span>
+        <span className="multi-playbook-placeholder">{actualPlaceholder}</span>
       ) : selectedPlaybooks.length === 1 ? (
         // Single playbook: show title (truncated)
         <span className="multi-playbook-single">{selectedPlaybooks[0]?.title}</span>
       ) : (
         // Multiple playbooks: show count
-        <span className="multi-playbook-count">{selectedPlaybooks.length} playbooks</span>
+        <span className="multi-playbook-count">{t('multiSelect.playbooksCount', { count: selectedPlaybooks.length })}</span>
       )}
 
       <ChevronDown className="h-4 w-4 opacity-50 shrink-0 ml-auto" />
@@ -140,7 +146,7 @@ export function MultiPlaybookSelect({
   const playbookList = (isMobile = false) => (
     <div className={isMobile ? 'multi-playbook-list-mobile' : 'multi-playbook-list'}>
       {playbooks.length === 0 ? (
-        <div className="multi-playbook-empty">No playbooks available</div>
+        <div className="multi-playbook-empty">{t('context.noPlaybooks')}</div>
       ) : (
         (Object.entries(groupedPlaybooks) as [PlaybookType, ExtendedPlaybook[]][]).map(
           ([type, items]) => {
@@ -204,7 +210,7 @@ export function MultiPlaybookSelect({
           {triggerContent}
         </button>
 
-        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title="Select Playbooks">
+        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title={t('playbooks.selectPlaybooks')}>
           {playbookList(true)}
         </BottomSheet>
       </>

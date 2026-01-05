@@ -5,6 +5,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import MarkdownViewer from '../../MarkdownViewer';
 import { AppModal } from '../../ui/AppModal';
 import { Button } from '../../ui/button';
@@ -23,6 +24,7 @@ import {
 import { api } from '../../../api';
 import { logger } from '../../../utils/logger';
 import type { Department, Project } from '../../../types/business';
+import type { TranslationKey } from '../../../types/i18n';
 
 interface Decision {
   id: string;
@@ -37,16 +39,16 @@ interface Decision {
 
 interface DocType {
   value: string;
-  label: string;
+  labelKey: TranslationKey;
   icon: LucideIcon;
-  desc: string;
+  descKey: TranslationKey;
 }
 
 const DOC_TYPES: DocType[] = [
-  { value: 'sop', label: 'SOP', icon: ScrollText, desc: 'Step-by-step procedures' },
-  { value: 'framework', label: 'Framework', icon: Layers, desc: 'Conceptual structure' },
-  { value: 'policy', label: 'Policy', icon: FileText, desc: 'Rules & guidelines' },
-  { value: 'project', label: 'Project', icon: FolderKanban, desc: 'Track as a project' },
+  { value: 'sop', labelKey: 'modals.promoteType_sop', icon: ScrollText, descKey: 'modals.promoteTypeDesc_sop' },
+  { value: 'framework', labelKey: 'modals.promoteType_framework', icon: Layers, descKey: 'modals.promoteTypeDesc_framework' },
+  { value: 'policy', labelKey: 'modals.promoteType_policy', icon: FileText, descKey: 'modals.promoteTypeDesc_policy' },
+  { value: 'project', labelKey: 'modals.promoteType_project', icon: FolderKanban, descKey: 'modals.promoteTypeDesc_project' },
 ];
 
 interface PromoteDecisionModalProps {
@@ -75,6 +77,8 @@ export function PromoteDecisionModal({
   saving,
   onViewSource,
 }: PromoteDecisionModalProps) {
+  const { t } = useTranslation();
+
   // If decision already belongs to a project, default to 'project' type
   const hasExistingProject = !!decision?.project_id;
   const [docType, setDocType] = useState(hasExistingProject ? 'project' : 'sop');
@@ -140,7 +144,7 @@ export function PromoteDecisionModal({
     <AppModal
       isOpen={true}
       onClose={onClose}
-      title="Promote Decision"
+      title={t('modals.promoteDecision')}
       size="xl"
       contentClassName="mc-modal-no-padding"
     >
@@ -151,7 +155,7 @@ export function PromoteDecisionModal({
             {/* Title Input */}
             <div className="mc-form-unified">
               <label htmlFor="promote-decision-title" className="mc-label-unified">
-                Title
+                {t('modals.title')}
               </label>
               <input
                 id="promote-decision-title"
@@ -160,26 +164,26 @@ export function PromoteDecisionModal({
                 className="mc-input-unified"
                 value={title}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
-                placeholder="e.g., Customer Onboarding Process"
+                placeholder={t('modals.titlePlaceholder')}
                 autoFocus
               />
             </div>
 
             {/* Department selector - multi-select */}
             <div className="mc-form-unified">
-              <label className="mc-label-unified">Departments</label>
+              <label className="mc-label-unified">{t('modals.departments')}</label>
               <MultiDepartmentSelect
                 value={departmentIds}
                 onValueChange={setDepartmentIds}
                 departments={departments || []}
-                placeholder="Select departments"
+                placeholder={t('modals.selectDepartments')}
                 className="mc-dept-select-modal"
               />
             </div>
 
             {/* Type selector - vertical cards */}
             <div className="mc-form-unified">
-              <label className="mc-label-unified">Promote To</label>
+              <label className="mc-label-unified">{t('modals.promoteTo')}</label>
               <div className="mc-type-cards">
                 {DOC_TYPES.map((type) => {
                   const Icon = type.icon;
@@ -193,8 +197,8 @@ export function PromoteDecisionModal({
                     >
                       <Icon className="mc-type-card-icon" />
                       <div className="mc-type-card-text">
-                        <span className="mc-type-card-label">{type.label}</span>
-                        <span className="mc-type-card-desc">{type.desc}</span>
+                        <span className="mc-type-card-label">{t(type.labelKey)}</span>
+                        <span className="mc-type-card-desc">{t(type.descKey)}</span>
                       </div>
                     </button>
                   );
@@ -205,18 +209,18 @@ export function PromoteDecisionModal({
             {/* Project selector - only shown when docType is 'project' */}
             {docType === 'project' && (
               <div className="mc-form-unified">
-                <label className="mc-label-unified">Add to Project</label>
+                <label className="mc-label-unified">{t('modals.addToProject')}</label>
                 <ProjectSelect
                   value={selectedProjectId || null}
                   onValueChange={setSelectedProjectId}
                   projects={activeProjects}
                   includeCreate={true}
-                  createLabel="New Project"
+                  createLabel={t('modals.newProject')}
                   currentProjectId={decision?.project_id ?? null}
                 />
                 {existingProject && (
                   <p className="mc-existing-project-hint">
-                    This decision is already part of "{existingProject.name}"
+                    {t('modals.decisionAlreadyInProject', { name: existingProject.name })}
                   </p>
                 )}
               </div>
@@ -239,7 +243,7 @@ export function PromoteDecisionModal({
                 >
                   <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" />
                 </svg>
-                View source
+                {t('modals.viewSource')}
               </button>
             )}
           </div>
@@ -249,14 +253,14 @@ export function PromoteDecisionModal({
             {/* AI Summary - what this conversation is about */}
             <div className={`mc-promote-question ${summaryExpanded ? 'expanded' : ''}`}>
               <div className="mc-promote-question-header">
-                <label className="mc-label-unified">Summary</label>
+                <label className="mc-label-unified">{t('modals.summary')}</label>
                 <div className="mc-summary-actions">
                   {summary && (
                     <button
                       type="button"
                       className="mc-expand-btn"
                       onClick={() => setSummaryExpanded(!summaryExpanded)}
-                      title={summaryExpanded ? 'Collapse' : 'Expand'}
+                      title={summaryExpanded ? t('modals.collapse') : t('modals.expand')}
                     >
                       {summaryExpanded ? (
                         <svg
@@ -299,12 +303,12 @@ export function PromoteDecisionModal({
                       {generatingSummary ? (
                         <>
                           <Spinner size="xs" variant="muted" />
-                          Generating...
+                          {t('modals.generating')}
                         </>
                       ) : (
                         <>
                           <RefreshCw size={16} />
-                          Generate
+                          {t('modals.generate')}
                         </>
                       )}
                     </button>
@@ -313,24 +317,24 @@ export function PromoteDecisionModal({
               </div>
               <div className={`mc-promote-question-text ${summaryExpanded ? 'expanded' : ''}`}>
                 {generatingSummary ? (
-                  <span className="mc-generating-text">Generating AI summary...</span>
+                  <span className="mc-generating-text">{t('modals.generatingAISummary')}</span>
                 ) : summary ? (
                   <MarkdownViewer content={summary} />
                 ) : (
                   <span className="mc-no-summary">
-                    No summary available. Click "Generate" to create one.
+                    {t('modals.noSummaryAvailable')}
                   </span>
                 )}
               </div>
             </div>
 
             {/* Council response */}
-            <label className="mc-label-unified">Council Decision</label>
+            <label className="mc-label-unified">{t('modals.councilDecision')}</label>
             <div className="mc-promote-content-rendered">
               {decision?.content ? (
                 <MarkdownViewer content={decision.content} />
               ) : (
-                <p className="mc-no-content">No content available</p>
+                <p className="mc-no-content">{t('modals.noContentAvailable')}</p>
               )}
             </div>
           </div>
@@ -338,25 +342,25 @@ export function PromoteDecisionModal({
 
         <AppModal.Footer>
           <Button type="button" variant="outline" onClick={onClose} disabled={saving}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button type="submit" variant="default" disabled={saving || !title.trim()}>
             {saving ? (
               <>
                 <Spinner size="sm" variant="muted" />
-                Creating...
+                {t('modals.creating')}
               </>
             ) : (
               <>
                 {docType === 'project' ? (
                   <>
                     <FolderKanban className="h-4 w-4" />
-                    {selectedProjectId ? 'Add to Project' : 'Create Project'}
+                    {selectedProjectId ? t('modals.addToProjectBtn') : t('modals.createProjectBtn')}
                   </>
                 ) : (
                   <>
                     <Bookmark className="h-4 w-4" />
-                    Create {DOC_TYPES.find((t) => t.value === docType)?.label}
+                    {t('modals.createType', { type: t(DOC_TYPES.find((tp) => tp.value === docType)?.labelKey ?? 'modals.promoteType_sop') })}
                   </>
                 )}
               </>

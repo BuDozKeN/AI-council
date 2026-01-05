@@ -1,0 +1,293 @@
+/**
+ * LLMPresetSelect Styles
+ * Uses CSS custom properties for preset-specific colors
+ * Follows DepartmentSelect pattern for consistency
+ */
+
+/* Trigger button */
+.llm-preset-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid currentcolor;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  opacity: 0.9;
+}
+
+.llm-preset-trigger:hover {
+  opacity: 1;
+}
+
+.llm-preset-trigger:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-focus);
+}
+
+.llm-preset-trigger[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Dropdown content - Design System compliant */
+.llm-preset-content {
+  position: relative;
+  z-index: var(--z-modal-dropdown);
+  max-height: 340px;
+  min-width: 280px;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-gray-200);
+  background: var(--color-bg-primary);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Ensure the portal wrapper has correct z-index for modal context */
+[data-radix-popper-content-wrapper]:has(.llm-preset-content) {
+  z-index: var(--z-modal-dropdown);
+}
+
+/* Animation keyframes */
+@keyframes dropdownInBottom {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes dropdownInTop {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.llm-preset-content[data-side='bottom'] {
+  transform-origin: top;
+  animation: dropdownInBottom 0.15s ease-out;
+}
+
+.llm-preset-content[data-side='top'] {
+  transform-origin: bottom;
+  animation: dropdownInTop 0.15s ease-out;
+}
+
+/* Viewport (inner container) */
+.llm-preset-viewport {
+  padding: 8px;
+}
+
+/* Individual items */
+.llm-preset-item {
+  position: relative;
+  display: flex;
+  width: 100%;
+  cursor: pointer;
+  user-select: none;
+  align-items: flex-start;
+  justify-content: space-between;
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--color-gray-700);
+  outline: none;
+  transition: all 0.1s ease;
+}
+
+/* Hover state - uses CSS variable from inline style */
+.llm-preset-item[data-highlighted] {
+  background: var(--preset-hover-bg, var(--color-gray-100));
+}
+
+/* Selected/checked state */
+.llm-preset-item[data-state='checked'] {
+  background: var(--preset-checked-bg, var(--color-gray-100));
+  color: var(--preset-checked-text, var(--color-gray-700));
+}
+
+/* Disabled state */
+.llm-preset-item[data-disabled] {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Item content wrapper */
+.llm-preset-item-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Item name */
+.llm-preset-item-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: inherit;
+}
+
+/* Item description */
+.llm-preset-item-desc {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+/* Checkmark indicator */
+.llm-preset-item-indicator {
+  display: flex;
+  height: 20px;
+  width: 20px;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: 8px;
+  color: var(--preset-checked-text, var(--color-emerald-600));
+}
+
+/* =============================================================================
+   MOBILE BOTTOM SHEET STYLES
+   ============================================================================= */
+
+/* Mobile list container in BottomSheet */
+.llm-preset-list-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0;
+}
+
+/* Mobile item - larger touch targets */
+.llm-preset-item-mobile {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  width: 100%;
+  min-height: 64px;
+  padding: 14px 16px;
+  border: none;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  font-size: 16px;
+  color: var(--color-gray-700);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.llm-preset-item-mobile:active {
+  background: var(--color-gray-200);
+  transform: scale(0.98);
+}
+
+.llm-preset-item-mobile.selected {
+  background: var(--preset-bg, var(--color-gray-100));
+  color: var(--preset-text, var(--color-gray-700));
+}
+
+/* Radio indicator for single select */
+.llm-preset-radio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--color-gray-300);
+  border-radius: 50%;
+  background: var(--color-bg-primary);
+  transition: all 0.1s ease;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.llm-preset-radio.checked {
+  background: var(--radio-checked-bg, var(--color-gray-600));
+  border-color: var(--radio-checked-border, var(--color-gray-600));
+  color: var(--color-text-inverse);
+}
+
+/* Mobile item content */
+.llm-preset-item-mobile .llm-preset-item-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.llm-preset-item-mobile .llm-preset-item-name {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.llm-preset-item-mobile .llm-preset-item-desc {
+  font-size: 14px;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+/* Mobile trigger improvements */
+@media (max-width: 640px) {
+  .llm-preset-trigger {
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: 15px;
+  }
+}
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .llm-preset-trigger {
+  border-color: currentcolor;
+}
+
+.dark .llm-preset-content {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .llm-preset-item {
+  color: var(--color-gray-300);
+}
+
+.dark .llm-preset-item[data-highlighted] {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .llm-preset-item-desc {
+  color: var(--color-gray-400);
+}
+
+.dark .llm-preset-item-mobile {
+  background: var(--color-bg-tertiary);
+  color: var(--color-gray-300);
+}
+
+.dark .llm-preset-item-mobile:active {
+  background: var(--color-bg-secondary);
+}
+
+.dark .llm-preset-item-mobile .llm-preset-item-desc {
+  color: var(--color-gray-400);
+}
+
+.dark .llm-preset-radio {
+  border-color: var(--color-border);
+  background: var(--color-bg-secondary);
+}

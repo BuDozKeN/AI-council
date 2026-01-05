@@ -12,7 +12,8 @@
  */
 
 import { useRef, useState, useCallback } from 'react';
-import { Building2, Pencil, ChevronUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { Building2, Pencil, ChevronUp, Sparkles } from 'lucide-react';
 import MarkdownViewer from '../../MarkdownViewer';
 import { TableOfContents } from '../../ui/TableOfContents';
 import { CopyButton } from '../../ui/CopyButton';
@@ -41,6 +42,7 @@ interface OverviewTabProps {
   companyName?: string | undefined;
   onEditContext?: ((data: Record<string, unknown>) => void) | undefined;
   onViewContext?: ((data: Record<string, unknown>) => void) | undefined;
+  onGenerateContext?: (() => void) | undefined;
 }
 
 // Parse metadata from context markdown (Last Updated, Version)
@@ -59,7 +61,8 @@ function parseContextMetadata(contextMd: string | undefined): {
   };
 }
 
-export function OverviewTab({ overview, companyName, onEditContext }: OverviewTabProps) {
+export function OverviewTab({ overview, companyName, onEditContext, onGenerateContext }: OverviewTabProps) {
+  const { t } = useTranslation();
   const contentRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -77,8 +80,8 @@ export function OverviewTab({ overview, companyName, onEditContext }: OverviewTa
     return (
       <div className="mc-empty">
         <Building2 size={32} className="mc-empty-icon" />
-        <p className="mc-empty-title">No company data</p>
-        <p className="mc-empty-hint">Company information will appear here</p>
+        <p className="mc-empty-title">{t('mycompany.noCompanyData')}</p>
+        <p className="mc-empty-hint">{t('mycompany.companyInfoAppear')}</p>
       </div>
     );
   }
@@ -91,24 +94,22 @@ export function OverviewTab({ overview, companyName, onEditContext }: OverviewTa
       {/* Hero section - scrolls with content */}
       <div className="mc-overview-hero">
         <div className="mc-overview-hero-content">
-          <h2 className="mc-overview-title">{companyName} Business Context</h2>
+          <h2 className="mc-overview-title">{t('mycompany.businessContext', { name: companyName })}</h2>
           <p className="mc-overview-description">
-            This document defines your company's mission, goals, constraints, and strategic
-            decisions. When selected, it's injected into Council conversations to provide relevant,
-            contextual advice.
+            {t('mycompany.businessContextDesc')}
           </p>
         </div>
         <div className="mc-overview-hero-right">
           <div className="mc-overview-meta">
             {lastUpdated && (
               <div className="mc-meta-item">
-                <span className="mc-meta-label">Last Updated</span>
+                <span className="mc-meta-label">{t('mycompany.lastUpdated')}</span>
                 <span className="mc-meta-value">{lastUpdated}</span>
               </div>
             )}
             {version && (
               <div className="mc-meta-item">
-                <span className="mc-meta-label">Version</span>
+                <span className="mc-meta-label">{t('mycompany.version')}</span>
                 <span className="mc-meta-value">{version}</span>
               </div>
             )}
@@ -125,7 +126,7 @@ export function OverviewTab({ overview, companyName, onEditContext }: OverviewTa
             }
           >
             <Pencil size={16} />
-            Edit
+            {t('mycompany.edit')}
           </Button>
         </div>
       </div>
@@ -163,11 +164,20 @@ export function OverviewTab({ overview, companyName, onEditContext }: OverviewTa
             <MarkdownViewer content={contextMd} />
           ) : (
             <div className="mc-empty-context">
-              <p className="mc-empty-title">No business context defined yet</p>
-              <p className="mc-empty-hint">
-                Click "Edit Context" above to add your company's mission, goals, strategy, and other
-                important information that the AI Council should know.
-              </p>
+              <Sparkles size={32} className="mc-empty-context-icon" />
+              <p className="mc-empty-context-title">{t('mycompany.noContextYet')}</p>
+              <p className="mc-empty-context-hint">{t('mycompany.noContextHint')}</p>
+              {onGenerateContext && (
+                <Button
+                  variant="default"
+                  size="default"
+                  onClick={onGenerateContext}
+                  className="mc-generate-context-btn"
+                >
+                  <Sparkles size={16} />
+                  {t('mycompany.generateWithAI', 'Generate with AI')}
+                </Button>
+              )}
             </div>
           )}
         </div>
@@ -175,7 +185,7 @@ export function OverviewTab({ overview, companyName, onEditContext }: OverviewTa
 
       {/* Scroll to top button - bottom right, vertically aligned with copy button */}
       {showScrollTop && (
-        <button className="mc-scroll-top-fab" onClick={scrollToTop} aria-label="Scroll to top">
+        <button className="mc-scroll-top-fab" onClick={scrollToTop} aria-label={t('mycompany.scrollToTop')}>
           <ChevronUp size={16} />
         </button>
       )}

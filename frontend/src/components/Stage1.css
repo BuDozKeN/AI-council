@@ -153,9 +153,11 @@
   0% {
     transform: scale(0);
   }
+
   50% {
     transform: scale(1.2);
   }
+
   100% {
     transform: scale(1);
   }
@@ -210,6 +212,7 @@
   font-weight: 600;
   margin-left: auto;
   flex-shrink: 0;
+
   /* No background - just show medal emoji or #N */
 }
 
@@ -740,6 +743,7 @@
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.4;
   }
@@ -793,6 +797,7 @@
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0;
   }
@@ -958,6 +963,7 @@
 }
 
 /* Dark mode rank badges */
+
 /* Dark mode rank badges - no backgrounds needed, emojis are universal */
 
 .dark .stage1 .model-card-content {

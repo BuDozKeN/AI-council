@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   BarChart3,
   Users,
@@ -8,50 +9,59 @@ import {
   Gauge,
 } from 'lucide-react';
 import { hapticLight } from '../../lib/haptics';
+import type { LucideIcon } from 'lucide-react';
+import type { TranslationKey } from '../../types/i18n';
 
-// Tab configuration
-const TABS = [
+// Tab configuration - labels and tooltips are translation keys
+interface TabConfig {
+  id: string;
+  labelKey: TranslationKey;
+  Icon: LucideIcon;
+  tooltipKey: TranslationKey;
+}
+
+const TABS: TabConfig[] = [
   {
     id: 'overview',
-    label: 'Overview',
+    labelKey: 'company.overview',
     Icon: BarChart3,
-    tooltip: 'Company summary: see your stats, description, and company context at a glance',
+    tooltipKey: 'mycompany.tabs.overviewTooltip',
   },
   {
     id: 'team',
-    label: 'Team',
+    labelKey: 'company.team',
     Icon: Users,
-    tooltip: 'Your departments and roles: manage the structure of your organization',
+    tooltipKey: 'mycompany.tabs.teamTooltip',
   },
   {
     id: 'projects',
-    label: 'Projects',
+    labelKey: 'company.projects',
     Icon: FolderKanban,
-    tooltip: 'Organize your work: group related council sessions and track progress',
+    tooltipKey: 'mycompany.tabs.projectsTooltip',
   },
   {
     id: 'playbooks',
-    label: 'Playbooks',
+    labelKey: 'company.playbooks',
     Icon: BookOpen,
-    tooltip: 'Your knowledge library: SOPs, frameworks, and policies the AI council uses',
+    tooltipKey: 'mycompany.tabs.playbooksTooltip',
   },
   {
     id: 'decisions',
-    label: 'Decisions',
+    labelKey: 'company.decisions',
     Icon: Lightbulb,
-    tooltip: 'Saved council outputs: review, archive, or promote decisions to playbooks',
+    tooltipKey: 'mycompany.tabs.decisionsTooltip',
   },
   {
     id: 'activity',
-    label: 'Activity',
+    labelKey: 'company.activity',
     Icon: ClipboardList,
-    tooltip: 'Recent changes: see what happened across your company',
+    tooltipKey: 'mycompany.tabs.activityTooltip',
   },
   {
     id: 'usage',
-    label: 'Usage',
+    labelKey: 'company.usage',
     Icon: Gauge,
-    tooltip: 'LLM usage analytics: monitor costs, tokens, and council activity',
+    tooltipKey: 'mycompany.tabs.usageTooltip',
   },
 ];
 
@@ -64,6 +74,8 @@ interface MyCompanyTabsProps {
  * MyCompanyTabs - Tab navigation bar
  */
 export function MyCompanyTabs({ activeTab, onTabChange }: MyCompanyTabsProps) {
+  const { t } = useTranslation();
+
   return (
     <nav className="mc-tabs">
       {TABS.map((tab) => (
@@ -74,10 +86,10 @@ export function MyCompanyTabs({ activeTab, onTabChange }: MyCompanyTabsProps) {
             hapticLight();
             onTabChange(tab.id);
           }}
-          title={tab.tooltip}
+          title={t(tab.tooltipKey)}
         >
           <tab.Icon size={16} className="mc-tab-icon" />
-          <span className="mc-tab-label">{tab.label}</span>
+          <span className="mc-tab-label">{t(tab.labelKey)}</span>
         </button>
       ))}
     </nav>

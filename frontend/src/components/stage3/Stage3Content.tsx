@@ -1,4 +1,5 @@
 import { memo, useState, useEffect, useRef, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
@@ -6,6 +7,7 @@ import { CopyButton } from '../ui/CopyButton';
 import { CheckCircle2 } from 'lucide-react';
 import { hapticSuccess } from '../../lib/haptics';
 import { CELEBRATION } from '../../lib/animation-constants';
+import { formatCostAuto } from '../../lib/currencyUtils';
 import type { Stage3ContentProps, CodeBlockProps } from '../../types/stages';
 import type { UsageData } from '../../types/conversation';
 // Import shared prose styling for consistent rendering with playbooks/SOPs
@@ -58,8 +60,7 @@ function calculateCost(usage: UsageData): number {
 }
 
 function formatCost(cost: number): string {
-  if (cost < 0.01) return `$${cost.toFixed(3)}`;
-  return `$${cost.toFixed(2)}`;
+  return formatCostAuto(cost);
 }
 
 // Custom code block renderer with hover-reveal copy button
@@ -98,6 +99,8 @@ function Stage3Content({
   chairmanIconPath,
   usage,
 }: Stage3ContentProps) {
+  const { t } = useTranslation();
+
   // Calculate cost from usage data
   const costDisplay = useMemo(() => {
     if (!usage || !isComplete) return null;
@@ -170,10 +173,10 @@ function Stage3Content({
               className={`h-4 w-4 text-green-600 ${showCompleteCelebration ? 'animate-success-pop' : ''}`}
             />
           )}
-          {hasError && <span className="error-badge">Error</span>}
+          {hasError && <span className="error-badge">{t('common.error')}</span>}
         </div>
         {costDisplay && (
-          <span className="stage3-cost-badge" title="Estimated cost for this council deliberation">
+          <span className="stage3-cost-badge" title={t('stages.costTooltip')}>
             {costDisplay}
           </span>
         )}
@@ -184,7 +187,7 @@ function Stage3Content({
         <div className={`final-text ${hasError ? 'error-text' : ''}`}>
           {hasError ? (
             <p className="empty-message">
-              {displayText || 'An error occurred while generating the synthesis.'}
+              {displayText || t('stages.synthesisError')}
             </p>
           ) : (
             <>

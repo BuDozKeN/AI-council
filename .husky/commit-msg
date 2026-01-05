@@ -1,0 +1,42 @@
+#!/bin/sh
+# Commit message validation
+# Ensures consistent, meaningful commit messages
+
+commit_msg=$(cat "$1")
+
+# Check minimum length (at least 10 characters)
+if [ ${#commit_msg} -lt 10 ]; then
+  echo "❌ Commit message too short (min 10 characters)"
+  echo "   Your message: '$commit_msg'"
+  exit 1
+fi
+
+# Check for conventional commit format (optional but encouraged)
+# Valid prefixes: feat, fix, docs, style, refactor, test, chore, perf, ci, build
+if echo "$commit_msg" | grep -qE "^(feat|fix|docs|style|refactor|test|chore|perf|ci|build)(\(.+\))?: .+"; then
+  echo "✅ Conventional commit format detected"
+elif echo "$commit_msg" | grep -qE "^(Merge|Revert|Initial)"; then
+  echo "✅ Merge/Revert/Initial commit"
+else
+  echo "⚠️  Consider using conventional commits format:"
+  echo "   feat: add new feature"
+  echo "   fix: resolve bug"
+  echo "   docs: update documentation"
+  echo "   refactor: code improvement"
+  echo "   test: add tests"
+  echo "   chore: maintenance"
+  echo ""
+  echo "   Example: 'feat: add dark mode toggle'"
+  echo ""
+  # Warning only, don't block
+fi
+
+# Block commits with common bad messages
+bad_patterns="^(wip|WIP|test|testing|asdf|fix|update|changes|stuff)$"
+if echo "$commit_msg" | grep -qiE "$bad_patterns"; then
+  echo "❌ Commit message too vague: '$commit_msg'"
+  echo "   Please describe what you changed and why"
+  exit 1
+fi
+
+echo "✅ Commit message OK"

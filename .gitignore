@@ -45,3 +45,7 @@ CON
 
 # Chrome debug profile (for MCP DevTools)
 chrome-debug-profile/
+
+# Prevent nested repo copies (safety measure)
+AI-council/
+AxCouncil/

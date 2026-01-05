@@ -14,6 +14,7 @@
  */
 
 import { useMemo, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Gauge, AlertTriangle, Zap, TrendingUp, Bot } from 'lucide-react';
 import { ScrollableContent } from '../../ui/ScrollableContent';
@@ -22,6 +23,8 @@ import {
   getModelPersona,
   getModelColor as getModelColorFromPersona,
 } from '../../../config/modelPersonas';
+import { formatCostCents, formatCostAuto } from '../../../lib/currencyUtils';
+import { getIntlLocale } from '../../../i18n';
 import type { UsageData, RateLimitStatus, BudgetAlert, UsagePeriod } from '../hooks/useUsageData';
 
 // ============================================================================
@@ -60,11 +63,7 @@ const CHART_CONFIG = {
 // ============================================================================
 
 function formatCost(cents: number): string {
-  const dollars = cents / 100;
-  if (dollars < 0.01) return '$0.00';
-  if (dollars < 1) return `$${dollars.toFixed(2)}`;
-  if (dollars < 100) return `$${dollars.toFixed(2)}`;
-  return `$${dollars.toFixed(0)}`;
+  return formatCostCents(cents, { compact: true });
 }
 
 function formatTokens(count: number): string {
@@ -89,7 +88,7 @@ function getModelColor(model: string): string {
 
 function formatDate(dateStr: string): string {
   const date = new Date(dateStr);
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return date.toLocaleDateString(getIntlLocale(), { month: 'short', day: 'numeric' });
 }
 
 /**
@@ -139,6 +138,8 @@ export function UsageTab({
   onPeriodChange,
   onAlertAcknowledge,
 }: UsageTabProps) {
+  const { t } = useTranslation();
+
   // Mobile detection for responsive chart heights
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -221,7 +222,7 @@ export function UsageTab({
           className="mc-empty-icon"
           style={{ color: 'var(--color-warning)' }}
         />
-        <p className="mc-empty-title">Failed to load usage data</p>
+        <p className="mc-empty-title">{t('mycompany.failedToLoadUsage')}</p>
         <p className="mc-empty-hint">{error}</p>
       </div>
     );
@@ -236,7 +237,7 @@ export function UsageTab({
       {!hasData && (
         <div className="mc-usage-empty-banner">
           <Gauge size={20} />
-          <span>Start a council session to see usage analytics</span>
+          <span>{t('mycompany.startSessionForAnalytics')}</span>
         </div>
       )}
 
@@ -254,7 +255,7 @@ export function UsageTab({
                   className="mc-usage-alert-dismiss"
                   onClick={() => onAlertAcknowledge(alert.id)}
                 >
-                  Dismiss
+                  {t('mycompany.dismiss')}
                 </button>
               )}
             </div>
@@ -270,14 +271,14 @@ export function UsageTab({
             <span className="mc-stat-value">
               {hasData ? formatCost(usage.summary.estimated_cost_cents) : '$0.00'}
             </span>
-            <span className="mc-stat-label">Total Cost</span>
+            <span className="mc-stat-label">{t('mycompany.totalCost')}</span>
           </div>
         </div>
         <div className="mc-stat-card">
           <Bot size={20} className="mc-stat-icon" />
           <div className="mc-stat-content">
             <span className="mc-stat-value">{hasData ? usage.summary.total_sessions : 0}</span>
-            <span className="mc-stat-label">Sessions</span>
+            <span className="mc-stat-label">{t('mycompany.sessions')}</span>
           </div>
         </div>
         <div className="mc-stat-card">
@@ -286,7 +287,7 @@ export function UsageTab({
             <span className="mc-stat-value">
               {hasData ? formatTokens(usage.summary.total_tokens) : '0'}
             </span>
-            <span className="mc-stat-label">Tokens</span>
+            <span className="mc-stat-label">{t('mycompany.tokens')}</span>
           </div>
         </div>
         <div className="mc-stat-card accent">
@@ -295,9 +296,9 @@ export function UsageTab({
             <span className="mc-stat-value">
               {hasData ? `${usage.summary.cache_hit_rate.toFixed(1)}%` : '0%'}
             </span>
-            <span className="mc-stat-label">Cache Hit Rate</span>
+            <span className="mc-stat-label">{t('mycompany.cacheHitRate')}</span>
             {hasData && cacheSavings > 0 && (
-              <span className="mc-stat-sublabel">Saved {formatCost(cacheSavings)}</span>
+              <span className="mc-stat-sublabel">{t('mycompany.saved', { amount: formatCost(cacheSavings) })}</span>
             )}
           </div>
         </div>
@@ -305,7 +306,7 @@ export function UsageTab({
 
       {/* Header with period selector */}
       <div className="mc-usage-header">
-        <h2 className="mc-usage-title">Usage</h2>
+        <h2 className="mc-usage-title">{t('mycompany.usage')}</h2>
         <div className={`mc-usage-period-toggle ${isRefetching ? 'loading' : ''}`}>
           {PERIOD_OPTIONS.map((opt) => (
             <button
@@ -323,7 +324,7 @@ export function UsageTab({
       <ScrollableContent className="mc-usage-scroll">
         {/* Daily cost chart */}
         <div className={`mc-usage-section ${!hasData ? 'empty-state' : ''}`}>
-          <h3 className="mc-usage-section-title">Daily Cost</h3>
+          <h3 className="mc-usage-section-title">{t('mycompany.dailyCost')}</h3>
           <div className="mc-usage-chart-container">
             {chartData.length > 0 ? (
               <ResponsiveContainer
@@ -364,7 +365,7 @@ export function UsageTab({
                     }}
                     tickLine={false}
                     axisLine={{ stroke: 'var(--color-border)' }}
-                    tickFormatter={(v) => `$${v}`}
+                    tickFormatter={(v) => formatCostAuto(v)}
                     width={
                       isMobile
                         ? CHART_CONFIG.bar.yAxisWidth.mobile
@@ -384,7 +385,7 @@ export function UsageTab({
                       fontWeight: 600,
                       marginBottom: 4,
                     }}
-                    formatter={(value) => [`$${(value as number).toFixed(2)}`, 'Cost']}
+                    formatter={(value) => [formatCostAuto(value as number), t('mycompany.cost')]}
                   />
                   <Bar
                     dataKey="cost"
@@ -398,7 +399,7 @@ export function UsageTab({
             ) : (
               <div className="mc-usage-chart-empty">
                 <TrendingUp size={32} />
-                <span>No usage data for this period</span>
+                <span>{t('mycompany.noUsageData')}</span>
               </div>
             )}
           </div>
@@ -406,7 +407,7 @@ export function UsageTab({
 
         {/* Model breakdown - clean horizontal bars */}
         <div className={`mc-usage-section ${!hasData ? 'empty-state' : ''}`}>
-          <h3 className="mc-usage-section-title">Cost by Model</h3>
+          <h3 className="mc-usage-section-title">{t('mycompany.costByModel')}</h3>
           {hasData && usage.models.length > 0 ? (
             <div className="mc-usage-model-bars">
               {usage.models.map((model) => {
@@ -442,14 +443,14 @@ export function UsageTab({
             </div>
           ) : (
             <div className="mc-usage-models-empty">
-              <p>Model usage will appear here after your first council session.</p>
+              <p>{t('mycompany.modelUsageEmpty')}</p>
             </div>
           )}
         </div>
 
         {/* Budget progress */}
         <div className={`mc-usage-section ${!hasData ? 'empty-state' : ''}`}>
-          <h3 className="mc-usage-section-title">Monthly Budget</h3>
+          <h3 className="mc-usage-section-title">{t('mycompany.monthlyBudget')}</h3>
           <div className="mc-usage-budget">
             <div className="mc-usage-budget-header">
               <span className="mc-usage-budget-current">
@@ -467,7 +468,7 @@ export function UsageTab({
             </div>
             <div className="mc-usage-budget-footer">
               <span className="mc-usage-budget-percent">
-                {budgetProgress ? `${budgetProgress.percent.toFixed(0)}% used` : '0% used'}
+                {t('mycompany.budgetUsed', { percent: budgetProgress ? budgetProgress.percent.toFixed(0) : 0 })}
               </span>
               {rateLimits?.warnings.length ? (
                 <span className="mc-usage-budget-warning">
@@ -481,28 +482,28 @@ export function UsageTab({
 
         {/* Additional stats */}
         <div className={`mc-usage-section ${!hasData ? 'empty-state' : ''}`}>
-          <h3 className="mc-usage-section-title">Session Stats</h3>
+          <h3 className="mc-usage-section-title">{t('mycompany.sessionStats')}</h3>
           <div className="mc-usage-extra-stats">
             <div className="mc-usage-extra-stat">
-              <span className="mc-usage-extra-label">Avg tokens/session</span>
+              <span className="mc-usage-extra-label">{t('mycompany.avgTokensPerSession')}</span>
               <span className="mc-usage-extra-value">
                 {hasData ? formatTokens(usage.summary.avg_tokens_per_session) : '0'}
               </span>
             </div>
             <div className="mc-usage-extra-stat">
-              <span className="mc-usage-extra-label">Ranking parse rate</span>
+              <span className="mc-usage-extra-label">{t('mycompany.rankingParseRate')}</span>
               <span className="mc-usage-extra-value">
                 {hasData ? `${usage.summary.parse_success_rate?.toFixed(1) ?? 100}%` : '100%'}
               </span>
             </div>
             <div className="mc-usage-extra-stat">
-              <span className="mc-usage-extra-label">Input tokens</span>
+              <span className="mc-usage-extra-label">{t('mycompany.inputTokens')}</span>
               <span className="mc-usage-extra-value">
                 {hasData ? formatTokens(usage.summary.total_input_tokens) : '0'}
               </span>
             </div>
             <div className="mc-usage-extra-stat">
-              <span className="mc-usage-extra-label">Output tokens</span>
+              <span className="mc-usage-extra-label">{t('mycompany.outputTokens')}</span>
               <span className="mc-usage-extra-value">
                 {hasData ? formatTokens(usage.summary.total_output_tokens) : '0'}
               </span>

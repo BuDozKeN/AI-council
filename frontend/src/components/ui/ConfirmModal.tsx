@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import { AppModal } from './AppModal';
 import { Button } from './button';
 import { Spinner } from './Spinner';
@@ -46,13 +47,14 @@ interface ConfirmModalProps {
 function ConfirmModal({
   title,
   variant = 'warning',
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
+  confirmText,
+  cancelText,
   onConfirm,
   onCancel,
   isLoading = false,
   processing = false, // Alias for isLoading (backwards compat)
 }: ConfirmModalProps) {
+  const { t } = useTranslation();
   const loading = isLoading || processing;
 
   const handleConfirm = async () => {
@@ -72,7 +74,7 @@ function ConfirmModal({
     >
       <AppModal.Footer>
         <Button type="button" variant="outline" onClick={onCancel} disabled={loading}>
-          {cancelText}
+          {cancelText || t('common.cancel')}
         </Button>
         <Button
           type="button"
@@ -84,10 +86,10 @@ function ConfirmModal({
           {loading ? (
             <>
               <Spinner size="sm" variant="muted" />
-              Processing...
+              {t('modals.processing')}
             </>
           ) : (
-            confirmText
+            confirmText || t('common.confirm')
           )}
         </Button>
       </AppModal.Footer>

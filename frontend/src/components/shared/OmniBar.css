@@ -116,9 +116,10 @@
 }
 
 /* =============================================================================
-   INLINE MODE TOGGLE - Compact pill inside input bar (Perplexity pattern)
+   INLINE MODE TOGGLE - Single clickable button that toggles between 1 AI / 5 AIs
    ============================================================================= */
 
+/* The toggle is a single button - click anywhere to switch modes */
 .omni-inline-mode-toggle {
   display: flex;
   align-items: center;
@@ -128,39 +129,41 @@
   border: 1px solid var(--color-border-light);
   border-radius: 100px;
   margin-left: 4px;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
 }
 
+.omni-inline-mode-toggle:hover:not(:disabled) {
+  border-color: var(--color-border-dark);
+}
+
+.omni-inline-mode-toggle:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}
+
+.omni-inline-mode-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Inner spans are visual indicators only (not clickable themselves) */
 .inline-mode-btn {
   padding: 4px 10px;
-  border: none;
   background: transparent;
   color: var(--color-text-tertiary);
   font-size: 11px;
   font-weight: 600;
   border-radius: 100px;
-  cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
-}
-
-.inline-mode-btn:hover:not(:disabled) {
-  color: var(--color-text-secondary);
+  pointer-events: none; /* Not clickable - parent button handles clicks */
 }
 
 .inline-mode-btn.active {
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
   box-shadow: 0 1px 2px var(--overlay-black-10);
-}
-
-.inline-mode-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Council mode active state - subtle indigo accent */
-.inline-mode-btn:last-child.active {
-  color: var(--color-indigo-600);
 }
 
 /* =============================================================================
@@ -178,7 +181,9 @@
   box-shadow:
     var(--shadow-md),
     inset 0 1px 0 var(--overlay-white-80);
-  transition: all 0.25s ease;
+
+  /* Only transition box-shadow for focus effects, not background/border (causes flickering on theme change) */
+  transition: box-shadow 0.25s ease;
   overflow: hidden;
 }
 
@@ -228,7 +233,9 @@
     0 2px 4px var(--overlay-black-10),
     0 8px 24px var(--overlay-black-15),
     0 24px 48px var(--overlay-black-20);
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Only transition box-shadow for hover effects, not background (causes flickering on theme change) */
+  transition: box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .omni-bar-wrapper.omni-bar-landing .omni-bar:hover {
@@ -373,21 +380,39 @@
 }
 
 /* Context icons capsule - groups icons in a subtle pill (desktop only) */
-/* Height matches the 1AI/5AIs toggle for visual alignment */
+
+/* Height MUST match the 1AI/5AIs toggle exactly (~30.5px) */
 .context-icons-capsule {
   display: flex;
   align-items: center;
-  gap: 0;
-  padding: 2px;
+  gap: 2px;
+
+  /* 22px icons + 3px top + 3.5px bottom + 2px border = 30.5px (matches toggle) */
+  padding: 3px 6px 3.5px;
   background: var(--color-bg-tertiary);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-full);
+
+  /* Allow badges to overflow outside the capsule */
+  overflow: visible;
 }
 
-/* Icons inside capsule - smaller to match toggle height */
+/* Icons inside capsule - 22px to match toggle height (~30px total with padding) */
 .context-icons-capsule .omni-icon-btn {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
+
+  /* Position relative for badge positioning */
+  position: relative;
+  overflow: visible;
+}
+
+/* Badges overflow outside the capsule - closer to icons */
+.context-icons-capsule .omni-icon-badge {
+  top: -5px;
+  right: -5px;
 }
 
 /* Right side: Attach + Send */
@@ -886,40 +911,46 @@
     flex: 1;
   }
 
-  /* On mobile, remove capsule background - icons are larger and spaced out */
+  /* On mobile, capsule and toggle should be compact but matching (~32px) */
   .context-icons-capsule {
-    background: transparent;
-    border: none;
-    padding: 0;
-    gap: 0;
+    padding: 4px 6px;
+    gap: 2px;
   }
 
-  /* Larger touch targets on mobile */
-  .omni-icon-btn {
-    width: 44px;
-    height: 44px;
+  /* Icons inside capsule - 22px like desktop, compact */
+  .context-icons-capsule .omni-icon-btn {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    min-height: 22px;
   }
 
-  /* Reset button - larger touch target on mobile */
+  /* Attach button - larger touch target */
+  .omni-icon-btn.attach {
+    width: 36px;
+    height: 36px;
+  }
+
+  /* Reset button - compact */
   .omni-reset-all {
-    width: 44px;
-    height: 44px;
+    width: 28px;
+    height: 28px;
   }
 
   .omni-bar-submit {
-    width: 44px;
-    height: 44px;
+    width: 36px;
+    height: 36px;
   }
 
-  /* Inline mode toggle - larger for touch */
+  /* Inline mode toggle - compact to match capsule */
   .omni-inline-mode-toggle {
-    padding: 3px;
+    padding: 2px;
   }
 
   .inline-mode-btn {
-    padding: 8px 14px;
-    font-size: 12px;
-    min-height: 32px;
+    padding: 5px 10px;
+    font-size: 11px;
+    min-height: unset;
   }
 
   /* Context popover on mobile - card-style items like DepartmentCheckboxItem */
@@ -1156,22 +1187,18 @@
   border-color: var(--color-border);
 }
 
-.dark .inline-mode-btn {
-  color: var(--color-text-quaternary);
+.dark .omni-inline-mode-toggle:hover:not(:disabled) {
+  border-color: var(--color-border-dark);
 }
 
-.dark .inline-mode-btn:hover:not(:disabled) {
-  color: var(--color-text-tertiary);
+.dark .inline-mode-btn {
+  color: var(--color-text-quaternary);
 }
 
 .dark .inline-mode-btn.active {
   background: var(--color-bg-tertiary);
   color: var(--color-text-primary);
   box-shadow: 0 1px 2px var(--overlay-black-20);
-}
-
-.dark .inline-mode-btn:last-child.active {
-  color: var(--color-indigo-400);
 }
 
 .dark .omni-tooltip {

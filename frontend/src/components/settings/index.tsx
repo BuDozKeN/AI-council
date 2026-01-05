@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../AuthContext';
 import { AdaptiveModal } from '../ui/AdaptiveModal';
 import { ConfirmModal } from '../ui/ConfirmModal';
-import { User, CreditCard, Users, Key, FlaskConical } from 'lucide-react';
+import { Skeleton } from '../ui/Skeleton';
+import { User, CreditCard, Users, Key, FlaskConical, Cpu } from 'lucide-react';
 import { ProfileSection } from './ProfileSection';
 import { BillingSection } from './BillingSection';
 import { TeamSection } from './TeamSection';
@@ -10,6 +12,11 @@ import { ApiKeysSection } from './ApiKeysSection';
 import { DeveloperSection } from './DeveloperSection';
 import type { TeamRole } from './hooks/useTeam';
 import '../Settings.css';
+
+// Lazy-load LLMHubTab (owner-only, rarely accessed)
+const LLMHubTab = lazy(() =>
+  import('../mycompany/tabs/LLMHubTab').then((m) => ({ default: m.LLMHubTab }))
+);
 
 type ConfirmModalVariant = 'danger' | 'warning' | 'info';
 
@@ -29,6 +36,7 @@ interface SettingsProps {
 }
 
 export default function Settings({ isOpen, onClose, companyId, onMockModeChange }: SettingsProps) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
   const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
@@ -40,10 +48,10 @@ export default function Settings({ isOpen, onClose, companyId, onMockModeChange 
     handleRemoveMember: (memberId: string) => Promise<void>
   ) => {
     setConfirmModal({
-      title: 'Remove Team Member',
-      message: `Remove this ${memberRole} from the team?`,
+      title: t('settings.removeTeamMember'),
+      message: t('settings.removeTeamMemberConfirm', { role: memberRole }),
       variant: 'danger',
-      confirmText: 'Remove',
+      confirmText: t('settings.remove'),
       onConfirm: async () => {
         await handleRemoveMember(memberId);
       },
@@ -53,10 +61,10 @@ export default function Settings({ isOpen, onClose, companyId, onMockModeChange 
   // Handler for API key deletion with confirmation
   const handleDeleteApiKeyConfirm = (handleDeleteApiKey: () => Promise<void>) => {
     setConfirmModal({
-      title: 'Remove API Key',
-      message: 'Remove your OpenRouter API key? You will use the system key with usage limits.',
+      title: t('settings.removeApiKey'),
+      message: t('settings.removeApiKeyConfirm'),
       variant: 'danger',
-      confirmText: 'Remove',
+      confirmText: t('settings.remove'),
       onConfirm: async () => {
         await handleDeleteApiKey();
       },
@@ -68,10 +76,9 @@ export default function Settings({ isOpen, onClose, companyId, onMockModeChange 
       <AdaptiveModal
         isOpen={isOpen}
         onClose={onClose}
-        title="Settings"
+        title={t('settings.title')}
         size="xl"
         contentClassName="settings-modal-body"
-        showCloseButton={true}
       >
         {/* Content */}
         <div className="settings-content">
@@ -80,44 +87,52 @@ export default function Settings({ isOpen, onClose, companyId, onMockModeChange 
             <button
               className={`settings-tab ${activeTab === 'profile' ? 'active' : ''}`}
               onClick={() => setActiveTab('profile')}
-              data-tooltip="Profile"
+              data-tooltip={t('settings.profile')}
             >
               <User size={18} className="tab-icon" />
-              <span className="tab-label">Profile</span>
+              <span className="tab-label">{t('settings.profile')}</span>
             </button>
             <button
               className={`settings-tab ${activeTab === 'billing' ? 'active' : ''}`}
               onClick={() => setActiveTab('billing')}
-              data-tooltip="Billing"
+              data-tooltip={t('settings.billing')}
             >
               <CreditCard size={18} className="tab-icon" />
-              <span className="tab-label">Billing</span>
+              <span className="tab-label">{t('settings.billing')}</span>
             </button>
             {companyId && (
               <button
                 className={`settings-tab ${activeTab === 'team' ? 'active' : ''}`}
                 onClick={() => setActiveTab('team')}
-                data-tooltip="Team"
+                data-tooltip={t('settings.team')}
               >
                 <Users size={18} className="tab-icon" />
-                <span className="tab-label">Team</span>
+                <span className="tab-label">{t('settings.team')}</span>
               </button>
             )}
             <button
               className={`settings-tab ${activeTab === 'api' ? 'active' : ''}`}
               onClick={() => setActiveTab('api')}
-              data-tooltip="API Keys"
+              data-tooltip={t('settings.apiKeys')}
             >
               <Key size={18} className="tab-icon" />
-              <span className="tab-label">API Keys</span>
+              <span className="tab-label">{t('settings.apiKeys')}</span>
             </button>
             <button
               className={`settings-tab ${activeTab === 'developer' ? 'active' : ''}`}
               onClick={() => setActiveTab('developer')}
-              data-tooltip="Developer"
+              data-tooltip={t('settings.developer')}
             >
               <FlaskConical size={18} className="tab-icon" />
-              <span className="tab-label">Developer</span>
+              <span className="tab-label">{t('settings.developer')}</span>
+            </button>
+            <button
+              className={`settings-tab ${activeTab === 'ai-config' ? 'active' : ''}`}
+              onClick={() => setActiveTab('ai-config')}
+              data-tooltip={t('settings.llmHub', 'LLM Hub')}
+            >
+              <Cpu size={18} className="tab-icon" />
+              <span className="tab-label">{t('settings.llmHub', 'LLM Hub')}</span>
             </button>
           </div>
 
@@ -158,6 +173,21 @@ export default function Settings({ isOpen, onClose, companyId, onMockModeChange 
                   isOpen={isOpen}
                   {...(onMockModeChange ? { onMockModeChange } : {})}
                 />
+              </div>
+            )}
+
+            {activeTab === 'ai-config' && (
+              <div className="ai-config-content">
+                <Suspense
+                  fallback={
+                    <div className="settings-skeleton">
+                      <Skeleton width="100%" height={120} className="rounded-xl" />
+                      <Skeleton width="100%" height={200} className="rounded-xl mt-4" />
+                    </div>
+                  }
+                >
+                  <LLMHubTab companyId={companyId || ''} />
+                </Suspense>
               </div>
             )}
           </div>

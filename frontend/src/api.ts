@@ -951,6 +951,39 @@ export const api = {
   },
 
   /**
+   * Get current mock length override status.
+   * @returns {Promise<{length_override: number|null, valid_values: number[]}>}
+   */
+  async getMockLengthOverride() {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}${API_VERSION}/settings/mock-length-override`, {
+      headers,
+    });
+    if (!response.ok) {
+      throw new Error('Failed to get mock length override status');
+    }
+    return response.json();
+  },
+
+  /**
+   * Set mock response length override.
+   * @param {number|null} lengthOverride - Override value or null for LLM Hub settings
+   * @returns {Promise<{success: boolean, length_override: number|null, message: string}>}
+   */
+  async setMockLengthOverride(lengthOverride: number | null) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}${API_VERSION}/settings/mock-length-override`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ length_override: lengthOverride }),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to set mock length override');
+    }
+    return response.json();
+  },
+
+  /**
    * Get the last updated date from a business context file.
    * Requires authentication.
    * @param {string} businessId - The business context ID
@@ -1813,6 +1846,115 @@ export const api = {
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Failed to structure context' }));
       throw new Error(error.detail || 'Failed to structure context');
+    }
+    return response.json();
+  },
+
+  /**
+   * Use AI to structure a natural language department description.
+   * @param {string} description - User's description of the department
+   * @param {string} companyId - Optional company ID for usage tracking
+   * @returns {Promise<{structured: Object}>}
+   *   - structured.name: Suggested department name (2-4 words)
+   *   - structured.description: Clear description of what the department does
+   *   - structured.suggested_roles: Array of typical roles for this department
+   */
+  async structureDepartment(description: string, companyId?: string) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/departments/structure`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        description,
+        company_id: companyId,
+      }),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to structure department' }));
+      throw new Error(error.detail || 'Failed to structure department');
+    }
+    return response.json();
+  },
+
+  /**
+   * Use AI to structure a role from a natural language description.
+   * Two-phase process: role_designer generates metadata, persona_architect generates system_prompt.
+   * @param {string} description - Natural language description of the role
+   * @param {string} [departmentId] - Optional department ID for context
+   * @param {string} [companyId] - Optional company ID for usage tracking
+   * @returns {Promise<{structured: Object}>}
+   *   - structured.name: Concise role name
+   *   - structured.title: Full job title
+   *   - structured.description: What this role does
+   *   - structured.responsibilities: Array of key responsibilities
+   *   - structured.system_prompt: AI advisor system prompt defining personality and expertise
+   */
+  async structureRole(description: string, departmentId?: string, companyId?: string) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/roles/structure`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        description,
+        department_id: departmentId,
+        company_id: companyId,
+      }),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to structure role' }));
+      throw new Error(error.detail || 'Failed to structure role');
+    }
+    return response.json();
+  },
+
+  /**
+   * Use AI to structure a playbook from a natural language description.
+   * @param {string} description - Natural language description of the playbook
+   * @param {string} [companyId] - Optional company ID for usage tracking
+   * @returns {Promise<{structured: Object}>}
+   *   - structured.title: Clear playbook title
+   *   - structured.doc_type: "sop" | "framework" | "policy"
+   *   - structured.content: Initial markdown content with sections
+   */
+  async structurePlaybook(description: string, companyId?: string, docType?: 'sop' | 'framework' | 'policy') {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/playbooks/structure`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        description,
+        company_id: companyId,
+        doc_type: docType || undefined, // Only send if user preselected
+      }),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to structure playbook' }));
+      throw new Error(error.detail || 'Failed to structure playbook');
+    }
+    return response.json();
+  },
+
+  /**
+   * Use AI to generate a comprehensive company context document from a natural language description.
+   * @param {string} companyId - Company ID
+   * @param {string} description - Natural language description of the company
+   * @param {string} [companyName] - Optional company name for the document header
+   * @returns {Promise<{structured: Object}>}
+   *   - structured.context_md: Complete company context document in markdown
+   */
+  async structureCompanyContext(companyId: string, description: string, companyName?: string) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}${API_VERSION}/company/${companyId}/context/structure`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        description,
+        company_name: companyName,
+      }),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to structure company context' }));
+      throw new Error(error.detail || 'Failed to structure company context');
     }
     return response.json();
   },
@@ -2976,4 +3118,345 @@ export const api = {
     }
     return response.json();
   },
+
+  // =============================================================================
+  // LLM HUB - Presets & Model Registry
+  // =============================================================================
+
+  /**
+   * Get all LLM presets (owner only).
+   * @param {string} companyId - Company ID
+   * @returns {Promise<{presets: LLMPresetFull[]}>}
+   */
+  async getLLMPresets(companyId: string): Promise<{ presets: LLMPresetFull[] }> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/company/${companyId}/llm-hub/presets`,
+      { headers }
+    );
+    if (!response.ok) {
+      throw new Error('Failed to fetch LLM presets');
+    }
+    return response.json();
+  },
+
+  /**
+   * Update an LLM preset configuration (owner only).
+   * @param {string} companyId - Company ID
+   * @param {string} presetId - Preset ID (conservative, balanced, creative)
+   * @param {UpdatePresetPayload} data - Update payload
+   * @returns {Promise<{success: boolean, preset: LLMPresetFull}>}
+   */
+  async updateLLMPreset(
+    companyId: string,
+    presetId: string,
+    data: UpdatePresetPayload
+  ): Promise<{ success: boolean; preset: LLMPresetFull }> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/company/${companyId}/llm-hub/presets/${presetId}`,
+      {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify(data),
+      }
+    );
+    if (!response.ok) {
+      throw new Error('Failed to update LLM preset');
+    }
+    return response.json();
+  },
+
+  /**
+   * Get model registry entries (owner only).
+   * @param {string} companyId - Company ID
+   * @param {string} [role] - Optional filter by role
+   * @returns {Promise<{models: Record<string, ModelRegistryEntry[]>, roles: string[]}>}
+   */
+  async getModelRegistry(
+    companyId: string,
+    role?: string
+  ): Promise<{ models: Record<string, ModelRegistryEntry[]>; roles: string[] }> {
+    const headers = await getAuthHeaders();
+    let url = `${API_BASE}${API_VERSION}/company/${companyId}/llm-hub/models`;
+    if (role) {
+      url += `?role=${encodeURIComponent(role)}`;
+    }
+    const response = await fetch(url, { headers });
+    if (!response.ok) {
+      throw new Error('Failed to fetch model registry');
+    }
+    return response.json();
+  },
+
+  /**
+   * Update a model registry entry (owner only).
+   * @param {string} companyId - Company ID
+   * @param {string} modelId - Model UUID
+   * @param {UpdateModelPayload} data - Update payload
+   * @returns {Promise<{success: boolean, model: ModelRegistryEntry}>}
+   */
+  async updateModelRegistryEntry(
+    companyId: string,
+    modelId: string,
+    data: UpdateModelPayload
+  ): Promise<{ success: boolean; model: ModelRegistryEntry }> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/company/${companyId}/llm-hub/models/${modelId}`,
+      {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify(data),
+      }
+    );
+    if (!response.ok) {
+      throw new Error('Failed to update model');
+    }
+    return response.json();
+  },
+
+  /**
+   * Create a new model registry entry (owner only).
+   * @param {string} companyId - Company ID
+   * @param {CreateModelPayload} data - Create payload
+   * @returns {Promise<{success: boolean, model: ModelRegistryEntry}>}
+   */
+  async createModelRegistryEntry(
+    companyId: string,
+    data: CreateModelPayload
+  ): Promise<{ success: boolean; model: ModelRegistryEntry }> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/company/${companyId}/llm-hub/models`,
+      {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(data),
+      }
+    );
+    if (!response.ok) {
+      throw new Error('Failed to create model');
+    }
+    return response.json();
+  },
+
+  /**
+   * Delete a model registry entry (owner only).
+   * @param {string} companyId - Company ID
+   * @param {string} modelId - Model UUID
+   * @returns {Promise<{success: boolean}>}
+   */
+  async deleteModelRegistryEntry(
+    companyId: string,
+    modelId: string
+  ): Promise<{ success: boolean }> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/company/${companyId}/llm-hub/models/${modelId}`,
+      {
+        method: 'DELETE',
+        headers,
+      }
+    );
+    if (!response.ok) {
+      throw new Error('Failed to delete model');
+    }
+    return response.json();
+  },
+
+  // ==========================================================================
+  // AI Personas (Prompt Management)
+  // ==========================================================================
+
+  /**
+   * Get all editable AI personas (owner only).
+   * @param {string} companyId - Company ID
+   * @returns {Promise<{personas: Persona[]}>}
+   */
+  async getPersonas(companyId: string): Promise<{ personas: Persona[] }> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/company/${companyId}/llm-hub/personas`,
+      { headers }
+    );
+    if (!response.ok) {
+      throw new Error('Failed to get personas');
+    }
+    return response.json();
+  },
+
+  /**
+   * Update a persona's prompts (owner only).
+   * Creates company-specific override if editing a global persona.
+   * @param {string} companyId - Company ID
+   * @param {string} personaKey - Persona key
+   * @param {UpdatePersonaPayload} data - Update data
+   * @returns {Promise<{success: boolean, persona: Persona, created: boolean}>}
+   */
+  async updatePersona(
+    companyId: string,
+    personaKey: string,
+    data: UpdatePersonaPayload
+  ): Promise<{ success: boolean; persona: Persona; created: boolean }> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/company/${companyId}/llm-hub/personas/${personaKey}`,
+      {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify(data),
+      }
+    );
+    if (!response.ok) {
+      throw new Error('Failed to update persona');
+    }
+    return response.json();
+  },
+
+  /**
+   * Reset a persona to global defaults (owner only).
+   * Deletes any company-specific override.
+   * @param {string} companyId - Company ID
+   * @param {string} personaKey - Persona key
+   * @returns {Promise<{success: boolean, message: string}>}
+   */
+  async resetPersona(
+    companyId: string,
+    personaKey: string
+  ): Promise<{ success: boolean; message: string }> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/company/${companyId}/llm-hub/personas/${personaKey}/reset`,
+      {
+        method: 'DELETE',
+        headers,
+      }
+    );
+    if (!response.ok) {
+      throw new Error('Failed to reset persona');
+    }
+    return response.json();
+  },
+
+  // ==========================================================================
+  // Public Endpoints (no authentication required)
+  // ==========================================================================
+
+  /**
+   * Get council configuration stats for the landing page.
+   * This is a public endpoint - no authentication required.
+   * @param {string} [companyId] - Optional company ID for company-specific stats
+   * @returns {Promise<CouncilStats>} The council configuration stats
+   */
+  async getCouncilStats(companyId?: string): Promise<CouncilStats> {
+    const url = companyId
+      ? `${API_BASE}${API_VERSION}/council-stats?company_id=${encodeURIComponent(companyId)}`
+      : `${API_BASE}${API_VERSION}/council-stats`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      // Return defaults if endpoint fails (graceful degradation)
+      return {
+        stage1_count: 5,
+        stage2_count: 6,
+        stage3_count: 3,
+        total_rounds: 3,
+        providers: ['openai', 'anthropic', 'google', 'xai', 'deepseek'],
+      };
+    }
+    return response.json();
+  },
 };
+
+// =============================================================================
+// Types for Public Endpoints
+// =============================================================================
+
+/**
+ * Council configuration stats returned by the public endpoint.
+ */
+export interface CouncilStats {
+  stage1_count: number;  // Number of AIs in Stage 1 (initial responses)
+  stage2_count: number;  // Number of AIs in Stage 2 (peer review)
+  stage3_count: number;  // Number of chairman models
+  total_rounds: number;  // Always 3 (the deliberation stages)
+  providers: string[];   // List of unique provider names for carousel display
+}
+
+// =============================================================================
+// Types for LLM Hub
+// =============================================================================
+
+export interface Persona {
+  id: string;
+  persona_key: string;
+  name: string;
+  category: string;
+  description?: string;
+  system_prompt: string;
+  user_prompt_template?: string;
+  is_global: boolean;
+  updated_at?: string;
+}
+
+export interface UpdatePersonaPayload {
+  name?: string;
+  description?: string;
+  system_prompt?: string;
+  user_prompt_template?: string;
+}
+
+export interface UpdatePresetPayload {
+  config: {
+    stage1: StageConfig;
+    stage2: StageConfig;
+    stage3: StageConfig;
+  };
+}
+
+export interface UpdateModelPayload {
+  model_id?: string;
+  priority?: number;
+  is_enabled?: boolean;
+}
+
+export interface CreateModelPayload {
+  role: string;
+  model_id: string;
+  priority?: number;
+}
+
+interface StageConfig {
+  temperature: number;
+  max_tokens: number;
+}
+
+/**
+ * Full LLM preset with configuration for all stages.
+ */
+interface LLMPresetFull {
+  id: string; // 'conservative' | 'balanced' | 'creative'
+  name: string;
+  description?: string;
+  config: {
+    stage1: StageConfig;
+    stage2: StageConfig;
+    stage3: StageConfig;
+  };
+  recommended_for: string[];
+  updated_at?: string;
+}
+
+/**
+ * A model entry in the model registry.
+ */
+interface ModelRegistryEntry {
+  id: string;
+  role: string;
+  model_id: string;
+  display_name?: string;
+  priority: number;
+  is_active: boolean;
+  is_global?: boolean;
+  notes?: string;
+}

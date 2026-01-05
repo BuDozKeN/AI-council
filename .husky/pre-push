@@ -1,13 +1,29 @@
 #!/bin/sh
-# Pre-push hook: Run full lint and type-check before pushing
-# This catches errors that lint-staged might miss on partial changes
+# Pre-push hook: Run full lint, type-check, and tests before pushing
+# This catches errors before they hit CI
 
 echo "🔍 Running pre-push checks..."
 
+# ============================================
+# BACKEND TESTS
+# ============================================
+echo ""
+echo "🐍 Running backend tests..."
+python -m pytest backend/tests/ -v --tb=short -q
+if [ $? -ne 0 ]; then
+  echo "❌ Backend tests failed. Fix errors before pushing."
+  exit 1
+fi
+echo "✅ Backend tests passed!"
+
+# ============================================
+# FRONTEND CHECKS
+# ============================================
 cd frontend
 
 # Run ESLint on entire codebase
-echo "Running ESLint..."
+echo ""
+echo "📝 Running ESLint..."
 npm run lint --silent
 if [ $? -ne 0 ]; then
   echo "❌ ESLint failed. Fix errors before pushing."
@@ -15,11 +31,22 @@ if [ $? -ne 0 ]; then
 fi
 
 # Run TypeScript type-check
-echo "Running TypeScript check..."
+echo ""
+echo "📘 Running TypeScript check..."
 npm run type-check --silent
 if [ $? -ne 0 ]; then
   echo "❌ TypeScript check failed. Fix errors before pushing."
   exit 1
 fi
 
-echo "✅ Pre-push checks passed!"
+# Run frontend unit tests
+echo ""
+echo "🧪 Running frontend tests..."
+npm run test:run --silent
+if [ $? -ne 0 ]; then
+  echo "❌ Frontend tests failed. Fix errors before pushing."
+  exit 1
+fi
+
+echo ""
+echo "✅ All pre-push checks passed! Pushing..."

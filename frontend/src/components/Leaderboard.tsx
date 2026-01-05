@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api';
 import { AdaptiveModal } from './ui/AdaptiveModal';
 import { Button } from './ui/button';
@@ -32,6 +33,7 @@ interface LeaderboardProps {
 }
 
 export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
+  const { t } = useTranslation();
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardData | null>(null);
   const [selectedDepartment, setSelectedDepartment] = useState('overall');
   const [isLoading, setIsLoading] = useState(true);
@@ -50,7 +52,7 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
       const data = await api.getLeaderboardSummary();
       setLeaderboardData(data);
     } catch (err) {
-      setError("Couldn't load the leaderboard right now. Please try again.");
+      setError(t('leaderboard.loadError'));
       logger.error(err);
     } finally {
       setIsLoading(false);
@@ -81,7 +83,7 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
     <AdaptiveModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Model Leaderboard"
+      title={t('leaderboard.title')}
       size="lg"
       headerClassName="app-modal-header-gradient"
       bodyMinHeight="520px"
@@ -163,8 +165,8 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
         <div className="leaderboard-error">{error}</div>
       ) : totalSessions === 0 ? (
         <div className="leaderboard-empty">
-          <p>No ranking data yet.</p>
-          <p className="hint">Rankings are recorded after each council session completes.</p>
+          <p>{t('leaderboard.noData')}</p>
+          <p className="hint">{t('leaderboard.noDataHint')}</p>
         </div>
       ) : (
         <>
@@ -174,7 +176,7 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
               size="sm"
               onClick={() => setSelectedDepartment('overall')}
             >
-              Overall
+              {t('leaderboard.overall')}
             </Button>
             {departments.map((dept) => (
               <Button
@@ -190,23 +192,23 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
 
           <div className="leaderboard-stats">
             <span className="stat-item">
-              Total Sessions: <strong>{totalSessions}</strong>
+              {t('leaderboard.totalSessions')}: <strong>{totalSessions}</strong>
             </span>
           </div>
 
           <div className="leaderboard-table">
             {currentLeaderboard.length === 0 ? (
-              <div className="no-data">No data for this department yet</div>
+              <div className="no-data">{t('leaderboard.noDeptData')}</div>
             ) : (
               <table>
                 <thead>
                   <tr>
                     <th className="rank-col">#</th>
-                    <th className="model-col">Model</th>
-                    <th className="score-col">Avg Rank</th>
-                    <th className="wins-col">Wins</th>
-                    <th className="rate-col">Win Rate</th>
-                    <th className="sessions-col">Sessions</th>
+                    <th className="model-col">{t('leaderboard.model')}</th>
+                    <th className="score-col">{t('leaderboard.avgRank')}</th>
+                    <th className="wins-col">{t('leaderboard.wins')}</th>
+                    <th className="rate-col">{t('leaderboard.winRate')}</th>
+                    <th className="sessions-col">{t('leaderboard.sessionsCol')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -229,10 +231,10 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
 
           <div className="leaderboard-legend">
             <p>
-              <strong>Avg Rank:</strong> Lower is better (1 = always ranked first)
+              <strong>{t('leaderboard.avgRank')}:</strong> {t('leaderboard.avgRankHint')}
             </p>
             <p>
-              <strong>Wins:</strong> Number of times ranked #1
+              <strong>{t('leaderboard.wins')}:</strong> {t('leaderboard.winsHint')}
             </p>
           </div>
         </>

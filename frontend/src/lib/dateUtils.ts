@@ -3,11 +3,19 @@
  *
  * Single source of truth for date formatting across the application.
  * Uses unambiguous format (day month year) to avoid US/EU confusion.
+ * Locale-aware: formats dates according to user's language preference.
  */
 
-const DATE_LOCALE = 'en-GB';
+import i18n from '../i18n';
+import { getIntlLocale } from '../i18n';
 
 type DateInput = string | number | Date | null | undefined;
+
+/**
+ * Get current locale for Intl APIs.
+ * This is called on each format to ensure it picks up language changes.
+ */
+const getLocale = (): string => getIntlLocale();
 
 /**
  * Format a date as "6 December 2025"
@@ -15,7 +23,7 @@ type DateInput = string | number | Date | null | undefined;
  */
 export const formatDate = (date: DateInput): string => {
   if (!date) return '';
-  return new Date(date).toLocaleDateString(DATE_LOCALE, {
+  return new Date(date).toLocaleDateString(getLocale(), {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
@@ -28,7 +36,7 @@ export const formatDate = (date: DateInput): string => {
  */
 export const formatDateShort = (date: DateInput): string => {
   if (!date) return '';
-  return new Date(date).toLocaleDateString(DATE_LOCALE, {
+  return new Date(date).toLocaleDateString(getLocale(), {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -41,7 +49,7 @@ export const formatDateShort = (date: DateInput): string => {
  */
 export const formatDateCompact = (date: DateInput): string => {
   if (!date) return '';
-  return new Date(date).toLocaleDateString(DATE_LOCALE, {
+  return new Date(date).toLocaleDateString(getLocale(), {
     day: 'numeric',
     month: 'short',
   });
@@ -53,7 +61,7 @@ export const formatDateCompact = (date: DateInput): string => {
  */
 export const formatDateWithWeekday = (date: DateInput): string => {
   if (!date) return '';
-  return new Date(date).toLocaleDateString(DATE_LOCALE, {
+  return new Date(date).toLocaleDateString(getLocale(), {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -76,10 +84,11 @@ export const formatRelativeDate = (date: DateInput): string => {
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 1) return 'Just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
+  // Use i18n translations for relative dates
+  if (diffMins < 1) return i18n.t('dates.justNow');
+  if (diffMins < 60) return i18n.t('dates.minutesAgo', { count: diffMins });
+  if (diffHours < 24) return i18n.t('dates.hoursAgo', { count: diffHours });
+  if (diffDays < 7) return i18n.t('dates.daysAgo', { count: diffDays });
 
   return formatDateShort(date);
 };
@@ -100,11 +109,11 @@ export const formatDateGroup = (date: DateInput): string => {
   const yesterdayOnly = new Date(todayOnly);
   yesterdayOnly.setDate(yesterdayOnly.getDate() - 1);
 
-  if (dateOnly.getTime() === todayOnly.getTime()) return 'Today';
-  if (dateOnly.getTime() === yesterdayOnly.getTime()) return 'Yesterday';
+  if (dateOnly.getTime() === todayOnly.getTime()) return i18n.t('dates.today');
+  if (dateOnly.getTime() === yesterdayOnly.getTime()) return i18n.t('dates.yesterday');
 
   // For activity grouping: "Monday, 6 Dec"
-  return new Date(date).toLocaleDateString(DATE_LOCALE, {
+  return new Date(date).toLocaleDateString(getLocale(), {
     weekday: 'long',
     day: 'numeric',
     month: 'short',
@@ -118,7 +127,7 @@ export const formatDateGroup = (date: DateInput): string => {
  */
 export const formatDateTime = (date: DateInput): string => {
   if (!date) return '';
-  return new Date(date).toLocaleDateString(DATE_LOCALE, {
+  return new Date(date).toLocaleDateString(getLocale(), {
     weekday: 'short',
     day: 'numeric',
     month: 'short',
