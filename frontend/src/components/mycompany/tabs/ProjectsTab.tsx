@@ -10,6 +10,7 @@
  */
 
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FolderKanban, CheckCircle, Archive, RotateCcw, Trash2, Plus } from 'lucide-react';
 import { Button } from '../../ui/button';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
@@ -51,9 +52,13 @@ interface ProjectsTabProps {
   onDeleteProject?: (project: ExtendedProject, e: React.MouseEvent) => void;
 }
 
-// Format relative time for project timestamps
-function formatRelativeTime(dateStr: string | null | undefined): string {
-  if (!dateStr) return 'Never';
+// Format relative time for project timestamps - uses i18n for static labels
+// The i18next TFunction has a complex type that doesn't work with simple string params
+function formatRelativeTime(
+  dateStr: string | null | undefined,
+  t: (key: string) => string
+): string {
+  if (!dateStr) return t('mycompany.never');
   const date = new Date(dateStr);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
@@ -61,7 +66,7 @@ function formatRelativeTime(dateStr: string | null | undefined): string {
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 1) return 'Just now';
+  if (diffMins < 1) return t('mycompany.justNow');
   if (diffMins < 60) return `${diffMins}m ago`;
   if (diffHours < 24) return `${diffHours}h ago`;
   if (diffDays < 7) return `${diffDays}d ago`;
@@ -93,6 +98,7 @@ export function ProjectsTab({
   onRestoreProject,
   onDeleteProject,
 }: ProjectsTabProps) {
+  const { t } = useTranslation();
   // Memoized stats - only recalculate when projects change
   // Must be before any early returns to satisfy React hooks rules
   const stats = useMemo(
@@ -184,11 +190,8 @@ export function ProjectsTab({
     return (
       <div className="mc-empty">
         <FolderKanban size={32} className="mc-empty-icon" />
-        <p className="mc-empty-title">Start your first project</p>
-        <p className="mc-empty-hint">
-          Projects help you organize related decisions and give your council persistent context
-          across sessions.
-        </p>
+        <p className="mc-empty-title">{t('mycompany.startFirstProject')}</p>
+        <p className="mc-empty-hint">{t('mycompany.projectsHelp')}</p>
       </div>
     );
   }
@@ -234,7 +237,10 @@ export function ProjectsTab({
         <div className="mc-project-meta">
           <span className="mc-project-decision-count">{project.decision_count || 0}</span>
           <span className="mc-project-time">
-            {formatRelativeTime(project.last_accessed_at || project.updated_at)}
+            {formatRelativeTime(
+              project.last_accessed_at || project.updated_at,
+              t as (key: string) => string
+            )}
           </span>
         </div>
 
@@ -244,29 +250,29 @@ export function ProjectsTab({
             <button
               className="mc-project-action complete"
               onClick={(e) => onCompleteProject && onCompleteProject(project, e)}
-              title="Mark as completed"
+              title={t('mycompany.markCompleted')}
             >
               <CheckCircle className="w-3.5 h-3.5" />
-              <span>Complete</span>
+              <span>{t('mycompany.complete')}</span>
             </button>
           )}
           {project.status === 'archived' ? (
             <button
               className="mc-project-action restore"
               onClick={(e) => onRestoreProject && onRestoreProject(project, e)}
-              title="Restore project"
+              title={t('mycompany.restoreProject')}
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Restore</span>
+              <span>{t('mycompany.restore')}</span>
             </button>
           ) : (
             <button
               className="mc-project-action archive"
               onClick={(e) => onArchiveProject && onArchiveProject(project, e)}
-              title="Archive project"
+              title={t('mycompany.archiveProject')}
             >
               <Archive className="w-3.5 h-3.5" />
-              <span>Archive</span>
+              <span>{t('mycompany.archive')}</span>
             </button>
           )}
           {confirmingDeleteProjectId === project.id ? (
@@ -274,9 +280,9 @@ export function ProjectsTab({
               <button
                 className="mc-project-action confirm-yes"
                 onClick={(e) => onDeleteProject && onDeleteProject(project, e)}
-                title="Confirm delete"
+                title={t('common.confirm')}
               >
-                <span>Yes</span>
+                <span>{t('mycompany.confirmDelete')}</span>
               </button>
               <button
                 className="mc-project-action confirm-no"
@@ -284,19 +290,19 @@ export function ProjectsTab({
                   e.stopPropagation();
                   onConfirmingDeleteChange && onConfirmingDeleteChange(null);
                 }}
-                title="Cancel"
+                title={t('common.cancel')}
               >
-                <span>No</span>
+                <span>{t('mycompany.cancelDelete')}</span>
               </button>
             </>
           ) : (
             <button
               className="mc-project-action delete"
               onClick={(e) => onDeleteProject && onDeleteProject(project, e)}
-              title="Delete project"
+              title={t('mycompany.deleteProject')}
             >
               <Trash2 className="w-3.5 h-3.5" />
-              <span>Delete</span>
+              <span>{t('mycompany.delete')}</span>
             </button>
           )}
         </div>
@@ -316,7 +322,7 @@ export function ProjectsTab({
           }
         >
           <div className="mc-stat-value active">{stats.active}</div>
-          <div className="mc-stat-label">Active</div>
+          <div className="mc-stat-label">{t('mycompany.active')}</div>
         </div>
         <div
           className={`mc-stat-card clickable ${projectStatusFilter === 'completed' ? 'selected' : ''}`}
@@ -326,7 +332,7 @@ export function ProjectsTab({
           }
         >
           <div className="mc-stat-value completed">{stats.completed}</div>
-          <div className="mc-stat-label">Completed</div>
+          <div className="mc-stat-label">{t('mycompany.completed')}</div>
         </div>
         <div
           className={`mc-stat-card clickable ${projectStatusFilter === 'archived' ? 'selected' : ''}`}
@@ -336,11 +342,11 @@ export function ProjectsTab({
           }
         >
           <div className="mc-stat-value archived">{stats.archived}</div>
-          <div className="mc-stat-label">Archived</div>
+          <div className="mc-stat-label">{t('mycompany.archived')}</div>
         </div>
         <div className="mc-stat-card">
           <div className="mc-stat-value decisions">{stats.totalDecisions}</div>
-          <div className="mc-stat-label">Decisions</div>
+          <div className="mc-stat-label">{t('mycompany.decisions')}</div>
         </div>
       </div>
 
@@ -351,7 +357,7 @@ export function ProjectsTab({
             value={projectDeptFilter}
             onValueChange={onDeptFilterChange ?? (() => {})}
             departments={departments}
-            placeholder="All Depts"
+            placeholder={t('mycompany.allDepts')}
           />
           <SortSelect
             value={projectSortBy}
@@ -359,21 +365,25 @@ export function ProjectsTab({
           />
         </div>
         <Button variant="default" size="sm" onClick={onAddProject}>
-          New Project
+          {t('mycompany.newProject')}
         </Button>
       </div>
 
       {/* Projects list with scroll-to-top */}
       <ScrollableContent className="mc-projects-list">
         {sortedProjects.length === 0 ? (
-          <div className="mc-empty-filtered">No projects match your filters</div>
+          <div className="mc-empty-filtered">{t('mycompany.noProjectsMatch')}</div>
         ) : (
           sortedProjects.map(renderProjectRow)
         )}
       </ScrollableContent>
 
       {/* FAB - Mobile only (visible via CSS) */}
-      <button className="mc-fab" onClick={onAddProject} aria-label="Create new project">
+      <button
+        className="mc-fab"
+        onClick={onAddProject}
+        aria-label={t('mycompany.createNewProject')}
+      >
         <Plus />
       </button>
     </div>

@@ -4,6 +4,7 @@
  * Extracted from Sidebar.jsx for better maintainability.
  */
 
+import { useTranslation } from 'react-i18next';
 import { AppModal } from '../ui/AppModal';
 import { Button } from '../ui/button';
 
@@ -14,17 +15,22 @@ interface DeleteModalProps {
 }
 
 export function DeleteModal({ isOpen, onClose, onConfirm }: DeleteModalProps) {
+  const { t } = useTranslation();
+
   return (
-    <AppModal isOpen={isOpen} onClose={onClose} title="Delete Conversation?" size="sm">
-      <p className="delete-modal-body">
-        This action cannot be undone. The conversation will be permanently deleted.
-      </p>
+    <AppModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={t('modals.deleteConversationConfirm')}
+      size="sm"
+    >
+      <p className="delete-modal-body">{t('modals.deleteConversationWarning')}</p>
       <AppModal.Footer>
         <Button variant="outline" onClick={onClose}>
-          Cancel
+          {t('common.cancel')}
         </Button>
         <Button variant="destructive" onClick={onConfirm}>
-          Delete
+          {t('common.delete')}
         </Button>
       </AppModal.Footer>
     </AppModal>

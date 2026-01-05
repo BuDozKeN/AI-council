@@ -1,4 +1,5 @@
 import { useState, FormEvent, KeyboardEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import { Button } from './ui/button';
 import { Pencil } from 'lucide-react';
@@ -29,6 +30,7 @@ export default function Triage({
   onProceed,
   isLoading,
 }: TriageProps) {
+  const { t } = useTranslation();
   const [response, setResponse] = useState<string>('');
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editedConstraints, setEditedConstraints] = useState<Record<string, unknown> | null>(null);
@@ -89,24 +91,24 @@ Context:
       <div className="triage-conversation">
         {/* User's question */}
         <div className="triage-message user">
-          <div className="message-label">You</div>
+          <div className="message-label">{t('triage.you')}</div>
           <div className="message-bubble user">{originalQuestion}</div>
         </div>
 
         {/* AI ready response */}
         <div className="triage-message ai">
-          <div className="message-label">Pre-Council</div>
+          <div className="message-label">{t('triage.preCouncil')}</div>
           <div className="message-bubble ai ready">
             <div className="ready-header">
               <span className="ready-icon">✓</span>
-              <span>Got it! Here's what I understood:</span>
+              <span>{t('triage.gotIt')}</span>
               {!isEditing && (
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-6 w-6"
                   onClick={startEditing}
-                  title="Edit constraints"
+                  title={t('triage.editConstraints')}
                 >
                   <Pencil className="h-3.5 w-3.5" />
                 </Button>
@@ -116,7 +118,7 @@ Context:
             <div className="constraints-summary">
               {displayConstraints?.who !== undefined && (
                 <div className="constraint-row">
-                  <span className="constraint-label">Who:</span>
+                  <span className="constraint-label">{t('triage.constraints.who')}:</span>
                   {isEditing ? (
                     <textarea
                       id="triage-constraint-who"
@@ -135,7 +137,7 @@ Context:
               )}
               {displayConstraints?.goal !== undefined && (
                 <div className="constraint-row">
-                  <span className="constraint-label">Goal:</span>
+                  <span className="constraint-label">{t('triage.constraints.goal')}:</span>
                   {isEditing ? (
                     <textarea
                       id="triage-constraint-goal"
@@ -154,7 +156,7 @@ Context:
               )}
               {displayConstraints?.budget !== undefined && (
                 <div className="constraint-row">
-                  <span className="constraint-label">Budget:</span>
+                  <span className="constraint-label">{t('triage.constraints.budget')}:</span>
                   {isEditing ? (
                     <textarea
                       id="triage-constraint-budget"
@@ -175,7 +177,7 @@ Context:
               )}
               {displayConstraints?.risk !== undefined && (
                 <div className="constraint-row">
-                  <span className="constraint-label">Priority:</span>
+                  <span className="constraint-label">{t('triage.constraints.priority')}:</span>
                   {isEditing ? (
                     <textarea
                       id="triage-constraint-priority"
@@ -198,10 +200,10 @@ Context:
               {isEditing ? (
                 <>
                   <Button onClick={saveEdits} disabled={isLoading}>
-                    Save & Send →
+                    {t('triage.saveAndSend')}
                   </Button>
                   <Button variant="outline" onClick={cancelEditing} disabled={isLoading}>
-                    Cancel
+                    {t('common.cancel')}
                   </Button>
                 </>
               ) : (
@@ -210,10 +212,10 @@ Context:
                     onClick={() => onProceed(enhanced_query ?? originalQuestion)}
                     disabled={isLoading}
                   >
-                    {isLoading ? 'Sending...' : 'Send to Council →'}
+                    {isLoading ? t('triage.sending') : t('triage.sendToCouncil')}
                   </Button>
                   <Button variant="outline" onClick={onSkip} disabled={isLoading}>
-                    Start over
+                    {t('triage.startOver')}
                   </Button>
                 </>
               )}
@@ -229,13 +231,13 @@ Context:
     <div className="triage-conversation">
       {/* User's question */}
       <div className="triage-message user">
-        <div className="message-label">You</div>
+        <div className="message-label">{t('triage.you')}</div>
         <div className="message-bubble user">{originalQuestion}</div>
       </div>
 
       {/* AI asking for context */}
       <div className="triage-message ai">
-        <div className="message-label">Pre-Council</div>
+        <div className="message-label">{t('triage.preCouncil')}</div>
         <div className="message-bubble ai">
           {questions ? (
             <div className="ai-questions">
@@ -243,12 +245,12 @@ Context:
             </div>
           ) : (
             <div className="ai-questions">
-              <p>Before I send this to the council, could you tell me:</p>
+              <p>{t('triage.defaultQuestions.intro')}</p>
               <ul>
-                <li>Who would handle this?</li>
-                <li>What's your budget?</li>
-                <li>Is this for immediate revenue or long-term value?</li>
-                <li>Speed or quality priority?</li>
+                <li>{t('triage.defaultQuestions.who')}</li>
+                <li>{t('triage.defaultQuestions.budget')}</li>
+                <li>{t('triage.defaultQuestions.timeline')}</li>
+                <li>{t('triage.defaultQuestions.priority')}</li>
               </ul>
             </div>
           )}
@@ -264,17 +266,17 @@ Context:
             value={response}
             onChange={(e) => setResponse(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type your answer..."
+            placeholder={t('triage.placeholder')}
             disabled={isLoading}
             rows={2}
             autoFocus
           />
           <div className="input-actions">
             <Button variant="ghost" type="button" onClick={onSkip} disabled={isLoading}>
-              Skip
+              {t('common.skip')}
             </Button>
             <Button type="submit" disabled={!response.trim() || isLoading}>
-              {isLoading ? '...' : 'Reply'}
+              {isLoading ? '...' : t('triage.reply')}
             </Button>
           </div>
         </form>

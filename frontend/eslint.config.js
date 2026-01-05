@@ -98,9 +98,42 @@ export default defineConfig([
       'react-hooks/exhaustive-deps': 'warn',
     },
   },
-  // Test files (Vitest environment)
+  // Test files - TypeScript (Vitest environment)
   {
-    files: ['**/*.test.{js,ts}', '**/test/setup.js'],
+    files: ['**/*.test.ts', '**/*.test.tsx'],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: {
+        ...globals.browser,
+        // Vitest globals
+        describe: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        vi: 'readonly',
+        // Node globals for test setup
+        global: 'readonly',
+      },
+      parser: tsParser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tseslint,
+    },
+    rules: {
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]', argsIgnorePattern: '^_' }],
+    },
+  },
+  // Test files - JavaScript (Vitest environment)
+  {
+    files: ['**/*.test.js', '**/test/setup.js'],
     languageOptions: {
       ecmaVersion: 2020,
       globals: {
@@ -124,6 +157,38 @@ export default defineConfig([
     },
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]', argsIgnorePattern: '^_' }],
+    },
+  },
+  // E2E test files (Playwright - Node environment)
+  {
+    files: ['e2e/**/*.ts', 'e2e/**/*.spec.ts'],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: {
+        ...globals.node,
+        // Playwright globals
+        test: 'readonly',
+        expect: 'readonly',
+        describe: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
+        // Node process for CI detection
+        process: 'readonly',
+      },
+      parser: tsParser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tseslint,
+    },
+    rules: {
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]', argsIgnorePattern: '^_' }],
     },
   },
   // Config files (Node environment)

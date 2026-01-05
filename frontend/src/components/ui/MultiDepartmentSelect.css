@@ -143,6 +143,9 @@
   flex-direction: column;
   gap: 8px;
   padding: 0;
+  /* Ensure touch events reach children */
+  pointer-events: auto;
+  touch-action: pan-y;
 }
 
 /* Mobile - ensure text truncation works */

@@ -14,6 +14,14 @@
   animation: app-modal-overlay-show 150ms ease-out;
 }
 
+/* Dark mode - stronger blur for premium frosted glass effect */
+.dark .app-modal-overlay,
+[data-theme='dark'] .app-modal-overlay {
+  background: var(--overlay-black-80);
+  backdrop-filter: blur(48px) saturate(150%);
+  -webkit-backdrop-filter: blur(48px) saturate(150%);
+}
+
 .app-modal-overlay[data-state='closed'] {
   animation: app-modal-overlay-hide 150ms ease-in;
 }
@@ -35,6 +43,30 @@
   animation: app-modal-content-show 200ms ease-out;
 }
 
+/* Dark mode - premium elevated appearance */
+.dark .app-modal-content,
+[data-theme='dark'] .app-modal-content {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  box-shadow:
+    0 0 0 1px var(--overlay-white-10),
+    0 24px 48px -12px var(--overlay-black-40),
+    0 0 60px -20px var(--overlay-indigo-20);
+}
+
+/* Dark mode - header background */
+.dark .app-modal-header,
+[data-theme='dark'] .app-modal-header {
+  background: var(--color-bg-secondary);
+  border-bottom-color: var(--color-border);
+}
+
+/* Dark mode - body background */
+.dark .app-modal-body,
+[data-theme='dark'] .app-modal-body {
+  background: var(--color-bg-secondary);
+}
+
 .app-modal-content[data-state='closed'] {
   animation: app-modal-content-hide 150ms ease-in;
 }
@@ -47,6 +79,11 @@
 .app-modal-content:focus-visible {
   outline: 2px solid var(--color-brand-primary);
   outline-offset: 2px;
+}
+
+/* Drag handle - hidden on desktop, shown on mobile via media query */
+.app-modal-drag-handle {
+  display: none;
 }
 
 /* Size variants */
@@ -533,18 +570,52 @@
     animation: app-modal-slide-down 200ms ease-in;
   }
 
-  /* Add drag handle for bottom sheet */
-  .app-modal-content::before {
-    content: '';
+  /* Clickable drag handle area - tap to close */
+  .app-modal-drag-handle {
     position: absolute;
-    top: 8px;
-    left: 50%;
-    transform: translateX(-50%);
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 32px;
+    cursor: pointer;
+    z-index: calc(var(--z-elevated) + 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Visual drag handle bar (inside the clickable area) */
+  .app-modal-drag-handle::before {
+    content: '';
     width: 36px;
     height: 4px;
     background: var(--color-slate-300);
     border-radius: var(--radius-xs);
-    z-index: var(--z-elevated);
+    transition: background 0.15s ease;
+  }
+
+  .app-modal-drag-handle:hover::before,
+  .app-modal-drag-handle:active::before {
+    background: var(--color-slate-400);
+  }
+
+  /* Dark mode drag handle - more visible */
+  .dark .app-modal-drag-handle::before,
+  [data-theme='dark'] .app-modal-drag-handle::before {
+    background: var(--color-slate-500);
+  }
+
+  .dark .app-modal-drag-handle:hover::before,
+  .dark .app-modal-drag-handle:active::before,
+  [data-theme='dark'] .app-modal-drag-handle:hover::before,
+  [data-theme='dark'] .app-modal-drag-handle:active::before {
+    background: var(--color-slate-400);
+  }
+
+  /* Hide the old pseudo-element since we have a real element now */
+  .app-modal-content::before {
+    display: none;
   }
 
   /* Header - MUST stay visible, never scrolls away */
@@ -554,6 +625,12 @@
     position: relative;
     z-index: 1;
     background: var(--color-bg-primary);
+  }
+
+  /* Dark mode header background on mobile */
+  .dark .app-modal-header,
+  [data-theme='dark'] .app-modal-header {
+    background: var(--color-bg-secondary);
   }
 
   /* Body - fills available space and scrolls */

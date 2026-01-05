@@ -6,6 +6,7 @@ import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persi
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { ThemeProvider } from 'next-themes';
 import { get, set, del } from 'idb-keyval';
+import './i18n'; // Initialize i18n before App renders
 import './styles/design-tokens.css'; // Design system tokens - load FIRST
 import './index.css'; // Global styles and accessibility
 import './styles/tailwind.css'; // Tailwind utilities

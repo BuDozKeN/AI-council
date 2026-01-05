@@ -2296,6 +2296,7 @@ button.role-select-trigger:focus {
   50% {
     opacity: 1;
   }
+
   51%,
   100% {
     opacity: 0;
@@ -2837,34 +2838,15 @@ button.mobile-role-select {
 }
 
 /* =============================================================================
-   CONTEXT ICONS CAPSULE - Groups icons visually
+   CONTEXT ICONS CAPSULE - Styles moved to OmniBar.css
    ============================================================================= */
 
-.context-icons-capsule {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  padding: 2px;
-  background: var(--color-bg-tertiary);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-full);
-}
+/* Base capsule styles are in OmniBar.css */
 
-/* Icons inside capsule - compact to match toggle height exactly (32px like toggle buttons)
-   !important overrides global touch target rule in tailwind.css */
-/* stylelint-disable declaration-no-important */
-.context-icons-capsule .omni-icon-btn {
-  width: 32px !important;
-  height: 32px !important;
-  min-width: 32px !important;
-  min-height: 32px !important;
-  border-radius: var(--radius-full);
-}
-/* stylelint-enable declaration-no-important */
-
+/* SVG icon sizing inside capsule */
 .context-icons-capsule .omni-icon-btn svg {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
 /* Reset all button - small, outside capsule */
@@ -2933,11 +2915,6 @@ button.mobile-role-select {
 .inline-mode-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-/* Council mode active state - subtle indigo accent */
-.inline-mode-btn:last-child.active {
-  color: var(--color-indigo-600);
 }
 
 /* Attach button - uses same size as other icons, no special override needed */
@@ -3178,10 +3155,6 @@ button.mobile-role-select {
   box-shadow: 0 1px 2px var(--overlay-black-20);
 }
 
-.dark .inline-mode-btn:last-child.active {
-  color: var(--color-indigo-400);
-}
-
 .dark .omni-send-btn {
   background: var(--color-slate-700);
   color: var(--color-slate-500);
@@ -3235,18 +3208,7 @@ button.mobile-role-select {
     gap: 4px;
   }
 
-  /* On mobile, keep capsule visible like the 1AI/5AIs toggle */
-  .context-icons-capsule {
-    padding: 2px;
-    gap: 0;
-    /* Keep background and border like the toggle */
-  }
-
-  /* Reset context icon sizes for mobile - compact to fit in capsule */
-  .context-icons-capsule .omni-icon-btn {
-    width: 28px;
-    height: 28px;
-  }
+  /* Mobile capsule styles are in OmniBar.css */
 
   /* Reset button - slightly larger touch target on mobile */
   .omni-reset-all {
@@ -3262,6 +3224,7 @@ button.mobile-role-select {
   .inline-mode-btn {
     padding: 5px 10px;
     font-size: 11px;
+
     /* No min-height - let it be natural size like landing */
   }
 }

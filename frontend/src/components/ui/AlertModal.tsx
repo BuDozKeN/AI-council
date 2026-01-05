@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { AppModal } from './AppModal';
 import { Button } from './button';
 import { CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
@@ -34,13 +35,8 @@ interface AlertModalProps {
  *
  * Variants: 'success', 'error', 'info', 'warning'
  */
-function AlertModal({
-  title,
-  message,
-  variant = 'info',
-  onClose,
-  buttonText = 'OK',
-}: AlertModalProps) {
+function AlertModal({ title, message, variant = 'info', onClose, buttonText }: AlertModalProps) {
+  const { t } = useTranslation();
   const iconMap = {
     success: <CheckCircle size={28} />,
     error: <AlertCircle size={28} />,
@@ -62,7 +58,7 @@ function AlertModal({
           onClick={onClose}
           autoFocus
         >
-          {buttonText}
+          {buttonText || t('modals.ok')}
         </Button>
       </AppModal.Footer>
     </AppModal>

@@ -41,6 +41,7 @@ function SheetContent({
   headerAction,
 }: SheetContentProps) {
   const contentRef = useRef<HTMLDivElement | null>(null);
+  const bodyRef = useRef<HTMLDivElement | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [hasEntered, setHasEntered] = useState(false);
 
@@ -77,11 +78,59 @@ function SheetContent({
       // Only close if clicking directly on the body background (not any child elements)
       // This allows tap-to-dismiss behavior when tapping empty space
       if (target.classList.contains('bottom-sheet-body')) {
+        // Check if MultiDepartmentSelect was just clicked (within last 500ms)
+        const multiDeptClickTime = (window as Window & { __multiDeptSelectClickTime?: number })
+          .__multiDeptSelectClickTime;
+        if (multiDeptClickTime && Date.now() - multiDeptClickTime < 500) {
+          return; // Don't close - department selection in progress
+        }
         onClose?.();
       }
     },
     [onClose]
   );
+
+  // Handle wheel events manually to fix Framer Motion drag intercepting scroll
+  // When drag="y" is enabled, Framer Motion sets touch-action: pan-x which can
+  // interfere with native wheel scrolling. This handler ensures wheel events
+  // properly scroll the content inside the bottom sheet body.
+  // NOTE: We use a native event listener with { passive: false } because React
+  // registers wheel events as passive by default, which prevents preventDefault().
+  useEffect(() => {
+    const body = bodyRef.current;
+    if (!body) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      // Find the scrollable element inside the body
+      const scrollable =
+        body.querySelector<HTMLElement>('.settings-panel') ||
+        body.querySelector<HTMLElement>('[data-scrollable]') ||
+        body;
+
+      // Check if this element can scroll
+      const canScroll = scrollable.scrollHeight > scrollable.clientHeight;
+      if (!canScroll) return;
+
+      // Check if we're at scroll boundaries
+      const atTop = scrollable.scrollTop <= 0;
+      const atBottom =
+        scrollable.scrollTop + scrollable.clientHeight >= scrollable.scrollHeight - 1;
+
+      // Scrolling up at top or down at bottom - let default behavior happen
+      if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) {
+        return;
+      }
+
+      // Manually scroll the content and prevent default
+      e.preventDefault();
+      e.stopPropagation();
+      scrollable.scrollTop += e.deltaY;
+    };
+
+    // Add with passive: false to allow preventDefault()
+    body.addEventListener('wheel', handleWheel, { passive: false });
+    return () => body.removeEventListener('wheel', handleWheel);
+  }, []);
 
   return (
     <motion.div
@@ -153,8 +202,8 @@ function SheetContent({
         {title ? `${title} dialog` : 'Dialog content'}
       </Dialog.Description>
 
-      {/* Body - tap empty space to close */}
-      <div className="bottom-sheet-body" onClick={handleBodyClick}>
+      {/* Body - tap empty space to close, wheel handler via useEffect for scroll fix */}
+      <div ref={bodyRef} className="bottom-sheet-body" onClick={handleBodyClick}>
         {children}
       </div>
     </motion.div>
@@ -185,6 +234,15 @@ export function BottomSheet({
         const selectContent = document.querySelector('[data-radix-select-content]');
         if (selectContent) return;
 
+        // Check if a Select dropdown was just dismissed (within last 300ms)
+        // This handles the race condition where Escape closes the dropdown first,
+        // then this handler runs and the DOM element is already gone
+        const selectDismissTime = (window as Window & { __radixSelectJustDismissed?: number })
+          .__radixSelectJustDismissed;
+        if (selectDismissTime && Date.now() - selectDismissTime < 300) {
+          return;
+        }
+
         onClose?.();
       }
     };
@@ -200,6 +258,19 @@ export function BottomSheet({
         // Only handle explicit close requests (not from nested Radix components)
         // The overlay onClick and handle onClick will handle closing directly
         if (!open) {
+          // Check if a Radix Select dropdown was just dismissed (within last 300ms)
+          // This prevents the modal from closing when clicking the select trigger to close dropdown
+          const selectDismissTime = (window as Window & { __radixSelectJustDismissed?: number })
+            .__radixSelectJustDismissed;
+          if (selectDismissTime && Date.now() - selectDismissTime < 300) {
+            return; // Don't close - dropdown was just dismissed
+          }
+          // Check if MultiDepartmentSelect was just clicked
+          const multiDeptClickTime = (window as Window & { __multiDeptSelectClickTime?: number })
+            .__multiDeptSelectClickTime;
+          if (multiDeptClickTime && Date.now() - multiDeptClickTime < 500) {
+            return; // Don't close - department selection in progress
+          }
           // Don't auto-close - let explicit handlers do it
           // This prevents Radix Select dropdown closing from bubbling up
         }
@@ -216,7 +287,39 @@ export function BottomSheet({
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                onClick={() => onClose?.()}
+                onClick={(e) => {
+                  // Don't close if clicking fixed-position buttons
+                  const target = e.target as HTMLElement;
+                  if (target.closest('.theme-toggle-container, .help-button-container')) {
+                    return;
+                  }
+                  // Check if a Radix Select dropdown was just dismissed (click-outside to close dropdown)
+                  const selectDismissTime = (
+                    window as Window & { __radixSelectJustDismissed?: number }
+                  ).__radixSelectJustDismissed;
+                  if (selectDismissTime && Date.now() - selectDismissTime < 300) {
+                    return;
+                  }
+                  // Check if MultiDepartmentSelect was just clicked
+                  const multiDeptClickTime = (
+                    window as Window & { __multiDeptSelectClickTime?: number }
+                  ).__multiDeptSelectClickTime;
+                  if (multiDeptClickTime && Date.now() - multiDeptClickTime < 500) {
+                    return;
+                  }
+                  // Also check if fixed buttons were clicked recently (backup check)
+                  const themeClickTime = (window as Window & { __themeToggleClickTime?: number })
+                    .__themeToggleClickTime;
+                  const helpClickTime = (window as Window & { __helpButtonClickTime?: number })
+                    .__helpButtonClickTime;
+                  if (
+                    (themeClickTime && Date.now() - themeClickTime < 500) ||
+                    (helpClickTime && Date.now() - helpClickTime < 500)
+                  ) {
+                    return;
+                  }
+                  onClose?.();
+                }}
               />
             </Dialog.Overlay>
 
@@ -224,16 +327,90 @@ export function BottomSheet({
             <Dialog.Content
               asChild
               onInteractOutside={(e) => {
-                // Don't close if clicking the theme toggle
+                // Don't close if clicking fixed-position buttons
                 const target = e.target as HTMLElement;
-                if (target.closest('.theme-toggle-container')) {
+                if (target.closest('.theme-toggle-container, .help-button-container')) {
+                  e.preventDefault();
+                  return;
+                }
+                // Don't close if interacting with Radix Select components (dropdown trigger, content, etc.)
+                if (
+                  target.closest(
+                    '[data-radix-select-trigger], [data-radix-select-content], [data-radix-select-viewport], [data-radix-collection-item]'
+                  )
+                ) {
+                  e.preventDefault();
+                  return;
+                }
+                // Check if a Radix Select dropdown was just dismissed
+                const selectDismissTime = (
+                  window as Window & { __radixSelectJustDismissed?: number }
+                ).__radixSelectJustDismissed;
+                if (selectDismissTime && Date.now() - selectDismissTime < 300) {
+                  e.preventDefault();
+                  return;
+                }
+                // Check if MultiDepartmentSelect was just clicked
+                const multiDeptClickTime = (
+                  window as Window & { __multiDeptSelectClickTime?: number }
+                ).__multiDeptSelectClickTime;
+                if (multiDeptClickTime && Date.now() - multiDeptClickTime < 500) {
+                  e.preventDefault();
+                  return;
+                }
+                // Also check if fixed buttons were clicked recently (backup check)
+                const themeClickTime = (window as Window & { __themeToggleClickTime?: number })
+                  .__themeToggleClickTime;
+                const helpClickTime = (window as Window & { __helpButtonClickTime?: number })
+                  .__helpButtonClickTime;
+                if (
+                  (themeClickTime && Date.now() - themeClickTime < 500) ||
+                  (helpClickTime && Date.now() - helpClickTime < 500)
+                ) {
                   e.preventDefault();
                 }
               }}
               onPointerDownOutside={(e) => {
-                // Don't close if clicking the theme toggle
+                // Don't close if clicking fixed-position buttons
                 const target = e.target as HTMLElement;
-                if (target.closest('.theme-toggle-container')) {
+                if (target.closest('.theme-toggle-container, .help-button-container')) {
+                  e.preventDefault();
+                  return;
+                }
+                // Don't close if clicking on Radix Select components
+                if (
+                  target.closest(
+                    '[data-radix-select-trigger], [data-radix-select-content], [data-radix-select-viewport], [data-radix-collection-item]'
+                  )
+                ) {
+                  e.preventDefault();
+                  return;
+                }
+                // Check if a Radix Select dropdown was just dismissed
+                const selectDismissTime = (
+                  window as Window & { __radixSelectJustDismissed?: number }
+                ).__radixSelectJustDismissed;
+                if (selectDismissTime && Date.now() - selectDismissTime < 300) {
+                  e.preventDefault();
+                  return;
+                }
+                // Check if MultiDepartmentSelect was just clicked
+                const multiDeptClickTime = (
+                  window as Window & { __multiDeptSelectClickTime?: number }
+                ).__multiDeptSelectClickTime;
+                if (multiDeptClickTime && Date.now() - multiDeptClickTime < 500) {
+                  e.preventDefault();
+                  return;
+                }
+                // Also check if fixed buttons were clicked recently (backup check)
+                const themeClickTime = (window as Window & { __themeToggleClickTime?: number })
+                  .__themeToggleClickTime;
+                const helpClickTime = (window as Window & { __helpButtonClickTime?: number })
+                  .__helpButtonClickTime;
+                if (
+                  (themeClickTime && Date.now() - themeClickTime < 500) ||
+                  (helpClickTime && Date.now() - helpClickTime < 500)
+                ) {
                   e.preventDefault();
                 }
               }}

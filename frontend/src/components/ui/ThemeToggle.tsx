@@ -3,6 +3,9 @@
  *
  * Click to cycle: Light → Dark → System → Light...
  * Hover shows what the current theme is and what clicking will do.
+ *
+ * Uses fixed positioning to stay in top-right corner.
+ * NO PORTAL - renders in place to avoid Radix "outside click" issues.
  */
 
 import { useTheme } from 'next-themes';
@@ -35,17 +38,42 @@ export function ThemeToggle() {
   const mounted = useIsMounted();
 
   // Cycle to next theme on click
-  // Stop propagation to prevent BottomSheet overlay from closing
+  // Set timestamp FIRST so onClose handlers can detect and skip closing
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
+      e.preventDefault();
+      e.nativeEvent.stopImmediatePropagation();
+
+      // Set timestamp BEFORE anything else - this is checked by modal onClose handlers
+      (window as Window & { __themeToggleClickTime?: number }).__themeToggleClickTime = Date.now();
+
       const currentTheme = (theme ?? 'system') as ThemeValue;
       const currentIndex = themeCycle.indexOf(currentTheme);
       const nextIndex = (currentIndex + 1) % themeCycle.length;
-      setTheme(themeCycle[nextIndex] as string);
+
+      // Defer theme change to next tick - this ensures all click event
+      // handling (including Radix's outside-click detection) completes first
+      setTimeout(() => {
+        setTheme(themeCycle[nextIndex] as string);
+      }, 0);
     },
     [theme, setTheme]
   );
+
+  // Stop all pointer events from propagating and set timestamp on pointer down
+  // This is critical because Radix's onPointerDownOutside fires BEFORE onClick
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    e.stopPropagation();
+    // Set timestamp on pointer down - this fires before Radix's outside-click detection
+    (window as Window & { __themeToggleClickTime?: number }).__themeToggleClickTime = Date.now();
+  }, []);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Also set on mouse down as backup
+    (window as Window & { __themeToggleClickTime?: number }).__themeToggleClickTime = Date.now();
+  }, []);
 
   if (!mounted) {
     return (
@@ -75,11 +103,14 @@ export function ThemeToggle() {
       ? `System (${resolvedTheme === 'dark' ? 'Dark' : 'Light'})`
       : currentInfo.label;
 
+  // Render directly - no portal. CSS handles fixed positioning.
   return (
     <div className="theme-toggle-container">
       <button
         className="theme-toggle-btn"
         onClick={handleClick}
+        onPointerDown={handlePointerDown}
+        onMouseDown={handleMouseDown}
         aria-label={`Current: ${currentLabel}. Click to switch to ${nextInfo.label}.`}
         title={`${currentLabel} — Click for ${nextInfo.label}`}
       >

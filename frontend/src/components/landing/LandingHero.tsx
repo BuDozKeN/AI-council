@@ -4,13 +4,17 @@
  * Intent-first design: single input, minimal cognitive load, maximum clarity.
  * User types their question first, context is secondary.
  * Uses shared OmniBar component with context icons INSIDE the bar.
+ *
+ * Stats are fetched dynamically from the backend to reflect LLM Hub configuration.
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { AuroraBackground } from '../ui/aurora-background';
 import { OmniBar } from '../shared';
 import { springs, springWithDelay } from '../../lib/animations';
+import { useCouncilStats } from '../../hooks/useCouncilStats';
 import type { Business, Department, Role, Playbook, Project } from '../../types/business';
 import './LandingHero.css';
 
@@ -71,7 +75,11 @@ export function LandingHero({
   onResetAll,
   isLoading = false,
 }: LandingHeroProps) {
+  const { t } = useTranslation();
   const [input, setInput] = useState('');
+
+  // Dynamic council stats from LLM Hub configuration (per-company, cached)
+  const { aiCount, rounds } = useCouncilStats(selectedBusiness);
 
   // Filter roles to those belonging to selected departments
   // IMPORTANT: Always include selected roles even if they're from a different department
@@ -102,12 +110,15 @@ export function LandingHero({
             <span className="landing-logo-text">AxCouncil</span>
           </div>
           <h1 className="landing-headline">
-            The only AI worth <span className="headline-emphasis">trusting.</span>
+            {t('landing.headline')}{' '}
+            <span className="headline-emphasis">{t('landing.headlineEmphasis')}</span>
           </h1>
           <div className="landing-stats">
             <div className="stat-pill">
-              <span className="stat-number">5</span>
-              <span className="stat-label">AIs</span>
+              <span className="stat-number">{aiCount}</span>
+              <span className="stat-label">
+                {aiCount === 1 ? t('landing.statsAI') : t('landing.statsAIs')}
+              </span>
             </div>
             <svg className="stat-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path
@@ -119,8 +130,10 @@ export function LandingHero({
               />
             </svg>
             <div className="stat-pill">
-              <span className="stat-number">3</span>
-              <span className="stat-label">rounds</span>
+              <span className="stat-number">{rounds}</span>
+              <span className="stat-label">
+                {rounds === 1 ? t('landing.statsRound') : t('landing.statsRounds')}
+              </span>
             </div>
             <svg className="stat-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path
@@ -133,7 +146,7 @@ export function LandingHero({
             </svg>
             <div className="stat-pill stat-pill-highlight">
               <span className="stat-number">1</span>
-              <span className="stat-label">answer</span>
+              <span className="stat-label">{t('landing.statsAnswer')}</span>
             </div>
           </div>
         </motion.div>

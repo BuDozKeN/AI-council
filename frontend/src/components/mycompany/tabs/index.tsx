@@ -12,3 +12,4 @@ export { PlaybooksTab } from './PlaybooksTab';
 export { ProjectsTab } from './ProjectsTab';
 export { DecisionsTab } from './DecisionsTab';
 export { UsageTab } from './UsageTab';
+export { LLMHubTab } from './LLMHubTab';

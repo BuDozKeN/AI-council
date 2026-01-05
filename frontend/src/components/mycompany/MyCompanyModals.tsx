@@ -2,10 +2,15 @@ import { lazy, Suspense, ReactNode } from 'react';
 import { Spinner } from '../ui/Spinner';
 import { api } from '../../api';
 import ProjectModal from '../ProjectModal';
-import type { Department, Role, Playbook, Project } from '../../types/business';
+import type { Department, Role, Playbook, Project, LLMPresetId } from '../../types/business';
 
 // Eagerly load small/simple modals
-import { AddDepartmentModal, AddRoleModal, AddPlaybookModal } from './modals';
+import {
+  AddDepartmentModal,
+  AddRoleModal,
+  AddPlaybookModal,
+  AddCompanyContextModal,
+} from './modals';
 import { ConfirmModal } from '../ui/ConfirmModal';
 
 // Lazy load large/complex modals
@@ -32,7 +37,12 @@ const ViewDecisionModal = lazy(() =>
 );
 
 // Type definitions
-type AddFormType = 'department' | 'playbook' | { type: 'role'; deptId: string } | null;
+type AddFormType =
+  | 'department'
+  | 'playbook'
+  | 'company-context'
+  | { type: 'role'; deptId: string }
+  | null;
 
 interface Decision {
   id: string;
@@ -109,9 +119,11 @@ const LazyWrapper = ({ children }: { children: ReactNode }) => (
 interface AddFormModalProps {
   showAddForm: AddFormType;
   saving: boolean;
+  companyId: string;
+  companyName?: string | undefined;
   departments: Department[];
   onAddDepartment: (name: string, description?: string) => Promise<void>;
-  onAddRole: (deptId: string, name: string, title: string) => Promise<void>;
+  onAddRole: (deptId: string, name: string, title: string, systemPrompt?: string) => Promise<void>;
   onAddPlaybook: (
     title: string,
     docType: string,
@@ -119,43 +131,57 @@ interface AddFormModalProps {
     departmentId?: string | null,
     additionalDepartments?: string[]
   ) => Promise<void>;
+  onAddCompanyContext?: (contextMd: string) => Promise<void>;
   onClose: () => void;
 }
 
 /**
- * AddFormModal - Renders the add department/role/playbook modals
+ * AddFormModal - Renders the add department/role/playbook/company-context modals
  */
 export function AddFormModal({
   showAddForm,
-  saving,
+  saving: _saving, // No longer used - wizards manage their own state
+  companyId,
+  companyName,
   departments,
   onAddDepartment,
   onAddRole,
   onAddPlaybook,
+  onAddCompanyContext,
   onClose,
 }: AddFormModalProps) {
   if (!showAddForm) return null;
 
   if (showAddForm === 'department') {
-    return <AddDepartmentModal onSave={onAddDepartment} onClose={onClose} saving={saving} />;
+    return <AddDepartmentModal companyId={companyId} onSave={onAddDepartment} onClose={onClose} />;
   }
   if (typeof showAddForm === 'object' && showAddForm.type === 'role') {
     return (
       <AddRoleModal
         deptId={showAddForm.deptId}
+        companyId={companyId}
         onSave={onAddRole}
         onClose={onClose}
-        saving={saving}
       />
     );
   }
   if (showAddForm === 'playbook') {
     return (
       <AddPlaybookModal
+        companyId={companyId}
+        departments={departments}
         onSave={onAddPlaybook}
         onClose={onClose}
-        saving={saving}
-        departments={departments}
+      />
+    );
+  }
+  if (showAddForm === 'company-context' && onAddCompanyContext) {
+    return (
+      <AddCompanyContextModal
+        companyId={companyId}
+        companyName={companyName}
+        onSave={onAddCompanyContext}
+        onClose={onClose}
       />
     );
   }
@@ -199,7 +225,11 @@ interface EditingModalProps {
   onClose: () => void;
   onConsumeInitialDecision?: (() => void) | undefined;
   onUpdateCompanyContext: (data: { context_md: string }) => Promise<void>;
-  onUpdateDepartment: (id: string, data: Partial<Department>) => Promise<void>;
+  onUpdateDepartment: (
+    id: string,
+    data: Partial<Department>,
+    options?: { keepOpen?: boolean }
+  ) => Promise<void>;
   onUpdateRole: (roleId: string, deptId: string, data: Partial<Role>) => Promise<void>;
   onUpdatePlaybook: (id: string, data: Partial<Playbook>) => Promise<void>;
   onNavigateToConversation?:
@@ -271,7 +301,11 @@ export function EditingModal({
           <ViewDepartmentModal
             department={editingItem.data as Department}
             onClose={onClose}
-            onSave={(id: string, data: { context_md: string }) => onUpdateDepartment(id, data)}
+            onSave={(
+              id: string,
+              data: { context_md?: string; llm_preset?: LLMPresetId },
+              options?: { keepOpen?: boolean }
+            ) => onUpdateDepartment(id, data, options)}
           />
         </LazyWrapper>
       );

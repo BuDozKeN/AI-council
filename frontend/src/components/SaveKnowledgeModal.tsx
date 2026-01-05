@@ -1,4 +1,5 @@
 import { useState, useEffect, KeyboardEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api';
 import { logger } from '../utils/logger';
 import { AppModal } from './ui/AppModal';
@@ -132,6 +133,7 @@ export default function SaveKnowledgeModal({
   currentProjectId = null,
   onProjectCreated, // Callback when a new project is created
 }: SaveKnowledgeModalProps) {
+  const { t } = useTranslation();
   const [title, setTitle] = useState<string>('');
   const [summary, setSummary] = useState<string>('');
   const [category, setCategory] = useState<string>('technical_decision');
@@ -310,7 +312,7 @@ export default function SaveKnowledgeModal({
 
   const handleConfirmCreateProject = async () => {
     if (!newProjectName.trim()) {
-      setError('Project name is required');
+      setError(t('modals.projectNameRequired'));
       return;
     }
 
@@ -337,7 +339,7 @@ export default function SaveKnowledgeModal({
       }
     } catch (err) {
       const errorMessage =
-        err instanceof Error ? err.message : "Couldn't create that project. Please try again.";
+        err instanceof Error ? err.message : t('modals.couldntCreateProjectRetry');
       setError(errorMessage);
     } finally {
       setCreatingProject(false);
@@ -370,19 +372,17 @@ export default function SaveKnowledgeModal({
 
   const handleSave = async () => {
     if (!title.trim()) {
-      setError('Title is required');
+      setError(t('modals.titleRequired'));
       return;
     }
     if (!decisionText.trim()) {
-      setError('Decision is required - what was decided?');
+      setError(t('modals.decisionRequiredError'));
       return;
     }
 
     // If playbook mode, we need to redirect to playbook creation (future enhancement)
     if (saveMode === 'playbook') {
-      setError(
-        'Playbook creation coming soon! For now, save as "Remember This" and promote later from My Company.'
-      );
+      setError(t('modals.playbookComingSoon'));
       return;
     }
 
@@ -424,13 +424,14 @@ export default function SaveKnowledgeModal({
 
       // Show success toast and close modal
       const modeText =
-        saveMode === 'remember' ? 'Decision saved and will be remembered' : 'Decision saved';
+        saveMode === 'remember'
+          ? t('modals.decisionSavedRemembered')
+          : t('modals.decisionSavedRef');
       toast.success(`"${title.trim()}" - ${modeText}`, { duration: 4000 });
       onClose(true); // Close modal immediately with saved=true
     } catch (err) {
       log.error('Save failed:', err);
-      const errorMessage =
-        err instanceof Error ? err.message : "Couldn't save your decision. Please try again.";
+      const errorMessage = err instanceof Error ? err.message : t('errors.saveFailed');
       setError(errorMessage);
     } finally {
       setSaving(false);
@@ -441,7 +442,7 @@ export default function SaveKnowledgeModal({
     <AppModal
       isOpen={isOpen}
       onClose={onClose}
-      title="Save to Knowledge Base"
+      title={t('modals.saveToKnowledgeBase')}
       size="lg"
       contentClassName="save-knowledge-modal-body"
     >
@@ -449,53 +450,51 @@ export default function SaveKnowledgeModal({
         <div className="success-message">
           <span className="success-icon">&#10003;</span>
           <p className="success-title">
-            {saveMode === 'remember' ? 'Saved & Will Be Remembered' : 'Saved to Knowledge Base'}
+            {saveMode === 'remember'
+              ? t('modals.savedAndRemembered')
+              : t('modals.savedToKnowledgeBase')}
           </p>
           <p className="success-detail">
-            {saveMode === 'remember'
-              ? 'This will be automatically injected into future council discussions.'
-              : 'This decision has been saved for reference.'}
+            {saveMode === 'remember' ? t('modals.willAutoInject') : t('modals.savedForReference')}
           </p>
           <div className="success-location">
             <div className="success-location-row">
-              <span className="success-location-label">Department</span>
+              <span className="success-location-label">{t('modals.department')}</span>
               <span className="success-location-value">
-                {DEPARTMENTS.find((d) => d.id === department)?.label || department}
+                {t(`knowledge.departments.${department}`, { defaultValue: department })}
               </span>
             </div>
             {projectId && (
               <div className="success-location-row">
-                <span className="success-location-label">Project</span>
+                <span className="success-location-label">{t('company.projects')}</span>
                 <span className="success-location-value">
-                  {availableProjects.find((p) => p.id === projectId)?.name || 'Selected Project'}
+                  {availableProjects.find((p) => p.id === projectId)?.name || t('company.projects')}
                 </span>
               </div>
             )}
             <div className="success-location-row">
-              <span className="success-location-label">Category</span>
+              <span className="success-location-label">{t('modals.category')}</span>
               <span className="success-location-value">
-                {CATEGORIES.find((c) => c.id === category)?.label || category}
+                {t(`knowledge.categories.${category.replace('_', '')}`, { defaultValue: category })}
               </span>
             </div>
           </div>
           <Button variant="default" onClick={() => onClose(true)}>
-            Done
+            {t('common.done')}
           </Button>
         </div>
       ) : extracting ? (
         <div className="extracting-message">
           <Spinner size="xl" variant="brand" />
-          <p>AI is extracting key insights...</p>
-          <p className="extracting-hint">
-            Analyzing the council response to identify the important decision
-          </p>
+          <p>{t('modals.aiExtractingInsights')}</p>
+          <p className="extracting-hint">{t('modals.analyzingResponse')}</p>
         </div>
       ) : (
         <>
           <div className="modal-body">
             {/* Save Mode Selector - Progressive Disclosure */}
             <div className="save-mode-selector">
-              <label className="save-mode-label">What would you like to do?</label>
+              <label className="save-mode-label">{t('modals.whatWouldYouDo')}</label>
               <div className="save-mode-options">
                 {SAVE_MODES.map((mode) => (
                   <button
@@ -506,8 +505,20 @@ export default function SaveKnowledgeModal({
                   >
                     <span className="save-mode-icon">{mode.icon}</span>
                     <span className="save-mode-text">
-                      <span className="save-mode-name">{mode.label}</span>
-                      <span className="save-mode-desc">{mode.description}</span>
+                      <span className="save-mode-name">
+                        {mode.id === 'just_save'
+                          ? t('modals.justSave')
+                          : mode.id === 'remember'
+                            ? t('modals.rememberThis')
+                            : t('modals.makePlaybook')}
+                      </span>
+                      <span className="save-mode-desc">
+                        {mode.id === 'just_save'
+                          ? t('modals.justSaveDesc')
+                          : mode.id === 'remember'
+                            ? t('modals.rememberThisDesc')
+                            : t('modals.makePlaybookDesc')}
+                      </span>
                     </span>
                   </button>
                 ))}
@@ -518,14 +529,14 @@ export default function SaveKnowledgeModal({
             {(contextSummary || userQuestion) && (
               <div className="context-info">
                 <div className="context-header">
-                  <span className="context-label">Context</span>
+                  <span className="context-label">{t('modals.context')}</span>
                   {!contextSummary && userQuestion && userQuestion.length > 150 && (
                     <button
                       type="button"
                       className="expand-btn"
                       onClick={() => setShowFullQuestion(!showFullQuestion)}
                     >
-                      {showFullQuestion ? 'Show less' : 'Show full'}
+                      {showFullQuestion ? t('modals.showLess') : t('modals.showFull')}
                     </button>
                   )}
                 </div>
@@ -537,7 +548,7 @@ export default function SaveKnowledgeModal({
             )}
 
             <div className="form-group">
-              <label htmlFor="knowledge-title">Title</label>
+              <label htmlFor="knowledge-title">{t('modals.title')}</label>
               <AIWriteAssist
                 context="decision-title"
                 value={title}
@@ -550,16 +561,16 @@ export default function SaveKnowledgeModal({
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g., Supabase-based Context Storage Decision"
+                  placeholder={t('modals.titlePlaceholder')}
                   maxLength={200}
                 />
               </AIWriteAssist>
-              <p className="hint">A clear, searchable title for this decision or pattern</p>
+              <p className="hint">{t('modals.titleHint')}</p>
             </div>
 
             <div className="form-row">
               <div className="form-group form-group-half">
-                <label htmlFor="knowledge-department">Department</label>
+                <label htmlFor="knowledge-department">{t('modals.department')}</label>
                 <div className="field-with-tooltip">
                   <select
                     id="knowledge-department"
@@ -568,7 +579,7 @@ export default function SaveKnowledgeModal({
                   >
                     {DEPARTMENTS.map((dept) => (
                       <option key={dept.id} value={dept.id}>
-                        {dept.label}
+                        {t(`knowledge.departments.${dept.id}`, { defaultValue: dept.label })}
                         {dept.id === originalDepartment ? ' *' : ''}
                       </option>
                     ))}
@@ -577,19 +588,19 @@ export default function SaveKnowledgeModal({
                     <span className="detection-tooltip" title={departmentReason}>
                       <span className="tooltip-icon">?</span>
                       <span className="tooltip-text">
-                        <strong>Suggested:</strong>{' '}
-                        {DEPARTMENTS.find((d) => d.id === originalDepartment)?.label ||
-                          originalDepartment}
+                        <strong>{t('modals.suggested')}:</strong>{' '}
+                        {t(
+                          `knowledge.departments.${originalDepartment}` as 'knowledge.departments.executive',
+                          { defaultValue: originalDepartment }
+                        )}
                         <br />
                         <br />
-                        <strong>Why:</strong> {departmentReason}
+                        <strong>{t('modals.why')}:</strong> {departmentReason}
                         {department !== originalDepartment && (
                           <>
                             <br />
                             <br />
-                            <em className="tooltip-changed">
-                              You changed this from the suggestion
-                            </em>
+                            <em className="tooltip-changed">{t('modals.changedFromSuggestion')}</em>
                           </>
                         )}
                       </span>
@@ -599,7 +610,7 @@ export default function SaveKnowledgeModal({
               </div>
 
               <div className="form-group form-group-half">
-                <label htmlFor="knowledge-category">Category</label>
+                <label htmlFor="knowledge-category">{t('modals.category')}</label>
                 <div className="field-with-tooltip">
                   <select
                     id="knowledge-category"
@@ -608,7 +619,9 @@ export default function SaveKnowledgeModal({
                   >
                     {CATEGORIES.map((cat) => (
                       <option key={cat.id} value={cat.id}>
-                        {cat.label}
+                        {t(`knowledge.categories.${cat.id.replace('_', '')}`, {
+                          defaultValue: cat.label,
+                        })}
                         {cat.id === originalCategory ? ' *' : ''}
                       </option>
                     ))}
@@ -617,19 +630,19 @@ export default function SaveKnowledgeModal({
                     <span className="detection-tooltip" title={categoryReason}>
                       <span className="tooltip-icon">?</span>
                       <span className="tooltip-text">
-                        <strong>Suggested:</strong>{' '}
-                        {CATEGORIES.find((c) => c.id === originalCategory)?.label ||
-                          originalCategory}
+                        <strong>{t('modals.suggested')}:</strong>{' '}
+                        {t(
+                          `knowledge.categories.${originalCategory?.replace('_', '')}` as 'knowledge.categories.bestPractices',
+                          { defaultValue: originalCategory ?? '' }
+                        )}
                         <br />
                         <br />
-                        <strong>Why:</strong> {categoryReason}
+                        <strong>{t('modals.why')}:</strong> {categoryReason}
                         {category !== originalCategory && (
                           <>
                             <br />
                             <br />
-                            <em className="tooltip-changed">
-                              You changed this from the suggestion
-                            </em>
+                            <em className="tooltip-changed">{t('modals.changedFromSuggestion')}</em>
                           </>
                         )}
                       </span>
@@ -642,7 +655,7 @@ export default function SaveKnowledgeModal({
             {/* Project selector */}
             <div className="form-group">
               <label htmlFor="knowledge-project">
-                Project {currentProjectId ? '' : '(optional)'}
+                {t('company.projects')} {currentProjectId ? '' : `(${t('common.optional')})`}
               </label>
               <select
                 id="knowledge-project"
@@ -671,8 +684,10 @@ export default function SaveKnowledgeModal({
                       {proj.name}
                     </option>
                   ))}
-                <option value="">No Project (company-wide)</option>
-                <option value="__new__">{creatingProject ? 'Creating...' : 'New Project'}</option>
+                <option value="">{t('modals.noProjectCompanyWide')}</option>
+                <option value="__new__">
+                  {creatingProject ? t('modals.creatingOption') : t('modals.newProjectOption')}
+                </option>
               </select>
 
               {/* Project preview/edit form */}
@@ -681,44 +696,46 @@ export default function SaveKnowledgeModal({
                   {extractingProject ? (
                     <div className="project-extracting">
                       <Spinner size="lg" variant="brand" />
-                      <p>AI is generating project details...</p>
+                      <p>{t('modals.aiGeneratingDetails')}</p>
                       <span className="project-extracting-hint">
-                        Creating a clear name and description
+                        {t('modals.creatingClearName')}
                       </span>
                     </div>
                   ) : (
                     <>
                       <div className="project-preview-header">
-                        <span className="project-preview-label">New Project Details</span>
+                        <span className="project-preview-label">
+                          {t('modals.newProjectDetails')}
+                        </span>
                         <span className="project-preview-hint">
-                          Review and edit before creating
+                          {t('modals.reviewEditBeforeCreating')}
                         </span>
                       </div>
                       <div className="project-preview-field">
-                        <label htmlFor="new-project-name">Project Name</label>
+                        <label htmlFor="new-project-name">{t('modals.projectName')}</label>
                         <input
                           id="new-project-name"
                           type="text"
                           value={newProjectName}
                           onChange={(e) => setNewProjectName(e.target.value)}
-                          placeholder="Enter project name"
+                          placeholder={t('modals.enterProjectName')}
                           disabled={creatingProject}
                           autoFocus
                         />
                       </div>
                       <div className="project-preview-field">
-                        <label htmlFor="new-project-description">Description</label>
+                        <label htmlFor="new-project-description">
+                          {t('modals.projectDescription')}
+                        </label>
                         <textarea
                           id="new-project-description"
                           value={newProjectDescription}
                           onChange={(e) => setNewProjectDescription(e.target.value)}
-                          placeholder="Project description"
+                          placeholder={t('modals.projectDescription')}
                           rows={4}
                           disabled={creatingProject}
                         />
-                        <span className="field-hint">
-                          This description helps anyone understand what this project is about
-                        </span>
+                        <span className="field-hint">{t('modals.projectDescHelp')}</span>
                       </div>
                       <div className="project-preview-actions">
                         <Button
@@ -727,7 +744,7 @@ export default function SaveKnowledgeModal({
                           onClick={handleCancelProjectPreview}
                           disabled={creatingProject}
                         >
-                          Cancel
+                          {t('common.cancel')}
                         </Button>
                         <Button
                           type="button"
@@ -735,7 +752,7 @@ export default function SaveKnowledgeModal({
                           onClick={handleConfirmCreateProject}
                           disabled={creatingProject || !newProjectName.trim()}
                         >
-                          {creatingProject ? 'Creating...' : 'Create Project'}
+                          {creatingProject ? t('modals.creating') : t('modals.createProject')}
                         </Button>
                       </div>
                     </>
@@ -744,46 +761,46 @@ export default function SaveKnowledgeModal({
               ) : (
                 <p className="hint">
                   {creatingProject
-                    ? 'Creating project...'
+                    ? t('modals.creatingProject')
                     : projectId
-                      ? 'This will be saved to your project for client reports.'
-                      : 'Select a project or create one from this discussion.'}
+                      ? t('modals.savedToProject')
+                      : t('modals.projectHint')}
                 </p>
               )}
             </div>
 
             {/* Structured Decision Fields - compact layout */}
             <div className="form-group">
-              <label htmlFor="knowledge-problem">Problem / Question (optional)</label>
+              <label htmlFor="knowledge-problem">{t('modals.problemQuestion')}</label>
               <textarea
                 id="knowledge-problem"
                 value={problemStatement}
                 onChange={(e) => setProblemStatement(e.target.value)}
-                placeholder="What problem or question led to this decision?"
+                placeholder={t('modals.problemPlaceholder')}
                 rows={2}
                 enterKeyHint="next"
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="knowledge-decision">Decision *</label>
+              <label htmlFor="knowledge-decision">{t('modals.decisionRequired')}</label>
               <textarea
                 id="knowledge-decision"
                 value={decisionText}
                 onChange={(e) => setDecisionText(e.target.value)}
-                placeholder="What was decided? Be specific and actionable."
+                placeholder={t('modals.decisionPlaceholder')}
                 rows={2}
                 enterKeyHint="next"
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="knowledge-reasoning">Reasoning (optional)</label>
+              <label htmlFor="knowledge-reasoning">{t('modals.reasoning')}</label>
               <textarea
                 id="knowledge-reasoning"
                 value={reasoning}
                 onChange={(e) => setReasoning(e.target.value)}
-                placeholder="Why was this decision made?"
+                placeholder={t('modals.reasoningPlaceholder')}
                 rows={2}
                 enterKeyHint="next"
               />
@@ -792,7 +809,7 @@ export default function SaveKnowledgeModal({
             {/* Scope selector - only show for "Remember This" mode */}
             {saveMode === 'remember' && (
               <div className="form-group">
-                <label htmlFor="knowledge-scope">Visibility Scope</label>
+                <label htmlFor="knowledge-scope">{t('modals.visibilityScope')}</label>
                 <select
                   id="knowledge-scope"
                   value={scope}
@@ -800,24 +817,22 @@ export default function SaveKnowledgeModal({
                 >
                   {SCOPES.map((s) => (
                     <option key={s.id} value={s.id}>
-                      {s.label} - {s.description}
+                      {t(`knowledge.scopes.${s.id}`, { defaultValue: s.label })} -{' '}
+                      {t(`knowledge.scopes.${s.id}Desc`, { defaultValue: s.description })}
                     </option>
                   ))}
                 </select>
                 <p className="hint">
-                  {scope === 'company' &&
-                    'This will be injected into ALL council sessions for this company'}
-                  {scope === 'department' &&
-                    'This will be injected into council sessions for this department'}
-                  {scope === 'project' &&
-                    'This will only be injected when this project is selected'}
+                  {scope === 'company' && t('modals.scopeCompanyHint')}
+                  {scope === 'department' && t('modals.scopeDepartmentHint')}
+                  {scope === 'project' && t('modals.scopeProjectHint')}
                 </p>
               </div>
             )}
 
             {/* Tags input */}
             <div className="form-group">
-              <label htmlFor="knowledge-tags">Tags (optional)</label>
+              <label htmlFor="knowledge-tags">{t('modals.tagsOptional')}</label>
               <div className="tags-input-container">
                 <div className="tags-list">
                   {tags.map((tag) => (
@@ -840,11 +855,11 @@ export default function SaveKnowledgeModal({
                   onChange={(e) => setTagInput(e.target.value)}
                   onKeyDown={handleTagKeyPress}
                   onBlur={handleAddTag}
-                  placeholder="Add tags (press Enter or comma)"
+                  placeholder={t('modals.addTagsPlaceholder')}
                   enterKeyHint="enter"
                 />
               </div>
-              <p className="hint">Tags help organize and find this later</p>
+              <p className="hint">{t('modals.tagsHint')}</p>
             </div>
 
             {error && <div className="error-message">{error}</div>}
@@ -852,16 +867,16 @@ export default function SaveKnowledgeModal({
 
           <AppModal.Footer>
             <Button variant="outline" onClick={() => onClose()} disabled={saving}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button variant="default" onClick={handleSave} disabled={saving}>
               {saving
-                ? 'Saving...'
+                ? t('common.saving')
                 : saveMode === 'just_save'
-                  ? 'Save'
+                  ? t('common.save')
                   : saveMode === 'remember'
-                    ? 'Save & Remember'
-                    : 'Create Playbook'}
+                    ? t('modals.saveAndRemember')
+                    : t('modals.createPlaybook')}
             </Button>
           </AppModal.Footer>
         </>

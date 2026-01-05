@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import {
   Zap,
   ChevronDown,
@@ -29,6 +30,7 @@ interface ApiKeysSectionProps {
 }
 
 export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) {
+  const { t } = useTranslation();
   const {
     apiKeyStatus,
     setApiKeyStatus,
@@ -72,11 +74,8 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
     <>
       {/* Page intro */}
       <div className="api-page-intro">
-        <h2>Connect Your AI Provider</h2>
-        <p>
-          AxCouncil uses AI models to power the council. Connect your own API key to have full
-          control over costs — you only pay for what you use, directly to the provider.
-        </p>
+        <h2>{t('settings.connectAiProvider')}</h2>
+        <p>{t('settings.aiProviderDescription')}</p>
       </div>
 
       {/* OpenRouter Provider Accordion */}
@@ -91,22 +90,20 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                   </div>
                   <div className="provider-details">
                     <div className="provider-title-row">
-                      <h3>OpenRouter</h3>
+                      <h3>{t('settings.openRouter')}</h3>
                       {/* Status dot based on is_active toggle state */}
                       {apiKeyStatus &&
                         (apiKeyStatus.is_active ? (
                           apiKeyStatus.is_valid ? (
-                            <span className="status-dot connected" title="Active" />
+                            <span className="status-dot connected" title={t('settings.active')} />
                           ) : (
-                            <span className="status-dot invalid" title="Invalid" />
+                            <span className="status-dot invalid" title={t('settings.invalid')} />
                           )
                         ) : (
-                          <span className="status-dot paused" title="Paused" />
+                          <span className="status-dot paused" title={t('settings.paused')} />
                         ))}
                     </div>
-                    <span className="provider-tagline">
-                      Access all major AI models through one API
-                    </span>
+                    <span className="provider-tagline">{t('settings.openRouterTagline')}</span>
                   </div>
                 </div>
               </div>
@@ -169,7 +166,7 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                               handleTestApiKey();
                             }}
                           >
-                            <RefreshCw size={14} /> Test
+                            <RefreshCw size={14} /> {t('settings.test')}
                           </DropdownMenu.Item>
                           <DropdownMenu.Item
                             className="byok-dropdown-item"
@@ -178,7 +175,7 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                               setShowReplaceKeyForm(true);
                             }}
                           >
-                            <Edit3 size={14} /> Replace
+                            <Edit3 size={14} /> {t('settings.replace')}
                           </DropdownMenu.Item>
                           <DropdownMenu.Separator className="byok-dropdown-separator" />
                           <DropdownMenu.Item
@@ -188,7 +185,7 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                               handleDeleteWithConfirm();
                             }}
                           >
-                            <Trash2 size={14} /> Remove
+                            <Trash2 size={14} /> {t('common.remove')}
                           </DropdownMenu.Item>
                         </DropdownMenu.Content>
                       </DropdownMenu.Portal>
@@ -212,9 +209,11 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                       setApiKeyStatus(result);
                       setApiKeyInput('');
                       setShowReplaceKeyForm(false);
-                      setApiKeySuccess('API key replaced successfully!');
+                      setApiKeySuccess(t('settings.apiKeyReplaced'));
                     } catch (err: unknown) {
-                      setApiKeyError(err instanceof Error ? err.message : 'Failed to save API key');
+                      setApiKeyError(
+                        err instanceof Error ? err.message : t('settings.failedSaveKey')
+                      );
                     } finally {
                       setApiKeySaving(false);
                     }
@@ -239,14 +238,14 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                         setApiKeyInput('');
                       }}
                     >
-                      Cancel
+                      {t('common.cancel')}
                     </Button>
                     <Button
                       type="submit"
                       variant="default"
                       disabled={apiKeySaving || !apiKeyInput.trim()}
                     >
-                      {apiKeySaving ? <Spinner size={14} /> : 'Save'}
+                      {apiKeySaving ? <Spinner size={14} /> : t('common.save')}
                     </Button>
                   </div>
                 </form>
@@ -257,64 +256,46 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
             <div className="provider-explainer">
               <div className="explainer-section">
                 <h4>
-                  <HelpCircle size={16} /> What is OpenRouter?
+                  <HelpCircle size={16} /> {t('settings.whatIsOpenRouter')}
                 </h4>
-                <p>
-                  OpenRouter is a service that gives you access to all the major AI models (like
-                  ChatGPT, Claude, Gemini, and more) through a single account. Instead of signing up
-                  separately with OpenAI, Anthropic, Google, etc., you just need one OpenRouter
-                  account.
-                </p>
-                <p>
-                  Think of it like a phone plan that lets you call any network — OpenRouter lets you
-                  use any AI model without managing multiple subscriptions.
-                </p>
+                <p>{t('settings.whatIsOpenRouterDesc')}</p>
+                <p>{t('settings.openRouterAnalogy')}</p>
               </div>
 
               <div className="explainer-section">
                 <h4>
-                  <DollarSign size={16} /> How does billing work?
+                  <DollarSign size={16} /> {t('settings.howBillingWorks')}
                 </h4>
                 <p>
-                  <strong>You only pay for what you use.</strong> There are no monthly fees or
-                  subscriptions. Each time the council runs, it costs a small amount (typically a
-                  few cents) which is charged directly to your OpenRouter account.
+                  <strong>{t('settings.billingExplainer')}</strong>
                 </p>
-                <p>
-                  AxCouncil does not charge you for AI usage — all costs go directly to OpenRouter
-                  at their published rates. You can set spending limits on your OpenRouter account
-                  to stay in control.
-                </p>
+                <p>{t('settings.billingNote')}</p>
               </div>
 
               <div className="explainer-section">
                 <h4>
-                  <Lock size={16} /> Is my API key secure?
+                  <Lock size={16} /> {t('settings.isKeySecure')}
                 </h4>
-                <p>
-                  Yes. Your API key is encrypted before being stored and is only ever decrypted on
-                  our secure servers when making AI requests. We never log or expose your full key.
-                </p>
+                <p>{t('settings.keySecurityNote')}</p>
               </div>
             </div>
 
             {/* Setup guide - ALWAYS visible */}
             <div className="provider-setup-guide">
               <div className="setup-steps">
-                <h4>How to get your OpenRouter API key</h4>
+                <h4>{t('settings.howToGetKey')}</h4>
 
                 <div className="setup-step">
                   <div className="step-number">1</div>
                   <div className="step-content">
                     <p>
-                      <strong>Create an OpenRouter account</strong>
+                      <strong>{t('settings.step1Title')}</strong>
                     </p>
                     <p>
-                      Go to{' '}
+                      {t('settings.step1Desc')}{' '}
                       <a href="https://openrouter.ai" target="_blank" rel="noopener noreferrer">
                         openrouter.ai <ExternalLink size={12} />
-                      </a>{' '}
-                      and sign up for a free account. You can use Google, GitHub, or email.
+                      </a>
                     </p>
                   </div>
                 </div>
@@ -323,19 +304,17 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                   <div className="step-number">2</div>
                   <div className="step-content">
                     <p>
-                      <strong>Add credits to your account</strong>
+                      <strong>{t('settings.step2Title')}</strong>
                     </p>
                     <p>
-                      Go to{' '}
+                      {t('settings.step2Desc')}{' '}
                       <a
                         href="https://openrouter.ai/credits"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
                         Credits <ExternalLink size={12} />
-                      </a>{' '}
-                      and add funds. Start with $5-10 to try it out — this will last for many
-                      council sessions.
+                      </a>
                     </p>
                   </div>
                 </div>
@@ -344,19 +323,17 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                   <div className="step-number">3</div>
                   <div className="step-content">
                     <p>
-                      <strong>Create an API key</strong>
+                      <strong>{t('settings.step3Title')}</strong>
                     </p>
                     <p>
-                      Go to{' '}
+                      {t('settings.step3Desc')}{' '}
                       <a
                         href="https://openrouter.ai/keys"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
                         API Keys <ExternalLink size={12} />
-                      </a>{' '}
-                      and click "Create API Key". Give it a name like "AxCouncil" and optionally set
-                      a spending limit.
+                      </a>
                     </p>
                   </div>
                 </div>
@@ -365,12 +342,9 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                   <div className="step-number">4</div>
                   <div className="step-content">
                     <p>
-                      <strong>Copy and paste your key below</strong>
+                      <strong>{t('settings.step4Title')}</strong>
                     </p>
-                    <p>
-                      Your key will look like <code>sk-or-v1-...</code> — paste it in the field
-                      below and we'll verify it works.
-                    </p>
+                    <p>{t('settings.step4Desc')}</p>
                   </div>
                 </div>
               </div>
@@ -387,7 +361,7 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
 
                   <form onSubmit={handleSaveApiKey} className="api-key-form">
                     <div className="form-group">
-                      <label htmlFor="openrouter-api-key">Your OpenRouter API Key</label>
+                      <label htmlFor="openrouter-api-key">{t('settings.yourApiKey')}</label>
                       <input
                         id="openrouter-api-key"
                         name="openrouter-api-key"
@@ -397,7 +371,7 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                         placeholder="sk-or-v1-..."
                         autoComplete="off"
                       />
-                      <span className="form-hint">Your key is encrypted and stored securely</span>
+                      <span className="form-hint">{t('settings.keyEncrypted')}</span>
                     </div>
                     <Button
                       type="submit"
@@ -408,7 +382,7 @@ export function ApiKeysSection({ isOpen, onDeleteApiKey }: ApiKeysSectionProps) 
                         <Spinner size={14} />
                       ) : (
                         <>
-                          <ArrowRight size={14} /> Connect & Verify
+                          <ArrowRight size={14} /> {t('settings.connectVerify')}
                         </>
                       )}
                     </Button>

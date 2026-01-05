@@ -20,6 +20,7 @@
  */
 
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import { Building2, Check, ChevronDown } from 'lucide-react';
 import { getDeptColor } from '../../lib/colors';
@@ -85,13 +86,15 @@ export function DepartmentSelect({
   onValueChange,
   departments = [],
   includeAll = true,
-  allLabel = 'All Departments',
+  allLabel,
   disabled = false,
   className,
   showIcon = true,
   compact = false,
 }: DepartmentSelectProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
+  const actualAllLabel = allLabel || t('departments.allDepartments');
 
   // Get display name and color for current value
   const selectedDept = value && value !== 'all' ? departments.find((d) => d.id === value) : null;
@@ -99,9 +102,9 @@ export function DepartmentSelect({
 
   const getDisplayName = () => {
     if (value === 'all' || !value) {
-      return compact ? 'All' : allLabel;
+      return compact ? t('common.all') : actualAllLabel;
     }
-    if (!selectedDept) return compact ? 'All' : allLabel;
+    if (!selectedDept) return compact ? t('common.all') : actualAllLabel;
     return compact ? selectedDept.name.split(' ')[0] : selectedDept.name;
   };
 
@@ -120,7 +123,7 @@ export function DepartmentSelect({
   };
 
   // Build items list for mobile
-  const allItems = [...(includeAll ? [{ id: 'all', name: allLabel }] : []), ...departments];
+  const allItems = [...(includeAll ? [{ id: 'all', name: actualAllLabel }] : []), ...departments];
 
   // Mobile: use BottomSheet
   if (isMobileDevice()) {
@@ -138,7 +141,11 @@ export function DepartmentSelect({
           <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
         </button>
 
-        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title="Select Department">
+        <BottomSheet
+          isOpen={open}
+          onClose={() => setOpen(false)}
+          title={t('departments.selectDepartments')}
+        >
           <div className="dept-select-list-mobile">
             {allItems.map((dept) => {
               const isSelected =
@@ -196,7 +203,7 @@ export function DepartmentSelect({
           <SelectPrimitive.Viewport className="dept-select-viewport">
             {includeAll && (
               <DepartmentSelectItem value="all" deptId={null}>
-                {allLabel}
+                {actualAllLabel}
               </DepartmentSelectItem>
             )}
             {departments.map((dept) => (

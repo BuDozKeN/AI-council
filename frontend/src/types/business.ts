@@ -81,3 +81,139 @@ export interface UserPreferences {
   last_project_id?: string;
   last_playbook_ids?: string[];
 }
+
+// =============================================================================
+// LLM Hub Types
+// =============================================================================
+
+/**
+ * Stage-level configuration for temperature and tokens.
+ */
+export interface StageConfig {
+  temperature: number;
+  max_tokens: number;
+  top_p?: number;
+}
+
+/**
+ * Full preset configuration with all 3 stages.
+ */
+export interface PresetConfigFull {
+  stage1: StageConfig;
+  stage2: StageConfig;
+  stage3: StageConfig;
+}
+
+/**
+ * Full LLM preset with configuration for all stages.
+ */
+export interface LLMPresetFull {
+  id: string; // 'conservative' | 'balanced' | 'creative'
+  name: string;
+  description?: string;
+  config: PresetConfigFull;
+  recommended_for: string[];
+  updated_at?: string;
+}
+
+/**
+ * A model entry in the model registry.
+ */
+export interface ModelRegistryEntry {
+  id: string;
+  role: string;
+  model_id: string;
+  display_name?: string;
+  priority: number;
+  is_active: boolean;
+  is_global?: boolean;
+  notes?: string;
+}
+
+// =============================================================================
+// Conversation Modifiers
+// =============================================================================
+
+/**
+ * Conversation modifier IDs for per-message LLM behavior tweaks.
+ */
+export type ConversationModifier = 'creative' | 'cautious' | 'concise' | 'detailed';
+
+/**
+ * Modifier definition with display info.
+ */
+export interface ModifierDefinition {
+  id: ConversationModifier;
+  label: string;
+  icon: string;
+  description: string;
+}
+
+/**
+ * Available conversation modifiers.
+ */
+export const CONVERSATION_MODIFIERS: ModifierDefinition[] = [
+  {
+    id: 'creative',
+    label: 'Creative',
+    icon: '✨',
+    description: 'More varied, imaginative responses',
+  },
+  {
+    id: 'cautious',
+    label: 'Cautious',
+    icon: '🛡️',
+    description: 'More careful, precise responses',
+  },
+  {
+    id: 'concise',
+    label: 'Concise',
+    icon: '📝',
+    description: 'Shorter, to-the-point answers',
+  },
+  {
+    id: 'detailed',
+    label: 'Detailed',
+    icon: '📚',
+    description: 'Longer, comprehensive answers',
+  },
+];
+
+// =============================================================================
+// LLM Preset Select Types
+// =============================================================================
+
+/**
+ * Valid LLM preset IDs for the preset selector.
+ */
+export type LLMPresetId = 'conservative' | 'balanced' | 'creative';
+
+/**
+ * Preset definition for UI display.
+ */
+export interface LLMPreset {
+  id: LLMPresetId;
+  name: string;
+  description: string;
+}
+
+/**
+ * Available LLM behavior presets.
+ */
+export const LLM_PRESETS: LLMPreset[] = [
+  {
+    id: 'conservative',
+    name: 'Conservative',
+    description: 'Lower temperature, safer responses',
+  },
+  {
+    id: 'balanced',
+    name: 'Balanced',
+    description: 'Default settings for most use cases',
+  },
+  {
+    id: 'creative',
+    name: 'Creative',
+    description: 'Higher temperature, more varied responses',
+  },
+];

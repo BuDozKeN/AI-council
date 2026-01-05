@@ -6,6 +6,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { AppModal } from '../../ui/AppModal';
 import { AIWriteAssist } from '../../ui/AIWriteAssist';
@@ -35,6 +36,7 @@ export function ViewCompanyContextModal({
   initialEditing = true,
   fullscreen = false,
 }: ViewCompanyContextModalProps) {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(initialEditing);
   const [editedContext, setEditedContext] = useState(data.context_md || '');
   const [saving, setSaving] = useState(false);
@@ -47,9 +49,12 @@ export function ViewCompanyContextModal({
       try {
         await onSave({ context_md: editedContext });
         setIsEditing(false);
-        toast.success(`${companyName || 'Company'} context saved`, { duration: 4000 });
+        toast.success(
+          t('modals.companyContextSaved', { name: companyName || t('modals.company') }),
+          { duration: 4000 }
+        );
       } catch {
-        toast.error('Failed to save company context');
+        toast.error(t('modals.failedToSaveCompanyContext'));
       }
       setSaving(false);
     }
@@ -65,8 +70,8 @@ export function ViewCompanyContextModal({
       isOpen={true}
       onClose={onClose}
       size={fullscreen ? 'full' : 'lg'}
-      title="Company Context"
-      description="This context is injected into every AI Council conversation."
+      title={t('modals.companyContext')}
+      description={t('modals.companyContextDesc')}
       contentClassName="mc-modal-no-padding"
     >
       <div className="mc-modal-body">
@@ -86,15 +91,7 @@ export function ViewCompanyContextModal({
                   onChange={(e) => setEditedContext(e.target.value)}
                   rows={20}
                   autoFocus
-                  placeholder="Enter your company context here...
-
-Include:
-- Mission and vision
-- Company stage and goals
-- Budget and constraints
-- Key decisions and policies
-- Team structure
-- Any other important context for the AI Council"
+                  placeholder={t('modals.companyContextPlaceholder')}
                   enterKeyHint="done"
                 />
               </AIWriteAssist>
@@ -104,7 +101,7 @@ Include:
               {content ? (
                 <MarkdownViewer content={content} skipCleanup={true} />
               ) : (
-                <p className="mc-no-content">No company context yet. Click Edit to add context.</p>
+                <p className="mc-no-content">{t('modals.noCompanyContext')}</p>
               )}
             </FloatingContextActions>
           )}
@@ -119,14 +116,14 @@ Include:
               onClick={handleCancelEdit}
               disabled={saving}
             >
-              Cancel
+              {t('common.cancel')}
             </button>
             <button
               className="app-modal-btn app-modal-btn-primary"
               onClick={handleSave}
               disabled={saving}
             >
-              {saving ? 'Saving...' : 'Save Changes'}
+              {saving ? t('common.saving') : t('modals.saveChanges')}
             </button>
           </>
         ) : (
@@ -139,11 +136,11 @@ Include:
                 <svg viewBox="0 0 20 20" fill="currentColor">
                   <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                 </svg>
-                Edit
+                {t('common.edit')}
               </button>
             )}
             <button className="app-modal-btn app-modal-btn-primary" onClick={onClose}>
-              Done
+              {t('common.done')}
             </button>
           </>
         )}

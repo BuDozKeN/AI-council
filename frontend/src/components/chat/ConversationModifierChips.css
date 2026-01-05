@@ -1,0 +1,109 @@
+/**
+ * ConversationModifierChips styles
+ *
+ * Chips are styled to be subtle but visible, matching the OmniBar aesthetic.
+ * Active state uses the modifier's color for visual feedback.
+ */
+
+.modifier-chips {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.modifier-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 12px;
+  background: var(--color-white);
+  color: var(--color-gray-600);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.modifier-chip:hover:not(:disabled) {
+  border-color: var(--color-gray-300);
+  background: var(--color-gray-50);
+}
+
+.modifier-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modifier-chip .modifier-icon {
+  font-size: 11px;
+  line-height: 1;
+}
+
+.modifier-chip .modifier-label {
+  font-size: 11px;
+}
+
+/* Active states with modifier-specific colors */
+.modifier-chip.active {
+  border-color: var(--color-blue-300);
+  background: var(--color-blue-50);
+  color: var(--color-blue-700);
+}
+
+.modifier-chip.creative.active {
+  border-color: var(--color-purple-200);
+  background: var(--color-purple-100);
+  color: var(--color-purple-600);
+}
+
+.modifier-chip.cautious.active {
+  border-color: var(--color-blue-200);
+  background: var(--color-blue-50);
+  color: var(--color-blue-700);
+}
+
+.modifier-chip.concise.active {
+  border-color: var(--color-green-200);
+  background: var(--color-green-50);
+  color: var(--color-green-700);
+}
+
+.modifier-chip.detailed.active {
+  border-color: var(--color-amber-200);
+  background: var(--color-amber-100);
+  color: var(--color-amber-700);
+}
+
+/* Mobile: smaller chips */
+@media (max-width: 768px) {
+  .modifier-chips {
+    gap: 2px;
+  }
+
+  .modifier-chip {
+    padding: 3px 6px;
+    border-radius: 10px;
+  }
+
+  .modifier-chip .modifier-icon {
+    font-size: 10px;
+  }
+
+  .modifier-chip .modifier-label {
+    font-size: 10px;
+  }
+}
+
+/* Very small screens: icon only */
+@media (max-width: 480px) {
+  .modifier-chip .modifier-label {
+    display: none;
+  }
+
+  .modifier-chip {
+    padding: 4px 6px;
+  }
+}

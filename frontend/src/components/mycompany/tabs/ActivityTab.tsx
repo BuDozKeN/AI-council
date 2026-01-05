@@ -5,25 +5,27 @@
  * Extracted from MyCompany.jsx for better maintainability.
  */
 
+import { useTranslation } from 'react-i18next';
 import { ClipboardList, ExternalLink } from 'lucide-react';
 import { formatDateGroup } from '../../../lib/dateUtils';
 import { ScrollableContent } from '../../ui/ScrollableContent';
 
-// Constants for activity display
-const EVENT_LABELS: Record<string, string> = {
-  decision: 'Decision',
-  playbook: 'Playbook',
-  project: 'Project',
-  role: 'Role Change',
-  department: 'Department',
-  council_session: 'Council',
-};
+// Promoted types array for validation
+const PROMOTED_TYPES = ['sop', 'framework', 'policy', 'project'] as const;
+type PromotedType = (typeof PROMOTED_TYPES)[number];
 
-const PROMOTED_TYPE_LABELS: Record<string, string> = {
-  sop: 'SOP',
-  framework: 'FRAMEWORK',
-  policy: 'POLICY',
-  project: 'PROJECT',
+// Type-safe translation key mapping for promoted types
+const PROMOTED_TYPE_KEYS: Record<
+  PromotedType,
+  | 'mycompany.promotedType_sop'
+  | 'mycompany.promotedType_framework'
+  | 'mycompany.promotedType_policy'
+  | 'mycompany.promotedType_project'
+> = {
+  sop: 'mycompany.promotedType_sop',
+  framework: 'mycompany.promotedType_framework',
+  policy: 'mycompany.promotedType_policy',
+  project: 'mycompany.promotedType_project',
 };
 
 // Color mappings use CSS custom properties for dark mode support
@@ -118,16 +120,15 @@ export function ActivityTab({
   onLoadMore,
   onNavigateToConversation,
 }: ActivityTabProps) {
+  const { t } = useTranslation();
+
   // Only show empty state if data has been loaded (not during initial load)
   if (activityLogs.length === 0 && activityLoaded) {
     return (
       <div className="mc-empty">
         <ClipboardList className="mc-empty-icon" size={48} />
-        <p className="mc-empty-title">All quiet here</p>
-        <p className="mc-empty-hint">
-          Your team's activity will show up as you use the council, save decisions, and build
-          playbooks.
-        </p>
+        <p className="mc-empty-title">{t('mycompany.allQuiet')}</p>
+        <p className="mc-empty-hint">{t('mycompany.activityHelp')}</p>
       </div>
     );
   }
@@ -142,7 +143,7 @@ export function ActivityTab({
   return (
     <div className="mc-activity">
       <div className="mc-activity-header">
-        <span>{activityLogs.length} events</span>
+        <span>{t('mycompany.eventsCount', { count: activityLogs.length })}</span>
       </div>
 
       <ScrollableContent className="mc-activity-list">
@@ -185,7 +186,10 @@ export function ActivityTab({
                       {/* Badges row: Type badge + Action badge */}
                       <div className="mc-activity-badges">
                         {/* Use promoted_to_type if available, else fall back to event_type */}
-                        {log.promoted_to_type && PROMOTED_TYPE_LABELS[log.promoted_to_type] ? (
+                        {log.promoted_to_type &&
+                        PROMOTED_TYPES.includes(
+                          log.promoted_to_type as (typeof PROMOTED_TYPES)[number]
+                        ) ? (
                           <span
                             className="mc-elegant-badge activity-type"
                             style={{
@@ -197,14 +201,19 @@ export function ActivityTab({
                                 'var(--color-slate-500)',
                             }}
                           >
-                            {PROMOTED_TYPE_LABELS[log.promoted_to_type]}
+                            {t(
+                              PROMOTED_TYPE_KEYS[log.promoted_to_type as PromotedType] ??
+                                'mycompany.promotedType_sop'
+                            )}
                           </span>
                         ) : (
                           <span
                             className="mc-elegant-badge activity-type"
                             style={{ background: `${dotColor}20`, color: dotColor }}
                           >
-                            {EVENT_LABELS[log.event_type] || log.event_type}
+                            {t(`mycompany.eventType_${log.event_type}`, {
+                              defaultValue: log.event_type,
+                            })}
                           </span>
                         )}
                         {action && actionColors && (
@@ -226,8 +235,8 @@ export function ActivityTab({
                           e.stopPropagation();
                           onNavigateToConversation(log.conversation_id!, 'activity');
                         }}
-                        title="View source conversation"
-                        aria-label="View source conversation"
+                        title={t('mycompany.viewSourceConversation')}
+                        aria-label={t('mycompany.viewSourceConversation')}
                       >
                         <ExternalLink size={16} />
                       </button>
@@ -247,7 +256,7 @@ export function ActivityTab({
               onClick={onLoadMore}
               disabled={activityLoadingMore}
             >
-              {activityLoadingMore ? 'Loading...' : 'Load more'}
+              {activityLoadingMore ? t('mycompany.loading') : t('mycompany.loadMoreActivity')}
             </button>
           </div>
         )}

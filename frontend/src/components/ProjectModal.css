@@ -8,6 +8,78 @@
   padding: 0;
 }
 
+/* ============================================================================
+   MOBILE: Ensure modal expands properly on mobile bottom sheet
+   The pm-form needs to be visible and scrollable
+   ============================================================================ */
+
+@media (max-width: 768px) {
+  /* Make the pm-modal-body flex container for proper height calculation */
+  .app-modal-body.pm-modal-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0; /* Remove default body padding, form handles it */
+  }
+
+  /* Make the app-modal-content expand when it contains pm-modal-body */
+  .app-modal-content:has(.pm-modal-body) {
+    min-height: 75dvh;
+  }
+
+  /* Form fills available space with proper padding */
+  .pm-modal-body .pm-form {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 16px;
+  }
+
+  /* Field spacing - consistent and balanced */
+  .pm-modal-body .pm-field {
+    margin-bottom: 20px;
+  }
+
+  /* AI intro banner - full width, balanced padding */
+  .pm-modal-body .pm-ai-intro {
+    margin: 0 0 16px;
+    padding: 14px 16px;
+    border-radius: var(--radius-lg);
+  }
+
+  /* Textarea - more breathing room */
+  .pm-modal-body .pm-field textarea {
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    min-height: 140px;
+  }
+
+  /* Actions - sticky at bottom with proper spacing */
+  .pm-modal-body .pm-actions {
+    margin-top: auto;
+    padding: 16px 0;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    gap: 10px;
+    border-top: 1px solid var(--color-border);
+  }
+
+  /* Buttons - balanced sizing */
+  .pm-modal-body .pm-actions button {
+    flex: 1 1 auto;
+    min-height: 48px;
+    border-radius: var(--radius-lg);
+  }
+
+  /* Dark mode - actions border */
+  .dark .pm-modal-body .pm-actions,
+  [data-theme='dark'] .pm-modal-body .pm-actions {
+    border-top-color: var(--color-border);
+  }
+}
+
 /* Error banner */
 .pm-error {
   display: flex;

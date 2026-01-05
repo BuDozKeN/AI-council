@@ -11,6 +11,7 @@
  */
 
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import {
   ChevronDown,
@@ -255,7 +256,7 @@ interface ContextChipProps {
 }
 
 export function ContextChip({
-  displayText = 'Smart Auto',
+  displayText,
   isSmartAuto = true,
   smartAutoHint = null,
   businesses = [],
@@ -275,6 +276,7 @@ export function ContextChip({
   onSelectPlaybooks,
   userPreferences: _userPreferences,
 }: ContextChipProps) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(isMobileDevice());
   const [showMore, setShowMore] = useState(false); // Toggle for Projects & Playbooks
@@ -334,11 +336,12 @@ export function ContextChip({
   void handleSmartAuto; // Acknowledge the function exists for future use
 
   // Display text with Smart Auto hint
+  const actualDisplayText = displayText || t('contextChip.smartAuto');
   const getDisplayWithHint = () => {
     if (isSmartAuto && smartAutoHint) {
-      return `Smart Auto · ${smartAutoHint}`;
+      return `${t('contextChip.smartAuto')} · ${smartAutoHint}`;
     }
-    return displayText;
+    return actualDisplayText;
   };
 
   // Toggle department selection
@@ -376,7 +379,7 @@ export function ContextChip({
       ) : (
         <Building2 className="context-chip-icon" size={14} />
       )}
-      <span className="context-chip-label">Using:</span>
+      <span className="context-chip-label">{t('contextChip.using')}</span>
       <span className="context-chip-value">{getDisplayWithHint()}</span>
       <ChevronDown className="context-chip-chevron" size={14} />
     </button>
@@ -406,14 +409,14 @@ export function ContextChip({
       {/* Company - single select */}
       {businesses.length > 0 && (
         <div className="context-field-mobile">
-          <label className="context-field-label-mobile">Company</label>
+          <label className="context-field-label-mobile">{t('context.company')}</label>
           <Select
             value={selectedBusiness || '__none__'}
             onValueChange={(v) => onSelectBusiness?.(v === '__none__' ? null : v)}
           >
             <SelectTrigger className="context-multiselect-trigger">
               <Building2 size={16} className="context-select-icon" />
-              <SelectValue placeholder="Select company" />
+              <SelectValue placeholder={t('contextChip.selectCompany')} />
             </SelectTrigger>
             <SelectContent>
               {businesses.map((biz) => (
@@ -429,9 +432,9 @@ export function ContextChip({
       {/* Departments - multi-select dropdown */}
       {selectedBusiness && departments.length > 0 && (
         <MultiSelectDropdown
-          label="Departments"
+          label={t('departments.title')}
           icon={<Users size={16} className="context-select-icon" />}
-          placeholder="All departments"
+          placeholder={t('departments.allDepartments')}
           items={departments}
           selectedIds={selectedDepartments}
           onToggle={toggleDepartment}
@@ -442,9 +445,9 @@ export function ContextChip({
       {/* Roles - multi-select dropdown */}
       {selectedBusiness && filteredRoles.length > 0 && (
         <MultiSelectDropdown
-          label="Roles"
+          label={t('roles.title')}
           icon={<Users size={16} className="context-select-icon" />}
-          placeholder="All roles"
+          placeholder={t('roles.allRoles')}
           items={filteredRoles}
           selectedIds={selectedRoles}
           onToggle={toggleRole}
@@ -454,17 +457,17 @@ export function ContextChip({
       {/* Project - single select */}
       {selectedBusiness && projects.length > 0 && (
         <div className="context-field-mobile">
-          <label className="context-field-label-mobile">Project</label>
+          <label className="context-field-label-mobile">{t('context.project')}</label>
           <Select
             value={selectedProject || '__none__'}
             onValueChange={(v) => onSelectProject?.(v === '__none__' ? null : v)}
           >
             <SelectTrigger className="context-multiselect-trigger">
               <Briefcase size={16} className="context-select-icon" />
-              <SelectValue placeholder="Company-wide" />
+              <SelectValue placeholder={t('company.companyWide')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="__none__">Company-wide</SelectItem>
+              <SelectItem value="__none__">{t('company.companyWide')}</SelectItem>
               {sortedProjects.map((proj) => (
                 <SelectItem key={proj.id} value={proj.id}>
                   {proj.name}
@@ -484,7 +487,7 @@ export function ContextChip({
             onClick={() => setShowMore(!showMore)}
           >
             <FileText size={16} className="context-select-icon" />
-            <span>Playbooks</span>
+            <span>{t('playbooks.title')}</span>
             {selectedPlaybooks.length > 0 && (
               <span className="context-more-badge">{selectedPlaybooks.length}</span>
             )}
@@ -498,9 +501,9 @@ export function ContextChip({
             <div className="context-playbooks-expanded">
               {groupedPlaybooks.framework.length > 0 && (
                 <MultiSelectDropdown
-                  label="Frameworks"
+                  label={t('context.frameworks')}
                   icon={<FileText size={16} className="context-select-icon" />}
-                  placeholder="None selected"
+                  placeholder={t('contextChip.noneSelected')}
                   items={groupedPlaybooks.framework}
                   selectedIds={selectedPlaybooks.filter((id) =>
                     groupedPlaybooks.framework.some((pb) => pb.id === id)
@@ -511,9 +514,9 @@ export function ContextChip({
 
               {groupedPlaybooks.sop.length > 0 && (
                 <MultiSelectDropdown
-                  label="SOPs"
+                  label={t('context.sops')}
                   icon={<ScrollText size={16} className="context-select-icon" />}
-                  placeholder="None selected"
+                  placeholder={t('contextChip.noneSelected')}
                   items={groupedPlaybooks.sop}
                   selectedIds={selectedPlaybooks.filter((id) =>
                     groupedPlaybooks.sop.some((pb) => pb.id === id)
@@ -524,9 +527,9 @@ export function ContextChip({
 
               {groupedPlaybooks.policy.length > 0 && (
                 <MultiSelectDropdown
-                  label="Policies"
+                  label={t('context.policies')}
                   icon={<Shield size={16} className="context-select-icon" />}
-                  placeholder="None selected"
+                  placeholder={t('contextChip.noneSelected')}
                   items={groupedPlaybooks.policy}
                   selectedIds={selectedPlaybooks.filter((id) =>
                     groupedPlaybooks.policy.some((pb) => pb.id === id)
@@ -541,7 +544,7 @@ export function ContextChip({
 
       {/* Apply button */}
       <button className="context-apply-btn-mobile" onClick={() => setIsOpen(false)}>
-        Use this context
+        {t('contextChip.useThisContext')}
       </button>
     </div>
   );
@@ -552,14 +555,14 @@ export function ContextChip({
       {/* Company - single select dropdown */}
       {businesses.length > 0 && (
         <div className="context-field-mobile">
-          <label className="context-field-label-mobile">Company</label>
+          <label className="context-field-label-mobile">{t('context.company')}</label>
           <Select
             value={selectedBusiness || '__none__'}
             onValueChange={(v) => onSelectBusiness?.(v === '__none__' ? null : v)}
           >
             <SelectTrigger className="context-select-mobile">
               <Building2 size={16} className="context-select-icon" />
-              <SelectValue placeholder="Select company" />
+              <SelectValue placeholder={t('contextChip.selectCompany')} />
             </SelectTrigger>
             <SelectContent>
               {businesses.map((biz) => (
@@ -575,9 +578,9 @@ export function ContextChip({
       {/* Departments - multi-select */}
       {selectedBusiness && departments.length > 0 && (
         <MultiSelectDropdown
-          label="Departments"
+          label={t('departments.title')}
           icon={<Users size={16} className="context-select-icon" />}
-          placeholder="All departments"
+          placeholder={t('departments.allDepartments')}
           items={departments}
           selectedIds={selectedDepartments}
           onToggle={toggleDepartment}
@@ -588,9 +591,9 @@ export function ContextChip({
       {/* Roles - multi-select */}
       {selectedBusiness && filteredRoles.length > 0 && (
         <MultiSelectDropdown
-          label="Roles"
+          label={t('roles.title')}
           icon={<Users size={16} className="context-select-icon" />}
-          placeholder="All roles"
+          placeholder={t('roles.allRoles')}
           items={filteredRoles}
           selectedIds={selectedRoles}
           onToggle={toggleRole}
@@ -600,17 +603,17 @@ export function ContextChip({
       {/* Project - single select dropdown */}
       {selectedBusiness && projects.length > 0 && (
         <div className="context-field-mobile">
-          <label className="context-field-label-mobile">Project</label>
+          <label className="context-field-label-mobile">{t('context.project')}</label>
           <Select
             value={selectedProject || '__none__'}
             onValueChange={(v) => onSelectProject?.(v === '__none__' ? null : v)}
           >
             <SelectTrigger className="context-select-mobile">
               <Briefcase size={16} className="context-select-icon" />
-              <SelectValue placeholder="Company-wide" />
+              <SelectValue placeholder={t('company.companyWide')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="__none__">Company-wide</SelectItem>
+              <SelectItem value="__none__">{t('company.companyWide')}</SelectItem>
               {sortedProjects.map((proj) => (
                 <SelectItem key={proj.id} value={proj.id}>
                   {proj.name}
@@ -630,7 +633,7 @@ export function ContextChip({
             onClick={() => setShowMore(!showMore)}
           >
             <FileText size={16} className="context-select-icon" />
-            <span>Playbooks</span>
+            <span>{t('playbooks.title')}</span>
             {selectedPlaybooks.length > 0 && (
               <span className="context-more-badge">{selectedPlaybooks.length}</span>
             )}
@@ -644,9 +647,9 @@ export function ContextChip({
             <div className="context-playbooks-expanded">
               {groupedPlaybooks.framework.length > 0 && (
                 <MultiSelectDropdown
-                  label="Frameworks"
+                  label={t('context.frameworks')}
                   icon={<FileText size={16} className="context-select-icon" />}
-                  placeholder="None selected"
+                  placeholder={t('contextChip.noneSelected')}
                   items={groupedPlaybooks.framework}
                   selectedIds={selectedPlaybooks.filter((id) =>
                     groupedPlaybooks.framework.some((pb) => pb.id === id)
@@ -657,9 +660,9 @@ export function ContextChip({
 
               {groupedPlaybooks.sop.length > 0 && (
                 <MultiSelectDropdown
-                  label="SOPs"
+                  label={t('context.sops')}
                   icon={<ScrollText size={16} className="context-select-icon" />}
-                  placeholder="None selected"
+                  placeholder={t('contextChip.noneSelected')}
                   items={groupedPlaybooks.sop}
                   selectedIds={selectedPlaybooks.filter((id) =>
                     groupedPlaybooks.sop.some((pb) => pb.id === id)
@@ -670,9 +673,9 @@ export function ContextChip({
 
               {groupedPlaybooks.policy.length > 0 && (
                 <MultiSelectDropdown
-                  label="Policies"
+                  label={t('context.policies')}
                   icon={<Shield size={16} className="context-select-icon" />}
-                  placeholder="None selected"
+                  placeholder={t('contextChip.noneSelected')}
                   items={groupedPlaybooks.policy}
                   selectedIds={selectedPlaybooks.filter((id) =>
                     groupedPlaybooks.policy.some((pb) => pb.id === id)
@@ -687,7 +690,7 @@ export function ContextChip({
 
       {/* Use this context button */}
       <button className="context-apply-btn-mobile" onClick={() => setIsOpen(false)}>
-        Use this context
+        {t('contextChip.useThisContext')}
       </button>
     </div>
   );
@@ -697,7 +700,11 @@ export function ContextChip({
     return (
       <>
         {triggerButton}
-        <BottomSheet isOpen={isOpen} onClose={() => setIsOpen(false)} title="Select Context">
+        <BottomSheet
+          isOpen={isOpen}
+          onClose={() => setIsOpen(false)}
+          title={t('contextChip.selectContext')}
+        >
           {renderMobileContent()}
         </BottomSheet>
       </>

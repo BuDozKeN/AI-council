@@ -99,62 +99,7 @@ const AppModalBase = React.forwardRef<HTMLDivElement, AppModalProps>(
 
     // Swipe-to-dismiss state (mobile only)
     const dragStartY = React.useRef<number | null>(null);
-
-    // Handle swipe-to-dismiss on mobile
-    const handleTouchStart = React.useCallback((e: TouchEvent) => {
-      const body = bodyRef.current;
-      if (!body) return;
-
-      // Don't interfere with button clicks
-      const touchTarget = e.target as HTMLElement;
-      if (touchTarget.closest('button, a, [role="button"], input, textarea, select')) {
-        return;
-      }
-
-      // Only track if we're at the top of scroll or touching the drag handle
-      const isAtTop = body.scrollTop <= 0;
-      const firstTouch = e.touches[0];
-      const isDragHandle =
-        touchTarget.closest('.app-modal-content::before') || (firstTouch?.clientY ?? 0) < 50; // Top 50px is drag area
-
-      if (isAtTop || isDragHandle) {
-        dragStartY.current = firstTouch?.clientY ?? null;
-      }
-    }, []);
-
-    const handleTouchEnd = React.useCallback(
-      (e: TouchEvent) => {
-        if (dragStartY.current === null) return;
-
-        const changedTouch = e.changedTouches[0];
-        const deltaY = (changedTouch?.clientY ?? 0) - dragStartY.current;
-        dragStartY.current = null;
-
-        // If swiped down more than 80px, close the modal
-        if (deltaY > 80 && closeOnOverlayClick) {
-          onClose?.();
-        }
-      },
-      [onClose, closeOnOverlayClick]
-    );
-
-    // Attach touch listeners for swipe-to-dismiss on mobile
-    React.useEffect(() => {
-      const content = contentRef.current;
-      if (!content || !isOpen) return;
-
-      // Only enable on mobile
-      const isMobile = window.matchMedia('(max-width: 768px)').matches;
-      if (!isMobile) return;
-
-      content.addEventListener('touchstart', handleTouchStart, { passive: true });
-      content.addEventListener('touchend', handleTouchEnd, { passive: true });
-
-      return () => {
-        content.removeEventListener('touchstart', handleTouchStart);
-        content.removeEventListener('touchend', handleTouchEnd);
-      };
-    }, [isOpen, handleTouchStart, handleTouchEnd]);
+    const dragHandleRef = React.useRef<HTMLDivElement | null>(null);
 
     // Handle scroll detection
     const handleScroll = React.useCallback(
@@ -183,12 +128,92 @@ const AppModalBase = React.forwardRef<HTMLDivElement, AppModalProps>(
       }
     }, [copyText]);
 
+    // Track if a close should be ignored (e.g., clicking theme toggle)
+    const ignoreCloseRef = React.useRef(false);
+
+    // Helper to check if fixed-position buttons were just clicked (within last 500ms)
+    // or if a Radix Select dropdown was just dismissed (within last 300ms)
+    // or if a MultiDepartmentSelect item was just clicked
+    // or if a nested BottomSheet is currently open
+    const shouldIgnoreClose = () => {
+      // Check if a nested BottomSheet is currently open (e.g., MultiDepartmentSelect dropdown)
+      // This prevents the parent modal from closing when interacting with the nested sheet
+      const hasOpenBottomSheet = document.querySelector(
+        '.bottom-sheet-content, .bottom-sheet-overlay'
+      );
+      if (hasOpenBottomSheet) {
+        return true;
+      }
+
+      const themeClickTime = (window as Window & { __themeToggleClickTime?: number })
+        .__themeToggleClickTime;
+      const helpClickTime = (window as Window & { __helpButtonClickTime?: number })
+        .__helpButtonClickTime;
+      const selectDismissTime = (window as Window & { __radixSelectJustDismissed?: number })
+        .__radixSelectJustDismissed;
+      const multiDeptClickTime = (window as Window & { __multiDeptSelectClickTime?: number })
+        .__multiDeptSelectClickTime;
+      return (
+        (themeClickTime && Date.now() - themeClickTime < 500) ||
+        (helpClickTime && Date.now() - helpClickTime < 500) ||
+        (selectDismissTime && Date.now() - selectDismissTime < 300) ||
+        (multiDeptClickTime && Date.now() - multiDeptClickTime < 500)
+      );
+    };
+
+    // Handle swipe-to-dismiss on mobile - starts from drag handle
+    const handleDragHandleTouchStart = React.useCallback((e: React.TouchEvent) => {
+      const firstTouch = e.touches[0];
+      dragStartY.current = firstTouch?.clientY ?? 0;
+    }, []);
+
+    const handleDragHandleTouchEnd = React.useCallback(
+      (e: React.TouchEvent) => {
+        if (dragStartY.current === null) return;
+
+        const changedTouch = e.changedTouches[0];
+        const deltaY = (changedTouch?.clientY ?? 0) - dragStartY.current;
+        dragStartY.current = null;
+
+        // If swiped down more than 60px, close the modal
+        if (deltaY > 60 && closeOnOverlayClick) {
+          if (!shouldIgnoreClose()) {
+            onClose?.();
+          }
+        }
+      },
+      [onClose, closeOnOverlayClick, shouldIgnoreClose]
+    );
+
     return (
-      <DialogPrimitive.Root open={isOpen} onOpenChange={(open) => !open && onClose?.()}>
+      <DialogPrimitive.Root
+        open={isOpen}
+        onOpenChange={(open) => {
+          // If closing, check if we should ignore (fixed button click or Select dismiss)
+          if (!open && shouldIgnoreClose()) {
+            return; // Don't close
+          }
+          // If closing and we should ignore it, skip
+          if (!open && ignoreCloseRef.current) {
+            ignoreCloseRef.current = false;
+            return;
+          }
+          if (!open) {
+            onClose?.();
+          }
+        }}
+      >
         <DialogPrimitive.Portal>
           <DialogPrimitive.Overlay
             className="app-modal-overlay"
-            onClick={closeOnOverlayClick ? () => onClose?.() : (e) => e.stopPropagation()}
+            onClick={(e) => {
+              // Only close if clicking directly on overlay (not bubbled from content)
+              if (e.target === e.currentTarget && closeOnOverlayClick) {
+                // Check if we should ignore this close
+                if (shouldIgnoreClose()) return;
+                onClose?.();
+              }
+            }}
           />
           <DialogPrimitive.Content
             ref={(node: HTMLDivElement | null) => {
@@ -198,15 +223,80 @@ const AppModalBase = React.forwardRef<HTMLDivElement, AppModalProps>(
               else if (ref) ref.current = node;
             }}
             className={cn('app-modal-content', `app-modal-${size}`, className)}
-            onPointerDownOutside={
-              closeOnOverlayClick
-                ? () => {
-                    /* allow close */
-                  }
-                : (e) => e.preventDefault()
-            }
+            onPointerDownOutside={(e) => {
+              // Don't close if clicking the theme toggle
+              const target = e.target as HTMLElement;
+              if (target.closest('.theme-toggle-container')) {
+                e.preventDefault();
+                ignoreCloseRef.current = true;
+                return;
+              }
+              // Don't close if a nested BottomSheet (e.g., MultiDepartmentSelect) is open
+              // Check for both the content and the overlay
+              if (target.closest('.bottom-sheet-content, .bottom-sheet-overlay')) {
+                e.preventDefault();
+                return;
+              }
+              // Check if MultiDepartmentSelect was just clicked
+              const multiDeptClickTime = (
+                window as Window & { __multiDeptSelectClickTime?: number }
+              ).__multiDeptSelectClickTime;
+              if (multiDeptClickTime && Date.now() - multiDeptClickTime < 500) {
+                e.preventDefault();
+                return;
+              }
+              // If closeOnOverlayClick is false, prevent closing
+              if (!closeOnOverlayClick) {
+                e.preventDefault();
+              }
+            }}
+            onInteractOutside={(e) => {
+              // Don't close if clicking the theme toggle
+              const target = e.target as HTMLElement;
+              if (target.closest('.theme-toggle-container')) {
+                e.preventDefault();
+                ignoreCloseRef.current = true;
+                return;
+              }
+              // Don't close if a nested BottomSheet (e.g., MultiDepartmentSelect) is open
+              // Check for both the content and the overlay
+              if (target.closest('.bottom-sheet-content, .bottom-sheet-overlay')) {
+                e.preventDefault();
+                return;
+              }
+              // Check if MultiDepartmentSelect was just clicked
+              const multiDeptClickTime = (
+                window as Window & { __multiDeptSelectClickTime?: number }
+              ).__multiDeptSelectClickTime;
+              if (multiDeptClickTime && Date.now() - multiDeptClickTime < 500) {
+                e.preventDefault();
+                return;
+              }
+              // If closeOnOverlayClick is false, prevent closing
+              if (!closeOnOverlayClick) {
+                e.preventDefault();
+              }
+            }}
           >
             <>
+              {/* Mobile drag handle - tap or swipe down to close */}
+              {closeOnOverlayClick && (
+                <div
+                  ref={dragHandleRef}
+                  className="app-modal-drag-handle"
+                  onClick={() => {
+                    if (!shouldIgnoreClose()) {
+                      onClose?.();
+                    }
+                  }}
+                  onTouchStart={handleDragHandleTouchStart}
+                  onTouchEnd={handleDragHandleTouchEnd}
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Close modal"
+                />
+              )}
+
               {/* Accessibility: Title is always required by Radix */}
               {title ? (
                 <DialogPrimitive.Title className="app-modal-title">{title}</DialogPrimitive.Title>

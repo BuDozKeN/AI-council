@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { User } from '@supabase/supabase-js';
 import { Button } from './ui/button';
 import {
@@ -114,6 +115,7 @@ export default function Sidebar({
   onUpdateConversationDepartment,
   companyId = null,
 }: SidebarProps) {
+  const { t } = useTranslation();
   // Prefetch company data on hover for instant navigation
   const { allHoverHandlers: prefetchMyCompanyHandlers } = usePrefetchCompany(companyId);
 
@@ -571,13 +573,13 @@ export default function Sidebar({
           <>
             <Button onClick={onNewConversation} className="sidebar-new-btn">
               <Plus className="h-4 w-4" />
-              <span className="sidebar-btn-text">New Chat</span>
+              <span className="sidebar-btn-text">{t('chat.newChat')}</span>
             </Button>
             <button
               onClick={togglePin}
               className="sidebar-pin-btn"
-              title={isPinned ? 'Collapse sidebar' : 'Pin sidebar open'}
-              aria-label={isPinned ? 'Collapse sidebar' : 'Pin sidebar open'}
+              title={isPinned ? t('sidebar.collapseSidebar') : t('sidebar.pinSidebar')}
+              aria-label={isPinned ? t('sidebar.collapseSidebar') : t('sidebar.pinSidebar')}
             >
               {isPinned ? (
                 <PanelLeftClose className="h-4 w-4" />
@@ -589,7 +591,7 @@ export default function Sidebar({
         ) : (
           <SidebarIconButton
             icon={<Plus className="h-5 w-5" />}
-            title="New Chat"
+            title={t('chat.newChat')}
             onClick={onNewConversation}
             isPrimary
           />
@@ -608,7 +610,7 @@ export default function Sidebar({
             {/* History - hover to see conversations */}
             <SidebarIconButton
               icon={<History className="h-5 w-5" />}
-              title="History"
+              title={t('sidebar.history')}
               onClick={togglePin}
               onMouseEnter={() => {
                 if (totalConversations > 0) handleIconHover('history');
@@ -622,7 +624,7 @@ export default function Sidebar({
             {onOpenLeaderboard && (
               <SidebarIconButton
                 icon={<Trophy className="h-5 w-5" />}
-                title="Leaderboard"
+                title={t('sidebar.leaderboard')}
                 onClick={onOpenLeaderboard}
               />
             )}
@@ -682,21 +684,21 @@ export default function Sidebar({
               ) : searchQuery && searchResultCount === 0 ? (
                 <div className="no-conversations">
                   <span className="no-conv-icon">🔍</span>
-                  No results for "{searchQuery}"
+                  {t('sidebar.noResultsFor', { query: searchQuery })}
                 </div>
               ) : totalConversations === 0 ? (
                 <div className="no-conversations">
                   <span className="no-conv-icon">💬</span>
-                  <span>Ready when you are</span>
-                  <span className="no-conv-hint">Start a new conversation to ask your council</span>
+                  <span>{t('sidebar.readyWhenYouAre')}</span>
+                  <span className="no-conv-hint">{t('sidebar.startNewConversation')}</span>
                 </div>
               ) : filter === 'archived' && filteredBySearch.archived.length === 0 ? (
                 <div className="no-conversations">
                   <span className="no-conv-icon">📦</span>
-                  Nothing archived yet
+                  {t('sidebar.nothingArchived')}
                 </div>
               ) : filter !== 'archived' && filteredBySearch.active.length === 0 ? (
-                <div className="no-conversations">No active conversations</div>
+                <div className="no-conversations">{t('sidebar.noActiveConversations')}</div>
               ) : useVirtualization ? (
                 <VirtualizedConversationList
                   filteredGroups={filteredGroups}
@@ -771,7 +773,7 @@ export default function Sidebar({
               {/* Load more indicator - shown when more conversations exist */}
               {hasMoreConversations && totalConversations > 0 && !searchQuery && (
                 <div className="load-more-hint">
-                  <span className="load-more-hint-text">Scroll for more conversations</span>
+                  <span className="load-more-hint-text">{t('sidebar.scrollForMore')}</span>
                 </div>
               )}
             </div>
@@ -815,19 +817,19 @@ export default function Sidebar({
         >
           <SidebarIconButton
             icon={<Building2 className="h-4 w-4" />}
-            title="My Company"
+            title={t('sidebar.myCompany')}
             onClick={onOpenMyCompany ?? (() => {})}
             onMouseEnter={myCompanyHoverHandlers.onMouseEnter}
             onMouseLeave={myCompanyHoverHandlers.onMouseLeave}
           />
           <SidebarIconButton
             icon={<Settings className="h-4 w-4" />}
-            title="Settings"
+            title={t('sidebar.settings')}
             onClick={onOpenSettings ?? (() => {})}
           />
           <SidebarIconButton
             icon={<LogOut className="h-4 w-4" />}
-            title="Sign Out"
+            title={t('auth.signOut')}
             onClick={onSignOut ?? (() => {})}
           />
         </div>

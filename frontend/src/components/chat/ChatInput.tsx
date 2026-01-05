@@ -8,6 +8,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as Popover from '@radix-ui/react-popover';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import {
@@ -25,21 +26,11 @@ import {
 import { cn } from '../../lib/utils';
 import { BottomSheet } from '../ui/BottomSheet';
 import { DepartmentCheckboxItem } from '../ui/DepartmentCheckboxItem';
+import { useCouncilStats } from '../../hooks/useCouncilStats';
 import type { ReactNode, KeyboardEvent, ClipboardEvent } from 'react';
 import type { Department, Role, Playbook, Project } from '../../types/business';
 
-// Mom-friendly tooltip descriptions - actionable, clear
-const TOOLTIPS = {
-  projects: 'Focus the answer on a specific project',
-  departments: "Include your team's expertise in the answer",
-  roles: 'Add specific expert perspectives (CEO, Analyst, etc.)',
-  playbooks: "Apply your company's guides to the answer",
-  councilMode: 'Multiple AI experts discuss and give you a combined answer',
-  chatMode: 'Quick answer from one AI — faster, simpler',
-  send: 'Send your question',
-  stop: 'Stop the AI from writing more',
-  reset: 'Clear all selections',
-};
+// Tooltips are now fetched via i18n - see getTooltips() function below
 
 // Check if we're on mobile/tablet for bottom sheet vs popover
 const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
@@ -61,6 +52,8 @@ interface ChatInputProps {
   hasMessages: boolean;
   hasImages: boolean;
   imageUpload: ImageUploadHandlers;
+  // Company context for dynamic stats
+  companyId?: string | null;
   // Context props for follow-ups
   chatMode?: 'chat' | 'council';
   onChatModeChange?: (mode: 'chat' | 'council') => void;
@@ -92,6 +85,8 @@ export function ChatInput({
   hasMessages,
   hasImages,
   imageUpload,
+  // Company context
+  companyId,
   // Context props
   chatMode = 'council',
   onChatModeChange,
@@ -109,6 +104,8 @@ export function ChatInput({
   onSelectPlaybooks,
   onResetAll,
 }: ChatInputProps) {
+  const { t } = useTranslation();
+  const { aiCount } = useCouncilStats(companyId);
   const [projectOpen, setProjectOpen] = useState(false);
   const [deptOpen, setDeptOpen] = useState(false);
   const [roleOpen, setRoleOpen] = useState(false);
@@ -116,12 +113,25 @@ export function ChatInput({
   // Track which playbook sections are expanded (accordion within dropdown)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
+  // Get translated tooltips
+  const TOOLTIPS = {
+    projects: t('chat.tooltips.projects'),
+    departments: t('chat.tooltips.departments'),
+    roles: t('chat.tooltips.roles'),
+    playbooks: t('chat.tooltips.playbooks'),
+    councilMode: t('chat.tooltips.councilMode'),
+    chatMode: t('chat.tooltips.chatMode'),
+    send: t('chat.tooltips.send'),
+    stop: t('chat.tooltips.stop'),
+    reset: t('chat.tooltips.reset'),
+  };
+
   // Dynamic placeholder based on mode and state
   const placeholder = !hasMessages
-    ? 'Ask the council a question...'
+    ? t('chat.askCouncil')
     : chatMode === 'council'
-      ? 'Ask a follow-up (council will discuss)...'
-      : 'Ask a quick follow-up...';
+      ? t('chat.askFollowUp')
+      : t('chat.askQuickFollowUp');
 
   const canSend = input.trim() || hasImages;
   const disabled = isLoading;
@@ -176,7 +186,7 @@ export function ChatInput({
   const projectList = (
     <div className="context-popover-list">
       {projects.length === 0 ? (
-        <div className="context-popover-empty">No projects</div>
+        <div className="context-popover-empty">{t('context.noProjects')}</div>
       ) : (
         projects
           .filter((p) => p.status === 'active')
@@ -207,7 +217,7 @@ export function ChatInput({
   const departmentList = (
     <div className="context-popover-list">
       {departments.length === 0 ? (
-        <div className="context-popover-empty">No departments</div>
+        <div className="context-popover-empty">{t('context.noDepartments')}</div>
       ) : (
         departments.map((dept) => (
           <DepartmentCheckboxItem
@@ -226,7 +236,7 @@ export function ChatInput({
   const roleList = (
     <div className="context-popover-list">
       {roles.length === 0 ? (
-        <div className="context-popover-empty">No roles</div>
+        <div className="context-popover-empty">{t('context.noRoles')}</div>
       ) : (
         roles.map((role) => {
           const isSelected = selectedRoles.includes(role.id);
@@ -261,10 +271,10 @@ export function ChatInput({
 
   // Playbook type config with icons and labels
   const playbookTypeConfig: Record<string, { label: string; icon: React.ReactNode }> = {
-    framework: { label: 'Frameworks', icon: <ScrollText size={12} /> },
-    sop: { label: 'SOPs', icon: <FileText size={12} /> },
-    policy: { label: 'Policies', icon: <Shield size={12} /> },
-    other: { label: 'Other', icon: <BookOpen size={12} /> },
+    framework: { label: t('context.frameworks'), icon: <ScrollText size={12} /> },
+    sop: { label: t('context.sops'), icon: <FileText size={12} /> },
+    policy: { label: t('context.policies'), icon: <Shield size={12} /> },
+    other: { label: t('context.other'), icon: <BookOpen size={12} /> },
   };
 
   // Order of playbook types to display
@@ -285,7 +295,7 @@ export function ChatInput({
   const playbookList = (
     <div className="context-popover-list">
       {playbooks.length === 0 ? (
-        <div className="context-popover-empty">No playbooks</div>
+        <div className="context-popover-empty">{t('context.noPlaybooks')}</div>
       ) : (
         playbookTypeOrder
           .filter((type) => (groupedPlaybooks[type]?.length ?? 0) > 0)
@@ -392,7 +402,7 @@ export function ChatInput({
               onClear();
             }}
           >
-            Clear
+            {t('common.clear')}
           </button>
         )}
       </div>
@@ -416,7 +426,7 @@ export function ChatInput({
                     onClear();
                   }}
                 >
-                  Clear
+                  {t('common.clear')}
                 </button>
               ) : undefined
             }
@@ -489,7 +499,7 @@ export function ChatInput({
                   {hasProjects &&
                     renderContextIcon(
                       <FolderKanban size={16} />,
-                      selectedProjectName || 'Project',
+                      selectedProjectName || t('context.project'),
                       TOOLTIPS.projects,
                       selectedProject ? 1 : 0,
                       projectOpen,
@@ -501,7 +511,7 @@ export function ChatInput({
                   {hasDepartments &&
                     renderContextIcon(
                       <Building2 size={16} />,
-                      'Departments',
+                      t('departments.title'),
                       TOOLTIPS.departments,
                       selectedDepartments.length,
                       deptOpen,
@@ -513,7 +523,7 @@ export function ChatInput({
                   {hasRoles &&
                     renderContextIcon(
                       <Users size={16} />,
-                      'Roles',
+                      t('roles.title'),
                       TOOLTIPS.roles,
                       selectedRoles.length,
                       roleOpen,
@@ -525,7 +535,7 @@ export function ChatInput({
                   {hasPlaybooks &&
                     renderContextIcon(
                       <BookOpen size={16} />,
-                      'Playbooks',
+                      t('context.playbooks'),
                       TOOLTIPS.playbooks,
                       selectedPlaybooks.length,
                       playbookOpen,
@@ -552,7 +562,7 @@ export function ChatInput({
                     TOOLTIPS.reset
                   )}
 
-                {/* Mode toggle - clear "1 AI / 5 AIs" pill */}
+                {/* Mode toggle - dynamic "1 AI / N AIs" pill based on LLM Hub config */}
                 <div
                   className="omni-inline-mode-toggle"
                   role="radiogroup"
@@ -586,7 +596,7 @@ export function ChatInput({
                       role="radio"
                       aria-checked={chatMode === 'council'}
                     >
-                      5 AIs
+                      {aiCount} {aiCount === 1 ? 'AI' : 'AIs'}
                     </button>,
                     TOOLTIPS.councilMode
                   )}

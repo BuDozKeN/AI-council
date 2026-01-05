@@ -51,6 +51,18 @@ MOCK_LLM = os.getenv("MOCK_LLM", "false").lower() == "true"
 # - empty_ranking: Stage 2 has header but no ranking items
 MOCK_LLM_SCENARIO = os.getenv("MOCK_LLM_SCENARIO", "happy_path").lower()
 
+# Mock length override - allows testing different response lengths without
+# changing LLM Hub production settings. When None, mock uses actual request params.
+# Valid values: None (use LLM Hub settings), 512, 1024, 1536, 2048, 4096, 8192
+# This can be toggled at runtime via the /settings/mock-length-override endpoint
+MOCK_LLM_LENGTH_OVERRIDE: int | None = None
+_raw_override = os.getenv("MOCK_LLM_LENGTH_OVERRIDE", "").strip()
+if _raw_override and _raw_override.lower() != "none":
+    try:
+        MOCK_LLM_LENGTH_OVERRIDE = int(_raw_override)
+    except ValueError:
+        print(f"[CONFIG] Invalid MOCK_LLM_LENGTH_OVERRIDE: {_raw_override}", file=sys.stderr)
+
 # =============================================================================
 # PROMPT CACHING CONFIGURATION (KILL SWITCH)
 # =============================================================================

@@ -13,6 +13,7 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import TextareaAutosize from 'react-textarea-autosize';
 import * as Popover from '@radix-ui/react-popover';
@@ -36,33 +37,10 @@ import {
 import { cn } from '../../lib/utils';
 import { springs, interactionStates } from '../../lib/animations';
 import { BottomSheet } from '../ui/BottomSheet';
+import { useCouncilStats } from '../../hooks/useCouncilStats';
 import { DepartmentCheckboxItem } from '../ui/DepartmentCheckboxItem';
 import type { Business, Department, Role, Playbook, Project } from '../../types/business';
 import './OmniBar.css';
-
-// Rotating placeholder examples for empty state
-const PLACEHOLDER_EXAMPLES = [
-  'How should I price my SaaS product?',
-  'Draft a response to this customer complaint...',
-  "What's the best approach to entering a new market?",
-  'Review this contract for potential risks...',
-  'Help me plan a product launch strategy',
-  'How do I handle a difficult employee situation?',
-];
-
-// Mom-friendly tooltip descriptions - actionable, clear
-const TOOLTIPS = {
-  company: "Choose which company's context to use",
-  projects: 'Focus the answer on a specific project',
-  departments: "Include your team's expertise in the answer",
-  roles: 'Add specific expert perspectives (CEO, Analyst, etc.)',
-  playbooks: "Apply your company's guides to the answer",
-  councilMode: 'Multiple AI experts discuss and give you a combined answer',
-  chatMode: 'Quick answer from one AI — faster, simpler',
-  attach: 'Add a photo or screenshot',
-  send: 'Send your question',
-  stop: 'Stop the AI from writing more',
-};
 
 // Check if we're on mobile/tablet for bottom sheet vs popover
 const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
@@ -183,8 +161,43 @@ export function OmniBar({
   onSelectPlaybooks,
   onResetAll,
 }: OmniBarProps) {
+  const { t } = useTranslation();
+  const { aiCount } = useCouncilStats(selectedBusiness);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Rotating placeholder examples for empty state (translated)
+  const PLACEHOLDER_EXAMPLES = [
+    t('omnibar.placeholder1'),
+    t('omnibar.placeholder2'),
+    t('omnibar.placeholder3'),
+    t('omnibar.placeholder4'),
+    t('omnibar.placeholder5'),
+    t('omnibar.placeholder6'),
+  ];
+
+  // Mom-friendly tooltip descriptions - actionable, clear (translated)
+  const TOOLTIPS = {
+    company: t('chat.tooltips.company'),
+    projects: t('chat.tooltips.projects'),
+    departments: t('chat.tooltips.departments'),
+    roles: t('chat.tooltips.roles'),
+    playbooks: t('chat.tooltips.playbooks'),
+    councilMode: t('chat.tooltips.councilMode'),
+    chatMode: t('chat.tooltips.chatMode'),
+    attach: t('omnibar.attach'),
+    send: t('chat.tooltips.send'),
+    stop: t('chat.tooltips.stop'),
+    reset: t('chat.tooltips.reset'),
+  };
+
+  // Playbook type config with icons and labels (translated)
+  const playbookTypeConfig: Record<string, { label: string; icon: React.ReactNode }> = {
+    framework: { label: t('context.frameworks'), icon: <ScrollText size={12} /> },
+    sop: { label: t('context.sops'), icon: <FileText size={12} /> },
+    policy: { label: t('context.policies'), icon: <Shield size={12} /> },
+    other: { label: t('context.other'), icon: <BookOpen size={12} /> },
+  };
 
   // Popover states for context icons
   const [companyOpen, setCompanyOpen] = useState(false);
@@ -316,7 +329,7 @@ export function OmniBar({
   const companyList = (
     <div className="context-popover-list">
       {businesses.length === 0 ? (
-        <div className="context-popover-empty">No companies</div>
+        <div className="context-popover-empty">{t('omnibar.noCompanies')}</div>
       ) : (
         businesses.map((biz) => {
           const isSelected = selectedBusiness === biz.id;
@@ -345,7 +358,7 @@ export function OmniBar({
   const projectList = (
     <div className="context-popover-list">
       {projects.length === 0 ? (
-        <div className="context-popover-empty">No projects</div>
+        <div className="context-popover-empty">{t('context.noProjects')}</div>
       ) : (
         projects
           .filter((p) => p.status === 'active')
@@ -376,7 +389,7 @@ export function OmniBar({
   const departmentList = (
     <div className="context-popover-list">
       {departments.length === 0 ? (
-        <div className="context-popover-empty">No departments</div>
+        <div className="context-popover-empty">{t('context.noDepartments')}</div>
       ) : (
         departments.map((dept) => (
           <DepartmentCheckboxItem
@@ -395,7 +408,7 @@ export function OmniBar({
   const roleList = (
     <div className="context-popover-list">
       {roles.length === 0 ? (
-        <div className="context-popover-empty">No roles</div>
+        <div className="context-popover-empty">{t('context.noRoles')}</div>
       ) : (
         roles.map((role) => {
           const isSelected = selectedRoles.includes(role.id);
@@ -428,14 +441,6 @@ export function OmniBar({
     {} as Record<string, Playbook[]>
   );
 
-  // Playbook type config with icons and labels
-  const playbookTypeConfig: Record<string, { label: string; icon: React.ReactNode }> = {
-    framework: { label: 'Frameworks', icon: <ScrollText size={12} /> },
-    sop: { label: 'SOPs', icon: <FileText size={12} /> },
-    policy: { label: 'Policies', icon: <Shield size={12} /> },
-    other: { label: 'Other', icon: <BookOpen size={12} /> },
-  };
-
   const playbookTypeOrder = ['framework', 'sop', 'policy', 'other'];
 
   const toggleSection = (type: string) => {
@@ -451,7 +456,7 @@ export function OmniBar({
   const playbookList = (
     <div className="context-popover-list">
       {playbooks.length === 0 ? (
-        <div className="context-popover-empty">No playbooks</div>
+        <div className="context-popover-empty">{t('context.noPlaybooks')}</div>
       ) : (
         playbookTypeOrder
           .filter((type) => (groupedPlaybooks[type]?.length ?? 0) > 0)
@@ -535,7 +540,7 @@ export function OmniBar({
     const iconButton = (
       <button
         type="button"
-        className={cn('omni-icon-btn', count > 0 && 'has-selection', colorClass)}
+        className={cn('omni-icon-btn no-touch-target', count > 0 && 'has-selection', colorClass)}
         onClick={() => (isMobile ? setOpen(true) : undefined)}
         disabled={disabled}
         aria-label={label}
@@ -558,7 +563,7 @@ export function OmniBar({
               onClear();
             }}
           >
-            Clear
+            {t('common.clear')}
           </button>
         )}
       </div>
@@ -582,7 +587,7 @@ export function OmniBar({
                     onClear();
                   }}
                 >
-                  Clear
+                  {t('common.clear')}
                 </button>
               ) : undefined
             }
@@ -654,7 +659,7 @@ export function OmniBar({
             role="radio"
             aria-checked={chatMode === 'chat'}
           >
-            1 AI
+            {t('omnibar.oneAI')}
           </button>
           <button
             type="button"
@@ -664,7 +669,7 @@ export function OmniBar({
             role="radio"
             aria-checked={chatMode === 'council'}
           >
-            5 AIs
+            {t('omnibar.multiAI', { count: aiCount })}
           </button>
         </div>
       )}
@@ -713,7 +718,7 @@ export function OmniBar({
                   {hasBusinesses &&
                     renderContextIcon(
                       <Briefcase size={16} />,
-                      selectedCompanyName || 'Company',
+                      selectedCompanyName || t('context.company'),
                       TOOLTIPS.company,
                       selectedBusiness ? 1 : 0,
                       companyOpen,
@@ -725,7 +730,7 @@ export function OmniBar({
                   {hasProjects &&
                     renderContextIcon(
                       <FolderKanban size={16} />,
-                      selectedProjectName || 'Project',
+                      selectedProjectName || t('context.project'),
                       TOOLTIPS.projects,
                       selectedProject ? 1 : 0,
                       projectOpen,
@@ -737,7 +742,7 @@ export function OmniBar({
                   {hasDepartments &&
                     renderContextIcon(
                       <Building2 size={16} />,
-                      'Departments',
+                      t('departments.title'),
                       TOOLTIPS.departments,
                       selectedDepartments.length,
                       deptOpen,
@@ -749,7 +754,7 @@ export function OmniBar({
                   {hasRoles &&
                     renderContextIcon(
                       <Users size={16} />,
-                      'Roles',
+                      t('roles.title'),
                       TOOLTIPS.roles,
                       selectedRoles.length,
                       roleOpen,
@@ -761,7 +766,7 @@ export function OmniBar({
                   {hasPlaybooks &&
                     renderContextIcon(
                       <BookOpen size={16} />,
-                      'Playbooks',
+                      t('context.playbooks'),
                       TOOLTIPS.playbooks,
                       selectedPlaybooks.length,
                       playbookOpen,
@@ -785,45 +790,42 @@ export function OmniBar({
                     >
                       <RotateCcw size={12} />
                     </button>,
-                    'Clear all selections'
+                    TOOLTIPS.reset
                   )}
 
-                {/* Inline mode toggle - compact pill showing current mode */}
+                {/* Inline mode toggle - compact pill that toggles on any click */}
                 {onChatModeChange && !showModeToggle && (
-                  <div
-                    className="omni-inline-mode-toggle"
-                    role="radiogroup"
-                    aria-label="Response mode"
+                  <button
+                    type="button"
+                    className="omni-inline-mode-toggle no-touch-target"
+                    onClick={() => {
+                      if (!disabled) {
+                        // Toggle between modes
+                        onChatModeChange(chatMode === 'chat' ? 'council' : 'chat');
+                      }
+                    }}
+                    disabled={disabled}
+                    aria-label={`Response mode: ${chatMode === 'chat' ? t('omnibar.oneAI') : t('omnibar.multiAI', { count: aiCount })}. Click to toggle.`}
                   >
-                    {withTooltip(
-                      <button
-                        type="button"
-                        name="inline-response-mode"
-                        className={cn('inline-mode-btn', chatMode === 'chat' && 'active')}
-                        onClick={() => !disabled && onChatModeChange('chat')}
-                        disabled={disabled}
-                        role="radio"
-                        aria-checked={chatMode === 'chat'}
-                      >
-                        1 AI
-                      </button>,
-                      TOOLTIPS.chatMode
-                    )}
-                    {withTooltip(
-                      <button
-                        type="button"
-                        name="inline-response-mode"
-                        className={cn('inline-mode-btn', chatMode === 'council' && 'active')}
-                        onClick={() => !disabled && onChatModeChange('council')}
-                        disabled={disabled}
-                        role="radio"
-                        aria-checked={chatMode === 'council'}
-                      >
-                        5 AIs
-                      </button>,
-                      TOOLTIPS.councilMode
-                    )}
-                  </div>
+                    <span
+                      className={cn(
+                        'inline-mode-btn no-touch-target',
+                        chatMode === 'chat' && 'active'
+                      )}
+                      aria-hidden="true"
+                    >
+                      {t('omnibar.oneAI')}
+                    </span>
+                    <span
+                      className={cn(
+                        'inline-mode-btn no-touch-target',
+                        chatMode === 'council' && 'active'
+                      )}
+                      aria-hidden="true"
+                    >
+                      {t('omnibar.multiAI', { count: aiCount })}
+                    </span>
+                  </button>
                 )}
               </>
             )}

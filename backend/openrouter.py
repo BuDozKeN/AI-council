@@ -447,7 +447,11 @@ async def query_model(
     model: str,
     messages: List[Dict[str, str]],
     timeout: float = 120.0,
-    api_key: Optional[str] = None
+    api_key: Optional[str] = None,
+    # LLM parameters for department-specific behavior
+    temperature: Optional[float] = None,
+    max_tokens: Optional[int] = None,
+    top_p: Optional[float] = None,
 ) -> Optional[Dict[str, Any]]:
     """
     Query a single model via OpenRouter API.
@@ -457,6 +461,9 @@ async def query_model(
         messages: List of message dicts with 'role' and 'content'
         timeout: Request timeout in seconds
         api_key: Optional API key override (for BYOK). Uses system key if not provided.
+        temperature: Optional temperature (0.0-1.2). Lower = more deterministic.
+        max_tokens: Optional max tokens for response.
+        top_p: Optional nucleus sampling parameter (0.0-1.0).
 
     Returns:
         Response dict with 'content' and optional 'reasoning_details', or None if failed
@@ -469,7 +476,7 @@ async def query_model(
 
     # === MOCK MODE INTERCEPT ===
     if MOCK_LLM:
-        return await generate_mock_response(model, messages)
+        return await generate_mock_response(model, messages, max_tokens=max_tokens)
 
     # === CIRCUIT BREAKER CHECK (per-model) ===
     breaker = await _circuit_breaker_registry.get_breaker(model)
@@ -491,9 +498,15 @@ async def query_model(
     payload = {
         "model": model,
         "messages": cached_messages,
-        "max_tokens": 4096,  # Explicit limit to prevent truncation (especially for DeepSeek)
+        "max_tokens": max_tokens if max_tokens is not None else 4096,
         "usage": {"include": True},  # Explicitly request token usage data
     }
+
+    # Add optional LLM parameters (department-specific behavior)
+    if temperature is not None:
+        payload["temperature"] = temperature
+    if top_p is not None:
+        payload["top_p"] = top_p
 
     # Only add reasoning parameter for models that support it
     # Gemini 3 Pro has mandatory thinking that cannot be excluded - skip it
@@ -563,7 +576,11 @@ async def query_model_stream(
     messages: List[Dict[str, str]],
     timeout: float = 120.0,
     max_retries: int = 3,
-    api_key: Optional[str] = None
+    api_key: Optional[str] = None,
+    # LLM parameters for department-specific behavior
+    temperature: Optional[float] = None,
+    max_tokens: Optional[int] = None,
+    top_p: Optional[float] = None,
 ) -> AsyncGenerator[str, None]:
     """
     Query a single model via OpenRouter API with streaming.
@@ -574,6 +591,9 @@ async def query_model_stream(
         timeout: Request timeout in seconds
         max_retries: Number of retries for overloaded/rate-limited errors
         api_key: Optional API key override (for BYOK). Uses system key if not provided.
+        temperature: Optional temperature (0.0-1.2). Lower = more deterministic.
+        max_tokens: Optional max tokens for response.
+        top_p: Optional nucleus sampling parameter (0.0-1.0).
 
     Yields:
         Text chunks as they arrive from the model
@@ -584,7 +604,7 @@ async def query_model_stream(
 
     # === MOCK MODE INTERCEPT ===
     if MOCK_LLM:
-        async for chunk in generate_mock_response_stream(model, messages):
+        async for chunk in generate_mock_response_stream(model, messages, max_tokens=max_tokens):
             yield chunk
         return
 
@@ -611,9 +631,15 @@ async def query_model_stream(
         "model": model,
         "messages": cached_messages,
         "stream": True,
-        "max_tokens": 16384,  # Higher limit to prevent truncation
+        "max_tokens": max_tokens if max_tokens is not None else 16384,
         "usage": {"include": True},  # Required for token usage in streaming responses
     }
+
+    # Add optional LLM parameters (department-specific behavior)
+    if temperature is not None:
+        payload["temperature"] = temperature
+    if top_p is not None:
+        payload["top_p"] = top_p
 
     # Only add reasoning parameter for models that support it
     # Gemini 3 Pro has mandatory thinking that cannot be excluded - skip it
@@ -764,7 +790,11 @@ async def query_model_stream(
 async def query_models_parallel(
     models: List[str],
     messages: List[Dict[str, str]],
-    api_key: Optional[str] = None
+    api_key: Optional[str] = None,
+    # LLM parameters for department-specific behavior
+    temperature: Optional[float] = None,
+    max_tokens: Optional[int] = None,
+    top_p: Optional[float] = None,
 ) -> Dict[str, Optional[Dict[str, Any]]]:
     """
     Query multiple models in parallel.
@@ -773,14 +803,27 @@ async def query_models_parallel(
         models: List of OpenRouter model identifiers
         messages: List of message dicts to send to each model
         api_key: Optional API key override (for BYOK). Uses system key if not provided.
+        temperature: Optional temperature (0.0-1.2). Lower = more deterministic.
+        max_tokens: Optional max tokens for response.
+        top_p: Optional nucleus sampling parameter (0.0-1.0).
 
     Returns:
         Dict mapping model identifier to response dict (or None if failed)
     """
     import asyncio
 
-    # Create tasks for all models
-    tasks = [query_model(model, messages, api_key=api_key) for model in models]
+    # Create tasks for all models with LLM parameters
+    tasks = [
+        query_model(
+            model,
+            messages,
+            api_key=api_key,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            top_p=top_p,
+        )
+        for model in models
+    ]
 
     # Wait for all to complete
     responses = await asyncio.gather(*tasks)

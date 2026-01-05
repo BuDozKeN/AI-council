@@ -1,31 +1,17 @@
+import { useTranslation } from 'react-i18next';
 import { Skeleton } from '../ui/Skeleton';
 import { Button } from '../ui/button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { useProfile } from './hooks/useProfile';
+import { LanguageSwitcher } from './LanguageSwitcher';
 import type { User } from '@supabase/supabase-js';
 
 const ProfileSkeleton = () => (
   <>
-    {/* Account Info Card Skeleton */}
-    <Card className="settings-card">
-      <CardHeader>
-        <Skeleton width={180} height={20} />
-        <Skeleton width={200} height={14} className="mt-2" />
-      </CardHeader>
-      <CardContent>
-        <div className="form-group">
-          <Skeleton width={50} height={14} />
-          <Skeleton height={40} className="mt-2" />
-          <Skeleton width={160} height={12} className="mt-1.5" />
-        </div>
-      </CardContent>
-    </Card>
-
     {/* Profile Details Card Skeleton */}
     <Card className="settings-card">
       <CardHeader>
         <Skeleton width={140} height={20} />
-        <Skeleton width={220} height={14} className="mt-2" />
       </CardHeader>
       <CardContent>
         {[1, 2, 3].map((i) => (
@@ -43,6 +29,19 @@ const ProfileSkeleton = () => (
         </div>
       </CardContent>
     </Card>
+
+    {/* Account Card Skeleton */}
+    <Card className="settings-card">
+      <CardHeader>
+        <Skeleton width={80} height={20} />
+      </CardHeader>
+      <CardContent>
+        <div className="form-group">
+          <Skeleton width={50} height={14} />
+          <Skeleton height={40} className="mt-2" />
+        </div>
+      </CardContent>
+    </Card>
   </>
 );
 
@@ -52,6 +51,7 @@ interface ProfileSectionProps {
 }
 
 export function ProfileSection({ user, isOpen }: ProfileSectionProps) {
+  const { t } = useTranslation();
   const { profile, setProfile, profileLoading, isSaving, handleSaveProfile } = useProfile(
     isOpen,
     user
@@ -63,38 +63,15 @@ export function ProfileSection({ user, isOpen }: ProfileSectionProps) {
 
   return (
     <>
-      {/* Account Info Card */}
+      {/* Profile Details Card - Most important, what users actually edit */}
       <Card className="settings-card">
         <CardHeader>
-          <CardTitle>Account Information</CardTitle>
-          <CardDescription>Your email and account details</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="form-group">
-            <label htmlFor="profile-email">Email</label>
-            <input
-              id="profile-email"
-              name="email"
-              type="email"
-              value={user?.email || ''}
-              disabled
-              className="input-disabled"
-            />
-            <span className="input-hint">Email cannot be changed</span>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Profile Details Card */}
-      <Card className="settings-card">
-        <CardHeader>
-          <CardTitle>Profile Details</CardTitle>
-          <CardDescription>Update your personal information</CardDescription>
+          <CardTitle>{t('settings.profileDetails')}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSaveProfile}>
             <div className="form-group">
-              <label htmlFor="profile-display-name">Display Name</label>
+              <label htmlFor="profile-display-name">{t('settings.displayName')}</label>
               <input
                 id="profile-display-name"
                 name="display_name"
@@ -102,11 +79,11 @@ export function ProfileSection({ user, isOpen }: ProfileSectionProps) {
                 autoComplete="name"
                 value={profile.display_name}
                 onChange={(e) => setProfile({ ...profile, display_name: e.target.value })}
-                placeholder="Your name"
+                placeholder={t('settings.displayName')}
               />
             </div>
             <div className="form-group">
-              <label htmlFor="profile-company">Company</label>
+              <label htmlFor="profile-company">{t('company.companyName')}</label>
               <input
                 id="profile-company"
                 name="company"
@@ -114,11 +91,11 @@ export function ProfileSection({ user, isOpen }: ProfileSectionProps) {
                 autoComplete="organization"
                 value={profile.company}
                 onChange={(e) => setProfile({ ...profile, company: e.target.value })}
-                placeholder="Company name"
+                placeholder={t('company.companyName')}
               />
             </div>
             <div className="form-group">
-              <label htmlFor="profile-phone">Phone</label>
+              <label htmlFor="profile-phone">{t('settings.phone')}</label>
               <input
                 id="profile-phone"
                 name="phone"
@@ -127,17 +104,17 @@ export function ProfileSection({ user, isOpen }: ProfileSectionProps) {
                 autoComplete="tel"
                 value={profile.phone}
                 onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                placeholder="+1 (555) 123-4567"
+                placeholder={t('settings.phonePlaceholder')}
               />
             </div>
             <div className="form-group">
-              <label htmlFor="profile-bio">Bio</label>
+              <label htmlFor="profile-bio">{t('settings.bio')}</label>
               <textarea
                 id="profile-bio"
                 name="bio"
                 value={profile.bio}
                 onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-                placeholder="Tell us about yourself or your business..."
+                placeholder={t('settings.bioPlaceholder')}
                 rows={3}
                 enterKeyHint="done"
               />
@@ -145,12 +122,37 @@ export function ProfileSection({ user, isOpen }: ProfileSectionProps) {
 
             <div className="form-actions">
               <Button type="submit" variant="default" disabled={isSaving}>
-                {isSaving ? 'Saving...' : 'Save Changes'}
+                {isSaving ? t('common.saving') : t('settings.saveChanges')}
               </Button>
             </div>
           </form>
         </CardContent>
       </Card>
+
+      {/* Account Card - Just for reference, email can't be changed */}
+      <Card className="settings-card">
+        <CardHeader>
+          <CardTitle>{t('settings.account')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="form-group">
+            <label htmlFor="profile-email">{t('auth.email')}</label>
+            <input
+              id="profile-email"
+              name="email"
+              type="email"
+              value={user?.email || ''}
+              disabled
+              className="input-disabled"
+              readOnly
+              tabIndex={-1}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Language - Occasional change */}
+      <LanguageSwitcher />
     </>
   );
 }

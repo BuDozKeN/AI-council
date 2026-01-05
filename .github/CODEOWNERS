@@ -1,0 +1,20 @@
+# CODEOWNERS - Require review for critical files
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default: You review everything
+* @BuDozKeN
+
+# Critical backend files - extra attention
+/backend/auth.py @BuDozKeN
+/backend/security.py @BuDozKeN
+/backend/billing.py @BuDozKeN
+/backend/council.py @BuDozKeN
+
+# Database migrations - dangerous territory
+/supabase/migrations/ @BuDozKeN
+
+# CI/CD - can break everything
+/.github/workflows/ @BuDozKeN
+
+# Environment and secrets
+.env* @BuDozKeN

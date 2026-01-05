@@ -1,4 +1,5 @@
 import { useState, useEffect, memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Spinner } from './ui/Spinner';
@@ -79,6 +80,7 @@ function Stage2({
   defaultCollapsed = true,
   onModelClick,
 }: Stage2Props) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState(0);
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [userToggled, setUserToggled] = useState(false);
@@ -170,11 +172,11 @@ function Stage2({
     return (
       <div className="stage stage2">
         <h3 className="stage-title">
-          <span className="font-semibold tracking-tight">Experts Review Each Other</span>
+          <span className="font-semibold tracking-tight">{t('stages.expertsReview')}</span>
         </h3>
         <div className="stage-loading">
           <Spinner size="md" />
-          <span>Experts are reviewing each other's answers...</span>
+          <span>{t('stages.expertsReviewing')}</span>
         </div>
       </div>
     );
@@ -202,13 +204,17 @@ function Stage2({
     >
       <h3 className="stage-title clickable" onClick={toggleCollapsed}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
-        <span className="font-semibold tracking-tight">Experts Review Each Other</span>
+        <span className="font-semibold tracking-tight">{t('stages.expertsReview')}</span>
 
         {/* Winner badge - medal emoji with icon, modern clean style */}
         {winnerModel && (
           <span
             className={`stage2-winner ${showCompleteCelebration ? 'animate-winner-reveal' : ''}`}
-            title={`Winner: ${winnerPersona?.fullName || winnerPersona?.shortName || 'Unknown'} — Voted #1 by ${displayData.length} AI experts with avg score ${winnerAvg} (1 = best)`}
+            title={t('stages.winnerTooltip', {
+              model: winnerPersona?.fullName || winnerPersona?.shortName || t('common.unknown'),
+              count: displayData.length,
+              avg: winnerAvg,
+            })}
           >
             <span className="winner-medal">🥇</span>
             {winnerIconPath && (
@@ -291,10 +297,12 @@ function Stage2({
                 })()}
                 {activeData.isStreaming && <span className="typing-indicator">●</span>}
                 {activeData.isComplete && !activeData.isEmpty && (
-                  <span className="complete-badge">Done</span>
+                  <span className="complete-badge">{t('common.done')}</span>
                 )}
-                {activeData.isEmpty && <span className="error-badge">No Response</span>}
-                {activeData.hasError && <span className="error-badge">Error</span>}
+                {activeData.isEmpty && (
+                  <span className="error-badge">{t('stages.noResponse')}</span>
+                )}
+                {activeData.hasError && <span className="error-badge">{t('common.error')}</span>}
               </span>
               {activeData.isComplete && !activeData.isEmpty && activeData.ranking && (
                 <CopyButton text={activeData.ranking} size="sm" />
@@ -304,11 +312,9 @@ function Stage2({
               className={`ranking-content ${activeData.hasError || activeData.isEmpty ? 'error-text' : ''}`}
             >
               {activeData.isEmpty ? (
-                <p className="empty-message">This model did not return an evaluation.</p>
+                <p className="empty-message">{t('stages.noEvaluation')}</p>
               ) : activeData.hasError ? (
-                <p className="empty-message">
-                  {activeData.ranking || 'An error occurred while generating the evaluation.'}
-                </p>
+                <p className="empty-message">{activeData.ranking || t('stages.evaluationError')}</p>
               ) : (
                 <>
                   <article className="prose prose-slate prose-sm max-w-none dark:prose-invert prose-headings:font-semibold prose-headings:tracking-tight prose-h1:text-xl prose-h2:text-lg prose-h3:text-base prose-p:leading-relaxed prose-li:my-0.5 prose-ul:my-1 prose-ol:my-1 prose-code:before:content-none prose-code:after:content-none prose-code:bg-slate-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-emerald-700 prose-pre:bg-slate-50 prose-pre:border prose-pre:border-slate-200">
@@ -335,7 +341,7 @@ function Stage2({
 
             {activeData.parsed_ranking && activeData.parsed_ranking.length > 0 && (
               <div className="parsed-ranking">
-                <strong>Ranking order:</strong>
+                <strong>{t('stages.rankingOrder')}:</strong>
                 <ol>
                   {activeData.parsed_ranking.map((label: string, i: number) => {
                     const model = labelToModel && labelToModel[label];
@@ -356,7 +362,7 @@ function Stage2({
 
           {aggregateRankings && aggregateRankings.length > 0 && (
             <div className="aggregate-rankings">
-              <h4 className="stage2-section-title">Final Rankings</h4>
+              <h4 className="stage2-section-title">{t('stages.finalRanking')}</h4>
               <div className="aggregate-list animate-stagger">
                 {aggregateRankings.map((agg, index: number) => {
                   const persona = getModelPersona(agg.model);
@@ -368,7 +374,14 @@ function Stage2({
                     <div
                       key={index}
                       className={`aggregate-item rank-${index + 1} ${isClickable ? 'clickable' : ''}`}
-                      title={`${persona.fullName} - Average rank: ${agg.average_rank.toFixed(1)} (${agg.rankings_count} of ${totalVoters} experts voted). Lower is better - #1 is the top answer.${isClickable ? ' Click to view response.' : ''}`}
+                      title={
+                        t('stages.rankTooltipFull', {
+                          fullName: persona.fullName,
+                          avg: agg.average_rank.toFixed(1),
+                          votesReceived: agg.rankings_count,
+                          totalVoters,
+                        }) + (isClickable ? ` ${t('stages.clickToViewResponse')}` : '')
+                      }
                       onClick={
                         isClickable && onModelClick ? () => onModelClick(agg.model) : undefined
                       }

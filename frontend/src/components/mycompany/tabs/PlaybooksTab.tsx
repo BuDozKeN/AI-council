@@ -11,6 +11,7 @@
  */
 
 import React, { useMemo, useState, useCallback, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BookOpen, Plus } from 'lucide-react';
 import { Button } from '../../ui/button';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
@@ -60,16 +61,6 @@ interface PlaybooksTabProps {
 }
 
 const DOC_TYPES: DocType[] = ['sop', 'framework', 'policy'];
-const TYPE_LABELS: Record<DocType, string> = {
-  sop: 'Standard Operating Procedures',
-  framework: 'Frameworks',
-  policy: 'Policies',
-};
-const TYPE_SHORT_LABELS: Record<DocType, string> = {
-  sop: 'SOP',
-  framework: 'Framework',
-  policy: 'Policy',
-};
 
 export function PlaybooksTab({
   playbooks = [],
@@ -90,6 +81,8 @@ export function PlaybooksTab({
   onArchivePlaybook,
   onDeletePlaybook,
 }: PlaybooksTabProps) {
+  const { t } = useTranslation();
+
   // Track which playbook row is "active" for mobile long-press actions
   const [mobileActiveId, setMobileActiveId] = useState<string | null>(null);
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -265,12 +258,10 @@ export function PlaybooksTab({
     return (
       <div className="mc-empty">
         <BookOpen size={32} className="mc-empty-icon" />
-        <p className="mc-empty-title">Build your knowledge base</p>
-        <p className="mc-empty-hint">
-          Create SOPs, frameworks, and policies that your AI council will reference
-        </p>
+        <p className="mc-empty-title">{t('mycompany.buildKnowledgeBase')}</p>
+        <p className="mc-empty-hint">{t('mycompany.playbooksHelp')}</p>
         <Button variant="default" onClick={onAddPlaybook}>
-          New Playbook
+          {t('mycompany.newPlaybook')}
         </Button>
       </div>
     );
@@ -285,7 +276,7 @@ export function PlaybooksTab({
           onClick={() => onTypeFilterChange && onTypeFilterChange('all')}
         >
           <div className="mc-stat-value total">{playbooks.length}</div>
-          <div className="mc-stat-label">Total</div>
+          <div className="mc-stat-label">{t('mycompany.total')}</div>
         </div>
         <div
           className={`mc-stat-card clickable ${playbookTypeFilter === 'sop' ? 'selected' : ''}`}
@@ -294,7 +285,7 @@ export function PlaybooksTab({
           }
         >
           <div className="mc-stat-value sops">{allSops.length}</div>
-          <div className="mc-stat-label">SOPs</div>
+          <div className="mc-stat-label">{t('mycompany.sops')}</div>
         </div>
         <div
           className={`mc-stat-card clickable ${playbookTypeFilter === 'framework' ? 'selected' : ''}`}
@@ -304,7 +295,7 @@ export function PlaybooksTab({
           }
         >
           <div className="mc-stat-value frameworks">{allFrameworks.length}</div>
-          <div className="mc-stat-label">Frameworks</div>
+          <div className="mc-stat-label">{t('mycompany.frameworks')}</div>
         </div>
         <div
           className={`mc-stat-card clickable ${playbookTypeFilter === 'policy' ? 'selected' : ''}`}
@@ -314,7 +305,7 @@ export function PlaybooksTab({
           }
         >
           <div className="mc-stat-value policies">{allPolicies.length}</div>
-          <div className="mc-stat-label">Policies</div>
+          <div className="mc-stat-label">{t('mycompany.policies')}</div>
         </div>
       </div>
 
@@ -325,18 +316,18 @@ export function PlaybooksTab({
             value={playbookDeptFilter}
             onValueChange={onDeptFilterChange ?? (() => {})}
             departments={departments}
-            placeholder="All Depts"
+            placeholder={t('mycompany.allDepts')}
           />
         </div>
         <Button variant="default" size="sm" onClick={onAddPlaybook}>
-          New Playbook
+          {t('mycompany.newPlaybook')}
         </Button>
       </div>
 
       {/* Playbooks list with scroll-to-top */}
       <ScrollableContent className="mc-playbooks-list">
         {filteredPlaybooks.length === 0 ? (
-          <div className="mc-empty-filtered">No playbooks match your filters</div>
+          <div className="mc-empty-filtered">{t('mycompany.noPlaybooksMatch')}</div>
         ) : (
           DOC_TYPES.map((type: DocType) => {
             const docs = groupedPlaybooks[type];
@@ -350,7 +341,7 @@ export function PlaybooksTab({
             return (
               <div key={type} className="mc-playbook-group">
                 <h4 className="mc-group-title">
-                  {TYPE_LABELS[type]}
+                  {t(`mycompany.typeLabel_${type}`)}
                   <span className="mc-group-count">({docs.length})</span>
                 </h4>
                 <div className="mc-elegant-list">
@@ -376,7 +367,7 @@ export function PlaybooksTab({
                       (d): d is NonNullable<typeof dept> => Boolean(d)
                     );
 
-                    const typeLabel = TYPE_SHORT_LABELS[doc.doc_type] || doc.doc_type;
+                    const typeLabel = t(`mycompany.typeShort_${doc.doc_type}`);
 
                     const isRemoving = removingIds.has(doc.id);
 
@@ -420,7 +411,7 @@ export function PlaybooksTab({
                             })}
                             {allDepts.length === 0 && (
                               <span className="mc-elegant-dept mc-elegant-dept-none">
-                                Company-wide
+                                {t('mycompany.companyWide')}
                               </span>
                             )}
 
@@ -435,7 +426,7 @@ export function PlaybooksTab({
                             {confirmingAction?.id === doc.id ? (
                               // Inline confirmation: "Sure? No / Yes"
                               <>
-                                <span className="mc-confirm-label">Sure?</span>
+                                <span className="mc-confirm-label">{t('mycompany.sure')}</span>
                                 <button
                                   className="mc-text-btn no"
                                   onClick={(e) => {
@@ -443,7 +434,7 @@ export function PlaybooksTab({
                                     setConfirmingAction(null);
                                   }}
                                 >
-                                  No
+                                  {t('mycompany.no')}
                                 </button>
                                 <button
                                   className="mc-text-btn yes"
@@ -463,7 +454,7 @@ export function PlaybooksTab({
                                     }, FADE_OUT_DURATION);
                                   }}
                                 >
-                                  Yes
+                                  {t('mycompany.yes')}
                                 </button>
                               </>
                             ) : (
@@ -475,9 +466,9 @@ export function PlaybooksTab({
                                     e.stopPropagation();
                                     setConfirmingAction({ id: doc.id, action: 'archive' });
                                   }}
-                                  title="Archive playbook"
+                                  title={t('mycompany.archivePlaybook')}
                                 >
-                                  Archive
+                                  {t('mycompany.archive')}
                                 </button>
                                 <button
                                   className="mc-text-btn delete"
@@ -485,9 +476,9 @@ export function PlaybooksTab({
                                     e.stopPropagation();
                                     setConfirmingAction({ id: doc.id, action: 'delete' });
                                   }}
-                                  title="Delete playbook"
+                                  title={t('mycompany.deletePlaybook')}
                                 >
-                                  Delete
+                                  {t('mycompany.delete')}
                                 </button>
                               </>
                             )}
@@ -509,7 +500,9 @@ export function PlaybooksTab({
                       }))
                     }
                   >
-                    {isExpanded ? `Show less` : `Load more (${docs.length - MAX_VISIBLE} more)`}
+                    {isExpanded
+                      ? t('mycompany.showLess')
+                      : t('mycompany.loadMore', { count: docs.length - MAX_VISIBLE })}
                   </button>
                 )}
               </div>
@@ -519,7 +512,11 @@ export function PlaybooksTab({
       </ScrollableContent>
 
       {/* FAB - Mobile only (visible via CSS) */}
-      <button className="mc-fab" onClick={onAddPlaybook} aria-label="Create new playbook">
+      <button
+        className="mc-fab"
+        onClick={onAddPlaybook}
+        aria-label={t('mycompany.createNewPlaybook')}
+      >
         <Plus />
       </button>
     </div>

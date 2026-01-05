@@ -5,6 +5,7 @@
  */
 
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import { User, Check, ChevronDown } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -60,22 +61,24 @@ export function RoleSelect({
   onValueChange,
   roles = [],
   includeAll = true,
-  allLabel = 'All Roles',
+  allLabel,
   disabled = false,
   className,
   showIcon = true,
   compact = false,
 }: RoleSelectProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = React.useState<boolean>(false);
+  const actualAllLabel = allLabel || t('roles.allRoles');
 
   // Get display name for current value
   const selectedRole = value && value !== 'all' ? roles.find((r) => r.id === value) : null;
 
   const getDisplayName = (): string => {
     if (value === 'all' || !value) {
-      return compact ? 'All' : allLabel;
+      return compact ? t('common.all') : actualAllLabel;
     }
-    if (!selectedRole) return compact ? 'All' : allLabel;
+    if (!selectedRole) return compact ? t('common.all') : actualAllLabel;
     const firstName = selectedRole.name.split(' ')[0];
     return compact ? (firstName ?? selectedRole.name) : selectedRole.name;
   };
@@ -87,7 +90,7 @@ export function RoleSelect({
 
   // Build items list for mobile
   const allItems: RoleItem[] = [
-    ...(includeAll ? [{ id: 'all', name: allLabel }] : []),
+    ...(includeAll ? [{ id: 'all', name: actualAllLabel }] : []),
     ...roles.map((r) => ({ id: r.id, name: r.name })),
   ];
 
@@ -106,7 +109,7 @@ export function RoleSelect({
           <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
         </button>
 
-        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title="Select Role">
+        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title={t('roles.selectRoles')}>
           <div className="role-select-list-mobile">
             {allItems.map((role) => {
               const isSelected =
@@ -152,7 +155,7 @@ export function RoleSelect({
           sideOffset={4}
         >
           <SelectPrimitive.Viewport className="role-select-viewport">
-            {includeAll && <RoleSelectItem value="all">{allLabel}</RoleSelectItem>}
+            {includeAll && <RoleSelectItem value="all">{actualAllLabel}</RoleSelectItem>}
             {roles.map((role) => (
               <RoleSelectItem key={role.id} value={role.id}>
                 {role.name}

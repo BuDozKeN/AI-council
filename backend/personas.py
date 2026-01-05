@@ -417,10 +417,12 @@ async def get_write_assist_persona_async(
     For playbook types (sop, framework, policy), fetches the expert persona from the database.
     Raises PersonaNotFoundError if the database persona is not found - NO FALLBACK.
 
+    For role-prompt context, uses persona_architect from database (with hardcoded fallback).
+
     For other contexts (company-context, project-context, etc.), returns from WRITE_ASSIST_PERSONAS.
 
     Args:
-        context: The context type (e.g., 'playbook-content', 'company-context')
+        context: The context type (e.g., 'playbook-content', 'company-context', 'role-prompt')
         playbook_type: For playbook content, the specific type ('sop', 'framework', 'policy')
         company_id: Optional company ID for company-specific persona overrides
 
@@ -453,6 +455,21 @@ async def get_write_assist_persona_async(
             "model_preferences": model_prefs,
             "persona_name": db_persona.get("name", persona_key)
         }
+
+    # For role-prompt context, use persona_architect from database (with fallback)
+    if context == "role-prompt":
+        db_persona = await get_db_persona("persona_architect", company_id)
+        if db_persona:
+            model_prefs = db_persona.get("model_preferences")
+            if not model_prefs:
+                model_prefs = await get_models('persona_architect') or ["openai/gpt-4o"]
+
+            return {
+                "system_prompt": db_persona.get("system_prompt", ""),
+                "model_preferences": model_prefs,
+                "persona_name": db_persona.get("name", "Persona Architect")
+            }
+        # Fall through to WRITE_ASSIST_PERSONAS if not in database yet
 
     # For non-playbook contexts, use WRITE_ASSIST_PERSONAS
     persona = WRITE_ASSIST_PERSONAS.get(context, WRITE_ASSIST_PERSONAS["generic"])

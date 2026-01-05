@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MultiDepartmentSelect } from '../ui/MultiDepartmentSelect';
 import { Spinner } from '../ui/Spinner';
 import { ProjectDropdown } from './ProjectDropdown';
@@ -76,6 +77,7 @@ export function Stage3Actions({
   userQuestion,
   displayText,
 }: Stage3ActionsProps) {
+  const { t } = useTranslation();
   const [showProjectDropdown, setShowProjectDropdown] = useState(false);
 
   return (
@@ -84,7 +86,7 @@ export function Stage3Actions({
       {saveState === 'error' && (
         <div className="save-error-bar">
           <span>⚠️</span>
-          <span>Couldn't save that. Let's try again.</span>
+          <span>{t('stages.saveFailed')}</span>
         </div>
       )}
 
@@ -98,9 +100,9 @@ export function Stage3Actions({
             onValueChange={setSelectedDeptIds}
             departments={departments}
             disabled={saveState !== 'idle'}
-            placeholder="Departments"
+            placeholder={t('departments.title')}
             className="save-dept-trigger"
-            title="Tag this answer with relevant departments"
+            title={t('stages.tagDepartments')}
           />
 
           <div className="save-divider" />
@@ -142,7 +144,7 @@ export function Stage3Actions({
                   clipRule="evenodd"
                 />
               </svg>
-              Decision saved
+              {t('stages.decisionSaved')}
             </span>
             <button
               className="save-view-link"
@@ -160,10 +162,10 @@ export function Stage3Actions({
               }}
             >
               {promotedPlaybookId
-                ? 'View Playbook'
+                ? t('stages.viewPlaybook')
                 : currentProject
-                  ? 'View in Project'
-                  : 'View Decision'}
+                  ? t('stages.viewInProject')
+                  : t('stages.viewDecision')}
             </button>
           </div>
         ) : (
@@ -173,21 +175,25 @@ export function Stage3Actions({
             disabled={saveState === 'saving' || saveState === 'promoting'}
             title={
               currentProject
-                ? 'Save this answer and add it to your project'
+                ? t('stages.saveToProjectHint')
                 : selectedDocType
-                  ? `Save as ${selectedDocType.toUpperCase()} to your knowledge base`
-                  : 'Save this answer to access it later from My Company'
+                  ? t('stages.saveAsTypeHint', { type: selectedDocType.toUpperCase() })
+                  : t('stages.saveAnswerHint')
             }
           >
             {saveState === 'saving' || saveState === 'promoting' ? (
               <>
                 <Spinner size="sm" variant="muted" />
-                <span>Saving...</span>
+                <span>{t('common.saving')}</span>
               </>
             ) : (
               <>
                 <Bookmark className="h-4 w-4" />
-                <span>{currentProject ? `Save to ${currentProject.name}` : 'Save Answer'}</span>
+                <span>
+                  {currentProject
+                    ? t('stages.saveToProject', { name: currentProject.name })
+                    : t('stages.saveAnswer')}
+                </span>
               </>
             )}
           </button>

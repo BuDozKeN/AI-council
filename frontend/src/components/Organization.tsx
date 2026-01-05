@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api';
 import { Spinner } from './ui/Spinner';
 import { AppModal } from './ui/AppModal';
@@ -67,6 +68,7 @@ export default function Organization({
   onClose,
   onOpenKnowledgeBase,
 }: OrganizationProps) {
+  const { t } = useTranslation();
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -102,12 +104,12 @@ export default function Organization({
         if (business) {
           setDepartments(business.departments || []);
         } else {
-          setError("We couldn't find that company. It may have been removed.");
+          setError(t('organization.errors.notFound'));
         }
       } catch (fetchErr) {
         if (cancelled) return;
         logger.error('Failed to fetch organization:', fetchErr);
-        setError("Couldn't load your team structure. Please try again.");
+        setError(t('organization.errors.loadFailed'));
       }
       if (!cancelled) {
         setLoading(false);
@@ -131,11 +133,11 @@ export default function Organization({
       if (business) {
         setDepartments(business.departments || []);
       } else {
-        setError("We couldn't find that company. It may have been removed.");
+        setError(t('organization.errors.notFound'));
       }
     } catch (fetchErr) {
       logger.error('Failed to fetch organization:', fetchErr);
-      setError("Couldn't load your team structure. Please try again.");
+      setError(t('organization.errors.loadFailed'));
     }
     setLoading(false);
   };
@@ -167,12 +169,12 @@ export default function Organization({
       await fetchOrganization();
       setShowAddDept(false);
       setNewDept({ id: '', name: '', description: '' });
-      toast.success(`"${deptName}" department created`, { duration: 3000 });
+      toast.success(t('organization.toast.deptCreated', { name: deptName }), { duration: 3000 });
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
+      const message = err instanceof Error ? err.message : t('common.unknownError');
       setAlertModal({
-        title: 'Error',
-        message: 'Failed to create department: ' + message,
+        title: t('common.error'),
+        message: t('organization.errors.createDeptFailed', { message }),
         variant: 'error',
       });
     }
@@ -197,12 +199,12 @@ export default function Organization({
       await fetchOrganization();
       setShowAddRole(null);
       setNewRole({ id: '', name: '', description: '' });
-      toast.success(`"${roleName}" role added`, { duration: 3000 });
+      toast.success(t('organization.toast.roleAdded', { name: roleName }), { duration: 3000 });
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
+      const message = err instanceof Error ? err.message : t('common.unknownError');
       setAlertModal({
-        title: 'Error',
-        message: 'Failed to create role: ' + message,
+        title: t('common.error'),
+        message: t('organization.errors.createRoleFailed', { message }),
         variant: 'error',
       });
     }
@@ -222,13 +224,15 @@ export default function Organization({
       await api.updateDepartment(companyId, editingDept.id, updates);
 
       await fetchOrganization();
-      toast.success(`"${editingDept.name}" updated`, { duration: 3000 });
+      toast.success(t('organization.toast.deptUpdated', { name: editingDept.name }), {
+        duration: 3000,
+      });
       setEditingDept(null);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
+      const message = err instanceof Error ? err.message : t('common.unknownError');
       setAlertModal({
-        title: 'Error',
-        message: 'Failed to update department: ' + message,
+        title: t('common.error'),
+        message: t('organization.errors.updateDeptFailed', { message }),
         variant: 'error',
       });
     }
@@ -248,13 +252,15 @@ export default function Organization({
       await api.updateRole(companyId, editingRole.deptId, editingRole.role.id, updates);
 
       await fetchOrganization();
-      toast.success(`"${editingRole.role.name}" updated`, { duration: 3000 });
+      toast.success(t('organization.toast.roleUpdated', { name: editingRole.role.name }), {
+        duration: 3000,
+      });
       setEditingRole(null);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
+      const message = err instanceof Error ? err.message : t('common.unknownError');
       setAlertModal({
-        title: 'Error',
-        message: 'Failed to update role: ' + message,
+        title: t('common.error'),
+        message: t('organization.errors.updateRoleFailed', { message }),
         variant: 'error',
       });
     }
@@ -268,14 +274,14 @@ export default function Organization({
       setViewingRolePrompt({
         deptId,
         roleId,
-        prompt: result.context || '(No system prompt defined)',
+        prompt: result.context || t('organization.noPrompt'),
         exists: result.exists,
       });
     } catch {
       setViewingRolePrompt({
         deptId,
         roleId,
-        prompt: '(Failed to load system prompt)',
+        prompt: t('organization.promptLoadFailed'),
         exists: false,
       });
     }
@@ -288,18 +294,22 @@ export default function Organization({
     <AppModal
       isOpen={true}
       onClose={onClose}
-      title="Organization"
-      description={`${companyName || 'Your Company'} • ${departments.length} departments • ${totalRoles} roles`}
+      title={t('organization.title')}
+      description={t('organization.description', {
+        company: companyName || t('organization.yourCompany'),
+        depts: departments.length,
+        roles: totalRoles,
+      })}
       size="lg"
       contentClassName="org-modal-body"
     >
       {/* Quick Actions */}
       <div className="org-actions">
         <Button variant="default" onClick={() => setShowAddDept(true)}>
-          New Department
+          {t('organization.newDepartment')}
         </Button>
         <Button variant="outline" onClick={() => onOpenKnowledgeBase && onOpenKnowledgeBase()}>
-          View SOPs & Policies
+          {t('organization.viewSops')}
         </Button>
       </div>
 
@@ -308,24 +318,22 @@ export default function Organization({
         {loading ? (
           <div className="org-loading">
             <Spinner size="lg" variant="brand" />
-            <p>Loading organization...</p>
+            <p>{t('organization.loading')}</p>
           </div>
         ) : error ? (
           <div className="org-error">
             <p>{error}</p>
             <Button variant="outline" size="sm" onClick={fetchOrganization}>
-              Retry
+              {t('common.retry')}
             </Button>
           </div>
         ) : departments.length === 0 ? (
           <div className="org-empty">
             <div className="org-empty-icon">🏢</div>
-            <p className="org-empty-title">No departments yet</p>
-            <p className="org-empty-hint">
-              Add your first department to start organizing your AI Council
-            </p>
+            <p className="org-empty-title">{t('organization.noDepartments')}</p>
+            <p className="org-empty-hint">{t('organization.addFirstDept')}</p>
             <Button variant="default" onClick={() => setShowAddDept(true)}>
-              New Department
+              {t('organization.newDepartment')}
             </Button>
           </div>
         ) : (
@@ -339,7 +347,9 @@ export default function Organization({
                 >
                   <div className="org-dept-info">
                     <h3 className="org-dept-name">{dept.name}</h3>
-                    <span className="org-dept-meta">{dept.roles?.length || 0} roles</span>
+                    <span className="org-dept-meta">
+                      {t('organization.rolesCount', { count: dept.roles?.length || 0 })}
+                    </span>
                   </div>
                   <div className="org-dept-actions">
                     <button
@@ -348,7 +358,7 @@ export default function Organization({
                         e.stopPropagation();
                         setEditingDept({ ...dept });
                       }}
-                      title="Edit department"
+                      title={t('organization.editDepartment')}
                     >
                       ✏️
                     </button>
@@ -376,12 +386,12 @@ export default function Organization({
                               className="org-text-btn"
                               onClick={() => handleViewRolePrompt(dept.id, role.id)}
                             >
-                              View Prompt
+                              {t('organization.viewPrompt')}
                             </button>
                             <button
                               className="org-icon-btn small"
                               onClick={() => setEditingRole({ deptId: dept.id, role: { ...role } })}
-                              title="Edit role"
+                              title={t('organization.editRole')}
                             >
                               ✏️
                             </button>
@@ -389,7 +399,7 @@ export default function Organization({
                         </div>
                       ))
                     ) : (
-                      <p className="org-no-roles">No roles defined yet</p>
+                      <p className="org-no-roles">{t('organization.noRoles')}</p>
                     )}
 
                     {/* Add Role Button */}
@@ -399,7 +409,7 @@ export default function Organization({
                           id={`new-role-name-${dept.id}`}
                           name="new-role-name"
                           type="text"
-                          placeholder="Role name (e.g., CTO)"
+                          placeholder={t('organization.placeholders.roleName')}
                           value={newRole.name}
                           onChange={(e) => setNewRole({ ...newRole, name: e.target.value })}
                           autoFocus
@@ -414,7 +424,7 @@ export default function Organization({
                             id={`new-role-desc-${dept.id}`}
                             name="new-role-description"
                             type="text"
-                            placeholder="Description (optional)"
+                            placeholder={t('organization.placeholders.descriptionOptional')}
                             value={newRole.description}
                             onChange={(e) =>
                               setNewRole({ ...newRole, description: e.target.value })
@@ -430,7 +440,7 @@ export default function Organization({
                               setNewRole({ id: '', name: '', description: '' });
                             }}
                           >
-                            Cancel
+                            {t('common.cancel')}
                           </Button>
                           <Button
                             variant="default"
@@ -438,13 +448,13 @@ export default function Organization({
                             onClick={() => handleAddRole(dept.id)}
                             disabled={saving || !newRole.name.trim()}
                           >
-                            {saving ? 'Adding...' : 'Add Role'}
+                            {saving ? t('organization.adding') : t('organization.addRole')}
                           </Button>
                         </div>
                       </div>
                     ) : (
                       <Button variant="ghost" size="sm" onClick={() => setShowAddRole(dept.id)}>
-                        New Role
+                        {t('organization.newRole')}
                       </Button>
                     )}
                   </div>
@@ -459,43 +469,43 @@ export default function Organization({
       <AppModal
         isOpen={showAddDept}
         onClose={() => setShowAddDept(false)}
-        title="Add Department"
+        title={t('organization.addDepartmentTitle')}
         size="sm"
       >
         <div className="org-form-group">
-          <label htmlFor="new-dept-name">Department Name *</label>
+          <label htmlFor="new-dept-name">{t('organization.labels.deptName')}</label>
           <input
             id="new-dept-name"
             name="department-name"
             type="text"
-            placeholder="e.g., Human Resources"
+            placeholder={t('organization.placeholders.deptName')}
             value={newDept.name}
             onChange={(e) => setNewDept({ ...newDept, name: e.target.value })}
             autoFocus
           />
         </div>
         <div className="org-form-group">
-          <label htmlFor="new-dept-slug">Slug (auto-generated)</label>
+          <label htmlFor="new-dept-slug">{t('organization.labels.slug')}</label>
           <input
             id="new-dept-slug"
             name="department-slug"
             type="text"
             value={newDept.id || generateSlug(newDept.name)}
             onChange={(e) => setNewDept({ ...newDept, id: e.target.value })}
-            placeholder="auto-generated from name"
+            placeholder={t('organization.placeholders.slugAuto')}
           />
-          <span className="org-form-hint">Used in URLs and file paths</span>
+          <span className="org-form-hint">{t('organization.hints.slug')}</span>
         </div>
         <AppModal.Footer>
           <Button variant="outline" onClick={() => setShowAddDept(false)} disabled={saving}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button
             variant="default"
             onClick={handleAddDepartment}
             disabled={saving || !newDept.name.trim()}
           >
-            {saving ? 'Creating...' : 'Create Department'}
+            {saving ? t('organization.creating') : t('organization.createDepartment')}
           </Button>
         </AppModal.Footer>
       </AppModal>
@@ -504,13 +514,13 @@ export default function Organization({
       <AppModal
         isOpen={!!editingDept}
         onClose={() => setEditingDept(null)}
-        title="Edit Department"
+        title={t('organization.editDepartmentTitle')}
         size="sm"
       >
         {editingDept && (
           <>
             <div className="org-form-group">
-              <label htmlFor="edit-dept-name">Department Name</label>
+              <label htmlFor="edit-dept-name">{t('organization.labels.deptName')}</label>
               <input
                 id="edit-dept-name"
                 name="department-name"
@@ -520,7 +530,7 @@ export default function Organization({
               />
             </div>
             <div className="org-form-group">
-              <label htmlFor="edit-dept-description">Description</label>
+              <label htmlFor="edit-dept-description">{t('organization.labels.description')}</label>
               <AIWriteAssist
                 context="department-description"
                 value={editingDept.description || ''}
@@ -533,16 +543,16 @@ export default function Organization({
                   value={editingDept.description || ''}
                   onChange={(e) => setEditingDept({ ...editingDept, description: e.target.value })}
                   rows={3}
-                  placeholder="What does this department do?"
+                  placeholder={t('organization.placeholders.deptDescription')}
                 />
               </AIWriteAssist>
             </div>
             <AppModal.Footer>
               <Button variant="outline" onClick={() => setEditingDept(null)} disabled={saving}>
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button variant="default" onClick={handleUpdateDepartment} disabled={saving}>
-                {saving ? 'Saving...' : 'Save Changes'}
+                {saving ? t('common.saving') : t('common.saveChanges')}
               </Button>
             </AppModal.Footer>
           </>
@@ -553,13 +563,13 @@ export default function Organization({
       <AppModal
         isOpen={!!editingRole}
         onClose={() => setEditingRole(null)}
-        title="Edit Role"
+        title={t('organization.editRoleTitle')}
         size="sm"
       >
         {editingRole && (
           <>
             <div className="org-form-group">
-              <label htmlFor="edit-role-name">Role Name</label>
+              <label htmlFor="edit-role-name">{t('organization.labels.roleName')}</label>
               <input
                 id="edit-role-name"
                 name="role-name"
@@ -574,7 +584,7 @@ export default function Organization({
               />
             </div>
             <div className="org-form-group">
-              <label htmlFor="edit-role-description">Description</label>
+              <label htmlFor="edit-role-description">{t('organization.labels.description')}</label>
               <AIWriteAssist
                 context="role-description"
                 value={editingRole.role.description || ''}
@@ -597,16 +607,16 @@ export default function Organization({
                     })
                   }
                   rows={3}
-                  placeholder="What does this role do?"
+                  placeholder={t('organization.placeholders.roleDescription')}
                 />
               </AIWriteAssist>
             </div>
             <AppModal.Footer>
               <Button variant="outline" onClick={() => setEditingRole(null)} disabled={saving}>
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button variant="default" onClick={handleUpdateRole} disabled={saving}>
-                {saving ? 'Saving...' : 'Save Changes'}
+                {saving ? t('common.saving') : t('common.saveChanges')}
               </Button>
             </AppModal.Footer>
           </>
@@ -617,7 +627,7 @@ export default function Organization({
       <AppModal
         isOpen={!!viewingRolePrompt}
         onClose={() => setViewingRolePrompt(null)}
-        title="Role System Prompt"
+        title={t('organization.rolePromptTitle')}
         size="lg"
       >
         {viewingRolePrompt && (
@@ -628,13 +638,13 @@ export default function Organization({
                 {viewingRolePrompt.roleId}.md
               </span>
               {!viewingRolePrompt.exists && (
-                <span className="org-prompt-missing">File not found - using default prompt</span>
+                <span className="org-prompt-missing">{t('organization.promptNotFound')}</span>
               )}
             </div>
             <pre className="org-prompt-content">{viewingRolePrompt.prompt}</pre>
             <AppModal.Footer>
               <Button variant="default" onClick={() => setViewingRolePrompt(null)}>
-                Close
+                {t('common.close')}
               </Button>
             </AppModal.Footer>
           </>

@@ -9,6 +9,7 @@
  * Extracted from MyCompany.jsx for better maintainability.
  */
 
+import { useTranslation } from 'react-i18next';
 import { Users, Plus } from 'lucide-react';
 import { Button } from '../../ui/button';
 import { getDeptColor } from '../../../lib/colors';
@@ -46,16 +47,16 @@ export function TeamTab({
   onViewDepartment,
   onViewRole,
 }: TeamTabProps) {
+  const { t } = useTranslation();
+
   if (departments.length === 0) {
     return (
       <div className="mc-empty">
         <Users size={32} className="mc-empty-icon" />
-        <p className="mc-empty-title">Set up your team</p>
-        <p className="mc-empty-hint">
-          Add departments and roles to help your council understand your organization
-        </p>
+        <p className="mc-empty-title">{t('mycompany.setUpTeam')}</p>
+        <p className="mc-empty-hint">{t('mycompany.teamHelp')}</p>
         <Button variant="default" onClick={onAddDepartment}>
-          New Department
+          {t('mycompany.newDepartment')}
         </Button>
       </div>
     );
@@ -65,10 +66,10 @@ export function TeamTab({
     <div className="mc-team">
       <div className="mc-team-header">
         <span>
-          {departments.length} departments • {totalRoles} roles
+          {t('mycompany.departmentsRoles', { depts: departments.length, roles: totalRoles })}
         </span>
         <Button variant="default" size="sm" onClick={onAddDepartment}>
-          New Department
+          {t('mycompany.newDepartment')}
         </Button>
       </div>
 
@@ -90,7 +91,9 @@ export function TeamTab({
                   {/* Main content */}
                   <div className="mc-elegant-content">
                     <span className="mc-elegant-title">{dept.name}</span>
-                    <span className="mc-elegant-meta">{dept.roles?.length || 0} roles</span>
+                    <span className="mc-elegant-meta">
+                      {dept.roles?.length || 0} {t('mycompany.roles')}
+                    </span>
                   </div>
 
                   {/* Expand icon */}
@@ -111,7 +114,7 @@ export function TeamTab({
                       }}
                     >
                       <span className="mc-context-icon">📄</span>
-                      <span>View Context</span>
+                      <span>{t('mycompany.viewContext')}</span>
                       {dept.context_md && (
                         <span className="mc-context-size">
                           {Math.round(dept.context_md.length / 1000)}k
@@ -122,7 +125,7 @@ export function TeamTab({
                     {/* Roles list */}
                     <div className="mc-roles-section">
                       <div className="mc-roles-header">
-                        <span className="mc-roles-label">Roles</span>
+                        <span className="mc-roles-label">{t('mycompany.rolesLabel')}</span>
                         <button
                           className="mc-text-btn add"
                           onClick={(e) => {
@@ -130,7 +133,7 @@ export function TeamTab({
                             onAddRole && onAddRole(dept.id);
                           }}
                         >
-                          New Role
+                          {t('mycompany.newRole')}
                         </button>
                       </div>
 
@@ -156,7 +159,7 @@ export function TeamTab({
                           ))}
                         </div>
                       ) : (
-                        <p className="mc-no-roles">Add roles to this department</p>
+                        <p className="mc-no-roles">{t('mycompany.addRolesToDept')}</p>
                       )}
                     </div>
                   </div>
@@ -168,7 +171,11 @@ export function TeamTab({
       </ScrollableContent>
 
       {/* FAB - Mobile only (visible via CSS) */}
-      <button className="mc-fab" onClick={onAddDepartment} aria-label="Create new department">
+      <button
+        className="mc-fab"
+        onClick={onAddDepartment}
+        aria-label={t('mycompany.createNewDepartment')}
+      >
         <Plus />
       </button>
     </div>

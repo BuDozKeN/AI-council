@@ -49,7 +49,12 @@ interface PromoteDecision {
   summary?: string;
 }
 
-type AddFormType = 'department' | 'playbook' | { type: 'role'; deptId: string } | null;
+type AddFormType =
+  | 'department'
+  | 'playbook'
+  | 'company-context'
+  | { type: 'role'; deptId: string }
+  | null;
 
 interface EditingItem {
   type:
@@ -170,8 +175,7 @@ export default function MyCompany({
   const handleRefresh = useCallback(async () => {
     hapticLight();
     companyData.resetTabLoaded(activeTab);
-    companyData.setLoading(true);
-    await companyData.loadData();
+    await companyData.loadData(true); // Force reload on pull-to-refresh
     hapticSuccess();
   }, [activeTab, companyData]);
 
@@ -409,7 +413,7 @@ export default function MyCompany({
       };
       if (description) deptData.description = description;
       await api.createCompanyDepartment(companyId, deptData);
-      await companyData.loadData();
+      await companyData.loadData(true); // Force reload after mutation
       setShowAddForm(null);
     } catch (err) {
       log.error('Failed to create department', { error: err });
@@ -417,11 +421,24 @@ export default function MyCompany({
     setSaving(false);
   };
 
-  const handleAddRole = async (deptId: string, name: string, title: string) => {
+  const handleAddRole = async (
+    deptId: string,
+    name: string,
+    title: string,
+    systemPrompt?: string
+  ) => {
     setSaving(true);
     try {
-      await api.createCompanyRole(companyId, deptId, { name, slug: generateSlug(name), title });
-      await companyData.loadData();
+      const roleData: { name: string; slug: string; title: string; system_prompt?: string } = {
+        name,
+        slug: generateSlug(name),
+        title,
+      };
+      if (systemPrompt) {
+        roleData.system_prompt = systemPrompt;
+      }
+      await api.createCompanyRole(companyId, deptId, roleData);
+      await companyData.loadData(true); // Force reload after mutation
       setShowAddForm(null);
     } catch (err) {
       log.error('Failed to create role', { error: err });
@@ -449,7 +466,7 @@ export default function MyCompany({
         content,
         department_ids: allDeptIds,
       });
-      await companyData.loadData();
+      await companyData.loadData(true); // Force reload after mutation
       setShowAddForm(null);
     } catch (err) {
       log.error('Failed to create playbook', { error: err });
@@ -460,7 +477,7 @@ export default function MyCompany({
   const handleUpdateRole = async (roleId: string, deptId: string, updates: Partial<Role>) => {
     try {
       await api.updateCompanyRole(companyId, deptId, roleId, updates);
-      await companyData.loadData();
+      await companyData.loadData(true); // Force reload after mutation
       setEditingItem(null);
     } catch (err) {
       log.error('Failed to update role', { error: err });
@@ -471,7 +488,7 @@ export default function MyCompany({
   const handleUpdateDepartment = async (deptId: string, updates: Partial<Department>) => {
     try {
       await api.updateCompanyDepartment(companyId, deptId, updates);
-      await companyData.loadData();
+      await companyData.loadData(true); // Force reload after mutation
       setEditingItem(null);
     } catch (err) {
       log.error('Failed to update department', { error: err });
@@ -486,7 +503,7 @@ export default function MyCompany({
         context_md: typeof updates.context_md === 'string' ? updates.context_md : '',
       };
       await api.updateCompanyContext(companyId, contextData);
-      await companyData.loadData();
+      await companyData.loadData(true); // Force reload after mutation
       setEditingItem(null);
     } catch (err) {
       log.error('Failed to update company context', { error: err });
@@ -494,10 +511,21 @@ export default function MyCompany({
     }
   };
 
+  const handleAddCompanyContext = async (contextMd: string) => {
+    try {
+      await api.updateCompanyContext(companyId, { context_md: contextMd });
+      await companyData.loadData(true); // Force reload after mutation
+      setShowAddForm(null);
+    } catch (err) {
+      log.error('Failed to add company context', { error: err });
+      throw err;
+    }
+  };
+
   const handleUpdatePlaybook = async (playbookId: string, updates: Partial<Playbook>) => {
     try {
       await api.updateCompanyPlaybook(companyId, playbookId, updates);
-      await companyData.loadData();
+      await companyData.loadData(true); // Force reload after mutation
       setEditingItem(null);
     } catch (err) {
       log.error('Failed to update playbook', { error: err });
@@ -506,7 +534,11 @@ export default function MyCompany({
   };
 
   // Check if showing skeleton
-  const showSkeleton = companyData.loading || !companyData.isTabLoaded(activeTab);
+  // Don't show skeleton when a modal is open (editingItem or showAddForm) - this prevents
+  // skeleton flashing when mutations trigger loadData while viewing an item
+  const hasOpenModal = editingItem !== null || showAddForm !== null;
+  const showSkeleton =
+    !hasOpenModal && (companyData.loading || !companyData.isTabLoaded(activeTab));
 
   // Render skeleton based on tab
   const renderSkeleton = () => (
@@ -593,8 +625,21 @@ export default function MyCompany({
     </div>
   );
 
+  // Handle overlay click - close unless clicking the ThemeToggle
+  const handleOverlayClick = useCallback(
+    (e: React.MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // Don't close if clicking the theme toggle (positioned outside the modal but visually overlapping)
+      if (target.closest('.theme-toggle-container')) {
+        return;
+      }
+      onClose?.();
+    },
+    [onClose]
+  );
+
   return (
-    <div className="mc-overlay" onClick={onClose}>
+    <div className="mc-overlay" onClick={handleOverlayClick}>
       <div
         className="mc-panel"
         ref={panelSwipeRef as React.RefObject<HTMLDivElement>}
@@ -628,7 +673,7 @@ export default function MyCompany({
           ) : companyData.error ? (
             <div className="mc-error">
               <p>{companyData.error}</p>
-              <button onClick={companyData.loadData}>Retry</button>
+              <button onClick={() => companyData.loadData(true)}>Retry</button>
             </div>
           ) : (
             <>
@@ -638,6 +683,7 @@ export default function MyCompany({
                   companyName={companyName}
                   onEditContext={(data) => setEditingItem({ type: 'company-context', data })}
                   onViewContext={(data) => setEditingItem({ type: 'company-context-view', data })}
+                  onGenerateContext={() => setShowAddForm('company-context')}
                 />
               )}
               {activeTab === 'team' && (
@@ -794,10 +840,13 @@ export default function MyCompany({
         <AddFormModal
           showAddForm={showAddForm}
           saving={saving}
+          companyId={companyId}
+          companyName={companyName}
           departments={companyData.departments}
           onAddDepartment={handleAddDepartment}
           onAddRole={handleAddRole}
           onAddPlaybook={handleAddPlaybook}
+          onAddCompanyContext={handleAddCompanyContext}
           onClose={() => setShowAddForm(null)}
         />
 

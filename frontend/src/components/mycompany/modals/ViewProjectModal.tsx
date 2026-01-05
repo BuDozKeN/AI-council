@@ -5,6 +5,7 @@
  */
 
 import { useState, useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../../api';
 import MarkdownViewer from '../../MarkdownViewer';
 import { AppModal } from '../../ui/AppModal';
@@ -106,6 +107,7 @@ export function ViewProjectModal({
   onStatusChange,
   onDelete,
 }: ViewProjectModalProps) {
+  const { t } = useTranslation();
   // Local project state that can be updated after save
   const [project, setProject] = useState(initialProject);
 
@@ -312,16 +314,16 @@ export function ViewProjectModal({
         // Silent success - the updated context appearing is feedback enough
       } else {
         setAlertModal({
-          title: 'Regeneration Failed',
-          message: result.message || 'Unknown error occurred.',
+          title: t('modals.regenerationFailed'),
+          message: result.message || t('modals.unknownError'),
           variant: 'error',
         });
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'An unexpected error occurred.';
+      const message = err instanceof Error ? err.message : t('modals.unexpectedError');
       log.error('Failed to regenerate context', { error: message });
       setAlertModal({
-        title: 'Regeneration Failed',
+        title: t('modals.regenerationFailed'),
         message,
         variant: 'error',
       });
@@ -422,8 +424,8 @@ export function ViewProjectModal({
     if (onSave) {
       if (!editedName.trim()) {
         setAlertModal({
-          title: 'Validation Error',
-          message: 'Project name is required',
+          title: t('modals.validationError'),
+          message: t('modals.projectNameRequired'),
           variant: 'warning',
         });
         return;
@@ -453,14 +455,14 @@ export function ViewProjectModal({
           .map((id) => departments.find((d) => d.id === id)?.name)
           .filter(Boolean);
 
-        let message = `Project "${editedName}" saved`;
+        let message = t('modals.projectSaved', { name: editedName });
         if (deptNames.length > 0) {
-          message += ` for ${deptNames.join(', ')}`;
+          message += ` ${t('modals.forDepartments', { departments: deptNames.join(', ') })}`;
         }
 
         toast.success(message, { duration: 4000 });
       } catch {
-        toast.error('Failed to save project');
+        toast.error(t('modals.failedToSaveProject'));
       }
       setSaving(false);
     }
@@ -501,14 +503,14 @@ export function ViewProjectModal({
               onChange={(e) => setEditedName(e.target.value)}
               onBlur={() => !isNew && setIsEditingName(false)}
               onKeyDown={(e) => e.key === 'Enter' && !isNew && setIsEditingName(false)}
-              placeholder={isNew ? 'Enter project name...' : ''}
+              placeholder={isNew ? t('modals.enterProjectName') : ''}
               autoFocus
             />
           ) : (
             <h2
               className="mc-title-display editable"
               onClick={() => setIsEditingName(true)}
-              title="Click to edit name"
+              title={t('modals.clickToEditName')}
             >
               {editedName || project.name}
               <svg className="mc-pencil-icon" viewBox="0 0 20 20" fill="currentColor">
@@ -517,7 +519,7 @@ export function ViewProjectModal({
             </h2>
           )}
         </div>
-        <button className="mc-modal-close-clean" onClick={onClose} aria-label="Close">
+        <button className="mc-modal-close-clean" onClick={onClose} aria-label={t('common.close')}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -536,7 +538,7 @@ export function ViewProjectModal({
                 color: getStatusColor(editedStatus).text,
               }}
             >
-              {editedStatus}
+              {t(`modals.status_${editedStatus}`)}
             </span>
           )}
 
@@ -544,9 +546,9 @@ export function ViewProjectModal({
           {!isNew && !isEditing && project.source && project.source !== 'manual' && (
             <span className={`mc-source-badge ${project.source}`}>
               {project.source === 'council'
-                ? 'From Council'
+                ? t('modals.fromCouncil')
                 : project.source === 'import'
-                  ? 'Imported'
+                  ? t('modals.imported')
                   : project.source}
             </span>
           )}
@@ -557,7 +559,7 @@ export function ViewProjectModal({
               value={editedDepartmentIds}
               onValueChange={setEditedDepartmentIds}
               departments={departments}
-              placeholder="Select departments..."
+              placeholder={t('modals.selectDepartments')}
             />
           ) : (
             <>
@@ -589,7 +591,7 @@ export function ViewProjectModal({
               )}
               {project.updated_at && project.updated_at !== project.created_at && (
                 <span className="mc-timestamp">
-                  Updated {formatDateCompact(project.updated_at)}
+                  {t('modals.updated')} {formatDateCompact(project.updated_at)}
                 </span>
               )}
             </div>
@@ -603,10 +605,10 @@ export function ViewProjectModal({
                 onClose();
                 onNavigateToConversation(project.source_conversation_id!, 'projects');
               }}
-              title="View the original conversation that created this project"
+              title={t('modals.viewOriginalConversationTooltip')}
             >
               <ExternalLink size={16} />
-              <span>View source</span>
+              <span>{t('modals.viewSource')}</span>
             </button>
           )}
         </div>
@@ -615,7 +617,7 @@ export function ViewProjectModal({
         {isEditing ? (
           <div className="mc-field-group">
             <label htmlFor="project-description" className="mc-field-label">
-              Description
+              {t('modals.description')}
             </label>
             <AIWriteAssist
               context="project-description"
@@ -631,7 +633,7 @@ export function ViewProjectModal({
                 className="mc-input-unified"
                 value={editedDescription}
                 onChange={(e) => setEditedDescription(e.target.value)}
-                placeholder="Brief description of the project..."
+                placeholder={t('modals.briefDescriptionPlaceholder')}
               />
             </AIWriteAssist>
           </div>
@@ -655,14 +657,14 @@ export function ViewProjectModal({
                   clipRule="evenodd"
                 />
               </svg>
-              Context
+              {t('modals.contextTab')}
             </button>
             <button
               className={`mc-project-tab ${activeTab === 'decisions' ? 'active' : ''}`}
               onClick={() => setActiveTab('decisions')}
             >
               <Bookmark size={16} />
-              Decisions
+              {t('modals.decisionsTab')}
               {(project.decision_count ?? 0) > 0 && (
                 <span className="mc-tab-badge">{project.decision_count}</span>
               )}
@@ -676,10 +678,8 @@ export function ViewProjectModal({
             {/* Context section header with Edit/Save actions */}
             <div className="mc-context-header-row">
               <div className="mc-context-header-left">
-                <label className="mc-section-label">Project Context</label>
-                <span className="mc-section-hint">
-                  Injected into council sessions when this project is selected
-                </span>
+                <label className="mc-section-label">{t('modals.projectContext')}</label>
+                <span className="mc-section-hint">{t('modals.projectContextHint')}</span>
               </div>
               {/* Right side: AI Enhance + Edit/Save buttons */}
               <div className="mc-context-header-actions">
@@ -689,10 +689,10 @@ export function ViewProjectModal({
                     <button
                       className="mc-ai-synthesize-btn countdown"
                       onClick={cancelCountdown}
-                      title="Cancel AI Enhance"
+                      title={t('modals.cancelAIEnhance')}
                     >
                       <span className="mc-countdown-num">{regenCountdown}</span>
-                      <span>Cancel</span>
+                      <span>{t('common.cancel')}</span>
                     </button>
                   ) : (
                     <button
@@ -701,21 +701,21 @@ export function ViewProjectModal({
                       disabled={regenerating}
                       title={
                         isEditing
-                          ? 'AI will enhance your current content'
+                          ? t('modals.aiEnhanceCurrentContent')
                           : (project.decision_count ?? 0) > 0 || projectDecisions.length > 0
-                            ? 'AI will synthesize all decisions into organized project context'
-                            : 'AI will enhance and structure your project context'
+                            ? t('modals.aiSynthesizeDecisions')
+                            : t('modals.aiEnhanceStructure')
                       }
                     >
                       {regenerating ? (
                         <>
                           <Spinner size="sm" variant="brand" />
-                          <span>Processing...</span>
+                          <span>{t('modals.processing')}</span>
                         </>
                       ) : (
                         <>
                           <Sparkles size={16} />
-                          <span>AI Enhance</span>
+                          <span>{t('modals.aiEnhance')}</span>
                         </>
                       )}
                     </button>
@@ -729,10 +729,10 @@ export function ViewProjectModal({
                       onClick={handleCancelEdit}
                       disabled={saving}
                     >
-                      Cancel
+                      {t('common.cancel')}
                     </Button>
                     <Button variant="default" size="sm" onClick={handleSave} disabled={saving}>
-                      {saving ? 'Saving...' : 'Save'}
+                      {saving ? t('common.saving') : t('common.save')}
                     </Button>
                   </>
                 ) : (
@@ -744,10 +744,10 @@ export function ViewProjectModal({
                         variant="outline"
                         size="sm"
                         onClick={() => setIsEditing(true)}
-                        title="Edit project context"
+                        title={t('modals.editProjectContext')}
                       >
                         <PenLine size={16} />
-                        <span>Edit</span>
+                        <span>{t('common.edit')}</span>
                       </Button>
                     )}
                   </>
@@ -773,7 +773,7 @@ export function ViewProjectModal({
                       onChange={(e) => setEditedContext(e.target.value)}
                       rows={15}
                       autoFocus
-                      placeholder="Add project context here..."
+                      placeholder={t('modals.addProjectContextPlaceholder')}
                       enterKeyHint="done"
                     />
                   </AIWriteAssist>
@@ -783,10 +783,7 @@ export function ViewProjectModal({
                   {content ? (
                     <MarkdownViewer content={content} skipCleanup={true} />
                   ) : (
-                    <p className="mc-no-content">
-                      No project context yet. Click Edit to add context that will be included in all
-                      council sessions for this project.
-                    </p>
+                    <p className="mc-no-content">{t('modals.noProjectContextYet')}</p>
                   )}
                 </FloatingContextActions>
               )}
@@ -800,15 +797,13 @@ export function ViewProjectModal({
             {loadingDecisions ? (
               <div className="mc-decisions-loading">
                 <Spinner size="md" variant="brand" />
-                <span>Loading decisions...</span>
+                <span>{t('modals.loadingDecisions')}</span>
               </div>
             ) : projectDecisions.length === 0 ? (
               <div className="mc-empty-decisions">
                 <Bookmark size={32} className="mc-empty-icon text-slate-300 mb-3" />
-                <p className="mc-empty-title">No decisions yet</p>
-                <p className="mc-empty-hint">
-                  Save council responses to this project to build a decision timeline.
-                </p>
+                <p className="mc-empty-title">{t('modals.noDecisionsYet')}</p>
+                <p className="mc-empty-hint">{t('modals.saveCouncilResponsesToBuildTimeline')}</p>
               </div>
             ) : (
               <div className="mc-decisions-timeline">
@@ -883,7 +878,7 @@ export function ViewProjectModal({
                               {generatingSummaryId === decision.id ? (
                                 <div className="mc-timeline-summary-loading">
                                   <Spinner size="sm" variant="brand" />
-                                  <span>Generating summary...</span>
+                                  <span>{t('modals.generatingSummary')}</span>
                                 </div>
                               ) : decision.content_summary ? (
                                 <div className="mc-timeline-summary">
@@ -927,7 +922,7 @@ export function ViewProjectModal({
                                         log.error('Failed to copy', { error: 'unknown' });
                                       }
                                     }}
-                                    title="Copy council response"
+                                    title={t('modals.copyCouncilResponse')}
                                   >
                                     <svg
                                       className="copy-icon"
@@ -985,7 +980,7 @@ export function ViewProjectModal({
                                     );
                                   }}
                                 >
-                                  View original conversation →
+                                  {t('modals.viewOriginalConversation')} →
                                 </button>
                               )}
                             </div>
@@ -1007,7 +1002,7 @@ export function ViewProjectModal({
           <div className="app-modal-footer-left">
             {confirmingAction === 'delete' ? (
               <div className="app-modal-confirm-inline">
-                <span>Delete this project?</span>
+                <span>{t('modals.deleteThisProject')}</span>
                 <Button
                   variant="destructive"
                   size="sm"
@@ -1023,7 +1018,7 @@ export function ViewProjectModal({
                   }}
                   disabled={actionLoading}
                 >
-                  {actionLoading ? 'Deleting...' : 'Yes, Delete'}
+                  {actionLoading ? t('modals.deleting') : t('modals.yesDelete')}
                 </Button>
                 <Button
                   variant="outline"
@@ -1031,7 +1026,7 @@ export function ViewProjectModal({
                   onClick={() => setConfirmingAction(null)}
                   disabled={actionLoading}
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
               </div>
             ) : (
@@ -1051,10 +1046,10 @@ export function ViewProjectModal({
                       }
                     }}
                     disabled={actionLoading || saving}
-                    title="Mark project as completed"
+                    title={t('modals.markProjectCompleted')}
                   >
                     <CheckCircle size={16} />
-                    <span>Complete</span>
+                    <span>{t('modals.complete')}</span>
                   </Button>
                 )}
                 {/* Archive/Restore button */}
@@ -1072,10 +1067,10 @@ export function ViewProjectModal({
                       }
                     }}
                     disabled={actionLoading || saving}
-                    title="Restore project to active"
+                    title={t('modals.restoreProjectToActive')}
                   >
                     <RotateCcw size={16} />
-                    <span>Restore</span>
+                    <span>{t('modals.restore')}</span>
                   </Button>
                 ) : (
                   <Button
@@ -1091,10 +1086,10 @@ export function ViewProjectModal({
                       }
                     }}
                     disabled={actionLoading || saving}
-                    title="Archive this project"
+                    title={t('modals.archiveThisProject')}
                   >
                     <Archive size={16} />
-                    <span>Archive</span>
+                    <span>{t('modals.archive')}</span>
                   </Button>
                 )}
                 {/* Delete button */}
@@ -1103,11 +1098,11 @@ export function ViewProjectModal({
                   size="sm"
                   onClick={() => setConfirmingAction('delete')}
                   disabled={actionLoading || saving}
-                  title="Delete this project"
+                  title={t('modals.deleteThisProjectTooltip')}
                   className="text-[var(--color-error)] hover:bg-[var(--color-error)]/10"
                 >
                   <Trash2 size={16} />
-                  <span>Delete</span>
+                  <span>{t('modals.delete')}</span>
                 </Button>
               </>
             )}

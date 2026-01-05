@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as Popover from '@radix-ui/react-popover';
 import { BottomSheet } from '../ui/BottomSheet';
 import { BookOpen, ChevronDown, ScrollText, Layers, FileText, LucideIcon } from 'lucide-react';
@@ -57,6 +58,7 @@ export function PlaybookDropdown({
   setSelectedDocType,
   saveState,
 }: PlaybookDropdownProps) {
+  const { t } = useTranslation();
   const [showDropdown, setShowDropdown] = useState(false);
 
   const selectedOption = DOC_TYPE_OPTIONS.find((opt) => opt.value === selectedDocType);
@@ -79,7 +81,7 @@ export function PlaybookDropdown({
       ) : (
         <>
           <BookOpen className="h-3.5 w-3.5" />
-          <span>Playbook</span>
+          <span>{t('context.playbooks')}</span>
         </>
       )}
       {!isSaved && <ChevronDown className="h-3 w-3" />}
@@ -88,7 +90,7 @@ export function PlaybookDropdown({
 
   const dropdownContent = (
     <>
-      <div className="toolbar-dropdown-header">Playbook Type</div>
+      <div className="toolbar-dropdown-header">{t('stages.playbookType')}</div>
       <div className="toolbar-dropdown-list">
         {/* No type option */}
         <button
@@ -97,8 +99,10 @@ export function PlaybookDropdown({
         >
           <BookOpen className="h-4 w-4" />
           <div className="toolbar-dropdown-option-text">
-            <span className="toolbar-dropdown-option-name">No Type</span>
-            <span className="toolbar-dropdown-option-desc">Save without classifying</span>
+            <span className="toolbar-dropdown-option-name">{t('stages.noType')}</span>
+            <span className="toolbar-dropdown-option-desc">
+              {t('stages.saveWithoutClassifying')}
+            </span>
           </div>
         </button>
 
@@ -133,10 +137,10 @@ export function PlaybookDropdown({
           disabled={isDisabled}
           title={
             isSaved && selectedOption
-              ? `Saved as ${selectedOption.label}`
+              ? t('stages.savedAs', { type: selectedOption.label })
               : selectedOption
                 ? selectedOption.description
-                : 'Optionally classify as a playbook type'
+                : t('stages.optionallyClassify')
           }
         >
           {triggerContent}
@@ -145,7 +149,7 @@ export function PlaybookDropdown({
         <BottomSheet
           isOpen={showDropdown}
           onClose={() => setShowDropdown(false)}
-          title="Select Playbook Type"
+          title={t('stages.selectPlaybookType')}
         >
           <div className="toolbar-list-mobile">
             {/* No type option */}
@@ -158,8 +162,8 @@ export function PlaybookDropdown({
                 <BookOpen className="h-5 w-5" />
               </div>
               <div className="toolbar-option-content">
-                <span className="toolbar-option-name">No Type</span>
-                <span className="toolbar-option-desc">Save without classifying</span>
+                <span className="toolbar-option-name">{t('stages.noType')}</span>
+                <span className="toolbar-option-desc">{t('stages.saveWithoutClassifying')}</span>
               </div>
             </button>
 
@@ -203,10 +207,10 @@ export function PlaybookDropdown({
           disabled={isDisabled}
           title={
             isSaved && selectedOption
-              ? `Saved as ${selectedOption.label}`
+              ? t('stages.savedAs', { type: selectedOption.label })
               : selectedOption
                 ? selectedOption.description
-                : 'Optionally classify as a playbook type'
+                : t('stages.optionallyClassify')
           }
         >
           {triggerContent}

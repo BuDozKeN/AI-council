@@ -23,6 +23,7 @@ import type {
   Style,
   Project,
   Playbook,
+  ConversationModifier,
 } from '../types/business';
 import type { MyCompanyTab } from './mycompany/hooks';
 import type { ProjectModalContext, PromoteDecision } from '../hooks/useModalState';
@@ -123,6 +124,9 @@ interface ChatInterfaceProps {
   onViewKnowledgeBase?: () => void;
   // Mobile sidebar toggle
   onOpenSidebar: () => void;
+  // Conversation modifier (per-message LLM behavior tweak)
+  selectedModifier?: ConversationModifier | null;
+  onSelectModifier?: (modifier: ConversationModifier | null) => void;
 }
 
 export default function ChatInterface({
@@ -192,6 +196,9 @@ export default function ChatInterface({
   isLoadingConversation = false,
   // Mobile sidebar toggle
   onOpenSidebar: _onOpenSidebar,
+  // Conversation modifier
+  selectedModifier = null,
+  onSelectModifier,
 }: ChatInterfaceProps) {
   const [input, setInput] = useState('');
   const [chatMode, setChatMode] = useState<'chat' | 'council'>('chat');
@@ -399,7 +406,7 @@ export default function ChatInterface({
         <main id="main-content" className="chat-interface" aria-label="Chat interface">
           <h1 className="sr-only">Loading Conversation</h1>
           <div className="council-loader-overlay">
-            <CouncilLoader text="Getting your conversation ready..." />
+            <CouncilLoader text="Getting your conversation ready..." companyId={selectedBusiness} />
           </div>
         </main>
       );
@@ -493,7 +500,7 @@ export default function ChatInterface({
         {/* Show council loader while loading conversation */}
         {isLoadingConversation && !hasMessages && (
           <div className="council-loader-overlay">
-            <CouncilLoader text="Getting your conversation ready..." />
+            <CouncilLoader text="Getting your conversation ready..." companyId={selectedBusiness} />
           </div>
         )}
 
@@ -643,6 +650,8 @@ export default function ChatInterface({
             hasMessages={hasMessages}
             hasImages={attachedImages.length > 0}
             imageUpload={imageUpload}
+            // Company context for dynamic stats
+            companyId={selectedBusiness}
             // Context props for follow-ups (icons inside omnibar)
             chatMode={chatMode}
             onChatModeChange={setChatMode}
@@ -664,6 +673,8 @@ export default function ChatInterface({
               onSelectRoles([]);
               onSelectPlaybooks([]);
             }}
+            // Conversation modifier chips
+            {...(onSelectModifier ? { selectedModifier, onSelectModifier } : {})}
           />
         </form>
       )}

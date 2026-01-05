@@ -5,18 +5,28 @@ Endpoints for company overview and context management:
 - Get company overview with stats
 - Update company context
 - Merge new info into company context
+- AI-assisted context generation (structure endpoint)
 """
 
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, Request
+from pydantic import BaseModel, Field
+from typing import Optional
+import json
 
 from ...auth import get_current_user
+from ... import model_registry
 from .utils import (
     get_service_client,
     verify_company_access,
     resolve_company_id,
+    save_internal_llm_usage,
     ValidCompanyId,
 )
+
+# Import rate limiter
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+limiter = Limiter(key_func=get_remote_address)
 
 
 router = APIRouter(prefix="/company", tags=["company-overview"])
@@ -36,6 +46,12 @@ class CompanyContextMergeRequest(BaseModel):
     existing_context: str
     question: str
     answer: str
+
+
+class StructureCompanyContextRequest(BaseModel):
+    """Request to structure a company context from natural language description."""
+    description: str = Field(..., max_length=10000)
+    company_name: Optional[str] = Field(None, max_length=200)
 
 
 # =============================================================================
@@ -206,7 +222,8 @@ Their answer: "{answer}"
 Return ONLY the complete updated company context document in markdown format.
 Do not include any explanation or commentary - just the document."""
 
-    models = ["anthropic/claude-3-5-haiku-20241022", "openai/gpt-4o-mini"]
+    # Use document_writer models from LLM Hub (same models used for playbook generation)
+    models = await model_registry.get_models('document_writer') or ["openai/gpt-4o", "anthropic/claude-3-5-sonnet-20241022"]
 
     merged = None
     model_used = None
@@ -249,3 +266,276 @@ Do not include any explanation or commentary - just the document."""
     }).eq("id", company_uuid).execute()
 
     return {"merged_context": merged}
+
+
+# =============================================================================
+# AI-ASSISTED COMPANY CONTEXT GENERATION
+# =============================================================================
+
+@router.post("/{company_id}/context/structure")
+@limiter.limit("10/minute;50/hour")
+async def structure_company_context(
+    request: Request,
+    company_id: ValidCompanyId,
+    structure_request: StructureCompanyContextRequest,
+    user: dict = Depends(get_current_user)
+):
+    """
+    Use AI to generate a comprehensive company context document from a natural language description.
+
+    Uses the 'company_context_writer' persona from the database.
+
+    Returns:
+        {
+            "structured": {
+                "context_md": "# Company Overview\n\n..."
+            }
+        }
+    """
+    from ...openrouter import query_model, MOCK_LLM
+    from ...personas import get_db_persona_with_fallback
+    from ...security import log_app_event
+
+    client = get_service_client()
+
+    try:
+        company_uuid = resolve_company_id(client, company_id)
+    except HTTPException:
+        raise HTTPException(status_code=404, detail="Resource not found")
+
+    verify_company_access(client, company_uuid, user)
+
+    # Handle mock mode for testing
+    if MOCK_LLM:
+        company_name = structure_request.company_name or "Acme Corp"
+        desc_lower = structure_request.description.lower()
+
+        if "saas" in desc_lower or "software" in desc_lower or "tech" in desc_lower:
+            mock_context = f"""# {company_name} - Company Context
+
+**Last Updated:** 2026-01-05
+**Version:** 1.0
+
+## Company Overview
+
+{company_name} is a B2B SaaS company building tools to help teams work more effectively. We're a seed-stage startup with a team of 8.
+
+- **Industry:** Enterprise Software / Productivity
+- **Stage:** Seed (raised $2M)
+- **Team Size:** 8 people
+
+## Mission & Vision
+
+**Mission:** Make team collaboration effortless through intelligent automation.
+
+**Vision:** Become the default productivity layer for modern teams.
+
+**Core Values:**
+- Ship fast, learn faster
+- Customer obsession
+- Transparency over politics
+
+## Current Priorities
+
+1. **Launch MVP to 10 pilot customers** (Q1)
+2. **Achieve product-market fit signals** (40% weekly active usage)
+3. **Build core integrations** (Slack, Notion, Linear)
+
+**Not focusing on:**
+- Enterprise sales motion
+- International expansion
+- Mobile apps
+
+## Constraints & Resources
+
+- **Budget:** $150K runway for next 6 months
+- **Team:** 3 engineers, 2 designers, 1 PM, 2 founders
+- **Timeline:** MVP by end of Q1
+- **Technical:** AWS infrastructure, React/Node stack
+
+## Decision-Making Culture
+
+- Small team = fast decisions
+- Default to action, iterate based on data
+- Founders have final call on strategic decisions
+- Engineers own technical architecture
+
+## Key Policies & Standards
+
+- **Security:** SOC 2 compliance planned for Q3
+- **Code Quality:** PR reviews required, 80% test coverage target
+- **Communication:** Async-first, daily standups optional
+"""
+        else:
+            mock_context = f"""# {company_name} - Company Context
+
+**Last Updated:** 2026-01-05
+**Version:** 1.0
+
+## Company Overview
+
+{company_name} is focused on delivering value to our customers. We're building something meaningful.
+
+- **Industry:** General Business
+- **Stage:** Growth
+- **Team Size:** Growing team
+
+## Mission & Vision
+
+**Mission:** Deliver exceptional value to our customers.
+
+**Vision:** Be the leader in our space.
+
+## Current Priorities
+
+1. **Grow customer base**
+2. **Improve product quality**
+3. **Build team capabilities**
+
+## Constraints & Resources
+
+- **Budget:** Operating within means
+- **Team:** Dedicated professionals
+- **Timeline:** Quarterly planning cycles
+
+## Decision-Making Culture
+
+- Collaborative decision making
+- Data-informed choices
+- Clear ownership and accountability
+
+## Key Policies & Standards
+
+- Quality first
+- Customer-centric approach
+- Continuous improvement
+"""
+        return {"structured": {"context_md": mock_context}}
+
+    # Get the company_context_writer persona from database
+    persona = await get_db_persona_with_fallback('company_context_writer')
+    system_prompt = persona.get('system_prompt', '')
+    models = persona.get('model_preferences', ['openai/gpt-4o', 'google/gemini-2.0-flash-001'])
+
+    if isinstance(models, str):
+        models = json.loads(models)
+
+    # Build the user prompt
+    description = structure_request.description[:10000] if structure_request.description else ""
+    company_name = structure_request.company_name or "the company"
+
+    user_prompt = f"""Create a comprehensive company context document for {company_name} based on this description:
+
+"{description}"
+
+Generate a complete company context document in markdown format following your standard structure:
+- Company Overview
+- Mission & Vision
+- Current Priorities
+- Constraints & Resources
+- Decision-Making Culture
+- Key Policies & Standards
+
+Include a metadata header with:
+**Last Updated:** (today's date)
+**Version:** 1.0
+
+Make it specific to what was described. If information is missing, make reasonable inferences but mark assumptions.
+Keep the total length to 500-800 words.
+
+Return ONLY the markdown document, no explanations or commentary."""
+
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_prompt}
+    ]
+
+    # Try each model in the fallback chain
+    for model in models:
+        try:
+            result = await query_model(model=model, messages=messages, max_tokens=2000)
+
+            # Track internal LLM usage
+            if result and result.get('usage'):
+                try:
+                    await save_internal_llm_usage(
+                        company_id=company_uuid,
+                        operation_type='context_structuring',
+                        model=model,
+                        usage=result['usage']
+                    )
+                except Exception:
+                    pass  # Don't fail if tracking fails
+
+            if result and result.get('content'):
+                content = result['content'].strip()
+
+                # Clean up if wrapped in code blocks
+                if content.startswith('```'):
+                    content = content.split('```', 2)[1]
+                    if content.startswith('markdown') or content.startswith('md'):
+                        content = content.split('\n', 1)[1] if '\n' in content else content
+                if '```' in content:
+                    content = content.rsplit('```', 1)[0]
+                content = content.strip()
+
+                # Validate - should be substantial markdown
+                if len(content) > 100 and '#' in content:
+                    log_app_event(
+                        "COMPANY_CONTEXT_STRUCTURED",
+                        level="INFO",
+                        model=model,
+                        company_id=company_uuid,
+                        content_length=len(content)
+                    )
+                    return {"structured": {"context_md": content}}
+
+        except Exception as e:
+            log_app_event(
+                "COMPANY_CONTEXT_STRUCTURE_ERROR",
+                level="WARNING",
+                model=model,
+                error=str(e)
+            )
+            continue
+
+    # All models failed - return a basic template
+    log_app_event("COMPANY_CONTEXT_STRUCTURE_ALL_FAILED", level="ERROR")
+
+    fallback_context = f"""# {company_name} - Company Context
+
+**Last Updated:** (Update this)
+**Version:** 1.0
+
+## Company Overview
+
+{description[:500] if description else "Add your company description here."}
+
+## Mission & Vision
+
+**Mission:** (What is your company's mission?)
+
+**Vision:** (Where are you headed?)
+
+## Current Priorities
+
+1. (Priority 1)
+2. (Priority 2)
+3. (Priority 3)
+
+## Constraints & Resources
+
+- **Budget:** (Your budget constraints)
+- **Team:** (Team size and composition)
+- **Timeline:** (Key deadlines)
+
+## Decision-Making Culture
+
+(How does your team make decisions?)
+
+## Key Policies & Standards
+
+(What are your non-negotiables?)
+"""
+
+    return {"structured": {"context_md": fallback_context}}

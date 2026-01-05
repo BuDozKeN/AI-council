@@ -5,12 +5,15 @@ Endpoints for SOP, framework, and policy management:
 - List playbooks with filters
 - Get playbook tags
 - Get/Create/Update/Delete playbooks
+- AI-assisted playbook structuring
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
 import uuid
+import json
 
 from ...auth import get_current_user
 from .utils import (
@@ -18,6 +21,7 @@ from .utils import (
     get_service_client,
     resolve_company_id,
     log_activity,
+    save_internal_llm_usage,
     ValidCompanyId,
     ValidPlaybookId,
     PlaybookCreate,
@@ -28,6 +32,25 @@ from .utils import (
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 limiter = Limiter(key_func=get_remote_address)
+
+
+# =============================================================================
+# PYDANTIC MODELS FOR AI STRUCTURING
+# =============================================================================
+
+class StructurePlaybookRequest(BaseModel):
+    """Request to structure a playbook from natural language description."""
+    description: str = Field(..., max_length=10000)
+    company_id: Optional[str] = Field(None, max_length=100)  # For usage tracking
+    doc_type: Optional[str] = Field(None, description="Optional: sop, framework, or policy. If not provided, AI will determine.")
+
+
+# Mapping from doc_type to persona key
+DOC_TYPE_TO_PERSONA = {
+    "sop": "sop_writer",
+    "framework": "framework_author",
+    "policy": "policy_writer",
+}
 
 
 router = APIRouter(prefix="/company", tags=["company-playbooks"])
@@ -426,3 +449,310 @@ async def delete_playbook(company_id: ValidCompanyId, playbook_id: ValidPlaybook
     )
 
     return {"success": True, "message": f"Playbook '{playbook_title}' deleted"}
+
+
+# =============================================================================
+# AI-ASSISTED PLAYBOOK STRUCTURING
+# =============================================================================
+
+async def _detect_doc_type(description: str, company_id: Optional[str]) -> str:
+    """
+    Use AI to determine the document type from the description.
+    Returns 'sop', 'framework', or 'policy'.
+    """
+    from ...openrouter import query_model
+    from ...security import log_app_event
+
+    # Quick classification prompt - lightweight, uses fast model
+    system_prompt = """You are a document classifier. Analyze the description and determine the document type.
+
+- SOP (Standard Operating Procedure): Step-by-step instructions, "how to do" tasks, repeatable processes
+- Framework: Conceptual structures, principles, guidelines, "how to think about" topics
+- Policy: Rules, requirements, boundaries, "what must/must not be done"
+
+Return ONLY one word: sop, framework, or policy"""
+
+    user_prompt = f'Classify this: "{description[:500]}"'
+
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_prompt}
+    ]
+
+    # Use a fast, cheap model for classification
+    classification_models = ["openai/gpt-4o-mini", "google/gemini-2.0-flash-001"]
+
+    for model in classification_models:
+        try:
+            result = await query_model(model=model, messages=messages)
+
+            # Track usage
+            if company_id and result and result.get('usage'):
+                try:
+                    await save_internal_llm_usage(
+                        company_id=company_id,
+                        operation_type='playbook_type_detection',
+                        model=model,
+                        usage=result['usage']
+                    )
+                except Exception:
+                    pass
+
+            if result and result.get('content'):
+                doc_type = result['content'].strip().lower()
+                # Clean any extra characters
+                doc_type = doc_type.replace('"', '').replace("'", '').strip()
+                if doc_type in ['sop', 'framework', 'policy']:
+                    log_app_event(
+                        "PLAYBOOK_TYPE_DETECTED",
+                        level="INFO",
+                        model=model,
+                        detected_type=doc_type
+                    )
+                    return doc_type
+
+        except Exception as e:
+            log_app_event(
+                "PLAYBOOK_TYPE_DETECTION_ERROR",
+                level="WARNING",
+                model=model,
+                error=str(e)
+            )
+            continue
+
+    # Default to SOP if detection fails
+    return "sop"
+
+
+async def _generate_playbook_content(
+    doc_type: str,
+    description: str,
+    company_id: Optional[str]
+) -> dict:
+    """
+    Generate playbook content using the type-specific persona.
+    Returns {"title": str, "content": str} or None if all models fail.
+    """
+    from ...openrouter import query_model
+    from ...personas import get_db_persona_with_fallback
+    from ...security import log_app_event
+
+    # Get the type-specific persona
+    persona_key = DOC_TYPE_TO_PERSONA.get(doc_type, "sop_writer")
+    persona = await get_db_persona_with_fallback(persona_key)
+    system_prompt = persona.get('system_prompt', '')
+    models = persona.get('model_preferences', ['openai/gpt-4o', 'google/gemini-2.0-flash-001'])
+
+    if isinstance(models, str):
+        models = json.loads(models)
+
+    # Build the user prompt based on doc_type
+    doc_type_labels = {
+        "sop": "Standard Operating Procedure (SOP)",
+        "framework": "Framework",
+        "policy": "Policy"
+    }
+    type_label = doc_type_labels.get(doc_type, "Document")
+
+    user_prompt = f"""Create a complete {type_label} from this description:
+
+"{description}"
+
+Structure your response as valid JSON with exactly these fields:
+{{
+  "title": "A clear, professional title for this {type_label}",
+  "content": "The full document content in markdown format with proper sections"
+}}
+
+Write comprehensive, production-ready content following your expertise as a {type_label} specialist."""
+
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_prompt}
+    ]
+
+    # Try each model in the fallback chain
+    for model in models:
+        try:
+            result = await query_model(model=model, messages=messages)
+
+            # Track usage
+            if company_id and result and result.get('usage'):
+                try:
+                    await save_internal_llm_usage(
+                        company_id=company_id,
+                        operation_type='playbook_generation',
+                        model=model,
+                        usage=result['usage']
+                    )
+                except Exception:
+                    pass
+
+            if result and result.get('content'):
+                content = result['content']
+
+                # Clean up JSON from markdown code blocks if present
+                if content.startswith('```'):
+                    content = content.split('```')[1]
+                    if content.startswith('json'):
+                        content = content[4:]
+                if '```' in content:
+                    content = content.split('```')[0]
+                content = content.strip()
+
+                try:
+                    parsed = json.loads(content)
+
+                    # Validate required fields
+                    if not parsed.get('title'):
+                        continue
+
+                    log_app_event(
+                        "PLAYBOOK_GENERATED",
+                        level="INFO",
+                        model=model,
+                        persona=persona_key,
+                        title=parsed.get('title'),
+                        doc_type=doc_type
+                    )
+
+                    return {
+                        "title": parsed.get('title'),
+                        "content": parsed.get('content', f"# {parsed.get('title')}\n\n")
+                    }
+
+                except json.JSONDecodeError:
+                    continue
+
+        except Exception as e:
+            log_app_event(
+                "PLAYBOOK_GENERATION_ERROR",
+                level="WARNING",
+                model=model,
+                persona=persona_key,
+                error=str(e)
+            )
+            continue
+
+    # All models failed
+    log_app_event(
+        "PLAYBOOK_GENERATION_ALL_FAILED",
+        level="ERROR",
+        persona=persona_key,
+        doc_type=doc_type
+    )
+    return None
+
+
+@router.post("/playbooks/structure")
+@limiter.limit("10/minute;50/hour")
+async def structure_playbook(
+    request: Request,
+    structure_request: StructurePlaybookRequest,
+    user: dict = Depends(get_current_user)
+):
+    """
+    Use AI to structure a natural language playbook description into
+    a title, document type, and full content.
+
+    Two-phase approach:
+    1. Determine doc_type (from request or AI detection)
+    2. Call the specialized persona (sop_writer, framework_author, policy_writer)
+
+    Request body:
+        - description: The natural language description
+        - company_id: Optional, for usage tracking
+        - doc_type: Optional, user's preselection ('sop', 'framework', 'policy')
+
+    Returns:
+        {
+            "structured": {
+                "title": "Playbook Title",
+                "doc_type": "sop" | "framework" | "policy",
+                "content": "# Title\\n\\n## Section 1\\n..."
+            }
+        }
+    """
+    from ...openrouter import MOCK_LLM
+    from ...security import log_app_event
+
+    description = structure_request.description[:10000] if structure_request.description else ""
+
+    # Handle mock mode for testing
+    if MOCK_LLM:
+        # Use provided doc_type or detect from description
+        doc_type = structure_request.doc_type
+        if not doc_type:
+            desc_lower = description.lower()
+            if "how to" in desc_lower or "step" in desc_lower or "process" in desc_lower:
+                doc_type = "sop"
+            elif "policy" in desc_lower or "rule" in desc_lower or "must" in desc_lower:
+                doc_type = "policy"
+            else:
+                doc_type = "framework"
+
+        mock_content = {
+            "sop": {
+                "title": "Standard Operating Procedure",
+                "content": "# Standard Operating Procedure\n\n## Purpose\n\nThis SOP outlines the steps to complete the process.\n\n## Steps\n\n1. Step one\n2. Step two\n3. Step three\n\n## Notes\n\nAdditional information here."
+            },
+            "policy": {
+                "title": "Company Policy",
+                "content": "# Company Policy\n\n## Purpose\n\nThis policy establishes guidelines and boundaries.\n\n## Scope\n\nApplies to all team members.\n\n## Policy Statement\n\nKey rules and requirements.\n\n## Compliance\n\nEnforcement and exceptions."
+            },
+            "framework": {
+                "title": "Decision Framework",
+                "content": "# Decision Framework\n\n## Overview\n\nA structured approach to decision-making.\n\n## Principles\n\n- Principle 1\n- Principle 2\n- Principle 3\n\n## Application\n\nHow to apply this framework."
+            }
+        }
+
+        return {
+            "structured": {
+                "title": mock_content[doc_type]["title"],
+                "doc_type": doc_type,
+                "content": mock_content[doc_type]["content"]
+            }
+        }
+
+    # PHASE 1: Determine document type
+    # Use provided doc_type if valid, otherwise detect from description
+    doc_type = structure_request.doc_type
+    if doc_type and doc_type in ['sop', 'framework', 'policy']:
+        log_app_event(
+            "PLAYBOOK_TYPE_PRESELECTED",
+            level="INFO",
+            doc_type=doc_type
+        )
+    else:
+        # AI detection of document type
+        doc_type = await _detect_doc_type(description, structure_request.company_id)
+
+    # PHASE 2: Generate content using the type-specific persona
+    result = await _generate_playbook_content(
+        doc_type=doc_type,
+        description=description,
+        company_id=structure_request.company_id
+    )
+
+    if result:
+        return {
+            "structured": {
+                "title": result["title"],
+                "doc_type": doc_type,
+                "content": result["content"]
+            }
+        }
+
+    # Fallback if all generation attempts failed
+    log_app_event("PLAYBOOK_STRUCTURE_FALLBACK", level="ERROR")
+
+    words = description.split()[:5]
+    fallback_title = " ".join(w.capitalize() for w in words) if words else "New Playbook"
+
+    return {
+        "structured": {
+            "title": fallback_title,
+            "doc_type": doc_type,
+            "content": f"# {fallback_title}\n\n{description[:500]}"
+        }
+    }

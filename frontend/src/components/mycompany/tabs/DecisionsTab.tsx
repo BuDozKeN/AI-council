@@ -10,6 +10,7 @@
  */
 
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CheckCircle } from 'lucide-react';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { ScrollableContent } from '../../ui/ScrollableContent';
@@ -85,6 +86,8 @@ export function DecisionsTab({
   onDeleteDecision,
   onNavigateToConversation,
 }: DecisionsTabProps) {
+  const { t } = useTranslation();
+
   // Memoized pending decisions (not promoted)
   const pendingDecisions = useMemo(
     () => decisions.filter((d) => !d.promoted_to_id && !d.project_id),
@@ -128,10 +131,8 @@ export function DecisionsTab({
     return (
       <div className="mc-empty">
         <CheckCircle size={40} className="mc-empty-icon-svg" />
-        <p className="mc-empty-title">All caught up!</p>
-        <p className="mc-empty-hint">
-          No pending decisions to review. Save council outputs to see them here.
-        </p>
+        <p className="mc-empty-title">{t('mycompany.allCaughtUp')}</p>
+        <p className="mc-empty-hint">{t('mycompany.noPendingDecisions')}</p>
       </div>
     );
   }
@@ -145,7 +146,7 @@ export function DecisionsTab({
           value={decisionDeptFilter}
           onValueChange={onDeptFilterChange ?? (() => {})}
           departments={departments}
-          placeholder="All departments"
+          placeholder={t('mycompany.allDepartments')}
           className="mc-dept-filter"
         />
 
@@ -169,7 +170,7 @@ export function DecisionsTab({
             type="search"
             inputMode="search"
             className="mc-search-input"
-            placeholder="Search decisions..."
+            placeholder={t('mycompany.searchDecisions')}
             value={decisionSearch}
             onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
           />
@@ -177,7 +178,7 @@ export function DecisionsTab({
             <button
               className="mc-search-clear"
               onClick={() => onSearchChange && onSearchChange('')}
-              title="Clear search"
+              title={t('mycompany.clearSearch')}
             >
               ×
             </button>
@@ -188,8 +189,10 @@ export function DecisionsTab({
       {/* Results count */}
       {(decisionSearch || decisionDeptFilter.length > 0) && (
         <div className="mc-filter-results">
-          {filteredDecisions.length} of {pendingDecisions.length} decision
-          {pendingDecisions.length !== 1 ? 's' : ''}
+          {t('mycompany.filterResults', {
+            filtered: filteredDecisions.length,
+            total: pendingDecisions.length,
+          })}
           {(decisionSearch || decisionDeptFilter.length > 0) && (
             <button
               className="mc-clear-filters"
@@ -198,7 +201,7 @@ export function DecisionsTab({
                 onDeptFilterChange && onDeptFilterChange([]);
               }}
             >
-              Clear filters
+              {t('mycompany.clearFilters')}
             </button>
           )}
         </div>
@@ -207,8 +210,8 @@ export function DecisionsTab({
       {/* Empty state for filtered results */}
       {filteredDecisions.length === 0 && (
         <div className="mc-empty">
-          <p className="mc-empty-title">No matching decisions</p>
-          <p className="mc-empty-hint">Try adjusting your search or department filter.</p>
+          <p className="mc-empty-title">{t('mycompany.noMatchingDecisions')}</p>
+          <p className="mc-empty-hint">{t('mycompany.tryAdjustingFilters')}</p>
         </div>
       )}
 
@@ -272,9 +275,9 @@ export function DecisionsTab({
                                 'decisions'
                               );
                             }}
-                            title="View original conversation"
+                            title={t('mycompany.viewOriginalConversation')}
                           >
-                            Source
+                            {t('mycompany.source')}
                           </button>
                         )}
                       <button
@@ -284,7 +287,7 @@ export function DecisionsTab({
                           onPromoteDecision && onPromoteDecision(decision);
                         }}
                       >
-                        Promote
+                        {t('mycompany.promote')}
                       </button>
                       <button
                         className="mc-text-btn delete"
@@ -293,7 +296,7 @@ export function DecisionsTab({
                           onDeleteDecision && onDeleteDecision(decision);
                         }}
                       >
-                        Delete
+                        {t('mycompany.delete')}
                       </button>
                     </div>
                   </div>

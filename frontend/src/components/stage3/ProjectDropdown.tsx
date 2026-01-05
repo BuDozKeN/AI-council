@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as Popover from '@radix-ui/react-popover';
 import { BottomSheet } from '../ui/BottomSheet';
 import { FolderKanban, ChevronDown, Plus, FolderX } from 'lucide-react';
@@ -57,6 +58,7 @@ export function ProjectDropdown({
   displayText,
   selectedDeptIds,
 }: ProjectDropdownProps) {
+  const { t } = useTranslation();
   const listRef = useRef<HTMLDivElement>(null);
 
   const isDisabled = saveState === 'saving' || saveState === 'promoting';
@@ -85,14 +87,14 @@ export function ProjectDropdown({
   const triggerContent = (
     <>
       <FolderKanban className="h-3.5 w-3.5" />
-      <span>{currentProject ? currentProject.name : 'Project'}</span>
+      <span>{currentProject ? currentProject.name : t('context.project')}</span>
       <ChevronDown className="h-3 w-3" />
     </>
   );
 
   const dropdownContent = (
     <>
-      <div className="toolbar-dropdown-header">Select Project</div>
+      <div className="toolbar-dropdown-header">{t('stages.selectProject')}</div>
       <div ref={listRef} className="toolbar-dropdown-list">
         {/* No project option */}
         <button
@@ -101,8 +103,8 @@ export function ProjectDropdown({
         >
           <FolderX className="h-4 w-4" />
           <div className="toolbar-dropdown-option-text">
-            <span className="toolbar-dropdown-option-name">No Project</span>
-            <span className="toolbar-dropdown-option-desc">Save without linking to a project</span>
+            <span className="toolbar-dropdown-option-name">{t('stages.noProject')}</span>
+            <span className="toolbar-dropdown-option-desc">{t('stages.saveWithoutProject')}</span>
           </div>
         </button>
 
@@ -130,7 +132,7 @@ export function ProjectDropdown({
         <div className="toolbar-dropdown-footer">
           <button className="toolbar-dropdown-create-btn" onClick={handleCreate}>
             <Plus className="h-3.5 w-3.5" />
-            <span>Create New Project</span>
+            <span>{t('stages.createNewProject')}</span>
           </button>
         </div>
       )}
@@ -147,8 +149,8 @@ export function ProjectDropdown({
           disabled={isDisabled}
           title={
             currentProject
-              ? `Linked to: ${currentProject.name}`
-              : 'Link this answer to a project for easy access later'
+              ? t('stages.linkedTo', { name: currentProject.name })
+              : t('stages.linkToProject')
           }
         >
           {triggerContent}
@@ -157,7 +159,7 @@ export function ProjectDropdown({
         <BottomSheet
           isOpen={showProjectDropdown}
           onClose={() => setShowProjectDropdown(false)}
-          title="Select Project"
+          title={t('stages.selectProject')}
         >
           <div className="toolbar-list-mobile">
             {/* No project option */}
@@ -170,8 +172,8 @@ export function ProjectDropdown({
                 <FolderX className="h-5 w-5" />
               </div>
               <div className="toolbar-option-content">
-                <span className="toolbar-option-name">No Project</span>
-                <span className="toolbar-option-desc">Save without linking to a project</span>
+                <span className="toolbar-option-name">{t('stages.noProject')}</span>
+                <span className="toolbar-option-desc">{t('stages.saveWithoutProject')}</span>
               </div>
             </button>
 
@@ -199,7 +201,7 @@ export function ProjectDropdown({
             {onCreateProject && (
               <button type="button" className="toolbar-create-btn-mobile" onClick={handleCreate}>
                 <Plus className="h-4 w-4" />
-                <span>Create New Project</span>
+                <span>{t('stages.createNewProject')}</span>
               </button>
             )}
           </div>
@@ -217,8 +219,8 @@ export function ProjectDropdown({
           disabled={isDisabled}
           title={
             currentProject
-              ? `Linked to: ${currentProject.name}`
-              : 'Link this answer to a project for easy access later'
+              ? t('stages.linkedTo', { name: currentProject.name })
+              : t('stages.linkToProject')
           }
         >
           {triggerContent}

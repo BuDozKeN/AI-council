@@ -11,8 +11,10 @@
  */
 
 import { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Activity, Zap, DollarSign, ChevronDown, ChevronUp } from 'lucide-react';
 import { getShowTokenUsage } from '../settings/tokenUsageSettings';
+import { formatCostAuto } from '../../lib/currencyUtils';
 import './TokenUsageDisplay.css';
 
 // Model pricing (per 1M tokens) - Official provider pricing as of Dec 2025
@@ -109,9 +111,7 @@ function formatTokenCount(count: number): string {
 }
 
 function formatCost(cost: number): string {
-  if (cost < 0.01) return `$${cost.toFixed(4)}`;
-  if (cost < 1) return `$${cost.toFixed(3)}`;
-  return `$${cost.toFixed(2)}`;
+  return formatCostAuto(cost);
 }
 
 function getModelShortName(model: string): string {
@@ -133,6 +133,7 @@ export function TokenUsageDisplay({
   stage = 'complete',
   className = '',
 }: TokenUsageDisplayProps) {
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(getShowTokenUsage());
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -177,7 +178,10 @@ export function TokenUsageDisplay({
     return null;
   }
 
-  const stageLabel = stage === 'complete' ? 'Session Total' : `Stage ${stage.replace('stage', '')}`;
+  const stageLabel =
+    stage === 'complete'
+      ? t('usage.sessionTotal')
+      : t('usage.stageLabel', { stage: stage.replace('stage', '') });
 
   return (
     <div className={`token-usage-display ${className}`}>
@@ -185,11 +189,13 @@ export function TokenUsageDisplay({
         <div className="token-usage-summary">
           <Activity size={14} className="token-usage-icon" />
           <span className="token-usage-label">{stageLabel}:</span>
-          <span className="token-usage-total">{formatTokenCount(stats.totalTokens)} tokens</span>
+          <span className="token-usage-total">
+            {t('usage.tokensCount', { value: formatTokenCount(stats.totalTokens) })}
+          </span>
           {stats.cacheHitRate > 0 && (
             <span className="token-usage-cache">
               <Zap size={12} />
-              {stats.cacheHitRate.toFixed(0)}% cached
+              {t('usage.cachedPercent', { percent: stats.cacheHitRate.toFixed(0) })}
             </span>
           )}
           <span className="token-usage-cost">
@@ -206,11 +212,11 @@ export function TokenUsageDisplay({
         <div className="token-usage-details">
           <div className="token-usage-breakdown">
             <div className="token-usage-row">
-              <span className="token-usage-row-label">Input tokens</span>
+              <span className="token-usage-row-label">{t('usage.inputTokens')}</span>
               <span className="token-usage-row-value">{formatTokenCount(stats.promptTokens)}</span>
             </div>
             <div className="token-usage-row">
-              <span className="token-usage-row-label">Output tokens</span>
+              <span className="token-usage-row-label">{t('usage.outputTokens')}</span>
               <span className="token-usage-row-value">
                 {formatTokenCount(stats.completionTokens)}
               </span>
@@ -218,7 +224,7 @@ export function TokenUsageDisplay({
             {stats.cacheReadTokens > 0 && (
               <div className="token-usage-row cache">
                 <span className="token-usage-row-label">
-                  <Zap size={12} /> Cache read
+                  <Zap size={12} /> {t('usage.cacheRead')}
                 </span>
                 <span className="token-usage-row-value">
                   {formatTokenCount(stats.cacheReadTokens)}
@@ -227,7 +233,7 @@ export function TokenUsageDisplay({
             )}
             {stats.cacheCreationTokens > 0 && (
               <div className="token-usage-row">
-                <span className="token-usage-row-label">Cache created</span>
+                <span className="token-usage-row-label">{t('usage.cacheCreated')}</span>
                 <span className="token-usage-row-value">
                   {formatTokenCount(stats.cacheCreationTokens)}
                 </span>
@@ -237,7 +243,7 @@ export function TokenUsageDisplay({
 
           {Object.keys(usage.by_model).length > 0 && (
             <div className="token-usage-models">
-              <div className="token-usage-models-header">Per Model</div>
+              <div className="token-usage-models-header">{t('usage.perModel')}</div>
               {Object.entries(usage.by_model).map(([model, modelUsage]) => (
                 <div key={model} className="token-usage-model-row">
                   <span className="token-usage-model-name">{getModelShortName(model)}</span>
@@ -252,7 +258,7 @@ export function TokenUsageDisplay({
 
           {stats.cacheSavings > 0 && (
             <div className="token-usage-savings">
-              Estimated cache savings: {formatCost(stats.cacheSavings)}
+              {t('usage.cacheSavings', { amount: formatCost(stats.cacheSavings) })}
             </div>
           )}
         </div>

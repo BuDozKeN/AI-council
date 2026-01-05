@@ -8,6 +8,6 @@ echo After Chrome opens, navigate to your app (e.g., http://localhost:5173)
 echo Claude will then be able to see console errors and network issues.
 echo.
 
-start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir="%TEMP%\chrome-debug-profile"
+start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" --remote-debugging-port=9222 --user-data-dir="%USERPROFILE%\.axcouncil-chrome-debug" --no-first-run http://localhost:5173
 
 echo Chrome launched! You can close this window.
