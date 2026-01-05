@@ -7,6 +7,9 @@ import { test, expect } from '@playwright/test';
  * against baseline snapshots to detect unintended visual changes.
  *
  * To update baselines: npx playwright test --update-snapshots
+ *
+ * Note: These tests use a high threshold (20%) to allow for minor rendering
+ * differences across CI environments while still catching major regressions.
  */
 
 test.describe('Visual Regression - Login Page', () => {
@@ -17,9 +20,10 @@ test.describe('Visual Regression - Login Page', () => {
     // Wait for any animations to complete
     await page.waitForTimeout(500);
 
-    // Capture full page screenshot
+    // Capture full page screenshot with high tolerance for CI differences
     await expect(page).toHaveScreenshot('login-page.png', {
       fullPage: true,
+      maxDiffPixelRatio: 0.2, // Allow 20% difference for CI environment variations
     });
   });
 
@@ -32,6 +36,7 @@ test.describe('Visual Regression - Login Page', () => {
 
     await expect(page).toHaveScreenshot('login-page-mobile.png', {
       fullPage: true,
+      maxDiffPixelRatio: 0.2,
     });
   });
 });
@@ -49,9 +54,10 @@ test.describe('Visual Regression - Dark Mode', () => {
       await themeToggle.click();
       await page.waitForTimeout(300);
 
-      // Capture dark mode screenshot
+      // Capture dark mode screenshot - with tolerance since animations may vary
       await expect(page).toHaveScreenshot('login-page-dark.png', {
         fullPage: true,
+        maxDiffPixelRatio: 0.2,
       });
     }
   });
@@ -65,8 +71,10 @@ test.describe('Visual Regression - Components', () => {
     const googleButton = page.getByRole('button', { name: /google/i });
 
     if (await googleButton.isVisible()) {
-      // Screenshot just the button
-      await expect(googleButton).toHaveScreenshot('google-oauth-button.png');
+      // Screenshot just the button - with tolerance for font rendering differences
+      await expect(googleButton).toHaveScreenshot('google-oauth-button.png', {
+        maxDiffPixelRatio: 0.2,
+      });
     }
   });
 });

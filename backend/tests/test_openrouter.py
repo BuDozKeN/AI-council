@@ -294,12 +294,19 @@ class TestApiKeyManagement:
 
     def test_system_key_used_as_fallback(self):
         """System key should be used when no other keys available."""
+        import backend.openrouter as openrouter_module
         from backend.openrouter import get_effective_api_key
 
-        # No explicit key, no context key - should use system key
-        result = get_effective_api_key()
-        # Result should be from OPENROUTER_API_KEY config
-        assert result is not None
+        # Mock the system key (may not be set in CI)
+        original_key = openrouter_module.OPENROUTER_API_KEY
+        openrouter_module.OPENROUTER_API_KEY = "mocked-system-key"
+        try:
+            # No explicit key, no context key - should use system key
+            result = get_effective_api_key()
+            # Result should be from OPENROUTER_API_KEY config
+            assert result == "mocked-system-key"
+        finally:
+            openrouter_module.OPENROUTER_API_KEY = original_key
 
 
 # =============================================================================
