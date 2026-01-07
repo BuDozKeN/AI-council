@@ -240,6 +240,32 @@ function App() {
     setScrollToStage3,
     clearReturnState,
   } = useModalState();
+
+  // Route synchronization - syncs URL with modal state
+  // This enables deep linking, F5 refresh, and browser back/forward
+  const {
+    navigateToSettings,
+    navigateToCompany,
+    navigateToLeaderboard,
+    navigateToChat,
+  } = useRouteSync({
+    isSettingsOpen,
+    isMyCompanyOpen,
+    isLeaderboardOpen,
+    openSettings,
+    openMyCompany,
+    openLeaderboard,
+    closeSettings,
+    closeMyCompany,
+    closeLeaderboard,
+    currentConversationId,
+    setCurrentConversationId,
+    handleNewConversation: contextNewConversation,
+  });
+
+  // SEO: Update canonical URL based on current route
+  useCanonical();
+
   // Triage state
   const [triageState, setTriageState] = useState<TriageState>(null);
   const [originalQuery, setOriginalQuery] = useState('');
@@ -308,11 +334,17 @@ function App() {
 
   const handleSelectConversation = useCallback(
     (id: string) => {
-      contextSelectConversation(id);
+      // Update URL to /chat/{id} for shareable links and F5 refresh
+      // Skip URL update for temp conversations (they don't exist in DB yet)
+      if (id.startsWith('temp-')) {
+        contextSelectConversation(id);
+      } else {
+        navigateToChat(id);
+      }
       clearReturnState();
       setScrollToStage3();
     },
-    [contextSelectConversation, clearReturnState, setScrollToStage3]
+    [contextSelectConversation, navigateToChat, clearReturnState, setScrollToStage3]
   );
 
   const handleBulkDeleteConversations = useCallback(
@@ -438,18 +470,34 @@ function App() {
 
   const handleMobileClose = useCallback(() => setIsMobileSidebarOpen(false), []);
 
-  // UI action handlers
+  // UI action handlers - use route navigation for URL sync
   const handleOpenLeaderboard = useCallback(() => {
-    openLeaderboard();
-  }, [openLeaderboard]);
+    navigateToLeaderboard();
+  }, [navigateToLeaderboard]);
 
   const handleOpenSettings = useCallback(() => {
-    openSettings();
-  }, [openSettings]);
+    navigateToSettings();
+  }, [navigateToSettings]);
 
   const handleOpenMyCompany = useCallback(() => {
-    openMyCompany({ clearPromoteDecision: true });
-  }, [openMyCompany]);
+    navigateToCompany('overview');
+  }, [navigateToCompany]);
+
+  // Memoized callback for MyCompany tab changes
+  const handleMyCompanyTabChange = useCallback(
+    (tab: MyCompanyTab) => {
+      navigateToCompany(tab);
+    },
+    [navigateToCompany]
+  );
+
+  // Memoized callback for MyCompany editing item changes (URL sync)
+  const handleMyCompanyEditingItemChange = useCallback(
+    (tab: MyCompanyTab, itemId: string | null) => {
+      navigateToCompany(tab, itemId ?? undefined);
+    },
+    [navigateToCompany]
+  );
 
   // Reset loaded flag when user logs out
   useEffect(() => {
@@ -1719,6 +1767,8 @@ function App() {
                 setSelectedBusiness(newCompanyId);
                 resetMyCompanyInitial();
               }}
+              onTabChange={handleMyCompanyTabChange}
+              onEditingItemChange={handleMyCompanyEditingItemChange}
               onClose={() => {
                 // Check if fixed-position buttons were clicked recently (within 500ms)
                 const themeToggleClickTime = (
