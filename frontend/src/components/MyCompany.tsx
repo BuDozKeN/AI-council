@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
+import { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
 import { api } from '../api';
 import { Skeleton } from './ui/Skeleton';
 import { PullToRefreshIndicator } from './ui/PullToRefreshIndicator';
@@ -76,6 +76,8 @@ interface MyCompanyProps {
   onSelectCompany?: (id: string) => void;
   onClose?: () => void;
   onNavigateToConversation?: (conversationId: string, source: string) => void;
+  onTabChange?: (tab: MyCompanyTab) => void; // Called when tab changes to update URL
+  onEditingItemChange?: (tab: MyCompanyTab, itemId: string | null) => void; // Called when item modal opens/closes for URL update
   initialTab?: MyCompanyTab;
   initialDecisionId?: string | null;
   initialPlaybookId?: string | null;
@@ -95,6 +97,8 @@ export default function MyCompany({
   onSelectCompany,
   onClose,
   onNavigateToConversation,
+  onTabChange,
+  onEditingItemChange,
   initialTab = 'overview',
   initialDecisionId = null,
   initialPlaybookId = null,
@@ -282,6 +286,57 @@ export default function MyCompany({
     }
   }, [initialPromoteDecision, onConsumePromoteDecision, decisionActions]);
 
+  // Track previous editingItem to detect actual changes (not just re-renders)
+  const prevEditingItemRef = useRef<EditingItem | null>(null);
+
+  // Notify parent when editingItem changes (for URL sync)
+  // Only notify when editingItem actually changes, not on every render
+  useEffect(() => {
+    if (!onEditingItemChange) return;
+
+    const prevItem = prevEditingItemRef.current;
+    const prevId = (prevItem?.data as { id?: string })?.id || null;
+    const currentId = (editingItem?.data as { id?: string })?.id || null;
+
+    // Skip if nothing actually changed
+    if (prevItem?.type === editingItem?.type && prevId === currentId) {
+      return;
+    }
+
+    // Update ref for next comparison
+    prevEditingItemRef.current = editingItem;
+
+    if (editingItem) {
+      // Map editingItem.type to the corresponding tab
+      const typeToTab: Record<string, MyCompanyTab> = {
+        project: 'projects',
+        playbook: 'playbooks',
+        decision: 'decisions',
+        department: 'team',
+        role: 'team',
+      };
+
+      const tab = typeToTab[editingItem.type];
+      if (tab) {
+        onEditingItemChange(tab, currentId);
+      }
+    } else if (prevItem) {
+      // Item was closed - notify with the tab it was on, not current activeTab
+      // This prevents double-calling when tab changes (onTabChange handles that)
+      const typeToTab: Record<string, MyCompanyTab> = {
+        project: 'projects',
+        playbook: 'playbooks',
+        decision: 'decisions',
+        department: 'team',
+        role: 'team',
+      };
+      const prevTab = typeToTab[prevItem.type] || activeTab;
+      onEditingItemChange(prevTab, null);
+    }
+    // Note: activeTab is NOT in deps - tab changes are handled by onTabChange
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editingItem, onEditingItemChange]);
+
   // Generate slug from name
   const generateSlug = (name: string): string => {
     return name
@@ -370,10 +425,12 @@ export default function MyCompany({
         break;
       case 'department':
         setActiveTab('team');
+        onTabChange?.('team');
         setExpandedDept(activityLog.related_id);
         break;
       case 'role':
         setActiveTab('team');
+        onTabChange?.('team');
         break;
     }
   };
@@ -657,7 +714,15 @@ export default function MyCompany({
 
         <MyCompanyTabs
           activeTab={activeTab}
-          onTabChange={(tabId: string) => setActiveTab(tabId as MyCompanyTab)}
+          onTabChange={(tabId: string) => {
+            const tab = tabId as MyCompanyTab;
+            // Close any open item modal when changing tabs to keep URL consistent
+            if (editingItem) {
+              setEditingItem(null);
+            }
+            setActiveTab(tab);
+            onTabChange?.(tab); // Update URL
+          }}
         />
 
         {/* Content */}

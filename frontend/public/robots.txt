@@ -1,0 +1,16 @@
+# robots.txt for AxCouncil
+# https://axcouncil.vercel.app
+
+User-agent: *
+Allow: /
+
+# App pages require authentication - don't index
+Disallow: /chat/
+Disallow: /settings/
+Disallow: /company/
+Disallow: /leaderboard
+
+# Allow indexing of the main landing page
+Allow: /$
+
+Sitemap: https://axcouncil.vercel.app/sitemap.xml

@@ -1,0 +1,123 @@
+/**
+ * ErrorPage - Error boundary styling
+ * Uses design tokens from design-tokens.css and tailwind.css
+ */
+
+.error-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--space-6);
+  background: var(--color-bg-secondary);
+  font-family: var(--font-sans);
+}
+
+.error-page-content {
+  text-align: center;
+  max-width: 480px;
+}
+
+.error-page-code {
+  display: inline-block;
+  font-size: var(--text-5xl);
+  font-weight: var(--font-bold);
+  line-height: var(--leading-none);
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--space-4);
+  letter-spacing: var(--tracking-tight);
+}
+
+.error-page-title {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-3);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+}
+
+.error-page-message {
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-6);
+  line-height: var(--leading-relaxed);
+}
+
+.error-page-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: center;
+}
+
+.error-page-details {
+  margin-top: var(--space-8);
+  padding: var(--space-4);
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.error-page-details summary {
+  cursor: pointer;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.error-page-details pre {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .error-page {
+    padding: var(--space-4);
+  }
+
+  .error-page-code {
+    font-size: var(--text-4xl);
+  }
+
+  .error-page-title {
+    font-size: var(--text-xl);
+  }
+
+  .error-page-actions {
+    flex-direction: column;
+  }
+
+  .error-page-actions button {
+    width: 100%;
+  }
+}
+
+/* Dark mode support */
+.dark .error-page {
+  background: var(--color-bg-secondary);
+}
+
+.dark .error-page-code {
+  color: var(--color-text-tertiary);
+}
+
+.dark .error-page-title {
+  color: var(--color-text-primary);
+}
+
+.dark .error-page-message {
+  color: var(--color-text-secondary);
+}
+
+.dark .error-page-details {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+}
