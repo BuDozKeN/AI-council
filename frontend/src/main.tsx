@@ -1,5 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { RouterProvider } from 'react-router-dom';
 import { QueryClient } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
@@ -10,7 +11,7 @@ import './i18n'; // Initialize i18n before App renders
 import './styles/design-tokens.css'; // Design system tokens - load FIRST
 import './index.css'; // Global styles and accessibility
 import './styles/tailwind.css'; // Tailwind utilities
-import App from './App.jsx';
+import { router } from './router';
 import { AuthProvider } from './AuthContext';
 import { BusinessProvider, ConversationProvider, UIProvider } from './contexts';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -160,7 +161,7 @@ createRoot(rootElement).render(
             <BusinessProvider>
               <ConversationProvider>
                 <UIProvider>
-                  <App />
+                  <RouterProvider router={router} />
                 </UIProvider>
               </ConversationProvider>
             </BusinessProvider>

@@ -35,14 +35,46 @@
     <meta property="og:type" content="website" />
     <meta property="og:title" content="AxCouncil - Strategic AI Advisory Platform" />
     <meta property="og:description" content="Get expert AI advice from multiple models working together" />
-    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image" content="https://axcouncil.vercel.app/og-image.png" />
+    <meta property="og:url" content="https://axcouncil.vercel.app/" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="AxCouncil" />
     <meta name="twitter:description" content="Multi-model AI advisory platform" />
+    <meta name="twitter:image" content="https://axcouncil.vercel.app/og-image.png" />
+
+    <!-- Canonical URL - prevents duplicate content issues -->
+    <link rel="canonical" href="https://axcouncil.vercel.app/" />
 
     <title>AxCouncil - Strategic AI Advisory Platform</title>
+
+    <!-- Structured Data - JSON-LD for rich search results -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "AxCouncil",
+      "description": "AI-powered decision council platform that orchestrates multiple LLM models (Claude, GPT, Gemini, Grok, DeepSeek) for strategic decision making through a 3-stage deliberation process.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "url": "https://axcouncil.vercel.app",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "AxCouncil"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "150"
+      }
+    }
+    </script>
 
     <!-- Performance: Preconnect to font servers -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

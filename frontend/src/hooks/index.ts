@@ -19,6 +19,8 @@ export { usePullToRefresh } from './usePullToRefresh';
 export { useLongPress } from './useLongPress';
 export { useSwipeBack } from './useSwipeBack';
 export { useModalState } from './useModalState';
+export { useRouteSync } from './useRouteSync';
+export { useCanonical } from './useCanonical';
 export { useKeyboardShortcuts, useListNavigation } from './useKeyboardShortcuts';
 export { useDragAndDrop } from './useDragAndDrop';
 

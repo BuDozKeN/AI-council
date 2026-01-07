@@ -15,7 +15,13 @@ import { useAuth } from './AuthContext';
 import { useBusiness } from './contexts/BusinessContext';
 import { useConversation } from './contexts/ConversationContext';
 import { api } from './api';
-import { useGlobalSwipe, useModalState, type ProjectModalContext } from './hooks';
+import {
+  useGlobalSwipe,
+  useModalState,
+  useRouteSync,
+  useCanonical,
+  type ProjectModalContext,
+} from './hooks';
 import type { Project } from './types/business';
 import type { MyCompanyTab } from './components/mycompany/hooks';
 import { Toaster, toast } from './components/ui/sonner';
