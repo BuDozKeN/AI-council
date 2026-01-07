@@ -4,9 +4,8 @@
  * Extracted from ChatInterface.jsx for better maintainability.
  */
 
-export { WelcomeState, ConversationEmptyState } from './EmptyState';
+export { WelcomeState } from './EmptyState';
 export { ContextIndicator } from './ContextIndicator';
-export { ContextBar } from './ContextBar';
 export { FollowUpBar } from './FollowUpBar';
 export { ModeToggle } from './ModeToggle';
 export { MessageList } from './MessageList';

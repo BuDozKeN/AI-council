@@ -5,14 +5,7 @@ import ImageUpload from './ImageUpload';
 import CouncilProgressCapsule from './CouncilProgressCapsule';
 import { Spinner } from './ui/Spinner';
 import { CouncilLoader } from './ui/CouncilLoader';
-import {
-  WelcomeState,
-  ConversationEmptyState,
-  ContextIndicator,
-  ContextBar,
-  MessageList,
-  ChatInput,
-} from './chat';
+import { WelcomeState, ContextIndicator, MessageList, ChatInput } from './chat';
 import { hapticLight } from '../lib/haptics';
 import type { Conversation } from '../types/conversation';
 import type {
@@ -137,10 +130,10 @@ export default function ChatInterface({
   isLoading,
   businesses = [],
   selectedBusiness,
-  onSelectBusiness,
+  onSelectBusiness: _onSelectBusiness,
   departments = [],
   selectedDepartment,
-  onSelectDepartment,
+  onSelectDepartment: _onSelectDepartment,
   // Multi-select support
   selectedDepartments = [],
   onSelectDepartments,
@@ -151,27 +144,27 @@ export default function ChatInterface({
   playbooks = [],
   selectedPlaybooks = [],
   onSelectPlaybooks,
-  // Legacy single-select
-  roles = [],
+  // Legacy single-select (some used by ContextIndicator)
+  roles: _roles = [],
   selectedRole,
-  onSelectRole,
-  channels = [],
-  selectedChannel,
-  onSelectChannel,
-  styles = [],
-  selectedStyle,
-  onSelectStyle,
+  onSelectRole: _onSelectRole,
+  channels: _channels = [],
+  selectedChannel: _selectedChannel,
+  onSelectChannel: _onSelectChannel,
+  styles: _styles = [],
+  selectedStyle: _selectedStyle,
+  onSelectStyle: _onSelectStyle,
   // Projects
   projects = [],
   selectedProject,
   onSelectProject,
   onOpenProjectModal,
   onProjectCreated,
-  // Independent context toggles
-  useCompanyContext,
-  onToggleCompanyContext,
-  useDepartmentContext,
-  onToggleDepartmentContext,
+  // Independent context toggles (unused - kept for backwards compatibility)
+  useCompanyContext: _useCompanyContext,
+  onToggleCompanyContext: _onToggleCompanyContext,
+  useDepartmentContext: _useDepartmentContext,
+  onToggleDepartmentContext: _onToggleDepartmentContext,
   // Triage props
   triageState,
   originalQuestion,
@@ -504,10 +497,8 @@ export default function ChatInterface({
           </div>
         )}
 
-        {/* Show empty state only when no triage and no messages */}
-        {!hasMessages && !triageState && !isLoadingConversation ? (
-          <ConversationEmptyState />
-        ) : hasMessages ? (
+        {/* Show messages if available (LandingHero handles empty state when no messages) */}
+        {hasMessages ? (
           <MessageList
             messages={
               conversation.messages as unknown as Parameters<typeof MessageList>[0]['messages']
@@ -589,6 +580,7 @@ export default function ChatInterface({
       )}
 
       {/* Input form when no triage active */}
+      {/* NOTE: LandingHero handles the empty state (no messages), so this form only shows for follow-ups */}
       {!triageState && (
         <form
           className={`input-form relative ${imageUpload.isDragging ? 'dragging' : ''}`}
@@ -597,47 +589,6 @@ export default function ChatInterface({
         >
           {imageUpload.dragOverlay}
           {imageUpload.fileInput}
-
-          {/* Context bar - only show for new conversations */}
-          {!hasMessages && (
-            <ContextBar
-              businesses={businesses}
-              selectedBusiness={selectedBusiness}
-              onSelectBusiness={onSelectBusiness}
-              departments={departments}
-              selectedDepartment={selectedDepartment}
-              onSelectDepartment={onSelectDepartment}
-              // Multi-select support
-              selectedDepartments={selectedDepartments}
-              onSelectDepartments={onSelectDepartments}
-              allRoles={allRoles}
-              selectedRoles={selectedRoles}
-              onSelectRoles={onSelectRoles}
-              // Playbooks
-              playbooks={playbooks}
-              selectedPlaybooks={selectedPlaybooks}
-              onSelectPlaybooks={onSelectPlaybooks}
-              // Legacy single-select
-              roles={roles}
-              selectedRole={selectedRole}
-              onSelectRole={onSelectRole}
-              channels={channels}
-              selectedChannel={selectedChannel}
-              onSelectChannel={onSelectChannel}
-              styles={styles}
-              selectedStyle={selectedStyle}
-              onSelectStyle={onSelectStyle}
-              projects={projects}
-              selectedProject={selectedProject}
-              onSelectProject={onSelectProject}
-              onOpenProjectModal={() => onOpenProjectModal({ type: 'new' })}
-              useCompanyContext={useCompanyContext}
-              onToggleCompanyContext={onToggleCompanyContext}
-              useDepartmentContext={useDepartmentContext}
-              onToggleDepartmentContext={onToggleDepartmentContext}
-              isLoading={isLoading}
-            />
-          )}
 
           {/* ChatInput with context icons inside (omnibar) */}
           <ChatInput
