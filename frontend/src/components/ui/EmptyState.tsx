@@ -38,13 +38,13 @@ interface EmptyStateProps extends React.HTMLAttributes<HTMLDivElement> {
  * />
  *
  * @example
- * // Large variant with hints (for chat welcome)
+ * // Large variant with hints
  * <EmptyState
  *   variant="large"
  *   icon={Clock}
- *   title="Ask the Council"
- *   message="5 AI advisors will debate your question"
- *   hints={["Try: 'What's the best approach to...'", "Paste images with Ctrl+V"]}
+ *   title="No data yet"
+ *   message="Get started by creating your first item"
+ *   hints={["Click the + button above", "Or drag and drop a file"]}
  * />
  *
  * @example

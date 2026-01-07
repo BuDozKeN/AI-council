@@ -214,3 +214,23 @@
   display: flex;
   background: var(--color-bg-primary);
 }
+
+/* MyCompany loading overlay - shown while waiting for business data on direct URL navigation */
+/* Transparent overlay so LandingHero shows through clearly */
+.my-company-loading-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  z-index: var(--z-modal);
+  pointer-events: none; /* Allow interaction with hero behind */
+}
+
+.my-company-loading-overlay .lazy-loading-fallback {
+  position: static;
+  background: transparent;
+  backdrop-filter: none;
+  pointer-events: auto; /* Spinner itself blocks interaction */
+}

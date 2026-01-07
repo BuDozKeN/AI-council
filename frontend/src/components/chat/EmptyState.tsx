@@ -1,12 +1,12 @@
 /**
- * EmptyState - Welcome screen when no conversation selected or conversation has no messages
+ * EmptyState - Fallback welcome screen when no conversation selected
  *
- * These components use the unified ui/EmptyState component for consistent styling.
- * Extracted from ChatInterface.jsx for better maintainability.
+ * Uses the unified ui/EmptyState component for consistent styling.
+ * NOTE: LandingHero now handles the primary empty/welcome state.
+ * This is kept as a fallback for edge cases where no conversation exists.
  */
 
 import { useTranslation } from 'react-i18next';
-import { Clock } from 'lucide-react';
 import { EmptyState } from '../ui/EmptyState';
 
 /**
@@ -30,22 +30,5 @@ export function WelcomeState() {
         message={t('chat.welcomeMessage')}
       />
     </div>
-  );
-}
-
-/**
- * Empty state shown when a conversation has no messages yet.
- * Shows hints to help users get started.
- */
-export function ConversationEmptyState() {
-  const { t } = useTranslation();
-  return (
-    <EmptyState
-      variant="large"
-      icon={Clock}
-      title={t('chat.askTheCouncil')}
-      message={t('chat.councilDebateHint')}
-      hints={[t('chat.tryHint'), t('chat.pasteImageHint')]}
-    />
   );
 }
