@@ -243,25 +243,21 @@ function App() {
 
   // Route synchronization - syncs URL with modal state
   // This enables deep linking, F5 refresh, and browser back/forward
-  const {
-    navigateToSettings,
-    navigateToCompany,
-    navigateToLeaderboard,
-    navigateToChat,
-  } = useRouteSync({
-    isSettingsOpen,
-    isMyCompanyOpen,
-    isLeaderboardOpen,
-    openSettings,
-    openMyCompany,
-    openLeaderboard,
-    closeSettings,
-    closeMyCompany,
-    closeLeaderboard,
-    currentConversationId,
-    setCurrentConversationId,
-    handleNewConversation: contextNewConversation,
-  });
+  const { navigateToSettings, navigateToCompany, navigateToLeaderboard, navigateToChat } =
+    useRouteSync({
+      isSettingsOpen,
+      isMyCompanyOpen,
+      isLeaderboardOpen,
+      openSettings,
+      openMyCompany,
+      openLeaderboard,
+      closeSettings,
+      closeMyCompany,
+      closeLeaderboard,
+      currentConversationId,
+      setCurrentConversationId,
+      handleNewConversation: contextNewConversation,
+    });
 
   // SEO: Update canonical URL based on current route
   useCanonical();
