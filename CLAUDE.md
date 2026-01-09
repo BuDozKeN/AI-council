@@ -195,7 +195,54 @@ AxCouncil is an AI-powered decision council platform that orchestrates multiple 
 | Backend | FastAPI, Python 3.10+ |
 | Database | Supabase (PostgreSQL + RLS) |
 | Auth | Supabase Auth (JWT) |
+| Caching | Redis Cloud (LLM response caching, rate limiting) |
+| Vector DB | Qdrant Cloud (semantic search, RAG) |
 | Monitoring | Sentry |
+
+## Cloud Infrastructure
+
+### Redis Cloud (Caching)
+- **Provider**: Redis Cloud (redis.io)
+- **Region**: europe-west1 (GCP)
+- **Tier**: Free (30MB)
+- **Purpose**: LLM response caching, rate limiting, session caching
+- **Dashboard**: https://app.redislabs.com
+
+**Configuration** (in `.env`):
+```
+REDIS_URL=redis://default:<password>@redis-16432.c327.europe-west1-2.gce.cloud.redislabs.com:16432
+REDIS_ENABLED=true
+REDIS_DEFAULT_TTL=3600      # 1 hour default
+REDIS_LLM_CACHE_TTL=1800    # 30 minutes for LLM responses
+```
+
+### Qdrant Cloud (Vector Database)
+- **Provider**: Qdrant Cloud (cloud.qdrant.io)
+- **Region**: europe-west3 (GCP)
+- **Tier**: Free (1GB)
+- **Purpose**: Semantic search, RAG retrieval, knowledge embeddings
+- **Dashboard**: https://cloud.qdrant.io
+
+**Configuration** (in `.env`):
+```
+QDRANT_URL=https://<cluster-id>.europe-west3-0.gcp.cloud.qdrant.io
+QDRANT_API_KEY=<jwt-token>
+QDRANT_ENABLED=true
+```
+
+**Collections**:
+| Collection | Purpose |
+|------------|---------|
+| `conversations` | Semantic search of past council discussions |
+| `knowledge_entries` | RAG retrieval of saved decisions |
+| `org_documents` | Document embeddings (playbooks, SOPs) |
+
+### Graceful Degradation
+Both services are optional - the app works without them:
+- **Redis disabled**: No caching, slightly higher API costs
+- **Qdrant disabled**: No semantic search, standard keyword matching only
+
+Set `REDIS_ENABLED=false` or `QDRANT_ENABLED=false` to disable.
 
 ## Directory Structure
 
@@ -216,6 +263,8 @@ AI-council/
 ├── backend/               # FastAPI API
 │   ├── routers/           # API endpoints
 │   │   └── company/       # Sub-routers
+│   ├── cache.py           # Redis caching module
+│   ├── vector_store.py    # Qdrant vector DB module
 │   ├── utils/             # Helpers
 │   └── migrations/        # SQL schemas
 ├── supabase/              # Database config
@@ -1033,9 +1082,11 @@ The 3-stage pipeline is optimized for cost:
 - Kill switch: Set `ENABLE_PROMPT_CACHING=false` in `.env`
 
 **Config files:**
-- `backend/config.py` - `CACHE_SUPPORTED_MODELS`, feature flags
+- `backend/config.py` - `CACHE_SUPPORTED_MODELS`, feature flags, Redis/Qdrant config
 - `backend/council.py` - 3-stage orchestration
 - `backend/openrouter.py` - API calls, caching logic
+- `backend/cache.py` - Redis caching module (LLM responses, rate limiting)
+- `backend/vector_store.py` - Qdrant vector DB module (semantic search, embeddings)
 
 See `todo/LLM-COST-OPTIMIZATION-PLAN.md` for detailed optimization documentation.
 
