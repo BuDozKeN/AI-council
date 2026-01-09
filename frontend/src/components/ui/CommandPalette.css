@@ -1,0 +1,355 @@
+/**
+ * CommandPalette.css - Premium Cmd+K interface
+ *
+ * Design: Linear/Notion inspired, uses AxCouncil design tokens
+ * No hardcoded values - all from design-tokens.css and tailwind.css
+ */
+
+/* Overlay - full screen backdrop */
+.command-palette-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 15vh;
+  background: var(--overlay-black-50);
+  backdrop-filter: blur(4px);
+  animation: command-palette-overlay-in 150ms ease-out;
+}
+
+@keyframes command-palette-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Container - centers and constrains the palette */
+.command-palette-container {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 var(--space-4);
+  animation: command-palette-slide-in 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes command-palette-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Main palette wrapper */
+.command-palette {
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-2xl);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+/* Header with search input */
+.command-palette-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.command-palette-header svg {
+  flex-shrink: 0;
+  color: var(--color-text-tertiary);
+}
+
+.command-palette-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: var(--text-base);
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-normal);
+}
+
+.command-palette-input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.command-palette-kbd {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 22px;
+  padding: 0 var(--space-2);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-family: var(--font-sans);
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
+}
+
+/* Results list */
+.command-palette-list {
+  max-height: 400px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-2);
+}
+
+/* Empty state */
+.command-palette-empty {
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+  color: var(--color-text-tertiary);
+  font-size: var(--text-sm);
+}
+
+/* Group styling */
+.command-palette-group {
+  margin-bottom: var(--space-2);
+}
+
+.command-palette-group [cmdk-group-heading] {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+}
+
+/* Individual item */
+.command-palette-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-3);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.command-palette-item[data-selected='true'] {
+  background: var(--color-bg-hover);
+}
+
+.command-palette-item:hover {
+  background: var(--color-bg-hover);
+}
+
+.command-palette-item[data-selected='true']:hover {
+  background: var(--color-bg-active);
+}
+
+/* Item icon */
+.command-palette-item-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  transition: all 150ms ease;
+}
+
+.command-palette-item[data-selected='true'] .command-palette-item-icon {
+  background: var(--color-accent-light);
+  color: var(--color-accent);
+}
+
+/* Item content */
+.command-palette-item-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.command-palette-item-label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.command-palette-item-description {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Item shortcut */
+.command-palette-item-shortcut {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-family: var(--font-sans);
+  color: var(--color-text-tertiary);
+}
+
+/* Footer with hints */
+.command-palette-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+.command-palette-footer-hint {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+.command-palette-footer-hint kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 var(--space-1);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xs);
+  font-size: 10px;
+  font-family: var(--font-sans);
+  font-weight: var(--font-medium);
+}
+
+/* ============================================================================
+   DARK MODE
+   ============================================================================ */
+
+.dark .command-palette {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border);
+}
+
+.dark .command-palette-header {
+  border-color: var(--color-border);
+}
+
+.dark .command-palette-item[data-selected='true'] {
+  background: var(--color-bg-hover);
+}
+
+.dark .command-palette-item-icon {
+  background: var(--overlay-white-10);
+}
+
+.dark .command-palette-item[data-selected='true'] .command-palette-item-icon {
+  background: var(--color-accent);
+  background: rgb(99, 102, 241, 0.2);
+  color: var(--color-accent-iris);
+}
+
+.dark .command-palette-footer {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .command-palette-kbd,
+.dark .command-palette-item-shortcut,
+.dark .command-palette-footer-hint kbd {
+  background: var(--overlay-white-10);
+  border-color: var(--color-border);
+}
+
+/* ============================================================================
+   MOBILE RESPONSIVE
+   ============================================================================ */
+
+@media (max-width: 640px) {
+  .command-palette-overlay {
+    padding-top: 10vh;
+    align-items: flex-start;
+  }
+
+  .command-palette-container {
+    margin: 0 var(--space-3);
+    max-width: none;
+  }
+
+  .command-palette-list {
+    max-height: 50vh;
+  }
+
+  .command-palette-footer {
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .command-palette-footer-hint:last-child {
+    display: none; /* Hide "esc to close" on mobile */
+  }
+}
+
+/* ============================================================================
+   REDUCED MOTION
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .command-palette-overlay,
+  .command-palette-container {
+    animation: none;
+  }
+
+  .command-palette-item,
+  .command-palette-item-icon {
+    transition: none;
+  }
+}
+
+/* ============================================================================
+   SCROLLBAR STYLING
+   ============================================================================ */
+
+.command-palette-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.command-palette-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.command-palette-list::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+
+.command-palette-list::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-dark);
+}
