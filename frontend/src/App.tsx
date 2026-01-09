@@ -29,6 +29,8 @@ import { MockModeBanner } from './components/ui/MockModeBanner';
 import { ThemeToggle } from './components/ui/ThemeToggle';
 import { HelpButton } from './components/ui/HelpButton';
 import MobileBottomNav from './components/ui/MobileBottomNav';
+import { CommandPalette } from './components/ui/CommandPalette';
+import { useTheme } from 'next-themes';
 import { logger } from './utils/logger';
 import type { Conversation, Message } from './types/conversation';
 import type { UsageData } from './components/ui/TokenUsageDisplay';
@@ -289,6 +291,12 @@ function App() {
   const [settingsInitialTab, setSettingsInitialTab] = useState<
     'profile' | 'billing' | 'team' | 'api' | 'developer' | 'ai-config'
   >('profile');
+
+  // Command palette state (Cmd+K)
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+
+  // Theme state from next-themes
+  const { theme, setTheme } = useTheme();
 
   // Compute department preset from selected department (for ResponseStyleSelector default)
   const departmentPreset = useMemo<import('./types/business').LLMPresetId>(() => {
@@ -1856,6 +1864,27 @@ function App() {
             />
           </Suspense>
         )}
+        {/* Command Palette - Cmd+K quick actions */}
+        <CommandPalette
+          isOpen={isCommandPaletteOpen}
+          onOpenChange={setIsCommandPaletteOpen}
+          onOpenSettings={handleOpenSettings}
+          onOpenMyCompany={handleOpenMyCompany}
+          onOpenLeaderboard={handleOpenLeaderboard}
+          onOpenLLMHub={handleOpenLLMHub}
+          onNewConversation={handleNewConversation}
+          onSelectConversation={handleSelectConversation}
+          conversations={conversations}
+          currentConversationId={currentConversationId}
+          projects={projects}
+          onSelectProject={setSelectedProject}
+          selectedProject={selectedProject}
+          departments={availableDepartments}
+          playbooks={availablePlaybooks}
+          theme={(theme as 'light' | 'dark' | 'system') || 'system'}
+          onThemeChange={setTheme}
+        />
+
         {/* Toast notifications for undo actions */}
         <Toaster />
 
