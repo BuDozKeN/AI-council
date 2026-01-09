@@ -17,6 +17,7 @@ import type {
   Project,
   Playbook,
   ConversationModifier,
+  LLMPresetId,
 } from '../types/business';
 import type { MyCompanyTab } from './mycompany/hooks';
 import type { ProjectModalContext, PromoteDecision } from '../hooks/useModalState';
@@ -120,6 +121,10 @@ interface ChatInterfaceProps {
   // Conversation modifier (per-message LLM behavior tweak)
   selectedModifier?: ConversationModifier | null;
   onSelectModifier?: (modifier: ConversationModifier | null) => void;
+  // Response style selector (LLM preset override)
+  selectedPreset?: LLMPresetId | null;
+  onSelectPreset?: (preset: LLMPresetId | null) => void;
+  onOpenLLMHub?: () => void;
 }
 
 export default function ChatInterface({
@@ -192,6 +197,10 @@ export default function ChatInterface({
   // Conversation modifier
   selectedModifier = null,
   onSelectModifier,
+  // Response style selector
+  selectedPreset = null,
+  onSelectPreset,
+  onOpenLLMHub,
 }: ChatInterfaceProps) {
   const [input, setInput] = useState('');
   const [chatMode, setChatMode] = useState<'chat' | 'council'>('chat');
@@ -212,6 +221,19 @@ export default function ChatInterface({
     }
     return '';
   }, [conversation?.messages]);
+
+  // Get department preset info for response style selector
+  // Uses first selected department's preset, defaults to 'balanced'
+  const { departmentPreset, departmentName } = useMemo(() => {
+    if (selectedDepartments.length === 0) {
+      return { departmentPreset: 'balanced' as const, departmentName: undefined };
+    }
+    const firstDept = departments.find((d) => d.id === selectedDepartments[0]);
+    return {
+      departmentPreset: (firstDept?.llm_preset || 'balanced') as LLMPresetId,
+      departmentName: firstDept?.name,
+    };
+  }, [selectedDepartments, departments]);
 
   // Image upload hook
   const imageUpload = ImageUpload({
@@ -626,6 +648,16 @@ export default function ChatInterface({
             }}
             // Conversation modifier chips
             {...(onSelectModifier ? { selectedModifier, onSelectModifier } : {})}
+            // Response style selector
+            {...(onSelectPreset
+              ? {
+                  selectedPreset,
+                  departmentPreset,
+                  departmentName,
+                  onSelectPreset,
+                  onOpenLLMHub,
+                }
+              : {})}
           />
         </form>
       )}

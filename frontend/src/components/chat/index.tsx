@@ -12,3 +12,4 @@ export { MessageList } from './MessageList';
 export { ChatInput } from './ChatInput';
 export { StickyHeader } from './StickyHeader';
 export { ConversationModifierChips } from './ConversationModifierChips';
+export { ResponseStyleSelector } from './ResponseStyleSelector';

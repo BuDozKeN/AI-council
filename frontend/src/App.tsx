@@ -268,8 +268,44 @@ function App() {
   const [isTriageLoading, setIsTriageLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false); // Image upload in progress
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  // Image upload state for landing hero
+  const [landingImages, setLandingImages] = useState<
+    Array<{
+      file: File;
+      preview: string;
+      name: string;
+      size: number;
+      type: string;
+    }>
+  >([]);
   const [landingChatMode, setLandingChatMode] = useState<'council' | 'chat'>('council'); // 'chat' or 'council' for landing hero
   const [mockModeEnabled, setMockModeEnabled] = useState(false); // Mock mode state for banner
+
+  // Response style selector state (LLM preset override for current session)
+  const [selectedPreset, setSelectedPreset] = useState<
+    import('./types/business').LLMPresetId | null
+  >(null);
+  const [settingsInitialTab, setSettingsInitialTab] = useState<
+    'profile' | 'billing' | 'team' | 'api' | 'developer' | 'ai-config'
+  >('profile');
+
+  // Compute department preset from selected department (for ResponseStyleSelector default)
+  const departmentPreset = useMemo<import('./types/business').LLMPresetId>(() => {
+    if (selectedDepartments.length > 0 && availableDepartments.length > 0) {
+      const dept = availableDepartments.find((d) => d.id === selectedDepartments[0]);
+      if (dept?.llm_preset) return dept.llm_preset;
+    }
+    return 'balanced';
+  }, [selectedDepartments, availableDepartments]);
+
+  // Handler to open LLM Hub settings (from MyCompany modal)
+  const handleOpenLLMHub = useCallback(() => {
+    // Close MyCompany first to prevent URL flickering between /company and /settings
+    closeMyCompany();
+    setSettingsInitialTab('ai-config');
+    openSettings();
+  }, [closeMyCompany, openSettings]);
 
   // Mobile swipe gesture to open sidebar from left edge
   useGlobalSwipe({
@@ -1199,6 +1235,7 @@ function App() {
           projectId: selectedProject,
           attachmentIds: attachmentIds, // Pass uploaded image attachment IDs
           signal: abortControllerRef.current?.signal,
+          preset: selectedPreset, // LLM preset override (null = use department default)
         }
       );
     } catch (error: unknown) {
@@ -1533,6 +1570,14 @@ function App() {
                 onSubmit={handleLandingSubmit}
                 onResetAll={handleResetAllSelections}
                 isLoading={isLoading}
+                // Response style selector
+                selectedPreset={selectedPreset}
+                departmentPreset={departmentPreset}
+                onSelectPreset={setSelectedPreset}
+                onOpenLLMHub={handleOpenLLMHub}
+                // Image upload
+                attachedImages={landingImages}
+                onImagesChange={setLandingImages}
               />
             </motion.div>
           ) : (
@@ -1666,6 +1711,10 @@ function App() {
                   isLoadingConversation={isLoadingConversation}
                   // Mobile sidebar toggle
                   onOpenSidebar={() => setIsMobileSidebarOpen(true)}
+                  // Response style selector
+                  selectedPreset={selectedPreset}
+                  onSelectPreset={setSelectedPreset}
+                  onOpenLLMHub={handleOpenLLMHub}
                 />
               </Suspense>
             </motion.div>
@@ -1717,9 +1766,12 @@ function App() {
                 }
                 log.debug('[Settings.onClose] Closing settings');
                 closeSettings();
+                // Reset to profile tab after closing
+                setSettingsInitialTab('profile');
               }}
               companyId={selectedBusiness}
               onMockModeChange={handleMockModeChange}
+              initialTab={settingsInitialTab}
             />
           </Suspense>
         )}
@@ -1800,6 +1852,7 @@ function App() {
               initialProjectDecisionId={myCompanyInitialProjectDecisionId}
               initialPromoteDecision={myCompanyPromoteDecision as any}
               onConsumePromoteDecision={() => setMyCompanyPromoteDecision(null)}
+              onOpenLLMHub={handleOpenLLMHub}
             />
           </Suspense>
         )}

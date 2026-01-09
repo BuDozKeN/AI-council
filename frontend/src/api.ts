@@ -122,6 +122,8 @@ export interface SendMessageStreamOptions {
   projectId?: string | null;
   attachmentIds?: string[] | null;
   signal?: AbortSignal | null;
+  /** LLM preset override (conservative/balanced/creative). If null, uses department default. */
+  preset?: 'conservative' | 'balanced' | 'creative' | null;
 }
 
 export interface ChatStreamOptions {
@@ -361,6 +363,7 @@ export const api = {
       projectId = null,
       attachmentIds = null,
       signal = null,
+      preset = null,
     } = options;
     const headers = await getAuthHeaders();
     const response = await fetch(
@@ -378,6 +381,7 @@ export const api = {
           playbooks, // Playbook IDs to inject
           project_id: projectId,
           attachment_ids: attachmentIds,
+          preset_override: preset, // LLM preset override (null = use department default)
         }),
         signal, // Allow cancellation
       }

@@ -8,7 +8,6 @@
     "statsRounds": "rounds",
     "statsAnswer": "answer"
   },
-
   "errorBoundary": {
     "title": "Oops, something broke",
     "message": "Don't worry — your work is safe. Let's get you back on track.",
@@ -17,7 +16,6 @@
     "errorDetails": "Error Details (Dev Only)",
     "copyError": "Copy error details"
   },
-
   "omnibar": {
     "placeholder1": "How should I price my SaaS product?",
     "placeholder2": "Draft a response to this customer complaint...",
@@ -31,7 +29,6 @@
     "multiAI": "{{count}} AIs",
     "attach": "Add a photo or screenshot"
   },
-
   "imageUpload": {
     "dropImagesHere": "Drop images here",
     "onlyImagesSupported": "Only images are supported",
@@ -39,7 +36,6 @@
     "invalidFileType": "Invalid file type: {{type}}. Allowed: PNG, JPG, WebP, GIF",
     "fileTooLarge": "File too large: {{size}}MB. Max: {{max}}MB"
   },
-
   "common": {
     "save": "Save",
     "cancel": "Cancel",
@@ -90,7 +86,6 @@
     "failedToSave": "Failed to save",
     "unknownError": "An unknown error occurred"
   },
-
   "help": {
     "title": "Help & Support",
     "openHelp": "Open help menu",
@@ -102,7 +97,6 @@
     "support": "Contact Support",
     "supportDesc": "Get help from our team"
   },
-
   "auth": {
     "signIn": "Sign In",
     "signUp": "Sign Up",
@@ -148,7 +142,6 @@
     "resetLinkSent": "Password reset link sent to your email",
     "checkYourEmail": "Check your email for a confirmation link"
   },
-
   "chat": {
     "askCouncil": "Ask the council a question...",
     "askFollowUp": "Ask a follow-up (council will discuss)...",
@@ -181,9 +174,28 @@
       "send": "Send your question",
       "stop": "Stop the AI from writing more",
       "reset": "Clear all selections"
+    },
+    "responseStyle": {
+      "label": "Response style",
+      "title": "Response Style",
+      "departmentDefault": "Department Default",
+      "departmentUsing": "{{dept}}: {{preset}}",
+      "tooltipOverride": "Override: {{preset}}",
+      "tooltipDefault": "Using department default",
+      "llmHubLink": "LLM Hub Settings",
+      "llmHubDesc": "Customize AI models and behavior",
+      "presets": {
+        "conservative": "Precise",
+        "balanced": "Balanced",
+        "creative": "Creative"
+      },
+      "descriptions": {
+        "conservative": "Lower temperature, safer responses",
+        "balanced": "Default settings for most use cases",
+        "creative": "Higher temperature, more varied responses"
+      }
     }
   },
-
   "sidebar": {
     "history": "History",
     "leaderboard": "Leaderboard",
@@ -203,7 +215,6 @@
     "noActiveConversations": "No active conversations",
     "scrollForMore": "Scroll for more conversations"
   },
-
   "settings": {
     "title": "Settings",
     "profile": "Profile",
@@ -325,7 +336,6 @@
     "hidden": "Hidden",
     "tokenUsageInfo": "Token usage will be displayed below each council stage."
   },
-
   "company": {
     "overview": "Overview",
     "team": "Team",
@@ -349,7 +359,6 @@
     "member": "Member",
     "viewer": "Viewer"
   },
-
   "departments": {
     "title": "Departments",
     "selectDepartments": "Select departments...",
@@ -359,7 +368,6 @@
     "departmentName": "Department Name",
     "departmentDescription": "Description"
   },
-
   "roles": {
     "title": "Roles",
     "selectRoles": "Select roles...",
@@ -369,7 +377,6 @@
     "roleName": "Role Name",
     "roleDescription": "Description"
   },
-
   "context": {
     "selectPlaybooks": "Select playbooks...",
     "addProject": "Add a new project or client",
@@ -396,7 +403,6 @@
     "toggleCompanyContext": "Toggle company-wide context (main company knowledge)",
     "toggleDeptContext": "Toggle department-specific context (department knowledge)"
   },
-
   "stages": {
     "stage1": "Stage 1: Individual Responses",
     "stage2": "Stage 2: Peer Rankings",
@@ -458,7 +464,6 @@
     "linkedTo": "Linked to: {{name}}",
     "linkToProject": "Link this answer to a project for easy access later"
   },
-
   "modals": {
     "createProject": "Create Project",
     "editProject": "Edit Project",
@@ -488,13 +493,13 @@
     "aiStructuring": "AI is structuring your project...",
     "skipAI": "Skip AI",
     "createWithAI": "Create with AI",
-    "aiProcessing": "AI Processing...",
+    "aiProcessing": "Processing...",
     "aiCreatedProject": "AI created your project. Make any changes you want, then save.",
     "projectDetails": "Project Details",
     "clickToAddDetails": "Click to add project details...",
     "startOver": "Start Over",
     "tryAgain": "Try Again",
-    "manualEntry": "Manual entry - create your project from scratch",
+    "manualEntry": "Manual Entry",
     "enterProjectName": "Enter project name",
     "briefDescription": "Brief description of the project...",
     "addProjectDetails": "What should the AI know about this project? Add goals, background, constraints, technical details...",
@@ -502,10 +507,9 @@
     "useAI": "Use AI",
     "creating": "Creating...",
     "tellUsAboutProject": "Tell us a bit about your project first",
-    "couldntUnderstand": "We couldn't quite understand that. Try adding more detail, or skip AI and enter it manually.",
-    "aiWentWrong": "Something went wrong with AI. You can try again or skip to manual entry.",
+    "couldntUnderstand": "Couldn't understand the input",
+    "aiWentWrong": "AI processing failed. Please try again.",
     "couldntCreateProject": "Couldn't create your project. Please try again.",
-    "saveToKnowledgeBase": "Save to Knowledge Base",
     "savedAndRemembered": "Saved & Will Be Remembered",
     "savedToKnowledgeBase": "Saved to Knowledge Base",
     "willAutoInject": "This will be automatically injected into future council discussions.",
@@ -569,7 +573,6 @@
     "projectCreatedToast": "\"{{name}}\" project created",
     "decisionSavedRemembered": "Decision saved and will be remembered",
     "decisionSavedRef": "Decision saved",
-
     "promoteDecision": "Promote Decision",
     "promoteTo": "Promote To",
     "promoteType_sop": "SOP",
@@ -597,14 +600,12 @@
     "addToProjectBtn": "Add to Project",
     "createProjectBtn": "Create Project",
     "createType": "Create {{type}}",
-
     "questionLabel": "Question:",
     "projectLabel": "Project",
     "playbookLabel": "Playbook",
     "savedDecision": "Saved decision",
     "viewOriginalConversation": "View original conversation →",
     "promoteToPlaybook": "Promote to Playbook",
-
     "playbookSaved": "{{type}} \"{{title}}\" saved",
     "forDepartments": "for {{departments}}",
     "asCompanyWide": "as company-wide",
@@ -614,20 +615,17 @@
     "enterContentMarkdown": "Enter content here... Markdown formatting is supported.",
     "noContentClickEdit": "No content yet. Click Edit to add content.",
     "saveChanges": "Save Changes",
-
     "departmentBadge": "DEPARTMENT",
     "rolesCount": "{{count}} roles",
     "departmentSaved": "Department \"{{name}}\" context saved",
     "failedToSaveDepartment": "Failed to save department",
     "enterDepartmentContext": "Enter the context documentation for this department...",
-    "noDepartmentContext": "No department context yet. Click Edit to add context.",
-
+    "noDepartmentContext": "No guidelines yet. Click Edit to add guidelines.",
     "roleBadge": "ROLE",
     "roleSaved": "Role \"{{name}}\" prompt saved",
     "failedToSaveRole": "Failed to save role",
     "enterRolePrompt": "Enter the system prompt for this role...",
     "noRolePrompt": "No system prompt yet. Click Edit to add one.",
-
     "companyContext": "Company Context",
     "companyContextDesc": "This context is injected into every AI Council conversation.",
     "companyContextPlaceholder": "Enter your company context here...\n\nInclude:\n- Mission and vision\n- Company stage and goals\n- Budget and constraints\n- Key decisions and policies\n- Team structure\n- Any other important context for the AI Council",
@@ -635,38 +633,32 @@
     "companyContextSaved": "{{name}} context saved",
     "failedToSaveCompanyContext": "Failed to save company context",
     "company": "Company",
-
     "addDepartment": "Add Department",
     "departmentName": "Department Name",
     "departmentPlaceholder": "e.g., Human Resources",
     "description": "Description",
     "departmentDescPlaceholder": "What does this department do?",
     "createDepartment": "Create Department",
-
     "addRole": "Add Role",
     "roleName": "Role Name",
     "roleNamePlaceholder": "e.g., CTO",
     "roleTitle": "Title",
     "roleTitlePlaceholder": "e.g., Chief Technology Officer",
     "createRole": "Create Role",
-
     "type": "Type",
     "content": "Content",
     "playbookTitlePlaceholder": "e.g., Customer Onboarding Process",
     "playbookContentPlaceholder": "Describe what you need (e.g., \"how we onboard customers\") - AI will write the full document for you...",
-
     "regenerationFailed": "Regeneration Failed",
     "unknownError": "An unknown error occurred",
     "unexpectedError": "An unexpected error occurred",
     "validationError": "Validation Error",
-    "enterProjectName": "Enter project name",
     "clickToEditName": "Click to edit name",
     "status_active": "Active",
     "status_completed": "Completed",
     "status_archived": "Archived",
     "fromCouncil": "From Council",
     "imported": "Imported",
-    "selectDepartments": "Select departments",
     "updated": "Updated",
     "viewOriginalConversationTooltip": "View the original council conversation",
     "briefDescriptionPlaceholder": "Brief description of the project...",
@@ -700,7 +692,6 @@
     "delete": "Delete",
     "failedToSaveProject": "Failed to save project",
     "projectSaved": "Project \"{{name}}\" saved",
-
     "newDepartment": "New Department",
     "reviewDepartment": "Review Department",
     "departmentCreated": "Department Created!",
@@ -714,7 +705,6 @@
     "tellUsAboutDepartment": "Tell us about your department",
     "couldntCreateDepartment": "Failed to create department",
     "departmentReady": "Your department is ready. Add roles to get started.",
-
     "newRole": "New Role",
     "reviewRole": "Review Role",
     "roleCreated": "Role Created!",
@@ -732,7 +722,6 @@
     "aiPersonality": "AI Personality",
     "aiPersonalityPlaceholder": "How this role should behave as an AI advisor...",
     "aiPersonalityHint": "Defines how this role behaves when acting as an AI advisor in the council",
-
     "newPlaybook": "New Playbook",
     "reviewPlaybook": "Review Playbook",
     "playbookCreated": "Playbook Created!",
@@ -746,22 +735,10 @@
     "tellUsAboutPlaybook": "Tell us about your playbook",
     "couldntCreatePlaybook": "Failed to create playbook",
     "playbookReady": "Your playbook is ready to use.",
-
-    "skipAI": "Skip AI",
-    "useAI": "Use AI",
-    "createWithAI": "Create with AI",
-    "aiProcessing": "Processing...",
-    "aiWentWrong": "AI processing failed. Please try again.",
-    "couldntUnderstand": "Couldn't understand the input",
-    "startOver": "Start Over",
-    "tryAgain": "Try Again",
-    "manualEntry": "Manual Entry",
-    "creating": "Creating...",
     "created": "created",
-
     "generateContext": "Generate Company Context",
     "writeContext": "Write Company Context",
-    "reviewContext": "Review Context",
+    "reviewContext": "Review Guidelines",
     "contextCreated": "Context Created!",
     "aiIntroContext": "Describe your company and AI will create a comprehensive context document",
     "contextPlaceholderAI": "E.g., \"We're a B2B SaaS startup building productivity tools. Team of 8, seed-funded, focused on launching MVP this quarter. We value speed over perfection and async communication...\"",
@@ -775,9 +752,14 @@
     "contextEditHint": "Review and edit as needed. This document will guide AI advisors in understanding your company.",
     "contextManualPlaceholder": "# Company Overview\n\nDescribe your company, mission, current priorities, constraints, and decision-making culture...",
     "saveContext": "Save Context",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "responseStyle": "Response Style",
+    "responseStyleDesc": "Controls AI behavior when this department is selected",
+    "guidelinesTitle": "Guidelines",
+    "editGuidelines": "Edit Guidelines",
+    "presetSaved": "Response style updated",
+    "failedToSavePreset": "Failed to update response style"
   },
-
   "knowledge": {
     "title": "Knowledge",
     "addEntry": "Add Entry",
@@ -820,7 +802,6 @@
     "autoInject": "Auto-inject into council",
     "autoInjectDescription": "Automatically include this in council discussions"
   },
-
   "errors": {
     "generic": "Something went wrong",
     "networkError": "Network error. Please check your connection.",
@@ -837,7 +818,6 @@
     "timeout": "Request timed out. Please try again.",
     "offline": "You appear to be offline"
   },
-
   "dates": {
     "justNow": "Just now",
     "minutesAgo": "{{count}}m ago",
@@ -851,7 +831,6 @@
     "thisMonth": "This month",
     "older": "Older"
   },
-
   "aria": {
     "scrollToTop": "Scroll to top",
     "clearSearch": "Clear search",
@@ -865,7 +844,6 @@
     "userMenu": "User menu",
     "notifications": "Notifications"
   },
-
   "triage": {
     "you": "You",
     "preCouncil": "Pre-Council",
@@ -891,7 +869,6 @@
     "placeholder": "Add more context...",
     "reply": "Reply"
   },
-
   "organization": {
     "title": "Organization Structure",
     "description": "Manage {{company}}'s structure: {{depts}} departments, {{roles}} roles",
@@ -952,7 +929,6 @@
       "updateRoleFailed": "Failed to update role: {{message}}"
     }
   },
-
   "llmHub": {
     "responseStyles": {
       "title": "Response Styles",
@@ -1111,7 +1087,6 @@
     },
     "tokens": "tokens"
   },
-
   "billing": {
     "subscription": "Subscription",
     "currentPlan": "Current Plan",
@@ -1128,7 +1103,6 @@
     "nextBillingDate": "Next billing date",
     "cancelSubscription": "Cancel Subscription"
   },
-
   "leaderboard": {
     "title": "Model Leaderboard",
     "rank": "Rank",
@@ -1147,18 +1121,15 @@
     "avgRankHint": "Lower is better (1 = always ranked first)",
     "winsHint": "Number of times ranked #1"
   },
-
   "playbooks": {
     "title": "Playbooks",
     "selectPlaybooks": "Select playbooks..."
   },
-
   "projects": {
     "title": "Projects",
     "current": "current",
     "selectProject": "Select project"
   },
-
   "contextChip": {
     "using": "Using:",
     "smartAuto": "Smart Auto",
@@ -1167,23 +1138,19 @@
     "useThisContext": "Use this context",
     "selectContext": "Select Context"
   },
-
   "multiSelect": {
     "deptsCount": "{{count}} depts",
     "rolesCount": "{{count}} roles",
     "playbooksCount": "{{count}} playbooks"
   },
-
   "mobileNav": {
     "new": "New",
     "company": "Company"
   },
-
   "modeToggle": {
     "quick": "Quick",
     "fullCouncil": "Full Council"
   },
-
   "validation": {
     "required": "This field is required",
     "minLength": "Must be at least {{count}} characters",
@@ -1196,7 +1163,6 @@
     "passwordsNoMatch": "Passwords do not match",
     "passwordMinLength": "Password must be at least 6 characters"
   },
-
   "usage": {
     "sessionTotal": "Session Total",
     "stageLabel": "Stage {{stage}}",
@@ -1209,7 +1175,6 @@
     "perModel": "Per Model",
     "cacheSavings": "Estimated cache savings: {{amount}}"
   },
-
   "mycompany": {
     "tabs": {
       "overviewTooltip": "Company summary: see your stats, description, and company context at a glance",
@@ -1258,13 +1223,13 @@
     "newDepartment": "New Department",
     "departmentsRoles": "{{depts}} departments • {{roles}} roles",
     "roles": "roles",
-    "viewContext": "View Context",
+    "viewContext": "View Guidelines",
     "rolesLabel": "Roles",
     "newRole": "New Role",
     "addRolesToDept": "Add roles to this department",
     "createNewDepartment": "Create new department",
     "noPlaybooks": "Build your playbook library",
-    "playbooksHelp": "Playbooks are reusable frameworks, SOPs, and policies that guide your council's advice.",
+    "playbooksHelp": "Create SOPs, frameworks, and policies that your AI council will reference",
     "newPlaybook": "New Playbook",
     "all": "All",
     "frameworks": "Frameworks",
@@ -1278,12 +1243,10 @@
     "references": "References",
     "noDecisionsMatch": "No decisions match your filters",
     "noActivity": "No activity yet",
-    "activityHelp": "Team activity and recent changes will appear here",
+    "activityHelp": "Your team's activity will show up as you use the council, save decisions, and build playbooks.",
     "usageStats": "Usage statistics",
     "usageHelp": "Council usage metrics and trends will appear here",
-
     "buildKnowledgeBase": "Build your knowledge base",
-    "playbooksHelp": "Create SOPs, frameworks, and policies that your AI council will reference",
     "total": "Total",
     "companyWide": "Company-wide",
     "sure": "Sure?",
@@ -1291,7 +1254,6 @@
     "no": "No",
     "archivePlaybook": "Archive playbook",
     "deletePlaybook": "Delete playbook",
-    "noPlaybooksMatch": "No playbooks match your filters",
     "typeLabel_sop": "Standard Operating Procedures",
     "typeLabel_framework": "Frameworks",
     "typeLabel_policy": "Policies",
@@ -1300,8 +1262,6 @@
     "typeShort_policy": "Policy",
     "showLess": "Show less",
     "loadMore": "Load more ({{count}} more)",
-    "createNewPlaybook": "Create new playbook",
-
     "allCaughtUp": "All caught up!",
     "noPendingDecisions": "No pending decisions to review. Save council outputs to see them here.",
     "allDepartments": "All departments",
@@ -1314,9 +1274,7 @@
     "viewOriginalConversation": "View original conversation",
     "source": "Source",
     "promote": "Promote",
-
     "allQuiet": "All quiet here",
-    "activityHelp": "Your team's activity will show up as you use the council, save decisions, and build playbooks.",
     "eventsCount": "{{count}} events",
     "promotedType_sop": "SOP",
     "promotedType_framework": "FRAMEWORK",
@@ -1331,7 +1289,6 @@
     "viewSourceConversation": "View source conversation",
     "loading": "Loading...",
     "loadMoreActivity": "Load more",
-
     "failedToLoadUsage": "Failed to load usage data",
     "startSessionForAnalytics": "Start a council session to see usage analytics",
     "dismiss": "Dismiss",

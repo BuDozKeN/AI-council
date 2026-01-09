@@ -244,6 +244,8 @@ interface EditingModalProps {
   onSetProjects:
     | React.Dispatch<React.SetStateAction<ExtendedProject[]>>
     | React.Dispatch<React.SetStateAction<Project[]>>;
+  /** Callback to open LLM Hub settings */
+  onOpenLLMHub?: (() => void) | undefined;
 }
 
 /**
@@ -267,6 +269,7 @@ export function EditingModal({
   onUpdatePlaybook,
   onNavigateToConversation,
   onSetProjects,
+  onOpenLLMHub,
 }: EditingModalProps) {
   if (!editingItem) return null;
 
@@ -306,6 +309,7 @@ export function EditingModal({
               data: { context_md?: string; llm_preset?: LLMPresetId },
               options?: { keepOpen?: boolean }
             ) => onUpdateDepartment(id, data, options)}
+            onOpenLLMHub={onOpenLLMHub}
           />
         </LazyWrapper>
       );

@@ -1,10 +1,14 @@
 /**
  * LLMPresetSelect Styles
- * Uses CSS custom properties for preset-specific colors
- * Follows DepartmentSelect pattern for consistency
+ *
+ * Matches ResponseStyleSelector pattern for consistency.
+ * Premium, minimal design with colored icon badges per preset.
  */
 
-/* Trigger button */
+/* =============================================================================
+   TRIGGER BUTTON
+   ============================================================================= */
+
 .llm-preset-trigger {
   display: inline-flex;
   align-items: center;
@@ -19,40 +23,57 @@
   opacity: 0.9;
 }
 
-.llm-preset-trigger:hover {
+.llm-preset-trigger:hover:not(:disabled) {
   opacity: 1;
 }
 
-.llm-preset-trigger:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--color-focus);
+.llm-preset-trigger:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
 }
 
-.llm-preset-trigger[data-disabled] {
+.llm-preset-trigger:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* Dropdown content - Design System compliant */
-.llm-preset-content {
-  position: relative;
+.llm-preset-trigger-icon {
+  flex-shrink: 0;
+  opacity: 0.9;
+}
+
+.llm-preset-chevron {
+  flex-shrink: 0;
+  opacity: 0.5;
+  transition: transform 0.15s ease;
+}
+
+.llm-preset-chevron.open {
+  transform: rotate(180deg);
+}
+
+/* =============================================================================
+   POPOVER - Desktop dropdown
+   ============================================================================= */
+
+.llm-preset-popover {
   z-index: var(--z-modal-dropdown);
-  max-height: 340px;
-  min-width: 280px;
+  min-width: 260px;
+  max-width: 320px;
   overflow: hidden;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-gray-200);
+  border: 1px solid var(--color-border);
   background: var(--color-bg-primary);
   box-shadow: var(--shadow-lg);
+  animation: llmPresetPopoverIn 0.15s ease-out;
 }
 
 /* Ensure the portal wrapper has correct z-index for modal context */
-[data-radix-popper-content-wrapper]:has(.llm-preset-content) {
-  z-index: var(--z-modal-dropdown);
+[data-radix-popper-content-wrapper]:has(.llm-preset-popover) {
+  z-index: var(--z-modal-dropdown) !important;
 }
 
-/* Animation keyframes */
-@keyframes dropdownInBottom {
+@keyframes llmPresetPopoverIn {
   from {
     opacity: 0;
     transform: scale(0.95) translateY(-4px);
@@ -64,188 +85,219 @@
   }
 }
 
-@keyframes dropdownInTop {
-  from {
-    opacity: 0;
-    transform: scale(0.95) translateY(4px);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-.llm-preset-content[data-side='bottom'] {
-  transform-origin: top;
-  animation: dropdownInBottom 0.15s ease-out;
-}
-
-.llm-preset-content[data-side='top'] {
-  transform-origin: bottom;
-  animation: dropdownInTop 0.15s ease-out;
-}
-
-/* Viewport (inner container) */
-.llm-preset-viewport {
-  padding: 8px;
-}
-
-/* Individual items */
-.llm-preset-item {
-  position: relative;
-  display: flex;
-  width: 100%;
-  cursor: pointer;
-  user-select: none;
-  align-items: flex-start;
-  justify-content: space-between;
-  border-radius: var(--radius-md);
-  padding: 10px 12px;
-  font-size: 14px;
-  color: var(--color-gray-700);
-  outline: none;
-  transition: all 0.1s ease;
-}
-
-/* Hover state - uses CSS variable from inline style */
-.llm-preset-item[data-highlighted] {
-  background: var(--preset-hover-bg, var(--color-gray-100));
-}
-
-/* Selected/checked state */
-.llm-preset-item[data-state='checked'] {
-  background: var(--preset-checked-bg, var(--color-gray-100));
-  color: var(--preset-checked-text, var(--color-gray-700));
-}
-
-/* Disabled state */
-.llm-preset-item[data-disabled] {
-  pointer-events: none;
-  opacity: 0.5;
-}
-
-/* Item content wrapper */
-.llm-preset-item-content {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  flex: 1;
-  min-width: 0;
-}
-
-/* Item name */
-.llm-preset-item-name {
-  font-size: 14px;
-  font-weight: 500;
-  color: inherit;
-}
-
-/* Item description */
-.llm-preset-item-desc {
-  font-size: 12px;
-  font-weight: 400;
-  color: var(--color-text-muted);
-  line-height: 1.4;
-}
-
-/* Checkmark indicator */
-.llm-preset-item-indicator {
-  display: flex;
-  height: 20px;
-  width: 20px;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  margin-left: 8px;
-  color: var(--preset-checked-text, var(--color-emerald-600));
-}
-
 /* =============================================================================
-   MOBILE BOTTOM SHEET STYLES
+   LIST ITEMS - Matches ResponseStyleSelector
    ============================================================================= */
 
-/* Mobile list container in BottomSheet */
-.llm-preset-list-mobile {
+.llm-preset-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 0;
+  padding: 6px;
 }
 
-/* Mobile item - larger touch targets */
-.llm-preset-item-mobile {
+.llm-preset-separator {
+  height: 1px;
+  background: var(--color-border-light);
+  margin: 4px 6px;
+}
+
+.llm-preset-item {
   display: flex;
-  align-items: flex-start;
-  gap: 14px;
+  align-items: center;
+  gap: 10px;
   width: 100%;
-  min-height: 64px;
-  padding: 14px 16px;
+  padding: 10px 12px;
   border: none;
-  background: var(--color-bg-secondary);
-  border-radius: var(--radius-lg);
-  font-size: 16px;
-  color: var(--color-gray-700);
+  background: transparent;
+  border-radius: var(--radius-md);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.1s ease;
   text-align: left;
 }
 
-.llm-preset-item-mobile:active {
-  background: var(--color-gray-200);
-  transform: scale(0.98);
+.llm-preset-item:hover {
+  background: var(--color-bg-tertiary);
 }
 
-.llm-preset-item-mobile.selected {
-  background: var(--preset-bg, var(--color-gray-100));
-  color: var(--preset-text, var(--color-gray-700));
+.llm-preset-item.selected {
+  background: var(--color-bg-tertiary);
 }
 
-/* Radio indicator for single select */
-.llm-preset-radio {
+/* Item icon - colored badge */
+.llm-preset-item-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  border: 2px solid var(--color-gray-300);
-  border-radius: 50%;
-  background: var(--color-bg-primary);
-  transition: all 0.1s ease;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-tertiary);
   flex-shrink: 0;
-  margin-top: 2px;
 }
 
-.llm-preset-radio.checked {
-  background: var(--radio-checked-bg, var(--color-gray-600));
-  border-color: var(--radio-checked-border, var(--color-gray-600));
-  color: var(--color-text-inverse);
-}
-
-/* Mobile item content */
-.llm-preset-item-mobile .llm-preset-item-content {
+/* Item content */
+.llm-preset-item-content {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
-.llm-preset-item-mobile .llm-preset-item-name {
-  font-size: 16px;
+.llm-preset-item-name {
+  font-size: 13px;
   font-weight: 500;
+  color: var(--color-text-primary);
+  line-height: 1.2;
 }
 
-.llm-preset-item-mobile .llm-preset-item-desc {
-  font-size: 14px;
-  color: var(--color-text-muted);
-  line-height: 1.4;
+.llm-preset-item-desc {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* Mobile trigger improvements */
-@media (max-width: 640px) {
+/* Check mark - colored per preset */
+.llm-preset-item-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-full);
+  background: var(--color-indigo-500);
+  color: var(--color-white);
+  flex-shrink: 0;
+}
+
+/* =============================================================================
+   PRESET COLOR VARIANTS - Icon badges
+   ============================================================================= */
+
+/* Conservative / Precise - Blue */
+.llm-preset-item.preset-conservative .llm-preset-item-icon {
+  background: var(--color-blue-100);
+  color: var(--color-blue-600);
+}
+
+.llm-preset-item.preset-conservative.selected .llm-preset-item-icon {
+  background: var(--color-blue-200);
+}
+
+.llm-preset-item.preset-conservative .llm-preset-item-check {
+  background: var(--color-blue-500);
+}
+
+/* Balanced - Amber */
+.llm-preset-item.preset-balanced .llm-preset-item-icon {
+  background: var(--color-amber-100);
+  color: var(--color-amber-600);
+}
+
+.llm-preset-item.preset-balanced.selected .llm-preset-item-icon {
+  background: var(--color-amber-200);
+}
+
+.llm-preset-item.preset-balanced .llm-preset-item-check {
+  background: var(--color-amber-500);
+}
+
+/* Creative - Purple */
+.llm-preset-item.preset-creative .llm-preset-item-icon {
+  background: var(--color-purple-100);
+  color: var(--color-purple-600);
+}
+
+.llm-preset-item.preset-creative.selected .llm-preset-item-icon {
+  background: var(--color-purple-200);
+}
+
+.llm-preset-item.preset-creative .llm-preset-item-check {
+  background: var(--color-purple-500);
+}
+
+/* =============================================================================
+   LLM HUB LINK
+   ============================================================================= */
+
+.llm-preset-item.llm-hub-link .llm-preset-item-icon {
+  background: transparent;
+  color: var(--color-text-tertiary);
+}
+
+.llm-preset-item.llm-hub-link:hover .llm-preset-item-icon {
+  color: var(--color-text-secondary);
+}
+
+.llm-preset-item.llm-hub-link .llm-preset-item-name {
+  color: var(--color-text-secondary);
+}
+
+.llm-preset-item.llm-hub-link:hover .llm-preset-item-name {
+  color: var(--color-indigo-600);
+}
+
+/* =============================================================================
+   MOBILE ADJUSTMENTS
+   ============================================================================= */
+
+@media (max-width: 768px) {
+  /* Larger trigger for touch */
   .llm-preset-trigger {
     min-height: 44px;
     padding: 10px 12px;
     font-size: 15px;
+  }
+
+  /* Card-style items in bottom sheet */
+  .llm-preset-list {
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .llm-preset-separator {
+    margin: 4px 0;
+  }
+
+  .llm-preset-item {
+    padding: 14px 16px;
+    min-height: 56px;
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-lg);
+  }
+
+  .llm-preset-item:active {
+    background: var(--color-bg-hover);
+    transform: scale(0.98);
+  }
+
+  .llm-preset-item-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .llm-preset-item-name {
+    font-size: 15px;
+  }
+
+  .llm-preset-item-desc {
+    font-size: 12px;
+    white-space: normal;
+  }
+
+  .llm-preset-item-check {
+    width: 22px;
+    height: 22px;
+  }
+
+  /* LLM Hub link - subtle on mobile */
+  .llm-preset-item.llm-hub-link {
+    background: transparent;
+    min-height: 48px;
   }
 }
 
@@ -257,37 +309,75 @@
   border-color: currentcolor;
 }
 
-.dark .llm-preset-content {
+.dark .llm-preset-popover {
   background: var(--color-bg-secondary);
   border-color: var(--color-border);
+  box-shadow:
+    0 8px 32px var(--overlay-black-40),
+    0 2px 8px var(--overlay-black-20);
 }
 
-.dark .llm-preset-item {
-  color: var(--color-gray-300);
+.dark .llm-preset-separator {
+  background: var(--color-border);
 }
 
-.dark .llm-preset-item[data-highlighted] {
+.dark .llm-preset-item:hover {
+  background: var(--color-bg-hover);
+}
+
+.dark .llm-preset-item.selected {
+  background: var(--color-bg-hover);
+}
+
+.dark .llm-preset-item-icon {
   background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.dark .llm-preset-item-name {
+  color: var(--color-text-primary);
 }
 
 .dark .llm-preset-item-desc {
-  color: var(--color-gray-400);
+  color: var(--color-text-tertiary);
 }
 
-.dark .llm-preset-item-mobile {
-  background: var(--color-bg-tertiary);
-  color: var(--color-gray-300);
+/* Preset colors - dark mode */
+.dark .llm-preset-item.preset-conservative .llm-preset-item-icon {
+  background: var(--overlay-blue-15, rgba(59, 130, 246, 0.15));
+  color: var(--color-blue-400);
 }
 
-.dark .llm-preset-item-mobile:active {
-  background: var(--color-bg-secondary);
+.dark .llm-preset-item.preset-balanced .llm-preset-item-icon {
+  background: var(--overlay-amber-15, rgba(245, 158, 11, 0.15));
+  color: var(--color-amber-400);
 }
 
-.dark .llm-preset-item-mobile .llm-preset-item-desc {
-  color: var(--color-gray-400);
+.dark .llm-preset-item.preset-creative .llm-preset-item-icon {
+  background: var(--overlay-purple-15, rgba(168, 85, 247, 0.15));
+  color: var(--color-purple-400);
 }
 
-.dark .llm-preset-radio {
-  border-color: var(--color-border);
-  background: var(--color-bg-secondary);
+/* LLM Hub link - dark mode */
+.dark .llm-preset-item.llm-hub-link .llm-preset-item-name {
+  color: var(--color-text-tertiary);
+}
+
+.dark .llm-preset-item.llm-hub-link:hover .llm-preset-item-name {
+  color: var(--color-indigo-400);
+}
+
+/* Mobile dark mode */
+@media (max-width: 768px) {
+  .dark .llm-preset-item {
+    background: var(--color-bg-tertiary);
+  }
+
+  .dark .llm-preset-item:active {
+    background: var(--color-bg-hover);
+  }
+
+  .dark .llm-preset-item.llm-hub-link {
+    background: transparent;
+  }
 }

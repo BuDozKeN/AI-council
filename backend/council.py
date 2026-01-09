@@ -4,6 +4,7 @@ import asyncio
 import time
 from typing import List, Dict, Any, Tuple, Optional, AsyncGenerator
 from .openrouter import query_models_parallel, query_model, query_model_stream
+from .openrouter import get_cached_llm_response, cache_llm_response
 from .config import MIN_STAGE1_RESPONSES, MIN_STAGE2_RANKINGS
 from .context_loader import (
     get_system_prompt_with_context,
@@ -105,6 +106,8 @@ async def stage1_stream_responses(
     playbook_ids: Optional[List[str]] = None,
     # LLM behavior modifier (per-conversation)
     conversation_modifier: Optional[str] = None,
+    # LLM preset override (per-message): overrides department's default preset
+    preset_override: Optional[str] = None,
 ) -> AsyncGenerator[Dict[str, Any], None]:
     """
     Stage 1 with streaming: Collect individual responses from all council models,
@@ -202,6 +205,7 @@ async def stage1_stream_responses(
         department_id=effective_dept_id,
         stage="stage1",
         conversation_modifier=conversation_modifier,
+        preset_override=preset_override,
     )
 
     # Use a queue to collect events from all models
@@ -349,6 +353,8 @@ async def stage2_stream_rankings(
     channel_id: Optional[str] = None,
     style_id: Optional[str] = None,
     department_uuid: Optional[str] = None,
+    # LLM preset override (per-message): overrides department's default preset
+    preset_override: Optional[str] = None,
 ) -> AsyncGenerator[Dict[str, Any], None]:
     """
     Stage 2 with streaming: Each model ranks the anonymized responses,
@@ -439,6 +445,7 @@ Now provide your evaluation and ranking:"""
     stage2_config = await get_llm_config(
         department_id=department_uuid,
         stage="stage2",
+        preset_override=preset_override,
     )
 
     # Use a queue to collect events from all models
@@ -615,7 +622,9 @@ async def stage3_stream_synthesis(
     department_ids: Optional[List[str]] = None,
     role_ids: Optional[List[str]] = None,
     playbook_ids: Optional[List[str]] = None,
-    conversation_history: Optional[List[Dict[str, str]]] = None
+    conversation_history: Optional[List[Dict[str, str]]] = None,
+    # LLM preset override (per-message): overrides department's default preset
+    preset_override: Optional[str] = None,
 ) -> AsyncGenerator[Dict[str, Any], None]:
     """
     Stage 3 with streaming: Chairman synthesizes final response,
@@ -737,6 +746,7 @@ Provide a clear, well-reasoned final answer that represents the council's collec
     stage3_config = await get_llm_config(
         department_id=effective_dept_id,
         stage="stage3",
+        preset_override=preset_override,
     )
 
     # Try each chairman model in order until one succeeds
@@ -1209,9 +1219,32 @@ Title:"""
 
     # Get title generator model from registry
     title_model = await get_primary_model('title_generator') or 'google/gemini-2.5-flash'
+
+    # Check cache first (title generation is expensive and repetitive queries are common)
+    if company_id:
+        cached = await get_cached_llm_response(
+            company_id=company_id,
+            model=title_model,
+            messages=messages,
+        )
+        if cached and cached.get('content'):
+            title = cached.get('content', 'New Conversation').strip().strip('"\'')
+            if len(title) > 50:
+                title = title[:47] + "..."
+            return title
+
     log_app_event("TITLE_LLM_CALL", level="INFO", model=title_model, query_preview=user_query[:30])
     response = await query_model(title_model, messages, timeout=30.0)
     log_app_event("TITLE_LLM_RESPONSE", level="INFO", response_type=type(response).__name__, has_content=bool(response and response.get('content')))
+
+    # Cache the response for future identical queries
+    if company_id and response:
+        await cache_llm_response(
+            company_id=company_id,
+            model=title_model,
+            messages=messages,
+            response=response,
+        )
 
     # Track usage if company_id provided
     if company_id and response and response.get('usage'):
@@ -1401,3 +1434,132 @@ Be helpful, concise, and reference the previous discussion when relevant. You do
             "usage": chat_usage
         }
     }
+
+
+# =============================================================================
+# COUNCIL RESPONSE CACHING UTILITIES
+# =============================================================================
+# These utilities allow caching of complete council responses.
+# Since streaming is complex, these are designed to be called AFTER
+# streaming completes to cache the full response for future identical queries.
+
+async def get_cached_council_response(
+    company_id: str,
+    user_query: str,
+    department_ids: Optional[List[str]] = None,
+    role_ids: Optional[List[str]] = None,
+) -> Optional[Dict[str, Any]]:
+    """
+    Check if we have a cached council response for this exact query configuration.
+
+    Cache key includes: company_id, query, departments, roles
+    This ensures different configurations get different cache entries.
+
+    Args:
+        company_id: Company UUID
+        user_query: The user's question
+        department_ids: List of department UUIDs used
+        role_ids: List of role UUIDs used
+
+    Returns:
+        Cached response dict with stage1, stage2, stage3 data, or None
+    """
+    try:
+        from .cache import get_cached_response, make_cache_key
+        from .config import REDIS_ENABLED
+
+        if not REDIS_ENABLED:
+            return None
+
+        # Create deterministic cache key from all query parameters
+        cache_key = make_cache_key(
+            "council",
+            company_id=company_id,
+            query=user_query,
+            departments=sorted(department_ids or []),
+            roles=sorted(role_ids or []),
+        )
+
+        cached = await get_cached_response(cache_key)
+        if cached:
+            log_app_event(
+                "COUNCIL_CACHE_HIT",
+                level="INFO",
+                company_id=company_id,
+                query_preview=user_query[:50],
+            )
+            cached['from_cache'] = True
+            return cached
+
+        return None
+
+    except Exception as e:
+        log_app_event("COUNCIL_CACHE_ERROR", level="WARNING", error=str(e))
+        return None
+
+
+async def cache_council_response(
+    company_id: str,
+    user_query: str,
+    stage1_results: List[Dict[str, Any]],
+    stage2_results: List[Dict[str, Any]],
+    stage3_result: Dict[str, Any],
+    metadata: Dict[str, Any],
+    department_ids: Optional[List[str]] = None,
+    role_ids: Optional[List[str]] = None,
+    ttl: Optional[int] = None,
+) -> bool:
+    """
+    Cache a complete council response for future identical queries.
+
+    Call this after streaming completes to enable cache hits on repeated queries.
+
+    Args:
+        company_id: Company UUID
+        user_query: The user's question
+        stage1_results: Results from Stage 1
+        stage2_results: Results from Stage 2
+        stage3_result: Result from Stage 3
+        metadata: Additional metadata (aggregate_rankings, etc.)
+        department_ids: List of department UUIDs used
+        role_ids: List of role UUIDs used
+        ttl: Optional TTL override (default: 30 minutes)
+
+    Returns:
+        True if cached successfully
+    """
+    try:
+        from .cache import set_cached_response, make_cache_key
+        from .config import REDIS_ENABLED, REDIS_LLM_CACHE_TTL
+
+        if not REDIS_ENABLED:
+            return False
+
+        # Don't cache error responses
+        if not stage3_result or not stage3_result.get('response'):
+            return False
+
+        cache_key = make_cache_key(
+            "council",
+            company_id=company_id,
+            query=user_query,
+            departments=sorted(department_ids or []),
+            roles=sorted(role_ids or []),
+        )
+
+        response_data = {
+            "stage1_results": stage1_results,
+            "stage2_results": stage2_results,
+            "stage3_result": stage3_result,
+            "metadata": metadata,
+        }
+
+        return await set_cached_response(
+            cache_key,
+            response_data,
+            ttl=ttl or REDIS_LLM_CACHE_TTL,
+        )
+
+    except Exception as e:
+        log_app_event("COUNCIL_CACHE_STORE_ERROR", level="WARNING", error=str(e))
+        return False

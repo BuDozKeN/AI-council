@@ -29,7 +29,9 @@ from ..council import (
     stage2_stream_rankings,
     stage3_stream_synthesis,
     chat_stream_response,
-    generate_conversation_title
+    generate_conversation_title,
+    get_cached_council_response,
+    cache_council_response,
 )
 from ..context_loader import load_business_context
 from ..security import log_app_event
@@ -75,6 +77,9 @@ class SendMessageRequest(BaseModel):
     attachment_ids: Optional[List[str]] = None
     # LLM behavior modifier (per-conversation): "creative", "cautious", "concise", "detailed"
     modifier: Optional[Literal['creative', 'cautious', 'concise', 'detailed']] = None
+    # LLM preset override (per-message): "conservative", "balanced", "creative"
+    # If provided, overrides the department's default preset for this request
+    preset_override: Optional[Literal['conservative', 'balanced', 'creative']] = None
 
 
 class ChatRequest(BaseModel):
@@ -418,6 +423,78 @@ async def send_message(
             # the experts can provide contextual follow-up analysis
             council_history = _build_council_conversation_history(conversation)
 
+            # =========================================================================
+            # REDIS CACHE CHECK - Return cached response if available
+            # =========================================================================
+            if company_uuid:
+                cached_response = await get_cached_council_response(
+                    company_id=company_uuid,
+                    user_query=enhanced_query,
+                    department_ids=body.departments,
+                    role_ids=body.roles,
+                )
+                if cached_response:
+                    log_app_event("COUNCIL_CACHE_HIT", level="INFO", company_id=company_uuid, conversation_id=conversation_id)
+
+                    # Extract cached data
+                    cached_stage1 = cached_response.get('stage1_results', [])
+                    cached_stage2 = cached_response.get('stage2_results', [])
+                    cached_stage3 = cached_response.get('stage3_result', {})
+                    cached_metadata = cached_response.get('metadata', {})
+                    cached_label_to_model = cached_metadata.get('label_to_model', {})
+                    cached_aggregate_rankings = cached_metadata.get('aggregate_rankings', [])
+
+                    # Stream cached results to frontend (mimics normal flow but instant)
+                    yield f"data: {json.dumps({'type': 'cache_hit', 'cached': True})}\n\n"
+
+                    # Stage 1 cached
+                    yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
+                    yield f"data: {json.dumps({'type': 'stage1_complete', 'data': cached_stage1, 'cached': True})}\n\n"
+
+                    # Stage 2 cached
+                    yield f"data: {json.dumps({'type': 'stage2_start'})}\n\n"
+                    yield f"data: {json.dumps({'type': 'stage2_complete', 'data': cached_stage2, 'metadata': {'label_to_model': cached_label_to_model, 'aggregate_rankings': cached_aggregate_rankings}, 'cached': True})}\n\n"
+
+                    # Stage 3 cached
+                    yield f"data: {json.dumps({'type': 'stage3_start'})}\n\n"
+                    yield f"data: {json.dumps({'type': 'stage3_complete', 'data': cached_stage3, 'cached': True})}\n\n"
+
+                    # Check and emit title if ready
+                    title_event = await check_and_emit_title()
+                    if title_event:
+                        yield title_event
+
+                    # Save assistant message with cached results
+                    storage.add_assistant_message(
+                        conversation_id,
+                        cached_stage1,
+                        cached_stage2,
+                        cached_stage3,
+                        user_id,
+                        label_to_model=cached_label_to_model,
+                        aggregate_rankings=cached_aggregate_rankings,
+                        access_token=access_token
+                    )
+
+                    # Still increment query usage (cached responses still count as a query)
+                    billing.increment_query_usage(user_id, access_token=access_token)
+
+                    # Final title check
+                    if title_task and not title_emitted:
+                        try:
+                            title = await title_task
+                            storage.update_conversation_title(conversation_id, title, access_token=access_token)
+                            yield f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
+                        except Exception:
+                            pass
+
+                    # Update department on first message
+                    if is_first_message and body.department:
+                        storage.update_conversation_department(conversation_id, body.department, access_token=access_token)
+
+                    yield f"data: {json.dumps({'type': 'complete', 'cached': True})}\n\n"
+                    return  # Exit early - cached response served
+
             # Stage 1: Collect responses with streaming
             yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
             stage1_results = []
@@ -434,6 +511,7 @@ async def send_message(
                 role_ids=body.roles,
                 playbook_ids=body.playbooks,
                 conversation_modifier=body.modifier,
+                preset_override=body.preset_override,
             ):
                 title_event = await check_and_emit_title()
                 if title_event:
@@ -456,7 +534,7 @@ async def send_message(
             stage2_results = []
             label_to_model = {}
             aggregate_rankings = []
-            async for event in stage2_stream_rankings(enhanced_query, stage1_results, business_id=body.business_id, department_uuid=body.departments[0] if body.departments else None):
+            async for event in stage2_stream_rankings(enhanced_query, stage1_results, business_id=body.business_id, department_uuid=body.departments[0] if body.departments else None, preset_override=body.preset_override):
                 title_event = await check_and_emit_title()
                 if title_event:
                     yield title_event
@@ -489,7 +567,8 @@ async def send_message(
                 department_ids=body.departments,
                 role_ids=body.roles,
                 playbook_ids=body.playbooks,
-                conversation_history=council_history
+                conversation_history=council_history,
+                preset_override=body.preset_override,
             ):
                 title_event = await check_and_emit_title()
                 if title_event:
