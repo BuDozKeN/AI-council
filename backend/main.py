@@ -730,6 +730,15 @@ async def _cleanup_resources():
     await close_redis()
     log_app_event("SHUTDOWN_REDIS_CLOSED", level="INFO")
 
+    # Close Qdrant connection
+    try:
+        from .vector_store import close_qdrant
+    except ImportError:
+        from backend.vector_store import close_qdrant
+
+    close_qdrant()
+    log_app_event("SHUTDOWN_QDRANT_CLOSED", level="INFO")
+
     log_app_event("SHUTDOWN_COMPLETE", level="INFO")
 
 
@@ -849,6 +858,28 @@ async def health_check():
             degraded = True
     else:
         checks["redis_cache"] = {"status": "disabled"}
+
+    # Check Qdrant vector store health
+    try:
+        from .vector_store import get_vector_store_health
+    except ImportError:
+        from backend.vector_store import get_vector_store_health
+
+    qdrant_health = get_vector_store_health()
+    if qdrant_health["status"] == "connected":
+        checks["vector_store"] = {
+            "status": "healthy",
+            "url": qdrant_health.get("url"),
+            "collections": len(qdrant_health.get("collections", [])),
+        }
+    elif qdrant_health["status"] == "disabled":
+        checks["vector_store"] = {"status": "disabled"}
+    else:
+        checks["vector_store"] = {
+            "status": "degraded",
+            "message": qdrant_health.get("error", "Connection failed"),
+        }
+        degraded = True
 
     # Determine overall status
     if not overall_healthy:

@@ -614,6 +614,30 @@ async def send_message(
             # Increment query usage after successful council run
             billing.increment_query_usage(user_id, access_token=access_token)
 
+            # =========================================================================
+            # REDIS CACHE STORE - Cache successful council response for future queries
+            # =========================================================================
+            if company_uuid and stage1_results and stage3_result:
+                try:
+                    cache_stored = await cache_council_response(
+                        company_id=company_uuid,
+                        user_query=enhanced_query,
+                        stage1_results=stage1_results,
+                        stage2_results=stage2_results,
+                        stage3_result=stage3_result,
+                        metadata={
+                            'label_to_model': label_to_model,
+                            'aggregate_rankings': aggregate_rankings,
+                        },
+                        department_ids=body.departments,
+                        role_ids=body.roles,
+                    )
+                    if cache_stored:
+                        log_app_event("COUNCIL_CACHE_STORED", level="INFO", company_id=company_uuid, conversation_id=conversation_id)
+                except Exception as cache_err:
+                    # Don't fail the request if caching fails - just log it
+                    log_app_event("COUNCIL_CACHE_STORE_ERROR", level="WARNING", error=str(cache_err))
+
             # Log usage event for analytics with actual token counts
             # NOTE: These functions internally skip in mock mode (MOCK_LLM=true)
             if company_uuid:
