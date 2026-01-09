@@ -1325,9 +1325,49 @@
    VIEW/EDIT MODAL STYLES - Clean modal header, content sections
    ============================================================================ */
 
+/* Settings section (for response style selector) */
+.mc-settings-section {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.mc-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.mc-settings-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.mc-settings-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.mc-settings-desc {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+}
+
 /* Content section wrapper */
 .mc-content-section {
-  margin-top: 16px;
+  padding: 16px 20px;
+}
+
+.mc-section-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
 }
 
 /* Full-width edit textarea container */

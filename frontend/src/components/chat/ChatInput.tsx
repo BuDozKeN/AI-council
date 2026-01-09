@@ -28,7 +28,8 @@ import { BottomSheet } from '../ui/BottomSheet';
 import { DepartmentCheckboxItem } from '../ui/DepartmentCheckboxItem';
 import { useCouncilStats } from '../../hooks/useCouncilStats';
 import type { ReactNode, KeyboardEvent, ClipboardEvent } from 'react';
-import type { Department, Role, Playbook, Project } from '../../types/business';
+import type { Department, Role, Playbook, Project, LLMPresetId } from '../../types/business';
+import { ResponseStyleSelector } from './ResponseStyleSelector';
 
 // Tooltips are now fetched via i18n - see getTooltips() function below
 
@@ -73,6 +74,12 @@ interface ChatInputProps {
   onSelectPlaybooks?: (ids: string[]) => void;
   // Reset all selections
   onResetAll?: () => void;
+  // Response style selector (LLM preset override)
+  selectedPreset?: LLMPresetId | null | undefined;
+  departmentPreset?: LLMPresetId | undefined;
+  departmentName?: string | undefined;
+  onSelectPreset?: ((preset: LLMPresetId | null) => void) | undefined;
+  onOpenLLMHub?: (() => void) | undefined;
 }
 
 export function ChatInput({
@@ -103,6 +110,12 @@ export function ChatInput({
   selectedPlaybooks = [],
   onSelectPlaybooks,
   onResetAll,
+  // Response style selector
+  selectedPreset = null,
+  departmentPreset = 'balanced',
+  departmentName,
+  onSelectPreset,
+  onOpenLLMHub,
 }: ChatInputProps) {
   const { t } = useTranslation();
   const { aiCount } = useCouncilStats(companyId);
@@ -601,6 +614,18 @@ export function ChatInput({
                     TOOLTIPS.councilMode
                   )}
                 </div>
+
+                {/* Response Style Selector - Quick toggle for Precise/Balanced/Creative */}
+                {onSelectPreset && (
+                  <ResponseStyleSelector
+                    selectedPreset={selectedPreset}
+                    departmentPreset={departmentPreset}
+                    departmentName={departmentName}
+                    onSelectPreset={onSelectPreset}
+                    onOpenLLMHub={onOpenLLMHub}
+                    disabled={disabled}
+                  />
+                )}
               </>
             )}
           </div>

@@ -75,6 +75,9 @@ class SendMessageRequest(BaseModel):
     attachment_ids: Optional[List[str]] = None
     # LLM behavior modifier (per-conversation): "creative", "cautious", "concise", "detailed"
     modifier: Optional[Literal['creative', 'cautious', 'concise', 'detailed']] = None
+    # LLM preset override (per-message): "conservative", "balanced", "creative"
+    # If provided, overrides the department's default preset for this request
+    preset_override: Optional[Literal['conservative', 'balanced', 'creative']] = None
 
 
 class ChatRequest(BaseModel):
@@ -434,6 +437,7 @@ async def send_message(
                 role_ids=body.roles,
                 playbook_ids=body.playbooks,
                 conversation_modifier=body.modifier,
+                preset_override=body.preset_override,
             ):
                 title_event = await check_and_emit_title()
                 if title_event:
@@ -456,7 +460,7 @@ async def send_message(
             stage2_results = []
             label_to_model = {}
             aggregate_rankings = []
-            async for event in stage2_stream_rankings(enhanced_query, stage1_results, business_id=body.business_id, department_uuid=body.departments[0] if body.departments else None):
+            async for event in stage2_stream_rankings(enhanced_query, stage1_results, business_id=body.business_id, department_uuid=body.departments[0] if body.departments else None, preset_override=body.preset_override):
                 title_event = await check_and_emit_title()
                 if title_event:
                     yield title_event
@@ -489,7 +493,8 @@ async def send_message(
                 department_ids=body.departments,
                 role_ids=body.roles,
                 playbook_ids=body.playbooks,
-                conversation_history=council_history
+                conversation_history=council_history,
+                preset_override=body.preset_override,
             ):
                 title_event = await check_and_emit_title()
                 if title_event:

@@ -40,6 +40,28 @@ validate_config()
 # OpenRouter API key
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
+# =============================================================================
+# REDIS CACHING CONFIGURATION
+# =============================================================================
+# Redis is used for:
+# 1. Response caching - Cache identical LLM queries to save money
+# 2. Rate limiting - Per-user/company query limits (replaces in-memory slowapi)
+# 3. Session caching - Fast auth token validation
+#
+# SETUP:
+# - Development: docker run -d -p 6379:6379 redis
+# - Production: Use managed Redis (Render, Railway, Upstash)
+# - Or set REDIS_ENABLED=false to disable caching entirely
+#
+# The app works without Redis - all cache operations fail gracefully.
+# =============================================================================
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+REDIS_ENABLED = os.getenv("REDIS_ENABLED", "true").lower() == "true"
+REDIS_DEFAULT_TTL = int(os.getenv("REDIS_DEFAULT_TTL", "3600"))  # 1 hour default
+
+# LLM response cache TTL (longer since responses are expensive)
+REDIS_LLM_CACHE_TTL = int(os.getenv("REDIS_LLM_CACHE_TTL", "1800"))  # 30 minutes
+
 # Mock Configuration - bypasses real OpenRouter API calls for testing
 # Set MOCK_LLM=true in .env to enable mock mode (saves money during development)
 MOCK_LLM = os.getenv("MOCK_LLM", "false").lower() == "true"

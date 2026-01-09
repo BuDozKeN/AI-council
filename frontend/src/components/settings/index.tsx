@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../AuthContext';
 import { AdaptiveModal } from '../ui/AdaptiveModal';
@@ -28,18 +28,40 @@ interface ConfirmModalState {
   onConfirm: () => Promise<void>;
 }
 
+type SettingsTab = 'profile' | 'billing' | 'team' | 'api' | 'developer' | 'ai-config';
+
 interface SettingsProps {
   isOpen: boolean;
   onClose: () => void;
   companyId: string | null;
   onMockModeChange?: (enabled: boolean) => void;
+  /** Initial tab to show when opening */
+  initialTab?: SettingsTab;
 }
 
-export default function Settings({ isOpen, onClose, companyId, onMockModeChange }: SettingsProps) {
+export default function Settings({
+  isOpen,
+  onClose,
+  companyId,
+  onMockModeChange,
+  initialTab = 'profile',
+}: SettingsProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState<SettingsTab>(initialTab);
   const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
+  const prevIsOpenRef = useRef(isOpen);
+
+  // Sync to initialTab when modal opens
+  // This is an intentional sync of external prop to local state - valid pattern
+  useEffect(() => {
+    // Only sync when modal transitions from closed to open
+    if (isOpen && !prevIsOpenRef.current) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional sync of prop to state on open
+      setActiveTab(initialTab);
+    }
+    prevIsOpenRef.current = isOpen;
+  }, [isOpen, initialTab]);
 
   // Handler for team member removal with confirmation
   const handleRemoveMemberConfirm = (

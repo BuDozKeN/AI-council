@@ -4,6 +4,7 @@ import asyncio
 import time
 from typing import List, Dict, Any, Tuple, Optional, AsyncGenerator
 from .openrouter import query_models_parallel, query_model, query_model_stream
+from .openrouter import get_cached_llm_response, cache_llm_response
 from .config import MIN_STAGE1_RESPONSES, MIN_STAGE2_RANKINGS
 from .context_loader import (
     get_system_prompt_with_context,
@@ -105,6 +106,8 @@ async def stage1_stream_responses(
     playbook_ids: Optional[List[str]] = None,
     # LLM behavior modifier (per-conversation)
     conversation_modifier: Optional[str] = None,
+    # LLM preset override (per-message): overrides department's default preset
+    preset_override: Optional[str] = None,
 ) -> AsyncGenerator[Dict[str, Any], None]:
     """
     Stage 1 with streaming: Collect individual responses from all council models,
@@ -202,6 +205,7 @@ async def stage1_stream_responses(
         department_id=effective_dept_id,
         stage="stage1",
         conversation_modifier=conversation_modifier,
+        preset_override=preset_override,
     )
 
     # Use a queue to collect events from all models
@@ -349,6 +353,8 @@ async def stage2_stream_rankings(
     channel_id: Optional[str] = None,
     style_id: Optional[str] = None,
     department_uuid: Optional[str] = None,
+    # LLM preset override (per-message): overrides department's default preset
+    preset_override: Optional[str] = None,
 ) -> AsyncGenerator[Dict[str, Any], None]:
     """
     Stage 2 with streaming: Each model ranks the anonymized responses,
@@ -439,6 +445,7 @@ Now provide your evaluation and ranking:"""
     stage2_config = await get_llm_config(
         department_id=department_uuid,
         stage="stage2",
+        preset_override=preset_override,
     )
 
     # Use a queue to collect events from all models
@@ -615,7 +622,9 @@ async def stage3_stream_synthesis(
     department_ids: Optional[List[str]] = None,
     role_ids: Optional[List[str]] = None,
     playbook_ids: Optional[List[str]] = None,
-    conversation_history: Optional[List[Dict[str, str]]] = None
+    conversation_history: Optional[List[Dict[str, str]]] = None,
+    # LLM preset override (per-message): overrides department's default preset
+    preset_override: Optional[str] = None,
 ) -> AsyncGenerator[Dict[str, Any], None]:
     """
     Stage 3 with streaming: Chairman synthesizes final response,
@@ -737,6 +746,7 @@ Provide a clear, well-reasoned final answer that represents the council's collec
     stage3_config = await get_llm_config(
         department_id=effective_dept_id,
         stage="stage3",
+        preset_override=preset_override,
     )
 
     # Try each chairman model in order until one succeeds
@@ -1209,9 +1219,32 @@ Title:"""
 
     # Get title generator model from registry
     title_model = await get_primary_model('title_generator') or 'google/gemini-2.5-flash'
+
+    # Check cache first (title generation is expensive and repetitive queries are common)
+    if company_id:
+        cached = await get_cached_llm_response(
+            company_id=company_id,
+            model=title_model,
+            messages=messages,
+        )
+        if cached and cached.get('content'):
+            title = cached.get('content', 'New Conversation').strip().strip('"\'')
+            if len(title) > 50:
+                title = title[:47] + "..."
+            return title
+
     log_app_event("TITLE_LLM_CALL", level="INFO", model=title_model, query_preview=user_query[:30])
     response = await query_model(title_model, messages, timeout=30.0)
     log_app_event("TITLE_LLM_RESPONSE", level="INFO", response_type=type(response).__name__, has_content=bool(response and response.get('content')))
+
+    # Cache the response for future identical queries
+    if company_id and response:
+        await cache_llm_response(
+            company_id=company_id,
+            model=title_model,
+            messages=messages,
+            response=response,
+        )
 
     # Track usage if company_id provided
     if company_id and response and response.get('usage'):

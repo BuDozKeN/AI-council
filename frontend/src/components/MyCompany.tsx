@@ -85,6 +85,8 @@ interface MyCompanyProps {
   initialProjectDecisionId?: string | null;
   initialPromoteDecision?: PromoteDecision | null;
   onConsumePromoteDecision?: (() => void) | null;
+  /** Callback to open LLM Hub settings */
+  onOpenLLMHub?: (() => void) | undefined;
 }
 
 /**
@@ -106,6 +108,7 @@ export default function MyCompany({
   initialProjectDecisionId = null,
   initialPromoteDecision = null,
   onConsumePromoteDecision = null,
+  onOpenLLMHub,
 }: MyCompanyProps) {
   // Core UI state
   const [activeTab, setActiveTab] = useState<MyCompanyTab>(initialTab);
@@ -542,11 +545,17 @@ export default function MyCompany({
     }
   };
 
-  const handleUpdateDepartment = async (deptId: string, updates: Partial<Department>) => {
+  const handleUpdateDepartment = async (
+    deptId: string,
+    updates: Partial<Department>,
+    options?: { keepOpen?: boolean }
+  ) => {
     try {
       await api.updateCompanyDepartment(companyId, deptId, updates);
       await companyData.loadData(true); // Force reload after mutation
-      setEditingItem(null);
+      if (!options?.keepOpen) {
+        setEditingItem(null);
+      }
     } catch (err) {
       log.error('Failed to update department', { error: err });
       throw err;
@@ -941,6 +950,7 @@ export default function MyCompany({
               typeof EditingModal
             >[0]['onSetProjects']
           }
+          onOpenLLMHub={onOpenLLMHub}
         />
 
         <PromoteModal

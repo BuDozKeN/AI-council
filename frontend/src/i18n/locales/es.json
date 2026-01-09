@@ -8,7 +8,6 @@
     "statsRounds": "rondas",
     "statsAnswer": "respuesta"
   },
-
   "errorBoundary": {
     "title": "Vaya, algo salió mal",
     "message": "No te preocupes — tu trabajo está a salvo. Vamos a ponerte de nuevo en marcha.",
@@ -17,7 +16,6 @@
     "errorDetails": "Detalles del Error (Solo Dev)",
     "copyError": "Copiar detalles del error"
   },
-
   "omnibar": {
     "placeholder1": "¿Cómo debería poner precio a mi producto SaaS?",
     "placeholder2": "Redacta una respuesta a esta queja del cliente...",
@@ -31,7 +29,6 @@
     "multiAI": "{{count}} IAs",
     "attach": "Agregar una foto o captura de pantalla"
   },
-
   "imageUpload": {
     "dropImagesHere": "Suelta las imágenes aquí",
     "onlyImagesSupported": "Solo se admiten imágenes",
@@ -39,7 +36,6 @@
     "invalidFileType": "Tipo de archivo inválido: {{type}}. Permitidos: PNG, JPG, WebP, GIF",
     "fileTooLarge": "Archivo demasiado grande: {{size}}MB. Máx: {{max}}MB"
   },
-
   "common": {
     "save": "Guardar",
     "cancel": "Cancelar",
@@ -90,7 +86,6 @@
     "failedToSave": "Error al guardar",
     "unknownError": "Ocurrió un error desconocido"
   },
-
   "help": {
     "title": "Ayuda y Soporte",
     "openHelp": "Abrir menú de ayuda",
@@ -102,7 +97,6 @@
     "support": "Contactar Soporte",
     "supportDesc": "Obtén ayuda de nuestro equipo"
   },
-
   "auth": {
     "signIn": "Iniciar sesión",
     "signUp": "Registrarse",
@@ -148,7 +142,6 @@
     "resetLinkSent": "Enlace de restablecimiento enviado a tu correo",
     "checkYourEmail": "Revisa tu correo para el enlace de confirmación"
   },
-
   "chat": {
     "askCouncil": "Pregunta al consejo...",
     "askFollowUp": "Pregunta de seguimiento (el consejo discutirá)...",
@@ -181,9 +174,28 @@
       "send": "Enviar tu pregunta",
       "stop": "Detener la escritura de la IA",
       "reset": "Limpiar todas las selecciones"
+    },
+    "responseStyle": {
+      "label": "Estilo de respuesta",
+      "title": "Estilo de Respuesta",
+      "departmentDefault": "Predeterminado del Departamento",
+      "departmentUsing": "{{dept}}: {{preset}}",
+      "tooltipOverride": "Personalizado: {{preset}}",
+      "tooltipDefault": "Usando predeterminado del departamento",
+      "llmHubLink": "Configuración del Centro LLM",
+      "llmHubDesc": "Personaliza los modelos de IA y su comportamiento",
+      "presets": {
+        "conservative": "Preciso",
+        "balanced": "Equilibrado",
+        "creative": "Creativo"
+      },
+      "descriptions": {
+        "conservative": "Temperatura baja, respuestas más seguras",
+        "balanced": "Configuración predeterminada para la mayoría de casos",
+        "creative": "Temperatura alta, respuestas más variadas"
+      }
     }
   },
-
   "sidebar": {
     "history": "Historial",
     "leaderboard": "Clasificación",
@@ -203,7 +215,6 @@
     "noActiveConversations": "Sin conversaciones activas",
     "scrollForMore": "Desplaza para más conversaciones"
   },
-
   "settings": {
     "title": "Configuración",
     "profile": "Perfil",
@@ -325,7 +336,6 @@
     "hidden": "Oculto",
     "tokenUsageInfo": "El uso de tokens se mostrará debajo de cada etapa del consejo."
   },
-
   "company": {
     "overview": "Resumen",
     "team": "Equipo",
@@ -349,7 +359,6 @@
     "member": "Miembro",
     "viewer": "Visor"
   },
-
   "departments": {
     "title": "Departamentos",
     "selectDepartments": "Seleccionar departamentos...",
@@ -359,7 +368,6 @@
     "departmentName": "Nombre del departamento",
     "departmentDescription": "Descripción"
   },
-
   "roles": {
     "title": "Roles",
     "selectRoles": "Seleccionar roles...",
@@ -369,7 +377,6 @@
     "roleName": "Nombre del rol",
     "roleDescription": "Descripción"
   },
-
   "context": {
     "selectPlaybooks": "Seleccionar manuales...",
     "addProject": "Agregar un nuevo proyecto o cliente",
@@ -396,7 +403,6 @@
     "toggleCompanyContext": "Alternar contexto de empresa (conocimiento principal)",
     "toggleDeptContext": "Alternar contexto de departamento (conocimiento del departamento)"
   },
-
   "stages": {
     "stage1": "Etapa 1: Respuestas individuales",
     "stage2": "Etapa 2: Rankings de pares",
@@ -458,7 +464,6 @@
     "linkedTo": "Vinculado a: {{name}}",
     "linkToProject": "Vincular esta respuesta a un proyecto para accederla luego"
   },
-
   "modals": {
     "createProject": "Crear proyecto",
     "editProject": "Editar proyecto",
@@ -469,7 +474,7 @@
     "areYouSure": "¿Estás seguro?",
     "cannotBeUndone": "Esta acción no se puede deshacer",
     "saveKnowledge": "Guardar conocimiento",
-    "saveToKnowledgeBase": "Guardar en la Base de Conocimiento",
+    "saveToKnowledgeBase": "Guardar en Base de Conocimiento",
     "createSOP": "Crear SOP",
     "createFramework": "Crear marco",
     "createPolicy": "Crear política",
@@ -488,13 +493,13 @@
     "aiStructuring": "La IA está estructurando tu proyecto...",
     "skipAI": "Omitir IA",
     "createWithAI": "Crear con IA",
-    "aiProcessing": "Procesando con IA...",
+    "aiProcessing": "Procesando...",
     "aiCreatedProject": "La IA creó tu proyecto. Haz los cambios que quieras y guarda.",
     "projectDetails": "Detalles del proyecto",
     "clickToAddDetails": "Clic para agregar detalles del proyecto...",
     "startOver": "Empezar de nuevo",
     "tryAgain": "Intentar de nuevo",
-    "manualEntry": "Entrada manual - crea tu proyecto desde cero",
+    "manualEntry": "Entrada Manual",
     "enterProjectName": "Ingresa el nombre del proyecto",
     "briefDescription": "Breve descripción del proyecto...",
     "addProjectDetails": "¿Qué debería saber la IA sobre este proyecto? Agrega objetivos, contexto, restricciones, detalles técnicos...",
@@ -502,10 +507,9 @@
     "useAI": "Usar IA",
     "creating": "Creando...",
     "tellUsAboutProject": "Cuéntanos un poco sobre tu proyecto primero",
-    "couldntUnderstand": "No pudimos entender bien. Intenta agregar más detalles, u omite la IA e ingresa manualmente.",
-    "aiWentWrong": "Algo salió mal con la IA. Puedes intentar de nuevo u omitir a entrada manual.",
+    "couldntUnderstand": "No se pudo entender la entrada",
+    "aiWentWrong": "Error en el procesamiento de IA. Por favor intenta de nuevo.",
     "couldntCreateProject": "No se pudo crear tu proyecto. Inténtalo de nuevo.",
-    "saveToKnowledgeBase": "Guardar en Base de Conocimiento",
     "savedAndRemembered": "Guardado y será recordado",
     "savedToKnowledgeBase": "Guardado en Base de Conocimiento",
     "willAutoInject": "Esto se inyectará automáticamente en futuras discusiones del consejo.",
@@ -569,7 +573,6 @@
     "projectCreatedToast": "Proyecto \"{{name}}\" creado",
     "decisionSavedRemembered": "Decisión guardada y será recordada",
     "decisionSavedRef": "Decisión guardada",
-
     "promoteDecision": "Promover Decisión",
     "promoteTo": "Promover a",
     "promoteType_sop": "SOP",
@@ -597,14 +600,12 @@
     "addToProjectBtn": "Agregar a Proyecto",
     "createProjectBtn": "Crear Proyecto",
     "createType": "Crear {{type}}",
-
     "questionLabel": "Pregunta:",
     "projectLabel": "Proyecto",
     "playbookLabel": "Playbook",
     "savedDecision": "Decisión guardada",
     "viewOriginalConversation": "Ver conversación original →",
     "promoteToPlaybook": "Promover a Playbook",
-
     "playbookSaved": "{{type}} \"{{title}}\" guardado",
     "forDepartments": "para {{departments}}",
     "asCompanyWide": "como empresa completa",
@@ -614,20 +615,17 @@
     "enterContentMarkdown": "Ingresa el contenido aquí... Se admite formato Markdown.",
     "noContentClickEdit": "Sin contenido aún. Clic en Editar para agregar contenido.",
     "saveChanges": "Guardar Cambios",
-
     "departmentBadge": "DEPARTAMENTO",
     "rolesCount": "{{count}} roles",
     "departmentSaved": "Contexto del departamento \"{{name}}\" guardado",
     "failedToSaveDepartment": "Error al guardar departamento",
     "enterDepartmentContext": "Ingresa la documentación de contexto para este departamento...",
-    "noDepartmentContext": "Sin contexto de departamento aún. Clic en Editar para agregar contexto.",
-
+    "noDepartmentContext": "Sin directrices aun. Haz clic en Editar para agregarlas.",
     "roleBadge": "ROL",
     "roleSaved": "Prompt del rol \"{{name}}\" guardado",
     "failedToSaveRole": "Error al guardar rol",
     "enterRolePrompt": "Ingresa el prompt del sistema para este rol...",
     "noRolePrompt": "Sin prompt del sistema aún. Clic en Editar para agregar uno.",
-
     "companyContext": "Contexto de Empresa",
     "companyContextDesc": "Este contexto se inyecta en cada conversación del Consejo de IA.",
     "companyContextPlaceholder": "Ingresa el contexto de tu empresa aquí...\n\nIncluye:\n- Misión y visión\n- Etapa y objetivos de la empresa\n- Presupuesto y restricciones\n- Decisiones y políticas clave\n- Estructura del equipo\n- Cualquier otro contexto importante para el Consejo de IA",
@@ -635,38 +633,32 @@
     "companyContextSaved": "Contexto de {{name}} guardado",
     "failedToSaveCompanyContext": "Error al guardar contexto de empresa",
     "company": "Empresa",
-
     "addDepartment": "Agregar Departamento",
     "departmentName": "Nombre del Departamento",
     "departmentPlaceholder": "ej., Recursos Humanos",
     "description": "Descripción",
     "departmentDescPlaceholder": "¿Qué hace este departamento?",
     "createDepartment": "Crear Departamento",
-
     "addRole": "Agregar Rol",
     "roleName": "Nombre del Rol",
     "roleNamePlaceholder": "ej., CTO",
     "roleTitle": "Título",
     "roleTitlePlaceholder": "ej., Director de Tecnología",
     "createRole": "Crear Rol",
-
     "type": "Tipo",
     "content": "Contenido",
     "playbookTitlePlaceholder": "ej., Proceso de Incorporación de Clientes",
     "playbookContentPlaceholder": "Describe lo que necesitas (ej., \"cómo incorporamos clientes\") - la IA escribirá el documento completo por ti...",
-
     "regenerationFailed": "Error de Regeneración",
     "unknownError": "Ocurrió un error desconocido",
     "unexpectedError": "Ocurrió un error inesperado",
     "validationError": "Error de Validación",
-    "enterProjectName": "Ingresa el nombre del proyecto",
     "clickToEditName": "Clic para editar nombre",
     "status_active": "Activo",
     "status_completed": "Completado",
     "status_archived": "Archivado",
     "fromCouncil": "Del Consejo",
     "imported": "Importado",
-    "selectDepartments": "Seleccionar departamentos",
     "updated": "Actualizado",
     "viewOriginalConversationTooltip": "Ver la conversación original del consejo",
     "briefDescriptionPlaceholder": "Breve descripción del proyecto...",
@@ -700,7 +692,6 @@
     "delete": "Eliminar",
     "failedToSaveProject": "Error al guardar proyecto",
     "projectSaved": "Proyecto \"{{name}}\" guardado",
-
     "newDepartment": "Nuevo Departamento",
     "reviewDepartment": "Revisar Departamento",
     "departmentCreated": "¡Departamento Creado!",
@@ -714,7 +705,6 @@
     "tellUsAboutDepartment": "Cuéntanos sobre tu departamento",
     "couldntCreateDepartment": "Error al crear departamento",
     "departmentReady": "Tu departamento está listo. Agrega roles para comenzar.",
-
     "newRole": "Nuevo Rol",
     "reviewRole": "Revisar Rol",
     "roleCreated": "¡Rol Creado!",
@@ -732,7 +722,6 @@
     "aiPersonality": "Personalidad de IA",
     "aiPersonalityPlaceholder": "Cómo debe comportarse este rol como asesor de IA...",
     "aiPersonalityHint": "Define cómo se comporta este rol cuando actúa como asesor de IA en el consejo",
-
     "newPlaybook": "Nuevo Manual",
     "reviewPlaybook": "Revisar Manual",
     "playbookCreated": "¡Manual Creado!",
@@ -746,22 +735,10 @@
     "tellUsAboutPlaybook": "Cuéntanos sobre tu manual",
     "couldntCreatePlaybook": "Error al crear manual",
     "playbookReady": "Tu manual está listo para usar.",
-
-    "skipAI": "Omitir IA",
-    "useAI": "Usar IA",
-    "createWithAI": "Crear con IA",
-    "aiProcessing": "Procesando...",
-    "aiWentWrong": "Error en el procesamiento de IA. Por favor intenta de nuevo.",
-    "couldntUnderstand": "No se pudo entender la entrada",
-    "startOver": "Empezar de nuevo",
-    "tryAgain": "Intentar de nuevo",
-    "manualEntry": "Entrada Manual",
-    "creating": "Creando...",
     "created": "creado",
-
     "generateContext": "Generar Contexto de Empresa",
     "writeContext": "Escribir Contexto de Empresa",
-    "reviewContext": "Revisar Contexto",
+    "reviewContext": "Revisar Directrices",
     "contextCreated": "¡Contexto Creado!",
     "aiIntroContext": "Describe tu empresa y la IA creará un documento de contexto completo",
     "contextPlaceholderAI": "Ej., \"Somos una startup B2B SaaS que crea herramientas de productividad. Equipo de 8 personas, con seed funding, enfocados en lanzar el MVP este trimestre. Valoramos la velocidad sobre la perfección y la comunicación asíncrona...\"",
@@ -775,9 +752,14 @@
     "contextEditHint": "Revisa y edita según sea necesario. Este documento guiará a los asesores IA en entender tu empresa.",
     "contextManualPlaceholder": "# Descripción de la Empresa\n\nDescribe tu empresa, misión, prioridades actuales, restricciones y cultura de toma de decisiones...",
     "saveContext": "Guardar Contexto",
-    "saving": "Guardando..."
+    "saving": "Guardando...",
+    "responseStyle": "Estilo de Respuesta",
+    "responseStyleDesc": "Controla el comportamiento de la IA cuando este departamento esta seleccionado",
+    "guidelinesTitle": "Directrices",
+    "editGuidelines": "Editar Directrices",
+    "presetSaved": "Estilo de respuesta actualizado",
+    "failedToSavePreset": "Error al actualizar el estilo de respuesta"
   },
-
   "knowledge": {
     "title": "Conocimiento",
     "addEntry": "Agregar entrada",
@@ -820,7 +802,6 @@
     "autoInject": "Auto-inyectar en el consejo",
     "autoInjectDescription": "Incluir automáticamente esto en las discusiones del consejo"
   },
-
   "errors": {
     "generic": "Algo salió mal",
     "networkError": "Error de red. Verifica tu conexión.",
@@ -837,7 +818,6 @@
     "timeout": "La solicitud tardó demasiado. Inténtalo de nuevo.",
     "offline": "Parece que estás sin conexión"
   },
-
   "dates": {
     "justNow": "Ahora mismo",
     "minutesAgo": "hace {{count}}m",
@@ -851,7 +831,6 @@
     "thisMonth": "Este mes",
     "older": "Anteriores"
   },
-
   "aria": {
     "scrollToTop": "Volver arriba",
     "clearSearch": "Limpiar búsqueda",
@@ -865,7 +844,6 @@
     "userMenu": "Menú de usuario",
     "notifications": "Notificaciones"
   },
-
   "triage": {
     "you": "Tú",
     "preCouncil": "Pre-Consejo",
@@ -891,7 +869,6 @@
     "placeholder": "Agregar más contexto...",
     "reply": "Responder"
   },
-
   "organization": {
     "title": "Estructura Organizacional",
     "description": "Gestiona la estructura de {{company}}: {{depts}} departamentos, {{roles}} roles",
@@ -952,7 +929,6 @@
       "updateRoleFailed": "Error al actualizar rol: {{message}}"
     }
   },
-
   "llmHub": {
     "responseStyles": {
       "title": "Estilos de Respuesta",
@@ -1111,7 +1087,6 @@
     },
     "tokens": "tokens"
   },
-
   "billing": {
     "subscription": "Suscripción",
     "currentPlan": "Plan actual",
@@ -1128,7 +1103,6 @@
     "nextBillingDate": "Próxima fecha de facturación",
     "cancelSubscription": "Cancelar suscripción"
   },
-
   "leaderboard": {
     "title": "Clasificación de modelos",
     "rank": "Posición",
@@ -1147,18 +1121,15 @@
     "avgRankHint": "Menor es mejor (1 = siempre primero)",
     "winsHint": "Veces que fue clasificado #1"
   },
-
   "playbooks": {
     "title": "Playbooks",
     "selectPlaybooks": "Seleccionar playbooks..."
   },
-
   "projects": {
     "title": "Proyectos",
     "current": "actual",
     "selectProject": "Seleccionar proyecto"
   },
-
   "contextChip": {
     "using": "Usando:",
     "smartAuto": "Auto Inteligente",
@@ -1167,23 +1138,19 @@
     "useThisContext": "Usar este contexto",
     "selectContext": "Seleccionar Contexto"
   },
-
   "multiSelect": {
     "deptsCount": "{{count}} depts",
     "rolesCount": "{{count}} roles",
     "playbooksCount": "{{count}} playbooks"
   },
-
   "mobileNav": {
     "new": "Nuevo",
     "company": "Empresa"
   },
-
   "modeToggle": {
     "quick": "Rápido",
     "fullCouncil": "Consejo Completo"
   },
-
   "validation": {
     "required": "Este campo es requerido",
     "minLength": "Debe tener al menos {{count}} caracteres",
@@ -1196,7 +1163,6 @@
     "passwordsNoMatch": "Las contraseñas no coinciden",
     "passwordMinLength": "La contraseña debe tener al menos 6 caracteres"
   },
-
   "usage": {
     "sessionTotal": "Total de Sesión",
     "stageLabel": "Etapa {{stage}}",
@@ -1209,7 +1175,6 @@
     "perModel": "Por Modelo",
     "cacheSavings": "Ahorro estimado de caché: {{amount}}"
   },
-
   "mycompany": {
     "tabs": {
       "overviewTooltip": "Resumen de empresa: ve tus estadísticas, descripción y contexto empresarial de un vistazo",
@@ -1258,13 +1223,13 @@
     "newDepartment": "Nuevo Departamento",
     "departmentsRoles": "{{depts}} departamentos • {{roles}} roles",
     "roles": "roles",
-    "viewContext": "Ver Contexto",
+    "viewContext": "Ver Directrices",
     "rolesLabel": "Roles",
     "newRole": "Nuevo Rol",
     "addRolesToDept": "Agregar roles a este departamento",
     "createNewDepartment": "Crear nuevo departamento",
     "noPlaybooks": "Construye tu biblioteca de playbooks",
-    "playbooksHelp": "Los playbooks son marcos, SOPs y políticas reutilizables que guían los consejos de tu consejo.",
+    "playbooksHelp": "Crea SOPs, marcos y políticas que tu consejo de IA referenciará",
     "newPlaybook": "Nuevo Playbook",
     "all": "Todos",
     "frameworks": "Marcos",
@@ -1278,12 +1243,10 @@
     "references": "Referencias",
     "noDecisionsMatch": "Ninguna decisión coincide con tus filtros",
     "noActivity": "Sin actividad aún",
-    "activityHelp": "La actividad del equipo y cambios recientes aparecerán aquí",
+    "activityHelp": "La actividad de tu equipo aparecerá a medida que uses el consejo, guardes decisiones y construyas playbooks.",
     "usageStats": "Estadísticas de uso",
     "usageHelp": "Las métricas y tendencias de uso del consejo aparecerán aquí",
-
     "buildKnowledgeBase": "Construye tu base de conocimiento",
-    "playbooksHelp": "Crea SOPs, marcos y políticas que tu consejo de IA referenciará",
     "total": "Total",
     "companyWide": "Toda la empresa",
     "sure": "¿Seguro?",
@@ -1291,7 +1254,6 @@
     "no": "No",
     "archivePlaybook": "Archivar playbook",
     "deletePlaybook": "Eliminar playbook",
-    "noPlaybooksMatch": "Ningún playbook coincide con tus filtros",
     "typeLabel_sop": "Procedimientos Operativos Estándar",
     "typeLabel_framework": "Marcos",
     "typeLabel_policy": "Políticas",
@@ -1300,8 +1262,6 @@
     "typeShort_policy": "Política",
     "showLess": "Ver menos",
     "loadMore": "Cargar más ({{count}} más)",
-    "createNewPlaybook": "Crear nuevo playbook",
-
     "allCaughtUp": "¡Todo al día!",
     "noPendingDecisions": "No hay decisiones pendientes por revisar. Guarda salidas del consejo para verlas aquí.",
     "allDepartments": "Todos los departamentos",
@@ -1314,9 +1274,7 @@
     "viewOriginalConversation": "Ver conversación original",
     "source": "Fuente",
     "promote": "Promover",
-
     "allQuiet": "Todo tranquilo aquí",
-    "activityHelp": "La actividad de tu equipo aparecerá a medida que uses el consejo, guardes decisiones y construyas playbooks.",
     "eventsCount": "{{count}} eventos",
     "promotedType_sop": "SOP",
     "promotedType_framework": "MARCO",
@@ -1331,7 +1289,6 @@
     "viewSourceConversation": "Ver conversación fuente",
     "loading": "Cargando...",
     "loadMoreActivity": "Cargar más",
-
     "failedToLoadUsage": "Error al cargar datos de uso",
     "startSessionForAnalytics": "Inicia una sesión del consejo para ver análisis de uso",
     "dismiss": "Descartar",
