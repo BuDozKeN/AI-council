@@ -111,7 +111,9 @@ interface OmniBarProps {
   // Response style selector (LLM preset)
   selectedPreset?: import('../../types/business').LLMPresetId | null | undefined;
   departmentPreset?: import('../../types/business').LLMPresetId | undefined;
-  onSelectPreset?: ((preset: import('../../types/business').LLMPresetId | null) => void) | undefined;
+  onSelectPreset?:
+    | ((preset: import('../../types/business').LLMPresetId | null) => void)
+    | undefined;
   onOpenLLMHub?: (() => void) | undefined;
 }
 

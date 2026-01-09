@@ -270,19 +270,25 @@ function App() {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Image upload state for landing hero
-  const [landingImages, setLandingImages] = useState<Array<{
-    file: File;
-    preview: string;
-    name: string;
-    size: number;
-    type: string;
-  }>>([]);
+  const [landingImages, setLandingImages] = useState<
+    Array<{
+      file: File;
+      preview: string;
+      name: string;
+      size: number;
+      type: string;
+    }>
+  >([]);
   const [landingChatMode, setLandingChatMode] = useState<'council' | 'chat'>('council'); // 'chat' or 'council' for landing hero
   const [mockModeEnabled, setMockModeEnabled] = useState(false); // Mock mode state for banner
 
   // Response style selector state (LLM preset override for current session)
-  const [selectedPreset, setSelectedPreset] = useState<import('./types/business').LLMPresetId | null>(null);
-  const [settingsInitialTab, setSettingsInitialTab] = useState<'profile' | 'billing' | 'team' | 'api' | 'developer' | 'ai-config'>('profile');
+  const [selectedPreset, setSelectedPreset] = useState<
+    import('./types/business').LLMPresetId | null
+  >(null);
+  const [settingsInitialTab, setSettingsInitialTab] = useState<
+    'profile' | 'billing' | 'team' | 'api' | 'developer' | 'ai-config'
+  >('profile');
 
   // Compute department preset from selected department (for ResponseStyleSelector default)
   const departmentPreset = useMemo<import('./types/business').LLMPresetId>(() => {

@@ -1434,3 +1434,132 @@ Be helpful, concise, and reference the previous discussion when relevant. You do
             "usage": chat_usage
         }
     }
+
+
+# =============================================================================
+# COUNCIL RESPONSE CACHING UTILITIES
+# =============================================================================
+# These utilities allow caching of complete council responses.
+# Since streaming is complex, these are designed to be called AFTER
+# streaming completes to cache the full response for future identical queries.
+
+async def get_cached_council_response(
+    company_id: str,
+    user_query: str,
+    department_ids: Optional[List[str]] = None,
+    role_ids: Optional[List[str]] = None,
+) -> Optional[Dict[str, Any]]:
+    """
+    Check if we have a cached council response for this exact query configuration.
+
+    Cache key includes: company_id, query, departments, roles
+    This ensures different configurations get different cache entries.
+
+    Args:
+        company_id: Company UUID
+        user_query: The user's question
+        department_ids: List of department UUIDs used
+        role_ids: List of role UUIDs used
+
+    Returns:
+        Cached response dict with stage1, stage2, stage3 data, or None
+    """
+    try:
+        from .cache import get_cached_response, make_cache_key
+        from .config import REDIS_ENABLED
+
+        if not REDIS_ENABLED:
+            return None
+
+        # Create deterministic cache key from all query parameters
+        cache_key = make_cache_key(
+            "council",
+            company_id=company_id,
+            query=user_query,
+            departments=sorted(department_ids or []),
+            roles=sorted(role_ids or []),
+        )
+
+        cached = await get_cached_response(cache_key)
+        if cached:
+            log_app_event(
+                "COUNCIL_CACHE_HIT",
+                level="INFO",
+                company_id=company_id,
+                query_preview=user_query[:50],
+            )
+            cached['from_cache'] = True
+            return cached
+
+        return None
+
+    except Exception as e:
+        log_app_event("COUNCIL_CACHE_ERROR", level="WARNING", error=str(e))
+        return None
+
+
+async def cache_council_response(
+    company_id: str,
+    user_query: str,
+    stage1_results: List[Dict[str, Any]],
+    stage2_results: List[Dict[str, Any]],
+    stage3_result: Dict[str, Any],
+    metadata: Dict[str, Any],
+    department_ids: Optional[List[str]] = None,
+    role_ids: Optional[List[str]] = None,
+    ttl: Optional[int] = None,
+) -> bool:
+    """
+    Cache a complete council response for future identical queries.
+
+    Call this after streaming completes to enable cache hits on repeated queries.
+
+    Args:
+        company_id: Company UUID
+        user_query: The user's question
+        stage1_results: Results from Stage 1
+        stage2_results: Results from Stage 2
+        stage3_result: Result from Stage 3
+        metadata: Additional metadata (aggregate_rankings, etc.)
+        department_ids: List of department UUIDs used
+        role_ids: List of role UUIDs used
+        ttl: Optional TTL override (default: 30 minutes)
+
+    Returns:
+        True if cached successfully
+    """
+    try:
+        from .cache import set_cached_response, make_cache_key
+        from .config import REDIS_ENABLED, REDIS_LLM_CACHE_TTL
+
+        if not REDIS_ENABLED:
+            return False
+
+        # Don't cache error responses
+        if not stage3_result or not stage3_result.get('response'):
+            return False
+
+        cache_key = make_cache_key(
+            "council",
+            company_id=company_id,
+            query=user_query,
+            departments=sorted(department_ids or []),
+            roles=sorted(role_ids or []),
+        )
+
+        response_data = {
+            "stage1_results": stage1_results,
+            "stage2_results": stage2_results,
+            "stage3_result": stage3_result,
+            "metadata": metadata,
+        }
+
+        return await set_cached_response(
+            cache_key,
+            response_data,
+            ttl=ttl or REDIS_LLM_CACHE_TTL,
+        )
+
+    except Exception as e:
+        log_app_event("COUNCIL_CACHE_STORE_ERROR", level="WARNING", error=str(e))
+        return False

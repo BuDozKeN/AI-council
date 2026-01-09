@@ -38,7 +38,12 @@ interface ViewDepartmentModalProps {
   onOpenLLMHub?: (() => void) | undefined;
 }
 
-export function ViewDepartmentModal({ department, onClose, onSave, onOpenLLMHub }: ViewDepartmentModalProps) {
+export function ViewDepartmentModal({
+  department,
+  onClose,
+  onSave,
+  onOpenLLMHub,
+}: ViewDepartmentModalProps) {
   const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [editedContext, setEditedContext] = useState(department.context_md || '');
@@ -129,9 +134,7 @@ export function ViewDepartmentModal({ department, onClose, onSave, onOpenLLMHub 
         {/* Guidelines Section - Preview by default, markdown when editing */}
         <div className="mc-content-section">
           <div className="mc-section-header">
-            <span className="mc-section-title">
-              {t('modals.guidelinesTitle', 'Guidelines')}
-            </span>
+            <span className="mc-section-title">{t('modals.guidelinesTitle', 'Guidelines')}</span>
           </div>
           {isEditing ? (
             <div className="mc-edit-full">

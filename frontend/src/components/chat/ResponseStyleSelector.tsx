@@ -126,11 +126,7 @@ export function ResponseStyleSelector({
       {/* Department Default Option */}
       <button
         type="button"
-        className={cn(
-          'response-style-item',
-          'department-default',
-          !isUsingOverride && 'selected'
-        )}
+        className={cn('response-style-item', 'department-default', !isUsingOverride && 'selected')}
         onClick={() => handleSelect(null)}
       >
         <div className="response-style-item-icon">
@@ -169,11 +165,7 @@ export function ResponseStyleSelector({
           <button
             key={presetId}
             type="button"
-            className={cn(
-              'response-style-item',
-              presetConfig.colorClass,
-              isSelected && 'selected'
-            )}
+            className={cn('response-style-item', presetConfig.colorClass, isSelected && 'selected')}
             onClick={() => handleSelect(presetId)}
           >
             <div className="response-style-item-icon">
