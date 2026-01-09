@@ -10,6 +10,7 @@ from typing import List, Dict, Any, Optional, AsyncGenerator
 from .config import OPENROUTER_API_KEY, OPENROUTER_API_URL
 from .config import MOCK_LLM as _MOCK_LLM_INITIAL
 from .config import ENABLE_PROMPT_CACHING, CACHE_SUPPORTED_MODELS
+from .config import REDIS_ENABLED, REDIS_LLM_CACHE_TTL
 
 
 # =============================================================================
@@ -292,6 +293,104 @@ def get_circuit_breaker_status() -> Dict[str, Any]:
 def get_all_circuit_breaker_statuses() -> Dict[str, Dict[str, Any]]:
     """Get detailed status of all per-model circuit breakers."""
     return _circuit_breaker_registry.get_all_statuses()
+
+# =============================================================================
+# REDIS CACHING FOR LLM RESPONSES
+# =============================================================================
+# Caches identical queries to save money. Cache key includes:
+# - company_id, model, messages hash, temperature, max_tokens
+# Streaming responses are NOT cached (would require buffering full response)
+
+# Lazy import to avoid circular dependency
+_cache_module = None
+
+def _get_cache_module():
+    """Lazy load cache module to avoid circular imports."""
+    global _cache_module
+    if _cache_module is None:
+        try:
+            from . import cache as cache_mod
+            _cache_module = cache_mod
+        except ImportError:
+            from backend import cache as cache_mod
+            _cache_module = cache_mod
+    return _cache_module
+
+
+async def get_cached_llm_response(
+    company_id: str,
+    model: str,
+    messages: List[Dict[str, str]],
+    temperature: Optional[float] = None,
+    max_tokens: Optional[int] = None,
+) -> Optional[Dict[str, Any]]:
+    """
+    Check if we have a cached response for this exact query.
+
+    Returns cached response dict or None if not cached.
+    """
+    if not REDIS_ENABLED:
+        return None
+
+    cache = _get_cache_module()
+    messages_hash = cache.hash_messages(messages)
+    cache_key = cache.make_llm_cache_key(
+        company_id=company_id,
+        model=model,
+        messages_hash=messages_hash,
+        temperature=temperature,
+        max_tokens=max_tokens,
+    )
+
+    cached = await cache.get_cached_response(cache_key)
+    if cached:
+        # Add cache hit indicator
+        cached['from_cache'] = True
+        log_app_event(
+            "LLM_CACHE_HIT",
+            level="INFO",
+            model=model,
+            company_id=company_id,
+        )
+    return cached
+
+
+async def cache_llm_response(
+    company_id: str,
+    model: str,
+    messages: List[Dict[str, str]],
+    response: Dict[str, Any],
+    temperature: Optional[float] = None,
+    max_tokens: Optional[int] = None,
+) -> bool:
+    """
+    Cache an LLM response for future identical queries.
+
+    Returns True if cached successfully.
+    """
+    if not REDIS_ENABLED:
+        return False
+
+    # Don't cache error responses
+    if not response or not response.get('content'):
+        return False
+
+    cache = _get_cache_module()
+    messages_hash = cache.hash_messages(messages)
+    cache_key = cache.make_llm_cache_key(
+        company_id=company_id,
+        model=model,
+        messages_hash=messages_hash,
+        temperature=temperature,
+        max_tokens=max_tokens,
+    )
+
+    return await cache.set_cached_response(
+        cache_key,
+        response,
+        ttl=REDIS_LLM_CACHE_TTL,
+    )
+
 
 # Context variable for per-request API key override (BYOK)
 # This allows setting the API key at the request level without threading it through all functions

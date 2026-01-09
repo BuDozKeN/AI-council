@@ -240,14 +240,72 @@ function App() {
     setScrollToStage3,
     clearReturnState,
   } = useModalState();
+
+  // Route synchronization - syncs URL with modal state
+  // This enables deep linking, F5 refresh, and browser back/forward
+  const { navigateToSettings, navigateToCompany, navigateToLeaderboard, navigateToChat } =
+    useRouteSync({
+      isSettingsOpen,
+      isMyCompanyOpen,
+      isLeaderboardOpen,
+      openSettings,
+      openMyCompany,
+      openLeaderboard,
+      closeSettings,
+      closeMyCompany,
+      closeLeaderboard,
+      currentConversationId,
+      setCurrentConversationId,
+      handleNewConversation: contextNewConversation,
+    });
+
+  // SEO: Update canonical URL based on current route
+  useCanonical();
+
   // Triage state
   const [triageState, setTriageState] = useState<TriageState>(null);
   const [originalQuery, setOriginalQuery] = useState('');
   const [isTriageLoading, setIsTriageLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false); // Image upload in progress
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  // Image upload state for landing hero
+  const [landingImages, setLandingImages] = useState<
+    Array<{
+      file: File;
+      preview: string;
+      name: string;
+      size: number;
+      type: string;
+    }>
+  >([]);
   const [landingChatMode, setLandingChatMode] = useState<'council' | 'chat'>('council'); // 'chat' or 'council' for landing hero
   const [mockModeEnabled, setMockModeEnabled] = useState(false); // Mock mode state for banner
+
+  // Response style selector state (LLM preset override for current session)
+  const [selectedPreset, setSelectedPreset] = useState<
+    import('./types/business').LLMPresetId | null
+  >(null);
+  const [settingsInitialTab, setSettingsInitialTab] = useState<
+    'profile' | 'billing' | 'team' | 'api' | 'developer' | 'ai-config'
+  >('profile');
+
+  // Compute department preset from selected department (for ResponseStyleSelector default)
+  const departmentPreset = useMemo<import('./types/business').LLMPresetId>(() => {
+    if (selectedDepartments.length > 0 && availableDepartments.length > 0) {
+      const dept = availableDepartments.find((d) => d.id === selectedDepartments[0]);
+      if (dept?.llm_preset) return dept.llm_preset;
+    }
+    return 'balanced';
+  }, [selectedDepartments, availableDepartments]);
+
+  // Handler to open LLM Hub settings (from MyCompany modal)
+  const handleOpenLLMHub = useCallback(() => {
+    // Close MyCompany first to prevent URL flickering between /company and /settings
+    closeMyCompany();
+    setSettingsInitialTab('ai-config');
+    openSettings();
+  }, [closeMyCompany, openSettings]);
 
   // Mobile swipe gesture to open sidebar from left edge
   useGlobalSwipe({
@@ -308,11 +366,17 @@ function App() {
 
   const handleSelectConversation = useCallback(
     (id: string) => {
-      contextSelectConversation(id);
+      // Update URL to /chat/{id} for shareable links and F5 refresh
+      // Skip URL update for temp conversations (they don't exist in DB yet)
+      if (id.startsWith('temp-')) {
+        contextSelectConversation(id);
+      } else {
+        navigateToChat(id);
+      }
       clearReturnState();
       setScrollToStage3();
     },
-    [contextSelectConversation, clearReturnState, setScrollToStage3]
+    [contextSelectConversation, navigateToChat, clearReturnState, setScrollToStage3]
   );
 
   const handleBulkDeleteConversations = useCallback(
@@ -438,18 +502,34 @@ function App() {
 
   const handleMobileClose = useCallback(() => setIsMobileSidebarOpen(false), []);
 
-  // UI action handlers
+  // UI action handlers - use route navigation for URL sync
   const handleOpenLeaderboard = useCallback(() => {
-    openLeaderboard();
-  }, [openLeaderboard]);
+    navigateToLeaderboard();
+  }, [navigateToLeaderboard]);
 
   const handleOpenSettings = useCallback(() => {
-    openSettings();
-  }, [openSettings]);
+    navigateToSettings();
+  }, [navigateToSettings]);
 
   const handleOpenMyCompany = useCallback(() => {
-    openMyCompany({ clearPromoteDecision: true });
-  }, [openMyCompany]);
+    navigateToCompany('overview');
+  }, [navigateToCompany]);
+
+  // Memoized callback for MyCompany tab changes
+  const handleMyCompanyTabChange = useCallback(
+    (tab: MyCompanyTab) => {
+      navigateToCompany(tab);
+    },
+    [navigateToCompany]
+  );
+
+  // Memoized callback for MyCompany editing item changes (URL sync)
+  const handleMyCompanyEditingItemChange = useCallback(
+    (tab: MyCompanyTab, itemId: string | null) => {
+      navigateToCompany(tab, itemId ?? undefined);
+    },
+    [navigateToCompany]
+  );
 
   // Reset loaded flag when user logs out
   useEffect(() => {
@@ -1155,6 +1235,7 @@ function App() {
           projectId: selectedProject,
           attachmentIds: attachmentIds, // Pass uploaded image attachment IDs
           signal: abortControllerRef.current?.signal,
+          preset: selectedPreset, // LLM preset override (null = use department default)
         }
       );
     } catch (error: unknown) {
@@ -1489,6 +1570,14 @@ function App() {
                 onSubmit={handleLandingSubmit}
                 onResetAll={handleResetAllSelections}
                 isLoading={isLoading}
+                // Response style selector
+                selectedPreset={selectedPreset}
+                departmentPreset={departmentPreset}
+                onSelectPreset={setSelectedPreset}
+                onOpenLLMHub={handleOpenLLMHub}
+                // Image upload
+                attachedImages={landingImages}
+                onImagesChange={setLandingImages}
               />
             </motion.div>
           ) : (
@@ -1622,6 +1711,10 @@ function App() {
                   isLoadingConversation={isLoadingConversation}
                   // Mobile sidebar toggle
                   onOpenSidebar={() => setIsMobileSidebarOpen(true)}
+                  // Response style selector
+                  selectedPreset={selectedPreset}
+                  onSelectPreset={setSelectedPreset}
+                  onOpenLLMHub={handleOpenLLMHub}
                 />
               </Suspense>
             </motion.div>
@@ -1673,9 +1766,12 @@ function App() {
                 }
                 log.debug('[Settings.onClose] Closing settings');
                 closeSettings();
+                // Reset to profile tab after closing
+                setSettingsInitialTab('profile');
               }}
               companyId={selectedBusiness}
               onMockModeChange={handleMockModeChange}
+              initialTab={settingsInitialTab}
             />
           </Suspense>
         )}
@@ -1719,6 +1815,8 @@ function App() {
                 setSelectedBusiness(newCompanyId);
                 resetMyCompanyInitial();
               }}
+              onTabChange={handleMyCompanyTabChange}
+              onEditingItemChange={handleMyCompanyEditingItemChange}
               onClose={() => {
                 // Check if fixed-position buttons were clicked recently (within 500ms)
                 const themeToggleClickTime = (
@@ -1754,6 +1852,7 @@ function App() {
               initialProjectDecisionId={myCompanyInitialProjectDecisionId}
               initialPromoteDecision={myCompanyPromoteDecision as any}
               onConsumePromoteDecision={() => setMyCompanyPromoteDecision(null)}
+              onOpenLLMHub={handleOpenLLMHub}
             />
           </Suspense>
         )}

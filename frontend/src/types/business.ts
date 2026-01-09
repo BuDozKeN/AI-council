@@ -8,6 +8,7 @@ export interface Department {
   slug?: string; // Department slug (e.g., "technology", "sales") - used for conversation grouping
   description?: string;
   context_md?: string; // Department-specific context for AI
+  llm_preset?: 'conservative' | 'balanced' | 'creative'; // LLM behavior preset
   roles?: Role[];
   channels?: Channel[];
 }

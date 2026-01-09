@@ -710,7 +710,7 @@ async def _cleanup_resources():
         await _http_client.aclose()
         log_app_event("SHUTDOWN_HTTP_CLIENT_CLOSED", level="INFO")
 
-    # Clear caches
+    # Clear in-memory caches
     try:
         from .utils.cache import user_cache, company_cache, settings_cache
     except ImportError:
@@ -719,7 +719,25 @@ async def _cleanup_resources():
     await user_cache.clear()
     await company_cache.clear()
     await settings_cache.clear()
-    log_app_event("SHUTDOWN_CACHES_CLEARED", level="INFO")
+    log_app_event("SHUTDOWN_MEMORY_CACHES_CLEARED", level="INFO")
+
+    # Close Redis connection pool
+    try:
+        from .cache import close_redis
+    except ImportError:
+        from backend.cache import close_redis
+
+    await close_redis()
+    log_app_event("SHUTDOWN_REDIS_CLOSED", level="INFO")
+
+    # Close Qdrant connection
+    try:
+        from .vector_store import close_qdrant
+    except ImportError:
+        from backend.vector_store import close_qdrant
+
+    close_qdrant()
+    log_app_event("SHUTDOWN_QDRANT_CLOSED", level="INFO")
 
     log_app_event("SHUTDOWN_COMPLETE", level="INFO")
 
@@ -806,17 +824,62 @@ async def health_check():
             "failure_count": cb_status["failure_count"]
         }
 
-    # Check cache health
+    # Check in-memory cache health
     try:
         from .utils.cache import user_cache, company_cache
     except ImportError:
         from backend.utils.cache import user_cache, company_cache
 
-    checks["cache"] = {
+    checks["memory_cache"] = {
         "status": "healthy",
         "user_cache_size": user_cache.stats()["size"],
         "company_cache_size": company_cache.stats()["size"]
     }
+
+    # Check Redis cache health
+    try:
+        from .cache import get_cache_health
+    except ImportError:
+        from backend.cache import get_cache_health
+
+    redis_health = await get_cache_health()
+    if redis_health["enabled"]:
+        if redis_health["connected"]:
+            checks["redis_cache"] = {
+                "status": "healthy",
+                "version": redis_health.get("version"),
+                "used_memory": redis_health.get("used_memory_human"),
+            }
+        else:
+            checks["redis_cache"] = {
+                "status": "degraded",
+                "message": redis_health.get("message", "Connection failed"),
+            }
+            degraded = True
+    else:
+        checks["redis_cache"] = {"status": "disabled"}
+
+    # Check Qdrant vector store health
+    try:
+        from .vector_store import get_vector_store_health
+    except ImportError:
+        from backend.vector_store import get_vector_store_health
+
+    qdrant_health = get_vector_store_health()
+    if qdrant_health["status"] == "connected":
+        checks["vector_store"] = {
+            "status": "healthy",
+            "url": qdrant_health.get("url"),
+            "collections": len(qdrant_health.get("collections", [])),
+        }
+    elif qdrant_health["status"] == "disabled":
+        checks["vector_store"] = {"status": "disabled"}
+    else:
+        checks["vector_store"] = {
+            "status": "degraded",
+            "message": qdrant_health.get("error", "Connection failed"),
+        }
+        degraded = True
 
     # Determine overall status
     if not overall_healthy:

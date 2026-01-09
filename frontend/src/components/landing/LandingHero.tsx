@@ -13,10 +13,21 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { AuroraBackground } from '../ui/aurora-background';
 import { OmniBar } from '../shared';
+import ImageUpload from '../ImageUpload';
 import { springs, springWithDelay } from '../../lib/animations';
 import { useCouncilStats } from '../../hooks/useCouncilStats';
 import type { Business, Department, Role, Playbook, Project } from '../../types/business';
 import './LandingHero.css';
+import '../ImageUpload.css';
+
+// Image upload type (matching ImageUpload.tsx)
+interface UploadedImage {
+  file: File;
+  preview: string;
+  name: string;
+  size: number;
+  type: string;
+}
 
 interface LandingHeroProps {
   // Company selection (passed to OmniBar icons)
@@ -45,6 +56,14 @@ interface LandingHeroProps {
   // Reset all selections
   onResetAll?: () => void;
   isLoading?: boolean;
+  // Response style selector (LLM preset)
+  selectedPreset?: import('../../types/business').LLMPresetId | null;
+  departmentPreset?: import('../../types/business').LLMPresetId;
+  onSelectPreset?: (preset: import('../../types/business').LLMPresetId | null) => void;
+  onOpenLLMHub?: () => void;
+  // Image upload (passed up to App for submission)
+  attachedImages?: UploadedImage[];
+  onImagesChange?: (images: UploadedImage[]) => void;
 }
 
 export function LandingHero({
@@ -74,9 +93,26 @@ export function LandingHero({
   // Reset all selections
   onResetAll,
   isLoading = false,
+  // Response style selector
+  selectedPreset = null,
+  departmentPreset = 'balanced',
+  onSelectPreset,
+  onOpenLLMHub,
+  // Image upload
+  attachedImages = [],
+  onImagesChange,
 }: LandingHeroProps) {
   const { t } = useTranslation();
   const [input, setInput] = useState('');
+
+  // Image upload hook (only if onImagesChange is provided)
+  const imageUpload = ImageUpload({
+    images: attachedImages,
+    onImagesChange: onImagesChange || (() => {}),
+    disabled: isLoading,
+    maxImages: 5,
+    maxSizeMB: 10,
+  });
 
   // Dynamic council stats from LLM Hub configuration (per-company, cached)
   const { aiCount, rounds } = useCouncilStats(selectedBusiness);
@@ -153,11 +189,21 @@ export function LandingHero({
 
         {/* OmniBar with context icons INSIDE */}
         <motion.div
-          className="omni-bar-container"
+          className={`omni-bar-container ${imageUpload.isDragging ? 'dragging' : ''}`}
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={springWithDelay('smooth', 0.15)}
+          {...(onImagesChange ? imageUpload.dropZoneProps : {})}
         >
+          {/* Drag overlay for image drop */}
+          {onImagesChange && imageUpload.dragOverlay}
+          {/* Hidden file input */}
+          {onImagesChange && imageUpload.fileInput}
+          {/* Image error display */}
+          {onImagesChange && imageUpload.errorDisplay}
+          {/* Image previews */}
+          {onImagesChange && imageUpload.previews}
+
           <OmniBar
             value={input}
             onChange={setInput}
@@ -167,7 +213,9 @@ export function LandingHero({
             onChatModeChange={onChatModeChange}
             variant="landing"
             showModeToggle={false}
-            showImageButton={false}
+            showImageButton={!!onImagesChange}
+            onImageClick={onImagesChange ? imageUpload.openFilePicker : undefined}
+            hasImages={attachedImages.length > 0}
             showShortcutHint={false}
             autoFocus={true}
             // Context icons (inside the bar like ChatInput)
@@ -191,6 +239,11 @@ export function LandingHero({
             selectedPlaybooks={selectedPlaybooks}
             onSelectPlaybooks={onSelectPlaybooks}
             onResetAll={onResetAll}
+            // Response style selector (compact icon)
+            selectedPreset={selectedPreset}
+            departmentPreset={departmentPreset}
+            onSelectPreset={onSelectPreset}
+            onOpenLLMHub={onOpenLLMHub}
           />
         </motion.div>
       </motion.div>

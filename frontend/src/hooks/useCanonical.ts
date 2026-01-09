@@ -33,9 +33,7 @@ export function useCanonical() {
     const canonicalUrl = `${BASE_URL}${canonicalPath === '/' ? '' : canonicalPath}`;
 
     // Find or create canonical link
-    let canonicalLink = document.querySelector(
-      'link[rel="canonical"]'
-    ) as HTMLLinkElement | null;
+    let canonicalLink = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
 
     if (canonicalLink) {
       canonicalLink.href = canonicalUrl;

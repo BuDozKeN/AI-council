@@ -16,6 +16,11 @@ dependencies = [
     "stripe>=7.0.0",  # Billing integration
     "slowapi>=0.1.9",  # Rate limiting
     "python-multipart>=0.0.9",  # File upload support for FastAPI
+    "tiktoken>=0.7.0",  # Token counting for LLM cost management
+    "redis>=5.0.0",  # Caching, rate limiting, job queues
+    "numpy>=1.26.0",  # Vector math for embeddings/similarity
+    "qdrant-client>=1.9.0",  # Vector database for semantic search
+    "apscheduler>=3.10.0",  # Scheduled background tasks
 ]
 
 [project.optional-dependencies]

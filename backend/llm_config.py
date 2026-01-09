@@ -55,15 +55,17 @@ async def get_llm_config(
     department_id: Optional[str] = None,
     stage: str = "stage1",
     conversation_modifier: Optional[str] = None,
+    preset_override: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Get effective LLM configuration for a request.
 
     Priority:
-    1. Department's custom llm_config (if preset = 'custom')
-    2. Department's preset config from llm_presets table
-    3. Hardcoded fallback config
-    4. + Conversation modifier adjustments (bounded)
+    1. preset_override (if provided) - uses preset config directly
+    2. Department's custom llm_config (if preset = 'custom')
+    3. Department's preset config from llm_presets table
+    4. Hardcoded fallback config
+    5. + Conversation modifier adjustments (bounded)
 
     Args:
         department_id: Department UUID (if using department-specific config)
@@ -72,13 +74,21 @@ async def get_llm_config(
             - "creative": Increase temperature slightly
             - "cautious": Decrease temperature slightly
             - "concise": Reduce max_tokens
+        preset_override: Optional preset override (conservative/balanced/creative).
+            If provided, bypasses department lookup and uses this preset directly.
 
     Returns:
         Dict with temperature, max_tokens, and optionally top_p
     """
     config = DEFAULT_STAGE_CONFIG.copy()
 
-    if department_id:
+    # If preset_override is provided, use fallback configs directly
+    # This bypasses the department lookup entirely
+    if preset_override and preset_override in FALLBACK_CONFIGS:
+        preset_config = FALLBACK_CONFIGS[preset_override]
+        if stage in preset_config:
+            config = preset_config[stage].copy()
+    elif department_id:
         try:
             from .database import get_supabase_service
             supabase = get_supabase_service()

@@ -39,6 +39,7 @@ import { springs, interactionStates } from '../../lib/animations';
 import { BottomSheet } from '../ui/BottomSheet';
 import { useCouncilStats } from '../../hooks/useCouncilStats';
 import { DepartmentCheckboxItem } from '../ui/DepartmentCheckboxItem';
+import { ResponseStyleSelector } from '../chat/ResponseStyleSelector';
 import type { Business, Department, Role, Playbook, Project } from '../../types/business';
 import './OmniBar.css';
 
@@ -72,9 +73,9 @@ interface OmniBarProps {
   placeholder?: string;
 
   // Image upload support
-  hasImages?: boolean;
-  onImageClick?: () => void;
-  showImageButton?: boolean;
+  hasImages?: boolean | undefined;
+  onImageClick?: (() => void) | undefined;
+  showImageButton?: boolean | undefined;
 
   // Keyboard shortcuts
   showShortcutHint?: boolean;
@@ -107,6 +108,13 @@ interface OmniBarProps {
   onSelectPlaybooks?: (ids: string[]) => void;
   // Reset all selections
   onResetAll?: (() => void) | undefined;
+  // Response style selector (LLM preset)
+  selectedPreset?: import('../../types/business').LLMPresetId | null | undefined;
+  departmentPreset?: import('../../types/business').LLMPresetId | undefined;
+  onSelectPreset?:
+    | ((preset: import('../../types/business').LLMPresetId | null) => void)
+    | undefined;
+  onOpenLLMHub?: (() => void) | undefined;
 }
 
 export function OmniBar({
@@ -160,6 +168,11 @@ export function OmniBar({
   selectedPlaybooks = [],
   onSelectPlaybooks,
   onResetAll,
+  // Response style selector
+  selectedPreset = null,
+  departmentPreset = 'balanced',
+  onSelectPreset,
+  onOpenLLMHub,
 }: OmniBarProps) {
   const { t } = useTranslation();
   const { aiCount } = useCouncilStats(selectedBusiness);
@@ -831,8 +844,20 @@ export function OmniBar({
             )}
           </div>
 
-          {/* Right side: Attach + Send */}
+          {/* Right side: Response Style + Attach + Send */}
           <div className="omni-bar-right">
+            {/* Response Style Selector - compact icon (right side like Perplexity) */}
+            {onSelectPreset && (
+              <ResponseStyleSelector
+                selectedPreset={selectedPreset}
+                departmentPreset={departmentPreset}
+                onSelectPreset={onSelectPreset}
+                onOpenLLMHub={onOpenLLMHub}
+                disabled={disabled}
+                compact
+              />
+            )}
+
             {/* Image attach button */}
             {showImageButton &&
               onImageClick &&
