@@ -100,10 +100,7 @@ window.addEventListener(
     // Detect React lazy loading failures from stale chunks
     // Pattern: "Cannot read properties of undefined (reading 'default')"
     // This happens when e._result is undefined in React's lazy() internals
-    if (
-      errorMessage.includes("reading 'default'") &&
-      errorMessage.includes('undefined')
-    ) {
+    if (errorMessage.includes("reading 'default'") && errorMessage.includes('undefined')) {
       // Check if it's from a vendor/assets chunk (Vite build output)
       const stack = error?.stack || '';
       if (stack.includes('/assets/') || stack.includes('vendor-react')) {

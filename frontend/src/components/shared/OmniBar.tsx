@@ -283,8 +283,7 @@ export function OmniBar({
   };
 
   const currentPlaceholder =
-    placeholder ||
-    (chatMode === 'chat' ? t('omnibar.placeholderChat') : t('omnibar.placeholder'));
+    placeholder || (chatMode === 'chat' ? t('omnibar.placeholderChat') : t('omnibar.placeholder'));
 
   const hasContent = value.trim().length > 0 || hasImages;
 

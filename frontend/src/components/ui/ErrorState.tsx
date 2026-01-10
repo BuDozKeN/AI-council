@@ -23,17 +23,7 @@ interface ErrorStateProps extends React.HTMLAttributes<HTMLDivElement> {
  * @param {string} className - Additional CSS classes
  */
 const ErrorState = React.forwardRef<HTMLDivElement, ErrorStateProps>(
-  (
-    {
-      title,
-      message,
-      onRetry,
-      retryLabel,
-      className,
-      ...props
-    },
-    ref
-  ) => {
+  ({ title, message, onRetry, retryLabel, className, ...props }, ref) => {
     const { t } = useTranslation();
 
     const displayTitle = title ?? t('errors.generic');
