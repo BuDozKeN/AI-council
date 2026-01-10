@@ -88,6 +88,36 @@ window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => 
   }
 });
 
+// Handle errors that occur INSIDE stale chunks (e.g., React lazy loading failures)
+// This catches the "Cannot read properties of undefined (reading 'default')" error
+// that happens when a cached chunk references a module from a newer deployment
+window.addEventListener(
+  'error',
+  (event) => {
+    const error = event.error;
+    const errorMessage = error?.message || event.message || '';
+
+    // Detect React lazy loading failures from stale chunks
+    // Pattern: "Cannot read properties of undefined (reading 'default')"
+    // This happens when e._result is undefined in React's lazy() internals
+    if (
+      errorMessage.includes("reading 'default'") &&
+      errorMessage.includes('undefined')
+    ) {
+      // Check if it's from a vendor/assets chunk (Vite build output)
+      const stack = error?.stack || '';
+      if (stack.includes('/assets/') || stack.includes('vendor-react')) {
+        console.warn('[Stale chunk internal error] Reloading to get fresh assets:', errorMessage);
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        window.location.reload();
+        return;
+      }
+    }
+  },
+  false // Use bubble phase (after the capture phase handler above)
+);
+
 // Initialize Sentry error tracking (before anything else)
 initSentry();
 

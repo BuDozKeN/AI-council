@@ -176,18 +176,7 @@ export function OmniBar({
 }: OmniBarProps) {
   const { t } = useTranslation();
   const { aiCount } = useCouncilStats(selectedBusiness);
-  const [placeholderIndex, setPlaceholderIndex] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  // Rotating placeholder examples for empty state (translated)
-  const PLACEHOLDER_EXAMPLES = [
-    t('omnibar.placeholder1'),
-    t('omnibar.placeholder2'),
-    t('omnibar.placeholder3'),
-    t('omnibar.placeholder4'),
-    t('omnibar.placeholder5'),
-    t('omnibar.placeholder6'),
-  ];
 
   // Mom-friendly tooltip descriptions - actionable, clear (translated)
   const TOOLTIPS = {
@@ -252,16 +241,6 @@ export function OmniBar({
     ? projects.find((p) => p.id === selectedProject)?.name
     : null;
 
-  // Rotate placeholder text
-  useEffect(() => {
-    if (variant !== 'landing' || value.trim()) return;
-
-    const interval = setInterval(() => {
-      setPlaceholderIndex((prev) => (prev + 1) % PLACEHOLDER_EXAMPLES.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [variant, value]);
-
   // Focus on mount if autoFocus
   useEffect(() => {
     if (autoFocus) {
@@ -305,11 +284,7 @@ export function OmniBar({
 
   const currentPlaceholder =
     placeholder ||
-    (variant === 'landing'
-      ? PLACEHOLDER_EXAMPLES[placeholderIndex]
-      : chatMode === 'chat'
-        ? 'Quick follow-up...'
-        : 'Ask the council...');
+    (chatMode === 'chat' ? t('omnibar.placeholderChat') : t('omnibar.placeholder'));
 
   const hasContent = value.trim().length > 0 || hasImages;
 

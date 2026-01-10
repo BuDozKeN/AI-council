@@ -90,46 +90,90 @@ function SheetContent({
     [onClose]
   );
 
-  // Handle wheel events manually to fix Framer Motion drag intercepting scroll
+  // Handle wheel and touch events manually to fix Framer Motion drag intercepting scroll
   // When drag="y" is enabled, Framer Motion sets touch-action: pan-x which can
-  // interfere with native wheel scrolling. This handler ensures wheel events
+  // interfere with native scrolling. These handlers ensure scroll events
   // properly scroll the content inside the bottom sheet body.
-  // NOTE: We use a native event listener with { passive: false } because React
-  // registers wheel events as passive by default, which prevents preventDefault().
   useEffect(() => {
     const body = bodyRef.current;
     if (!body) return;
 
-    const handleWheel = (e: WheelEvent) => {
-      // Find the scrollable element inside the body
-      const scrollable =
-        body.querySelector<HTMLElement>('.settings-panel') ||
-        body.querySelector<HTMLElement>('[data-scrollable]') ||
-        body;
+    // Find the scrollable element inside the body
+    const getScrollable = () =>
+      body.querySelector<HTMLElement>('.settings-panel') ||
+      body.querySelector<HTMLElement>('[data-scrollable]') ||
+      body;
 
-      // Check if this element can scroll
+    // Wheel handler for desktop
+    const handleWheel = (e: WheelEvent) => {
+      const scrollable = getScrollable();
       const canScroll = scrollable.scrollHeight > scrollable.clientHeight;
       if (!canScroll) return;
 
-      // Check if we're at scroll boundaries
       const atTop = scrollable.scrollTop <= 0;
       const atBottom =
         scrollable.scrollTop + scrollable.clientHeight >= scrollable.scrollHeight - 1;
 
-      // Scrolling up at top or down at bottom - let default behavior happen
       if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) {
         return;
       }
 
-      // Manually scroll the content and prevent default
       e.preventDefault();
       e.stopPropagation();
       scrollable.scrollTop += e.deltaY;
     };
 
+    // Touch handlers for mobile - manually implement scroll
+    let touchStartY = 0;
+    let scrollableElement: HTMLElement | null = null;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      if (touch) {
+        touchStartY = touch.clientY;
+      }
+      scrollableElement = getScrollable();
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!scrollableElement) return;
+
+      const canScroll = scrollableElement.scrollHeight > scrollableElement.clientHeight;
+      if (!canScroll) return;
+
+      const touch = e.touches[0];
+      if (!touch) return;
+
+      const touchY = touch.clientY;
+      const deltaY = touchStartY - touchY; // Positive = scrolling down, negative = scrolling up
+      touchStartY = touchY;
+
+      const atTop = scrollableElement.scrollTop <= 0;
+      const atBottom =
+        scrollableElement.scrollTop + scrollableElement.clientHeight >=
+        scrollableElement.scrollHeight - 1;
+
+      // Allow default behavior at boundaries (enables pull-to-dismiss)
+      if ((deltaY < 0 && atTop) || (deltaY > 0 && atBottom)) {
+        return;
+      }
+
+      // Prevent Framer Motion from intercepting and manually scroll
+      e.preventDefault();
+      e.stopPropagation();
+      scrollableElement.scrollTop += deltaY;
+    };
+
     // Add with passive: false to allow preventDefault()
     body.addEventListener('wheel', handleWheel, { passive: false });
-    return () => body.removeEventListener('wheel', handleWheel);
+    body.addEventListener('touchstart', handleTouchStart, { passive: true });
+    body.addEventListener('touchmove', handleTouchMove, { passive: false });
+
+    return () => {
+      body.removeEventListener('wheel', handleWheel);
+      body.removeEventListener('touchstart', handleTouchStart);
+      body.removeEventListener('touchmove', handleTouchMove);
+    };
   }, []);
 
   return (

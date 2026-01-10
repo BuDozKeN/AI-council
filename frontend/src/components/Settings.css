@@ -519,7 +519,8 @@
     align-self: stretch;
   }
 
-  .settings-tab {
+  /* Mobile tabs - use higher specificity to override desktop styles without !important */
+  .settings-sidebar .settings-tab {
     /* Minimal: just the icon */
     width: 18px;
     height: 18px;
@@ -529,19 +530,19 @@
     margin: 0;
     border-radius: 0;
     transition: color 0.12s ease;
-    background: transparent !important;
+    background: transparent;
     color: var(--color-text-tertiary);
     position: relative;
   }
 
-  .settings-tab:hover {
+  .settings-sidebar .settings-tab:hover {
     color: var(--color-text-secondary);
-    background: transparent !important;
+    background: transparent;
   }
 
   /* Active state */
-  .settings-tab.active {
-    background: transparent !important;
+  .settings-sidebar .settings-tab.active {
+    background: transparent;
     color: var(--color-brand-primary);
   }
 
@@ -570,8 +571,9 @@
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    padding: 0 16px 16px 12px; /* Content gets the space */
+    padding: 16px 20px 24px 16px; /* Top, Right, Bottom, Left - better breathing room */
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-y; /* Ensure touch scrolling works with Framer Motion drag */
   }
 
   /* Card titles are the HERO - larger than modal title */
@@ -600,29 +602,17 @@
     margin-top: var(--space-4);
   }
 
-  /* Make content titles prominent */
-  .settings-panel .settings-card h3,
-  .settings-panel .settings-card [class*='CardTitle'] {
-    font-size: 17px !important;
-    font-weight: 600 !important;
-    color: var(--color-text-primary) !important;
-  }
-
-  .settings-panel .settings-card [class*='CardDescription'] {
-    font-size: 12px !important;
-    color: var(--color-text-tertiary) !important;
-    margin-top: 1px !important;
-  }
-
-  /* Card titles - cleaner on mobile */
-  .settings-panel .settings-card h3,
-  .settings-panel .settings-card [class*='CardTitle'] {
+  /* Make content titles prominent - use double class for higher specificity */
+  .settings-content .settings-panel .settings-card h3,
+  .settings-content .settings-panel .settings-card [class*='CardTitle'] {
     font-size: 15px;
     font-weight: 600;
+    color: var(--color-text-primary);
   }
 
-  .settings-panel .settings-card [class*='CardDescription'] {
+  .settings-content .settings-panel .settings-card [class*='CardDescription'] {
     font-size: 12px;
+    color: var(--color-text-tertiary);
     margin-top: 2px;
   }
 
@@ -685,6 +675,8 @@
     flex: 1;
     min-height: 0; /* Critical: allow shrinking */
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-y; /* Override Framer Motion's pan-x to allow vertical touch scroll */
+    overscroll-behavior: contain; /* Prevent scroll chaining to parent */
   }
 }
 
@@ -730,7 +722,7 @@
   }
 
   .settings-panel {
-    padding: 0 14px 14px 10px; /* Content gets the space */
+    padding: 16px 16px 20px 14px; /* Top, Right, Bottom, Left - consistent with tablet */
   }
 
   /* Inside BottomSheet: fill available space */
@@ -758,6 +750,8 @@
     flex: 1;
     min-height: 0; /* Critical: allow shrinking */
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-y; /* Override Framer Motion's pan-x to allow vertical touch scroll */
+    overscroll-behavior: contain; /* Prevent scroll chaining to parent */
   }
 
   .settings-section h3 {
@@ -805,7 +799,7 @@
   }
 
   .settings-panel {
-    padding: 0 10px 10px 8px; /* Content gets the space */
+    padding: 12px 12px 16px 10px; /* Top, Right, Bottom, Left - maintain breathing room */
   }
 
   /* Tighter form spacing on very small screens */

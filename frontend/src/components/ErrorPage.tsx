@@ -1,49 +1,50 @@
 /**
  * ErrorPage - Custom error boundary for React Router
  *
- * Provides a user-friendly error page when routing errors occur,
- * instead of the default React Router error message.
- *
- * Design: Uses design tokens from design-tokens.css and tailwind.css
- * UX: Shows friendly messages to users, technical details only in dev mode
+ * Uses the same design as ErrorBoundary.tsx for visual consistency.
+ * Provides a user-friendly error page when routing errors occur.
  */
 
 import { useRouteError, isRouteErrorResponse, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
+import { Copy, Check } from 'lucide-react';
 import { Button } from './ui/button';
+import { logger } from '../utils/logger';
+import './ErrorBoundary.css';
 
 export function ErrorPage() {
   const error = useRouteError();
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const [copied, setCopied] = useState(false);
 
   // Log error details to console for debugging
   if (import.meta.env.DEV) {
     console.error('[ErrorPage] Caught error:', error);
   }
 
-  // Determine user-friendly error details
-  // Never show technical messages like "Maximum update depth exceeded" to users
-  let title = 'Something went wrong';
-  let message = "We're sorry, but something unexpected happened. Please try refreshing the page.";
+  // Determine user-friendly error details based on status code
+  let title = t('errorBoundary.title');
+  let message = t('errorBoundary.message');
   let statusCode: number | null = null;
 
   if (isRouteErrorResponse(error)) {
     statusCode = error.status;
     if (error.status === 404) {
-      title = 'Page not found';
-      message = "The page you're looking for doesn't exist or has been moved.";
+      title = t('errorBoundary.notFoundTitle');
+      message = t('errorBoundary.notFoundMessage');
     } else if (error.status === 401) {
-      title = 'Please sign in';
-      message = 'You need to be signed in to access this page.';
+      title = t('errorBoundary.authRequiredTitle');
+      message = t('errorBoundary.authRequiredMessage');
     } else if (error.status === 403) {
-      title = 'Access denied';
-      message = "You don't have permission to access this page.";
+      title = t('errorBoundary.accessDeniedTitle');
+      message = t('errorBoundary.accessDeniedMessage');
     } else if (error.status === 500) {
-      title = 'Server error';
-      message = "Something went wrong on our end. We're working to fix it.";
+      title = t('errorBoundary.serverErrorTitle');
+      message = t('errorBoundary.serverErrorMessage');
     }
   }
-  // For runtime errors (like React errors), always show friendly message
-  // Technical details go to console, not to users
 
   const handleGoHome = () => {
     navigate('/', { replace: true });
@@ -57,33 +58,91 @@ export function ErrorPage() {
     window.location.reload();
   };
 
-  return (
-    <div className="error-page">
-      <div className="error-page-content">
-        {statusCode && <span className="error-page-code">{statusCode}</span>}
-        <h1 className="error-page-title">{title}</h1>
-        <p className="error-page-message">{message}</p>
+  const getErrorText = (): string => {
+    if (error instanceof Error) {
+      return `${error.toString()}${error.stack ? `\n\n${error.stack}` : ''}`;
+    }
+    if (isRouteErrorResponse(error)) {
+      return `${error.status} ${error.statusText}\n${error.data || ''}`;
+    }
+    return String(error);
+  };
 
-        <div className="error-page-actions">
-          <Button variant="default" onClick={handleGoHome}>
-            Go to Home
+  const handleCopyError = async (): Promise<void> => {
+    const errorText = getErrorText();
+    if (!errorText) return;
+
+    try {
+      await navigator.clipboard.writeText(errorText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      logger.error('Failed to copy:', err);
+    }
+  };
+
+  return (
+    <div className="error-boundary">
+      <div className="error-boundary-card">
+        <div className="error-boundary-icon">
+          <svg
+            width="64"
+            height="64"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--color-orange-500, #f97316)"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="7" x2="12" y2="13" />
+            <circle
+              cx="12"
+              cy="16.5"
+              r="0.5"
+              fill="var(--color-orange-500, #f97316)"
+              stroke="none"
+            />
+          </svg>
+        </div>
+
+        {statusCode && <span className="error-boundary-status-code">{statusCode}</span>}
+
+        <h1 className="error-boundary-title">{title}</h1>
+
+        <p className="error-boundary-message">{message}</p>
+
+        <div className="error-boundary-buttons">
+          <Button onClick={handleRefresh} variant="default">
+            {t('errorBoundary.reloadPage')}
           </Button>
-          <Button variant="outline" onClick={handleGoBack}>
-            Go Back
+          <Button onClick={handleGoHome} variant="outline">
+            {t('errorBoundary.goToHome')}
           </Button>
-          <Button variant="ghost" onClick={handleRefresh}>
-            Refresh Page
+          <Button onClick={handleGoBack} variant="ghost">
+            {t('errorBoundary.goBack')}
           </Button>
         </div>
 
-        {/* Show error details in development only - collapsed by default */}
-        {import.meta.env.DEV && error instanceof Error && (
-          <details className="error-page-details">
-            <summary>Developer Info</summary>
-            <pre>
-              {error.name}: {error.message}
-              {error.stack && `\n\n${error.stack}`}
-            </pre>
+        {/* Show error details in development only */}
+        {import.meta.env.DEV && getErrorText() && (
+          <details className="error-boundary-details">
+            <summary className="error-boundary-summary">{t('errorBoundary.errorDetails')}</summary>
+            <div className="error-boundary-error-container">
+              <button
+                onClick={handleCopyError}
+                className="error-boundary-copy-btn"
+                title={copied ? t('common.copied') : t('errorBoundary.copyError')}
+              >
+                {copied ? (
+                  <Check size={14} className="text-emerald-500" />
+                ) : (
+                  <Copy size={14} className="text-gray-500" />
+                )}
+              </button>
+              <pre className="error-boundary-error-text">{getErrorText()}</pre>
+            </div>
           </details>
         )}
       </div>

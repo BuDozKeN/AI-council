@@ -872,6 +872,7 @@
   /* Context card - normal padding on mobile */
   .mc-context-card {
     padding: 16px;
+
     /* DEBUG: temporary visible background */
     background: var(--color-bg-primary);
     border: 1px solid var(--color-border);

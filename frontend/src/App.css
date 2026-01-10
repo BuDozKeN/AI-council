@@ -216,6 +216,7 @@
 }
 
 /* MyCompany loading overlay - shown while waiting for business data on direct URL navigation */
+
 /* Transparent overlay so LandingHero shows through clearly */
 .my-company-loading-overlay {
   position: fixed;
