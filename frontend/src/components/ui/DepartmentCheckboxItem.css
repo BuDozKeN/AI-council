@@ -82,6 +82,7 @@
   background: var(--color-bg-tertiary); /* Visible card in light mode */
   border-radius: var(--radius-lg);
   font-size: 16px;
+
   /* Ensure touch events work properly inside Framer Motion drag containers */
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;

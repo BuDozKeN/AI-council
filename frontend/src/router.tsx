@@ -18,7 +18,6 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import App from './App';
 import { ErrorPage } from './components/ErrorPage';
-import './components/ErrorPage.css';
 
 // The App component handles all rendering - routes just control what's visible
 // This is a "modal overlay with URL sync" approach - keeps current UX but URLs change

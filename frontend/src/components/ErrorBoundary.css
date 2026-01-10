@@ -41,6 +41,15 @@
   display: block;
 }
 
+.error-boundary-status-code {
+  display: block;
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--color-gray-300);
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+
 .error-boundary-title {
   font-size: 24px;
   font-weight: 600;
@@ -156,6 +165,10 @@
 .dark .error-boundary-card {
   background-color: var(--color-bg-secondary);
   border-color: var(--color-border);
+}
+
+.dark .error-boundary-status-code {
+  color: var(--color-gray-600);
 }
 
 .dark .error-boundary-title {
