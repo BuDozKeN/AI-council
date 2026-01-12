@@ -1,27 +1,51 @@
 name: Deploy Backend to Render
 
 on:
-  push:
+  # Trigger after CI workflow completes on master/main
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
     branches: [master, main]
-    paths:
-      - 'backend/**'
-      - 'requirements.txt'
-      - 'pyproject.toml'
   workflow_dispatch:  # Allow manual triggering
 
 jobs:
   deploy:
     name: Deploy to Render
     runs-on: ubuntu-latest
-    # Only deploy if CI passes (backend-tests must succeed)
-    needs: []  # Can add dependency on ci.yml jobs if using workflow_call
 
-    # Only run on the main repository, not forks
-    if: github.repository == 'BuDozKeN/AI-council'
+    # Only run if CI succeeded AND backend files changed
+    if: |
+      github.repository == 'BuDozKeN/AI-council' &&
+      (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success')
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check if backend files changed
+        id: changes
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Manual trigger - deploying"
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+          else
+            # Check if backend files changed in the last commit
+            CHANGED=$(git diff --name-only HEAD~1 HEAD | grep -E '^(backend/|requirements\.txt|pyproject\.toml)' || true)
+            if [ -n "$CHANGED" ]; then
+              echo "Backend files changed:"
+              echo "$CHANGED"
+              echo "should_deploy=true" >> $GITHUB_OUTPUT
+            else
+              echo "No backend files changed - skipping deploy"
+              echo "should_deploy=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
       - name: Trigger Render Deploy
         id: deploy
+        if: steps.changes.outputs.should_deploy == 'true'
         run: |
           echo "Triggering deployment to Render..."
           RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}")
@@ -39,12 +63,14 @@ jobs:
           echo "Deploy triggered successfully"
 
       - name: Wait for Render to start deployment
+        if: steps.changes.outputs.should_deploy == 'true'
         run: |
           echo "Waiting 60 seconds for Render to start deployment..."
           sleep 60
 
       - name: Health Check (with retries)
         id: healthcheck
+        if: steps.changes.outputs.should_deploy == 'true'
         run: |
           BACKEND_URL="https://axcouncil-backend.onrender.com"
           MAX_RETRIES=10
@@ -78,15 +104,20 @@ jobs:
           exit 1
 
       - name: Deployment Success
-        if: success()
+        if: success() && steps.changes.outputs.should_deploy == 'true'
         run: |
           echo "Backend deployment completed successfully!"
           echo "URL: https://axcouncil-backend.onrender.com"
           echo "Commit: ${{ github.sha }}"
           echo "Branch: ${{ github.ref_name }}"
 
+      - name: Deployment Skipped
+        if: steps.changes.outputs.should_deploy != 'true'
+        run: |
+          echo "No backend files changed - deployment skipped"
+
       - name: Deployment Failed
-        if: failure()
+        if: failure() && steps.changes.outputs.should_deploy == 'true'
         run: |
           echo "Backend deployment failed!"
           echo "Please check Render dashboard for details."
