@@ -30,6 +30,7 @@ import { useCouncilStats } from '../../hooks/useCouncilStats';
 import type { ReactNode, KeyboardEvent, ClipboardEvent } from 'react';
 import type { Department, Role, Playbook, Project, LLMPresetId } from '../../types/business';
 import { ResponseStyleSelector } from './ResponseStyleSelector';
+import '../ui/Tooltip.css';
 
 // Tooltips are now fetched via i18n - see getTooltips() function below
 
@@ -368,9 +369,9 @@ export function ChatInput({
       <Tooltip.Root>
         <Tooltip.Trigger asChild>{button}</Tooltip.Trigger>
         <Tooltip.Portal>
-          <Tooltip.Content className="omni-tooltip" sideOffset={8}>
+          <Tooltip.Content className="tooltip-content" sideOffset={8}>
             {tooltipText}
-            <Tooltip.Arrow className="omni-tooltip-arrow" />
+            <Tooltip.Arrow className="tooltip-arrow" />
           </Tooltip.Content>
         </Tooltip.Portal>
       </Tooltip.Root>
@@ -458,9 +459,9 @@ export function ChatInput({
               <Tooltip.Trigger asChild>{iconButton}</Tooltip.Trigger>
             </Popover.Trigger>
             <Tooltip.Portal>
-              <Tooltip.Content className="omni-tooltip" sideOffset={8}>
+              <Tooltip.Content className="tooltip-content" sideOffset={8}>
                 {tooltipText}
-                <Tooltip.Arrow className="omni-tooltip-arrow" />
+                <Tooltip.Arrow className="tooltip-arrow" />
               </Tooltip.Content>
             </Tooltip.Portal>
           </Tooltip.Root>

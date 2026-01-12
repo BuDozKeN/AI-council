@@ -2977,40 +2977,6 @@ button.mobile-role-select {
 }
 
 /* =============================================================================
-   OMNIBAR - Tooltips (Mom-friendly help text)
-   ============================================================================= */
-
-.omni-tooltip {
-  padding: 8px 12px;
-  max-width: 220px;
-  background: var(--color-slate-800);
-  color: var(--color-text-inverse);
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 1.4;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
-  z-index: 99999;
-  animation: tooltipFadeIn 0.15s ease-out;
-}
-
-.omni-tooltip-arrow {
-  fill: var(--color-slate-800);
-}
-
-@keyframes tooltipFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(2px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* =============================================================================
    OMNIBAR - Dark Mode
    ============================================================================= */
 
@@ -3043,16 +3009,6 @@ button.mobile-role-select {
 /* Dark mode bottom row border */
 .dark .omni-bottom {
   border-top-color: var(--color-border);
-}
-
-/* Dark mode tooltip - light background with dark text for contrast */
-.dark .omni-tooltip {
-  background: var(--color-slate-100);
-  color: var(--color-slate-800);
-}
-
-.dark .omni-tooltip-arrow {
-  fill: var(--color-slate-100);
 }
 
 .dark .omni-divider {

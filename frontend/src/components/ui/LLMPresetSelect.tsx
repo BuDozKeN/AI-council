@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from './BottomSheet';
 import { LLM_PRESETS, type LLMPresetId, type LLMPreset } from '../../types/business';
+import './Tooltip.css';
 import './LLMPresetSelect.css';
 
 // Check if we're on mobile/tablet for bottom sheet vs dropdown
@@ -200,9 +201,9 @@ export function LLMPresetSelect({
             </Popover.Trigger>
           </Tooltip.Trigger>
           <Tooltip.Portal>
-            <Tooltip.Content className="omni-tooltip" sideOffset={8}>
+            <Tooltip.Content className="tooltip-content" sideOffset={8}>
               {selectedPreset.description}
-              <Tooltip.Arrow className="omni-tooltip-arrow" />
+              <Tooltip.Arrow className="tooltip-arrow" />
             </Tooltip.Content>
           </Tooltip.Portal>
           <Popover.Portal>

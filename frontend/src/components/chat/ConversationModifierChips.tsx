@@ -13,6 +13,7 @@
 import * as Tooltip from '@radix-ui/react-tooltip';
 import { cn } from '../../lib/utils';
 import { CONVERSATION_MODIFIERS, type ConversationModifier } from '../../types/business';
+import '../ui/Tooltip.css';
 import './ConversationModifierChips.css';
 
 interface ConversationModifierChipsProps {
@@ -59,9 +60,9 @@ export function ConversationModifierChips({
                 </button>
               </Tooltip.Trigger>
               <Tooltip.Portal>
-                <Tooltip.Content className="omni-tooltip" sideOffset={8}>
+                <Tooltip.Content className="tooltip-content" sideOffset={8}>
                   {mod.description}
-                  <Tooltip.Arrow className="omni-tooltip-arrow" />
+                  <Tooltip.Arrow className="tooltip-arrow" />
                 </Tooltip.Content>
               </Tooltip.Portal>
             </Tooltip.Root>
