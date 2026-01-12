@@ -36,13 +36,7 @@ import type { OnboardingProfile, OnboardingStep } from './types';
 import { MOCK_PROFILE_AGENCY, COUNCIL_MEMBERS } from './mockData';
 import { SoftGateModal } from './SoftGateModal';
 import { HardGateModal } from './HardGateModal';
-import {
-  ClaudeIcon,
-  ChatGPTIcon,
-  GeminiIcon,
-  GrokIcon,
-  DeepSeekIcon,
-} from '../icons/BrandIcons';
+import { ClaudeIcon, ChatGPTIcon, GeminiIcon, GrokIcon, DeepSeekIcon } from '../icons/BrandIcons';
 import './OnboardingFlow.css';
 
 // Map provider to icon component
@@ -438,7 +432,11 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                     <Button onClick={handleRetry} className="onboarding-submit">
                       Try Again
                     </Button>
-                    <Button variant="ghost" onClick={handleSkipWithMock} className="onboarding-skip">
+                    <Button
+                      variant="ghost"
+                      onClick={handleSkipWithMock}
+                      className="onboarding-skip"
+                    >
                       Skip for now
                     </Button>
                   </div>
