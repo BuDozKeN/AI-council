@@ -249,7 +249,7 @@ class TrialService:
                 .execute()
 
             # Check if anything was deleted
-            deleted = result.data and len(result.data) > 0
+            deleted = bool(result.data and len(result.data) > 0)
 
             if deleted:
                 log_app_event(
