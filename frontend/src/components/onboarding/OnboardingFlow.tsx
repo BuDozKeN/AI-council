@@ -12,7 +12,7 @@
 
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, MotionStyle } from 'framer-motion';
 import {
   Crown,
   Settings,
@@ -489,11 +489,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
                           delay: index * 0.1,
                           ease: [0.22, 1, 0.36, 1],
                         }}
-                        style={
-                          {
-                            '--member-color': member.color,
-                          } as React.CSSProperties
-                        }
+                        style={{ '--member-color': member.color } as MotionStyle}
                       >
                         <div className={`council-member-avatar ${isActive ? 'pulsing' : ''}`}>
                           {IconComponent && <IconComponent size={28} />}
