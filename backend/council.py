@@ -16,7 +16,10 @@ from .context_loader import (
     detect_ranking_manipulation,
     detect_multi_turn_attack
 )
-from .config import STAGE1_TIMEOUT, STAGE2_TIMEOUT, STAGE3_TIMEOUT, MAX_QUERY_CHARS
+from .config import (
+    STAGE1_TIMEOUT, STAGE2_TIMEOUT, STAGE3_TIMEOUT, MAX_QUERY_CHARS,
+    PER_MODEL_TIMEOUT
+)
 from .model_registry import get_primary_model, get_models, get_models_sync
 from .security import log_app_event
 from .database import get_supabase_service
@@ -212,9 +215,11 @@ async def stage1_stream_responses(
     # maxsize=1000 provides backpressure if consumer is slower than producers
     queue: asyncio.Queue = asyncio.Queue(maxsize=1000)
     model_content: Dict[str, str] = {}
+    model_start_times: Dict[str, float] = {}  # Track when each model started
 
     async def stream_single_model(model: str):
         """Stream tokens from a single model and put events on the queue."""
+        model_start_times[model] = time.time()
         # Use list + join to avoid O(n²) string concatenation
         content_chunks: list[str] = []
         usage_data = None
@@ -225,6 +230,18 @@ async def stage1_stream_responses(
                 temperature=stage1_config.get("temperature"),
                 max_tokens=stage1_config.get("max_tokens"),
             ):
+                # Per-model timeout check
+                if time.time() - model_start_times[model] > PER_MODEL_TIMEOUT:
+                    log_app_event(
+                        "MODEL_TIMEOUT",
+                        level="WARNING",
+                        model=model,
+                        elapsed_seconds=time.time() - model_start_times[model],
+                        timeout_seconds=PER_MODEL_TIMEOUT
+                    )
+                    await queue.put({"type": "stage1_model_error", "model": model, "error": "Model timeout"})
+                    return
+
                 # Check for usage data marker (sent at end of stream)
                 if chunk.startswith("[USAGE:"):
                     try:
@@ -244,14 +261,19 @@ async def stage1_stream_responses(
                 "response": content,
                 "usage": usage_data
             })
+        except asyncio.CancelledError:
+            # Model was cancelled due to early success or timeout
+            log_app_event("MODEL_CANCELLED", level="INFO", model=model)
+            raise
         except Exception as e:
             await queue.put({"type": "stage1_model_error", "model": model, "error": str(e)})
 
     # Start all model streams with staggered delays to avoid rate limiting
     tasks = []
     completed_count = 0
+    successful_count = 0  # Track successful completions separately
     total_models = len(council_models)
-    STAGGER_DELAY = 0.8  # seconds between model starts
+    STAGGER_DELAY = 0.5  # Reduced from 0.8s for faster startup
 
     for i, model in enumerate(council_models):
         tasks.append(asyncio.create_task(stream_single_model(model)))
@@ -263,15 +285,21 @@ async def stage1_stream_responses(
                 try:
                     event = await asyncio.wait_for(queue.get(), timeout=0.05)
                     yield event
-                    if event['type'] in ('stage1_model_complete', 'stage1_model_error'):
+                    if event['type'] == 'stage1_model_complete':
+                        completed_count += 1
+                        successful_count += 1
+                    elif event['type'] == 'stage1_model_error':
                         completed_count += 1
                 except asyncio.TimeoutError:
                     pass
 
-    # Continue processing events until all models complete
+    # Continue processing events until all models complete or timeout
+    # We wait for ALL models - every response adds value to the council
     while completed_count < total_models:
-        # AI-SEC-009: Check for stage timeout
+        # Calculate elapsed time
         elapsed = time.time() - stage_start_time
+
+        # Check for absolute stage timeout (hard limit)
         if elapsed > STAGE1_TIMEOUT:
             log_app_event(
                 "STAGE1_TIMEOUT",
@@ -279,9 +307,10 @@ async def stage1_stream_responses(
                 elapsed_seconds=elapsed,
                 timeout_seconds=STAGE1_TIMEOUT,
                 completed_models=completed_count,
+                successful_models=successful_count,
                 total_models=total_models
             )
-            # Cancel remaining tasks
+            # Cancel remaining tasks only on hard timeout
             for task in tasks:
                 if not task.done():
                     task.cancel()
@@ -290,6 +319,7 @@ async def stage1_stream_responses(
                 "elapsed": elapsed,
                 "timeout": STAGE1_TIMEOUT,
                 "completed": completed_count,
+                "successful": successful_count,
                 "total": total_models
             }
             break
@@ -300,7 +330,10 @@ async def stage1_stream_responses(
             yield event
 
             # Count completions
-            if event['type'] in ('stage1_model_complete', 'stage1_model_error'):
+            if event['type'] == 'stage1_model_complete':
+                completed_count += 1
+                successful_count += 1
+            elif event['type'] == 'stage1_model_error':
                 completed_count += 1
         except asyncio.TimeoutError:
             # Check if all tasks are done
@@ -309,7 +342,10 @@ async def stage1_stream_responses(
                 while not queue.empty():
                     event = await queue.get()
                     yield event
-                    if event['type'] in ('stage1_model_complete', 'stage1_model_error'):
+                    if event['type'] == 'stage1_model_complete':
+                        completed_count += 1
+                        successful_count += 1
+                    elif event['type'] == 'stage1_model_error':
                         completed_count += 1
                 break
 
@@ -321,21 +357,21 @@ async def stage1_stream_responses(
     ]
 
     # Check minimum viable council
-    successful_count = len(final_results)
+    final_successful_count = len(final_results)
     total_council_models = len(council_models)
 
-    if MIN_STAGE1_RESPONSES > 0 and successful_count < MIN_STAGE1_RESPONSES:
+    if MIN_STAGE1_RESPONSES > 0 and final_successful_count < MIN_STAGE1_RESPONSES:
         log_app_event(
             "STAGE1_INSUFFICIENT_RESPONSES",
             level="WARNING",
-            received=successful_count,
+            received=final_successful_count,
             required=MIN_STAGE1_RESPONSES,
             total=total_council_models,
             failed_models=[m for m in council_models if m not in model_content or not model_content.get(m)]
         )
         yield {
             "type": "stage1_insufficient",
-            "received": successful_count,
+            "received": final_successful_count,
             "required": MIN_STAGE1_RESPONSES,
             "total": total_council_models,
             "data": final_results  # Still include what we got for debugging
@@ -452,9 +488,11 @@ Now provide your evaluation and ranking:"""
     # maxsize=1000 provides backpressure if consumer is slower than producers
     queue: asyncio.Queue = asyncio.Queue(maxsize=1000)
     model_content: Dict[str, str] = {}
+    model_start_times: Dict[str, float] = {}  # Track when each model started
 
     async def stream_single_model(model: str):
         """Stream tokens from a single model and put events on the queue."""
+        model_start_times[model] = time.time()
         # Use list + join to avoid O(n²) string concatenation
         content_chunks: list[str] = []
         usage_data = None
@@ -465,6 +503,19 @@ Now provide your evaluation and ranking:"""
                 temperature=stage2_config.get("temperature"),
                 max_tokens=stage2_config.get("max_tokens"),
             ):
+                # Per-model timeout check
+                if time.time() - model_start_times[model] > PER_MODEL_TIMEOUT:
+                    log_app_event(
+                        "MODEL_TIMEOUT",
+                        level="WARNING",
+                        model=model,
+                        stage="stage2",
+                        elapsed_seconds=time.time() - model_start_times[model],
+                        timeout_seconds=PER_MODEL_TIMEOUT
+                    )
+                    await queue.put({"type": "stage2_model_error", "model": model, "error": "Model timeout"})
+                    return
+
                 # Check for usage data marker (sent at end of stream)
                 if chunk.startswith("[USAGE:"):
                     try:
@@ -484,34 +535,43 @@ Now provide your evaluation and ranking:"""
                 "ranking": content,
                 "usage": usage_data
             })
+        except asyncio.CancelledError:
+            log_app_event("MODEL_CANCELLED", level="INFO", model=model, stage="stage2")
+            raise
         except Exception as e:
             await queue.put({"type": "stage2_model_error", "model": model, "error": str(e)})
 
     # Start all model streams with staggered delays
     tasks = []
     completed_count = 0
+    successful_count = 0  # Track successful completions separately
     total_models = len(stage2_models)
+    STAGGER_DELAY = 0.5  # Reduced stagger for faster startup
 
     for i, model in enumerate(stage2_models):
         tasks.append(asyncio.create_task(stream_single_model(model)))
 
         if i < total_models - 1:
-            # Wait 1.5s before starting next model (reduced from 2s since fewer models)
-            wait_end = asyncio.get_event_loop().time() + 1.5
+            # Brief stagger to avoid rate limits
+            wait_end = asyncio.get_event_loop().time() + STAGGER_DELAY
             while asyncio.get_event_loop().time() < wait_end:
                 try:
-                    # Short timeout to check for events frequently
                     event = await asyncio.wait_for(queue.get(), timeout=0.05)
                     yield event
-                    if event['type'] in ('stage2_model_complete', 'stage2_model_error'):
+                    if event['type'] == 'stage2_model_complete':
+                        completed_count += 1
+                        successful_count += 1
+                    elif event['type'] == 'stage2_model_error':
                         completed_count += 1
                 except asyncio.TimeoutError:
-                    pass  # No event yet, continue waiting
+                    pass
 
-    # Continue processing events until all models complete
+    # Continue processing events until all models complete or timeout
+    # We wait for ALL models - every ranking adds value
     while completed_count < total_models:
-        # AI-SEC-009: Check for stage timeout
         elapsed = time.time() - stage_start_time
+
+        # Check for absolute stage timeout
         if elapsed > STAGE2_TIMEOUT:
             log_app_event(
                 "STAGE2_TIMEOUT",
@@ -519,9 +579,9 @@ Now provide your evaluation and ranking:"""
                 elapsed_seconds=elapsed,
                 timeout_seconds=STAGE2_TIMEOUT,
                 completed_models=completed_count,
+                successful_models=successful_count,
                 total_models=total_models
             )
-            # Cancel remaining tasks
             for task in tasks:
                 if not task.done():
                     task.cancel()
@@ -530,6 +590,7 @@ Now provide your evaluation and ranking:"""
                 "elapsed": elapsed,
                 "timeout": STAGE2_TIMEOUT,
                 "completed": completed_count,
+                "successful": successful_count,
                 "total": total_models
             }
             break
@@ -538,14 +599,20 @@ Now provide your evaluation and ranking:"""
             event = await asyncio.wait_for(queue.get(), timeout=0.1)
             yield event
 
-            if event['type'] in ('stage2_model_complete', 'stage2_model_error'):
+            if event['type'] == 'stage2_model_complete':
+                completed_count += 1
+                successful_count += 1
+            elif event['type'] == 'stage2_model_error':
                 completed_count += 1
         except asyncio.TimeoutError:
             if all(task.done() for task in tasks):
                 while not queue.empty():
                     event = await queue.get()
                     yield event
-                    if event['type'] in ('stage2_model_complete', 'stage2_model_error'):
+                    if event['type'] == 'stage2_model_complete':
+                        completed_count += 1
+                        successful_count += 1
+                    elif event['type'] == 'stage2_model_error':
                         completed_count += 1
                 break
 
