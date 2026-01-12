@@ -1099,16 +1099,46 @@ See `todo/LLM-COST-OPTIMIZATION-PLAN.md` for detailed optimization documentation
 
 ### Render (Backend)
 - Service: `axcouncil-backend` at https://axcouncil-backend.onrender.com
-- Deploy hook: `curl -s -X POST "https://api.render.com/deploy/srv-d4pfrai4i8rc73e6h28g?key=M17Ys96WsOs"`
+- **Auto-deploys** on push to `master` when backend files change (via GitHub Actions)
+- Workflow: `.github/workflows/deploy-backend.yml`
+- Includes health check verification after deployment
 - Or deploy via [Render Dashboard](https://dashboard.render.com)
+
+### GitHub Secrets Required
+
+| Secret | Purpose | How to Set |
+|--------|---------|------------|
+| `RENDER_DEPLOY_HOOK` | Triggers Render deployment | GitHub repo → Settings → Secrets → Actions → New |
+
+**RENDER_DEPLOY_HOOK value:**
+```
+https://api.render.com/deploy/srv-d4pfrai4i8rc73e6h28g?key=M17Ys96WsOs
+```
 
 ### Deploy Commands
 ```bash
-# Push to master (triggers Vercel auto-deploy)
+# Push to master (triggers BOTH Vercel + Render auto-deploy)
 git push origin master
 
-# Trigger Render deploy
+# Manual Render deploy (if needed)
 curl -s -X POST "https://api.render.com/deploy/srv-d4pfrai4i8rc73e6h28g?key=M17Ys96WsOs"
+```
+
+### Deployment Flow
+```
+Push to master
+    ↓
+CI runs (lint, tests, build)
+    ↓
+If backend/** changed → deploy-backend.yml triggers
+    ↓
+Render deploy hook called
+    ↓
+Wait 60s for Render to start
+    ↓
+Health check loop (10 retries, 30s interval)
+    ↓
+✅ Deployment verified healthy
 ```
 
 ## CSS Specificity Notes

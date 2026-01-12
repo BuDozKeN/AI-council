@@ -1,0 +1,94 @@
+name: Deploy Backend to Render
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - 'backend/**'
+      - 'requirements.txt'
+      - 'pyproject.toml'
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  deploy:
+    name: Deploy to Render
+    runs-on: ubuntu-latest
+    # Only deploy if CI passes (backend-tests must succeed)
+    needs: []  # Can add dependency on ci.yml jobs if using workflow_call
+
+    # Only run on the main repository, not forks
+    if: github.repository == 'BuDozKeN/AI-council'
+
+    steps:
+      - name: Trigger Render Deploy
+        id: deploy
+        run: |
+          echo "Triggering deployment to Render..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}")
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+
+          echo "Response: $BODY"
+          echo "HTTP Code: $HTTP_CODE"
+
+          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+            echo "Deploy trigger failed with HTTP $HTTP_CODE"
+            exit 1
+          fi
+
+          echo "Deploy triggered successfully"
+
+      - name: Wait for Render to start deployment
+        run: |
+          echo "Waiting 60 seconds for Render to start deployment..."
+          sleep 60
+
+      - name: Health Check (with retries)
+        id: healthcheck
+        run: |
+          BACKEND_URL="https://axcouncil-backend.onrender.com"
+          MAX_RETRIES=10
+          RETRY_INTERVAL=30
+
+          echo "Starting health checks against $BACKEND_URL/health"
+
+          for i in $(seq 1 $MAX_RETRIES); do
+            echo "Health check attempt $i/$MAX_RETRIES..."
+
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$BACKEND_URL/health" || echo "000")
+
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "Health check passed! Backend is healthy."
+
+              # Get detailed health status
+              echo "Detailed health status:"
+              curl -s "$BACKEND_URL/health" | head -c 1000
+              echo ""
+              exit 0
+            fi
+
+            echo "Health check returned HTTP $HTTP_CODE, waiting ${RETRY_INTERVAL}s before retry..."
+
+            if [ $i -lt $MAX_RETRIES ]; then
+              sleep $RETRY_INTERVAL
+            fi
+          done
+
+          echo "Health checks failed after $MAX_RETRIES attempts"
+          exit 1
+
+      - name: Deployment Success
+        if: success()
+        run: |
+          echo "Backend deployment completed successfully!"
+          echo "URL: https://axcouncil-backend.onrender.com"
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+
+      - name: Deployment Failed
+        if: failure()
+        run: |
+          echo "Backend deployment failed!"
+          echo "Please check Render dashboard for details."
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
