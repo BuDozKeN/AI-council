@@ -17,6 +17,7 @@ import { Target, Zap, Sparkles, Settings2, Check, ChevronDown, Building2 } from 
 import { cn } from '../../lib/utils';
 import { BottomSheet } from '../ui/BottomSheet';
 import type { LLMPresetId } from '../../types/business';
+import '../ui/Tooltip.css';
 import './ResponseStyleSelector.css';
 
 // Check if we're on mobile/tablet for bottom sheet vs popover
@@ -225,9 +226,9 @@ export function ResponseStyleSelector({
               <span onClick={() => !disabled && setOpen(true)}>{triggerButton}</span>
             </Tooltip.Trigger>
             <Tooltip.Portal>
-              <Tooltip.Content className="omni-tooltip" sideOffset={8}>
+              <Tooltip.Content className="tooltip-content" sideOffset={8}>
                 {tooltipContent}
-                <Tooltip.Arrow className="omni-tooltip-arrow" />
+                <Tooltip.Arrow className="tooltip-arrow" />
               </Tooltip.Content>
             </Tooltip.Portal>
           </Tooltip.Root>
@@ -251,9 +252,9 @@ export function ResponseStyleSelector({
             <Tooltip.Trigger asChild>{triggerButton}</Tooltip.Trigger>
           </Popover.Trigger>
           <Tooltip.Portal>
-            <Tooltip.Content className="omni-tooltip" sideOffset={8}>
+            <Tooltip.Content className="tooltip-content" sideOffset={8}>
               {tooltipContent}
-              <Tooltip.Arrow className="omni-tooltip-arrow" />
+              <Tooltip.Arrow className="tooltip-arrow" />
             </Tooltip.Content>
           </Tooltip.Portal>
         </Tooltip.Root>

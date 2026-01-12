@@ -41,6 +41,7 @@ import { useCouncilStats } from '../../hooks/useCouncilStats';
 import { DepartmentCheckboxItem } from '../ui/DepartmentCheckboxItem';
 import { ResponseStyleSelector } from '../chat/ResponseStyleSelector';
 import type { Business, Department, Role, Playbook, Project } from '../../types/business';
+import '../ui/Tooltip.css';
 import './OmniBar.css';
 
 // Check if we're on mobile/tablet for bottom sheet vs popover
@@ -503,9 +504,9 @@ export function OmniBar({
       <Tooltip.Root>
         <Tooltip.Trigger asChild>{button}</Tooltip.Trigger>
         <Tooltip.Portal>
-          <Tooltip.Content className="omni-tooltip" sideOffset={8}>
+          <Tooltip.Content className="tooltip-content" sideOffset={8}>
             {tooltipText}
-            <Tooltip.Arrow className="omni-tooltip-arrow" />
+            <Tooltip.Arrow className="tooltip-arrow" />
           </Tooltip.Content>
         </Tooltip.Portal>
       </Tooltip.Root>
@@ -593,9 +594,9 @@ export function OmniBar({
               <Tooltip.Trigger asChild>{iconButton}</Tooltip.Trigger>
             </Popover.Trigger>
             <Tooltip.Portal>
-              <Tooltip.Content className="omni-tooltip" sideOffset={8}>
+              <Tooltip.Content className="tooltip-content" sideOffset={8}>
                 {tooltipText}
-                <Tooltip.Arrow className="omni-tooltip-arrow" />
+                <Tooltip.Arrow className="tooltip-arrow" />
               </Tooltip.Content>
             </Tooltip.Portal>
           </Tooltip.Root>
