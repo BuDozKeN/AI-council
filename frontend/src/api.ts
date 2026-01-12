@@ -168,6 +168,38 @@ export interface SaveDecisionOptions {
 export type SSEEventCallback = (eventType: string, data: Record<string, unknown>) => void;
 
 // =============================================================================
+// Onboarding Types
+// =============================================================================
+
+export interface OnboardingProfileResponse {
+  success: boolean;
+  profile?: {
+    full_name: string;
+    role: string;
+    company: string;
+    industry: string;
+    employees: number;
+    bio: string;
+    magic_question: string;
+    departments: Array<{
+      id: string;
+      name: string;
+      purpose: string;
+      icon: string;
+    }>;
+  };
+  fallback_required: boolean;
+  error?: string;
+}
+
+export interface TrialStatusResponse {
+  has_trial_available: boolean;
+  has_api_key: boolean;
+  trial_count: number;
+  trial_limit: number;
+}
+
+// =============================================================================
 // Token Management
 // =============================================================================
 
@@ -1358,6 +1390,8 @@ export const api = {
     company?: string;
     phone?: string;
     bio?: string;
+    role?: string;
+    linkedin_url?: string;
   }) {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}${API_VERSION}/profile`, {
@@ -3393,6 +3427,58 @@ export const api = {
       // Return empty flags on error (fail open)
       return { flags: {} };
     }
+    return response.json();
+  },
+
+  // ===========================================================================
+  // ONBOARDING
+  // ===========================================================================
+
+  /**
+   * Analyze a LinkedIn profile URL and generate onboarding data.
+   * Returns profile information and a personalized "magic question".
+   */
+  async analyzeLinkedInProfile(linkedInUrl: string): Promise<OnboardingProfileResponse> {
+    const response = await fetch(`${API_BASE}${API_VERSION}/onboarding/analyze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ linkedin_url: linkedInUrl }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ error: 'Failed to analyze profile' }));
+      return {
+        success: false,
+        fallback_required: true,
+        error: error.detail || error.error || 'Failed to analyze profile',
+      };
+    }
+
+    return response.json();
+  },
+
+  /**
+   * Get trial status for the current user.
+   * Returns whether the user has trial deliberations available or an API key.
+   */
+  async getTrialStatus(token: string): Promise<TrialStatusResponse> {
+    const response = await fetch(`${API_BASE}${API_VERSION}/onboarding/trial-status`, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      // Default to no trial on error
+      return {
+        has_trial_available: false,
+        has_api_key: false,
+        trial_count: 0,
+        trial_limit: 3,
+      };
+    }
+
     return response.json();
   },
 };

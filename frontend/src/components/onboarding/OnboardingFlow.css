@@ -1,0 +1,522 @@
+/**
+ * OnboardingFlow Styles
+ *
+ * Premium, glassmorphism-inspired styling consistent with landing page.
+ * Uses overlay tokens for subtle transparency effects.
+ */
+
+/* Container */
+.onboarding-flow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: var(--space-6);
+}
+
+/* Step container */
+.onboarding-step {
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-lg);
+}
+
+/* Header section */
+.onboarding-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-sm);
+}
+
+.onboarding-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--color-text-brand);
+  margin-bottom: var(--space-2);
+}
+
+.onboarding-title {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+  margin: 0;
+}
+
+.onboarding-subtitle {
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Cards - Glassmorphism style matching OmniBar */
+.onboarding-card {
+  width: 100%;
+  background: var(--overlay-white-5);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-xl);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.dark .onboarding-card {
+  background: var(--overlay-white-8);
+  border-color: var(--overlay-white-10);
+}
+
+.onboarding-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+/* Override card's default p-6 pt-0 via higher specificity */
+.onboarding-card .onboarding-card-content {
+  padding: var(--card-padding-xl);
+}
+
+/* Input step */
+.onboarding-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.onboarding-input-icon {
+  position: absolute;
+  left: var(--space-3);
+  width: 20px;
+  height: 20px;
+  color: var(--color-text-tertiary);
+  pointer-events: none;
+}
+
+.onboarding-input-wrapper .form-input {
+  padding-left: calc(var(--space-3) + 20px + var(--space-2));
+}
+
+.onboarding-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-sm);
+  margin-top: var(--space-2);
+}
+
+.onboarding-submit {
+  width: 100%;
+}
+
+/* Skip button - subtle text link style */
+.onboarding-skip {
+  width: 100%;
+  background: transparent !important;
+  color: var(--color-text-tertiary);
+  font-weight: var(--font-normal);
+}
+
+.onboarding-skip:hover:not(:disabled) {
+  background: transparent !important;
+  color: var(--color-text-secondary);
+}
+
+/* Error state */
+.onboarding-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--gap-md);
+  padding: var(--space-6) 0;
+}
+
+.onboarding-error-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--color-text-error);
+}
+
+.onboarding-error-title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.onboarding-error-message {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+  max-width: 300px;
+}
+
+/* Loading step - legacy (kept for error state) */
+.onboarding-loading-card {
+  min-height: 320px;
+}
+
+/* ============================================================================
+   PREMIUM COUNCIL ASSEMBLY ANIMATION
+   Shows each AI model joining the council with brand colors and glow effects
+   ============================================================================ */
+
+.council-assembly {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-xl);
+  width: 100%;
+  max-width: 600px;
+  padding: var(--space-8) var(--space-4);
+}
+
+.council-assembly-header {
+  text-align: center;
+}
+
+.council-assembly-title {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-tight);
+  margin: 0 0 var(--space-2);
+}
+
+.council-assembly-subtitle {
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Council members grid */
+.council-members-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--gap-md);
+  width: 100%;
+}
+
+/* Individual council member card */
+.council-member-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-sm);
+  padding: var(--space-4);
+  min-width: 100px;
+  border-radius: var(--radius-xl);
+  background: var(--overlay-white-5);
+  border: 1px solid var(--overlay-white-10);
+  position: relative;
+  transition: all 0.3s var(--ease-out);
+}
+
+.council-member-card.active {
+  background: var(--overlay-white-10);
+  border-color: var(--overlay-white-20);
+  box-shadow: 0 0 30px -5px var(--member-color, var(--color-indigo));
+}
+
+.council-member-card.revealed {
+  background: var(--overlay-white-8);
+  border-color: var(--overlay-white-15);
+}
+
+.dark .council-member-card {
+  background: var(--overlay-white-5);
+  border-color: var(--overlay-white-8);
+}
+
+.dark .council-member-card.active {
+  background: var(--overlay-white-10);
+  border-color: var(--overlay-white-15);
+  box-shadow: 0 0 40px -5px var(--member-color, var(--color-indigo));
+}
+
+.dark .council-member-card.revealed {
+  background: var(--overlay-white-8);
+  border-color: var(--overlay-white-12);
+}
+
+/* Council member avatar with brand glow */
+.council-member-avatar {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--overlay-black-5);
+  color: var(--color-text-primary);
+  transition: all 0.3s var(--ease-out);
+}
+
+.council-member-card.active .council-member-avatar {
+  background: var(--member-color, var(--color-indigo));
+  color: white;
+}
+
+/* Grok/X has white brand color - needs dark icon on light bg */
+.council-member-card.active.light-bg .council-member-avatar {
+  color: var(--color-gray-900);
+}
+
+.council-member-card.revealed .council-member-avatar {
+  background: var(--overlay-indigo-15);
+  color: var(--color-indigo);
+}
+
+.dark .council-member-avatar {
+  background: var(--overlay-white-10);
+}
+
+.dark .council-member-card.active .council-member-avatar {
+  background: var(--member-color, var(--color-indigo));
+  color: white;
+}
+
+/* Grok/X has white brand color - needs dark icon on light bg (dark mode) */
+.dark .council-member-card.active.light-bg .council-member-avatar {
+  color: var(--color-gray-900);
+}
+
+.dark .council-member-card.revealed .council-member-avatar {
+  background: var(--overlay-white-15);
+  color: var(--color-text-primary);
+}
+
+/* Pulsing animation for active member */
+.council-member-avatar.pulsing {
+  animation: council-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes council-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--member-color, var(--color-indigo));
+  }
+  50% {
+    box-shadow: 0 0 20px 8px transparent;
+  }
+}
+
+/* Member info */
+.council-member-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.council-member-name {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+}
+
+.council-member-role {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+/* Checkmark badge */
+.council-member-check {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--color-success);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Progress bar */
+.council-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap-sm);
+  width: 100%;
+  max-width: 400px;
+}
+
+.council-progress-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--overlay-black-10);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.dark .council-progress-bar {
+  background: var(--overlay-white-10);
+}
+
+.council-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-indigo) 0%, var(--color-accent-iris) 100%);
+  border-radius: var(--radius-full);
+  transition: width 0.5s var(--ease-out);
+}
+
+.council-progress-text {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-medium);
+}
+
+/* Preview step */
+.onboarding-preview {
+  max-width: 640px;
+}
+
+.onboarding-welcome {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-tight);
+  margin: 0;
+}
+
+.onboarding-welcome-sub {
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Departments grid - Premium pill-style cards */
+.onboarding-departments {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--gap-md);
+  width: 100%;
+}
+
+.onboarding-department {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--card-padding-lg);
+  border-radius: var(--radius-lg);
+  background: transparent;
+  border: none;
+  gap: var(--gap-sm);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.onboarding-department:hover {
+  transform: translateY(-2px);
+}
+
+.onboarding-department-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--overlay-indigo-10);
+  color: var(--color-indigo);
+}
+
+.dark .onboarding-department-icon {
+  background: var(--overlay-indigo-20);
+  color: var(--color-indigo-400);
+}
+
+.onboarding-department-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.onboarding-department-name {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.onboarding-department-purpose {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  margin: 0;
+  line-height: var(--leading-snug);
+}
+
+/* Magic question - Premium card styling */
+.onboarding-magic-question-card {
+  width: 100%;
+}
+
+.onboarding-magic-intro {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.onboarding-magic-question {
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  color: var(--color-text-primary);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+  padding: var(--space-4);
+  background: var(--overlay-indigo-10);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--overlay-indigo-15);
+  font-style: normal;
+}
+
+.dark .onboarding-magic-question {
+  background: var(--overlay-indigo-15);
+  border-color: var(--overlay-indigo-20);
+}
+
+.onboarding-start-btn {
+  width: 100%;
+  margin-top: var(--space-2);
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .onboarding-flow {
+    padding: var(--space-4);
+  }
+
+  .onboarding-title {
+    font-size: var(--text-xl);
+  }
+
+  .onboarding-departments {
+    grid-template-columns: 1fr;
+  }
+
+  .onboarding-department {
+    flex-direction: row;
+    text-align: left;
+    padding: var(--card-padding);
+  }
+
+  .onboarding-department-icon {
+    flex-shrink: 0;
+  }
+
+  .onboarding-department > div:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-xs);
+  }
+}
