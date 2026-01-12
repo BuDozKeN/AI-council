@@ -160,9 +160,13 @@ MAX_QUERY_CHARS = int(os.getenv("MAX_QUERY_CHARS", "50000"))  # ~12.5K tokens
 MAX_QUERY_TOKENS_ESTIMATE = MAX_QUERY_CHARS // 4  # Rough estimate
 
 # Per-stage timeouts (seconds) - prevents hanging requests
-STAGE1_TIMEOUT = int(os.getenv("STAGE1_TIMEOUT", "90"))   # 90s for 5 parallel models
-STAGE2_TIMEOUT = int(os.getenv("STAGE2_TIMEOUT", "60"))   # 60s for 3 ranking models
+STAGE1_TIMEOUT = int(os.getenv("STAGE1_TIMEOUT", "120"))  # 120s absolute max for Stage 1
+STAGE2_TIMEOUT = int(os.getenv("STAGE2_TIMEOUT", "90"))   # 90s for 3 ranking models
 STAGE3_TIMEOUT = int(os.getenv("STAGE3_TIMEOUT", "120"))  # 120s for chairman synthesis
+
+# Per-model timeout - individual models that hang get marked as error
+# This catches truly stuck models without cancelling healthy ones
+PER_MODEL_TIMEOUT = int(os.getenv("PER_MODEL_TIMEOUT", "60"))  # 60s per individual model
 
 # Require access_token for RLS-protected queries (recommended: true in production)
 # When false, falls back to service client (bypasses RLS) - only for backwards compat

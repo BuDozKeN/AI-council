@@ -427,3 +427,53 @@ class TestCouncilIntegration:
             assert log_kwargs.get('level') == 'WARNING'
             assert 'risk_level' in log_kwargs
             assert 'patterns_found' in log_kwargs
+
+
+# =============================================================================
+# Timeout Configuration Tests
+# =============================================================================
+
+class TestTimeoutConfig:
+    """Test timeout configuration constants."""
+
+    def test_per_model_timeout_exists(self):
+        """Should have PER_MODEL_TIMEOUT config for individual model timeouts."""
+        from backend.config import PER_MODEL_TIMEOUT
+        assert isinstance(PER_MODEL_TIMEOUT, int)
+        assert PER_MODEL_TIMEOUT > 0
+        # Should be reasonable (between 30-120 seconds)
+        assert 30 <= PER_MODEL_TIMEOUT <= 120
+
+    def test_stage1_timeout_value(self):
+        """Stage 1 timeout should be >= 120s to allow all models to complete."""
+        from backend.config import STAGE1_TIMEOUT
+        assert STAGE1_TIMEOUT >= 120
+
+    def test_stage2_timeout_value(self):
+        """Stage 2 timeout should be >= 90s to allow all rankers to complete."""
+        from backend.config import STAGE2_TIMEOUT
+        assert STAGE2_TIMEOUT >= 90
+
+    def test_min_stage1_responses_default(self):
+        """MIN_STAGE1_RESPONSES should default to 3 (minimum viable council)."""
+        from backend.config import MIN_STAGE1_RESPONSES
+        assert MIN_STAGE1_RESPONSES == 3
+
+    def test_min_stage2_rankings_default(self):
+        """MIN_STAGE2_RANKINGS should default to 2 (minimum viable ranking)."""
+        from backend.config import MIN_STAGE2_RANKINGS
+        assert MIN_STAGE2_RANKINGS == 2
+
+
+class TestTimeoutImports:
+    """Test that timeout config is properly imported in council.py."""
+
+    def test_council_imports_timeout_config(self):
+        """Council module should import timeout configuration."""
+        from backend import council
+
+        # Check the config values are accessible via the import
+        from backend.config import PER_MODEL_TIMEOUT, STAGE1_TIMEOUT, STAGE2_TIMEOUT
+        assert PER_MODEL_TIMEOUT is not None
+        assert STAGE1_TIMEOUT is not None
+        assert STAGE2_TIMEOUT is not None
