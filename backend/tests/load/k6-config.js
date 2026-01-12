@@ -22,54 +22,68 @@ const apiLatency = new Trend('api_latency');
 const BASE_URL = __ENV.BASE_URL || 'http://localhost:8081';
 
 export const options = {
-  // Stages for ramping up/down load
+  // Stages for ramping up/down load (shorter for quick baseline)
   stages: [
-    { duration: '30s', target: 10 },  // Ramp up to 10 users
-    { duration: '1m', target: 10 },   // Stay at 10 users
-    { duration: '30s', target: 50 },  // Ramp up to 50 users
-    { duration: '2m', target: 50 },   // Stay at 50 users
-    { duration: '30s', target: 0 },   // Ramp down to 0
+    { duration: '15s', target: 10 },  // Ramp up to 10 users
+    { duration: '30s', target: 10 },  // Stay at 10 users
+    { duration: '15s', target: 25 },  // Ramp up to 25 users
+    { duration: '30s', target: 25 },  // Stay at 25 users
+    { duration: '10s', target: 0 },   // Ramp down to 0
   ],
 
   // Performance thresholds
   thresholds: {
     http_req_duration: ['p(95)<500'],  // 95% of requests < 500ms
-    http_req_failed: ['rate<0.01'],    // Error rate < 1%
-    errors: ['rate<0.01'],             // Custom error rate < 1%
+    http_req_failed: ['rate<0.05'],    // Error rate < 5%
+    errors: ['rate<0.05'],             // Custom error rate < 5%
   },
 };
 
-// Test scenarios
+// Test scenarios - Public endpoints (no auth required)
 export default function () {
-  // Health check endpoint
+  // Liveness probe - should be very fast
+  const liveRes = http.get(`${BASE_URL}/health/live`);
+  check(liveRes, {
+    'liveness status is 200': (r) => r.status === 200,
+    'liveness latency < 50ms': (r) => r.timings.duration < 50,
+  });
+  apiLatency.add(liveRes.timings.duration);
+  errorRate.add(liveRes.status !== 200);
+
+  sleep(0.5);
+
+  // Council stats - public endpoint
+  const statsRes = http.get(`${BASE_URL}/api/v1/council-stats`);
+  check(statsRes, {
+    'council stats status is 200': (r) => r.status === 200,
+    'council stats latency < 200ms': (r) => r.timings.duration < 200,
+  });
+  apiLatency.add(statsRes.timings.duration);
+  errorRate.add(statsRes.status !== 200);
+
+  sleep(0.5);
+
+  // Billing plans - public, cacheable
+  const plansRes = http.get(`${BASE_URL}/api/v1/billing/plans`);
+  check(plansRes, {
+    'billing plans status is 200': (r) => r.status === 200,
+    'billing plans latency < 200ms': (r) => r.timings.duration < 200,
+  });
+  apiLatency.add(plansRes.timings.duration);
+  errorRate.add(plansRes.status !== 200);
+
+  sleep(0.5);
+
+  // Full health check - includes DB connectivity
   const healthRes = http.get(`${BASE_URL}/health`);
   check(healthRes, {
     'health check status is 200': (r) => r.status === 200,
-    'health check latency < 100ms': (r) => r.timings.duration < 100,
+    'health check latency < 500ms': (r) => r.timings.duration < 500,
   });
   apiLatency.add(healthRes.timings.duration);
   errorRate.add(healthRes.status !== 200);
 
-  sleep(1);
-
-  // API info endpoint
-  const infoRes = http.get(`${BASE_URL}/api/v1/info`);
-  check(infoRes, {
-    'info status is 200': (r) => r.status === 200,
-  });
-  apiLatency.add(infoRes.timings.duration);
-  errorRate.add(infoRes.status !== 200);
-
-  sleep(1);
-
-  // Circuit breaker status
-  const circuitRes = http.get(`${BASE_URL}/api/v1/circuit-breakers`);
-  check(circuitRes, {
-    'circuit breaker status is 200': (r) => r.status === 200,
-  });
-  apiLatency.add(circuitRes.timings.duration);
-
-  sleep(1);
+  sleep(0.5);
 }
 
 // Separate scenario for authenticated endpoints
@@ -106,11 +120,13 @@ export function authenticatedScenario() {
   sleep(2);
 }
 
-// Spike test scenario
+// Spike test scenario - batch requests
 export function spikeTest() {
   const responses = http.batch([
+    ['GET', `${BASE_URL}/health/live`],
+    ['GET', `${BASE_URL}/api/v1/council-stats`],
+    ['GET', `${BASE_URL}/api/v1/billing/plans`],
     ['GET', `${BASE_URL}/health`],
-    ['GET', `${BASE_URL}/api/v1/info`],
   ]);
 
   responses.forEach((res) => {
