@@ -441,9 +441,18 @@ For context_md, use these sections (skip any that don't apply):
         {"role": "user", "content": prompt}
     ]
 
+    # Use short timeouts for fast models - fail fast and try next
+    MODEL_TIMEOUTS = {
+        'google/gemini-2.5-flash': 8.0,
+        'openai/gpt-4o-mini': 8.0,
+        'anthropic/claude-3-5-haiku-20241022': 8.0,
+    }
+    DEFAULT_TIMEOUT = 10.0
+
     for model in models:
         try:
-            result = await query_model(model=model, messages=messages)
+            timeout = MODEL_TIMEOUTS.get(model, DEFAULT_TIMEOUT)
+            result = await query_model(model=model, messages=messages, timeout=timeout)
 
             # Track internal LLM usage if company_id provided
             if structure_request.company_id and result and result.get('usage'):
