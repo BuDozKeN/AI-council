@@ -751,6 +751,40 @@ async def root():
     return {"status": "ok", "service": "LLM Council API"}
 
 
+@app.get("/api/feature-flags")
+async def get_feature_flags():
+    """
+    Get all feature flags.
+
+    Returns current state of all feature flags for the frontend to consume.
+    Flags are read from environment variables at startup.
+
+    Returns:
+        {"flags": {"flag_name": bool, ...}}
+    """
+    try:
+        from .feature_flags import get_flags
+    except ImportError:
+        from backend.feature_flags import get_flags
+
+    return {"flags": get_flags()}
+
+
+@app.get("/api/feature-flags/definitions")
+async def get_feature_flag_definitions():
+    """
+    Get feature flag definitions with metadata (for admin/debug UI).
+
+    Returns flag names, descriptions, defaults, and current values.
+    """
+    try:
+        from .feature_flags import get_flag_definitions
+    except ImportError:
+        from backend.feature_flags import get_flag_definitions
+
+    return {"definitions": get_flag_definitions()}
+
+
 @app.get("/health")
 async def health_check():
     """

@@ -3377,6 +3377,24 @@ export const api = {
     }
     return response.json();
   },
+
+  // ===========================================================================
+  // FEATURE FLAGS
+  // ===========================================================================
+
+  /**
+   * Get all feature flags.
+   * Returns current state of all feature flags for conditional rendering.
+   * No authentication required - flags are public.
+   */
+  async getFeatureFlags(): Promise<{ flags: Record<string, boolean> }> {
+    const response = await fetch(`${API_BASE}/api/feature-flags`);
+    if (!response.ok) {
+      // Return empty flags on error (fail open)
+      return { flags: {} };
+    }
+    return response.json();
+  },
 };
 
 // =============================================================================
