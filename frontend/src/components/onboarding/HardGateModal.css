@@ -1,0 +1,139 @@
+/**
+ * HardGateModal Styles
+ *
+ * Clean styling for the API key/upgrade gate.
+ */
+
+.hard-gate-modal .app-modal-body {
+  padding: var(--space-4);
+}
+
+.hard-gate-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--gap-lg);
+}
+
+/* Icon wrapper */
+.hard-gate-icon-wrapper {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-warning-subtle);
+}
+
+.hard-gate-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--color-text-warning);
+}
+
+/* Description */
+.hard-gate-description {
+  font-size: var(--text-base);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+  max-width: 320px;
+}
+
+/* Info box */
+.hard-gate-info {
+  width: 100%;
+  padding: var(--space-4);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  text-align: left;
+}
+
+.hard-gate-info-title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-2);
+}
+
+.hard-gate-info-list {
+  margin: 0;
+  padding-left: var(--space-5);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+}
+
+.hard-gate-info-list li {
+  margin-bottom: var(--space-1);
+}
+
+.hard-gate-info-list li:last-child {
+  margin-bottom: 0;
+}
+
+/* Actions */
+.hard-gate-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--gap);
+  width: 100%;
+}
+
+.hard-gate-primary-btn {
+  width: 100%;
+}
+
+.hard-gate-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--gap-xs);
+  font-size: var(--text-sm);
+  color: var(--color-text-brand);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.hard-gate-link:hover {
+  color: var(--color-text-brand-hover);
+}
+
+.hard-gate-link-icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* Dismiss button */
+.hard-gate-dismiss {
+  background: none;
+  border: none;
+  color: var(--color-text-tertiary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  padding: var(--space-2);
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.hard-gate-dismiss:hover {
+  color: var(--color-text-secondary);
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .hard-gate-modal .app-modal-body {
+    padding: var(--space-3);
+  }
+
+  .hard-gate-icon-wrapper {
+    width: 56px;
+    height: 56px;
+  }
+
+  .hard-gate-icon {
+    width: 28px;
+    height: 28px;
+  }
+}

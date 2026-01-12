@@ -1,0 +1,129 @@
+/**
+ * SoftGateModal Styles
+ *
+ * Clean, minimal styling for the authentication gate.
+ */
+
+.soft-gate-modal .app-modal-body {
+  padding: var(--space-4);
+}
+
+.soft-gate-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-lg);
+}
+
+/* Benefits list */
+.soft-gate-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-md);
+}
+
+.soft-gate-benefit {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--gap);
+}
+
+.soft-gate-benefit-icon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-brand-subtle);
+  color: var(--color-text-brand);
+  flex-shrink: 0;
+}
+
+.soft-gate-benefit-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.soft-gate-benefit-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+}
+
+.soft-gate-benefit-title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+}
+
+.soft-gate-benefit-desc {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-snug);
+}
+
+/* Error message */
+.soft-gate-error {
+  padding: var(--space-3);
+  background: var(--color-bg-error-subtle);
+  border: 1px solid var(--color-border-error);
+  border-radius: var(--radius-md);
+  color: var(--color-text-error);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+/* Google button */
+.soft-gate-google-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-secondary);
+  color: var(--color-text-primary);
+  font-weight: var(--font-medium);
+}
+
+.soft-gate-google-btn:hover:not(:disabled) {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border-primary);
+}
+
+.soft-gate-google-btn svg {
+  flex-shrink: 0;
+}
+
+/* Skip link */
+.soft-gate-skip {
+  background: none;
+  border: none;
+  color: var(--color-text-tertiary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  padding: var(--space-2);
+  text-align: center;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+.soft-gate-skip:hover {
+  color: var(--color-text-secondary);
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .soft-gate-modal .app-modal-body {
+    padding: var(--space-3);
+  }
+
+  .soft-gate-benefit-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .soft-gate-benefit-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+}

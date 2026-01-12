@@ -1,14 +1,14 @@
 # AxCouncil Audit Dashboard
 
-> Last Updated: 2026-01-12 UTC (v16)
-> Last Audit: DevOps (8.5/10 - High Performance DORA metrics, comprehensive CI/CD pipeline, 5 layers of security scanning, excellent health checks)
-> Branch: claude/review-audits-zqgMx
+> Last Updated: 2026-01-13 UTC (v17)
+> Last Audit: Scalability (8/10 - Stateless architecture, 4-layer caching, circuit breakers, 96 req/s baseline on liveness)
+> Branch: perf/sarah-fast-models
 
 ---
 
 ## Executive Summary
 
-### Overall Health: 9.2/10 → (19/30 categories audited)
+### Overall Health: 9.2/10 → (20/30 categories audited)
 
 | Category | Audit Command | Score | Trend | Critical | High | Medium | Last Checked |
 |----------|---------------|-------|-------|----------|------|--------|--------------|
@@ -35,7 +35,7 @@
 | **INFRASTRUCTURE** ||||||||
 | Performance | `/audit-performance` | 9/10 | ↑ | 0 | 0 | 1 | 2026-01-02 |
 | Resilience | `/audit-resilience` | 10/10 | ↑ | 0 | 0 | 0 | 2026-01-02 |
-| Scalability | `/audit-scalability` | --/10 | -- | -- | -- | -- | Never |
+| Scalability | `/audit-scalability` | 8/10 | NEW | 0 | 1 | 2 | 2026-01-13 |
 | DevOps | `/audit-devops` | 8.5/10 | ↑ | 0 | 3 | 5 | 2026-01-12 |
 | Disaster Recovery | `/audit-disaster-recovery` | 8/10 | ↑↑ | 0 | 1 | 3 | 2026-01-05 |
 | **DATA & API** ||||||||
@@ -54,11 +54,11 @@
 > Categories not run retain "--" scores. Use the audit command to run each category.
 
 ### Key Metrics
-- **Audit Coverage**: 19/30 categories audited (63%)
+- **Audit Coverage**: 20/30 categories audited (67%)
 - **Total Findings**: 46 (Critical: 8, High: 10, Medium: 24, Low: 4)
 - **Fixed Since Last Run**: 30 (DR fixes maintained)
 - **New This Run**: 8 new DevOps findings (0 Critical, 3 High, 5 Medium)
-- **$25M Readiness**: Test coverage (10/10 ✅), i18n (10/10 ✅), DR (8/10 ✅), DevOps (8.5/10 ✅)
+- **$25M Readiness**: Test coverage (10/10 ✅), i18n (10/10 ✅), DR (8/10 ✅), DevOps (8.5/10 ✅), Scalability (8/10 ✅)
 - **Test Count**: 434 tests (289 backend + 145 frontend)
 - **DORA Metrics**: High Performance (~1-2 deploys/day, < 1hr lead time, < 10% failure rate)
 
@@ -84,9 +84,10 @@
 
 ## Score History
 
-| Date | Scope | Overall | Sec | Code | UI | Perf | A11y | Mobile | LLM | Data | Bill | Resil | API | Test | i18n | DR | SEO | DevOps |
-|------|-------|---------|-----|------|-----|------|------|--------|-----|------|------|-------|-----|------|------|-----|-----|--------|
-| 2026-01-12 | DevOps audit | 9.2 | -- | 9 | 9 | 9 | 10 | 10 | -- | 9 | -- | 10 | 10 | 10 | 10 | 8 | 8 | 8.5 |
+| Date | Scope | Overall | Sec | Code | UI | Perf | A11y | Mobile | LLM | Data | Bill | Resil | API | Test | i18n | DR | SEO | DevOps | Scale |
+|------|-------|---------|-----|------|-----|------|------|--------|-----|------|------|-------|-----|------|------|-----|-----|--------|-------|
+| 2026-01-13 | Scalability audit | 9.2 | -- | 9 | 9 | 9 | 10 | 10 | -- | 9 | -- | 10 | 10 | 10 | 10 | 8 | 8 | 8.5 | 8 |
+| 2026-01-12 | DevOps audit | 9.2 | -- | 9 | 9 | 9 | 10 | 10 | -- | 9 | -- | 10 | 10 | 10 | 10 | 8 | 8 | 8.5 | -- |
 | 2026-01-08 | SEO complete | 9.2 | -- | 9 | 9 | 9 | 10 | 10 | -- | 9 | -- | 10 | 10 | 10 | 10 | 8 | 8 | -- |
 | 2026-01-05 | DR fixes applied | 9.2 | -- | 9 | 9 | 9 | 10 | 10 | -- | 9 | -- | 10 | 10 | 10 | 10 | 8 | -- |
 | 2026-01-05 | DR audit | 9.1 | -- | 9 | 9 | 9 | 10 | 10 | -- | 9 | -- | 10 | 10 | 10 | 10 | 6 |
@@ -2525,6 +2526,86 @@ multi_turn_check = detect_multi_turn_attack(conversation_history, user_query)
 if multi_turn_check['is_suspicious']:
     log_app_event("MULTI_TURN_ATTACK_DETECTED", level="WARNING", ...)
 ```
+
+</details>
+
+<details open>
+<summary>Scalability (8/10) - Last checked: 2026-01-13</summary>
+
+### Scalability Score: 8/10 | Load Test Score: 7/10 | Growth Readiness: 8/10
+
+### Load Test Baseline (2026-01-13)
+
+| Endpoint | p50 | p95 | RPS | Status |
+|----------|-----|-----|-----|--------|
+| `/health/live` | 1.87ms | 5.87ms | 96/s | ✅ Excellent |
+| `/api/v1/council-stats` | 2.3s | ~25s | ~0.4/s | ⚠️ DB bottleneck |
+| `/api/v1/billing/plans` | ~200ms | ~500ms | ~5/s | ✅ Acceptable |
+
+**Test Config**: 10-25 VUs, k6 load testing tool
+
+### Key Strengths ⭐
+
+**Architecture (10/10)**:
+- ✅ Fully stateless backend (horizontal scaling ready)
+- ✅ JWT-based auth (no server sessions)
+- ✅ Graceful shutdown with connection draining
+- ✅ SSE streaming (no WebSocket complexity)
+
+**Caching (10/10)** - 4-layer architecture:
+- TanStack Query + IndexedDB (24hr client cache)
+- Service Worker (CacheFirst for assets)
+- Redis Cloud (LLM response cache, sessions)
+- In-memory TTL cache (user/company data)
+
+**Resilience (10/10)**:
+- Circuit breakers per LLM model
+- Exponential backoff with jitter
+- Minimum viable council (quorum requirements)
+- Graceful degradation when Redis/Qdrant unavailable
+
+**Frontend (10/10)**:
+- Code splitting (8 vendor chunks)
+- PWA with offline support
+- CDN via Vercel Edge
+
+### Current Capacity
+
+| Resource | Current | Limit | Headroom |
+|----------|---------|-------|----------|
+| DB Connection Pool | ~10 | 100 | 90% |
+| Redis Memory | ~5MB | 30MB | 83% |
+| In-Memory Cache | ~100 | 1000 | 90% |
+
+### Bottleneck Analysis
+
+| Layer | Bottleneck | Impact | Priority |
+|-------|------------|--------|----------|
+| Supabase Free Tier | 500MB DB, limited connections | 100x scale | 🟡 Medium |
+| Redis Free Tier | 30MB cache limit | 10x scale | 🟢 Low |
+| Single Instance | No auto-scaling | SPOF | 🟡 Medium |
+
+### Outstanding Items
+
+**High Priority (0 remaining)**:
+- ✅ Load test baseline documented
+
+**Medium Priority (2 remaining)**:
+1. Configure Render auto-scaling when traffic arrives
+2. DB connection pool increase (100 → 500) when needed
+
+**Low Priority (1 remaining)**:
+1. Add load test to CI pipeline (run against staging)
+
+### Cost Projections
+
+| Scale | Users | Monthly Infrastructure | LLM API | Total |
+|-------|-------|------------------------|---------|-------|
+| Current | ~100 | $0 (free tiers) | ~$50 | ~$50 |
+| 10x | 1,000 | ~$37 | ~$500 | ~$537 |
+| 100x | 10,000 | ~$120 | ~$5,000 | ~$5,120 |
+
+**Verdict**: Architecture is **10x ready** with no changes. **100x requires infrastructure upgrades** (paid tiers) but no code changes.
 
 </details>
 
