@@ -8,6 +8,7 @@ import {
   Suspense,
   ComponentType,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from './components/Sidebar';
 import { LandingHero } from './components/landing';
@@ -132,6 +133,7 @@ const generateInitialTitle = (content: string, maxLength = 60): string => {
 const log = logger.scope('App');
 
 function App() {
+  const { t } = useTranslation();
   const {
     user,
     loading: authLoading,
@@ -433,15 +435,15 @@ function App() {
                 });
               return newList;
             });
-            toast.error('Failed to delete conversations');
+            toast.error(t('toasts.deleteConversationsFailed'));
           }
         }
       };
 
       // Show toast with undo action
-      toast(`${conversationsToDelete.length} conversations deleted`, {
+      toast(t('toasts.conversationsDeleted', { count: conversationsToDelete.length }), {
         action: {
-          label: 'Undo',
+          label: t('common.undo'),
           onClick: () => {
             undoClicked = true;
             // Restore conversations at original positions
@@ -459,7 +461,9 @@ function App() {
             if (wasCurrentConversationDeleted && currentConversationId) {
               setCurrentConversationId(currentConversationId);
             }
-            toast.success(`${conversationsToDelete.length} conversations restored`);
+            toast.success(
+              t('toasts.conversationsRestored', { count: conversationsToDelete.length })
+            );
           },
         },
         duration: 5000,

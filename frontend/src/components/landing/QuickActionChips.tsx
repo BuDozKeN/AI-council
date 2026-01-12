@@ -4,52 +4,73 @@
  * Jobs-to-be-done approach: users think in tasks, not org charts.
  */
 
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { PenLine, FileSearch, Rocket, Scale, Users, TrendingUp } from 'lucide-react';
+import { PenLine, FileSearch, Rocket, Scale, Users, TrendingUp, LucideIcon } from 'lucide-react';
 import { springs, interactionStates, staggerDelay } from '../../lib/animations';
 import './QuickActionChips.css';
 
-const QUICK_ACTIONS = [
+interface QuickAction {
+  icon: LucideIcon;
+  labelKey: string;
+  promptKey: string;
+}
+
+const QUICK_ACTION_KEYS = [
   {
     icon: PenLine,
-    label: 'Write a pitch',
-    prompt: 'Help me write a compelling pitch for ',
+    labelKey: 'landing.quickActions.writePitch' as const,
+    promptKey: 'landing.quickActions.writePitchPrompt' as const,
   },
   {
     icon: FileSearch,
-    label: 'Review a document',
-    prompt: 'Please review this document and identify any issues: ',
+    labelKey: 'landing.quickActions.reviewDocument' as const,
+    promptKey: 'landing.quickActions.reviewDocumentPrompt' as const,
   },
   {
     icon: Rocket,
-    label: 'Plan a launch',
-    prompt: 'Help me plan the launch strategy for ',
+    labelKey: 'landing.quickActions.planLaunch' as const,
+    promptKey: 'landing.quickActions.planLaunchPrompt' as const,
   },
   {
     icon: Scale,
-    label: 'Analyze a decision',
-    prompt: 'I need to make a decision about ',
+    labelKey: 'landing.quickActions.analyzeDecision' as const,
+    promptKey: 'landing.quickActions.analyzeDecisionPrompt' as const,
   },
   {
     icon: Users,
-    label: 'Handle a situation',
-    prompt: 'Help me handle this situation: ',
+    labelKey: 'landing.quickActions.handleSituation' as const,
+    promptKey: 'landing.quickActions.handleSituationPrompt' as const,
   },
   {
     icon: TrendingUp,
-    label: 'Improve metrics',
-    prompt: 'How can I improve ',
+    labelKey: 'landing.quickActions.improveMetrics' as const,
+    promptKey: 'landing.quickActions.improveMetricsPrompt' as const,
   },
-];
+] satisfies QuickAction[];
 
 interface QuickActionChipsProps {
   onSelect?: ((prompt: string) => void) | undefined;
 }
 
 export function QuickActionChips({ onSelect }: QuickActionChipsProps) {
+  const { t } = useTranslation();
+
+  // Build translated actions
+  const actions = useMemo(
+    () =>
+      QUICK_ACTION_KEYS.map((action) => ({
+        icon: action.icon,
+        label: t(action.labelKey),
+        prompt: t(action.promptKey),
+      })),
+    [t]
+  );
+
   return (
     <div className="quick-action-chips">
-      {QUICK_ACTIONS.map((action, index) => {
+      {actions.map((action, index) => {
         const Icon = action.icon;
         return (
           <motion.button

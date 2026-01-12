@@ -7,6 +7,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as Popover from '@radix-ui/react-popover';
 import { Building2, Users, BookOpen, Zap, Check } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -46,6 +47,7 @@ export function FollowUpBar({
   onSelectPlaybooks,
   isLoading = false,
 }: FollowUpBarProps) {
+  const { t } = useTranslation();
   const [deptOpen, setDeptOpen] = useState(false);
   const [roleOpen, setRoleOpen] = useState(false);
   const [playbookOpen, setPlaybookOpen] = useState(false);
@@ -82,7 +84,7 @@ export function FollowUpBar({
   const departmentList = (
     <div className="context-popover-list">
       {departments.length === 0 ? (
-        <div className="context-popover-empty">No departments</div>
+        <div className="context-popover-empty">{t('context.noDepartments')}</div>
       ) : (
         departments.map((dept) => {
           const isSelected = selectedDepartments.includes(dept.id);
@@ -115,7 +117,7 @@ export function FollowUpBar({
   const roleList = (
     <div className="context-popover-list">
       {roles.length === 0 ? (
-        <div className="context-popover-empty">No roles</div>
+        <div className="context-popover-empty">{t('context.noRoles')}</div>
       ) : (
         roles.map((role) => {
           const isSelected = selectedRoles.includes(role.id);
@@ -141,7 +143,7 @@ export function FollowUpBar({
   const playbookList = (
     <div className="context-popover-list">
       {playbooks.length === 0 ? (
-        <div className="context-popover-empty">No playbooks</div>
+        <div className="context-popover-empty">{t('context.noPlaybooks')}</div>
       ) : (
         playbooks.map((pb) => {
           const isSelected = selectedPlaybooks.includes(pb.id);
@@ -229,7 +231,7 @@ export function FollowUpBar({
         {hasDepartments &&
           renderContextButton(
             <Building2 size={16} />,
-            'Departments',
+            t('departments.title'),
             selectedDepartments.length,
             deptOpen,
             setDeptOpen,
@@ -239,7 +241,7 @@ export function FollowUpBar({
         {hasRoles &&
           renderContextButton(
             <Users size={16} />,
-            'Roles',
+            t('roles.title'),
             selectedRoles.length,
             roleOpen,
             setRoleOpen,
@@ -249,7 +251,7 @@ export function FollowUpBar({
         {hasPlaybooks &&
           renderContextButton(
             <BookOpen size={16} />,
-            'Playbooks',
+            t('playbooks.title'),
             selectedPlaybooks.length,
             playbookOpen,
             setPlaybookOpen,
@@ -263,12 +265,10 @@ export function FollowUpBar({
           className={cn('context-icon-btn mode-toggle', chatMode === 'council' && 'council')}
           onClick={() => !disabled && onChatModeChange(chatMode === 'chat' ? 'council' : 'chat')}
           disabled={disabled}
-          aria-label={chatMode === 'chat' ? 'Switch to full council' : 'Switch to quick chat'}
-          title={
-            chatMode === 'chat'
-              ? 'Quick mode (click for council)'
-              : 'Council mode (click for quick)'
+          aria-label={
+            chatMode === 'chat' ? t('chat.tooltips.councilMode') : t('chat.tooltips.chatMode')
           }
+          title={chatMode === 'chat' ? t('chat.tooltips.chatMode') : t('chat.tooltips.councilMode')}
         >
           <Zap size={16} />
         </button>

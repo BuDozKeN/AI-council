@@ -8,6 +8,7 @@
  * because conversations store department as a slug, not a UUID.
  */
 
+import { useTranslation } from 'react-i18next';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import type { Department } from '../../types/business';
 import type { Conversation, ConversationSortBy } from '../../types/conversation';
@@ -37,14 +38,17 @@ export function FilterSortBar({
   activeCount = 0,
   archivedCount = 0,
 }: FilterSortBarProps) {
+  const { t } = useTranslation();
   return (
     <div className="sidebar-filter" onClick={(e) => e.stopPropagation()}>
       <Select value={filter} onValueChange={onFilterChange}>
         <SelectTrigger variant="compact" className="filter-select-trigger">
-          <SelectValue placeholder="All Conversations" />
+          <SelectValue placeholder={t('sidebar.allConversations')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Conversations ({activeCount})</SelectItem>
+          <SelectItem value="all">
+            {t('sidebar.allConversationsCount', { count: activeCount })}
+          </SelectItem>
           {departments.map((dept) => {
             // Use slug for grouping key (conversations store department as slug)
             const deptKey = dept.slug || dept.id;
@@ -56,17 +60,23 @@ export function FilterSortBar({
             );
           })}
           {archivedCount > 0 && (
-            <SelectItem value="archived">Archived ({archivedCount})</SelectItem>
+            <SelectItem value="archived">
+              {t('sidebar.archivedCount', { count: archivedCount })}
+            </SelectItem>
           )}
         </SelectContent>
       </Select>
       <Select value={sortBy} onValueChange={onSortByChange}>
-        <SelectTrigger variant="compact" className="sort-select-trigger" title="Sort conversations">
-          <SelectValue placeholder="Latest" />
+        <SelectTrigger
+          variant="compact"
+          className="sort-select-trigger"
+          title={t('sidebar.sortConversations')}
+        >
+          <SelectValue placeholder={t('sidebar.sortLatest')} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="date">Latest</SelectItem>
-          <SelectItem value="activity">Active</SelectItem>
+          <SelectItem value="date">{t('sidebar.sortLatest')}</SelectItem>
+          <SelectItem value="activity">{t('sidebar.sortActive')}</SelectItem>
         </SelectContent>
       </Select>
     </div>

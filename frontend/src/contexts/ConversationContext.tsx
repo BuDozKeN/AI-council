@@ -24,6 +24,7 @@ import {
   type ReactNode,
   type MutableRefObject,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
 import { useAuth } from '../AuthContext';
@@ -111,6 +112,7 @@ interface ConversationProviderProps {
 }
 
 export function ConversationProvider({ children }: ConversationProviderProps) {
+  const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
 
@@ -539,10 +541,10 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
         }
       };
 
-      toast('Conversation deleted', {
-        description: conversationToDelete.title || 'New Conversation',
+      toast(t('toasts.conversationDeleted'), {
+        description: conversationToDelete.title || t('common.newConversation'),
         action: {
-          label: 'Undo',
+          label: t('common.undo'),
           onClick: () => {
             undoClicked = true;
             setConversations((prev) => {
@@ -553,7 +555,7 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
             if (wasCurrentConversation) {
               setCurrentConversationId(id);
             }
-            toast.success('Conversation restored');
+            toast.success(t('toasts.conversationRestored'));
           },
         },
         duration: 5000,
@@ -561,7 +563,7 @@ export function ConversationProvider({ children }: ConversationProviderProps) {
         onAutoClose: executeDelete,
       });
     },
-    [conversations, currentConversationId, deleteMutation, setCurrentConversationId]
+    [conversations, currentConversationId, deleteMutation, setCurrentConversationId, t]
   );
 
   // Rename a conversation

@@ -15,6 +15,7 @@
 import { formatDate } from '../../../lib/dateUtils';
 
 import { useState, useEffect, FormEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../../api';
 import {
   Users,
@@ -80,6 +81,7 @@ export function MembersTab({
   companyId,
   currentUserId, // To identify current user and their role
 }: MembersTabProps) {
+  const { t } = useTranslation();
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -176,7 +178,7 @@ export function MembersTab({
     return (
       <div className="mc-loading">
         <Spinner size={24} />
-        <span>Loading team...</span>
+        <span>{t('mycompany.loadingTeam')}</span>
       </div>
     );
   }
@@ -187,7 +189,7 @@ export function MembersTab({
         <AlertCircle size={20} />
         <span>{error}</span>
         <Button variant="outline" size="sm" onClick={loadData}>
-          Retry
+          {t('common.retry')}
         </Button>
       </div>
     );
@@ -199,14 +201,12 @@ export function MembersTab({
       <div className="mc-members-header">
         <div className="mc-members-count">
           <Users size={18} />
-          <span>
-            {members.length} {members.length === 1 ? 'member' : 'members'}
-          </span>
+          <span>{t('settings.memberCount', { count: members.length })}</span>
         </div>
         {canManageMembers && (
           <Button variant="default" size="sm" onClick={() => setShowAddForm(!showAddForm)}>
             <Plus size={16} />
-            Add Member
+            {t('settings.addMember')}
           </Button>
         )}
       </div>
@@ -219,7 +219,7 @@ export function MembersTab({
               id="mc-new-member-email"
               name="member-email"
               type="email"
-              placeholder="Email address"
+              placeholder={t('settings.emailAddress')}
               value={newEmail}
               onChange={(e) => setNewEmail(e.target.value)}
               className="mc-input"
@@ -282,7 +282,7 @@ export function MembersTab({
                 <div className="mc-member-info">
                   <span className="mc-member-name">
                     {/* Email display requires backend user lookup (auth.users view) */}
-                    {isCurrentUser ? 'You' : `User ${member.user_id.slice(0, 8)}...`}
+                    {isCurrentUser ? t('settings.you') : `User ${member.user_id.slice(0, 8)}...`}
                   </span>
                   <span className="mc-member-role-label" style={{ color: roleConfig.color }}>
                     {roleConfig.label}
@@ -291,7 +291,7 @@ export function MembersTab({
 
                 {/* Joined date */}
                 <div className="mc-member-joined">
-                  Joined {formatDate(member.joined_at || member.created_at)}
+                  {t('mycompany.joined')} {formatDate(member.joined_at || member.created_at)}
                 </div>
 
                 {/* Actions */}
@@ -305,7 +305,7 @@ export function MembersTab({
                       <button
                         className="mc-icon-btn promote"
                         onClick={() => handleChangeRole(member.id, 'admin')}
-                        title="Promote to Admin"
+                        title={t('settings.promoteToAdmin')}
                       >
                         <ChevronUp size={16} />
                       </button>
@@ -314,7 +314,7 @@ export function MembersTab({
                       <button
                         className="mc-icon-btn demote"
                         onClick={() => handleChangeRole(member.id, 'member')}
-                        title="Demote to Member"
+                        title={t('settings.demoteToMember')}
                       >
                         <ChevronDown size={16} />
                       </button>
@@ -323,7 +323,7 @@ export function MembersTab({
                       <button
                         className="mc-icon-btn danger"
                         onClick={() => handleRemoveMember(member.id, member.role)}
-                        title="Remove from team"
+                        title={t('settings.removeFromTeam')}
                       >
                         <Trash2 size={16} />
                       </button>

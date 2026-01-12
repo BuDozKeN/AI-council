@@ -2,40 +2,32 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as Popover from '@radix-ui/react-popover';
 import { BottomSheet } from '../ui/BottomSheet';
-import { BookOpen, ChevronDown, ScrollText, Layers, FileText, LucideIcon } from 'lucide-react';
+import { BookOpen, ChevronDown, ScrollText, Layers, FileText } from 'lucide-react';
 import '../Stage3.css';
 
 type DocType = 'sop' | 'framework' | 'policy' | '';
 type SaveState = 'idle' | 'saving' | 'promoting' | 'saved' | 'promoted' | 'error';
 
-interface DocTypeOption {
-  value: DocType;
-  label: string;
-  icon: LucideIcon;
-  description: string;
-  colorClass: string;
-}
-
-const DOC_TYPE_OPTIONS: DocTypeOption[] = [
+const DOC_TYPE_OPTIONS = [
   {
-    value: 'sop',
-    label: 'SOP',
+    value: 'sop' as DocType,
+    labelKey: 'stages.docTypes.sop' as const,
+    descKey: 'stages.docTypes.sopDesc' as const,
     icon: ScrollText,
-    description: 'Standard Operating Procedure',
     colorClass: 'sop',
   },
   {
-    value: 'framework',
-    label: 'Framework',
+    value: 'framework' as DocType,
+    labelKey: 'stages.docTypes.framework' as const,
+    descKey: 'stages.docTypes.frameworkDesc' as const,
     icon: Layers,
-    description: 'Guidelines and best practices',
     colorClass: 'framework',
   },
   {
-    value: 'policy',
-    label: 'Policy',
+    value: 'policy' as DocType,
+    labelKey: 'stages.docTypes.policy' as const,
+    descKey: 'stages.docTypes.policyDesc' as const,
     icon: FileText,
-    description: 'Rules and requirements',
     colorClass: 'policy',
   },
 ];
@@ -65,6 +57,10 @@ export function PlaybookDropdown({
   const isSaved = saveState === 'saved' || saveState === 'promoted';
   const isDisabled = saveState === 'saving' || saveState === 'promoting';
 
+  // Get translated label and description for selected option
+  const selectedLabel = selectedOption ? t(selectedOption.labelKey) : '';
+  const selectedDesc = selectedOption ? t(selectedOption.descKey) : '';
+
   const handleSelect = (value: DocType) => {
     if (isSaved) return;
     setSelectedDocType(value);
@@ -76,7 +72,7 @@ export function PlaybookDropdown({
       {selectedOption ? (
         <>
           <selectedOption.icon className="h-3.5 w-3.5" />
-          <span>{selectedOption.label}</span>
+          <span>{selectedLabel}</span>
         </>
       ) : (
         <>
@@ -117,8 +113,8 @@ export function PlaybookDropdown({
             >
               <Icon className="h-4 w-4" />
               <div className="toolbar-dropdown-option-text">
-                <span className="toolbar-dropdown-option-name">{option.label}</span>
-                <span className="toolbar-dropdown-option-desc">{option.description}</span>
+                <span className="toolbar-dropdown-option-name">{t(option.labelKey)}</span>
+                <span className="toolbar-dropdown-option-desc">{t(option.descKey)}</span>
               </div>
             </button>
           );
@@ -137,9 +133,9 @@ export function PlaybookDropdown({
           disabled={isDisabled}
           title={
             isSaved && selectedOption
-              ? t('stages.savedAs', { type: selectedOption.label })
+              ? t('stages.savedAs', { type: selectedLabel })
               : selectedOption
-                ? selectedOption.description
+                ? selectedDesc
                 : t('stages.optionallyClassify')
           }
         >
@@ -181,8 +177,8 @@ export function PlaybookDropdown({
                     <Icon className="h-5 w-5" />
                   </div>
                   <div className="toolbar-option-content">
-                    <span className="toolbar-option-name">{option.label}</span>
-                    <span className="toolbar-option-desc">{option.description}</span>
+                    <span className="toolbar-option-name">{t(option.labelKey)}</span>
+                    <span className="toolbar-option-desc">{t(option.descKey)}</span>
                   </div>
                 </button>
               );
@@ -207,9 +203,9 @@ export function PlaybookDropdown({
           disabled={isDisabled}
           title={
             isSaved && selectedOption
-              ? t('stages.savedAs', { type: selectedOption.label })
+              ? t('stages.savedAs', { type: selectedLabel })
               : selectedOption
-                ? selectedOption.description
+                ? selectedDesc
                 : t('stages.optionallyClassify')
           }
         >

@@ -13,6 +13,7 @@
  */
 
 import { useEffect, useMemo, useSyncExternalStore } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Command } from 'cmdk';
 import { createPortal } from 'react-dom';
 import type { Conversation } from '../../types/conversation';
@@ -353,6 +354,7 @@ export function CommandPalette({
   theme,
   onThemeChange,
 }: CommandPaletteProps) {
+  const { t } = useTranslation();
   const mounted = useIsMounted();
 
   // Build actions list
@@ -362,8 +364,8 @@ export function CommandPalette({
     // === NAVIGATION ===
     list.push({
       id: 'nav-settings',
-      label: 'Open Settings',
-      description: 'Profile, billing, team, API keys',
+      label: t('commandPalette.actions.openSettings'),
+      description: t('commandPalette.actions.openSettingsDesc'),
       icon: <Icons.Settings />,
       category: 'navigation',
       keywords: ['preferences', 'account', 'profile'],
@@ -376,8 +378,8 @@ export function CommandPalette({
 
     list.push({
       id: 'nav-mycompany',
-      label: 'Open My Company',
-      description: 'Departments, roles, playbooks, decisions',
+      label: t('commandPalette.actions.openMyCompany'),
+      description: t('commandPalette.actions.openMyCompanyDesc'),
       icon: <Icons.Building />,
       category: 'navigation',
       keywords: ['company', 'organization', 'business', 'knowledge'],
@@ -389,8 +391,8 @@ export function CommandPalette({
 
     list.push({
       id: 'nav-leaderboard',
-      label: 'Open Leaderboard',
-      description: 'Model performance rankings',
+      label: t('commandPalette.actions.openLeaderboard'),
+      description: t('commandPalette.actions.openLeaderboardDesc'),
       icon: <Icons.Trophy />,
       category: 'navigation',
       keywords: ['rankings', 'models', 'performance', 'stats'],
@@ -402,8 +404,8 @@ export function CommandPalette({
 
     list.push({
       id: 'nav-llmhub',
-      label: 'Open LLM Hub',
-      description: 'Configure AI models and presets',
+      label: t('commandPalette.actions.openLLMHub'),
+      description: t('commandPalette.actions.openLLMHubDesc'),
       icon: <Icons.Brain />,
       category: 'navigation',
       keywords: ['ai', 'models', 'config', 'gpt', 'claude', 'gemini'],
@@ -416,8 +418,8 @@ export function CommandPalette({
     // === CREATE ===
     list.push({
       id: 'create-conversation',
-      label: 'New Council Session',
-      description: 'Start a new AI council deliberation',
+      label: t('commandPalette.actions.newSession'),
+      description: t('commandPalette.actions.newSessionDesc'),
       icon: <Icons.Plus />,
       category: 'create',
       keywords: ['new', 'chat', 'conversation', 'ask', 'question'],
@@ -436,7 +438,7 @@ export function CommandPalette({
     recentConversations.forEach((conv) => {
       list.push({
         id: `conv-${conv.id}`,
-        label: conv.title || 'Untitled Conversation',
+        label: conv.title || t('commandPalette.actions.untitledConversation'),
         description: conv.created_at ? new Date(conv.created_at).toLocaleDateString() : undefined,
         icon: <Icons.MessageSquare />,
         category: 'conversations',
@@ -452,8 +454,8 @@ export function CommandPalette({
     projects.slice(0, 5).forEach((project) => {
       list.push({
         id: `project-${project.id}`,
-        label: `Switch to: ${project.name}`,
-        description: project.description || 'Project',
+        label: t('commandPalette.actions.switchToProject', { name: project.name }),
+        description: project.description || t('projects.title'),
         icon: <Icons.Folder />,
         category: 'projects',
         keywords: ['project', 'initiative', 'switch'],
@@ -467,8 +469,8 @@ export function CommandPalette({
     if (selectedProject) {
       list.push({
         id: 'project-clear',
-        label: 'Clear Project Selection',
-        description: 'Remove project context from conversations',
+        label: t('commandPalette.actions.clearProject'),
+        description: t('commandPalette.actions.clearProjectDesc'),
         icon: <Icons.Folder />,
         category: 'projects',
         keywords: ['clear', 'remove', 'project'],
@@ -482,7 +484,7 @@ export function CommandPalette({
     // === THEME ===
     list.push({
       id: 'theme-light',
-      label: 'Switch to Light Mode',
+      label: t('commandPalette.actions.lightMode'),
       icon: <Icons.Sun />,
       category: 'theme',
       keywords: ['theme', 'light', 'bright', 'day'],
@@ -494,7 +496,7 @@ export function CommandPalette({
 
     list.push({
       id: 'theme-dark',
-      label: 'Switch to Dark Mode',
+      label: t('commandPalette.actions.darkMode'),
       icon: <Icons.Moon />,
       category: 'theme',
       keywords: ['theme', 'dark', 'night'],
@@ -506,8 +508,8 @@ export function CommandPalette({
 
     list.push({
       id: 'theme-system',
-      label: 'Use System Theme',
-      description: 'Match your OS preference',
+      label: t('commandPalette.actions.systemTheme'),
+      description: t('commandPalette.actions.systemThemeDesc'),
       icon: theme === 'dark' ? <Icons.Moon /> : <Icons.Sun />,
       category: 'theme',
       keywords: ['theme', 'system', 'auto', 'os'],
@@ -519,6 +521,7 @@ export function CommandPalette({
 
     return list;
   }, [
+    t,
     onOpenSettings,
     onOpenMyCompany,
     onOpenLeaderboard,
@@ -556,12 +559,12 @@ export function CommandPalette({
   }, [actions]);
 
   const categoryLabels: Record<ActionCategory, string> = {
-    navigation: 'Navigation',
-    create: 'Create',
-    conversations: 'Recent Conversations',
-    projects: 'Projects',
-    settings: 'Settings',
-    theme: 'Theme',
+    navigation: t('commandPalette.navigation'),
+    create: t('commandPalette.create'),
+    conversations: t('commandPalette.recentConversations'),
+    projects: t('projects.title'),
+    settings: t('settings.title'),
+    theme: t('commandPalette.theme'),
   };
 
   // Handle keyboard shortcut
@@ -592,14 +595,14 @@ export function CommandPalette({
             <Icons.Search />
             <Command.Input
               className="command-palette-input"
-              placeholder="Type a command or search..."
+              placeholder={t('commandPalette.placeholder')}
               autoFocus
             />
             <kbd className="command-palette-kbd">ESC</kbd>
           </div>
 
           <Command.List className="command-palette-list">
-            <Command.Empty className="command-palette-empty">No results found.</Command.Empty>
+            <Command.Empty className="command-palette-empty">{t('common.noResults')}</Command.Empty>
 
             {/* Render groups that have items */}
             {(Object.keys(groupedActions) as ActionCategory[]).map((category) => {

@@ -9,6 +9,7 @@
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { Pencil, Star, Archive, ArchiveRestore, Trash2, Download, LucideIcon } from 'lucide-react';
 import type { Conversation } from '../../types';
@@ -50,6 +51,7 @@ export function ConversationContextMenu({
   onDelete,
   onExport,
 }: ConversationContextMenuProps) {
+  const { t } = useTranslation();
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   // Close on Escape and click outside
@@ -105,7 +107,7 @@ export function ConversationContextMenu({
 
   const menuItems: MenuItem[] = [
     {
-      label: 'Rename',
+      label: t('contextMenu.rename'),
       icon: Pencil,
       onClick: () => {
         onRename(conversation);
@@ -113,7 +115,7 @@ export function ConversationContextMenu({
       },
     },
     {
-      label: conversation.is_starred ? 'Remove star' : 'Add star',
+      label: conversation.is_starred ? t('contextMenu.removeStar') : t('contextMenu.addStar'),
       icon: Star,
       onClick: () => {
         onStar(conversation.id, !conversation.is_starred);
@@ -123,7 +125,7 @@ export function ConversationContextMenu({
     },
     { type: 'separator' },
     {
-      label: conversation.is_archived ? 'Unarchive' : 'Archive',
+      label: conversation.is_archived ? t('contextMenu.unarchive') : t('contextMenu.archive'),
       icon: conversation.is_archived ? ArchiveRestore : Archive,
       onClick: () => {
         onArchive(conversation.id, !conversation.is_archived);
@@ -133,7 +135,7 @@ export function ConversationContextMenu({
     ...(onExport
       ? [
           {
-            label: 'Export',
+            label: t('contextMenu.export'),
             icon: Download,
             onClick: () => {
               onExport(conversation.id);
@@ -144,7 +146,7 @@ export function ConversationContextMenu({
       : []),
     { type: 'separator' },
     {
-      label: 'Delete',
+      label: t('common.delete'),
       icon: Trash2,
       onClick: () => {
         onDelete(conversation.id);
@@ -163,7 +165,7 @@ export function ConversationContextMenu({
         top: position.y,
       }}
       role="menu"
-      aria-label="Conversation actions"
+      aria-label={t('contextMenu.conversationActions')}
     >
       {menuItems.map((item, index) => {
         if (item.type === 'separator') {

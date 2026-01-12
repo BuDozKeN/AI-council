@@ -9,7 +9,8 @@
  */
 
 import { useTheme } from 'next-themes';
-import { useSyncExternalStore, useCallback } from 'react';
+import { useSyncExternalStore, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Sun, Moon, Monitor } from 'lucide-react';
 import './ThemeToggle.css';
 
@@ -26,16 +27,21 @@ function useIsMounted() {
 const themeCycle = ['light', 'dark', 'system'] as const;
 type ThemeValue = (typeof themeCycle)[number];
 
-// Theme info for tooltips
-const themeInfo: Record<ThemeValue, { label: string; description: string }> = {
-  light: { label: 'Light', description: 'Bright background with dark text' },
-  dark: { label: 'Dark', description: 'Dark background with light text' },
-  system: { label: 'System', description: 'Matches your device settings' },
-};
-
 export function ThemeToggle() {
+  const { t } = useTranslation();
   const { theme, resolvedTheme, setTheme } = useTheme();
   const mounted = useIsMounted();
+
+  // Build translated theme info
+  const themeInfo = useMemo(
+    () =>
+      ({
+        light: { label: t('theme.light'), description: t('theme.lightDesc') },
+        dark: { label: t('theme.dark'), description: t('theme.darkDesc') },
+        system: { label: t('theme.system'), description: t('theme.systemDesc') },
+      }) as Record<ThemeValue, { label: string; description: string }>,
+    [t]
+  );
 
   // Cycle to next theme on click
   // Set timestamp FIRST so onClose handlers can detect and skip closing
@@ -78,7 +84,7 @@ export function ThemeToggle() {
   if (!mounted) {
     return (
       <div className="theme-toggle-container">
-        <button className="theme-toggle-btn" disabled aria-label="Loading theme">
+        <button className="theme-toggle-btn" disabled aria-label={t('common.loading')}>
           <Monitor size={16} />
         </button>
       </div>
@@ -100,7 +106,9 @@ export function ThemeToggle() {
   // For system theme, show what it resolved to
   const currentLabel =
     currentTheme === 'system'
-      ? `System (${resolvedTheme === 'dark' ? 'Dark' : 'Light'})`
+      ? t('theme.systemResolved', {
+          resolved: resolvedTheme === 'dark' ? t('theme.dark') : t('theme.light'),
+        })
       : currentInfo.label;
 
   // Render directly - no portal. CSS handles fixed positioning.
@@ -111,8 +119,8 @@ export function ThemeToggle() {
         onClick={handleClick}
         onPointerDown={handlePointerDown}
         onMouseDown={handleMouseDown}
-        aria-label={`Current: ${currentLabel}. Click to switch to ${nextInfo.label}.`}
-        title={`${currentLabel} — Click for ${nextInfo.label}`}
+        aria-label={t('theme.currentLabel', { current: currentLabel, next: nextInfo.label })}
+        title={t('theme.switchTo', { current: currentLabel, next: nextInfo.label })}
       >
         <Icon size={16} />
       </button>

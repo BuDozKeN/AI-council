@@ -1,4 +1,11 @@
 {
+  "toasts": {
+    "conversationDeleted": "Conversation deleted",
+    "conversationRestored": "Conversation restored",
+    "conversationsDeleted": "{{count}} conversations deleted",
+    "conversationsRestored": "{{count}} conversations restored",
+    "deleteConversationsFailed": "Failed to delete conversations"
+  },
   "landing": {
     "headline": "The only AI worth",
     "headlineEmphasis": "trusting.",
@@ -6,7 +13,21 @@
     "statsAIs": "AIs",
     "statsRound": "round",
     "statsRounds": "rounds",
-    "statsAnswer": "answer"
+    "statsAnswer": "answer",
+    "quickActions": {
+      "writePitch": "Write a pitch",
+      "writePitchPrompt": "Help me write a compelling pitch for ",
+      "reviewDocument": "Review a document",
+      "reviewDocumentPrompt": "Please review this document and identify any issues: ",
+      "planLaunch": "Plan a launch",
+      "planLaunchPrompt": "Help me plan the launch strategy for ",
+      "analyzeDecision": "Analyze a decision",
+      "analyzeDecisionPrompt": "I need to make a decision about ",
+      "handleSituation": "Handle a situation",
+      "handleSituationPrompt": "Help me handle this situation: ",
+      "improveMetrics": "Improve metrics",
+      "improveMetricsPrompt": "How can I improve "
+    }
   },
   "errorBoundary": {
     "title": "Oops, something broke",
@@ -89,7 +110,105 @@
     "select": "Select",
     "tryAgain": "Try Again",
     "failedToSave": "Failed to save",
-    "unknownError": "An unknown error occurred"
+    "unknownError": "An unknown error occurred",
+    "undo": "Undo",
+    "newConversation": "New Conversation",
+    "keepOriginal": "Keep Original",
+    "useSuggestion": "Use Suggestion",
+    "suggestedTitle": "Suggested title",
+    "sortBy": "Sort By",
+    "sortOptions": {
+      "latest": "Latest",
+      "newest": "Newest",
+      "alphabetical": "A-Z",
+      "decisions": "Decisions"
+    }
+  },
+  "theme": {
+    "light": "Light",
+    "lightDesc": "Bright background with dark text",
+    "dark": "Dark",
+    "darkDesc": "Dark background with light text",
+    "system": "System",
+    "systemDesc": "Matches your device settings",
+    "systemResolved": "System ({{resolved}})",
+    "currentLabel": "Current: {{current}}. Click to switch to {{next}}.",
+    "switchTo": "{{current}} — Click for {{next}}"
+  },
+  "aiAssist": {
+    "suggestion": "AI Suggestion",
+    "noSuggestion": "No suggestion returned",
+    "failedToGet": "Failed to get suggestion",
+    "contexts": {
+      "projectTitle": {
+        "placeholder": "Describe your project briefly...",
+        "button": "Write title for me",
+        "hint": "Type a few words about your project"
+      },
+      "projectDescription": {
+        "placeholder": "What is this project about?",
+        "button": "AI, rewrite this better",
+        "hint": "Describe what you're building"
+      },
+      "projectContext": {
+        "placeholder": "Tell us about your project...",
+        "button": "AI, rewrite this better",
+        "hint": "Just type what you know about the project"
+      },
+      "companyContext": {
+        "placeholder": "Tell us about your company...",
+        "button": "Write it nicely for me",
+        "hint": "Just type what you know"
+      },
+      "departmentDescription": {
+        "placeholder": "What does this department handle?",
+        "button": "Help me write this",
+        "hint": "Describe what this team does"
+      },
+      "roleDescription": {
+        "placeholder": "What does this role do?",
+        "button": "Help me write this",
+        "hint": "Describe what this person does"
+      },
+      "rolePrompt": {
+        "placeholder": "Describe the role...",
+        "button": "Write instructions",
+        "hint": "Describe what kind of advisor this should be"
+      },
+      "playbookContent": {
+        "placeholder": "Describe what you need (e.g., 'how we onboard new customers')...",
+        "button": "Let our expert write this",
+        "buttonSop": "Let our SOP expert write this",
+        "buttonFramework": "Let our framework expert write this",
+        "buttonPolicy": "Let our policy expert write this",
+        "hint": "Type a brief description - AI will write the full document"
+      },
+      "decisionTitle": {
+        "placeholder": "What was decided?",
+        "button": "Write title for me",
+        "hint": "Summarize the decision briefly"
+      },
+      "decisionStatement": {
+        "placeholder": "What was decided?",
+        "button": "Make it clearer",
+        "hint": "State what was decided"
+      },
+      "knowledgeReasoning": {
+        "placeholder": "Why was this decided?",
+        "button": "Help me explain",
+        "hint": "Add any reasoning you remember"
+      },
+      "questionRefine": {
+        "placeholder": "What do you want to ask?",
+        "button": "Help me ask better",
+        "hint": "Type your question"
+      },
+      "generic": {
+        "placeholder": "Enter your text...",
+        "button": "Help me write this",
+        "hint": "Type something"
+      }
+    }
   },
   "help": {
     "title": "Help & Support",
@@ -218,7 +337,25 @@
     "startNewConversation": "Start a new conversation to ask your council",
     "nothingArchived": "Nothing archived yet",
     "noActiveConversations": "No active conversations",
-    "scrollForMore": "Scroll for more conversations"
+    "scrollForMore": "Scroll for more conversations",
+    "searchPlaceholder": "Search conversations... (⌘K)",
+    "resultsCount": "{{count}} result",
+    "resultsCount_other": "{{count}} results",
+    "allConversations": "All Conversations",
+    "allConversationsCount": "All Conversations ({{count}})",
+    "archivedCount": "Archived ({{count}})",
+    "sortConversations": "Sort conversations",
+    "sortLatest": "Latest",
+    "sortActive": "Active",
+    "settingsProfile": "Settings & Profile",
+    "signOut": "Sign out",
+    "deleting": "Deleting...",
+    "bulkActions": "Bulk actions",
+    "selectedCount": "{{count}} selected",
+    "cancelSelection": "Cancel selection",
+    "deletingConversations": "Deleting conversations",
+    "deleteConversations": "Delete {{count}} conversation",
+    "deleteConversations_other": "Delete {{count}} conversations"
   },
   "settings": {
     "title": "Settings",
@@ -339,7 +476,30 @@
     "tokenUsageOff": "Token usage hidden from UI",
     "visible": "Visible",
     "hidden": "Hidden",
-    "tokenUsageInfo": "Token usage will be displayed below each council stage."
+    "tokenUsageInfo": "Token usage will be displayed below each council stage.",
+    "mockLengthOverride": "Response Length Override",
+    "mockLengthOverrideDesc": "Test different lengths without changing LLM Hub",
+    "mockLengthOverrideActive": "Override active: Mock will use {{tokens}} tokens regardless of LLM Hub settings",
+    "mockLength": {
+      "useDefault": "Use LLM Hub Settings",
+      "useDefaultDesc": "Respects your production config",
+      "short": "Short (~1 paragraph)",
+      "shortDesc": "512 tokens",
+      "medium": "Medium (~1 page)",
+      "mediumDesc": "1536 tokens",
+      "long": "Long (~2-3 pages)",
+      "longDesc": "4096 tokens",
+      "veryLong": "Very Long (~4+ pages)",
+      "veryLongDesc": "8192 tokens"
+    },
+    "roleLabels": {
+      "owner": "Owner",
+      "ownerDesc": "Full control",
+      "admin": "Admin",
+      "adminDesc": "Manage members",
+      "member": "Member",
+      "memberDesc": "View & contribute"
+    }
   },
   "company": {
     "overview": "Overview",
@@ -462,6 +622,14 @@
     "savedAs": "Saved as {{type}}",
     "optionallyClassify": "Optionally classify as a playbook type",
     "selectPlaybookType": "Select Playbook Type",
+    "docTypes": {
+      "sop": "SOP",
+      "sopDesc": "Standard Operating Procedure",
+      "framework": "Framework",
+      "frameworkDesc": "Guidelines and best practices",
+      "policy": "Policy",
+      "policyDesc": "Rules and requirements"
+    },
     "selectProject": "Select Project",
     "noProject": "No Project",
     "saveWithoutProject": "Save without linking to a project",
@@ -1106,7 +1274,19 @@
     "queriesRemaining": "{{count}} queries remaining",
     "queriesUnlimited": "Unlimited queries",
     "nextBillingDate": "Next billing date",
-    "cancelSubscription": "Cancel Subscription"
+    "cancelSubscription": "Cancel Subscription",
+    "loadingBilling": "Loading billing information...",
+    "loadError": "Couldn't load your billing info. Please try again.",
+    "portalError": "Couldn't open billing portal. Please try again.",
+    "subscriptionPlans": "Subscription Plans",
+    "currentUsage": "Current Usage",
+    "queriesUsedUnlimited": "{{count}} queries used (Unlimited)",
+    "queriesUsedMonthly": "{{used}} / {{limit}} queries this month",
+    "mostPopular": "Most Popular",
+    "cancelToDowngrade": "Cancel subscription to downgrade to Free",
+    "subscribe": "Subscribe",
+    "manageSubscriptionBilling": "Manage Subscription & Billing",
+    "stripePowered": "Secure payments powered by Stripe"
   },
   "leaderboard": {
     "title": "Model Leaderboard",
@@ -1155,6 +1335,42 @@
   "modeToggle": {
     "quick": "Quick",
     "fullCouncil": "Full Council"
+  },
+  "commandPalette": {
+    "placeholder": "Type a command or search...",
+    "navigation": "Navigation",
+    "create": "Create",
+    "recentConversations": "Recent Conversations",
+    "theme": "Theme",
+    "actions": {
+      "openSettings": "Open Settings",
+      "openSettingsDesc": "Profile, billing, team, API keys",
+      "openMyCompany": "Open My Company",
+      "openMyCompanyDesc": "Departments, roles, playbooks, decisions",
+      "openLeaderboard": "Open Leaderboard",
+      "openLeaderboardDesc": "Model performance rankings",
+      "openLLMHub": "Open LLM Hub",
+      "openLLMHubDesc": "Configure AI models and presets",
+      "newSession": "New Council Session",
+      "newSessionDesc": "Start a new AI council deliberation",
+      "untitledConversation": "Untitled Conversation",
+      "switchToProject": "Switch to: {{name}}",
+      "clearProject": "Clear Project Selection",
+      "clearProjectDesc": "Remove project context from conversations",
+      "lightMode": "Switch to Light Mode",
+      "darkMode": "Switch to Dark Mode",
+      "systemTheme": "Use System Theme",
+      "systemThemeDesc": "Match your OS preference"
+    }
+  },
+  "contextMenu": {
+    "conversationActions": "Conversation actions",
+    "rename": "Rename",
+    "addStar": "Add star",
+    "removeStar": "Remove star",
+    "archive": "Archive",
+    "unarchive": "Unarchive",
+    "export": "Export"
   },
   "validation": {
     "required": "This field is required",
@@ -1314,6 +1530,8 @@
     "avgTokensPerSession": "Avg tokens/session",
     "rankingParseRate": "Ranking parse rate",
     "inputTokens": "Input tokens",
-    "outputTokens": "Output tokens"
+    "outputTokens": "Output tokens",
+    "loadingTeam": "Loading team...",
+    "joined": "Joined"
   }
 }

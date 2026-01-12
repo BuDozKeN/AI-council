@@ -1,4 +1,11 @@
 {
+  "toasts": {
+    "conversationDeleted": "Conversación eliminada",
+    "conversationRestored": "Conversación restaurada",
+    "conversationsDeleted": "{{count}} conversaciones eliminadas",
+    "conversationsRestored": "{{count}} conversaciones restauradas",
+    "deleteConversationsFailed": "Error al eliminar conversaciones"
+  },
   "landing": {
     "headline": "La única IA en la que",
     "headlineEmphasis": "confiar.",
@@ -6,7 +13,21 @@
     "statsAIs": "IAs",
     "statsRound": "ronda",
     "statsRounds": "rondas",
-    "statsAnswer": "respuesta"
+    "statsAnswer": "respuesta",
+    "quickActions": {
+      "writePitch": "Escribir un pitch",
+      "writePitchPrompt": "Ayúdame a escribir un pitch convincente para ",
+      "reviewDocument": "Revisar un documento",
+      "reviewDocumentPrompt": "Por favor revisa este documento e identifica problemas: ",
+      "planLaunch": "Planificar un lanzamiento",
+      "planLaunchPrompt": "Ayúdame a planificar la estrategia de lanzamiento para ",
+      "analyzeDecision": "Analizar una decisión",
+      "analyzeDecisionPrompt": "Necesito tomar una decisión sobre ",
+      "handleSituation": "Manejar una situación",
+      "handleSituationPrompt": "Ayúdame a manejar esta situación: ",
+      "improveMetrics": "Mejorar métricas",
+      "improveMetricsPrompt": "¿Cómo puedo mejorar "
+    }
   },
   "errorBoundary": {
     "title": "Vaya, algo salió mal",
@@ -89,7 +110,105 @@
     "select": "Seleccionar",
     "tryAgain": "Intentar de Nuevo",
     "failedToSave": "Error al guardar",
-    "unknownError": "Ocurrió un error desconocido"
+    "unknownError": "Ocurrió un error desconocido",
+    "undo": "Deshacer",
+    "newConversation": "Nueva Conversación",
+    "keepOriginal": "Mantener Original",
+    "useSuggestion": "Usar Sugerencia",
+    "suggestedTitle": "Título sugerido",
+    "sortBy": "Ordenar Por",
+    "sortOptions": {
+      "latest": "Más Reciente",
+      "newest": "Más Nuevo",
+      "alphabetical": "A-Z",
+      "decisions": "Decisiones"
+    }
+  },
+  "theme": {
+    "light": "Claro",
+    "lightDesc": "Fondo claro con texto oscuro",
+    "dark": "Oscuro",
+    "darkDesc": "Fondo oscuro con texto claro",
+    "system": "Sistema",
+    "systemDesc": "Coincide con la configuración de tu dispositivo",
+    "systemResolved": "Sistema ({{resolved}})",
+    "currentLabel": "Actual: {{current}}. Clic para cambiar a {{next}}.",
+    "switchTo": "{{current}} — Clic para {{next}}"
+  },
+  "aiAssist": {
+    "suggestion": "Sugerencia de IA",
+    "noSuggestion": "No se obtuvo sugerencia",
+    "failedToGet": "Error al obtener sugerencia",
+    "contexts": {
+      "projectTitle": {
+        "placeholder": "Describe tu proyecto brevemente...",
+        "button": "Escribe el título por mí",
+        "hint": "Escribe algunas palabras sobre tu proyecto"
+      },
+      "projectDescription": {
+        "placeholder": "¿De qué se trata este proyecto?",
+        "button": "IA, reescríbelo mejor",
+        "hint": "Describe lo que estás construyendo"
+      },
+      "projectContext": {
+        "placeholder": "Cuéntanos sobre tu proyecto...",
+        "button": "IA, reescríbelo mejor",
+        "hint": "Solo escribe lo que sepas del proyecto"
+      },
+      "companyContext": {
+        "placeholder": "Cuéntanos sobre tu empresa...",
+        "button": "Escríbelo bien por mí",
+        "hint": "Solo escribe lo que sepas"
+      },
+      "departmentDescription": {
+        "placeholder": "¿Qué maneja este departamento?",
+        "button": "Ayúdame a escribir esto",
+        "hint": "Describe qué hace este equipo"
+      },
+      "roleDescription": {
+        "placeholder": "¿Qué hace este rol?",
+        "button": "Ayúdame a escribir esto",
+        "hint": "Describe qué hace esta persona"
+      },
+      "rolePrompt": {
+        "placeholder": "Describe el rol...",
+        "button": "Escribir instrucciones",
+        "hint": "Describe qué tipo de asesor debería ser"
+      },
+      "playbookContent": {
+        "placeholder": "Describe lo que necesitas (ej. 'cómo incorporamos nuevos clientes')...",
+        "button": "Deja que nuestro experto lo escriba",
+        "buttonSop": "Deja que nuestro experto en SOP lo escriba",
+        "buttonFramework": "Deja que nuestro experto en frameworks lo escriba",
+        "buttonPolicy": "Deja que nuestro experto en políticas lo escriba",
+        "hint": "Escribe una breve descripción - la IA escribirá el documento completo"
+      },
+      "decisionTitle": {
+        "placeholder": "¿Qué se decidió?",
+        "button": "Escribe el título por mí",
+        "hint": "Resume la decisión brevemente"
+      },
+      "decisionStatement": {
+        "placeholder": "¿Qué se decidió?",
+        "button": "Hazlo más claro",
+        "hint": "Indica qué se decidió"
+      },
+      "knowledgeReasoning": {
+        "placeholder": "¿Por qué se decidió esto?",
+        "button": "Ayúdame a explicar",
+        "hint": "Agrega el razonamiento que recuerdes"
+      },
+      "questionRefine": {
+        "placeholder": "¿Qué quieres preguntar?",
+        "button": "Ayúdame a preguntar mejor",
+        "hint": "Escribe tu pregunta"
+      },
+      "generic": {
+        "placeholder": "Ingresa tu texto...",
+        "button": "Ayúdame a escribir esto",
+        "hint": "Escribe algo"
+      }
+    }
   },
   "help": {
     "title": "Ayuda y Soporte",
@@ -218,7 +337,25 @@
     "startNewConversation": "Inicia una nueva conversación para preguntar a tu consejo",
     "nothingArchived": "Nada archivado aún",
     "noActiveConversations": "Sin conversaciones activas",
-    "scrollForMore": "Desplaza para más conversaciones"
+    "scrollForMore": "Desplaza para más conversaciones",
+    "searchPlaceholder": "Buscar conversaciones... (⌘K)",
+    "resultsCount": "{{count}} resultado",
+    "resultsCount_other": "{{count}} resultados",
+    "allConversations": "Todas las conversaciones",
+    "allConversationsCount": "Todas las conversaciones ({{count}})",
+    "archivedCount": "Archivadas ({{count}})",
+    "sortConversations": "Ordenar conversaciones",
+    "sortLatest": "Más recientes",
+    "sortActive": "Activas",
+    "settingsProfile": "Configuración y Perfil",
+    "signOut": "Cerrar sesión",
+    "deleting": "Eliminando...",
+    "bulkActions": "Acciones masivas",
+    "selectedCount": "{{count}} seleccionados",
+    "cancelSelection": "Cancelar selección",
+    "deletingConversations": "Eliminando conversaciones",
+    "deleteConversations": "Eliminar {{count}} conversación",
+    "deleteConversations_other": "Eliminar {{count}} conversaciones"
   },
   "settings": {
     "title": "Configuración",
@@ -339,7 +476,30 @@
     "tokenUsageOff": "Uso de tokens oculto de la UI",
     "visible": "Visible",
     "hidden": "Oculto",
-    "tokenUsageInfo": "El uso de tokens se mostrará debajo de cada etapa del consejo."
+    "tokenUsageInfo": "El uso de tokens se mostrará debajo de cada etapa del consejo.",
+    "mockLengthOverride": "Anular longitud de respuesta",
+    "mockLengthOverrideDesc": "Prueba diferentes longitudes sin cambiar el Hub de LLM",
+    "mockLengthOverrideActive": "Anulación activa: El modo simulado usará {{tokens}} tokens sin importar la configuración del Hub de LLM",
+    "mockLength": {
+      "useDefault": "Usar configuración del Hub de LLM",
+      "useDefaultDesc": "Respeta tu configuración de producción",
+      "short": "Corto (~1 párrafo)",
+      "shortDesc": "512 tokens",
+      "medium": "Medio (~1 página)",
+      "mediumDesc": "1536 tokens",
+      "long": "Largo (~2-3 páginas)",
+      "longDesc": "4096 tokens",
+      "veryLong": "Muy largo (~4+ páginas)",
+      "veryLongDesc": "8192 tokens"
+    },
+    "roleLabels": {
+      "owner": "Propietario",
+      "ownerDesc": "Control total",
+      "admin": "Administrador",
+      "adminDesc": "Gestionar miembros",
+      "member": "Miembro",
+      "memberDesc": "Ver y contribuir"
+    }
   },
   "company": {
     "overview": "Resumen",
@@ -462,6 +622,14 @@
     "savedAs": "Guardado como {{type}}",
     "optionallyClassify": "Opcionalmente clasificar como tipo de playbook",
     "selectPlaybookType": "Seleccionar tipo de Playbook",
+    "docTypes": {
+      "sop": "SOP",
+      "sopDesc": "Procedimiento Operativo Estándar",
+      "framework": "Marco",
+      "frameworkDesc": "Directrices y mejores prácticas",
+      "policy": "Política",
+      "policyDesc": "Reglas y requisitos"
+    },
     "selectProject": "Seleccionar proyecto",
     "noProject": "Sin proyecto",
     "saveWithoutProject": "Guardar sin vincular a un proyecto",
@@ -1106,7 +1274,19 @@
     "queriesRemaining": "{{count}} consultas restantes",
     "queriesUnlimited": "Consultas ilimitadas",
     "nextBillingDate": "Próxima fecha de facturación",
-    "cancelSubscription": "Cancelar suscripción"
+    "cancelSubscription": "Cancelar suscripción",
+    "loadingBilling": "Cargando información de facturación...",
+    "loadError": "No se pudo cargar tu información de facturación. Por favor, inténtalo de nuevo.",
+    "portalError": "No se pudo abrir el portal de facturación. Por favor, inténtalo de nuevo.",
+    "subscriptionPlans": "Planes de Suscripción",
+    "currentUsage": "Uso Actual",
+    "queriesUsedUnlimited": "{{count}} consultas usadas (Ilimitado)",
+    "queriesUsedMonthly": "{{used}} / {{limit}} consultas este mes",
+    "mostPopular": "Más Popular",
+    "cancelToDowngrade": "Cancela la suscripción para cambiar a Gratis",
+    "subscribe": "Suscribirse",
+    "manageSubscriptionBilling": "Gestionar Suscripción y Facturación",
+    "stripePowered": "Pagos seguros con Stripe"
   },
   "leaderboard": {
     "title": "Clasificación de modelos",
@@ -1155,6 +1335,42 @@
   "modeToggle": {
     "quick": "Rápido",
     "fullCouncil": "Consejo Completo"
+  },
+  "commandPalette": {
+    "placeholder": "Escribe un comando o busca...",
+    "navigation": "Navegación",
+    "create": "Crear",
+    "recentConversations": "Conversaciones Recientes",
+    "theme": "Tema",
+    "actions": {
+      "openSettings": "Abrir Configuración",
+      "openSettingsDesc": "Perfil, facturación, equipo, claves API",
+      "openMyCompany": "Abrir Mi Empresa",
+      "openMyCompanyDesc": "Departamentos, roles, playbooks, decisiones",
+      "openLeaderboard": "Abrir Clasificación",
+      "openLeaderboardDesc": "Rankings de rendimiento de modelos",
+      "openLLMHub": "Abrir Hub de LLM",
+      "openLLMHubDesc": "Configurar modelos de IA y presets",
+      "newSession": "Nueva Sesión de Consejo",
+      "newSessionDesc": "Iniciar una nueva deliberación del consejo de IA",
+      "untitledConversation": "Conversación sin título",
+      "switchToProject": "Cambiar a: {{name}}",
+      "clearProject": "Limpiar Selección de Proyecto",
+      "clearProjectDesc": "Quitar contexto de proyecto de las conversaciones",
+      "lightMode": "Cambiar a Modo Claro",
+      "darkMode": "Cambiar a Modo Oscuro",
+      "systemTheme": "Usar Tema del Sistema",
+      "systemThemeDesc": "Coincide con la preferencia de tu SO"
+    }
+  },
+  "contextMenu": {
+    "conversationActions": "Acciones de conversación",
+    "rename": "Renombrar",
+    "addStar": "Añadir estrella",
+    "removeStar": "Quitar estrella",
+    "archive": "Archivar",
+    "unarchive": "Desarchivar",
+    "export": "Exportar"
   },
   "validation": {
     "required": "Este campo es requerido",
@@ -1314,6 +1530,8 @@
     "avgTokensPerSession": "Tokens promedio/sesión",
     "rankingParseRate": "Tasa de parseo de ranking",
     "inputTokens": "Tokens de entrada",
-    "outputTokens": "Tokens de salida"
+    "outputTokens": "Tokens de salida",
+    "loadingTeam": "Cargando equipo...",
+    "joined": "Se unió"
   }
 }

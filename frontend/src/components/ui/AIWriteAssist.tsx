@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import type { ReactNode, InputHTMLAttributes, TextareaHTMLAttributes } from 'react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../api';
 import { Spinner } from './Spinner';
 import { logger } from '../../utils/logger';
@@ -206,6 +207,7 @@ export function AIWriteAssist({
   className = '',
   inline = false,
 }: AIWriteAssistProps) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState<boolean>(false);
@@ -215,25 +217,62 @@ export function AIWriteAssist({
   const config = CONTEXT_PROMPTS[context] || CONTEXT_PROMPTS.generic;
   const hasContent = value && value.trim().length > 0;
 
-  // Generate dynamic button text for playbook content based on type
-  const getPlaybookButtonText = (type: PlaybookType | null): string => {
-    switch (type) {
-      case 'sop':
-        return 'Let our SOP expert write this';
-      case 'framework':
-        return 'Let our framework expert write this';
-      case 'policy':
-        return 'Let our policy expert write this';
-      default:
-        return 'Let our expert write this';
-    }
-  };
+  // Map context type to translation key prefix
+  const contextKeyMap: Record<ContextType, string> = useMemo(
+    () => ({
+      'project-title': 'projectTitle',
+      'project-description': 'projectDescription',
+      'project-context': 'projectContext',
+      'company-context': 'companyContext',
+      'department-description': 'departmentDescription',
+      'role-description': 'roleDescription',
+      'role-prompt': 'rolePrompt',
+      'playbook-content': 'playbookContent',
+      'decision-title': 'decisionTitle',
+      'decision-statement': 'decisionStatement',
+      'knowledge-reasoning': 'knowledgeReasoning',
+      'question-refine': 'questionRefine',
+      generic: 'generic',
+    }),
+    []
+  );
+
+  // Get translated button text for playbook content based on type
+  const getPlaybookButtonText = useCallback(
+    (type: PlaybookType | null): string => {
+      switch (type) {
+        case 'sop':
+          return t('aiAssist.contexts.playbookContent.buttonSop');
+        case 'framework':
+          return t('aiAssist.contexts.playbookContent.buttonFramework');
+        case 'policy':
+          return t('aiAssist.contexts.playbookContent.buttonPolicy');
+        default:
+          return t('aiAssist.contexts.playbookContent.button');
+      }
+    },
+    [t]
+  );
+
+  // Get translated button text based on context
+  const getButtonText = useCallback((): string => {
+    const contextKey = contextKeyMap[context];
+    return t(`aiAssist.contexts.${contextKey}.button`, { defaultValue: config.buttonText });
+  }, [t, context, contextKeyMap, config.buttonText]);
+
+  // Get translated empty hint based on context
+  const getEmptyHint = useCallback((): string => {
+    const contextKey = contextKeyMap[context];
+    return t(`aiAssist.contexts.${contextKey}.hint`, { defaultValue: config.emptyHint });
+  }, [t, context, contextKeyMap, config.emptyHint]);
 
   const displayButtonText =
     buttonLabel ||
     (context === 'playbook-content' && playbookType
       ? getPlaybookButtonText(playbookType)
-      : config.buttonText);
+      : getButtonText());
+
+  const displayEmptyHint = getEmptyHint();
 
   const handleAssist = useCallback(async () => {
     if (!hasContent || loading) return;
@@ -274,16 +313,16 @@ export function AIWriteAssist({
         }
         setShowPreview(true);
       } else {
-        setError('No suggestion returned');
+        setError(t('aiAssist.noSuggestion'));
       }
     } catch (err) {
       logger.error('AI assist error:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Failed to get suggestion';
+      const errorMessage = err instanceof Error ? err.message : t('aiAssist.failedToGet');
       setError(errorMessage);
     } finally {
       setLoading(false);
     }
-  }, [value, hasContent, loading, config.instruction, additionalContext, context, playbookType]);
+  }, [t, value, hasContent, loading, config.instruction, additionalContext, context, playbookType]);
 
   const handleAccept = useCallback(() => {
     logger.info('[AIWriteAssist] Accept clicked', {
@@ -323,7 +362,7 @@ export function AIWriteAssist({
             className="ai-assist-btn"
             onClick={handleAssist}
             disabled={disabled || loading || !hasContent}
-            title={hasContent ? displayButtonText : config.emptyHint}
+            title={hasContent ? displayButtonText : displayEmptyHint}
           >
             {loading ? (
               <Spinner size="sm" />
@@ -341,21 +380,21 @@ export function AIWriteAssist({
         {showPreview && (
           <div className="ai-assist-preview">
             <div className="ai-assist-preview-header">
-              <span className="ai-assist-preview-title">✨ AI Suggestion</span>
+              <span className="ai-assist-preview-title">✨ {t('aiAssist.suggestion')}</span>
             </div>
             {suggestedTitle && (
               <div className="ai-assist-preview-title-suggestion">
-                <span className="ai-assist-preview-label">Suggested title:</span>
+                <span className="ai-assist-preview-label">{t('common.suggestedTitle')}:</span>
                 <span className="ai-assist-preview-title-text">{suggestedTitle}</span>
               </div>
             )}
             <div className="ai-assist-preview-content">{suggestion}</div>
             <div className="ai-assist-preview-actions">
               <button type="button" className="ai-assist-preview-btn reject" onClick={handleReject}>
-                Keep Original
+                {t('common.keepOriginal')}
               </button>
               <button type="button" className="ai-assist-preview-btn accept" onClick={handleAccept}>
-                Use Suggestion
+                {t('common.useSuggestion')}
               </button>
             </div>
           </div>
@@ -372,7 +411,7 @@ export function AIWriteAssist({
         className="ai-assist-btn"
         onClick={handleAssist}
         disabled={disabled || loading || !hasContent}
-        title={hasContent ? displayButtonText : config.emptyHint}
+        title={hasContent ? displayButtonText : displayEmptyHint}
       >
         {loading ? (
           <Spinner size="sm" />
@@ -389,21 +428,21 @@ export function AIWriteAssist({
       {showPreview && (
         <div className="ai-assist-preview">
           <div className="ai-assist-preview-header">
-            <span className="ai-assist-preview-title">✨ AI Suggestion</span>
+            <span className="ai-assist-preview-title">✨ {t('aiAssist.suggestion')}</span>
           </div>
           {suggestedTitle && (
             <div className="ai-assist-preview-title-suggestion">
-              <span className="ai-assist-preview-label">Suggested title:</span>
+              <span className="ai-assist-preview-label">{t('common.suggestedTitle')}:</span>
               <span className="ai-assist-preview-title-text">{suggestedTitle}</span>
             </div>
           )}
           <div className="ai-assist-preview-content">{suggestion}</div>
           <div className="ai-assist-preview-actions">
             <button type="button" className="ai-assist-preview-btn reject" onClick={handleReject}>
-              Keep Original
+              {t('common.keepOriginal')}
             </button>
             <button type="button" className="ai-assist-preview-btn accept" onClick={handleAccept}>
-              Use Suggestion
+              {t('common.useSuggestion')}
             </button>
           </div>
         </div>
@@ -421,6 +460,23 @@ interface SmartInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'o
   className?: string | undefined;
 }
 
+// Map context type to translation key prefix (duplicated for subcomponents)
+const CONTEXT_KEY_MAP: Record<ContextType, string> = {
+  'project-title': 'projectTitle',
+  'project-description': 'projectDescription',
+  'project-context': 'projectContext',
+  'company-context': 'companyContext',
+  'department-description': 'departmentDescription',
+  'role-description': 'roleDescription',
+  'role-prompt': 'rolePrompt',
+  'playbook-content': 'playbookContent',
+  'decision-title': 'decisionTitle',
+  'decision-statement': 'decisionStatement',
+  'knowledge-reasoning': 'knowledgeReasoning',
+  'question-refine': 'questionRefine',
+  generic: 'generic',
+};
+
 /**
  * Smart Input - Input with integrated AI assistance
  */
@@ -433,7 +489,12 @@ export function SmartInput({
   className = '',
   ...props
 }: SmartInputProps) {
+  const { t } = useTranslation();
   const config = CONTEXT_PROMPTS[context] || CONTEXT_PROMPTS.generic;
+  const contextKey = CONTEXT_KEY_MAP[context];
+  const translatedPlaceholder = t(`aiAssist.contexts.${contextKey}.placeholder`, {
+    defaultValue: config.placeholder,
+  });
 
   return (
     <AIWriteAssist
@@ -448,7 +509,7 @@ export function SmartInput({
         className={`form-input ${className}`}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder || config.placeholder}
+        placeholder={placeholder || translatedPlaceholder}
         {...props}
       />
     </AIWriteAssist>
@@ -478,7 +539,12 @@ export function SmartTextarea({
   className = '',
   ...props
 }: SmartTextareaProps) {
+  const { t } = useTranslation();
   const config = CONTEXT_PROMPTS[context] || CONTEXT_PROMPTS.generic;
+  const contextKey = CONTEXT_KEY_MAP[context];
+  const translatedPlaceholder = t(`aiAssist.contexts.${contextKey}.placeholder`, {
+    defaultValue: config.placeholder,
+  });
 
   return (
     <AIWriteAssist
@@ -491,7 +557,7 @@ export function SmartTextarea({
         className={`form-textarea ${className}`}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder || config.placeholder}
+        placeholder={placeholder || translatedPlaceholder}
         rows={rows}
         {...props}
       />

@@ -51,7 +51,7 @@ export default function Billing({ onClose }: BillingProps) {
       setSubscription(subData);
     } catch (err) {
       log.error('Failed to load billing data:', err);
-      setError("Couldn't load your billing info. Please try again.");
+      setError(t('billing.loadError'));
     } finally {
       setLoading(false);
     }
@@ -66,8 +66,7 @@ export default function Billing({ onClose }: BillingProps) {
       window.location.href = result.checkout_url;
     } catch (err) {
       log.error('Failed to create checkout:', err);
-      const errorMessage =
-        err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+      const errorMessage = err instanceof Error ? err.message : t('errors.generic');
       setError(errorMessage);
       setCheckoutLoading(null);
     }
@@ -82,8 +81,7 @@ export default function Billing({ onClose }: BillingProps) {
       window.location.href = result.portal_url;
     } catch (err) {
       log.error('Failed to open billing portal:', err);
-      const errorMessage =
-        err instanceof Error ? err.message : "Couldn't open billing portal. Please try again.";
+      const errorMessage = err instanceof Error ? err.message : t('billing.portalError');
       setError(errorMessage);
       setCheckoutLoading(null);
     }
@@ -106,7 +104,7 @@ export default function Billing({ onClose }: BillingProps) {
     return (
       <div className="billing-overlay" onClick={handleOverlayClick}>
         <div className="billing-modal" onClick={(e) => e.stopPropagation()}>
-          <div className="billing-loading">Loading billing information...</div>
+          <div className="billing-loading">{t('billing.loadingBilling')}</div>
         </div>
       </div>
     );
@@ -121,7 +119,7 @@ export default function Billing({ onClose }: BillingProps) {
     <div className="billing-overlay" onClick={handleOverlayClick}>
       <div className="billing-modal" onClick={(e) => e.stopPropagation()}>
         <div className="billing-header">
-          <h2>Subscription Plans</h2>
+          <h2>{t('billing.subscriptionPlans')}</h2>
           <button className="billing-close" onClick={onClose}>
             &times;
           </button>
@@ -131,7 +129,7 @@ export default function Billing({ onClose }: BillingProps) {
 
         {/* Current Usage */}
         <div className="billing-usage">
-          <div className="usage-label">Current Usage</div>
+          <div className="usage-label">{t('billing.currentUsage')}</div>
           <div className="usage-bar-container">
             <div
               className="usage-bar"
@@ -144,8 +142,8 @@ export default function Billing({ onClose }: BillingProps) {
           </div>
           <div className="usage-text">
             {isUnlimited
-              ? `${queriesUsed} queries used (Unlimited)`
-              : `${queriesUsed} / ${queriesLimit} queries this month`}
+              ? t('billing.queriesUsedUnlimited', { count: queriesUsed })
+              : t('billing.queriesUsedMonthly', { used: queriesUsed, limit: queriesLimit })}
           </div>
         </div>
 
@@ -165,7 +163,9 @@ export default function Billing({ onClose }: BillingProps) {
                 key={plan.id}
                 className={`plan-card ${isCurrentPlan ? 'current' : ''} ${plan.id === 'pro' ? 'popular' : ''}`}
               >
-                {plan.id === 'pro' && <div className="popular-badge">Most Popular</div>}
+                {plan.id === 'pro' && (
+                  <div className="popular-badge">{t('billing.mostPopular')}</div>
+                )}
 
                 <div className="plan-name">{plan.name}</div>
                 <div className="plan-price">
@@ -192,16 +192,16 @@ export default function Billing({ onClose }: BillingProps) {
                 <div className="plan-action">
                   {isCurrentPlan ? (
                     <Button variant="outline" disabled>
-                      Current Plan
+                      {t('billing.currentPlan')}
                     </Button>
                   ) : isDowngrade ? (
                     <Button
                       variant="outline"
                       onClick={handleManageSubscription}
                       disabled={checkoutLoading !== null}
-                      title="Cancel subscription to downgrade to Free"
+                      title={t('billing.cancelToDowngrade')}
                     >
-                      {checkoutLoading === 'manage' ? 'Loading...' : 'Downgrade'}
+                      {checkoutLoading === 'manage' ? t('common.loading') : t('billing.downgrade')}
                     </Button>
                   ) : (
                     <Button
@@ -210,10 +210,10 @@ export default function Billing({ onClose }: BillingProps) {
                       disabled={checkoutLoading !== null}
                     >
                       {checkoutLoading === plan.id
-                        ? 'Loading...'
+                        ? t('common.loading')
                         : isUpgrade
-                          ? 'Upgrade'
-                          : 'Subscribe'}
+                          ? t('billing.upgrade')
+                          : t('billing.subscribe')}
                     </Button>
                   )}
                 </div>
@@ -230,13 +230,15 @@ export default function Billing({ onClose }: BillingProps) {
               onClick={handleManageSubscription}
               disabled={checkoutLoading !== null}
             >
-              {checkoutLoading === 'manage' ? 'Loading...' : 'Manage Subscription & Billing'}
+              {checkoutLoading === 'manage'
+                ? t('common.loading')
+                : t('billing.manageSubscriptionBilling')}
             </Button>
           </div>
         )}
 
         <div className="billing-footer">
-          <p>Secure payments powered by Stripe</p>
+          <p>{t('billing.stripePowered')}</p>
         </div>
       </div>
     </div>

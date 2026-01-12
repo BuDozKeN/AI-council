@@ -94,7 +94,7 @@ def list_available_businesses(
             # SECURITY: Filter to only companies user has access to
             # First get companies user owns
             owned_result = client.table("companies").select(
-                "id, name, slug, departments(id, name, slug, roles(id, name, slug))"
+                "id, name, slug, departments(id, name, slug, llm_preset, roles(id, name, slug))"
             ).eq("user_id", user_id).execute()
 
             # Then get companies user has department access to
@@ -126,14 +126,14 @@ def list_available_businesses(
                 return {"companies": [], "has_more": False}
 
             result = client.table("companies").select(
-                "id, name, slug, departments(id, name, slug, roles(id, name, slug))"
+                "id, name, slug, departments(id, name, slug, llm_preset, roles(id, name, slug))"
             ).in_("id", paginated_ids[:limit]).execute()  # Only fetch limit, not +1
 
             has_more = len(paginated_ids) > limit
         else:
             # No user filter - return all with pagination (internal use only)
             result = client.table("companies").select(
-                "id, name, slug, departments(id, name, slug, roles(id, name, slug))"
+                "id, name, slug, departments(id, name, slug, llm_preset, roles(id, name, slug))"
             ).range(offset, offset + limit).execute()
 
             # Check if there are more
