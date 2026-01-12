@@ -167,19 +167,19 @@ function getLengthKey(tokens: number): (typeof LENGTH_KEYS)[keyof typeof LENGTH_
 const DEFAULTS: Record<string, { stage1: StageConfig; stage2: StageConfig; stage3: StageConfig }> =
   {
     conservative: {
-      stage1: { temperature: 0.2, max_tokens: 1024 },
-      stage2: { temperature: 0.15, max_tokens: 512 },
-      stage3: { temperature: 0.25, max_tokens: 2048 },
+      stage1: { temperature: 0.2, max_tokens: 8192 },
+      stage2: { temperature: 0.15, max_tokens: 2048 },
+      stage3: { temperature: 0.25, max_tokens: 8192 },
     },
     balanced: {
-      stage1: { temperature: 0.5, max_tokens: 1536 },
-      stage2: { temperature: 0.3, max_tokens: 512 },
-      stage3: { temperature: 0.4, max_tokens: 2048 },
+      stage1: { temperature: 0.5, max_tokens: 8192 },
+      stage2: { temperature: 0.3, max_tokens: 2048 },
+      stage3: { temperature: 0.4, max_tokens: 8192 },
     },
     creative: {
-      stage1: { temperature: 0.8, max_tokens: 2048 },
-      stage2: { temperature: 0.5, max_tokens: 512 },
-      stage3: { temperature: 0.7, max_tokens: 2048 },
+      stage1: { temperature: 0.8, max_tokens: 8192 },
+      stage2: { temperature: 0.5, max_tokens: 2048 },
+      stage3: { temperature: 0.7, max_tokens: 8192 },
     },
   };
 

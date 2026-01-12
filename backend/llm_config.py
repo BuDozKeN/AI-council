@@ -26,19 +26,19 @@ import sys
 # These match the presets seeded in the migration
 FALLBACK_CONFIGS = {
     "conservative": {
-        "stage1": {"temperature": 0.2, "max_tokens": 1024},
-        "stage2": {"temperature": 0.15, "max_tokens": 512},
-        "stage3": {"temperature": 0.25, "max_tokens": 2048},
+        "stage1": {"temperature": 0.2, "max_tokens": 8192},
+        "stage2": {"temperature": 0.15, "max_tokens": 2048},
+        "stage3": {"temperature": 0.25, "max_tokens": 8192},
     },
     "balanced": {
-        "stage1": {"temperature": 0.5, "max_tokens": 1536},
-        "stage2": {"temperature": 0.3, "max_tokens": 512},
-        "stage3": {"temperature": 0.4, "max_tokens": 2048},
+        "stage1": {"temperature": 0.5, "max_tokens": 8192},
+        "stage2": {"temperature": 0.3, "max_tokens": 2048},
+        "stage3": {"temperature": 0.4, "max_tokens": 8192},
     },
     "creative": {
-        "stage1": {"temperature": 0.8, "max_tokens": 2048},
-        "stage2": {"temperature": 0.5, "max_tokens": 512},
-        "stage3": {"temperature": 0.7, "max_tokens": 2048},
+        "stage1": {"temperature": 0.8, "max_tokens": 8192},
+        "stage2": {"temperature": 0.5, "max_tokens": 2048},
+        "stage3": {"temperature": 0.7, "max_tokens": 8192},
     },
 }
 
@@ -101,9 +101,12 @@ async def get_llm_config(
 
                 if result.data and isinstance(result.data, dict):
                     config.update(result.data)
+                    print(f"[llm_config] {stage} config from DB: max_tokens={config.get('max_tokens')}", file=sys.stderr)
+                else:
+                    print(f"[llm_config] {stage} no DB config returned, using fallback: max_tokens={config.get('max_tokens')}", file=sys.stderr)
         except Exception as e:
             # Log but don't fail - use defaults
-            print(f"[llm_config] get_llm_config failed for {department_id}: {type(e).__name__}", file=sys.stderr)
+            print(f"[llm_config] get_llm_config failed for {department_id}: {type(e).__name__} - using fallback: max_tokens={config.get('max_tokens')}", file=sys.stderr)
 
     # Apply conversation modifier (bounded adjustment)
     if conversation_modifier:
