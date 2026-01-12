@@ -89,16 +89,21 @@ function Stage2({
   const displayData: Stage2DisplayData[] = [];
 
   // Helper to detect if response text looks like an error message
+  // IMPORTANT: Only match actual error message patterns from backend, not content
+  // that discusses these topics. Backend errors use formats like "[Error: ...]"
+  // or "Model timeout after Xs". See backend/council.py for error formats.
   const textLooksLikeError = (text: string): boolean => {
     if (!text) return false;
     const lower = text.toLowerCase();
     return (
-      lower.includes('[error:') ||
-      lower.includes('status 429') ||
-      lower.includes('rate limit') ||
-      lower.includes('api error') ||
-      lower.includes('timeout') ||
-      lower.includes('service unavailable')
+      lower.includes('[error:') || // Backend error wrapper format
+      lower.includes('[error]') || // Alternative error wrapper
+      lower.includes('status 429') || // HTTP 429 (specific enough)
+      lower.includes('rate limit exceeded') || // Full phrase, not just "rate limit"
+      lower.includes('model timeout') || // Our specific timeout format
+      lower.includes('timeout after') || // "timeout after 60s" pattern
+      lower.includes('503 service') || // HTTP 503 error
+      lower.includes('api request failed') // Explicit failure message
     );
   };
 
