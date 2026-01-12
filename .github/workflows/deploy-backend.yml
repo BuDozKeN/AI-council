@@ -1,0 +1,125 @@
+name: Deploy Backend to Render
+
+on:
+  # Trigger after CI workflow completes on master/main
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [master, main]
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  deploy:
+    name: Deploy to Render
+    runs-on: ubuntu-latest
+
+    # Only run if CI succeeded AND backend files changed
+    if: |
+      github.repository == 'BuDozKeN/AI-council' &&
+      (github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check if backend files changed
+        id: changes
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Manual trigger - deploying"
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+          else
+            # Check if backend files changed in the last commit
+            CHANGED=$(git diff --name-only HEAD~1 HEAD | grep -E '^(backend/|requirements\.txt|pyproject\.toml)' || true)
+            if [ -n "$CHANGED" ]; then
+              echo "Backend files changed:"
+              echo "$CHANGED"
+              echo "should_deploy=true" >> $GITHUB_OUTPUT
+            else
+              echo "No backend files changed - skipping deploy"
+              echo "should_deploy=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Trigger Render Deploy
+        id: deploy
+        if: steps.changes.outputs.should_deploy == 'true'
+        run: |
+          echo "Triggering deployment to Render..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}")
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+
+          echo "Response: $BODY"
+          echo "HTTP Code: $HTTP_CODE"
+
+          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+            echo "Deploy trigger failed with HTTP $HTTP_CODE"
+            exit 1
+          fi
+
+          echo "Deploy triggered successfully"
+
+      - name: Wait for Render to start deployment
+        if: steps.changes.outputs.should_deploy == 'true'
+        run: |
+          echo "Waiting 60 seconds for Render to start deployment..."
+          sleep 60
+
+      - name: Health Check (with retries)
+        id: healthcheck
+        if: steps.changes.outputs.should_deploy == 'true'
+        run: |
+          BACKEND_URL="https://axcouncil-backend.onrender.com"
+          MAX_RETRIES=10
+          RETRY_INTERVAL=30
+
+          echo "Starting health checks against $BACKEND_URL/health"
+
+          for i in $(seq 1 $MAX_RETRIES); do
+            echo "Health check attempt $i/$MAX_RETRIES..."
+
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$BACKEND_URL/health" || echo "000")
+
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "Health check passed! Backend is healthy."
+
+              # Get detailed health status
+              echo "Detailed health status:"
+              curl -s "$BACKEND_URL/health" | head -c 1000
+              echo ""
+              exit 0
+            fi
+
+            echo "Health check returned HTTP $HTTP_CODE, waiting ${RETRY_INTERVAL}s before retry..."
+
+            if [ $i -lt $MAX_RETRIES ]; then
+              sleep $RETRY_INTERVAL
+            fi
+          done
+
+          echo "Health checks failed after $MAX_RETRIES attempts"
+          exit 1
+
+      - name: Deployment Success
+        if: success() && steps.changes.outputs.should_deploy == 'true'
+        run: |
+          echo "Backend deployment completed successfully!"
+          echo "URL: https://axcouncil-backend.onrender.com"
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+
+      - name: Deployment Skipped
+        if: steps.changes.outputs.should_deploy != 'true'
+        run: |
+          echo "No backend files changed - deployment skipped"
+
+      - name: Deployment Failed
+        if: failure() && steps.changes.outputs.should_deploy == 'true'
+        run: |
+          echo "Backend deployment failed!"
+          echo "Please check Render dashboard for details."
+          echo "Commit: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
