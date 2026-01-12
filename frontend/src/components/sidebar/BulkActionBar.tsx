@@ -7,6 +7,7 @@
  * - Touch-friendly button sizes
  */
 
+import { useTranslation } from 'react-i18next';
 import { Trash2 } from 'lucide-react';
 import { Button } from '../ui/button';
 
@@ -23,22 +24,23 @@ export function BulkActionBar({
   onClearSelection,
   onBulkDelete,
 }: BulkActionBarProps) {
+  const { t } = useTranslation();
   if (selectedCount === 0) return null;
 
   return (
-    <div className="bulk-action-bar" role="region" aria-label="Bulk actions">
+    <div className="bulk-action-bar" role="region" aria-label={t('sidebar.bulkActions')}>
       <span className="bulk-count" role="status" aria-live="polite">
-        {selectedCount} selected
+        {t('sidebar.selectedCount', { count: selectedCount })}
       </span>
       <div className="bulk-action-buttons">
         <Button
           variant="ghost"
           size="sm"
           onClick={onClearSelection}
-          aria-label="Cancel selection"
+          aria-label={t('sidebar.cancelSelection')}
           className="bulk-cancel-btn"
         >
-          Cancel
+          {t('common.cancel')}
         </Button>
         <Button
           variant="destructive"
@@ -47,13 +49,13 @@ export function BulkActionBar({
           disabled={isDeleting}
           aria-label={
             isDeleting
-              ? 'Deleting conversations'
-              : `Delete ${selectedCount} conversation${selectedCount !== 1 ? 's' : ''}`
+              ? t('sidebar.deletingConversations')
+              : t('sidebar.deleteConversations', { count: selectedCount })
           }
           className="bulk-delete-btn"
         >
           <Trash2 size={14} aria-hidden="true" />
-          {isDeleting ? 'Deleting...' : 'Delete'}
+          {isDeleting ? t('sidebar.deleting') : t('common.delete')}
         </Button>
       </div>
     </div>

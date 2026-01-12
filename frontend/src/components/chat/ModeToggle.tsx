@@ -115,7 +115,7 @@ export function ModeToggle({
                   onValueChange={onSelectDepartments}
                   departments={departments}
                   disabled={isLoading}
-                  placeholder="Departments..."
+                  placeholder={t('departments.selectDepartments')}
                   className="mode-toggle-select"
                 />
               )}
@@ -127,7 +127,7 @@ export function ModeToggle({
                   onValueChange={onSelectRoles}
                   roles={allRoles}
                   disabled={isLoading}
-                  placeholder="Roles..."
+                  placeholder={t('roles.selectRoles')}
                   className="mode-toggle-select"
                 />
               )}
@@ -139,11 +139,11 @@ export function ModeToggle({
                   onValueChange={onSelectPlaybooks}
                   playbooks={playbooks.map((p) => ({
                     id: p.id,
-                    title: p.title ?? p.name ?? 'Untitled',
+                    title: p.title ?? p.name ?? t('common.unknown'),
                     doc_type: p.doc_type ?? p.type ?? 'sop',
                   }))}
                   disabled={isLoading ?? false}
-                  placeholder="Playbooks..."
+                  placeholder={t('playbooks.selectPlaybooks')}
                   className="mode-toggle-select"
                 />
               )}
@@ -157,7 +157,7 @@ export function ModeToggle({
                   onValueChange={(vals: string[]) => onSelectDepartment(vals[0] ?? null)}
                   departments={departments}
                   disabled={isLoading}
-                  placeholder="Department..."
+                  placeholder={t('context.department')}
                   className="mode-toggle-select"
                 />
               )}
@@ -168,7 +168,7 @@ export function ModeToggle({
                   onValueChange={(vals: string[]) => onSelectRole(vals[0] ?? null)}
                   roles={roles}
                   disabled={isLoading}
-                  placeholder="Role..."
+                  placeholder={t('modals.roleName')}
                   className="mode-toggle-select"
                 />
               )}

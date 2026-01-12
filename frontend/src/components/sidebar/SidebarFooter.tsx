@@ -4,6 +4,7 @@
  * Extracted from Sidebar.jsx for better maintainability.
  */
 
+import { useTranslation } from 'react-i18next';
 import { Briefcase } from 'lucide-react';
 import { DEV_MODE } from './hooks';
 
@@ -46,6 +47,7 @@ export function SidebarFooter({
   onCompanyMouseEnter,
   onCompanyMouseLeave,
 }: SidebarFooterProps) {
+  const { t } = useTranslation();
   if (!user) return null;
 
   return (
@@ -57,30 +59,26 @@ export function SidebarFooter({
             className={`mode-toggle-btn ${mockMode ? 'mock' : 'production'} ${isTogglingMock ? 'toggling' : ''}`}
             onClick={onToggleMockMode}
             disabled={isTogglingMock || mockMode === null}
-            title={
-              mockMode
-                ? 'Mock Mode: Using simulated responses (free)'
-                : 'Production Mode: Using real API calls (costs credits)'
-            }
+            title={mockMode ? t('settings.mockModeOn') : t('settings.mockModeOff')}
           >
             <span className="mode-indicator"></span>
             <span className="mode-label">
-              {mockMode === null ? '...' : mockMode ? 'Mock' : 'Prod'}
+              {mockMode === null ? '...' : mockMode ? t('settings.mock') : t('settings.production')}
             </span>
           </button>
           <button
             className={`mode-toggle-btn caching ${cachingMode ? 'enabled' : 'disabled'} ${isTogglingCaching ? 'toggling' : ''}`}
             onClick={onToggleCachingMode}
             disabled={isTogglingCaching || cachingMode === null}
-            title={
-              cachingMode
-                ? 'Caching ON: Reduces costs by caching context (Claude/Gemini)'
-                : 'Caching OFF: Standard API calls'
-            }
+            title={cachingMode ? t('settings.cachingOn') : t('settings.cachingOff')}
           >
             <span className="mode-indicator"></span>
             <span className="mode-label">
-              {cachingMode === null ? '...' : cachingMode ? 'Cache' : 'No Cache'}
+              {cachingMode === null
+                ? '...'
+                : cachingMode
+                  ? t('settings.cache')
+                  : t('settings.noCache')}
             </span>
           </button>
         </div>
@@ -97,16 +95,20 @@ export function SidebarFooter({
           onClick={onOpenMyCompany}
           onMouseEnter={onCompanyMouseEnter}
           onMouseLeave={onCompanyMouseLeave}
-          title="My Company"
+          title={t('sidebar.myCompany')}
         >
           <Briefcase className="h-3.5 w-3.5" />
-          Company
+          {t('mobileNav.company')}
         </button>
-        <button className="settings-btn" onClick={onOpenSettings} title="Settings & Profile">
-          Settings
+        <button
+          className="settings-btn"
+          onClick={onOpenSettings}
+          title={t('sidebar.settingsProfile')}
+        >
+          {t('sidebar.settings')}
         </button>
-        <button className="sign-out-btn" onClick={onSignOut} title="Sign out">
-          Sign Out
+        <button className="sign-out-btn" onClick={onSignOut} title={t('sidebar.signOut')}>
+          {t('auth.signOut')}
         </button>
       </div>
     </div>

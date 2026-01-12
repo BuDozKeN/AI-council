@@ -6,6 +6,7 @@
  */
 
 import { useRef, forwardRef, useImperativeHandle } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Spinner } from '../ui/Spinner';
 
 interface SearchBarProps {
@@ -25,6 +26,7 @@ export const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(function Searc
   { searchQuery, onSearchChange, onClear, isSearching, resultCount },
   ref
 ) {
+  const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Expose focus method to parent
@@ -52,8 +54,8 @@ export const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(function Searc
           name="search"
           type="search"
           inputMode="search"
-          placeholder="Search conversations... (⌘K)"
-          aria-label="Search conversations"
+          placeholder={t('sidebar.searchPlaceholder')}
+          aria-label={t('sidebar.searchConversations')}
           aria-describedby={searchQuery ? 'search-results-count' : undefined}
           value={searchQuery}
           onChange={onSearchChange}
@@ -72,7 +74,7 @@ export const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(function Searc
               onClear();
               inputRef.current?.focus();
             }}
-            aria-label="Clear search"
+            aria-label={t('sidebar.clearSearch')}
           >
             ×
           </button>
@@ -85,7 +87,7 @@ export const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(function Searc
           role="status"
           aria-live="polite"
         >
-          {resultCount} result{resultCount !== 1 ? 's' : ''}
+          {t('sidebar.resultsCount', { count: resultCount })}
         </div>
       )}
     </div>

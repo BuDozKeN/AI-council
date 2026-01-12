@@ -6,6 +6,7 @@
  */
 
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import * as SelectPrimitive from '@radix-ui/react-select';
 import { Check, ChevronDown, ArrowUpDown } from 'lucide-react';
 import { cn } from '../../lib/utils';
@@ -15,18 +16,15 @@ import './SortSelect.css';
 // Check if we're on mobile/tablet for bottom sheet vs dropdown
 const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
 
-interface SortOption {
-  value: string;
-  label: string;
-}
-
-// Sort option definitions - compact labels for filters
-const defaultSortOptions: SortOption[] = [
-  { value: 'updated', label: 'Latest' },
-  { value: 'created', label: 'Newest' },
-  { value: 'name', label: 'A-Z' },
-  { value: 'decisions', label: 'Decisions' },
+// Sort option definitions with translation keys
+const defaultSortOptionKeys = [
+  { value: 'updated', labelKey: 'common.sortOptions.latest' as const },
+  { value: 'created', labelKey: 'common.sortOptions.newest' as const },
+  { value: 'name', labelKey: 'common.sortOptions.alphabetical' as const },
+  { value: 'decisions', labelKey: 'common.sortOptions.decisions' as const },
 ];
+
+type SortOption = (typeof defaultSortOptionKeys)[number];
 
 // Custom SelectItem
 const SortSelectItem = React.forwardRef<
@@ -57,11 +55,12 @@ export function SortSelect({
   onValueChange,
   disabled = false,
   className,
-  options = defaultSortOptions,
+  options = defaultSortOptionKeys,
 }: SortSelectProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
   const selectedOption = options.find((o) => o.value === value) ??
-    options[0] ?? { value: '', label: '' };
+    options[0] ?? { value: '', labelKey: 'common.sortOptions.latest' };
 
   const handleSelect = (optionValue: string) => {
     onValueChange(optionValue);
@@ -79,11 +78,11 @@ export function SortSelect({
           type="button"
         >
           <ArrowUpDown className="h-3.5 w-3.5" />
-          <span>{selectedOption.label}</span>
+          <span>{t(selectedOption.labelKey)}</span>
           <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
         </button>
 
-        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title="Sort By">
+        <BottomSheet isOpen={open} onClose={() => setOpen(false)} title={t('common.sortBy')}>
           <div className="sort-select-list-mobile">
             {options.map((option) => {
               const isSelected = option.value === value;
@@ -97,7 +96,7 @@ export function SortSelect({
                   <div className={cn('sort-select-radio', isSelected && 'checked')}>
                     {isSelected && <Check className="h-3 w-3" />}
                   </div>
-                  <span className="sort-select-item-label">{option.label}</span>
+                  <span className="sort-select-item-label">{t(option.labelKey)}</span>
                 </button>
               );
             })}
@@ -112,7 +111,7 @@ export function SortSelect({
     <SelectPrimitive.Root value={value} onValueChange={onValueChange} disabled={disabled}>
       <SelectPrimitive.Trigger className={cn('sort-select-trigger', className)}>
         <ArrowUpDown className="h-3.5 w-3.5" />
-        <SelectPrimitive.Value>{selectedOption.label}</SelectPrimitive.Value>
+        <SelectPrimitive.Value>{t(selectedOption.labelKey)}</SelectPrimitive.Value>
         <SelectPrimitive.Icon asChild>
           <ChevronDown className="h-4 w-4 opacity-50 shrink-0" />
         </SelectPrimitive.Icon>
@@ -128,7 +127,7 @@ export function SortSelect({
           <SelectPrimitive.Viewport className="sort-select-viewport">
             {options.map((option) => (
               <SortSelectItem key={option.value} value={option.value}>
-                {option.label}
+                {t(option.labelKey)}
               </SortSelectItem>
             ))}
           </SelectPrimitive.Viewport>
