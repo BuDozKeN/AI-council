@@ -9,6 +9,7 @@ export * from './queries';
 
 // App-level state hooks
 export { useMessageStreaming } from './useMessageStreaming';
+export { useFeatureFlags } from './useFeatureFlags';
 export { useBulkConversationActions } from './useBulkConversationActions';
 export { useTriage } from './useTriage';
 export { usePrefetchCompany, usePrefetchConversation } from './usePrefetch';
@@ -56,3 +57,4 @@ export type {
 } from './useMessageStreaming';
 export type { UseBulkConversationActionsOptions } from './useBulkConversationActions';
 export type { UseTriageOptions } from './useTriage';
+export type { FeatureFlags, FeatureFlagName } from './useFeatureFlags';

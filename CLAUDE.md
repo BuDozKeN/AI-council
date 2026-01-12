@@ -1041,6 +1041,81 @@ Enables Claude to read browser console logs, network requests, and take screensh
 4. **Resilience patterns** - Circuit breaker, timeouts, graceful degradation
 5. **Mobile-first** - Base styles for mobile, enhanced on desktop
 
+## Feature Flags
+
+Runtime toggles for gradual rollouts, A/B testing, and kill switches.
+
+### Backend Usage
+
+```python
+from backend.feature_flags import is_enabled, get_flags
+
+# Check a single flag
+if is_enabled("advanced_search"):
+    # use advanced search logic
+
+# Get all flags
+flags = get_flags()  # {"prompt_caching": True, "advanced_search": False, ...}
+```
+
+### Frontend Usage
+
+```tsx
+import { useFeatureFlags } from './hooks';
+
+function MyComponent() {
+  const { flags, isEnabled } = useFeatureFlags();
+
+  // Check a specific flag
+  if (isEnabled('command_palette')) {
+    return <CommandPalette />;
+  }
+
+  // Or use flags directly
+  return flags.dark_mode ? <DarkUI /> : <LightUI />;
+}
+```
+
+### API Endpoints
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /api/feature-flags` | Get all flags `{flags: {name: bool}}` |
+| `GET /api/feature-flags/definitions` | Get flags with metadata (for admin UI) |
+
+### Adding New Flags
+
+1. Add to `FEATURE_FLAG_DEFINITIONS` in `backend/feature_flags.py`:
+   ```python
+   "my_new_feature": (
+       "FLAG_MY_NEW_FEATURE",  # env var name
+       False,                   # default value
+       "Description of feature" # for admin UI
+   ),
+   ```
+
+2. Set in `.env` or environment:
+   ```
+   FLAG_MY_NEW_FEATURE=true
+   ```
+
+3. Use in code (backend or frontend)
+
+### Current Flags
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `prompt_caching` | true | LLM prompt caching for cost savings |
+| `stage2_ranking` | true | Stage 2 peer ranking |
+| `streaming_responses` | true | Streaming token responses |
+| `command_palette` | true | Cmd+K command palette |
+| `dark_mode` | true | Dark mode toggle |
+| `advanced_search` | false | Semantic search in knowledge base |
+| `multi_company` | false | Multi-company switching |
+| `export_pdf` | false | PDF export of conversations |
+| `gpt5_model` | true | GPT-5 model in council |
+| `claude_opus` | true | Claude Opus model in council |
+
 ## LLM Model Configuration
 
 ### Model Registry
