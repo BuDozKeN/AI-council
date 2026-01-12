@@ -32,8 +32,8 @@ import { Card, CardContent } from '../ui/card';
 import { springs } from '../../lib/animations';
 import { api, OnboardingProfileResponse } from '../../api';
 import { useAuth } from '../../AuthContext';
-import type { OnboardingProfile, OnboardingStep, LoadingStep } from './types';
-import { getLoadingSteps, MOCK_PROFILE_AGENCY, COUNCIL_MEMBERS } from './mockData';
+import type { OnboardingProfile, OnboardingStep } from './types';
+import { MOCK_PROFILE_AGENCY, COUNCIL_MEMBERS } from './mockData';
 import { SoftGateModal } from './SoftGateModal';
 import { HardGateModal } from './HardGateModal';
 import {
@@ -82,7 +82,6 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const [linkedInUrl, setLinkedInUrl] = useState('');
   const [urlError, setUrlError] = useState('');
   const [profile, setProfile] = useState<OnboardingProfile | null>(null);
-  const [loadingSteps, setLoadingSteps] = useState<LoadingStep[]>([]);
   const [currentLoadingStep, setCurrentLoadingStep] = useState(0);
   // Track thin profiles for fallback form (TODO: implement in Batch 2)
   const [_isThinProfile, setIsThinProfile] = useState(false);
@@ -139,10 +138,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     setApiError(null);
     setIsThinProfile(false);
 
-    // Initialize loading steps with placeholder company name
-    // We'll update it once we have the real company name
-    const steps = getLoadingSteps('your company');
-    setLoadingSteps(steps);
+    // Reset loading step for animation
     setCurrentLoadingStep(0);
 
     // Transition to loading
@@ -167,10 +163,6 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
       setProfile(profileData);
       setIsThinProfile(response.fallback_required);
-
-      // Update loading steps with real company name
-      const realSteps = getLoadingSteps(profileData.company);
-      setLoadingSteps(realSteps);
     } catch (error) {
       console.error('Failed to analyze profile:', error);
       setApiError(error instanceof Error ? error.message : 'Failed to analyze profile');
@@ -189,8 +181,6 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
   // Handle "Skip for now" - use mock data to demo the flow
   const handleSkipWithMock = useCallback(() => {
-    console.log('[Onboarding] Skip clicked - loading mock data');
-
     // Clear any previous error state
     setApiError(null);
 
@@ -198,13 +188,10 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     const mockProfile = MOCK_PROFILE_AGENCY;
     setProfile(mockProfile);
 
-    // Initialize loading steps
-    const steps = getLoadingSteps(mockProfile.company);
-    setLoadingSteps(steps);
+    // Reset loading step for animation
     setCurrentLoadingStep(0);
 
     // Transition to loading (will auto-advance to preview)
-    console.log('[Onboarding] Transitioning to loading step');
     setStep('loading');
   }, []);
 
@@ -279,7 +266,6 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
     // Fresh mode: skip trial check entirely (for testing)
     if (isFreshMode) {
-      console.log('[Onboarding] Fresh mode - skipping trial check');
       onComplete(profile, profile.magic_question);
       return;
     }
@@ -320,7 +306,6 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
 
     // Fresh mode: skip auth check entirely (for UI testing)
     if (isFreshMode) {
-      console.log('[Onboarding] Fresh mode - skipping auth check');
       onComplete(profile, profile.magic_question);
       return;
     }
@@ -370,13 +355,6 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     // For now, just close the modal and let the user navigate manually
     // TODO: Pass a callback to open settings modal
   }, []);
-
-  // Get step status for loading animation
-  const getStepStatus = (index: number): 'pending' | 'active' | 'complete' => {
-    if (index < currentLoadingStep) return 'complete';
-    if (index === currentLoadingStep) return 'active';
-    return 'pending';
-  };
 
   return (
     <div className="onboarding-flow">
