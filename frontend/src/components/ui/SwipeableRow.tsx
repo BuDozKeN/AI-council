@@ -7,7 +7,7 @@ interface SwipeAction {
   label: string;
   icon?: ReactNode;
   onClick?: () => void;
-  variant?: 'default' | 'danger' | 'warning';
+  variant?: 'default' | 'danger' | 'warning' | 'archive' | 'primary' | 'success';
 }
 
 interface SwipeableRowProps {
@@ -34,7 +34,8 @@ export function SwipeableRow({
   const x = useMotionValue(0);
 
   // Calculate action area width based on number of actions
-  const actionWidth = actions.length * 70; // 70px per action button
+  // 36px button + 4px gap = 40px per action, plus 24px padding
+  const actionWidth = actions.length * 40 + 24;
   const threshold = actionWidth * 0.5; // 50% of action width to snap open
 
   // Transform for action button opacity
