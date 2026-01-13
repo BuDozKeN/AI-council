@@ -96,8 +96,8 @@
   /* Don't shrink - always show full hero */
   flex-shrink: 0;
 
-  /* Constrain to parent width */
-  max-width: 100%;
+  /* Constrain width - account for scrollbar space */
+  width: calc(100% - 12px);
   box-sizing: border-box;
 
   /* DEBUG: BLUE shadow */
@@ -143,7 +143,9 @@
   display: flex;
   align-items: center;
   gap: var(--gap-lg);
-  flex-shrink: 0;
+  /* Allow shrinking on narrow viewports to prevent overflow */
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .mc-overview-meta {
@@ -443,8 +445,8 @@
   /* Extra bottom padding to extend card below content */
   padding-bottom: 3rem;
 
-  /* Constrain to parent width */
-  max-width: 100%;
+  /* Constrain width - account for scrollbar space */
+  width: calc(100% - 12px);
   box-sizing: border-box;
 
   /* DEBUG: GREEN shadow */

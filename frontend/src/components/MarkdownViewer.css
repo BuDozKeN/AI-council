@@ -154,7 +154,8 @@
   position: relative;
   width: 100%;
   max-width: 100%;
-  overflow: auto hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   margin-top: 1.25rem;
   margin-bottom: 1.25rem;
