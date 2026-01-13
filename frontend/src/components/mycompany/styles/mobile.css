@@ -1405,6 +1405,11 @@
     padding-top: 20px;
   }
 
+  /* Remove rounded corners on header - prevents white gaps at top corners on mobile */
+  .mc-header-dismissible {
+    border-radius: 0;
+  }
+
   /* Hide title row on mobile, just show company switcher */
   .mc-title-row {
     display: none;
