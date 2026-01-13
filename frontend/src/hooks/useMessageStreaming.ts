@@ -427,6 +427,49 @@ export function useMessageStreaming({
           break;
         }
 
+        case 'stage1_timeout': {
+          // Handle Stage 1 timeout - individual models took too long
+          log.error('Stage 1 timed out', event);
+          flushNow();
+          setCurrentConversation((prev) => {
+            if (!prev?.messages) return prev;
+            const messages = prev.messages.map((msg, idx) =>
+              idx === prev.messages.length - 1
+                ? { ...msg, loading: { ...msg.loading, stage1: false } }
+                : msg
+            ) as StreamableMessage[];
+            return { ...prev, messages };
+          });
+          break;
+        }
+
+        case 'stage1_insufficient': {
+          // Not enough model responses - council cannot proceed
+          const required = (event.required as number) ?? 3;
+          const received = (event.received as number) ?? 0;
+          log.error('Stage 1 insufficient responses', event);
+          flushNow();
+          setCurrentConversation((prev) => {
+            if (!prev?.messages) return prev;
+            const messages = prev.messages.map((msg, idx) =>
+              idx === prev.messages.length - 1
+                ? {
+                    ...msg,
+                    stage3Streaming: {
+                      text: `Only ${received} of ${required} required models responded. The council cannot provide a reliable synthesis. Please try again.`,
+                      complete: true,
+                      error: true,
+                    },
+                    loading: { stage1: false, stage2: false, stage3: false },
+                  }
+                : msg
+            ) as StreamableMessage[];
+            return { ...prev, messages };
+          });
+          setIsLoading(false);
+          break;
+        }
+
         case 'stage2_start':
           setCurrentConversation((prev) => {
             if (!prev?.messages) return prev;
@@ -514,6 +557,22 @@ export function useMessageStreaming({
           break;
         }
 
+        case 'stage2_timeout': {
+          // Handle Stage 2 timeout - ranking models took too long
+          log.error('Stage 2 timed out', event);
+          flushNow();
+          setCurrentConversation((prev) => {
+            if (!prev?.messages) return prev;
+            const messages = prev.messages.map((msg, idx) =>
+              idx === prev.messages.length - 1
+                ? { ...msg, loading: { ...msg.loading, stage2: false } }
+                : msg
+            ) as StreamableMessage[];
+            return { ...prev, messages };
+          });
+          break;
+        }
+
         case 'stage3_start':
           setCurrentConversation((prev) => {
             if (!prev?.messages) return prev;
@@ -552,6 +611,35 @@ export function useMessageStreaming({
             ) as StreamableMessage[];
             return { ...prev, messages };
           });
+          break;
+        }
+
+        case 'stage3_timeout': {
+          // Handle Stage 3 timeout - synthesis took too long
+          flushNow();
+          setCurrentConversation((prev) => {
+            if (!prev?.messages) return prev;
+            const messages = prev.messages.map((msg, idx) =>
+              idx === prev.messages.length - 1
+                ? {
+                    ...msg,
+                    stage3Streaming: {
+                      text: 'Synthesis timed out. The chairman models are taking longer than expected. Please try again.',
+                      complete: true,
+                      error: true,
+                    },
+                    loading: { ...msg.loading, stage3: false },
+                  }
+                : msg
+            ) as StreamableMessage[];
+            return { ...prev, messages };
+          });
+          break;
+        }
+
+        case 'stage3_fallback': {
+          // Chairman model failed, trying fallback - no UI update needed, just continue
+          log.warn('Stage 3 fallback triggered', event);
           break;
         }
 
