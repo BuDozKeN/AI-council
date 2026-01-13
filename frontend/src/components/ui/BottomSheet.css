@@ -6,10 +6,18 @@
   position: fixed;
   inset: 0;
   background: var(--overlay-black-40);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
   z-index: var(--z-modal, 1000);
   cursor: pointer; /* Tap anywhere outside to dismiss */
+}
+
+/* Dark mode - premium frosted glass effect matching AppModal */
+.dark .bottom-sheet-overlay,
+[data-theme='dark'] .bottom-sheet-overlay {
+  background: var(--overlay-black-80);
+  backdrop-filter: blur(48px) saturate(150%);
+  -webkit-backdrop-filter: blur(48px) saturate(150%);
 }
 
 .bottom-sheet-content {
@@ -235,6 +243,11 @@
 
 .dark .bottom-sheet-content {
   background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  box-shadow:
+    0 0 0 1px var(--overlay-white-10),
+    0 -24px 48px -12px var(--overlay-black-40),
+    0 0 60px -20px var(--overlay-indigo-20);
 }
 
 .dark .bottom-sheet-handle-bar {

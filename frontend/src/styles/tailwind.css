@@ -1098,20 +1098,28 @@ a,
 }
 
 /* ============================================================================
-   BUTTON MICRO-INTERACTIONS
+   BUTTON MICRO-INTERACTIONS - Stripe/Linear Premium Quality
    ============================================================================ */
 
-/* Subtle scale on hover for premium feel */
+/* Premium hover state: lift + subtle scale + smooth shadow transition */
 button:not(:disabled):hover,
 .button:not(:disabled):hover,
 [role='button']:not(:disabled):hover {
-  transform: translateY(-1px);
+  transform: translateY(-1px) scale(1.01);
+  transition:
+    transform 0.15s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.15s ease;
 }
 
+/* Active state: press down with slight scale */
 button:not(:disabled):active,
 .button:not(:disabled):active,
 [role='button']:not(:disabled):active {
   transform: translateY(0) scale(0.98);
+  transition:
+    transform 0.08s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.08s ease;
 }
 
 /* Disable hover transforms on mobile (touch devices) */
@@ -1120,12 +1128,14 @@ button:not(:disabled):active,
   .button:hover,
   [role='button']:hover {
     transform: none;
+    transition: background-color 0.15s ease;
   }
 
   button:active,
   .button:active,
   [role='button']:active {
     transform: scale(0.98);
+    transition: transform 0.08s cubic-bezier(0.22, 1, 0.36, 1);
   }
 }
 

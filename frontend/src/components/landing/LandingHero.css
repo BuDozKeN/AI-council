@@ -46,9 +46,25 @@
 
   /* Prevent content from overflowing on very small screens */
   overflow-y: auto;
+
+  /* Premium 2025 trend: subtle noise texture for depth and warmth */
+  position: relative;
 }
 
+.landing-hero-aurora::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--noise-texture);
+  opacity: var(--noise-opacity-subtle);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Content above noise */
 .landing-hero {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;

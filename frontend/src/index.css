@@ -81,30 +81,48 @@ h2 {
   outline-offset: 2px;
 }
 
-/* Enhanced focus styles for interactive elements */
+/* Premium glowing focus styles for interactive elements - Stripe/Linear quality */
 button:focus-visible,
 [role='button']:focus-visible,
 a:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgb(var(--color-focus-rgb), 0.15);
+  box-shadow:
+    0 0 0 4px rgb(var(--color-focus-rgb), 0.1),
+    0 0 12px 2px rgb(var(--color-focus-rgb), 0.25),
+    0 0 24px 4px rgb(var(--color-focus-rgb), 0.1);
+  transition:
+    outline 0.15s ease,
+    box-shadow 0.2s ease;
 }
 
-/* Card focus styles */
+/* Premium card focus styles with soft glow */
 .model-card:focus-visible,
 [role='article']:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgb(var(--color-focus-rgb), 0.15);
+  box-shadow:
+    0 0 0 4px rgb(var(--color-focus-rgb), 0.1),
+    0 0 16px 2px rgb(var(--color-focus-rgb), 0.2),
+    0 0 32px 4px rgb(var(--color-focus-rgb), 0.08);
+  transition:
+    outline 0.15s ease,
+    box-shadow 0.2s ease;
 }
 
-/* Input focus styles */
+/* Premium input focus styles with soft glow */
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
   outline: none;
   border-color: var(--color-focus);
-  box-shadow: 0 0 0 3px rgb(var(--color-focus-rgb), 0.15);
+  box-shadow:
+    0 0 0 3px rgb(var(--color-focus-rgb), 0.1),
+    0 0 8px 1px rgb(var(--color-focus-rgb), 0.2),
+    0 0 16px 2px rgb(var(--color-focus-rgb), 0.08);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.2s ease;
 }
 
 /* Tab/pill focus styles */

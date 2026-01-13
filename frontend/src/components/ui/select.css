@@ -272,15 +272,15 @@
   opacity: 0.5;
 }
 
-/* Selected state */
+/* Selected state - uses brand indigo */
 .select-item[data-state='checked'] {
-  background: var(--color-orange-50);
-  color: var(--color-orange-800);
+  background: var(--color-indigo-50);
+  color: var(--color-indigo-800);
 }
 
 .select-item[data-state='checked']:hover,
 .select-item[data-state='checked'][data-highlighted] {
-  background: var(--color-orange-100);
+  background: var(--color-indigo-100);
 }
 
 /* Checkmark indicator */
@@ -454,13 +454,13 @@
 }
 
 .dark .select-item[data-state='checked'] {
-  background: var(--overlay-orange-15);
-  color: var(--color-orange-400);
+  background: var(--overlay-indigo-15);
+  color: var(--color-indigo-400);
 }
 
 .dark .select-item[data-state='checked']:hover,
 .dark .select-item[data-state='checked'][data-highlighted] {
-  background: var(--overlay-orange-20);
+  background: var(--overlay-indigo-20);
 }
 
 .dark .select-item-check {
