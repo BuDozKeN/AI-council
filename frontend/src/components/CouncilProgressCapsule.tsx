@@ -58,28 +58,34 @@ export default function CouncilProgressCapsule({
 
   useEffect(() => {
     // Reset dismissed state when stopped changes from false to true (new stop)
+    // Using setTimeout to defer state update and avoid cascading renders
+    let resetTimer: ReturnType<typeof setTimeout> | undefined;
     if (stopped && !prevStoppedRef.current) {
-      setDismissedStopped(false);
-      setFadeOut(false);
+      resetTimer = setTimeout(() => {
+        setDismissedStopped(false);
+        setFadeOut(false);
+      }, 0);
     }
     prevStoppedRef.current = stopped;
 
     // Auto-dismiss after 2.5 seconds when stopped
+    let fadeTimer: ReturnType<typeof setTimeout> | undefined;
+    let dismissTimer: ReturnType<typeof setTimeout> | undefined;
     if (stopped && !dismissedStopped) {
-      const fadeTimer = setTimeout(() => {
+      fadeTimer = setTimeout(() => {
         setFadeOut(true);
       }, 2000);
 
-      const dismissTimer = setTimeout(() => {
+      dismissTimer = setTimeout(() => {
         setDismissedStopped(true);
       }, 2300); // 300ms for fade animation
-
-      return () => {
-        clearTimeout(fadeTimer);
-        clearTimeout(dismissTimer);
-      };
     }
-    return undefined;
+
+    return () => {
+      if (resetTimer) clearTimeout(resetTimer);
+      if (fadeTimer) clearTimeout(fadeTimer);
+      if (dismissTimer) clearTimeout(dismissTimer);
+    };
   }, [stopped, dismissedStopped]);
 
   const getStatus = (): StatusResult | null => {

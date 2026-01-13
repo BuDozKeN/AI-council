@@ -32,13 +32,26 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 
-  /* Ensure scroll container fills parent width exactly */
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-
   /* DEBUG: RED shadow */
   box-shadow: inset 0 0 0 3px red !important;
+}
+
+/* Custom thin scrollbar for .mc-overview */
+.mc-overview::-webkit-scrollbar {
+  width: 8px;
+}
+
+.mc-overview::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mc-overview::-webkit-scrollbar-thumb {
+  background: var(--color-border-dark);
+  border-radius: 4px;
+}
+
+.mc-overview::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
 }
 
 /* =============================================================================
@@ -96,9 +109,8 @@
   /* Don't shrink - always show full hero */
   flex-shrink: 0;
 
-  /* Constrain width - account for scrollbar space */
-  width: calc(100% - 12px);
-  box-sizing: border-box;
+  /* Account for scrollbar width (8px) */
+  margin-right: 8px;
 
   /* DEBUG: BLUE shadow */
   outline: 3px solid blue !important;
@@ -445,9 +457,8 @@
   /* Extra bottom padding to extend card below content */
   padding-bottom: 3rem;
 
-  /* Constrain width - account for scrollbar space */
-  width: calc(100% - 12px);
-  box-sizing: border-box;
+  /* Account for scrollbar width (8px) */
+  margin-right: 8px;
 
   /* DEBUG: GREEN shadow */
   outline: 3px solid green !important;
