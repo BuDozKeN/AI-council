@@ -121,7 +121,18 @@ export default function MarkdownViewer({
       className={`prose prose-slate prose-sm max-w-none ${className}`}
       onClick={handleClick}
     >
-      <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeSlug]}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeSlug]}
+        components={{
+          // Wrap tables in a scrollable container for mobile
+          table: ({ children, ...props }) => (
+            <div className="table-scroll-wrapper">
+              <table {...props}>{children}</table>
+            </div>
+          ),
+        }}
+      >
         {displayContent}
       </ReactMarkdown>
     </div>

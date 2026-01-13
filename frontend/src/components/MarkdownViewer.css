@@ -148,12 +148,44 @@
   font-family: inherit;
 }
 
+/* Tables - scrollable wrapper for mobile */
+.prose .table-scroll-wrapper {
+  display: block;
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Scrollbar styling for table wrapper */
+.prose .table-scroll-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.prose .table-scroll-wrapper::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+  border-radius: 3px;
+}
+
+.prose .table-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: var(--color-border-dark);
+  border-radius: 3px;
+}
+
+.prose .table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
+}
+
 /* Tables - clean and readable */
 .prose table {
   font-size: 0.875rem;
   width: 100%;
-  margin-top: 1.25rem;
-  margin-bottom: 1.25rem;
+  min-width: max-content; /* Prevent columns from squishing on mobile */
+  margin: 0; /* Wrapper handles margins now */
   border-collapse: collapse;
   border-radius: var(--radius-md);
   overflow: hidden;
@@ -279,6 +311,18 @@
 }
 
 /* Tables - dark mode */
+.dark .prose .table-scroll-wrapper::-webkit-scrollbar-track {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .prose .table-scroll-wrapper::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+}
+
+.dark .prose .table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
+}
+
 .dark .prose table {
   border-color: var(--color-border);
 }
