@@ -408,8 +408,8 @@ class PersonaNotFoundError(Exception):
 
 async def get_write_assist_persona_async(
     context: str,
-    playbook_type: str = None,
-    company_id: str = None
+    playbook_type: str | None = None,
+    company_id: str | None = None
 ) -> Dict[str, Any]:
     """
     Get the appropriate persona for write-assist.

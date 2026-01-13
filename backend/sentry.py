@@ -151,7 +151,7 @@ def before_send_filter(event, hint):
     return event
 
 
-def set_user_context(user_id: str, email: str = None):
+def set_user_context(user_id: str, email: str | None = None):
     """Set user context for Sentry events."""
     if not SENTRY_AVAILABLE or not SENTRY_DSN:
         return

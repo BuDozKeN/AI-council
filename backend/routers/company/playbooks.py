@@ -10,7 +10,7 @@ Endpoints for SOP, framework, and policy management:
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, Any
 from datetime import datetime
 import uuid
 import json
@@ -117,7 +117,7 @@ async def get_playbooks(
         .in_("document_id", doc_ids) \
         .execute()
 
-    additional_depts_map = {}
+    additional_depts_map: dict[str, list[str]] = {}
     for mapping in (dept_mapping_result.data or []):
         doc_id = mapping["document_id"]
         if doc_id not in additional_depts_map:

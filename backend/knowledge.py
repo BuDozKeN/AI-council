@@ -418,7 +418,7 @@ def generate_project_report(
         }
 
     # Group entries by category
-    categories = {}
+    categories: dict[str, list[dict[str, Any]]] = {}
     category_names = {
         'technical_decision': 'Technical Decisions',
         'ux_pattern': 'UX & Design Patterns',

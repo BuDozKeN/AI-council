@@ -81,6 +81,8 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   // Track thin profiles for fallback form (TODO: implement in Batch 2)
   const [_isThinProfile, setIsThinProfile] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  // Track if we're using mock data (to prevent overwriting real user profile)
+  const [isUsingMockData, setIsUsingMockData] = useState(false);
 
   // Gate modal state
   const [showSoftGate, setShowSoftGate] = useState(false);
@@ -132,6 +134,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
     // Reset error state
     setApiError(null);
     setIsThinProfile(false);
+    setIsUsingMockData(false); // Real data from API
 
     // Reset loading step for animation
     setCurrentLoadingStep(0);
@@ -178,6 +181,9 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const handleSkipWithMock = useCallback(() => {
     // Clear any previous error state
     setApiError(null);
+
+    // IMPORTANT: Mark as mock data to prevent overwriting real user profile
+    setIsUsingMockData(true);
 
     // Use mock profile to demonstrate the flow
     const mockProfile = MOCK_PROFILE_AGENCY;
@@ -319,8 +325,9 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
   const handleSoftGateAuthenticated = useCallback(async () => {
     setShowSoftGate(false);
 
-    // Save onboarding profile data to user profile
-    if (profile) {
+    // CRITICAL: Only save profile data if it came from real LinkedIn analysis
+    // Do NOT overwrite user's real profile with mock demo data
+    if (profile && !isUsingMockData) {
       try {
         // Build profile update with only non-empty values
         const profileUpdate: Parameters<typeof api.updateProfile>[0] = {};
@@ -337,11 +344,13 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         // Non-blocking - don't prevent council from running if profile save fails
         logger.warn('Failed to save onboarding data to profile:', err);
       }
+    } else if (isUsingMockData) {
+      logger.info('Skipping profile save - using mock demo data');
     }
 
     // After auth, check trial and proceed
     checkTrialAndProceed();
-  }, [checkTrialAndProceed, profile, linkedInUrl]);
+  }, [checkTrialAndProceed, profile, linkedInUrl, isUsingMockData]);
 
   // Handle "Add API Key" from hard gate
   const handleAddApiKey = useCallback(() => {

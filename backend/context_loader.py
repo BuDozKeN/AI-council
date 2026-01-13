@@ -930,8 +930,8 @@ def detect_ranking_manipulation(rankings: List[Dict[str, Any]]) -> dict:
     import re
     from collections import Counter
 
-    patterns = []
-    first_place_counts = Counter()
+    patterns: list[dict[str, Any]] = []
+    first_place_counts: Counter[str] = Counter()
 
     # Extract first-place votes from each ranking
     for ranking in rankings:
@@ -1108,7 +1108,7 @@ def format_playbooks_for_prompt(playbooks: List[Dict[str, Any]]) -> str:
         'policy': 'Company Policies'
     }
 
-    grouped = {}
+    grouped: dict[str, list[dict[str, Any]]] = {}
     for pb in playbooks:
         doc_type = pb.get('doc_type', 'other')
         if doc_type not in grouped:
@@ -1152,7 +1152,7 @@ def format_decisions_for_prompt(decisions: List[Dict[str, Any]]) -> str:
     lines.append("The following context has been marked for automatic injection into council discussions:\n")
 
     # Group by scope for better organization
-    by_scope = {"company": [], "department": [], "project": []}
+    by_scope: dict[str, list[dict[str, Any]]] = {"company": [], "department": [], "project": []}
     for entry in decisions:
         scope = entry.get('scope', 'department')
         by_scope.setdefault(scope, []).append(entry)
