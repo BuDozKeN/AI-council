@@ -161,11 +161,7 @@ export function MultiDepartmentSelect({
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
       <Popover.Trigger
-        className={cn(
-          'multi-dept-trigger',
-          selectedDepts.length > 0 && 'has-selection',
-          className
-        )}
+        className={cn('multi-dept-trigger', selectedDepts.length > 0 && 'has-selection', className)}
         disabled={disabled}
         title={tooltipText}
       >
