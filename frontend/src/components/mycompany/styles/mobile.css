@@ -869,9 +869,9 @@
     gap: 12px;
   }
 
-  /* Context card - normal padding on mobile */
+  /* Context card - match hero padding for alignment */
   .mc-context-card {
-    padding: 16px;
+    padding: 16px 20px;
     padding-bottom: 3rem;
     background: var(--color-bg-primary);
     border: 1px solid var(--color-border);
@@ -888,6 +888,10 @@
     flex-shrink: 0;
     height: auto;
     min-height: fit-content;
+
+    /* Match hero: no margin on mobile */
+    margin: 0;
+    width: 100%;
   }
 
   /* Content inside card must flow naturally - no constraints */
@@ -943,11 +947,11 @@
   .mc-context-sticky-toolbar {
     background: var(--color-bg-primary);
     padding: 8px 0;
-    margin-left: -16px;
-    margin-right: -16px;
-    padding-left: 16px;
-    padding-right: 16px;
-    width: calc(100% + 32px);
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    width: calc(100% + 40px);
   }
 
   /* ========== PROJECTS TAB - MOBILE ========== */
