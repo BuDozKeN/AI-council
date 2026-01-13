@@ -28,14 +28,27 @@
   /* This is the scroll container */
   flex: 1;
   min-height: 0;
-  overflow: hidden auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+}
 
-  /* NOTE: Padding is provided by parent .mc-content
-   * Desktop: 24px (shell.css)
-   * Mobile: 12px 16px (mobile.css @768px)
-   * Extra small: 8px 12px (mobile.css @380px)
-   * DO NOT add padding here - it will double up with parent */
+/* Custom thin scrollbar for .mc-overview */
+.mc-overview::-webkit-scrollbar {
+  width: 8px;
+}
+
+.mc-overview::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mc-overview::-webkit-scrollbar-thumb {
+  background: var(--color-border-dark);
+  border-radius: 4px;
+}
+
+.mc-overview::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
 }
 
 /* =============================================================================
@@ -85,16 +98,19 @@
   gap: var(--gap-lg);
   padding: var(--card-padding-xl);
   background: var(--color-bg-primary);
-  border: 1px solid var(--color-indigo-200);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
   position: relative;
 
   /* Don't shrink - always show full hero */
   flex-shrink: 0;
+
+  /* Account for scrollbar width (8px) */
+  margin-right: 8px;
 }
 
-/* Premium accent bar at top - soft gradient glow effect */
+/* Subtle accent bar at top */
 .mc-overview-hero::before {
   content: '';
   position: absolute;
@@ -105,13 +121,13 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    var(--color-indigo-400) 20%,
-    var(--color-indigo-500) 50%,
-    var(--color-indigo-400) 80%,
+    var(--color-border-dark) 20%,
+    var(--color-text-tertiary) 50%,
+    var(--color-border-dark) 80%,
     transparent 100%
   );
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  opacity: 0.7;
+  opacity: 0.5;
 }
 
 .mc-overview-hero-content {
@@ -133,7 +149,9 @@
   display: flex;
   align-items: center;
   gap: var(--gap-lg);
-  flex-shrink: 0;
+  /* Allow shrinking on narrow viewports to prevent overflow */
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 .mc-overview-meta {
@@ -422,13 +440,19 @@
 .mc-context-card {
   position: relative;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-indigo-200);
-  border-top: 3px solid var(--color-indigo-400);
+  border: 1px solid var(--color-border);
+  border-top: 3px solid var(--color-border-dark);
   background: var(--color-bg-primary);
   box-shadow: var(--shadow-md);
 
   /* Normal card - content flows naturally, parent scrolls */
   padding: var(--card-padding-xl);
+
+  /* Extra bottom padding to extend card below content */
+  padding-bottom: 3rem;
+
+  /* Account for scrollbar width (8px) */
+  margin-right: 8px;
 }
 
 /* Context card header - title and metadata */
@@ -476,7 +500,10 @@
 .mc-context-sticky-toolbar {
   position: sticky;
   top: 0;
-  z-index: 10;
+
+  /* Must be higher than .mc-scroll-top-fab (z-elevated = 10) so TOC dropdown appears above FAB.
+     Using z-dropdown (100) to ensure it's definitively above ALL floating elements */
+  z-index: var(--z-dropdown, 100);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -484,15 +511,8 @@
   padding: 12px 0;
   margin-bottom: 12px;
 
-  /* Solid background so content scrolls behind - MUST be opaque */
+  /* Opaque background to cover content scrolling behind */
   background: var(--color-bg-primary);
-
-  /* Extend to card edges to cover content scrolling behind */
-  margin-left: calc(-1 * var(--card-padding-xl));
-  margin-right: calc(-1 * var(--card-padding-xl));
-  padding-left: var(--card-padding-xl);
-  padding-right: var(--card-padding-xl);
-  width: calc(100% + 2 * var(--card-padding-xl));
 }
 
 /* Copy button in toolbar - override CopyButton's default absolute positioning */
@@ -892,7 +912,7 @@
 .dark .mc-overview-hero,
 [data-theme='dark'] .mc-overview-hero {
   background: var(--color-bg-secondary);
-  border-color: var(--color-indigo-400);
+  border-color: var(--color-border);
   box-shadow: var(--shadow-lg);
 }
 
@@ -901,12 +921,12 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    var(--color-indigo-300) 20%,
-    var(--color-indigo-400) 50%,
-    var(--color-indigo-300) 80%,
+    var(--color-border) 20%,
+    var(--color-border-dark) 50%,
+    var(--color-border) 80%,
     transparent 100%
   );
-  opacity: 0.6;
+  opacity: 0.4;
 }
 
 .dark .mc-overview-title,
@@ -1089,8 +1109,8 @@
 .dark .mc-context-card,
 [data-theme='dark'] .mc-context-card {
   background: var(--color-bg-secondary);
-  border-color: var(--color-indigo-400);
-  border-top-color: var(--color-indigo-300);
+  border-color: var(--color-border);
+  border-top-color: var(--color-border-dark);
   box-shadow: var(--shadow-lg);
 }
 

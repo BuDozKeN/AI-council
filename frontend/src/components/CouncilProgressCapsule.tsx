@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react';
 import { getModelPersona } from '../config/modelPersonas';
 import './CouncilProgressCapsule.css';
 
@@ -50,7 +51,49 @@ export default function CouncilProgressCapsule({
   stopped,
   isUploading,
 }: CouncilProgressCapsuleProps) {
+  // Auto-dismiss stopped state after 2.5 seconds
+  const [dismissedStopped, setDismissedStopped] = useState(false);
+  const [fadeOut, setFadeOut] = useState(false);
+  const prevStoppedRef = useRef(stopped);
+
+  useEffect(() => {
+    // Reset dismissed state when stopped changes from false to true (new stop)
+    // Using setTimeout to defer state update and avoid cascading renders
+    let resetTimer: ReturnType<typeof setTimeout> | undefined;
+    if (stopped && !prevStoppedRef.current) {
+      resetTimer = setTimeout(() => {
+        setDismissedStopped(false);
+        setFadeOut(false);
+      }, 0);
+    }
+    prevStoppedRef.current = stopped;
+
+    // Auto-dismiss after 2.5 seconds when stopped
+    let fadeTimer: ReturnType<typeof setTimeout> | undefined;
+    let dismissTimer: ReturnType<typeof setTimeout> | undefined;
+    if (stopped && !dismissedStopped) {
+      fadeTimer = setTimeout(() => {
+        setFadeOut(true);
+      }, 2000);
+
+      dismissTimer = setTimeout(() => {
+        setDismissedStopped(true);
+      }, 2300); // 300ms for fade animation
+    }
+
+    return () => {
+      if (resetTimer) clearTimeout(resetTimer);
+      if (fadeTimer) clearTimeout(fadeTimer);
+      if (dismissTimer) clearTimeout(dismissTimer);
+    };
+  }, [stopped, dismissedStopped]);
+
   const getStatus = (): StatusResult | null => {
+    // If stopped but already dismissed, don't show
+    if (stopped && dismissedStopped) {
+      return null;
+    }
+
     // If stopped, show stopped message
     if (stopped) {
       return { text: 'Stopped', isStopped: true };
@@ -144,7 +187,7 @@ export default function CouncilProgressCapsule({
 
   return (
     <div
-      className={`council-progress-capsule fade-in ${status.isStopped ? 'stopped' : ''} ${status.isUploading ? 'uploading' : ''}`}
+      className={`council-progress-capsule ${fadeOut ? 'fade-out' : 'fade-in'} ${status.isStopped ? 'stopped' : ''} ${status.isUploading ? 'uploading' : ''}`}
     >
       <div className="capsule-inner">
         {/* Pulsing dot - like the "typing" indicator in chat apps */}

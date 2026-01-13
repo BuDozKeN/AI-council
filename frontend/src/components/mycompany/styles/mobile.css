@@ -771,9 +771,9 @@
     gap: 8px;
     padding: 16px 20px;
 
-    /* Keep premium card styling on mobile */
+    /* Keep card styling on mobile */
     border-radius: var(--radius-lg);
-    border: 1px solid var(--color-indigo-200);
+    border: 1px solid var(--color-border);
     background: var(--color-bg-primary);
     box-shadow: var(--shadow-md);
 
@@ -873,11 +873,11 @@
   .mc-context-card {
     padding: 16px;
     padding-bottom: 3rem;
-
     background: var(--color-bg-primary);
-    border: 1px solid var(--color-indigo-200);
-    border-top: 3px solid var(--color-indigo-400);
+    border: 1px solid var(--color-border);
+    border-top: 3px solid var(--color-border-dark);
     border-radius: var(--radius-lg);
+
     /* Shadow must be preserved for depth effect */
     box-shadow: var(--shadow-md);
 
@@ -1107,7 +1107,7 @@
     background: transparent;
     padding: 0;
     gap: 12px;
-    z-index: 10;
+    z-index: var(--z-elevated);
   }
 
   /* Playbooks action buttons on mobile - tiny subtle text */
@@ -1324,7 +1324,7 @@
   /* Context card - dark mode on mobile */
   .dark .mc-context-card {
     background: var(--color-bg-secondary);
-    border-color: var(--color-indigo-400);
+    border-color: var(--color-border);
     box-shadow: var(--shadow-lg);
   }
 
@@ -1335,7 +1335,7 @@
   /* Hero section - dark mode on mobile */
   .dark .mc-overview-hero {
     background: var(--color-bg-secondary);
-    border-color: var(--color-indigo-400);
+    border-color: var(--color-border);
     box-shadow: var(--shadow-lg);
   }
 }

@@ -622,6 +622,7 @@
     "noType": "No Type",
     "saveWithoutClassifying": "Save without classifying",
     "savedAs": "Saved as {{type}}",
+    "decisionAlreadySaved": "Decision already saved - playbook type is locked",
     "optionallyClassify": "Optionally classify as a playbook type",
     "selectPlaybookType": "Select Playbook Type",
     "docTypes": {

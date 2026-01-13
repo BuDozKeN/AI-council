@@ -425,6 +425,7 @@
 /* Tabs - Modern pill/segment design */
 .mc-tabs {
   display: flex;
+  justify-content: space-evenly;
   gap: 4px;
   padding: 12px 20px;
   background: var(--color-bg-secondary);

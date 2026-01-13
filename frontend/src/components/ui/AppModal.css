@@ -623,7 +623,7 @@
     padding-top: 24px;
     flex-shrink: 0;
     position: relative;
-    z-index: 1;
+    z-index: var(--z-base);
     background: var(--color-bg-primary);
   }
 

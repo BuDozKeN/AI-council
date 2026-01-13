@@ -78,8 +78,8 @@ h3 {
   position: relative;
 }
 
-/* Premium paper effect for chairman synthesis */
-.final-response::before {
+/* Premium paper effect for chairman synthesis - uses ::after to avoid conflict with noise-overlay::before */
+.final-response::after {
   content: '';
   position: absolute;
   top: 0;
@@ -88,6 +88,7 @@ h3 {
   height: 4px;
   background: var(--color-emerald-500);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  z-index: var(--z-base); /* Above noise texture */
 }
 
 /* Header row - contains chairman icon and copy button */
@@ -367,7 +368,7 @@ h3 {
   text-transform: uppercase;
   font-family: var(--font-mono);
   font-weight: 600;
-  z-index: 1;
+  z-index: var(--z-base);
 }
 
 /* Copy button positioning in code blocks */
@@ -638,7 +639,7 @@ h3 {
   height: 48px;
   object-fit: contain;
   border-radius: var(--radius-md);
-  z-index: 1;
+  z-index: var(--z-base);
   animation: chairman-icon-float 2s ease-in-out infinite;
 }
 
@@ -660,6 +661,7 @@ h3 {
   100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-4px);
   }
@@ -670,10 +672,12 @@ h3 {
     transform: translate(-50%, -50%) scale(0.8);
     opacity: 0.3;
   }
+
   50% {
     transform: translate(-50%, -50%) scale(1.2);
     opacity: 0.1;
   }
+
   100% {
     transform: translate(-50%, -50%) scale(0.8);
     opacity: 0.3;
@@ -724,6 +728,7 @@ h3 {
     transform: translateY(0);
     opacity: 0.4;
   }
+
   30% {
     transform: translateY(-4px);
     opacity: 1;
@@ -847,18 +852,18 @@ h3 {
   gap: 0;
 }
 
-/* Compact department trigger */
+/* Compact department trigger - visible button styling */
 .save-dept-trigger {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 6px 10px;
-  background: transparent;
-  border: none;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
   border-radius: var(--radius-md);
   font-size: 13px;
   font-weight: 500;
-  color: var(--color-slate-500);
+  color: var(--color-slate-600);
   cursor: pointer;
   transition: all 0.15s ease;
   min-width: auto;
@@ -868,13 +873,22 @@ h3 {
 }
 
 .save-dept-trigger:hover {
-  background: var(--color-bg-primary);
-  color: var(--color-gray-700);
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+  color: var(--color-slate-700);
 }
 
 .save-dept-trigger:focus {
   outline: none;
-  background: var(--color-bg-primary);
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+}
+
+/* Department trigger with selection - subtle accent border to indicate selection */
+.save-dept-trigger.has-selection {
+  font-weight: 600;
+  border-left: 3px solid var(--color-emerald-500);
+  box-shadow: 0 1px 3px var(--overlay-black-10);
 }
 
 .save-dept-trigger svg:last-child {
@@ -1029,14 +1043,18 @@ h3 {
    SAVE SUCCESS - Blue access button (replaces the green save button)
    ============================================================================ */
 
-/* Saved status group - shows "Decision saved" + "View in project" link */
+/*
+ * Saved status group - shows "Decision saved" + "View in project" link
+ * Premium styling - subtle emerald accent without garish background
+ */
 .save-status-group {
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  padding: 6px 12px;
-  background: var(--color-green-50);
-  border: 1px solid var(--color-green-300);
+  padding: 6px 12px 6px 14px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-emerald-500);
   border-radius: var(--radius-md);
   animation: save-celebration 0.4s ease-out;
 }
@@ -1063,14 +1081,14 @@ h3 {
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  font-weight: 600;
-  color: var(--color-green-600);
+  font-weight: 500;
+  color: var(--color-text-primary);
 }
 
 .save-status-text svg {
   width: 16px;
   height: 16px;
-  color: var(--color-green-600);
+  color: var(--color-emerald-500);
 }
 
 .save-view-link {
@@ -1126,26 +1144,27 @@ h3 {
    Standard dropdown components for Stage3 toolbar
    =========================================== */
 
-/* --- Trigger Pills (shared base) --- */
+/* --- Trigger Pills (shared base) - visible button styling so users know they're clickable --- */
 .toolbar-pill {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   padding: 6px 10px;
-  background: transparent;
-  border: none;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
   border-radius: var(--radius-md);
   font-size: 12px;
   font-weight: 500;
-  color: var(--color-slate-500);
+  color: var(--color-slate-600);
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
 }
 
 .toolbar-pill:hover:not(:disabled) {
-  background: var(--color-bg-primary);
-  color: var(--color-gray-700);
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+  color: var(--color-slate-700);
 }
 
 .toolbar-pill:disabled {
@@ -1400,13 +1419,17 @@ h3 {
   max-width: 100px;
 }
 
+/* Project selected - consistent white style, selection shown by project name */
 .save-project-pill.has-project {
-  background: var(--color-violet-100);
-  color: var(--color-violet-700);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  color: var(--color-slate-700);
+  font-weight: 500;
 }
 
 .save-project-pill.has-project:hover:not(:disabled) {
-  background: var(--color-violet-200);
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
 }
 
 /* Project-specific selected state */
@@ -1474,36 +1497,60 @@ h3 {
   flex-shrink: 0;
 }
 
-/* Playbook trigger pill - type-specific colors */
+/* Playbook trigger pill - type-specific colors when selected */
+.playbook-trigger-pill.has-type {
+  font-weight: 500;
+}
+
+/* SOP type - consistent white style */
 .playbook-trigger-pill.has-type.sop {
-  background: var(--color-blue-100);
-  color: var(--color-blue-700);
-}
-
-.playbook-trigger-pill.has-type.framework {
-  background: var(--color-amber-100);
-  color: var(--color-amber-700);
-}
-
-.playbook-trigger-pill.has-type.policy {
-  background: var(--color-purple-100);
-  color: var(--color-purple-600);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  color: var(--color-slate-700);
 }
 
 .playbook-trigger-pill.has-type.sop:hover:not(:disabled) {
-  background: var(--color-blue-200);
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+}
+
+/* Framework type - consistent white style */
+.playbook-trigger-pill.has-type.framework {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  color: var(--color-slate-700);
 }
 
 .playbook-trigger-pill.has-type.framework:hover:not(:disabled) {
-  background: var(--color-amber-200);
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+}
+
+/* Policy type - consistent white style */
+.playbook-trigger-pill.has-type.policy {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  color: var(--color-slate-700);
 }
 
 .playbook-trigger-pill.has-type.policy:hover:not(:disabled) {
-  background: var(--color-purple-200);
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
 }
 
-.playbook-trigger-pill.saved {
-  cursor: default;
+/* Locked state when decision is already saved - visually shows it's not interactive */
+.playbook-trigger-pill.saved,
+.playbook-trigger-pill.locked {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.playbook-trigger-pill.saved:disabled,
+.playbook-trigger-pill.locked:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+  background: var(--color-slate-100);
+  color: var(--color-slate-500);
 }
 
 /* Playbook options - type-specific colors (desktop) */
@@ -1712,7 +1759,7 @@ h3 {
   box-shadow: var(--shadow-lg);
 }
 
-.dark .final-response::before {
+.dark .final-response::after {
   background: var(--color-success);
 }
 
@@ -1816,6 +1863,14 @@ h3 {
   color: var(--color-text-primary);
 }
 
+/* Department trigger with selection in dark mode */
+.dark .save-dept-trigger.has-selection {
+  font-weight: 600;
+  border-left: 3px solid var(--color-emerald-500);
+  box-shadow: 0 1px 3px var(--overlay-black-30);
+  color: var(--color-text-primary);
+}
+
 .dark .save-divider {
   background: var(--color-border);
 }
@@ -1833,13 +1888,18 @@ h3 {
   color: var(--color-text-primary);
 }
 
+/* Dark mode project pill with selection - consistent neutral style */
 .dark .save-project-pill.has-project {
-  background: var(--overlay-purple-20);
-  border-color: var(--overlay-purple-20);
-  color: var(--color-violet-400);
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
 }
 
-/* Dark mode playbook trigger pill */
+.dark .save-project-pill.has-project:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+}
+
+/* Dark mode playbook trigger pill - base styling */
 .dark .playbook-trigger-pill {
   color: var(--color-text-secondary);
   background: var(--color-bg-tertiary);
@@ -1851,27 +1911,100 @@ h3 {
   color: var(--color-text-primary);
 }
 
-.dark .save-status-group {
-  background: var(--color-success-light);
-  border-color: var(--overlay-emerald-20);
+/* Dark mode locked/saved state */
+.dark .playbook-trigger-pill.saved:disabled,
+.dark .playbook-trigger-pill.locked:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-muted);
 }
 
-/* Dark mode mobile toolbar overrides */
-@media (max-width: 640px) {
+/* Dark mode playbook type colors */
+.dark .playbook-trigger-pill.has-type.sop {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .playbook-trigger-pill.has-type.framework {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .playbook-trigger-pill.has-type.policy {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .save-status-group {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border);
+  border-left-color: var(--color-emerald-400);
+}
+
+/* Dark mode mobile/tablet toolbar overrides - visible buttons inside container */
+@media (max-width: 768px) {
+  /* Pills with dark background INSIDE darker container (no border = unified look) */
   .dark .save-dept-trigger,
-  .dark .save-project-pill {
-    background: var(--color-bg-tertiary);
-    border-color: var(--color-border);
+  .dark .save-project-pill,
+  .dark .playbook-trigger-pill {
+    background: var(--color-bg-primary);
+    border: none;
+    box-shadow: 0 1px 2px var(--overlay-black-30);
   }
 
-  .dark .playbook-trigger-pill {
-    background: var(--color-bg-tertiary);
-    border-color: var(--color-border);
+  .dark .save-dept-trigger:hover,
+  .dark .save-dept-trigger:focus,
+  .dark .save-project-pill:hover,
+  .dark .playbook-trigger-pill:hover {
+    background: var(--color-bg-hover);
+  }
+
+  /* Dark mode department trigger with selection - accent border */
+  .dark .save-dept-trigger.has-selection {
+    font-weight: 600;
+    border-left: 3px solid var(--color-emerald-500);
+    box-shadow: 0 1px 3px var(--overlay-black-40);
+    color: var(--color-text-primary);
+  }
+
+  /* Dark mode project pill with selection - consistent neutral style */
+  .dark .save-project-pill.has-project {
+    background: var(--color-bg-primary);
+    border: none;
+    color: var(--color-text-primary);
+    box-shadow: 0 1px 2px var(--overlay-black-30);
+  }
+
+  /* Dark mode playbook type - consistent neutral style */
+  .dark .playbook-trigger-pill.has-type.sop {
+    background: var(--color-bg-primary);
+    border: none;
+    color: var(--color-text-primary);
+    box-shadow: 0 1px 2px var(--overlay-black-30);
+  }
+
+  .dark .playbook-trigger-pill.has-type.framework {
+    background: var(--color-bg-primary);
+    border: none;
+    color: var(--color-text-primary);
+    box-shadow: 0 1px 2px var(--overlay-black-30);
+  }
+
+  .dark .playbook-trigger-pill.has-type.policy {
+    background: var(--color-bg-primary);
+    border: none;
+    color: var(--color-text-primary);
+    box-shadow: 0 1px 2px var(--overlay-black-30);
   }
 
   .dark .save-status-group {
-    background: var(--overlay-emerald-10);
-    border-color: var(--overlay-emerald-20);
+    background: var(--color-bg-primary);
+    border-color: var(--color-border);
+    border-left-color: var(--color-emerald-400);
   }
 
   .dark .save-view-link {
@@ -1880,11 +2013,11 @@ h3 {
 }
 
 .dark .save-status-text {
-  color: var(--stage3-text-primary);
+  color: var(--color-text-primary);
 }
 
 .dark .save-status-text svg {
-  color: var(--stage3-text-primary);
+  color: var(--color-emerald-400);
 }
 
 .dark .save-view-link {
@@ -2020,7 +2153,7 @@ h3 {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   /* Stage3 container padding */
   .stage3 {
     padding: 12px;
@@ -2083,7 +2216,7 @@ h3 {
   }
 
   /* ===========================================
-     SAVE TOOLBAR - Clean mobile grid layout
+     SAVE TOOLBAR - Clean mobile/tablet grid layout
      =========================================== */
 
   .save-toolbar-unified {
@@ -2093,11 +2226,10 @@ h3 {
     width: 100%;
   }
 
-  /* Options group - 2-column grid for main controls */
+  /* Options group - flexbox with wrap to keep ALL pills inside the gray container */
   .save-options-group {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto;
+    display: flex;
+    flex-wrap: wrap;
     width: 100%;
     gap: 8px;
     padding: 12px;
@@ -2106,39 +2238,54 @@ h3 {
     border-radius: var(--radius-lg);
   }
 
-  /* Hide dividers on mobile - using grid layout instead */
+  /* Hide dividers on mobile */
   .save-divider {
     display: none;
   }
 
-  /* Department trigger - first column, first row */
+  /* Department trigger - takes half width, white button inside gray container */
   .save-dept-trigger {
-    grid-column: 1;
-    grid-row: 1;
-    width: 100%;
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
     min-height: 44px;
     justify-content: center;
     gap: 6px;
     padding: 10px 12px;
     font-size: 13px;
     background: var(--color-bg-primary);
-    border: 1px solid var(--color-slate-200);
+    border: none;
     border-radius: var(--radius-md);
     text-align: center;
+    box-shadow: 0 1px 2px var(--overlay-black-10);
+
+    /* Mobile touch handling - critical for click events to work */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    pointer-events: auto;
+    position: relative;
+    z-index: var(--z-base);
   }
 
   .save-dept-trigger:hover,
   .save-dept-trigger:focus {
-    border-color: var(--color-slate-300);
-    background: var(--color-bg-primary);
+    background: var(--color-slate-100);
   }
 
-  /* Project pill - second column, first row */
+  /* Department trigger with selection - subtle accent border to indicate selection */
+  .save-dept-trigger.has-selection {
+    font-weight: 600;
+    border-left: 3px solid var(--color-emerald-500);
+    box-shadow: 0 1px 3px var(--overlay-black-15);
+  }
+
+  /* Project pill wrapper - takes half width */
   .save-project-selector-inline {
-    grid-column: 2;
-    grid-row: 1;
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
   }
 
+  /* Project pill - white button inside gray container */
   .save-project-pill {
     width: 100%;
     min-height: 44px;
@@ -2147,10 +2294,19 @@ h3 {
     padding: 10px 12px;
     font-size: 13px;
     background: var(--color-bg-primary);
-    border: 1px solid var(--color-slate-200);
+    border: none;
     border-radius: var(--radius-md);
     max-width: none;
     text-align: center;
+    box-shadow: 0 1px 2px var(--overlay-black-10);
+
+    /* Mobile touch handling - critical for click events to work */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    pointer-events: auto;
+    position: relative;
+    z-index: var(--z-base);
   }
 
   .save-project-pill span {
@@ -2159,17 +2315,21 @@ h3 {
     overflow: hidden;
   }
 
+  /* Project selected - consistent white style */
   .save-project-pill.has-project {
-    background: var(--color-purple-50);
-    border-color: var(--color-purple-200);
+    background: var(--color-bg-primary);
+    border: none;
+    color: var(--color-slate-700);
+    box-shadow: 0 1px 2px var(--overlay-black-10);
   }
 
-  /* Playbook dropdown - spans full width, second row */
+  /* Playbook dropdown wrapper - takes full width, wraps to second row */
   .playbook-selector-inline {
-    grid-column: 1 / -1;
-    grid-row: 2;
+    flex: 1 1 100%;
+    min-width: 0;
   }
 
+  /* Playbook pill - white button inside gray container */
   .playbook-trigger-pill {
     width: 100%;
     min-height: 40px;
@@ -2178,12 +2338,39 @@ h3 {
     padding: 8px 12px;
     font-size: 13px;
     background: var(--color-bg-primary);
-    border: 1px solid var(--color-slate-200);
+    border: none;
     border-radius: var(--radius-md);
+    box-shadow: 0 1px 2px var(--overlay-black-10);
+
+    /* Mobile touch handling - critical for click events to work */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    pointer-events: auto;
+    position: relative;
+    z-index: var(--z-base);
   }
 
-  .playbook-trigger-pill.has-type {
-    border-color: var(--color-slate-300);
+  /* Type colors - colored backgrounds to show selection */
+  .playbook-trigger-pill.has-type.sop {
+    background: var(--color-bg-primary);
+    border: none;
+    color: var(--color-slate-700);
+    box-shadow: 0 1px 2px var(--overlay-black-10);
+  }
+
+  .playbook-trigger-pill.has-type.framework {
+    background: var(--color-bg-primary);
+    border: none;
+    color: var(--color-slate-700);
+    box-shadow: 0 1px 2px var(--overlay-black-10);
+  }
+
+  .playbook-trigger-pill.has-type.policy {
+    background: var(--color-bg-primary);
+    border: none;
+    color: var(--color-slate-700);
+    box-shadow: 0 1px 2px var(--overlay-black-10);
   }
 
   /* Save action button - prominent CTA */
@@ -2198,7 +2385,7 @@ h3 {
     box-shadow: 0 2px 4px var(--overlay-emerald-20);
   }
 
-  /* Save status group - clean success state */
+  /* Save status group - subtle emerald accent */
   .save-status-group {
     width: 100%;
     min-height: 48px;
@@ -2206,8 +2393,9 @@ h3 {
     flex-wrap: wrap;
     gap: 10px;
     padding: 12px 16px;
-    background: var(--color-success-light);
-    border: 1px solid var(--color-success-border);
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border);
+    border-left: 3px solid var(--color-emerald-500);
     border-radius: var(--radius-lg);
   }
 
