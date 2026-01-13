@@ -33,6 +33,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { api, type Persona } from '../../../api';
 import { toast } from '../../ui/sonner';
 import { invalidateCouncilStats } from '../../../hooks/useCouncilStats';
+import { logger } from '../../../utils/logger';
 import type { LLMPresetFull, ModelRegistryEntry, StageConfig } from '../../../types/business';
 import '../styles/tabs/llm-hub.css';
 
@@ -533,13 +534,13 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
         const personasRes = await api.getPersonas(companyId);
         setPersonas(personasRes.personas);
       } catch (personaErr) {
-        console.error('Error loading personas:', personaErr);
+        logger.error('Error loading personas:', personaErr);
         // Personas are optional - continue without them
         setPersonas([]);
       }
     } catch (err) {
       setError(t('llmHub.errors.loadFailed'));
-      console.error(err);
+      logger.error('Failed to load LLM hub data:', err);
     } finally {
       setLoading(false);
     }

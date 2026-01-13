@@ -15,7 +15,6 @@ from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any, Literal
 import asyncio
 import json
-import re
 import uuid
 
 from ..auth import get_current_user

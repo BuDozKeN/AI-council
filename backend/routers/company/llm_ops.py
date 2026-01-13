@@ -9,7 +9,7 @@ Endpoints for LLM usage analytics, rate limits, and budget management:
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
-from typing import Optional, List, Dict, Any, Literal
+from typing import Optional, List, Dict, Any
 from datetime import datetime
 
 from ...auth import get_current_user
@@ -787,8 +787,6 @@ async def update_model_registry_entry(
 
     if not existing.data:
         raise HTTPException(status_code=404, detail="Model not found")
-
-    model = existing.data[0]
 
     # Build update data
     update_data: Dict[str, Any] = {'updated_at': datetime.now().isoformat()}

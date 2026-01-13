@@ -25,7 +25,7 @@ Usage:
     )
 """
 
-from typing import Any, Optional, List, Generic, TypeVar
+from typing import Any, Optional, List, TypeVar
 from pydantic import BaseModel, Field
 from datetime import datetime
 

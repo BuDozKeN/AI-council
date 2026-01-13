@@ -12,7 +12,7 @@ Tests the main API endpoints including:
 """
 
 import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import patch
 from fastapi.testclient import TestClient
 from fastapi import FastAPI
 

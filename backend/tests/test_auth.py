@@ -8,7 +8,7 @@ These tests verify:
 """
 
 import pytest
-from unittest.mock import patch, MagicMock, AsyncMock
+from unittest.mock import patch, MagicMock
 from fastapi import HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
 

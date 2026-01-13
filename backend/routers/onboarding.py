@@ -8,12 +8,12 @@ Endpoints for the Zero Friction onboarding flow:
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field
 from typing import Optional, List
 import re
 
 from ..auth import get_current_user, get_optional_user
-from ..security import SecureHTTPException, log_app_event
+from ..security import log_app_event
 
 # Import rate limiter
 from slowapi import Limiter
@@ -527,7 +527,7 @@ def get_mock_profile_data(linkedin_username: str) -> dict:
             "company": f"{name_parts[0] if name_parts else 'Acme'} Ventures",
             "industry": "Technology",
             "employees": 25,
-            "bio": f"Entrepreneur building innovative solutions. Looking for strategic guidance on growth and operations.",
+            "bio": "Entrepreneur building innovative solutions. Looking for strategic guidance on growth and operations.",
         }
 
 

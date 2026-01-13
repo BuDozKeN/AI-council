@@ -9,7 +9,7 @@ These tests verify:
 """
 
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 # Import the module under test
 from backend.council import (
@@ -470,7 +470,6 @@ class TestTimeoutImports:
 
     def test_council_imports_timeout_config(self):
         """Council module should import timeout configuration."""
-        from backend import council
 
         # Check the config values are accessible via the import
         from backend.config import PER_MODEL_TIMEOUT, STAGE1_TIMEOUT, STAGE2_TIMEOUT

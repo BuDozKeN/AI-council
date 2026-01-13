@@ -8,7 +8,7 @@ Ensures questions have the 4 key constraints before going to the council:
 """
 
 import json
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, Optional
 from .openrouter import query_model
 from .model_registry import get_primary_model, get_primary_model_sync
 
