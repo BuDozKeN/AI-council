@@ -322,7 +322,11 @@ function Stage3({
           <span className="font-semibold tracking-tight">{t('stages.bestAnswer')}</span>
         </h3>
         <div className="final-response noise-overlay">
-          <div className="chairman-loading-container" role="status" aria-label={t('stages.loadingCouncil')}>
+          <div
+            className="chairman-loading-container"
+            role="status"
+            aria-label={t('stages.loadingCouncil')}
+          >
             <div className="chairman-loading-icon-wrapper">
               <img
                 src={chairmanIconPath || '/icons/gemini.svg'}
@@ -336,7 +340,9 @@ function Stage3({
             <div className="chairman-loading-text">
               <span className="chairman-loading-title">{t('stages.chairmanWriting')}</span>
               <span className="chairman-loading-dots">
-                <span>.</span><span>.</span><span>.</span>
+                <span>.</span>
+                <span>.</span>
+                <span>.</span>
               </span>
             </div>
           </div>

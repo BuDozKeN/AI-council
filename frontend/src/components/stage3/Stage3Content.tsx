@@ -186,9 +186,7 @@ function Stage3Content({
       {/* Truncation warning - response was cut off */}
       {wasTruncated && (
         <div className="truncation-warning">
-          <span className="truncation-warning-text">
-            {t('stages.responseTruncated')}
-          </span>
+          <span className="truncation-warning-text">{t('stages.responseTruncated')}</span>
         </div>
       )}
 
