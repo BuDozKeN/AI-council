@@ -730,9 +730,6 @@
 
   /* Background to cover content scrolling behind */
   background: inherit;
-
-  /* DEBUG: PURPLE shadow */
-  outline: 3px solid purple !important;
 }
 
 /* Hide sticky TOC on mobile - doesn't work well in compact content areas */

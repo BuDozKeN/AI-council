@@ -327,12 +327,14 @@ export function MessageList({
                           conversationTitle={conversation?.title ?? null}
                           responseIndex={index}
                           userQuestion={userQuestion}
-                          projects={projects}
-                          currentProjectId={selectedProject ?? null}
-                          onSelectProject={onSelectProject}
-                          onCreateProject={onOpenProjectModal}
-                          onViewDecision={onViewDecision}
                           {...(msg.usage ? { usage: msg.usage } : {})}
+                          {...(projects.length > 0 ? { projects } : {})}
+                          {...(selectedProject !== undefined
+                            ? { currentProjectId: selectedProject }
+                            : {})}
+                          {...(onSelectProject ? { onSelectProject } : {})}
+                          {...(onOpenProjectModal ? { onCreateProject: onOpenProjectModal } : {})}
+                          {...(onViewDecision ? { onViewDecision } : {})}
                         />
                       );
                     })()}
