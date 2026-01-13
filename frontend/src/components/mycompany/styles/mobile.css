@@ -872,12 +872,38 @@
   /* Context card - normal padding on mobile */
   .mc-context-card {
     padding: 16px;
+    padding-bottom: 3rem;
 
-    /* DEBUG: temporary visible background */
     background: var(--color-bg-primary);
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--color-indigo-200);
+    border-top: 3px solid var(--color-indigo-400);
     border-radius: var(--radius-lg);
-    min-height: 150px;
+    /* Shadow must be preserved for depth effect */
+    box-shadow: var(--shadow-md);
+
+    /* Ensure card contains all content - no overflow clipping */
+    overflow: visible;
+
+    /* CRITICAL: Ensure card expands to fit ALL content */
+    flex-shrink: 0;
+    height: auto;
+    min-height: fit-content;
+  }
+
+  /* Content inside card must flow naturally - no constraints */
+  .mc-context-card .mc-context-content {
+    /* Ensure content is not constrained */
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+  }
+
+  /* MarkdownViewer prose inside card - ensure it renders fully */
+  .mc-context-card .prose {
+    /* Ensure all markdown content displays fully */
+    overflow: visible;
+    height: auto;
   }
 
   /* Empty context state in Overview - proper mobile layout */
@@ -1303,7 +1329,7 @@
   }
 
   .dark .mc-context-sticky-toolbar {
-    background: transparent;
+    background: var(--color-bg-secondary);
   }
 
   /* Hero section - dark mode on mobile */
