@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Sparkles } from 'lucide-react';
-import { Spinner } from '../ui/Spinner';
 import { CopyButton } from '../ui/CopyButton';
 import { api } from '../../api';
 import { getModelPersona } from '../../config/modelPersonas';
@@ -29,6 +28,7 @@ interface StreamingState {
   text?: string;
   complete?: boolean;
   error?: boolean;
+  truncated?: boolean;
   model?: string;
 }
 
@@ -304,6 +304,7 @@ function Stage3({
   // Streaming states - explicitly type as boolean
   const isStreaming: boolean = Boolean(streaming && !streaming.complete);
   const hasError: boolean = Boolean(streaming?.error);
+  const wasTruncated: boolean = Boolean(streaming?.truncated);
   const chairmanModel = finalResponse?.model || streaming?.model || 'google/gemini-3-pro-preview';
   const chairmanIconPath = getModelIconPath(chairmanModel);
   const isComplete: boolean = !isStreaming && !hasError && Boolean(displayText);
@@ -312,7 +313,7 @@ function Stage3({
     setIsCollapsed(!isCollapsed);
   };
 
-  // Show thinking state
+  // Show thinking state with chairman icon animation
   if (!displayText && isLoading) {
     return (
       <div className="stage stage3" aria-busy="true" aria-live="polite">
@@ -321,10 +322,28 @@ function Stage3({
           <span className="font-semibold tracking-tight">{t('stages.bestAnswer')}</span>
         </h3>
         <div className="final-response noise-overlay">
-          <div className="thinking-container" role="status" aria-label={t('stages.loadingCouncil')}>
-            <div className="thinking-message">
-              <Spinner size="sm" />
-              <span>{t('stages.combiningOpinions')}</span>
+          <div
+            className="chairman-loading-container"
+            role="status"
+            aria-label={t('stages.loadingCouncil')}
+          >
+            <div className="chairman-loading-icon-wrapper">
+              <img
+                src={chairmanIconPath || '/icons/gemini.svg'}
+                alt=""
+                className="chairman-loading-icon"
+                loading="lazy"
+                decoding="async"
+              />
+              <div className="chairman-loading-pulse" />
+            </div>
+            <div className="chairman-loading-text">
+              <span className="chairman-loading-title">{t('stages.chairmanWriting')}</span>
+              <span className="chairman-loading-dots">
+                <span>.</span>
+                <span>.</span>
+                <span>.</span>
+              </span>
             </div>
           </div>
         </div>
@@ -367,6 +386,7 @@ function Stage3({
           <Stage3Content
             displayText={displayText}
             hasError={hasError}
+            wasTruncated={wasTruncated}
             isStreaming={isStreaming}
             isComplete={isComplete}
             chairmanIconPath={chairmanIconPath}

@@ -616,6 +616,8 @@
     "bestAnswer": "La mejor respuesta",
     "loadingCouncil": "Cargando respuesta del consejo",
     "combiningOpinions": "Combinando opiniones de expertos...",
+    "chairmanWriting": "El presidente está escribiendo la respuesta final",
+    "responseTruncated": "La respuesta fue cortada. La respuesta puede estar incompleta.",
     "playbookType": "Tipo de Playbook",
     "noType": "Sin tipo",
     "saveWithoutClassifying": "Guardar sin clasificar",

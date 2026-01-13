@@ -831,9 +831,16 @@ async def query_model_stream(
 
                             choice = data.get('choices', [{}])[0]
                             delta = choice.get('delta', {})
+                            finish_reason = choice.get('finish_reason')
 
-                            # Note: finish_reason indicates stream end (e.g., "stop", "length" for truncation)
-                            # Currently not used but available via choice.get('finish_reason')
+                            # Check for truncation: finish_reason="length" means max_tokens was hit
+                            if finish_reason == 'length':
+                                # Model was cut off - yield truncation warning
+                                yield "[TRUNCATED]"
+                                await breaker.record_success()  # Still a successful call
+                                if usage_data:
+                                    yield f"[USAGE:{json.dumps(usage_data)}]"
+                                return
 
                             # Only yield 'content' field - this is the actual response
                             # The 'reasoning' field contains internal model thinking (chain of thought)

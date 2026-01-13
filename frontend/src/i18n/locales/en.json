@@ -616,6 +616,8 @@
     "bestAnswer": "The Best Answer",
     "loadingCouncil": "Loading council response",
     "combiningOpinions": "Combining expert opinions...",
+    "chairmanWriting": "Chairman is writing the final answer",
+    "responseTruncated": "Response was cut off. The answer may be incomplete.",
     "playbookType": "Playbook Type",
     "noType": "No Type",
     "saveWithoutClassifying": "Save without classifying",
