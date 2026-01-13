@@ -31,6 +31,9 @@ supabase/.branches/
 # Claude Code local settings
 .claude/settings.local.json
 
+# Claude Code temp working directory files
+tmpclaude-*
+
 # Windows reserved device names
 nul
 NUL
