@@ -1792,7 +1792,7 @@ export const api = {
       response_index: responseIndex.toString(),
     });
     const response = await fetch(
-      `${API_BASE}${API_VERSION}/conversations/${conversationId}/decision?${params.toString()}`,
+      `${API_BASE}${API_VERSION}/knowledge/conversations/${conversationId}/decision?${params.toString()}`,
       { headers }
     );
     if (!response.ok) {
