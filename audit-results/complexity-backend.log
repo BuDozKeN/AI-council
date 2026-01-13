@@ -1,0 +1,150 @@
+backend/main.py
+    F 789:0 health_check - C
+    F 976:0 metrics_endpoint - B
+    F 698:0 _cleanup_resources - B
+    C 482:0 APIVersionMiddleware - B
+    M 500:4 APIVersionMiddleware.dispatch - B
+backend/context_loader.py
+    F 1227:0 get_system_prompt_with_context - F
+    F 59:0 list_available_businesses - C
+    F 996:0 detect_multi_turn_attack - C
+    F 705:0 validate_llm_output - C
+    F 1150:0 format_decisions_for_prompt - C
+    F 924:0 detect_ranking_manipulation - C
+    F 363:0 get_playbooks_for_context - B
+    F 634:0 detect_suspicious_query - B
+    F 1105:0 format_playbooks_for_prompt - B
+    F 168:0 load_company_context_from_db - B
+    F 208:0 load_department_context_from_db - B
+    F 246:0 load_role_prompt_from_db - B
+backend/llm_config.py
+    F 54:0 get_llm_config - B
+    F 258:0 validate_llm_config - B
+backend/database.py
+    F 123:0 with_retry - B
+    F 232:0 _cleanup_pool - B
+backend/vector_store.py
+    F 86:0 ensure_collections - B
+    F 266:0 search_similar_conversations - B
+    F 315:0 search_knowledge - B
+    F 34:0 get_qdrant - B
+backend/cache.py
+    F 41:0 get_redis - B
+backend/security.py
+    F 521:0 log_app_event - C
+    F 110:0 log_security_event - B
+    F 178:0 get_client_ip - B
+    C 26:0 StructuredJsonFormatter - B
+    F 661:0 verify_user_entry_access - B
+    M 34:4 StructuredJsonFormatter.format - B
+backend/knowledge_fallback.py
+    F 110:0 _to_bullets - C
+    F 148:0 _short_title - C
+    F 53:0 _remove_code_lines - C
+    F 428:0 _extract_key_points - C
+    F 306:0 _detect_category - C
+    F 395:0 _extract_topic - B
+    F 252:0 extract_knowledge_fallback - B
+    F 333:0 extract_project_fallback - B
+backend/sentry.py
+    F 118:0 before_send_filter - B
+    F 65:0 init_sentry - B
+    F 31:0 _get_release_version - B
+backend/personas.py
+    F 545:0 get_db_persona - C
+    F 409:0 get_write_assist_persona_async - C
+    F 661:0 query_with_persona - C
+backend/leaderboard.py
+    F 49:0 _aggregate_leaderboard_data - B
+    F 175:0 _resolve_department_names_batch - B
+    F 259:0 get_leaderboard_summary - B
+    F 213:0 get_all_department_leaderboards - B
+backend/triage.py
+    F 117:0 analyze_for_triage - B
+    F 192:0 continue_triage - B
+backend/openrouter.py
+    F 673:0 query_model_stream - E
+    F 545:0 query_model - C
+    F 471:0 convert_to_cached_messages - C
+    M 244:4 CircuitBreakerRegistry.get_summary - B
+    M 129:4 CircuitBreaker.can_execute - B
+backend/model_registry.py
+    F 108:0 get_models - B
+backend/council.py
+    F 94:0 stage1_stream_responses - E
+    F 384:0 stage2_stream_rankings - E
+    F 676:0 stage3_stream_synthesis - D
+    F 1261:0 generate_conversation_title - C
+    F 1394:0 chat_stream_response - C
+    F 925:0 stage2_collect_rankings - B
+    F 1148:0 parse_ranking_from_text - B
+    F 1568:0 cache_council_response - B
+    F 1026:0 stage3_synthesize_final - B
+    F 1212:0 calculate_aggregate_rankings - B
+    F 1513:0 get_cached_council_response - B
+backend/auth.py
+    F 16:0 get_current_user - B
+backend/mock_llm.py
+    F 88:0 _detect_stage - C
+    F 1769:0 generate_mock_response_stream - C
+    F 1714:0 generate_mock_response - C
+    F 146:0 _stage1_short - B
+    F 211:0 _stage1_medium - B
+    F 363:0 _stage1_long - B
+backend/storage.py
+    F 152:0 get_conversation - C
+    F 754:0 update_project - C
+    F 872:0 get_projects_with_stats - C
+    F 648:0 create_project - C
+    F 272:0 list_conversations - C
+    F 31:0 resolve_company_id - B
+backend/byok.py
+    F 61:0 get_user_api_key - B
+    F 125:0 get_key_expiry_info - B
+    F 29:0 _is_key_expired - B
+backend/attachments.py
+    F 137:0 upload_attachment - C
+    F 74:0 optimize_image - C
+    F 43:0 validate_image_magic_bytes - B
+backend/billing.py
+    F 340:0 handle_webhook_event - D
+    F 28:0 get_or_create_stripe_products - C
+backend/knowledge.py
+    F 8:0 create_knowledge_entry - C
+    F 231:0 get_knowledge_for_context - C
+    F 392:0 generate_project_report - B
+    F 119:0 get_knowledge_entries - B
+    F 182:0 get_injectable_entries - B
+backend/tests/test_openrouter.py
+    M 137:4 TestCircuitBreaker.test_half_open_state_after_recovery - B
+    M 188:4 TestCircuitBreaker.test_get_status - B
+    M 349:4 TestConvertToCachedMessages.test_converts_system_message_for_supported_model - B
+    C 393:0 TestCircuitBreakerOpenException - B
+backend/tests/test_billing.py
+    M 69:4 TestGetAvailablePlans.test_free_tier_is_free - B
+    M 78:4 TestGetAvailablePlans.test_pro_tier_pricing - B
+backend/tests/test_conversations.py
+    M 89:4 TestBuildCouncilConversationHistory.test_assistant_message_with_stage1_and_stage3 - B
+    M 142:4 TestBuildCouncilConversationHistory.test_multiple_messages - B
+    C 460:0 TestBulkDelete - B
+backend/tests/test_onboarding.py
+    M 307:4 TestGetMockProfileData.test_profile_has_required_fields - B
+    M 207:4 TestGenerateDepartments.test_departments_have_required_fields - B
+backend/tests/test_knowledge.py
+    M 98:4 TestCreateKnowledgeRequest.test_minimal_valid_request - B
+backend/tests/test_council.py
+    M 267:4 TestCalculateAggregateRankings.test_partial_rankings - B
+    M 399:4 TestCouncilIntegration.test_stage1_detects_suspicious_queries - B
+    M 206:4 TestCalculateAggregateRankings.test_single_ranker - B
+    M 329:4 TestCalculateAggregateRankings.test_five_models_three_rankers - B
+    C 380:0 TestCouncilIntegration - B
+    C 203:0 TestCalculateAggregateRankings - B
+backend/tests/test_mock_llm.py
+    M 403:4 TestStage2Content.test_includes_all_responses - B
+    C 443:0 TestFailureScenarios - B
+backend/services/trial.py
+    M 160:4 TrialService.get_api_key_for_user - B
+    M 114:4 TrialService.use_trial - B
+    M 234:4 TrialService.reset_trial - B
+backend/routers/ai_utils.py
+    F 199:0 ai_write_assist - F
