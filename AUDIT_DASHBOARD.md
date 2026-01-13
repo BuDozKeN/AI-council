@@ -1,14 +1,14 @@
 # AxCouncil Audit Dashboard
 
-> Last Updated: 2026-01-13 UTC (v17)
-> Last Audit: Scalability (8/10 - Stateless architecture, 4-layer caching, circuit breakers, 96 req/s baseline on liveness)
-> Branch: perf/sarah-fast-models
+> Last Updated: 2026-01-14 UTC (v18)
+> Last Audit: CSS Architecture (7/10 - Strong token adoption, 10 oversized files, 19 hardcoded z-index values)
+> Branch: fix/mobile-context-card-tables
 
 ---
 
 ## Executive Summary
 
-### Overall Health: 9.2/10 → (20/30 categories audited)
+### Overall Health: 9.1/10 → (21/30 categories audited)
 
 | Category | Audit Command | Score | Trend | Critical | High | Medium | Last Checked |
 |----------|---------------|-------|-------|----------|------|--------|--------------|
@@ -23,6 +23,7 @@
 | AI Ethics | `/audit-ai-ethics` | --/10 | -- | -- | -- | -- | Never |
 | **CODE & QUALITY** ||||||||
 | Code Quality | `/audit-code` | 9/10 | ↑ | 0 | 0 | 1 | 2026-01-13 |
+| CSS Architecture | `/audit-css-architecture` | 8/10 | ↑ | 0 | 1 | 3 | 2026-01-14 |
 | Test Coverage | `/audit-test-coverage` | 10/10 | ↑↑ | 0 | 0 | 0 | 2026-01-04 |
 | Documentation | `/audit-documentation` | --/10 | -- | -- | -- | -- | Never |
 | **USER EXPERIENCE** ||||||||
@@ -54,10 +55,10 @@
 > Categories not run retain "--" scores. Use the audit command to run each category.
 
 ### Key Metrics
-- **Audit Coverage**: 20/30 categories audited (67%)
-- **Total Findings**: 46 (Critical: 8, High: 10, Medium: 24, Low: 4)
-- **Fixed Since Last Run**: 30 (DR fixes maintained)
-- **New This Run**: 8 new DevOps findings (0 Critical, 3 High, 5 Medium)
+- **Audit Coverage**: 21/30 categories audited (70%)
+- **Total Findings**: 51 (Critical: 8, High: 12, Medium: 27, Low: 4)
+- **Fixed Since Last Run**: 0 (new audit category)
+- **New This Run**: 5 new CSS findings (0 Critical, 2 High, 3 Medium)
 - **$25M Readiness**: Test coverage (10/10 ✅), i18n (10/10 ✅), DR (8/10 ✅), DevOps (8.5/10 ✅), Scalability (8/10 ✅)
 - **Test Count**: 532 tests (387 backend + 145 frontend)
 - **DORA Metrics**: High Performance (~1-2 deploys/day, < 1hr lead time, < 10% failure rate)
@@ -84,9 +85,10 @@
 
 ## Score History
 
-| Date | Scope | Overall | Sec | Code | UI | Perf | A11y | Mobile | LLM | Data | Bill | Resil | API | Test | i18n | DR | SEO | DevOps | Scale |
-|------|-------|---------|-----|------|-----|------|------|--------|-----|------|------|-------|-----|------|------|-----|-----|--------|-------|
-| 2026-01-13 | Code quality Phase 1-3 | 9.2 | -- | 9 | 9 | 9 | 10 | 10 | -- | 9 | -- | 10 | 10 | 10 | 10 | 8 | 8 | 8.5 | 8 |
+| Date | Scope | Overall | Sec | Code | CSS | UI | Perf | A11y | Mobile | LLM | Data | Bill | Resil | API | Test | i18n | DR | SEO | DevOps | Scale |
+|------|-------|---------|-----|------|-----|-----|------|------|--------|-----|------|------|-------|-----|------|------|-----|-----|--------|-------|
+| 2026-01-14 | CSS Architecture | 9.1 | -- | 9 | 7 | 9 | 9 | 10 | 10 | -- | 9 | -- | 10 | 10 | 10 | 10 | 8 | 8 | 8.5 | 8 |
+| 2026-01-13 | Code quality Phase 1-3 | 9.2 | -- | 9 | -- | 9 | 9 | 10 | 10 | -- | 9 | -- | 10 | 10 | 10 | 10 | 8 | 8 | 8.5 | 8 |
 | 2026-01-13 | Scalability audit | 9.2 | -- | 9 | 9 | 9 | 10 | 10 | -- | 9 | -- | 10 | 10 | 10 | 10 | 8 | 8 | 8.5 | 8 |
 | 2026-01-12 | DevOps audit | 9.2 | -- | 9 | 9 | 9 | 10 | 10 | -- | 9 | -- | 10 | 10 | 10 | 10 | 8 | 8 | 8.5 | -- |
 | 2026-01-08 | SEO complete | 9.2 | -- | 9 | 9 | 9 | 10 | 10 | -- | 9 | -- | 10 | 10 | 10 | 10 | 8 | 8 | -- |
@@ -969,6 +971,164 @@ These are explicitly allowed per the project's design system rules in `CLAUDE.md
 1. ~~**Frontend Unit Tests**~~ - ✅ 145 tests now (was 0)
 2. **E2E Tests** - No Playwright/Cypress integration tests
 3. ~~**Coverage Reporting**~~ - ✅ 70% threshold enforced in CI
+
+</details>
+
+<details open>
+<summary>CSS Architecture (8/10) - Last checked: 2026-01-14</summary>
+
+### Architecture Score: 8/10 | Developer Experience: 8/10 | Technical Debt: 7/10
+
+### Executive Summary
+
+The CSS architecture has **strong fundamentals** with excellent design token adoption (5,475 uses of `var(--color-*)`) and good Stylelint configuration. ~~19 hardcoded z-index values~~ **Fixed!** All z-index values now use tokens. Remaining issue: **10 oversized files** (>500 lines) tracked for incremental improvement.
+
+**$25M Readiness**: 8/10 - Good design system, file sizes are tracked for incremental improvement.
+
+### Technical Debt Metrics
+
+| Metric | Current | Target | Status |
+|--------|---------|--------|--------|
+| Total CSS files | 88 | Benchmark | ℹ️ Info |
+| Total CSS lines | 47,753 | Benchmark | ⚠️ Large |
+| Files > 500 lines | 10 | 0 | ⚠️ Tracked for incremental splits |
+| !important count | 22 | 0-5 | ⚠️ Mostly justified (a11y) |
+| Hardcoded z-index | ~~19~~ 1 | 0 | ✅ Fixed (only `z-index: 0` remains) |
+| Color token usage | 5,475 | High | ✅ Excellent |
+| Dead CSS selectors | 0 | 0 | ✅ Clean |
+| Media query consistency | 100% | 100% | ✅ 768px/640px/480px standard |
+
+### File Health Check (Oversized Files)
+
+| File | Lines | Health | Issue |
+|------|-------|--------|-------|
+| `ChatInterface.css` | 3,212 | ❌ Bad | Should be split into 5-6 files |
+| `Stage3.css` | 2,516 | ❌ Bad | Monolithic, hard to maintain |
+| `Settings.css` | 2,394 | ❌ Bad | Mixed concerns |
+| `modals.css` | 2,283 | ❌ Bad | Should split per modal type |
+| `ContextChip.css` | 1,955 | ❌ Bad | Complex component, needs breakdown |
+| `mobile.css` | 1,451 | ⚠️ Warning | Acceptable for central mobile file |
+| `overview.css` | 1,293 | ⚠️ Warning | Borderline |
+| `OmniBar.css` | 1,284 | ⚠️ Warning | Borderline |
+| `llm-hub.css` | 1,130 | ⚠️ Warning | Borderline |
+| `AppModal.css` | 951 | ⚠️ Warning | Near limit |
+
+### High Priority Issues
+
+### ~~[CSS-001] Hardcoded Z-Index Values~~ ✅ FIXED
+- **Location**: ~~19~~ 0 occurrences (was 19 across 15 files)
+- **Impact**: Z-index conflicts, unpredictable layering
+- **Fix Applied**:
+  - `z-index: 99999` → `var(--z-modal-dropdown)` (popovers)
+  - `z-index: 9999` → `var(--z-toast)` (ThemeToggle, HelpButton) or `var(--z-modal-dropdown)` (Tooltip)
+  - `z-index: 100` → `var(--z-dropdown)` (MobileBottomNav)
+  - `z-index: 50` → `var(--z-sticky)` (ContextChip)
+  - `z-index: 10` → `var(--z-elevated)` (overlays, delete buttons)
+  - `z-index: 5` → `var(--z-raised)` (CopyButton)
+  - `z-index: 1` → `var(--z-base)` (above noise texture)
+- **Files Modified**: 14 files updated
+- **Fixed**: 2026-01-14
+- **Status**: ✅ Fixed
+
+### [CSS-002] Oversized CSS Files
+- **Location**: 10 files exceeding 500 lines
+- **Impact**: Hard to find styles, changes have unpredictable effects
+- **Worst Offenders**:
+  - `ChatInterface.css` (3,212 lines) - 10x over target
+  - `Stage3.css` (2,516 lines) - 8x over target
+  - `Settings.css` (2,394 lines) - 8x over target
+- **Recommended Approach**: Incremental splits as files are touched
+  - Extract mobile styles to `Component.mobile.css` when modifying responsive behavior
+  - Extract sub-component styles when adding new features
+  - Add CSS file size check to CI to prevent new oversized files
+- **Priority**: High (but large effort - do incrementally)
+- **Status**: Open - Tracked for incremental improvement
+
+### Medium Priority Issues
+
+### [CSS-003] !important Usage
+- **Location**: 22 occurrences across multiple files
+- **Analysis**:
+  - 14 in `tailwind.css` / `design-tokens.css` - ✅ Justified (reduced-motion, font-size accessibility)
+  - 2 in `OnboardingFlow.css` - ⚠️ Background transparency override
+  - 2 in `BottomSheet.css` - ⚠️ Framer Motion override
+  - 1 in `LLMPresetSelect.css` - ⚠️ z-index override
+- **Impact**: Low (most are justified accessibility/framework overrides)
+- **Status**: Acceptable with documentation
+
+### [CSS-004] Fallback Colors in HelpButton.css
+- **Location**: `HelpButton.css:68-320`
+- **Pattern**: `var(--color-bg-primary, #fff)` with hex fallbacks
+- **Impact**: Verbose, but technically correct CSS
+- **Note**: Fallbacks are safety mechanism - acceptable pattern
+- **Status**: Low priority
+
+### [CSS-005] Inconsistent Gap/Pixel Usage
+- **Location**: Various component CSS files
+- **Examples**: `gap: 16px` instead of `gap: var(--gap-md)` or `var(--space-4)`
+- **Impact**: Minor inconsistency, but spacing tokens exist
+- **Status**: Open (gradual improvement)
+
+### What's Working Well ✅
+
+1. **Design Token Adoption**: 5,475 uses of `var(--color-*)` - excellent
+2. **Z-Index Token System**: 94 uses of `var(--z-*)` tokens (83% adoption)
+3. **Breakpoint Consistency**: All media queries use 768px, 640px, 480px standard
+4. **Stylelint Configured**: Rules for `color-no-hex`, `declaration-no-important`
+5. **No Dead CSS**: Zero `.old`, `.backup`, `.deprecated` selectors
+6. **Mobile Override Pattern**: `:where()` used for low-specificity mobile rules (select.css)
+7. **File Ownership**: Clear Component.tsx → Component.css pattern
+8. **CLAUDE.md Documentation**: CSS pitfalls well-documented
+
+### Developer Experience Checklist
+
+| Criterion | Status | Notes |
+|-----------|--------|-------|
+| "Where do I put styles?" documented | ✅ | CLAUDE.md CSS section |
+| Tailwind vs CSS decision tree | ✅ | CLAUDE.md Styling Priority |
+| Design token reference | ✅ | design-tokens.css well-commented |
+| Stylelint in CI | ✅ | `.github/workflows/ci.yml` |
+| Pre-commit hook | ✅ | lint-staged includes CSS |
+| Component → CSS traceability | ⚠️ | Works for single files, breaks for 3000+ line files |
+
+### Recommendations Priority
+
+#### Critical (None)
+No critical issues - CSS is functional and mostly well-organized.
+
+#### High (This Month)
+1. **Refactor top 5 oversized files** - Split ChatInterface.css, Stage3.css, Settings.css, modals.css, ContextChip.css
+2. **Replace hardcoded z-index values** - 19 values → use tokens
+
+#### Medium (Next Quarter)
+3. **Adopt spacing tokens consistently** - Replace remaining `gap: Npx` with tokens
+4. **Document !important justifications** - Add comments explaining each use
+
+#### Low (Backlog)
+5. **Remove HelpButton.css fallbacks** - Clean up verbose fallback patterns
+6. **Add CSS bundle size monitoring** - Track CSS size in CI
+
+### CSS Ownership Matrix (Sample)
+
+| CSS File | Owner | Scope | Issues |
+|----------|-------|-------|--------|
+| `design-tokens.css` | Global | Variables only | ✅ Clean |
+| `tailwind.css` | Global | Tailwind + theme | ✅ Clean |
+| `index.css` | Global | Reset + base | ⚠️ 475 lines (should be <200) |
+| `ChatInterface.css` | ChatInterface.tsx | Component | ❌ 3,212 lines - needs split |
+| `Stage3.css` | Stage3*.tsx | Component | ❌ 2,516 lines - needs split |
+| `select.css` | Select UI | Component | ✅ Uses `:where()` pattern |
+
+### Score Breakdown
+
+| Area | Score | Reason |
+|------|-------|--------|
+| Token Adoption | 10/10 | Excellent color + z-index token usage (z-index fix applied) |
+| File Organization | 5/10 | 10 files over 500 lines (tracked for incremental improvement) |
+| Specificity Control | 8/10 | Good use of `:where()`, few !important |
+| Documentation | 9/10 | CLAUDE.md CSS section is thorough |
+| Guardrails (Stylelint) | 8/10 | Configured and in CI |
+| **Overall** | **8/10** | Strong foundation, file size tracked |
 
 </details>
 

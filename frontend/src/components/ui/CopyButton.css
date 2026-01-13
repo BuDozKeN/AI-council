@@ -35,7 +35,7 @@
   position: absolute;
   top: 8px;
   right: 8px;
-  z-index: 5;
+  z-index: var(--z-raised);
 
   /* Hidden by default on desktop */
   opacity: 0;

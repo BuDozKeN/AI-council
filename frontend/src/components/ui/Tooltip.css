@@ -3,7 +3,7 @@
  */
 
 .tooltip-content {
-  z-index: 9999;
+  z-index: var(--z-modal-dropdown);
   padding: 6px 10px;
   background: var(--color-text-primary);
   color: var(--color-bg-primary);

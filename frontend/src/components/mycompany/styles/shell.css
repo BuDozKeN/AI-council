@@ -501,6 +501,9 @@
   /* Enable flex for child tabs to fill height */
   display: flex;
   flex-direction: column;
+
+  /* DEBUG: CYAN shadow - parent container */
+  outline: 3px solid cyan !important;
 }
 
 /* =============================================================================

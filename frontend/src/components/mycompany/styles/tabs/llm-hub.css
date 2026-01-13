@@ -692,7 +692,7 @@
   transform: scale(0.95);
   transition: all 0.2s ease;
   pointer-events: none;
-  z-index: 10;
+  z-index: var(--z-elevated);
 }
 
 .llm-model-item.deleting .llm-model-delete-overlay {

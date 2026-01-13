@@ -128,12 +128,14 @@ export function PlaybookDropdown({
     return (
       <div className="playbook-selector-inline">
         <button
-          className={`toolbar-pill playbook-trigger-pill ${selectedOption ? `has-type ${selectedOption.colorClass}` : ''} ${isSaved && selectedOption ? 'saved' : ''}`}
+          className={`toolbar-pill playbook-trigger-pill ${selectedOption ? `has-type ${selectedOption.colorClass}` : ''} ${isSaved ? 'saved locked' : ''}`}
           onClick={() => !isDisabled && !isSaved && setShowDropdown(true)}
-          disabled={isDisabled}
+          disabled={isDisabled || isSaved}
           title={
-            isSaved && selectedOption
-              ? t('stages.savedAs', { type: selectedLabel })
+            isSaved
+              ? selectedOption
+                ? t('stages.savedAs', { type: selectedLabel })
+                : t('stages.decisionAlreadySaved')
               : selectedOption
                 ? selectedDesc
                 : t('stages.optionallyClassify')
@@ -199,11 +201,13 @@ export function PlaybookDropdown({
         }}
       >
         <Popover.Trigger
-          className={`toolbar-pill playbook-trigger-pill ${selectedOption ? `has-type ${selectedOption.colorClass}` : ''} ${isSaved && selectedOption ? 'saved' : ''}`}
-          disabled={isDisabled}
+          className={`toolbar-pill playbook-trigger-pill ${selectedOption ? `has-type ${selectedOption.colorClass}` : ''} ${isSaved ? 'saved locked' : ''}`}
+          disabled={isDisabled || isSaved}
           title={
-            isSaved && selectedOption
-              ? t('stages.savedAs', { type: selectedLabel })
+            isSaved
+              ? selectedOption
+                ? t('stages.savedAs', { type: selectedLabel })
+                : t('stages.decisionAlreadySaved')
               : selectedOption
                 ? selectedDesc
                 : t('stages.optionallyClassify')

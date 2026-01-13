@@ -452,6 +452,9 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 
+  /* Explicit background to prevent gap artifacts in margin spaces between items */
+  background: var(--color-bg-primary);
+
   /* Hidden scrollbar */
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -475,6 +478,9 @@
   text-decoration: none;
   transition: all 0.15s ease;
   position: relative;
+
+  /* Explicit background to prevent gap artifacts between items */
+  background: var(--color-bg-primary);
 }
 
 .stage3-mobile-outline-link:hover {
@@ -664,8 +670,20 @@
   box-shadow: var(--shadow-xl);
 }
 
-/* Note: Base styles for handle, header, title, close, link, indicator, number
+/* List container background in dark mode */
+.dark .stage3-mobile-outline-list,
+[data-theme='dark'] .stage3-mobile-outline-list {
+  background: var(--color-bg-primary);
+}
+
+/* Note: Base styles for handle, header, title, close, indicator, number
    all use semantic tokens and auto-adapt. Only active/special states need overrides. */
+
+/* Base link background in dark mode - prevents gap artifacts between items */
+.dark .stage3-mobile-outline-link,
+[data-theme='dark'] .stage3-mobile-outline-link {
+  background: var(--color-bg-primary);
+}
 
 .dark .stage3-mobile-outline-link.active,
 [data-theme='dark'] .stage3-mobile-outline-link.active {
@@ -701,7 +719,9 @@
 .toc-sticky-wrapper {
   position: sticky;
   top: 0;
-  z-index: var(--z-raised, 10);
+
+  /* Use z-dropdown (100) to ensure dropdown appears above sibling FABs which use z-elevated (10) */
+  z-index: var(--z-dropdown, 100);
   display: inline-flex;
   flex-direction: column;
   align-items: flex-start;
@@ -711,12 +731,8 @@
   /* Background to cover content scrolling behind */
   background: inherit;
 
-  /* Extend background to full width */
-  margin-left: -20px;
-  margin-right: -20px;
-  padding-left: 20px;
-  padding-right: 20px;
-  width: calc(100% + 40px);
+  /* DEBUG: PURPLE shadow */
+  outline: 3px solid purple !important;
 }
 
 /* Hide sticky TOC on mobile - doesn't work well in compact content areas */
@@ -807,22 +823,32 @@
 
 /* Dropdown list */
 .toc-sticky-dropdown {
-  background: var(--overlay-white-95);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  /* SOLID background to prevent content bleeding through */
+  background: var(--color-bg-primary);
   border: 1px solid var(--overlay-black-5);
   border-top: none;
   border-radius: 0 0 12px 12px;
   padding: 8px;
+
+  /* Extra bottom padding so shadow/container extends below all items */
+  padding-bottom: 16px;
   margin-top: -1px;
   box-shadow:
     0 4px 16px var(--overlay-black-8),
     0 8px 32px var(--overlay-black-5);
-  max-height: 280px;
+
+  /* Increased max-height to fit more items */
+  max-height: 400px;
   overflow-y: auto;
   scrollbar-width: thin;
   min-width: 200px;
   max-width: 320px;
+
+  /* ABSOLUTE positioning so dropdown overlays content below instead of flowing inline */
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: var(--z-dropdown, 100);
 }
 
 .toc-sticky-header {
@@ -1026,7 +1052,8 @@
 
 .dark .toc-sticky-dropdown,
 [data-theme='dark'] .toc-sticky-dropdown {
-  background: var(--overlay-black-80);
+  /* SOLID background to prevent content bleeding through gaps between items */
+  background: var(--color-bg-primary);
   border-color: var(--overlay-white-8);
   box-shadow: var(--shadow-xl);
 }

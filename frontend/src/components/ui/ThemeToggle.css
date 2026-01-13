@@ -8,7 +8,7 @@
   position: fixed;
   top: 16px;
   right: 16px;
-  z-index: 9999; /* Always on top, even above modals */
+  z-index: var(--z-toast); /* Always on top, even above modals */
   isolation: isolate; /* Create own stacking context */
   pointer-events: auto; /* Ensure clicks are captured */
 }

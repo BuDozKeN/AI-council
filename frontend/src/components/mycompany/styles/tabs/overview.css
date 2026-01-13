@@ -28,14 +28,17 @@
   /* This is the scroll container */
   flex: 1;
   min-height: 0;
-  overflow: hidden auto;
+  overflow-x: hidden;
+  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 
-  /* NOTE: Padding is provided by parent .mc-content
-   * Desktop: 24px (shell.css)
-   * Mobile: 12px 16px (mobile.css @768px)
-   * Extra small: 8px 12px (mobile.css @380px)
-   * DO NOT add padding here - it will double up with parent */
+  /* Ensure scroll container fills parent width exactly */
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  /* DEBUG: RED shadow */
+  box-shadow: inset 0 0 0 3px red !important;
 }
 
 /* =============================================================================
@@ -92,6 +95,13 @@
 
   /* Don't shrink - always show full hero */
   flex-shrink: 0;
+
+  /* Constrain to parent width */
+  max-width: 100%;
+  box-sizing: border-box;
+
+  /* DEBUG: BLUE shadow */
+  outline: 3px solid blue !important;
 }
 
 /* Premium accent bar at top - soft gradient glow effect */
@@ -429,6 +439,16 @@
 
   /* Normal card - content flows naturally, parent scrolls */
   padding: var(--card-padding-xl);
+
+  /* Extra bottom padding to extend card below content */
+  padding-bottom: 3rem;
+
+  /* Constrain to parent width */
+  max-width: 100%;
+  box-sizing: border-box;
+
+  /* DEBUG: GREEN shadow */
+  outline: 3px solid green !important;
 }
 
 /* Context card header - title and metadata */
@@ -476,7 +496,10 @@
 .mc-context-sticky-toolbar {
   position: sticky;
   top: 0;
-  z-index: 10;
+
+  /* Must be higher than .mc-scroll-top-fab (z-elevated = 10) so TOC dropdown appears above FAB.
+     Using z-dropdown (100) to ensure it's definitively above ALL floating elements */
+  z-index: var(--z-dropdown, 100);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -484,15 +507,11 @@
   padding: 12px 0;
   margin-bottom: 12px;
 
-  /* Solid background so content scrolls behind - MUST be opaque */
-  background: var(--color-bg-primary);
+  /* DEBUG: transparent background */
+  background: transparent !important;
 
-  /* Extend to card edges to cover content scrolling behind */
-  margin-left: calc(-1 * var(--card-padding-xl));
-  margin-right: calc(-1 * var(--card-padding-xl));
-  padding-left: var(--card-padding-xl);
-  padding-right: var(--card-padding-xl);
-  width: calc(100% + 2 * var(--card-padding-xl));
+  /* DEBUG: ORANGE shadow */
+  outline: 3px solid orange !important;
 }
 
 /* Copy button in toolbar - override CopyButton's default absolute positioning */
@@ -540,6 +559,9 @@
 /* Content area - flows naturally, parent scrolls */
 .mc-context-content {
   /* Content just flows - no scroll here */
+
+  /* DEBUG: MAGENTA shadow */
+  outline: 3px solid magenta !important;
 }
 
 /* =============================================================================

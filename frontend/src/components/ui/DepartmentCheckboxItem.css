@@ -88,7 +88,7 @@
   -webkit-tap-highlight-color: transparent;
   pointer-events: auto;
   position: relative;
-  z-index: 1;
+  z-index: var(--z-base);
 }
 
 .dept-checkbox-item.mobile:active {

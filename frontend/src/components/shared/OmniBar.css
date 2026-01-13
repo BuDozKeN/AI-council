@@ -587,7 +587,7 @@
    ============================================================================= */
 
 .context-popover-content {
-  z-index: 99999;
+  z-index: var(--z-modal-dropdown);
   min-width: 180px;
   max-width: 260px;
   max-height: 300px;

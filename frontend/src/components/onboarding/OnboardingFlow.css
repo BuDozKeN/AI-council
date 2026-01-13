@@ -302,6 +302,7 @@
   100% {
     box-shadow: 0 0 0 0 var(--member-color, var(--color-indigo));
   }
+
   50% {
     box-shadow: 0 0 20px 8px transparent;
   }
