@@ -119,9 +119,9 @@ def set_correlation_id(correlation_id: str) -> contextvars.Token:
 # SENTRY: Initialize error tracking FIRST (before anything else)
 # =============================================================================
 try:
-    from .sentry import init_sentry, set_user_context, capture_exception
+    from .sentry import init_sentry
 except ImportError:
-    from backend.sentry import init_sentry, set_user_context, capture_exception
+    from backend.sentry import init_sentry
 
 # Initialize Sentry before app creation to catch all errors
 init_sentry()
@@ -134,9 +134,9 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 
 try:
-    from .security import SecureHTTPException, log_security_event, get_client_ip, log_app_event
+    from .security import log_security_event, get_client_ip, log_app_event
 except ImportError:
-    from backend.security import SecureHTTPException, log_security_event, get_client_ip, log_app_event
+    from backend.security import log_security_event, get_client_ip, log_app_event
 
 
 def get_user_identifier(request: Request) -> str:

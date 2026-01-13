@@ -4,11 +4,11 @@ Handles subscriptions, checkout sessions, and usage tracking.
 """
 
 import stripe
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional, Dict, Any, List
 from .config import STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, SUBSCRIPTION_TIERS
 from .database import get_supabase, get_supabase_with_auth, get_supabase_service
-from .security import log_billing_event, mask_email
+from .security import log_billing_event
 
 
 def _get_client(access_token: Optional[str] = None):
@@ -376,7 +376,7 @@ def handle_webhook_event(payload: bytes, sig_header: str) -> Dict[str, Any]:
     try:
         existing = supabase.table('processed_webhook_events').select('id').eq('event_id', event_id).maybe_single().execute()
         if existing.data:
-            log_billing_event(f"Webhook already processed (idempotency)", event_id=event_id)
+            log_billing_event("Webhook already processed (idempotency)", event_id=event_id)
             return {"success": True, "status": "already_processed", "event_type": event_type}
 
         # Mark event as being processed (insert first to prevent race conditions)

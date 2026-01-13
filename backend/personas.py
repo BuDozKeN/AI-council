@@ -21,7 +21,7 @@ Categories:
 
 import time
 from typing import Optional, Dict, Any, List
-from .model_registry import get_models, get_models_sync
+from .model_registry import get_models
 
 # Cache for database personas: {persona_key: (data, timestamp)}
 _db_persona_cache: Dict[str, tuple] = {}

@@ -8,7 +8,6 @@ All images are validated using magic bytes to prevent MIME type spoofing.
 import io
 import uuid
 import logging
-from datetime import datetime
 from typing import Optional, Tuple
 from PIL import Image
 from .database import get_supabase_with_auth, get_supabase_service
@@ -202,7 +201,7 @@ async def upload_attachment(
 
     # Upload to Supabase Storage
     try:
-        upload_result = storage_client.storage.from_(BUCKET_NAME).upload(
+        storage_client.storage.from_(BUCKET_NAME).upload(
             path=storage_path,
             file=file_data,
             file_options={"content-type": file_type}
@@ -241,8 +240,8 @@ async def upload_attachment(
         # If DB insert fails, try to clean up the uploaded file
         try:
             storage_client.storage.from_(BUCKET_NAME).remove([storage_path])
-        except:
-            pass
+        except Exception:
+            pass  # Cleanup failure is non-critical, continue with main error handling
         # SECURITY: Log internal error but don't expose details to client
         log_security_event(
             "ATTACHMENT_RECORD_FAILED",
@@ -262,8 +261,8 @@ async def upload_attachment(
             expires_in=3600  # 1 hour
         )
         signed_url = signed_url_response.get("signedURL") or signed_url_response.get("signed_url")
-    except Exception as e:
-        signed_url = None
+    except Exception:
+        signed_url = None  # Fallback if signed URL generation fails
 
     return {
         "id": attachment["id"],
@@ -313,8 +312,8 @@ async def get_attachment_url(
             expires_in=3600  # 1 hour
         )
         return signed_url_response.get("signedURL") or signed_url_response.get("signed_url")
-    except:
-        return None
+    except Exception:
+        return None  # Return None if signed URL generation fails
 
 
 async def delete_attachment(
@@ -350,15 +349,15 @@ async def delete_attachment(
     # Delete from storage
     try:
         storage_client.storage.from_(BUCKET_NAME).remove([storage_path])
-    except:
-        pass  # Continue even if storage delete fails
+    except Exception:
+        pass  # Continue even if storage delete fails (DB cleanup is more important)
 
     # Delete from database
     try:
         client.table("attachments").delete().eq("id", attachment_id).execute()
         return True
-    except:
-        return False
+    except Exception:
+        return False  # Return False if DB delete fails
 
 
 async def download_attachment(
@@ -444,8 +443,8 @@ async def get_attachment_data(
             expires_in=3600
         )
         signed_url = signed_url_response.get("signedURL") or signed_url_response.get("signed_url")
-    except:
-        signed_url = None
+    except Exception:
+        signed_url = None  # Return attachment data even if signed URL fails
 
     return {
         **attachment,

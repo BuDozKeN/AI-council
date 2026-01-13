@@ -10,7 +10,6 @@ These tests verify:
 
 import pytest
 from unittest.mock import patch, MagicMock
-from datetime import datetime, timedelta
 
 # Import the module under test
 from backend.billing import (
@@ -37,7 +36,7 @@ class TestGetClient:
             with patch('backend.billing.get_supabase') as mock_regular:
                 mock_auth.return_value = MagicMock(name="auth_client")
 
-                client = _get_client("valid-token")
+                _get_client("valid-token")  # Call to verify mock interactions
 
                 mock_auth.assert_called_once_with("valid-token")
                 mock_regular.assert_not_called()
@@ -48,7 +47,7 @@ class TestGetClient:
             with patch('backend.billing.get_supabase') as mock_regular:
                 mock_regular.return_value = MagicMock(name="regular_client")
 
-                client = _get_client(None)
+                _get_client(None)  # Call to verify mock interactions
 
                 mock_regular.assert_called_once()
                 mock_auth.assert_not_called()

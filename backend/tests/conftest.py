@@ -5,7 +5,7 @@ Provides mocked dependencies and test utilities.
 """
 
 import pytest
-from unittest.mock import MagicMock, AsyncMock
+from unittest.mock import MagicMock
 
 
 @pytest.fixture

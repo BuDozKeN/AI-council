@@ -25,7 +25,6 @@ from .utils import (
     generate_decision_summary_internal,
     ValidCompanyId,
     ValidDecisionId,
-    ValidProjectId,
     DecisionCreate,
     PromoteDecision,
 )

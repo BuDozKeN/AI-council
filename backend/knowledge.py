@@ -1,7 +1,7 @@
 """Knowledge base for storing council decisions and patterns."""
 
 from typing import Optional, List, Dict, Any
-from .database import get_supabase, get_supabase_service, get_supabase_with_auth
+from .database import get_supabase_service, get_supabase_with_auth
 from .security import verify_user_company_access, verify_user_entry_access, log_security_event, log_app_event, escape_sql_like_pattern
 
 
@@ -274,7 +274,7 @@ def get_knowledge_for_context(
         # Skip superseded/deprecated entries unless explicitly active
         if status not in ("active", None):
             lines.append(f"### ~~{entry['title']}~~ ({date}) [SUPERSEDED]")
-            lines.append(f"*This decision has been superseded. See newer entries.*\n")
+            lines.append("*This decision has been superseded. See newer entries.*\n")
             continue
 
         lines.append(f"### {entry['title']} ({date})")

@@ -2,7 +2,6 @@
 
 from datetime import datetime
 from typing import List, Dict, Any, Optional
-from functools import lru_cache
 from .database import get_supabase_service
 from .security import log_error
 

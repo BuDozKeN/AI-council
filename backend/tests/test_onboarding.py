@@ -595,7 +595,7 @@ class TestPydanticModels:
 
     def test_analyze_profile_response_success(self):
         """Test AnalyzeProfileResponse for success case."""
-        from backend.routers.onboarding import AnalyzeProfileResponse, OnboardingProfile, OnboardingDepartment
+        from backend.routers.onboarding import AnalyzeProfileResponse, OnboardingProfile
 
         profile = OnboardingProfile(
             full_name="Jane",

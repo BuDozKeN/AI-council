@@ -17,8 +17,7 @@ from .context_loader import (
     detect_multi_turn_attack
 )
 from .config import (
-    STAGE1_TIMEOUT, STAGE2_TIMEOUT, STAGE3_TIMEOUT, MAX_QUERY_CHARS,
-    PER_MODEL_TIMEOUT
+    STAGE1_TIMEOUT, STAGE2_TIMEOUT, STAGE3_TIMEOUT, PER_MODEL_TIMEOUT
 )
 from .model_registry import get_primary_model, get_models, get_models_sync
 from .security import log_app_event

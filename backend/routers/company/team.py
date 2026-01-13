@@ -10,7 +10,7 @@ Endpoints for department and role management:
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import Optional
 from datetime import datetime
 import json
 
@@ -574,7 +574,6 @@ Return valid JSON only:
     ]
 
     structured = None
-    role_model_used = None
 
     # Try each model in the fallback chain for role structuring
     for model in role_models:
@@ -616,7 +615,6 @@ Return valid JSON only:
                     if not isinstance(structured.get('responsibilities'), list):
                         structured['responsibilities'] = []
 
-                    role_model_used = model
                     log_app_event(
                         "ROLE_STRUCTURED_PHASE1",
                         level="INFO",

@@ -5,7 +5,7 @@ Shared helpers, validators, and Pydantic models for company sub-routers.
 """
 
 from fastapi import HTTPException, Path
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel
 from typing import Optional, List, Annotated, Literal
 from datetime import datetime
 import re

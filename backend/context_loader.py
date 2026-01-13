@@ -13,6 +13,7 @@ from . import storage
 from . import knowledge
 from .database import get_supabase_service, get_supabase_with_auth
 from .utils.cache import company_cache, cache_key
+from .security import log_error, log_app_event
 
 
 # UUID v4 regex pattern for validation
@@ -78,8 +79,6 @@ def list_available_businesses(
     Returns:
         Dict with 'companies' list and 'has_more' boolean for pagination
     """
-    from .security import log_app_event
-
     # Enforce limits
     limit = min(limit, 100)  # Max 100 companies per request
     limit = max(limit, 1)    # Min 1
@@ -176,8 +175,6 @@ def load_company_context_from_db(company_id: str, access_token: Optional[str] = 
     Returns:
         The context_md content, or None if not found
     """
-    from .security import log_error
-
     # AI-SEC-008: Use secure client with RLS logging and optional enforcement
     try:
         client = get_secure_client(access_token, "load_company_context")
@@ -216,8 +213,6 @@ def load_department_context_from_db(department_id: str, access_token: Optional[s
     Returns:
         The context_md content, or None if not found
     """
-    from .security import log_error
-
     # AI-SEC-008: Use secure client with RLS logging and optional enforcement
     try:
         client = get_secure_client(access_token, "load_department_context")
@@ -901,7 +896,6 @@ def get_secure_client(access_token: Optional[str], operation: str = "unknown"):
         Supabase client (with auth if token provided, service client otherwise)
     """
     from .config import REQUIRE_ACCESS_TOKEN
-    from .security import log_app_event
 
     if access_token:
         return get_supabase_with_auth(access_token)
@@ -1210,7 +1204,7 @@ def format_decisions_for_prompt(decisions: List[Dict[str, Any]]) -> str:
 
                 if has_synthesis_language:
                     # Skip content that looks like a raw synthesis - just use title as reference
-                    lines.append(f"\n*[Previous council decision - see title for context]*\n")
+                    lines.append("\n*[Previous council decision - see title for context]*\n")
                 else:
                     # Sanitize and truncate content
                     content = sanitize_user_content(content)
@@ -1502,7 +1496,7 @@ these as actionable prompts to add context for future queries.
         role_names = [r.get('name', 'Unknown') for r in role_infos]
         role_names_str = ", ".join(role_names[:-1]) + " and " + role_names[-1]
         system_prompt += f"5. Consider perspectives from all selected roles: {role_names_str}\n"
-        system_prompt += f"6. Integrate insights from each role into a cohesive response\n"
+        system_prompt += "6. Integrate insights from each role into a cohesive response\n"
     elif len(role_infos) == 1:
         role_name = role_infos[0].get('name', all_role_ids[0] if all_role_ids else 'Unknown')
         system_prompt += f"5. Respond AS the {role_name} - stay in character and focus on your role's responsibilities\n"
@@ -1510,7 +1504,7 @@ these as actionable prompts to add context for future queries.
     elif all_department_ids:
         # No roles but departments selected
         if len(all_department_ids) > 1:
-            system_prompt += f"5. Focus your advice considering the perspectives of the selected departments\n"
+            system_prompt += "5. Focus your advice considering the perspectives of the selected departments\n"
         else:
             dept_id = all_department_ids[0]
             dept_display = dept_id.replace('-', ' ').title() if isinstance(dept_id, str) and not is_valid_uuid(dept_id) else "the selected"

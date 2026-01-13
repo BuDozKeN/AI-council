@@ -133,11 +133,6 @@ CACHE_SUPPORTED_MODELS = [
 #
 # To change models: Update the model_registry table in Supabase
 # =============================================================================
-from .model_registry import (
-    COUNCIL_MODELS,
-    CHAIRMAN_MODELS,
-    CHAIRMAN_MODEL,
-)
 
 # =============================================================================
 # MINIMUM VIABLE COUNCIL CONFIGURATION
