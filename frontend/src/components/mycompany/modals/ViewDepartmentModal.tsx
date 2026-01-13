@@ -7,7 +7,7 @@
 
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { toast } from 'sonner';
+import { toast } from '../../ui/sonner';
 import { AppModal } from '../../ui/AppModal';
 import { Button } from '../../ui/button';
 import { AIWriteAssist } from '../../ui/AIWriteAssist';
