@@ -71,6 +71,7 @@ export type SSEEventType =
   | 'stage2_complete'
   | 'stage3_start'
   | 'stage3_token'
+  | 'stage3_truncated'
   | 'stage3_error'
   | 'stage3_complete'
   | 'title_complete'

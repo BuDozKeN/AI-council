@@ -1142,6 +1142,18 @@ function App() {
               break;
             }
 
+            case 'stage3_truncated': {
+              // Model hit max_tokens - mark as truncated so UI can show warning
+              setCurrentConversation((prev) =>
+                updateLastMessage(prev, (msg) => ({
+                  stage3Streaming: msg.stage3Streaming
+                    ? { ...msg.stage3Streaming, truncated: true }
+                    : { text: '', complete: false, truncated: true },
+                }))
+              );
+              break;
+            }
+
             case 'stage3_complete': {
               const stage3Data = event.data as import('./types/conversation').Stage3Synthesis;
               setCurrentConversation((prev) =>

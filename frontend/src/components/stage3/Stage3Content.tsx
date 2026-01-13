@@ -94,6 +94,7 @@ function CodeBlock({ children, className }: CodeBlockProps) {
 function Stage3Content({
   displayText,
   hasError,
+  wasTruncated,
   isStreaming,
   isComplete,
   chairmanIconPath,
@@ -181,6 +182,15 @@ function Stage3Content({
           </span>
         )}
       </div>
+
+      {/* Truncation warning - response was cut off */}
+      {wasTruncated && (
+        <div className="truncation-warning">
+          <span className="truncation-warning-text">
+            {t('stages.responseTruncated')}
+          </span>
+        </div>
+      )}
 
       {/* Content wrapper */}
       <div className={`final-content-wrapper ${showCompleteCelebration ? 'complete-glow' : ''}`}>
