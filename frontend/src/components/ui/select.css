@@ -24,6 +24,11 @@
   cursor: pointer;
   transition: all 0.15s ease;
   outline: none;
+
+  /* Prevent text wrapping for long i18n strings */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .select-trigger:hover {
@@ -55,6 +60,15 @@
   height: 16px;
   opacity: 0.5;
   flex-shrink: 0;
+}
+
+/* SelectValue text - needs min-width: 0 to allow flex item truncation */
+.select-trigger > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
 }
 
 /* ============================================================================
