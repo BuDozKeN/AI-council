@@ -22,7 +22,7 @@
 | LLM Operations | `/audit-llm-ops` | 7/10 | → | 4 | 0 | 6 | 2026-01-01 |
 | AI Ethics | `/audit-ai-ethics` | --/10 | -- | -- | -- | -- | Never |
 | **CODE & QUALITY** ||||||||
-| Code Quality | `/audit-code` | 9/10 | ↑ | 0 | 0 | 1 | 2025-12-31 |
+| Code Quality | `/audit-code` | 9/10 | ↑ | 0 | 0 | 1 | 2026-01-13 |
 | Test Coverage | `/audit-test-coverage` | 10/10 | ↑↑ | 0 | 0 | 0 | 2026-01-04 |
 | Documentation | `/audit-documentation` | --/10 | -- | -- | -- | -- | Never |
 | **USER EXPERIENCE** ||||||||
@@ -59,7 +59,7 @@
 - **Fixed Since Last Run**: 30 (DR fixes maintained)
 - **New This Run**: 8 new DevOps findings (0 Critical, 3 High, 5 Medium)
 - **$25M Readiness**: Test coverage (10/10 ✅), i18n (10/10 ✅), DR (8/10 ✅), DevOps (8.5/10 ✅), Scalability (8/10 ✅)
-- **Test Count**: 434 tests (289 backend + 145 frontend)
+- **Test Count**: 532 tests (387 backend + 145 frontend)
 - **DORA Metrics**: High Performance (~1-2 deploys/day, < 1hr lead time, < 10% failure rate)
 
 ### Priority Audits
@@ -86,6 +86,7 @@
 
 | Date | Scope | Overall | Sec | Code | UI | Perf | A11y | Mobile | LLM | Data | Bill | Resil | API | Test | i18n | DR | SEO | DevOps | Scale |
 |------|-------|---------|-----|------|-----|------|------|--------|-----|------|------|-------|-----|------|------|-----|-----|--------|-------|
+| 2026-01-13 | Code quality Phase 1-3 | 9.2 | -- | 9 | 9 | 9 | 10 | 10 | -- | 9 | -- | 10 | 10 | 10 | 10 | 8 | 8 | 8.5 | 8 |
 | 2026-01-13 | Scalability audit | 9.2 | -- | 9 | 9 | 9 | 10 | 10 | -- | 9 | -- | 10 | 10 | 10 | 10 | 8 | 8 | 8.5 | 8 |
 | 2026-01-12 | DevOps audit | 9.2 | -- | 9 | 9 | 9 | 10 | 10 | -- | 9 | -- | 10 | 10 | 10 | 10 | 8 | 8 | 8.5 | -- |
 | 2026-01-08 | SEO complete | 9.2 | -- | 9 | 9 | 9 | 10 | 10 | -- | 9 | -- | 10 | 10 | 10 | 10 | 8 | 8 | -- |
@@ -855,9 +856,9 @@ Comprehensive penetration testing assessment found **no critical vulnerabilities
 </details>
 
 <details open>
-<summary>Code Quality (9/10) - Last checked: 2025-12-31</summary>
+<summary>Code Quality (9/10) - Last checked: 2026-01-13</summary>
 
-### Code Quality Score: 9/10 | Test Coverage: Good
+### Code Quality Score: 9/10 | Test Coverage: Excellent
 
 ### What's Implemented ✅
 
@@ -869,7 +870,7 @@ Comprehensive penetration testing assessment found **no critical vulnerabilities
 | `npm run lint` | ✅ Pass | 0 errors, 10 acceptable warnings |
 | Strict mode enabled | ✅ | `tsconfig.json` |
 
-#### Type Safety Fixes (This Session)
+#### Type Safety Fixes
 
 | Area | Before | After | Location |
 |------|--------|-------|----------|
@@ -878,23 +879,64 @@ Comprehensive penetration testing assessment found **no critical vulnerabilities
 | SSE Event Handling | Untyped callbacks | `StreamEventData` type | `useMessageStreaming.ts:15-20` |
 | Image Attachments | `any` | `ImageAttachment` interface | `useMessageStreaming.ts:45-49` |
 
-#### Python Code Quality
+#### Python Code Quality - 3-Phase Audit (Jan 2026)
+
+**Phase 1: Quick Wins (PR #40)** ✅
+| Issue | Fix | Files |
+|-------|-----|-------|
+| Bare `except:` clauses | Specific exceptions | 8 files |
+| Undefined names | Proper imports | 2 files |
+| Unused imports | Removed | 3 files |
+| `print()` statements | `logger.info()` | 5 files |
+
+**Phase 2: Type Safety (PR #42)** ✅
+| Item | Status | Details |
+|------|--------|---------|
+| mypy configuration | ✅ Added | `pyproject.toml` - Python 3.10+, `check_untyped_defs=true` |
+| Type stubs | ✅ Added | `types-redis>=4.6.0`, `types-Pillow>=10.2.0` |
+| Implicit Optional fixes | ✅ 31 fixed | `Optional[X]` for nullable defaults |
+| Test exclusion | ✅ | Tests excluded from mypy checks |
+
+**Phase 3: Complexity Refactoring (PR #43)** ✅
+| Function | Before | After | Technique |
+|----------|--------|-------|-----------|
+| `handle_webhook_event` | D (21 CC) | B (7 CC) | Strategy pattern + dispatch table |
+| `structure_department` | D (25 CC) | B (9 CC) | Helper function extraction |
+| `structure_role` | F (45 CC) | B (6 CC) | 2-phase extraction + helpers |
+| **Total Reduction** | **91 CC** | **22 CC** | **-69 complexity points** |
+
+Extracted helpers in `team.py`:
+- `_clean_json_from_markdown()` - Parse AI responses
+- `_get_mock_department_response()` / `_get_mock_role_response()` - Test mocks
+- `_query_with_fallback()` - Centralized LLM querying
+- `_structure_role_phase1()` / `_structure_role_phase2()` - Role structuring pipeline
+
+Extracted handlers in `billing.py`:
+- `_handle_checkout_completed()`, `_handle_subscription_updated()`, etc.
+- `_WEBHOOK_HANDLERS` dispatch table for O(1) event routing
+
+#### Python Code Quality Summary
 
 | Check | Status | Details |
 |-------|--------|---------|
-| Backend tests | ✅ 119 passing | 4 test files |
+| Backend tests | ✅ 387 passing | 16 test files |
+| Frontend tests | ✅ 145 passing | Full component coverage |
 | Deprecation fixes | ✅ | `datetime.utcnow()` → `datetime.now(timezone.utc)` |
 | FastAPI lifespan | ✅ | Migrated from deprecated `@app.on_event()` |
+| mypy type checking | ✅ | Configured with `check_untyped_defs=true` |
+| Cyclomatic complexity | ✅ | All functions ≤ B grade (was F/D grades) |
 
-#### Backend Test Coverage
+#### Backend Test Coverage (Current)
 
-| Test File | Tests | Coverage |
-|-----------|-------|----------|
-| `test_security.py` | 45 | Masking, validation, secure exceptions |
-| `test_auth.py` | 10 | Auth flow, token validation |
-| `test_company_utils.py` | 35 | UUID patterns, pricing, access control |
-| `test_knowledge.py` | 29 | Request validation, field limits |
-| **Total** | **119** | Core security + business logic |
+| Test Category | Tests | Coverage |
+|---------------|-------|----------|
+| Security | 45 | Masking, validation, secure exceptions |
+| Auth | 10 | Auth flow, token validation |
+| Company utilities | 35 | UUID patterns, pricing, access control |
+| Knowledge | 29 | Request validation, field limits |
+| Onboarding | 72 | Full trial system, user setup |
+| Other | 196 | Billing, team, activities, etc. |
+| **Total** | **387** | **Core security + business logic** |
 
 #### Deprecation Fixes
 
@@ -924,9 +966,9 @@ These are explicitly allowed per the project's design system rules in `CLAUDE.md
 
 ### What Could Be Better
 
-1. **Frontend Unit Tests** - No React component tests yet
+1. ~~**Frontend Unit Tests**~~ - ✅ 145 tests now (was 0)
 2. **E2E Tests** - No Playwright/Cypress integration tests
-3. **Coverage Reporting** - Backend tests run but no coverage metrics
+3. ~~**Coverage Reporting**~~ - ✅ 70% threshold enforced in CI
 
 </details>
 
