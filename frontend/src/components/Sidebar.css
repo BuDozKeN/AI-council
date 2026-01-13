@@ -864,41 +864,79 @@ button.sidebar-new-btn:hover {
    ============================================================================= */
 
 @media (max-width: 768px) {
-  /* Mobile conversation items - compact, clean design */
-  .conversation-item {
-    padding: 10px 12px;
-    margin: 1px 0;
-    flex-wrap: nowrap;
+  /* ==========================================================================
+     MOBILE SWIPEABLE CONVERSATION ITEMS - Compact spacing
+     ========================================================================== */
 
-    /* Allow custom long-press handling, prevent text selection on hold */
+  /* SwipeableRow container - compact spacing */
+  .sidebar .swipeable-row-container {
+    margin: 1px 8px;
+    border-radius: var(--radius-md);
+  }
+
+  /* Inner content - compact but touch-friendly */
+  .conversation-item-inner {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 8px 12px;
+    min-height: 44px;
+    gap: 8px;
+    background: var(--sidebar-bg);
+    border-radius: var(--radius-md);
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
   }
 
-  /* Full width for content on mobile - override hover shrink rule */
+  /* Active state */
+  .conversation-item-swipeable.active .conversation-item-inner {
+    background: var(--sidebar-active-bg);
+    border-radius: var(--radius-md);
+  }
+
+  /* Content full width */
+  .conversation-item-inner .conversation-content {
+    flex: 1;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* ==========================================================================
+     LEGACY CONVERSATION ITEMS - Compact spacing
+     ========================================================================== */
+
+  .conversation-item {
+    padding: 10px 12px;
+    margin: 0;
+    flex-wrap: nowrap;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Full width for content on mobile */
   .sidebar .conversation-item .conversation-content,
   .sidebar .conversation-item:hover .conversation-content,
   .sidebar .conversation-item:active .conversation-content {
     max-width: 100%;
   }
 
-  /* Touch feedback - subtle highlight on press */
+  /* Touch feedback */
   .sidebar .conversation-item:active {
     background: var(--sidebar-hover-bg);
   }
 
-  /* HIDE all hover actions on mobile - use long-press context menu instead */
-
-  /* This follows standard mobile UX patterns (Slack, Discord, WhatsApp) */
+  /* HIDE hover actions on mobile - use swipe instead */
   .sidebar .hover-actions,
   .conversation-list .hover-actions {
     display: none;
     visibility: hidden;
   }
 
-  /* Show starred indicator inline for starred conversations */
-  .sidebar .conversation-item.starred .title-star {
+  /* Starred indicator */
+  .sidebar .conversation-item.starred .title-star,
+  .conversation-item-swipeable.starred .title-star {
     display: inline-flex;
     margin-left: 4px;
   }

@@ -9,7 +9,7 @@
  * - Memoized for performance
  */
 
-import { useRef, useEffect, memo, useCallback } from 'react';
+import { useRef, useEffect, memo, useCallback, useState } from 'react';
 import {
   Star,
   Trash2,
@@ -22,7 +22,22 @@ import {
 } from 'lucide-react';
 import { getRelativeTime } from './hooks';
 import { formatDateTime } from '../../lib/dateUtils';
+import { SwipeableRow } from '../ui/SwipeableRow';
+import { BREAKPOINTS } from '../../constants';
 import type { Conversation } from '../../types/conversation';
+
+/** Hook to detect mobile viewport */
+function useIsMobile(): boolean {
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' && window.innerWidth <= BREAKPOINTS.MOBILE
+  );
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= BREAKPOINTS.MOBILE);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+  return isMobile;
+}
 
 // Long-press duration in ms (industry standard is ~500ms)
 const LONG_PRESS_DURATION = 500;
@@ -84,6 +99,29 @@ export const ConversationItem = memo(function ConversationItem({
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const touchStartPos = useRef<TouchPosition | null>(null);
   const longPressTriggered = useRef<boolean>(false);
+  const isMobile = useIsMobile();
+
+  // Swipe actions for mobile
+  const swipeActions = [
+    {
+      label: 'Star',
+      icon: <Star size={18} fill={conversation.is_starred ? 'currentColor' : 'none'} />,
+      onClick: () => onStar?.(conversation.id, !conversation.is_starred),
+      variant: 'warning' as const,
+    },
+    {
+      label: 'Archive',
+      icon: conversation.is_archived ? <ArchiveRestore size={18} /> : <Archive size={18} />,
+      onClick: () => onArchive?.(conversation.id, !conversation.is_archived),
+      variant: 'archive' as const,
+    },
+    {
+      label: 'Delete',
+      icon: <Trash2 size={18} />,
+      onClick: () => onDelete(conversation.id),
+      variant: 'danger' as const,
+    },
+  ];
 
   useEffect(() => {
     if (isEditing && editInputRef.current) {
@@ -182,49 +220,14 @@ export const ConversationItem = memo(function ConversationItem({
     : null;
   const absoluteTime = conversation.last_updated ? formatDateTime(conversation.last_updated) : null;
 
-  return (
-    <div
-      ref={itemRef}
-      role="option"
-      aria-selected={isActive}
-      aria-label={`${conversation.title || 'New Conversation'}${conversation.is_starred ? ', starred' : ''}${conversation.is_archived ? ', archived' : ''}`}
-      data-conversation-id={conversation.id}
-      tabIndex={isFocused ? 0 : -1}
-      className={`conversation-item ${isActive ? 'active' : ''} ${conversation.is_archived ? 'archived' : ''} ${conversation.is_starred ? 'starred' : ''} ${isSelected ? 'selected' : ''} ${isFocused ? 'focused' : ''} ${isDragging ? 'dragging' : ''}`}
-      onClick={() => {
-        // Don't select if long-press was triggered (context menu was opened)
-        if (!isEditing && !longPressTriggered.current) {
-          onSelect(conversation.id);
-        }
-        // Reset the flag
-        longPressTriggered.current = false;
-      }}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' && !isEditing) {
-          e.preventDefault();
-          onSelect(conversation.id);
-        }
-      }}
-      onContextMenu={(e) => {
-        if (onContextMenu) {
-          onContextMenu(e, conversation);
-        }
-      }}
-      // Mobile long-press support
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      onTouchCancel={handleTouchEnd}
-      // Drag and drop handlers
-      {...dragHandlers}
-    >
-      {/* Drag handle - visible on hover */}
-      {dragHandlers && (
+  // Shared content for mobile and desktop
+  const itemContent = (
+    <>
+      {dragHandlers && !isMobile && (
         <div className="drag-handle" aria-hidden="true">
           <GripVertical size={14} />
         </div>
       )}
-      {/* Main content - title and metadata */}
       <div className="conversation-content">
         {isEditing ? (
           <div className="conversation-title-edit">
@@ -261,8 +264,72 @@ export const ConversationItem = memo(function ConversationItem({
           )}
         </div>
       </div>
+    </>
+  );
 
-      {/* Hover action bar */}
+  // Mobile: SwipeableRow with swipe actions
+  if (isMobile) {
+    return (
+      <SwipeableRow
+        actions={swipeActions}
+        onClick={() => {
+          if (!isEditing && !longPressTriggered.current) {
+            onSelect(conversation.id);
+          }
+          longPressTriggered.current = false;
+        }}
+        className={`conversation-item-swipeable ${isActive ? 'active' : ''} ${conversation.is_archived ? 'archived' : ''} ${conversation.is_starred ? 'starred' : ''} ${isSelected ? 'selected' : ''}`}
+      >
+        <div
+          ref={itemRef}
+          role="option"
+          aria-selected={isActive}
+          aria-label={`${conversation.title || 'New Conversation'}${conversation.is_starred ? ', starred' : ''}${conversation.is_archived ? ', archived' : ''}`}
+          data-conversation-id={conversation.id}
+          tabIndex={isFocused ? 0 : -1}
+          className="conversation-item-inner"
+          onContextMenu={(e) => onContextMenu?.(e, conversation)}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onTouchCancel={handleTouchEnd}
+        >
+          {itemContent}
+        </div>
+      </SwipeableRow>
+    );
+  }
+
+  // Desktop: Standard layout with hover actions
+  return (
+    <div
+      ref={itemRef}
+      role="option"
+      aria-selected={isActive}
+      aria-label={`${conversation.title || 'New Conversation'}${conversation.is_starred ? ', starred' : ''}${conversation.is_archived ? ', archived' : ''}`}
+      data-conversation-id={conversation.id}
+      tabIndex={isFocused ? 0 : -1}
+      className={`conversation-item ${isActive ? 'active' : ''} ${conversation.is_archived ? 'archived' : ''} ${conversation.is_starred ? 'starred' : ''} ${isSelected ? 'selected' : ''} ${isFocused ? 'focused' : ''} ${isDragging ? 'dragging' : ''}`}
+      onClick={() => {
+        if (!isEditing && !longPressTriggered.current) {
+          onSelect(conversation.id);
+        }
+        longPressTriggered.current = false;
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' && !isEditing) {
+          e.preventDefault();
+          onSelect(conversation.id);
+        }
+      }}
+      onContextMenu={(e) => onContextMenu?.(e, conversation)}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
+      {...dragHandlers}
+    >
+      {itemContent}
       <div className="hover-actions" role="group" aria-label="Conversation actions">
         <button
           className={`hover-action-btn ${isSelected ? 'active' : ''}`}
