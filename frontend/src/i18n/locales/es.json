@@ -624,6 +624,7 @@
     "savedAs": "Guardado como {{type}}",
     "optionallyClassify": "Opcionalmente clasificar como tipo de playbook",
     "selectPlaybookType": "Seleccionar tipo de Playbook",
+    "decisionAlreadySaved": "Decisión ya guardada - el tipo de playbook está bloqueado",
     "docTypes": {
       "sop": "SOP",
       "sopDesc": "Procedimiento Operativo Estándar",
