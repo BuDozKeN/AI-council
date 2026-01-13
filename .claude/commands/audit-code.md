@@ -16,68 +16,137 @@ You are a principal engineer conducting a code review for a codebase that must p
 
 ---
 
-## Phase 1: Automated Pre-Audit Scan
+## Phase 0: Review Existing CI/CD Results (Already Automated!)
 
-**Run these tools FIRST and include results in report:**
+**Your project already has extensive automated checks. Review these FIRST:**
 
-### Frontend Automated Checks
+### CI/CD Workflows (GitHub Actions)
+
+**View latest CI results:**
 ```bash
-cd frontend
+# List recent CI runs
+gh run list --repo BuDozKeN/AI-council --limit 5
 
-# TypeScript compilation errors
-npx tsc --noEmit 2>&1 | tee ../audit-results/typescript.log
+# View specific run details
+gh run view <run-id>
 
-# ESLint violations by severity
-npm run lint -- --format json > ../audit-results/eslint.json
-npm run lint 2>&1 | tee ../audit-results/eslint.log
-
-# Complexity analysis (cyclomatic + cognitive)
-npx ts-complexity src/**/*.{ts,tsx} --threshold 10 --format table
-
-# Code duplication detection
-npx jscpd src/ --min-lines 10 --min-tokens 50 --format markdown > ../audit-results/duplication-frontend.md
-
-# Find console.log/debugger statements
-grep -rn "console\\.log\|console\\.warn\|console\\.error\|debugger" src/ \
-  --exclude-dir=node_modules --exclude="*.test.*" --exclude="*.spec.*" \
-  > ../audit-results/console-statements.txt
+# View failed jobs
+gh run view <run-id> --log-failed
 ```
 
-### Backend Automated Checks
+**What's already checked in CI:**
+- ✅ **ESLint** (.github/workflows/ci.yml:52-54) - `npm run lint`
+- ✅ **TypeScript** (.github/workflows/ci.yml:56-58) - `npm run type-check`
+- ✅ **Prettier** (.github/workflows/ci.yml:60-62) - `npm run format:check`
+- ✅ **Frontend Tests** (.github/workflows/ci.yml:64-66) - Vitest with coverage
+- ✅ **Backend Tests** (.github/workflows/ci.yml:28-31) - Pytest with 40% coverage
+- ✅ **E2E Tests** (.github/workflows/ci.yml:72-106) - Playwright
+- ✅ **Build** (.github/workflows/ci.yml:68-70) - Production build
+- ✅ **Bandit** (.github/workflows/security.yml:41-73) - Python security scan
+- ✅ **npm audit** (.github/workflows/security.yml:108-128) - Frontend vulnerabilities
+- ✅ **pip-audit** (.github/workflows/security.yml:131-160) - Backend vulnerabilities
+- ✅ **Gitleaks** (.github/workflows/security.yml:76-90) - Secret scanning
+- ✅ **CodeQL** (.github/workflows/security.yml:18-38) - SAST analysis
+
+### Git Hooks (Local Automation)
+
+**Pre-commit hook (.husky/pre-commit):**
+- Auto-fixes ESLint + Prettier on changed files (lint-staged)
+
+**Pre-push hook (.husky/pre-push):**
+- Runs ESLint, TypeScript, Vitest, Pytest before every push
+- Prevents broken code from reaching CI
+
+**To run manually:**
 ```bash
-# Type checking with mypy
-mypy backend/ --strict --no-error-summary 2>&1 | tee audit-results/mypy.log
+# Trigger pre-commit on all files
+cd frontend && npx lint-staged
 
-# Linting with Ruff
-ruff check backend/ --output-format=grouped 2>&1 | tee audit-results/ruff.log
+# Trigger pre-push checks
+.husky/pre-push
+```
 
-# Complexity analysis (Radon)
+---
+
+## Phase 1: Additional Quality Checks (NOT in CI)
+
+**These checks add value beyond existing automation:**
+
+### Frontend Additional Checks
+```bash
+cd frontend
+mkdir -p ../audit-results
+
+# 1. Complexity analysis (cyclomatic + cognitive)
+echo "📊 Analyzing code complexity..."
+npx ts-complexity src/**/*.{ts,tsx} --threshold 10 --format table \
+  2>&1 | tee ../audit-results/complexity-frontend.txt
+
+# 2. Code duplication detection
+echo "🔍 Detecting code duplication..."
+npx jscpd src/ --min-lines 10 --min-tokens 50 --format markdown \
+  > ../audit-results/duplication-frontend.md
+
+# 3. CSS linting (not enforced in CI)
+echo "🎨 Linting CSS..."
+npm run lint:css 2>&1 | tee ../audit-results/stylelint.log
+
+# 4. Find console.log/debugger statements
+echo "🪲 Finding debug statements..."
+grep -rn "console\\.log\|console\\.warn\|console\\.error\|debugger" src/ \
+  --exclude-dir=node_modules --exclude="*.test.*" --exclude="*.spec.*" \
+  > ../audit-results/console-statements.txt || echo "No console.log found ✅"
+```
+
+### Backend Additional Checks
+```bash
+cd ..
+
+# 1. Type checking with mypy (stricter than current setup)
+echo "📘 Running mypy type checking..."
+pip install mypy types-redis types-requests 2>/dev/null
+mypy backend/ --strict --no-error-summary 2>&1 | tee audit-results/mypy.log || true
+
+# 2. Linting with Ruff (faster, more comprehensive than flake8)
+echo "🔧 Running Ruff linter..."
+pip install ruff 2>/dev/null
+ruff check backend/ --output-format=grouped 2>&1 | tee audit-results/ruff.log || true
+
+# 3. Complexity analysis (Radon)
+echo "📊 Analyzing code complexity..."
+pip install radon 2>/dev/null
 radon cc backend/ -a -nb --total-average 2>&1 | tee audit-results/complexity-backend.log
 radon mi backend/ -nb 2>&1 | tee audit-results/maintainability.log
 
-# Duplicate code detection
+# 4. Duplicate code detection
+echo "🔍 Detecting code duplication..."
+pip install pylint 2>/dev/null
 pylint backend/ --disable=all --enable=duplicate-code --min-similarity-lines=10 \
-  2>&1 | tee audit-results/duplication-backend.log
+  2>&1 | tee audit-results/duplication-backend.log || true
 
-# Find print() statements (should use logger)
-grep -rn "print(" backend/ --exclude-dir=__pycache__ \
-  > audit-results/print-statements.txt
+# 5. Find print() statements (should use logger)
+echo "🪲 Finding print statements..."
+grep -rn "print(" backend/ --exclude-dir=__pycache__ --exclude-dir=tests \
+  > audit-results/print-statements.txt || echo "No print() found ✅"
 ```
 
 ### Automated Metrics Summary
 After running scans, report these metrics:
 
-| Metric | Current | Target | Status |
-|--------|---------|--------|--------|
-| TypeScript errors | ? | 0 | ❌/✅ |
-| ESLint errors | ? | 0 | ❌/✅ |
-| ESLint warnings | ? | <10 | ❌/✅ |
-| Functions complexity >10 | ? | 0 | ❌/✅ |
-| Functions complexity >15 | ? | 0 | ❌/✅ |
-| Code duplication % | ? | <3% | ❌/✅ |
-| `any` types in TS | ? | 0 | ❌/✅ |
-| console.log statements | ? | 0 | ❌/✅ |
-| Python type coverage | ? | >90% | ❌/✅ |
+| Metric | Source | Current | Target | Status |
+|--------|--------|---------|--------|--------|
+| TypeScript errors | CI (already checked) | ? | 0 | ❌/✅ |
+| ESLint errors | CI (already checked) | ? | 0 | ❌/✅ |
+| ESLint warnings | CI (already checked) | ? | <10 | ❌/✅ |
+| Stylelint errors | **NEW** | ? | 0 | ❌/✅ |
+| Functions complexity >10 | **NEW** | ? | 0 | ❌/✅ |
+| Functions complexity >15 | **NEW** | ? | 0 | ❌/✅ |
+| Code duplication % | **NEW** | ? | <3% | ❌/✅ |
+| mypy type errors | **NEW** | ? | 0 | ❌/✅ |
+| Ruff violations | **NEW** | ? | 0 | ❌/✅ |
+| console.log statements | **NEW** | ? | 0 | ❌/✅ |
+| print() statements | **NEW** | ? | 0 | ❌/✅ |
+| Backend maintainability | **NEW** | ? | >65 | ❌/✅ |
 
 ---
 
@@ -419,33 +488,84 @@ If you find issues outside code quality scope, reference these audits:
 
 ---
 
-## Quick Start Command
+## Quick Start Script
 
 Create this script as `scripts/audit-code.sh`:
 
 ```bash
 #!/bin/bash
-echo "🔍 Running automated code quality audit..."
+set -e
+
+echo "🔍 Running Code Quality Audit (Beyond CI/CD)"
+echo "=============================================="
+echo ""
+
+# Step 0: Check CI status
+echo "📋 Phase 0: Checking CI/CD status..."
+if command -v gh &> /dev/null; then
+  echo "Latest CI runs:"
+  gh run list --repo BuDozKeN/AI-council --limit 3 || echo "⚠️ Install GitHub CLI for CI status"
+else
+  echo "⚠️ Install GitHub CLI to view CI status: https://cli.github.com"
+fi
+echo ""
+
+# Create results directory
 mkdir -p audit-results
 
-echo "📊 Frontend checks..."
+# Step 1: Frontend additional checks
+echo "📊 Phase 1: Frontend Additional Checks..."
 cd frontend
-npx tsc --noEmit 2>&1 | tee ../audit-results/typescript.log
-npm run lint 2>&1 | tee ../audit-results/eslint.log
-npx ts-complexity src/**/*.{ts,tsx} --threshold 10 > ../audit-results/complexity-frontend.txt
-npx jscpd src/ --min-lines 10 > ../audit-results/duplication-frontend.txt
-grep -rn "console\\.log" src/ --exclude-dir=node_modules > ../audit-results/console.txt
 
-echo "📊 Backend checks..."
+echo "  → Complexity analysis..."
+npx ts-complexity src/**/*.{ts,tsx} --threshold 10 --format table \
+  2>&1 | tee ../audit-results/complexity-frontend.txt || true
+
+echo "  → Code duplication detection..."
+npx jscpd src/ --min-lines 10 --min-tokens 50 --format markdown \
+  > ../audit-results/duplication-frontend.md || true
+
+echo "  → CSS linting..."
+npm run lint:css 2>&1 | tee ../audit-results/stylelint.log || true
+
+echo "  → Finding console.log statements..."
+grep -rn "console\\.log\|console\\.warn\|console\\.error\|debugger" src/ \
+  --exclude-dir=node_modules --exclude="*.test.*" --exclude="*.spec.*" \
+  > ../audit-results/console-statements.txt || echo "  ✅ No console.log found"
+
 cd ..
-mypy backend/ --strict 2>&1 | tee audit-results/mypy.log
-ruff check backend/ 2>&1 | tee audit-results/ruff.log
-radon cc backend/ -a 2>&1 | tee audit-results/complexity-backend.log
-radon mi backend/ 2>&1 | tee audit-results/maintainability.log
-grep -rn "print(" backend/ > audit-results/print.txt
 
+# Step 2: Backend additional checks
+echo ""
+echo "🐍 Phase 1: Backend Additional Checks..."
+
+echo "  → Installing tools (if needed)..."
+pip install -q mypy types-redis types-requests ruff radon pylint 2>/dev/null || true
+
+echo "  → mypy type checking..."
+mypy backend/ --strict --no-error-summary 2>&1 | tee audit-results/mypy.log || true
+
+echo "  → Ruff linting..."
+ruff check backend/ --output-format=grouped 2>&1 | tee audit-results/ruff.log || true
+
+echo "  → Complexity analysis..."
+radon cc backend/ -a -nb --total-average 2>&1 | tee audit-results/complexity-backend.log || true
+radon mi backend/ -nb 2>&1 | tee audit-results/maintainability.log || true
+
+echo "  → Code duplication detection..."
+pylint backend/ --disable=all --enable=duplicate-code --min-similarity-lines=10 \
+  2>&1 | tee audit-results/duplication-backend.log || true
+
+echo "  → Finding print() statements..."
+grep -rn "print(" backend/ --exclude-dir=__pycache__ --exclude-dir=tests \
+  > audit-results/print-statements.txt || echo "  ✅ No print() found"
+
+echo ""
 echo "✅ Audit complete! Results in audit-results/"
-echo "📋 Run /audit-code in Claude to analyze results"
+echo "📋 Next: Run '/audit-code' in Claude to analyze results"
+echo ""
+echo "💡 Tip: CI/CD already checks TypeScript, ESLint, Prettier, Tests, Security"
+echo "   This audit adds complexity, duplication, mypy, and ruff analysis"
 ```
 
 ---
