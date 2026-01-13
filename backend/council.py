@@ -1259,7 +1259,7 @@ def calculate_aggregate_rankings(
 
 async def generate_conversation_title(
     user_query: str,
-    company_id: str = None
+    company_id: str | None = None
 ) -> str:
     """
     Generate a short title for a conversation based on the first user message.

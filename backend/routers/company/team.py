@@ -10,7 +10,7 @@ Endpoints for department and role management:
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, Any
 from datetime import datetime
 import json
 
@@ -93,7 +93,7 @@ async def get_team(company_id: ValidCompanyId, user=Depends(get_current_user)):
         .execute()
 
     # Group roles by department_id
-    roles_by_dept = {}
+    roles_by_dept: dict[str, list[dict[str, Any]]] = {}
     for role in (roles_result.data or []):
         dept_id = role.get("department_id")
         if dept_id not in roles_by_dept:

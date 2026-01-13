@@ -16,7 +16,7 @@ GRACEFUL DEGRADATION:
 
 import hashlib
 import json
-from typing import Optional, Any, Dict
+from typing import Optional, Any, Dict, Callable
 from functools import wraps
 
 import redis.asyncio as redis
@@ -429,7 +429,7 @@ async def get_cache_health() -> Dict[str, Any]:
 def cached(
     prefix: str,
     ttl: Optional[int] = None,
-    key_builder: Optional[callable] = None,
+    key_builder: Optional[Callable[..., str]] = None,
 ):
     """
     Decorator to cache async function results.
