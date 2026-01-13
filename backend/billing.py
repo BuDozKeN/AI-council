@@ -5,7 +5,7 @@ Handles subscriptions, checkout sessions, and usage tracking.
 
 import stripe
 from datetime import datetime
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Callable
 from .config import STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, SUBSCRIPTION_TIERS
 from .database import get_supabase, get_supabase_with_auth, get_supabase_service
 from .security import log_billing_event
@@ -346,9 +346,115 @@ def increment_query_usage(user_id: str, access_token: Optional[str] = None, rais
     return -1
 
 
+# =============================================================================
+# WEBHOOK EVENT HANDLERS
+# =============================================================================
+
+def _handle_checkout_completed(supabase, data: Dict[str, Any], event_id: str) -> None:
+    """Handle checkout.session.completed event - subscription started via checkout."""
+    user_id = data.get("metadata", {}).get("user_id")
+    tier_id = data.get("metadata", {}).get("tier_id")
+
+    if user_id and tier_id:
+        supabase.table('user_profiles').upsert({
+            'user_id': user_id,
+            'subscription_tier': tier_id,
+            'subscription_status': 'active',
+            'stripe_subscription_id': data.get("subscription"),
+            'queries_used_this_period': 0,
+            'updated_at': datetime.utcnow().isoformat() + 'Z'
+        }, on_conflict='user_id').execute()
+        log_billing_event("Subscription started", user_id=user_id, tier=tier_id, status="active")
+
+
+def _handle_subscription_updated(supabase, data: Dict[str, Any], event_id: str) -> None:
+    """Handle customer.subscription.updated event - upgrade/downgrade/renewal."""
+    status = data.get("status")
+    tier_id = data.get("metadata", {}).get("tier_id")
+    user_id = data.get("metadata", {}).get("user_id")
+    period_end = data.get("current_period_end")
+
+    if user_id:
+        update_data: Dict[str, Any] = {
+            'user_id': user_id,
+            'subscription_status': status,
+            'updated_at': datetime.utcnow().isoformat() + 'Z'
+        }
+        if tier_id:
+            update_data['subscription_tier'] = tier_id
+        if period_end:
+            update_data['subscription_period_end'] = datetime.fromtimestamp(period_end).isoformat() + 'Z'
+
+        supabase.table('user_profiles').upsert(update_data, on_conflict='user_id').execute()
+        log_billing_event("Subscription updated", user_id=user_id, tier=tier_id, status=status)
+
+
+def _handle_subscription_deleted(supabase, data: Dict[str, Any], event_id: str) -> None:
+    """Handle customer.subscription.deleted event - subscription cancelled."""
+    user_id = data.get("metadata", {}).get("user_id")
+
+    if user_id:
+        supabase.table('user_profiles').upsert({
+            'user_id': user_id,
+            'subscription_tier': 'free',
+            'subscription_status': 'cancelled',
+            'stripe_subscription_id': None,
+            'updated_at': datetime.utcnow().isoformat() + 'Z'
+        }, on_conflict='user_id').execute()
+        log_billing_event("Subscription cancelled", user_id=user_id, tier="free", status="cancelled")
+
+
+def _handle_invoice_paid(supabase, data: Dict[str, Any], event_id: str) -> None:
+    """Handle invoice.paid event - payment successful, reset usage counter."""
+    subscription_id = data.get("subscription")
+    if subscription_id:
+        subscription = stripe.Subscription.retrieve(subscription_id)
+        user_id = subscription.metadata.get("user_id")
+
+        if user_id:
+            supabase.table('user_profiles').upsert({
+                'user_id': user_id,
+                'queries_used_this_period': 0,
+                'subscription_period_end': datetime.fromtimestamp(
+                    subscription.current_period_end
+                ).isoformat() + 'Z',
+                'updated_at': datetime.utcnow().isoformat() + 'Z'
+            }, on_conflict='user_id').execute()
+            log_billing_event("Usage reset on invoice payment", user_id=user_id)
+
+
+def _handle_invoice_payment_failed(supabase, data: Dict[str, Any], event_id: str) -> None:
+    """Handle invoice.payment_failed event - payment failed."""
+    subscription_id = data.get("subscription")
+    if subscription_id:
+        subscription = stripe.Subscription.retrieve(subscription_id)
+        user_id = subscription.metadata.get("user_id")
+
+        if user_id:
+            supabase.table('user_profiles').upsert({
+                'user_id': user_id,
+                'subscription_status': 'past_due',
+                'updated_at': datetime.utcnow().isoformat() + 'Z'
+            }, on_conflict='user_id').execute()
+            log_billing_event("Payment failed", user_id=user_id, status="past_due")
+
+
+# Event handler dispatch table
+_WEBHOOK_HANDLERS: Dict[str, Callable[[Any, Dict[str, Any], str], None]] = {
+    "checkout.session.completed": _handle_checkout_completed,
+    "customer.subscription.updated": _handle_subscription_updated,
+    "customer.subscription.deleted": _handle_subscription_deleted,
+    "invoice.paid": _handle_invoice_paid,
+    "invoice.payment_failed": _handle_invoice_payment_failed,
+}
+
+
 def handle_webhook_event(payload: bytes, sig_header: str) -> Dict[str, Any]:
     """
     Handle incoming Stripe webhook events.
+
+    Uses a dispatch table to route events to specific handlers,
+    reducing complexity and making it easy to add new event types.
 
     Args:
         payload: Raw request body
@@ -357,6 +463,7 @@ def handle_webhook_event(payload: bytes, sig_header: str) -> Dict[str, Any]:
     Returns:
         Dict with success status and message
     """
+    # Validate and parse the webhook event
     try:
         event = stripe.Webhook.construct_event(
             payload, sig_header, STRIPE_WEBHOOK_SECRET
@@ -372,118 +479,33 @@ def handle_webhook_event(payload: bytes, sig_header: str) -> Dict[str, Any]:
 
     log_billing_event(f"Webhook received: {event_type}", event_id=event_id)
 
-    # Use service role client to bypass RLS for webhook operations
-    # The anon client fails because RLS policies require auth.uid() = user_id
-    # and webhooks have no authenticated user context
+    # Get service client (bypasses RLS for webhook operations)
     supabase = get_supabase_service()
     if not supabase:
         log_billing_event("Webhook error: service key not configured", status="error")
         return {"success": False, "error": "Service key not configured"}
 
     # SECURITY: Idempotency check - prevent replay attacks
-    # Check if we've already processed this event
     try:
         existing = supabase.table('processed_webhook_events').select('id').eq('event_id', event_id).maybe_single().execute()
         if existing.data:
             log_billing_event("Webhook already processed (idempotency)", event_id=event_id)
             return {"success": True, "status": "already_processed", "event_type": event_type}
 
-        # Mark event as being processed (insert first to prevent race conditions)
+        # Mark event as being processed
         supabase.table('processed_webhook_events').insert({
             'event_id': event_id,
             'event_type': event_type,
             'processed_at': datetime.utcnow().isoformat() + 'Z'
         }).execute()
     except Exception as idempotency_err:
-        # If the table doesn't exist or insert fails due to duplicate, continue gracefully
-        # This allows the system to work even without the idempotency table
+        # Continue gracefully if idempotency table doesn't exist
         log_billing_event(f"Idempotency check warning: {type(idempotency_err).__name__}", event_id=event_id)
 
-    if event_type == "checkout.session.completed":
-        # Subscription started via checkout
-        user_id = data.get("metadata", {}).get("user_id")
-        tier_id = data.get("metadata", {}).get("tier_id")
-
-        if user_id and tier_id:
-            supabase.table('user_profiles').upsert({
-                'user_id': user_id,
-                'subscription_tier': tier_id,
-                'subscription_status': 'active',
-                'stripe_subscription_id': data.get("subscription"),
-                'queries_used_this_period': 0,
-                'updated_at': datetime.utcnow().isoformat() + 'Z'
-            }, on_conflict='user_id').execute()
-            log_billing_event("Subscription started", user_id=user_id, tier=tier_id, status="active")
-
-    elif event_type == "customer.subscription.updated":
-        # Subscription changed (upgrade/downgrade/renewal)
-        subscription_id = data.get("id")
-        status = data.get("status")
-        tier_id = data.get("metadata", {}).get("tier_id")
-        user_id = data.get("metadata", {}).get("user_id")
-        period_end = data.get("current_period_end")
-
-        if user_id:
-            update_data = {
-                'user_id': user_id,
-                'subscription_status': status,
-                'updated_at': datetime.utcnow().isoformat() + 'Z'
-            }
-            if tier_id:
-                update_data['subscription_tier'] = tier_id
-            if period_end:
-                update_data['subscription_period_end'] = datetime.fromtimestamp(period_end).isoformat() + 'Z'
-
-            supabase.table('user_profiles').upsert(update_data, on_conflict='user_id').execute()
-            log_billing_event("Subscription updated", user_id=user_id, tier=tier_id, status=status)
-
-    elif event_type == "customer.subscription.deleted":
-        # Subscription cancelled
-        user_id = data.get("metadata", {}).get("user_id")
-
-        if user_id:
-            supabase.table('user_profiles').upsert({
-                'user_id': user_id,
-                'subscription_tier': 'free',
-                'subscription_status': 'cancelled',
-                'stripe_subscription_id': None,
-                'updated_at': datetime.utcnow().isoformat() + 'Z'
-            }, on_conflict='user_id').execute()
-            log_billing_event("Subscription cancelled", user_id=user_id, tier="free", status="cancelled")
-
-    elif event_type == "invoice.paid":
-        # Payment successful - reset usage counter for new period
-        subscription_id = data.get("subscription")
-        if subscription_id:
-            # Get subscription to find user
-            subscription = stripe.Subscription.retrieve(subscription_id)
-            user_id = subscription.metadata.get("user_id")
-
-            if user_id:
-                supabase.table('user_profiles').upsert({
-                    'user_id': user_id,
-                    'queries_used_this_period': 0,
-                    'subscription_period_end': datetime.fromtimestamp(
-                        subscription.current_period_end
-                    ).isoformat() + 'Z',
-                    'updated_at': datetime.utcnow().isoformat() + 'Z'
-                }, on_conflict='user_id').execute()
-                log_billing_event("Usage reset on invoice payment", user_id=user_id)
-
-    elif event_type == "invoice.payment_failed":
-        # Payment failed
-        subscription_id = data.get("subscription")
-        if subscription_id:
-            subscription = stripe.Subscription.retrieve(subscription_id)
-            user_id = subscription.metadata.get("user_id")
-
-            if user_id:
-                supabase.table('user_profiles').upsert({
-                    'user_id': user_id,
-                    'subscription_status': 'past_due',
-                    'updated_at': datetime.utcnow().isoformat() + 'Z'
-                }, on_conflict='user_id').execute()
-                log_billing_event("Payment failed", user_id=user_id, status="past_due")
+    # Dispatch to the appropriate handler
+    handler = _WEBHOOK_HANDLERS.get(event_type)
+    if handler:
+        handler(supabase, data, event_id)
 
     return {"success": True, "event_type": event_type}
 
