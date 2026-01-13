@@ -608,11 +608,16 @@ async def query_model(
         payload["top_p"] = top_p
 
     # Only add reasoning parameter for models that support it
-    # Gemini 3 Pro has mandatory thinking that cannot be excluded - skip it
-    # Gemini 2.5 models use thinkingBudget instead of reasoning parameter
+    # - Gemini 3 Pro has mandatory thinking that cannot be excluded
+    # - Gemini 2.5 models use thinkingBudget instead of reasoning parameter
+    # - Kimi K2 does not support the reasoning parameter (causes 400 error)
+    # - Grok models do not support the reasoning parameter
     is_gemini_3 = "gemini-3" in model.lower()
     is_gemini_2_5 = "gemini-2.5" in model.lower()
-    if not is_gemini_3 and not is_gemini_2_5:
+    is_kimi = "kimi" in model.lower() or "moonshot" in model.lower()
+    is_grok = "grok" in model.lower()
+    supports_reasoning = not is_gemini_3 and not is_gemini_2_5 and not is_kimi and not is_grok
+    if supports_reasoning:
         # Exclude reasoning/thinking tokens from response - users should only see final answer
         # This affects reasoning models like o1, o3, GPT-5.1
         payload["reasoning"] = {"exclude": True}
@@ -741,11 +746,16 @@ async def query_model_stream(
         payload["top_p"] = top_p
 
     # Only add reasoning parameter for models that support it
-    # Gemini 3 Pro has mandatory thinking that cannot be excluded - skip it
-    # Gemini 2.5 models use thinkingBudget instead of reasoning parameter
+    # - Gemini 3 Pro has mandatory thinking that cannot be excluded
+    # - Gemini 2.5 models use thinkingBudget instead of reasoning parameter
+    # - Kimi K2 does not support the reasoning parameter (causes 400 error)
+    # - Grok models do not support the reasoning parameter
     is_gemini_3 = "gemini-3" in model.lower()
     is_gemini_2_5 = "gemini-2.5" in model.lower()
-    if not is_gemini_3 and not is_gemini_2_5:
+    is_kimi = "kimi" in model.lower() or "moonshot" in model.lower()
+    is_grok = "grok" in model.lower()
+    supports_reasoning = not is_gemini_3 and not is_gemini_2_5 and not is_kimi and not is_grok
+    if supports_reasoning:
         # Exclude reasoning/thinking tokens from response - users should only see final answer
         # This affects reasoning models like o1, o3, GPT-5.1
         payload["reasoning"] = {"exclude": True}
