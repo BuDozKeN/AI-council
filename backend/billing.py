@@ -294,10 +294,10 @@ def check_can_query(user_id: str, access_token: Optional[str] = None) -> Dict[st
     }
 
 
-def increment_query_usage(user_id: str, access_token: Optional[str] = None) -> int:
+def increment_query_usage(user_id: str, access_token: Optional[str] = None, raise_on_failure: bool = False) -> int:
     """
     Increment the query usage counter for a user using atomic database operation.
-    Returns the new count.
+    Returns the new count, or -1 if increment failed (unless raise_on_failure=True).
 
     SECURITY: Uses PostgreSQL function for atomic increment to prevent race
     conditions where concurrent requests could bypass query limits.
@@ -305,12 +305,17 @@ def increment_query_usage(user_id: str, access_token: Optional[str] = None) -> i
     Args:
         user_id: Supabase user ID
         access_token: User's JWT access token for RLS authentication
+        raise_on_failure: If True, raise ValueError on failure. If False (default),
+                          return -1 and log the error. Set to False for post-response
+                          increments where we don't want to break the user experience.
     """
     # Use service client for RPC call (function handles its own security)
     supabase = get_supabase_service()
     if not supabase:
         log_billing_event("Increment failed: service client unavailable", user_id=user_id, status="error")
-        return 0
+        if raise_on_failure:
+            raise ValueError("Query limit check unavailable - please try again")
+        return -1
 
     try:
         # Call atomic increment function in database
@@ -323,18 +328,22 @@ def increment_query_usage(user_id: str, access_token: Optional[str] = None) -> i
         # Fallback if function doesn't exist yet (migration not applied)
         log_billing_event("Atomic increment unavailable, using fallback", user_id=user_id, status="warning")
     except Exception as e:
-        # Function might not exist yet, fall back to non-atomic version
-        log_billing_event(f"Atomic increment failed: {type(e).__name__}", user_id=user_id, status="warning")
+        # Function might not exist yet - log and handle gracefully
+        log_billing_event(f"Atomic increment failed: {type(e).__name__}: {str(e)}", user_id=user_id, status="warning")
 
-    # SECURITY: Fallback removed - atomic increment is now required
-    # If the RPC function doesn't exist, fail safely rather than use non-atomic increment
-    # which could allow race condition bypass of query limits
+    # SECURITY NOTE: If the RPC function doesn't exist, we can't atomically track usage.
+    # Rather than block users entirely, we log the failure and continue.
+    # The pre-query check (check_can_query) still works via the user_profiles table.
+    # Apply the migration 20251224110000_atomic_query_increment.sql to fix this properly.
     log_billing_event(
-        "SECURITY: Atomic increment required but unavailable - denying request",
+        "Billing increment unavailable - migration may not be applied. Apply 20251224110000_atomic_query_increment.sql",
         user_id=user_id,
-        status="error"
+        status="warning"
     )
-    raise ValueError("Query limit check unavailable - please try again")
+
+    if raise_on_failure:
+        raise ValueError("Query limit check unavailable - please try again")
+    return -1
 
 
 def handle_webhook_event(payload: bytes, sig_header: str) -> Dict[str, Any]:

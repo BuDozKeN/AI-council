@@ -327,18 +327,30 @@ class TestIncrementQueryUsage:
             mock_client.rpc.assert_called_once_with('increment_query_usage', {'p_user_id': 'user-123'})
             assert result == 51
 
-    def test_raises_when_service_unavailable(self):
-        """Should raise when service client unavailable."""
+    def test_returns_negative_when_service_unavailable(self):
+        """Should return -1 when service client unavailable (non-blocking by default)."""
         with patch('backend.billing.get_supabase_service') as mock_service:
             with patch('backend.billing.log_billing_event'):
                 mock_service.return_value = None
 
-                # Should return 0 when service unavailable
+                # Default behavior: returns -1 to not block the user experience
                 result = increment_query_usage("user-123")
-                assert result == 0
+                assert result == -1
 
-    def test_raises_on_rpc_failure(self):
-        """Should raise ValueError when RPC fails (security measure)."""
+    def test_returns_negative_on_rpc_failure(self):
+        """Should return -1 when RPC fails (non-blocking by default)."""
+        with patch('backend.billing.get_supabase_service') as mock_service:
+            with patch('backend.billing.log_billing_event'):
+                mock_client = MagicMock()
+                mock_client.rpc.side_effect = Exception("RPC failed")
+                mock_service.return_value = mock_client
+
+                # Default behavior: returns -1 to not block the user experience
+                result = increment_query_usage("user-123")
+                assert result == -1
+
+    def test_raises_when_raise_on_failure_true(self):
+        """Should raise ValueError when raise_on_failure=True and RPC fails."""
         with patch('backend.billing.get_supabase_service') as mock_service:
             with patch('backend.billing.log_billing_event'):
                 mock_client = MagicMock()
@@ -346,7 +358,7 @@ class TestIncrementQueryUsage:
                 mock_service.return_value = mock_client
 
                 with pytest.raises(ValueError) as exc_info:
-                    increment_query_usage("user-123")
+                    increment_query_usage("user-123", raise_on_failure=True)
 
                 assert "unavailable" in str(exc_info.value).lower()
 

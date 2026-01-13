@@ -161,7 +161,8 @@ STAGE3_TIMEOUT = int(os.getenv("STAGE3_TIMEOUT", "120"))  # 120s for chairman sy
 
 # Per-model timeout - individual models that hang get marked as error
 # This catches truly stuck models without cancelling healthy ones
-PER_MODEL_TIMEOUT = int(os.getenv("PER_MODEL_TIMEOUT", "60"))  # 60s per individual model
+# NOTE: 90s gives slower models like Grok-4 sufficient time while still catching stuck requests
+PER_MODEL_TIMEOUT = int(os.getenv("PER_MODEL_TIMEOUT", "90"))  # 90s per individual model
 
 # Require access_token for RLS-protected queries (recommended: true in production)
 # When false, falls back to service client (bypasses RLS) - only for backwards compat
