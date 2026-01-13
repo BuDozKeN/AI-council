@@ -40,7 +40,7 @@
 
   /* Field spacing - consistent and balanced */
   .pm-modal-body .pm-field {
-    margin-bottom: 20px;
+    margin-block-end: 20px;
   }
 
   /* AI intro banner - full width, balanced padding */
@@ -59,11 +59,11 @@
 
   /* Actions - sticky at bottom with proper spacing */
   .pm-modal-body .pm-actions {
-    margin-top: auto;
+    margin-block-start: auto;
     padding: 16px 0;
-    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    padding-block-end: calc(16px + env(safe-area-inset-bottom, 0px));
     gap: 10px;
-    border-top: 1px solid var(--color-border);
+    border-block-start: 1px solid var(--color-border);
   }
 
   /* Buttons - balanced sizing */
@@ -76,7 +76,7 @@
   /* Dark mode - actions border */
   .dark .pm-modal-body .pm-actions,
   [data-theme='dark'] .pm-modal-body .pm-actions {
-    border-top-color: var(--color-border);
+    border-block-start-color: var(--color-border);
   }
 }
 
@@ -101,7 +101,7 @@
 
 /* Field container */
 .pm-field {
-  margin-bottom: 20px;
+  margin-block-end: 20px;
 }
 
 .pm-field label {
@@ -111,7 +111,7 @@
   color: var(--color-slate-500);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 8px;
+  margin-block-end: 8px;
 }
 
 /* Field header with label + action button */
@@ -119,11 +119,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 4px;
+  margin-block-end: 4px;
 }
 
 .pm-field-header label {
-  margin-bottom: 0;
+  margin-block-end: 0;
 }
 
 .pm-optional {
@@ -207,7 +207,7 @@
 .pm-hint {
   font-size: 13px;
   color: var(--color-slate-300);
-  margin-bottom: 10px;
+  margin-block-end: 10px;
   line-height: 1.4;
 }
 
@@ -269,7 +269,7 @@
   background: var(--color-purple-50);
   border: 1px solid var(--color-purple-200);
   border-radius: var(--radius-lg);
-  margin-top: 16px;
+  margin-block-start: 16px;
   overflow: hidden;
 }
 
@@ -279,7 +279,7 @@
   gap: 8px;
   padding: 12px 16px;
   background: var(--color-indigo-light);
-  border-bottom: 1px solid var(--color-purple-200);
+  border-block-end: 1px solid var(--color-purple-200);
   font-size: 13px;
   font-weight: 600;
   color: var(--color-purple-600);
@@ -291,7 +291,7 @@
 }
 
 .pm-preview-close {
-  margin-left: auto;
+  margin-inline-start: auto;
   width: 24px;
   height: 24px;
   display: flex;
@@ -331,11 +331,11 @@
 }
 
 .pm-preview-section {
-  margin-bottom: 12px;
+  margin-block-end: 12px;
 }
 
 .pm-preview-section:last-child {
-  margin-bottom: 0;
+  margin-block-end: 0;
 }
 
 .pm-preview-section h4 {
@@ -357,9 +357,9 @@
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-  padding-top: 20px;
-  border-top: 1px solid var(--color-slate-100);
-  margin-top: 24px;
+  padding-block-start: 20px;
+  border-block-start: 1px solid var(--color-slate-100);
+  margin-block-start: 24px;
 }
 
 /* Cancel button */
@@ -416,7 +416,7 @@
 
 /* Context field - first field, no extra spacing */
 .pm-context-field {
-  margin-bottom: 20px;
+  margin-block-end: 20px;
 }
 
 /* AI Intro banner - invites users to just blurb */
@@ -428,7 +428,7 @@
   background: var(--color-violet-50);
   border: 1px solid var(--color-violet-200);
   border-radius: var(--radius-lg);
-  margin-bottom: 12px;
+  margin-block-end: 12px;
   font-size: 14px;
   color: var(--color-violet-700);
   font-weight: 500;
@@ -449,7 +449,7 @@
   padding: 10px 14px;
   background: var(--color-purple-50);
   border-radius: var(--radius-md);
-  margin-top: 10px;
+  margin-block-start: 10px;
   font-size: 13px;
   color: var(--color-purple-600);
   font-weight: 500;
@@ -475,7 +475,7 @@
   background: var(--color-green-50);
   border: 1px solid var(--color-emerald-400);
   border-radius: var(--radius-lg);
-  margin-bottom: 20px;
+  margin-block-end: 20px;
   font-size: 14px;
   color: var(--color-emerald-700);
   font-weight: 500;
@@ -602,7 +602,7 @@
 }
 
 .pm-dept-edit-btn {
-  margin-left: auto;
+  margin-inline-start: auto;
   padding: 4px 10px;
   background: transparent;
   border: 1px solid var(--color-slate-200);
@@ -707,7 +707,7 @@
   background: var(--color-slate-50);
   border: 1px solid var(--color-slate-200);
   border-radius: var(--radius-lg);
-  margin-bottom: 16px;
+  margin-block-end: 16px;
   font-size: 14px;
   color: var(--color-slate-600);
   font-weight: 500;
@@ -730,11 +730,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-block-end: 8px;
 }
 
 .pm-context-header label {
-  margin-bottom: 0;
+  margin-block-end: 0;
 }
 
 .pm-context-toggle {
@@ -791,7 +791,7 @@
   font-size: 11px;
   color: var(--color-slate-400);
   font-weight: 400;
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 /* Tiny icon for toggle buttons */
@@ -822,7 +822,7 @@
   justify-content: center;
   background: var(--color-success-light);
   border-radius: 50%;
-  margin-bottom: 20px;
+  margin-block-end: 20px;
   animation: success-ring-pulse 0.8s ease-out;
 }
 
@@ -901,8 +901,8 @@
   .pm-actions {
     flex-wrap: wrap;
     gap: 8px;
-    padding-top: 16px;
-    margin-top: 16px;
+    padding-block-start: 16px;
+    margin-block-start: 16px;
   }
 
   /* Buttons - flex to fill space */
@@ -919,7 +919,7 @@
 
   /* Field spacing - tighter */
   .pm-field {
-    margin-bottom: 16px;
+    margin-block-end: 16px;
   }
 
   /* Success state - fit on small screens */
@@ -931,7 +931,7 @@
   .pm-success-icon-wrapper {
     width: 60px;
     height: 60px;
-    margin-bottom: 16px;
+    margin-block-end: 16px;
   }
 
   .pm-success-icon {
@@ -1040,7 +1040,7 @@
 
 .dark .pm-preview-header {
   background: var(--color-bg-tertiary);
-  border-bottom-color: var(--color-border);
+  border-block-end-color: var(--color-border);
   color: var(--color-violet-400);
 }
 
@@ -1071,7 +1071,7 @@
 
 /* Actions footer */
 .dark .pm-actions {
-  border-top-color: var(--color-border);
+  border-block-start-color: var(--color-border);
 }
 
 /* Cancel button */

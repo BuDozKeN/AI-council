@@ -11,7 +11,7 @@
 .sidebar {
   /* Clean light background like Perplexity */
   background: var(--sidebar-bg);
-  border-right: 1px solid var(--sidebar-border);
+  border-inline-end: 1px solid var(--sidebar-border);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -56,8 +56,8 @@
   .sidebar.sidebar--pinned,
   .sidebar {
     position: fixed;
-    left: 0;
-    top: 0;
+    inset-inline-start: 0;
+    inset-block-start: 0;
     width: 85vw;
     max-width: 320px;
     min-width: auto;
@@ -113,7 +113,7 @@
 
   /* Expanded panel takes remaining space and scrolls internally */
   .sidebar .sidebar-expanded-panel {
-    border-left: none;
+    border-inline-start: none;
 
     /* CRITICAL: Constrain height so it doesn't push footer off screen */
     flex: 1 1 0;
@@ -150,9 +150,9 @@
   .sidebar .sidebar-footer {
     flex-shrink: 0;
     padding: 12px 16px;
-    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    padding-block-end: calc(12px + env(safe-area-inset-bottom, 0px));
     background: var(--sidebar-bg);
-    border-top: 1px solid var(--sidebar-border);
+    border-block-start: 1px solid var(--sidebar-border);
   }
 
   /* Make footer buttons touch-friendly */
@@ -176,7 +176,7 @@
 
 .sidebar-header {
   padding: 12px;
-  border-bottom: none;
+  border-block-end: none;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -192,7 +192,7 @@
 
 /* Hovered state - offset header to align with expanded panel, not icon rail */
 .sidebar--hovered .sidebar-header {
-  margin-left: var(--sidebar-width-collapsed);
+  margin-inline-start: var(--sidebar-width-collapsed);
 }
 
 /* New Chat button (expanded) - Perplexity style: simple + icon */
@@ -320,7 +320,7 @@ button.sidebar-new-btn:hover {
   padding: 8px 10px;
   width: var(--sidebar-width-collapsed);
   flex-shrink: 0;
-  border-right: 1px solid var(--sidebar-border);
+  border-inline-end: 1px solid var(--sidebar-border);
 }
 
 /* =============================================================================
@@ -334,7 +334,7 @@ button.sidebar-new-btn:hover {
   flex-direction: column;
   overflow: hidden;
   background: var(--sidebar-bg);
-  border-left: 1px solid var(--sidebar-border);
+  border-inline-start: 1px solid var(--sidebar-border);
 
   /* Subtle slide-in */
   animation: panelSlideIn 0.2s ease-out;
@@ -358,14 +358,14 @@ button.sidebar-new-btn:hover {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  border-bottom: 1px solid var(--sidebar-border);
+  border-block-end: 1px solid var(--sidebar-border);
   flex-shrink: 0;
 }
 
 /* When inside panel controls, remove extra padding from filter bar */
 .sidebar-panel-controls .sidebar-filter {
   padding: 0;
-  border-bottom: none;
+  border-block-end: none;
 }
 
 /* Make search more compact in panel */
@@ -379,7 +379,7 @@ button.sidebar-new-btn:hover {
 }
 
 .sidebar--pinned .sidebar-expanded-panel {
-  border-left: none;
+  border-inline-start: none;
 }
 
 /* =============================================================================
@@ -434,7 +434,7 @@ button.sidebar-new-btn:hover {
 
 .search-icon {
   position: absolute;
-  left: 10px;
+  inset-inline-start: 10px;
   width: 16px;
   height: 16px;
   color: var(--sidebar-text-muted);
@@ -469,7 +469,7 @@ button.sidebar-new-btn:hover {
 
 .search-clear {
   position: absolute;
-  right: 8px;
+  inset-inline-end: 8px;
   width: 20px;
   height: 20px;
   padding: 0;
@@ -492,7 +492,7 @@ button.sidebar-new-btn:hover {
 }
 
 .search-results-count {
-  margin-top: 6px;
+  margin-block-start: 6px;
   font-size: 11px;
   color: var(--sidebar-text-muted);
   text-align: center;
@@ -505,7 +505,7 @@ button.sidebar-new-btn:hover {
 
 .sidebar-filter {
   padding: 8px 12px;
-  border-bottom: 1px solid var(--sidebar-border);
+  border-block-end: 1px solid var(--sidebar-border);
   display: flex;
   gap: 6px;
   align-items: center;
@@ -565,14 +565,14 @@ button.sidebar-new-btn:hover {
 
 .no-conv-icon {
   font-size: 24px;
-  margin-bottom: 4px;
+  margin-block-end: 4px;
   opacity: 0.7;
 }
 
 .no-conv-hint {
   font-size: 12px;
   color: var(--sidebar-text-muted);
-  margin-top: 4px;
+  margin-block-start: 4px;
 }
 
 /* =============================================================================
@@ -580,7 +580,7 @@ button.sidebar-new-btn:hover {
    ============================================================================= */
 
 .conversation-group {
-  margin-bottom: 8px;
+  margin-block-end: 8px;
 }
 
 .group-header {
@@ -699,7 +699,7 @@ button.sidebar-new-btn:hover {
   color: var(--sidebar-text-secondary);
   font-size: 13px;
   font-weight: 400;
-  margin-bottom: 0;
+  margin-block-end: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -725,7 +725,7 @@ button.sidebar-new-btn:hover {
 
 .conversation-meta span:not(:first-child)::before {
   content: '·';
-  margin-right: 6px;
+  margin-inline-end: 6px;
   color: var(--sidebar-text-muted);
 }
 
@@ -745,7 +745,7 @@ button.sidebar-new-btn:hover {
   color: var(--color-text-inverse);
   padding: 1px 5px;
   border-radius: var(--radius-sm);
-  margin-right: 6px;
+  margin-inline-end: 6px;
   text-transform: uppercase;
   font-weight: 600;
   vertical-align: middle;
@@ -753,13 +753,13 @@ button.sidebar-new-btn:hover {
 
 /* Starred styling - uses amber for intuitive star color */
 .conversation-item.starred {
-  border-left: 3px solid var(--color-amber-500);
-  padding-left: 13px;
+  border-inline-start: 3px solid var(--color-amber-500);
+  padding-inline-start: 13px;
 }
 
 .title-star {
   color: var(--color-amber-500);
-  margin-right: 6px;
+  margin-inline-end: 6px;
   flex-shrink: 0;
   font-size: 14px;
 }
@@ -767,8 +767,8 @@ button.sidebar-new-btn:hover {
 /* Selected styling (multi-select for bulk actions) - distinct from active */
 .conversation-item.selected {
   background: var(--overlay-blue-10); /* Blue tint for selection */
-  border-left: 3px solid var(--color-primary);
-  padding-left: 13px;
+  border-inline-start: 3px solid var(--color-primary);
+  padding-inline-start: 13px;
 }
 
 .conversation-item.selected .conversation-title {
@@ -778,7 +778,7 @@ button.sidebar-new-btn:hover {
 /* When both selected AND active, show selected state takes visual priority */
 .conversation-item.selected.active {
   background: var(--overlay-blue-15);
-  border-left: 3px solid var(--color-primary);
+  border-inline-start: 3px solid var(--color-primary);
 }
 
 /* Dark mode selected styling */
@@ -796,8 +796,8 @@ button.sidebar-new-btn:hover {
 
 .hover-actions {
   position: absolute;
-  right: 4px;
-  top: 50%;
+  inset-inline-end: 4px;
+  inset-block-start: 50%;
   transform: translateY(-50%);
   display: flex;
   align-items: center;
@@ -938,7 +938,7 @@ button.sidebar-new-btn:hover {
   .sidebar .conversation-item.starred .title-star,
   .conversation-item-swipeable.starred .title-star {
     display: inline-flex;
-    margin-left: 4px;
+    margin-inline-start: 4px;
   }
 
   /* Make bulk action bar touch-friendly on mobile */
@@ -970,14 +970,14 @@ button.sidebar-new-btn:hover {
 
   /* Larger search icon on mobile */
   .search-icon {
-    left: 14px;
+    inset-inline-start: 14px;
     width: 18px;
     height: 18px;
   }
 
   /* Larger clear button on mobile */
   .search-clear {
-    right: 10px;
+    inset-inline-end: 10px;
     width: 24px;
     height: 24px;
     font-size: 16px;
@@ -1161,7 +1161,7 @@ button.sidebar-new-btn:hover {
 
 .sidebar-footer {
   padding: 12px 16px;
-  border-top: 1px solid var(--sidebar-border);
+  border-block-start: 1px solid var(--sidebar-border);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -1174,7 +1174,7 @@ button.sidebar-new-btn:hover {
   align-items: center;
   gap: 4px;
   padding: 8px;
-  border-top: none;
+  border-block-start: none;
 }
 
 .user-info {
@@ -1260,7 +1260,7 @@ button.sidebar-new-btn:hover {
 .mode-toggle-section {
   display: flex;
   gap: 6px;
-  margin-bottom: 8px;
+  margin-block-end: 8px;
 }
 
 .mode-toggle-btn {
@@ -1287,7 +1287,7 @@ button.sidebar-new-btn:hover {
 
 .mode-toggle-btn .mode-label {
   flex: 1;
-  text-align: left;
+  text-align: start;
   white-space: nowrap;
 }
 
@@ -1534,7 +1534,7 @@ button.sidebar-new-btn:hover {
   opacity: 0;
   transition: opacity 0.15s ease;
   flex-shrink: 0;
-  margin-left: -4px;
+  margin-inline-start: -4px;
 }
 
 .conversation-item:hover .drag-handle {

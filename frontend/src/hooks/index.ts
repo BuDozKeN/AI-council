@@ -25,6 +25,9 @@ export { useCanonical } from './useCanonical';
 export { useKeyboardShortcuts, useListNavigation } from './useKeyboardShortcuts';
 export { useDragAndDrop } from './useDragAndDrop';
 
+// SEO and i18n Hooks
+export { useSEO, useHreflangLinks, useCanonicalURL, useFullSEO } from './useSEO';
+
 // Types
 export type { UseSwipeGestureOptions, UseGlobalSwipeOptions } from './useSwipeGesture';
 export type { UsePullToRefreshOptions, UsePullToRefreshReturn } from './usePullToRefresh';

@@ -13,8 +13,8 @@
 /* Back to My Company floating button */
 .back-to-company-btn {
   position: absolute;
-  top: 12px;
-  left: 50%;
+  inset-block-start: 12px;
+  inset-inline-start: 50%;
   transform: translateX(-50%);
   z-index: var(--z-dropdown);
   display: inline-flex;
@@ -62,7 +62,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 4px; /* Gap between question and pills since parent is block now */
+  margin-block-end: 4px; /* Gap between question and pills since parent is block now */
 }
 
 .context-question-icon {
@@ -83,8 +83,8 @@
 /* Floating scroll-to-top button (FAB style) - fixed position */
 .scroll-to-top-fab {
   position: fixed;
-  bottom: 100px; /* Above input form */
-  right: 24px;
+  inset-block-end: 100px; /* Above input form */
+  inset-inline-end: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -302,8 +302,8 @@
 .messages-container > * {
   width: 100%;
   max-width: 72ch; /* ~680-720px based on typography - optimal reading width */
-  margin-left: auto;
-  margin-right: auto;
+  margin-inline-start: auto;
+  margin-inline-end: auto;
 }
 
 /* Scroll button is now fixed position, not in flow */
@@ -312,12 +312,12 @@
    The chat EmptyState components now use the unified ui/EmptyState component */
 
 .message-group {
-  margin-bottom: 32px;
+  margin-block-end: 32px;
 }
 
 .user-message,
 .assistant-message {
-  margin-bottom: 16px;
+  margin-block-end: 16px;
   animation: message-slide-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -346,7 +346,7 @@
   font-size: 12px;
   font-weight: 600;
   color: var(--color-text-secondary);
-  margin-bottom: 8px;
+  margin-block-end: 8px;
   text-transform: none; /* Remove uppercase for proper brand display */
   letter-spacing: 0.3px;
 }
@@ -376,7 +376,7 @@
 
 /* User message wrapper - contains label + card like assistant messages */
 .user-message-wrapper {
-  margin-top: 16px;
+  margin-block-start: 16px;
 }
 
 /* User stage card - single box, no nested containers */
@@ -392,10 +392,10 @@
 /* User message copy button - sticky for long content, subtle but visible */
 .stage-user .user-copy-btn {
   position: sticky;
-  top: 8px;
-  float: right;
-  margin-left: 8px;
-  margin-bottom: 4px;
+  inset-block-start: 8px;
+  float: inline-end;
+  margin-inline-start: 8px;
+  margin-block-end: 4px;
   z-index: var(--z-elevated);
 
   /* Override default hidden state - always subtly visible */
@@ -421,7 +421,7 @@
 
 .stage-user .collapse-arrow {
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-block-start: 2px;
 }
 
 /* Inline preview text when collapsed */
@@ -433,9 +433,9 @@
 
 /* Expanded content - same box, just more content visible */
 .user-expanded {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--color-border);
+  margin-block-start: 12px;
+  padding-block-start: 12px;
+  border-block-start: 1px solid var(--color-border);
   cursor: pointer;
   color: var(--color-text-primary);
   line-height: 1.6;
@@ -460,8 +460,8 @@
 @media (max-width: 768px) {
   .stage-user .user-copy-btn {
     position: absolute;
-    top: 8px;
-    right: 8px;
+    inset-block-start: 8px;
+    inset-inline-end: 8px;
     float: none;
     margin: 0;
   }
@@ -502,7 +502,7 @@
   flex-direction: column;
   gap: 8px;
   padding: 16px 24px;
-  padding-bottom: max(16px, env(safe-area-inset-bottom, 16px)); /* Safe area for notched devices */
+  padding-block-end: max(16px, env(safe-area-inset-bottom, 16px)); /* Safe area for notched devices */
   flex-shrink: 0;
   scrollbar-gutter: stable both-edges; /* Match messages-container for alignment */
 
@@ -518,9 +518,9 @@
 .input-form::before {
   content: '';
   position: absolute;
-  top: -40px;
-  left: 0;
-  right: 0;
+  inset-block-start: -40px;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
   height: 40px;
   background: linear-gradient(to bottom, transparent 0%, var(--color-bg-primary) 100%);
   pointer-events: none;
@@ -539,8 +539,8 @@
 .input-form > * {
   width: 100%;
   max-width: 72ch; /* Match reading column width */
-  margin-left: auto;
-  margin-right: auto;
+  margin-inline-start: auto;
+  margin-inline-end: auto;
 }
 
 /* Premium input wrapper - ChatGPT-style pill */
@@ -597,7 +597,7 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L2 4h8z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
-  padding-right: 28px;
+  padding-inline-end: 28px;
 }
 
 .context-select:hover {
@@ -897,7 +897,7 @@ button.role-select-trigger:focus {
   color: var(--color-text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  margin-right: 4px;
+  margin-inline-end: 4px;
 }
 
 .context-pill-btn {
@@ -924,7 +924,7 @@ button.role-select-trigger:focus {
   font-size: 14px;
   line-height: 1;
   opacity: 0.5;
-  margin-left: 2px;
+  margin-inline-start: 2px;
 }
 
 .context-pill-btn:hover .pill-remove {
@@ -1044,8 +1044,8 @@ button.role-select-trigger:focus {
 /* Selection badge - shows count when items selected */
 .context-icon-badge {
   position: absolute;
-  top: -2px;
-  right: -2px;
+  inset-block-start: -2px;
+  inset-inline-end: -2px;
   min-width: 14px;
   height: 14px;
   padding: 0 4px;
@@ -1085,12 +1085,12 @@ button.role-select-trigger:focus {
 
 /* Mode toggle icon */
 .context-icon-btn.mode-toggle {
-  margin-left: 4px;
-  border-left: 1px solid var(--color-border-light);
-  padding-left: 6px;
+  margin-inline-start: 4px;
+  border-inline-start: 1px solid var(--color-border-light);
+  padding-inline-start: 6px;
   border-radius: 0;
   width: auto;
-  padding-right: 2px;
+  padding-inline-end: 2px;
 }
 
 .context-icon-btn.mode-toggle.council {
@@ -1137,7 +1137,7 @@ button.role-select-trigger:focus {
   color: var(--color-text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-bottom: 1px solid var(--color-border-light);
+  border-block-end: 1px solid var(--color-border-light);
 }
 
 /* Clear button inside popover header */
@@ -1193,7 +1193,7 @@ button.role-select-trigger:focus {
   color: var(--color-text-primary);
   cursor: pointer;
   transition: all 0.1s ease;
-  text-align: left;
+  text-align: start;
 }
 
 .context-popover-item:hover {
@@ -1244,11 +1244,11 @@ button.role-select-trigger:focus {
 
 /* Playbook grouping */
 .context-popover-group {
-  margin-bottom: 4px;
+  margin-block-end: 4px;
 }
 
 .context-popover-group:last-child {
-  margin-bottom: 0;
+  margin-block-end: 0;
 }
 
 .context-popover-group-header {
@@ -1295,14 +1295,14 @@ button.role-select-trigger:focus {
 
 .context-popover-group-header .section-label {
   flex: 1;
-  text-align: left;
+  text-align: start;
 }
 
 .context-popover-group-header .section-count {
   font-size: 10px;
   font-weight: 500;
   color: var(--color-text-quaternary);
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 .context-popover-group-header .section-count .selected-count {
@@ -1311,10 +1311,10 @@ button.role-select-trigger:focus {
 }
 
 .context-popover-group-items {
-  padding-left: 8px;
-  margin-top: 4px;
-  border-left: 2px solid var(--color-border-light);
-  margin-left: 16px;
+  padding-inline-start: 8px;
+  margin-block-start: 4px;
+  border-inline-start: 2px solid var(--color-border-light);
+  margin-inline-start: 16px;
 }
 
 /* Playbook type colors */
@@ -1344,7 +1344,7 @@ button.role-select-trigger:focus {
 
 .dark .context-popover-header {
   color: var(--color-text-secondary);
-  border-bottom-color: var(--color-border);
+  border-block-end-color: var(--color-border);
 }
 
 .dark .context-popover-clear {
@@ -1405,7 +1405,7 @@ button.role-select-trigger:focus {
 }
 
 .dark .context-popover-group-items {
-  border-left-color: var(--color-border);
+  border-inline-start-color: var(--color-border);
 }
 
 /* Playbook type colors in dark mode */
@@ -1492,9 +1492,9 @@ button.role-select-trigger:focus {
 
   /* Larger expanded items container */
   .context-popover-group-items {
-    margin-left: 20px;
-    padding-left: 12px;
-    margin-top: 8px;
+    margin-inline-start: 20px;
+    padding-inline-start: 12px;
+    margin-block-start: 8px;
   }
 
   /* Items inside expanded sections (Playbooks) */
@@ -1544,7 +1544,7 @@ button.role-select-trigger:focus {
 }
 
 .dark .context-icon-btn.mode-toggle {
-  border-left-color: var(--color-border);
+  border-inline-start-color: var(--color-border);
 }
 
 .dark .context-icon-btn.mode-toggle.council {
@@ -1709,7 +1709,7 @@ button.role-select-trigger:focus {
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s;
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 .stop-button-inline:hover {
@@ -1771,8 +1771,8 @@ button.role-select-trigger:focus {
   content: '';
   height: 18px;
   width: 18px;
-  left: 3px;
-  bottom: 3px;
+  inset-inline-start: 3px;
+  inset-block-end: 3px;
   background-color: var(--color-bg-primary);
   border-radius: 50%;
   transition: all 0.3s ease;
@@ -1808,7 +1808,7 @@ button.role-select-trigger:focus {
 .curator-trigger-btn {
   display: block;
   width: 100%;
-  margin-top: 16px;
+  margin-block-start: 16px;
   padding: 12px 20px;
   background: var(--color-violet-50);
   border: 2px dashed var(--color-curator-primary);
@@ -2013,7 +2013,7 @@ button.role-select-trigger:focus {
   display: flex;
   gap: 4px;
   flex-wrap: wrap;
-  margin-left: 12px;
+  margin-inline-start: 12px;
 }
 
 .dept-pill-compact {
@@ -2050,7 +2050,7 @@ button.role-select-trigger:focus {
   display: flex;
   gap: 4px;
   flex-wrap: wrap;
-  margin-left: 12px;
+  margin-inline-start: 12px;
 }
 
 .role-pill-compact {
@@ -2141,7 +2141,7 @@ button.role-select-trigger:focus {
   background: var(--color-bg-active);
   border-radius: var(--radius-full);
   padding: 3px;
-  margin-left: 8px;
+  margin-inline-start: 8px;
 }
 
 .dept-pill {
@@ -2180,7 +2180,7 @@ button.role-select-trigger:focus {
   background: var(--color-curator-light);
   border-radius: var(--radius-full);
   padding: 3px;
-  margin-left: 8px;
+  margin-inline-start: 8px;
 }
 
 .role-pill {
@@ -2217,9 +2217,9 @@ button.role-select-trigger:focus {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-left: auto;
-  padding-left: 16px;
-  border-left: 1px solid var(--color-border);
+  margin-inline-start: auto;
+  padding-inline-start: 16px;
+  border-inline-start: 1px solid var(--color-border);
 }
 
 .context-toggles-row .context-label {
@@ -2272,7 +2272,7 @@ button.role-select-trigger:focus {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 16px;
-  margin-top: 8px;
+  margin-block-start: 8px;
 }
 
 .chat-response .chat-label {
@@ -2281,7 +2281,7 @@ button.role-select-trigger:focus {
   color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 8px;
+  margin-block-end: 8px;
 }
 
 /* Blinking cursor for streaming text */
@@ -2357,8 +2357,8 @@ button.role-select-trigger:focus {
   .scroll-to-top-fab {
     width: 32px;
     height: 32px;
-    bottom: 80px;
-    right: 16px;
+    inset-block-end: 80px;
+    inset-inline-end: 16px;
     opacity: 0.7;
   }
 
@@ -2404,7 +2404,7 @@ button.role-select-trigger:focus {
   }
 
   .message-group {
-    margin-bottom: 24px;
+    margin-block-end: 24px;
   }
 
   .user-message .message-content {
@@ -2493,14 +2493,14 @@ button.role-select-trigger:focus {
 
   .department-pills,
   .role-pills {
-    margin-left: 0;
+    margin-inline-start: 0;
     width: 100%;
     justify-content: center;
     flex-wrap: wrap;
   }
 
   .department-pills-compact {
-    margin-left: 0;
+    margin-inline-start: 0;
     width: 100%;
     justify-content: center;
   }
@@ -2511,7 +2511,7 @@ button.role-select-trigger:focus {
   }
 
   .role-pills-compact {
-    margin-left: 0;
+    margin-inline-start: 0;
     width: 100%;
     justify-content: center;
   }
@@ -2688,9 +2688,9 @@ button.mobile-role-select {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding-top: 8px;
-  margin-top: 4px;
-  border-top: 1px solid var(--color-border-light);
+  padding-block-start: 8px;
+  margin-block-start: 4px;
+  border-block-start: 1px solid var(--color-border-light);
 }
 
 /* Left side: Context icons - flex: 1 pushes them left, actions stay right */
@@ -2736,7 +2736,7 @@ button.mobile-role-select {
   align-items: center;
   gap: 2px;
   flex-shrink: 0;
-  padding-left: 4px;
+  padding-inline-start: 4px;
 }
 
 /* Icon buttons in omnibar - standardized size for all icons */
@@ -2771,8 +2771,8 @@ button.mobile-role-select {
 /* Selection badge - very subtle, tiny indicator */
 .omni-icon-badge {
   position: absolute;
-  top: 2px;
-  right: 2px;
+  inset-block-start: 2px;
+  inset-inline-end: 2px;
   min-width: 10px;
   height: 10px;
   padding: 0 2px;
@@ -2886,7 +2886,7 @@ button.mobile-role-select {
   background: var(--color-bg-tertiary);
   border: 1px solid var(--color-border-light);
   border-radius: 100px;
-  margin-left: 4px;
+  margin-inline-start: 4px;
 }
 
 .inline-mode-btn {
@@ -3008,7 +3008,7 @@ button.mobile-role-select {
 
 /* Dark mode bottom row border */
 .dark .omni-bottom {
-  border-top-color: var(--color-border);
+  border-block-start-color: var(--color-border);
 }
 
 .dark .omni-divider {
@@ -3152,8 +3152,8 @@ button.mobile-role-select {
   }
 
   .omni-bottom {
-    padding-top: 6px;
-    margin-top: 6px;
+    padding-block-start: 6px;
+    margin-block-start: 6px;
   }
 
   .omni-left {

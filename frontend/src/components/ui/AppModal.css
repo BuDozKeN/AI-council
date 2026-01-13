@@ -29,8 +29,8 @@
 /* Content - the modal panel */
 .app-modal-content {
   position: fixed;
-  top: 50%;
-  left: 50%;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
   transform: translate(-50%, -50%);
   background: var(--color-bg-primary);
   border-radius: var(--radius-lg, 12px);
@@ -58,7 +58,7 @@
 .dark .app-modal-header,
 [data-theme='dark'] .app-modal-header {
   background: var(--color-bg-secondary);
-  border-bottom-color: var(--color-border);
+  border-block-end-color: var(--color-border);
 }
 
 /* Dark mode - body background */
@@ -120,7 +120,7 @@
   align-items: flex-start;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--color-border-light);
+  border-block-end: 1px solid var(--color-border-light);
   flex-shrink: 0;
 }
 
@@ -147,7 +147,7 @@
 .app-modal-badge {
   display: inline-block;
   padding: 3px 8px;
-  margin-left: 10px;
+  margin-inline-start: 10px;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
@@ -196,7 +196,7 @@
 /* Extra content after title (e.g., count pill) */
 .app-modal-title-extra {
   display: inline-block;
-  margin-left: 10px;
+  margin-inline-start: 10px;
   padding: 2px 8px;
   font-size: 12px;
   font-weight: 500;
@@ -255,7 +255,7 @@
   justify-content: flex-end;
   gap: 8px;
   padding: 16px 20px;
-  border-top: 1px solid var(--color-border-light);
+  border-block-start: 1px solid var(--color-border-light);
   flex-shrink: 0;
 }
 
@@ -318,7 +318,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 16px 20px;
-  border-top: 1px solid var(--color-border-light);
+  border-block-start: 1px solid var(--color-border-light);
   flex-shrink: 0;
 }
 
@@ -438,7 +438,7 @@
 /* Gradient header (like Leaderboard) */
 .app-modal-header-gradient {
   background: var(--color-brand-primary);
-  border-bottom-color: transparent;
+  border-block-end-color: transparent;
 }
 
 .app-modal-header-gradient .app-modal-title-display {
@@ -461,8 +461,8 @@
 
 /* Minimal header (no border) */
 .app-modal-header-minimal {
-  border-bottom: none;
-  padding-bottom: 8px;
+  border-block-end: none;
+  padding-block-end: 8px;
 }
 
 /* ===========================================
@@ -573,9 +573,9 @@
   /* Clickable drag handle area - tap to close */
   .app-modal-drag-handle {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
     height: 32px;
     cursor: pointer;
     z-index: calc(var(--z-elevated) + 1);
@@ -620,7 +620,7 @@
 
   /* Header - MUST stay visible, never scrolls away */
   .app-modal-header {
-    padding-top: 24px;
+    padding-block-start: 24px;
     flex-shrink: 0;
     position: relative;
     z-index: var(--z-base);
@@ -671,7 +671,7 @@
   .app-modal-footer,
   .app-modal-footer-with-actions {
     flex-shrink: 0;
-    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    padding-block-end: calc(16px + env(safe-area-inset-bottom, 0px));
   }
 
   /* Full-size modals take more space on mobile */
@@ -707,7 +707,7 @@
   /* Custom headers inside app-modal-body - don't shrink */
   .app-modal-body > .mc-modal-header-clean {
     flex-shrink: 0;
-    padding-top: 24px; /* Account for drag handle */
+    padding-block-start: 24px; /* Account for drag handle */
   }
 
   /* Custom body inside app-modal-body - this is the scrollable area */
@@ -722,7 +722,7 @@
   /* Footer inside app-modal-body - don't shrink, respect safe area */
   .app-modal-body > .app-modal-footer-with-actions {
     flex-shrink: 0;
-    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    padding-block-end: calc(16px + env(safe-area-inset-bottom, 0px));
   }
 
   /* FORMS: When a form is the direct child of app-modal-body */
@@ -746,7 +746,7 @@
   /* Form footers - both .app-modal-footer (from AppModal.Footer) */
   .app-modal-body > form > .app-modal-footer {
     flex-shrink: 0;
-    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    padding-block-end: calc(16px + env(safe-area-inset-bottom, 0px));
   }
 
   /* Decision content area - make scrollable */
@@ -811,7 +811,7 @@
   .app-modal-lg .app-modal-header,
   .app-modal-xl .app-modal-header,
   .app-modal-full .app-modal-header {
-    padding-top: calc(16px + env(safe-area-inset-top, 0px));
+    padding-block-start: calc(16px + env(safe-area-inset-top, 0px));
   }
 }
 
@@ -821,10 +821,10 @@
 
 .app-modal-copy-btn {
   position: sticky;
-  top: 0;
-  float: right;
-  margin-left: 8px;
-  margin-bottom: 8px;
+  inset-block-start: 0;
+  float: inline-end;
+  margin-inline-start: 8px;
+  margin-block-end: 8px;
   width: 28px;
   height: 28px;
   display: flex;
@@ -868,8 +868,8 @@
 
 .app-modal-scroll-top-btn {
   position: absolute;
-  bottom: 16px;
-  right: 16px;
+  inset-block-end: 16px;
+  inset-inline-end: 16px;
   width: 32px;
   height: 32px;
   display: flex;
@@ -909,8 +909,8 @@
   }
 
   .app-modal-scroll-top-btn {
-    bottom: 12px;
-    right: 12px;
+    inset-block-end: 12px;
+    inset-inline-end: 12px;
     width: 36px;
     height: 36px;
   }

@@ -8,21 +8,21 @@
 
 .sticky-header {
   position: sticky;
-  top: 0;
+  inset-block-start: 0;
   z-index: var(--z-sticky);
 
   /* Match Omnibar reading column width */
   width: 100%;
   max-width: 72ch;
-  margin-left: auto;
-  margin-right: auto;
+  margin-inline-start: auto;
+  margin-inline-end: auto;
 }
 
 /* Background layer - extends full width to cover scrolling content */
 .sticky-header-bg {
   position: absolute;
-  top: 0;
-  left: 50%;
+  inset-block-start: 0;
+  inset-inline-start: 50%;
   transform: translateX(-50%);
   width: 100vw;
   height: calc(100% + 24px); /* Extend for blur fade */

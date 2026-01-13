@@ -14,9 +14,9 @@
 
 .bottom-sheet-content {
   position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  inset-block-end: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
   background: var(--color-bg-primary);
   border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
   min-height: 85vh; /* Fixed height - no resize between tabs */
@@ -138,7 +138,7 @@
 
   .bottom-sheet-header {
     padding: 20px 24px 16px;
-    border-bottom: 1px solid var(--color-border);
+    border-block-end: 1px solid var(--color-border);
   }
 
   .bottom-sheet-body {

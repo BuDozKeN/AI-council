@@ -9,6 +9,7 @@ import {
   ComponentType,
 } from 'react';
 import { useTranslation } from 'react-i18next';
+import i18n from './i18n';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from './components/Sidebar';
 import { LandingHero } from './components/landing';
@@ -21,6 +22,7 @@ import {
   useModalState,
   useRouteSync,
   useCanonical,
+  useFullSEO,
   type ProjectModalContext,
 } from './hooks';
 import type { Project } from './types/business';
@@ -354,6 +356,19 @@ function App() {
       preloadChatInterface();
     }
   }, [showLandingHero]);
+
+  // i18n: Update HTML lang attribute dynamically for SEO and accessibility
+  useEffect(() => {
+    const currentLang = i18n.language.split('-')[0];
+    document.documentElement.lang = currentLang;
+    log.debug('[i18n] Updated HTML lang attribute', currentLang);
+  }, [i18n.language]);
+
+  // SEO: Dynamic meta tags, hreflang links, and Open Graph tags
+  useFullSEO({
+    title: showLandingHero ? t('seo.homeTitle') : t('seo.conversationTitle'),
+    description: t('seo.defaultDescription'),
+  });
 
   // Handler for search
   const handleSearchConversations = useCallback(

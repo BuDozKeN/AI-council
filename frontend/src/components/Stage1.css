@@ -83,7 +83,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-block-end: 8px;
 }
 
 .stage1 .model-card-header-left {
@@ -130,8 +130,8 @@
 /* Status badge - positioned bottom-right of the icon */
 .stage1 .llm-status-badge {
   position: absolute;
-  bottom: -4px;
-  right: -4px;
+  inset-block-end: -4px;
+  inset-inline-end: -4px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -210,7 +210,7 @@
 .stage1 .model-card-rank {
   font-size: 14px;
   font-weight: 600;
-  margin-left: auto;
+  margin-inline-start: auto;
   flex-shrink: 0;
 
   /* No background - just show medal emoji or #N */
@@ -298,7 +298,7 @@
   flex: 1;
   overflow-y: auto;
   max-height: 400px;
-  padding-right: 8px;
+  padding-inline-end: 8px;
 }
 
 /* Custom scrollbar for expanded content */
@@ -339,15 +339,15 @@
   width: 6px;
   height: 16px;
   background: var(--color-primary);
-  margin-left: 2px;
+  margin-inline-start: 2px;
   animation: blink 1s infinite;
 }
 
 /* Copy footer */
 .stage1 .model-card-footer {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--color-border-muted);
+  margin-block-start: 12px;
+  padding-block-start: 12px;
+  border-block-start: 1px solid var(--color-border-muted);
   display: flex;
   justify-content: flex-end;
 }
@@ -384,7 +384,7 @@
 
 /* Topic label shown in stage headers */
 .stage-topic {
-  margin-left: 8px;
+  margin-inline-start: 8px;
   font-size: 13px;
   font-weight: 400;
   color: var(--color-text-secondary);
@@ -408,7 +408,7 @@
 }
 
 .collapsed-summary {
-  margin-left: auto;
+  margin-inline-start: auto;
   font-size: 12px;
   font-weight: 400;
   color: var(--color-text-muted);
@@ -420,7 +420,7 @@
 }
 
 .stage.collapsed .stage-title {
-  margin-bottom: 0;
+  margin-block-end: 0;
 }
 
 /* =============================================================================
@@ -431,7 +431,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 12px;
+  margin-block-start: 12px;
 }
 
 .stage1 .model-summary-pill {
@@ -520,13 +520,13 @@
   position: relative;
   width: 8px;
   height: 8px;
-  margin-right: 2px;
+  margin-inline-end: 2px;
 }
 
 .stage1 .model-summary-pill .pill-thinking-dot {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset-block-start: 0;
+  inset-inline-start: 0;
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -537,8 +537,8 @@
 .stage1 .model-summary-pill .pill-thinking-dot::after {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
+  inset-block-start: 0;
+  inset-inline-start: 0;
   width: 100%;
   height: 100%;
   border-radius: 50%;
@@ -587,7 +587,7 @@
 .model-name {
   color: var(--color-text-muted);
   font-size: 12px;
-  margin-bottom: 12px;
+  margin-block-end: 12px;
   font-family: var(--font-mono);
   display: flex;
   align-items: center;
@@ -636,8 +636,8 @@
 
 .stage1 .code-block-wrapper .code-language {
   position: absolute;
-  top: 8px;
-  left: 12px;
+  inset-block-start: 8px;
+  inset-inline-start: 12px;
   font-size: 11px;
   color: var(--color-slate-400);
   text-transform: uppercase;
@@ -647,8 +647,8 @@
 
 .stage1 .code-block-wrapper .copy-code-btn {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  inset-block-start: 8px;
+  inset-inline-end: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -708,7 +708,7 @@
 
 /* Status icons */
 .status-icon {
-  margin-right: 6px;
+  margin-inline-end: 6px;
   font-size: 12px;
 }
 
@@ -751,14 +751,14 @@
 
 .typing-indicator {
   display: inline-block;
-  margin-left: 8px;
+  margin-inline-start: 8px;
   color: var(--color-success);
   animation: blink 0.8s infinite;
 }
 
 .complete-badge {
   display: inline-block;
-  margin-left: 8px;
+  margin-inline-start: 8px;
   padding: 2px 6px;
   background: var(--color-success-light);
   color: var(--color-success-dark);
@@ -770,7 +770,7 @@
 
 .error-badge {
   display: inline-block;
-  margin-left: 8px;
+  margin-inline-start: 8px;
   padding: 2px 6px;
   background: var(--color-error-subtle);
   color: var(--color-error);
@@ -782,7 +782,7 @@
 
 .stopped-badge {
   display: inline-block;
-  margin-left: 8px;
+  margin-inline-start: 8px;
   padding: 2px 6px;
   background: var(--color-bg-tertiary);
   color: var(--color-gray-500);
@@ -807,7 +807,7 @@
   display: inline-block;
   color: var(--color-brand-primary);
   animation: blink 0.8s infinite;
-  margin-left: 2px;
+  margin-inline-start: 2px;
 }
 
 .empty-message {
@@ -828,7 +828,7 @@
 
 /* Image Analysis Section */
 .image-analysis-section {
-  margin-bottom: 16px;
+  margin-block-end: 16px;
   border: 1px solid var(--color-info-light);
   border-radius: var(--radius-md);
   background: var(--color-brand-primary-light);
@@ -873,7 +873,7 @@
 }
 
 .expand-hint {
-  margin-left: auto;
+  margin-inline-start: auto;
   font-size: 12px;
   font-weight: 400;
   color: var(--color-slate-500);
@@ -885,7 +885,7 @@
 
 .image-analysis-content {
   padding: 16px;
-  border-top: 1px solid var(--color-info-light);
+  border-block-start: 1px solid var(--color-info-light);
   background: var(--color-bg-primary);
   border-radius: 0 0 var(--radius-md) var(--radius-md);
   font-size: 14px;
@@ -904,7 +904,7 @@
 
 .image-analysis-content h2:first-child,
 .image-analysis-content h3:first-child {
-  margin-top: 0;
+  margin-block-start: 0;
 }
 
 .image-analysis-content p {
@@ -914,12 +914,12 @@
 .image-analysis-content ul,
 .image-analysis-content ol {
   margin: 8px 0;
-  padding-left: 24px;
+  padding-inline-start: 24px;
 }
 
 .image-analysis-content hr {
   border: none;
-  border-top: 1px solid var(--color-border);
+  border-block-start: 1px solid var(--color-border);
   margin: 16px 0;
 }
 
@@ -984,7 +984,7 @@
 }
 
 .dark .stage1 .model-card-footer {
-  border-top-color: var(--color-border);
+  border-block-start-color: var(--color-border);
 }
 
 /* Dark mode scrollbar */
@@ -1045,8 +1045,8 @@
 .swipe-indicator {
   display: none;
   position: absolute;
-  top: 8px;
-  left: 50%;
+  inset-block-start: 8px;
+  inset-inline-start: 50%;
   transform: translateX(-50%);
   z-index: var(--z-elevated);
   padding: 4px;
@@ -1071,7 +1071,7 @@
   }
 
   .stage1 .model-card.expanded .model-card-header {
-    padding-top: 16px; /* Make room for swipe indicator */
+    padding-block-start: 16px; /* Make room for swipe indicator */
   }
 }
 
@@ -1114,7 +1114,7 @@
   .model-name {
     font-size: 14px;
     font-family: var(--font-sans, system-ui);
-    margin-bottom: 14px;
+    margin-block-end: 14px;
     flex-wrap: wrap;
     gap: 8px;
   }
@@ -1125,7 +1125,7 @@
   }
 
   .stage1 .model-card-header {
-    margin-bottom: 10px;
+    margin-block-end: 10px;
   }
 
   .stage1 .model-card-name {
@@ -1165,11 +1165,11 @@
 
   /* Code blocks - edge to edge */
   .stage1 .code-block-wrapper {
-    margin-left: -14px;
-    margin-right: -14px;
+    margin-inline-start: -14px;
+    margin-inline-end: -14px;
     border-radius: 0;
-    border-left: none;
-    border-right: none;
+    border-inline-start: none;
+    border-inline-end: none;
   }
 
   .stage1 .code-block-wrapper .copy-code-btn {
@@ -1188,7 +1188,7 @@
   /* Summary pills in collapsed view */
   .stage1 .model-summary-pills {
     gap: 6px;
-    margin-top: 10px;
+    margin-block-start: 10px;
   }
 
   .stage1 .model-summary-pill {

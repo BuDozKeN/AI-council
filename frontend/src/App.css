@@ -30,8 +30,8 @@
 .sidebar-edge-indicator {
   display: none;
   position: fixed;
-  top: 50%;
-  left: 0;
+  inset-block-start: 50%;
+  inset-inline-start: 0;
   transform: translateY(-50%);
   z-index: var(--z-modal);
   width: 20px;
@@ -165,7 +165,7 @@
   /* Add bottom padding for mobile bottom navigation */
   .main-content-chat,
   .main-content-landing {
-    padding-bottom: 72px; /* Height of mobile bottom nav + safe area */
+    padding-block-end: 72px; /* Height of mobile bottom nav + safe area */
   }
 }
 
@@ -197,7 +197,7 @@
   width: 32px;
   height: 32px;
   border: 3px solid var(--color-border-muted);
-  border-top-color: var(--color-brand-primary);
+  border-block-start-color: var(--color-brand-primary);
   border-radius: 50%;
   animation: lazy-spin 0.8s linear infinite;
 }

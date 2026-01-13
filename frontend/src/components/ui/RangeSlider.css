@@ -42,7 +42,7 @@
 /* Thumb - small circle */
 .range-slider__thumb {
   position: absolute;
-  top: 50%;
+  inset-block-start: 50%;
   width: 14px;
   height: 14px;
   border-radius: 50%;
@@ -68,8 +68,8 @@
 /* Value tooltip - appears above thumb on hover/drag */
 .range-slider__tooltip {
   position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
+  inset-block-end: calc(100% + 8px);
+  inset-inline-start: 50%;
   transform: translateX(-50%);
   padding: 4px 8px;
   background: var(--color-text-primary);
@@ -87,11 +87,11 @@
 .range-slider__tooltip::after {
   content: '';
   position: absolute;
-  top: 100%;
-  left: 50%;
+  inset-block-start: 100%;
+  inset-inline-start: 50%;
   transform: translateX(-50%);
   border: 4px solid transparent;
-  border-top-color: var(--color-text-primary);
+  border-block-start-color: var(--color-text-primary);
 }
 
 @keyframes range-tooltip-fade-in {
