@@ -79,9 +79,7 @@ export function useSEO(config: SEOConfig = {}) {
     // Note: og:locale:alternate requires MULTIPLE tags (one per language),
     // so we can't use setMetaTag which reuses existing tags.
     // First, remove any existing alternate locale tags
-    document
-      .querySelectorAll('meta[property="og:locale:alternate"]')
-      .forEach((el) => el.remove());
+    document.querySelectorAll('meta[property="og:locale:alternate"]').forEach((el) => el.remove());
 
     // Then create a new tag for each alternate language
     supportedLanguages.forEach((lang) => {
