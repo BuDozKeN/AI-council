@@ -204,10 +204,7 @@ export const formatFileSize = (bytes: number): string => {
     'fileSize.tb',
   ] as const;
 
-  const i = Math.min(
-    Math.floor(Math.log(bytes) / Math.log(k)),
-    sizes.length - 1
-  );
+  const i = Math.min(Math.floor(Math.log(bytes) / Math.log(k)), sizes.length - 1);
   const size = parseFloat((bytes / Math.pow(k, i)).toFixed(2));
   const sizeKey = sizes[i] ?? 'fileSize.bytes';
 

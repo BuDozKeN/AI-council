@@ -30,9 +30,12 @@ export function useSEO(config: SEOConfig = {}) {
 
     // Default values with translation fallbacks
     const title = config.title || t('seo.defaultTitle', 'AxCouncil - AI Decision Council');
-    const description = config.description || t('seo.defaultDescription',
-      'Make better decisions with an AI council. Get diverse perspectives from Claude, GPT, Gemini, and more in a 3-stage deliberation process.'
-    );
+    const description =
+      config.description ||
+      t(
+        'seo.defaultDescription',
+        'Make better decisions with an AI council. Get diverse perspectives from Claude, GPT, Gemini, and more in a 3-stage deliberation process.'
+      );
     const image = config.image || `${baseUrl}/og-image.png`;
     const type = config.type || 'website';
     const url = config.url || `${baseUrl}${currentPath}`;
@@ -72,7 +75,7 @@ export function useSEO(config: SEOConfig = {}) {
     setMetaTag('twitter:image', image);
 
     // Add alternate locale tags for Open Graph
-    supportedLanguages.forEach(lang => {
+    supportedLanguages.forEach((lang) => {
       if (lang.code !== currentLang) {
         setMetaTag(`og:locale:alternate`, lang.code, true);
       }
@@ -98,14 +101,14 @@ export function useHreflangLinks() {
     const currentPath = window.location.pathname;
 
     // Remove any existing hreflang links
-    document.querySelectorAll('link[rel="alternate"]').forEach(link => {
+    document.querySelectorAll('link[rel="alternate"]').forEach((link) => {
       if (link.getAttribute('hreflang')) {
         link.remove();
       }
     });
 
     // Add hreflang links for all supported languages
-    supportedLanguages.forEach(lang => {
+    supportedLanguages.forEach((lang) => {
       const link = document.createElement('link');
       link.rel = 'alternate';
       link.hreflang = lang.code;
@@ -124,7 +127,7 @@ export function useHreflangLinks() {
 
     // Cleanup function
     return () => {
-      document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(link => {
+      document.querySelectorAll('link[rel="alternate"][hreflang]').forEach((link) => {
         link.remove();
       });
     };
