@@ -41,7 +41,20 @@ async def get_activity_logs(
     Optional filter by days (1 = today, 7 = last week, 30 = last month).
 
     Automatically filters out orphaned entries (referencing deleted items).
+
+    REFACTORED: Complexity reduced from E (45) to C (~12) by extracting helper functions.
     """
+    from .activity_refactored import (
+        _build_activity_query,
+        _collect_related_ids,
+        _batch_check_decisions,
+        _batch_check_playbooks,
+        _batch_check_projects,
+        _filter_and_enrich_logs,
+        _cleanup_orphaned_logs,
+        _extract_unique_related_ids
+    )
+
     client = get_service_client()
 
     try:
@@ -52,142 +65,39 @@ async def get_activity_logs(
     # SECURITY: Verify user has access to this company
     verify_company_access(client, company_uuid, user)
 
-    # Fetch more than requested to account for filtering orphans
+    # 1. Build and execute query (fetch more than requested to account for filtering orphans)
     fetch_limit = limit * 2
-
-    query = client.table("activity_logs") \
-        .select("*") \
-        .eq("company_id", company_uuid) \
-        .order("created_at", desc=True) \
-        .limit(fetch_limit)
-
-    if event_type:
-        query = query.eq("event_type", event_type)
-
-    # Filter by date range if specified
-    if days:
-        cutoff = (datetime.utcnow() - timedelta(days=days)).isoformat()
-        query = query.gte("created_at", cutoff)
-
+    query = _build_activity_query(client, company_uuid, fetch_limit, event_type, days)
     result = query.execute()
     all_logs = result.data or []
 
-    # Collect IDs to check for existence (batch queries for efficiency)
-    decision_ids_to_check = set()
-    playbook_ids_to_check = set()
-    project_ids_to_check = set()
+    # 2. Collect all related IDs grouped by type
+    decision_ids_to_check, playbook_ids_to_check, project_ids_to_check = _collect_related_ids(all_logs)
 
-    for log in all_logs:
-        related_id = log.get("related_id")
-        related_type = log.get("related_type")
-        if related_id and related_type:
-            if related_type == "decision":
-                decision_ids_to_check.add(related_id)
-            elif related_type == "playbook":
-                playbook_ids_to_check.add(related_id)
-            elif related_type == "project":
-                project_ids_to_check.add(related_id)
+    # 3. Batch check existence of related items
+    existing_decisions, decision_promoted_types = _batch_check_decisions(
+        client, decision_ids_to_check, log_error
+    )
+    existing_playbooks = _batch_check_playbooks(client, playbook_ids_to_check, log_error)
+    existing_projects = _batch_check_projects(client, project_ids_to_check, log_error)
 
-    # Batch check existence
-    existing_decisions = set()
-    existing_playbooks = set()
-    existing_projects = set()
+    # 4. Filter out orphaned logs and enrich with current state
+    valid_logs, orphaned_ids = _filter_and_enrich_logs(
+        all_logs,
+        existing_decisions,
+        existing_playbooks,
+        existing_projects,
+        decision_promoted_types
+    )
 
-    # Also fetch promoted_to_type to enrich activity logs with current state
-    decision_promoted_types = {}
-    if decision_ids_to_check:
-        try:
-            result = client.table("knowledge_entries") \
-                .select("id, promoted_to_type, project_id") \
-                .in_("id", list(decision_ids_to_check)) \
-                .eq("is_active", True) \
-                .execute()
-            for r in (result.data or []):
-                existing_decisions.add(r["id"])
-                # Set promoted_to_type - prefer stored value, fall back to 'project' if has project_id
-                if r.get("promoted_to_type"):
-                    decision_promoted_types[r["id"]] = r["promoted_to_type"]
-                elif r.get("project_id"):
-                    decision_promoted_types[r["id"]] = "project"
-        except Exception as e:
-            log_error(e, "activity.batch_check_decisions")
-            existing_decisions = decision_ids_to_check  # Assume all exist on error
+    # 5. Auto-cleanup orphaned logs in background (don't wait)
+    _cleanup_orphaned_logs(client, orphaned_ids, log_error)
 
-    if playbook_ids_to_check:
-        try:
-            result = client.table("org_documents") \
-                .select("id") \
-                .in_("id", list(playbook_ids_to_check)) \
-                .eq("is_active", True) \
-                .execute()
-            existing_playbooks = {r["id"] for r in (result.data or [])}
-        except Exception as e:
-            log_error(e, "activity.batch_check_playbooks")
-            existing_playbooks = playbook_ids_to_check
-
-    if project_ids_to_check:
-        try:
-            result = client.table("projects") \
-                .select("id") \
-                .in_("id", list(project_ids_to_check)) \
-                .execute()
-            existing_projects = {r["id"] for r in (result.data or [])}
-        except Exception as e:
-            log_error(e, "activity.batch_check_projects")
-            existing_projects = project_ids_to_check
-
-    # Filter out orphaned logs and enrich with current state
-    valid_logs = []
-    orphaned_ids = []
-    for log in all_logs:
-        related_id = log.get("related_id")
-        related_type = log.get("related_type")
-
-        # Keep logs without related items (e.g., general events)
-        if not related_id or not related_type:
-            valid_logs.append(log)
-            continue
-
-        # Check if related item exists
-        exists = True
-        if related_type == "decision":
-            exists = related_id in existing_decisions
-            # Enrich with current promoted_to_type (decision may have been promoted since activity was logged)
-            if exists and related_id in decision_promoted_types:
-                log = {**log, "promoted_to_type": decision_promoted_types[related_id]}
-        elif related_type == "playbook":
-            exists = related_id in existing_playbooks
-        elif related_type == "project":
-            exists = related_id in existing_projects
-            # For project-type activities, ensure promoted_to_type is set
-            if exists and not log.get("promoted_to_type"):
-                log = {**log, "promoted_to_type": "project"}
-
-        if exists:
-            valid_logs.append(log)
-        else:
-            orphaned_ids.append(log["id"])
-
-    # Auto-cleanup orphaned logs in background (don't wait)
-    if orphaned_ids:
-        try:
-            for log_id in orphaned_ids:
-                client.table("activity_logs").delete().eq("id", log_id).execute()
-        except Exception as e:
-            log_error(e, "activity.cleanup_orphaned")
-
-    # Return only up to the requested limit
+    # 6. Return only up to the requested limit
     logs = valid_logs[:limit]
 
-    # Extract unique related IDs for navigation
-    playbook_ids = list(set(
-        log["related_id"] for log in logs
-        if log.get("related_type") == "playbook" and log.get("related_id")
-    ))
-    decision_ids = list(set(
-        log["related_id"] for log in logs
-        if log.get("related_type") == "decision" and log.get("related_id")
-    ))
+    # 7. Extract unique related IDs for navigation
+    playbook_ids, decision_ids = _extract_unique_related_ids(logs)
 
     return {"logs": logs, "playbook_ids": playbook_ids, "decision_ids": decision_ids}
 

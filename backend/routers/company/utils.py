@@ -797,24 +797,30 @@ async def generate_decision_summary_internal(
     """
     Generate an AI summary for a decision - includes title and contextual summary.
     Uses the 'sarah' persona from the database for consistent style.
+
+    REFACTORED: Complexity reduced from E (44) to B (~10) by extracting helper functions.
     """
     from ...openrouter import query_model, MOCK_LLM
     from ...personas import get_db_persona_with_fallback
+    from .utils_refactored import (
+        _fetch_decision_data,
+        _fetch_prior_context,
+        _generate_mock_summary,
+        _build_prompt,
+        _parse_llm_response,
+        _update_decision_with_summary,
+        _get_fallback_summary,
+        _track_summary_llm_usage
+    )
 
     if service_client is None:
         service_client = get_service_client()
 
-    result = service_client.table("knowledge_entries") \
-        .select("id, question, content, title, content_summary, source_conversation_id, response_index, created_at") \
-        .eq("id", decision_id) \
-        .eq("company_id", company_uuid) \
-        .single() \
-        .execute()
-
-    if not result.data:
+    # 1. Fetch decision data
+    decision = _fetch_decision_data(service_client, decision_id, company_uuid)
+    if not decision:
         return {"summary": "Decision not found", "title": "Unknown", "cached": False}
 
-    decision = result.data
     user_question = decision.get("question", "")
     council_response = decision.get("content", "")
     conversation_id = decision.get("source_conversation_id")
@@ -823,69 +829,30 @@ async def generate_decision_summary_internal(
     if not user_question and not council_response:
         return {"summary": "No content recorded for this decision.", "title": decision.get("title"), "cached": False}
 
-    # Fetch prior decisions from the same conversation for context
-    prior_context = ""
-    if conversation_id and response_index > 0:
-        try:
-            prior_result = service_client.table("knowledge_entries") \
-                .select("question, content, content_summary, title, response_index") \
-                .eq("source_conversation_id", conversation_id) \
-                .eq("company_id", company_uuid) \
-                .lt("response_index", response_index) \
-                .order("response_index") \
-                .execute()
+    # 2. Fetch prior context if this is a follow-up decision
+    prior_context = _fetch_prior_context(service_client, conversation_id, response_index, company_uuid)
 
-            if prior_result.data:
-                prior_items = []
-                for prior in prior_result.data:
-                    idx = prior.get("response_index", 0) or 0
-                    prior_q = prior.get("question", "")
-                    prior_title = prior.get("title", "")
-                    prior_response = prior.get("content", "")
-                    prior_summary = prior.get("content_summary", "")
-
-                    item = f"### Decision #{idx + 1}: {prior_title}\n"
-                    item += f"**User asked:** {prior_q}\n"
-                    if prior_summary:
-                        item += f"**Summary:** {prior_summary}\n"
-                    elif prior_response:
-                        first_para = prior_response.split('\n\n')[0][:400]
-                        item += f"**Council decided:** {first_para}...\n"
-                    prior_items.append(item)
-
-                if prior_items:
-                    prior_context = "\n\n".join(prior_items)
-        except Exception:
-            pass
-
+    # 3. Handle MOCK_LLM mode
     if MOCK_LLM:
-        if user_question:
-            mock_title = f"Decision about {user_question[:30]}..."
-            mock_summary = f"The user asked about {user_question[:100]}..."
-        else:
-            mock_title = "Council Decision Summary"
-            mock_summary = f"The council discussed: {council_response[:100]}..."
-        return {"summary": mock_summary, "title": mock_title, "cached": False}
+        return _generate_mock_summary(user_question, council_response)
 
+    # 4. Get persona and build prompt
     persona = await get_db_persona_with_fallback('sarah')
     system_prompt = persona.get('system_prompt', '')
-
     council_excerpt = council_response[:2500] if council_response else ""
 
-    # Build prompt based on context
-    if prior_context and response_index > 0:
-        user_prompt = _build_followup_prompt(prior_context, user_question, council_excerpt, response_index)
-    elif not user_question:
-        user_prompt = _build_legacy_prompt(council_excerpt)
-    else:
-        user_prompt = _build_standard_prompt(user_question, council_excerpt)
+    user_prompt = _build_prompt(
+        prior_context, user_question, council_excerpt, response_index,
+        _build_followup_prompt, _build_legacy_prompt, _build_standard_prompt
+    )
 
+    # 5. Get model preferences
     model_prefs = persona.get('model_preferences', ['google/gemini-2.0-flash-001'])
     if isinstance(model_prefs, str):
         model_prefs = json.loads(model_prefs)
-
     model_used = model_prefs[0]
 
+    # 6. Call LLM and process response
     try:
         response = await query_model(
             model_used,
@@ -895,74 +862,28 @@ async def generate_decision_summary_internal(
             ]
         )
 
-        # Track internal LLM usage
-        if company_uuid and response and response.get('usage'):
-            try:
-                await save_internal_llm_usage(
-                    company_id=company_uuid,
-                    operation_type='decision_summary',
-                    model=model_used,
-                    usage=response['usage'],
-                    related_id=decision_id
-                )
-            except Exception:
-                pass  # Don't fail summary generation if tracking fails
+        # Track LLM usage
+        await _track_summary_llm_usage(company_uuid, decision_id, model_used, response, save_internal_llm_usage)
 
+        # Parse response
         content = response.get("content", "").strip() if response else ""
+        generated_title, generated_question_summary, generated_summary = _parse_llm_response(
+            content, decision.get("title")
+        )
 
-        generated_title = decision.get("title")
-        generated_question_summary = ""
-        generated_summary = ""
+        # Update decision with summary
+        result = _update_decision_with_summary(
+            service_client, decision_id, generated_title, generated_summary,
+            generated_question_summary, decision.get("title")
+        )
 
-        if "TITLE:" in content:
-            title_match = content.split("TITLE:")[1] if "TITLE:" in content else ""
-            if "QUESTION_SUMMARY:" in title_match:
-                generated_title = title_match.split("QUESTION_SUMMARY:")[0].strip()
-            elif "SUMMARY:" in title_match:
-                generated_title = title_match.split("SUMMARY:")[0].strip()
-            else:
-                generated_title = title_match.split("\n")[0].strip()
-
-            if "QUESTION_SUMMARY:" in content:
-                qs_part = content.split("QUESTION_SUMMARY:")[1]
-                if "SUMMARY:" in qs_part:
-                    generated_question_summary = qs_part.split("SUMMARY:")[0].strip()
-                else:
-                    generated_question_summary = qs_part.split("\n")[0].strip()
-
-            if "SUMMARY:" in content:
-                parts = content.split("SUMMARY:")
-                generated_summary = parts[-1].strip()
+        if result:
+            return result
         else:
-            generated_summary = content
-
-        if generated_summary or generated_question_summary:
-            update_data = {"content_summary": generated_summary}
-
-            if generated_title and generated_title != decision.get("title"):
-                update_data["title"] = generated_title
-
-            if generated_question_summary:
-                update_data["question_summary"] = generated_question_summary
-
-            service_client.table("knowledge_entries") \
-                .update(update_data) \
-                .eq("id", decision_id) \
-                .execute()
-
-            return {
-                "summary": generated_summary,
-                "title": generated_title,
-                "question_summary": generated_question_summary,
-                "cached": False
-            }
-        else:
-            fallback = user_question[:300] if user_question else (council_response[:300] if council_response else "No content available")
-            return {"summary": fallback, "title": decision.get("title"), "cached": False}
+            return _get_fallback_summary(user_question, council_response, decision.get("title"))
 
     except Exception:
-        fallback = user_question[:300] if user_question else (council_response[:300] if council_response else "No content available")
-        return {"summary": fallback, "title": decision.get("title"), "cached": False}
+        return _get_fallback_summary(user_question, council_response, decision.get("title"))
 
 
 def _build_followup_prompt(prior_context: str, user_question: str, council_excerpt: str, response_index: int) -> str:

@@ -1,0 +1,24 @@
+src/test/setup.js:42:// const originalError = console.error;
+src/test/setup.js:44://   console.error = (...args) => {
+src/test/setup.js:55://   console.error = originalError;
+src/components/onboarding/OnboardingFlow.tsx:161:      console.error('Failed to analyze profile:', error);
+src/components/onboarding/OnboardingFlow.tsx:290:      console.error('Failed to check trial status:', error);
+src/components/onboarding/OnboardingFlow.tsx:337:        console.warn('Failed to save onboarding data to profile:', err);
+src/components/mycompany/tabs/LLMHubTab.tsx:536:        console.error('Error loading personas:', personaErr);
+src/components/mycompany/tabs/LLMHubTab.tsx:542:      console.error(err);
+src/components/ErrorPage.tsx:24:    console.error('[ErrorPage] Caught error:', error);
+src/components/ErrorBoundary.tsx:139:    console.error('ErrorBoundary caught an error:', error, errorInfo);
+src/utils/logger.ts:46:      console.log(...formatMessage('debug', args));
+src/utils/logger.ts:66:      console.warn(...formatMessage('warn', args));
+src/utils/logger.ts:77:      console.error(...formatMessage('error', args));
+src/utils/logger.ts:87:      console.log(`[API] ${method} ${url}`, data);
+src/utils/sentry.ts:17:      console.warn('Sentry DSN not configured. Error tracking disabled.');
+src/utils/webVitals.ts:25:    console.log(
+src/utils/webVitals.ts:107:    console.warn('Failed to initialize Web Vitals:', error);
+src/pwa.ts:25:          console.warn('Service worker registration failed:', error);
+src/pwa.ts:30:      console.warn('Service worker registration not available');
+src/main.tsx:36:        console.warn('[Stale asset detected] Reloading to get fresh assets:', href);
+src/main.tsx:51:        console.warn('[Stale script detected] Reloading to get fresh assets:', src);
+src/main.tsx:66:  console.warn('[Vite preload error] Reloading to get fresh assets:', message);
+src/main.tsx:84:    console.warn('[Chunk load failure] Reloading to get fresh assets:', errorMessage);
+src/main.tsx:107:        console.warn('[Stale chunk internal error] Reloading to get fresh assets:', errorMessage);

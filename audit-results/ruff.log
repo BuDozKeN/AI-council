@@ -1,0 +1,100 @@
+backend/attachments.py:
+   11:22 F401 [*] `datetime.datetime` imported but unused
+  205:9  F841 Local variable `upload_result` is assigned to but never used
+  244:9  E722 Do not use bare `except`
+  265:25 F841 [*] Local variable `e` is assigned to but never used
+  316:5  E722 Do not use bare `except`
+  353:5  E722 Do not use bare `except`
+  360:5  E722 Do not use bare `except`
+  447:5  E722 Do not use bare `except`
+
+backend/billing.py:
+    7:32 F401 [*] `datetime.timedelta` imported but unused
+   11:42 F401 [*] `.security.mask_email` imported but unused
+  379:31 F541 [*] f-string without any placeholders
+
+backend/cache.py:
+  19:8 F401 [*] `asyncio` imported but unused
+
+backend/config.py:
+  136:1 E402 Module level import not at top of file
+  137:5 F401 [*] `.model_registry.COUNCIL_MODELS` imported but unused
+  138:5 F401 [*] `.model_registry.CHAIRMAN_MODELS` imported but unused
+  139:5 F401 [*] `.model_registry.CHAIRMAN_MODEL` imported but unused
+
+backend/context_loader.py:
+   185:9  F821 Undefined name `log_app_event`
+   188:9  F821 Undefined name `log_app_event`
+   278:9  F821 Undefined name `log_error`
+   305:9  F821 Undefined name `log_error`
+   359:9  F821 Undefined name `log_error`
+   425:9  F821 Undefined name `log_error`
+   475:9  F821 Undefined name `log_error`
+  1213:34 F541 [*] f-string without any placeholders
+  1505:26 F541 [*] f-string without any placeholders
+  1513:30 F541 [*] f-string without any placeholders
+
+backend/council.py:
+  20:53 F401 [*] `.config.MAX_QUERY_CHARS` imported but unused
+
+backend/database.py:
+  12:62 F401 [*] `typing.Any` imported but unused
+
+backend/knowledge.py:
+    4:23 F401 [*] `.database.get_supabase` imported but unused
+  277:26 F541 [*] f-string without any placeholders
+
+backend/leaderboard.py:
+  5:23 F401 [*] `functools.lru_cache` imported but unused
+
+backend/main.py:
+  124:45 F401 [*] `backend.sentry.set_user_context` imported but unused
+  124:63 F401 [*] `backend.sentry.capture_exception` imported but unused
+  132:1  E402 Module level import not at top of file
+  133:1  E402 Module level import not at top of file
+  134:1  E402 Module level import not at top of file
+  139:34 F401 [*] `backend.security.SecureHTTPException` imported but unused
+  300:1  E402 Module level import not at top of file
+  603:1  E402 Module level import not at top of file
+
+backend/mock_llm.py:
+  26:40 F401 [*] `.config.MOCK_LLM_LENGTH_OVERRIDE` imported but unused
+
+backend/openrouter.py:
+   12:21 F401 [*] `.config.ENABLE_PROMPT_CACHING` imported but unused
+  755:5  F841 Local variable `stream_succeeded` is assigned to but never used
+  840:33 F841 Local variable `finish_reason` is assigned to but never used
+
+backend/personas.py:
+  24:41 F401 [*] `.model_registry.get_models_sync` imported but unused
+
+backend/routers/ai_utils.py:
+  360:45 F541 [*] f-string without any placeholders
+
+backend/routers/company/__init__.py:
+  13:5 F401 `.utils.UUID_PATTERN` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  14:5 F401 `.utils.SAFE_ID_PATTERN` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  15:5 F401 `.utils.ValidCompanyId` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  16:5 F401 `.utils.ValidDeptId` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  17:5 F401 `.utils.ValidRoleId` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  18:5 F401 `.utils.ValidPlaybookId` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  19:5 F401 `.utils.ValidDecisionId` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  20:5 F401 `.utils.ValidProjectId` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  21:5 F401 `.utils._company_uuid_cache` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+  22:5 F401 `.utils._CACHE_TTL` imported but unused; consider removing, adding to `__all__`, or using a redundant alias
+
+backend/routers/company/decisions.py:
+  28:5 F401 [*] `.utils.ValidProjectId` imported but unused
+
+backend/routers/company/llm_ops.py:
+   12:47 F401 [*] `typing.Literal` imported but unused
+  791:5  F841 Local variable `model` is assigned to but never used
+
+backend/routers/company/team.py:
+   13:30 F401 [*] `typing.List` imported but unused
+  619:21 F841 Local variable `role_model_used` is assigned to but never used
+
+backend/routers/company/utils.py:
+  8:33 F401 [*] `pydantic.field_validator` imported but unused
+
+backend/routers/conversations.py:

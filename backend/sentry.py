@@ -13,6 +13,12 @@ Release tracking:
 import os
 import subprocess
 
+# Import logging utilities
+try:
+    from .security import log_app_event, log_error
+except ImportError:
+    from backend.security import log_app_event, log_error
+
 # Try to import sentry_sdk, but gracefully handle if not installed
 try:
     import sentry_sdk
@@ -66,12 +72,12 @@ def init_sentry():
     """Initialize Sentry SDK for FastAPI with release tracking."""
     if not SENTRY_AVAILABLE:
         if IS_PRODUCTION:
-            print("[Sentry] sentry-sdk not installed. Error tracking disabled.", flush=True)
+            log_app_event("sentry_init", level="WARNING", details={"status": "disabled", "reason": "sentry-sdk not installed"})
         return False
 
     if not SENTRY_DSN:
         if IS_PRODUCTION:
-            print("[Sentry] DSN not configured. Error tracking disabled.", flush=True)
+            log_app_event("sentry_init", level="WARNING", details={"status": "disabled", "reason": "DSN not configured"})
         return False
 
     release = _get_release_version()
@@ -110,8 +116,7 @@ def init_sentry():
         ],
     )
 
-    release_info = f", release: {release}" if release else ""
-    print(f"[Sentry] Initialized for environment: {ENVIRONMENT}{release_info}", flush=True)
+    log_app_event("sentry_init", level="INFO", details={"status": "initialized", "environment": ENVIRONMENT, "release": release})
     return True
 
 

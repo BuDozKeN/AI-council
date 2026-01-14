@@ -515,12 +515,24 @@ async def merge_decision_into_project(
 ):
     """
     Use AI to intelligently merge a council decision into existing project context.
+
+    REFACTORED: Complexity reduced from F (46) to C (~12) by extracting helper functions.
     """
     validate_uuid(project_id, "project_id")
     from ..openrouter import query_model, MOCK_LLM
     from ..personas import get_db_persona_with_fallback
     from ..database import get_supabase_with_auth
+    from .projects_refactored import (
+        _extract_json_from_llm_response,
+        _generate_decision_title,
+        _normalize_department_ids,
+        _save_decision_to_knowledge,
+        _sync_departments_to_project,
+        _track_merge_llm_usage,
+        _trigger_summary_generation
+    )
 
+    # 1. Handle mock mode
     if MOCK_LLM:
         return {
             "merged": {
@@ -530,13 +542,13 @@ async def merge_decision_into_project(
             }
         }
 
+    # 2. Get persona and build prompts
     persona = await get_db_persona_with_fallback('sarah')
     system_prompt = persona.get('system_prompt', '')
 
     existing = merge_request.existing_context[:10000] if merge_request.existing_context else ""
     decision = merge_request.decision_content[:8000] if merge_request.decision_content else ""
     question = merge_request.user_question[:2000] if merge_request.user_question else ""
-
     today_date = datetime.now().strftime("%B %d, %Y")
 
     user_prompt = f"""## TASK: Merge a council decision into project documentation
@@ -574,60 +586,35 @@ Return valid JSON with exactly these fields:
   "changes": "Bullet list of what you added or changed"
 }}"""
 
+    # 3. Prepare models and messages
     model_prefs = persona.get('model_preferences', ['google/gemini-2.0-flash-001', 'openai/gpt-4o'])
     if isinstance(model_prefs, str):
         model_prefs = json.loads(model_prefs)
 
     MERGE_MODELS = [(model_prefs[0], 45.0)] + [(m, 30.0) for m in model_prefs[1:3]]
-
     messages = [
         {"role": "system", "content": system_prompt + "\n\nRespond only with valid JSON."},
         {"role": "user", "content": user_prompt}
     ]
 
+    # 4. Try models until one succeeds
     merged = None
-
     for model, timeout in MERGE_MODELS:
         try:
             result = await query_model(model=model, messages=messages, timeout=timeout)
 
-            # Track internal LLM usage if company_id provided
-            if merge_request.company_id and result and result.get('usage'):
-                try:
-                    from .company.utils import save_internal_llm_usage
-                    await save_internal_llm_usage(
-                        company_id=merge_request.company_id,
-                        operation_type='decision_merge',
-                        model=model,
-                        usage=result['usage'],
-                        related_id=project_id
-                    )
-                except Exception:
-                    pass  # Don't fail merge if tracking fails
+            # Track LLM usage
+            await _track_merge_llm_usage(merge_request.company_id, project_id, model, result.get('usage') if result else None)
 
+            # Extract and parse JSON from response
             if result and result.get('content'):
-                content = result['content']
-                json_match = re.search(r'```(?:json)?\s*([\s\S]*?)```', content)
-                if json_match:
-                    content = json_match.group(1).strip()
-                else:
-                    json_obj_match = re.search(r'\{[\s\S]*?\}', content)
-                    if json_obj_match:
-                        content = json_obj_match.group(0)
-                    else:
-                        content = content.strip()
-
-                try:
-                    merged = json.loads(content)
+                merged = _extract_json_from_llm_response(result['content'])
+                if merged:
                     break
-                except json.JSONDecodeError:
-                    continue
-            else:
-                continue
-
         except Exception:
             continue
 
+    # 5. Handle merge failure
     if merged is None:
         merged = {
             "context_md": existing,
@@ -636,84 +623,12 @@ Return valid JSON with exactly these fields:
             "error": True
         }
 
-    # Save decision if requested
-    saved_decision_id = None
-    decision_save_error = None
-    if merge_request.save_decision and merge_request.company_id:
-        try:
-            access_token = user.get("access_token")
-            user_id = user.get('id')
+    # 6. Save decision if requested
+    saved_decision_id, decision_save_error = await _handle_decision_save(
+        merge_request, user, project_id, question, get_supabase_with_auth
+    )
 
-            if not access_token:
-                decision_save_error = "Authentication required to save decision"
-            else:
-                client = get_supabase_with_auth(access_token)
-
-                from ..routers.company import resolve_company_id
-                try:
-                    company_uuid = resolve_company_id(client, merge_request.company_id)
-                except Exception:
-                    company_uuid = merge_request.company_id
-
-                decision_title = merge_request.decision_title
-                if not decision_title:
-                    if question:
-                        decision_title = f"Decision: {question[:50]}..." if len(question) > 50 else f"Decision: {question}"
-                    else:
-                        decision_title = "Council Decision"
-
-                dept_ids = merge_request.department_ids if merge_request.department_ids else (
-                    [merge_request.department_id] if merge_request.department_id and merge_request.department_id != "all" else []
-                )
-
-                insert_data = {
-                    "company_id": company_uuid,
-                    "title": decision_title,
-                    "content": merge_request.decision_content,
-                    "question": question,
-                    "scope": "project",
-                    "department_ids": dept_ids if dept_ids else [],
-                    "project_id": project_id,
-                    "source_conversation_id": merge_request.conversation_id if merge_request.conversation_id and not merge_request.conversation_id.startswith("temp-") else None,
-                    "response_index": merge_request.response_index,
-                    "auto_inject": False,
-                    "category": "technical_decision",
-                    "is_active": True,
-                    "created_by": user_id,
-                    "tags": []
-                }
-
-                try:
-                    result = client.table("knowledge_entries").insert(insert_data).execute()
-                    if result.data and len(result.data) > 0:
-                        saved_decision_id = result.data[0].get("id")
-
-                        # Fire-and-forget: generate summary in background (don't block response)
-                        try:
-                            import asyncio
-                            from ..routers.company import generate_decision_summary_internal
-                            asyncio.create_task(generate_decision_summary_internal(saved_decision_id, company_uuid))
-                        except Exception:
-                            pass
-                except Exception as insert_err:
-                    decision_save_error = f"Database error: {str(insert_err)}"
-
-                # Sync departments to project
-                if dept_ids:
-                    try:
-                        project_result = client.table("projects").select("department_ids").eq("id", project_id).single().execute()
-                        if project_result.data:
-                            current_dept_ids = set(project_result.data.get("department_ids") or [])
-                            new_dept_ids = set(dept_ids)
-                            if not new_dept_ids.issubset(current_dept_ids):
-                                updated_dept_ids = list(current_dept_ids | new_dept_ids)
-                                client.table("projects").update({"department_ids": updated_dept_ids}).eq("id", project_id).execute()
-                    except Exception:
-                        pass
-
-        except Exception as save_err:
-            decision_save_error = f"Save failed: {str(save_err)}"
-
+    # 7. Build response
     response = {"merged": merged}
     if saved_decision_id:
         response["saved_decision_id"] = saved_decision_id
@@ -721,6 +636,76 @@ Return valid JSON with exactly these fields:
         response["decision_save_error"] = decision_save_error
 
     return response
+
+
+async def _handle_decision_save(
+    merge_request: MergeDecisionRequest,
+    user: dict,
+    project_id: str,
+    question: Optional[str],
+    get_supabase_with_auth
+) -> tuple[Optional[str], Optional[str]]:
+    """
+    Handle saving decision to knowledge entries.
+
+    Returns:
+        Tuple of (saved_decision_id, error_message)
+    """
+    if not merge_request.save_decision or not merge_request.company_id:
+        return None, None
+
+    from .projects_refactored import (
+        _generate_decision_title,
+        _normalize_department_ids,
+        _save_decision_to_knowledge,
+        _sync_departments_to_project,
+        _trigger_summary_generation
+    )
+
+    try:
+        access_token = user.get("access_token")
+        user_id = user.get('id')
+
+        if not access_token:
+            return None, "Authentication required to save decision"
+
+        client = get_supabase_with_auth(access_token)
+
+        # Resolve company UUID
+        from ..routers.company import resolve_company_id
+        try:
+            company_uuid = resolve_company_id(client, merge_request.company_id)
+        except Exception:
+            company_uuid = merge_request.company_id
+
+        # Generate decision title
+        decision_title = merge_request.decision_title or _generate_decision_title(question)
+
+        # Normalize department IDs
+        dept_ids = _normalize_department_ids(merge_request.department_ids, merge_request.department_id)
+
+        # Save to knowledge entries
+        try:
+            saved_decision_id = await _save_decision_to_knowledge(
+                client, company_uuid, project_id, decision_title,
+                merge_request.decision_content, question, dept_ids,
+                merge_request.conversation_id, merge_request.response_index, user_id
+            )
+
+            if saved_decision_id:
+                # Trigger background summary generation
+                _trigger_summary_generation(saved_decision_id, company_uuid)
+
+                # Sync departments to project
+                _sync_departments_to_project(client, project_id, dept_ids)
+
+            return saved_decision_id, None
+
+        except Exception as insert_err:
+            return None, f"Database error: {str(insert_err)}"
+
+    except Exception as save_err:
+        return None, f"Save failed: {str(save_err)}"
 
 
 @router.post("/projects/{project_id}/regenerate-context")
