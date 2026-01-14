@@ -2,7 +2,8 @@
 -- Invite-Only Mode: Block New Signups Auth Hook
 -- =============================================================================
 -- This function is called by Supabase Auth before creating any new user.
--- It blocks ALL signups - users must be invited via Supabase Dashboard.
+-- It blocks direct signups but ALLOWS invited users through.
+-- Users must be invited via Supabase Dashboard to join.
 --
 -- To invite users: Supabase Dashboard → Authentication → Users → Add user → Invite
 --
@@ -15,9 +16,18 @@ CREATE OR REPLACE FUNCTION public.block_new_signups(event jsonb)
 RETURNS jsonb
 LANGUAGE plpgsql
 AS $$
+DECLARE
+  auth_method TEXT;
 BEGIN
-  -- Block ALL new signups (invite-only mode)
-  -- To allow a signup, invite users via Supabase Dashboard instead
+  -- Extract authentication method from the event payload
+  auth_method := event->'authentication_method'->>'method';
+
+  -- Allow invited users through (they have authentication_method = 'invite')
+  IF auth_method = 'invite' THEN
+    RETURN event;
+  END IF;
+
+  -- Block all other signup methods (email, oauth, etc.)
   RAISE EXCEPTION 'Signups are currently invite-only. Please contact admin for access.';
 
   RETURN event;
@@ -38,4 +48,4 @@ GRANT EXECUTE ON FUNCTION public.block_new_signups TO supabase_auth_admin;
 -- =============================================================================
 
 COMMENT ON FUNCTION public.block_new_signups IS
-    'Auth hook that blocks all new signups. Platform is invite-only. Disable hook in Supabase Dashboard to allow signups again.';
+    'Auth hook that blocks direct signups but allows invited users. Platform is invite-only. Disable hook in Supabase Dashboard to allow open signups again.';
