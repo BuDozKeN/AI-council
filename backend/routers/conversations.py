@@ -599,16 +599,22 @@ async def send_message(
                 storage.update_conversation_department(conversation_id, body.department, access_token=access_token)
 
             # Save complete assistant message with metadata
-            storage.add_assistant_message(
-                conversation_id,
-                stage1_results,
-                stage2_results,
-                stage3_result,
-                user_id,
-                label_to_model=label_to_model,
-                aggregate_rankings=aggregate_rankings,
-                access_token=access_token
-            )
+            try:
+                log_app_event("COUNCIL_SAVE_START", level="INFO", conversation_id=conversation_id, stage1_count=len(stage1_results), stage2_count=len(stage2_results), has_stage3=bool(stage3_result))
+                storage.add_assistant_message(
+                    conversation_id,
+                    stage1_results,
+                    stage2_results,
+                    stage3_result,
+                    user_id,
+                    label_to_model=label_to_model,
+                    aggregate_rankings=aggregate_rankings,
+                    access_token=access_token
+                )
+                log_app_event("COUNCIL_SAVE_SUCCESS", level="INFO", conversation_id=conversation_id)
+            except Exception as save_error:
+                log_app_event("COUNCIL_SAVE_ERROR", level="ERROR", conversation_id=conversation_id, error=str(save_error), stage1_count=len(stage1_results), stage2_count=len(stage2_results), has_stage3=bool(stage3_result))
+                raise
 
             # Increment query usage after successful council run
             billing.increment_query_usage(user_id, access_token=access_token)

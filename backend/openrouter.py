@@ -747,7 +747,28 @@ async def query_model_stream(
             async with client.stream("POST", OPENROUTER_API_URL, headers=headers, json=payload) as response:
                 # Handle HTTP errors before reading stream
                 if response.status_code >= 400:
+                    # Capture error body for diagnostics (critical for debugging 400 errors)
+                    error_body = ""
+                    try:
+                        raw_body = await response.aread()
+                        error_body = raw_body.decode('utf-8')[:500]  # Limit to 500 chars
+                    except Exception:
+                        pass
+
+                    # Log detailed error for debugging
+                    from .security import log_app_event
+                    log_app_event(
+                        "OPENROUTER_HTTP_ERROR",
+                        level="ERROR",
+                        model=model,
+                        status_code=response.status_code,
+                        error_body=error_body
+                    )
+
                     error_msg, _ = _handle_http_error_response(response.status_code, breaker)
+                    # Include truncated error body in user-facing message
+                    if error_body:
+                        error_msg = f"[Error: Status {response.status_code} - {error_body[:150]}]"
                     yield error_msg
                     return
 
