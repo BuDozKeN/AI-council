@@ -1,8 +1,8 @@
 # AxCouncil Audit Dashboard
 
-> Last Updated: 2026-01-14 UTC (v18)
-> Last Audit: CSS Architecture (7/10 - Strong token adoption, 10 oversized files, 19 hardcoded z-index values)
-> Branch: fix/mobile-context-card-tables
+> Last Updated: 2026-01-15 UTC (v19)
+> Last Audit: Security update - Brute force protection (IP lockout after 10 failures)
+> Branch: claude/complexity-reduction-post-merge-HyiBa
 
 ---
 
@@ -13,7 +13,7 @@
 | Category | Audit Command | Score | Trend | Critical | High | Medium | Last Checked |
 |----------|---------------|-------|-------|----------|------|--------|--------------|
 | **SECURITY & COMPLIANCE** ||||||||
-| Security | `/audit-security` | 10/10 | ↑ | 0 | 0 | 0 | 2025-12-31 |
+| Security | `/audit-security` | 10/10 | ↑ | 0 | 0 | 0 | 2026-01-15 |
 | AI Security | `/audit-ai-security` | 10/10 | ↑ | 0 | 0 | 0 | 2026-01-02 |
 | Attack Simulation | `/audit-attack` | 10/10 | ↑ | 0 | 0 | 0 | 2026-01-03 |
 | Legal Compliance | `/audit-legal-compliance` | --/10 | -- | -- | -- | -- | Never |
@@ -87,6 +87,7 @@
 
 | Date | Scope | Overall | Sec | Code | CSS | UI | Perf | A11y | Mobile | LLM | Data | Bill | Resil | API | Test | i18n | DR | SEO | DevOps | Scale |
 |------|-------|---------|-----|------|-----|-----|------|------|--------|-----|------|------|-------|-----|------|------|-----|-----|--------|-------|
+| 2026-01-15 | Security brute force | 9.1 | 10 | 9 | 7 | 9 | 9 | 10 | 10 | -- | 9 | -- | 10 | 10 | 10 | 10 | 8 | 8 | 8.5 | 8 |
 | 2026-01-14 | CSS Architecture | 9.1 | -- | 9 | 7 | 9 | 9 | 10 | 10 | -- | 9 | -- | 10 | 10 | 10 | 10 | 8 | 8 | 8.5 | 8 |
 | 2026-01-13 | Code quality Phase 1-3 | 9.2 | -- | 9 | -- | 9 | 9 | 10 | 10 | -- | 9 | -- | 10 | 10 | 10 | 10 | 8 | 8 | 8.5 | 8 |
 | 2026-01-13 | Scalability audit | 9.2 | -- | 9 | 9 | 9 | 10 | 10 | -- | 9 | -- | 10 | 10 | 10 | 10 | 8 | 8 | 8.5 | 8 |
@@ -658,17 +659,23 @@
 </details>
 
 <details open>
-<summary>Security (10/10) - Last checked: 2025-12-31</summary>
+<summary>Security (10/10) - Last checked: 2026-01-15</summary>
 
 ### Security Score: 10/10 | OWASP Compliance: Excellent
 
 ### What's Implemented ✅
 
 **Authentication & Authorization**:
-- JWT validation via Supabase (`backend/auth.py:44`)
+- JWT validation via Supabase (`backend/auth.py:76`)
 - Bearer token verification on all protected endpoints
 - Proper error handling without information leakage
 - Security event logging for failed auth attempts (`backend/security.py:110`)
+- **NEW (2026-01-15)**: Brute force protection with IP-based lockout (`backend/auth.py:19-71`):
+  - 10 failure threshold within 5-minute window
+  - 15-minute lockout when threshold exceeded
+  - `Retry-After` header shows remaining lockout time (RFC 7231 compliant)
+  - Failed attempts cleared on successful auth
+  - Lockouts persist independently (attackers can't reset by guessing correctly once)
 - RLS (Row Level Security) with 227 policy occurrences across 25 migrations
 
 **OWASP Top 10 Protection**:
@@ -678,7 +685,7 @@
 - ✅ **A04 Insecure Design**: Circuit breakers, rate limiting, graceful degradation
 - ✅ **A05 Security Misconfiguration**: Security headers implemented, no defaults exposed
 - ✅ **A06 Vulnerable Components**: 0 npm vulnerabilities, dependencies clean
-- ✅ **A07 Auth Failures**: Rate limiting on auth endpoints, security logging
+- ✅ **A07 Auth Failures**: Rate limiting, IP-based brute force protection (10 failures → 15min lockout), security logging
 - ✅ **A08 Data Integrity**: Audit log tampering protection with SHA-256 hashes
 - ✅ **A09 Logging Failures**: Structured JSON logging, correlation IDs, PII masking
 - ✅ **A10 SSRF**: URL validation on image uploads
@@ -740,6 +747,7 @@
 6. Audit log tamper protection with SHA-256
 7. No hardcoded secrets
 8. Graceful shutdown with request tracking
+9. **NEW**: Brute force protection with IP lockout after 10 failures
 
 **Compliance Readiness**:
 - SOC 2 Type II: Ready (audit logging, access control, encryption)
