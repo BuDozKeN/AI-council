@@ -359,10 +359,10 @@ function App() {
 
   // i18n: Update HTML lang attribute dynamically for SEO and accessibility
   useEffect(() => {
-    const currentLang = i18n.language.split('-')[0];
+    const currentLang = i18n.language.split('-')[0] || 'en';
     document.documentElement.lang = currentLang;
     log.debug('[i18n] Updated HTML lang attribute', currentLang);
-  }, [i18n.language]);
+  }, []);
 
   // SEO: Dynamic meta tags, hreflang links, and Open Graph tags
   useFullSEO({
