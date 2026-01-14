@@ -70,6 +70,7 @@
 
 /* Ensure the portal wrapper has correct z-index for modal context */
 [data-radix-popper-content-wrapper]:has(.llm-preset-popover) {
+  /* stylelint-disable-next-line declaration-no-important -- Override Radix portal inline z-index */
   z-index: var(--z-modal-dropdown) !important;
 }
 

@@ -47,8 +47,7 @@
     order: 3;
     position: fixed;
     inset-block-end: 12px;
-    inset-inline-start: 12px;
-    inset-inline-end: 12px;
+    inset-inline: 12px;
     width: auto;
     z-index: var(--z-dropdown);
     background: var(--color-bg-inverse);
@@ -155,8 +154,7 @@
 
   /* Adjust header padding to account for drag handle */
   .mc-header {
-    padding-block-start: 20px;
-    padding-block-end: 12px;
+    padding-block: 20px 12px;
   }
 
   /* Compact header on mobile */
@@ -459,10 +457,8 @@
   /* Sticky toolbar - match smaller card padding for negative margins */
   .mc-context-sticky-toolbar {
     inset-block-start: 0;
-    margin-inline-start: -14px;
-    margin-inline-end: -14px;
-    padding-inline-start: 14px;
-    padding-inline-end: 14px;
+    margin-inline: -14px;
+    padding-inline: 14px;
     width: calc(100% + 28px);
   }
 }
@@ -500,8 +496,7 @@
     scrollbar-width: none;
     padding-block-end: 4px;
     margin: 0 -16px;
-    padding-inline-start: 16px;
-    padding-inline-end: 16px;
+    padding-inline: 16px;
   }
 
   .mc-projects-stats::-webkit-scrollbar {
@@ -947,10 +942,8 @@
   .mc-context-sticky-toolbar {
     background: var(--color-bg-primary);
     padding: 8px 0;
-    margin-inline-start: -20px;
-    margin-inline-end: -20px;
-    padding-inline-start: 20px;
-    padding-inline-end: 20px;
+    margin-inline: -20px;
+    padding-inline: 20px;
     width: calc(100% + 40px);
   }
 

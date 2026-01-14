@@ -14,8 +14,7 @@
   /* Match Omnibar reading column width */
   width: 100%;
   max-width: 72ch;
-  margin-inline-start: auto;
-  margin-inline-end: auto;
+  margin-inline: auto;
 }
 
 /* Background layer - extends full width to cover scrolling content */

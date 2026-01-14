@@ -1159,8 +1159,7 @@
 .mc-promote-content-rendered h1,
 .mc-promote-content-rendered h2,
 .mc-promote-content-rendered h3 {
-  margin-block-start: 16px;
-  margin-block-end: 8px;
+  margin-block: 16px 8px;
 }
 
 .mc-promote-content-rendered ul,

@@ -116,12 +116,14 @@
 /* Skip button - subtle text link style */
 .onboarding-skip {
   width: 100%;
+  /* stylelint-disable-next-line declaration-no-important -- Override button base styles */
   background: transparent !important;
   color: var(--color-text-tertiary);
   font-weight: var(--font-normal);
 }
 
 .onboarding-skip:hover:not(:disabled) {
+  /* stylelint-disable-next-line declaration-no-important -- Override button hover styles */
   background: transparent !important;
   color: var(--color-text-secondary);
 }
@@ -260,7 +262,7 @@
 
 .council-member-card.active .council-member-avatar {
   background: var(--member-color, var(--color-indigo));
-  color: white;
+  color: var(--color-white);
 }
 
 /* Grok/X has white brand color - needs dark icon on light bg */
@@ -279,7 +281,7 @@
 
 .dark .council-member-card.active .council-member-avatar {
   background: var(--member-color, var(--color-indigo));
-  color: white;
+  color: var(--color-white);
 }
 
 /* Grok/X has white brand color - needs dark icon on light bg (dark mode) */
@@ -339,7 +341,7 @@
   justify-content: center;
   border-radius: var(--radius-full);
   background: var(--color-success);
-  color: white;
+  color: var(--color-white);
   box-shadow: var(--shadow-sm);
 }
 

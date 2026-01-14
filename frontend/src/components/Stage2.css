@@ -234,8 +234,7 @@
 .stage2 .tabs {
   display: flex;
   gap: 8px;
-  margin-block-start: 12px; /* Match Stage 1 pills margin-block-start */
-  margin-block-end: 16px;
+  margin-block: 12px 16px; /* Match Stage 1 pills margin-block-start */
   flex-wrap: wrap;
 }
 
@@ -837,8 +836,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-    margin-block-start: 10px;
-    margin-block-end: 12px;
+    margin-block: 10px 12px;
   }
 
   .stage2 .tab {

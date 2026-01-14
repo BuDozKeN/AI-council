@@ -853,8 +853,7 @@
 .context-multiselect-dropdown {
   position: absolute;
   inset-block-start: 100%;
-  inset-inline-start: 0;
-  inset-inline-end: 0;
+  inset-inline: 0;
   display: flex;
   flex-direction: column;
   max-height: 200px;

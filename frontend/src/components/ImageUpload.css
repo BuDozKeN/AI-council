@@ -33,8 +33,7 @@
 .image-preview-item .image-name {
   position: absolute;
   inset-block-end: 0;
-  inset-inline-start: 0;
-  inset-inline-end: 0;
+  inset-inline: 0;
   padding: 2px 4px;
   background: var(--overlay-black-70);
   color: var(--color-text-inverse);
