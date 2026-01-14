@@ -9,7 +9,6 @@ import {
   ComponentType,
 } from 'react';
 import { useTranslation } from 'react-i18next';
-import i18n from './i18n';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from './components/Sidebar';
 import { LandingHero } from './components/landing';
@@ -135,7 +134,7 @@ const generateInitialTitle = (content: string, maxLength = 60): string => {
 const log = logger.scope('App');
 
 function App() {
-  const { t } = useTranslation();
+  const { t, i18n: i18nInstance } = useTranslation();
   const {
     user,
     loading: authLoading,
@@ -358,11 +357,13 @@ function App() {
   }, [showLandingHero]);
 
   // i18n: Update HTML lang attribute dynamically for SEO and accessibility
+  // Note: Uses i18nInstance from useTranslation() hook (not the direct import)
+  // because the hook provides reactive updates when language changes
   useEffect(() => {
-    const currentLang = i18n.language.split('-')[0] || 'en';
+    const currentLang = i18nInstance.language.split('-')[0] || 'en';
     document.documentElement.lang = currentLang;
     log.debug('[i18n] Updated HTML lang attribute', currentLang);
-  }, []);
+  }, [i18nInstance.language]);
 
   // SEO: Dynamic meta tags, hreflang links, and Open Graph tags
   useFullSEO({
