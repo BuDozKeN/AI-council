@@ -602,7 +602,7 @@ export function CommandPalette({
           </div>
 
           <Command.List className="command-palette-list">
-            <Command.Empty className="command-palette-empty">{t('common.noResults')}</Command.Empty>
+            <Command.Empty className="command-palette-empty">{t('commandPalette.emptyState')}</Command.Empty>
 
             {/* Render groups that have items */}
             {(Object.keys(groupedActions) as ActionCategory[]).map((category) => {
