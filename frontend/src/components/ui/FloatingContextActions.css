@@ -55,10 +55,8 @@
   background: var(--color-bg-primary);
 
   /* Extend to full width to cover scrolling content */
-  margin-inline-start: -20px;
-  margin-inline-end: -20px;
-  padding-inline-start: 20px;
-  padding-inline-end: 20px;
+  margin-inline: -20px;
+  padding-inline: 20px;
   width: calc(100% + 40px);
 }
 

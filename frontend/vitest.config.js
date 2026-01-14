@@ -15,7 +15,17 @@ export default defineConfig({
         'src/test/',
         '**/*.d.ts',
         '**/*.config.*',
+        'e2e/**',
       ],
+      thresholds: {
+        // Minimum coverage thresholds - incrementally increase to 70%
+        // Current: ~27% lines, ~19% branches, ~24% functions
+        // Target: Increase 5% per sprint
+        lines: 25,
+        branches: 15,
+        functions: 20,
+        statements: 25,
+      },
     },
   },
   resolve: {

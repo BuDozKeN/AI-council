@@ -369,8 +369,7 @@
 .mc-decision-content h2,
 .mc-decision-content h3 {
   color: var(--color-text-primary);
-  margin-block-start: 1.25em;
-  margin-block-end: 0.5em;
+  margin-block: 1.25em 0.5em;
   font-weight: 600;
 }
 

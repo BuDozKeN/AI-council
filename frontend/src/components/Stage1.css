@@ -1165,8 +1165,7 @@
 
   /* Code blocks - edge to edge */
   .stage1 .code-block-wrapper {
-    margin-inline-start: -14px;
-    margin-inline-end: -14px;
+    margin-inline: -14px;
     border-radius: 0;
     border-inline-start: none;
     border-inline-end: none;

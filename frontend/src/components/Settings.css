@@ -1894,8 +1894,7 @@
 .byok-toast {
   position: absolute;
   inset-block-start: -32px;
-  inset-inline-start: 16px;
-  inset-inline-end: 16px;
+  inset-inline: 16px;
   display: flex;
   align-items: center;
   gap: 6px;
