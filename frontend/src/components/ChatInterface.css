@@ -502,7 +502,10 @@
   flex-direction: column;
   gap: 8px;
   padding: 16px 24px;
-  padding-block-end: max(16px, env(safe-area-inset-bottom, 16px)); /* Safe area for notched devices */
+  padding-block-end: max(
+    16px,
+    env(safe-area-inset-bottom, 16px)
+  ); /* Safe area for notched devices */
   flex-shrink: 0;
   scrollbar-gutter: stable both-edges; /* Match messages-container for alignment */
 
