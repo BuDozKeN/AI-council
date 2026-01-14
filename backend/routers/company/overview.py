@@ -59,6 +59,7 @@ class StructureCompanyContextRequest(BaseModel):
 # =============================================================================
 
 @router.get("/{company_id}/overview")
+@limiter.limit("100/minute;500/hour")
 async def get_company_overview(company_id: ValidCompanyId, user=Depends(get_current_user)):
     """
     Get company overview with stats from DATABASE.
@@ -130,6 +131,7 @@ async def get_company_overview(company_id: ValidCompanyId, user=Depends(get_curr
 
 
 @router.put("/{company_id}/context")
+@limiter.limit("30/minute;100/hour")
 async def update_company_context(company_id: ValidCompanyId, data: CompanyContextUpdate, user=Depends(get_current_user)):
     """
     Update the company context markdown.
@@ -156,6 +158,7 @@ async def update_company_context(company_id: ValidCompanyId, data: CompanyContex
 
 
 @router.post("/{company_id}/context/merge")
+@limiter.limit("20/minute;50/hour")
 async def merge_company_context(
     company_id: ValidCompanyId,
     request: CompanyContextMergeRequest,
