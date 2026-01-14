@@ -201,6 +201,7 @@ def _build_council_conversation_history(conversation: dict) -> List[Dict[str, st
 # =============================================================================
 
 @router.get("")
+@limiter.limit("100/minute;500/hour")
 async def list_conversations(
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
@@ -237,6 +238,7 @@ async def list_conversations(
 
 
 @router.post("")
+@limiter.limit("30/minute;100/hour")
 async def create_conversation(
     request: CreateConversationRequest | None = None,
     user: dict = Depends(get_current_user)
@@ -255,6 +257,7 @@ async def create_conversation(
 
 
 @router.get("/{conversation_id}")
+@limiter.limit("100/minute;500/hour")
 async def get_conversation(conversation_id: str, user: dict = Depends(get_current_user)):
     """Get a specific conversation by ID."""
     access_token = user.get("access_token")
@@ -963,6 +966,7 @@ async def chat_with_chairman(
 
 
 @router.patch("/{conversation_id}/rename")
+@limiter.limit("30/minute;100/hour")
 async def rename_conversation(
     conversation_id: str,
     request: RenameRequest,
@@ -981,6 +985,7 @@ async def rename_conversation(
 
 
 @router.patch("/{conversation_id}/department")
+@limiter.limit("30/minute;100/hour")
 async def update_conversation_department(
     conversation_id: str,
     request: DepartmentUpdateRequest,
@@ -999,6 +1004,7 @@ async def update_conversation_department(
 
 
 @router.post("/{conversation_id}/star")
+@limiter.limit("30/minute;100/hour")
 async def star_conversation(
     conversation_id: str,
     request: StarRequest,
@@ -1017,6 +1023,7 @@ async def star_conversation(
 
 
 @router.post("/{conversation_id}/archive")
+@limiter.limit("30/minute;100/hour")
 async def archive_conversation(
     conversation_id: str,
     request: ArchiveRequest,
@@ -1035,6 +1042,7 @@ async def archive_conversation(
 
 
 @router.delete("/{conversation_id}")
+@limiter.limit("20/minute;50/hour")
 async def delete_conversation(conversation_id: str, user: dict = Depends(get_current_user)):
     """Permanently delete a conversation (must be owner)."""
     access_token = user.get("access_token")
@@ -1051,6 +1059,7 @@ async def delete_conversation(conversation_id: str, user: dict = Depends(get_cur
 
 
 @router.post("/bulk-delete")
+@limiter.limit("10/minute;30/hour")
 async def bulk_delete_conversations(
     request: BulkDeleteRequest,
     user: dict = Depends(get_current_user)
@@ -1089,6 +1098,7 @@ async def bulk_delete_conversations(
 
 
 @router.get("/{conversation_id}/export")
+@limiter.limit("10/minute;30/hour")
 async def export_conversation_markdown(
     conversation_id: str,
     user: dict = Depends(get_current_user)
@@ -1186,6 +1196,7 @@ async def export_conversation_markdown(
 # =============================================================================
 
 @router.get("/export/all")
+@limiter.limit("5/minute;10/hour")
 async def export_all_user_data(
     user: dict = Depends(get_current_user),
     format: Literal["json", "zip"] = Query(default="json", description="Export format")
