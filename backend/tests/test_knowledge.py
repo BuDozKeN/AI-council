@@ -8,7 +8,6 @@ These tests verify:
 """
 
 import pytest
-import re
 from pydantic import ValidationError
 
 # Import the module under test

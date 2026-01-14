@@ -14,7 +14,6 @@ import httpx
 from typing import Optional
 from qdrant_client import QdrantClient
 from qdrant_client.http import models
-from qdrant_client.http.exceptions import UnexpectedResponse
 
 from .config import (
     QDRANT_URL,
@@ -63,11 +62,11 @@ def get_qdrant() -> Optional[QdrantClient]:
 
         # Verify connection
         _qdrant_client.get_collections()
-        log_app_event("qdrant_connected", level="INFO", details={"url": QDRANT_URL})
+        log_app_event("qdrant_connected", level="INFO", url=QDRANT_URL)
         return _qdrant_client
 
     except Exception as e:
-        log_error("qdrant_connection", e, details={"url": QDRANT_URL})
+        log_error("qdrant_connect", e)
         _qdrant_client = None
         return None
 
@@ -112,9 +111,9 @@ async def ensure_collections():
                         distance=models.Distance.COSINE,
                     ),
                 )
-                log_app_event("qdrant_collection_created", level="INFO", details={"collection": collection_name})
+                log_app_event("qdrant_collection_created", level="INFO", collection=collection_name)
             else:
-                log_app_event("qdrant_collection_exists", level="INFO", details={"collection": collection_name})
+                log_app_event("qdrant_collection_exists", level="INFO", collection=collection_name)
 
             # Create payload index for company_id filtering (required for filtered searches)
             try:
@@ -123,11 +122,11 @@ async def ensure_collections():
                     field_name="company_id",
                     field_schema=models.PayloadSchemaType.KEYWORD,
                 )
-                log_app_event("qdrant_index_created", level="INFO", details={"collection": collection_name, "field": "company_id"})
+                log_app_event("qdrant_index_created", level="INFO", collection=collection_name)
             except Exception as index_err:
                 # Index might already exist - that's fine
                 if "already exists" not in str(index_err).lower():
-                    log_app_event("qdrant_index_note", level="WARNING", details={"collection": collection_name, "error": str(index_err)})
+                    log_app_event("qdrant_index_note", level="INFO", collection=collection_name, note=str(index_err))
 
         return True
 
@@ -142,7 +141,7 @@ async def get_embedding(text: str) -> Optional[list[float]]:
     Returns None if embedding fails.
     """
     if not OPENROUTER_API_KEY:
-        log_app_event("qdrant_no_api_key", level="WARNING", details={"service": "embeddings"})
+        log_app_event("qdrant_no_api_key", level="WARNING")
         return None
 
     try:
@@ -215,7 +214,7 @@ async def upsert_conversation(
         return True
 
     except Exception as e:
-        log_error("qdrant_upsert_conversation", e, resource_id=conversation_id)
+        log_error("qdrant_upsert_conversation", e)
         return False
 
 
@@ -260,7 +259,7 @@ async def upsert_knowledge_entry(
         return True
 
     except Exception as e:
-        log_error("qdrant_upsert_knowledge", e, resource_id=entry_id)
+        log_error("qdrant_upsert_knowledge", e)
         return False
 
 
@@ -309,7 +308,7 @@ async def search_similar_conversations(
         ]
 
     except Exception as e:
-        log_error("qdrant_search_conversations", e, details={"company_id": company_id, "query_preview": query[:50]})
+        log_error("qdrant_search", e)
         return []
 
 
@@ -357,7 +356,7 @@ async def search_knowledge(
         ]
 
     except Exception as e:
-        log_error("qdrant_search_knowledge", e, details={"company_id": company_id, "query_preview": query[:50]})
+        log_error("qdrant_knowledge_search", e)
         return []
 
 
@@ -376,7 +375,7 @@ async def delete_conversation(conversation_id: str) -> bool:
         )
         return True
     except Exception as e:
-        log_error("qdrant_delete_conversation", e, resource_id=conversation_id)
+        log_error("qdrant_delete", e)
         return False
 
 
@@ -395,7 +394,7 @@ async def delete_knowledge_entry(entry_id: str) -> bool:
         )
         return True
     except Exception as e:
-        log_error("qdrant_delete_knowledge", e, resource_id=entry_id)
+        log_error("qdrant_delete", e)
         return False
 
 

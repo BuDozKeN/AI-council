@@ -24,6 +24,7 @@ export interface StreamingState {
   text?: string;
   complete?: boolean;
   error?: boolean;
+  truncated?: boolean;
 }
 
 export interface MessageMetadata {

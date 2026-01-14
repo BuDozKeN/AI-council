@@ -15,7 +15,6 @@ from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any, Literal
 import asyncio
 import json
-import re
 import uuid
 
 from ..auth import get_current_user
@@ -239,7 +238,7 @@ async def list_conversations(
 
 @router.post("")
 async def create_conversation(
-    request: CreateConversationRequest = None,
+    request: CreateConversationRequest | None = None,
     user: dict = Depends(get_current_user)
 ):
     """Create a new conversation."""
@@ -1215,7 +1214,7 @@ async def export_all_user_data(
 
     supabase = get_supabase_with_auth(access_token)
 
-    export_data = {
+    export_data: Dict[str, Any] = {
         "export_version": "1.0",
         "export_date": None,
         "user": {},

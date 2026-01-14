@@ -9,7 +9,6 @@ SECURITY: Uses per-user derived keys via HKDF to ensure that:
 
 import os
 import base64
-import hashlib
 from typing import Optional
 
 # Cache for per-user ciphers (keyed by user_id)
@@ -196,14 +195,14 @@ def decrypt_api_key(encrypted_key: str, user_id: Optional[str] = None) -> str:
     except InvalidToken as e:
         # Fernet raises InvalidToken for bad padding, wrong key, or corrupted data
         raise DecryptionError(
-            f"Failed to decrypt API key: data is corrupted or was encrypted with a different key"
+            "Failed to decrypt API key: data is corrupted or was encrypted with a different key"
         ) from e
     except Exception as e:
         # Catch base64 decoding errors ("Incorrect padding") and other issues
         error_msg = str(e)
         if "padding" in error_msg.lower() or "base64" in error_msg.lower():
             raise DecryptionError(
-                f"Failed to decrypt API key: invalid encrypted data format"
+                "Failed to decrypt API key: invalid encrypted data format"
             ) from e
         raise DecryptionError(f"Failed to decrypt API key: {error_msg}") from e
 

@@ -8,8 +8,6 @@ These tests verify:
 4. Rate limit header building
 """
 
-import pytest
-from unittest.mock import patch, MagicMock
 
 # Import the module under test
 from backend.security import (

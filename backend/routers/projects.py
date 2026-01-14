@@ -9,7 +9,7 @@ Endpoints for managing projects:
 - Project reports
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Query
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
@@ -18,7 +18,7 @@ import json
 
 from ..auth import get_current_user
 from .. import storage
-from ..security import SecureHTTPException, log_app_event
+from ..security import SecureHTTPException
 
 # Import rate limiter
 from slowapi import Limiter

@@ -6,14 +6,14 @@
 
 /* Message structure */
 .triage-message {
-  margin-bottom: 16px;
+  margin-block-end: 16px;
 }
 
 .triage-message .message-label {
   font-size: 11px;
   font-weight: 600;
   color: var(--color-text-muted);
-  margin-bottom: 6px;
+  margin-block-end: 6px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -53,17 +53,17 @@
 }
 
 .ai-questions p:last-child {
-  margin-bottom: 0;
+  margin-block-end: 0;
 }
 
 .ai-questions ul,
 .ai-questions ol {
   margin: 8px 0;
-  padding-left: 20px;
+  padding-inline-start: 20px;
 }
 
 .ai-questions li {
-  margin-bottom: 6px;
+  margin-block-end: 6px;
 }
 
 /* Ready state */
@@ -71,12 +71,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 14px;
+  margin-block-end: 14px;
   font-weight: 500;
 }
 
 .edit-icon-btn {
-  margin-left: auto;
+  margin-inline-start: auto;
   background: none;
   border: 1px solid var(--color-border-muted);
   border-radius: var(--radius-md);
@@ -110,23 +110,23 @@
   background: var(--color-success-bg);
   border-radius: var(--radius-md);
   padding: 12px 14px;
-  margin-bottom: 14px;
+  margin-block-end: 14px;
 }
 
 .constraint-row {
   display: flex;
   padding: 6px 0;
-  border-bottom: 1px solid var(--color-success-light);
+  border-block-end: 1px solid var(--color-success-light);
   font-size: 14px;
 }
 
 .constraint-row:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
+  border-block-end: none;
+  padding-block-end: 0;
 }
 
 .constraint-row:first-child {
-  padding-top: 0;
+  padding-block-start: 0;
 }
 
 .constraint-label {
@@ -159,7 +159,7 @@
 .ready-actions {
   display: flex;
   gap: 10px;
-  margin-top: 4px;
+  margin-block-start: 4px;
 }
 
 .proceed-btn {
@@ -201,7 +201,7 @@
 
 /* Input area */
 .triage-input {
-  margin-top: 8px;
+  margin-block-start: 8px;
 }
 
 .triage-input form {
@@ -301,7 +301,7 @@
 }
 
 .dark .constraint-row {
-  border-bottom-color: var(--overlay-emerald-20);
+  border-block-end-color: var(--overlay-emerald-20);
 }
 
 .dark .constraint-label {

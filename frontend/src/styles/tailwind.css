@@ -829,7 +829,7 @@ html.dark,
   }
 
   .messages-container .message-group {
-    margin-bottom: 16px;
+    margin-block-end: 16px;
   }
 
   /* Landing hero - horizontal layout in landscape */
@@ -922,7 +922,7 @@ html.dark,
 
   /* Ensure adequate spacing between touch targets */
   .touch-spacing > * + * {
-    margin-left: 8px;
+    margin-inline-start: 8px;
   }
 }
 

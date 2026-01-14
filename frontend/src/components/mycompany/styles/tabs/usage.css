@@ -45,7 +45,7 @@
 
 /* Add padding to scroll content for sections */
 .mc-usage-scroll .mc-usage-section:last-child {
-  margin-bottom: var(--space-4);
+  margin-block-end: var(--space-4);
 }
 
 /* ============================================================================
@@ -188,7 +188,7 @@
   font-size: 0.6875rem;
   color: var(--color-text-muted);
   font-weight: 500;
-  margin-top: 2px;
+  margin-block-start: 2px;
 }
 
 /* ============================================================================
@@ -253,7 +253,7 @@
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  margin-bottom: var(--space-4);
+  margin-block-end: var(--space-4);
 }
 
 .mc-usage-section-title {
@@ -500,9 +500,9 @@
 }
 
 .mc-usage-roster-note {
-  margin-top: var(--space-3);
-  padding-top: var(--space-3);
-  border-top: 1px solid var(--color-border-subtle);
+  margin-block-start: var(--space-3);
+  padding-block-start: var(--space-3);
+  border-block-start: 1px solid var(--color-border-subtle);
   font-size: 0.75rem;
   color: var(--color-text-tertiary);
   line-height: 1.5;
@@ -529,7 +529,7 @@
   justify-content: space-between;
   align-items: center;
   padding: var(--space-2) 0;
-  border-bottom: 1px solid var(--color-border-subtle);
+  border-block-end: 1px solid var(--color-border-subtle);
 }
 
 .mc-usage-extra-label {
@@ -613,7 +613,7 @@
 
   /* Scroll content padding */
   .mc-usage .mc-usage-scroll .scrollable-content-inner {
-    padding-bottom: var(--space-4);
+    padding-block-end: var(--space-4);
   }
 
   /* Empty banner - compact */
@@ -690,7 +690,7 @@
   /* Sections - compact cards */
   .mc-usage-section {
     padding: var(--space-2);
-    margin-bottom: var(--space-1-5);
+    margin-block-end: var(--space-1-5);
     border-radius: var(--radius-md);
     background: var(--color-bg-primary);
     border: 1px solid var(--color-border);
@@ -699,7 +699,7 @@
 
   .mc-usage-section-title {
     font-size: 0.75rem;
-    margin-bottom: var(--space-1-5);
+    margin-block-end: var(--space-1-5);
   }
 
   /* Chart container - dynamic height from JS */
@@ -790,8 +790,8 @@
   }
 
   .mc-usage-roster-note {
-    margin-top: var(--space-2);
-    padding-top: var(--space-2);
+    margin-block-start: var(--space-2);
+    padding-block-start: var(--space-2);
     font-size: 0.6875rem;
   }
 
@@ -861,7 +861,7 @@
 
   .mc-usage-section {
     padding: var(--space-2);
-    margin-bottom: var(--space-1-5);
+    margin-block-end: var(--space-1-5);
   }
 
   .mc-usage-extra-stats {
@@ -886,7 +886,7 @@
   }
 
   .mc-usage-section {
-    margin-bottom: 0;
+    margin-block-end: 0;
   }
 
   /* Model breakdown - horizontal bars work well in landscape */

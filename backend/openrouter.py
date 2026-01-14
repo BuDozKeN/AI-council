@@ -9,7 +9,7 @@ import random
 from typing import List, Dict, Any, Optional, AsyncGenerator
 from .config import OPENROUTER_API_KEY, OPENROUTER_API_URL
 from .config import MOCK_LLM as _MOCK_LLM_INITIAL
-from .config import ENABLE_PROMPT_CACHING, CACHE_SUPPORTED_MODELS
+from .config import CACHE_SUPPORTED_MODELS
 from .config import REDIS_ENABLED, REDIS_LLM_CACHE_TTL
 
 
@@ -608,11 +608,16 @@ async def query_model(
         payload["top_p"] = top_p
 
     # Only add reasoning parameter for models that support it
-    # Gemini 3 Pro has mandatory thinking that cannot be excluded - skip it
-    # Gemini 2.5 models use thinkingBudget instead of reasoning parameter
+    # - Gemini 3 Pro has mandatory thinking that cannot be excluded
+    # - Gemini 2.5 models use thinkingBudget instead of reasoning parameter
+    # - Kimi K2 does not support the reasoning parameter (causes 400 error)
+    # - Grok models do not support the reasoning parameter
     is_gemini_3 = "gemini-3" in model.lower()
     is_gemini_2_5 = "gemini-2.5" in model.lower()
-    if not is_gemini_3 and not is_gemini_2_5:
+    is_kimi = "kimi" in model.lower() or "moonshot" in model.lower()
+    is_grok = "grok" in model.lower()
+    supports_reasoning = not is_gemini_3 and not is_gemini_2_5 and not is_kimi and not is_grok
+    if supports_reasoning:
         # Exclude reasoning/thinking tokens from response - users should only see final answer
         # This affects reasoning models like o1, o3, GPT-5.1
         payload["reasoning"] = {"exclude": True}
@@ -741,18 +746,22 @@ async def query_model_stream(
         payload["top_p"] = top_p
 
     # Only add reasoning parameter for models that support it
-    # Gemini 3 Pro has mandatory thinking that cannot be excluded - skip it
-    # Gemini 2.5 models use thinkingBudget instead of reasoning parameter
+    # - Gemini 3 Pro has mandatory thinking that cannot be excluded
+    # - Gemini 2.5 models use thinkingBudget instead of reasoning parameter
+    # - Kimi K2 does not support the reasoning parameter (causes 400 error)
+    # - Grok models do not support the reasoning parameter
     is_gemini_3 = "gemini-3" in model.lower()
     is_gemini_2_5 = "gemini-2.5" in model.lower()
-    if not is_gemini_3 and not is_gemini_2_5:
+    is_kimi = "kimi" in model.lower() or "moonshot" in model.lower()
+    is_grok = "grok" in model.lower()
+    supports_reasoning = not is_gemini_3 and not is_gemini_2_5 and not is_kimi and not is_grok
+    if supports_reasoning:
         # Exclude reasoning/thinking tokens from response - users should only see final answer
         # This affects reasoning models like o1, o3, GPT-5.1
         payload["reasoning"] = {"exclude": True}
 
     retries = 0
     should_retry = False
-    stream_succeeded = False
 
     # Use the shared HTTP client for connection pooling
     client = get_http_client(timeout)
@@ -776,7 +785,6 @@ async def query_model_stream(
 
                 line_count = 0
                 token_count = 0
-                finish_reason = None
                 usage_data = None  # Capture usage from final chunk
                 async for line in response.aiter_lines():
                     line_count += 1
@@ -833,11 +841,16 @@ async def query_model_stream(
 
                             choice = data.get('choices', [{}])[0]
                             delta = choice.get('delta', {})
+                            finish_reason = choice.get('finish_reason')
 
-                            # Check for finish_reason (indicates truncation if "length")
-                            fr = choice.get('finish_reason')
-                            if fr:
-                                finish_reason = fr
+                            # Check for truncation: finish_reason="length" means max_tokens was hit
+                            if finish_reason == 'length':
+                                # Model was cut off - yield truncation warning
+                                yield "[TRUNCATED]"
+                                await breaker.record_success()  # Still a successful call
+                                if usage_data:
+                                    yield f"[USAGE:{json.dumps(usage_data)}]"
+                                return
 
                             # Only yield 'content' field - this is the actual response
                             # The 'reasoning' field contains internal model thinking (chain of thought)

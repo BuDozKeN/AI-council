@@ -133,7 +133,11 @@ export function MultiDepartmentSelect({
     return (
       <>
         <button
-          className={cn('multi-dept-trigger', className)}
+          className={cn(
+            'multi-dept-trigger',
+            selectedDepts.length > 0 && 'has-selection',
+            className
+          )}
           disabled={disabled}
           onClick={() => setOpen(true)}
           type="button"
@@ -157,7 +161,7 @@ export function MultiDepartmentSelect({
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
       <Popover.Trigger
-        className={cn('multi-dept-trigger', className)}
+        className={cn('multi-dept-trigger', selectedDepts.length > 0 && 'has-selection', className)}
         disabled={disabled}
         title={tooltipText}
       >

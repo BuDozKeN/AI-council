@@ -38,6 +38,7 @@
  */
 
 import { useEffect, useState, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, X } from 'lucide-react';
 import './TableOfContents.css';
 
@@ -370,48 +371,50 @@ export function TableOfContents({
           <ChevronDown className="stage3-mobile-toc-icon" />
         </button>
 
-        {/* Bottom sheet drawer */}
-        {isSheetOpen && (
-          <div
-            className="stage3-mobile-outline-overlay"
-            onClick={() => setIsSheetOpen(false)}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Table of contents"
-          >
-            <div className="stage3-mobile-outline-sheet" onClick={(e) => e.stopPropagation()}>
-              {/* Drag handle */}
-              <div className="stage3-mobile-sheet-handle" />
+        {/* Bottom sheet drawer - rendered via portal to escape parent stacking contexts */}
+        {isSheetOpen &&
+          createPortal(
+            <div
+              className="stage3-mobile-outline-overlay"
+              onClick={() => setIsSheetOpen(false)}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Table of contents"
+            >
+              <div className="stage3-mobile-outline-sheet" onClick={(e) => e.stopPropagation()}>
+                {/* Drag handle */}
+                <div className="stage3-mobile-sheet-handle" />
 
-              <div className="stage3-mobile-outline-header">
-                <span className="stage3-mobile-outline-title">{title || 'On this page'}</span>
-                <button
-                  type="button"
-                  onClick={() => setIsSheetOpen(false)}
-                  className="stage3-mobile-outline-close"
-                  aria-label="Close"
-                >
-                  <X className="h-4 w-4" />
-                </button>
+                <div className="stage3-mobile-outline-header">
+                  <span className="stage3-mobile-outline-title">{title || 'On this page'}</span>
+                  <button
+                    type="button"
+                    onClick={() => setIsSheetOpen(false)}
+                    className="stage3-mobile-outline-close"
+                    aria-label="Close"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+
+                <ul className="stage3-mobile-outline-list">
+                  {headings.map((h) => (
+                    <li key={h.id}>
+                      <a
+                        href={`#${h.id}`}
+                        onClick={handleClick(h.id)}
+                        className={`stage3-mobile-outline-link ${h.level === 3 ? 'level-3' : ''} ${activeId === h.id ? 'active' : ''}`}
+                      >
+                        <span className="stage3-mobile-link-indicator" />
+                        <span className="stage3-mobile-link-text">{h.text}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
               </div>
-
-              <ul className="stage3-mobile-outline-list">
-                {headings.map((h) => (
-                  <li key={h.id}>
-                    <a
-                      href={`#${h.id}`}
-                      onClick={handleClick(h.id)}
-                      className={`stage3-mobile-outline-link ${h.level === 3 ? 'level-3' : ''} ${activeId === h.id ? 'active' : ''}`}
-                    >
-                      <span className="stage3-mobile-link-indicator" />
-                      <span className="stage3-mobile-link-text">{h.text}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        )}
+            </div>,
+            document.body
+          )}
       </>
     );
   }

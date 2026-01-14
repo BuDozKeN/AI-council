@@ -21,8 +21,12 @@ import {
   useModalState,
   useRouteSync,
   useCanonical,
+  useFullSEO,
   type ProjectModalContext,
 } from './hooks';
+import { useDynamicMeta } from './hooks/useDynamicMeta';
+import { useBreadcrumbSchema } from './hooks/useBreadcrumbSchema';
+import { useFAQSchema } from './hooks/useFAQSchema';
 import type { Project } from './types/business';
 import type { MyCompanyTab } from './components/mycompany/hooks';
 import { Toaster, toast } from './components/ui/sonner';
@@ -133,7 +137,7 @@ const generateInitialTitle = (content: string, maxLength = 60): string => {
 const log = logger.scope('App');
 
 function App() {
-  const { t } = useTranslation();
+  const { t, i18n: i18nInstance } = useTranslation();
   const {
     user,
     loading: authLoading,
@@ -266,6 +270,15 @@ function App() {
   // SEO: Update canonical URL based on current route
   useCanonical();
 
+  // SEO: Dynamic meta tags for each route (title, description, OG tags)
+  useDynamicMeta();
+
+  // SEO: Breadcrumb schema for rich snippets in search results
+  useBreadcrumbSchema();
+
+  // SEO: FAQ schema for AI search engines (landing page only)
+  useFAQSchema();
+
   // Triage state
   const [triageState, setTriageState] = useState<TriageState>(null);
   const [originalQuery, setOriginalQuery] = useState('');
@@ -354,6 +367,21 @@ function App() {
       preloadChatInterface();
     }
   }, [showLandingHero]);
+
+  // i18n: Update HTML lang attribute dynamically for SEO and accessibility
+  // Note: Uses i18nInstance from useTranslation() hook (not the direct import)
+  // because the hook provides reactive updates when language changes
+  useEffect(() => {
+    const currentLang = i18nInstance.language.split('-')[0] || 'en';
+    document.documentElement.lang = currentLang;
+    log.debug('[i18n] Updated HTML lang attribute', currentLang);
+  }, [i18nInstance.language]);
+
+  // SEO: Dynamic meta tags, hreflang links, and Open Graph tags
+  useFullSEO({
+    title: showLandingHero ? t('seo.homeTitle') : t('seo.conversationTitle'),
+    description: t('seo.defaultDescription'),
+  });
 
   // Handler for search
   const handleSearchConversations = useCallback(
@@ -1137,6 +1165,18 @@ function App() {
               setCurrentConversation((prev) =>
                 updateLastMessage(prev, () => ({
                   stage3Streaming: { text: `Error: ${errorMsg}`, complete: true, error: true },
+                }))
+              );
+              break;
+            }
+
+            case 'stage3_truncated': {
+              // Model hit max_tokens - mark as truncated so UI can show warning
+              setCurrentConversation((prev) =>
+                updateLastMessage(prev, (msg) => ({
+                  stage3Streaming: msg.stage3Streaming
+                    ? { ...msg.stage3Streaming, truncated: true }
+                    : { text: '', complete: false, truncated: true },
                 }))
               );
               break;

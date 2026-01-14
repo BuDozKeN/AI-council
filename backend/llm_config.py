@@ -20,12 +20,10 @@ Usage:
 """
 
 from typing import Dict, Any, Optional
-import sys
+import logging
 
-try:
-    from .security import log_app_event, log_error
-except ImportError:
-    from backend.security import log_app_event, log_error
+# Use module-level logger for debug output
+_logger = logging.getLogger(__name__)
 
 # Hardcoded fallbacks (used if database unavailable)
 # These match the presets seeded in the migration
@@ -106,12 +104,12 @@ async def get_llm_config(
 
                 if result.data and isinstance(result.data, dict):
                     config.update(result.data)
-                    log_app_event("llm_config_loaded", level="INFO", details={"stage": stage, "max_tokens": config.get('max_tokens')})
+                    _logger.debug(f"{stage} config from DB: max_tokens={config.get('max_tokens')}")
                 else:
-                    log_app_event("llm_config_fallback", level="WARNING", details={"stage": stage, "max_tokens": config.get('max_tokens')})
+                    _logger.debug(f"{stage} no DB config returned, using fallback: max_tokens={config.get('max_tokens')}")
         except Exception as e:
             # Log but don't fail - use defaults
-            log_error("llm_config_failed", e, details={"department_id": department_id, "stage": stage, "max_tokens": config.get('max_tokens')})
+            _logger.warning(f"get_llm_config failed for {department_id}: {type(e).__name__} - using fallback")
 
     # Apply conversation modifier (bounded adjustment)
     if conversation_modifier:

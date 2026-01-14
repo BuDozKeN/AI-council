@@ -5,7 +5,7 @@ Shared helpers, validators, and Pydantic models for company sub-routers.
 """
 
 from fastapi import HTTPException, Path
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel
 from typing import Optional, List, Annotated, Literal
 from datetime import datetime
 import re
@@ -32,7 +32,7 @@ ValidDecisionId = Annotated[str, Path(pattern=SAFE_ID_PATTERN, description="Deci
 ValidProjectId = Annotated[str, Path(pattern=SAFE_ID_PATTERN, description="Project ID")]
 
 # In-memory cache for company slug → UUID mapping (TTL: 5 minutes)
-_company_uuid_cache = {}
+_company_uuid_cache: dict[str, tuple[str, float]] = {}
 _CACHE_TTL = 300  # 5 minutes
 
 
@@ -185,9 +185,9 @@ async def log_usage_event(
     event_type: str = "council_session",
     tokens_input: int = 0,
     tokens_output: int = 0,
-    model_used: str = None,
-    session_id: str = None,
-    metadata: dict = None
+    model_used: str | None = None,
+    session_id: str | None = None,
+    metadata: dict | None = None
 ):
     """
     Log a usage event for billing/analytics.
@@ -294,7 +294,7 @@ async def save_internal_llm_usage(
     operation_type: str,
     model: str,
     usage: dict,
-    related_id: str = None
+    related_id: str | None = None
 ) -> bool:
     """
     Track internal LLM operations (title generation, project extraction, summaries, etc.).

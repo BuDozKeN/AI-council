@@ -23,7 +23,7 @@
   color: var(--color-slate-500);
   cursor: pointer;
   transition: all 0.15s ease;
-  text-align: left;
+  text-align: start;
   white-space: nowrap;
 
   /* Flex shrink support for responsive layouts */

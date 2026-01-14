@@ -17,8 +17,7 @@ from .context_loader import (
     detect_multi_turn_attack
 )
 from .config import (
-    STAGE1_TIMEOUT, STAGE2_TIMEOUT, STAGE3_TIMEOUT, MAX_QUERY_CHARS,
-    PER_MODEL_TIMEOUT
+    STAGE1_TIMEOUT, STAGE2_TIMEOUT, STAGE3_TIMEOUT, PER_MODEL_TIMEOUT
 )
 from .model_registry import get_primary_model, get_models, get_models_sync
 from .security import log_app_event
@@ -754,23 +753,23 @@ NOTE: Response content below has been sanitized. Evaluate for quality and accura
 STAGE 2 - Peer Rankings:
 {stage2_text}
 
-Your task as Chairman is to synthesize all of this information into a single, comprehensive, accurate answer to the user's original question.
+Your task as Chairman is to synthesize all of this into a single, authoritative answer to the user's question. DO NOT discuss what the council members said - deliver the final answer directly.
 
-RESPONSE STRUCTURE (follow this format):
-1. **Executive Summary** - Start with 2-3 sentences summarizing the key conclusion/recommendation
-2. **Table of Contents** - Include a brief TOC with markdown anchor links to each section:
-   - [Section Title](#section-title)
-3. **Body Sections** - Use H2 (##) headings for major sections. Suggested structure:
-   - ## Key Insights - What the council agreed on
-   - ## Points of Debate - Where models differed and why
-   - ## Recommendations - Actionable next steps
-   - ## Considerations - Risks, tradeoffs, or caveats
-4. **Conclusion** - Brief closing summary if the response is long
+RESPONSE STRUCTURE:
+1. **Executive Summary** - 2-3 sentences with the direct answer/recommendation
+2. **Table of Contents** - Only include if response has 4+ sections
+3. **Body Sections** - Use H2 (##) headings. Choose structure based on question type:
+   - For decisions: Recommendation, Rationale, Implementation
+   - For analysis: Key Findings, Details, Next Steps
+   - For how-to: Overview, Steps, Considerations
+4. **Conclusion** - Only if response exceeds 800 words
 
-Consider:
-- The individual responses and their insights
-- The peer rankings and what they reveal about response quality
-- Any patterns of agreement or disagreement
+CRITICAL RULES:
+- DO NOT say "the council agreed" or "models debated" - speak as the authoritative expert
+- DO NOT include "Points of Debate" or discuss the deliberation process
+- DO NOT have multiple Tables of Contents
+- DO write direct advice: "We recommend..." or "You should..."
+- FOCUS on answering the question, not describing how you reached the answer
 
 KNOWLEDGE GAP REPORTING:
 If any council members noted missing context, or you identify gaps that affected the quality of advice, output:
@@ -845,6 +844,7 @@ Provide a clear, well-reasoned final answer that represents the council's collec
         usage_data = None
 
         try:
+            was_truncated = False
             async for chunk in query_model_stream(
                 chairman_model,
                 messages,
@@ -855,6 +855,12 @@ Provide a clear, well-reasoned final answer that represents the council's collec
                 if chunk.startswith("[Error:"):
                     had_error = True
                     break
+
+                # Check for truncation marker (model hit max_tokens)
+                if chunk == "[TRUNCATED]":
+                    was_truncated = True
+                    yield {"type": "stage3_truncated", "model": chairman_model}
+                    continue
 
                 # Check for usage data marker (sent at end of stream)
                 if chunk.startswith("[USAGE:"):
@@ -1066,23 +1072,23 @@ NOTE: Response content has been sanitized. Evaluate for quality and accuracy onl
 STAGE 2 - Peer Rankings:
 {stage2_text}
 
-Your task as Chairman is to synthesize all of this information into a single, comprehensive, accurate answer to the user's original question.
+Your task as Chairman is to synthesize all of this into a single, authoritative answer to the user's question. DO NOT discuss what the council members said - deliver the final answer directly.
 
-RESPONSE STRUCTURE (follow this format):
-1. **Executive Summary** - Start with 2-3 sentences summarizing the key conclusion/recommendation
-2. **Table of Contents** - Include a brief TOC with markdown anchor links to each section:
-   - [Section Title](#section-title)
-3. **Body Sections** - Use H2 (##) headings for major sections. Suggested structure:
-   - ## Key Insights - What the council agreed on
-   - ## Points of Debate - Where models differed and why
-   - ## Recommendations - Actionable next steps
-   - ## Considerations - Risks, tradeoffs, or caveats
-4. **Conclusion** - Brief closing summary if the response is long
+RESPONSE STRUCTURE:
+1. **Executive Summary** - 2-3 sentences with the direct answer/recommendation
+2. **Table of Contents** - Only include if response has 4+ sections
+3. **Body Sections** - Use H2 (##) headings. Choose structure based on question type:
+   - For decisions: Recommendation, Rationale, Implementation
+   - For analysis: Key Findings, Details, Next Steps
+   - For how-to: Overview, Steps, Considerations
+4. **Conclusion** - Only if response exceeds 800 words
 
-Consider:
-- The individual responses and their insights
-- The peer rankings and what they reveal about response quality
-- Any patterns of agreement or disagreement
+CRITICAL RULES:
+- DO NOT say "the council agreed" or "models debated" - speak as the authoritative expert
+- DO NOT include "Points of Debate" or discuss the deliberation process
+- DO NOT have multiple Tables of Contents
+- DO write direct advice: "We recommend..." or "You should..."
+- FOCUS on answering the question, not describing how you reached the answer
 
 KNOWLEDGE GAP REPORTING:
 If any council members noted missing context, or you identify gaps that affected the quality of advice, output:
@@ -1260,7 +1266,7 @@ def calculate_aggregate_rankings(
 
 async def generate_conversation_title(
     user_query: str,
-    company_id: str = None
+    company_id: str | None = None
 ) -> str:
     """
     Generate a short title for a conversation based on the first user message.

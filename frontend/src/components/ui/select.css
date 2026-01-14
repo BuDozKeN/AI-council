@@ -24,6 +24,11 @@
   cursor: pointer;
   transition: all 0.15s ease;
   outline: none;
+
+  /* Prevent text wrapping for long i18n strings */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .select-trigger:hover {
@@ -55,6 +60,15 @@
   height: 16px;
   opacity: 0.5;
   flex-shrink: 0;
+}
+
+/* SelectValue text - needs min-width: 0 to allow flex item truncation */
+.select-trigger > span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
 }
 
 /* ============================================================================
@@ -233,7 +247,7 @@
   align-items: center;
   width: 100%;
   padding: 10px 12px;
-  padding-right: 36px;
+  padding-inline-end: 36px;
   border-radius: var(--radius-md);
   font-size: 14px;
   font-weight: 500;
@@ -272,7 +286,7 @@
 /* Checkmark indicator */
 .select-item-indicator {
   position: absolute;
-  right: 12px;
+  inset-inline-end: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -348,7 +362,7 @@
   .select-item {
     min-height: 44px;
     padding: 12px 14px;
-    padding-right: 40px;
+    padding-inline-end: 40px;
     font-size: 16px;
     border-radius: var(--radius-lg);
   }
@@ -361,7 +375,7 @@
 
   /* Check indicator - larger */
   .select-item-indicator {
-    right: 14px;
+    inset-inline-end: 14px;
     width: 20px;
     height: 20px;
   }

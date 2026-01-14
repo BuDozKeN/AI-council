@@ -616,10 +616,13 @@
     "bestAnswer": "The Best Answer",
     "loadingCouncil": "Loading council response",
     "combiningOpinions": "Combining expert opinions...",
+    "chairmanWriting": "Chairman is writing the final answer",
+    "responseTruncated": "Response was cut off. The answer may be incomplete.",
     "playbookType": "Playbook Type",
     "noType": "No Type",
     "saveWithoutClassifying": "Save without classifying",
     "savedAs": "Saved as {{type}}",
+    "decisionAlreadySaved": "Decision already saved - playbook type is locked",
     "optionallyClassify": "Optionally classify as a playbook type",
     "selectPlaybookType": "Select Playbook Type",
     "docTypes": {
@@ -1533,5 +1536,51 @@
     "outputTokens": "Output tokens",
     "loadingTeam": "Loading team...",
     "joined": "Joined"
+  },
+  "dates": {
+    "justNow": "Just now",
+    "minutesAgo_one": "{{count}} minute ago",
+    "minutesAgo_other": "{{count}} minutes ago",
+    "hoursAgo_one": "{{count}} hour ago",
+    "hoursAgo_other": "{{count}} hours ago",
+    "daysAgo_one": "{{count}} day ago",
+    "daysAgo_other": "{{count}} days ago",
+    "weeksAgo_one": "{{count}} week ago",
+    "weeksAgo_other": "{{count}} weeks ago",
+    "monthsAgo_one": "{{count}} month ago",
+    "monthsAgo_other": "{{count}} months ago",
+    "yearsAgo_one": "{{count}} year ago",
+    "yearsAgo_other": "{{count}} years ago",
+    "inMinutes_one": "in {{count}} minute",
+    "inMinutes_other": "in {{count}} minutes",
+    "inHours_one": "in {{count}} hour",
+    "inHours_other": "in {{count}} hours",
+    "inDays_one": "in {{count}} day",
+    "inDays_other": "in {{count}} days",
+    "yesterday": "Yesterday",
+    "today": "Today",
+    "tomorrow": "Tomorrow"
+  },
+  "duration": {
+    "d": "d",
+    "h": "h",
+    "m": "m",
+    "s": "s"
+  },
+  "fileSize": {
+    "bytes": "B",
+    "kb": "KB",
+    "mb": "MB",
+    "gb": "GB",
+    "tb": "TB"
+  },
+  "seo": {
+    "defaultTitle": "AxCouncil - AI Decision Council",
+    "defaultDescription": "Make better decisions with an AI council. Get diverse perspectives from Claude, GPT, Gemini, and more in a 3-stage deliberation process.",
+    "homeTitle": "AxCouncil - The AI Worth Trusting",
+    "homeDescription": "Consult an AI council for important decisions. 5 AI models debate your question through individual responses, peer review, and synthesis.",
+    "conversationTitle": "Conversation - AxCouncil",
+    "myCompanyTitle": "My Company - AxCouncil",
+    "settingsTitle": "Settings - AxCouncil"
   }
 }

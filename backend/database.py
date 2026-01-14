@@ -9,7 +9,7 @@ import logging
 from pathlib import Path
 from supabase import create_client, Client
 from dotenv import load_dotenv
-from typing import Optional, Dict, Tuple, TypeVar, Callable, Any
+from typing import Optional, Dict, Tuple, TypeVar, Callable
 
 T = TypeVar('T')
 logger = logging.getLogger(__name__)

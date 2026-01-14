@@ -22,8 +22,15 @@ export { useSwipeBack } from './useSwipeBack';
 export { useModalState } from './useModalState';
 export { useRouteSync } from './useRouteSync';
 export { useCanonical } from './useCanonical';
+export { useDynamicMeta } from './useDynamicMeta';
+export { useBreadcrumbSchema } from './useBreadcrumbSchema';
+export { useFAQSchema } from './useFAQSchema';
+export { useArticleSchema } from './useArticleSchema';
 export { useKeyboardShortcuts, useListNavigation } from './useKeyboardShortcuts';
 export { useDragAndDrop } from './useDragAndDrop';
+
+// SEO and i18n Hooks
+export { useSEO, useHreflangLinks, useCanonicalURL, useFullSEO } from './useSEO';
 
 // Types
 export type { UseSwipeGestureOptions, UseGlobalSwipeOptions } from './useSwipeGesture';
@@ -58,3 +65,4 @@ export type {
 export type { UseBulkConversationActionsOptions } from './useBulkConversationActions';
 export type { UseTriageOptions } from './useTriage';
 export type { FeatureFlags, FeatureFlagName } from './useFeatureFlags';
+export type { ArticleMetadata } from './useArticleSchema';

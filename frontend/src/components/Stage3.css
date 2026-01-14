@@ -7,7 +7,7 @@
 
 h2,
 h3 {
-  scroll-margin-top: 6rem;
+  scroll-margin-block-start: 6rem;
 }
 
 /* =============================================================================
@@ -45,12 +45,12 @@ h3 {
 .stage3 .collapse-arrow {
   font-size: 12px;
   color: var(--color-success-muted);
-  margin-right: 4px;
+  margin-inline-end: 4px;
   transition: transform 0.2s ease;
 }
 
 .stage3 .collapsed-summary {
-  margin-left: 12px;
+  margin-inline-start: 12px;
   font-size: 12px;
   font-weight: 400;
   color: var(--color-text-secondary);
@@ -66,7 +66,7 @@ h3 {
 }
 
 .stage3.collapsed .stage-title {
-  margin-bottom: 0;
+  margin-block-end: 0;
 }
 
 .final-response {
@@ -78,16 +78,17 @@ h3 {
   position: relative;
 }
 
-/* Premium paper effect for chairman synthesis */
-.final-response::before {
+/* Premium paper effect for chairman synthesis - uses ::after to avoid conflict with noise-overlay::before */
+.final-response::after {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
   height: 4px;
   background: var(--color-emerald-500);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  z-index: var(--z-base); /* Above noise texture */
 }
 
 /* Header row - contains chairman icon and copy button */
@@ -95,17 +96,17 @@ h3 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-block-end: 12px;
 }
 
 /* Copy button in header - pushed to right */
 .stage3-header-copy {
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 /* Cost badge - shows estimated query cost */
 .stage3-cost-badge {
-  margin-left: auto;
+  margin-inline-start: auto;
   padding: 2px 8px;
   font-size: 0.75rem;
   font-weight: 500;
@@ -223,7 +224,7 @@ h3 {
 
 .stage3-sticky-toolbar {
   position: sticky;
-  top: 60px; /* Below any fixed headers */
+  inset-block-start: 60px; /* Below any fixed headers */
   z-index: calc(
     var(--z-header) + 1
   ); /* Above floating TOC (z-header) so copy button is clickable */
@@ -233,7 +234,7 @@ h3 {
   justify-content: space-between;
   gap: 8px;
   padding: 8px 0;
-  margin-bottom: 8px;
+  margin-block-end: 8px;
 
   /* No shared background - each child element styles itself independently */
   background: transparent;
@@ -260,7 +261,7 @@ h3 {
   opacity: 0.4;
   transition: all 0.2s ease;
   flex-shrink: 0;
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 .stage3-sticky-toolbar .stage3-copy-btn:hover {
@@ -305,7 +306,7 @@ h3 {
 /* Mobile toolbar adjustments */
 @media (max-width: 768px) {
   .stage3-sticky-toolbar {
-    top: 50px;
+    inset-block-start: 50px;
     padding: 6px 0;
   }
 
@@ -360,20 +361,20 @@ h3 {
 
 .code-block-wrapper .code-language {
   position: absolute;
-  top: 8px;
-  left: 12px;
+  inset-block-start: 8px;
+  inset-inline-start: 12px;
   font-size: 11px;
   color: var(--color-slate-400);
   text-transform: uppercase;
   font-family: var(--font-mono);
   font-weight: 600;
-  z-index: 1;
+  z-index: var(--z-base);
 }
 
 /* Copy button positioning in code blocks */
 .code-block-wrapper.copyable .copy-btn-unified {
-  top: 6px;
-  right: 6px;
+  inset-block-start: 6px;
+  inset-inline-end: 6px;
 }
 
 .code-block-wrapper pre {
@@ -420,8 +421,8 @@ h3 {
   font-size: var(--text-2xl); /* 24px */
   font-weight: var(--font-semibold);
   letter-spacing: var(--tracking-tight);
-  margin-top: var(--space-8); /* 32px - major section spacing */
-  margin-bottom: var(--space-4); /* 16px */
+  margin-block-start: var(--space-8); /* 32px - major section spacing */
+  margin-block-end: var(--space-4); /* 16px */
   color: var(--color-text-default);
 }
 
@@ -429,39 +430,39 @@ h3 {
   font-size: var(--text-xl); /* 20px */
   font-weight: var(--font-semibold);
   letter-spacing: var(--tracking-tight);
-  margin-top: var(--space-6); /* 24px */
-  margin-bottom: var(--space-3); /* 12px */
+  margin-block-start: var(--space-6); /* 24px */
+  margin-block-end: var(--space-3); /* 12px */
   color: var(--color-text-default);
 }
 
 .final-text .prose h4 {
   font-size: var(--text-lg); /* 18px */
   font-weight: var(--font-semibold);
-  margin-top: var(--space-5); /* 20px */
-  margin-bottom: var(--space-2); /* 8px */
+  margin-block-start: var(--space-5); /* 20px */
+  margin-block-end: var(--space-2); /* 8px */
   color: var(--color-text-default);
 }
 
 /* Paragraph spacing */
 .final-text .prose p {
-  margin-bottom: var(--space-4); /* 16px between paragraphs */
+  margin-block-end: var(--space-4); /* 16px between paragraphs */
 }
 
 /* List styling */
 .final-text .prose ul,
 .final-text .prose ol {
-  margin-bottom: var(--space-4);
-  padding-left: var(--space-6);
+  margin-block-end: var(--space-4);
+  padding-inline-start: var(--space-6);
 }
 
 .final-text .prose li {
-  margin-bottom: var(--space-2);
+  margin-block-end: var(--space-2);
 }
 
 /* Blockquote - premium callout styling */
 .final-text .prose blockquote {
-  border-left: 3px solid var(--color-success);
-  padding-left: var(--space-4);
+  border-inline-start: 3px solid var(--color-success);
+  padding-inline-start: var(--space-4);
   margin: var(--space-6) 0;
   font-style: italic;
   color: var(--color-text-muted);
@@ -474,14 +475,14 @@ h3 {
 /* Streaming styles */
 .stage3 .typing-indicator {
   display: inline-block;
-  margin-left: 8px;
+  margin-inline-start: 8px;
   color: var(--color-success);
   animation: blink 0.8s infinite;
 }
 
 .stage3 .complete-badge {
   display: inline-block;
-  margin-left: 8px;
+  margin-inline-start: 8px;
   padding: 2px 6px;
   background: var(--color-success-light);
   color: var(--color-success-dark);
@@ -493,7 +494,7 @@ h3 {
 
 .stage3 .error-badge {
   display: inline-block;
-  margin-left: 8px;
+  margin-inline-start: 8px;
   padding: 2px 6px;
   background: var(--color-warning-light);
   color: var(--color-warning-dark);
@@ -501,6 +502,33 @@ h3 {
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
+}
+
+/* Truncation warning - shown when response hit max_tokens */
+.truncation-warning {
+  margin-block-end: 16px;
+  padding: 10px 14px;
+  background: var(--color-amber-50);
+  border: 1px solid var(--color-amber-200);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.truncation-warning-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-amber-700);
+}
+
+.dark .truncation-warning {
+  background: var(--overlay-amber-10);
+  border-color: var(--color-amber-600);
+}
+
+.dark .truncation-warning-text {
+  color: var(--color-amber-400);
 }
 
 @keyframes blink {
@@ -518,7 +546,7 @@ h3 {
   display: inline-block;
   color: var(--color-success-dark);
   animation: blink 0.8s infinite;
-  margin-left: 2px;
+  margin-inline-start: 2px;
 }
 
 .stage3 .empty-message {
@@ -540,7 +568,7 @@ h3 {
 /* Thinking state */
 .stage3 .thinking-badge {
   display: inline-block;
-  margin-left: 8px;
+  margin-inline-start: 8px;
   padding: 2px 6px;
   background: var(--color-warning-light);
   color: var(--color-amber-700);
@@ -552,7 +580,7 @@ h3 {
 
 .stage3 .thinking-dots {
   display: inline-block;
-  margin-left: 2px;
+  margin-inline-start: 2px;
 }
 
 .stage3 .thinking-dots span {
@@ -584,6 +612,171 @@ h3 {
   }
 }
 
+/* =============================================================================
+   CHAIRMAN LOADING STATE - Premium animation with LLM icon
+   ============================================================================= */
+
+.chairman-loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  gap: 20px;
+}
+
+.chairman-loading-icon-wrapper {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chairman-loading-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  z-index: var(--z-base);
+  animation: chairman-icon-float 2s ease-in-out infinite;
+}
+
+.chairman-loading-pulse {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  transform: translate(-50%, -50%);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--color-emerald-500);
+  opacity: 0.15;
+  animation: chairman-pulse 2s ease-out infinite;
+}
+
+@keyframes chairman-icon-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes chairman-pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.3;
+  }
+
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.1;
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.3;
+  }
+}
+
+.chairman-loading-text {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-secondary);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.chairman-loading-title {
+  color: var(--color-text-primary);
+}
+
+.chairman-loading-dots {
+  display: inline-flex;
+  gap: 2px;
+  min-width: 24px;
+}
+
+.chairman-loading-dots span {
+  animation: chairman-dot-bounce 1.4s ease-in-out infinite;
+  color: var(--color-emerald-500);
+  font-weight: 600;
+}
+
+.chairman-loading-dots span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.chairman-loading-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.chairman-loading-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes chairman-dot-bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+/* Dark mode chairman loading */
+.dark .chairman-loading-pulse {
+  background: var(--color-emerald-400);
+  opacity: 0.2;
+}
+
+.dark .chairman-loading-title {
+  color: var(--color-text-primary);
+}
+
+.dark .chairman-loading-dots span {
+  color: var(--color-emerald-400);
+}
+
+/* Mobile adjustments */
+@media (max-width: 640px) {
+  .chairman-loading-container {
+    padding: 32px 16px;
+    gap: 16px;
+  }
+
+  .chairman-loading-icon-wrapper {
+    width: 56px;
+    height: 56px;
+  }
+
+  .chairman-loading-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .chairman-loading-pulse {
+    width: 56px;
+    height: 56px;
+  }
+
+  .chairman-loading-text {
+    font-size: 14px;
+  }
+}
+
+/* Legacy thinking container - kept for backwards compat */
 .stage3 .thinking-container {
   padding: 20px;
   display: flex;
@@ -621,9 +814,9 @@ h3 {
 
 /* Save actions container */
 .stage3-actions {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--color-border);
+  margin-block-start: 16px;
+  padding-block-start: 16px;
+  border-block-start: 1px solid var(--color-border);
 }
 
 /* KB saved badge in collapsed header */
@@ -659,18 +852,18 @@ h3 {
   gap: 0;
 }
 
-/* Compact department trigger */
+/* Compact department trigger - visible button styling */
 .save-dept-trigger {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 6px 10px;
-  background: transparent;
-  border: none;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
   border-radius: var(--radius-md);
   font-size: 13px;
   font-weight: 500;
-  color: var(--color-slate-500);
+  color: var(--color-slate-600);
   cursor: pointer;
   transition: all 0.15s ease;
   min-width: auto;
@@ -680,13 +873,22 @@ h3 {
 }
 
 .save-dept-trigger:hover {
-  background: var(--color-bg-primary);
-  color: var(--color-gray-700);
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+  color: var(--color-slate-700);
 }
 
 .save-dept-trigger:focus {
   outline: none;
-  background: var(--color-bg-primary);
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+}
+
+/* Department trigger with selection - subtle accent border to indicate selection */
+.save-dept-trigger.has-selection {
+  font-weight: 600;
+  border-inline-start: 3px solid var(--color-emerald-500);
+  box-shadow: 0 1px 3px var(--overlay-black-10);
 }
 
 .save-dept-trigger svg:last-child {
@@ -841,14 +1043,18 @@ h3 {
    SAVE SUCCESS - Blue access button (replaces the green save button)
    ============================================================================ */
 
-/* Saved status group - shows "Decision saved" + "View in project" link */
+/*
+ * Saved status group - shows "Decision saved" + "View in project" link
+ * Premium styling - subtle emerald accent without garish background
+ */
 .save-status-group {
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  padding: 6px 12px;
-  background: var(--color-green-50);
-  border: 1px solid var(--color-green-300);
+  padding: 6px 12px 6px 14px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-inline-start: 3px solid var(--color-emerald-500);
   border-radius: var(--radius-md);
   animation: save-celebration 0.4s ease-out;
 }
@@ -875,14 +1081,14 @@ h3 {
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  font-weight: 600;
-  color: var(--color-green-600);
+  font-weight: 500;
+  color: var(--color-text-primary);
 }
 
 .save-status-text svg {
   width: 16px;
   height: 16px;
-  color: var(--color-green-600);
+  color: var(--color-emerald-500);
 }
 
 .save-view-link {
@@ -938,26 +1144,27 @@ h3 {
    Standard dropdown components for Stage3 toolbar
    =========================================== */
 
-/* --- Trigger Pills (shared base) --- */
+/* --- Trigger Pills (shared base) - visible button styling so users know they're clickable --- */
 .toolbar-pill {
   display: inline-flex;
   align-items: center;
   gap: 5px;
   padding: 6px 10px;
-  background: transparent;
-  border: none;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
   border-radius: var(--radius-md);
   font-size: 12px;
   font-weight: 500;
-  color: var(--color-slate-500);
+  color: var(--color-slate-600);
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
 }
 
 .toolbar-pill:hover:not(:disabled) {
-  background: var(--color-bg-primary);
-  color: var(--color-gray-700);
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+  color: var(--color-slate-700);
 }
 
 .toolbar-pill:disabled {
@@ -1011,7 +1218,7 @@ h3 {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   background: var(--color-slate-50);
-  border-bottom: 1px solid var(--color-slate-200);
+  border-block-end: 1px solid var(--color-slate-200);
 }
 
 .toolbar-dropdown-list {
@@ -1032,7 +1239,7 @@ h3 {
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
-  text-align: left;
+  text-align: start;
   transition: background 0.15s ease;
 }
 
@@ -1084,7 +1291,7 @@ h3 {
 /* --- Dropdown Footer (for create actions) --- */
 .toolbar-dropdown-footer {
   padding: 8px;
-  border-top: 1px solid var(--color-slate-200);
+  border-block-start: 1px solid var(--color-slate-200);
   background: var(--color-slate-50);
 }
 
@@ -1127,7 +1334,7 @@ h3 {
   border: 1px solid transparent;
   border-radius: var(--radius-lg);
   cursor: pointer;
-  text-align: left;
+  text-align: start;
   transition: all 0.15s ease;
 }
 
@@ -1185,7 +1392,7 @@ h3 {
   color: var(--color-slate-500);
   cursor: pointer;
   transition: all 0.15s ease;
-  margin-top: 4px;
+  margin-block-start: 4px;
 }
 
 .toolbar-create-btn-mobile:active {
@@ -1212,13 +1419,17 @@ h3 {
   max-width: 100px;
 }
 
+/* Project selected - consistent white style, selection shown by project name */
 .save-project-pill.has-project {
-  background: var(--color-violet-100);
-  color: var(--color-violet-700);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  color: var(--color-slate-700);
+  font-weight: 500;
 }
 
 .save-project-pill.has-project:hover:not(:disabled) {
-  background: var(--color-violet-200);
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
 }
 
 /* Project-specific selected state */
@@ -1286,36 +1497,60 @@ h3 {
   flex-shrink: 0;
 }
 
-/* Playbook trigger pill - type-specific colors */
+/* Playbook trigger pill - type-specific colors when selected */
+.playbook-trigger-pill.has-type {
+  font-weight: 500;
+}
+
+/* SOP type - consistent white style */
 .playbook-trigger-pill.has-type.sop {
-  background: var(--color-blue-100);
-  color: var(--color-blue-700);
-}
-
-.playbook-trigger-pill.has-type.framework {
-  background: var(--color-amber-100);
-  color: var(--color-amber-700);
-}
-
-.playbook-trigger-pill.has-type.policy {
-  background: var(--color-purple-100);
-  color: var(--color-purple-600);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  color: var(--color-slate-700);
 }
 
 .playbook-trigger-pill.has-type.sop:hover:not(:disabled) {
-  background: var(--color-blue-200);
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+}
+
+/* Framework type - consistent white style */
+.playbook-trigger-pill.has-type.framework {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  color: var(--color-slate-700);
 }
 
 .playbook-trigger-pill.has-type.framework:hover:not(:disabled) {
-  background: var(--color-amber-200);
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+}
+
+/* Policy type - consistent white style */
+.playbook-trigger-pill.has-type.policy {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  color: var(--color-slate-700);
 }
 
 .playbook-trigger-pill.has-type.policy:hover:not(:disabled) {
-  background: var(--color-purple-200);
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
 }
 
-.playbook-trigger-pill.saved {
-  cursor: default;
+/* Locked state when decision is already saved - visually shows it's not interactive */
+.playbook-trigger-pill.saved,
+.playbook-trigger-pill.locked {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.playbook-trigger-pill.saved:disabled,
+.playbook-trigger-pill.locked:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+  background: var(--color-slate-100);
+  color: var(--color-slate-500);
 }
 
 /* Playbook options - type-specific colors (desktop) */
@@ -1524,7 +1759,7 @@ h3 {
   box-shadow: var(--shadow-lg);
 }
 
-.dark .final-response::before {
+.dark .final-response::after {
   background: var(--color-success);
 }
 
@@ -1611,7 +1846,7 @@ h3 {
 }
 
 .dark .stage3-actions {
-  border-top-color: var(--color-border);
+  border-block-start-color: var(--color-border);
 }
 
 .dark .save-options-group {
@@ -1625,6 +1860,14 @@ h3 {
 
 .dark .save-dept-trigger:hover {
   background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+/* Department trigger with selection in dark mode */
+.dark .save-dept-trigger.has-selection {
+  font-weight: 600;
+  border-inline-start: 3px solid var(--color-emerald-500);
+  box-shadow: 0 1px 3px var(--overlay-black-30);
   color: var(--color-text-primary);
 }
 
@@ -1645,13 +1888,18 @@ h3 {
   color: var(--color-text-primary);
 }
 
+/* Dark mode project pill with selection - consistent neutral style */
 .dark .save-project-pill.has-project {
-  background: var(--overlay-purple-20);
-  border-color: var(--overlay-purple-20);
-  color: var(--color-violet-400);
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
 }
 
-/* Dark mode playbook trigger pill */
+.dark .save-project-pill.has-project:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+}
+
+/* Dark mode playbook trigger pill - base styling */
 .dark .playbook-trigger-pill {
   color: var(--color-text-secondary);
   background: var(--color-bg-tertiary);
@@ -1663,27 +1911,100 @@ h3 {
   color: var(--color-text-primary);
 }
 
-.dark .save-status-group {
-  background: var(--color-success-light);
-  border-color: var(--overlay-emerald-20);
+/* Dark mode locked/saved state */
+.dark .playbook-trigger-pill.saved:disabled,
+.dark .playbook-trigger-pill.locked:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-muted);
 }
 
-/* Dark mode mobile toolbar overrides */
-@media (max-width: 640px) {
+/* Dark mode playbook type colors */
+.dark .playbook-trigger-pill.has-type.sop {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .playbook-trigger-pill.has-type.framework {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .playbook-trigger-pill.has-type.policy {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .save-status-group {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border);
+  border-inline-start-color: var(--color-emerald-400);
+}
+
+/* Dark mode mobile/tablet toolbar overrides - visible buttons inside container */
+@media (max-width: 768px) {
+  /* Pills with dark background INSIDE darker container (no border = unified look) */
   .dark .save-dept-trigger,
-  .dark .save-project-pill {
-    background: var(--color-bg-tertiary);
-    border-color: var(--color-border);
+  .dark .save-project-pill,
+  .dark .playbook-trigger-pill {
+    background: var(--color-bg-primary);
+    border: none;
+    box-shadow: 0 1px 2px var(--overlay-black-30);
   }
 
-  .dark .playbook-trigger-pill {
-    background: var(--color-bg-tertiary);
-    border-color: var(--color-border);
+  .dark .save-dept-trigger:hover,
+  .dark .save-dept-trigger:focus,
+  .dark .save-project-pill:hover,
+  .dark .playbook-trigger-pill:hover {
+    background: var(--color-bg-hover);
+  }
+
+  /* Dark mode department trigger with selection - accent border */
+  .dark .save-dept-trigger.has-selection {
+    font-weight: 600;
+    border-inline-start: 3px solid var(--color-emerald-500);
+    box-shadow: 0 1px 3px var(--overlay-black-40);
+    color: var(--color-text-primary);
+  }
+
+  /* Dark mode project pill with selection - consistent neutral style */
+  .dark .save-project-pill.has-project {
+    background: var(--color-bg-primary);
+    border: none;
+    color: var(--color-text-primary);
+    box-shadow: 0 1px 2px var(--overlay-black-30);
+  }
+
+  /* Dark mode playbook type - consistent neutral style */
+  .dark .playbook-trigger-pill.has-type.sop {
+    background: var(--color-bg-primary);
+    border: none;
+    color: var(--color-text-primary);
+    box-shadow: 0 1px 2px var(--overlay-black-30);
+  }
+
+  .dark .playbook-trigger-pill.has-type.framework {
+    background: var(--color-bg-primary);
+    border: none;
+    color: var(--color-text-primary);
+    box-shadow: 0 1px 2px var(--overlay-black-30);
+  }
+
+  .dark .playbook-trigger-pill.has-type.policy {
+    background: var(--color-bg-primary);
+    border: none;
+    color: var(--color-text-primary);
+    box-shadow: 0 1px 2px var(--overlay-black-30);
   }
 
   .dark .save-status-group {
-    background: var(--overlay-emerald-10);
-    border-color: var(--overlay-emerald-20);
+    background: var(--color-bg-primary);
+    border-color: var(--color-border);
+    border-inline-start-color: var(--color-emerald-400);
   }
 
   .dark .save-view-link {
@@ -1692,11 +2013,11 @@ h3 {
 }
 
 .dark .save-status-text {
-  color: var(--stage3-text-primary);
+  color: var(--color-text-primary);
 }
 
 .dark .save-status-text svg {
-  color: var(--stage3-text-primary);
+  color: var(--color-emerald-400);
 }
 
 .dark .save-view-link {
@@ -1717,12 +2038,12 @@ h3 {
 
 .dark .save-project-dropdown-header {
   background: var(--color-bg-primary);
-  border-bottom-color: var(--color-border);
+  border-block-end-color: var(--color-border);
   color: var(--color-text-tertiary);
 }
 
 .dark .save-project-option {
-  border-bottom-color: var(--color-border);
+  border-block-end-color: var(--color-border);
 }
 
 .dark .save-project-option:hover {
@@ -1756,7 +2077,7 @@ h3 {
 }
 
 .dark .save-project-create {
-  border-top-color: var(--color-border);
+  border-block-start-color: var(--color-border);
   background: var(--color-bg-primary);
 }
 
@@ -1832,7 +2153,7 @@ h3 {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   /* Stage3 container padding */
   .stage3 {
     padding: 12px;
@@ -1866,11 +2187,11 @@ h3 {
 
   /* Code blocks - edge to edge for more space */
   .code-block-wrapper {
-    margin-left: -16px;
-    margin-right: -16px;
+    margin-inline-start: -16px;
+    margin-inline-end: -16px;
     border-radius: 0;
-    border-left: none;
-    border-right: none;
+    border-inline-start: none;
+    border-inline-end: none;
   }
 
   .code-block-wrapper .copy-code-btn {
@@ -1895,7 +2216,7 @@ h3 {
   }
 
   /* ===========================================
-     SAVE TOOLBAR - Clean mobile grid layout
+     SAVE TOOLBAR - Clean mobile/tablet grid layout
      =========================================== */
 
   .save-toolbar-unified {
@@ -1905,11 +2226,10 @@ h3 {
     width: 100%;
   }
 
-  /* Options group - 2-column grid for main controls */
+  /* Options group - flexbox with wrap to keep ALL pills inside the gray container */
   .save-options-group {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto;
+    display: flex;
+    flex-wrap: wrap;
     width: 100%;
     gap: 8px;
     padding: 12px;
@@ -1918,39 +2238,54 @@ h3 {
     border-radius: var(--radius-lg);
   }
 
-  /* Hide dividers on mobile - using grid layout instead */
+  /* Hide dividers on mobile */
   .save-divider {
     display: none;
   }
 
-  /* Department trigger - first column, first row */
+  /* Department trigger - takes half width, white button inside gray container */
   .save-dept-trigger {
-    grid-column: 1;
-    grid-row: 1;
-    width: 100%;
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
     min-height: 44px;
     justify-content: center;
     gap: 6px;
     padding: 10px 12px;
     font-size: 13px;
     background: var(--color-bg-primary);
-    border: 1px solid var(--color-slate-200);
+    border: none;
     border-radius: var(--radius-md);
     text-align: center;
+    box-shadow: 0 1px 2px var(--overlay-black-10);
+
+    /* Mobile touch handling - critical for click events to work */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    pointer-events: auto;
+    position: relative;
+    z-index: var(--z-base);
   }
 
   .save-dept-trigger:hover,
   .save-dept-trigger:focus {
-    border-color: var(--color-slate-300);
-    background: var(--color-bg-primary);
+    background: var(--color-slate-100);
   }
 
-  /* Project pill - second column, first row */
+  /* Department trigger with selection - subtle accent border to indicate selection */
+  .save-dept-trigger.has-selection {
+    font-weight: 600;
+    border-inline-start: 3px solid var(--color-emerald-500);
+    box-shadow: 0 1px 3px var(--overlay-black-15);
+  }
+
+  /* Project pill wrapper - takes half width */
   .save-project-selector-inline {
-    grid-column: 2;
-    grid-row: 1;
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
   }
 
+  /* Project pill - white button inside gray container */
   .save-project-pill {
     width: 100%;
     min-height: 44px;
@@ -1959,10 +2294,19 @@ h3 {
     padding: 10px 12px;
     font-size: 13px;
     background: var(--color-bg-primary);
-    border: 1px solid var(--color-slate-200);
+    border: none;
     border-radius: var(--radius-md);
     max-width: none;
     text-align: center;
+    box-shadow: 0 1px 2px var(--overlay-black-10);
+
+    /* Mobile touch handling - critical for click events to work */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    pointer-events: auto;
+    position: relative;
+    z-index: var(--z-base);
   }
 
   .save-project-pill span {
@@ -1971,17 +2315,21 @@ h3 {
     overflow: hidden;
   }
 
+  /* Project selected - consistent white style */
   .save-project-pill.has-project {
-    background: var(--color-purple-50);
-    border-color: var(--color-purple-200);
+    background: var(--color-bg-primary);
+    border: none;
+    color: var(--color-slate-700);
+    box-shadow: 0 1px 2px var(--overlay-black-10);
   }
 
-  /* Playbook dropdown - spans full width, second row */
+  /* Playbook dropdown wrapper - takes full width, wraps to second row */
   .playbook-selector-inline {
-    grid-column: 1 / -1;
-    grid-row: 2;
+    flex: 1 1 100%;
+    min-width: 0;
   }
 
+  /* Playbook pill - white button inside gray container */
   .playbook-trigger-pill {
     width: 100%;
     min-height: 40px;
@@ -1990,12 +2338,39 @@ h3 {
     padding: 8px 12px;
     font-size: 13px;
     background: var(--color-bg-primary);
-    border: 1px solid var(--color-slate-200);
+    border: none;
     border-radius: var(--radius-md);
+    box-shadow: 0 1px 2px var(--overlay-black-10);
+
+    /* Mobile touch handling - critical for click events to work */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    pointer-events: auto;
+    position: relative;
+    z-index: var(--z-base);
   }
 
-  .playbook-trigger-pill.has-type {
-    border-color: var(--color-slate-300);
+  /* Type colors - colored backgrounds to show selection */
+  .playbook-trigger-pill.has-type.sop {
+    background: var(--color-bg-primary);
+    border: none;
+    color: var(--color-slate-700);
+    box-shadow: 0 1px 2px var(--overlay-black-10);
+  }
+
+  .playbook-trigger-pill.has-type.framework {
+    background: var(--color-bg-primary);
+    border: none;
+    color: var(--color-slate-700);
+    box-shadow: 0 1px 2px var(--overlay-black-10);
+  }
+
+  .playbook-trigger-pill.has-type.policy {
+    background: var(--color-bg-primary);
+    border: none;
+    color: var(--color-slate-700);
+    box-shadow: 0 1px 2px var(--overlay-black-10);
   }
 
   /* Save action button - prominent CTA */
@@ -2010,7 +2385,7 @@ h3 {
     box-shadow: 0 2px 4px var(--overlay-emerald-20);
   }
 
-  /* Save status group - clean success state */
+  /* Save status group - subtle emerald accent */
   .save-status-group {
     width: 100%;
     min-height: 48px;
@@ -2018,8 +2393,9 @@ h3 {
     flex-wrap: wrap;
     gap: 10px;
     padding: 12px 16px;
-    background: var(--color-success-light);
-    border: 1px solid var(--color-success-border);
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border);
+    border-inline-start: 3px solid var(--color-emerald-500);
     border-radius: var(--radius-lg);
   }
 
@@ -2068,7 +2444,7 @@ h3 {
   border: 1px solid var(--color-slate-200);
   border-radius: var(--radius-md);
   cursor: pointer;
-  text-align: left;
+  text-align: start;
   transition: all 0.15s ease;
 
   /* Ensure proper mobile touch handling */
@@ -2107,7 +2483,7 @@ h3 {
 .save-project-option-mobile .save-project-option-desc {
   font-size: 13px;
   color: var(--color-text-secondary);
-  margin-top: 2px;
+  margin-block-start: 2px;
 }
 
 .save-project-create-btn-mobile {
@@ -2117,7 +2493,7 @@ h3 {
   gap: 6px;
   width: 100%;
   min-height: 44px;
-  margin-top: 6px;
+  margin-block-start: 6px;
   padding: 10px 14px;
   background: var(--color-bg-primary);
   border: 2px dashed var(--color-purple-300);

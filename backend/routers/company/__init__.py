@@ -44,6 +44,17 @@ __all__ = [
     'auto_regenerate_project_context',
     'log_activity',
     'log_usage_event',
+    # Validation patterns and types
+    'UUID_PATTERN',
+    'SAFE_ID_PATTERN',
+    'ValidCompanyId',
+    'ValidDeptId',
+    'ValidRoleId',
+    'ValidPlaybookId',
+    'ValidDecisionId',
+    'ValidProjectId',
+    '_company_uuid_cache',
+    '_CACHE_TTL',
     # Sub-routers (for direct access if needed)
     'overview_router',
     'team_router',

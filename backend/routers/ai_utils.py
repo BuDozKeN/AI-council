@@ -357,7 +357,7 @@ async def ai_write_assist(
                             title = re.sub(r'\*\*(.+)\*\*', r'\1', title)
                             logging.info(f"[AI Write Assist] Extracted title: {title}")
                         else:
-                            logging.warning(f"[AI Write Assist] No title found in response")
+                            logging.warning("[AI Write Assist] No title found in response")
 
                         # Strip the title heading from content if it's at the start
                         # This prevents duplication since title is shown separately in the UI

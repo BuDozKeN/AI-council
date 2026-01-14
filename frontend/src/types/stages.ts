@@ -115,6 +115,7 @@ export interface Stage2Props {
 export interface Stage3ContentProps {
   displayText: string;
   hasError: boolean;
+  wasTruncated?: boolean;
   isStreaming: boolean;
   isComplete: boolean;
   chairmanIconPath: string | null;

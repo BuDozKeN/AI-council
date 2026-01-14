@@ -11,7 +11,7 @@ These tests verify:
 
 import pytest
 import re
-from unittest.mock import MagicMock, patch, AsyncMock
+from unittest.mock import MagicMock
 
 # Import the module under test
 from backend.routers.company.utils import (
@@ -21,7 +21,6 @@ from backend.routers.company.utils import (
     verify_company_access,
     get_model_pricing,
     calculate_cost_cents,
-    MODEL_PRICING,
     DEFAULT_PRICING,
     _company_uuid_cache,
 )

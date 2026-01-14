@@ -30,10 +30,10 @@
 .stage3-floating-toc {
   display: none;
   position: fixed;
-  right: var(--space-6);
+  inset-inline-end: var(--space-6);
 
   /* Position from top instead of bottom for better vertical space usage */
-  top: 120px;
+  inset-block-start: 120px;
   z-index: var(--z-header);
   background: var(--overlay-white-60);
   backdrop-filter: blur(24px) saturate(180%);
@@ -68,9 +68,9 @@
 
 /* TOC Header */
 .stage3-toc-header {
-  padding-bottom: 6px;
-  margin-bottom: 6px;
-  border-bottom: 1px solid var(--overlay-black-5);
+  padding-block-end: 6px;
+  margin-block-end: 6px;
+  border-block-end: 1px solid var(--overlay-black-5);
 }
 
 .stage3-toc-title {
@@ -88,8 +88,8 @@
 /* Collapse toggle button */
 .stage3-toc-toggle {
   position: absolute;
-  left: -10px;
-  top: 50%;
+  inset-inline-start: -10px;
+  inset-block-start: 50%;
   transform: translateY(-50%);
   width: 20px;
   height: 20px;
@@ -130,7 +130,7 @@
 }
 
 .stage3-floating-toc.collapsed .stage3-toc-toggle {
-  left: -10px;
+  inset-inline-start: -10px;
 }
 
 .stage3-floating-toc.collapsed .stage3-toc-link {
@@ -214,19 +214,19 @@
 @media (min-width: 1280px) {
   .stage3-floating-toc {
     display: block;
-    right: 24px;
+    inset-inline-end: 24px;
   }
 }
 
 @media (min-width: 1600px) {
   .stage3-floating-toc {
-    right: 32px;
+    inset-inline-end: 32px;
   }
 }
 
 @media (min-width: 1920px) {
   .stage3-floating-toc {
-    right: 40px;
+    inset-inline-end: 40px;
   }
 }
 
@@ -254,7 +254,7 @@
   }
 
   .stage3-toc-header {
-    border-bottom-color: var(--overlay-white-8);
+    border-block-end-color: var(--overlay-white-8);
   }
 
   .stage3-toc-title {
@@ -311,8 +311,8 @@
 
 .stage3-mobile-toc-progress-fill {
   position: absolute;
-  bottom: 0;
-  left: 0;
+  inset-block-end: 0;
+  inset-inline-start: 0;
   width: 100%;
   background: var(--color-emerald-500);
   border-radius: var(--radius-xs);
@@ -409,7 +409,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px 12px;
-  border-bottom: 1px solid var(--color-border);
+  border-block-end: 1px solid var(--color-border);
 }
 
 .stage3-mobile-outline-title {
@@ -452,6 +452,9 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 
+  /* Explicit background to prevent gap artifacts in margin spaces between items */
+  background: var(--color-bg-primary);
+
   /* Hidden scrollbar */
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -467,7 +470,7 @@
   align-items: flex-start;
   gap: 12px;
   padding: 14px 12px;
-  margin-bottom: 2px;
+  margin-block-end: 2px;
   border-radius: var(--radius-lg);
   font-size: 15px;
   line-height: 1.45;
@@ -475,6 +478,9 @@
   text-decoration: none;
   transition: all 0.15s ease;
   position: relative;
+
+  /* Explicit background to prevent gap artifacts between items */
+  background: var(--color-bg-primary);
 }
 
 .stage3-mobile-outline-link:hover {
@@ -512,7 +518,7 @@
   padding: 2px 6px;
   border-radius: var(--radius-sm);
   flex-shrink: 0;
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 /* Active state */
@@ -537,7 +543,7 @@
 
 /* H3 level - subtle indent */
 .stage3-mobile-outline-link.level-3 {
-  padding-left: 24px;
+  padding-inline-start: 24px;
   font-size: 14px;
 }
 
@@ -574,7 +580,7 @@
 }
 
 .dark .stage3-toc-header {
-  border-bottom-color: var(--overlay-white-5);
+  border-block-end-color: var(--overlay-white-5);
 }
 
 .dark .stage3-toc-title {
@@ -664,8 +670,20 @@
   box-shadow: var(--shadow-xl);
 }
 
-/* Note: Base styles for handle, header, title, close, link, indicator, number
+/* List container background in dark mode */
+.dark .stage3-mobile-outline-list,
+[data-theme='dark'] .stage3-mobile-outline-list {
+  background: var(--color-bg-primary);
+}
+
+/* Note: Base styles for handle, header, title, close, indicator, number
    all use semantic tokens and auto-adapt. Only active/special states need overrides. */
+
+/* Base link background in dark mode - prevents gap artifacts between items */
+.dark .stage3-mobile-outline-link,
+[data-theme='dark'] .stage3-mobile-outline-link {
+  background: var(--color-bg-primary);
+}
 
 .dark .stage3-mobile-outline-link.active,
 [data-theme='dark'] .stage3-mobile-outline-link.active {
@@ -700,23 +718,18 @@
 
 .toc-sticky-wrapper {
   position: sticky;
-  top: 0;
-  z-index: var(--z-raised, 10);
+  inset-block-start: 0;
+
+  /* Use z-dropdown (100) to ensure dropdown appears above sibling FABs which use z-elevated (10) */
+  z-index: var(--z-dropdown, 100);
   display: inline-flex;
   flex-direction: column;
   align-items: flex-start;
   padding: 8px 0;
-  margin-bottom: var(--space-3, 12px);
+  margin-block-end: var(--space-3, 12px);
 
   /* Background to cover content scrolling behind */
   background: inherit;
-
-  /* Extend background to full width */
-  margin-left: -20px;
-  margin-right: -20px;
-  padding-left: 20px;
-  padding-right: 20px;
-  width: calc(100% + 40px);
 }
 
 /* Hide sticky TOC on mobile - doesn't work well in compact content areas */
@@ -763,7 +776,7 @@
 
 .toc-sticky-trigger.expanded {
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  border-bottom-color: transparent;
+  border-block-end-color: transparent;
 }
 
 /* Progress bar - horizontal */
@@ -778,8 +791,8 @@
 
 .toc-sticky-progress-fill {
   position: absolute;
-  left: 0;
-  top: 0;
+  inset-inline-start: 0;
+  inset-block-start: 0;
   height: 100%;
   background: var(--color-iris-500);
   border-radius: var(--radius-xs, 2px);
@@ -807,28 +820,38 @@
 
 /* Dropdown list */
 .toc-sticky-dropdown {
-  background: var(--overlay-white-95);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  /* SOLID background to prevent content bleeding through */
+  background: var(--color-bg-primary);
   border: 1px solid var(--overlay-black-5);
-  border-top: none;
+  border-block-start: none;
   border-radius: 0 0 12px 12px;
   padding: 8px;
-  margin-top: -1px;
+
+  /* Extra bottom padding so shadow/container extends below all items */
+  padding-block-end: 16px;
+  margin-block-start: -1px;
   box-shadow:
     0 4px 16px var(--overlay-black-8),
     0 8px 32px var(--overlay-black-5);
-  max-height: 280px;
+
+  /* Increased max-height to fit more items */
+  max-height: 400px;
   overflow-y: auto;
   scrollbar-width: thin;
   min-width: 200px;
   max-width: 320px;
+
+  /* ABSOLUTE positioning so dropdown overlays content below instead of flowing inline */
+  position: absolute;
+  inset-block-start: 100%;
+  inset-inline-start: 0;
+  z-index: var(--z-dropdown, 100);
 }
 
 .toc-sticky-header {
   padding: 4px 8px 8px;
-  border-bottom: 1px solid var(--overlay-black-5);
-  margin-bottom: 4px;
+  border-block-end: 1px solid var(--overlay-black-5);
+  margin-block-end: 4px;
 }
 
 .toc-sticky-title {
@@ -907,7 +930,7 @@
 
 /* H3 level indent */
 .toc-sticky-link.level-3 {
-  padding-left: 20px;
+  padding-inline-start: 20px;
 }
 
 .toc-sticky-link.level-3 .toc-sticky-dot {
@@ -933,9 +956,9 @@
 }
 
 .toc-inline-header {
-  padding-bottom: 8px;
-  margin-bottom: 8px;
-  border-bottom: 1px solid var(--color-slate-100);
+  padding-block-end: 8px;
+  margin-block-end: 8px;
+  border-block-end: 1px solid var(--color-slate-100);
 }
 
 .toc-inline-title {
@@ -1026,14 +1049,15 @@
 
 .dark .toc-sticky-dropdown,
 [data-theme='dark'] .toc-sticky-dropdown {
-  background: var(--overlay-black-80);
+  /* SOLID background to prevent content bleeding through gaps between items */
+  background: var(--color-bg-primary);
   border-color: var(--overlay-white-8);
   box-shadow: var(--shadow-xl);
 }
 
 .dark .toc-sticky-header,
 [data-theme='dark'] .toc-sticky-header {
-  border-bottom-color: var(--overlay-white-5);
+  border-block-end-color: var(--overlay-white-5);
 }
 
 .dark .toc-sticky-title,
@@ -1091,7 +1115,7 @@
 
 .dark .toc-inline-header,
 [data-theme='dark'] .toc-inline-header {
-  border-bottom-color: var(--overlay-white-5);
+  border-block-end-color: var(--overlay-white-5);
 }
 
 .dark .toc-inline-title,

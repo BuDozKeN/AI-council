@@ -4,83 +4,96 @@
   position: relative;
   overflow: hidden;
   touch-action: pan-y;
+  border-radius: var(--radius-md);
+  margin: 1px 8px;
 }
 
 .swipeable-row-content {
   position: relative;
   z-index: var(--z-above);
-  background: var(--color-bg-primary);
-  cursor: grab;
+  background: var(--sidebar-bg);
+  border-radius: var(--radius-md);
 }
 
 .swipeable-row-content:active {
   cursor: grabbing;
 }
 
-/* Action buttons container */
+/* Action buttons container - subtle styling */
 .swipeable-row-actions {
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
+  inset-block-start: 0;
+  inset-inline-end: 0;
+  inset-block-end: 0;
   display: flex;
-  align-items: stretch;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 0 12px;
+  background: var(--sidebar-hover-bg);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
   z-index: var(--z-base);
 }
 
-/* Individual action button */
+/* Individual action button - icon only */
 .swipeable-action {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  width: 70px;
-  padding: 8px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
   border: none;
+  border-radius: var(--radius-default);
   cursor: pointer;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--color-text-inverse);
-  transition: transform 0.15s ease;
+  background: transparent;
+  transition:
+    background 0.15s ease,
+    transform 0.1s ease;
 }
 
 .swipeable-action:active {
-  transform: scale(0.95);
+  transform: scale(0.92);
+  background: var(--overlay-black-10);
 }
 
 .swipeable-action svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
 }
 
-/* Action variants */
+/* Hide labels */
+.swipeable-action span {
+  display: none;
+}
+
+/* Action variants - icon colors only */
 .swipeable-action.default {
-  background: var(--color-slate-500);
+  color: var(--sidebar-text-secondary);
 }
 
 .swipeable-action.primary {
-  background: var(--color-indigo-600);
+  color: var(--color-indigo-500);
 }
 
 .swipeable-action.success {
-  background: var(--color-green-600);
+  color: var(--color-emerald-500);
 }
 
 .swipeable-action.warning {
-  background: var(--color-amber-500);
+  color: var(--color-amber-500);
 }
 
 .swipeable-action.danger {
-  background: var(--color-red-600);
+  color: var(--color-red-500);
 }
 
 .swipeable-action.archive {
-  background: var(--color-slate-600);
+  color: var(--sidebar-text-secondary);
 }
 
 .swipeable-action.promote {
-  background: var(--color-emerald-600);
+  color: var(--color-emerald-500);
 }
 
 /* Simple non-swipeable row fallback */
@@ -108,8 +121,8 @@
   .swipeable-row-container:first-child::after {
     content: '';
     position: absolute;
-    right: 4px;
-    top: 50%;
+    inset-inline-end: 4px;
+    inset-block-start: 50%;
     transform: translateY(-50%);
     width: 3px;
     height: 24px;
@@ -138,15 +151,13 @@
    ============================================================================= */
 
 .dark .swipeable-row-content {
-  background: var(--color-bg-primary);
+  background: var(--sidebar-bg);
 }
 
-.dark .swipeable-action.default {
-  background: var(--color-slate-600);
+.dark .swipeable-row-actions {
+  background: var(--sidebar-hover-bg);
 }
 
-@media (hover: none) {
-  .dark .swipeable-row-container:first-child::after {
-    background: var(--color-slate-500);
-  }
+.dark .swipeable-action:active {
+  background: var(--overlay-white-10);
 }

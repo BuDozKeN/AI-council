@@ -10,8 +10,7 @@ Tests cover:
 """
 
 import pytest
-from unittest.mock import patch, MagicMock, AsyncMock
-import asyncio
+from unittest.mock import patch
 import time
 
 
@@ -325,9 +324,8 @@ class TestConvertToCachedMessages:
             {"role": "user", "content": "Hello"}
         ]
 
-        with patch('backend.openrouter.ENABLE_PROMPT_CACHING', False):
-            with patch('backend.config.ENABLE_PROMPT_CACHING', False):
-                result = convert_to_cached_messages(messages, "anthropic/claude-3")
+        with patch('backend.config.ENABLE_PROMPT_CACHING', False):
+            result = convert_to_cached_messages(messages, "anthropic/claude-3")
 
         assert result == messages
 

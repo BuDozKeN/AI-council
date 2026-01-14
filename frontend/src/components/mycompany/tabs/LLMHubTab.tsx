@@ -28,12 +28,12 @@ import { Card, CardContent } from '../../ui/card';
 import { Skeleton } from '../../ui/Skeleton';
 import { Button } from '../../ui/button';
 import { RangeSlider } from '../../ui/RangeSlider';
-import { logger } from '../../../utils/logger';
 import { Tooltip } from '../../ui/Tooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 import { api, type Persona } from '../../../api';
 import { toast } from '../../ui/sonner';
 import { invalidateCouncilStats } from '../../../hooks/useCouncilStats';
+import { logger } from '../../../utils/logger';
 import type { LLMPresetFull, ModelRegistryEntry, StageConfig } from '../../../types/business';
 import '../styles/tabs/llm-hub.css';
 
@@ -540,7 +540,7 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
       }
     } catch (err) {
       setError(t('llmHub.errors.loadFailed'));
-      logger.error(err);
+      logger.error('Failed to load LLM hub data:', err);
     } finally {
       setLoading(false);
     }

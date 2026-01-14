@@ -6,9 +6,9 @@
 /* Container - fixed position top-right, above everything */
 .theme-toggle-container {
   position: fixed;
-  top: 16px;
-  right: 16px;
-  z-index: 9999; /* Always on top, even above modals */
+  inset-block-start: 16px;
+  inset-inline-end: 16px;
+  z-index: var(--z-toast); /* Always on top, even above modals */
   isolation: isolate; /* Create own stacking context */
   pointer-events: auto; /* Ensure clicks are captured */
 }
@@ -55,8 +55,8 @@
 /* Mobile adjustments - icon only, no background */
 @media (max-width: 768px) {
   .theme-toggle-container {
-    top: 12px;
-    right: 12px;
+    inset-block-start: 12px;
+    inset-inline-end: 12px;
   }
 
   .theme-toggle-btn {

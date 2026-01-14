@@ -16,8 +16,7 @@ GRACEFUL DEGRADATION:
 
 import hashlib
 import json
-import asyncio
-from typing import Optional, Any, Dict
+from typing import Optional, Any, Dict, Callable
 from functools import wraps
 
 import redis.asyncio as redis
@@ -26,10 +25,10 @@ from redis.asyncio.connection import ConnectionPool
 # Import config (will be added in next step)
 try:
     from .config import REDIS_URL, REDIS_ENABLED, REDIS_DEFAULT_TTL
-    from .security import log_error, log_app_event
+    from .security import log_error
 except ImportError:
     from backend.config import REDIS_URL, REDIS_ENABLED, REDIS_DEFAULT_TTL
-    from backend.security import log_error, log_app_event
+    from backend.security import log_error
 
 
 # =============================================================================
@@ -76,7 +75,7 @@ async def get_redis() -> Optional[redis.Redis]:
 
     except Exception as e:
         # Log but don't crash - graceful degradation
-        log_error("cache_connection", e, details={"redis_url": REDIS_URL[:20] + "..." if REDIS_URL else "None"})
+        log_error("redis_connect", e)
         return None
 
 
@@ -177,7 +176,7 @@ async def get_cached_response(cache_key: str) -> Optional[Dict[str, Any]]:
             return json.loads(cached)
         return None
     except Exception as e:
-        log_error("cache_get", e, resource_id=cache_key[:50])
+        log_error("cache_get", e)
         return None
 
 
@@ -210,7 +209,7 @@ async def set_cached_response(
         )
         return True
     except Exception as e:
-        log_error("cache_set", e, resource_id=cache_key[:50])
+        log_error("cache_set", e)
         return False
 
 
@@ -237,7 +236,7 @@ async def invalidate_cache(pattern: str) -> int:
             return await client.delete(*keys)
         return 0
     except Exception as e:
-        log_error("cache_invalidate", e, details={"pattern": pattern})
+        log_error("cache_invalidate", e)
         return 0
 
 
@@ -288,7 +287,7 @@ async def check_rate_limit(
         return (allowed, current_count, seconds_until_reset)
 
     except Exception as e:
-        log_error("cache_rate_limit", e, details={"key": key[:50]})
+        log_error("rate_limit_check", e)
         return (True, 0, 0)  # Fail open
 
 
@@ -430,7 +429,7 @@ async def get_cache_health() -> Dict[str, Any]:
 def cached(
     prefix: str,
     ttl: Optional[int] = None,
-    key_builder: Optional[callable] = None,
+    key_builder: Optional[Callable[..., str]] = None,
 ):
     """
     Decorator to cache async function results.

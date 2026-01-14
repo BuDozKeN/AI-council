@@ -18,14 +18,11 @@ Usage:
 
 from typing import List, Optional
 import os
-import sys
+import logging
 from supabase import create_client, Client
 
-# Import logging utilities
-try:
-    from .security import log_error
-except ImportError:
-    from backend.security import log_error
+# Use module-level logger
+_logger = logging.getLogger(__name__)
 
 # =============================================================================
 # ROLE CONSOLIDATION
@@ -107,7 +104,7 @@ def _get_supabase_client() -> Optional[Client]:
     try:
         return create_client(url, key)
     except Exception as e:
-        log_error("model_registry_client", e, details={"error_type": type(e).__name__})
+        _logger.warning(f"Failed to create Supabase client: {type(e).__name__}")
         return None
 
 
@@ -153,7 +150,7 @@ async def get_models(role: str, company_id: Optional[str] = None) -> List[str]:
             if result.data and len(result.data) > 0:
                 return [row['model_id'] for row in result.data]
     except Exception as e:
-        log_error("model_registry_get_models", e, details={"role": role, "resolved_role": resolved_role, "error_type": type(e).__name__})
+        _logger.warning(f"get_models({role}->{resolved_role}) failed: {type(e).__name__}")
 
     # Fallback to hardcoded with resolved role
     return FALLBACK_MODELS.get(resolved_role, [])

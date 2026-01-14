@@ -8,9 +8,23 @@ Allow: /
 Disallow: /chat/
 Disallow: /settings/
 Disallow: /company/
-Disallow: /leaderboard
 
-# Allow indexing of the main landing page
+# Public pages - allow indexing
 Allow: /$
+Allow: /leaderboard
 
+# Future marketing pages (uncomment when created)
+# Allow: /features
+# Allow: /pricing
+# Allow: /about
+# Allow: /docs
+# Allow: /blog
+# Allow: /use-cases
+# Allow: /privacy
+# Allow: /terms
+
+# Sitemap location
 Sitemap: https://axcouncil.vercel.app/sitemap.xml
+
+# Crawl rate (optional - adjust based on server capacity)
+# Crawl-delay: 1

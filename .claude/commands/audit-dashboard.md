@@ -11,14 +11,15 @@ You are running the AxCouncil audit dashboard. This command supports **selective
 /audit-dashboard llm-ops billing data     # LLM + Billing + Data architecture
 ```
 
-## Available Audit Categories (28 Total)
+## Available Audit Categories (29 Total)
 
-### Core Product Quality (13)
+### Core Product Quality (14)
 | Shorthand | Full Name | What It Checks |
 |-----------|-----------|----------------|
 | `security` | Security | OWASP, auth, data protection |
 | `attack` | Attack Simulation | Penetration testing |
 | `code` | Code Quality | TypeScript/Python patterns |
+| `css` | CSS Architecture | Single source of truth, conflicts, specificity, dead CSS |
 | `ui` | UI Excellence | Visual design, design system |
 | `ux` | UX Quality | User experience, mum test |
 | `mobile` | Mobile | PWA, responsive, touch |
@@ -64,7 +65,7 @@ You are running the AxCouncil audit dashboard. This command supports **selective
 ### Meta
 | Shorthand | Full Name | What It Checks |
 |-----------|-----------|----------------|
-| `all` | Full Audit | All 28 categories |
+| `all` | Full Audit | All 29 categories |
 
 ## Your Mission
 
@@ -127,6 +128,7 @@ Update `AUDIT_DASHBOARD.md` in the repository root:
 |----------|-------|-------|----------|------|--------|--------------|
 | Security | X/10 | ↑/↓/→ | N | N | N | [date] |
 | Code Quality | X/10 | ↑/↓/→ | N | N | N | [date] |
+| CSS Architecture | X/10 | ↑/↓/→ | N | N | N | [date] | <!-- Single source of truth, conflicts -->
 | UI/UX | X/10 | ↑/↓/→ | N | N | N | [date] |
 | Performance | X/10 | ↑/↓/→ | N | N | N | [date] |
 | Accessibility | X/10 | ↑/↓/→ | N | N | N | [date] |
@@ -149,9 +151,9 @@ Update `AUDIT_DASHBOARD.md` in the repository root:
 
 ## Score History
 
-| Date | Audit Scope | Overall | Sec | Code | UI | Perf | A11y | Mobile | LLM | Data | Bill | Resil | API |
-|------|-------------|---------|-----|------|-----|------|------|--------|-----|------|------|-------|-----|
-| [DATE] | [scope] | X.X | X | X | X | X | X | X | X | X | X | X | X |
+| Date | Audit Scope | Overall | Sec | Code | CSS | UI | Perf | A11y | Mobile | LLM | Data | Bill | Resil | API |
+|------|-------------|---------|-----|------|-----|-----|------|------|--------|-----|------|------|-------|-----|
+| [DATE] | [scope] | X.X | X | X | X | X | X | X | X | X | X | X | X | X |
 
 ---
 
@@ -214,6 +216,34 @@ Update `AUDIT_DASHBOARD.md` in the repository root:
 
 </details>
 
+<details>
+<summary>CSS Architecture (X/10) - Last checked: [date]</summary>
+
+### Scores
+- Architecture Score: X/10
+- Developer Experience Score: X/10
+- Technical Debt Score: X/10
+
+### Metrics
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| !important count | X | 0 | |
+| Duplicate selectors | X | 0 | |
+| Dead CSS selectors | X | 0 | |
+| Total CSS files | X | - | |
+| CSS bundle size | XKB | <50KB | |
+
+### Source of Truth Violations
+[List any styles defined in multiple places]
+
+### Conflict Matrix
+[List any conflicting selectors]
+
+### Recommendations
+1. [Recommendation]
+
+</details>
+
 [Continue for all categories - preserve unchanged ones from previous run]
 
 ---
@@ -224,6 +254,8 @@ Update `AUDIT_DASHBOARD.md` in the repository root:
 ```
 /audit-dashboard security           # After security changes
 /audit-dashboard code perf          # After refactoring
+/audit-dashboard css                # After CSS changes - find conflicts, dead CSS
+/audit-dashboard css ui             # CSS architecture + visual polish
 /audit-dashboard llm-ops            # After prompt changes
 /audit-dashboard data               # After migrations
 /audit-dashboard                    # Full weekly audit
@@ -280,6 +312,14 @@ All audits measure against $25M / Silicon Valley standards:
 - `frontend/src/**/*.ts{x}` (TypeScript)
 - `backend/**/*.py` (Python)
 - Config files
+
+#### css
+- `frontend/src/**/*.css` - All CSS files
+- `frontend/src/styles/` - Design tokens, Tailwind config
+- `frontend/src/index.css` - Global styles
+- `frontend/src/components/**/*.css` - Component styles
+- `.stylelintrc` or `stylelint.config.js` - Linting config
+- Check for: !important count, duplicate selectors, dead CSS, specificity issues
 
 #### ui, ux
 - `frontend/src/components/**`

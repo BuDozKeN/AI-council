@@ -33,9 +33,9 @@
 
   /* Default: positioned absolute top-right */
   position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 5;
+  inset-block-start: 8px;
+  inset-inline-end: 8px;
+  z-index: var(--z-raised);
 
   /* Hidden by default on desktop */
   opacity: 0;
@@ -134,8 +134,8 @@
 /* Inline - flows with content, always visible */
 .copy-btn-inline {
   position: relative;
-  top: auto;
-  right: auto;
+  inset-block-start: auto;
+  inset-inline-end: auto;
   opacity: 0.6;
   pointer-events: auto;
 }
@@ -195,6 +195,6 @@ pre.copyable,
 
 pre.copyable .copy-btn-unified,
 .code-block.copyable .copy-btn-unified {
-  top: 6px;
-  right: 6px;
+  inset-block-start: 6px;
+  inset-inline-end: 6px;
 }

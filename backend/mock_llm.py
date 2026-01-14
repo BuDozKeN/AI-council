@@ -23,13 +23,11 @@ import asyncio
 import os
 import random
 from typing import List, Dict, Optional, AsyncGenerator
-from .config import MOCK_LLM_SCENARIO, MOCK_LLM_LENGTH_OVERRIDE
+import logging
+from .config import MOCK_LLM_SCENARIO
 
-# Import logging utilities
-try:
-    from .security import log_app_event
-except ImportError:
-    from backend.security import log_app_event
+# Use module-level logger
+_logger = logging.getLogger(__name__)
 
 # Enable verbose debug output only when DEBUG=true
 _DEBUG = os.getenv("DEBUG", "").lower() == "true"
@@ -38,7 +36,7 @@ _DEBUG = os.getenv("DEBUG", "").lower() == "true"
 def _debug(msg: str) -> None:
     """Log debug message if DEBUG mode is enabled."""
     if _DEBUG:
-        log_app_event("mock_llm_debug", level="DEBUG", details={"message": msg})
+        _logger.debug(msg)
 
 # Simulate realistic network latency (seconds)
 MOCK_DELAY_MIN = 0.3

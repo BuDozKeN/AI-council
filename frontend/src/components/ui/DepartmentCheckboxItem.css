@@ -15,9 +15,9 @@
   gap: 10px;
   width: 100%;
   padding: 10px 12px;
-  padding-left: 10px;
+  padding-inline-start: 10px;
   border: none;
-  border-left: 3px solid transparent;
+  border-inline-start: 3px solid transparent;
   background: transparent;
   border-radius: var(--radius-md);
   font-size: 14px;
@@ -25,7 +25,7 @@
   color: var(--color-gray-700);
   cursor: pointer;
   transition: all 0.1s ease;
-  text-align: left;
+  text-align: start;
 }
 
 .dept-checkbox-item:hover {
@@ -33,7 +33,7 @@
 }
 
 .dept-checkbox-item.selected {
-  border-left-color: var(--dept-color, var(--color-slate-500));
+  border-inline-start-color: var(--dept-color, var(--color-slate-500));
   background: var(--color-bg-tertiary);
 }
 
@@ -77,8 +77,8 @@
   gap: 14px;
   min-height: 56px;
   padding: 14px 16px;
-  padding-left: 14px;
-  border-left-width: 4px;
+  padding-inline-start: 14px;
+  border-inline-start-width: 4px;
   background: var(--color-bg-tertiary); /* Visible card in light mode */
   border-radius: var(--radius-lg);
   font-size: 16px;
@@ -88,7 +88,7 @@
   -webkit-tap-highlight-color: transparent;
   pointer-events: auto;
   position: relative;
-  z-index: 1;
+  z-index: var(--z-base);
 }
 
 .dept-checkbox-item.mobile:active {
@@ -97,7 +97,7 @@
 }
 
 .dept-checkbox-item.mobile.selected {
-  border-left-color: var(--dept-color, var(--color-slate-500));
+  border-inline-start-color: var(--dept-color, var(--color-slate-500));
   background: var(--color-bg-hover);
 }
 
@@ -125,7 +125,7 @@
 }
 
 .dark .dept-checkbox-item.selected {
-  border-left-color: var(--dept-color, var(--color-slate-400));
+  border-inline-start-color: var(--dept-color, var(--color-slate-400));
   background: var(--color-bg-tertiary);
 }
 

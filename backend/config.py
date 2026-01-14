@@ -146,11 +146,6 @@ CACHE_SUPPORTED_MODELS = [
 #
 # To change models: Update the model_registry table in Supabase
 # =============================================================================
-from .model_registry import (
-    COUNCIL_MODELS,
-    CHAIRMAN_MODELS,
-    CHAIRMAN_MODEL,
-)
 
 # =============================================================================
 # MINIMUM VIABLE COUNCIL CONFIGURATION
@@ -179,7 +174,8 @@ STAGE3_TIMEOUT = int(os.getenv("STAGE3_TIMEOUT", "120"))  # 120s for chairman sy
 
 # Per-model timeout - individual models that hang get marked as error
 # This catches truly stuck models without cancelling healthy ones
-PER_MODEL_TIMEOUT = int(os.getenv("PER_MODEL_TIMEOUT", "60"))  # 60s per individual model
+# NOTE: 120s gives slower models like GPT-5.1 (with adaptive reasoning) sufficient time
+PER_MODEL_TIMEOUT = int(os.getenv("PER_MODEL_TIMEOUT", "120"))  # 120s per individual model
 
 # Require access_token for RLS-protected queries (recommended: true in production)
 # When false, falls back to service client (bypasses RLS) - only for backwards compat
