@@ -11,6 +11,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { Users, Plus } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Button } from '../../ui/button';
 import { getDeptColor } from '../../../lib/colors';
 import { ScrollableContent } from '../../ui/ScrollableContent';
@@ -52,13 +53,16 @@ export function TeamTab({
   if (departments.length === 0) {
     return (
       <div className="mc-empty">
-        <svg
+        <motion.svg
           width="120"
           height="120"
           viewBox="0 0 120 120"
           fill="none"
           className="mc-empty-icon-svg"
           style={{ marginBottom: '16px' }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
         >
           <defs>
             <linearGradient id="teamGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -99,7 +103,7 @@ export function TeamTab({
             <rect x="50" y="88" width="20" height="8" rx="2" fill="url(#teamGradient)" opacity="0.2" stroke="var(--color-border)" strokeWidth="1" />
             <rect x="75" y="88" width="20" height="8" rx="2" fill="url(#teamGradient)" opacity="0.2" stroke="var(--color-border)" strokeWidth="1" />
           </g>
-        </svg>
+        </motion.svg>
 
         <p className="mc-empty-title">{t('mycompany.setUpTeam')}</p>
         <p className="mc-empty-hint">{t('mycompany.teamHelp')}</p>

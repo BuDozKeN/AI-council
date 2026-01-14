@@ -12,6 +12,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FolderKanban, CheckCircle, Archive, RotateCcw, Trash2, Plus } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Button } from '../../ui/button';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { SortSelect } from '../../ui/SortSelect';
@@ -189,13 +190,16 @@ export function ProjectsTab({
   if (projects.length === 0) {
     return (
       <div className="mc-empty">
-        <svg
+        <motion.svg
           width="120"
           height="120"
           viewBox="0 0 120 120"
           fill="none"
           className="mc-empty-icon-svg"
           style={{ marginBottom: '16px' }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
         >
           <defs>
             <linearGradient id="projectGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -218,7 +222,7 @@ export function ProjectsTab({
           <rect x="51" y="48" width="22" height="14" rx="3" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" />
 
           <rect x="84" y="30" width="22" height="14" rx="3" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" />
-        </svg>
+        </motion.svg>
 
         <p className="mc-empty-title">{t('mycompany.startFirstProject')}</p>
         <p className="mc-empty-hint">{t('mycompany.projectsHelp')}</p>

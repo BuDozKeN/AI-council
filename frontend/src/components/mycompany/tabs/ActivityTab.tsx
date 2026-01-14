@@ -7,6 +7,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { ClipboardList, ExternalLink } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { formatDateGroup } from '../../../lib/dateUtils';
 import { ScrollableContent } from '../../ui/ScrollableContent';
 
@@ -126,7 +127,53 @@ export function ActivityTab({
   if (activityLogs.length === 0 && activityLoaded) {
     return (
       <div className="mc-empty">
-        <ClipboardList className="mc-empty-icon" size={48} />
+        <motion.svg
+          width="120"
+          height="120"
+          viewBox="0 0 120 120"
+          fill="none"
+          className="mc-empty-icon-svg"
+          style={{ marginBottom: '16px' }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+        >
+          <defs>
+            <linearGradient id="activityGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="var(--color-indigo-500)" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="var(--color-purple-500)" stopOpacity="0.6" />
+            </linearGradient>
+          </defs>
+
+          {/* Timeline vertical line */}
+          <line
+            x1="60"
+            y1="25"
+            x2="60"
+            y2="95"
+            stroke="var(--color-border)"
+            strokeWidth="2"
+            strokeDasharray="4,4"
+            opacity="0.4"
+          />
+
+          {/* Activity nodes (empty/inactive) */}
+          <circle cx="60" cy="35" r="8" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" opacity="0.5" />
+          <circle cx="60" cy="35" r="3" fill="url(#activityGradient)" opacity="0.3" />
+
+          <circle cx="60" cy="60" r="8" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" opacity="0.4" />
+          <circle cx="60" cy="60" r="3" fill="url(#activityGradient)" opacity="0.2" />
+
+          <circle cx="60" cy="85" r="8" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" opacity="0.3" />
+          <circle cx="60" cy="85" r="3" fill="url(#activityGradient)" opacity="0.1" />
+
+          {/* Peaceful moon/stars decoration */}
+          <circle cx="85" cy="30" r="10" fill="url(#activityGradient)" opacity="0.2" />
+          <path d="M 22 50 L 24 52 L 26 50 L 24 48 Z" fill="var(--color-indigo-400)" opacity="0.3" />
+          <path d="M 95 70 L 97 72 L 99 70 L 97 68 Z" fill="var(--color-purple-400)" opacity="0.3" />
+          <circle cx="30" cy="80" r="2" fill="var(--color-indigo-300)" opacity="0.4" />
+        </motion.svg>
+
         <p className="mc-empty-title">{t('mycompany.allQuiet')}</p>
         <p className="mc-empty-hint">{t('mycompany.activityHelp')}</p>
       </div>
