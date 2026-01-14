@@ -146,7 +146,7 @@ function Stage2({
   // Use the reusable celebration hook for stage completion
   const { isCelebrating: showCompleteCelebration } = useCompletionCelebration(
     allComplete && displayData.length > 0,
-    { duration: CELEBRATION.STAGE_COMPLETE }
+    { duration: CELEBRATION.STAGE_COMPLETE, confetti: 'winner' }
   );
 
   // Auto-select first tab with content (deferred to avoid cascading renders)

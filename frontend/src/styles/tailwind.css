@@ -952,6 +952,65 @@ html {
   overscroll-behavior: contain;
 }
 
+/* ============================================================================
+   CUSTOM SCROLLBAR STYLING - Premium dark mode scrollbars
+   ============================================================================ */
+
+/* Scrollbar track */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--overlay-black-15);
+  border-radius: var(--radius-full);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background 0.15s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--overlay-black-30);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* Dark mode scrollbars */
+html.dark ::-webkit-scrollbar-thumb,
+[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background: var(--overlay-white-15);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover,
+[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
+  background: var(--overlay-white-30);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* Firefox scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--overlay-black-15) transparent;
+}
+
+html.dark *,
+[data-theme='dark'] * {
+  scrollbar-color: var(--overlay-white-15) transparent;
+}
+
+/* Thin scrollbars for sidebar */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
 /* Hide scrollbars on mobile (iOS pattern) */
 @media (max-width: 768px) {
   .messages-container::-webkit-scrollbar,

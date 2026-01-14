@@ -121,8 +121,8 @@ export function ProfileSection({ user, isOpen }: ProfileSectionProps) {
             </div>
 
             <div className="form-actions">
-              <Button type="submit" variant="default" disabled={isSaving}>
-                {isSaving ? t('common.saving') : t('settings.saveChanges')}
+              <Button type="submit" variant="default" loading={isSaving}>
+                {t('settings.saveChanges')}
               </Button>
             </div>
           </form>

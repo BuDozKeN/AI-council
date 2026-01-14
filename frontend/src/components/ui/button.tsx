@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
+import { Loader2 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
@@ -55,15 +56,43 @@ const buttonVariants = cva(
 );
 
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
   asChild?: boolean;
+  /** Show loading spinner and disable button */
+  loading?: boolean;
+  /** Text to show while loading (defaults to children if not provided) */
+  loadingText?: string;
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, asChild = false, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, loading, loadingText, children, disabled, ...props }, ref) => {
     const Comp = asChild ? Slot : 'button';
+    const isDisabled = disabled || loading;
+
+    // For asChild, we can't modify children so just pass through
+    if (asChild) {
+      return (
+        <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+      );
+    }
+
     return (
-      <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+      <Comp
+        className={cn(buttonVariants({ variant, size, className }), loading && 'relative')}
+        ref={ref}
+        disabled={isDisabled}
+        {...props}
+      >
+        {loading && (
+          <Loader2
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-spin"
+            size={16}
+            aria-hidden="true"
+          />
+        )}
+        <span className={cn(loading && 'invisible')}>{loadingText && loading ? loadingText : children}</span>
+      </Comp>
     );
   }
 );
