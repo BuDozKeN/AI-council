@@ -5,6 +5,12 @@ import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
+# Import logging utilities
+try:
+    from .security import log_app_event
+except ImportError:
+    from backend.security import log_app_event
+
 # Try to load .env from current directory or parent directory
 env_path = Path('.env')
 if not env_path.exists():
@@ -27,8 +33,11 @@ def validate_config():
     if not has_service_key:
         missing.append('SUPABASE_SERVICE_ROLE_KEY')
     if missing:
-        print(f"[CONFIG] ERROR: Missing required environment variables: {missing}", file=sys.stderr)
-        print("[CONFIG] Please check your .env file or environment configuration.", file=sys.stderr)
+        log_app_event("config_validation", level="ERROR", details={
+            "status": "missing_env_vars",
+            "missing": missing,
+            "message": "Please check your .env file or environment configuration"
+        })
         # Don't exit - allow graceful degradation for local dev without all services
         # raise SystemExit(1)
 
@@ -83,7 +92,11 @@ if _raw_override and _raw_override.lower() != "none":
     try:
         MOCK_LLM_LENGTH_OVERRIDE = int(_raw_override)
     except ValueError:
-        print(f"[CONFIG] Invalid MOCK_LLM_LENGTH_OVERRIDE: {_raw_override}", file=sys.stderr)
+        log_app_event("config_validation", level="ERROR", details={
+            "status": "invalid_value",
+            "variable": "MOCK_LLM_LENGTH_OVERRIDE",
+            "value": _raw_override
+        })
 
 # =============================================================================
 # PROMPT CACHING CONFIGURATION (KILL SWITCH)

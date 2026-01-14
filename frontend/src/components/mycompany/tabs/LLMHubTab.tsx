@@ -28,6 +28,7 @@ import { Card, CardContent } from '../../ui/card';
 import { Skeleton } from '../../ui/Skeleton';
 import { Button } from '../../ui/button';
 import { RangeSlider } from '../../ui/RangeSlider';
+import { logger } from '../../../utils/logger';
 import { Tooltip } from '../../ui/Tooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 import { api, type Persona } from '../../../api';
@@ -533,13 +534,13 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
         const personasRes = await api.getPersonas(companyId);
         setPersonas(personasRes.personas);
       } catch (personaErr) {
-        console.error('Error loading personas:', personaErr);
+        logger.error('Error loading personas:', personaErr);
         // Personas are optional - continue without them
         setPersonas([]);
       }
     } catch (err) {
       setError(t('llmHub.errors.loadFailed'));
-      console.error(err);
+      logger.error(err);
     } finally {
       setLoading(false);
     }

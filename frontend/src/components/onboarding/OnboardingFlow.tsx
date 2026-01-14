@@ -29,6 +29,7 @@ import {
 import { FormField, Input } from '../ui/FormField';
 import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
+import { logger } from '../../utils/logger';
 import { springs } from '../../lib/animations';
 import { api, OnboardingProfileResponse } from '../../api';
 import { useAuth } from '../../AuthContext';
@@ -158,7 +159,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
       setProfile(profileData);
       setIsThinProfile(response.fallback_required);
     } catch (error) {
-      console.error('Failed to analyze profile:', error);
+      logger.error('Failed to analyze profile:', error);
       setApiError(error instanceof Error ? error.message : 'Failed to analyze profile');
       // Stay on loading step - the error will be shown
     } finally {
@@ -287,7 +288,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         setShowHardGate(true);
       }
     } catch (error) {
-      console.error('Failed to check trial status:', error);
+      logger.error('Failed to check trial status:', error);
       // On error, show hard gate as fallback
       setHardGateReason('no_api_key');
       setShowHardGate(true);
@@ -334,7 +335,7 @@ export function OnboardingFlow({ onComplete }: OnboardingFlowProps) {
         }
       } catch (err) {
         // Non-blocking - don't prevent council from running if profile save fails
-        console.warn('Failed to save onboarding data to profile:', err);
+        logger.warn('Failed to save onboarding data to profile:', err);
       }
     }
 

@@ -19,9 +19,9 @@ export function ErrorPage() {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
-  // Log error details to console for debugging
+  // Log error details for debugging
   if (import.meta.env.DEV) {
-    console.error('[ErrorPage] Caught error:', error);
+    logger.error('[ErrorPage] Caught error:', error);
   }
 
   // Determine user-friendly error details based on status code
