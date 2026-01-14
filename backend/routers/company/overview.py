@@ -59,7 +59,8 @@ class StructureCompanyContextRequest(BaseModel):
 # =============================================================================
 
 @router.get("/{company_id}/overview")
-async def get_company_overview(company_id: ValidCompanyId, user=Depends(get_current_user)):
+@limiter.limit("100/minute;500/hour")
+async def get_company_overview(request: Request, company_id: ValidCompanyId, user=Depends(get_current_user)):
     """
     Get company overview with stats from DATABASE.
     Returns company info + counts of departments, roles, playbooks, decisions.
@@ -130,7 +131,8 @@ async def get_company_overview(company_id: ValidCompanyId, user=Depends(get_curr
 
 
 @router.put("/{company_id}/context")
-async def update_company_context(company_id: ValidCompanyId, data: CompanyContextUpdate, user=Depends(get_current_user)):
+@limiter.limit("30/minute;100/hour")
+async def update_company_context(request: Request, company_id: ValidCompanyId, data: CompanyContextUpdate, user=Depends(get_current_user)):
     """
     Update the company context markdown.
     This is the master context document containing mission, goals, strategy, etc.
@@ -156,9 +158,9 @@ async def update_company_context(company_id: ValidCompanyId, data: CompanyContex
 
 
 @router.post("/{company_id}/context/merge")
-async def merge_company_context(
-    company_id: ValidCompanyId,
-    request: CompanyContextMergeRequest,
+@limiter.limit("20/minute;50/hour")
+async def merge_company_context(request: Request, company_id: ValidCompanyId,
+    merge_request: CompanyContextMergeRequest,
     user=Depends(get_current_user)
 ):
     """
@@ -178,9 +180,9 @@ async def merge_company_context(
 
     verify_company_access(client, company_uuid, user)
 
-    existing = request.existing_context or ""
-    question = request.question
-    answer = request.answer
+    existing = merge_request.existing_context or ""
+    question = merge_request.question
+    answer = merge_request.answer
 
     if MOCK_LLM:
         merged = existing + f"\n\n## Additional Information\n\n**{question}**\n{answer}"

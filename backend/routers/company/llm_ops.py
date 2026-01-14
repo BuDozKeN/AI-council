@@ -7,7 +7,7 @@ Endpoints for LLM usage analytics, rate limits, and budget management:
 - Budget alerts
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 from datetime import datetime
@@ -23,6 +23,11 @@ from .utils import (
     check_rate_limits,
 )
 from ...security import log_app_event
+
+# Import rate limiter
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+limiter = Limiter(key_func=get_remote_address)
 
 
 router = APIRouter(prefix="/company", tags=["llm-ops"])
@@ -162,8 +167,8 @@ class UpdateRateLimits(BaseModel):
 # =============================================================================
 
 @router.get("/{company_id}/llm-ops/usage")
-async def get_llm_usage(
-    company_id: ValidCompanyId,
+@limiter.limit("100/minute;500/hour")
+async def get_llm_usage(request: Request, company_id: ValidCompanyId,
     days: int = Query(default=30, ge=1, le=90),
     user: dict = Depends(get_current_user)
 ):
@@ -305,8 +310,8 @@ async def get_llm_usage(
 
 
 @router.get("/{company_id}/llm-ops/rate-limits")
-async def get_rate_limit_status(
-    company_id: ValidCompanyId,
+@limiter.limit("100/minute;500/hour")
+async def get_rate_limit_status(request: Request, company_id: ValidCompanyId,
     user: dict = Depends(get_current_user)
 ):
     """
@@ -355,8 +360,8 @@ async def get_rate_limit_status(
 
 
 @router.put("/{company_id}/llm-ops/rate-limits")
-async def update_rate_limits(
-    company_id: ValidCompanyId,
+@limiter.limit("30/minute;100/hour")
+async def update_rate_limits(request: Request, company_id: ValidCompanyId,
     body: UpdateRateLimits,
     user: dict = Depends(get_current_user)
 ):
@@ -413,8 +418,8 @@ async def update_rate_limits(
 
 
 @router.get("/{company_id}/llm-ops/alerts")
-async def get_budget_alerts(
-    company_id: ValidCompanyId,
+@limiter.limit("100/minute;500/hour")
+async def get_budget_alerts(request: Request, company_id: ValidCompanyId,
     acknowledged: Optional[bool] = None,
     limit: int = Query(default=20, ge=1, le=100),
     user: dict = Depends(get_current_user)
@@ -464,8 +469,8 @@ async def get_budget_alerts(
 
 
 @router.post("/{company_id}/llm-ops/alerts/{alert_id}/acknowledge")
-async def acknowledge_alert(
-    company_id: ValidCompanyId,
+@limiter.limit("30/minute;100/hour")
+async def acknowledge_alert(request: Request, company_id: ValidCompanyId,
     alert_id: str,
     user: dict = Depends(get_current_user)
 ):
@@ -564,8 +569,8 @@ class CreateModelRegistry(BaseModel):
 
 
 @router.get("/{company_id}/llm-hub/presets")
-async def get_llm_presets(
-    company_id: ValidCompanyId,
+@limiter.limit("100/minute;500/hour")
+async def get_llm_presets(request: Request, company_id: ValidCompanyId,
     user: dict = Depends(get_current_user)
 ):
     """
@@ -607,8 +612,8 @@ async def get_llm_presets(
 
 
 @router.put("/{company_id}/llm-hub/presets/{preset_id}")
-async def update_llm_preset(
-    company_id: ValidCompanyId,
+@limiter.limit("30/minute;100/hour")
+async def update_llm_preset(request: Request, company_id: ValidCompanyId,
     preset_id: str,
     body: UpdatePreset,
     user: dict = Depends(get_current_user)
@@ -687,8 +692,8 @@ CONSOLIDATED_ROLES = [
 
 
 @router.get("/{company_id}/llm-hub/models")
-async def get_model_registry(
-    company_id: ValidCompanyId,
+@limiter.limit("100/minute;500/hour")
+async def get_model_registry(request: Request, company_id: ValidCompanyId,
     role: Optional[str] = None,
     user: dict = Depends(get_current_user)
 ):
@@ -758,8 +763,8 @@ async def get_model_registry(
 
 
 @router.put("/{company_id}/llm-hub/models/{model_uuid}")
-async def update_model_registry_entry(
-    company_id: ValidCompanyId,
+@limiter.limit("30/minute;100/hour")
+async def update_model_registry_entry(request: Request, company_id: ValidCompanyId,
     model_uuid: str,
     body: UpdateModelRegistry,
     user: dict = Depends(get_current_user)
@@ -833,8 +838,8 @@ async def update_model_registry_entry(
 
 
 @router.post("/{company_id}/llm-hub/models")
-async def create_model_registry_entry(
-    company_id: ValidCompanyId,
+@limiter.limit("30/minute;100/hour")
+async def create_model_registry_entry(request: Request, company_id: ValidCompanyId,
     body: CreateModelRegistry,
     user: dict = Depends(get_current_user)
 ):
@@ -887,8 +892,8 @@ async def create_model_registry_entry(
 
 
 @router.delete("/{company_id}/llm-hub/models/{model_uuid}")
-async def delete_model_registry_entry(
-    company_id: ValidCompanyId,
+@limiter.limit("20/minute;50/hour")
+async def delete_model_registry_entry(request: Request, company_id: ValidCompanyId,
     model_uuid: str,
     user: dict = Depends(get_current_user)
 ):
@@ -982,8 +987,8 @@ class UpdatePersona(BaseModel):
 
 
 @router.get("/{company_id}/llm-hub/personas")
-async def get_personas(
-    company_id: ValidCompanyId,
+@limiter.limit("100/minute;500/hour")
+async def get_personas(request: Request, company_id: ValidCompanyId,
     user: dict = Depends(get_current_user)
 ):
     """
@@ -1059,8 +1064,8 @@ async def get_personas(
 
 
 @router.get("/{company_id}/llm-hub/personas/{persona_key}")
-async def get_persona(
-    company_id: ValidCompanyId,
+@limiter.limit("100/minute;500/hour")
+async def get_persona(request: Request, company_id: ValidCompanyId,
     persona_key: str,
     user: dict = Depends(get_current_user)
 ):
@@ -1134,8 +1139,8 @@ async def get_persona(
 
 
 @router.put("/{company_id}/llm-hub/personas/{persona_key}")
-async def update_persona(
-    company_id: ValidCompanyId,
+@limiter.limit("30/minute;100/hour")
+async def update_persona(request: Request, company_id: ValidCompanyId,
     persona_key: str,
     body: UpdatePersona,
     user: dict = Depends(get_current_user)
@@ -1243,8 +1248,8 @@ async def update_persona(
 
 
 @router.delete("/{company_id}/llm-hub/personas/{persona_key}/reset")
-async def reset_persona(
-    company_id: ValidCompanyId,
+@limiter.limit("20/minute;50/hour")
+async def reset_persona(request: Request, company_id: ValidCompanyId,
     persona_key: str,
     user: dict = Depends(get_current_user)
 ):

@@ -107,7 +107,8 @@ class MergeDecisionRequest(BaseModel):
 # =============================================================================
 
 @router.get("/companies/{company_id}/projects")
-async def list_projects(company_id: str, user: dict = Depends(get_current_user)):
+@limiter.limit("100/minute;500/hour")
+async def list_projects(request: Request, company_id: str, user: dict = Depends(get_current_user)):
     """List all active projects for a company."""
     access_token = user.get("access_token")
     try:
@@ -118,8 +119,8 @@ async def list_projects(company_id: str, user: dict = Depends(get_current_user))
 
 
 @router.post("/companies/{company_id}/projects")
-async def create_project(
-    company_id: str,
+@limiter.limit("30/minute;100/hour")
+async def create_project(request: Request, company_id: str,
     project: ProjectCreate,
     user: dict = Depends(get_current_user)
 ):
@@ -155,7 +156,8 @@ async def create_project(
 
 
 @router.get("/projects/{project_id}")
-async def get_project(project_id: str, user: dict = Depends(get_current_user)):
+@limiter.limit("100/minute;500/hour")
+async def get_project(request: Request, project_id: str, user: dict = Depends(get_current_user)):
     """Get a single project."""
     validate_uuid(project_id, "project_id")
     access_token = user.get("access_token")
@@ -168,8 +170,8 @@ async def get_project(project_id: str, user: dict = Depends(get_current_user)):
 
 
 @router.patch("/projects/{project_id}")
-async def update_project(
-    project_id: str,
+@limiter.limit("30/minute;100/hour")
+async def update_project(request: Request, project_id: str,
     update: ProjectUpdate,
     user: dict = Depends(get_current_user)
 ):
@@ -202,7 +204,8 @@ async def update_project(
 
 
 @router.post("/projects/{project_id}/touch")
-async def touch_project(project_id: str, user: dict = Depends(get_current_user)):
+@limiter.limit("100/minute;500/hour")
+async def touch_project(request: Request, project_id: str, user: dict = Depends(get_current_user)):
     """Update a project's last_accessed_at timestamp."""
     access_token = user.get("access_token")
     success = storage.touch_project_last_accessed(project_id, access_token)
@@ -210,7 +213,8 @@ async def touch_project(project_id: str, user: dict = Depends(get_current_user))
 
 
 @router.delete("/projects/{project_id}")
-async def delete_project(project_id: str, user: dict = Depends(get_current_user)):
+@limiter.limit("20/minute;50/hour")
+async def delete_project(request: Request, project_id: str, user: dict = Depends(get_current_user)):
     """Delete a project permanently."""
     validate_uuid(project_id, "project_id")
     access_token = user.get("access_token")
@@ -238,8 +242,8 @@ async def delete_project(project_id: str, user: dict = Depends(get_current_user)
 
 
 @router.get("/companies/{company_id}/projects/stats")
-async def list_projects_with_stats(
-    company_id: str,
+@limiter.limit("100/minute;500/hour")
+async def list_projects_with_stats(request: Request, company_id: str,
     status: Optional[str] = None,
     include_archived: bool = False,
     user: dict = Depends(get_current_user)
@@ -914,8 +918,8 @@ Today's date: {today_date}"""
 
 
 @router.get("/projects/{project_id}/report")
-async def get_project_report(
-    project_id: str,
+@limiter.limit("10/minute;30/hour")
+async def get_project_report(request: Request, project_id: str,
     user: dict = Depends(get_current_user)
 ):
     """Generate a professional report of all decisions made for a project."""

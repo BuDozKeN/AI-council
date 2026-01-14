@@ -101,8 +101,8 @@ async def validate_openrouter_key(key: str) -> bool:
 # =============================================================================
 
 @router.get("/openrouter-key")
-async def get_openrouter_key_status(
-    current_user=Depends(get_current_user)
+@limiter.limit("100/minute;500/hour")
+async def get_openrouter_key_status(request: Request, current_user=Depends(get_current_user)
 ) -> OpenRouterKeyResponse:
     """
     Get the status of the user's OpenRouter API key.
@@ -185,9 +185,8 @@ async def get_openrouter_key_status(
 
 @router.post("/openrouter-key")
 @limiter.limit("5/minute")
-async def save_openrouter_key(
-    http_request: Request,
-    request: OpenRouterKeyRequest,
+async def save_openrouter_key(request: Request,
+    key_request: OpenRouterKeyRequest,
     current_user=Depends(get_current_user)
 ) -> OpenRouterKeyResponse:
     """
@@ -195,7 +194,7 @@ async def save_openrouter_key(
     Validates the key before saving.
     Sets expiry to 90 days from now.
     """
-    key = request.key.strip()
+    key = key_request.key.strip()
 
     # Basic format validation
     if not key:
@@ -213,8 +212,8 @@ async def save_openrouter_key(
         log_api_key_event(
             current_user["id"],
             "validation_failed",
-            ip_address=http_request.client.host if http_request.client else None,
-            user_agent=http_request.headers.get("user-agent"),
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
             metadata={"reason": "OpenRouter validation failed"}
         )
         raise HTTPException(
@@ -254,8 +253,8 @@ async def save_openrouter_key(
     log_api_key_event(
         current_user["id"],
         "created",
-        ip_address=http_request.client.host if http_request.client else None,
-        user_agent=http_request.headers.get("user-agent"),
+        ip_address=request.client.host if request.client else None,
+        user_agent=request.headers.get("user-agent"),
         metadata={"key_suffix": suffix, "expires_at": expires_at.isoformat()}
     )
 
@@ -271,8 +270,8 @@ async def save_openrouter_key(
 
 
 @router.delete("/openrouter-key")
-async def delete_openrouter_key(
-    current_user=Depends(get_current_user)
+@limiter.limit("10/minute;30/hour")
+async def delete_openrouter_key(request: Request, current_user=Depends(get_current_user)
 ):
     """
     Remove the user's OpenRouter API key.
@@ -292,8 +291,8 @@ async def delete_openrouter_key(
 
 
 @router.post("/openrouter-key/test")
-async def test_openrouter_key(
-    current_user=Depends(get_current_user)
+@limiter.limit("10/minute;30/hour")
+async def test_openrouter_key(request: Request, current_user=Depends(get_current_user)
 ) -> OpenRouterKeyResponse:
     """
     Test the user's stored OpenRouter API key.
@@ -353,8 +352,8 @@ async def test_openrouter_key(
 
 
 @router.post("/openrouter-key/toggle")
-async def toggle_openrouter_key(
-    current_user=Depends(get_current_user)
+@limiter.limit("10/minute;30/hour")
+async def toggle_openrouter_key(request: Request, current_user=Depends(get_current_user)
 ) -> OpenRouterKeyResponse:
     """
     Toggle the is_active status of the user's OpenRouter API key.
@@ -412,9 +411,8 @@ async def toggle_openrouter_key(
 
 
 @router.post("/openrouter-key/rotate")
-async def rotate_openrouter_key(
-    request: OpenRouterKeyRequest,
-    http_request: Request,
+@limiter.limit("5/minute;15/hour")
+async def rotate_openrouter_key(request: Request, key_request: OpenRouterKeyRequest,
     current_user=Depends(get_current_user)
 ) -> OpenRouterKeyResponse:
     """
@@ -422,7 +420,7 @@ async def rotate_openrouter_key(
     Revokes the old key and saves the new one with fresh 90-day expiry.
     Increments rotation_count for audit purposes.
     """
-    key = request.key.strip()
+    key = key_request.key.strip()
 
     # Basic format validation
     if not key:
@@ -456,8 +454,8 @@ async def rotate_openrouter_key(
         log_api_key_event(
             current_user["id"],
             "validation_failed",
-            ip_address=http_request.client.host if http_request.client else None,
-            user_agent=http_request.headers.get("user-agent"),
+            ip_address=request.client.host if request.client else None,
+            user_agent=request.headers.get("user-agent"),
             metadata={"reason": "OpenRouter validation failed during rotation"}
         )
         raise HTTPException(
@@ -500,8 +498,8 @@ async def rotate_openrouter_key(
     log_api_key_event(
         current_user["id"],
         "rotated",
-        ip_address=http_request.client.host if http_request.client else None,
-        user_agent=http_request.headers.get("user-agent"),
+        ip_address=request.client.host if request.client else None,
+        user_agent=request.headers.get("user-agent"),
         metadata={
             "old_suffix": old_suffix,
             "new_suffix": suffix,
@@ -522,8 +520,8 @@ async def rotate_openrouter_key(
 
 
 @router.get("/openrouter-key/expiry")
-async def get_openrouter_key_expiry(
-    current_user=Depends(get_current_user)
+@limiter.limit("100/minute;500/hour")
+async def get_openrouter_key_expiry(request: Request, current_user=Depends(get_current_user)
 ):
     """
     Get detailed expiry information for the user's API key.
@@ -549,8 +547,8 @@ async def get_openrouter_key_expiry(
 
 
 @router.get("")
-async def get_user_settings(
-    current_user=Depends(get_current_user)
+@limiter.limit("100/minute;500/hour")
+async def get_user_settings(request: Request, current_user=Depends(get_current_user)
 ) -> UserSettingsResponse:
     """
     Get all user settings including BYOK status.
@@ -615,8 +613,8 @@ async def get_user_settings(
 
 
 @router.patch("")
-async def update_user_settings(
-    request: UpdateSettingsRequest,
+@limiter.limit("30/minute;100/hour")
+async def update_user_settings(request: Request, settings_request: UpdateSettingsRequest,
     current_user=Depends(get_current_user)
 ) -> UserSettingsResponse:
     """
@@ -625,13 +623,13 @@ async def update_user_settings(
     db = get_supabase_with_auth(current_user["access_token"])
 
     updates = {}
-    if request.default_mode:
-        if request.default_mode not in ("quick", "full_council"):
+    if settings_request.default_mode:
+        if settings_request.default_mode not in ("quick", "full_council"):
             raise HTTPException(
                 status_code=400,
                 detail="Invalid mode. Must be 'quick' or 'full_council'"
             )
-        updates["default_mode"] = request.default_mode
+        updates["default_mode"] = settings_request.default_mode
 
     if updates:
         # Upsert settings

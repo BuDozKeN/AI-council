@@ -375,7 +375,8 @@ router = APIRouter(prefix="/company", tags=["company-team"])
 # =============================================================================
 
 @router.get("/{company_id}/team")
-async def get_team(company_id: ValidCompanyId, user=Depends(get_current_user)):
+@limiter.limit("100/minute;500/hour")
+async def get_team(request: Request, company_id: ValidCompanyId, user=Depends(get_current_user)):
     """
     Get all departments with their roles from DATABASE.
     Returns hierarchical structure: departments → roles.
@@ -448,7 +449,8 @@ async def get_team(company_id: ValidCompanyId, user=Depends(get_current_user)):
 
 
 @router.post("/{company_id}/departments")
-async def create_department(company_id: ValidCompanyId, data: DepartmentCreate, user=Depends(get_current_user)):
+@limiter.limit("30/minute;100/hour")
+async def create_department(request: Request, company_id: ValidCompanyId, data: DepartmentCreate, user=Depends(get_current_user)):
     """Create a new department."""
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
@@ -479,7 +481,8 @@ async def create_department(company_id: ValidCompanyId, data: DepartmentCreate, 
 
 
 @router.put("/{company_id}/departments/{dept_id}")
-async def update_department(company_id: ValidCompanyId, dept_id: ValidDeptId, data: DepartmentUpdate, user=Depends(get_current_user)):
+@limiter.limit("30/minute;100/hour")
+async def update_department(request: Request, company_id: ValidCompanyId, dept_id: ValidDeptId, data: DepartmentUpdate, user=Depends(get_current_user)):
     """Update a department."""
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
@@ -500,7 +503,8 @@ async def update_department(company_id: ValidCompanyId, dept_id: ValidDeptId, da
 
 
 @router.post("/{company_id}/departments/{dept_id}/roles")
-async def create_role(company_id: ValidCompanyId, dept_id: ValidDeptId, data: RoleCreate, user=Depends(get_current_user)):
+@limiter.limit("30/minute;100/hour")
+async def create_role(request: Request, company_id: ValidCompanyId, dept_id: ValidDeptId, data: RoleCreate, user=Depends(get_current_user)):
     """Create a new role in a department."""
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
@@ -533,7 +537,8 @@ async def create_role(company_id: ValidCompanyId, dept_id: ValidDeptId, data: Ro
 
 
 @router.put("/{company_id}/departments/{dept_id}/roles/{role_id}")
-async def update_role(company_id: ValidCompanyId, dept_id: ValidDeptId, role_id: ValidRoleId, data: RoleUpdate, user=Depends(get_current_user)):
+@limiter.limit("30/minute;100/hour")
+async def update_role(request: Request, company_id: ValidCompanyId, dept_id: ValidDeptId, role_id: ValidRoleId, data: RoleUpdate, user=Depends(get_current_user)):
     """Update a role."""
     client = get_client(user)
 
@@ -553,7 +558,8 @@ async def update_role(company_id: ValidCompanyId, dept_id: ValidDeptId, role_id:
 
 
 @router.get("/{company_id}/departments/{dept_id}/roles/{role_id}")
-async def get_role(company_id: ValidCompanyId, dept_id: ValidDeptId, role_id: ValidRoleId, user=Depends(get_current_user)):
+@limiter.limit("100/minute;500/hour")
+async def get_role(request: Request, company_id: ValidCompanyId, dept_id: ValidDeptId, role_id: ValidRoleId, user=Depends(get_current_user)):
     """Get a single role with full details including system prompt."""
     client = get_client(user)
 
