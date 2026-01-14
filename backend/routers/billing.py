@@ -47,18 +47,21 @@ class BillingPortalRequest(BaseModel):
 # =============================================================================
 
 @router.get("/plans")
+@limiter.limit("100/minute;500/hour")
 async def get_billing_plans():
     """Get available subscription plans."""
     return billing.get_available_plans()
 
 
 @router.get("/subscription")
+@limiter.limit("100/minute;500/hour")
 async def get_subscription(user: dict = Depends(get_current_user)):
     """Get current user's subscription status."""
     return billing.get_user_subscription(user["id"], access_token=user.get("access_token"))
 
 
 @router.get("/can-query")
+@limiter.limit("100/minute;500/hour")
 async def check_can_query(user: dict = Depends(get_current_user)):
     """Check if user can make a council query."""
     return billing.check_can_query(user["id"], access_token=user.get("access_token"))
@@ -101,6 +104,7 @@ async def create_billing_portal(request: Request, portal: BillingPortalRequest, 
 
 
 @router.post("/webhook")
+@limiter.limit("1000/hour")
 async def stripe_webhook(request: Request):
     """Handle Stripe webhook events."""
     payload = await request.body()
