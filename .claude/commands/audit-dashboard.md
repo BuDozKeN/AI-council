@@ -11,7 +11,17 @@ You are running the AxCouncil audit dashboard. This command supports **selective
 /audit-dashboard llm-ops billing data     # LLM + Billing + Data architecture
 ```
 
-## Available Audit Categories (29 Total)
+## Available Audit Categories (39 Total)
+
+### Masterpiece Experience (6) - THE DIFFERENCE MAKERS
+| Shorthand | Full Name | What It Checks |
+|-----------|-----------|----------------|
+| `delight` | Delight & Micro-interactions | Animations, loading states, success celebrations |
+| `onboarding` | Onboarding & Time-to-Value | First 5 minutes, aha moment, activation |
+| `empty-states` | Empty States | First screens new users see, CTAs, guidance |
+| `copy` | Copywriting & Voice | Every word in the UI, tone, personality |
+| `power-user` | Power User Experience | Keyboard shortcuts, Cmd+K, bulk ops |
+| `emotions` | Emotional Journey | How users FEEL at every touchpoint |
 
 ### Core Product Quality (14)
 | Shorthand | Full Name | What It Checks |
@@ -31,7 +41,7 @@ You are running the AxCouncil audit dashboard. This command supports **selective
 | `resilience` | Resilience | Error handling, observability |
 | `api` | API Governance | Versioning, consistency |
 
-### Enterprise & Compliance (5)
+### Enterprise & Compliance (9)
 | Shorthand | Full Name | What It Checks |
 |-----------|-----------|----------------|
 | `legal` | Legal & Compliance | GDPR, CCPA, SOC 2, HIPAA readiness |
@@ -39,6 +49,10 @@ You are running the AxCouncil audit dashboard. This command supports **selective
 | `sso` | Enterprise SSO | SAML, OIDC, SCIM, MFA |
 | `dr` | Disaster Recovery | RTO/RPO, backups, business continuity |
 | `multitenancy` | Multi-Tenancy | White-label, tenant isolation |
+| `infra-cost` | Infrastructure Cost | Unit economics, TCO, scale projections |
+| `vendor-risk` | Vendor Risk | Third-party assessment, exit strategies |
+| `data-portability` | Data Portability | GDPR Art 20, export, deletion |
+| `secrets` | Secrets Management | API keys, rotation, exposure prevention |
 
 ### AI-Specific (2)
 | Shorthand | Full Name | What It Checks |
@@ -65,7 +79,7 @@ You are running the AxCouncil audit dashboard. This command supports **selective
 ### Meta
 | Shorthand | Full Name | What It Checks |
 |-----------|-----------|----------------|
-| `all` | Full Audit | All 29 categories |
+| `all` | Full Audit | All 39 categories |
 
 ## Your Mission
 
@@ -300,6 +314,50 @@ All audits measure against $25M / Silicon Valley standards:
 | Low | Polish, optimization, nice-to-haves | Backlog |
 
 ## Files to Analyze Per Category
+
+### Masterpiece Experience
+
+#### delight
+- `frontend/src/components/**/*.css` - Animation properties
+- `frontend/src/styles/` - Animation tokens
+- Framer Motion usage in components
+- Loading states, skeleton screens
+- Success/error feedback components
+
+#### onboarding
+- First-run experience components
+- Welcome flow/wizard
+- Empty states (first screens new users see)
+- Sample data/templates
+- Time-to-value path
+
+#### empty-states
+- Every screen's zero-data state
+- Empty state illustrations
+- Call-to-action clarity
+- Search no-results pages
+- Error state pages
+
+#### copy
+- All UI text, button labels, error messages
+- Tooltips, placeholders, microcopy
+- Empty state headlines
+- Loading/success/error messages
+- Voice consistency across app
+
+#### power-user
+- Keyboard shortcut implementations
+- Command palette (`Cmd+K`) if exists
+- Bulk operation capabilities
+- Context menus (right-click)
+- Advanced search/filters
+
+#### emotions
+- User journey touchpoints
+- Success celebration moments
+- Error recovery experience
+- Loading/waiting states
+- Trust signals
 
 ### Core Product Quality
 
