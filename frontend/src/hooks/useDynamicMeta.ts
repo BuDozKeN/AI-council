@@ -28,25 +28,31 @@ const BASE_URL = 'https://axcouncil.vercel.app';
 // Default meta config (used as fallback)
 const DEFAULT_META: MetaConfig = {
   title: 'AxCouncil - Strategic AI Advisory Platform',
-  description: 'Get expert AI advice from multiple models working together. Claude, GPT, Gemini, Grok, and DeepSeek collaborate to provide comprehensive decision-making support.',
-  keywords: 'AI advisory, multi-model AI, strategic decisions, Claude, GPT, Gemini, business intelligence',
+  description:
+    'Get expert AI advice from multiple models working together. Claude, GPT, Gemini, Grok, and DeepSeek collaborate to provide comprehensive decision-making support.',
+  keywords:
+    'AI advisory, multi-model AI, strategic decisions, Claude, GPT, Gemini, business intelligence',
 };
 
 // Route-specific meta configurations
 const META_CONFIGS: Record<string, MetaConfig> = {
   '/': {
     title: 'AxCouncil - Strategic AI Advisory Platform',
-    description: 'Get expert AI advice from multiple models working together. Claude, GPT, Gemini, Grok, and DeepSeek collaborate to provide comprehensive decision-making support.',
-    keywords: 'AI advisory, multi-model AI, strategic decisions, Claude, GPT, Gemini, business intelligence',
+    description:
+      'Get expert AI advice from multiple models working together. Claude, GPT, Gemini, Grok, and DeepSeek collaborate to provide comprehensive decision-making support.',
+    keywords:
+      'AI advisory, multi-model AI, strategic decisions, Claude, GPT, Gemini, business intelligence',
   },
   '/chat': {
     title: 'Chat - AxCouncil',
-    description: 'Engage with multiple AI models simultaneously for comprehensive advice and strategic insights.',
+    description:
+      'Engage with multiple AI models simultaneously for comprehensive advice and strategic insights.',
     keywords: 'AI chat, multi-model conversation, AI consultation',
   },
   '/settings': {
     title: 'Settings - AxCouncil',
-    description: 'Configure your AxCouncil account preferences, API keys, billing, and developer settings.',
+    description:
+      'Configure your AxCouncil account preferences, API keys, billing, and developer settings.',
     keywords: 'settings, account configuration, API keys',
   },
   '/settings/profile': {

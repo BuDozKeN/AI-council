@@ -39,7 +39,7 @@ const FAQ_ITEMS: FAQItem[] = [
     name: 'How does the 3-stage council deliberation work?',
     acceptedAnswer: {
       '@type': 'Answer',
-      text: 'Stage 1: Each AI model independently analyzes your question and provides initial recommendations. Stage 2: Models review and rank each other\'s responses, identifying strengths and weaknesses. Stage 3: A chairman model synthesizes all insights into a comprehensive final recommendation that incorporates diverse perspectives.',
+      text: "Stage 1: Each AI model independently analyzes your question and provides initial recommendations. Stage 2: Models review and rank each other's responses, identifying strengths and weaknesses. Stage 3: A chairman model synthesizes all insights into a comprehensive final recommendation that incorporates diverse perspectives.",
     },
   },
   {
@@ -55,7 +55,7 @@ const FAQ_ITEMS: FAQItem[] = [
     name: 'What types of decisions is AxCouncil best for?',
     acceptedAnswer: {
       '@type': 'Answer',
-      text: 'AxCouncil excels at strategic business decisions, technical architecture choices, hiring decisions, product roadmap planning, market analysis, and any complex decision requiring multiple perspectives. It\'s particularly valuable when you need to consider trade-offs, risks, and diverse viewpoints.',
+      text: "AxCouncil excels at strategic business decisions, technical architecture choices, hiring decisions, product roadmap planning, market analysis, and any complex decision requiring multiple perspectives. It's particularly valuable when you need to consider trade-offs, risks, and diverse viewpoints.",
     },
   },
   {
