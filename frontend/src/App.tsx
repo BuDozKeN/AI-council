@@ -24,6 +24,9 @@ import {
   useFullSEO,
   type ProjectModalContext,
 } from './hooks';
+import { useDynamicMeta } from './hooks/useDynamicMeta';
+import { useBreadcrumbSchema } from './hooks/useBreadcrumbSchema';
+import { useFAQSchema } from './hooks/useFAQSchema';
 import type { Project } from './types/business';
 import type { MyCompanyTab } from './components/mycompany/hooks';
 import { Toaster, toast } from './components/ui/sonner';
@@ -266,6 +269,15 @@ function App() {
 
   // SEO: Update canonical URL based on current route
   useCanonical();
+
+  // SEO: Dynamic meta tags for each route (title, description, OG tags)
+  useDynamicMeta();
+
+  // SEO: Breadcrumb schema for rich snippets in search results
+  useBreadcrumbSchema();
+
+  // SEO: FAQ schema for AI search engines (landing page only)
+  useFAQSchema();
 
   // Triage state
   const [triageState, setTriageState] = useState<TriageState>(null);
