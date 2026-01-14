@@ -14,6 +14,11 @@ from ..auth import get_current_user
 from .. import storage
 from ..security import SecureHTTPException, log_app_event
 
+# Import rate limiter
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+limiter = Limiter(key_func=get_remote_address)
+
 
 router = APIRouter(prefix="/profile", tags=["profile"])
 
@@ -35,6 +40,7 @@ class ProfileUpdateRequest(BaseModel):
 # =============================================================================
 
 @router.get("")
+@limiter.limit("100/minute;500/hour")
 async def get_profile(user: dict = Depends(get_current_user)):
     """Get current user's profile."""
     try:
@@ -52,6 +58,7 @@ async def get_profile(user: dict = Depends(get_current_user)):
 
 
 @router.put("")
+@limiter.limit("30/minute;100/hour")
 async def update_profile(request: ProfileUpdateRequest, user: dict = Depends(get_current_user)):
     """Update current user's profile."""
     try:

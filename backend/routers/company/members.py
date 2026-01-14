@@ -41,6 +41,7 @@ router = APIRouter(prefix="/company", tags=["company-members"])
 # - No email sending yet - manual addition only
 
 @router.get("/{company_id}/members")
+@limiter.limit("100/minute;500/hour")
 async def get_company_members(
     company_id: ValidCompanyId,
     user=Depends(get_current_user)
@@ -177,6 +178,7 @@ async def add_company_member(
 
 
 @router.patch("/{company_id}/members/{member_id}")
+@limiter.limit("30/minute;100/hour")
 async def update_company_member(
     company_id: ValidCompanyId,
     member_id: str,
@@ -254,6 +256,7 @@ async def update_company_member(
 
 
 @router.delete("/{company_id}/members/{member_id}")
+@limiter.limit("20/minute;50/hour")
 async def remove_company_member(
     company_id: ValidCompanyId,
     member_id: str,
@@ -343,6 +346,7 @@ async def remove_company_member(
 # - Only owners/admins can view usage
 
 @router.get("/{company_id}/usage")
+@limiter.limit("100/minute;500/hour")
 async def get_company_usage(
     company_id: ValidCompanyId,
     user=Depends(get_current_user)

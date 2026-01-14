@@ -13,6 +13,11 @@ from pydantic import BaseModel
 from ..auth import get_current_user
 from .. import config
 
+# Import rate limiter
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+limiter = Limiter(key_func=get_remote_address)
+
 
 router = APIRouter(prefix="/settings", tags=["dev-settings"])
 
@@ -49,6 +54,7 @@ VALID_MOCK_LENGTHS = {512, 1024, 1536, 2048, 4096, 8192}
 # =============================================================================
 
 @router.get("/mock-mode")
+@limiter.limit("60/minute;200/hour")
 async def get_mock_mode(user: dict = Depends(get_current_user)):
     """Get current mock mode status. Requires authentication."""
     from .. import openrouter
@@ -60,6 +66,7 @@ async def get_mock_mode(user: dict = Depends(get_current_user)):
 
 
 @router.post("/mock-mode")
+@limiter.limit("20/minute;60/hour")
 async def set_mock_mode(mock_request: MockModeRequest, user: dict = Depends(get_current_user)):
     """
     Toggle mock mode on/off at runtime. Requires authentication.
@@ -95,6 +102,7 @@ async def set_mock_mode(mock_request: MockModeRequest, user: dict = Depends(get_
 
 
 @router.get("/caching-mode")
+@limiter.limit("60/minute;200/hour")
 async def get_caching_mode(user: dict = Depends(get_current_user)):
     """Get current prompt caching status. Requires authentication."""
     return {
@@ -104,6 +112,7 @@ async def get_caching_mode(user: dict = Depends(get_current_user)):
 
 
 @router.post("/caching-mode")
+@limiter.limit("20/minute;60/hour")
 async def set_caching_mode(request: CachingModeRequest, user: dict = Depends(get_current_user)):
     """
     Toggle prompt caching on/off at runtime. Requires authentication.
@@ -118,6 +127,7 @@ async def set_caching_mode(request: CachingModeRequest, user: dict = Depends(get
 
 
 @router.get("/mock-length-override")
+@limiter.limit("60/minute;200/hour")
 async def get_mock_length_override(user: dict = Depends(get_current_user)):
     """Get current mock length override status. Requires authentication."""
     return {
@@ -127,6 +137,7 @@ async def get_mock_length_override(user: dict = Depends(get_current_user)):
 
 
 @router.post("/mock-length-override")
+@limiter.limit("20/minute;60/hour")
 async def set_mock_length_override(
     request: MockLengthOverrideRequest,
     user: dict = Depends(get_current_user)

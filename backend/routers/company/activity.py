@@ -19,6 +19,11 @@ from .utils import (
     ValidCompanyId,
 )
 
+# Import rate limiter
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+limiter = Limiter(key_func=get_remote_address)
+
 
 router = APIRouter(prefix="/company", tags=["company-activity"])
 
@@ -28,6 +33,7 @@ router = APIRouter(prefix="/company", tags=["company-activity"])
 # =============================================================================
 
 @router.get("/{company_id}/activity")
+@limiter.limit("100/minute;500/hour")
 async def get_activity_logs(
     company_id: ValidCompanyId,
     limit: int = 50,
@@ -103,6 +109,7 @@ async def get_activity_logs(
 
 
 @router.delete("/{company_id}/activity/cleanup")
+@limiter.limit("10/minute;30/hour")
 async def cleanup_orphaned_activity_logs(
     company_id: ValidCompanyId,
     user=Depends(get_current_user)

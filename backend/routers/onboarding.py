@@ -646,6 +646,7 @@ async def analyze_linkedin_profile(
 
 
 @router.get("/trial-status", response_model=TrialStatusResponse)
+@limiter.limit("100/minute;500/hour")
 async def get_trial_status(user: dict = Depends(get_current_user)):
     """
     Get the current user's trial status.
@@ -670,6 +671,7 @@ async def get_trial_status(user: dict = Depends(get_current_user)):
 
 
 @router.post("/use-trial")
+@limiter.limit("10/minute;30/hour")
 async def use_trial(
     request: Request,
     user: dict = Depends(get_current_user)
@@ -707,6 +709,7 @@ async def use_trial(
 
 
 @router.delete("/reset-trial")
+@limiter.limit("20/minute;50/hour")
 async def reset_trial(user: dict = Depends(get_current_user)):
     """
     Reset the user's trial status (DEV ONLY).

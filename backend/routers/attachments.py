@@ -96,6 +96,7 @@ async def upload_attachment(
 
 
 @router.get("/{attachment_id}")
+@limiter.limit("100/minute;500/hour")
 async def get_attachment(
     attachment_id: str,
     user: dict = Depends(get_current_user),
@@ -121,6 +122,7 @@ async def get_attachment(
 
 
 @router.get("/{attachment_id}/url")
+@limiter.limit("100/minute;500/hour")
 async def get_attachment_url(
     attachment_id: str,
     user: dict = Depends(get_current_user),
@@ -146,6 +148,7 @@ async def get_attachment_url(
 
 
 @router.delete("/{attachment_id}")
+@limiter.limit("20/minute;50/hour")
 async def delete_attachment(
     attachment_id: str,
     user: dict = Depends(get_current_user),
