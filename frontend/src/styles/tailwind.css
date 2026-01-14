@@ -1196,6 +1196,15 @@ button:not(:disabled):active,
    any conflicting utility classes applied via CVA.
    ============================================================================ */
 
+/* Shared transition for all button variants - smooth micro-interactions */
+[class*='btn-variant-'] {
+  transition:
+    background-color 0.15s ease-out,
+    box-shadow 0.15s ease-out,
+    transform 0.1s ease-out,
+    border-color 0.15s ease-out;
+}
+
 /* Primary Button - Indigo with premium shadow */
 button.btn-variant-default,
 .btn-variant-default {
@@ -1434,5 +1443,58 @@ button.btn-variant-link:hover:not(:disabled),
     padding: 6px 12px;
     min-height: 32px;
     font-size: 11px;
+  }
+}
+
+/* ============================================================================
+   INTERACTIVE CARD UTILITIES - Premium Hover Micro-Interactions
+
+   Add .card-interactive to any card/list item for delightful hover lift.
+   Respects prefers-reduced-motion.
+   ============================================================================ */
+
+.card-interactive {
+  transition:
+    transform 0.15s ease-out,
+    box-shadow 0.15s ease-out,
+    border-color 0.15s ease-out,
+    background-color 0.15s ease-out;
+}
+
+.card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.card-interactive:active {
+  transform: translateY(0) scale(0.99);
+}
+
+/* Dark mode - stronger shadow for visibility */
+.dark .card-interactive:hover,
+[data-theme='dark'] .card-interactive:hover {
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Subtle variant - less pronounced lift */
+.card-interactive-subtle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .card-interactive,
+  .card-interactive-subtle {
+    transition: none;
+  }
+
+  .card-interactive:hover,
+  .card-interactive-subtle:hover {
+    transform: none;
   }
 }

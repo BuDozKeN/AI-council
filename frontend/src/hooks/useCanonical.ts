@@ -8,7 +8,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-const BASE_URL = 'https://axcouncil.vercel.app';
+const BASE_URL = 'https://axcouncil.ai';
 
 export function useCanonical() {
   const location = useLocation();
