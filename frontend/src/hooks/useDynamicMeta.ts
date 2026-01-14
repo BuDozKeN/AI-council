@@ -186,18 +186,7 @@ export function useDynamicMeta() {
       updateMetaTag('name', 'twitter:image', `${BASE_URL}${meta.ogImage}`);
     }
 
-    // Update canonical URL (it should already be managed by useCanonical, but ensure consistency)
-    const canonicalLink = document.querySelector('link[rel="canonical"]');
-    if (canonicalLink) {
-      // Only update for public routes, not authenticated ones
-      const isPublicRoute = routeKey === '/' || routeKey === '/leaderboard';
-      if (isPublicRoute) {
-        canonicalLink.setAttribute('href', `${BASE_URL}${location.pathname}`);
-      } else {
-        // Authenticated routes should canonicalize to home
-        canonicalLink.setAttribute('href', BASE_URL);
-      }
-    }
+    // Note: Canonical URL is managed by useCanonical hook - don't duplicate here
   }, [location.pathname, location.search]);
 }
 
