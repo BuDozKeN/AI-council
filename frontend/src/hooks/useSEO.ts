@@ -75,9 +75,20 @@ export function useSEO(config: SEOConfig = {}) {
     setMetaTag('twitter:image', image);
 
     // Add alternate locale tags for Open Graph
+    // Note: og:locale:alternate requires MULTIPLE tags (one per language),
+    // so we can't use setMetaTag which reuses existing tags.
+    // First, remove any existing alternate locale tags
+    document
+      .querySelectorAll('meta[property="og:locale:alternate"]')
+      .forEach((el) => el.remove());
+
+    // Then create a new tag for each alternate language
     supportedLanguages.forEach((lang) => {
       if (lang.code !== currentLang) {
-        setMetaTag(`og:locale:alternate`, lang.code, true);
+        const meta = document.createElement('meta');
+        meta.setAttribute('property', 'og:locale:alternate');
+        meta.content = lang.code;
+        document.head.appendChild(meta);
       }
     });
 
