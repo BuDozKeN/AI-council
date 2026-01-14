@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
 import { api } from '../api';
 import { AdaptiveModal } from './ui/AdaptiveModal';
 import { Button } from './ui/button';
@@ -198,7 +199,64 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
 
           <div className="leaderboard-table">
             {currentLeaderboard.length === 0 ? (
-              <div className="no-data">{t('leaderboard.noDeptData')}</div>
+              <div className="mc-empty" style={{ padding: '60px 24px' }}>
+                <motion.svg
+                  width="120"
+                  height="120"
+                  viewBox="0 0 120 120"
+                  fill="none"
+                  className="mc-empty-icon-svg"
+                  style={{ marginBottom: '16px' }}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                >
+                  <defs>
+                    <linearGradient id="leaderboardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="var(--color-indigo-500)" stopOpacity="0.6" />
+                      <stop offset="100%" stopColor="var(--color-purple-500)" stopOpacity="0.6" />
+                    </linearGradient>
+                  </defs>
+
+                  {/* Podium - 3 levels */}
+                  {/* 2nd place (left) */}
+                  <rect x="20" y="55" width="25" height="30" rx="2" fill="url(#leaderboardGradient)" opacity="0.3" />
+                  <rect x="20" y="55" width="25" height="30" rx="2" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" />
+                  <text x="32.5" y="73" textAnchor="middle" fill="var(--color-text-secondary)" fontSize="16" fontWeight="600">2</text>
+
+                  {/* 1st place (center, tallest) */}
+                  <rect x="47.5" y="40" width="25" height="45" rx="2" fill="url(#leaderboardGradient)" opacity="0.5" />
+                  <rect x="47.5" y="40" width="25" height="45" rx="2" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" />
+                  <text x="60" y="65" textAnchor="middle" fill="var(--color-text-secondary)" fontSize="16" fontWeight="600">1</text>
+                  {/* Crown on first place */}
+                  <path
+                    d="M 55 32 L 57 28 L 60 30 L 63 28 L 65 32 L 60 35 Z"
+                    fill="var(--color-indigo-500)"
+                    opacity="0.6"
+                  />
+
+                  {/* 3rd place (right) */}
+                  <rect x="75" y="65" width="25" height="20" rx="2" fill="url(#leaderboardGradient)" opacity="0.2" />
+                  <rect x="75" y="65" width="25" height="20" rx="2" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" />
+                  <text x="87.5" y="78" textAnchor="middle" fill="var(--color-text-secondary)" fontSize="16" fontWeight="600">3</text>
+
+                  {/* Base line */}
+                  <line x1="15" y1="85" x2="105" y2="85" stroke="var(--color-border)" strokeWidth="2" />
+
+                  {/* Decorative stars */}
+                  <path d="M 30 25 L 32 27 L 34 25 L 32 23 Z" fill="var(--color-indigo-400)" opacity="0.4" />
+                  <path d="M 90 30 L 92 32 L 94 30 L 92 28 Z" fill="var(--color-purple-400)" opacity="0.4" />
+                  <circle cx="25" cy="40" r="2" fill="var(--color-indigo-300)" opacity="0.3" />
+                  <circle cx="95" cy="50" r="2" fill="var(--color-purple-300)" opacity="0.3" />
+                </motion.svg>
+
+                <p className="mc-empty-title" style={{ fontSize: '15px', fontWeight: 500, color: 'var(--color-text-secondary)', margin: 0 }}>
+                  {t('leaderboard.noDeptData')}
+                </p>
+                <p className="mc-empty-hint" style={{ color: 'var(--color-text-tertiary)', margin: '6px 0 0', fontSize: '0.875rem' }}>
+                  Rankings appear after council sessions are completed
+                </p>
+              </div>
             ) : (
               <table>
                 <thead>
