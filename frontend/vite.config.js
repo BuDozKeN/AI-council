@@ -180,32 +180,68 @@ export default defineConfig(({ mode }) => ({
     // Optimize chunk sizes for better caching and load performance
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Core React runtime - rarely changes, cache well
-          'vendor-react': ['react', 'react-dom'],
-          // Animation library - large, cache separately
-          'vendor-motion': ['framer-motion'],
-          // Markdown rendering - only needed when viewing messages
-          'vendor-markdown': ['react-markdown', 'remark-gfm', 'rehype-slug'],
-          // Radix UI components - used throughout, cache together
-          'vendor-radix': [
-            '@radix-ui/react-dialog',
-            '@radix-ui/react-select',
-            '@radix-ui/react-popover',
-            '@radix-ui/react-accordion',
-            '@radix-ui/react-slot',
-            '@radix-ui/react-visually-hidden',
-          ],
-          // Monitoring/analytics
-          'vendor-monitoring': ['@sentry/react', 'web-vitals'],
-          // Supabase client - auth/database, changes rarely
-          'vendor-supabase': ['@supabase/supabase-js'],
-          // TanStack Query - data fetching/caching layer
-          'vendor-query': [
-            '@tanstack/react-query',
-            '@tanstack/query-async-storage-persister',
-            '@tanstack/react-query-persist-client',
-          ],
+        manualChunks: (id) => {
+          // Vendor chunks - third-party libraries
+          if (id.includes('node_modules')) {
+            // Core React runtime - rarely changes, cache well
+            if (id.includes('react') || id.includes('react-dom')) {
+              return 'vendor-react';
+            }
+            // Animation library - large, cache separately
+            if (id.includes('framer-motion')) {
+              return 'vendor-motion';
+            }
+            // Markdown rendering - only needed when viewing messages
+            if (id.includes('react-markdown') || id.includes('remark-gfm') || id.includes('rehype-slug')) {
+              return 'vendor-markdown';
+            }
+            // Recharts - data visualization, lazy load with UsageTab
+            if (id.includes('recharts')) {
+              return 'vendor-recharts';
+            }
+            // Radix UI components - used throughout, cache together
+            if (id.includes('@radix-ui')) {
+              return 'vendor-radix';
+            }
+            // Monitoring/analytics
+            if (id.includes('@sentry/react') || id.includes('web-vitals')) {
+              return 'vendor-monitoring';
+            }
+            // Supabase client - auth/database, changes rarely
+            if (id.includes('@supabase/supabase-js')) {
+              return 'vendor-supabase';
+            }
+            // TanStack Query - data fetching/caching layer
+            if (id.includes('@tanstack/react-query') || id.includes('@tanstack/query')) {
+              return 'vendor-query';
+            }
+            // i18next - internationalization
+            if (id.includes('i18next') || id.includes('react-i18next')) {
+              return 'vendor-i18n';
+            }
+            // React Hook Form
+            if (id.includes('react-hook-form') || id.includes('@hookform')) {
+              return 'vendor-forms';
+            }
+            // Lucide icons - large icon library
+            if (id.includes('lucide-react')) {
+              return 'vendor-icons';
+            }
+          }
+
+          // Route-based code splitting - split by major features
+          if (id.includes('/src/components/chat/')) {
+            return 'route-chat';
+          }
+          if (id.includes('/src/components/mycompany/')) {
+            return 'route-mycompany';
+          }
+          if (id.includes('/src/components/onboarding/')) {
+            return 'route-onboarding';
+          }
+          if (id.includes('/src/components/Stage1') || id.includes('/src/components/Stage2') || id.includes('/src/components/Stage3')) {
+            return 'route-stages';
+          }
         },
       },
     },
