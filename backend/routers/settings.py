@@ -101,6 +101,7 @@ async def validate_openrouter_key(key: str) -> bool:
 # =============================================================================
 
 @router.get("/openrouter-key")
+@limiter.limit("100/minute;500/hour")
 async def get_openrouter_key_status(
     current_user=Depends(get_current_user)
 ) -> OpenRouterKeyResponse:
@@ -271,6 +272,7 @@ async def save_openrouter_key(
 
 
 @router.delete("/openrouter-key")
+@limiter.limit("10/minute;30/hour")
 async def delete_openrouter_key(
     current_user=Depends(get_current_user)
 ):
@@ -292,6 +294,7 @@ async def delete_openrouter_key(
 
 
 @router.post("/openrouter-key/test")
+@limiter.limit("10/minute;30/hour")
 async def test_openrouter_key(
     current_user=Depends(get_current_user)
 ) -> OpenRouterKeyResponse:
@@ -353,6 +356,7 @@ async def test_openrouter_key(
 
 
 @router.post("/openrouter-key/toggle")
+@limiter.limit("10/minute;30/hour")
 async def toggle_openrouter_key(
     current_user=Depends(get_current_user)
 ) -> OpenRouterKeyResponse:
@@ -412,6 +416,7 @@ async def toggle_openrouter_key(
 
 
 @router.post("/openrouter-key/rotate")
+@limiter.limit("5/minute;15/hour")
 async def rotate_openrouter_key(
     request: OpenRouterKeyRequest,
     http_request: Request,
@@ -522,6 +527,7 @@ async def rotate_openrouter_key(
 
 
 @router.get("/openrouter-key/expiry")
+@limiter.limit("100/minute;500/hour")
 async def get_openrouter_key_expiry(
     current_user=Depends(get_current_user)
 ):
@@ -549,6 +555,7 @@ async def get_openrouter_key_expiry(
 
 
 @router.get("")
+@limiter.limit("100/minute;500/hour")
 async def get_user_settings(
     current_user=Depends(get_current_user)
 ) -> UserSettingsResponse:
@@ -615,6 +622,7 @@ async def get_user_settings(
 
 
 @router.patch("")
+@limiter.limit("30/minute;100/hour")
 async def update_user_settings(
     request: UpdateSettingsRequest,
     current_user=Depends(get_current_user)
