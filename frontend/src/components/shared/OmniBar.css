@@ -426,6 +426,25 @@
    ICON BUTTONS - Context selectors and actions
    ============================================================================= */
 
+/* Icon with label wrapper */
+.omni-icon-with-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.omni-icon-label {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-text-tertiary);
+  text-align: center;
+  line-height: 1;
+  white-space: nowrap;
+  user-select: none;
+  transition: color 0.15s ease;
+}
+
 .omni-icon-btn {
   position: relative;
   display: flex;
@@ -444,6 +463,10 @@
 
 .omni-icon-btn:hover:not(:disabled) {
   background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.omni-icon-with-label:has(.omni-icon-btn:hover:not(:disabled)) .omni-icon-label {
   color: var(--color-text-secondary);
 }
 
@@ -687,6 +710,16 @@
   text-align: center;
   color: var(--color-text-tertiary);
   font-size: 13px;
+}
+
+.context-popover-help {
+  padding: 10px 12px;
+  margin-top: 8px;
+  border-top: 1px solid var(--color-border-primary);
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--color-text-tertiary);
+  text-align: center;
 }
 
 .context-popover-item {
@@ -1078,6 +1111,14 @@
   color: var(--color-text-primary);
 }
 
+.dark .omni-icon-label {
+  color: var(--color-text-secondary);
+}
+
+.dark .omni-icon-with-label:has(.omni-icon-btn:hover:not(:disabled)) .omni-icon-label {
+  color: var(--color-text-primary);
+}
+
 .dark .omni-icon-btn.company.has-selection {
   color: var(--color-emerald-400);
 }
@@ -1212,6 +1253,11 @@
 }
 
 .dark .context-popover-empty {
+  color: var(--color-text-tertiary);
+}
+
+.dark .context-popover-help {
+  border-top-color: var(--color-border-secondary);
   color: var(--color-text-tertiary);
 }
 

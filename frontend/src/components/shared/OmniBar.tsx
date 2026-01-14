@@ -40,6 +40,7 @@ import { BottomSheet } from '../ui/BottomSheet';
 import { useCouncilStats } from '../../hooks/useCouncilStats';
 import { DepartmentCheckboxItem } from '../ui/DepartmentCheckboxItem';
 import { ResponseStyleSelector } from '../chat/ResponseStyleSelector';
+import { toast } from '../ui/sonner';
 import type { Business, Department, Role, Playbook, Project } from '../../types/business';
 import '../ui/Tooltip.css';
 import './OmniBar.css';
@@ -291,26 +292,47 @@ export function OmniBar({
   // Toggle helpers for context selections
   const toggleDepartment = (id: string) => {
     if (!onSelectDepartments) return;
-    const newSelection = selectedDepartments.includes(id)
-      ? selectedDepartments.filter((d) => d !== id)
-      : [...selectedDepartments, id];
+    const isAdding = !selectedDepartments.includes(id);
+    const dept = departments.find((d) => d.id === id);
+    const newSelection = isAdding
+      ? [...selectedDepartments, id]
+      : selectedDepartments.filter((d) => d !== id);
     onSelectDepartments(newSelection);
+
+    // Show feedback toast
+    if (dept) {
+      toast.success(isAdding ? t('context.departmentAdded', { name: dept.name }) : t('context.departmentRemoved', { name: dept.name }));
+    }
   };
 
   const toggleRole = (id: string) => {
     if (!onSelectRoles) return;
-    const newSelection = selectedRoles.includes(id)
-      ? selectedRoles.filter((r) => r !== id)
-      : [...selectedRoles, id];
+    const isAdding = !selectedRoles.includes(id);
+    const role = roles.find((r) => r.id === id);
+    const newSelection = isAdding
+      ? [...selectedRoles, id]
+      : selectedRoles.filter((r) => r !== id);
     onSelectRoles(newSelection);
+
+    // Show feedback toast
+    if (role) {
+      toast.success(isAdding ? t('context.roleAdded', { name: role.name }) : t('context.roleRemoved', { name: role.name }));
+    }
   };
 
   const togglePlaybook = (id: string) => {
     if (!onSelectPlaybooks) return;
-    const newSelection = selectedPlaybooks.includes(id)
-      ? selectedPlaybooks.filter((p) => p !== id)
-      : [...selectedPlaybooks, id];
+    const isAdding = !selectedPlaybooks.includes(id);
+    const playbook = playbooks.find((p) => p.id === id);
+    const newSelection = isAdding
+      ? [...selectedPlaybooks, id]
+      : selectedPlaybooks.filter((p) => p !== id);
     onSelectPlaybooks(newSelection);
+
+    // Show feedback toast
+    if (playbook) {
+      toast.success(isAdding ? t('context.playbookAdded', { name: playbook.name }) : t('context.playbookRemoved', { name: playbook.name }));
+    }
   };
 
   // Company list content - single select (radio-style)
@@ -326,8 +348,11 @@ export function OmniBar({
               key={biz.id}
               className={cn('context-popover-item', isSelected && 'selected')}
               onClick={() => {
-                onSelectBusiness?.(isSelected ? null : biz.id);
+                const isAdding = !isSelected;
+                onSelectBusiness?.(isAdding ? biz.id : null);
                 setCompanyOpen(false);
+                // Show feedback toast
+                toast.success(isAdding ? t('context.companySelected', { name: biz.name }) : t('context.companyCleared'));
               }}
               type="button"
             >
@@ -357,8 +382,11 @@ export function OmniBar({
                 key={proj.id}
                 className={cn('context-popover-item', isSelected && 'selected')}
                 onClick={() => {
-                  onSelectProject?.(isSelected ? null : proj.id);
+                  const isAdding = !isSelected;
+                  onSelectProject?.(isAdding ? proj.id : null);
                   setProjectOpen(false);
+                  // Show feedback toast
+                  toast.success(isAdding ? t('context.projectSelected', { name: proj.name }) : t('context.projectCleared'));
                 }}
                 type="button"
               >
@@ -375,47 +403,61 @@ export function OmniBar({
 
   // Department list content - uses shared DepartmentCheckboxItem
   const departmentList = (
-    <div className="context-popover-list">
-      {departments.length === 0 ? (
-        <div className="context-popover-empty">{t('context.noDepartments')}</div>
-      ) : (
-        departments.map((dept) => (
-          <DepartmentCheckboxItem
-            key={dept.id}
-            department={dept}
-            isSelected={selectedDepartments.includes(dept.id)}
-            onToggle={toggleDepartment}
-            isMobile={isMobile}
-          />
-        ))
+    <>
+      <div className="context-popover-list">
+        {departments.length === 0 ? (
+          <div className="context-popover-empty">{t('context.noDepartments')}</div>
+        ) : (
+          departments.map((dept) => (
+            <DepartmentCheckboxItem
+              key={dept.id}
+              department={dept}
+              isSelected={selectedDepartments.includes(dept.id)}
+              onToggle={toggleDepartment}
+              isMobile={isMobile}
+            />
+          ))
+        )}
+      </div>
+      {departments.length > 0 && (
+        <div className="context-popover-help">
+          {t('context.multiSelectHelp')}
+        </div>
       )}
-    </div>
+    </>
   );
 
   // Role list content
   const roleList = (
-    <div className="context-popover-list">
-      {roles.length === 0 ? (
-        <div className="context-popover-empty">{t('context.noRoles')}</div>
-      ) : (
-        roles.map((role) => {
-          const isSelected = selectedRoles.includes(role.id);
-          return (
-            <button
-              key={role.id}
-              className={cn('context-popover-item', isSelected && 'selected')}
-              onClick={() => toggleRole(role.id)}
-              type="button"
-            >
-              <div className={cn('context-popover-checkbox', isSelected && 'checked')}>
-                {isSelected && <Check size={12} />}
-              </div>
-              <span>{role.name}</span>
-            </button>
-          );
-        })
+    <>
+      <div className="context-popover-list">
+        {roles.length === 0 ? (
+          <div className="context-popover-empty">{t('context.noRoles')}</div>
+        ) : (
+          roles.map((role) => {
+            const isSelected = selectedRoles.includes(role.id);
+            return (
+              <button
+                key={role.id}
+                className={cn('context-popover-item', isSelected && 'selected')}
+                onClick={() => toggleRole(role.id)}
+                type="button"
+              >
+                <div className={cn('context-popover-checkbox', isSelected && 'checked')}>
+                  {isSelected && <Check size={12} />}
+                </div>
+                <span>{role.name}</span>
+              </button>
+            );
+          })
+        )}
+      </div>
+      {roles.length > 0 && (
+        <div className="context-popover-help">
+          {t('context.multiRoleHelp')}
+        </div>
       )}
-    </div>
+    </>
   );
 
   // Group playbooks by type
@@ -442,60 +484,67 @@ export function OmniBar({
 
   // Playbook list content - grouped by type with collapsible sections
   const playbookList = (
-    <div className="context-popover-list">
-      {playbooks.length === 0 ? (
-        <div className="context-popover-empty">{t('context.noPlaybooks')}</div>
-      ) : (
-        playbookTypeOrder
-          .filter((type) => (groupedPlaybooks[type]?.length ?? 0) > 0)
-          .map((type) => {
-            const config = playbookTypeConfig[type]!;
-            const items = groupedPlaybooks[type] ?? [];
-            const isExpanded = expandedSections[type] ?? false;
-            const selectedCount = getSelectedCount(type);
-            return (
-              <div key={type} className="context-popover-group">
-                <button
-                  type="button"
-                  className={cn('context-popover-group-header clickable', type)}
-                  onClick={() => toggleSection(type)}
-                >
-                  <ChevronRight
-                    size={12}
-                    className={cn('section-chevron', isExpanded && 'expanded')}
-                  />
-                  {config.icon}
-                  <span className="section-label">{config.label}</span>
-                  <span className="section-count">
-                    {selectedCount > 0 && <span className="selected-count">{selectedCount}/</span>}
-                    {items.length}
-                  </span>
-                </button>
-                {isExpanded && (
-                  <div className="context-popover-group-items">
-                    {items.map((pb) => {
-                      const isSelected = selectedPlaybooks.includes(pb.id);
-                      return (
-                        <button
-                          key={pb.id}
-                          className={cn('context-popover-item', isSelected && 'selected')}
-                          onClick={() => togglePlaybook(pb.id)}
-                          type="button"
-                        >
-                          <div className={cn('context-popover-checkbox', isSelected && 'checked')}>
-                            {isSelected && <Check size={12} />}
-                          </div>
-                          <span>{pb.title || pb.name}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })
+    <>
+      <div className="context-popover-list">
+        {playbooks.length === 0 ? (
+          <div className="context-popover-empty">{t('context.noPlaybooks')}</div>
+        ) : (
+          playbookTypeOrder
+            .filter((type) => (groupedPlaybooks[type]?.length ?? 0) > 0)
+            .map((type) => {
+              const config = playbookTypeConfig[type]!;
+              const items = groupedPlaybooks[type] ?? [];
+              const isExpanded = expandedSections[type] ?? false;
+              const selectedCount = getSelectedCount(type);
+              return (
+                <div key={type} className="context-popover-group">
+                  <button
+                    type="button"
+                    className={cn('context-popover-group-header clickable', type)}
+                    onClick={() => toggleSection(type)}
+                  >
+                    <ChevronRight
+                      size={12}
+                      className={cn('section-chevron', isExpanded && 'expanded')}
+                    />
+                    {config.icon}
+                    <span className="section-label">{config.label}</span>
+                    <span className="section-count">
+                      {selectedCount > 0 && <span className="selected-count">{selectedCount}/</span>}
+                      {items.length}
+                    </span>
+                  </button>
+                  {isExpanded && (
+                    <div className="context-popover-group-items">
+                      {items.map((pb) => {
+                        const isSelected = selectedPlaybooks.includes(pb.id);
+                        return (
+                          <button
+                            key={pb.id}
+                            className={cn('context-popover-item', isSelected && 'selected')}
+                            onClick={() => togglePlaybook(pb.id)}
+                            type="button"
+                          >
+                            <div className={cn('context-popover-checkbox', isSelected && 'checked')}>
+                              {isSelected && <Check size={12} />}
+                            </div>
+                            <span>{pb.title || pb.name}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })
+        )}
+      </div>
+      {playbooks.length > 0 && (
+        <div className="context-popover-help">
+          {t('context.multiPlaybookHelp')}
+        </div>
       )}
-    </div>
+    </>
   );
 
   // Wrap button with tooltip for mom-friendly help
@@ -538,6 +587,14 @@ export function OmniBar({
       </button>
     );
 
+    // Wrap button with label for better UX
+    const iconWithLabel = (
+      <div className="omni-icon-with-label">
+        {iconButton}
+        <span className="omni-icon-label">{label}</span>
+      </div>
+    );
+
     // Header with optional Clear button
     const header = (
       <div className="context-popover-header">
@@ -560,7 +617,7 @@ export function OmniBar({
     if (isMobile) {
       return (
         <>
-          {withTooltip(iconButton, tooltipText)}
+          {iconWithLabel}
           <BottomSheet
             isOpen={open}
             onClose={() => setOpen(false)}
@@ -591,7 +648,9 @@ export function OmniBar({
         <Tooltip.Provider delayDuration={400}>
           <Tooltip.Root>
             <Popover.Trigger asChild>
-              <Tooltip.Trigger asChild>{iconButton}</Tooltip.Trigger>
+              <Tooltip.Trigger asChild>
+                <div>{iconWithLabel}</div>
+              </Tooltip.Trigger>
             </Popover.Trigger>
             <Tooltip.Portal>
               <Tooltip.Content className="tooltip-content" sideOffset={8}>

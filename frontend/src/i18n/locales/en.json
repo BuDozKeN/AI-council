@@ -566,7 +566,20 @@
     "department": "Department",
     "deptContext": "Dept Context",
     "toggleCompanyContext": "Toggle company-wide context (main company knowledge)",
-    "toggleDeptContext": "Toggle department-specific context (department knowledge)"
+    "toggleDeptContext": "Toggle department-specific context (department knowledge)",
+    "companySelected": "{{name}} selected",
+    "companyCleared": "Company cleared",
+    "projectSelected": "{{name}} selected",
+    "projectCleared": "Project cleared",
+    "departmentAdded": "{{name}} added",
+    "departmentRemoved": "{{name}} removed",
+    "roleAdded": "{{name}} perspective added",
+    "roleRemoved": "{{name}} perspective removed",
+    "playbookAdded": "{{name}} applied",
+    "playbookRemoved": "{{name}} removed",
+    "multiSelectHelp": "Select multiple to get cross-functional perspectives",
+    "multiRoleHelp": "Choose multiple expert viewpoints for balanced advice",
+    "multiPlaybookHelp": "Apply multiple guides to get comprehensive recommendations"
   },
   "stages": {
     "stage1": "Stage 1: Individual Responses",
