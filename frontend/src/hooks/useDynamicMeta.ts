@@ -25,6 +25,13 @@ interface MetaConfig {
 
 const BASE_URL = 'https://axcouncil.vercel.app';
 
+// Default meta config (used as fallback)
+const DEFAULT_META: MetaConfig = {
+  title: 'AxCouncil - Strategic AI Advisory Platform',
+  description: 'Get expert AI advice from multiple models working together. Claude, GPT, Gemini, Grok, and DeepSeek collaborate to provide comprehensive decision-making support.',
+  keywords: 'AI advisory, multi-model AI, strategic decisions, Claude, GPT, Gemini, business intelligence',
+};
+
 // Route-specific meta configurations
 const META_CONFIGS: Record<string, MetaConfig> = {
   '/': {
@@ -145,7 +152,7 @@ export function useDynamicMeta() {
       }
     }
 
-    const meta = META_CONFIGS[routeKey] || META_CONFIGS['/'];
+    const meta = META_CONFIGS[routeKey] ?? DEFAULT_META;
 
     // Update document title
     document.title = meta.title;

@@ -16,6 +16,15 @@
 
 const BASE_URL = 'https://axcouncil.vercel.app';
 
+// Default OG image config (used as fallback)
+const DEFAULT_OG_IMAGE: OGImageConfig = {
+  url: `${BASE_URL}/og-image.png`,
+  width: 1200,
+  height: 630,
+  alt: 'AxCouncil - Strategic AI Advisory Platform',
+  type: 'image/png',
+};
+
 export interface OGImageConfig {
   url: string;
   width: number;
@@ -50,7 +59,7 @@ export const OG_IMAGES: Record<string, OGImageConfig> = {
  * Get OG image config for current route
  */
 export function getOGImageForRoute(pathname: string): OGImageConfig {
-  return OG_IMAGES[pathname] || OG_IMAGES['/'];
+  return OG_IMAGES[pathname] ?? DEFAULT_OG_IMAGE;
 }
 
 /**
