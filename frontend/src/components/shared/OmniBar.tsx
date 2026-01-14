@@ -797,7 +797,7 @@ export function OmniBar({
                   >
                     <span
                       className={cn(
-                        'inline-mode-btn no-touch-target',
+                        'inline-mode-indicator no-touch-target',
                         chatMode === 'chat' && 'active'
                       )}
                       aria-hidden="true"
@@ -806,7 +806,7 @@ export function OmniBar({
                     </span>
                     <span
                       className={cn(
-                        'inline-mode-btn no-touch-target',
+                        'inline-mode-indicator no-touch-target',
                         chatMode === 'council' && 'active'
                       )}
                       aria-hidden="true"
