@@ -147,7 +147,7 @@
 }
 
 /* Inner spans are visual indicators only (not clickable themselves) */
-.inline-mode-btn {
+.inline-mode-indicator {
   padding: 4px 10px;
   background: transparent;
   color: var(--color-text-tertiary);
@@ -159,7 +159,7 @@
   pointer-events: none; /* Not clickable - parent button handles clicks */
 }
 
-.inline-mode-btn.active {
+.inline-mode-indicator.active {
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
   box-shadow: 0 1px 2px var(--overlay-black-10);
@@ -912,7 +912,7 @@
     padding: 2px;
   }
 
-  .inline-mode-btn {
+  .inline-mode-indicator {
     padding: 5px 10px;
     font-size: 11px;
     min-height: unset;
@@ -1156,11 +1156,11 @@
   border-color: var(--color-border-dark);
 }
 
-.dark .inline-mode-btn {
+.dark .inline-mode-indicator {
   color: var(--color-text-quaternary);
 }
 
-.dark .inline-mode-btn.active {
+.dark .inline-mode-indicator.active {
   background: var(--color-bg-tertiary);
   color: var(--color-text-primary);
   box-shadow: 0 1px 2px var(--overlay-black-20);
