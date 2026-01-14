@@ -22,6 +22,11 @@ Usage:
 from typing import Dict, Any, Optional
 import sys
 
+try:
+    from .security import log_app_event, log_error
+except ImportError:
+    from backend.security import log_app_event, log_error
+
 # Hardcoded fallbacks (used if database unavailable)
 # These match the presets seeded in the migration
 FALLBACK_CONFIGS = {
@@ -101,12 +106,12 @@ async def get_llm_config(
 
                 if result.data and isinstance(result.data, dict):
                     config.update(result.data)
-                    print(f"[llm_config] {stage} config from DB: max_tokens={config.get('max_tokens')}", file=sys.stderr)
+                    log_app_event("llm_config_loaded", level="INFO", details={"stage": stage, "max_tokens": config.get('max_tokens')})
                 else:
-                    print(f"[llm_config] {stage} no DB config returned, using fallback: max_tokens={config.get('max_tokens')}", file=sys.stderr)
+                    log_app_event("llm_config_fallback", level="WARNING", details={"stage": stage, "max_tokens": config.get('max_tokens')})
         except Exception as e:
             # Log but don't fail - use defaults
-            print(f"[llm_config] get_llm_config failed for {department_id}: {type(e).__name__} - using fallback: max_tokens={config.get('max_tokens')}", file=sys.stderr)
+            log_error("llm_config_failed", e, details={"department_id": department_id, "stage": stage, "max_tokens": config.get('max_tokens')})
 
     # Apply conversation modifier (bounded adjustment)
     if conversation_modifier:
