@@ -100,7 +100,7 @@ export function getOGImageForRoute(pathname: string): OGImageConfig {
 /**
  * Dynamic URL generator (for future implementation)
  */
-export function generateDynamicOGImageUrl(route: string, title: string, description: string): string {
+export function generateDynamicOGImageUrl(route: string, _title: string, _description: string): string {
   // Future: Point to /api/og endpoint
   // return `${BASE_URL}/api/og?route=${encodeURIComponent(route)}&title=${encodeURIComponent(title)}&description=${encodeURIComponent(description)}`;
 

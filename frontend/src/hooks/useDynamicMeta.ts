@@ -14,7 +14,7 @@
  */
 
 import { useEffect } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 interface MetaConfig {
   title: string;
@@ -124,7 +124,6 @@ const META_CONFIGS: Record<string, MetaConfig> = {
  */
 export function useDynamicMeta() {
   const location = useLocation();
-  const params = useParams();
 
   useEffect(() => {
     // Build the route path from location
