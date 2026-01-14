@@ -689,6 +689,8 @@ async def query_model_stream(
     """
     Query a single model via OpenRouter API with streaming.
 
+    Refactored to use helper functions for better maintainability.
+
     Args:
         model: OpenRouter model identifier (e.g., "openai/gpt-4o")
         messages: List of message dicts with 'role' and 'content'
@@ -702,17 +704,23 @@ async def query_model_stream(
     Yields:
         Text chunks as they arrive from the model
     """
-    # === TIMING INSTRUMENTATION ===
-    request_start_time = time.time()
-    time_to_first_token: Optional[float] = None
+    from .openrouter_stream_refactored import (
+        _build_streaming_payload,
+        _should_retry_connection_error,
+        _handle_http_error_response,
+        _process_sse_stream
+    )
 
-    # === MOCK MODE INTERCEPT ===
+    # 1. Timing instrumentation
+    request_start_time = time.time()
+
+    # 2. Mock mode intercept
     if MOCK_LLM:
         async for chunk in generate_mock_response_stream(model, messages, max_tokens=max_tokens):
             yield chunk
         return
 
-    # === CIRCUIT BREAKER CHECK (per-model) ===
+    # 3. Circuit breaker check
     breaker = await _circuit_breaker_registry.get_breaker(model)
     if not await breaker.can_execute():
         status = breaker.get_status()
@@ -720,157 +728,40 @@ async def query_model_stream(
         yield f"[Error: {model} temporarily unavailable. Please retry in {recovery_secs:.0f}s]"
         return
 
-    # === REAL API CALL ===
-    # Use provided API key, context variable, or fall back to system key
+    # 4. Prepare API request
     effective_key = get_effective_api_key(api_key)
     headers = {
         "Authorization": f"Bearer {effective_key}",
         "Content-Type": "application/json",
     }
 
-    # Apply prompt caching if enabled (KILL SWITCH: set ENABLE_PROMPT_CACHING=false to disable)
     cached_messages = convert_to_cached_messages(messages, model)
+    payload = _build_streaming_payload(model, cached_messages, temperature, max_tokens, top_p)
 
-    payload = {
-        "model": model,
-        "messages": cached_messages,
-        "stream": True,
-        "max_tokens": max_tokens if max_tokens is not None else 16384,
-        "usage": {"include": True},  # Required for token usage in streaming responses
-    }
-
-    # Add optional LLM parameters (department-specific behavior)
-    if temperature is not None:
-        payload["temperature"] = temperature
-    if top_p is not None:
-        payload["top_p"] = top_p
-
-    # Only add reasoning parameter for models that support it
-    # - Gemini 3 Pro has mandatory thinking that cannot be excluded
-    # - Gemini 2.5 models use thinkingBudget instead of reasoning parameter
-    # - Kimi K2 does not support the reasoning parameter (causes 400 error)
-    # - Grok models do not support the reasoning parameter
-    is_gemini_3 = "gemini-3" in model.lower()
-    is_gemini_2_5 = "gemini-2.5" in model.lower()
-    is_kimi = "kimi" in model.lower() or "moonshot" in model.lower()
-    is_grok = "grok" in model.lower()
-    supports_reasoning = not is_gemini_3 and not is_gemini_2_5 and not is_kimi and not is_grok
-    if supports_reasoning:
-        # Exclude reasoning/thinking tokens from response - users should only see final answer
-        # This affects reasoning models like o1, o3, GPT-5.1
-        payload["reasoning"] = {"exclude": True}
-
+    # 5. Retry loop with streaming
     retries = 0
-    should_retry = False
-
-    # Use the shared HTTP client for connection pooling
     client = get_http_client(timeout)
 
     while retries <= max_retries:
-        should_retry = False
         try:
-            async with client.stream(
-                "POST",
-                OPENROUTER_API_URL,
-                headers=headers,
-                json=payload
-            ) as response:
-                # Check for HTTP errors BEFORE reading stream - this lets us capture error body
+            async with client.stream("POST", OPENROUTER_API_URL, headers=headers, json=payload) as response:
+                # Handle HTTP errors before reading stream
                 if response.status_code >= 400:
-                    # Record failure for 5xx errors
-                    if response.status_code >= 500:
-                        await breaker.record_failure()
-                    yield f"[Error: Status {response.status_code}]"
+                    error_msg, _ = _handle_http_error_response(response.status_code, breaker)
+                    yield error_msg
                     return
 
-                line_count = 0
-                token_count = 0
-                usage_data = None  # Capture usage from final chunk
-                async for line in response.aiter_lines():
-                    line_count += 1
-                    if line.startswith("data: "):
-                        data_str = line[6:]  # Remove "data: " prefix
-                        if data_str.strip() == "[DONE]":
-                            # Successfully completed - record success
-                            await breaker.record_success()
-                            # Yield usage data as final event if captured
-                            if usage_data:
-                                yield f"[USAGE:{json.dumps(usage_data)}]"
-                            return
-                        try:
-                            data = json.loads(data_str)
-
-                            # Check for error response (Overloaded, rate limit, server errors, etc.)
-                            if 'error' in data:
-                                error_msg = data['error'].get('message', 'Unknown error')
-                                error_code = data['error'].get('code', 0)
-
-                                # Retry on overloaded, rate limit, or server errors (500, 503)
-                                is_retryable = (
-                                    'overloaded' in error_msg.lower() or
-                                    'rate' in error_msg.lower() or
-                                    'internal server' in error_msg.lower() or
-                                    error_code in [429, 500, 502, 503, 504]
-                                )
-                                if is_retryable and retries < max_retries:
-                                    should_retry = True
-                                    # Use exponential backoff with jitter to prevent thundering herd
-                                    # Rate limits get longer base delay
-                                    base = 5.0 if error_code == 429 else 2.0
-                                    wait_time = calculate_backoff_with_jitter(retries, base_delay=base)
-                                    await asyncio.sleep(wait_time)
-                                    break  # Break inner loop to retry
-                                yield f"[Error: {error_msg}]"
-                                return
-
-                            # Capture usage data (sent in final chunk before [DONE])
-                            if 'usage' in data:
-                                usage = data['usage']
-                                total_latency = time.time() - request_start_time
-                                usage_data = {
-                                    'prompt_tokens': usage.get('prompt_tokens', 0),
-                                    'completion_tokens': usage.get('completion_tokens', 0),
-                                    'total_tokens': usage.get('total_tokens', 0),
-                                    'cache_creation_input_tokens': usage.get('cache_creation_input_tokens', 0),
-                                    'cache_read_input_tokens': usage.get('cache_read_input_tokens', 0),
-                                    'model': model,
-                                    # Timing metrics for observability
-                                    'time_to_first_token_ms': round(time_to_first_token * 1000) if time_to_first_token else None,
-                                    'total_latency_ms': round(total_latency * 1000),
-                                }
-
-                            choice = data.get('choices', [{}])[0]
-                            delta = choice.get('delta', {})
-                            finish_reason = choice.get('finish_reason')
-
-                            # Check for truncation: finish_reason="length" means max_tokens was hit
-                            if finish_reason == 'length':
-                                # Model was cut off - yield truncation warning
-                                yield "[TRUNCATED]"
-                                await breaker.record_success()  # Still a successful call
-                                if usage_data:
-                                    yield f"[USAGE:{json.dumps(usage_data)}]"
-                                return
-
-                            # Only yield 'content' field - this is the actual response
-                            # The 'reasoning' field contains internal model thinking (chain of thought)
-                            # which should NOT be displayed to users
-                            content = delta.get('content', '')
-
-                            # Yield content if present (the actual answer)
-                            if content:
-                                # Capture time to first token
-                                if time_to_first_token is None:
-                                    time_to_first_token = time.time() - request_start_time
-                                token_count += 1
-                                yield content
-                            # NOTE: We intentionally do NOT yield 'reasoning' field
-                            # as it contains internal model thinking that users shouldn't see
-                        except json.JSONDecodeError:
-                            continue  # Skip malformed JSON lines
+                # Process SSE stream (core streaming logic)
+                should_retry = False
+                async for chunk_or_signal in _process_sse_stream(response, model, breaker, request_start_time, retries, max_retries):
+                    # Check if it's a retry signal (tuple) or content chunk (string)
+                    if isinstance(chunk_or_signal, tuple):
+                        should_retry, retries = chunk_or_signal
+                        break
+                    yield chunk_or_signal
 
                 if not should_retry:
-                    return  # Done, exit the retry loop
+                    return
 
         except httpx.TimeoutException:
             await breaker.record_failure()
@@ -882,13 +773,11 @@ async def query_model_stream(
             yield f"[Error: Status {e.response.status_code}]"
             return
         except (httpx.ConnectError, httpx.ReadError, httpx.RemoteProtocolError):
-            # Connection errors are often transient - retry them
-            if retries < max_retries:
+            if _should_retry_connection_error(retries, max_retries):
                 wait_time = calculate_backoff_with_jitter(retries, base_delay=1.0)
                 await asyncio.sleep(wait_time)
                 retries += 1
-                continue  # Retry the loop
-            # Final retry failed - record failure
+                continue
             await breaker.record_failure()
             yield "[Error: Connection failed]"
             return
