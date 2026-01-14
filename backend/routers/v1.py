@@ -5,9 +5,14 @@ Aggregates all API endpoints under the /api/v1 version prefix.
 This provides a stable, versioned API for clients.
 """
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 
 from .. import model_registry
+
+# Import rate limiter
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+limiter = Limiter(key_func=get_remote_address)
 from .company import router as company_router
 from .settings import router as settings_router
 from .conversations import router as conversations_router
@@ -59,7 +64,8 @@ def _extract_provider(model_id: str) -> str:
 
 
 @v1_router.get("/council-stats", tags=["public"])
-async def get_council_stats(company_id: str | None = None):
+@limiter.limit("100/minute;500/hour")
+async def get_council_stats(request: Request, company_id: str | None = None):
     """
     Get public council configuration stats for the landing page.
     Returns the number of AIs in each stage and list of active providers
