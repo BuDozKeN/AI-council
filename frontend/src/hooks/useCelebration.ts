@@ -23,6 +23,7 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { hapticSuccess } from '../lib/haptics';
+import { celebrate } from '../lib/celebrate';
 
 export interface UseCelebrationOptions {
   /** Duration of the celebration animation in ms (default: 800) */
@@ -33,6 +34,8 @@ export interface UseCelebrationOptions {
   delay?: number;
   /** Whether celebration can only fire once per component lifecycle (default: true) */
   once?: boolean;
+  /** Confetti celebration type to trigger (default: none) */
+  confetti?: 'success' | 'milestone' | 'councilComplete' | 'winner' | 'fireworks' | 'sparkle';
 }
 
 export interface UseCelebrationReturn {
@@ -47,7 +50,7 @@ export interface UseCelebrationReturn {
 }
 
 export function useCelebration(options: UseCelebrationOptions = {}): UseCelebrationReturn {
-  const { duration = 800, haptic = true, delay = 0, once = true } = options;
+  const { duration = 800, haptic = true, delay = 0, once = true, confetti: confettiType } = options;
 
   const [isCelebrating, setIsCelebrating] = useState(false);
   const [hasFired, setHasFired] = useState(false);
@@ -73,6 +76,11 @@ export function useCelebration(options: UseCelebrationOptions = {}): UseCelebrat
         hapticSuccess();
       }
 
+      // Trigger confetti celebration if specified
+      if (confettiType) {
+        celebrate[confettiType]();
+      }
+
       // Auto-reset after duration
       timeoutRef.current = setTimeout(() => {
         setIsCelebrating(false);
@@ -84,7 +92,7 @@ export function useCelebration(options: UseCelebrationOptions = {}): UseCelebrat
     } else {
       startCelebration();
     }
-  }, [duration, haptic, delay, once, hasFired]);
+  }, [duration, haptic, delay, once, hasFired, confettiType]);
 
   const reset = useCallback(() => {
     setHasFired(false);

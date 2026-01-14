@@ -1,5 +1,5 @@
 # robots.txt for AxCouncil
-# https://axcouncil.vercel.app
+# https://axcouncil.ai
 
 User-agent: *
 Allow: /
@@ -24,7 +24,7 @@ Allow: /leaderboard
 # Allow: /terms
 
 # Sitemap location
-Sitemap: https://axcouncil.vercel.app/sitemap.xml
+Sitemap: https://axcouncil.ai/sitemap.xml
 
 # Crawl rate (optional - adjust based on server capacity)
 # Crawl-delay: 1

@@ -38,7 +38,7 @@ const PUBLISHER_INFO = {
   name: 'AxCouncil',
   logo: {
     '@type': 'ImageObject',
-    url: 'https://axcouncil.vercel.app/favicon.svg',
+    url: 'https://axcouncil.ai/favicon.svg',
     width: 512,
     height: 512,
   },
@@ -81,7 +81,7 @@ export function useArticleSchema(metadata?: ArticleMetadata) {
       ...(metadata.keywords && { keywords: metadata.keywords.join(', ') }),
       mainEntityOfPage: {
         '@type': 'WebPage',
-        '@id': `https://axcouncil.vercel.app${location.pathname}`,
+        '@id': `https://axcouncil.ai${location.pathname}`,
       },
     };
 
@@ -128,7 +128,7 @@ function removeArticleSchema() {
  *     image: post.coverImage,
  *     author: {
  *       name: post.author.name,
- *       url: `https://axcouncil.vercel.app/authors/${post.author.slug}`
+ *       url: `https://axcouncil.ai/authors/${post.author.slug}`
  *     },
  *     datePublished: post.publishedAt,
  *     dateModified: post.updatedAt,

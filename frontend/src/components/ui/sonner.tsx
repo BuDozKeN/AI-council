@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components -- Re-exporting toast helper alongside Toaster is intentional */
 'use client';
 import { Toaster as Sonner, toast } from 'sonner';
+import './sonner.css';
 
 /**
  * Toast component using sonner library
