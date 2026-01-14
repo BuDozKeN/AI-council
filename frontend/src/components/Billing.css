@@ -24,7 +24,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 24px 32px;
-  border-bottom: 1px solid var(--color-border);
+  border-block-end: 1px solid var(--color-border);
 }
 
 .billing-header h2 {
@@ -70,14 +70,14 @@
 .billing-usage {
   padding: 24px 32px;
   background: var(--color-bg-secondary);
-  border-bottom: 1px solid var(--color-border);
+  border-block-end: 1px solid var(--color-border);
 }
 
 .usage-label {
   font-size: 14px;
   font-weight: 600;
   color: var(--color-text-secondary);
-  margin-bottom: 8px;
+  margin-block-end: 8px;
 }
 
 .usage-bar-container {
@@ -85,7 +85,7 @@
   background: var(--color-border);
   border-radius: var(--radius-sm);
   overflow: hidden;
-  margin-bottom: 8px;
+  margin-block-end: 8px;
 }
 
 .usage-bar {
@@ -138,8 +138,8 @@
 
 .popular-badge {
   position: absolute;
-  top: -12px;
-  left: 50%;
+  inset-block-start: -12px;
+  inset-inline-start: 50%;
   transform: translateX(-50%);
   background: var(--color-brand-primary);
   color: var(--color-text-inverse);
@@ -153,13 +153,13 @@
   font-size: 20px;
   font-weight: 600;
   color: var(--color-text-primary);
-  margin-bottom: 8px;
+  margin-block-end: 8px;
   text-align: center;
 }
 
 .plan-price {
   text-align: center;
-  margin-bottom: 8px;
+  margin-block-end: 8px;
 }
 
 .price-free {
@@ -183,9 +183,9 @@
   text-align: center;
   font-size: 14px;
   color: var(--color-text-secondary);
-  margin-bottom: 20px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--color-border);
+  margin-block-end: 20px;
+  padding-block-end: 20px;
+  border-block-end: 1px solid var(--color-border);
 }
 
 .plan-features {
@@ -199,19 +199,19 @@
   font-size: 14px;
   color: var(--color-text-primary);
   position: relative;
-  padding-left: 24px;
+  padding-inline-start: 24px;
 }
 
 .plan-features li::before {
   content: '\2713';
   position: absolute;
-  left: 0;
+  inset-inline-start: 0;
   color: var(--color-success);
   font-weight: bold;
 }
 
 .plan-action {
-  margin-top: auto;
+  margin-block-start: auto;
 }
 
 .plan-btn {
@@ -299,7 +299,7 @@
 .billing-footer {
   padding: 16px 32px;
   background: var(--color-bg-secondary);
-  border-top: 1px solid var(--color-border);
+  border-block-start: 1px solid var(--color-border);
   text-align: center;
 }
 

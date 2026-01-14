@@ -22,14 +22,14 @@
   color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 6px;
+  margin-block-end: 6px;
 }
 
 .mc-context-header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-block-end: 10px;
   gap: 12px;
 }
 
@@ -196,7 +196,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-block-end: 12px;
   padding: 10px 14px;
   background: var(--color-violet-50);
   border: 1px solid var(--color-purple-200);

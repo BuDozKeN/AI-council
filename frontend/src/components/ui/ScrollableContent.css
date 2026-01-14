@@ -34,10 +34,10 @@
 
 .scrollable-copy-btn {
   position: sticky;
-  top: 8px;
-  float: right;
-  margin-left: 8px;
-  margin-bottom: 8px;
+  inset-block-start: 8px;
+  float: inline-end;
+  margin-inline-start: 8px;
+  margin-block-end: 8px;
   width: 28px;
   height: 28px;
   display: flex;
@@ -81,8 +81,8 @@
 
 .scrollable-scroll-top-btn {
   position: absolute;
-  bottom: 12px;
-  right: 12px;
+  inset-block-end: 12px;
+  inset-inline-end: 12px;
   width: 28px;
   height: 28px;
   display: flex;
@@ -122,8 +122,8 @@
   }
 
   .scrollable-scroll-top-btn {
-    bottom: 8px;
-    right: 8px;
+    inset-block-end: 8px;
+    inset-inline-end: 8px;
     width: 32px;
     height: 32px;
   }

@@ -22,9 +22,9 @@
 /* Action buttons container - subtle styling */
 .swipeable-row-actions {
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
+  inset-block-start: 0;
+  inset-inline-end: 0;
+  inset-block-end: 0;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -121,8 +121,8 @@
   .swipeable-row-container:first-child::after {
     content: '';
     position: absolute;
-    right: 4px;
-    top: 50%;
+    inset-inline-end: 4px;
+    inset-block-start: 50%;
     transform: translateY(-50%);
     width: 3px;
     height: 24px;

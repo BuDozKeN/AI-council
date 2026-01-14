@@ -38,7 +38,7 @@
   width: 48px;
   height: 48px;
   color: var(--color-text-brand);
-  margin-bottom: var(--space-2);
+  margin-block-end: var(--space-2);
 }
 
 .onboarding-title {
@@ -91,7 +91,7 @@
 
 .onboarding-input-icon {
   position: absolute;
-  left: var(--space-3);
+  inset-inline-start: var(--space-3);
   width: 20px;
   height: 20px;
   color: var(--color-text-tertiary);
@@ -99,14 +99,14 @@
 }
 
 .onboarding-input-wrapper .form-input {
-  padding-left: calc(var(--space-3) + 20px + var(--space-2));
+  padding-inline-start: calc(var(--space-3) + 20px + var(--space-2));
 }
 
 .onboarding-actions {
   display: flex;
   flex-direction: column;
   gap: var(--gap-sm);
-  margin-top: var(--space-2);
+  margin-block-start: var(--space-2);
 }
 
 .onboarding-submit {
@@ -330,8 +330,8 @@
 /* Checkmark badge */
 .council-member-check {
   position: absolute;
-  top: -6px;
-  right: -6px;
+  inset-block-start: -6px;
+  inset-inline-end: -6px;
   width: 22px;
   height: 22px;
   display: flex;
@@ -488,7 +488,7 @@
 
 .onboarding-start-btn {
   width: 100%;
-  margin-top: var(--space-2);
+  margin-block-start: var(--space-2);
 }
 
 /* Mobile adjustments */
@@ -507,7 +507,7 @@
 
   .onboarding-department {
     flex-direction: row;
-    text-align: left;
+    text-align: start;
     padding: var(--card-padding);
   }
 

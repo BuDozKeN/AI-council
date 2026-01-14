@@ -7,7 +7,7 @@
 
 h2,
 h3 {
-  scroll-margin-top: 6rem;
+  scroll-margin-block-start: 6rem;
 }
 
 /* =============================================================================
@@ -45,12 +45,12 @@ h3 {
 .stage3 .collapse-arrow {
   font-size: 12px;
   color: var(--color-success-muted);
-  margin-right: 4px;
+  margin-inline-end: 4px;
   transition: transform 0.2s ease;
 }
 
 .stage3 .collapsed-summary {
-  margin-left: 12px;
+  margin-inline-start: 12px;
   font-size: 12px;
   font-weight: 400;
   color: var(--color-text-secondary);
@@ -66,7 +66,7 @@ h3 {
 }
 
 .stage3.collapsed .stage-title {
-  margin-bottom: 0;
+  margin-block-end: 0;
 }
 
 .final-response {
@@ -82,9 +82,9 @@ h3 {
 .final-response::after {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
   height: 4px;
   background: var(--color-emerald-500);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
@@ -96,17 +96,17 @@ h3 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-block-end: 12px;
 }
 
 /* Copy button in header - pushed to right */
 .stage3-header-copy {
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 /* Cost badge - shows estimated query cost */
 .stage3-cost-badge {
-  margin-left: auto;
+  margin-inline-start: auto;
   padding: 2px 8px;
   font-size: 0.75rem;
   font-weight: 500;
@@ -224,7 +224,7 @@ h3 {
 
 .stage3-sticky-toolbar {
   position: sticky;
-  top: 60px; /* Below any fixed headers */
+  inset-block-start: 60px; /* Below any fixed headers */
   z-index: calc(
     var(--z-header) + 1
   ); /* Above floating TOC (z-header) so copy button is clickable */
@@ -234,7 +234,7 @@ h3 {
   justify-content: space-between;
   gap: 8px;
   padding: 8px 0;
-  margin-bottom: 8px;
+  margin-block-end: 8px;
 
   /* No shared background - each child element styles itself independently */
   background: transparent;
@@ -261,7 +261,7 @@ h3 {
   opacity: 0.4;
   transition: all 0.2s ease;
   flex-shrink: 0;
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 
 .stage3-sticky-toolbar .stage3-copy-btn:hover {
@@ -306,7 +306,7 @@ h3 {
 /* Mobile toolbar adjustments */
 @media (max-width: 768px) {
   .stage3-sticky-toolbar {
-    top: 50px;
+    inset-block-start: 50px;
     padding: 6px 0;
   }
 
@@ -361,8 +361,8 @@ h3 {
 
 .code-block-wrapper .code-language {
   position: absolute;
-  top: 8px;
-  left: 12px;
+  inset-block-start: 8px;
+  inset-inline-start: 12px;
   font-size: 11px;
   color: var(--color-slate-400);
   text-transform: uppercase;
@@ -373,8 +373,8 @@ h3 {
 
 /* Copy button positioning in code blocks */
 .code-block-wrapper.copyable .copy-btn-unified {
-  top: 6px;
-  right: 6px;
+  inset-block-start: 6px;
+  inset-inline-end: 6px;
 }
 
 .code-block-wrapper pre {
@@ -421,8 +421,8 @@ h3 {
   font-size: var(--text-2xl); /* 24px */
   font-weight: var(--font-semibold);
   letter-spacing: var(--tracking-tight);
-  margin-top: var(--space-8); /* 32px - major section spacing */
-  margin-bottom: var(--space-4); /* 16px */
+  margin-block-start: var(--space-8); /* 32px - major section spacing */
+  margin-block-end: var(--space-4); /* 16px */
   color: var(--color-text-default);
 }
 
@@ -430,39 +430,39 @@ h3 {
   font-size: var(--text-xl); /* 20px */
   font-weight: var(--font-semibold);
   letter-spacing: var(--tracking-tight);
-  margin-top: var(--space-6); /* 24px */
-  margin-bottom: var(--space-3); /* 12px */
+  margin-block-start: var(--space-6); /* 24px */
+  margin-block-end: var(--space-3); /* 12px */
   color: var(--color-text-default);
 }
 
 .final-text .prose h4 {
   font-size: var(--text-lg); /* 18px */
   font-weight: var(--font-semibold);
-  margin-top: var(--space-5); /* 20px */
-  margin-bottom: var(--space-2); /* 8px */
+  margin-block-start: var(--space-5); /* 20px */
+  margin-block-end: var(--space-2); /* 8px */
   color: var(--color-text-default);
 }
 
 /* Paragraph spacing */
 .final-text .prose p {
-  margin-bottom: var(--space-4); /* 16px between paragraphs */
+  margin-block-end: var(--space-4); /* 16px between paragraphs */
 }
 
 /* List styling */
 .final-text .prose ul,
 .final-text .prose ol {
-  margin-bottom: var(--space-4);
-  padding-left: var(--space-6);
+  margin-block-end: var(--space-4);
+  padding-inline-start: var(--space-6);
 }
 
 .final-text .prose li {
-  margin-bottom: var(--space-2);
+  margin-block-end: var(--space-2);
 }
 
 /* Blockquote - premium callout styling */
 .final-text .prose blockquote {
-  border-left: 3px solid var(--color-success);
-  padding-left: var(--space-4);
+  border-inline-start: 3px solid var(--color-success);
+  padding-inline-start: var(--space-4);
   margin: var(--space-6) 0;
   font-style: italic;
   color: var(--color-text-muted);
@@ -475,14 +475,14 @@ h3 {
 /* Streaming styles */
 .stage3 .typing-indicator {
   display: inline-block;
-  margin-left: 8px;
+  margin-inline-start: 8px;
   color: var(--color-success);
   animation: blink 0.8s infinite;
 }
 
 .stage3 .complete-badge {
   display: inline-block;
-  margin-left: 8px;
+  margin-inline-start: 8px;
   padding: 2px 6px;
   background: var(--color-success-light);
   color: var(--color-success-dark);
@@ -494,7 +494,7 @@ h3 {
 
 .stage3 .error-badge {
   display: inline-block;
-  margin-left: 8px;
+  margin-inline-start: 8px;
   padding: 2px 6px;
   background: var(--color-warning-light);
   color: var(--color-warning-dark);
@@ -506,7 +506,7 @@ h3 {
 
 /* Truncation warning - shown when response hit max_tokens */
 .truncation-warning {
-  margin-bottom: 16px;
+  margin-block-end: 16px;
   padding: 10px 14px;
   background: var(--color-amber-50);
   border: 1px solid var(--color-amber-200);
@@ -546,7 +546,7 @@ h3 {
   display: inline-block;
   color: var(--color-success-dark);
   animation: blink 0.8s infinite;
-  margin-left: 2px;
+  margin-inline-start: 2px;
 }
 
 .stage3 .empty-message {
@@ -568,7 +568,7 @@ h3 {
 /* Thinking state */
 .stage3 .thinking-badge {
   display: inline-block;
-  margin-left: 8px;
+  margin-inline-start: 8px;
   padding: 2px 6px;
   background: var(--color-warning-light);
   color: var(--color-amber-700);
@@ -580,7 +580,7 @@ h3 {
 
 .stage3 .thinking-dots {
   display: inline-block;
-  margin-left: 2px;
+  margin-inline-start: 2px;
 }
 
 .stage3 .thinking-dots span {
@@ -645,8 +645,8 @@ h3 {
 
 .chairman-loading-pulse {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
   transform: translate(-50%, -50%);
   width: 64px;
   height: 64px;
@@ -814,9 +814,9 @@ h3 {
 
 /* Save actions container */
 .stage3-actions {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid var(--color-border);
+  margin-block-start: 16px;
+  padding-block-start: 16px;
+  border-block-start: 1px solid var(--color-border);
 }
 
 /* KB saved badge in collapsed header */
@@ -887,7 +887,7 @@ h3 {
 /* Department trigger with selection - subtle accent border to indicate selection */
 .save-dept-trigger.has-selection {
   font-weight: 600;
-  border-left: 3px solid var(--color-emerald-500);
+  border-inline-start: 3px solid var(--color-emerald-500);
   box-shadow: 0 1px 3px var(--overlay-black-10);
 }
 
@@ -1054,7 +1054,7 @@ h3 {
   padding: 6px 12px 6px 14px;
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
-  border-left: 3px solid var(--color-emerald-500);
+  border-inline-start: 3px solid var(--color-emerald-500);
   border-radius: var(--radius-md);
   animation: save-celebration 0.4s ease-out;
 }
@@ -1218,7 +1218,7 @@ h3 {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   background: var(--color-slate-50);
-  border-bottom: 1px solid var(--color-slate-200);
+  border-block-end: 1px solid var(--color-slate-200);
 }
 
 .toolbar-dropdown-list {
@@ -1239,7 +1239,7 @@ h3 {
   border: none;
   border-radius: var(--radius-md);
   cursor: pointer;
-  text-align: left;
+  text-align: start;
   transition: background 0.15s ease;
 }
 
@@ -1291,7 +1291,7 @@ h3 {
 /* --- Dropdown Footer (for create actions) --- */
 .toolbar-dropdown-footer {
   padding: 8px;
-  border-top: 1px solid var(--color-slate-200);
+  border-block-start: 1px solid var(--color-slate-200);
   background: var(--color-slate-50);
 }
 
@@ -1334,7 +1334,7 @@ h3 {
   border: 1px solid transparent;
   border-radius: var(--radius-lg);
   cursor: pointer;
-  text-align: left;
+  text-align: start;
   transition: all 0.15s ease;
 }
 
@@ -1392,7 +1392,7 @@ h3 {
   color: var(--color-slate-500);
   cursor: pointer;
   transition: all 0.15s ease;
-  margin-top: 4px;
+  margin-block-start: 4px;
 }
 
 .toolbar-create-btn-mobile:active {
@@ -1846,7 +1846,7 @@ h3 {
 }
 
 .dark .stage3-actions {
-  border-top-color: var(--color-border);
+  border-block-start-color: var(--color-border);
 }
 
 .dark .save-options-group {
@@ -1866,7 +1866,7 @@ h3 {
 /* Department trigger with selection in dark mode */
 .dark .save-dept-trigger.has-selection {
   font-weight: 600;
-  border-left: 3px solid var(--color-emerald-500);
+  border-inline-start: 3px solid var(--color-emerald-500);
   box-shadow: 0 1px 3px var(--overlay-black-30);
   color: var(--color-text-primary);
 }
@@ -1942,7 +1942,7 @@ h3 {
 .dark .save-status-group {
   background: var(--color-bg-primary);
   border-color: var(--color-border);
-  border-left-color: var(--color-emerald-400);
+  border-inline-start-color: var(--color-emerald-400);
 }
 
 /* Dark mode mobile/tablet toolbar overrides - visible buttons inside container */
@@ -1966,7 +1966,7 @@ h3 {
   /* Dark mode department trigger with selection - accent border */
   .dark .save-dept-trigger.has-selection {
     font-weight: 600;
-    border-left: 3px solid var(--color-emerald-500);
+    border-inline-start: 3px solid var(--color-emerald-500);
     box-shadow: 0 1px 3px var(--overlay-black-40);
     color: var(--color-text-primary);
   }
@@ -2004,7 +2004,7 @@ h3 {
   .dark .save-status-group {
     background: var(--color-bg-primary);
     border-color: var(--color-border);
-    border-left-color: var(--color-emerald-400);
+    border-inline-start-color: var(--color-emerald-400);
   }
 
   .dark .save-view-link {
@@ -2038,12 +2038,12 @@ h3 {
 
 .dark .save-project-dropdown-header {
   background: var(--color-bg-primary);
-  border-bottom-color: var(--color-border);
+  border-block-end-color: var(--color-border);
   color: var(--color-text-tertiary);
 }
 
 .dark .save-project-option {
-  border-bottom-color: var(--color-border);
+  border-block-end-color: var(--color-border);
 }
 
 .dark .save-project-option:hover {
@@ -2077,7 +2077,7 @@ h3 {
 }
 
 .dark .save-project-create {
-  border-top-color: var(--color-border);
+  border-block-start-color: var(--color-border);
   background: var(--color-bg-primary);
 }
 
@@ -2187,11 +2187,11 @@ h3 {
 
   /* Code blocks - edge to edge for more space */
   .code-block-wrapper {
-    margin-left: -16px;
-    margin-right: -16px;
+    margin-inline-start: -16px;
+    margin-inline-end: -16px;
     border-radius: 0;
-    border-left: none;
-    border-right: none;
+    border-inline-start: none;
+    border-inline-end: none;
   }
 
   .code-block-wrapper .copy-code-btn {
@@ -2275,7 +2275,7 @@ h3 {
   /* Department trigger with selection - subtle accent border to indicate selection */
   .save-dept-trigger.has-selection {
     font-weight: 600;
-    border-left: 3px solid var(--color-emerald-500);
+    border-inline-start: 3px solid var(--color-emerald-500);
     box-shadow: 0 1px 3px var(--overlay-black-15);
   }
 
@@ -2395,7 +2395,7 @@ h3 {
     padding: 12px 16px;
     background: var(--color-bg-primary);
     border: 1px solid var(--color-border);
-    border-left: 3px solid var(--color-emerald-500);
+    border-inline-start: 3px solid var(--color-emerald-500);
     border-radius: var(--radius-lg);
   }
 
@@ -2444,7 +2444,7 @@ h3 {
   border: 1px solid var(--color-slate-200);
   border-radius: var(--radius-md);
   cursor: pointer;
-  text-align: left;
+  text-align: start;
   transition: all 0.15s ease;
 
   /* Ensure proper mobile touch handling */
@@ -2483,7 +2483,7 @@ h3 {
 .save-project-option-mobile .save-project-option-desc {
   font-size: 13px;
   color: var(--color-text-secondary);
-  margin-top: 2px;
+  margin-block-start: 2px;
 }
 
 .save-project-create-btn-mobile {
@@ -2493,7 +2493,7 @@ h3 {
   gap: 6px;
   width: 100%;
   min-height: 44px;
-  margin-top: 6px;
+  margin-block-start: 6px;
   padding: 10px 14px;
   background: var(--color-bg-primary);
   border: 2px dashed var(--color-purple-300);

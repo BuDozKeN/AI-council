@@ -107,16 +107,16 @@
   flex-shrink: 0;
 
   /* Account for scrollbar width (8px) */
-  margin-right: 8px;
+  margin-inline-end: 8px;
 }
 
 /* Subtle accent bar at top */
 .mc-overview-hero::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
   height: 3px;
   background: linear-gradient(
     90deg,
@@ -219,7 +219,7 @@
 .mc-empty-context .mc-empty-icon {
   display: block; /* Override display: none from shared.css */
   color: var(--color-indigo-400);
-  margin-bottom: var(--space-2);
+  margin-block-end: var(--space-2);
 }
 
 .mc-empty-context .mc-empty-title {
@@ -239,7 +239,7 @@
 
 /* Generate with AI button */
 .mc-generate-context-btn {
-  margin-top: var(--space-2);
+  margin-block-start: var(--space-2);
 }
 
 /* ============================================================================
@@ -250,7 +250,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: var(--gap);
-  margin-bottom: var(--gap-lg);
+  margin-block-end: var(--gap-lg);
 }
 
 .mc-stat-card {
@@ -268,9 +268,9 @@
 .mc-stat-card::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  inset-inline-end: 0;
   height: 3px;
   background: var(--color-indigo-500);
   opacity: 0;
@@ -288,7 +288,7 @@
 
 .mc-stat-icon {
   color: var(--color-indigo-500);
-  margin-bottom: var(--space-1);
+  margin-block-end: var(--space-1);
 }
 
 .mc-stat-content {
@@ -352,7 +352,7 @@
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
   color: var(--color-text-secondary);
-  margin-top: var(--space-1);
+  margin-block-start: var(--space-1);
 }
 
 /* Clickable stat cards */
@@ -391,7 +391,7 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--card-padding-sm) var(--card-padding);
-  border-bottom: 1px solid var(--color-border);
+  border-block-end: 1px solid var(--color-border);
   background: var(--color-bg-primary);
 }
 
@@ -441,7 +441,7 @@
   position: relative;
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
-  border-top: 3px solid var(--color-border-dark);
+  border-block-start: 3px solid var(--color-border-dark);
   background: var(--color-bg-primary);
   box-shadow: var(--shadow-md);
 
@@ -449,10 +449,10 @@
   padding: var(--card-padding-xl);
 
   /* Extra bottom padding to extend card below content */
-  padding-bottom: 3rem;
+  padding-block-end: 3rem;
 
   /* Account for scrollbar width (8px) */
-  margin-right: 8px;
+  margin-inline-end: 8px;
 }
 
 /* Context card header - title and metadata */
@@ -460,9 +460,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--color-border);
+  margin-block-end: 16px;
+  padding-block-end: 12px;
+  border-block-end: 1px solid var(--color-border);
 }
 
 .mc-context-card-title {
@@ -499,7 +499,7 @@
 /* Sticky toolbar - sticks to top when scrolling the body */
 .mc-context-sticky-toolbar {
   position: sticky;
-  top: 0;
+  inset-block-start: 0;
 
   /* Must be higher than .mc-scroll-top-fab (z-elevated = 10) so TOC dropdown appears above FAB.
      Using z-dropdown (100) to ensure it's definitively above ALL floating elements */
@@ -509,7 +509,7 @@
   justify-content: space-between;
   gap: 8px;
   padding: 12px 0;
-  margin-bottom: 12px;
+  margin-block-end: 12px;
 
   /* Opaque background to cover content scrolling behind */
   background: var(--color-bg-primary);
@@ -519,15 +519,15 @@
 .mc-context-copy-btn {
   /* Override CopyButton's position: absolute to work in flex layout */
   position: relative;
-  top: auto;
-  right: auto;
+  inset-block-start: auto;
+  inset-inline-end: auto;
 
   /* Always visible in toolbar (not hover-dependent) */
   opacity: 0.7;
   pointer-events: auto;
 
   /* Flex positioning */
-  margin-left: auto;
+  margin-inline-start: auto;
   flex-shrink: 0;
 }
 
@@ -569,10 +569,10 @@
 
 .mc-scroll-top-fab {
   position: sticky;
-  bottom: 20px;
+  inset-block-end: 20px;
   align-self: flex-end;
-  margin-top: -36px; /* Don't add extra space */
-  margin-right: var(--card-padding-xl); /* Align with copy button's right edge */
+  margin-block-start: -36px; /* Don't add extra space */
+  margin-inline-end: var(--card-padding-xl); /* Align with copy button's right edge */
   width: 28px;
   height: 28px;
   display: flex;
@@ -631,9 +631,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--color-border);
+  margin-block-end: 16px;
+  padding-block-end: 12px;
+  border-block-end: 1px solid var(--color-border);
 }
 
 .mc-team-header span,
@@ -709,7 +709,7 @@
 
 /* Roles */
 .mc-roles {
-  border-top: 1px solid var(--color-border);
+  border-block-start: 1px solid var(--color-border);
   padding: 14px 18px;
   background: var(--color-bg-primary);
 }
@@ -721,11 +721,11 @@
   padding: 12px 14px;
   background: var(--color-bg-secondary);
   border-radius: var(--radius-md);
-  margin-bottom: 8px;
+  margin-block-end: 8px;
 }
 
 .mc-role:last-of-type {
-  margin-bottom: 0;
+  margin-block-end: 0;
 }
 
 .mc-role-info {
@@ -754,7 +754,7 @@
 .mc-add-btn {
   display: block;
   width: 100%;
-  margin-top: 12px;
+  margin-block-start: 12px;
   padding: 10px;
   background: none;
   border: 1px dashed var(--color-border);
@@ -779,7 +779,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-block-end: 16px;
 }
 
 /* Search input wrapper */
@@ -792,8 +792,8 @@
 
 .mc-search-icon {
   position: absolute;
-  left: 12px;
-  top: 50%;
+  inset-inline-start: 12px;
+  inset-block-start: 50%;
   transform: translateY(-50%);
   color: var(--color-text-tertiary);
   pointer-events: none;
@@ -824,8 +824,8 @@
 
 .mc-search-clear {
   position: absolute;
-  right: 8px;
-  top: 50%;
+  inset-inline-end: 8px;
+  inset-block-start: 50%;
   transform: translateY(-50%);
   width: 20px;
   height: 20px;
@@ -874,7 +874,7 @@
   gap: 12px;
   font-size: 13px;
   color: var(--color-text-secondary);
-  margin-bottom: 12px;
+  margin-block-end: 12px;
 }
 
 .mc-clear-filters {
@@ -1077,7 +1077,7 @@
 
 .dark .mc-context-section-header,
 [data-theme='dark'] .mc-context-section-header {
-  border-bottom-color: var(--color-border);
+  border-block-end-color: var(--color-border);
   background: var(--color-bg-secondary);
 }
 
@@ -1110,14 +1110,14 @@
 [data-theme='dark'] .mc-context-card {
   background: var(--color-bg-secondary);
   border-color: var(--color-border);
-  border-top-color: var(--color-border-dark);
+  border-block-start-color: var(--color-border-dark);
   box-shadow: var(--shadow-lg);
 }
 
 /* Context card header dark mode */
 .dark .mc-context-card-header,
 [data-theme='dark'] .mc-context-card-header {
-  border-bottom-color: var(--color-border);
+  border-block-end-color: var(--color-border);
 }
 
 .dark .mc-context-card-title,
@@ -1168,7 +1168,7 @@
 [data-theme='dark'] .mc-team-header,
 [data-theme='dark'] .mc-playbooks-header,
 [data-theme='dark'] .mc-decisions-header {
-  border-bottom-color: var(--color-border);
+  border-block-end-color: var(--color-border);
 }
 
 .dark .mc-team-header span,
@@ -1216,7 +1216,7 @@
 /* Roles */
 .dark .mc-roles,
 [data-theme='dark'] .mc-roles {
-  border-top-color: var(--color-border);
+  border-block-start-color: var(--color-border);
   background: var(--color-bg-primary);
 }
 

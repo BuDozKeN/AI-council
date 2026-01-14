@@ -69,7 +69,7 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  text-align: left;
+  text-align: start;
 }
 
 .llm-card-header:hover {
@@ -161,7 +161,7 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  text-align: left;
+  text-align: start;
 }
 
 .llm-inner-card-header:hover {
@@ -210,7 +210,7 @@
 /* Inner card body */
 .llm-inner-card-body {
   padding: 0 16px 16px;
-  border-top: 1px solid var(--color-border-light);
+  border-block-start: 1px solid var(--color-border-light);
 }
 
 /* Tags */
@@ -259,7 +259,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 12px;
+  margin-block-start: 12px;
 }
 
 /* Desktop: Table header */
@@ -268,7 +268,7 @@
   grid-template-columns: 1fr 1fr 1fr;
   gap: 16px;
   padding: 8px 16px;
-  border-bottom: 1px solid var(--color-border);
+  border-block-end: 1px solid var(--color-border);
 }
 
 .llm-stage-header-cell {
@@ -409,7 +409,7 @@
   align-items: center;
   justify-content: flex-end;
   gap: 12px;
-  margin-top: 16px;
+  margin-block-start: 16px;
 }
 
 .llm-btn-reset {
@@ -445,7 +445,7 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  margin-top: 12px;
+  margin-block-start: 12px;
 }
 
 .llm-model-row {
@@ -453,16 +453,16 @@
   align-items: flex-start;
   gap: 16px;
   padding: 12px 0;
-  border-bottom: 1px solid var(--color-border-light);
+  border-block-end: 1px solid var(--color-border-light);
 }
 
 .llm-model-row:first-child {
-  padding-top: 0;
+  padding-block-start: 0;
 }
 
 .llm-model-row:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
+  border-block-end: none;
+  padding-block-end: 0;
 }
 
 .llm-model-role {
@@ -472,7 +472,7 @@
   min-width: 120px;
   max-width: 120px;
   flex-shrink: 0;
-  padding-top: 6px;
+  padding-block-start: 6px;
 }
 
 .llm-model-role-label {
@@ -660,7 +660,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   flex: 1;
-  text-align: left;
+  text-align: start;
 }
 
 .llm-model-icon {
@@ -672,7 +672,7 @@
 }
 
 .select-item .llm-model-icon {
-  margin-right: 8px;
+  margin-inline-end: 8px;
 }
 
 /* Long-press delete overlay */
@@ -713,14 +713,14 @@
 }
 
 .llm-model-dropdown .select-item {
-  border-bottom: 1px solid var(--color-border-light);
+  border-block-end: 1px solid var(--color-border-light);
   border-radius: 0;
   padding: 10px 14px;
-  padding-right: 40px;
+  padding-inline-end: 40px;
 }
 
 .llm-model-dropdown .select-item:last-child {
-  border-bottom: none;
+  border-block-end: none;
 }
 
 .llm-model-dropdown .select-item:hover,
@@ -776,7 +776,7 @@
   color: var(--color-text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  padding-left: 2px;
+  padding-inline-start: 2px;
 }
 
 .llm-model-chain-item:first-child .llm-model-chain-label {
@@ -791,7 +791,7 @@
 
 .llm-model-chain .llm-model-add {
   align-self: flex-end;
-  margin-top: 14px;
+  margin-block-start: 14px;
 }
 
 /* ============================================================================
@@ -801,7 +801,7 @@
 .llm-persona-textarea {
   width: 100%;
   min-height: 180px;
-  margin-top: 12px;
+  margin-block-start: 12px;
   padding: 12px 14px;
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
@@ -854,7 +854,7 @@
 
   .llm-stages {
     gap: 0;
-    margin-top: 0;
+    margin-block-start: 0;
   }
 
   /* Inner card body - tight on mobile */
@@ -877,11 +877,11 @@
   }
 
   .llm-stage-row:first-child {
-    padding-top: 0;
+    padding-block-start: 0;
   }
 
   .llm-stage-row:last-child {
-    padding-bottom: 0;
+    padding-block-end: 0;
   }
 
   .llm-stage-row:hover {
@@ -964,9 +964,9 @@
 
   /* Separator between stages - stronger divider */
   .llm-stage-row + .llm-stage-row {
-    margin-top: 6px;
-    padding-top: 10px;
-    border-top: 2px solid var(--color-border);
+    margin-block-start: 6px;
+    padding-block-start: 10px;
+    border-block-start: 2px solid var(--color-border);
   }
 
   /* ========================================
@@ -975,7 +975,7 @@
   .llm-actions {
     display: flex;
     justify-content: flex-end;
-    margin-top: 8px;
+    margin-block-start: 8px;
   }
 
   /* Hide Save button on mobile - auto-save */
@@ -1021,7 +1021,7 @@
   .llm-model-role {
     min-width: 0;
     max-width: none;
-    padding-top: 0;
+    padding-block-start: 0;
   }
 
   .llm-model-grid {
@@ -1041,7 +1041,7 @@
   .llm-model-chain .llm-model-add {
     --llm-pill-height: 44px;
 
-    margin-top: 0;
+    margin-block-start: 0;
   }
 
   .llm-model-chain {
@@ -1122,8 +1122,8 @@
   }
 
   .llm-stage-row + .llm-stage-row {
-    margin-top: 4px;
-    padding-top: 8px;
+    margin-block-start: 4px;
+    padding-block-start: 8px;
   }
 
   /* 480px: Height already set at 768px via CSS vars, no width override needed */

@@ -82,14 +82,14 @@
   display: flex;
   gap: 12px;
   padding: 12px 8px;
-  border-bottom: 1px solid var(--color-border);
+  border-block-end: 1px solid var(--color-border);
 }
 
 .skeleton-table-row {
   display: flex;
   gap: 12px;
   padding: 12px 8px;
-  border-bottom: 1px solid var(--color-border);
+  border-block-end: 1px solid var(--color-border);
 }
 
 /* Avatar skeleton */
@@ -172,7 +172,7 @@
 
 /* User message skeleton - right aligned */
 .skeleton-message.user .skeleton-message-content {
-  margin-left: auto;
+  margin-inline-start: auto;
   background: var(--color-brand-primary-light);
 }
 

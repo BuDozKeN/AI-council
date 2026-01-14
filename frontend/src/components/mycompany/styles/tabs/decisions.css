@@ -47,12 +47,12 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: 6px;
+  margin-block-start: 6px;
 }
 
 /* Promoted decision card styling */
 .mc-decision-item.promoted {
-  border-left: 3px solid var(--color-emerald-500);
+  border-inline-start: 3px solid var(--color-emerald-500);
 }
 
 /* ============================================================================
@@ -95,7 +95,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 10px;
+  margin-block-end: 10px;
 }
 
 /* ============================================================================
@@ -106,8 +106,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding-top: 12px;
-  border-top: 1px solid var(--color-border);
+  padding-block-start: 12px;
+  border-block-start: 1px solid var(--color-border);
 }
 
 /* Icon-based action buttons for decisions */
@@ -223,7 +223,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-block-end: 16px;
 }
 
 .mc-meta-left {
@@ -286,7 +286,7 @@
   border: 1px solid var(--color-sky-200);
   border-radius: var(--radius-lg);
   padding: 14px 18px;
-  margin-bottom: 16px;
+  margin-block-end: 16px;
 }
 
 .mc-decision-question-label {
@@ -296,7 +296,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--color-sky-700);
-  margin-bottom: 6px;
+  margin-block-end: 6px;
 }
 
 .mc-decision-question-text {
@@ -327,8 +327,8 @@
 /* Unified floating copy button - icon only, matches Stage3 */
 .mc-content-copy-btn {
   position: sticky;
-  top: 8px;
-  float: right;
+  inset-block-start: 8px;
+  float: inline-end;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -343,8 +343,8 @@
   transition: all 0.15s ease;
   box-shadow: var(--shadow-xs);
   z-index: var(--z-elevated);
-  margin-left: 12px;
-  margin-bottom: 8px;
+  margin-inline-start: 12px;
+  margin-block-end: 8px;
 }
 
 .mc-content-copy-btn:hover {
@@ -369,8 +369,8 @@
 .mc-decision-content h2,
 .mc-decision-content h3 {
   color: var(--color-text-primary);
-  margin-top: 1.25em;
-  margin-bottom: 0.5em;
+  margin-block-start: 1.25em;
+  margin-block-end: 0.5em;
   font-weight: 600;
 }
 
@@ -389,21 +389,21 @@
 .mc-decision-content h1:first-child,
 .mc-decision-content h2:first-child,
 .mc-decision-content h3:first-child {
-  margin-top: 0;
+  margin-block-start: 0;
 }
 
 .mc-decision-content p {
-  margin-bottom: 1em;
+  margin-block-end: 1em;
 }
 
 .mc-decision-content ul,
 .mc-decision-content ol {
   margin: 0.75em 0;
-  padding-left: 1.5em;
+  padding-inline-start: 1.5em;
 }
 
 .mc-decision-content li {
-  margin-bottom: 0.4em;
+  margin-block-end: 0.4em;
 }
 
 .mc-decision-content strong {
@@ -437,9 +437,9 @@
 }
 
 .mc-decision-content blockquote {
-  border-left: 3px solid var(--color-indigo-500);
+  border-inline-start: 3px solid var(--color-indigo-500);
   margin: 1em 0;
-  padding-left: 1em;
+  padding-inline-start: 1em;
   color: var(--color-text-primary);
   font-style: italic;
 }
@@ -452,7 +452,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 20px;
+  margin-block-start: 20px;
   padding: 10px 14px;
   background: var(--color-sky-50);
   border: 1px solid var(--color-sky-200);
@@ -510,7 +510,7 @@
 /* Promoted decision */
 .dark .mc-decision-item.promoted,
 [data-theme='dark'] .mc-decision-item.promoted {
-  border-left-color: var(--color-emerald-400);
+  border-inline-start-color: var(--color-emerald-400);
 }
 
 /* Promoted labels */
@@ -658,7 +658,7 @@
 
 .dark .mc-decision-content blockquote,
 [data-theme='dark'] .mc-decision-content blockquote {
-  border-left-color: var(--color-indigo-400);
+  border-inline-start-color: var(--color-indigo-400);
   color: var(--color-text-secondary);
 }
 

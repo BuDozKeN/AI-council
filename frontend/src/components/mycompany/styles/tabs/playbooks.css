@@ -10,7 +10,7 @@
 .mc-playbooks-filters {
   display: flex;
   gap: 12px;
-  margin-bottom: 20px;
+  margin-block-end: 20px;
   flex-wrap: wrap;
 }
 
@@ -38,7 +38,7 @@
 }
 
 .mc-empty-filter p {
-  margin-bottom: 12px;
+  margin-block-end: 12px;
 }
 
 /* ============================================================================
@@ -46,7 +46,7 @@
    ============================================================================ */
 
 .mc-playbook-group {
-  margin-bottom: 24px;
+  margin-block-end: 24px;
 }
 
 .mc-group-title {
@@ -161,7 +161,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-block-end: 16px;
 }
 
 .mc-doc-type {
@@ -187,7 +187,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 16px;
+  margin-block-end: 16px;
 }
 
 /* =============================================================================

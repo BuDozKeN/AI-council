@@ -164,7 +164,7 @@
 .mc-empty-icon-svg {
   display: block;
   color: var(--color-text-tertiary);
-  margin-bottom: var(--space-2);
+  margin-block-end: var(--space-2);
 }
 
 .mc-empty-title {
@@ -387,7 +387,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: 2px;
+  margin-block-start: 2px;
 }
 
 /* Type badges - compact chips */
@@ -463,13 +463,13 @@
   gap: 4px;
   flex-shrink: 0;
   position: absolute;
-  right: 0;
-  top: 50%;
+  inset-inline-end: 0;
+  inset-block-start: 50%;
   transform: translateY(-50%);
   opacity: 0;
   transition: opacity 0.15s ease;
   background: inherit;
-  padding-left: 8px;
+  padding-inline-start: 8px;
 }
 
 .mc-elegant-row:hover .mc-elegant-actions {
@@ -529,7 +529,7 @@
 .mc-confirm-label {
   font-size: 11px;
   color: var(--color-text-tertiary);
-  margin-right: 4px;
+  margin-inline-end: 4px;
 }
 
 .mc-text-btn.no {
@@ -583,10 +583,10 @@
     opacity: 0;
     transform: translateX(20px);
     max-height: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    margin-top: 0;
-    margin-bottom: 0;
+    padding-block-start: 0;
+    padding-block-end: 0;
+    margin-block-start: 0;
+    margin-block-end: 0;
   }
 }
 

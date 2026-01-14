@@ -46,9 +46,9 @@
   .mc-tabs.mc-tabs {
     order: 3;
     position: fixed;
-    bottom: 12px;
-    left: 12px;
-    right: 12px;
+    inset-block-end: 12px;
+    inset-inline-start: 12px;
+    inset-inline-end: 12px;
     width: auto;
     z-index: var(--z-dropdown);
     background: var(--color-bg-inverse);
@@ -124,7 +124,7 @@
   /* Add padding to content to account for floating bottom nav */
   .mc-content {
     padding: 12px 16px;
-    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    padding-block-end: calc(80px + env(safe-area-inset-bottom, 0px));
     order: 2;
 
     /* Ensure content fills available height */
@@ -143,8 +143,8 @@
   .mc-panel::before {
     content: '';
     position: absolute;
-    top: 6px;
-    left: 50%;
+    inset-block-start: 6px;
+    inset-inline-start: 50%;
     transform: translateX(-50%);
     width: 36px;
     height: 4px;
@@ -155,8 +155,8 @@
 
   /* Adjust header padding to account for drag handle */
   .mc-header {
-    padding-top: 20px;
-    padding-bottom: 12px;
+    padding-block-start: 20px;
+    padding-block-end: 12px;
   }
 
   /* Compact header on mobile */
@@ -170,7 +170,7 @@
 
   /* Hide company switcher label, show icon only */
   .mc-company-switcher {
-    margin-top: 4px;
+    margin-block-start: 4px;
   }
 
   /* Make close button smaller on mobile */
@@ -206,11 +206,11 @@
   .mc-elegant-actions {
     opacity: 1;
     position: relative;
-    right: auto;
-    top: auto;
+    inset-inline-end: auto;
+    inset-block-start: auto;
     transform: none;
     background: transparent;
-    padding-left: 0;
+    padding-inline-start: 0;
   }
 
   /* Date stays visible alongside actions */
@@ -316,7 +316,7 @@
   @media (max-width: 768px) {
     /* Floating bottom nav respects safe area */
     .mc-tabs {
-      bottom: calc(12px + env(safe-area-inset-bottom));
+      inset-block-end: calc(12px + env(safe-area-inset-bottom));
     }
 
     /* Panel height accounts for safe areas - use dvh for mobile browser chrome */
@@ -325,7 +325,7 @@
       height: 100dvh; /* Dynamic viewport height for mobile browsers */
       max-height: 100vh;
       max-height: 100dvh;
-      padding-top: env(safe-area-inset-top, 0);
+      padding-block-start: env(safe-area-inset-top, 0);
     }
 
     /* Modal content safe area - use fallbacks to prevent calc failures */
@@ -337,7 +337,7 @@
 
     /* Floating action buttons */
     .mc-fab {
-      bottom: calc(90px + env(safe-area-inset-bottom));
+      inset-block-end: calc(90px + env(safe-area-inset-bottom));
     }
   }
 }
@@ -444,7 +444,7 @@
   /* Slightly tighter content padding on very small screens */
   .mc-content {
     padding: 8px 12px;
-    padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+    padding-block-end: calc(70px + env(safe-area-inset-bottom, 0px));
   }
 
   .mc-overview-hero {
@@ -458,11 +458,11 @@
 
   /* Sticky toolbar - match smaller card padding for negative margins */
   .mc-context-sticky-toolbar {
-    top: 0;
-    margin-left: -14px;
-    margin-right: -14px;
-    padding-left: 14px;
-    padding-right: 14px;
+    inset-block-start: 0;
+    margin-inline-start: -14px;
+    margin-inline-end: -14px;
+    padding-inline-start: 14px;
+    padding-inline-end: 14px;
     width: calc(100% + 28px);
   }
 }
@@ -498,10 +498,10 @@
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    padding-bottom: 4px;
+    padding-block-end: 4px;
     margin: 0 -16px;
-    padding-left: 16px;
-    padding-right: 16px;
+    padding-inline-start: 16px;
+    padding-inline-end: 16px;
   }
 
   .mc-projects-stats::-webkit-scrollbar {
@@ -569,8 +569,8 @@
 
   .mc-empty-cta {
     position: fixed;
-    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
-    right: 16px;
+    inset-block-end: calc(80px + env(safe-area-inset-bottom, 0px));
+    inset-inline-end: 16px;
     z-index: var(--z-sticky);
   }
 
@@ -592,8 +592,8 @@
     align-items: center;
     justify-content: center;
     position: fixed;
-    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
-    right: 16px;
+    inset-block-end: calc(80px + env(safe-area-inset-bottom, 0px));
+    inset-inline-end: 16px;
     width: 56px;
     height: 56px;
     background: var(--color-indigo-600);
@@ -638,8 +638,8 @@
 .mc-pull-indicator {
   display: none;
   position: absolute;
-  top: 0;
-  left: 50%;
+  inset-block-start: 0;
+  inset-inline-start: 50%;
   transform: translateX(-50%) translateY(-100%);
   padding: 12px;
   transition: transform 0.2s ease;
@@ -676,8 +676,8 @@
 @media (max-width: 768px) {
   .mc-swipe-hint {
     position: absolute;
-    right: -4px;
-    top: 50%;
+    inset-inline-end: -4px;
+    inset-block-start: 50%;
     transform: translateY(-50%);
     width: 4px;
     height: 32px;
@@ -739,7 +739,7 @@
   /* More horizontal space for content */
   .mc-content {
     padding: 12px 24px;
-    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+    padding-block-end: calc(60px + env(safe-area-inset-bottom, 0px));
   }
 
   /* Stats in a row in landscape */
@@ -784,7 +784,7 @@
 
   .mc-overview-title {
     font-size: 1rem;
-    margin-bottom: 4px;
+    margin-block-end: 4px;
   }
 
   .mc-overview-description {
@@ -799,7 +799,7 @@
     align-items: center;
     gap: 12px;
     width: 100%;
-    margin-top: 8px;
+    margin-block-start: 8px;
   }
 
   .mc-overview-meta {
@@ -828,7 +828,7 @@
 
   /* Edit button - push to right on mobile */
   .mc-overview-hero-right > button {
-    margin-left: auto;
+    margin-inline-start: auto;
   }
 
   /* Hide stats grid on Overview - users can tap into tabs to see counts */
@@ -872,10 +872,10 @@
   /* Context card - match hero padding for alignment */
   .mc-context-card {
     padding: 16px 20px;
-    padding-bottom: 3rem;
+    padding-block-end: 3rem;
     background: var(--color-bg-primary);
     border: 1px solid var(--color-border);
-    border-top: 3px solid var(--color-border-dark);
+    border-block-start: 3px solid var(--color-border-dark);
     border-radius: var(--radius-lg);
 
     /* Shadow must be preserved for depth effect */
@@ -925,7 +925,7 @@
     display: block;
     width: 28px;
     height: 28px;
-    margin-bottom: 4px;
+    margin-block-end: 4px;
   }
 
   .mc-empty-context .mc-empty-title {
@@ -935,7 +935,7 @@
   .mc-empty-context .mc-empty-hint {
     font-size: 13px;
     max-width: 280px;
-    margin-bottom: 12px;
+    margin-block-end: 12px;
   }
 
   .mc-generate-context-btn {
@@ -947,10 +947,10 @@
   .mc-context-sticky-toolbar {
     background: var(--color-bg-primary);
     padding: 8px 0;
-    margin-left: -20px;
-    margin-right: -20px;
-    padding-left: 20px;
-    padding-right: 20px;
+    margin-inline-start: -20px;
+    margin-inline-end: -20px;
+    padding-inline-start: 20px;
+    padding-inline-end: 20px;
     width: calc(100% + 40px);
   }
 
@@ -962,7 +962,7 @@
     padding: 14px 16px;
     background: var(--color-bg-primary);
     border-radius: var(--radius-lg);
-    margin-bottom: 8px;
+    margin-block-end: 8px;
     border: 1px solid var(--color-border);
     box-shadow: var(--shadow-xs);
   }
@@ -979,7 +979,7 @@
   .mc-project-row-compact.mc-project-row-compact .mc-project-meta,
   .mc-project-row-compact .mc-project-meta[class] {
     display: flex;
-    margin-left: auto;
+    margin-inline-start: auto;
   }
 
   /* Title group: allow name to wrap, limit badges */
@@ -996,7 +996,7 @@
     font-size: 15px;
     font-weight: 500;
     line-height: 1.3;
-    margin-bottom: 2px;
+    margin-block-end: 2px;
   }
 
   /* Show max 2 department badges on mobile */
@@ -1036,7 +1036,7 @@
 
   /* Playbook group headers */
   .mc-playbook-group {
-    margin-bottom: 20px;
+    margin-block-end: 20px;
   }
 
   .mc-group-title {
@@ -1044,7 +1044,7 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--color-text-tertiary);
-    margin-bottom: 10px;
+    margin-block-end: 10px;
     padding: 0 4px;
   }
 
@@ -1059,7 +1059,7 @@
     padding: 14px 16px;
     background: var(--color-bg-primary);
     border-radius: var(--radius-lg);
-    margin-bottom: 8px;
+    margin-block-end: 8px;
     border: 1px solid var(--color-border);
     box-shadow: var(--shadow-xs);
     row-gap: 8px;
@@ -1082,8 +1082,8 @@
     position: static;
     opacity: 1;
     background: transparent;
-    padding-left: 0;
-    margin-left: auto;
+    padding-inline-start: 0;
+    margin-inline-start: auto;
     flex-shrink: 0;
   }
 
@@ -1104,8 +1104,8 @@
   .mc-playbooks .mc-elegant-row.mobile-active .mc-elegant-actions {
     display: flex;
     position: absolute;
-    right: 8px;
-    top: 50%;
+    inset-inline-end: 8px;
+    inset-block-start: 50%;
     transform: translateY(-50%);
     opacity: 1;
     background: transparent;
@@ -1212,7 +1212,7 @@
     padding: 14px 16px;
     background: var(--color-bg-primary);
     border-radius: var(--radius-lg);
-    margin-bottom: 8px;
+    margin-block-end: 8px;
     border: 1px solid var(--color-border);
     box-shadow: var(--shadow-xs);
     row-gap: 8px;
@@ -1251,7 +1251,7 @@
     font-size: 15px;
     font-weight: 500;
     line-height: 1.3;
-    margin-bottom: 4px;
+    margin-block-end: 4px;
   }
 
   /* Badges wrap */
@@ -1266,7 +1266,7 @@
     flex-shrink: 0;
     width: 8px;
     height: 8px;
-    margin-right: 4px;
+    margin-inline-end: 4px;
   }
 
   /* ========== COMMON LIST IMPROVEMENTS ========== */
@@ -1297,7 +1297,7 @@
   .mc-decisions-filters,
   .mc-projects-filters {
     gap: 12px;
-    margin-bottom: 16px;
+    margin-block-end: 16px;
   }
 
   /* Empty filtered state */
@@ -1391,8 +1391,8 @@
   .mc-mobile-back-btn {
     display: flex;
     position: absolute;
-    left: 12px;
-    top: 50%;
+    inset-inline-start: 12px;
+    inset-block-start: 50%;
     transform: translateY(-50%);
     z-index: var(--z-elevated);
   }
@@ -1406,7 +1406,7 @@
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    padding-top: 20px;
+    padding-block-start: 20px;
   }
 
   /* Remove rounded corners on header - prevents white gaps at top corners on mobile */
