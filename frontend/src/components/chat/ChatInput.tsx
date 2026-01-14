@@ -22,6 +22,7 @@ import {
   ChevronRight,
   FolderKanban,
   RotateCcw,
+  Send,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from '../ui/BottomSheet';
@@ -577,44 +578,68 @@ export function ChatInput({
                   )}
 
                 {/* Mode toggle - dynamic "1 AI / N AIs" pill based on LLM Hub config */}
-                <div
-                  className="omni-inline-mode-toggle"
-                  role="radiogroup"
-                  aria-label="Response mode"
-                >
-                  {withTooltip(
-                    <button
-                      type="button"
-                      className={cn(
-                        'inline-mode-btn no-touch-target',
-                        chatMode === 'chat' && 'active'
-                      )}
-                      onClick={() => !disabled && onChatModeChange?.('chat')}
-                      disabled={disabled}
-                      role="radio"
-                      aria-checked={chatMode === 'chat'}
-                    >
-                      1 AI
-                    </button>,
-                    TOOLTIPS.chatMode
-                  )}
-                  {withTooltip(
-                    <button
-                      type="button"
-                      className={cn(
-                        'inline-mode-btn no-touch-target',
-                        chatMode === 'council' && 'active'
-                      )}
-                      onClick={() => !disabled && onChatModeChange?.('council')}
-                      disabled={disabled}
-                      role="radio"
-                      aria-checked={chatMode === 'council'}
-                    >
-                      {aiCount} {aiCount === 1 ? 'AI' : 'AIs'}
-                    </button>,
-                    TOOLTIPS.councilMode
-                  )}
-                </div>
+                <Tooltip.Provider delayDuration={400}>
+                  <div
+                    className="omni-inline-mode-toggle"
+                    role="radiogroup"
+                    aria-label="Response mode"
+                  >
+                    <Tooltip.Root>
+                      <Tooltip.Trigger asChild>
+                        <button
+                          type="button"
+                          className={cn(
+                            'inline-mode-btn no-touch-target',
+                            chatMode === 'chat' && 'active'
+                          )}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (!disabled) onChatModeChange?.('chat');
+                          }}
+                          onPointerDown={(e) => e.stopPropagation()}
+                          disabled={disabled}
+                          role="radio"
+                          aria-checked={chatMode === 'chat'}
+                        >
+                          1 AI
+                        </button>
+                      </Tooltip.Trigger>
+                      <Tooltip.Portal>
+                        <Tooltip.Content className="tooltip-content" sideOffset={8}>
+                          {TOOLTIPS.chatMode}
+                          <Tooltip.Arrow className="tooltip-arrow" />
+                        </Tooltip.Content>
+                      </Tooltip.Portal>
+                    </Tooltip.Root>
+                    <Tooltip.Root>
+                      <Tooltip.Trigger asChild>
+                        <button
+                          type="button"
+                          className={cn(
+                            'inline-mode-btn no-touch-target',
+                            chatMode === 'council' && 'active'
+                          )}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (!disabled) onChatModeChange?.('council');
+                          }}
+                          onPointerDown={(e) => e.stopPropagation()}
+                          disabled={disabled}
+                          role="radio"
+                          aria-checked={chatMode === 'council'}
+                        >
+                          {aiCount} {aiCount === 1 ? 'AI' : 'AIs'}
+                        </button>
+                      </Tooltip.Trigger>
+                      <Tooltip.Portal>
+                        <Tooltip.Content className="tooltip-content" sideOffset={8}>
+                          {TOOLTIPS.councilMode}
+                          <Tooltip.Arrow className="tooltip-arrow" />
+                        </Tooltip.Content>
+                      </Tooltip.Portal>
+                    </Tooltip.Root>
+                  </div>
+                </Tooltip.Provider>
 
                 {/* Response Style Selector - Quick toggle for Precise/Balanced/Creative */}
                 {onSelectPreset && (
@@ -653,10 +678,7 @@ export function ChatInput({
                     onClick={onSubmit}
                     aria-label="Send message"
                   >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <line x1="12" y1="19" x2="12" y2="5" />
-                      <polyline points="5 12 12 5 19 12" />
-                    </svg>
+                    <Send className="h-5 w-5" />
                   </button>,
                   TOOLTIPS.send
                 )}

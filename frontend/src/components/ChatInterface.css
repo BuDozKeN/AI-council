@@ -302,8 +302,7 @@
 .messages-container > * {
   width: 100%;
   max-width: 72ch; /* ~680-720px based on typography - optimal reading width */
-  margin-inline-start: auto;
-  margin-inline-end: auto;
+  margin-inline: auto;
 }
 
 /* Scroll button is now fixed position, not in flow */
@@ -506,6 +505,7 @@
     16px,
     env(safe-area-inset-bottom, 16px)
   ); /* Safe area for notched devices */
+
   flex-shrink: 0;
   scrollbar-gutter: stable both-edges; /* Match messages-container for alignment */
 
@@ -522,8 +522,7 @@
   content: '';
   position: absolute;
   inset-block-start: -40px;
-  inset-inline-start: 0;
-  inset-inline-end: 0;
+  inset-inline: 0;
   height: 40px;
   background: linear-gradient(to bottom, transparent 0%, var(--color-bg-primary) 100%);
   pointer-events: none;
@@ -542,8 +541,7 @@
 .input-form > * {
   width: 100%;
   max-width: 72ch; /* Match reading column width */
-  margin-inline-start: auto;
-  margin-inline-end: auto;
+  margin-inline: auto;
 }
 
 /* Premium input wrapper - ChatGPT-style pill */
@@ -1090,10 +1088,9 @@ button.role-select-trigger:focus {
 .context-icon-btn.mode-toggle {
   margin-inline-start: 4px;
   border-inline-start: 1px solid var(--color-border-light);
-  padding-inline-start: 6px;
+  padding-inline: 6px 2px;
   border-radius: 0;
   width: auto;
-  padding-inline-end: 2px;
 }
 
 .context-icon-btn.mode-toggle.council {
@@ -2703,6 +2700,7 @@ button.mobile-role-select {
   gap: 2px;
   flex: 1;
   justify-content: flex-start;
+  pointer-events: auto; /* Ensure child buttons are clickable */
 }
 
 /* Textarea input - larger field for writing */
@@ -2890,6 +2888,11 @@ button.mobile-role-select {
   border: 1px solid var(--color-border-light);
   border-radius: 100px;
   margin-inline-start: 4px;
+
+  /* Ensure container allows clicks through */
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
 }
 
 .inline-mode-btn {
@@ -2903,6 +2906,15 @@ button.mobile-role-select {
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
+
+  /* Ensure buttons are always clickable - explicit mobile touch handling */
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
 }
 
 .inline-mode-btn:hover:not(:disabled) {
@@ -2925,7 +2937,7 @@ button.mobile-role-select {
   color: var(--color-text-secondary);
 }
 
-/* Send button */
+/* Send button - matches OmniBar landing hero indigo style */
 .omni-send-btn {
   display: flex;
   align-items: center;
@@ -2934,9 +2946,9 @@ button.mobile-role-select {
   height: 32px;
   padding: 0;
   border: none;
-  border-radius: 50%;
-  background: var(--color-slate-200);
-  color: var(--color-slate-400);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-text-tertiary);
   cursor: pointer;
   transition: all 0.15s ease;
   flex-shrink: 0;
@@ -2948,12 +2960,19 @@ button.mobile-role-select {
 }
 
 .omni-send-btn.active {
-  background: var(--color-slate-900);
+  background: var(--color-indigo-500);
   color: var(--color-text-inverse);
+  box-shadow: 0 2px 8px var(--overlay-indigo-30);
 }
 
-.omni-send-btn.active:hover {
-  background: var(--color-slate-700);
+.omni-send-btn.active:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: var(--color-indigo-600);
+  box-shadow: 0 4px 12px var(--overlay-indigo-40);
+}
+
+.omni-send-btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .omni-send-btn:disabled {
@@ -3115,17 +3134,13 @@ button.mobile-role-select {
 }
 
 .dark .omni-send-btn {
-  background: var(--color-slate-700);
-  color: var(--color-slate-500);
+  background: transparent;
+  color: var(--color-text-tertiary);
 }
 
 .dark .omni-send-btn.active {
-  background: var(--color-slate-100);
-  color: var(--color-slate-900);
-}
-
-.dark .omni-send-btn.active:hover {
-  background: var(--color-slate-200);
+  background: var(--color-brand-primary);
+  color: var(--color-text-inverse);
 }
 
 /* =============================================================================
