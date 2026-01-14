@@ -16,10 +16,8 @@ from ..security import SecureHTTPException
 from .. import model_registry
 from ..database import get_supabase_service
 
-# Import rate limiter
-from slowapi import Limiter
-from slowapi.util import get_remote_address
-limiter = Limiter(key_func=get_remote_address)
+# Import shared rate limiter (ensures limits are tracked globally)
+from ..rate_limit import limiter
 
 
 async def _get_user_company_id(user: dict) -> Optional[str]:

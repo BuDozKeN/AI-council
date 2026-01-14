@@ -19,10 +19,8 @@ from ..security import log_app_event
 from ..utils.encryption import encrypt_api_key, decrypt_api_key, get_key_suffix, mask_api_key, DecryptionError
 from ..byok import KEY_EXPIRY_DAYS, log_api_key_event, get_key_expiry_info
 
-# Import rate limiter
-from slowapi import Limiter
-from slowapi.util import get_remote_address
-limiter = Limiter(key_func=get_remote_address)
+# Import shared rate limiter (ensures limits are tracked globally)
+from ..rate_limit import limiter
 
 
 router = APIRouter(prefix="/settings", tags=["settings"])

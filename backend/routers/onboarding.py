@@ -15,10 +15,8 @@ import re
 from ..auth import get_current_user, get_optional_user
 from ..security import log_app_event
 
-# Import rate limiter
-from slowapi import Limiter
-from slowapi.util import get_remote_address
-limiter = Limiter(key_func=get_remote_address)
+# Import shared rate limiter (ensures limits are tracked globally)
+from ..rate_limit import limiter
 
 
 router = APIRouter(prefix="/onboarding", tags=["onboarding"])

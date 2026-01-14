@@ -20,27 +20,9 @@ from .. import knowledge
 from ..security import SecureHTTPException
 from .. import model_registry
 
-# Import rate limiter
-from slowapi import Limiter
-from slowapi.util import get_remote_address
-
-
-def get_user_id_or_ip(request):
-    """
-    SECURITY: Get user ID from request state for rate limiting.
-    Falls back to IP address only for unauthenticated requests.
-    Using user ID prevents IP spoofing bypass via X-Forwarded-For.
-    """
-    # Try to get user ID from request state (set by auth middleware)
-    if hasattr(request.state, 'user') and request.state.user:
-        user_id = request.state.user.get('id') or request.state.user.get('sub')
-        if user_id:
-            return f"user:{user_id}"
-    # Fallback to IP for unauthenticated requests
-    return get_remote_address(request)
-
-
-limiter = Limiter(key_func=get_user_id_or_ip)
+# Import shared rate limiter (ensures limits are tracked globally)
+# Note: The shared limiter already handles user-based rate limiting via token hash
+from ..rate_limit import limiter
 
 
 router = APIRouter(prefix="/knowledge", tags=["knowledge"])
