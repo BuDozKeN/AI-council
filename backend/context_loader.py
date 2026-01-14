@@ -1239,6 +1239,8 @@ def get_system_prompt_with_context(
     Now reads all context from Supabase database instead of markdown files.
     Supports multi-select for departments and roles.
 
+    Refactored to use helper functions for better maintainability.
+
     Args:
         business_id: The business slug or UUID (used to lookup company context)
         department_id: Optional single department slug or UUID (legacy, use department_ids)
@@ -1256,261 +1258,86 @@ def get_system_prompt_with_context(
     Returns:
         System prompt string with all context, or None if no context found
     """
+    from .context_loader_refactored import (
+        _normalize_role_and_department_ids,
+        _resolve_company_uuid,
+        _build_role_header_prompt,
+        _inject_project_context,
+        _inject_department_contexts,
+        _inject_playbooks,
+        _add_response_guidance
+    )
+
     if not business_id and not company_uuid:
         return None
 
-    # Normalize single values to lists for unified processing
-    all_role_ids = []
-    if role_ids:
-        all_role_ids = role_ids
-    elif role_id:
-        all_role_ids = [role_id]
+    # 1. Normalize single IDs to lists for unified processing
+    all_role_ids, all_department_ids = _normalize_role_and_department_ids(
+        role_id, role_ids, department_id, department_uuid, department_ids
+    )
 
-    all_department_ids = []
-    if department_ids:
-        all_department_ids = department_ids
-    elif department_uuid:
-        all_department_ids = [department_uuid]
-    elif department_id:
-        all_department_ids = [department_id]
+    # 2. Resolve company UUID if we only have business_id (slug)
+    company_uuid = _resolve_company_uuid(business_id, company_uuid, get_supabase_service)
 
-    # Resolve company UUID if we only have business_id (slug)
-    if not company_uuid and business_id:
-        client = get_supabase_service()
-        if client:
-            try:
-                result = client.table("companies").select("id").eq("slug", business_id).execute()
-                if result.data:
-                    company_uuid = result.data[0]["id"]
-            except Exception:
-                pass
-
-    # Load company context from database
+    # 3. Load company context from database
     company_context = load_company_context_from_db(company_uuid or business_id)
-
     if not company_context:
         return None
 
-    # Load role info from database for all selected roles
+    # 4. Load role info from database for all selected roles
     role_infos = []
     for rid in all_role_ids:
         info = load_role_prompt_from_db(rid)
         if info:
             role_infos.append(info)
 
-    # Build the system prompt based on role selection
-    if len(role_infos) > 1:
-        # Multiple roles selected - combine perspectives
-        role_names = [r.get('name', 'Unknown') for r in role_infos]
-        role_names_str = ", ".join(role_names[:-1]) + " and " + role_names[-1] if len(role_names) > 1 else role_names[0]
+    # 5. Build the system prompt header based on role selection
+    system_prompt = _build_role_header_prompt(role_infos)
 
-        system_prompt = f"""=== COMBINED ROLES: {', '.join([r.upper() for r in role_names])} ===
-
-You are an AI advisor providing perspectives from multiple roles: {role_names_str}. You are one of several AI models providing independent perspectives on this question.
-
-Consider insights from all of these perspectives when responding:
-
-"""
-        for role_info in role_infos:
-            role_name = role_info.get('name', 'Unknown')
-            role_prompt = role_info.get('system_prompt', '')
-            role_desc = role_info.get('description', '')
-
-            system_prompt += f"--- {role_name.upper()} ---\n"
-            if role_prompt:
-                system_prompt += f"{role_prompt}\n\n"
-            elif role_desc:
-                system_prompt += f"{role_desc}\n\n"
-
-        system_prompt += """=== END COMBINED ROLES ===
-
-=== COMPANY CONTEXT ===
-
-"""
-    elif len(role_infos) == 1:
-        # Single role selected
-        role_info = role_infos[0]
-        if role_info.get("system_prompt"):
-            role_name = role_info.get('name', all_role_ids[0])
-            role_prompt = role_info.get('system_prompt', '')
-
-            system_prompt = f"""=== ROLE: {role_name.upper()} ===
-
-You are an AI advisor serving as a {role_name}. You are one of several AI models providing independent perspectives on this question.
-
-{role_prompt}
-
-=== END ROLE CONTEXT ===
-
-=== COMPANY CONTEXT ===
-
-"""
-        else:
-            # Role exists but no system_prompt - use basic prompt
-            role_name = role_info.get('name', all_role_ids[0])
-            role_desc = role_info.get('description', '')
-
-            system_prompt = f"""You are an AI advisor serving as the {role_name} for this company. You are one of several AI models providing independent perspectives.
-
-Your role: {role_desc}
-
-Focus on aspects relevant to your role. Be practical and actionable.
-
-=== COMPANY CONTEXT ===
-
-"""
-    else:
-        # No roles selected - generic advisor
-        system_prompt = """You are an AI advisor. You are one of several AI models providing independent perspectives on this question.
-
-=== COMPANY CONTEXT ===
-
-"""
-
-    # Truncate company context if too large
+    # 6. Add company context
     company_context = truncate_to_limit(company_context, MAX_SECTION_CHARS, "company context")
     system_prompt += company_context
     system_prompt += "\n\n=== END COMPANY CONTEXT ===\n"
 
-    # Inject project context if project_id is provided
-    if project_id and access_token:
-        project_context = storage.get_project_context(project_id, access_token)
-        if project_context:
-            project = storage.get_project(project_id, access_token)
-            project_name = project.get('name', 'Current Project') if project else 'Current Project'
+    # 7. Inject project context if provided
+    system_prompt = _inject_project_context(
+        system_prompt,
+        project_id,
+        access_token,
+        storage,
+        truncate_to_limit,
+        MAX_SECTION_CHARS
+    )
 
-            # Truncate project context if too large
-            project_context = truncate_to_limit(project_context, MAX_SECTION_CHARS // 2, "project context")
+    # 8. Inject department-specific contexts (only if explicitly selected)
+    system_prompt = _inject_department_contexts(
+        system_prompt,
+        all_department_ids,
+        get_supabase_service,
+        load_department_context_from_db,
+        get_department_roles,
+        is_valid_uuid
+    )
 
-            system_prompt += f"\n=== PROJECT: {project_name.upper()} ===\n\n"
-            system_prompt += "The user is currently working on this specific project/client. "
-            system_prompt += "Ensure your advice is relevant to this project's context.\n\n"
-            system_prompt += project_context
-            system_prompt += "\n\n=== END PROJECT CONTEXT ===\n"
+    # 9. Inject explicitly selected playbooks
+    system_prompt = _inject_playbooks(
+        system_prompt,
+        playbook_ids,
+        get_supabase_service,
+        truncate_to_limit,
+        MAX_SECTION_CHARS
+    )
 
-    # NOTE: Active departments listing has been REMOVED.
-    # Users must explicitly select departments - no auto-listing of all departments.
-    # This prevents models from referencing departments the user didn't select.
+    # 10. Add general response guidance and role-specific instructions
+    system_prompt = _add_response_guidance(
+        system_prompt,
+        role_infos,
+        all_role_ids,
+        all_department_ids,
+        is_valid_uuid
+    )
 
-    # Load department-specific context from database (only if explicitly selected)
-    if all_department_ids:
-        client = get_supabase_service()
-
-        for dept_id in all_department_ids:
-            dept_context = load_department_context_from_db(dept_id)
-
-            if dept_context:
-                # Get department name
-                dept_name = "Department"
-                if client:
-                    try:
-                        result = client.table("departments").select("name, description").eq("id", dept_id).execute()
-                        if not result.data:
-                            result = client.table("departments").select("name, description").eq("slug", dept_id).execute()
-                        if result.data:
-                            dept_name = result.data[0].get("name", "Department")
-                    except Exception:
-                        pass
-
-                system_prompt += f"\n=== DEPARTMENT: {dept_name.upper()} ===\n"
-
-                # List roles in this department (only if it's a UUID)
-                if is_valid_uuid(dept_id):
-                    roles = get_department_roles(dept_id)
-                    if roles:
-                        system_prompt += "\nAvailable Roles:\n"
-                        for role in roles:
-                            r_name = role.get('name', '')
-                            r_desc = role.get('description', '')
-                            system_prompt += f"- {r_name}: {r_desc}\n"
-
-                system_prompt += f"\n{dept_context}\n"
-                system_prompt += f"\n=== END {dept_name.upper()} DEPARTMENT ===\n"
-
-    # NOTE: Auto-injection of knowledge entries, playbooks, and decisions has been DISABLED.
-    # But we DO support EXPLICIT playbook selection - users opt-in to specific playbooks.
-
-    # Inject explicitly selected playbooks
-    if playbook_ids:
-        client = get_supabase_service()
-        if client:
-            playbook_count = 0
-            for playbook_id in playbook_ids:
-                try:
-                    # Get playbook info
-                    doc_result = client.table("org_documents").select(
-                        "id, title, doc_type, summary"
-                    ).eq("id", playbook_id).eq("is_active", True).execute()
-
-                    if doc_result.data:
-                        doc = doc_result.data[0]
-                        doc_title = doc.get("title", "Playbook")
-                        doc_type = doc.get("doc_type", "document").upper()
-
-                        # Get current version content
-                        version_result = client.table("org_document_versions").select(
-                            "content"
-                        ).eq("document_id", playbook_id).eq("is_current", True).execute()
-
-                        if version_result.data and version_result.data[0].get("content"):
-                            content = version_result.data[0]["content"]
-                            content = truncate_to_limit(content, MAX_SECTION_CHARS // 3, f"{doc_type} content")
-
-                            system_prompt += f"\n=== {doc_type}: {doc_title.upper()} ===\n\n"
-                            system_prompt += content
-                            system_prompt += f"\n\n=== END {doc_type} ===\n"
-                            playbook_count += 1
-                except Exception:
-                    pass  # Skip failed playbook loads silently
-
-    system_prompt += """
-When responding:
-1. Consider the business's stated priorities and constraints
-2. Be practical given their current stage and resources
-3. Reference specific aspects of their business when relevant
-4. Avoid generic advice that ignores their context
-
-IMPORTANT: Provide a complete recommendation. Do NOT end your response with questions.
-If you lack information, state what would be helpful to know, but still give your best
-recommendation based on what you have. Example:
-- BAD: "What's your budget for this project?"
-- GOOD: "Without knowing your budget, I'd recommend X for cost-efficiency or Y if budget allows."
-
-KNOWLEDGE GAP REPORTING:
-If you notice missing business context that would significantly improve your answer, output exactly:
-[GAP: brief description of missing information]
-
-Examples:
-- [GAP: company location for tax/regulatory implications]
-- [GAP: team size to assess implementation capacity]
-- [GAP: current revenue or budget to gauge affordability]
-- [GAP: technology stack for integration recommendations]
-- [GAP: target customer segment for positioning advice]
-
-Output gaps inline where you notice them, then continue your response. The user will see
-these as actionable prompts to add context for future queries.
-"""
-
-    # Add role-specific guidance if roles are selected
-    if len(role_infos) > 1:
-        role_names = [r.get('name', 'Unknown') for r in role_infos]
-        role_names_str = ", ".join(role_names[:-1]) + " and " + role_names[-1]
-        system_prompt += f"5. Consider perspectives from all selected roles: {role_names_str}\n"
-        system_prompt += "6. Integrate insights from each role into a cohesive response\n"
-    elif len(role_infos) == 1:
-        role_name = role_infos[0].get('name', all_role_ids[0] if all_role_ids else 'Unknown')
-        system_prompt += f"5. Respond AS the {role_name} - stay in character and focus on your role's responsibilities\n"
-        system_prompt += f"6. Bring your unique perspective as {role_name} to this question\n"
-    elif all_department_ids:
-        # No roles but departments selected
-        if len(all_department_ids) > 1:
-            system_prompt += "5. Focus your advice considering the perspectives of the selected departments\n"
-        else:
-            dept_id = all_department_ids[0]
-            dept_display = dept_id.replace('-', ' ').title() if isinstance(dept_id, str) and not is_valid_uuid(dept_id) else "the selected"
-            system_prompt += f"5. Focus your advice from the perspective of the {dept_display} department\n"
-
-    # Final length check - ensure total context doesn't exceed safe limits
+    # 11. Final length check - ensure total context doesn't exceed safe limits
     if len(system_prompt) > MAX_CONTEXT_CHARS:
         system_prompt = truncate_to_limit(system_prompt, MAX_CONTEXT_CHARS, "total context")
 
