@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Inbox, LucideIcon } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import './EmptyState.css';
 
@@ -70,32 +71,78 @@ const EmptyState = React.forwardRef<HTMLDivElement, EmptyStateProps>(
     },
     ref
   ) => {
+    // Premium entrance animation - fade + slide up with stagger
+    const containerVariants = {
+      hidden: { opacity: 0 },
+      visible: {
+        opacity: 1,
+        transition: {
+          staggerChildren: 0.08,
+          delayChildren: 0.05,
+        },
+      },
+    };
+
+    const itemVariants = {
+      hidden: { opacity: 0, y: 12 },
+      visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+          type: 'spring',
+          stiffness: 300,
+          damping: 24,
+        },
+      },
+    };
+
     return (
-      <div
+      <motion.div
         ref={ref}
         className={cn('empty-state', variant === 'large' && 'empty-state-large', className)}
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
         {...props}
       >
-        {customIcon ? (
-          <div className="empty-state-icon empty-state-icon-custom">{customIcon}</div>
-        ) : (
-          <div className="empty-state-icon">
-            <Icon size={variant === 'large' ? 32 : 24} strokeWidth={1.5} />
-          </div>
+        <motion.div variants={itemVariants}>
+          {customIcon ? (
+            <div className="empty-state-icon empty-state-icon-custom">{customIcon}</div>
+          ) : (
+            <div className="empty-state-icon">
+              <Icon size={variant === 'large' ? 32 : 24} strokeWidth={1.5} />
+            </div>
+          )}
+        </motion.div>
+
+        {title && (
+          <motion.h3 className="empty-state-title" variants={itemVariants}>
+            {title}
+          </motion.h3>
         )}
-        {title && <h3 className="empty-state-title">{title}</h3>}
-        {message && <p className="empty-state-message">{message}</p>}
+
+        {message && (
+          <motion.p className="empty-state-message" variants={itemVariants}>
+            {message}
+          </motion.p>
+        )}
+
         {hints && hints.length > 0 && (
-          <div className="empty-state-hints">
+          <motion.div className="empty-state-hints" variants={itemVariants}>
             {hints.map((hint, i) => (
               <span key={i} className="empty-state-hint">
                 {hint}
               </span>
             ))}
-          </div>
+          </motion.div>
         )}
-        {action && <div className="empty-state-action">{action}</div>}
-      </div>
+
+        {action && (
+          <motion.div className="empty-state-action" variants={itemVariants}>
+            {action}
+          </motion.div>
+        )}
+      </motion.div>
     );
   }
 );

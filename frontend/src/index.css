@@ -166,6 +166,30 @@ select:focus-visible {
 /* Box-sizing is handled in tailwind.css @layer base */
 
 /* =============================================================================
+   BUTTON LOADING STATES - Premium Spinner Animation
+   ============================================================================= */
+
+/* Smooth spinner rotation - matches Stripe/Linear quality */
+@keyframes button-spinner {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: button-spinner 0.8s linear infinite;
+}
+
+/* Loading button cursor and opacity */
+button[disabled] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* =============================================================================
    NOISE TEXTURE UTILITIES (2025 Premium Trend)
    Add .noise-overlay class to elements for subtle grain texture
    ============================================================================= */
