@@ -33,7 +33,6 @@ import { logger } from '../../utils/logger';
 import { springs } from '../../lib/animations';
 import { api, OnboardingProfileResponse } from '../../api';
 import { useAuth } from '../../AuthContext';
-import { logger } from '../../utils/logger';
 import type { OnboardingProfile, OnboardingStep } from './types';
 import { MOCK_PROFILE_AGENCY, COUNCIL_MEMBERS } from './mockData';
 import { SoftGateModal } from './SoftGateModal';
