@@ -124,8 +124,12 @@ jobs:
 
       - name: Run npm audit
         working-directory: frontend
-        run: npm audit --audit-level=high
-        continue-on-error: true
+        run: |
+          # Audit for high/critical vulnerabilities - fail if found
+          npm audit --audit-level=high || {
+            echo "::error::High or critical vulnerabilities found in npm dependencies"
+            exit 1
+          }
 
   # pip-audit for backend
   pip-audit:
@@ -149,11 +153,12 @@ jobs:
 
       - name: Run pip-audit
         run: |
-          # Run audit, capture output, but don't fail the workflow
-          pip-audit --desc on --format columns 2>&1 | tee audit-results.txt || true
-          # Check if vulnerabilities found and output summary
-          if grep -q "Found" audit-results.txt; then
-            echo "::warning::Pip audit found vulnerabilities - review audit-results.txt"
-          else
-            echo "No vulnerabilities found"
+          # Run audit and fail on high/critical vulnerabilities
+          pip-audit --desc on --format columns 2>&1 | tee audit-results.txt
+          exit_code=${PIPESTATUS[0]}
+
+          if [ $exit_code -ne 0 ]; then
+            echo "::error::Vulnerabilities found in pip dependencies - review audit-results.txt"
+            exit 1
           fi
+          echo "No vulnerabilities found"
