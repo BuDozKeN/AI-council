@@ -7,6 +7,7 @@
 
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 import { supportedLanguages } from '../i18n';
 
 interface SEOConfig {
@@ -147,12 +148,14 @@ export function useHreflangLinks() {
 
 /**
  * Add canonical URL to prevent duplicate content issues
+ * Uses useLocation() to reactively update when route changes
  */
 export function useCanonicalURL(url?: string) {
+  const location = useLocation();
+
   useEffect(() => {
     const baseUrl = window.location.origin;
-    const currentPath = window.location.pathname;
-    const canonicalUrl = url || `${baseUrl}${currentPath}`;
+    const canonicalUrl = url || `${baseUrl}${location.pathname}`;
 
     let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
 
@@ -167,7 +170,7 @@ export function useCanonicalURL(url?: string) {
     return () => {
       // Keep canonical link, it will be updated on next route
     };
-  }, [url]);
+  }, [url, location.pathname]);
 }
 
 /**
