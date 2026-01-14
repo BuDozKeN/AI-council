@@ -127,32 +127,17 @@ except ImportError:
 init_sentry()
 
 # =============================================================================
-# SECURITY: Rate limiting
+# SECURITY: Rate limiting (shared instance from rate_limit.py)
 # =============================================================================
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
 try:
+    from .rate_limit import limiter
     from .security import log_security_event, get_client_ip, log_app_event
 except ImportError:
+    from backend.rate_limit import limiter
     from backend.security import log_security_event, get_client_ip, log_app_event
-
-
-def get_user_identifier(request: Request) -> str:
-    """
-    Get rate limit key from authenticated user ID or fall back to IP address.
-    This ensures rate limits are per-user for authenticated requests.
-    """
-    auth_header = request.headers.get("Authorization", "")
-    if auth_header.startswith("Bearer "):
-        import hashlib
-        token_hash = hashlib.sha256(auth_header[7:].encode()).hexdigest()[:16]
-        return f"user:{token_hash}"
-    return get_remote_address(request)
-
-
-limiter = Limiter(key_func=get_user_identifier)
 
 
 # =============================================================================
@@ -550,6 +535,13 @@ app.add_middleware(RequestDurationMiddleware)  # Track request timing
 app.add_middleware(CorrelationIdMiddleware)
 app.add_middleware(GracefulShutdownMiddleware)  # Track in-flight requests
 app.add_middleware(RequestSizeLimitMiddleware)
+
+# Input sanitization middleware (CRLF injection, header validation, query string DoS)
+try:
+    from .middleware.input_sanitization import InputSanitizationMiddleware
+except ImportError:
+    from backend.middleware.input_sanitization import InputSanitizationMiddleware
+app.add_middleware(InputSanitizationMiddleware)
 
 
 # =============================================================================
