@@ -62,8 +62,7 @@ router = APIRouter(prefix="/company", tags=["company-playbooks"])
 
 @router.get("/{company_id}/playbooks")
 @limiter.limit("100/minute;500/hour")
-async def get_playbooks(
-    company_id: str,
+async def get_playbooks(request: Request, company_id: str,
     doc_type: Optional[str] = None,
     department_id: Optional[str] = None,
     tag: Optional[str] = None,
@@ -157,7 +156,7 @@ async def get_playbooks(
 
 @router.get("/{company_id}/playbooks/tags")
 @limiter.limit("100/minute;500/hour")
-async def get_playbook_tags(company_id: str, user=Depends(get_current_user)):
+async def get_playbook_tags(request: Request, company_id: str, user=Depends(get_current_user)):
     """Get predefined playbook tag categories."""
     predefined_tags = [
         {"tag": "deployment", "description": "Deployment and release procedures"},
@@ -183,7 +182,7 @@ async def get_playbook_tags(company_id: str, user=Depends(get_current_user)):
 
 @router.get("/{company_id}/playbooks/{playbook_id}")
 @limiter.limit("100/minute;500/hour")
-async def get_playbook(company_id: ValidCompanyId, playbook_id: str, user=Depends(get_current_user)):
+async def get_playbook(request: Request, company_id: ValidCompanyId, playbook_id: str, user=Depends(get_current_user)):
     """Get a single playbook with its current version content."""
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
@@ -311,7 +310,7 @@ async def create_playbook(request: Request, company_id: ValidCompanyId, data: Pl
 
 @router.put("/{company_id}/playbooks/{playbook_id}")
 @limiter.limit("30/minute;100/hour")
-async def update_playbook(company_id: ValidCompanyId, playbook_id: ValidPlaybookId, data: PlaybookUpdate, user=Depends(get_current_user)):
+async def update_playbook(request: Request, company_id: ValidCompanyId, playbook_id: ValidPlaybookId, data: PlaybookUpdate, user=Depends(get_current_user)):
     """Update a playbook - creates a new version if content changed."""
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
@@ -412,7 +411,7 @@ async def update_playbook(company_id: ValidCompanyId, playbook_id: ValidPlaybook
 
 @router.delete("/{company_id}/playbooks/{playbook_id}")
 @limiter.limit("20/minute;50/hour")
-async def delete_playbook(company_id: ValidCompanyId, playbook_id: ValidPlaybookId, user=Depends(get_current_user)):
+async def delete_playbook(request: Request, company_id: ValidCompanyId, playbook_id: ValidPlaybookId, user=Depends(get_current_user)):
     """Delete a playbook permanently."""
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)

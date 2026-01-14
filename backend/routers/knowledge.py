@@ -261,8 +261,7 @@ Today's date: {today_date}"""
 
 @router.post("/knowledge")
 @limiter.limit("30/minute;100/hour")
-async def create_knowledge_entry(
-    request: CreateKnowledgeRequest,
+async def create_knowledge_entry(request: Request, entry_request: CreateKnowledgeRequest,
     user: dict = Depends(get_current_user)
 ):
     """Create a new knowledge entry."""
@@ -271,10 +270,10 @@ async def create_knowledge_entry(
     try:
         access_token = user.get("access_token")
 
-        company_uuid = storage.resolve_company_id(request.company_id, access_token)
+        company_uuid = storage.resolve_company_id(entry_request.company_id, access_token)
 
         department_uuid = storage.resolve_department_id(
-            request.department_id,
+            entry_request.department_id,
             company_uuid,
             access_token
         )
@@ -282,24 +281,24 @@ async def create_knowledge_entry(
         result = knowledge.create_knowledge_entry(
             user_id=user["id"],
             company_id=company_uuid,
-            title=request.title,
-            summary=request.summary,
-            category=request.category,
+            title=entry_request.title,
+            summary=entry_request.summary,
+            category=entry_request.category,
             department_id=department_uuid,
-            role_id=request.role_id,
-            project_id=request.project_id,
-            source_conversation_id=request.source_conversation_id,
-            source_message_id=request.source_message_id,
+            role_id=entry_request.role_id,
+            project_id=entry_request.project_id,
+            source_conversation_id=entry_request.source_conversation_id,
+            source_message_id=entry_request.source_message_id,
             access_token=access_token,
-            problem_statement=request.problem_statement,
-            decision_text=request.decision_text,
-            reasoning=request.reasoning,
-            status=request.status,
-            body_md=request.body_md,
-            version=request.version,
-            auto_inject=request.auto_inject,
-            scope=request.scope,
-            tags=request.tags
+            problem_statement=entry_request.problem_statement,
+            decision_text=entry_request.decision_text,
+            reasoning=entry_request.reasoning,
+            status=entry_request.status,
+            body_md=entry_request.body_md,
+            version=entry_request.version,
+            auto_inject=entry_request.auto_inject,
+            scope=entry_request.scope,
+            tags=entry_request.tags
         )
 
         if result:
@@ -307,17 +306,17 @@ async def create_knowledge_entry(
                 company_id=company_uuid,
                 event_type="decision",
                 action="saved",
-                title=request.title,
-                description=request.summary[:200] if request.summary else None,
+                title=entry_request.title,
+                description=entry_request.summary[:200] if entry_request.summary else None,
                 department_id=department_uuid,
                 related_id=result.get("id"),
                 related_type="decision",
-                conversation_id=request.source_conversation_id
+                conversation_id=entry_request.source_conversation_id
             )
 
-            if request.project_id:
+            if entry_request.project_id:
                 asyncio.create_task(
-                    _auto_synthesize_project_context(request.project_id, user)
+                    _auto_synthesize_project_context(entry_request.project_id, user)
                 )
 
             return result
@@ -331,8 +330,7 @@ async def create_knowledge_entry(
 
 @router.get("/knowledge/{company_id}")
 @limiter.limit("100/minute;500/hour")
-async def get_knowledge_entries(
-    company_id: str,
+async def get_knowledge_entries(request: Request, company_id: str,
     department_id: Optional[str] = None,
     project_id: Optional[str] = None,
     category: Optional[str] = None,
@@ -367,8 +365,7 @@ async def get_knowledge_entries(
 
 @router.get("/conversations/{conversation_id}/knowledge-count")
 @limiter.limit("100/minute;500/hour")
-async def get_knowledge_count_for_conversation(
-    conversation_id: str,
+async def get_knowledge_count_for_conversation(request: Request, conversation_id: str,
     company_id: str,
     user: dict = Depends(get_current_user)
 ):
@@ -390,8 +387,7 @@ async def get_knowledge_count_for_conversation(
 
 @router.get("/conversations/{conversation_id}/linked-project")
 @limiter.limit("100/minute;500/hour")
-async def get_conversation_linked_project(
-    conversation_id: str,
+async def get_conversation_linked_project(request: Request, conversation_id: str,
     company_id: str = Query(..., description="Company ID or slug"),
     user: dict = Depends(get_current_user)
 ):
@@ -455,8 +451,7 @@ async def get_conversation_linked_project(
 
 @router.get("/conversations/{conversation_id}/decision")
 @limiter.limit("100/minute;500/hour")
-async def get_conversation_decision(
-    conversation_id: str,
+async def get_conversation_decision(request: Request, conversation_id: str,
     company_id: str = Query(..., description="Company ID or slug"),
     response_index: int = Query(..., description="Index of the response within the conversation"),
     user: dict = Depends(get_current_user)
@@ -518,9 +513,8 @@ async def get_conversation_decision(
 
 @router.patch("/knowledge/{entry_id}")
 @limiter.limit("30/minute;100/hour")
-async def update_knowledge_entry(
-    entry_id: str,
-    request: UpdateKnowledgeRequest,
+async def update_knowledge_entry(request: Request, entry_id: str,
+    update_request: UpdateKnowledgeRequest,
     user: dict = Depends(get_current_user)
 ):
     """Update a knowledge entry."""
@@ -529,7 +523,7 @@ async def update_knowledge_entry(
         result = knowledge.update_knowledge_entry(
             entry_id=entry_id,
             user_id=user["id"],
-            updates=request.model_dump(exclude_unset=True),
+            updates=update_request.model_dump(exclude_unset=True),
             access_token=user.get("access_token")
         )
         if result:
@@ -541,8 +535,7 @@ async def update_knowledge_entry(
 
 @router.delete("/knowledge/{entry_id}")
 @limiter.limit("20/minute;50/hour")
-async def delete_knowledge_entry(
-    entry_id: str,
+async def delete_knowledge_entry(request: Request, entry_id: str,
     user: dict = Depends(get_current_user)
 ):
     """Soft delete a knowledge entry."""

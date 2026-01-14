@@ -48,21 +48,21 @@ class BillingPortalRequest(BaseModel):
 
 @router.get("/plans")
 @limiter.limit("100/minute;500/hour")
-async def get_billing_plans():
+async def get_billing_plans(request: Request):
     """Get available subscription plans."""
     return billing.get_available_plans()
 
 
 @router.get("/subscription")
 @limiter.limit("100/minute;500/hour")
-async def get_subscription(user: dict = Depends(get_current_user)):
+async def get_subscription(request: Request, user: dict = Depends(get_current_user)):
     """Get current user's subscription status."""
     return billing.get_user_subscription(user["id"], access_token=user.get("access_token"))
 
 
 @router.get("/can-query")
 @limiter.limit("100/minute;500/hour")
-async def check_can_query(user: dict = Depends(get_current_user)):
+async def check_can_query(request: Request, user: dict = Depends(get_current_user)):
     """Check if user can make a council query."""
     return billing.check_can_query(user["id"], access_token=user.get("access_token"))
 

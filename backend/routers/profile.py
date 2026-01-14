@@ -6,7 +6,7 @@ Endpoints for user profile management:
 - Update user profile
 """
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from typing import Optional
 
@@ -41,7 +41,7 @@ class ProfileUpdateRequest(BaseModel):
 
 @router.get("")
 @limiter.limit("100/minute;500/hour")
-async def get_profile(user: dict = Depends(get_current_user)):
+async def get_profile(request: Request, user: dict = Depends(get_current_user)):
     """Get current user's profile."""
     try:
         log_app_event("PROFILE: Fetching profile", user_id=user['id'])
@@ -59,15 +59,15 @@ async def get_profile(user: dict = Depends(get_current_user)):
 
 @router.put("")
 @limiter.limit("30/minute;100/hour")
-async def update_profile(request: ProfileUpdateRequest, user: dict = Depends(get_current_user)):
+async def update_profile(request: Request, profile_request: ProfileUpdateRequest, user: dict = Depends(get_current_user)):
     """Update current user's profile."""
     try:
         log_app_event("PROFILE: Updating profile", user_id=user['id'])
         profile_data = {
-            "display_name": request.display_name,
-            "company": request.company,
-            "phone": request.phone,
-            "bio": request.bio,
+            "display_name": profile_request.display_name,
+            "company": profile_request.company,
+            "phone": profile_request.phone,
+            "bio": profile_request.bio,
         }
         result = storage.update_user_profile(user["id"], profile_data, user.get("access_token"))
         if not result:
