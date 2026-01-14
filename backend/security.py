@@ -457,6 +457,51 @@ def escape_sql_like_pattern(search: str, max_length: int = 100) -> str:
     return search
 
 
+def sanitize_html(text: str, max_length: int = 10000) -> str:
+    """
+    Sanitize user input to prevent XSS attacks.
+
+    Escapes HTML special characters that could be used for script injection.
+    """
+    if not text:
+        return ""
+    text = text[:max_length]
+    replacements = [
+        ('&', '&amp;'),
+        ('<', '&lt;'),
+        ('>', '&gt;'),
+        ('"', '&quot;'),
+        ("'", '&#x27;'),
+    ]
+    for char, escape in replacements:
+        text = text.replace(char, escape)
+    return text
+
+
+def sanitize_markdown(text: str, max_length: int = 50000) -> str:
+    """
+    Sanitize markdown content while preserving safe markdown syntax.
+
+    Removes script tags, event handlers, and dangerous HTML.
+    """
+    if not text:
+        return ""
+    import re
+    text = text[:max_length]
+    # Remove script tags and their contents
+    text = re.sub(r'<script[^>]*>.*?</script>', '', text, flags=re.IGNORECASE | re.DOTALL)
+    # Remove event handlers (onclick, onerror, etc.)
+    text = re.sub(r'\s+on\w+\s*=\s*["\'][^"\']*["\']', '', text, flags=re.IGNORECASE)
+    # Remove javascript: URLs
+    text = re.sub(r'(href|src)\s*=\s*["\']?\s*javascript:', r'\1="blocked:', text, flags=re.IGNORECASE)
+    # Remove dangerous tags
+    dangerous_tags = ['iframe', 'object', 'embed', 'form', 'input', 'style', 'link', 'meta']
+    for tag in dangerous_tags:
+        text = re.sub(rf'<{tag}[^>]*>.*?</{tag}>', '', text, flags=re.IGNORECASE | re.DOTALL)
+        text = re.sub(rf'<{tag}[^>]*/?\s*>', '', text, flags=re.IGNORECASE)
+    return text
+
+
 # =============================================================================
 # GDPR/HIPAA COMPLIANT LOGGING
 # =============================================================================
