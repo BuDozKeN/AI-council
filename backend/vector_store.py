@@ -26,6 +26,7 @@ from .config import (
     EMBEDDING_DIMENSIONS,
     OPENROUTER_API_KEY,
 )
+from .security import log_error, log_app_event
 
 # Global client instance
 _qdrant_client: Optional[QdrantClient] = None
@@ -62,11 +63,11 @@ def get_qdrant() -> Optional[QdrantClient]:
 
         # Verify connection
         _qdrant_client.get_collections()
-        print(f"[QDRANT] Connected to {QDRANT_URL}")
+        log_app_event("qdrant_connected", level="INFO", details={"url": QDRANT_URL})
         return _qdrant_client
 
     except Exception as e:
-        print(f"[QDRANT] Connection failed: {e}")
+        log_error("qdrant_connection", e, details={"url": QDRANT_URL})
         _qdrant_client = None
         return None
 
@@ -80,7 +81,7 @@ def close_qdrant():
         except Exception:
             pass
         _qdrant_client = None
-        print("[QDRANT] Connection closed")
+        log_app_event("qdrant_closed", level="INFO")
 
 
 async def ensure_collections():
@@ -111,9 +112,9 @@ async def ensure_collections():
                         distance=models.Distance.COSINE,
                     ),
                 )
-                print(f"[QDRANT] Created collection: {collection_name}")
+                log_app_event("qdrant_collection_created", level="INFO", details={"collection": collection_name})
             else:
-                print(f"[QDRANT] Collection exists: {collection_name}")
+                log_app_event("qdrant_collection_exists", level="INFO", details={"collection": collection_name})
 
             # Create payload index for company_id filtering (required for filtered searches)
             try:
@@ -122,16 +123,16 @@ async def ensure_collections():
                     field_name="company_id",
                     field_schema=models.PayloadSchemaType.KEYWORD,
                 )
-                print(f"[QDRANT] Created company_id index for: {collection_name}")
+                log_app_event("qdrant_index_created", level="INFO", details={"collection": collection_name, "field": "company_id"})
             except Exception as index_err:
                 # Index might already exist - that's fine
                 if "already exists" not in str(index_err).lower():
-                    print(f"[QDRANT] Index creation note for {collection_name}: {index_err}")
+                    log_app_event("qdrant_index_note", level="WARNING", details={"collection": collection_name, "error": str(index_err)})
 
         return True
 
     except Exception as e:
-        print(f"[QDRANT] Failed to ensure collections: {e}")
+        log_error("qdrant_ensure_collections", e)
         return False
 
 
@@ -141,7 +142,7 @@ async def get_embedding(text: str) -> Optional[list[float]]:
     Returns None if embedding fails.
     """
     if not OPENROUTER_API_KEY:
-        print("[QDRANT] No OpenRouter API key for embeddings")
+        log_app_event("qdrant_no_api_key", level="WARNING", details={"service": "embeddings"})
         return None
 
     try:
@@ -162,7 +163,7 @@ async def get_embedding(text: str) -> Optional[list[float]]:
             return data["data"][0]["embedding"]
 
     except Exception as e:
-        print(f"[QDRANT] Embedding failed: {e}")
+        log_error("qdrant_embedding", e)
         return None
 
 
@@ -214,7 +215,7 @@ async def upsert_conversation(
         return True
 
     except Exception as e:
-        print(f"[QDRANT] Failed to upsert conversation: {e}")
+        log_error("qdrant_upsert_conversation", e, resource_id=conversation_id)
         return False
 
 
@@ -259,7 +260,7 @@ async def upsert_knowledge_entry(
         return True
 
     except Exception as e:
-        print(f"[QDRANT] Failed to upsert knowledge entry: {e}")
+        log_error("qdrant_upsert_knowledge", e, resource_id=entry_id)
         return False
 
 
@@ -308,7 +309,7 @@ async def search_similar_conversations(
         ]
 
     except Exception as e:
-        print(f"[QDRANT] Search failed: {e}")
+        log_error("qdrant_search_conversations", e, details={"company_id": company_id, "query_preview": query[:50]})
         return []
 
 
@@ -356,7 +357,7 @@ async def search_knowledge(
         ]
 
     except Exception as e:
-        print(f"[QDRANT] Knowledge search failed: {e}")
+        log_error("qdrant_search_knowledge", e, details={"company_id": company_id, "query_preview": query[:50]})
         return []
 
 
@@ -375,7 +376,7 @@ async def delete_conversation(conversation_id: str) -> bool:
         )
         return True
     except Exception as e:
-        print(f"[QDRANT] Delete failed: {e}")
+        log_error("qdrant_delete_conversation", e, resource_id=conversation_id)
         return False
 
 
@@ -394,7 +395,7 @@ async def delete_knowledge_entry(entry_id: str) -> bool:
         )
         return True
     except Exception as e:
-        print(f"[QDRANT] Delete failed: {e}")
+        log_error("qdrant_delete_knowledge", e, resource_id=entry_id)
         return False
 
 

@@ -241,8 +241,9 @@ async def upload_attachment(
         # If DB insert fails, try to clean up the uploaded file
         try:
             storage_client.storage.from_(BUCKET_NAME).remove([storage_path])
-        except:
-            pass
+        except Exception as cleanup_error:
+            # Cleanup failed, but main error is more important
+            log_error("attachment_cleanup", cleanup_error, resource_id=storage_path)
         # SECURITY: Log internal error but don't expose details to client
         log_security_event(
             "ATTACHMENT_RECORD_FAILED",
@@ -313,7 +314,8 @@ async def get_attachment_url(
             expires_in=3600  # 1 hour
         )
         return signed_url_response.get("signedURL") or signed_url_response.get("signed_url")
-    except:
+    except Exception as e:
+        log_error("get_attachment_url", e, resource_id=storage_path)
         return None
 
 
@@ -350,14 +352,16 @@ async def delete_attachment(
     # Delete from storage
     try:
         storage_client.storage.from_(BUCKET_NAME).remove([storage_path])
-    except:
-        pass  # Continue even if storage delete fails
+    except Exception as e:
+        # Continue even if storage delete fails, but log it
+        log_error("delete_attachment_storage", e, resource_id=storage_path)
 
     # Delete from database
     try:
         client.table("attachments").delete().eq("id", attachment_id).execute()
         return True
-    except:
+    except Exception as e:
+        log_error("delete_attachment_db", e, resource_id=attachment_id)
         return False
 
 
@@ -444,7 +448,8 @@ async def get_attachment_data(
             expires_in=3600
         )
         signed_url = signed_url_response.get("signedURL") or signed_url_response.get("signed_url")
-    except:
+    except Exception as e:
+        log_error("download_attachment_sign_url", e, resource_id=attachment.get("id"))
         signed_url = None
 
     return {

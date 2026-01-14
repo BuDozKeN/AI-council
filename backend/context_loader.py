@@ -176,7 +176,7 @@ def load_company_context_from_db(company_id: str, access_token: Optional[str] = 
     Returns:
         The context_md content, or None if not found
     """
-    from .security import log_error
+    from .security import log_error, log_app_event
 
     # AI-SEC-008: Use secure client with RLS logging and optional enforcement
     try:
@@ -254,6 +254,8 @@ def load_role_prompt_from_db(role_id: str, access_token: Optional[str] = None) -
     Returns:
         Dict with name, description, system_prompt, or None if not found
     """
+    from .security import log_error
+
     # AI-SEC-008: Use secure client with RLS logging and optional enforcement
     try:
         client = get_secure_client(access_token, "load_role_prompt")
@@ -290,6 +292,8 @@ def get_company_departments(company_id: str, access_token: Optional[str] = None)
     Returns:
         List of department dicts with id, name, slug, description
     """
+    from .security import log_error
+
     # AI-SEC-008: Use secure client with RLS logging and optional enforcement
     try:
         client = get_secure_client(access_token, "get_company_departments")
@@ -344,6 +348,8 @@ def get_department_roles(department_id: str, access_token: Optional[str] = None)
     Returns:
         List of role dicts with id, name, slug, description
     """
+    from .security import log_error
+
     # AI-SEC-008: Use secure client with RLS logging and optional enforcement
     try:
         client = get_secure_client(access_token, "get_department_roles")
@@ -379,6 +385,8 @@ def get_playbooks_for_context(
     Returns:
         List of playbook dicts with title, doc_type, content, etc.
     """
+    from .security import log_error
+
     # AI-SEC-008: Use secure client with RLS logging and optional enforcement
     try:
         client = get_secure_client(access_token, "get_playbooks_for_context")
@@ -447,6 +455,8 @@ def get_decisions_for_context(
     Returns:
         List of knowledge entry dicts with title, summary, tags, etc.
     """
+    from .security import log_error
+
     # Use the new injectable entries function from knowledge module
     try:
         entries = knowledge.get_injectable_entries(
