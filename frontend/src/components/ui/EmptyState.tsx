@@ -89,7 +89,7 @@ const EmptyState = React.forwardRef<HTMLDivElement, EmptyStateProps>(
         opacity: 1,
         y: 0,
         transition: {
-          type: 'spring',
+          type: 'spring' as const,
           stiffness: 300,
           damping: 24,
         },
@@ -103,7 +103,7 @@ const EmptyState = React.forwardRef<HTMLDivElement, EmptyStateProps>(
         variants={containerVariants}
         initial="hidden"
         animate="visible"
-        {...props}
+        {...(props as any)}
       >
         <motion.div variants={itemVariants}>
           {customIcon ? (

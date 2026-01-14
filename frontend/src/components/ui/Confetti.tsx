@@ -26,13 +26,15 @@ export function Confetti({ show, onComplete, count = 30 }: ConfettiProps) {
   useEffect(() => {
     if (show) {
       // Generate random particles
+      const colors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'] as const;
       const newParticles = Array.from({ length: count }, (_, i) => ({
         id: i,
         x: Math.random() * 100 - 50, // -50 to 50vw
         y: Math.random() * -100 - 20, // -20 to -120vh
-        color: ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'][Math.floor(Math.random() * 5)],
+        color: colors[Math.floor(Math.random() * colors.length)] as string,
         rotation: Math.random() * 360,
       }));
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: sync particles with show prop for animation
       setParticles(newParticles);
 
       // Auto-complete after animation
@@ -42,6 +44,7 @@ export function Confetti({ show, onComplete, count = 30 }: ConfettiProps) {
 
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [show, count, onComplete]);
 
   if (!show) return null;
