@@ -260,6 +260,7 @@ Today's date: {today_date}"""
 # =============================================================================
 
 @router.post("/knowledge")
+@limiter.limit("30/minute;100/hour")
 async def create_knowledge_entry(
     request: CreateKnowledgeRequest,
     user: dict = Depends(get_current_user)
@@ -329,6 +330,7 @@ async def create_knowledge_entry(
 
 
 @router.get("/knowledge/{company_id}")
+@limiter.limit("100/minute;500/hour")
 async def get_knowledge_entries(
     company_id: str,
     department_id: Optional[str] = None,
@@ -364,6 +366,7 @@ async def get_knowledge_entries(
 
 
 @router.get("/conversations/{conversation_id}/knowledge-count")
+@limiter.limit("100/minute;500/hour")
 async def get_knowledge_count_for_conversation(
     conversation_id: str,
     company_id: str,
@@ -386,6 +389,7 @@ async def get_knowledge_count_for_conversation(
 
 
 @router.get("/conversations/{conversation_id}/linked-project")
+@limiter.limit("100/minute;500/hour")
 async def get_conversation_linked_project(
     conversation_id: str,
     company_id: str = Query(..., description="Company ID or slug"),
@@ -450,6 +454,7 @@ async def get_conversation_linked_project(
 
 
 @router.get("/conversations/{conversation_id}/decision")
+@limiter.limit("100/minute;500/hour")
 async def get_conversation_decision(
     conversation_id: str,
     company_id: str = Query(..., description="Company ID or slug"),
@@ -512,6 +517,7 @@ async def get_conversation_decision(
 
 
 @router.patch("/knowledge/{entry_id}")
+@limiter.limit("30/minute;100/hour")
 async def update_knowledge_entry(
     entry_id: str,
     request: UpdateKnowledgeRequest,
@@ -534,6 +540,7 @@ async def update_knowledge_entry(
 
 
 @router.delete("/knowledge/{entry_id}")
+@limiter.limit("20/minute;50/hour")
 async def delete_knowledge_entry(
     entry_id: str,
     user: dict = Depends(get_current_user)
