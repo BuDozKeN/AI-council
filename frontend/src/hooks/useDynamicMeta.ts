@@ -147,9 +147,16 @@ export function useDynamicMeta() {
       // Try exact match first (e.g., /company/projects)
       routeKey = `/${pathSegments.join('/')}`;
 
-      // If no exact match, try base path (e.g., /company)
-      if (!META_CONFIGS[routeKey] && pathSegments.length > 0) {
-        routeKey = `/${pathSegments[0]}`;
+      // If no exact match, progressively try parent paths
+      // e.g., /company/decisions/abc123 → /company/decisions → /company
+      if (!META_CONFIGS[routeKey]) {
+        for (let i = pathSegments.length - 1; i > 0; i--) {
+          const parentPath = `/${pathSegments.slice(0, i).join('/')}`;
+          if (META_CONFIGS[parentPath]) {
+            routeKey = parentPath;
+            break;
+          }
+        }
       }
 
       // If still no match, default to home
