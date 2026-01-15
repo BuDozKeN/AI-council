@@ -12,7 +12,7 @@
  * └──────────────────────────────────────────────────────┘
  */
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import TextareaAutosize from 'react-textarea-autosize';
@@ -282,6 +282,19 @@ export function OmniBar({
       handleSubmit();
     }
   };
+
+  // Scroll input into view when focused on mobile (keyboard covers input otherwise)
+  const handleFocus = useCallback(() => {
+    if (isMobile) {
+      // Small delay to let keyboard start appearing
+      setTimeout(() => {
+        textareaRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }, 100);
+    }
+  }, [isMobile]);
 
   const currentPlaceholder =
     placeholder || (chatMode === 'chat' ? t('omnibar.placeholderChat') : t('omnibar.placeholder'));
@@ -672,6 +685,7 @@ export function OmniBar({
             value={value}
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={handleKeyDown}
+            onFocus={handleFocus}
             placeholder={currentPlaceholder}
             className="omni-bar-input"
             minRows={1}
