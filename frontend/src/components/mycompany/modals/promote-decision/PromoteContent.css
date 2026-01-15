@@ -2,6 +2,14 @@
  * Promote Decision Modal - Content & Summary
  *
  * Question header, summary generation, and rendered content display.
+ *
+ * CONTENT CONTAINER PATTERN (Single Source of Truth):
+ * All content containers use the same visual treatment:
+ * - background: var(--color-bg-secondary)
+ * - border: 1px solid var(--color-border)
+ * - border-radius: var(--radius-md)
+ * - padding: 12-16px
+ * - overflow-y: auto (when scrollable)
  */
 
 /* Summary section in promote modal */
@@ -18,15 +26,16 @@
   gap: 8px;
 }
 
+/* Content container - matches .mc-promote-content-rendered pattern */
 .mc-promote-question-text {
-  background: var(--color-sky-50);
-  border: 1px solid var(--color-sky-200);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 12px 14px;
+  padding: 10px 12px;
   font-size: 13px;
   color: var(--color-text-primary);
-  line-height: 1.5;
-  max-height: 100px;
+  line-height: 1.4;
+  max-height: 80px;
   overflow-y: auto;
 }
 
@@ -67,17 +76,17 @@
   padding: 4px 10px;
   font-size: 11px;
   font-weight: 500;
-  color: var(--color-sky-600);
-  background: var(--color-sky-50);
-  border: 1px solid var(--color-sky-200);
+  color: var(--color-primary);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .mc-generate-summary-btn:hover:not(:disabled) {
-  background: var(--color-sky-100);
-  border-color: var(--color-sky-300);
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
 }
 
 .mc-generate-summary-btn:disabled {
@@ -98,15 +107,15 @@
   font-style: italic;
 }
 
-/* Rendered content container */
+/* Rendered content container - fills height of parent flex container */
 .mc-promote-content-rendered {
   flex: 1;
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 16px;
+  padding: 14px;
   overflow-y: auto;
-  min-height: 200px;
+  min-height: 0; /* Allow shrinking in flex */
 }
 
 .mc-promote-content-rendered p {
@@ -165,7 +174,7 @@
   padding: 0;
   background: transparent;
   border: none;
-  color: var(--color-sky-600);
+  color: var(--color-primary);
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
@@ -174,18 +183,11 @@
 }
 
 .mc-source-link-compact:hover {
-  color: var(--color-sky-700);
+  color: var(--color-primary-hover);
   text-decoration: underline;
 }
 
 .mc-source-link-compact svg {
   flex-shrink: 0;
   opacity: 0.7;
-}
-
-/* Desktop: rendered content has max-height for scroll */
-@media (width >= 769px) {
-  .mc-promote-content-rendered {
-    max-height: 400px;
-  }
 }

@@ -96,11 +96,10 @@
 }
 
 /* Layout only - trigger styles come from select.css .select-trigger--compact */
-.sidebar-filter .filter-select-trigger {
+
+/* Both dropdowns share space equally for visual consistency */
+.sidebar-filter .filter-select-trigger,
+.sidebar-filter .sort-select-trigger {
   flex: 1;
   min-width: 0;
-}
-
-.sidebar-filter .sort-select-trigger {
-  flex: 0 0 auto;
 }

@@ -607,6 +607,12 @@ function Stage1({
         <span className="font-semibold tracking-tight">
           {t('stages.expertsRespondCount', { count: expertCount })}
         </span>
+        {/* Hint for first-time users - shows what this stage does */}
+        {!isCollapsed && (
+          <span className="stage-hint" title={t('stages.stage1Full')}>
+            {t('stages.stage1Hint')}
+          </span>
+        )}
       </h3>
 
       {/* Collapsed model summary - provider pills */}

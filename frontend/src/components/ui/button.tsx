@@ -103,7 +103,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             aria-hidden="true"
           />
         )}
-        <span className={cn(loading && 'invisible')}>
+        <span className={cn('inline-flex items-center gap-2', loading && 'invisible')}>
           {loadingText && loading ? loadingText : children}
         </span>
       </Comp>

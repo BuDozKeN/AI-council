@@ -245,6 +245,13 @@ export function LandingHero({
             onSelectPreset={onSelectPreset}
             onOpenLLMHub={onOpenLLMHub}
           />
+
+          {/* Keyboard shortcut hint */}
+          <p className="keyboard-hint">
+            {navigator.platform?.includes('Mac')
+              ? t('landing.shortcutHint')
+              : t('landing.shortcutHintWindows')}
+          </p>
         </motion.div>
       </motion.div>
     </AuroraBackground>

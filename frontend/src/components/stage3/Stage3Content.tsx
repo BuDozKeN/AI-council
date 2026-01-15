@@ -238,6 +238,13 @@ function Stage3Content({
           )}
         </div>
       </div>
+
+      {/* AI Disclaimer - subtle note after complete responses */}
+      {isComplete && !hasError && (
+        <p className="ai-disclaimer" title={t('stages.aiDisclaimerFull')}>
+          {t('stages.aiDisclaimer')}
+        </p>
+      )}
     </>
   );
 }

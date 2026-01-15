@@ -373,6 +373,12 @@ function Stage3({
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
         <Sparkles className="h-5 w-5 text-amber-500 flex-shrink-0" />
         <span className="font-semibold tracking-tight">{t('stages.bestAnswer')}</span>
+        {/* Hint for first-time users - shows what this stage does */}
+        {!isCollapsed && (
+          <span className="stage-hint" title={t('stages.stage3Full')}>
+            {t('stages.stage3Hint')}
+          </span>
+        )}
         {isCollapsed && savedDecisionId && (
           <span className="collapsed-summary">
             <span className="kb-saved-badge">{t('common.saved')}</span>
