@@ -140,9 +140,9 @@
     padding: 4px 0;
   }
 
-  .mc-team-header span,
-  .mc-playbooks-header span,
-  .mc-decisions-header span {
+  .mc-team-header > span:first-child,
+  .mc-playbooks-header > span:first-child,
+  .mc-decisions-header > span:first-child {
     font-size: 0.75rem;
   }
 

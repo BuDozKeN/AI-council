@@ -401,10 +401,13 @@
     "deletingConversations": "Deleting conversations",
     "deleteConversations": "Delete {{count}} conversation",
     "deleteConversations_other": "Delete {{count}} conversations",
+    "admin": "Admin",
+    "adminPortal": "Platform Admin Portal",
     "tooltips": {
       "company": "Departments, roles, playbooks",
       "settings": "Profile and preferences",
-      "signOut": "Sign out"
+      "signOut": "Sign out",
+      "admin": "Platform administration"
     }
   },
   "settings": {
@@ -1534,6 +1537,7 @@
     "departmentsRoles": "{{depts}} departments • {{roles}} roles",
     "roles": "roles",
     "viewContext": "View Guidelines",
+    "aboutDepartment": "About {{name}}",
     "rolesLabel": "Roles",
     "newRole": "New Role",
     "addRolesToDept": "Add roles to this department",
