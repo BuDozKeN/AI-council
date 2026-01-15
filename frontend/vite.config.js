@@ -198,10 +198,20 @@ export default defineConfig(({ mode }) => ({
         manualChunks: {
           // Core React runtime - rarely changes, cache well
           'vendor-react': ['react', 'react-dom'],
+          // Router - needed early, cache separately
+          'vendor-router': ['react-router-dom'],
           // Animation library - large, cache separately
           'vendor-motion': ['framer-motion'],
           // Markdown rendering - only needed when viewing messages
           'vendor-markdown': ['react-markdown', 'remark-gfm', 'rehype-slug'],
+          // i18n - internationalization, loaded on every page
+          'vendor-i18n': [
+            'i18next',
+            'react-i18next',
+            'i18next-browser-languagedetector',
+          ],
+          // Command palette - large component, lazy loadable
+          'vendor-cmdk': ['cmdk'],
           // Radix UI components - used throughout, cache together
           'vendor-radix': [
             '@radix-ui/react-dialog',
@@ -210,6 +220,9 @@ export default defineConfig(({ mode }) => ({
             '@radix-ui/react-accordion',
             '@radix-ui/react-slot',
             '@radix-ui/react-visually-hidden',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-switch',
+            '@radix-ui/react-tooltip',
           ],
           // Monitoring/analytics
           'vendor-monitoring': ['@sentry/react', 'web-vitals'],
