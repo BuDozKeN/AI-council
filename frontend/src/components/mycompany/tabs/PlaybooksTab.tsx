@@ -12,7 +12,8 @@
 
 import React, { useMemo, useState, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BookOpen, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Button } from '../../ui/button';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { ScrollableContent } from '../../ui/ScrollableContent';
@@ -257,10 +258,133 @@ export function PlaybooksTab({
   if (playbooks.length === 0) {
     return (
       <div className="mc-empty">
-        <BookOpen size={32} className="mc-empty-icon" />
+        <motion.svg
+          width="120"
+          height="120"
+          viewBox="0 0 120 120"
+          fill="none"
+          className="mc-empty-icon-svg"
+          style={{ marginBottom: '16px' }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+        >
+          <defs>
+            <linearGradient id="playbookGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="var(--color-indigo-500)" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="var(--color-purple-500)" stopOpacity="0.6" />
+            </linearGradient>
+          </defs>
+
+          {/* Stack of books */}
+          <g>
+            {/* Back book */}
+            <rect
+              x="30"
+              y="48"
+              width="50"
+              height="8"
+              rx="1"
+              fill="url(#playbookGradient)"
+              opacity="0.3"
+            />
+            <rect
+              x="30"
+              y="48"
+              width="50"
+              height="36"
+              rx="2"
+              fill="var(--color-bg-card)"
+              stroke="var(--color-border)"
+              strokeWidth="1.5"
+            />
+            <line x1="35" y1="48" x2="35" y2="84" stroke="var(--color-border)" strokeWidth="1" />
+
+            {/* Middle book */}
+            <rect
+              x="36"
+              y="38"
+              width="50"
+              height="8"
+              rx="1"
+              fill="url(#playbookGradient)"
+              opacity="0.4"
+            />
+            <rect
+              x="36"
+              y="38"
+              width="50"
+              height="36"
+              rx="2"
+              fill="var(--color-bg-card)"
+              stroke="var(--color-border)"
+              strokeWidth="1.5"
+            />
+            <line x1="41" y1="38" x2="41" y2="74" stroke="var(--color-border)" strokeWidth="1" />
+
+            {/* Front book (open) */}
+            <path
+              d="M 42 28 L 42 64 L 60 66 L 78 64 L 78 28 Z"
+              fill="var(--color-bg-card)"
+              stroke="var(--color-border)"
+              strokeWidth="1.5"
+            />
+            <path d="M 42 28 L 60 30 L 78 28" fill="url(#playbookGradient)" opacity="0.5" />
+            <line
+              x1="60"
+              y1="30"
+              x2="60"
+              y2="66"
+              stroke="var(--color-border)"
+              strokeWidth="1"
+              strokeDasharray="2,2"
+            />
+
+            {/* Page lines */}
+            <line
+              x1="48"
+              y1="36"
+              x2="56"
+              y2="36"
+              stroke="var(--color-text-tertiary)"
+              strokeWidth="1"
+              opacity="0.3"
+            />
+            <line
+              x1="48"
+              y1="42"
+              x2="56"
+              y2="42"
+              stroke="var(--color-text-tertiary)"
+              strokeWidth="1"
+              opacity="0.3"
+            />
+            <line
+              x1="64"
+              y1="36"
+              x2="72"
+              y2="36"
+              stroke="var(--color-text-tertiary)"
+              strokeWidth="1"
+              opacity="0.3"
+            />
+            <line
+              x1="64"
+              y1="42"
+              x2="72"
+              y2="42"
+              stroke="var(--color-text-tertiary)"
+              strokeWidth="1"
+              opacity="0.3"
+            />
+          </g>
+        </motion.svg>
+
         <p className="mc-empty-title">{t('mycompany.buildKnowledgeBase')}</p>
         <p className="mc-empty-hint">{t('mycompany.playbooksHelp')}</p>
-        <Button variant="default" onClick={onAddPlaybook}>
+
+        <Button variant="default" onClick={onAddPlaybook} style={{ marginTop: '8px' }}>
+          <Plus size={16} />
           {t('mycompany.newPlaybook')}
         </Button>
       </div>

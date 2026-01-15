@@ -1335,6 +1335,7 @@
     "create": "Create",
     "recentConversations": "Recent Conversations",
     "theme": "Theme",
+    "emptyState": "No commands found. Try keywords like 'create', 'new', or 'settings'",
     "actions": {
       "openSettings": "Open Settings",
       "openSettingsDesc": "Profile, billing, team, API keys",
@@ -1399,8 +1400,8 @@
       "activityTooltip": "Recent changes: see what happened across your company",
       "usageTooltip": "LLM usage analytics: monitor costs, tokens, and council activity"
     },
-    "noCompanyData": "No company data",
-    "companyInfoAppear": "Company information will appear here",
+    "noCompanyData": "Set up your company profile",
+    "companyInfoAppear": "Add company information in the Overview tab to unlock insights and analytics",
     "businessContext": "{{name}} Business Context",
     "businessContextDesc": "This document defines your company's mission, goals, constraints, and strategic decisions. When selected, it's injected into Council conversations to provide relevant, contextual advice.",
     "lastUpdated": "Last Updated",

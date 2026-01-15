@@ -12,6 +12,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { VALID_COMPANY_TABS } from '../router';
 import type { MyCompanyTab } from '../components/mycompany/hooks';
+import type { Conversation } from '../types/conversation';
 
 interface UseRouteSyncOptions {
   // Modal states
@@ -38,6 +39,7 @@ interface UseRouteSyncOptions {
   // Conversation
   currentConversationId: string | null;
   setCurrentConversationId: (id: string | null) => void;
+  setCurrentConversation: (conversation: Conversation | null) => void;
   handleNewConversation: () => void;
 }
 
@@ -54,6 +56,7 @@ export function useRouteSync(options: UseRouteSyncOptions) {
     closeLeaderboard,
     currentConversationId,
     setCurrentConversationId,
+    setCurrentConversation,
     handleNewConversation,
   } = options;
 
@@ -184,6 +187,8 @@ export function useRouteSync(options: UseRouteSyncOptions) {
       if (pathname.startsWith('/chat/')) {
         const conversationId = pathname.split('/chat/')[1];
         if (conversationId && conversationId !== currentConversationId) {
+          // Clear conversation state before setting new ID to prevent stale content
+          setCurrentConversation(null);
           setCurrentConversationId(conversationId);
         }
       } else if (pathname === '/chat' || pathname === '/') {
@@ -205,6 +210,7 @@ export function useRouteSync(options: UseRouteSyncOptions) {
     closeMyCompany,
     closeLeaderboard,
     setCurrentConversationId,
+    setCurrentConversation,
     handleNewConversation,
   ]);
 
