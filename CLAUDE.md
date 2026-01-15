@@ -592,6 +592,67 @@ All tables enforce multi-tenant isolation:
 company_id IN (SELECT id FROM companies WHERE user_id = auth.uid())
 ```
 
+## CSS Performance Budgets
+
+**IMPORTANT**: CSS bundle size is monitored by CI. Follow these guidelines to prevent bloat.
+
+### Current Budgets (as of 2026-01-15)
+
+| Metric | Budget | Current | Status |
+|--------|--------|---------|--------|
+| **Source CSS** | 1100KB | 1070KB | ✅ 97% used, 30KB headroom |
+| **Built CSS** | 700KB target | 668KB | ✅ Under target |
+| **Gzipped** | N/A | ~104KB | ✅ Excellent |
+
+**CI Enforcement**: CI will **FAIL** if source CSS exceeds 1100KB. Built CSS check is informational only.
+
+### Guidelines for Adding CSS
+
+**DO**:
+- ✅ Use CSS variables from `design-tokens.css` for colors, spacing, shadows
+- ✅ Use Tailwind utilities for layout (`flex`, `grid`, `gap`)
+- ✅ Keep component CSS files under 300 lines
+- ✅ Use physical properties (`right`, `left`, `top`, `bottom`) not logical (`inset-inline-end`)
+- ✅ Check bundle size after major CSS changes: `npm run build && du -ch dist/assets/css/*.css`
+
+**DON'T**:
+- ❌ Use CSS logical properties (they caused 104KB of RTL bloat - see PR #XX)
+- ❌ Add new overlay/color tokens without checking if existing ones work
+- ❌ Create mega CSS files (>300 lines) - split into smaller components
+- ❌ Hardcode colors - always use `var(--color-*)` tokens
+- ❌ Duplicate dark mode styles - use `.dark` class with design tokens
+
+### If CI Budget Check Fails
+
+1. **Check what changed**: `git diff HEAD~1 --stat '*.css'`
+2. **Measure built bundle**: `npm run build && du -ch dist/assets/css/*.css`
+3. **Identify bloat**: Compare file sizes before/after your changes
+4. **Common fixes**:
+   - Remove unused CSS
+   - Split large component into smaller ones
+   - Use existing design tokens instead of creating new ones
+   - Check for accidental CSS duplication
+
+### Phase 2 Optimizations (Future Work)
+
+If CSS budget becomes tight, implement Phase 2 optimizations:
+- Lazy-load MyCompany tab CSS (-100KB)
+- Split deliberation stages (-69KB)
+- Optimize dark mode duplication (-50KB)
+- Tiered token loading (-50KB)
+
+See `todo/CSS-PHASE2-ROADMAP.md` for implementation details.
+
+**Target**: 400KB built CSS (currently 668KB)
+
+### Historical Context
+
+- **Before RTL fix (Jan 2026)**: 773KB built CSS
+- **Phase 1 (PR #XX)**: 668KB built CSS (-105KB, -14%)
+  - Eliminated RTL language bloat (454 logical properties → physical)
+  - Removed 51 unused design tokens
+- **Phase 2 (Future)**: 400KB target (-268KB additional)
+
 ## Testing
 
 ### Frontend
