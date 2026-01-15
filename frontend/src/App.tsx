@@ -270,10 +270,6 @@ function App() {
   // SEO: FAQ schema for AI search engines (landing page only)
   useFAQSchema();
 
-  // Triage state
-  const [triageState, setTriageState] = useState<TriageState>(null);
-  const [originalQuery, setOriginalQuery] = useState('');
-  const [isTriageLoading, setIsTriageLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false); // Image upload in progress
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
@@ -737,8 +733,6 @@ function App() {
   // This is called to send message to council
   const handleSendToCouncil = async (content: string, images: UploadedImage[] | null = null) => {
     if (!currentConversationId) return;
-
-    setOriginalQuery('');
 
     // Create new AbortController for this request
     abortControllerRef.current = new AbortController();
