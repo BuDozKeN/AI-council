@@ -388,7 +388,6 @@ html.dark body {
    ============================================================================= */
 
 @layer base {
-
 @media (width <= 640px) {
   /* Global touch target enforcement - 44px minimum per Apple/Google guidelines */
 
