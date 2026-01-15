@@ -394,8 +394,14 @@ async def structure_project_context(
 ):
     """
     Use AI to structure a free-form project description into organized context.
+
+    Performance optimizations:
+    - Redis caching: Identical requests return cached results instantly
+    - Parallel model queries: All models queried simultaneously, first success wins
     """
+    import asyncio
     from ..openrouter import query_model, MOCK_LLM
+    from ..openrouter import get_cached_llm_response, cache_llm_response
     from ..personas import get_db_persona_with_fallback
 
     if MOCK_LLM:
@@ -443,55 +449,76 @@ For context_md, use these sections (skip any that don't apply):
         {"role": "user", "content": prompt}
     ]
 
-    # Use short timeouts for fast models - fail fast and try next
-    MODEL_TIMEOUTS = {
-        'google/gemini-2.5-flash': 8.0,
-        'openai/gpt-4o-mini': 8.0,
-        'anthropic/claude-3-5-haiku-20241022': 8.0,
-    }
-    DEFAULT_TIMEOUT = 10.0
+    # Check Redis cache first - identical requests return instantly
+    if structure_request.company_id:
+        primary_model = models[0] if models else 'openai/gpt-4o'
+        cached = await get_cached_llm_response(
+            company_id=structure_request.company_id,
+            model=primary_model,
+            messages=messages
+        )
+        if cached and cached.get('content'):
+            structured = _parse_structured_response(cached['content'], free_text)
+            if structured:
+                return {"structured": structured}
 
-    for model in models:
+    # Query all models in parallel - first valid response wins
+    MODEL_TIMEOUT = 8.0  # Uniform timeout for parallel queries
+
+    async def query_with_model(model: str):
+        """Query a single model and return (model, result) tuple."""
         try:
-            timeout = MODEL_TIMEOUTS.get(model, DEFAULT_TIMEOUT)
-            result = await query_model(model=model, messages=messages, timeout=timeout)
-
-            # Track internal LLM usage if company_id provided
-            if structure_request.company_id and result and result.get('usage'):
-                try:
-                    from .company.utils import save_internal_llm_usage
-                    await save_internal_llm_usage(
-                        company_id=structure_request.company_id,
-                        operation_type='context_structuring',
-                        model=model,
-                        usage=result['usage']
-                    )
-                except Exception:
-                    pass  # Don't fail structuring if tracking fails
-
+            result = await query_model(model=model, messages=messages, timeout=MODEL_TIMEOUT)
             if result and result.get('content'):
-                content = result['content']
-                if content.startswith('```'):
-                    content = content.split('```')[1]
-                    if content.startswith('json'):
-                        content = content[4:]
-                if '```' in content:
-                    content = content.split('```')[0]
-                content = content.strip()
-
-                try:
-                    structured = json.loads(content)
-                    if not structured.get('suggested_name') or structured.get('suggested_name') == 'New Project':
-                        from ..knowledge_fallback import _short_title
-                        structured['suggested_name'] = _short_title(free_text, max_words=4)
-                    return {"structured": structured}
-                except json.JSONDecodeError:
-                    continue
-            else:
-                continue
+                return (model, result)
         except Exception:
-            continue
+            pass
+        return (model, None)
 
+    # Run all model queries in parallel
+    results = await asyncio.gather(
+        *[query_with_model(model) for model in models],
+        return_exceptions=True
+    )
+
+    # Find first successful result
+    successful_model = None
+    successful_result = None
+    for item in results:
+        if isinstance(item, Exception):
+            continue
+        model, result = item
+        if result and result.get('content'):
+            structured = _parse_structured_response(result['content'], free_text)
+            if structured:
+                successful_model = model
+                successful_result = result
+
+                # Track internal LLM usage
+                if structure_request.company_id and result.get('usage'):
+                    try:
+                        from .company.utils import save_internal_llm_usage
+                        await save_internal_llm_usage(
+                            company_id=structure_request.company_id,
+                            operation_type='context_structuring',
+                            model=model,
+                            usage=result['usage']
+                        )
+                    except Exception:
+                        pass
+
+                # Cache the successful response
+                if structure_request.company_id:
+                    await cache_llm_response(
+                        company_id=structure_request.company_id,
+                        model=model,
+                        messages=messages,
+                        response=result
+                    )
+
+                return {"structured": structured}
+
+    # All models failed - return fallback
     from ..knowledge_fallback import _short_title
     fallback_title = project_name or _short_title(free_text, max_words=4)
     return {
@@ -501,6 +528,30 @@ For context_md, use these sections (skip any that don't apply):
             "suggested_name": fallback_title
         }
     }
+
+
+def _parse_structured_response(content: str, free_text: str) -> dict | None:
+    """Parse LLM response into structured project data."""
+    try:
+        # Strip markdown code blocks
+        if content.startswith('```'):
+            content = content.split('```')[1]
+            if content.startswith('json'):
+                content = content[4:]
+        if '```' in content:
+            content = content.split('```')[0]
+        content = content.strip()
+
+        structured = json.loads(content)
+
+        # Ensure we have a valid project name
+        if not structured.get('suggested_name') or structured.get('suggested_name') == 'New Project':
+            from ..knowledge_fallback import _short_title
+            structured['suggested_name'] = _short_title(free_text, max_words=4)
+
+        return structured
+    except (json.JSONDecodeError, KeyError, TypeError):
+        return None
 
 
 # =============================================================================

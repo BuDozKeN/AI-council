@@ -730,7 +730,7 @@ function App() {
     await handleSendToCouncil(content, images);
   };
 
-  // This is called to send message to council
+  // Send message to council
   const handleSendToCouncil = async (content: string, images: UploadedImage[] | null = null) => {
     if (!currentConversationId) return;
 

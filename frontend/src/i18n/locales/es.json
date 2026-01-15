@@ -72,6 +72,7 @@
     "remove": "Quitar",
     "loading": "Cargando...",
     "saving": "Guardando...",
+    "deleting": "Eliminando...",
     "error": "Error",
     "success": "Éxito",
     "confirm": "Confirmar",
@@ -667,6 +668,9 @@
     "aiIntro": "Solo describe tu proyecto - la IA lo estructurará perfectamente",
     "projectPlaceholder": "¿De qué se trata tu proyecto? Objetivos, restricciones, contexto... escribe lo que se te ocurra",
     "aiStructuring": "La IA está estructurando tu proyecto...",
+    "aiStageConnecting": "Conectando con la IA...",
+    "aiStageAnalyzing": "Analizando tu descripción...",
+    "aiStageOrganizing": "Organizando en secciones...",
     "skipAI": "Omitir IA",
     "createWithAI": "Crear con IA",
     "aiProcessing": "Procesando...",
@@ -1058,8 +1062,10 @@
     "rolesCount_other": "{{count}} roles",
     "rolesCount": "{{count}} roles",
     "editDepartment": "Editar departamento",
+    "deleteDepartment": "Eliminar departamento",
     "viewPrompt": "Ver Prompt",
     "editRole": "Editar rol",
+    "deleteRole": "Eliminar rol",
     "noRoles": "Sin roles definidos aún",
     "newRole": "Nuevo Rol",
     "addRole": "Agregar Rol",
@@ -1067,6 +1073,11 @@
     "addDepartmentTitle": "Agregar Departamento",
     "editDepartmentTitle": "Editar Departamento",
     "editRoleTitle": "Editar Rol",
+    "deleteDepartmentTitle": "Eliminar Departamento",
+    "deleteRoleTitle": "Eliminar Rol",
+    "deleteDepartmentMessage": "¿Estás seguro de que deseas eliminar \"{{name}}\"? Esta acción no se puede deshacer.",
+    "deleteRoleMessage": "¿Estás seguro de que deseas eliminar el rol \"{{name}}\"? Esta acción no se puede deshacer.",
+    "deleteDepartmentWarning": "Esto también eliminará {{count}} rol(es) en este departamento.",
     "rolePromptTitle": "Prompt del Sistema del Rol",
     "promptNotFound": "Archivo no encontrado - usando prompt predeterminado",
     "noPrompt": "Sin prompt personalizado definido",
@@ -1094,7 +1105,9 @@
       "deptCreated": "Departamento \"{{name}}\" creado",
       "roleAdded": "Rol \"{{name}}\" agregado",
       "deptUpdated": "Departamento \"{{name}}\" actualizado",
-      "roleUpdated": "Rol \"{{name}}\" actualizado"
+      "roleUpdated": "Rol \"{{name}}\" actualizado",
+      "deptDeleted": "Departamento \"{{name}}\" eliminado",
+      "roleDeleted": "Rol \"{{name}}\" eliminado"
     },
     "errors": {
       "notFound": "Empresa no encontrada",
@@ -1102,7 +1115,9 @@
       "createDeptFailed": "Error al crear departamento: {{message}}",
       "createRoleFailed": "Error al crear rol: {{message}}",
       "updateDeptFailed": "Error al actualizar departamento: {{message}}",
-      "updateRoleFailed": "Error al actualizar rol: {{message}}"
+      "updateRoleFailed": "Error al actualizar rol: {{message}}",
+      "deleteDeptFailed": "Error al eliminar departamento: {{message}}",
+      "deleteRoleFailed": "Error al eliminar rol: {{message}}"
     }
   },
   "llmHub": {

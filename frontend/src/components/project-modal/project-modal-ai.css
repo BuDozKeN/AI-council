@@ -225,3 +225,42 @@
   height: 18px;
   color: var(--color-slate-400);
 }
+
+/* AI Progress Steps - animated loading indicator */
+.pm-ai-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.pm-ai-progress-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--color-slate-400);
+  transition: all 0.3s ease;
+}
+
+.pm-ai-progress-step.active {
+  color: var(--color-purple-600);
+  font-weight: 500;
+}
+
+.pm-ai-progress-step.completed {
+  color: var(--color-emerald-600);
+}
+
+.pm-ai-progress-check {
+  color: var(--color-emerald-500);
+  flex-shrink: 0;
+}
+
+.pm-ai-progress-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-slate-300);
+  flex-shrink: 0;
+}
