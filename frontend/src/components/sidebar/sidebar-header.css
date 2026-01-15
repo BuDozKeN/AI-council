@@ -58,6 +58,13 @@ button.sidebar-new-btn:hover {
   white-space: nowrap;
 }
 
+/* Button component wraps children in span - ensure icon + text are inline */
+.sidebar-new-btn > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 /* Pin/Unpin button - subtle */
 .sidebar-pin-btn {
   display: flex;

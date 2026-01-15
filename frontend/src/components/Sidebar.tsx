@@ -826,19 +826,19 @@ export default function Sidebar({
         >
           <SidebarIconButton
             icon={<Building2 className="h-4 w-4" />}
-            title={t('sidebar.myCompany')}
+            title={`${t('sidebar.myCompany')} — ${t('sidebar.tooltips.company')}`}
             onClick={onOpenMyCompany ?? (() => {})}
             onMouseEnter={myCompanyHoverHandlers.onMouseEnter}
             onMouseLeave={myCompanyHoverHandlers.onMouseLeave}
           />
           <SidebarIconButton
             icon={<Settings className="h-4 w-4" />}
-            title={t('sidebar.settings')}
+            title={`${t('sidebar.settings')} — ${t('sidebar.tooltips.settings')}`}
             onClick={onOpenSettings ?? (() => {})}
           />
           <SidebarIconButton
             icon={<LogOut className="h-4 w-4" />}
-            title={t('auth.signOut')}
+            title={t('sidebar.tooltips.signOut')}
             onClick={onSignOut ?? (() => {})}
           />
         </div>

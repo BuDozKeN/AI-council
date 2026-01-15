@@ -1143,6 +1143,13 @@ button:not(:disabled):active,
     border-color 0.15s ease-out;
 }
 
+/* Button inner span - ensure icon + text are inline (Button component wraps children in span) */
+[class*='btn-variant-'] > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* Primary Button - Indigo with premium shadow */
 button.btn-variant-default,
 .btn-variant-default {

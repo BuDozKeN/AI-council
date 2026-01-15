@@ -14,6 +14,13 @@
     "statsRound": "round",
     "statsRounds": "rounds",
     "statsAnswer": "answer",
+    "shortcutHint": "Press ⌘K to navigate",
+    "shortcutHintWindows": "Press Ctrl+K to navigate",
+    "socialProof": {
+      "teamsUsing": "Teams using AxCouncil",
+      "decisionsHelped": "Decisions made better",
+      "avgRating": "Average rating"
+    },
     "quickActions": {
       "writePitch": "Write a pitch",
       "writePitchPrompt": "Help me write a compelling pitch for ",
@@ -220,7 +227,44 @@
     "gettingStarted": "Getting Started",
     "gettingStartedDesc": "Learn the basics of AI Council",
     "support": "Contact Support",
-    "supportDesc": "Get help from our team"
+    "supportDesc": "Get help from our team",
+    "keyboardShortcuts": "Keyboard Shortcuts",
+    "keyboardShortcutsDesc": "Speed up your workflow",
+    "searchHelp": "Search help...",
+    "shortcuts": {
+      "title": "Keyboard Shortcuts",
+      "commandPalette": "Open command palette",
+      "newChat": "New conversation",
+      "search": "Search conversations",
+      "settings": "Open settings",
+      "escape": "Close modal / cancel"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "whatIsCouncil": "What is an AI Council?",
+      "whatIsCouncilAnswer": "An AI Council is 5 different AI models (like ChatGPT, Claude, Gemini) working together. Each one answers your question, they review each other's answers, and then the best insights are combined into one final response.",
+      "howManyAIs": "How many AIs are involved?",
+      "howManyAIsAnswer": "By default, 5 AI models answer your question in Stage 1. Then 3 models review and rank those answers in Stage 2. Finally, one model synthesizes the best answer in Stage 3.",
+      "whatAreStages": "What do the stages mean?",
+      "whatAreStagesAnswer": "Stage 1 (Answers): Each AI gives their perspective. Stage 2 (Review): AIs vote on which answer is best. Stage 3 (Synthesis): The top insights are combined into one comprehensive answer.",
+      "howLongTakes": "How long does it take?",
+      "howLongTakesAnswer": "A full council deliberation typically takes 30-60 seconds. Quick mode (1 AI) is faster at 5-10 seconds.",
+      "whatIsDepartment": "What are departments and roles?",
+      "whatIsDepartmentAnswer": "Departments and roles help the AI understand your company. When you select 'Marketing' or 'CTO', the AI tailors its advice to that perspective.",
+      "whatIsPlaybook": "What is a playbook?",
+      "whatIsPlaybookAnswer": "Playbooks are your company's guides - SOPs (how-to procedures), Frameworks (thinking models), and Policies (rules). The AI references these when giving advice.",
+      "canITrustAI": "Can I trust the AI's answers?",
+      "canITrustAIAnswer": "AI can make mistakes. Always verify important decisions. The council format helps by showing multiple perspectives and highlighting disagreements.",
+      "whereDataStored": "Where is my data stored?",
+      "whereDataStoredAnswer": "Your data is stored securely in our cloud database. We don't train AI models on your conversations. You can delete your data anytime."
+    },
+    "quickTips": {
+      "title": "Quick Tips",
+      "tip1": "Use ⌘K (or Ctrl+K) to quickly navigate anywhere",
+      "tip2": "Select departments to get role-specific advice",
+      "tip3": "Save important answers to your knowledge base",
+      "tip4": "Create projects to track related decisions"
+    }
   },
   "auth": {
     "signIn": "Sign In",
@@ -289,16 +333,16 @@
     "generating": "Generating...",
     "councilDebating": "Council is debating...",
     "tooltips": {
-      "company": "Choose which company's context to use",
-      "projects": "Focus the answer on a specific project",
-      "departments": "Include your team's expertise in the answer",
-      "roles": "Add specific expert perspectives (CEO, Analyst, etc.)",
-      "playbooks": "Apply your company's guides to the answer",
-      "councilMode": "Multiple AI experts discuss and give you a combined answer",
-      "chatMode": "Quick answer from one AI — faster, simpler",
-      "send": "Send your question",
-      "stop": "Stop the AI from writing more",
-      "reset": "Clear all selections"
+      "company": "Use this company's context",
+      "projects": "Focus on a specific project",
+      "departments": "Add team expertise",
+      "roles": "Add expert perspectives",
+      "playbooks": "Apply company guides",
+      "councilMode": "Multiple AIs debate, one best answer",
+      "chatMode": "Quick single AI response",
+      "send": "Send question",
+      "stop": "Stop generating",
+      "reset": "Clear all"
     },
     "responseStyle": {
       "label": "Response style",
@@ -356,7 +400,12 @@
     "cancelSelection": "Cancel selection",
     "deletingConversations": "Deleting conversations",
     "deleteConversations": "Delete {{count}} conversation",
-    "deleteConversations_other": "Delete {{count}} conversations"
+    "deleteConversations_other": "Delete {{count}} conversations",
+    "tooltips": {
+      "company": "Departments, roles, playbooks",
+      "settings": "Profile and preferences",
+      "signOut": "Sign out"
+    }
   },
   "settings": {
     "title": "Settings",
@@ -570,9 +619,15 @@
     "toggleDeptContext": "Toggle department-specific context (department knowledge)"
   },
   "stages": {
-    "stage1": "Stage 1: Individual Responses",
-    "stage2": "Stage 2: Peer Rankings",
-    "stage3": "Stage 3: Chairman's Synthesis",
+    "stage1": "Answers",
+    "stage1Full": "Stage 1: AI Experts Answer",
+    "stage1Hint": "Each AI gives their perspective on your question",
+    "stage2": "Review",
+    "stage2Full": "Stage 2: Peer Review",
+    "stage2Hint": "AIs evaluate and rank each other's answers",
+    "stage3": "Best Answer",
+    "stage3Full": "Stage 3: Final Synthesis",
+    "stage3Hint": "Top insights combined into one response",
     "loadingResponses": "Loading responses...",
     "lowerIsBetter": "Lower is better",
     "topAnswer": "#1 is the top answer",
@@ -589,9 +644,9 @@
     "imageAnalysis": "Image Analysis by GPT-4o",
     "clickToCollapse": "click to collapse",
     "clickToExpand": "click to expand",
-    "councilGathering": "Your council is gathering their thoughts...",
+    "councilGathering": "Your AI council is answering your question...",
     "expertsReview": "Experts Review Each Other",
-    "expertsReviewing": "Experts are reviewing each other's answers...",
+    "expertsReviewing": "AIs are comparing answers to find the best one...",
     "winnerTooltip": "Winner: {{model}} — Voted #1 by {{count}} AI experts with avg score {{avg}} (1 = best)",
     "noResponse": "No Response",
     "noEvaluation": "This model did not return an evaluation.",
@@ -615,9 +670,11 @@
     "synthesisError": "An error occurred while generating the synthesis.",
     "errorOccurred": "Error occurred",
     "bestAnswer": "The Best Answer",
+    "aiDisclaimer": "AI can make mistakes. Verify important decisions.",
+    "aiDisclaimerFull": "AI-generated content may contain errors. Always verify critical information before making important decisions.",
     "loadingCouncil": "Loading council response",
     "combiningOpinions": "Combining expert opinions...",
-    "chairmanWriting": "Chairman is writing the final answer",
+    "chairmanWriting": "Combining the best insights into one answer",
     "responseTruncated": "Response was cut off. The answer may be incomplete.",
     "playbookType": "Playbook Type",
     "noType": "No Type",
@@ -996,7 +1053,11 @@
     "sessionExpired": "Your session has expired. Please sign in again.",
     "serverError": "Server error. Please try again later.",
     "timeout": "Request timed out. Please try again.",
-    "offline": "You appear to be offline"
+    "offline": "You appear to be offline",
+    "tokenLimitReached": "Message too long. Try shortening your question.",
+    "tokenLimitHint": "Your message is {{current}} characters. Maximum is {{max}}.",
+    "contextTooLarge": "Too much context selected. Try removing some playbooks or documents.",
+    "rateLimited": "Too many requests. Please wait a moment and try again."
   },
   "dates": {
     "justNow": "Just now",
@@ -1142,7 +1203,16 @@
       "creativity": "Creativity",
       "response": "Response",
       "responseLength": "Response Length",
-      "creativityHint": "Creativity controls how predictable or varied the AI's responses are. Lower values give consistent, focused answers. Higher values allow more originality and unexpected ideas."
+      "creativityHint": "Creativity controls how predictable or varied the AI's responses are. Lower values give consistent, focused answers. Higher values allow more originality and unexpected ideas.",
+      "whatIsThis": "What's this?"
+    },
+    "explainers": {
+      "temperature": "How creative the AI should be. Lower = safer, higher = more varied.",
+      "tokens": "Words the AI can write. 500 tokens ≈ 1 page of text.",
+      "maxTokens": "Maximum response length. Longer answers cost more.",
+      "model": "Which AI brain to use. Different models have different strengths.",
+      "preset": "Pre-configured settings for common use cases.",
+      "fallback": "Backup model if the primary one is unavailable."
     },
     "primary": "Primary",
     "fallback": "Fallback {{num}}",
@@ -1417,13 +1487,13 @@
   },
   "mycompany": {
     "tabs": {
-      "overviewTooltip": "Company summary: see your stats, description, and company context at a glance",
-      "teamTooltip": "Your departments and roles: manage the structure of your organization",
-      "projectsTooltip": "Organize your work: group related council sessions and track progress",
-      "playbooksTooltip": "Your knowledge library: SOPs, frameworks, and policies the AI council uses",
-      "decisionsTooltip": "Saved council outputs: review, archive, or promote decisions to playbooks",
-      "activityTooltip": "Recent changes: see what happened across your company",
-      "usageTooltip": "LLM usage analytics: monitor costs, tokens, and council activity"
+      "overviewTooltip": "Company profile and context",
+      "teamTooltip": "Departments and roles",
+      "projectsTooltip": "Organize related decisions",
+      "playbooksTooltip": "SOPs, frameworks, policies",
+      "decisionsTooltip": "Saved council answers",
+      "activityTooltip": "Recent activity",
+      "usageTooltip": "Costs and usage stats"
     },
     "noCompanyData": "Set up your company profile",
     "companyInfoAppear": "Add company information in the Overview tab to unlock insights and analytics",

@@ -14,6 +14,13 @@
     "statsRound": "ronda",
     "statsRounds": "rondas",
     "statsAnswer": "respuesta",
+    "shortcutHint": "Presiona ⌘K para navegar",
+    "shortcutHintWindows": "Presiona Ctrl+K para navegar",
+    "socialProof": {
+      "teamsUsing": "Equipos usando AxCouncil",
+      "decisionsHelped": "Decisiones mejoradas",
+      "avgRating": "Valoración promedio"
+    },
     "quickActions": {
       "writePitch": "Escribir un pitch",
       "writePitchPrompt": "Ayúdame a escribir un pitch convincente para ",
@@ -356,7 +363,12 @@
     "cancelSelection": "Cancelar selección",
     "deletingConversations": "Eliminando conversaciones",
     "deleteConversations": "Eliminar {{count}} conversación",
-    "deleteConversations_other": "Eliminar {{count}} conversaciones"
+    "deleteConversations_other": "Eliminar {{count}} conversaciones",
+    "tooltips": {
+      "company": "Gestiona los departamentos, roles y playbooks de tu empresa",
+      "settings": "Actualiza tu perfil, facturación y preferencias",
+      "signOut": "Cerrar sesión de tu cuenta"
+    }
   },
   "settings": {
     "title": "Configuración",
@@ -570,9 +582,15 @@
     "toggleDeptContext": "Alternar contexto de departamento (conocimiento del departamento)"
   },
   "stages": {
-    "stage1": "Etapa 1: Respuestas individuales",
-    "stage2": "Etapa 2: Rankings de pares",
-    "stage3": "Etapa 3: Síntesis del presidente",
+    "stage1": "Respuestas",
+    "stage1Full": "Etapa 1: Los Expertos IA Responden",
+    "stage1Hint": "Cada IA da su perspectiva sobre tu pregunta",
+    "stage2": "Revisión",
+    "stage2Full": "Etapa 2: Revisión de Pares",
+    "stage2Hint": "Las IAs evalúan y clasifican las respuestas",
+    "stage3": "Mejor Respuesta",
+    "stage3Full": "Etapa 3: Síntesis Final",
+    "stage3Hint": "Los mejores aportes combinados en una respuesta",
     "loadingResponses": "Cargando respuestas...",
     "lowerIsBetter": "Menor es mejor",
     "topAnswer": "#1 es la mejor respuesta",
@@ -589,9 +607,9 @@
     "imageAnalysis": "Análisis de imagen por GPT-4o",
     "clickToCollapse": "clic para colapsar",
     "clickToExpand": "clic para expandir",
-    "councilGathering": "Tu consejo está reuniendo sus ideas...",
+    "councilGathering": "Tu consejo de IA está respondiendo tu pregunta...",
     "expertsReview": "Los expertos se evalúan entre sí",
-    "expertsReviewing": "Los expertos están revisando las respuestas de los demás...",
+    "expertsReviewing": "Las IAs están comparando respuestas para encontrar la mejor...",
     "winnerTooltip": "Ganador: {{model}} — Votado #1 por {{count}} expertos de IA con puntuación promedio {{avg}} (1 = mejor)",
     "noResponse": "Sin respuesta",
     "noEvaluation": "Este modelo no devolvió una evaluación.",
@@ -615,9 +633,11 @@
     "synthesisError": "Ocurrió un error al generar la síntesis.",
     "errorOccurred": "Ocurrió un error",
     "bestAnswer": "La mejor respuesta",
+    "aiDisclaimer": "La IA puede cometer errores. Verifica decisiones importantes.",
+    "aiDisclaimerFull": "El contenido generado por IA puede contener errores. Siempre verifica la información crítica antes de tomar decisiones importantes.",
     "loadingCouncil": "Cargando respuesta del consejo",
     "combiningOpinions": "Combinando opiniones de expertos...",
-    "chairmanWriting": "El presidente está escribiendo la respuesta final",
+    "chairmanWriting": "Combinando las mejores ideas en una respuesta",
     "responseTruncated": "La respuesta fue cortada. La respuesta puede estar incompleta.",
     "playbookType": "Tipo de Playbook",
     "noType": "Sin tipo",
