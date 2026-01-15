@@ -575,6 +575,130 @@ async def get_role(request: Request, company_id: ValidCompanyId, dept_id: ValidD
 
 
 # =============================================================================
+# DELETE OPERATIONS
+# =============================================================================
+
+@router.delete("/{company_id}/departments/{dept_id}")
+@limiter.limit("10/minute;50/hour")
+async def delete_department(
+    request: Request,
+    company_id: ValidCompanyId,
+    dept_id: ValidDeptId,
+    user=Depends(get_current_user)
+):
+    """
+    Delete a department and all its roles permanently.
+    This is a cascading delete - all roles in the department are also removed.
+    """
+    from ...security import log_app_event
+
+    client = get_client(user)
+    company_uuid = resolve_company_id(client, company_id)
+
+    # Get department info for logging
+    dept_result = client.table("departments") \
+        .select("name") \
+        .eq("id", dept_id) \
+        .eq("company_id", company_uuid) \
+        .single() \
+        .execute()
+
+    if not dept_result.data:
+        raise HTTPException(status_code=404, detail="Department not found")
+
+    dept_name = dept_result.data.get("name", "Unknown")
+
+    # Count roles that will be deleted
+    roles_result = client.table("roles") \
+        .select("id") \
+        .eq("department_id", dept_id) \
+        .execute()
+
+    role_count = len(roles_result.data) if roles_result.data else 0
+
+    # Delete all roles in this department first
+    if role_count > 0:
+        client.table("roles") \
+            .delete() \
+            .eq("department_id", dept_id) \
+            .execute()
+
+    # Delete the department
+    delete_result = client.table("departments") \
+        .delete() \
+        .eq("id", dept_id) \
+        .eq("company_id", company_uuid) \
+        .execute()
+
+    if not delete_result.data:
+        raise HTTPException(status_code=404, detail="Failed to delete department")
+
+    log_app_event(
+        "DEPARTMENT_DELETED",
+        level="INFO",
+        department_name=dept_name,
+        deleted_roles=role_count,
+        company_id=str(company_uuid)
+    )
+
+    return {
+        "success": True,
+        "deleted_department": dept_name,
+        "deleted_roles": role_count
+    }
+
+
+@router.delete("/{company_id}/departments/{dept_id}/roles/{role_id}")
+@limiter.limit("20/minute;100/hour")
+async def delete_role(
+    request: Request,
+    company_id: ValidCompanyId,
+    dept_id: ValidDeptId,
+    role_id: ValidRoleId,
+    user=Depends(get_current_user)
+):
+    """Delete a role permanently."""
+    from ...security import log_app_event
+
+    client = get_client(user)
+
+    # Get role info for logging
+    role_result = client.table("roles") \
+        .select("name") \
+        .eq("id", role_id) \
+        .eq("department_id", dept_id) \
+        .single() \
+        .execute()
+
+    if not role_result.data:
+        raise HTTPException(status_code=404, detail="Role not found")
+
+    role_name = role_result.data.get("name", "Unknown")
+
+    # Delete the role
+    delete_result = client.table("roles") \
+        .delete() \
+        .eq("id", role_id) \
+        .eq("department_id", dept_id) \
+        .execute()
+
+    if not delete_result.data:
+        raise HTTPException(status_code=404, detail="Failed to delete role")
+
+    log_app_event(
+        "ROLE_DELETED",
+        level="INFO",
+        role_name=role_name,
+        department_id=dept_id
+    )
+
+    return {
+        "success": True,
+        "deleted_role": role_name
+    }
+
+
+# =============================================================================
 # AI-ASSISTED DEPARTMENT STRUCTURING
 # =============================================================================
 

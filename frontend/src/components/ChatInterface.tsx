@@ -474,6 +474,7 @@ export default function ChatInterface({
             conversationTitle={conversation?.title}
           />
         )}
+
         {/* Show council loader while loading conversation */}
         {isLoadingConversation && !hasMessages && (
           <div className="council-loader-overlay">
