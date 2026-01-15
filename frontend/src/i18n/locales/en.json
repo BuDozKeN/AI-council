@@ -1024,6 +1024,31 @@
     "userMenu": "User menu",
     "notifications": "Notifications"
   },
+  "triage": {
+    "you": "You",
+    "preCouncil": "Pre-Council",
+    "gotIt": "Got it!",
+    "editConstraints": "Edit constraints",
+    "constraints": {
+      "who": "Who",
+      "goal": "Goal",
+      "budget": "Budget",
+      "priority": "Priority"
+    },
+    "saveAndSend": "Save & Send",
+    "sendToCouncil": "Send to Council",
+    "sending": "Sending...",
+    "startOver": "Start over",
+    "defaultQuestions": {
+      "intro": "To give you the best answer, I need a bit more context:",
+      "who": "Who is this for? (yourself, a team, customers?)",
+      "budget": "What's your budget or resource constraints?",
+      "timeline": "What's your timeline?",
+      "priority": "What's most important: speed, cost, or quality?"
+    },
+    "placeholder": "Add more context...",
+    "reply": "Reply"
+  },
   "organization": {
     "title": "Organization Structure",
     "description": "Manage {{company}}'s structure: {{depts}} departments, {{roles}} roles",
