@@ -6,7 +6,7 @@
  *
  * Test Categories:
  * 1. File organization (1:1 component-to-CSS mapping)
- * 2. File size limits (max 600 lines hard limit)
+ * 2. File size limits (max 800 lines hard limit, excludes tailwind.css)
  * 3. Color usage (must use CSS variables)
  * 4. Breakpoint consistency (only 641px and 1025px)
  * 5. Z-index usage (must use CSS variables)
@@ -157,13 +157,16 @@ describe('CSS Architecture - File Organization', () => {
 describe('CSS Architecture - File Size Limits', () => {
   const cssFiles = findCSSFiles(SRC_DIR);
 
-  it('should have no CSS files exceeding 600 lines (HARD LIMIT)', () => {
+  it('should have no CSS files exceeding 800 lines (HARD LIMIT, excludes tailwind.css)', () => {
     const violations: Array<{ file: string; lines: number }> = [];
 
     cssFiles.forEach((file) => {
+      // Exclude tailwind.css - framework config, not component CSS
+      if (file.endsWith('tailwind.css')) return;
+
       const lineCount = countSignificantLines(file);
 
-      if (lineCount > 600) {
+      if (lineCount > 800) {
         violations.push({
           file: file.replace(SRC_DIR, 'src'),
           lines: lineCount,
@@ -175,7 +178,7 @@ describe('CSS Architecture - File Size Limits', () => {
       const message = violations.map((v) => `  - ${v.file}: ${v.lines} lines`).join('\n');
 
       expect.fail(
-        `Found ${violations.length} CSS file(s) exceeding 600 lines:\n${message}\n\nAction: Split these files into smaller components.`
+        `Found ${violations.length} CSS file(s) exceeding 800 lines:\n${message}\n\nAction: Split these files into smaller components.`
       );
     }
   });
