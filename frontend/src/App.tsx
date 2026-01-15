@@ -264,6 +264,7 @@ function App() {
       closeLeaderboard,
       currentConversationId,
       setCurrentConversationId,
+      setCurrentConversation,
       handleNewConversation: contextNewConversation,
     });
 
@@ -404,11 +405,13 @@ function App() {
 
   const handleSelectConversation = useCallback(
     (id: string) => {
+      // Always clear conversation state first by using contextSelectConversation
+      // This ensures clean state before loading new conversation
+      contextSelectConversation(id);
+
       // Update URL to /chat/{id} for shareable links and F5 refresh
       // Skip URL update for temp conversations (they don't exist in DB yet)
-      if (id.startsWith('temp-')) {
-        contextSelectConversation(id);
-      } else {
+      if (!id.startsWith('temp-')) {
         navigateToChat(id);
       }
       clearReturnState();
