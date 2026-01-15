@@ -12,7 +12,7 @@
 
   .api-key-status .masked-key {
     font-size: var(--text-xs);
-    padding: 4px 8px;
+    padding: var(--space-1) var(--space-2);
   }
 
   .api-key-actions {
@@ -26,7 +26,7 @@
   }
 
   .api-provider-trigger {
-    padding: 14px 16px;
+    padding: var(--space-3-5) var(--space-4);
   }
 
   .provider-logo {
@@ -44,7 +44,7 @@
   }
 
   .provider-explainer {
-    padding: 16px;
+    padding: var(--space-4);
   }
 
   .explainer-section h4 {
@@ -56,11 +56,11 @@
   }
 
   .provider-connection {
-    padding: 16px;
+    padding: var(--space-4);
   }
 
   .setup-step {
-    gap: 10px;
+    gap: var(--gap-sm-plus);
   }
 
   .step-number {
@@ -78,7 +78,7 @@
   .provider-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
+    gap: var(--gap-sm);
   }
 
   .provider-status-badge {
@@ -86,7 +86,7 @@
   }
 
   .provider-connection-status {
-    padding: 16px;
+    padding: var(--space-4);
   }
 
   .provider-connection-status .api-key-actions {
@@ -100,21 +100,21 @@
   }
 
   .provider-setup-guide {
-    padding: 16px;
+    padding: var(--space-4);
   }
 
   .byok-inline {
-    padding: 10px 12px;
+    padding: var(--space-2-5) var(--space-3);
   }
 
   .byok-key {
     font-size: var(--text-xs);
-    padding: 3px 6px;
+    padding: var(--space-1) var(--space-1-5);
   }
 
   .byok-badge {
     font-size: var(--text-2xs);
-    padding: 2px 4px;
+    padding: var(--space-0-5) var(--space-1);
   }
 }
 
@@ -128,7 +128,7 @@
   }
 
   .provider-info {
-    gap: 10px;
+    gap: var(--gap-sm-plus);
   }
 
   .step-number {
@@ -140,6 +140,6 @@
   }
 
   .setup-step {
-    gap: 8px;
+    gap: var(--gap-sm);
   }
 }

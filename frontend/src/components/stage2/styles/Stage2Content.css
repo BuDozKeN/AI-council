@@ -2,7 +2,7 @@
 .stage2 .stage-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-sm);
   flex-wrap: nowrap;
   margin-bottom: 0; /* Match Stage 1 collapsed - tabs provide their own margin-block-start */
 }
@@ -29,11 +29,11 @@
   color: var(--color-text-muted);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-sm);
 }
 
 .stage2 .winner-badge {
-  padding: 2px 8px;
+  padding: var(--space-0-5) var(--space-2);
   background: var(--color-warning-light);
   color: var(--color-amber-700);
   border-radius: var(--radius-sm);
@@ -42,7 +42,7 @@
 
 /* Collapsed state */
 .stage2.collapsed {
-  padding: 12px 20px;
+  padding: var(--space-3) var(--space-5);
 }
 
 .stage2.collapsed .stage-title {
@@ -60,8 +60,8 @@
 }
 
 .parsed-ranking {
-  margin-top: 16px;
-  padding-top: 16px;
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
   border-top: 2px solid var(--color-border);
 }
 
@@ -71,13 +71,13 @@
 }
 
 .parsed-ranking ol {
-  margin: 8px 0 0;
-  padding-left: 24px;
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-6);
   color: var(--color-text-primary);
 }
 
 .parsed-ranking li {
-  margin: 4px 0;
+  margin: var(--space-1) 0;
   font-family: var(--font-mono);
   font-size: var(--text-xs-plus);
 }
@@ -109,15 +109,15 @@
 
 .stage2 .typing-indicator {
   display: inline-block;
-  margin-left: 8px;
+  margin-left: var(--space-2);
   color: var(--color-success);
   animation: blink 0.8s infinite;
 }
 
 .stage2 .complete-badge {
   display: inline-block;
-  margin-left: 8px;
-  padding: 2px 6px;
+  margin-left: var(--space-2);
+  padding: var(--space-0-5) var(--space-1-5);
   background: var(--color-success-light);
   color: var(--color-success-dark);
   border-radius: var(--radius-sm);
@@ -128,8 +128,8 @@
 
 .stage2 .error-badge {
   display: inline-block;
-  margin-left: 8px;
-  padding: 2px 6px;
+  margin-left: var(--space-2);
+  padding: var(--space-0-5) var(--space-1-5);
   background: var(--color-error-subtle);
   color: var(--color-error);
   border-radius: var(--radius-sm);
@@ -153,7 +153,7 @@
   display: inline-block;
   color: var(--color-brand-primary);
   animation: blink 0.8s infinite;
-  margin-left: 2px;
+  margin-left: var(--space-0-5);
 }
 
 .stage2 .empty-message {
@@ -169,8 +169,8 @@
 .stage2 .stage-loading {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 24px;
+  gap: var(--gap);
+  padding: var(--space-6);
   color: var(--color-text-secondary);
 }
 

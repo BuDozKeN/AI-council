@@ -11,8 +11,8 @@
 .mc-playbook-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  margin-top: 6px;
+  gap: var(--gap-xs);
+  margin-top: var(--space-1-5);
 }
 
 .mc-tag {
@@ -20,7 +20,7 @@
   font-weight: 500;
   background: var(--color-bg-hover);
   color: var(--color-text-secondary);
-  padding: 2px 8px;
+  padding: var(--space-0-5) var(--space-2);
   border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
 }
@@ -29,8 +29,8 @@
 .mc-playbook-title-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
+  gap: var(--gap-sm);
+  margin-bottom: var(--space-1);
 }
 
 /* Playbook meta row */
@@ -38,9 +38,9 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
+  gap: var(--gap-sm);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -49,8 +49,8 @@
    ============================================================================ */
 
 .mc-playbook-departments {
-  margin: 16px 0;
-  padding: 12px;
+  margin: var(--space-4) 0;
+  padding: var(--space-3);
   background: var(--color-bg-secondary);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
@@ -66,14 +66,14 @@
 .mc-dept-checkboxes {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--gap-sm);
 }
 
 .mc-dept-checkbox {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-1-5) var(--space-3);
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -110,7 +110,7 @@
 .mc-dept-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
 }
 
 /* ============================================================================
@@ -122,27 +122,27 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
 }
 
 /* Inline department editing */
 .mc-dept-edit-inline {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
   flex-wrap: wrap;
 }
 
 .mc-dept-label {
   font-size: 0.75rem;
   color: var(--color-text-tertiary);
-  margin-right: 4px;
+  margin-right: var(--space-1);
 }
 
 /* Owner star indicator */
 .mc-owner-star {
   font-weight: 700;
-  margin-left: 2px;
+  margin-left: var(--space-0-5);
 }
 
 /* ============================================================================
@@ -153,8 +153,8 @@
 .mc-dept-chip-mini {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
+  gap: var(--gap-xs);
+  padding: var(--space-1) var(--space-2-5);
   font-size: 0.75rem;
   font-weight: 500;
   background: var(--color-bg-secondary);
@@ -185,9 +185,9 @@
 .mc-dept-badges-clickable {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
   flex-wrap: wrap;
-  padding: 4px 8px;
+  padding: var(--space-1) var(--space-2);
   margin: -4px -8px;
   border-radius: var(--radius-default);
   transition: background 0.15s ease;
@@ -225,7 +225,7 @@
   color: var(--color-green-700);
   cursor: pointer;
   transition: all 0.15s ease;
-  margin-left: 4px;
+  margin-left: var(--space-1);
 }
 
 .mc-dept-done-btn:hover {
@@ -244,7 +244,7 @@
 
 /* Content section wrapper */
 .mc-content-section {
-  padding: 16px 20px;
+  padding: var(--space-4) var(--space-5);
 }
 
 .mc-section-title {
@@ -265,7 +265,7 @@
   font-family: var(--font-mono);
   font-size: 0.875rem;
   line-height: 1.6;
-  padding: 16px;
+  padding: var(--space-4);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-bg-secondary);
@@ -289,7 +289,7 @@
 
 /* Field group wrapper */
 .mc-field-group {
-  margin-bottom: 16px;
+  margin-bottom: var(--space-4);
 }
 
 /* Title inline edit input */
@@ -299,7 +299,7 @@
   color: var(--color-text-primary);
   border: 1px solid var(--color-indigo-500);
   border-radius: var(--radius-default);
-  padding: 4px 8px;
+  padding: var(--space-1) var(--space-2);
   background: var(--color-bg-primary);
   outline: none;
   box-shadow: 0 0 0 3px rgb(var(--color-indigo-500-rgb, 99, 102, 241), 0.1);

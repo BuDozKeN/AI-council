@@ -38,7 +38,7 @@
 .sticky-header-content {
   position: relative;
   z-index: var(--z-base);
-  padding: 12px 20px; /* Match Omnibar padding */
+  padding: var(--space-3) var(--space-5); /* Match Omnibar padding */
   background: var(--color-bg-primary);
 }
 
@@ -62,12 +62,12 @@
   }
 
   .sticky-header-content {
-    padding: 10px 16px; /* Match mobile Omnibar padding */
+    padding: var(--space-2-5) var(--space-4); /* Match mobile Omnibar padding */
   }
 }
 
 @media (width <= 640px) {
   .sticky-header-content {
-    padding: 8px 14px; /* Match small phone Omnibar padding */
+    padding: var(--space-2) var(--space-3-5); /* Match small phone Omnibar padding */
   }
 }

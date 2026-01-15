@@ -90,7 +90,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: var(--space-3) var(--space-4);
   border-bottom: 1px solid var(--color-border-light);
   background: var(--color-bg-secondary);
 }
@@ -124,15 +124,15 @@
 
 /* Panel content */
 .help-panel-content {
-  padding: 8px;
+  padding: var(--space-2);
 }
 
 /* Help link items */
 .help-link {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
+  gap: var(--gap);
+  padding: var(--space-2-5) var(--space-3);
   border-radius: var(--radius-md);
   text-decoration: none;
   transition: background 0.15s ease;
@@ -158,7 +158,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--gap-2xs);
   min-width: 0;
 }
 
@@ -189,28 +189,28 @@
 
 /* Language Section */
 .help-language-section {
-  padding: 12px 16px;
+  padding: var(--space-3) var(--space-4);
   border-top: 1px solid var(--color-border-light);
 }
 
 .help-language-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-sm);
   font-size: var(--text-xs);
   font-weight: 500;
   color: var(--color-text-secondary);
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 
 .help-language-options {
   display: flex;
-  gap: 8px;
+  gap: var(--gap-sm);
 }
 
 .help-language-btn {
   flex: 1;
-  padding: 8px 12px;
+  padding: var(--space-2) var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-bg-primary);
@@ -239,7 +239,7 @@
 
 /* Panel footer */
 .help-panel-footer {
-  padding: 8px 16px;
+  padding: var(--space-2) var(--space-4);
   border-top: 1px solid var(--color-border-light);
   background: var(--color-bg-secondary);
 }

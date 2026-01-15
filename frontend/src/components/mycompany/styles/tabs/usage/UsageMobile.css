@@ -48,7 +48,7 @@
   }
 
   .mc-usage-period-opt {
-    padding: 5px 10px;
+    padding: var(--space-1) var(--space-2-5);
     font-size: 0.6875rem;
   }
 
@@ -212,7 +212,7 @@
   .mc-usage-extra-stat {
     flex-direction: column;
     align-items: flex-start;
-    gap: 2px;
+    gap: var(--gap-2xs);
     padding: var(--space-1-5) 0;
   }
 

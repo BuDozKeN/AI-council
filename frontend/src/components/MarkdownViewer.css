@@ -155,12 +155,12 @@
 
 .prose .table-scroll-wrapper::-webkit-scrollbar-track {
   background: var(--color-bg-secondary);
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
 }
 
 .prose .table-scroll-wrapper::-webkit-scrollbar-thumb {
   background: var(--color-border-dark);
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
 }
 
 .prose .table-scroll-wrapper::-webkit-scrollbar-thumb:hover {

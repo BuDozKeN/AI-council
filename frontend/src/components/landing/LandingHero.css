@@ -54,8 +54,8 @@
   align-items: center;
   width: 100%;
   max-width: 720px;
-  padding: 24px;
-  gap: 32px;
+  padding: var(--space-6);
+  gap: var(--gap-xl);
 }
 
 /* Header */
@@ -64,7 +64,7 @@
 }
 
 .landing-logo {
-  margin-bottom: 16px;
+  margin-bottom: var(--space-4);
 }
 
 .landing-logo-text {
@@ -94,18 +94,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  margin: 24px 0 0;
+  gap: var(--gap);
+  margin: var(--space-6) 0 0;
 }
 
 .stat-pill {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 8px 16px;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-2) var(--space-4);
   background: var(--overlay-black-10);
-  border-radius: 100px;
+  border-radius: var(--radius-full);
   border: 1px solid var(--color-border-primary);
 }
 
@@ -149,12 +149,12 @@
   }
 
   .landing-stats {
-    gap: 8px;
+    gap: var(--gap-sm);
   }
 
   .stat-pill {
-    padding: 6px 12px;
-    gap: 4px;
+    padding: var(--space-1-5) var(--space-3);
+    gap: var(--gap-xs);
   }
 
   .stat-number {
@@ -176,8 +176,8 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 16px; /* Extra breathing room from pills above */
+  gap: var(--gap);
+  margin-top: var(--space-4); /* Extra breathing room from pills above */
 }
 
 /* Responsive */
@@ -191,8 +191,8 @@
   .landing-hero {
     flex: 1;
     height: 100%;
-    padding: 16px;
-    padding-bottom: 16px; /* Space above bottom nav */
+    padding: var(--space-4);
+    padding-bottom: var(--space-4); /* Space above bottom nav */
     gap: 0; /* Remove gap - use flex spacing instead */
     justify-content: flex-end; /* Push everything toward bottom */
   }
@@ -210,15 +210,15 @@
   /* OmniBar container stays at bottom */
   .omni-bar-container {
     flex-shrink: 0;
-    margin-top: 24px; /* Space between header and input */
+    margin-top: var(--space-6); /* Space between header and input */
   }
 }
 
 /* Small phones - further optimizations */
 @media (width <= 640px) {
   .landing-hero {
-    padding: 12px;
-    gap: 20px;
+    padding: var(--space-3);
+    gap: var(--space-5);
   }
 
   .landing-headline {
@@ -227,12 +227,12 @@
   }
 
   .landing-stats {
-    gap: 6px;
+    gap: var(--gap-xs-plus);
   }
 
   .stat-pill {
-    padding: 5px 10px;
-    gap: 3px;
+    padding: var(--space-1) var(--space-2-5);
+    gap: var(--gap-xs);
   }
 
   .stat-number {
@@ -256,8 +256,8 @@
 /* Very small phones */
 @media (width <= 640px) {
   .landing-hero {
-    padding: 10px;
-    gap: 16px;
+    padding: var(--space-2-5);
+    gap: var(--gap-md);
   }
 
   .landing-headline {
@@ -265,11 +265,11 @@
   }
 
   .landing-stats {
-    gap: 4px;
+    gap: var(--gap-xs);
   }
 
   .stat-pill {
-    padding: 4px 8px;
+    padding: var(--space-1) var(--space-2);
   }
 
   .stat-number {
@@ -377,7 +377,7 @@
    ============================================================================= */
 
 .keyboard-hint {
-  margin-top: 12px;
+  margin-top: var(--space-3);
   font-size: var(--text-xs);
   color: var(--color-text-quaternary);
   text-align: center;

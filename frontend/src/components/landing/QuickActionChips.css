@@ -4,15 +4,15 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px;
+  gap: var(--gap-sm);
   max-width: 640px;
 }
 
 .quick-action-chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-2) var(--space-3-5);
   background: var(--overlay-white-60);
   backdrop-filter: blur(8px);
   border: 1px solid var(--color-border);
@@ -65,11 +65,11 @@
 /* Responsive */
 @media (width <= 640px) {
   .quick-action-chips {
-    gap: 6px;
+    gap: var(--gap-xs-plus);
   }
 
   .quick-action-chip {
-    padding: 6px 10px;
+    padding: var(--space-1-5) var(--space-2-5);
     font-size: var(--text-xs);
   }
 }

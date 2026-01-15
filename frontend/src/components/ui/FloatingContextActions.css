@@ -26,7 +26,7 @@
   background: var(--color-bg-primary);
   border: 1px solid var(--color-gray-100);
   border-radius: var(--radius-md);
-  padding: 20px;
+  padding: var(--space-5);
 }
 
 /* Invisible sentinel for IntersectionObserver scroll detection */
@@ -47,16 +47,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 8px 0;
-  margin-bottom: 12px;
+  gap: var(--gap);
+  padding: var(--space-2) 0;
+  margin-bottom: var(--space-3);
 
   /* Background to cover content scrolling behind - use explicit color */
   background: var(--color-bg-primary);
 
   /* Extend to full width to cover scrolling content */
   margin-left: -20px;
-  padding-left: 20px;
+  padding-left: var(--space-5);
   width: calc(100% + 40px);
 }
 
@@ -71,7 +71,7 @@
   display: flex;
   justify-content: flex-end;
   margin-bottom: -36px; /* Pull content up behind button */
-  padding-bottom: 8px;
+  padding-bottom: var(--space-2);
   pointer-events: none; /* Allow clicks through the wrapper */
 }
 
@@ -301,7 +301,7 @@
 .floating-context-wrapper.no-border.no-border .floating-context-content {
   border: 1px solid var(--color-gray-100);
   border-radius: var(--radius-md);
-  padding: 20px;
+  padding: var(--space-5);
   background: var(--color-bg-primary);
   overflow: visible; /* Let parent handle scrolling - required for sticky to work */
 }

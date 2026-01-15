@@ -9,7 +9,7 @@
    ============================================================================ */
 
 .mc-form-unified {
-  margin-bottom: 20px;
+  margin-bottom: var(--space-5);
 }
 
 .mc-label-unified {
@@ -19,12 +19,12 @@
   color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 
 .mc-input-unified {
   width: 100%;
-  padding: 10px 14px;
+  padding: var(--space-2-5) var(--space-3-5);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
@@ -63,18 +63,18 @@
 
 .mc-type-pills-unified {
   display: flex;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: 4px;
+  padding: var(--space-1);
 }
 
 .mc-type-pill-unified {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 8px 12px;
+  gap: var(--gap-xs);
+  padding: var(--space-2) var(--space-3);
   border: none;
   background: transparent;
   border-radius: var(--radius-default);
@@ -125,8 +125,8 @@
    ============================================================================ */
 
 .mc-playbook-departments {
-  margin: 16px 0;
-  padding: 12px;
+  margin: var(--space-4) 0;
+  padding: var(--space-3);
   background: var(--color-bg-secondary);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
@@ -142,14 +142,14 @@
 .mc-dept-checkboxes {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--gap-sm);
 }
 
 .mc-dept-checkbox {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-1-5) var(--space-3);
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);

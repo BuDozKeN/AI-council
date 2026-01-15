@@ -7,8 +7,8 @@
 .toolbar-pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 6px 10px;
+  gap: var(--gap-xs);
+  padding: var(--space-1-5) var(--space-2-5);
   background: var(--color-bg-primary);
   border: 1px solid var(--color-slate-200);
   border-radius: var(--radius-md);
@@ -70,7 +70,7 @@
 }
 
 .toolbar-dropdown-header {
-  padding: 10px 12px;
+  padding: var(--space-2-5) var(--space-3);
   font-size: var(--text-xs);
   font-weight: 600;
   color: var(--color-slate-500);
@@ -81,7 +81,7 @@
 }
 
 .toolbar-dropdown-list {
-  padding: 4px;
+  padding: var(--space-1);
   max-height: 300px;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -91,9 +91,9 @@
 .toolbar-dropdown-option {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--gap-sm-plus);
   width: 100%;
-  padding: 10px 12px;
+  padding: var(--space-2-5) var(--space-3);
   background: transparent;
   border: none;
   border-radius: var(--radius-md);
@@ -122,7 +122,7 @@
 .toolbar-dropdown-option-text {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--gap-2xs);
   min-width: 0;
   flex: 1;
 }
@@ -149,7 +149,7 @@
 
 /* --- Dropdown Footer (for create actions) --- */
 .toolbar-dropdown-footer {
-  padding: 8px;
+  padding: var(--space-2);
   border-top: 1px solid var(--color-slate-200);
   background: var(--color-slate-50);
 }
@@ -157,9 +157,9 @@
 .toolbar-dropdown-create-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
   width: 100%;
-  padding: 8px 10px;
+  padding: var(--space-2) var(--space-2-5);
   background: transparent;
   border: 1px dashed var(--color-slate-300);
   border-radius: var(--radius-md);
@@ -180,15 +180,15 @@
 .toolbar-list-mobile {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 12px;
+  gap: var(--gap-sm);
+  padding: var(--space-3);
 }
 
 .toolbar-option-mobile {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
+  gap: var(--gap);
+  padding: var(--space-3-5) var(--space-4);
   background: var(--color-slate-50);
   border: 1px solid transparent;
   border-radius: var(--radius-lg);
@@ -221,7 +221,7 @@
 .toolbar-option-content {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--gap-2xs);
   min-width: 0;
   flex: 1;
 }
@@ -241,8 +241,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  padding: 16px;
+  gap: var(--gap-sm);
+  padding: var(--space-4);
   background: transparent;
   border: 1px dashed var(--color-slate-300);
   border-radius: var(--radius-lg);
@@ -251,7 +251,7 @@
   color: var(--color-slate-500);
   cursor: pointer;
   transition: all 0.15s ease;
-  margin-top: 4px;
+  margin-top: var(--space-1);
 }
 
 .toolbar-create-btn-mobile:active {

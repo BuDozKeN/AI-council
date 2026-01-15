@@ -5,7 +5,7 @@
 .stage2 .table-scroll-wrapper {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  margin: 12px 0;
+  margin: var(--space-3) 0;
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
 
@@ -55,7 +55,7 @@
 
   .stage2-content .table-scroll-wrapper th,
   .stage2-content .table-scroll-wrapper td {
-    padding: 8px 10px;
+    padding: var(--space-2) var(--space-2-5);
     font-size: var(--text-xs-plus);
     white-space: nowrap;
   }
@@ -74,12 +74,12 @@
 @media (width <= 640px) {
   /* Stage container */
   .stage2 {
-    padding: 12px;
+    padding: var(--space-3);
   }
 
   /* Stage title - ensure single line on mobile */
   .stage2 .stage-title {
-    gap: 6px;
+    gap: var(--gap-xs-plus);
   }
 
   /* Scale down the title icon slightly */
@@ -100,8 +100,8 @@
 
   /* Winner badge - more compact on mobile with smaller icons */
   .stage2-winner {
-    padding: 3px 5px;
-    gap: 3px;
+    padding: var(--space-1) var(--space-1);
+    gap: var(--gap-xs);
     border-radius: var(--radius-md);
   }
 
@@ -119,13 +119,13 @@
   .stage2 .tabs {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: var(--gap-xs-plus);
     margin-block: 10px 12px;
   }
 
   .stage2 .tab {
     /* Match Stage 1 pills exactly */
-    padding: 6px 10px;
+    padding: var(--space-1-5) var(--space-2-5);
     font-size: var(--text-xs);
     line-height: 1;
   }
@@ -147,19 +147,19 @@
 
   /* Tab content - more padding for readability */
   .stage2 .tab-content {
-    padding: 14px;
+    padding: var(--space-3-5);
   }
 
   /* Model info header */
   .ranking-model {
     flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 14px;
+    gap: var(--gap-sm);
+    margin-bottom: var(--space-3-5);
   }
 
   .stage2 .model-info {
     font-size: var(--text-sm);
-    gap: 8px;
+    gap: var(--gap-sm);
   }
 
   .stage2 .model-info-icon {
@@ -171,7 +171,7 @@
   .stage2 .copy-btn {
     min-height: 44px;
     min-width: 44px;
-    padding: 10px;
+    padding: var(--space-2-5);
   }
 
   /* Ranking content - readable typography */
@@ -185,25 +185,25 @@
      =========================================== */
 
   .aggregate-rankings {
-    padding: 14px;
-    margin-bottom: 16px;
+    padding: var(--space-3-5);
+    margin-bottom: var(--space-4);
   }
 
   .aggregate-rankings h4 {
     font-size: var(--text-sm);
-    margin-bottom: 12px;
+    margin-bottom: var(--space-3);
   }
 
   .aggregate-list {
-    gap: 8px;
+    gap: var(--gap-sm);
   }
 
   /* Each ranking item - compact horizontal layout on mobile */
   .aggregate-item {
     flex-direction: row;
     align-items: center;
-    padding: 12px 14px;
-    gap: 12px;
+    padding: var(--space-3) var(--space-3-5);
+    gap: var(--gap);
     border-radius: var(--radius-md);
   }
 
@@ -220,7 +220,7 @@
     flex: 1;
     font-size: var(--text-sm);
     font-family: var(--font-sans, system-ui);
-    gap: 6px;
+    gap: var(--gap-xs-plus);
   }
 
   .stage2 .rank-model-icon {
@@ -242,22 +242,22 @@
 
   /* Parsed ranking section */
   .parsed-ranking {
-    margin-top: 14px;
-    padding-top: 14px;
+    margin-top: var(--space-3-5);
+    padding-top: var(--space-3-5);
   }
 
   .parsed-ranking ol {
-    padding-left: 20px;
+    padding-left: var(--space-5);
   }
 
   .parsed-ranking li {
     font-size: var(--text-sm);
-    padding: 4px 0;
+    padding: var(--space-1) 0;
   }
 
   /* Winner badge in header */
   .stage2-winner {
-    padding: 6px 10px;
+    padding: var(--space-1-5) var(--space-2-5);
   }
 
   .stage2-winner .winner-model-icon {
@@ -273,26 +273,26 @@
   /* Section titles */
   .stage2-section-title {
     font-size: var(--text-xs-plus);
-    margin: 16px 0 10px;
+    margin: var(--space-4) 0 10px;
   }
 
   /* Status badges */
   .stage2 .complete-badge,
   .stage2 .error-badge {
     font-size: var(--text-2xs);
-    padding: 3px 6px;
+    padding: var(--space-1) var(--space-1-5);
   }
 }
 
 /* Even smaller screens (iPhone SE) */
 @media (width <= 640px) {
   .stage2 {
-    padding: 10px;
+    padding: var(--space-2-5);
   }
 
   /* Ultra compact title for tiny screens - scale icons, keep full text */
   .stage2 .stage-title {
-    gap: 4px;
+    gap: var(--gap-xs);
   }
 
   /* Scale down the title icon */
@@ -308,8 +308,8 @@
 
   /* Winner badge - compact with smaller icons */
   .stage2-winner {
-    padding: 2px 4px;
-    gap: 2px;
+    padding: var(--space-0-5) var(--space-1);
+    gap: var(--gap-2xs);
     border-radius: var(--radius-md);
   }
 
@@ -324,13 +324,13 @@
   }
 
   .stage2 .tab {
-    padding: 5px 8px;
+    padding: var(--space-1) var(--space-2);
     font-size: var(--text-2xs);
   }
 
   .aggregate-item {
-    padding: 10px 12px;
-    gap: 10px;
+    padding: var(--space-2-5) var(--space-3);
+    gap: var(--gap-sm-plus);
   }
 
   .rank-position {

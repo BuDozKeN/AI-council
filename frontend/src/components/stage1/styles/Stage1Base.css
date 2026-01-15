@@ -1,6 +1,6 @@
 .stage {
-  margin: 24px 0;
-  padding: 20px;
+  margin: var(--space-6) 0;
+  padding: var(--space-5);
   background: var(--color-bg-secondary);
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
@@ -37,12 +37,12 @@
 .stage1 .model-grid {
   display: grid;
   grid-template-columns: 1fr; /* Always single column */
-  gap: 12px;
+  gap: var(--gap);
 }
 
 /* Model card styles */
 .stage1 .model-card {
-  padding: 12px;
+  padding: var(--space-3);
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-slate-200);
   background: var(--color-bg-primary);
@@ -83,13 +83,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 
 .stage1 .model-card-header-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--gap-sm-plus);
 }
 
 /* LLM Icon with status badge */
@@ -267,12 +267,12 @@
 .stage1 .model-card-header-right {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--gap-xs);
 }
 
 /* Expand button */
 .stage1 .expand-btn {
-  padding: 4px;
+  padding: var(--space-1);
   border: none;
   background: transparent;
   border-radius: var(--radius-sm);
@@ -298,7 +298,7 @@
   flex: 1;
   overflow-y: auto;
   max-height: 400px;
-  padding-right: 8px;
+  padding-right: var(--space-2);
 }
 
 /* Custom scrollbar for expanded content */
@@ -339,14 +339,14 @@
   width: 6px;
   height: 16px;
   background: var(--color-primary);
-  margin-left: 2px;
+  margin-left: var(--space-0-5);
   animation: blink 1s infinite;
 }
 
 /* Copy footer */
 .stage1 .model-card-footer {
-  margin-top: 12px;
-  padding-top: 12px;
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
   border-top: 1px solid var(--color-border-muted);
   display: flex;
   justify-content: flex-end;
@@ -370,7 +370,7 @@
   font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-sm);
 }
 
 .stage-title.clickable {
@@ -384,7 +384,7 @@
 
 /* Topic label shown in stage headers */
 .stage-topic {
-  margin-left: 8px;
+  margin-left: var(--space-2);
   font-size: var(--text-xs-plus);
   font-weight: 400;
   color: var(--color-text-secondary);
@@ -403,7 +403,7 @@
 
 /* Stage hint - explains what this stage does (mum test) */
 .stage-hint {
-  margin-left: 8px;
+  margin-left: var(--space-2);
   font-size: var(--text-xs-plus);
   font-weight: 400;
   color: var(--color-text-tertiary);
@@ -441,7 +441,7 @@
 
 /* Collapsed state */
 .stage.collapsed {
-  padding: 12px 20px;
+  padding: var(--space-3) var(--space-5);
 }
 
 .stage.collapsed .stage-title {

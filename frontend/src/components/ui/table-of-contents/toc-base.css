@@ -61,8 +61,8 @@
 
 /* TOC Header */
 .stage3-toc-header {
-  padding-bottom: 6px;
-  margin-bottom: 6px;
+  padding-bottom: var(--space-1-5);
+  margin-bottom: var(--space-1-5);
   border-bottom: 1px solid var(--overlay-black-5);
 }
 
@@ -111,7 +111,7 @@
 
 /* Collapsed state */
 .stage3-floating-toc.collapsed {
-  padding: 8px 6px;
+  padding: var(--space-2) var(--space-1-5);
   min-width: auto;
   max-width: 24px;
   cursor: pointer;
@@ -127,7 +127,7 @@
 }
 
 .stage3-floating-toc.collapsed .stage3-toc-link {
-  padding: 4px;
+  padding: var(--space-1);
   justify-content: center;
   pointer-events: none;
 }
@@ -139,14 +139,14 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--gap-2xs);
 }
 
 .stage3-toc-link {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 5px 8px;
+  gap: var(--gap-sm);
+  padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-lg);
   text-decoration: none;
   transition: all 0.15s ease;

@@ -8,7 +8,7 @@
 
 @media (width <= 640px) {
   .omnibar {
-    padding: 10px 16px; /* Match mobile message padding */
+    padding: var(--space-2-5) var(--space-4); /* Match mobile message padding */
     border-radius: var(--radius-xl);
   }
 
@@ -20,7 +20,7 @@
 
   .omni-input {
     font-size: var(--text-base); /* Prevents iOS zoom */
-    padding: 6px 2px;
+    padding: var(--space-1-5) var(--space-0-5);
   }
 
   .omni-send-btn {
@@ -29,16 +29,16 @@
   }
 
   .omni-bottom {
-    padding-top: 6px;
-    margin-top: 6px;
+    padding-top: var(--space-1-5);
+    margin-top: var(--space-1-5);
   }
 
   .omni-left {
-    gap: 4px;
+    gap: var(--gap-xs);
   }
 
   .omni-right {
-    gap: 4px;
+    gap: var(--gap-xs);
   }
 
   /* Mobile capsule styles are in OmniBar.css */
@@ -51,11 +51,11 @@
 
   /* Inline mode toggle - compact to match landing hero */
   .omni-inline-mode-toggle {
-    padding: 2px;
+    padding: var(--space-0-5);
   }
 
   .inline-mode-btn {
-    padding: 5px 10px;
+    padding: var(--space-1) var(--space-2-5);
     font-size: var(--text-xs);
 
     /* No min-height - let it be natural size like landing */
@@ -64,7 +64,7 @@
 
 @media (width <= 640px) {
   .omnibar {
-    padding: 8px 14px; /* Match small phone message padding */
+    padding: var(--space-2) var(--space-3-5); /* Match small phone message padding */
   }
 
   /* Slightly smaller icons on very small screens */
@@ -80,10 +80,10 @@
   }
 
   .omni-left {
-    gap: 2px;
+    gap: var(--gap-2xs);
   }
 
   .omni-right {
-    gap: 2px;
+    gap: var(--gap-2xs);
   }
 }

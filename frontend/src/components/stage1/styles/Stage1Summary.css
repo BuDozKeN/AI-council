@@ -5,15 +5,15 @@
 .stage1 .model-summary-pills {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
+  gap: var(--gap-sm);
+  margin-top: var(--space-3);
 }
 
 .stage1 .model-summary-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-2) var(--space-3-5);
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -95,7 +95,7 @@
   position: relative;
   width: 8px;
   height: 8px;
-  margin-right: 2px;
+  margin-right: var(--space-0-5);
 }
 
 .stage1 .model-summary-pill .pill-thinking-dot {

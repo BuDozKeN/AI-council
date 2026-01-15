@@ -48,8 +48,8 @@
 .token-usage-cache {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding: 2px 6px;
+  gap: var(--gap-2xs);
+  padding: var(--space-0-5) var(--space-1-5);
   background: var(--color-green-100);
   color: var(--color-green-600);
   border-radius: var(--radius-sm);
@@ -63,8 +63,8 @@
 .token-usage-cost {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding: 2px 6px;
+  gap: var(--gap-2xs);
+  padding: var(--space-0-5) var(--space-1-5);
   background: var(--color-bg-secondary);
   color: var(--color-text-secondary);
   border-radius: var(--radius-sm);
@@ -120,7 +120,7 @@
 .token-usage-row-label {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--gap-xs);
   color: var(--color-text-secondary);
 }
 

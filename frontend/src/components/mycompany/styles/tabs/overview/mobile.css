@@ -13,8 +13,8 @@
   /* Hero section: premium card styling on mobile */
   .mc-overview-hero {
     flex-direction: column;
-    gap: 8px;
-    padding: 16px 20px;
+    gap: var(--gap-sm);
+    padding: var(--space-4) var(--space-5);
 
     /* Keep card styling on mobile */
     border-radius: var(--radius-lg);
@@ -29,7 +29,7 @@
 
   .mc-overview-title {
     font-size: 1rem;
-    margin-bottom: 4px;
+    margin-bottom: var(--space-1);
   }
 
   .mc-overview-description {
@@ -42,21 +42,21 @@
   .mc-overview-hero-right {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--gap);
     width: 100%;
-    margin-top: 8px;
+    margin-top: var(--space-2);
   }
 
   .mc-overview-meta {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--gap);
   }
 
   .mc-meta-item {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: var(--gap-2xs);
   }
 
   .mc-meta-label {
@@ -111,12 +111,12 @@
   /* Overview container - scrollable on mobile */
   .mc-overview {
     padding: 0; /* Parent .mc-content provides padding */
-    gap: 12px;
+    gap: var(--gap);
   }
 
   /* Context card - match hero padding for alignment */
   .mc-context-card {
-    padding: 16px 20px;
+    padding: var(--space-4) var(--space-5);
     padding-bottom: 3rem;
     background: var(--color-bg-primary);
     border: 1px solid var(--color-border);
@@ -162,15 +162,15 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    padding: 24px 16px;
-    gap: 8px;
+    padding: var(--space-6) var(--space-4);
+    gap: var(--gap-sm);
   }
 
   .mc-empty-context .mc-empty-icon {
     display: block;
     width: 28px;
     height: 28px;
-    margin-bottom: 4px;
+    margin-bottom: var(--space-1);
   }
 
   .mc-empty-context .mc-empty-title {
@@ -180,7 +180,7 @@
   .mc-empty-context .mc-empty-hint {
     font-size: var(--text-xs-plus);
     max-width: 280px;
-    margin-bottom: 12px;
+    margin-bottom: var(--space-3);
   }
 
   .mc-generate-context-btn {

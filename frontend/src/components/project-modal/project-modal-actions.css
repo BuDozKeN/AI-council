@@ -6,20 +6,20 @@
 .pm-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  padding-top: 20px;
+  gap: var(--gap);
+  padding-top: var(--space-5);
   border-top: 1px solid var(--color-slate-100);
-  margin-top: 24px;
+  margin-top: var(--space-6);
 }
 
 /* Review step actions - 3 buttons */
 .pm-actions-review {
-  gap: 8px;
+  gap: var(--gap-sm);
 }
 
 /* Cancel button */
 .pm-btn-cancel {
-  padding: 10px 20px;
+  padding: var(--space-2-5) var(--space-5);
   border: 1px solid var(--color-slate-200);
   border-radius: var(--radius-md);
   background: var(--color-bg-primary);
@@ -45,8 +45,8 @@
 .pm-btn-create {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 24px;
+  gap: var(--gap-sm);
+  padding: var(--space-2-5) var(--space-6);
   border: none;
   border-radius: var(--radius-md);
   background: var(--color-indigo-500);
@@ -73,8 +73,8 @@
 .pm-btn-back {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 16px;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-2-5) var(--space-4);
   border: 1px solid var(--color-slate-200);
   border-radius: var(--radius-md);
   background: var(--color-bg-primary);
@@ -99,8 +99,8 @@
 .pm-btn-regen {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 16px;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-2-5) var(--space-4);
   border: 1px solid var(--color-violet-200);
   border-radius: var(--radius-md);
   background: var(--color-purple-50);
@@ -140,8 +140,8 @@
 .pm-btn-skip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 16px;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-2-5) var(--space-4);
   border: 1px solid var(--color-slate-200);
   border-radius: var(--radius-md);
   background: transparent;

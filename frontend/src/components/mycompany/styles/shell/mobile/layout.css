@@ -56,16 +56,16 @@
 
   /* Bottom nav becomes more compact in landscape */
   .mc-tabs {
-    padding: 4px 8px;
+    padding: var(--space-1) var(--space-2);
   }
 
   .mc-tab {
     flex: 1 1 0;
     flex-direction: row;
-    gap: 4px;
+    gap: var(--gap-xs);
     min-width: 0;
     min-height: 36px;
-    padding: 4px 6px;
+    padding: var(--space-1) var(--space-1-5);
   }
 
   .mc-tab-label {
@@ -78,18 +78,18 @@
 
   /* More horizontal space for content */
   .mc-content {
-    padding: 12px 24px;
+    padding: var(--space-3) var(--space-6);
     padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
   }
 
   /* Stats in a row in landscape */
   .mc-stats-grid {
     grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
+    gap: var(--gap-sm);
   }
 
   .mc-stat-card {
-    padding: 10px;
+    padding: var(--space-2-5);
   }
 
   .mc-stat-value {
@@ -107,13 +107,13 @@
   .mc-projects-filters {
     flex-flow: row nowrap;
     align-items: center;
-    gap: 6px;
-    padding: 4px 0;
+    gap: var(--gap-xs-plus);
+    padding: var(--space-1) 0;
   }
 
   .mc-filters-left {
     flex-flow: row nowrap;
-    gap: 6px;
+    gap: var(--gap-xs-plus);
     flex: 1;
     min-width: 0;
   }
@@ -136,8 +136,8 @@
   .mc-playbooks-header,
   .mc-decisions-header {
     flex-flow: row nowrap;
-    gap: 8px;
-    padding: 4px 0;
+    gap: var(--gap-sm);
+    padding: var(--space-1) 0;
   }
 
   .mc-team-header > span:first-child,
@@ -148,7 +148,7 @@
 
   /* Playbooks filters - compact */
   .mc-playbooks-header {
-    gap: 6px;
+    gap: var(--gap-xs-plus);
   }
 
   /* Hide header buttons on mobile - FAB is used instead */
@@ -161,8 +161,8 @@
   .mc-decisions-filters {
     display: flex;
     flex-flow: row nowrap;
-    gap: 8px;
-    padding: 4px 0;
+    gap: var(--gap-sm);
+    padding: var(--space-1) 0;
     align-items: stretch;
   }
 
@@ -184,7 +184,7 @@
 /* Extra small mobile - more compact layouts (380px and below) */
 @media (width <= 640px) {
   .mc-decisions-filters {
-    gap: 6px;
+    gap: var(--gap-xs-plus);
   }
 
   .mc-decisions-filters .mc-dept-filter {
@@ -193,24 +193,24 @@
 
   /* Slightly tighter content padding on very small screens */
   .mc-content {
-    padding: 8px 12px;
+    padding: var(--space-2) var(--space-3);
     padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
   }
 
   .mc-overview-hero {
-    padding: 12px 14px;
-    gap: 8px;
+    padding: var(--space-3) var(--space-3-5);
+    gap: var(--gap-sm);
   }
 
   .mc-context-card {
-    padding: 12px 14px;
+    padding: var(--space-3) var(--space-3-5);
   }
 
   /* Sticky toolbar - match smaller card padding for negative margins */
   .mc-context-sticky-toolbar {
     inset-block-start: 0;
     margin-left: -14px;
-    padding-left: 14px;
+    padding-left: var(--space-3-5);
     width: calc(100% + 28px);
   }
 }
@@ -222,7 +222,7 @@
 @media (width <= 640px) {
   .mc-skeleton-stats {
     flex-direction: column;
-    gap: 8px;
+    gap: var(--gap-sm);
   }
 
   .mc-skeleton-stats > div,
@@ -246,9 +246,9 @@
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    padding-bottom: 4px;
+    padding-bottom: var(--space-1);
     margin: 0 -16px;
-    padding-left: 16px;
+    padding-left: var(--space-4);
   }
 
   .mc-projects-stats::-webkit-scrollbar {
@@ -261,20 +261,20 @@
 
   /* Elegant list on mobile */
   .mc-elegant-list {
-    padding: 2px;
+    padding: var(--space-0-5);
     border-radius: var(--radius-lg);
   }
 
   .mc-elegant-row {
     border-radius: var(--radius-default);
-    gap: 10px;
+    gap: var(--gap-sm-plus);
   }
 
   /* Content area more room for text */
   .mc-elegant-content {
     flex-direction: column;
     align-items: flex-start;
-    gap: 6px;
+    gap: var(--gap-xs-plus);
   }
 
   .mc-elegant-title {
@@ -285,14 +285,14 @@
   /* Badges wrap nicely */
   .mc-elegant-badges {
     flex-wrap: wrap;
-    gap: 6px;
+    gap: var(--gap-xs-plus);
   }
 
   /* Department badges: limit visible, show +N */
   .mc-dept-badges {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: var(--gap-xs);
     max-width: 100%;
   }
 
@@ -303,7 +303,7 @@
   .mc-dept-badges-overflow {
     display: inline-flex;
     font-size: var(--text-2xs);
-    padding: 2px 6px;
+    padding: var(--space-0-5) var(--space-1-5);
     background: var(--color-border);
     color: var(--color-text-secondary);
     border-radius: var(--radius-sm);
@@ -311,7 +311,7 @@
 
   /* Empty states: compact on mobile */
   .mc-empty {
-    padding: 32px 16px;
+    padding: var(--space-8) var(--space-4);
   }
 
   .mc-empty-cta {

@@ -22,21 +22,21 @@
   color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 6px;
+  margin-bottom: var(--space-1-5);
 }
 
 .mc-context-header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
-  gap: 12px;
+  margin-bottom: var(--space-2-5);
+  gap: var(--gap);
 }
 
 .mc-context-header-left {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--gap-2xs);
 }
 
 .mc-section-label {
@@ -53,14 +53,14 @@
 .mc-context-header-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-sm);
 }
 
 /* Small button variant for header buttons */
 .mc-btn-clean.small {
-  padding: 6px 12px;
+  padding: var(--space-1-5) var(--space-3);
   font-size: var(--text-xs);
-  gap: 5px;
+  gap: var(--gap-xs);
 }
 
 .mc-btn-clean.small svg {
@@ -75,8 +75,8 @@
 .mc-ai-resync-btn {
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 10px;
+  gap: var(--gap-xs);
+  padding: var(--space-1) var(--space-2-5);
   font-size: var(--text-xs);
   font-weight: 500;
   color: var(--color-text-secondary);
@@ -124,8 +124,8 @@
 .mc-ai-synthesize-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-1-5) var(--space-3-5);
   font-size: var(--text-xs);
   font-weight: 500;
   color: var(--color-violet-600);
@@ -195,9 +195,9 @@
 .mc-ai-synthesize-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-  padding: 10px 14px;
+  gap: var(--gap);
+  margin-bottom: var(--space-3);
+  padding: var(--space-2-5) var(--space-3-5);
   background: var(--color-violet-50);
   border: 1px solid var(--color-purple-200);
   border-radius: var(--radius-lg);
@@ -212,7 +212,7 @@
 .mc-ai-synthesize-info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--gap-xs);
   flex: 1;
 }
 
@@ -227,7 +227,7 @@
   font-style: italic;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--gap-xs);
 }
 
 /* ============================================================================
@@ -235,7 +235,7 @@
    ============================================================================ */
 
 .mc-status-badge {
-  padding: 4px 12px;
+  padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-md);
   font-size: var(--text-xs);
   font-weight: 500;
@@ -243,7 +243,7 @@
 }
 
 .mc-source-badge {
-  padding: 3px 10px;
+  padding: var(--space-1) var(--space-2-5);
   border-radius: var(--radius-sm);
   font-size: var(--text-xs);
   font-weight: 500;

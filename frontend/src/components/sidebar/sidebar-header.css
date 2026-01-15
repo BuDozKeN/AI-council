@@ -3,18 +3,18 @@
    ============================================================================= */
 
 .sidebar-header {
-  padding: 12px;
+  padding: var(--space-3);
   border-bottom: none;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-sm);
   overflow: hidden;
   flex-shrink: 0;
 }
 
 /* Collapsed state - center icon */
 .sidebar--collapsed .sidebar-header {
-  padding: 12px 8px;
+  padding: var(--space-3) var(--space-2);
   justify-content: center;
 }
 
@@ -31,7 +31,7 @@ button.sidebar-new-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
   height: 34px;
   background: transparent;
   border: 1px solid var(--sidebar-border);
@@ -62,7 +62,7 @@ button.sidebar-new-btn:hover {
 .sidebar-new-btn > span {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
 }
 
 /* Pin/Unpin button - subtle */

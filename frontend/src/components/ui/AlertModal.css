@@ -7,7 +7,7 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 8px 0 16px;
+  padding: var(--space-2) 0 16px;
 }
 
 .alert-modal-icon {
@@ -17,7 +17,7 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  margin-bottom: 16px;
+  margin-bottom: var(--space-4);
 }
 
 /* Icon variants */

@@ -20,7 +20,7 @@
   flex-shrink: 1;
 
   /* Custom gap for department content */
-  gap: 6px;
+  gap: var(--gap-xs-plus);
 }
 
 /* Placeholder text styling */
@@ -36,7 +36,7 @@
 .multi-dept-single {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
   font-weight: 500;
   color: var(--color-text-primary);
   overflow: hidden;
@@ -49,7 +49,7 @@
 .multi-dept-count {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
   font-weight: 500;
   color: var(--color-text-primary);
   overflow: hidden;
@@ -62,7 +62,7 @@
 .multi-dept-dots {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--gap-2xs);
   flex-shrink: 0;
 }
 
@@ -111,14 +111,14 @@
 
 /* List container */
 .multi-dept-list {
-  padding: 8px;
+  padding: var(--space-2);
   overflow-y: auto;
   max-height: 264px;
 }
 
 /* Empty state */
 .multi-dept-empty {
-  padding: 12px;
+  padding: var(--space-3);
   text-align: center;
   color: var(--color-text-tertiary);
   font-size: var(--text-xs-plus);
@@ -132,7 +132,7 @@
 .multi-dept-list-mobile {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--gap-sm);
   padding: 0;
 
   /* Ensure touch events reach children */

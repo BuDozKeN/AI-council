@@ -7,15 +7,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  padding: 32px;
+  gap: var(--gap-md);
+  padding: var(--space-8);
 }
 
 .council-loader__icons {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: var(--gap);
 }
 
 .council-loader__icon {
@@ -64,12 +64,12 @@
 
 /* Size variants */
 .council-loader--small {
-  gap: 10px;
-  padding: 16px;
+  gap: var(--gap-sm-plus);
+  padding: var(--space-4);
 }
 
 .council-loader--small .council-loader__icons {
-  gap: 8px;
+  gap: var(--gap-sm);
 }
 
 .council-loader--small .council-loader__text {
@@ -77,12 +77,12 @@
 }
 
 .council-loader--large {
-  gap: 20px;
-  padding: 48px;
+  gap: var(--space-5);
+  padding: var(--space-12);
 }
 
 .council-loader--large .council-loader__icons {
-  gap: 16px;
+  gap: var(--gap-md);
 }
 
 .council-loader--large .council-loader__text {
@@ -134,7 +134,7 @@
 
   /* Simplify the loader container */
   .council-loader {
-    padding: 20px 16px;
+    padding: var(--space-5) var(--space-4);
     gap: 0;
   }
 

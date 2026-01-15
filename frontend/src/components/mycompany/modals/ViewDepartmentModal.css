@@ -12,15 +12,15 @@
 .mc-role-meta {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: var(--gap-sm-plus);
+  margin-bottom: var(--space-4);
 }
 
 .mc-role-dept-badge {
   font-size: 0.6875rem;
   background: var(--color-bg-tertiary);
   color: var(--color-text-secondary);
-  padding: 3px 8px;
+  padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
   font-weight: 500;
 }
@@ -29,7 +29,7 @@
   font-size: 0.75rem;
   background: var(--color-bg-hover);
   color: var(--color-text-secondary);
-  padding: 4px 12px;
+  padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-lg);
 }
 
@@ -41,7 +41,7 @@
 }
 
 .mc-section {
-  margin-top: 16px;
+  margin-top: var(--space-4);
 }
 
 .mc-section h4 {
@@ -54,7 +54,7 @@
 .mc-markdown-raw {
   background: var(--color-code-bg);
   color: var(--color-code-text);
-  padding: 18px;
+  padding: var(--space-4);
   border-radius: var(--radius-lg);
   font-family: var(--font-mono);
   font-size: 0.8125rem;
@@ -70,7 +70,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: var(--space-2-5);
 }
 
 .mc-section-header h4 {
@@ -81,7 +81,7 @@
   font-size: 0.75rem;
   background: var(--color-purple-100);
   color: var(--color-purple-600);
-  padding: 4px 12px;
+  padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-lg);
 }
 
@@ -97,8 +97,8 @@
 .mc-view-context-btn {
   display: block;
   width: calc(100% - 36px);
-  margin: 14px 18px;
-  padding: 12px 16px;
+  margin: var(--space-3-5) var(--space-4);
+  padding: var(--space-3) var(--space-4);
   background: var(--color-sky-50);
   border: 1px solid var(--color-sky-200);
   border-radius: var(--radius-md);
@@ -167,7 +167,7 @@
    ============================================================================ */
 
 .mc-preset-section {
-  padding-bottom: 16px;
+  padding-bottom: var(--space-4);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -175,13 +175,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--gap-md);
 }
 
 .mc-preset-label {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--gap-2xs);
 }
 
 .mc-preset-label-text {
@@ -200,7 +200,7 @@
   .mc-preset-row {
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
+    gap: var(--gap);
   }
 }
 
@@ -210,7 +210,7 @@
 
 /* Settings section (for response style selector) */
 .mc-settings-section {
-  padding: 16px 20px;
+  padding: var(--space-4) var(--space-5);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -218,13 +218,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--gap-md);
 }
 
 .mc-settings-label {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--gap-2xs);
   flex: 1;
   min-width: 0;
 }
@@ -242,7 +242,7 @@
 
 /* Content section wrapper */
 .mc-content-section {
-  padding: 16px 20px;
+  padding: var(--space-4) var(--space-5);
 }
 
 .mc-section-title {
@@ -263,7 +263,7 @@
   font-family: var(--font-mono);
   font-size: 0.875rem;
   line-height: 1.6;
-  padding: 16px;
+  padding: var(--space-4);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-bg-secondary);
@@ -287,7 +287,7 @@
 
 /* Field group wrapper */
 .mc-field-group {
-  margin-bottom: 16px;
+  margin-bottom: var(--space-4);
 }
 
 /* Title inline edit input */
@@ -297,7 +297,7 @@
   color: var(--color-text-primary);
   border: 1px solid var(--color-indigo-500);
   border-radius: var(--radius-default);
-  padding: 4px 8px;
+  padding: var(--space-1) var(--space-2);
   background: var(--color-bg-primary);
   outline: none;
   box-shadow: 0 0 0 3px rgb(var(--color-indigo-500-rgb, 99, 102, 241), 0.1);

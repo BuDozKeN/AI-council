@@ -4,8 +4,8 @@
 .dev-warning-banner {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
+  gap: var(--gap-sm-plus);
+  padding: var(--space-3) var(--space-4);
   background: var(--overlay-amber-10);
   border: 1px solid rgb(var(--color-amber-500-rgb), 0.3);
   border-radius: var(--radius-md);
@@ -23,20 +23,20 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--gap-md);
 }
 
 /* Sub-row variant with top border (for nested options) */
 .dev-toggle-row.bordered {
-  margin-top: 16px;
-  padding-top: 16px;
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
   border-top: 1px solid var(--color-border-secondary);
 }
 
 .dev-toggle-info {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: var(--gap-plus);
   flex: 1;
 }
 
@@ -68,7 +68,7 @@
 .dev-toggle-text {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--gap-2xs);
 }
 
 .dev-toggle-label {
@@ -85,7 +85,7 @@
 .dev-toggle-control {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--gap);
   flex-shrink: 0;
 }
 
@@ -94,7 +94,7 @@
   font-size: var(--text-xs);
   font-weight: 600;
   text-transform: uppercase;
-  padding: 4px 8px;
+  padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
   min-width: 70px;
   text-align: center;
@@ -114,11 +114,11 @@
 .dev-info-box {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
+  gap: var(--gap-sm);
+  padding: var(--space-2-5) var(--space-3-5);
   border-radius: var(--radius-md);
   font-size: var(--text-xs-plus);
-  margin-top: 12px;
+  margin-top: var(--space-3);
 }
 
 .dev-info-box.success {
@@ -142,7 +142,7 @@
   .dev-toggle-row {
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
+    gap: var(--gap);
   }
 
   .dev-toggle-control {
@@ -170,7 +170,7 @@
 
   .dev-warning-banner {
     font-size: var(--text-xs);
-    padding: 10px 12px;
+    padding: var(--space-2-5) var(--space-3);
   }
 }
 
@@ -187,6 +187,6 @@
   }
 
   .dev-toggle-info {
-    gap: 10px;
+    gap: var(--gap-sm-plus);
   }
 }

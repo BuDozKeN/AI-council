@@ -8,10 +8,10 @@
 
 .mc-timeline-answer {
   position: relative;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
   max-height: 400px;
   overflow-y: auto;
-  padding: 16px;
+  padding: var(--space-4);
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -24,7 +24,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--color-text-secondary);
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 
 /* Sticky container for copy button */
@@ -33,8 +33,8 @@
   inset-block-start: 0;
   float: inline-end;
   z-index: var(--z-elevated);
-  margin-left: 12px;
-  margin-bottom: 8px;
+  margin-left: var(--space-3);
+  margin-bottom: var(--space-2);
 }
 
 /* Inside content preview */
@@ -43,7 +43,7 @@
   inset-block-start: 0;
   float: inline-end;
   background: var(--color-bg-primary);
-  padding: 4px;
+  padding: var(--space-1);
   margin: -4px -4px 8px 12px;
   border-radius: var(--radius-md);
 }
@@ -54,7 +54,7 @@
   inset-block-start: 0;
   float: inline-end;
   background: var(--color-bg-secondary);
-  padding: 4px;
+  padding: var(--space-1);
   margin: -4px -4px 8px 12px;
   border-radius: var(--radius-md);
 }
@@ -97,8 +97,8 @@
 
 /* Decision summary in expanded body - NEVER truncate */
 .mc-timeline-body .mc-timeline-summary {
-  margin-bottom: 16px;
-  padding: 14px 16px;
+  margin-bottom: var(--space-4);
+  padding: var(--space-3-5) var(--space-4);
   background: var(--color-amber-50);
   border: 1px solid var(--color-amber-300);
   border-radius: var(--radius-md);
@@ -671,7 +671,7 @@
 
   /* Tighter meta row spacing on mobile */
   .mc-project-meta-row {
-    gap: 6px;
+    gap: var(--gap-xs-plus);
     flex-wrap: wrap;
   }
 }
@@ -681,10 +681,10 @@
 /* Project row: clean card-like appearance */
 .mc-project-row-compact {
   flex-wrap: wrap;
-  padding: 14px 16px;
+  padding: var(--space-3-5) var(--space-4);
   background: var(--color-bg-primary);
   border-radius: var(--radius-lg);
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-xs);
 }
@@ -709,8 +709,8 @@
   flex: 1;
   min-width: 0;
   flex-wrap: wrap;
-  gap: 6px;
-  row-gap: 4px;
+  gap: var(--gap-xs-plus);
+  row-gap: var(--gap-xs);
 }
 
 .mc-project-name {
@@ -718,13 +718,13 @@
   font-size: var(--text-sm-plus);
   font-weight: 500;
   line-height: 1.3;
-  margin-bottom: 2px;
+  margin-bottom: var(--space-0-5);
 }
 
 /* Show max 2 department badges on mobile */
 .mc-project-dept-badge {
   font-size: var(--text-xs);
-  padding: 2px 6px;
+  padding: var(--space-0-5) var(--space-1-5);
 }
 
 .mc-project-dept-badge:nth-child(n + 4) {
@@ -734,7 +734,7 @@
 /* Meta: compact right-aligned */
 .mc-project-meta {
   flex-shrink: 0;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
 }
 
 .mc-project-decision-count {

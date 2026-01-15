@@ -1,8 +1,8 @@
 .mobile-header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
+  gap: var(--gap);
+  padding: var(--space-3) var(--space-4);
   background: var(--color-surface-primary);
   border-bottom: 1px solid var(--color-border);
   min-height: 56px;
@@ -17,8 +17,8 @@
 .mobile-header-back {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-2) var(--space-3);
   background: transparent;
   border: none;
   color: var(--color-text-primary);
@@ -55,7 +55,7 @@
 .mobile-header-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-sm);
   flex-shrink: 0;
 }
 

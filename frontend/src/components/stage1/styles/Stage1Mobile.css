@@ -6,7 +6,7 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: var(--z-elevated);
-  padding: 4px;
+  padding: var(--space-1);
 }
 
 .swipe-handle {
@@ -28,7 +28,7 @@
   }
 
   .stage1 .model-card.expanded .model-card-header {
-    padding-top: 16px; /* Make room for swipe indicator */
+    padding-top: var(--space-4); /* Make room for swipe indicator */
   }
 }
 
@@ -64,25 +64,25 @@
 @media (width <= 640px) {
   /* Stage container */
   .stage.stage1 {
-    padding: 12px;
+    padding: var(--space-3);
   }
 
   /* Model name - readable, not monospace */
   .model-name {
     font-size: var(--text-sm);
     font-family: var(--font-sans, system-ui);
-    margin-bottom: 14px;
+    margin-bottom: var(--space-3-5);
     flex-wrap: wrap;
-    gap: 8px;
+    gap: var(--gap-sm);
   }
 
   /* Model cards - proper padding */
   .stage1 .model-card {
-    padding: 14px;
+    padding: var(--space-3-5);
   }
 
   .stage1 .model-card-header {
-    margin-bottom: 10px;
+    margin-bottom: var(--space-2-5);
   }
 
   .stage1 .model-card-name {
@@ -116,7 +116,7 @@
   .error-badge,
   .stopped-badge {
     font-size: var(--text-2xs);
-    padding: 3px 6px;
+    padding: var(--space-1) var(--space-1-5);
     min-height: auto; /* Badges aren't buttons */
   }
 
@@ -131,24 +131,24 @@
   .stage1 .code-block-wrapper .copy-code-btn {
     min-height: 44px;
     min-width: 44px;
-    padding: 10px;
+    padding: var(--space-2-5);
   }
 
   /* Expand button - proper touch target */
   .stage1 .expand-btn {
     min-height: 44px;
     min-width: 44px;
-    padding: 10px;
+    padding: var(--space-2-5);
   }
 
   /* Summary pills in collapsed view */
   .stage1 .model-summary-pills {
-    gap: 6px;
-    margin-top: 10px;
+    gap: var(--gap-xs-plus);
+    margin-top: var(--space-2-5);
   }
 
   .stage1 .model-summary-pill {
-    padding: 6px 10px;
+    padding: var(--space-1-5) var(--space-2-5);
     font-size: var(--text-xs);
   }
 
@@ -170,11 +170,11 @@
 /* iPhone SE */
 @media (width <= 640px) {
   .stage.stage1 {
-    padding: 10px;
+    padding: var(--space-2-5);
   }
 
   .stage1 .model-card {
-    padding: 12px;
+    padding: var(--space-3);
   }
 
   .stage1 .model-card-name {
@@ -187,7 +187,7 @@
   }
 
   .stage1 .model-summary-pill {
-    padding: 5px 8px;
+    padding: var(--space-1) var(--space-2);
     font-size: var(--text-2xs);
   }
 }

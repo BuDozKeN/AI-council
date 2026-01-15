@@ -17,7 +17,7 @@
   }
 
   .messages-container {
-    padding: 0 16px 16px;
+    padding: 0 var(--space-4) 16px;
   }
 
   /* Remove max-width constraint on tablet - content fills available space */
@@ -26,8 +26,8 @@
   }
 
   .input-form {
-    padding: 8px 16px 12px;
-    gap: 8px;
+    padding: var(--space-2) var(--space-4) 12px;
+    gap: var(--gap-sm);
   }
 
   /* Remove max-width constraint on input form children */
@@ -36,12 +36,12 @@
   }
 
   .input-row {
-    padding: 4px 4px 4px 12px;
+    padding: var(--space-1) var(--space-1) 4px 12px;
   }
 
   .message-input {
     min-height: 24px;
-    padding: 8px 0;
+    padding: var(--space-2) 0;
     font-size: var(--text-base); /* Prevents iOS zoom on focus */
   }
 
@@ -58,11 +58,11 @@
   }
 
   .message-group {
-    margin-bottom: 24px;
+    margin-bottom: var(--space-6);
   }
 
   .user-message .message-content {
-    padding: 16px;
+    padding: var(--space-4);
   }
 
   /* Context bar becomes more compact */
@@ -72,7 +72,7 @@
 
   .context-bar button.context-select-trigger,
   button.context-select-trigger {
-    padding: 5px 8px;
+    padding: var(--space-1) var(--space-2);
     height: 30px;
     font-size: var(--text-xs);
   }
@@ -81,17 +81,17 @@
 /* Small phones */
 @media (width <= 640px) {
   .messages-container {
-    padding: 0 12px 12px;
+    padding: 0 var(--space-3) 12px;
   }
 
   .input-form {
-    padding: 12px;
-    gap: 10px;
+    padding: var(--space-3);
+    gap: var(--gap-sm-plus);
   }
 
   .message-input {
     min-height: 40px;
-    padding: 10px 0;
+    padding: var(--space-2-5) 0;
   }
 
   /* Slightly larger touch targets on small phones */
@@ -102,7 +102,7 @@
   }
 
   .user-message .message-content {
-    padding: 14px 16px;
+    padding: var(--space-3-5) var(--space-4);
   }
 
   .message-label {
@@ -125,7 +125,7 @@
   /* Mode toggle adjustments */
   .mode-toggle-bar {
     flex-wrap: wrap;
-    gap: 8px;
+    gap: var(--gap-sm);
   }
 
   .mode-toggle-compact {
@@ -136,7 +136,7 @@
   .mode-btn-compact {
     flex: 1;
     text-align: center;
-    padding: 10px 12px;
+    padding: var(--space-2-5) var(--space-3);
     min-height: 44px; /* Touch-friendly */
   }
 
@@ -161,7 +161,7 @@
 
   .dept-pill-compact {
     min-height: 36px;
-    padding: 8px 12px;
+    padding: var(--space-2) var(--space-3);
   }
 
   .role-pills-compact {
@@ -172,14 +172,14 @@
 
   .role-pill-compact {
     min-height: 32px;
-    padding: 6px 10px;
+    padding: var(--space-1-5) var(--space-2-5);
   }
 }
 
 /* Very small phones */
 @media (width <= 640px) {
   .input-form {
-    padding: 10px;
+    padding: var(--space-2-5);
   }
 
   .message-input {
@@ -188,14 +188,14 @@
 
   .send-button,
   .stop-button {
-    padding: 8px 14px;
+    padding: var(--space-2) var(--space-3-5);
     font-size: var(--text-xs);
   }
 
   .context-bar button.context-select-trigger,
   button.context-select-trigger {
     font-size: var(--text-xs);
-    padding: 4px 6px;
+    padding: var(--space-1) var(--space-1-5);
   }
 }
 
@@ -205,14 +205,14 @@
 
 .mode-toggle-bar.mobile {
   flex-direction: column;
-  gap: 10px;
+  gap: var(--gap-sm-plus);
   align-items: stretch;
 }
 
 /* Multi-select selectors on mobile */
 .mode-toggle-bar.mobile .mode-toggle-selectors {
   width: 100%;
-  gap: 8px;
+  gap: var(--gap-sm);
 }
 
 .mode-toggle-bar.mobile .mode-toggle-select {
@@ -223,7 +223,7 @@
 
 .mobile-selectors {
   display: flex;
-  gap: 8px;
+  gap: var(--gap-sm);
   flex-wrap: wrap;
 }
 
@@ -273,7 +273,7 @@ button.mobile-role-select {
 
   /* Context bar styling for new conversations */
   .context-bar {
-    padding: 8px 12px;
+    padding: var(--space-2) var(--space-3);
     border-radius: var(--radius-lg);
   }
 }

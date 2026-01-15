@@ -12,8 +12,8 @@
   position: sticky;
   inset-block-start: 0;
   float: inline-end;
-  margin-left: 8px;
-  margin-bottom: 8px;
+  margin-left: var(--space-2);
+  margin-bottom: var(--space-2);
   width: 28px;
   height: 28px;
   display: flex;

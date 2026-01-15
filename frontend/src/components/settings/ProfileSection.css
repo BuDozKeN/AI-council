@@ -11,13 +11,13 @@
 .language-select-value {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--gap-sm-plus);
 }
 
 .language-flag {
   width: 18px;
   height: 12px;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   flex-shrink: 0;
 
   /* Slight shadow for depth on white backgrounds */
@@ -27,7 +27,7 @@
 .language-select-option {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--gap-sm-plus);
 }
 
 .language-name {
@@ -42,7 +42,7 @@
   }
 
   .language-select-option {
-    gap: 10px;
+    gap: var(--gap-sm-plus);
   }
 }
 
@@ -54,7 +54,7 @@
   }
 
   .language-select-option {
-    gap: 8px;
+    gap: var(--gap-sm);
   }
 
   .language-name {

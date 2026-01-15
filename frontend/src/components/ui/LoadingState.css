@@ -10,8 +10,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 32px;
+  gap: var(--gap);
+  padding: var(--space-8);
   min-height: 120px;
 }
 

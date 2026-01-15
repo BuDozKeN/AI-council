@@ -11,11 +11,11 @@
 .input-row {
   display: flex;
   align-items: flex-end;
-  gap: 8px;
+  gap: var(--gap-sm);
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-2xl); /* More rounded, pill-like */
-  padding: 4px 4px 4px 16px;
+  padding: var(--space-1) var(--space-1) 4px 16px;
   box-shadow: var(--shadow-md);
   transition:
     border-color 0.15s ease,
@@ -43,13 +43,13 @@
 .context-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--gap);
   flex-wrap: wrap;
 }
 
 /* Unified select styling */
 .context-select {
-  padding: 8px 12px;
+  padding: var(--space-2) var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-full);
   background: var(--color-bg-primary);
@@ -206,8 +206,8 @@ button.role-select-trigger:focus {
 .context-pill {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-2) var(--space-3-5);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-full);
   background: var(--color-bg-tertiary);
@@ -251,13 +251,13 @@ button.role-select-trigger:focus {
 .selector-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 24px;
+  gap: var(--gap-lg);
 }
 
 .selector-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--gap);
 }
 
 .selector-item label {
@@ -267,7 +267,7 @@ button.role-select-trigger:focus {
 }
 
 .selector-item select {
-  padding: 10px 14px;
+  padding: var(--space-2-5) var(--space-3-5);
   border: 1px solid var(--color-border-dark);
   border-radius: var(--radius-md);
   background: var(--color-bg-primary);
@@ -300,7 +300,7 @@ button.role-select-trigger:focus {
 .message-input {
   width: 100%;
   min-width: 0;
-  padding: 10px 36px 10px 0; /* No left padding (handled by input-row), space for image btn */
+  padding: var(--space-2-5) var(--space-8) var(--space-2-5) 0; /* No left padding (handled by input-row), space for image btn */
   background: transparent; /* Borderless - inherits from input-row */
   border: none;
   color: var(--color-text-primary);
@@ -345,7 +345,7 @@ button.role-select-trigger:focus {
 .input-actions {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--gap-2xs);
   flex-shrink: 0;
 }
 
@@ -441,5 +441,5 @@ button.role-select-trigger:focus {
   width: 10px;
   height: 10px;
   background: var(--color-text-inverse);
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
 }

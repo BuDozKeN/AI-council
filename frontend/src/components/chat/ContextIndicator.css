@@ -13,8 +13,8 @@
 .context-indicator-question {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 4px; /* Gap between question and pills since parent is block now */
+  gap: var(--gap-xs-plus);
+  margin-bottom: var(--space-1); /* Gap between question and pills since parent is block now */
 }
 
 .context-question-icon {
@@ -36,7 +36,7 @@
 .context-indicator-pills {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--gap-xs);
   flex-wrap: wrap;
 }
 
@@ -51,8 +51,8 @@
 .context-indicator-item {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 2px 6px;
+  gap: var(--gap-xs);
+  padding: var(--space-0-5) var(--space-1-5);
   border-radius: var(--radius-full);
   font-size: var(--text-2xs);
   font-weight: 500;

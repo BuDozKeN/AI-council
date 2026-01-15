@@ -9,15 +9,15 @@
 
 .mc-playbooks-filters {
   display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: var(--gap);
+  margin-bottom: var(--space-5);
   flex-wrap: wrap;
 }
 
 /* Note: .mc-search-input is in overview.css */
 
 .mc-filter-select {
-  padding: 10px 14px;
+  padding: var(--space-2-5) var(--space-3-5);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   font-size: 0.875rem;
@@ -33,12 +33,12 @@
 
 .mc-empty-filter {
   text-align: center;
-  padding: 40px 20px;
+  padding: var(--space-10) var(--space-5);
   color: var(--color-text-secondary);
 }
 
 .mc-empty-filter p {
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
 }
 
 /* ============================================================================
@@ -46,7 +46,7 @@
    ============================================================================ */
 
 .mc-playbook-group {
-  margin-bottom: 24px;
+  margin-bottom: var(--space-6);
 }
 
 .mc-group-title {
@@ -65,14 +65,14 @@
 .mc-playbook-list {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--gap-sm);
 }
 
 .mc-playbook-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 16px;
+  padding: var(--space-3-5) var(--space-4);
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -92,14 +92,14 @@
 .mc-playbook-info {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
   flex: 1;
 }
 
 .mc-playbook-header {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--gap-sm-plus);
 }
 
 .mc-playbook-title {
@@ -124,14 +124,14 @@
 .mc-playbook-badges {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-sm);
 }
 
 .mc-playbook-version {
   font-size: 0.75rem;
   color: var(--color-text-tertiary);
   background: var(--color-border);
-  padding: 2px 8px;
+  padding: var(--space-0-5) var(--space-2);
   border-radius: var(--radius-md);
 }
 
@@ -142,7 +142,7 @@
 .mc-playbook-content {
   background: var(--color-code-bg);
   color: var(--color-border);
-  padding: 18px;
+  padding: var(--space-4);
   border-radius: var(--radius-lg);
   font-family: var(--font-mono);
   font-size: 0.8125rem;
@@ -160,8 +160,8 @@
 .mc-playbook-meta {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: var(--gap);
+  margin-bottom: var(--space-4);
 }
 
 .mc-doc-type {
@@ -169,7 +169,7 @@
   font-weight: 600;
   background: var(--color-orange-500);
   color: var(--color-text-inverse);
-  padding: 4px 10px;
+  padding: var(--space-1) var(--space-2-5);
   border-radius: var(--radius-md);
 }
 
@@ -186,8 +186,8 @@
 .mc-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 16px;
+  gap: var(--gap-xs-plus);
+  margin-bottom: var(--space-4);
 }
 
 /* =============================================================================
@@ -205,7 +205,7 @@
 
 /* Playbook group headers */
 .mc-playbook-group {
-  margin-bottom: 20px;
+  margin-bottom: var(--space-5);
 }
 
 .mc-group-title {
@@ -213,8 +213,8 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--color-text-tertiary);
-  margin-bottom: 10px;
-  padding: 0 4px;
+  margin-bottom: var(--space-2-5);
+  padding: 0 var(--space-1);
 }
 
 .mc-group-count {
@@ -225,13 +225,13 @@
 /* Playbook rows: simplified cards */
 .mc-elegant-row {
   flex-wrap: wrap;
-  padding: 14px 16px;
+  padding: var(--space-3-5) var(--space-4);
   background: var(--color-bg-primary);
   border-radius: var(--radius-lg);
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-xs);
-  row-gap: 8px;
+  row-gap: var(--gap-sm);
 }
 
 /* Hide action buttons on mobile - tap opens detail */
@@ -279,14 +279,14 @@
   opacity: 1;
   background: transparent;
   padding: 0;
-  gap: 12px;
+  gap: var(--gap);
   z-index: var(--z-elevated);
 }
 
 /* Playbooks action buttons on mobile - tiny subtle text */
 .mc-playbooks .mc-elegant-row.mobile-active .mc-text-btn {
   font-size: var(--text-xs);
-  padding: 4px 6px;
+  padding: var(--space-1) var(--space-1-5);
   background: transparent;
   border: none;
   font-weight: 500;
@@ -313,7 +313,7 @@
 /* Activity source button styling on mobile */
 .mc-activity .mc-text-btn.source {
   font-size: var(--text-xs);
-  padding: 6px 10px;
+  padding: var(--space-1-5) var(--space-2-5);
   background: var(--color-blue-50);
   border-radius: var(--radius-md);
   color: var(--color-blue-600);
@@ -327,7 +327,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
 }
 
 /* Title: full width, truncated */
@@ -346,14 +346,14 @@
 .mc-elegant-badges {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
   align-items: center;
 }
 
 /* Department badges: smaller */
 .mc-elegant-dept {
   font-size: var(--text-xs);
-  padding: 2px 6px;
+  padding: var(--space-0-5) var(--space-1-5);
   border-radius: var(--radius-sm);
 }
 
@@ -365,7 +365,7 @@
 /* Type badge: subtle */
 .mc-elegant-badge {
   font-size: var(--text-2xs);
-  padding: 2px 6px;
+  padding: var(--space-0-5) var(--space-1-5);
 }
 
 /* Hide type dot on mobile - badge is enough */

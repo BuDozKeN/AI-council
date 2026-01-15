@@ -91,7 +91,7 @@
 
   /* Header takes full width with New Chat button */
   .sidebar .sidebar-header {
-    padding: 12px 16px;
+    padding: var(--space-3) var(--space-4);
     flex-shrink: 0;
   }
 
@@ -102,7 +102,7 @@
   /* Footer - always visible at bottom on mobile */
   .sidebar .sidebar-footer {
     flex-shrink: 0;
-    padding: 12px 16px;
+    padding: var(--space-3) var(--space-4);
     padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     background: var(--sidebar-bg);
     border-top: 1px solid var(--sidebar-border);
@@ -112,14 +112,14 @@
   .sidebar .sidebar-footer-btn,
   .sidebar .sign-out-btn {
     min-height: 44px;
-    padding: 10px 12px;
+    padding: var(--space-2-5) var(--space-3);
   }
 
   /* Make all footer action buttons touch-friendly */
   .sidebar .sidebar-footer .company-btn,
   .sidebar .sidebar-footer .settings-btn {
     min-height: 44px;
-    padding: 10px 12px;
+    padding: var(--space-2-5) var(--space-3);
   }
 }
 
@@ -134,7 +134,7 @@
 
   /* SwipeableRow container - compact spacing */
   .sidebar .swipeable-row-container {
-    margin: 1px 8px;
+    margin: var(--space-px) var(--space-2);
     border-radius: var(--radius-md);
   }
 
@@ -143,9 +143,9 @@
     display: flex;
     align-items: center;
     width: 100%;
-    padding: 8px 12px;
+    padding: var(--space-2) var(--space-3);
     min-height: 44px;
-    gap: 8px;
+    gap: var(--gap-sm);
     background: var(--sidebar-bg);
     border-radius: var(--radius-md);
     -webkit-touch-callout: none;
@@ -170,7 +170,7 @@
      ========================================================================== */
 
   .conversation-item {
-    padding: 10px 12px;
+    padding: var(--space-2-5) var(--space-3);
     margin: 0;
     flex-wrap: nowrap;
     -webkit-touch-callout: none;
@@ -200,7 +200,7 @@
   .sidebar .conversation-item.starred .title-star,
   .conversation-item-swipeable.starred .title-star {
     display: inline-flex;
-    margin-left: 4px;
+    margin-left: var(--space-1);
   }
 
   /* Make bulk action bar touch-friendly on mobile */
@@ -218,14 +218,14 @@
   /* Filter row - better spacing on mobile
      Note: Touch-friendly trigger sizes are handled by select.css compact variant */
   .sidebar-filter {
-    padding: 8px 16px;
-    gap: 8px;
+    padding: var(--space-2) var(--space-4);
+    gap: var(--gap-sm);
   }
 
   /* Make search input touch-friendly */
   .search-input {
     min-height: 44px;
-    padding: 12px 36px 12px 40px;
+    padding: var(--space-3) var(--space-8) var(--space-3) var(--space-10);
     font-size: var(--text-base); /* Prevents iOS zoom on focus */
     border-radius: var(--radius-lg);
   }
@@ -247,20 +247,20 @@
 
   /* More padding around search on mobile */
   .sidebar-search {
-    padding: 12px 16px;
+    padding: var(--space-3) var(--space-4);
   }
 
   /* Make load more button touch-friendly */
   .load-more-btn {
     min-height: 44px;
-    padding: 12px 16px;
+    padding: var(--space-3) var(--space-4);
   }
 
   /* Make group headers touch-friendly */
   .group-header {
     min-height: 44px;
-    padding: 10px 12px;
-    margin: 12px 8px 6px;
+    padding: var(--space-2-5) var(--space-3);
+    margin: var(--space-3) var(--space-2) var(--space-1-5);
   }
 
   .group-name {
@@ -269,7 +269,7 @@
 
   .group-count {
     font-size: var(--text-xs);
-    padding: 3px 8px;
+    padding: var(--space-1) var(--space-2);
   }
 
   /* Firefox scrollbar support */

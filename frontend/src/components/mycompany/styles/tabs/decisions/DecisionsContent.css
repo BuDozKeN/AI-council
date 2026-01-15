@@ -6,14 +6,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: var(--gap);
+  margin-bottom: var(--space-4);
 }
 
 .mc-meta-left {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--gap-sm-plus);
   flex-wrap: wrap;
 }
 
@@ -23,7 +23,7 @@
   color: var(--color-emerald-700);
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--gap-xs);
 }
 
 .mc-promoted-info .icon {
@@ -41,7 +41,7 @@
   font-weight: 500;
   background: var(--color-emerald-100);
   color: var(--color-emerald-700);
-  padding: 4px 10px;
+  padding: var(--space-1) var(--space-2-5);
   border-radius: var(--radius-default);
 }
 
@@ -69,8 +69,8 @@
   background: var(--color-sky-50);
   border: 1px solid var(--color-sky-200);
   border-radius: var(--radius-lg);
-  padding: 14px 18px;
-  margin-bottom: 16px;
+  padding: var(--space-3-5) var(--space-4);
+  margin-bottom: var(--space-4);
 }
 
 .mc-decision-question-label {
@@ -80,7 +80,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--color-sky-700);
-  margin-bottom: 6px;
+  margin-bottom: var(--space-1-5);
 }
 
 .mc-decision-question-text {
@@ -99,7 +99,7 @@
   position: relative;
   background: var(--color-bg-secondary);
   color: var(--color-text-primary);
-  padding: 20px 24px;
+  padding: var(--space-5) var(--space-6);
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   max-height: 450px;
@@ -127,8 +127,8 @@
   transition: all 0.15s ease;
   box-shadow: var(--shadow-xs);
   z-index: var(--z-elevated);
-  margin-left: 12px;
-  margin-bottom: 8px;
+  margin-left: var(--space-3);
+  margin-bottom: var(--space-2);
 }
 
 .mc-content-copy-btn:hover {
@@ -196,7 +196,7 @@
 
 .mc-decision-content code {
   background: var(--color-bg-hover);
-  padding: 2px 6px;
+  padding: var(--space-0-5) var(--space-1-5);
   border-radius: var(--radius-sm);
   font-family: var(--font-mono);
   font-size: 0.875em;
@@ -206,7 +206,7 @@
 .mc-decision-content pre {
   background: var(--color-code-bg);
   color: var(--color-code-text);
-  padding: 14px 16px;
+  padding: var(--space-3-5) var(--space-4);
   border-radius: var(--radius-md);
   overflow-x: auto;
   margin: 1em 0;
@@ -234,9 +234,9 @@
 .mc-decision-source-link {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 20px;
-  padding: 10px 14px;
+  gap: var(--gap-xs-plus);
+  margin-top: var(--space-5);
+  padding: var(--space-2-5) var(--space-3-5);
   background: var(--color-sky-50);
   border: 1px solid var(--color-sky-200);
   border-radius: var(--radius-md);
@@ -262,8 +262,8 @@
 .mc-project-link-btn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 12px;
+  gap: var(--gap-xs);
+  padding: var(--space-1) var(--space-3);
   background: var(--color-blue-100);
   border: 1px solid var(--color-blue-300);
   border-radius: var(--radius-md);

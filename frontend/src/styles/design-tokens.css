@@ -17,13 +17,18 @@
 
 :root {
   /* ============================================================================
-     SPACING SCALE (4px base unit)
+     SPACING SCALE (4px base unit with half-steps for fine control)
      Use: padding, margin, gap
      ============================================================================ */
   --space-0: 0;
+  --space-px: 1px; /* 1px - hairline */
+  --space-0-5: 0.125rem; /* 2px - micro spacing */
   --space-1: 0.25rem; /* 4px */
+  --space-1-5: 0.375rem; /* 6px - common UI gap */
   --space-2: 0.5rem; /* 8px */
+  --space-2-5: 0.625rem; /* 10px */
   --space-3: 0.75rem; /* 12px */
+  --space-3-5: 0.875rem; /* 14px */
   --space-4: 1rem; /* 16px */
   --space-5: 1.25rem; /* 20px */
   --space-6: 1.5rem; /* 24px */
@@ -49,9 +54,13 @@
   --content-padding-lg: var(--space-6); /* 24px */
 
   /* Gap between elements */
+  --gap-2xs: var(--space-0-5); /* 2px - micro spacing */
   --gap-xs: var(--space-1); /* 4px - tight spacing */
+  --gap-xs-plus: var(--space-1-5); /* 6px - common UI gap */
   --gap-sm: var(--space-2); /* 8px - compact spacing */
+  --gap-sm-plus: var(--space-2-5); /* 10px */
   --gap: var(--space-3); /* 12px - default spacing */
+  --gap-plus: var(--space-3-5); /* 14px */
   --gap-md: var(--space-4); /* 16px - comfortable spacing */
   --gap-lg: var(--space-6); /* 24px - section spacing */
   --gap-xl: var(--space-8); /* 32px - major section spacing */
@@ -148,69 +157,21 @@
   /* Z-INDEX SCALE: Defined in tailwind.css (canonical source) */
 
   /* ============================================================================
-     LIGHT THEME COLORS (Default - Notion/Figma inspired)
+     COLORS - Single Source of Truth: tailwind.css
+
+     ALL color tokens are defined in tailwind.css to prevent conflicts.
+     This includes:
+     - --color-bg-* (backgrounds)
+     - --color-text-* (text)
+     - --color-border-* (borders)
+     - --color-primary, --color-accent (brand)
+     - --color-success, --color-warning, --color-error, --color-info (semantic)
+     - --color-focus (accessibility)
+     - Tag & Department colors
+     - Overlay colors (--overlay-*)
+
+     DO NOT add color definitions here - edit tailwind.css instead.
      ============================================================================ */
-
-  /* --- Background colors --- */
-  --color-bg-base: #fff; /* Main background */
-  --color-bg-subtle: #fafafa; /* Sidebar, secondary areas */
-  --color-bg-muted: #f5f5f5; /* Cards, elevated surfaces */
-  --color-bg-emphasis: #ebebeb; /* Hover states, active */
-  --color-bg-canvas: #f9fafb; /* Page canvas */
-
-  /* --- Text colors --- */
-  --color-text-default: #37352f; /* Notion's signature dark brown-black */
-  --color-text-muted: #6b6b6b; /* Secondary text */
-  --color-text-subtle: #9b9b9b; /* Tertiary, placeholders */
-  --color-text-disabled: #c7c7c7; /* Disabled state */
-  --color-text-inverse: #fff; /* On dark backgrounds */
-
-  /* --- Border colors --- */
-  --color-border-default: #e8e8e8; /* Default borders */
-  --color-border-muted: #f0f0f0; /* Subtle dividers */
-  --color-border-emphasis: #d4d4d4; /* Emphasized borders */
-
-  /* --- Primary (Brand) --- */
-
-  /* NOTE: --color-primary is defined in tailwind.css as indigo (#6366f1) */
-
-  /* These are kept for legacy compatibility but tailwind.css takes precedence */
-  --color-primary-subtle: #eef2ff; /* Indigo-50 for subtle backgrounds */
-
-  /* --- Accent - DEPRECATED: Use tailwind.css --color-accent (indigo) instead --- */
-
-  /* Accent colors are now defined in tailwind.css as the brand indigo (#6366f1) */
-
-  /* Legacy red/coral accent removed to prevent conflicts */
-
-  /* --- Success --- */
-  --color-success: #0f7b6c; /* Notion teal */
-  --color-success-hover: #0d6b5e;
-  --color-success-subtle: #e6f4f1;
-  --color-success-text: #fff;
-
-  /* --- Warning --- */
-  --color-warning: #cb912f; /* Notion yellow/gold */
-  --color-warning-hover: #b8821a;
-  --color-warning-subtle: #fbf3db;
-  --color-warning-text: #3f3f3f;
-
-  /* --- Error --- */
-  --color-error: #e03e3e; /* Notion red */
-  --color-error-hover: #c93636;
-  --color-error-subtle: #fbe4e4;
-  --color-error-text: #fff;
-
-  /* --- Info --- */
-  --color-info: #337ea9; /* Notion blue variant */
-  --color-info-hover: #2b6d93;
-  --color-info-subtle: #ddebf1;
-
-  /* --- Focus (Accessibility) - Iris/Indigo for high visibility --- */
-  --color-focus: #6366f1;
-  --color-focus-rgb: 99, 102, 241; /* For rgba() usage */
-
-  /* Tag & Department colors: Defined in tailwind.css (canonical source) */
 
   /* ============================================================================
      ANIMATION & TRANSITIONS - Spring-like Premium Motion
@@ -266,53 +227,11 @@
 
 /* ============================================================================
    DARK THEME
+   Note: Dark mode colors are defined in tailwind.css (single source of truth)
+   Only shadows are overridden here for dark mode
    ============================================================================ */
 .dark,
 [data-theme='dark'] {
-  /* --- Background colors --- */
-  --color-bg-base: #191919; /* Notion dark background */
-  --color-bg-subtle: #202020;
-  --color-bg-muted: #2f2f2f;
-  --color-bg-emphasis: #373737;
-  --color-bg-canvas: #121212;
-
-  /* --- Text colors --- */
-  --color-text-default: #ffffffcf; /* Notion's dark mode text */
-  --color-text-muted: #ffffff80;
-  --color-text-subtle: #ffffff52;
-  --color-text-disabled: #fff3;
-  --color-text-inverse: #191919;
-
-  /* --- Border colors --- */
-  --color-border-default: #ffffff14;
-  --color-border-muted: #ffffff0a;
-  --color-border-emphasis: #ffffff24;
-
-  /* --- Primary (Brand) --- */
-
-  /* NOTE: --color-primary is defined in tailwind.css as indigo (#6366f1) */
-  --color-primary-subtle: #312e81; /* Indigo-900 for dark mode subtle */
-
-  /* --- Accent - inherits from tailwind.css (indigo) --- */
-
-  /* Dark mode accent variants handled by tailwind.css */
-
-  /* --- Success --- */
-  --color-success: #4dab9a;
-  --color-success-subtle: #1f3733;
-
-  /* --- Warning --- */
-  --color-warning: #e9a94b;
-  --color-warning-subtle: #3d3222;
-
-  /* --- Error --- */
-  --color-error: #ff6b6b;
-  --color-error-subtle: #4a2c2c;
-
-  /* --- Info --- */
-  --color-info: #6cb6d9;
-  --color-info-subtle: #253743;
-
   /* --- Shadows (premium layered for dark mode) --- */
   --shadow-sm: 0 2px 4px rgb(0 0 0 / 40%), 0 1px 2px rgb(0 0 0 / 30%), 0 0 1px rgb(0 0 0 / 20%);
   --shadow-md:

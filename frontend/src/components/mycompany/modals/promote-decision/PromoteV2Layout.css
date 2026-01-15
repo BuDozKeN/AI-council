@@ -20,8 +20,8 @@
 .mc-promote-layout-v2 {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 20px 24px;
+  gap: var(--gap);
+  padding: var(--space-5) var(--space-6);
 }
 
 /* Title row - full width at top */
@@ -39,7 +39,7 @@
     'type-row      type-row' auto
     'source-link   .' auto
     / 260px 1fr;
-  gap: 6px 20px;
+  gap: var(--gap-xs-plus) 20px;
   align-items: start;
 }
 
@@ -47,7 +47,7 @@
 .mc-type-row {
   grid-area: type-row;
   display: flex;
-  gap: 20px;
+  gap: var(--space-5);
   position: relative;
 }
 
@@ -61,7 +61,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: var(--gap-sm);
 }
 
 .mc-grid-area-dept-select {
@@ -74,12 +74,12 @@
 
 .mc-grid-area-type-label {
   grid-area: type-label;
-  margin-top: 8px;
+  margin-top: var(--space-2);
 }
 
 .mc-grid-area-decision-label {
   grid-area: decision-label;
-  margin-top: 8px;
+  margin-top: var(--space-2);
 }
 
 /* Type cards column - determines the row height */
@@ -88,7 +88,7 @@
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--gap-sm);
 }
 
 /* Decision content - absolutely positioned to match type-cards height */
@@ -101,29 +101,29 @@
 
 .mc-grid-area-source-link {
   grid-area: source-link;
-  margin-top: 4px;
+  margin-top: var(--space-1);
 }
 
 /* Project select wrapper inside type-cards area */
 .mc-project-select-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-top: 2px;
+  gap: var(--gap-xs-plus);
+  margin-top: var(--space-0-5);
 }
 
 /* Type cards - vertical selection */
 .mc-type-cards {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
 }
 
 .mc-type-card {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
+  gap: var(--gap-sm-plus);
+  padding: var(--space-2) var(--space-3);
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -190,7 +190,7 @@
 .mc-type-card-text {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--gap-2xs);
 }
 
 .mc-type-card-label {
@@ -244,7 +244,7 @@
 /* Style the trigger to match .mc-input-unified (MultiDepartmentSelect uses .multi-dept-trigger) */
 .mc-grid-area-dept-select .multi-dept-trigger {
   width: 100%;
-  padding: 10px 14px;
+  padding: var(--space-2-5) var(--space-3-5);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
@@ -288,7 +288,7 @@
 /* Project select in modal - match department dropdown styling */
 .mc-project-select-wrapper .project-select-trigger {
   width: 100%;
-  padding: 10px 14px;
+  padding: var(--space-2-5) var(--space-3-5);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   font-size: var(--text-sm);

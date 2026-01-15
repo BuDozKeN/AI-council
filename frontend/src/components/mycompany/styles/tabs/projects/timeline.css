@@ -15,7 +15,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 24px;
+  padding: var(--space-10) var(--space-6);
   text-align: center;
 }
 
@@ -44,8 +44,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 40px 20px;
-  gap: 12px;
+  padding: var(--space-10) var(--space-5);
+  gap: var(--gap);
 }
 
 .mc-decisions-loading span {
@@ -64,7 +64,7 @@
 
 .mc-timeline-item {
   display: flex;
-  gap: 16px;
+  gap: var(--gap-md);
   padding: 0;
 }
 
@@ -82,19 +82,19 @@
   background: var(--color-violet-600);
   border-radius: 50%;
   flex-shrink: 0;
-  margin-top: 14px;
+  margin-top: var(--space-3-5);
 }
 
 .mc-timeline-line {
   width: 2px;
   flex: 1;
   background: var(--color-border);
-  margin-top: 4px;
+  margin-top: var(--space-1);
 }
 
 .mc-timeline-content {
   flex: 1;
-  padding-bottom: 24px;
+  padding-bottom: var(--space-6);
   min-width: 0;
 }
 
@@ -105,8 +105,8 @@
 .mc-timeline-header {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 12px 14px;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-3) var(--space-3-5);
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -118,14 +118,14 @@
 .mc-timeline-title-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--gap-sm-plus);
   width: 100%;
 }
 
 .mc-timeline-title-badges {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
   flex-shrink: 0;
   margin-left: auto;
 }
@@ -133,7 +133,7 @@
 .mc-timeline-iteration-badge {
   font-size: var(--text-2xs);
   font-weight: 600;
-  padding: 2px 6px;
+  padding: var(--space-0-5) var(--space-1-5);
   border-radius: var(--radius-sm);
   background: var(--color-border);
   color: var(--color-text-secondary);
@@ -143,7 +143,7 @@
 .mc-timeline-dept-badge {
   font-size: var(--text-2xs);
   font-weight: 600;
-  padding: 2px 8px;
+  padding: var(--space-0-5) var(--space-2);
   border-radius: var(--radius-sm);
   border: 1px solid;
   white-space: nowrap;
@@ -193,7 +193,7 @@
    ============================================================================ */
 
 .mc-timeline-body {
-  padding: 16px;
+  padding: var(--space-4);
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
   border-top: none;
@@ -210,8 +210,8 @@
 .mc-timeline-question-box {
   background: var(--color-bg-secondary);
   border-left: 3px solid var(--color-indigo-500);
-  padding: 12px 14px;
-  margin-bottom: 12px;
+  padding: var(--space-3) var(--space-3-5);
+  margin-bottom: var(--space-3);
   border-radius: 0 6px 6px 0;
 }
 
@@ -222,7 +222,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: var(--space-1);
 }
 
 .mc-timeline-question-text {
@@ -242,7 +242,7 @@
 .mc-timeline-council {
   font-size: var(--text-xs);
   font-weight: 500;
-  padding: 2px 8px;
+  padding: var(--space-0-5) var(--space-2);
   background: var(--color-blue-100);
   color: var(--color-blue-700);
   border-radius: var(--radius-sm);
@@ -251,7 +251,7 @@
 .mc-timeline-dept {
   font-size: var(--text-xs);
   font-weight: 500;
-  padding: 2px 8px;
+  padding: var(--space-0-5) var(--space-2);
   background: var(--color-purple-100);
   color: var(--color-violet-600);
   border-radius: var(--radius-sm);
@@ -261,9 +261,9 @@
 .mc-timeline-source-link {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  margin-top: 12px;
-  padding: 6px 12px;
+  gap: var(--gap-xs);
+  margin-top: var(--space-3);
+  padding: var(--space-1-5) var(--space-3);
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-default);
@@ -284,20 +284,20 @@
    ============================================================================ */
 
 .mc-timeline-group {
-  margin-bottom: 16px;
+  margin-bottom: var(--space-4);
 }
 
 .mc-timeline-group.linked {
   background: var(--color-sky-50);
   border-left: 3px solid var(--color-blue-500);
   border-radius: 0 8px 8px 0;
-  padding: 12px 12px 12px 16px;
+  padding: var(--space-3) var(--space-3) 12px 16px;
   margin-left: -4px;
 }
 
 /* Items in a linked group */
 .mc-timeline-item.in-group {
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 
 .mc-timeline-item.in-group:last-child {
@@ -315,8 +315,8 @@
    ============================================================================ */
 
 .mc-timeline-summary {
-  margin-bottom: 16px;
-  padding: 14px 16px;
+  margin-bottom: var(--space-4);
+  padding: var(--space-3-5) var(--space-4);
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -348,19 +348,19 @@
 
 .mc-timeline-summary .markdown-viewer ul,
 .mc-timeline-summary .markdown-viewer ol {
-  margin: 8px 0;
-  padding-left: 20px;
+  margin: var(--space-2) 0;
+  padding-left: var(--space-5);
 }
 
 .mc-timeline-summary .markdown-viewer li {
-  margin-bottom: 4px;
+  margin-bottom: var(--space-1);
 }
 
 .mc-timeline-summary-loading {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
+  gap: var(--gap-sm-plus);
+  padding: var(--space-3-5) var(--space-4);
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -370,8 +370,8 @@
 
 /* Legacy context summary */
 .mc-timeline-context {
-  margin-bottom: 16px;
-  padding: 12px 14px;
+  margin-bottom: var(--space-4);
+  padding: var(--space-3) var(--space-3-5);
   background: var(--color-bg-secondary);
   border-left: 3px solid var(--color-blue-500);
   border-radius: var(--radius-sm);

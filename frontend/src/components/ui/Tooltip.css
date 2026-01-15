@@ -4,7 +4,7 @@
 
 .tooltip-content {
   z-index: var(--z-modal-dropdown);
-  padding: 6px 10px;
+  padding: var(--space-1-5) var(--space-2-5);
   background: var(--color-text-primary);
   color: var(--color-bg-primary);
   font-size: var(--text-xs);

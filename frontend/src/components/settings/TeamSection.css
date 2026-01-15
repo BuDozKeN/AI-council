@@ -4,23 +4,23 @@
 .add-member-form {
   background: var(--color-bg-secondary);
   border-radius: var(--radius-md);
-  padding: 16px;
-  margin-bottom: 16px;
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--gap);
 }
 
 .form-row {
   display: flex;
-  gap: 8px;
+  gap: var(--gap-sm);
   flex-wrap: wrap;
 }
 
 .form-row .form-input {
   flex: 1;
   min-width: 200px;
-  padding: 8px 12px;
+  padding: var(--space-2) var(--space-3);
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-sm);
   font-size: var(--text-sm);
@@ -30,7 +30,7 @@
 
 .form-row .form-select {
   width: 120px;
-  padding: 8px 12px;
+  padding: var(--space-2) var(--space-3);
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-sm);
   font-size: var(--text-sm);
@@ -41,7 +41,7 @@
 .form-error {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
   color: var(--color-danger);
   font-size: var(--text-xs-plus);
 }
@@ -97,8 +97,8 @@
 .member-row-compact .member-role-badge {
   font-size: var(--text-xs);
   font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 9999px;
+  padding: var(--space-0-5) var(--space-2);
+  border-radius: var(--radius-full);
   background: var(--color-bg-secondary);
   margin-left: auto;
 }
@@ -106,14 +106,14 @@
 .member-row-compact .member-actions {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--gap-2xs);
   margin-left: var(--space-2);
 }
 
 .member-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--gap-xs);
 }
 
 .icon-btn {
@@ -154,15 +154,15 @@
 .usage-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 12px;
+  gap: var(--gap);
 }
 
 .usage-stat {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 16px;
+  gap: var(--gap-xs);
+  padding: var(--space-4);
   background: var(--color-bg-secondary);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border-subtle);
@@ -184,7 +184,7 @@
 .add-member-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
 }
 
 .add-member-btn .add-member-text {

@@ -4,12 +4,12 @@
     width: 96%;
     max-width: none;
     max-height: 95vh;
-    margin: 10px;
+    margin: var(--space-2-5);
     border-radius: var(--radius-lg);
   }
 
   .modal-header {
-    padding: 14px 16px;
+    padding: var(--space-3-5) var(--space-4);
   }
 
   .modal-header h2 {
@@ -17,12 +17,12 @@
   }
 
   .modal-body {
-    padding: 14px 16px;
+    padding: var(--space-3-5) var(--space-4);
   }
 
   .form-row {
     flex-direction: column;
-    gap: 12px;
+    gap: var(--gap);
   }
 
   .form-group-half {
@@ -31,7 +31,7 @@
   }
 
   .modal-footer {
-    padding: 14px 16px;
+    padding: var(--space-3-5) var(--space-4);
     flex-wrap: wrap;
   }
 
@@ -45,17 +45,17 @@
 /* Mobile breakpoint - AppModal handles overlay, these are content-specific */
 @media (width <= 640px) {
   .modal-body {
-    padding: 12px 16px;
+    padding: var(--space-3) var(--space-4);
   }
 
   .form-group {
-    margin-bottom: 10px;
+    margin-bottom: var(--space-2-5);
   }
 
   .form-group input,
   .form-group select,
   .form-group textarea {
-    padding: 12px;
+    padding: var(--space-3);
     font-size: var(--text-base); /* Prevents iOS zoom on focus */
   }
 
@@ -64,8 +64,8 @@
   }
 
   .context-info {
-    padding: 10px;
-    margin-bottom: 10px;
+    padding: var(--space-2-5);
+    margin-bottom: var(--space-2-5);
   }
 
   .context-text {
@@ -74,7 +74,7 @@
 
   .cancel-btn,
   .save-btn {
-    padding: 12px 16px;
+    padding: var(--space-3) var(--space-4);
     font-size: 0.95rem;
   }
 
@@ -103,12 +103,12 @@
 
   /* Project preview form mobile */
   .project-preview-form {
-    padding: 12px;
+    padding: var(--space-3);
   }
 
   .project-preview-actions {
     flex-direction: column;
-    gap: 8px;
+    gap: var(--gap-sm);
   }
 
   .project-cancel-btn,

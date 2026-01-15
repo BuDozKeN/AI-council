@@ -8,7 +8,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 48px 24px;
+  padding: var(--space-12) var(--space-6);
   text-align: center;
   min-height: 200px;
 }
@@ -21,7 +21,7 @@
   justify-content: center;
   background: var(--color-success-light);
   border-radius: 50%;
-  margin-bottom: 20px;
+  margin-bottom: var(--space-5);
   animation: success-ring-pulse 0.8s ease-out;
 }
 
