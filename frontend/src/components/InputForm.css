@@ -20,7 +20,8 @@
 .input-form::before {
   content: '';
   position: absolute;
-  inset-block-start: -40px;
+  top: -40px;
+  left: 0;
   right: 0;
   height: 40px;
   background: linear-gradient(to bottom, transparent 0%, var(--color-bg-primary) 100%);

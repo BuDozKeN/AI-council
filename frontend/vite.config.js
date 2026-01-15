@@ -195,45 +195,101 @@ export default defineConfig(({ mode }) => ({
           return 'assets/[name].[hash].[ext]';
         },
 
-        manualChunks: {
-          // Core React runtime - rarely changes, cache well
-          'vendor-react': ['react', 'react-dom'],
-          // Router - needed early, cache separately
-          'vendor-router': ['react-router-dom'],
-          // Animation library - large, cache separately
-          'vendor-motion': ['framer-motion'],
-          // Markdown rendering - only needed when viewing messages
-          'vendor-markdown': ['react-markdown', 'remark-gfm', 'rehype-slug'],
-          // i18n - internationalization, loaded on every page
-          'vendor-i18n': [
-            'i18next',
-            'react-i18next',
-            'i18next-browser-languagedetector',
-          ],
-          // Command palette - large component, lazy loadable
-          'vendor-cmdk': ['cmdk'],
-          // Radix UI components - used throughout, cache together
-          'vendor-radix': [
-            '@radix-ui/react-dialog',
-            '@radix-ui/react-select',
-            '@radix-ui/react-popover',
-            '@radix-ui/react-accordion',
-            '@radix-ui/react-slot',
-            '@radix-ui/react-visually-hidden',
-            '@radix-ui/react-dropdown-menu',
-            '@radix-ui/react-switch',
-            '@radix-ui/react-tooltip',
-          ],
-          // Monitoring/analytics
-          'vendor-monitoring': ['@sentry/react', 'web-vitals'],
-          // Supabase client - auth/database, changes rarely
-          'vendor-supabase': ['@supabase/supabase-js'],
-          // TanStack Query - data fetching/caching layer
-          'vendor-query': [
-            '@tanstack/react-query',
-            '@tanstack/query-async-storage-persister',
-            '@tanstack/react-query-persist-client',
-          ],
+        manualChunks(id) {
+          // MyCompany tab CSS splitting - lazy-load tab-specific CSS
+          // This reduces initial MyCompany bundle by ~100KB
+          if (id.includes('/tabs/usage/') || id.includes('UsageTab')) {
+            return 'usage-tab';
+          }
+          if (id.includes('/tabs/llm-hub/') || id.includes('LLMHubTab')) {
+            return 'llm-hub-tab';
+          }
+          if (id.includes('/tabs/projects/') || id.includes('ProjectsTab')) {
+            return 'projects-tab';
+          }
+          if (id.includes('/tabs/decisions/') || id.includes('DecisionsTab')) {
+            return 'decisions-tab';
+          }
+          if (id.includes('/tabs/activity/') || id.includes('ActivityTab')) {
+            return 'activity-tab';
+          }
+          if (id.includes('/tabs/playbooks/') || id.includes('PlaybooksTab')) {
+            return 'playbooks-tab';
+          }
+          if (id.includes('/tabs/team/') || id.includes('TeamTab')) {
+            return 'team-tab';
+          }
+          if (id.includes('/tabs/overview/') || id.includes('OverviewTab')) {
+            return 'overview-tab';
+          }
+
+          // Deliberation stage CSS splitting - lazy-load stage-specific CSS
+          // This reduces initial ChatInterface bundle by ~69KB
+          if (id.includes('/stage1/') || id.includes('Stage1')) {
+            return 'stage1';
+          }
+          if (id.includes('/stage2/') || id.includes('Stage2')) {
+            return 'stage2';
+          }
+          if (id.includes('/stage3/') || id.includes('Stage3')) {
+            return 'stage3';
+          }
+
+          // Vendor chunk splitting
+          if (id.includes('node_modules')) {
+            // Core React runtime - rarely changes, cache well
+            if (id.includes('react') && !id.includes('react-markdown') && !id.includes('react-i18next') && !id.includes('react-router')) {
+              return 'vendor-react';
+            }
+            // Router - needed early, cache separately
+            if (id.includes('react-router-dom')) {
+              return 'vendor-router';
+            }
+            // Animation library - large, cache separately
+            if (id.includes('framer-motion')) {
+              return 'vendor-motion';
+            }
+            // Markdown rendering - only needed when viewing messages
+            if (
+              id.includes('react-markdown') ||
+              id.includes('remark-gfm') ||
+              id.includes('rehype-slug')
+            ) {
+              return 'vendor-markdown';
+            }
+            // i18n - internationalization, loaded on every page
+            if (
+              id.includes('i18next') ||
+              id.includes('react-i18next') ||
+              id.includes('i18next-browser-languagedetector')
+            ) {
+              return 'vendor-i18n';
+            }
+            // Command palette - large component, lazy loadable
+            if (id.includes('cmdk')) {
+              return 'vendor-cmdk';
+            }
+            // Radix UI components - used throughout, cache together
+            if (id.includes('@radix-ui')) {
+              return 'vendor-radix';
+            }
+            // Monitoring/analytics
+            if (id.includes('@sentry/react') || id.includes('web-vitals')) {
+              return 'vendor-monitoring';
+            }
+            // Supabase client - auth/database, changes rarely
+            if (id.includes('@supabase/supabase-js')) {
+              return 'vendor-supabase';
+            }
+            // TanStack Query - data fetching/caching layer
+            if (
+              id.includes('@tanstack/react-query') ||
+              id.includes('@tanstack/query-async-storage-persister') ||
+              id.includes('@tanstack/react-query-persist-client')
+            ) {
+              return 'vendor-query';
+            }
+          }
         },
       },
     },
