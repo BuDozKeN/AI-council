@@ -1,7 +1,8 @@
 /**
  * Promote Decision Modal - V2 Layout
  *
- * Sidebar + content area layout with type cards.
+ * Full-width title at top + two-column grid below.
+ * Designed for proper geometric alignment.
  */
 
 /* Full-width promote modal */
@@ -15,43 +16,118 @@
   padding: 0;
 }
 
-/* Layout: sidebar left, content right */
+/* Main layout container - vertical stack */
 .mc-promote-layout-v2 {
   display: flex;
-  gap: 24px;
-  padding: 24px;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 24px;
 }
 
-/* Left sidebar with options */
-.mc-promote-sidebar {
-  width: 280px;
+/* Title row - full width at top */
+.mc-promote-title-row {
+  width: 100%;
+}
+
+/* Two-column grid with explicit row alignment */
+.mc-promote-grid {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: auto auto auto auto auto;
+  grid-template-areas:
+    'dept-label    summary-header'
+    'dept-select   summary-content'
+    'type-label    decision-label'
+    'type-row      type-row'
+    'source-link   .';
+  gap: 6px 20px;
+  align-items: start;
+}
+
+/* Type row - left column controls height, right is positioned to match */
+.mc-type-row {
+  grid-area: type-row;
+  display: flex;
+  gap: 20px;
+  position: relative;
+}
+
+/* Grid area assignments */
+.mc-grid-area-dept-label {
+  grid-area: dept-label;
+}
+
+.mc-grid-area-summary-header {
+  grid-area: summary-header;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mc-grid-area-dept-select {
+  grid-area: dept-select;
+}
+
+.mc-grid-area-summary-content {
+  grid-area: summary-content;
+}
+
+.mc-grid-area-type-label {
+  grid-area: type-label;
+  margin-top: 8px;
+}
+
+.mc-grid-area-decision-label {
+  grid-area: decision-label;
+  margin-top: 8px;
+}
+
+/* Type cards column - determines the row height */
+.mc-grid-area-type-cards {
+  width: 260px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
 }
 
-/* Full content area */
-.mc-promote-content-full {
-  flex: 1;
-  min-width: 0;
+/* Decision content - absolutely positioned to match type-cards height */
+.mc-grid-area-decision-content {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 280px; /* 260px type-cards width + 20px gap */
   display: flex;
   flex-direction: column;
-  gap: 16px;
+}
+
+.mc-grid-area-source-link {
+  grid-area: source-link;
+  margin-top: 4px;
+}
+
+/* Project select wrapper inside type-cards area */
+.mc-project-select-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 2px;
 }
 
 /* Type cards - vertical selection */
 .mc-type-cards {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .mc-type-card {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
+  gap: 10px;
+  padding: 8px 12px;
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -164,7 +240,95 @@
   color: var(--color-indigo-500);
 }
 
-/* Department select in modal */
+/* Department select in modal - match input styling */
 .mc-dept-select-modal {
-  min-width: 180px;
+  width: 100%;
+}
+
+/* Style the trigger to match .mc-input-unified (MultiDepartmentSelect uses .multi-dept-trigger) */
+.mc-grid-area-dept-select .multi-dept-trigger {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  background: var(--color-bg-secondary);
+  transition: all 0.15s ease;
+  justify-content: flex-start;
+}
+
+.mc-grid-area-dept-select .multi-dept-trigger:hover:not(:disabled) {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border-dark);
+}
+
+.mc-grid-area-dept-select .multi-dept-trigger[data-state='open'] {
+  background: var(--color-bg-primary);
+  border-color: var(--color-indigo-500);
+  box-shadow: 0 0 0 3px var(--overlay-indigo-10);
+}
+
+/* Dark mode override for department select in modal */
+.dark .mc-grid-area-dept-select .multi-dept-trigger,
+[data-theme='dark'] .mc-grid-area-dept-select .multi-dept-trigger {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .mc-grid-area-dept-select .multi-dept-trigger:hover:not(:disabled),
+[data-theme='dark'] .mc-grid-area-dept-select .multi-dept-trigger:hover:not(:disabled) {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border-dark);
+}
+
+.dark .mc-grid-area-dept-select .multi-dept-trigger[data-state='open'],
+[data-theme='dark'] .mc-grid-area-dept-select .multi-dept-trigger[data-state='open'] {
+  background: var(--color-bg-primary);
+  border-color: var(--color-indigo-400);
+  box-shadow: 0 0 0 3px var(--overlay-indigo-15);
+}
+
+/* Project select in modal - match department dropdown styling */
+.mc-project-select-wrapper .project-select-trigger {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  background: var(--color-bg-secondary);
+  transition: all 0.15s ease;
+  justify-content: flex-start;
+}
+
+.mc-project-select-wrapper .project-select-trigger:hover:not([data-disabled]) {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border-dark);
+}
+
+.mc-project-select-wrapper .project-select-trigger[data-state='open'] {
+  background: var(--color-bg-primary);
+  border-color: var(--color-indigo-500);
+  box-shadow: 0 0 0 3px var(--overlay-indigo-10);
+}
+
+/* Dark mode for project select in modal */
+.dark .mc-project-select-wrapper .project-select-trigger,
+[data-theme='dark'] .mc-project-select-wrapper .project-select-trigger {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .mc-project-select-wrapper .project-select-trigger:hover:not([data-disabled]),
+[data-theme='dark'] .mc-project-select-wrapper .project-select-trigger:hover:not([data-disabled]) {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border-dark);
+}
+
+.dark .mc-project-select-wrapper .project-select-trigger[data-state='open'],
+[data-theme='dark'] .mc-project-select-wrapper .project-select-trigger[data-state='open'] {
+  background: var(--color-bg-primary);
+  border-color: var(--color-indigo-400);
+  box-shadow: 0 0 0 3px var(--overlay-indigo-15);
 }

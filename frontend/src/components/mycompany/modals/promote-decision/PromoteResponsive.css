@@ -13,16 +13,61 @@
     overflow: hidden auto;
     -webkit-overflow-scrolling: touch;
     padding: 16px;
+    gap: 16px;
   }
 
-  .mc-promote-sidebar {
-    width: 100%;
+  .mc-promote-title-row {
     flex-shrink: 0;
   }
 
-  .mc-promote-content-full {
+  /* Reset grid to single column on mobile */
+  .mc-promote-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
     flex: 1 1 0;
     min-height: 0;
+  }
+
+  /* Reset grid areas - let elements flow naturally */
+  .mc-grid-area-dept-label,
+  .mc-grid-area-summary-header,
+  .mc-grid-area-dept-select,
+  .mc-grid-area-summary-content,
+  .mc-grid-area-type-label,
+  .mc-grid-area-decision-label,
+  .mc-grid-area-source-link {
+    grid-area: unset;
+  }
+
+  /* Type row stacks on mobile - reset absolute positioning */
+  .mc-type-row {
+    flex-direction: column;
+    gap: 12px;
+    position: static;
+  }
+
+  .mc-grid-area-type-cards {
+    width: 100%;
+  }
+
+  .mc-grid-area-decision-content {
+    position: static;
+    left: auto;
+    right: auto;
+    top: auto;
+    bottom: auto;
+    min-height: 150px;
+  }
+
+  /* Remove extra margins on mobile */
+  .mc-grid-area-type-label,
+  .mc-grid-area-decision-label {
+    margin-top: 8px;
+  }
+
+  .mc-grid-area-source-link {
+    margin-top: 0;
   }
 
   .mc-promote-content-rendered {

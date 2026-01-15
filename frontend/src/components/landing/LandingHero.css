@@ -371,3 +371,35 @@
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* =============================================================================
+   KEYBOARD SHORTCUT HINT - Helps users discover ⌘K navigation
+   ============================================================================= */
+
+.keyboard-hint {
+  margin-top: 12px;
+  font-size: var(--text-xs);
+  color: var(--color-text-quaternary);
+  text-align: center;
+  animation: fadeIn 0.5s ease-in-out 1s both;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Hide on mobile - keyboard shortcuts less relevant */
+@media (width <= 768px) {
+  .keyboard-hint {
+    display: none;
+  }
+}
+
+.dark .keyboard-hint {
+  color: var(--color-text-quaternary);
+}

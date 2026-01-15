@@ -401,6 +401,31 @@
   }
 }
 
+/* Stage hint - explains what this stage does (mum test) */
+.stage-hint {
+  margin-left: 8px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 40%;
+  cursor: help;
+}
+
+.stage-hint::before {
+  content: '— ';
+  color: var(--color-text-quaternary);
+}
+
+/* Hide hint on mobile - saves space */
+@media (width <= 640px) {
+  .stage-hint {
+    display: none;
+  }
+}
+
 .collapse-arrow {
   font-size: 12px;
   color: var(--color-text-muted);

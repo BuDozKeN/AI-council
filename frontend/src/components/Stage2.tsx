@@ -210,6 +210,12 @@ function Stage2({
       <h3 className="stage-title clickable" onClick={toggleCollapsed}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
         <span className="font-semibold tracking-tight">{t('stages.expertsReview')}</span>
+        {/* Hint for first-time users - shows what this stage does */}
+        {!isCollapsed && (
+          <span className="stage-hint" title={t('stages.stage2Full')}>
+            {t('stages.stage2Hint')}
+          </span>
+        )}
 
         {/* Winner badge - medal emoji with icon, modern clean style */}
         {winnerModel && (

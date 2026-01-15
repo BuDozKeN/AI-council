@@ -39,7 +39,8 @@
   gap: 6px;
 }
 
-.company-btn {
+/* Unified footer button style - icon + text, consistent treatment */
+.footer-btn {
   flex: 1;
   display: inline-flex;
   align-items: center;
@@ -54,45 +55,24 @@
   font-weight: 400;
   cursor: pointer;
   transition: all 0.12s ease;
+  white-space: nowrap;
 }
 
-.company-btn:hover {
+.footer-btn:hover {
   background: var(--sidebar-hover-bg);
   color: var(--sidebar-text-primary);
 }
 
-.settings-btn {
-  flex: 1;
-  padding: 8px 10px;
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-md);
-  color: var(--sidebar-text-secondary);
-  font-size: 12px;
-  font-weight: 400;
-  cursor: pointer;
-  transition: all 0.12s ease;
+.footer-btn svg {
+  flex-shrink: 0;
 }
 
-.settings-btn:hover {
-  background: var(--sidebar-hover-bg);
-  color: var(--sidebar-text-primary);
-}
-
-.sign-out-btn {
-  flex: 1;
-  padding: 8px 10px;
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-md);
+/* Sign out - slightly muted to differentiate from primary actions */
+.footer-btn.sign-out-btn {
   color: var(--sidebar-text-muted);
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.12s ease;
 }
 
-.sign-out-btn:hover {
-  background: var(--sidebar-hover-bg);
+.footer-btn.sign-out-btn:hover {
   color: var(--sidebar-text-primary);
 }
 
