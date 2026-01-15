@@ -1,0 +1,576 @@
+/* ContextChip - Desktop popover styles */
+
+/* Extracted from ContextChip.css lines 64-636 */
+/* =============================================================================
+   DESKTOP POPOVER - Uses same dropdown pattern as mobile
+   ============================================================================= */
+
+.context-popover-desktop {
+  width: 360px;
+  height: 480px; /* Fixed height prevents repositioning when dropdowns open */
+  padding: 0;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 24px var(--overlay-black-10);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Wrapper for entire desktop content - scrollable with padding */
+.context-desktop-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Fixed footer - Apply button always visible */
+.context-desktop-footer {
+  padding: 12px 14px;
+  background: var(--color-bg-primary);
+  border-block-start: 1px solid var(--color-border-light);
+  flex-shrink: 0;
+}
+
+/* Desktop field (label + content) */
+.context-desktop-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.context-desktop-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Desktop select trigger */
+.context-desktop-select {
+  height: 34px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  padding: 0 10px;
+}
+
+.context-desktop-select:hover {
+  border-color: var(--color-border-dark);
+}
+
+.context-desktop-select:focus {
+  border-color: var(--color-brand-primary);
+  box-shadow: 0 0 0 2px var(--overlay-blue-10);
+}
+
+.context-desktop-select-icon {
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+  margin-inline-end: 6px;
+}
+
+/* Multi-select chips container */
+.context-desktop-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* Generic chip style */
+.context-desktop-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 8px;
+  background: var(--chip-bg, var(--color-bg-secondary));
+  border: 1px solid var(--chip-border, var(--color-border));
+  border-radius: var(--radius-md);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--chip-text, var(--color-text-secondary));
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.context-desktop-chip:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+.context-desktop-chip.selected {
+  background: var(--chip-bg, var(--color-brand-primary-light));
+  border-color: var(--chip-border, var(--color-brand-primary));
+  color: var(--chip-text, var(--color-brand-primary));
+}
+
+.context-desktop-chip svg {
+  flex-shrink: 0;
+}
+
+/* Role chip colors */
+.context-desktop-chip.role.selected {
+  --chip-bg: var(--color-indigo-50);
+  --chip-border: var(--color-indigo-400);
+  --chip-text: var(--color-indigo-600);
+}
+
+/* Playbook chips by type */
+.context-desktop-chip.playbook.framework.selected {
+  --chip-bg: var(--overlay-purple-10);
+  --chip-border: var(--color-violet-400);
+  --chip-text: var(--color-purple-600);
+}
+
+.context-desktop-chip.playbook.sop.selected {
+  --chip-bg: var(--overlay-amber-10);
+  --chip-border: var(--color-amber-500);
+  --chip-text: var(--color-amber-600);
+}
+
+.context-desktop-chip.playbook.policy.selected {
+  --chip-bg: var(--overlay-blue-10);
+  --chip-border: var(--color-blue-500);
+  --chip-text: var(--color-blue-600);
+}
+
+/* Truncate long chip text */
+.chip-truncate {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* More button toggle for playbooks */
+.context-desktop-more-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 10px;
+  background: transparent;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.context-desktop-more-btn:hover {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-secondary);
+}
+
+.context-desktop-more-btn.expanded {
+  background: var(--color-bg-secondary);
+  border-style: solid;
+  border-color: var(--color-brand-primary);
+  color: var(--color-text-primary);
+}
+
+.context-desktop-more-btn span:first-of-type {
+  flex: 1;
+  text-align: start;
+}
+
+.context-desktop-more-chevron {
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.context-desktop-more-chevron.rotated {
+  transform: rotate(90deg);
+}
+
+/* Playbooks grouped section */
+.context-desktop-playbooks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-inline-start: 4px;
+  animation: slideInSection 0.15s ease-out;
+}
+
+@keyframes slideInSection {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.context-desktop-pb-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.context-desktop-pb-type {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.context-desktop-pb-type svg {
+  opacity: 0.7;
+}
+
+.context-desktop-pb-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+/* Desktop apply button - in fixed footer */
+.context-desktop-apply-btn {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  background: var(--color-brand-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-inverse);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.context-desktop-apply-btn:hover {
+  background: var(--color-brand-primary-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+/* Old popover styles - keep for backward compatibility */
+.context-popover {
+  width: 340px;
+  padding: 0;
+  max-height: 70vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sections */
+.context-section {
+  padding: 10px 14px;
+  border-block-end: 1px solid var(--color-border-light);
+}
+
+.context-section:last-of-type {
+  border-block-end: none;
+}
+
+.context-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 8px;
+}
+
+/* Smart Auto option */
+.context-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  text-align: start;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.context-option:hover {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border-dark);
+}
+
+.context-option.active {
+  background: var(--color-brand-primary-light);
+  border-color: var(--color-brand-primary);
+}
+
+.context-option-radio {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--color-border-dark);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-block-start: 2px;
+}
+
+.context-option.active .context-option-radio {
+  border-color: var(--color-brand-primary);
+}
+
+.context-option-radio-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--color-brand-primary);
+  border-radius: 50%;
+}
+
+.context-option-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.context-option-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-block-end: 2px;
+}
+
+.context-option-label svg {
+  color: var(--color-indigo-500);
+}
+
+.context-option-desc {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.context-option-current {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  margin: 4px 0 0;
+  font-style: italic;
+}
+
+/* Company buttons */
+.context-companies {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.context-company-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  text-align: start;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.context-company-btn:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-brand-primary);
+}
+
+.context-company-btn.active {
+  background: var(--color-brand-primary-light);
+  border-color: var(--color-brand-primary);
+  color: var(--color-brand-primary-hover);
+}
+
+.context-company-btn svg {
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+}
+
+.context-company-btn.active svg {
+  color: var(--color-brand-primary);
+}
+
+.context-company-btn span {
+  flex: 1;
+}
+
+.context-check {
+  width: 16px;
+  height: 16px;
+  color: var(--color-brand-primary);
+  flex-shrink: 0;
+}
+
+/* Presets */
+.context-presets {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.context-preset {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  text-align: start;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.context-preset:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+}
+
+.context-preset svg {
+  color: var(--color-text-tertiary);
+}
+
+/* Advanced section */
+.context-advanced {
+  padding: 0;
+}
+
+.context-advanced-details {
+  border: none;
+}
+
+.context-advanced-summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  list-style: none;
+}
+
+.context-advanced-summary::-webkit-details-marker {
+  display: none;
+}
+
+.context-advanced-summary:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+}
+
+.context-advanced-chevron {
+  transition: transform 0.2s ease;
+}
+
+[open] .context-advanced-chevron {
+  transform: rotate(180deg);
+}
+
+.context-advanced-content {
+  padding: 0 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Field styling */
+.context-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.context-field-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.context-field-label svg {
+  color: var(--color-text-tertiary);
+}
+
+.context-field-select {
+  width: 100%;
+}
+
+.context-field-multi {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.context-multi-select {
+  width: 100%;
+}
+
+/* Apply button */
+.context-apply-btn {
+  display: block;
+  width: calc(100% - 28px);
+  margin: 12px 14px 14px;
+  padding: 10px 16px;
+  background: var(--color-brand-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-inverse);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  position: sticky;
+  inset-block-end: 0;
+  z-index: var(--z-base);
+  box-shadow: var(--shadow-sm);
+}
+
+.context-apply-btn:hover {
+  background: var(--color-brand-primary-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (width <= 640px) {
+  .context-popover {
+    width: calc(100vw - 32px);
+    max-width: 640px;
+  }
+}
+

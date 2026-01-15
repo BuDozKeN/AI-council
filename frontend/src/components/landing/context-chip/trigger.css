@@ -1,0 +1,63 @@
+/* ContextChip - Trigger button styles */
+
+/* Extracted from ContextChip.css lines 1-63 */
+/* Trigger button */
+.context-chip-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--overlay-white-80);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.context-chip-trigger:hover {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-primary);
+}
+
+/* ===== DARK MODE - Trigger ===== */
+.dark .context-chip-trigger {
+  background: rgb(var(--color-slate-800-rgb), 0.8);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .context-chip-trigger:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-primary);
+}
+
+.context-chip-icon {
+  color: var(--color-text-tertiary);
+}
+
+.context-chip-icon.sparkle {
+  color: var(--color-indigo-500);
+}
+
+.context-chip-label {
+  color: var(--color-text-tertiary);
+}
+
+.context-chip-value {
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.context-chip-chevron {
+  color: var(--color-text-tertiary);
+  transition: transform 0.2s ease;
+}
+
+[data-state='open'] .context-chip-chevron {
+  transform: rotate(180deg);
+}

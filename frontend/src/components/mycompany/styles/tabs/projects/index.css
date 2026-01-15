@@ -1,0 +1,7 @@
+/* Projects Tab - Component CSS imports */
+
+@import './layout-stats.css';
+@import './project-list.css';
+@import './project-modal.css';
+@import './timeline.css';
+@import './dark-mode.css';

@@ -1,0 +1,84 @@
+/* =============================================================================
+   DRAG AND DROP
+   ============================================================================= */
+
+/* Drag handle - visible on hover, before the content */
+.drag-handle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 100%;
+  color: var(--sidebar-text-muted);
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  flex-shrink: 0;
+  margin-inline-start: -4px;
+}
+
+.conversation-item:hover .drag-handle {
+  display: flex;
+  opacity: 0.5;
+}
+
+.conversation-item:hover .drag-handle:hover {
+  opacity: 1;
+  color: var(--sidebar-text-primary);
+}
+
+/* Dragging state - tilt effect with transparency for visual feedback */
+.conversation-item.dragging {
+  opacity: 0.7;
+  background: var(--sidebar-hover-bg);
+  cursor: grabbing;
+  transform: rotate(-2deg) scale(1.02);
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-dropdown);
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.conversation-item.dragging .drag-handle {
+  display: flex;
+  opacity: 1;
+  cursor: grabbing;
+}
+
+/* Drop target - highlight the group when dragging over */
+.conversation-group.drop-target {
+  background: var(--overlay-blue-10);
+  border-radius: var(--radius-md);
+  outline: 2px dashed rgb(var(--color-blue-500-rgb), 0.4);
+  outline-offset: -2px;
+}
+
+.conversation-group.drop-target .group-header {
+  background: var(--overlay-blue-15);
+}
+
+/* Dark mode drop target */
+.dark .conversation-group.drop-target {
+  background: var(--overlay-blue-15);
+  outline-color: rgb(var(--color-blue-500-rgb), 0.5);
+}
+
+.dark .conversation-group.drop-target .group-header {
+  background: var(--overlay-blue-20);
+}
+
+/* Dark mode dragging - stronger shadow for visibility */
+.dark .conversation-item.dragging {
+  box-shadow: var(--shadow-xl);
+}
+
+/* Hide drag handle on mobile (use long-press instead) */
+@media (width <= 640px) {
+  .sidebar .drag-handle,
+  .conversation-item .drag-handle {
+    display: none;
+    visibility: hidden;
+  }
+}

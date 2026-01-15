@@ -952,3 +952,31 @@
 .dark .mc-usage-roster-status {
   color: var(--color-emerald-400);
 }
+/* ============================================================================
+   USAGE TAB MOBILE - Ensure proper layout and scrolling
+   ============================================================================ */
+
+@media (width <= 640px) {
+  /* Usage tab layout - ensure it fills content area and scrolls */
+  .mc-usage {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ScrollableContent wrapper must fill remaining space */
+  .mc-usage .mc-usage-scroll.scrollable-content-wrapper {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* Inner scroll container */
+  .mc-usage .scrollable-content-inner {
+    flex: 1;
+    overflow: hidden auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}

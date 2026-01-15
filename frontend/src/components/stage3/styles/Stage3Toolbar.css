@@ -1,0 +1,111 @@
+/* =============================================================================
+   STAGE 3 STICKY TOOLBAR - TOC trigger + copy button together
+   ============================================================================= */
+
+.stage3-sticky-toolbar {
+  position: sticky;
+  inset-block-start: 60px; /* Below any fixed headers */
+  z-index: calc(
+    var(--z-header) + 1
+  ); /* Above floating TOC (z-header) so copy button is clickable */
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 0;
+  margin-block-end: 8px;
+
+  /* No shared background - each child element styles itself independently */
+  background: transparent;
+  pointer-events: none; /* Let clicks pass through to content below */
+}
+
+/* Re-enable pointer events on children */
+.stage3-sticky-toolbar > * {
+  pointer-events: auto;
+}
+
+/* Copy button in toolbar - ghost style, very subtle */
+.stage3-sticky-toolbar .stage3-copy-btn {
+  width: 32px;
+  height: 32px;
+  padding: 6px;
+  box-shadow: none;
+  background: transparent;
+  backdrop-filter: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  color: var(--color-text-tertiary);
+  opacity: 0.4;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  margin-inline-start: auto;
+}
+
+.stage3-sticky-toolbar .stage3-copy-btn:hover {
+  opacity: 1;
+  background: var(--color-bg-hover);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  box-shadow: none;
+}
+
+.stage3-sticky-toolbar .stage3-copy-btn:active {
+  transform: scale(0.95);
+}
+
+.stage3-sticky-toolbar .stage3-copy-btn .copy-btn-icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Mobile toolbar adjustments */
+@media (width <= 640px) {
+  .stage3-sticky-toolbar {
+    inset-block-start: 50px;
+    padding: 6px 0;
+  }
+
+  .stage3-sticky-toolbar .stage3-copy-btn {
+    width: 28px;
+    height: 28px;
+    padding: 5px;
+  }
+
+  .stage3-sticky-toolbar .stage3-copy-btn .copy-btn-icon {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+/* Desktop - show only copy button (mobile TOC trigger hidden via its own rule) */
+@media (width >= 1280px) {
+  .stage3-sticky-toolbar {
+    justify-content: flex-end;
+  }
+}
+
+/* ===== DARK MODE ===== */
+
+/* Dark mode toolbar - transparent, children style themselves */
+.dark .stage3-sticky-toolbar,
+[data-theme='dark'] .stage3-sticky-toolbar {
+  background: transparent;
+}
+
+.dark .stage3-sticky-toolbar .stage3-copy-btn,
+[data-theme='dark'] .stage3-sticky-toolbar .stage3-copy-btn {
+  background: transparent;
+  border-color: transparent;
+  color: var(--color-text-tertiary);
+  opacity: 0.4;
+}
+
+.dark .stage3-sticky-toolbar .stage3-copy-btn:hover,
+[data-theme='dark'] .stage3-sticky-toolbar .stage3-copy-btn:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  opacity: 1;
+}

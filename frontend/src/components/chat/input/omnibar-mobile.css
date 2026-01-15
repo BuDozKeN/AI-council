@@ -1,0 +1,88 @@
+/* ChatInput - Omnibar mobile responsive */
+
+/* Extracted from ChatInput.css lines 1244-end */
+/* =============================================================================
+   OMNIBAR - Mobile Responsive
+   ============================================================================= */
+
+@media (width <= 640px) {
+  .omnibar {
+    padding: 10px 16px; /* Match mobile message padding */
+    border-radius: var(--radius-xl);
+  }
+
+  /* All icons same size on mobile */
+  .omni-icon-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .omni-input {
+    font-size: 16px; /* Prevents iOS zoom */
+    padding: 6px 2px;
+  }
+
+  .omni-send-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .omni-bottom {
+    padding-block-start: 6px;
+    margin-block-start: 6px;
+  }
+
+  .omni-left {
+    gap: 4px;
+  }
+
+  .omni-right {
+    gap: 4px;
+  }
+
+  /* Mobile capsule styles are in OmniBar.css */
+
+  /* Reset button - slightly larger touch target on mobile */
+  .omni-reset-all {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* Inline mode toggle - compact to match landing hero */
+  .omni-inline-mode-toggle {
+    padding: 2px;
+  }
+
+  .inline-mode-btn {
+    padding: 5px 10px;
+    font-size: 11px;
+
+    /* No min-height - let it be natural size like landing */
+  }
+}
+
+@media (width <= 640px) {
+  .omnibar {
+    padding: 8px 14px; /* Match small phone message padding */
+  }
+
+  /* Slightly smaller icons on very small screens */
+  .omni-icon-btn {
+    width: 34px;
+    height: 34px;
+  }
+
+  .omni-send-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+  }
+
+  .omni-left {
+    gap: 2px;
+  }
+
+  .omni-right {
+    gap: 2px;
+  }
+}

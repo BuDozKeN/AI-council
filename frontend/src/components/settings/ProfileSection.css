@@ -1,0 +1,63 @@
+/* Profile Section - Language selector and profile settings */
+
+/* ============================================
+   LANGUAGE SELECTOR - Premium styling with flags
+   ============================================ */
+
+.language-select-trigger {
+  width: 100%;
+}
+
+.language-select-value {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.language-flag {
+  width: 18px;
+  height: 12px;
+  border-radius: 2px;
+  flex-shrink: 0;
+
+  /* Slight shadow for depth on white backgrounds */
+  box-shadow: 0 0 0 1px var(--overlay-black-10);
+}
+
+.language-select-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.language-name {
+  font-weight: 500;
+}
+
+/* Mobile adjustments for language selector */
+@media (width <= 640px) {
+  .language-flag {
+    width: 20px;
+    height: 14px;
+  }
+
+  .language-select-option {
+    gap: 10px;
+  }
+}
+
+/* Very small phones */
+@media (width <= 640px) {
+  .language-flag {
+    width: 18px;
+    height: 12px;
+  }
+
+  .language-select-option {
+    gap: 8px;
+  }
+
+  .language-name {
+    font-size: 13px;
+  }
+}

@@ -21,6 +21,7 @@ import { api } from '../../api';
 import { useAuth } from '../../AuthContext';
 import { logger } from '../../utils/logger';
 import { getShowTokenUsage, setShowTokenUsage } from './tokenUsageSettings';
+import './DeveloperSection.css';
 
 // Mock length options with human-readable labels
 const MOCK_LENGTH_OPTIONS = [

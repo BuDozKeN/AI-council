@@ -1,0 +1,402 @@
+/* Projects Tab - List & Rows */
+
+/* Extracted from projects.css lines 89-487 */
+/* ============================================================================
+   PROJECTS LIST & ROWS
+   ============================================================================ */
+
+.mc-projects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  border: 1px solid var(--color-border);
+  flex: 1;
+  min-height: 0;
+}
+
+/* Compact project row */
+.mc-project-row-compact {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-default);
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.mc-project-row-compact:hover {
+  background: var(--color-bg-hover);
+}
+
+/* Title group: name + badge together */
+.mc-project-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.mc-project-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Project source icon - indicates council vs manual creation */
+.mc-project-source-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.mc-project-source-icon.council {
+  color: var(--color-violet-500);
+}
+
+.mc-project-source-icon.manual {
+  color: var(--color-text-tertiary);
+}
+
+/* Meta group: count + time on the right */
+.mc-project-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* "+X more" badge for extra departments */
+.mc-project-dept-more {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-hover);
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+}
+
+.mc-project-decision-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-amber-700);
+  background: var(--color-amber-100);
+  padding: 2px 6px;
+  border-radius: var(--radius-lg);
+  min-width: 20px;
+  text-align: center;
+}
+
+.mc-project-time {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  min-width: 55px;
+  text-align: end;
+}
+
+/* ============================================================================
+   PROJECT ROW ACTIONS
+   ============================================================================ */
+
+.mc-project-actions {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.mc-project-row-compact:hover .mc-project-actions {
+  display: flex;
+}
+
+.mc-project-row-compact:hover .mc-project-meta {
+  display: none;
+}
+
+.mc-project-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: transparent;
+}
+
+.mc-project-action svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* Complete button - green */
+.mc-project-action.complete {
+  color: var(--color-green-700);
+}
+
+.mc-project-action.complete:hover {
+  background: var(--color-green-100);
+}
+
+/* Archive button - gray/blue */
+.mc-project-action.archive {
+  color: var(--color-text-secondary);
+}
+
+.mc-project-action.archive:hover {
+  background: var(--color-bg-hover);
+}
+
+/* Restore button - green */
+.mc-project-action.restore {
+  color: var(--color-green-700);
+}
+
+.mc-project-action.restore:hover {
+  background: var(--color-green-100);
+}
+
+/* Delete button - red */
+.mc-project-action.delete {
+  color: var(--color-red-600);
+}
+
+.mc-project-action.delete:hover {
+  background: var(--color-red-100);
+}
+
+/* Inline confirm: Yes/No buttons */
+.mc-project-action.confirm-yes {
+  color: var(--color-text-inverse);
+  background: var(--color-red-600);
+  font-weight: 600;
+}
+
+.mc-project-action.confirm-yes:hover {
+  background: var(--color-red-700);
+}
+
+.mc-project-action.confirm-no {
+  color: var(--color-text-secondary);
+  background: var(--color-bg-hover);
+}
+
+.mc-project-action.confirm-no:hover {
+  background: var(--color-border);
+}
+
+/* Fade out animation for projects */
+.mc-project-row-compact.fading {
+  animation: projectFadeOut 0.3s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes projectFadeOut {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+    max-height: 50px;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(20px);
+    max-height: 0;
+    padding-block: 0;
+    margin: 0;
+    overflow: hidden;
+  }
+}
+
+/* ============================================================================
+   LEGACY PROJECT ROW STYLES
+   ============================================================================ */
+
+.mc-project-row {
+  cursor: pointer;
+}
+
+.mc-project-row:hover {
+  background: var(--color-bg-secondary);
+}
+
+/* Project status dot colors */
+.mc-status-dot.active {
+  background: var(--color-blue-500);
+}
+
+.mc-status-dot.completed {
+  background: var(--color-green-500);
+}
+
+.mc-status-dot.archived {
+  background: var(--color-text-tertiary);
+}
+
+/* Project status icon in badge */
+.mc-project-status-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.mc-project-status-icon.active {
+  color: var(--color-blue-700);
+}
+
+.mc-project-status-icon.completed {
+  color: var(--color-green-700);
+}
+
+.mc-project-status-icon.archived {
+  color: var(--color-text-secondary);
+}
+
+/* Department badge for project rows */
+.mc-project-dept-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: var(--color-purple-100);
+  color: var(--color-violet-600);
+  border-radius: var(--radius-full);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Decisions count badge */
+.mc-project-decisions-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: var(--color-amber-100);
+  color: var(--color-amber-700);
+  border-radius: var(--radius-full);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Last accessed timestamp */
+.mc-project-last-accessed {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  margin-inline-start: auto;
+  padding-inline-end: 8px;
+}
+
+/* ============================================================================
+   PROJECT TEXT BUTTON VARIANTS
+   ============================================================================ */
+
+.mc-text-btn.complete {
+  color: var(--color-green-500);
+}
+
+.mc-text-btn.complete:hover {
+  color: var(--color-green-600);
+  background: var(--color-green-100);
+}
+
+.mc-text-btn.reopen {
+  color: var(--color-blue-500);
+}
+
+.mc-text-btn.reopen:hover {
+  color: var(--color-blue-600);
+  background: var(--color-blue-100);
+}
+
+.mc-text-btn.archive {
+  color: var(--color-text-tertiary);
+}
+
+.mc-text-btn.archive:hover {
+  color: var(--color-text-secondary);
+  background: var(--color-bg-hover);
+}
+
+.mc-text-btn.restore {
+  color: var(--color-blue-500);
+}
+
+.mc-text-btn.restore:hover {
+  color: var(--color-blue-600);
+  background: var(--color-blue-100);
+}
+
+/* ============================================================================
+   PROJECT MODAL - Meta & Layout
+   ============================================================================ */
+
+.mc-project-meta-row {
+  display: flex;
+  gap: 12px;
+  margin-block-end: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* Project description */
+.mc-project-description {
+  color: var(--color-text-secondary);
+  margin-block-end: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Source question - what question created this project */
+.mc-source-question {
+  margin-block-end: 16px;
+  padding: 10px 14px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  border-inline-start: 3px solid var(--color-blue-500);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.mc-source-question-label {
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  margin-inline-end: 6px;
+}
+
+.mc-source-question-text {
+  color: var(--color-text-primary);
+  font-style: italic;
+}
+
+/* Timestamps row */
+.mc-project-timestamps {
+  display: inline-flex;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  margin-inline-start: auto;
+}
+
+.mc-timestamp {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+}
+
+.mc-timestamp::before {
+  content: '•';
+  margin-inline-end: 8px;
+  color: var(--color-text-tertiary);
+}
+
+.mc-timestamp:first-child::before {
+  display: none;
+}
+

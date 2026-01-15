@@ -1,0 +1,633 @@
+/* Settings Modal - Layout and shared component styles */
+
+/* Override AppModal body padding for two-column layout */
+.settings-modal-body {
+  padding: 0;
+
+  /* Disable scroll on outer container - inner .settings-panel handles scrolling */
+  overflow: hidden;
+}
+
+/* Remove the header border line for Settings modal - cleaner look */
+.app-modal-content:has(.settings-modal-body) .app-modal-header {
+  border-block-end: none;
+}
+
+.settings-content {
+  display: flex;
+  flex: 1;
+
+  /* Fixed height prevents modal from changing size between tabs */
+  height: 480px;
+  min-height: 480px;
+  overflow: hidden;
+}
+
+/* Sidebar */
+.settings-sidebar {
+  width: 180px;
+  min-width: 180px;
+  background: var(--color-bg-tertiary);
+
+  /* No border - cleaner look */
+  padding: 24px 12px; /* Match panel padding for alignment */
+
+  /* Rounded corners on all sides */
+  border-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-tab {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-block-end: 4px;
+}
+
+.settings-tab:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+.settings-tab.active {
+  background: var(--color-brand-primary);
+  color: var(--color-text-inverse);
+}
+
+.tab-icon {
+  font-size: 16px;
+}
+
+/* Panel */
+.settings-panel {
+  flex: 1;
+  padding: 12px 24px 24px; /* Top padding adjusted so card header aligns with sidebar buttons */
+  overflow-y: auto;
+
+  /* Fixed height to prevent layout shift between tabs */
+  min-height: 400px;
+}
+
+.profile-content,
+.billing-content,
+.team-content,
+.api-content,
+.developer-content,
+.ai-config-content {
+  width: 100%; /* Fill entire panel width */
+}
+
+/* NOTE: .loading-state styles are in ui/LoadingState.css
+   Use the <LoadingState /> component instead of custom loading divs */
+
+/* =============================================================================
+   SETTINGS CARDS - Override shadcn Card styles for Settings context
+   ============================================================================= */
+
+/* Target Card components within settings-panel */
+.settings-panel .settings-card {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  margin-block-end: var(--space-6);
+  overflow: hidden;
+}
+
+/* Override shadcn CardHeader padding for Settings */
+.settings-panel .settings-card > div:first-child {
+  padding: var(--space-5) var(--space-6);
+  background: var(--color-bg-secondary);
+  border-block-end: 1px solid var(--color-border);
+}
+
+/* Card title styling */
+.settings-panel .settings-card h3,
+.settings-panel .settings-card [class*='CardTitle'] {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Card description styling */
+.settings-panel .settings-card [class*='CardDescription'],
+.settings-panel .settings-card p:first-of-type {
+  margin: var(--space-1) 0 0 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+/* Override shadcn CardContent padding for proper form spacing */
+.settings-panel .settings-card > div:last-child {
+  padding: var(--space-6);
+}
+
+/* Legacy card styles (for any non-shadcn cards) */
+.card-header {
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-bg-secondary);
+  border-block-end: 1px solid var(--color-border);
+}
+
+.card-header h3 {
+  margin: 0 0 var(--space-1) 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.card-header p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.card-body {
+  padding: var(--space-5);
+}
+
+/* =============================================================================
+   SETTINGS FORMS - Proper spacing and styling for form elements
+   ============================================================================= */
+
+.form-group {
+  margin-block-end: var(--space-5);
+}
+
+.form-group:last-child {
+  margin-block-end: 0;
+}
+
+.form-group label {
+  display: block;
+  margin-block-end: var(--space-2);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border-dark);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--color-brand-primary);
+  box-shadow: var(--shadow-focus);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.input-disabled {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-tertiary);
+  cursor: not-allowed;
+  opacity: 0.7;
+  border-color: transparent;
+  pointer-events: none;
+  user-select: none;
+}
+
+.input-hint {
+  display: block;
+  margin-block-start: var(--space-2);
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-4);
+  margin-block-start: var(--space-6);
+  padding-block-start: var(--space-5);
+  border-block-start: 1px solid var(--color-border-light);
+}
+
+/* Buttons - uses design system tokens */
+.btn-primary {
+  padding: 10px 20px;
+  background: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--color-primary-text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-outline {
+  padding: 10px 20px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-dark);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-outline:hover:not(:disabled) {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-text-tertiary);
+}
+
+.btn-outline:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.save-message {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.save-message.success {
+  color: var(--color-success);
+}
+
+.save-message.error {
+  color: var(--color-error);
+}
+
+/* Error Banner */
+.error-banner {
+  padding: 12px 16px;
+  background: var(--color-error-light);
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius-md);
+  color: var(--color-error-dark);
+  font-size: 13px;
+  margin-block-end: 20px;
+}
+
+/* Responsive - Tablet */
+@media (width <= 640px) {
+  .settings-modal {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .settings-content {
+    /* Keep horizontal layout with icon sidebar on left */
+    flex-direction: row;
+
+    /* Fixed height to prevent size changes between tabs */
+    height: 480px;
+    min-height: 480px;
+  }
+
+  .settings-sidebar {
+    /* Minimal icon rail */
+    width: auto;
+    min-width: auto;
+    background: transparent;
+    border-inline-end: 1px solid var(--color-border);
+    border-radius: 0;
+    padding: 8px 4px; /* Minimal: 4px each side */
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+    align-self: stretch;
+  }
+
+  /* Mobile tabs - use higher specificity to override desktop styles without !important */
+  .settings-sidebar .settings-tab {
+    /* Minimal: just the icon */
+    width: 18px;
+    height: 18px;
+    min-height: 18px;
+    padding: 0;
+    justify-content: center;
+    margin: 0;
+    border-radius: 0;
+    transition: color 0.12s ease;
+    background: transparent;
+    color: var(--color-text-tertiary);
+    position: relative;
+  }
+
+  .settings-sidebar .settings-tab:hover {
+    color: var(--color-text-secondary);
+    background: transparent;
+  }
+
+  /* Active state */
+  .settings-sidebar .settings-tab.active {
+    background: transparent;
+    color: var(--color-brand-primary);
+  }
+
+  /* Active indicator - left edge */
+  .settings-tab.active::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: -3px;
+    inset-block-start: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 14px;
+    background: var(--color-brand-primary);
+    border-radius: 1px;
+  }
+
+  .settings-tab .tab-icon {
+    font-size: 15px;
+  }
+
+  .settings-tab .tab-label {
+    display: none;
+  }
+
+  .settings-panel {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 16px 20px 24px 16px; /* Top, Right, Bottom, Left - better breathing room */
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y; /* Ensure touch scrolling works with Framer Motion drag */
+  }
+
+  /* Card titles are the HERO - larger than modal title */
+  .settings-panel .settings-card {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    margin-block-end: var(--space-4);
+    box-shadow: none;
+  }
+
+  .settings-panel .settings-card > div:first-child {
+    background: transparent;
+    border-block-end: none;
+    padding: 0 0 var(--space-2) 0;
+  }
+
+  .settings-panel .settings-card > div:last-child {
+    padding: 0;
+  }
+
+  /* Section dividers */
+  .settings-panel .settings-card + .settings-card {
+    border-block-start: 1px solid var(--color-border-light);
+    padding-block-start: var(--space-4);
+    margin-block-start: var(--space-4);
+  }
+
+  /* Make content titles prominent - use double class for higher specificity */
+  .settings-content .settings-panel .settings-card h3,
+  .settings-content .settings-panel .settings-card [class*='CardTitle'] {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  .settings-content .settings-panel .settings-card [class*='CardDescription'] {
+    font-size: 12px;
+    color: var(--color-text-tertiary);
+    margin-block-start: 2px;
+  }
+
+  /* Form groups - better spacing */
+  .settings-panel .form-group {
+    margin-block-end: var(--space-5);
+  }
+
+  .settings-panel .form-group:last-child {
+    margin-block-end: 0;
+  }
+
+  .settings-panel .form-group label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--color-text-muted);
+    margin-block-end: var(--space-2);
+    font-weight: 500;
+  }
+
+  /* Inputs - premium feel */
+  .settings-panel .form-group input,
+  .settings-panel .form-group textarea {
+    font-size: 16px; /* Prevent iOS zoom */
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-lg);
+  }
+
+  /* Inside BottomSheet: fill available space */
+  .bottom-sheet-body:has(.settings-content) {
+    /* Make body a flex container so settings-content can fill it */
+    display: flex;
+    flex-direction: column;
+
+    /* Disable scroll on outer container - inner .settings-panel handles scrolling */
+    overflow: hidden;
+  }
+
+  .bottom-sheet-body .settings-content {
+    /* Fill the body container */
+    flex: 1;
+    min-height: 0; /* Critical: allow shrinking for scroll to work */
+    max-height: 100%; /* Constrain to parent */
+    overflow: hidden;
+  }
+
+  .bottom-sheet-body .settings-sidebar {
+    /* Sidebar must stretch to fill content height in flexbox */
+    align-self: stretch;
+  }
+
+  .bottom-sheet-body .settings-panel {
+    /* Panel scrolls internally for long content */
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0; /* Critical: allow shrinking */
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y; /* Override Framer Motion's pan-x to allow vertical touch scroll */
+    overscroll-behavior: contain; /* Prevent scroll chaining to parent */
+  }
+}
+
+/* Small phones */
+@media (width <= 640px) {
+  .settings-modal {
+    width: 100%;
+    max-width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .settings-content {
+    /* Full height minus header, fixed to prevent tab-switch resize */
+    height: calc(100vh - 60px);
+    min-height: calc(100vh - 60px);
+  }
+
+  .settings-sidebar {
+    width: auto;
+    min-width: auto;
+    padding: 6px 3px; /* Minimal: 3px each side */
+    align-items: center;
+    gap: 12px;
+    border-radius: 0;
+  }
+
+  .settings-tab {
+    width: 16px;
+    height: 16px;
+    min-height: 16px;
+  }
+
+  .settings-tab .tab-icon {
+    font-size: 14px;
+  }
+
+  .settings-tab.active::before {
+    inset-inline-start: -3px;
+    width: 2px;
+    height: 12px;
+  }
+
+  .settings-panel {
+    padding: 16px 16px 20px 14px; /* Top, Right, Bottom, Left - consistent with tablet */
+  }
+
+  /* Inside BottomSheet: fill available space */
+  .bottom-sheet-body:has(.settings-content) {
+    display: flex;
+    flex-direction: column;
+
+    /* Disable scroll on outer container - inner .settings-panel handles scrolling */
+    overflow: hidden;
+  }
+
+  .bottom-sheet-body .settings-content {
+    flex: 1;
+    min-height: 0; /* Critical: allow shrinking for scroll to work */
+    max-height: 100%; /* Constrain to parent */
+    overflow: hidden;
+  }
+
+  .bottom-sheet-body .settings-sidebar {
+    align-self: stretch;
+  }
+
+  .bottom-sheet-body .settings-panel {
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0; /* Critical: allow shrinking */
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y; /* Override Framer Motion's pan-x to allow vertical touch scroll */
+    overscroll-behavior: contain; /* Prevent scroll chaining to parent */
+  }
+
+  .settings-section h3 {
+    font-size: 16px;
+  }
+
+  .setting-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .setting-item input,
+  .setting-item select {
+    width: 100%;
+    font-size: 16px; /* Prevent iOS zoom */
+  }
+}
+
+/* Very small phones */
+@media (width <= 640px) {
+  .settings-sidebar {
+    width: auto;
+    min-width: auto;
+    padding: 4px 2px; /* Minimal: 2px each side */
+    align-items: center;
+    gap: 10px;
+    border-radius: 0;
+  }
+
+  .settings-tab {
+    width: 14px;
+    height: 14px;
+    min-height: 14px;
+  }
+
+  .settings-tab .tab-icon {
+    font-size: 12px;
+  }
+
+  .settings-tab.active::before {
+    inset-inline-start: -3px;
+    width: 2px;
+    height: 10px;
+  }
+
+  .settings-panel {
+    padding: 12px 12px 16px 10px; /* Top, Right, Bottom, Left - maintain breathing room */
+  }
+
+  /* Tighter form spacing on very small screens */
+  .settings-panel .form-group {
+    margin-block-end: var(--space-4);
+  }
+
+  .settings-panel .form-group label {
+    font-size: 10px;
+  }
+
+  .settings-panel .form-group input,
+  .settings-panel .form-group textarea {
+    padding: var(--space-2) var(--space-3);
+    font-size: 15px; /* Slightly smaller but still readable */
+  }
+}

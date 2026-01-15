@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import * as Popover from '@radix-ui/react-popover';
 import { BottomSheet } from '../ui/BottomSheet';
 import { BookOpen, ChevronDown, ScrollText, Layers, FileText } from 'lucide-react';
-import '../Stage3.css';
+import './styles/Stage3Dropdowns.css';
 
 type DocType = 'sop' | 'framework' | 'policy' | '';
 type SaveState = 'idle' | 'saving' | 'promoting' | 'saved' | 'promoted' | 'error';

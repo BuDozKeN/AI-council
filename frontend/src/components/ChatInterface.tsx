@@ -22,6 +22,14 @@ import type {
 import type { MyCompanyTab } from './mycompany/hooks';
 import type { ProjectModalContext, PromoteDecision } from '../hooks/useModalState';
 import './ChatInterface.css';
+import './BackToCompanyButton.css';
+import './ScrollToTopButton.css';
+import './InputForm.css';
+import './chat/ContextIndicator.css';
+import './chat/MessageList.css';
+import './chat/UserMessage.css';
+import './chat/FollowUpBar.css';
+import './chat/input/index.css';
 import './ImageUpload.css';
 
 // Triage result type (compatible with App.tsx)

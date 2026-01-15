@@ -1,0 +1,149 @@
+/* ChatInput - Omnibar dark mode */
+
+/* Extracted from ChatInput.css lines 1098-1243 */
+/* =============================================================================
+   OMNIBAR - Dark Mode
+   ============================================================================= */
+
+.dark .omnibar {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  box-shadow: 0 4px 12px var(--overlay-black-30);
+}
+
+.dark .omnibar:focus-within {
+  border-color: var(--color-slate-500);
+  box-shadow: 0 4px 20px var(--overlay-black-40);
+}
+
+/* Dark mode council mode visual feedback */
+.dark .omnibar.council-mode {
+  border-color: var(--color-indigo-500);
+  box-shadow:
+    0 0 0 1px var(--overlay-indigo-20),
+    0 4px 12px var(--overlay-black-30);
+}
+
+.dark .omnibar.council-mode:focus-within {
+  border-color: var(--color-indigo-400);
+  box-shadow:
+    0 0 0 2px var(--overlay-indigo-30),
+    0 4px 20px var(--overlay-black-40);
+}
+
+/* Dark mode bottom row border */
+.dark .omni-bottom {
+  border-block-start-color: var(--color-border);
+}
+
+.dark .omni-divider {
+  background: var(--color-border);
+}
+
+.dark .omni-input {
+  color: var(--color-text-primary);
+}
+
+.dark .omni-input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.dark .omni-icon-btn {
+  color: var(--color-slate-500);
+  opacity: 0.6;
+}
+
+.dark .omni-icon-btn:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  opacity: 1;
+}
+
+/* Dark mode - very subtle muted colors for selected icons */
+.dark .omni-icon-btn.dept.has-selection {
+  color: var(--color-amber-400);
+  opacity: 0.5;
+}
+
+.dark .omni-icon-btn.dept .omni-icon-badge {
+  background: var(--color-amber-400);
+  opacity: 0.7;
+}
+
+.dark .omni-icon-btn.role.has-selection {
+  color: var(--color-purple-400);
+  opacity: 0.5;
+}
+
+.dark .omni-icon-btn.role .omni-icon-badge {
+  background: var(--color-purple-400);
+  opacity: 0.7;
+}
+
+.dark .omni-icon-btn.playbook.has-selection {
+  color: var(--color-blue-400);
+  opacity: 0.5;
+}
+
+.dark .omni-icon-btn.playbook .omni-icon-badge {
+  background: var(--color-blue-400);
+  opacity: 0.7;
+}
+
+.dark .omni-icon-btn.project.has-selection {
+  color: var(--color-emerald-400);
+  opacity: 0.5;
+}
+
+.dark .omni-icon-btn.project .omni-icon-badge {
+  background: var(--color-emerald-400);
+  opacity: 0.7;
+}
+
+/* Context icons capsule dark mode */
+.dark .context-icons-capsule {
+  background: var(--overlay-white-10);
+  border-color: var(--color-border);
+}
+
+/* Reset all button dark mode */
+.dark .omni-reset-all {
+  color: var(--color-text-tertiary);
+}
+
+.dark .omni-reset-all:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+}
+
+/* Inline mode toggle dark mode */
+.dark .omni-inline-mode-toggle {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .inline-mode-btn {
+  color: var(--color-text-quaternary);
+}
+
+.dark .inline-mode-btn:hover:not(:disabled) {
+  color: var(--color-text-tertiary);
+}
+
+.dark .inline-mode-btn.active {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+  box-shadow: 0 1px 2px var(--overlay-black-20);
+}
+
+.dark .omni-send-btn {
+  background: transparent;
+  color: var(--color-text-tertiary);
+}
+
+.dark .omni-send-btn.active {
+  background: var(--color-brand-primary);
+  color: var(--color-text-inverse);
+}
+
+

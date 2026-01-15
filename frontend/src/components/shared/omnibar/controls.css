@@ -1,0 +1,163 @@
+/* OmniBar - Icon Buttons & Submit */
+
+/* Extracted from OmniBar.css lines 423-582 */
+/* =============================================================================
+   ICON BUTTONS - Context selectors and actions
+   ============================================================================= */
+
+.omni-icon-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.omni-icon-btn:hover:not(:disabled) {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.omni-icon-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Selection badge */
+.omni-icon-badge {
+  position: absolute;
+  inset-block-start: -2px;
+  inset-inline-end: -2px;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 4px;
+  border-radius: var(--radius-full);
+  background: var(--color-slate-600);
+  color: var(--color-text-inverse);
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 14px;
+  text-align: center;
+}
+
+/* Color-coded icons when selected */
+.omni-icon-btn.company.has-selection {
+  color: var(--color-emerald-600);
+}
+
+.omni-icon-btn.company .omni-icon-badge {
+  background: var(--color-emerald-500);
+}
+
+.omni-icon-btn.dept.has-selection {
+  color: var(--color-amber-600);
+}
+
+.omni-icon-btn.dept .omni-icon-badge {
+  background: var(--color-amber-500);
+}
+
+.omni-icon-btn.role.has-selection {
+  color: var(--color-purple-600);
+}
+
+.omni-icon-btn.role .omni-icon-badge {
+  background: var(--color-purple-500);
+}
+
+.omni-icon-btn.playbook.has-selection {
+  color: var(--color-blue-600);
+}
+
+.omni-icon-btn.playbook .omni-icon-badge {
+  background: var(--color-blue-500);
+}
+
+.omni-icon-btn.project.has-selection {
+  color: var(--color-cyan-600);
+}
+
+.omni-icon-btn.project .omni-icon-badge {
+  background: var(--color-cyan-500);
+}
+
+/* Attach button - slightly larger */
+.omni-icon-btn.attach {
+  width: 36px;
+  height: 36px;
+}
+
+/* =============================================================================
+   SUBMIT/STOP BUTTON
+   ============================================================================= */
+
+.omni-bar-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  background: transparent;
+  color: var(--color-text-tertiary);
+}
+
+.omni-bar-submit.active {
+  background: var(--color-indigo-500);
+  color: var(--color-text-inverse);
+  box-shadow: 0 2px 8px var(--overlay-indigo-30);
+}
+
+.omni-bar-submit.active:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: var(--color-indigo-600);
+  box-shadow: 0 4px 12px var(--overlay-indigo-40);
+}
+
+.omni-bar-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.omni-bar-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Stop button variant */
+.omni-bar-stop {
+  background: var(--color-error);
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-sm);
+}
+
+.omni-bar-stop:hover:not(:disabled) {
+  background: var(--color-error-dark);
+  box-shadow: var(--shadow-md);
+}
+
+/* Landing variant - same size as default */
+.omni-bar-landing .omni-bar-submit {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+}
+
+/* Compact variant - smaller submit */
+.omni-bar-compact .omni-bar-submit {
+  width: 28px;
+  height: 28px;
+}
+

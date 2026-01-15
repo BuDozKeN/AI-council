@@ -1,0 +1,140 @@
+/* Stage 2 Base - stage, accordion, title, collapse */
+.stage2 {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+
+  /* Transition for celebration state */
+  transition:
+    box-shadow 0.4s ease-out,
+    border-color 0.3s ease;
+}
+
+/* Stage completion celebration - subtle violet glow effect */
+.stage2.celebrating {
+  border-color: var(--color-violet-500);
+  box-shadow:
+    var(--shadow-sm),
+    0 0 20px 2px var(--overlay-purple-15),
+    0 0 40px 4px var(--overlay-purple-10);
+}
+
+/* Accordion wrapper */
+.stage2-accordion {
+  border: none;
+}
+
+
+/* ===== DARK MODE ===== */
+
+/* ===== DARK MODE ===== */
+
+/* Stage2 uses CSS variables from tailwind.css which are redefined in .dark context */
+
+.dark .stage2-title {
+  color: var(--color-text-primary);
+}
+
+.dark .stage2-section-title {
+  color: var(--color-violet-400);
+}
+
+.dark .stage-description {
+  color: var(--color-text-secondary);
+}
+
+.dark .stage2 .tabs {
+  border-block-end-color: var(--color-border);
+}
+
+.dark .stage2 .tab {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .stage2 .tab:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.dark .stage2 .tab.active {
+  background: var(--color-bg-primary);
+  border-color: var(--stage2-border);
+  color: var(--color-violet-400);
+}
+
+.dark .stage2 .tab-content {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border);
+}
+
+.dark .stage2 .ranking-model {
+  color: var(--color-text-tertiary);
+}
+
+.dark .stage2 .ranking-content {
+  color: var(--color-text-primary);
+}
+
+.dark .aggregate-rankings {
+  background: var(--overlay-purple-10);
+  border-color: var(--overlay-purple-20);
+}
+
+.dark .aggregate-item {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .aggregate-item.clickable:hover {
+  background: var(--overlay-purple-15);
+  border-color: var(--overlay-purple-20);
+}
+
+.dark .aggregate-item.clickable:focus-visible {
+  outline-color: var(--color-violet-400);
+}
+
+.dark .rank-position {
+  color: var(--color-violet-400);
+}
+
+/* Dark mode ranked items */
+.dark .aggregate-item.rank-1 {
+  background: var(--overlay-indigo-15);
+  border-color: var(--color-indigo-500);
+}
+
+.dark .aggregate-item.rank-2 {
+  background: var(--overlay-slate-10);
+  border-color: var(--color-slate-500);
+}
+
+.dark .aggregate-item.rank-3 {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .rank-model {
+  color: var(--color-text-primary);
+}
+
+.dark .rank-score {
+  color: var(--color-success);
+}
+
+.dark .rank-count {
+  color: var(--color-text-tertiary);
+}
+
+.dark .copy-btn-inline {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .copy-btn-inline:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-brand-primary);
+  color: var(--color-brand-primary);
+}

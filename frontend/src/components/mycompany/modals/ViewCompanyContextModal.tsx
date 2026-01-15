@@ -5,6 +5,8 @@
  * Extracted from MyCompany.jsx for better maintainability.
  */
 
+import './ViewCompanyContextModal.css';
+import '../../ui/Modal.css';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from '../../ui/sonner';

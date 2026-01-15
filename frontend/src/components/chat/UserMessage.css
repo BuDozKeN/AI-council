@@ -1,0 +1,97 @@
+/* =============================================================================
+   USER QUESTION STAGE - Styled like Stage 1/2 for consistency
+   Collapsible with "Your Question" title, collapsed by default
+   ============================================================================= */
+
+/* User message wrapper - contains label + card like assistant messages */
+.user-message-wrapper {
+  margin-block-start: 16px;
+}
+
+/* User stage card - single box, no nested containers */
+.stage-user {
+  position: relative;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 12px 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* User message copy button - sticky for long content, subtle but visible */
+.stage-user .user-copy-btn {
+  position: sticky;
+  inset-block-start: 8px;
+  float: inline-end;
+  margin-inline-start: 8px;
+  margin-block-end: 4px;
+  z-index: var(--z-elevated);
+
+  /* Override default hidden state - always subtly visible */
+  opacity: 0.5;
+  pointer-events: auto;
+}
+
+.stage-user .user-copy-btn:hover {
+  opacity: 1;
+}
+
+.stage-user .user-copy-btn.copied {
+  opacity: 1;
+}
+
+/* Collapse row - arrow + inline preview */
+.user-collapse-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.stage-user .collapse-arrow {
+  flex-shrink: 0;
+  margin-block-start: 2px;
+}
+
+/* Inline preview text when collapsed */
+.user-preview-inline {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+/* Expanded content - same box, just more content visible */
+.user-expanded {
+  margin-block-start: 12px;
+  padding-block-start: 12px;
+  border-block-start: 1px solid var(--color-border);
+  cursor: pointer;
+  color: var(--color-text-primary);
+  line-height: 1.6;
+}
+
+/* Dark mode user stage */
+.dark .stage-user {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+/* Dark mode user copy button - subtle visibility */
+.dark .stage-user .user-copy-btn {
+  opacity: 0.4;
+}
+
+.dark .stage-user .user-copy-btn:hover {
+  opacity: 1;
+}
+
+/* Mobile: Position copy button absolute instead of sticky+float */
+@media (width <= 640px) {
+  .stage-user .user-copy-btn {
+    position: absolute;
+    inset-block-start: 8px;
+    inset-inline-end: 8px;
+    float: none;
+    margin: 0;
+  }
+}

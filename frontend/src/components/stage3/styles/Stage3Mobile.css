@@ -1,0 +1,495 @@
+/* =============================================================================
+   MOBILE RESPONSIVE STYLES
+   ============================================================================= */
+
+/* =============================================================================
+   TABLE SCROLL WRAPPER - Isolates table scrolling from page scroll
+   ============================================================================= */
+
+.table-scroll-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 16px 0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+
+  /* Prevent touch events from propagating to parent */
+  overscroll-behavior-x: contain;
+}
+
+.table-scroll-wrapper table {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  width: max-content;
+  min-width: 100%;
+}
+
+/* Show scrollbar hint on mobile */
+@media (width <= 640px) {
+  .table-scroll-wrapper {
+    /* Subtle shadow to indicate scrollable content */
+    background:
+      linear-gradient(to right, var(--color-bg-primary) 30%, transparent),
+      linear-gradient(to right, transparent, var(--color-bg-primary) 70%) 100% 0,
+      linear-gradient(to right, var(--overlay-black-10), transparent),
+      linear-gradient(to right, transparent, var(--overlay-black-10)) 100% 0;
+    background-repeat: no-repeat;
+    background-size:
+      40px 100%,
+      40px 100%,
+      14px 100%,
+      14px 100%;
+    background-attachment: local, local, scroll, scroll;
+  }
+
+  .dark .table-scroll-wrapper {
+    background:
+      linear-gradient(to right, var(--color-bg-secondary) 30%, transparent),
+      linear-gradient(to right, transparent, var(--color-bg-secondary) 70%) 100% 0,
+      linear-gradient(to right, var(--overlay-white-5), transparent),
+      linear-gradient(to right, transparent, var(--overlay-white-5)) 100% 0;
+    background-repeat: no-repeat;
+    background-size:
+      40px 100%,
+      40px 100%,
+      14px 100%,
+      14px 100%;
+    background-attachment: local, local, scroll, scroll;
+  }
+}
+
+@media (width <= 640px) {
+  /* Stage3 container padding */
+  .stage3 {
+    padding: 12px;
+  }
+
+  .final-response {
+    padding: 16px;
+
+    /* Remove overflow from container - tables have their own scroll wrapper */
+    overflow-x: visible;
+  }
+
+  /* Typography - readable on mobile */
+  .final-text {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  /* Copy button - proper touch target */
+  .stage3-header-copy,
+  .copy-btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 10px;
+  }
+
+  .copy-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Code blocks - edge to edge for more space */
+  .code-block-wrapper {
+    margin-inline: -16px;
+    border-radius: 0;
+    border-inline-start: none;
+    border-inline-end: none;
+  }
+
+  .code-block-wrapper .copy-code-btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 10px;
+  }
+
+  /* Table cells - prevent wrapping */
+  .stage3-content .table-scroll-wrapper th,
+  .stage3-content .table-scroll-wrapper td {
+    padding: 8px 10px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  /* First column can wrap text for readability */
+  .table-scroll-wrapper td:first-child {
+    white-space: normal;
+    min-width: 100px;
+    max-width: 150px;
+  }
+
+  /* ===========================================
+     SAVE TOOLBAR - Clean mobile/tablet grid layout
+     =========================================== */
+
+  .save-toolbar-unified {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+  }
+
+  /* Options group - flexbox with wrap to keep ALL pills inside the gray container */
+  .save-options-group {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 8px;
+    padding: 12px;
+    background: var(--color-slate-50);
+    border: 1px solid var(--color-slate-200);
+    border-radius: var(--radius-lg);
+  }
+
+  /* Hide dividers on mobile */
+  .save-divider {
+    display: none;
+  }
+
+  /* Department trigger - takes half width, white button inside gray container */
+  .save-dept-trigger {
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
+    min-height: 44px;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 12px;
+    font-size: 13px;
+    background: var(--color-bg-primary);
+    border: none;
+    border-radius: var(--radius-md);
+    text-align: center;
+    box-shadow: 0 1px 2px var(--overlay-black-10);
+
+    /* Mobile touch handling - critical for click events to work */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    pointer-events: auto;
+    position: relative;
+    z-index: var(--z-base);
+  }
+
+  .save-dept-trigger:hover,
+  .save-dept-trigger:focus {
+    background: var(--color-slate-100);
+  }
+
+  /* Department trigger with selection - subtle accent border to indicate selection */
+  .save-dept-trigger.has-selection {
+    font-weight: 600;
+    border-inline-start: 3px solid var(--color-emerald-500);
+    box-shadow: 0 1px 3px var(--overlay-black-15);
+  }
+
+  /* Project pill wrapper - takes half width */
+  .save-project-selector-inline {
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
+  }
+
+  /* Project pill - white button inside gray container */
+  .save-project-pill {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 12px;
+    font-size: 13px;
+    background: var(--color-bg-primary);
+    border: none;
+    border-radius: var(--radius-md);
+    max-width: none;
+    text-align: center;
+    box-shadow: 0 1px 2px var(--overlay-black-10);
+
+    /* Mobile touch handling - critical for click events to work */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    pointer-events: auto;
+    position: relative;
+    z-index: var(--z-base);
+  }
+
+  .save-project-pill span {
+    max-width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+  }
+
+  /* Project selected - consistent white style */
+  .save-project-pill.has-project {
+    background: var(--color-bg-primary);
+    border: none;
+    color: var(--color-slate-700);
+    box-shadow: 0 1px 2px var(--overlay-black-10);
+  }
+
+  /* Playbook dropdown wrapper - takes full width, wraps to second row */
+  .playbook-selector-inline {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  /* Playbook pill - white button inside gray container */
+  .playbook-trigger-pill {
+    width: 100%;
+    min-height: 40px;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    background: var(--color-bg-primary);
+    border: none;
+    border-radius: var(--radius-md);
+    box-shadow: 0 1px 2px var(--overlay-black-10);
+
+    /* Mobile touch handling - critical for click events to work */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    pointer-events: auto;
+    position: relative;
+    z-index: var(--z-base);
+  }
+
+  /* Type colors - colored backgrounds to show selection */
+  .playbook-trigger-pill.has-type.sop {
+    background: var(--color-bg-primary);
+    border: none;
+    color: var(--color-slate-700);
+    box-shadow: 0 1px 2px var(--overlay-black-10);
+  }
+
+  .playbook-trigger-pill.has-type.framework {
+    background: var(--color-bg-primary);
+    border: none;
+    color: var(--color-slate-700);
+    box-shadow: 0 1px 2px var(--overlay-black-10);
+  }
+
+  .playbook-trigger-pill.has-type.policy {
+    background: var(--color-bg-primary);
+    border: none;
+    color: var(--color-slate-700);
+    box-shadow: 0 1px 2px var(--overlay-black-10);
+  }
+
+  /* Save action button - prominent CTA */
+  .save-action-btn {
+    width: 100%;
+    min-height: 48px;
+    justify-content: center;
+    padding: 12px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: var(--radius-lg);
+    box-shadow: 0 2px 4px var(--overlay-emerald-20);
+  }
+
+  /* Save status group - subtle emerald accent */
+  .save-status-group {
+    width: 100%;
+    min-height: 48px;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border);
+    border-inline-start: 3px solid var(--color-emerald-500);
+    border-radius: var(--radius-lg);
+  }
+
+  .save-status-text {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .save-view-link {
+    font-size: 14px;
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-md);
+  }
+
+  /* Access button - compact, full width */
+  .save-access-btn {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+    font-size: 14px;
+  }
+}
+
+/* ===========================================
+   Mobile BottomSheet project list styles
+   =========================================== */
+
+.save-project-list-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.save-project-option-mobile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: start;
+  transition: all 0.15s ease;
+
+  /* Ensure proper mobile touch handling */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: var(--overlay-purple-20);
+  user-select: none;
+}
+
+.save-project-option-mobile:hover {
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+}
+
+.save-project-option-mobile:active {
+  background: var(--color-bg-tertiary);
+  transform: scale(0.98);
+}
+
+.save-project-option-mobile.selected {
+  background: var(--color-purple-50);
+  border-color: var(--color-purple-300);
+  border-width: 2px;
+}
+
+.save-project-option-mobile .save-project-option-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.save-project-option-mobile.selected .save-project-option-name {
+  color: var(--color-purple-700);
+  font-weight: 600;
+}
+
+.save-project-option-mobile .save-project-option-desc {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-block-start: 2px;
+}
+
+.save-project-create-btn-mobile {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 44px;
+  margin-block-start: 6px;
+  padding: 10px 14px;
+  background: var(--color-bg-primary);
+  border: 2px dashed var(--color-purple-300);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-purple-600);
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  /* Ensure proper mobile touch handling */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: var(--overlay-purple-20);
+  user-select: none;
+}
+
+.save-project-create-btn-mobile:hover {
+  background: var(--color-purple-50);
+  border-color: var(--color-purple-400);
+}
+
+.save-project-create-btn-mobile:active {
+  background: var(--color-purple-200);
+  transform: scale(0.98);
+}
+
+/* Dark mode mobile bottom sheet */
+.dark .save-project-option-mobile {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .save-project-option-mobile:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .save-project-option-mobile.selected {
+  background: var(--overlay-purple-15);
+  border-color: var(--color-violet-500);
+}
+
+.dark .save-project-option-mobile .save-project-option-name {
+  color: var(--color-text-primary);
+}
+
+.dark .save-project-option-mobile.selected .save-project-option-name {
+  color: var(--color-violet-400);
+}
+
+.dark .save-project-create-btn-mobile {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-violet-500);
+  color: var(--color-violet-400);
+}
+
+.dark .save-project-create-btn-mobile:hover {
+  background: var(--overlay-purple-10);
+}
+
+/* Even smaller screens (iPhone SE, etc) */
+@media (width <= 640px) {
+  .stage3 {
+    padding: 10px;
+  }
+
+  .final-response {
+    padding: 12px;
+  }
+
+  /* Maintain touch targets even on small screens */
+  .save-options-group {
+    padding: 10px;
+    gap: 6px;
+  }
+
+  /* Slightly smaller text on tiny screens */
+  .save-dept-trigger,
+  .save-project-pill {
+    min-height: 44px;
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+
+  .playbook-trigger-pill {
+    min-height: 40px;
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .save-action-btn {
+    min-height: 52px;
+    font-size: 15px;
+  }
+}

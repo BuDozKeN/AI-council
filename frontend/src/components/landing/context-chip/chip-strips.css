@@ -1,0 +1,531 @@
+/* ContextChip - Mobile chip strips and playbook groups */
+
+/* Extracted from ContextChip.css lines 1092-1619 */
+/* =============================================================================
+   SEE MORE TOGGLE - Projects & Playbooks
+   ============================================================================= */
+
+.context-see-more-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: calc(100% - 28px);
+  padding: 10px 14px;
+  margin: 8px 14px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-default);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.context-see-more-btn:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-primary);
+}
+
+.context-see-more-btn.expanded {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-brand-primary);
+  color: var(--color-text-primary);
+}
+
+.context-see-more-btn:active {
+  transform: scale(0.98);
+}
+
+.context-see-more-btn span:first-of-type {
+  flex: 1;
+  text-align: start;
+}
+
+/* Mobile version - full width within bottom sheet */
+.context-see-more-btn-mobile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 16px;
+  margin: 4px 0 8px;
+  background: var(--color-bg-secondary);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.context-see-more-btn-mobile:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+.context-see-more-btn-mobile.expanded {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-brand-primary);
+  color: var(--color-text-primary);
+}
+
+.context-see-more-btn-mobile:active {
+  transform: scale(0.98);
+}
+
+.context-see-more-btn-mobile span:first-of-type {
+  flex: 1;
+  text-align: start;
+}
+
+/* Badge for selection count */
+.context-more-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: var(--color-brand-primary);
+  border-radius: var(--radius-lg);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-inverse);
+}
+
+/* Chevron rotation */
+.context-see-more-chevron {
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.context-see-more-chevron.rotated {
+  transform: rotate(90deg);
+}
+
+/* Expanded content container */
+.context-more-content {
+  animation: slideInSection 0.2s ease-out;
+  padding-block-start: 8px;
+}
+
+/* Slide-in animation for expanded sections */
+@keyframes slideInSection {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile sections */
+.context-section-mobile {
+  padding: 0 0 16px;
+  animation: slideInSection 0.25s ease-out;
+}
+
+.context-section-title-mobile {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 10px;
+}
+
+/* Mobile company buttons */
+.context-companies-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.context-company-btn-mobile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--color-bg-secondary);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  text-align: start;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.context-company-btn-mobile:active {
+  transform: scale(0.98);
+}
+
+.context-company-btn-mobile.active {
+  background: var(--color-brand-primary-light);
+  border-color: var(--color-brand-primary);
+}
+
+.context-company-btn-mobile svg {
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+}
+
+.context-company-btn-mobile.active svg {
+  color: var(--color-brand-primary);
+}
+
+.context-company-btn-mobile span {
+  flex: 1;
+}
+
+/* =============================================================================
+   MOBILE HORIZONTAL CHIP STRIPS - Instagram-like scrollable chips
+   ============================================================================= */
+
+/* Horizontal scrollable chip strip container */
+.context-chip-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 2px 0 4px;
+}
+
+/* Individual chip in the strip */
+.context-strip-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: var(--chip-bg, var(--color-bg-secondary));
+  border: 1.5px solid var(--chip-border, var(--color-border));
+  border-radius: var(--radius-full);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--chip-text, var(--color-text-secondary));
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  /* Touch-friendly but not oversized */
+  min-height: 44px;
+}
+
+.context-strip-chip:active {
+  transform: scale(0.96);
+}
+
+/* Selected state for department chips (uses CSS vars from JSX) */
+.context-strip-chip.selected {
+  background: var(--chip-bg);
+  border-color: var(--chip-border);
+  color: var(--chip-text);
+  font-weight: 600;
+}
+
+/* Company chip colors */
+.context-strip-chip.company {
+  --chip-bg: var(--color-bg-secondary);
+  --chip-border: var(--color-border);
+  --chip-text: var(--color-text-secondary);
+}
+
+.context-strip-chip.company.selected {
+  --chip-bg: var(--color-brand-primary-light);
+  --chip-border: var(--color-brand-primary);
+  --chip-text: var(--color-brand-primary-hover);
+}
+
+/* Role chip colors */
+.context-strip-chip.role {
+  --chip-bg: var(--color-bg-secondary);
+  --chip-border: var(--color-border);
+  --chip-text: var(--color-text-secondary);
+}
+
+.context-strip-chip.role.selected {
+  --chip-bg: var(--color-indigo-50);
+  --chip-border: var(--color-indigo-400);
+  --chip-text: var(--color-indigo-600);
+}
+
+/* Project chip colors */
+.context-strip-chip.project {
+  --chip-bg: var(--color-bg-secondary);
+  --chip-border: var(--color-border);
+  --chip-text: var(--color-text-secondary);
+}
+
+.context-strip-chip.project.selected {
+  --chip-bg: var(--color-amber-50);
+  --chip-border: var(--color-amber-400);
+  --chip-text: var(--color-amber-600);
+}
+
+/* Playbook chip colors - by type */
+.context-strip-chip.playbook {
+  --chip-bg: var(--color-bg-secondary);
+  --chip-border: var(--color-border);
+  --chip-text: var(--color-text-secondary);
+}
+
+/* Frameworks - Purple */
+.context-strip-chip.playbook.framework.selected {
+  --chip-bg: var(--overlay-purple-10);
+  --chip-border: var(--color-violet-400);
+  --chip-text: var(--color-purple-600);
+}
+
+/* SOPs - Amber */
+.context-strip-chip.playbook.sop.selected {
+  --chip-bg: var(--overlay-amber-10);
+  --chip-border: var(--color-amber-500);
+  --chip-text: var(--color-amber-600);
+}
+
+/* Policies - Blue */
+.context-strip-chip.playbook.policy.selected {
+  --chip-bg: var(--overlay-blue-10);
+  --chip-border: var(--color-blue-500);
+  --chip-text: var(--color-blue-600);
+}
+
+/* Check icon inside chips */
+.strip-chip-check {
+  flex-shrink: 0;
+  margin-inline-start: 2px;
+}
+
+/* Icon inside chips */
+.context-strip-chip svg:first-child {
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.context-strip-chip.selected svg:first-child {
+  opacity: 1;
+}
+
+/* Chip text truncation for long names */
+.chip-text {
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* "More" chip style */
+.context-strip-chip.more {
+  --chip-bg: transparent;
+  --chip-border: var(--color-border);
+  --chip-text: var(--color-text-tertiary);
+
+  border-style: dashed;
+}
+
+.context-strip-chip.more:hover {
+  --chip-border: var(--color-border-dark);
+  --chip-text: var(--color-text-secondary);
+}
+
+/* =============================================================================
+   PLAYBOOK GROUPS
+   ============================================================================= */
+
+.context-playbook-group {
+  margin-block-end: 12px;
+}
+
+.context-playbook-group:last-child {
+  margin-block-end: 0;
+}
+
+.context-playbook-type-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-block-end: 8px;
+  padding-inline-start: 4px;
+}
+
+.context-playbook-type-label svg {
+  opacity: 0.7;
+}
+
+/* =============================================================================
+   ELASTIC BOUNCE SCROLL
+   ============================================================================= */
+
+/* iOS-style elastic bounce at scroll boundaries */
+.context-chip-strip {
+  /* Enable overscroll behavior for elastic effect */
+  overscroll-behavior-x: contain;
+}
+
+/* Fade edges to indicate more content */
+.context-chip-strip::before,
+.context-chip-strip::after {
+  content: '';
+  position: sticky;
+  flex-shrink: 0;
+  width: 20px;
+  height: 100%;
+  pointer-events: none;
+  z-index: var(--z-base);
+}
+
+/* Note: Fade edges would require additional wrapper - keeping it simple for now */
+
+/* Mobile apply button */
+.context-apply-btn-mobile {
+  display: block;
+  width: 100%;
+  margin-block-start: 12px;
+  padding: 16px;
+  background: var(--color-brand-primary);
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-inverse);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.context-apply-btn-mobile:active {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+/* =============================================================================
+   DESKTOP CHIP SELECTORS (replacing nested popovers)
+   ============================================================================= */
+
+/* Department chips - desktop */
+.context-dept-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.context-dept-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.context-dept-chip:hover {
+  background: var(--dept-bg, var(--color-bg-tertiary));
+  border-color: var(--dept-text, var(--color-border-dark));
+}
+
+.context-dept-chip.selected {
+  background: var(--dept-bg, var(--color-brand-primary-light));
+  border-color: var(--dept-text, var(--color-brand-primary));
+  color: var(--dept-text, var(--color-brand-primary));
+}
+
+.context-dept-chip svg {
+  flex-shrink: 0;
+}
+
+/* Role chips - desktop */
+.context-role-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 120px;
+  overflow-y: auto;
+  padding-inline-end: 4px;
+}
+
+.context-role-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 8px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.context-role-chip:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+.context-role-chip.selected {
+  background: var(--color-indigo-50);
+  border-color: var(--color-indigo-400);
+  color: var(--color-indigo-600);
+}
+
+.context-role-chip svg {
+  flex-shrink: 0;
+}
+
+/* Playbook chips - desktop */
+.context-playbook-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.context-playbook-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 10px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.context-playbook-chip:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+}
+
+.context-playbook-chip.selected {
+  background: var(--color-emerald-50);
+  border-color: var(--color-emerald-400);
+  color: var(--color-emerald-600);
+}
+
+.context-playbook-chip svg {
+  flex-shrink: 0;
+}
+

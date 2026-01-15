@@ -1,0 +1,266 @@
+/**
+ * MyCompany Mobile Shell - Navigation Styles
+ * Bottom navigation tabs, back button, mobile TOC
+ *
+ * Key features:
+ * - Bottom navigation tabs (thumb zone)
+ * - Mobile back button
+ * - TOC visibility toggles
+ */
+
+/* ============================================================================
+   MOBILE TOC - Hidden on desktop, shown on mobile
+   ============================================================================ */
+
+/* Mobile TOC trigger - show on mobile, hide on desktop (sticky variant is used instead) */
+@media (width >= 769px) {
+  .mc-mobile-toc.stage3-mobile-toc-trigger {
+    display: none;
+  }
+}
+
+/* ============================================================================
+   P0-1: BOTTOM NAVIGATION TABS (≤640px)
+   Move tabs from mid-screen to bottom for thumb reach
+
+   Strategy: Flex equal distribution (flex: 1 1 0)
+   - Tabs share space evenly regardless of count (5, 7, 8, etc.)
+   - Labels truncate with ellipsis if needed
+   - Works well for 4-8 tabs; beyond 8 consider a "More" menu
+   ============================================================================ */
+
+@media (width <= 640px) {
+  /* Restructure panel layout for bottom nav */
+  .mc-panel {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0;
+  }
+
+  /* Move tabs to bottom - iOS-style tab bar (doubled selector for specificity) */
+  .mc-tabs.mc-tabs {
+    order: 3;
+    position: fixed;
+    inset-block-end: 12px;
+    inset-inline: 12px;
+    width: auto;
+    z-index: var(--z-dropdown);
+    background: var(--color-bg-inverse);
+    border: none;
+    border-radius: var(--radius-xl);
+    padding: 8px 4px calc(8px + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    gap: 0;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  /* Tab style: icon + label stacked (iOS tab bar style) - doubled selector for specificity */
+  .mc-tab.mc-tab {
+    flex: 1 1 0;
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px 2px;
+    min-width: 0;
+    max-width: none;
+    min-height: 44px;
+    border-radius: var(--radius-md);
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-sizing: border-box;
+    color: var(--color-text-inverse);
+    opacity: 0.7;
+    background: transparent;
+  }
+
+  .mc-tab:hover {
+    opacity: 0.9;
+    background: var(--overlay-white-10);
+  }
+
+  /* Show labels on bottom nav - truncate if needed */
+  .mc-tab-label {
+    display: block;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mc-tab-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  .mc-tab-icon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Active state for bottom nav */
+  .mc-tab.active {
+    background: var(--color-indigo-600);
+    color: var(--color-text-inverse);
+    opacity: 1;
+  }
+
+  .mc-tab.active::after {
+    display: none; /* Remove underline indicator */
+  }
+
+  /* Add padding to content to account for floating bottom nav */
+  .mc-content {
+    padding: 12px 16px;
+    padding-block-end: calc(80px + env(safe-area-inset-bottom, 0px));
+    order: 2;
+
+    /* Ensure content fills available height */
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Header stays at top */
+  .mc-header {
+    order: 1;
+  }
+
+  /* Add drag handle indicator at top of panel (swipe down to close) */
+  .mc-panel::before {
+    content: '';
+    position: absolute;
+    inset-block-start: 6px;
+    inset-inline-start: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 4px;
+    background: var(--overlay-white-50); /* White for dark header */
+    border-radius: var(--radius-xs);
+    z-index: var(--z-above);
+  }
+
+  /* Adjust header padding to account for drag handle */
+  .mc-header {
+    padding-block: 20px 12px;
+  }
+
+  /* Compact header on mobile */
+  .mc-header h1 {
+    font-size: 1rem;
+  }
+
+  .mc-title-suffix {
+    font-size: 0.75rem;
+  }
+
+  /* Hide company switcher label, show icon only */
+  .mc-company-switcher {
+    margin-block-start: 4px;
+  }
+
+  /* Make close button smaller on mobile */
+  .mc-close-btn {
+    font-size: 1.25rem;
+  }
+
+  /* Prevent browser back gesture and scroll bounce */
+  .mc-panel {
+    overscroll-behavior: none;
+    touch-action: pan-y pinch-zoom;
+  }
+
+  .mc-overlay {
+    overscroll-behavior: none;
+    touch-action: none;
+  }
+
+  /* Bottom nav should not trigger scroll when touched */
+  .mc-tabs {
+    touch-action: manipulation;
+    overscroll-behavior: none;
+  }
+}
+
+/* ============================================================================
+   MOBILE NAVIGATION - Back Button
+   ============================================================================ */
+
+/* Mobile back button - only visible on mobile */
+.mc-mobile-back-btn {
+  display: none; /* Hidden by default (desktop) */
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-inverse);
+  cursor: pointer;
+  border-radius: var(--radius-default);
+  transition: background 0.15s ease;
+  flex-shrink: 0;
+}
+
+.mc-mobile-back-btn:hover {
+  background: var(--overlay-white-10);
+}
+
+.mc-mobile-back-btn:active {
+  background: var(--overlay-white-15);
+  transform: scale(0.98);
+}
+
+/* Show on mobile, position back button, keep company switcher */
+@media (width <= 640px) {
+  .mc-mobile-back-btn {
+    display: flex;
+    position: absolute;
+    inset-inline-start: 12px;
+    inset-block-start: 50%;
+    transform: translateY(-50%);
+    z-index: var(--z-elevated);
+  }
+
+  .mc-dismiss-hint {
+    display: none;
+  }
+
+  /* Mobile header layout - stack vertically, center content */
+  .mc-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding-block-start: 20px;
+  }
+
+  /* Remove rounded corners on header - prevents white gaps at top corners on mobile */
+  .mc-header-dismissible {
+    border-radius: 0;
+  }
+
+  /* Hide title row on mobile, just show company switcher */
+  .mc-title-row {
+    display: none;
+  }
+
+  /* Company switcher takes center stage on mobile */
+  .mc-company-switcher {
+    order: -1;
+  }
+
+  /* Hide desktop close button on mobile (use back button instead) */
+  .mc-close-btn {
+    display: none;
+  }
+}

@@ -23,6 +23,11 @@ import * as Accordion from '@radix-ui/react-accordion';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { api } from '../../api';
 import { useApiKeys } from './hooks/useApiKeys';
+import './api-keys/base.css';
+import './api-keys/accordion.css';
+import './api-keys/setup.css';
+import './api-keys/byok.css';
+import './api-keys/mobile.css';
 
 interface ApiKeysSectionProps {
   isOpen: boolean;

@@ -1,0 +1,287 @@
+/* ChatInput - Mobile responsive for input */
+
+/* Extracted from ChatInput.css lines 445-728 */
+/* ==========================================
+   MOBILE RESPONSIVE STYLES
+   ========================================== */
+
+/* Tablet and below */
+@media (width <= 640px) {
+  .scroll-to-top-fab {
+    width: 32px;
+    height: 32px;
+    inset-block-end: 80px;
+    inset-inline-end: 16px;
+    opacity: 0.7;
+  }
+
+  .messages-container {
+    padding: 0 16px 16px;
+  }
+
+  /* Remove max-width constraint on tablet - content fills available space */
+  .messages-container > * {
+    max-width: none;
+  }
+
+  .input-form {
+    padding: 8px 16px 12px;
+    gap: 8px;
+  }
+
+  /* Remove max-width constraint on input form children */
+  .input-form > * {
+    max-width: none;
+  }
+
+  .input-row {
+    padding: 4px 4px 4px 12px;
+  }
+
+  .message-input {
+    min-height: 24px;
+    padding: 8px 0;
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+
+  /* Action buttons on mobile */
+  .input-action-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px; /* Touch-friendly */
+  }
+
+  .input-action-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .message-group {
+    margin-block-end: 24px;
+  }
+
+  .user-message .message-content {
+    padding: 16px;
+  }
+
+  /* Context bar becomes more compact */
+  .context-bar {
+    gap: var(--space-2);
+  }
+
+  .context-bar button.context-select-trigger,
+  button.context-select-trigger {
+    padding: 5px 8px;
+    height: 30px;
+    font-size: var(--text-xs);
+  }
+}
+
+/* Small phones */
+@media (width <= 640px) {
+  .messages-container {
+    padding: 0 12px 12px;
+  }
+
+  .input-form {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .message-input {
+    min-height: 40px;
+    padding: 10px 0;
+  }
+
+  /* Slightly larger touch targets on small phones */
+  .input-action-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+  }
+
+  .user-message .message-content {
+    padding: 14px 16px;
+  }
+
+  .message-label {
+    font-size: 11px;
+  }
+
+  /* Stack context bar vertically on very small screens */
+  .context-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+
+  .context-bar button.context-select-trigger,
+  button.context-select-trigger {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* Mode toggle adjustments */
+  .mode-toggle-bar {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .mode-toggle-compact {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .mode-btn-compact {
+    flex: 1;
+    text-align: center;
+    padding: 10px 12px;
+    min-height: 44px; /* Touch-friendly */
+  }
+
+  .mode-buttons {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .department-pills,
+  .role-pills {
+    margin-inline-start: 0;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .department-pills-compact {
+    margin-inline-start: 0;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .dept-pill-compact {
+    min-height: 36px;
+    padding: 8px 12px;
+  }
+
+  .role-pills-compact {
+    margin-inline-start: 0;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .role-pill-compact {
+    min-height: 32px;
+    padding: 6px 10px;
+  }
+}
+
+/* Very small phones */
+@media (width <= 640px) {
+  .input-form {
+    padding: 10px;
+  }
+
+  .message-input {
+    min-height: 40px;
+  }
+
+  .send-button,
+  .stop-button {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+
+  .context-bar button.context-select-trigger,
+  button.context-select-trigger {
+    font-size: 11px;
+    padding: 4px 6px;
+  }
+}
+
+/* ==========================================
+   MOBILE MODE TOGGLE DROPDOWNS (Radix Select)
+   ========================================== */
+
+.mode-toggle-bar.mobile {
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
+}
+
+/* Multi-select selectors on mobile */
+.mode-toggle-bar.mobile .mode-toggle-selectors {
+  width: 100%;
+  gap: 8px;
+}
+
+.mode-toggle-bar.mobile .mode-toggle-select {
+  flex: 1;
+  min-width: calc(50% - 4px);
+  max-width: none;
+}
+
+.mobile-selectors {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Radix Select triggers for mobile */
+.mobile-selectors button.mobile-dept-select,
+.mobile-selectors button.mobile-role-select,
+button.mobile-dept-select,
+button.mobile-role-select {
+  flex: 1;
+  min-width: 120px;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  min-height: 40px;
+  background: var(--color-bg-base);
+}
+
+.mobile-selectors button.mobile-dept-select.has-selection,
+.mobile-selectors button.mobile-role-select.has-selection {
+  border-radius: var(--radius-full);
+}
+
+.mobile-selectors button.mobile-dept-select:focus,
+.mobile-selectors button.mobile-role-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-focus);
+}
+
+.mobile-dept-select[data-disabled],
+.mobile-role-select[data-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ==========================================
+   MOBILE INPUT FORM - Clean background
+   ========================================== */
+
+@media (width <= 640px) {
+  /* Clean background on mobile - omnibar has its own shadow */
+  .input-form {
+    background: var(--color-bg-primary);
+  }
+
+  /* Context bar styling for new conversations */
+  .context-bar {
+    padding: 8px 12px;
+    border-radius: var(--radius-lg);
+  }
+}
+
+/* Dark mode mobile */
+@media (width <= 640px) {
+  [data-theme='dark'] .input-form,
+  .dark .input-form {
+    background: var(--color-bg-primary);
+  }
+}
+

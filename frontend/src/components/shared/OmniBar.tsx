@@ -42,7 +42,7 @@ import { DepartmentCheckboxItem } from '../ui/DepartmentCheckboxItem';
 import { ResponseStyleSelector } from '../chat/ResponseStyleSelector';
 import type { Business, Department, Role, Playbook, Project } from '../../types/business';
 import '../ui/Tooltip.css';
-import './OmniBar.css';
+import './omnibar/index.css';
 
 // Check if we're on mobile/tablet for bottom sheet vs popover
 const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;

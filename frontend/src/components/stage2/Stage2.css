@@ -1,0 +1,19 @@
+/* =============================================================================
+   STAGE 2 - Master CSS (imports component-scoped files)
+   Total: ~1,088 lines split across 5 focused files
+   ============================================================================= */
+
+/* Base styles - stage container, accordion, title, collapse + dark mode (140 lines) */
+@import url('./styles/Stage2Base.css');
+
+/* Rankings - aggregate rankings, rank display, winner badge (232 lines) */
+@import url('./styles/Stage2Rankings.css');
+
+/* Tabs - reviewer tabs, tab content, status badges (191 lines) */
+@import url('./styles/Stage2Tabs.css');
+
+/* Content - ranking content, parsed ranking, copy buttons (177 lines) */
+@import url('./styles/Stage2Content.css');
+
+/* Mobile responsive - table scroll wrapper + mobile overrides (348 lines) */
+@import url('./styles/Stage2Mobile.css');

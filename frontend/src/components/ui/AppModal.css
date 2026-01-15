@@ -659,7 +659,7 @@
   }
 
   /* Settings modal - has its own fixed-height layout, just needs padding removed.
-     Settings.css handles the internal flex layout with fixed heights for consistency. */
+     SettingsLayout.css handles the internal flex layout with fixed heights for consistency. */
   .app-modal-body.settings-modal-body {
     padding: 0;
   }

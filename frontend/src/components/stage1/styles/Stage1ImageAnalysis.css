@@ -1,0 +1,96 @@
+/* Image Analysis Section */
+.image-analysis-section {
+  margin-block-end: 16px;
+  border: 1px solid var(--color-info-light);
+  border-radius: var(--radius-md);
+  background: var(--color-brand-primary-light);
+}
+
+.image-analysis-details {
+  padding: 0;
+}
+
+.image-analysis-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--color-blue-700);
+  user-select: none;
+  list-style: none;
+}
+
+.image-analysis-summary::-webkit-details-marker {
+  display: none;
+}
+
+.image-analysis-summary::before {
+  content: '▶';
+  font-size: 10px;
+  transition: transform 0.2s ease;
+}
+
+.image-analysis-details[open] .image-analysis-summary::before {
+  transform: rotate(90deg);
+}
+
+.image-analysis-summary:hover {
+  background: var(--color-info-light);
+}
+
+.image-icon {
+  font-size: 16px;
+}
+
+.expand-hint {
+  margin-inline-start: auto;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-slate-500);
+}
+
+.image-analysis-details[open] .expand-hint {
+  display: none;
+}
+
+.image-analysis-content {
+  padding: 16px;
+  border-block-start: 1px solid var(--color-info-light);
+  background: var(--color-bg-primary);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.image-analysis-content h2,
+.image-analysis-content h3 {
+  color: var(--color-blue-700);
+  margin: 16px 0 8px;
+  font-size: 14px;
+}
+
+.image-analysis-content h2:first-child,
+.image-analysis-content h3:first-child {
+  margin-block-start: 0;
+}
+
+.image-analysis-content p {
+  margin: 8px 0;
+}
+
+.image-analysis-content ul,
+.image-analysis-content ol {
+  margin: 8px 0;
+  padding-inline-start: 24px;
+}
+
+.image-analysis-content hr {
+  border: none;
+  border-block-start: 1px solid var(--color-border);
+  margin: 16px 0;
+}

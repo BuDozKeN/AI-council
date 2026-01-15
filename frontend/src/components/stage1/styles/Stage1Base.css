@@ -1,0 +1,544 @@
+.stage {
+  margin: 24px 0;
+  padding: 20px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.stage.stage1 {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+
+  /* Container queries - grid responds to container width, not viewport */
+  container-type: inline-size;
+  container-name: stage1;
+
+  /* Transition for celebration state */
+  transition:
+    box-shadow 0.4s ease-out,
+    border-color 0.3s ease;
+}
+
+/* Stage completion celebration - subtle glow effect */
+.stage.stage1.celebrating {
+  border-color: var(--color-success);
+  box-shadow:
+    var(--shadow-sm),
+    0 0 20px 2px var(--overlay-emerald-15),
+    0 0 40px 4px var(--overlay-emerald-10);
+}
+
+/* Living Feed Grid - single column for premium reading experience
+   Consistent with ChatGPT/Claude patterns - vertical progression */
+.stage1 .model-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* Always single column */
+  gap: 12px;
+}
+
+/* Model card styles */
+.stage1 .model-card {
+  padding: 12px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-slate-200);
+  background: var(--color-bg-primary);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.stage1 .model-card:hover {
+  border-color: var(--color-slate-300);
+  box-shadow: var(--shadow-sm);
+}
+
+.stage1 .model-card.streaming {
+  border-color: var(--color-indigo-500);
+  background: var(--color-bg-primary);
+  box-shadow:
+    0 0 0 1px rgb(var(--color-indigo-rgb), 0.2),
+    0 4px 12px rgb(var(--color-indigo-rgb), 0.1);
+}
+
+.stage1 .model-card.error {
+  border-color: var(--color-error);
+  background: var(--color-error-light);
+}
+
+.stage1 .model-card.expanded {
+  grid-column: 1 / -1;
+  border-color: var(--color-blue-500);
+  box-shadow: 0 4px 12px var(--stage1-shadow-color);
+  max-height: 500px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Model card header */
+.stage1 .model-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-block-end: 8px;
+}
+
+.stage1 .model-card-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* LLM Icon with status badge */
+.stage1 .llm-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-bg-secondary);
+  border: 2px solid var(--model-color, var(--color-slate-300));
+  transition: all 0.2s ease;
+  overflow: visible;
+  flex-shrink: 0;
+}
+
+.stage1 .llm-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.stage1 .llm-icon-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-text-inverse);
+}
+
+/* Status badge - positioned bottom-right of the icon */
+.stage1 .llm-status-badge {
+  position: absolute;
+  inset-block-end: -4px;
+  inset-inline-end: -4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--color-bg-primary);
+  z-index: var(--z-above); /* Only needs to be above its parent icon, not sticky elements */
+  box-shadow: var(--shadow-xs);
+}
+
+.stage1 .llm-status-badge.complete {
+  background: var(--color-success);
+  color: var(--color-text-inverse);
+  animation: badge-pop 0.3s ease-out;
+}
+
+@keyframes badge-pop {
+  0% {
+    transform: scale(0);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+.stage1 .llm-status-badge.streaming {
+  background: var(--color-primary);
+}
+
+.stage1 .llm-status-badge.stopped {
+  background: var(--color-text-muted);
+  color: var(--color-text-inverse);
+}
+
+.stage1 .llm-status-badge.error {
+  background: var(--color-error);
+  color: var(--color-text-inverse);
+}
+
+/* Streaming pulse animation */
+.stage1 .llm-status-ping {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-text-inverse);
+  animation: llm-ping 1.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes llm-ping {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  75%,
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+.stage1 .model-card-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-slate-500);
+}
+
+/* Rank badge - shows council ranking position */
+.stage1 .model-card-rank {
+  font-size: 14px;
+  font-weight: 600;
+  margin-inline-start: auto;
+  flex-shrink: 0;
+
+  /* No background - just show medal emoji or #N */
+}
+
+/* Rank badges - just emoji, no backgrounds */
+.stage1 .model-card-rank.rank-1,
+.stage1 .model-card-rank.rank-2,
+.stage1 .model-card-rank.rank-3 {
+  font-size: 14px;
+}
+
+/* Non-medal ranks (#4, #5, etc.) - subtle text */
+.stage1 .model-card-rank:not(.rank-1, .rank-2, .rank-3) {
+  color: var(--color-text-tertiary);
+  font-size: 12px;
+}
+
+/* Status indicators */
+.stage1 .status-dot {
+  position: relative;
+  width: 8px;
+  height: 8px;
+}
+
+.stage1 .status-dot-ping {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--color-success);
+  opacity: 0.75;
+  animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.stage1 .status-dot-core {
+  position: relative;
+  display: inline-flex;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-success);
+}
+
+@keyframes ping {
+  75%,
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* Header right - copy + expand buttons */
+.stage1 .model-card-header-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Expand button */
+.stage1 .expand-btn {
+  padding: 4px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--color-slate-500);
+  transition: all 0.15s ease;
+}
+
+.stage1 .expand-btn:hover {
+  background: var(--color-slate-100);
+  color: var(--color-slate-600);
+}
+
+/* Card content */
+.stage1 .model-card-content {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+/* Expanded card content - scrollable */
+.stage1 .model-card.expanded .model-card-content {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 400px;
+  padding-inline-end: 8px;
+}
+
+/* Custom scrollbar for expanded content */
+.stage1 .model-card.expanded .model-card-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.stage1 .model-card.expanded .model-card-content::-webkit-scrollbar-track {
+  background: var(--color-bg-muted);
+  border-radius: var(--radius-xs);
+}
+
+.stage1 .model-card.expanded .model-card-content::-webkit-scrollbar-thumb {
+  background: var(--color-border-emphasis);
+  border-radius: var(--radius-xs);
+}
+
+.stage1 .model-card.expanded .model-card-content::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+.stage1 .model-card-content.truncated {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.stage1 .model-card-preview {
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+}
+
+.stage1 .model-card-cursor {
+  display: inline-block;
+  width: 6px;
+  height: 16px;
+  background: var(--color-primary);
+  margin-inline-start: 2px;
+  animation: blink 1s infinite;
+}
+
+/* Copy footer */
+.stage1 .model-card-footer {
+  margin-block-start: 12px;
+  padding-block-start: 12px;
+  border-block-start: 1px solid var(--color-border-muted);
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Error/empty states */
+.stage1 .model-card-empty {
+  color: var(--color-text-subtle);
+  font-style: italic;
+}
+
+.stage1 .model-card-error {
+  color: var(--color-warning);
+  font-style: italic;
+}
+
+.stage-title {
+  margin: 0 0 16px;
+  color: var(--color-text-primary);
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stage-title.clickable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.stage-title.clickable:hover {
+  color: var(--color-brand-primary);
+}
+
+/* Topic label shown in stage headers */
+.stage-topic {
+  margin-inline-start: 8px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 50%;
+}
+
+/* Hide topic on mobile - saves space */
+@media (width <= 640px) {
+  .stage-topic {
+    display: none;
+  }
+}
+
+.collapse-arrow {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  transition: transform 0.2s ease;
+}
+
+.collapsed-summary {
+  margin-inline-start: auto;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+/* Collapsed state */
+.stage.collapsed {
+  padding: 12px 20px;
+}
+
+.stage.collapsed .stage-title {
+  margin-block-end: 0;
+}
+
+/* ===== DARK MODE ===== */
+
+/* ===== DARK MODE ===== */
+
+/* Stage1 uses CSS variables from tailwind.css which are redefined in .dark context */
+
+.dark .stage.stage1 {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .stage1 .model-card {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .stage1 .model-card:hover {
+  border-color: var(--color-border-dark);
+  box-shadow: var(--shadow-md);
+}
+
+.dark .stage1 .model-card.streaming {
+  border-color: var(--stage1-border);
+  background: var(--overlay-indigo-10);
+  box-shadow: 0 0 0 1px var(--color-info-light);
+}
+
+.dark .stage1 .model-card.error {
+  border-color: var(--color-warning);
+  background: var(--color-warning-light);
+}
+
+.dark .stage1 .model-card.expanded {
+  border-color: var(--stage1-border);
+  box-shadow: 0 4px 12px var(--stage1-shadow-color);
+}
+
+.dark .stage1 .model-card-name {
+  color: var(--color-text-secondary);
+}
+
+/* Dark mode rank badges */
+
+/* Dark mode rank badges - no backgrounds needed, emojis are universal */
+
+.dark .stage1 .model-card-content {
+  color: var(--color-slate-600);
+}
+
+.dark .stage1 .model-card-preview {
+  color: var(--color-text-secondary);
+}
+
+.dark .stage1 .expand-btn {
+  color: var(--color-text-tertiary);
+}
+
+.dark .stage1 .expand-btn:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.dark .stage1 .model-card-footer {
+  border-block-start-color: var(--color-border);
+}
+
+/* Dark mode scrollbar */
+.dark .stage1 .model-card.expanded .model-card-content::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+.dark .stage1 .model-card.expanded .model-card-content::-webkit-scrollbar-thumb {
+  background: var(--color-text-muted);
+}
+
+.dark .stage1 .model-card.expanded .model-card-content::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
+}
+
+/* Dark mode code blocks - uses same standardized variables */
+.dark .stage1 .code-block-wrapper {
+  background: var(--color-code-bg);
+  border-color: var(--color-code-border);
+}
+
+.dark .stage1 .code-block-wrapper .code-language {
+  color: var(--color-slate-400);
+}
+
+.dark .stage1 .code-block-wrapper .copy-code-btn {
+  border-color: var(--color-code-border);
+  color: var(--color-slate-300);
+}
+
+.dark .stage1 .code-block-wrapper .copy-code-btn:hover {
+  background: var(--color-slate-700);
+  color: var(--color-slate-100);
+}
+
+.dark .stage1 .code-block-wrapper pre {
+  background: var(--color-code-bg);
+}
+
+.dark .stage1 .code-block-wrapper code {
+  color: var(--color-code-text);
+}
+
+.dark .stage1 .inline-code {
+  background: var(--overlay-shimmer);
+}
+
+/* Dark mode LLM icon */
+.dark .stage1 .llm-icon-wrapper {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .stage1 .llm-status-badge {
+  border-color: var(--color-bg-secondary);
+}

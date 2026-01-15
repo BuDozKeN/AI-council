@@ -1,0 +1,366 @@
+/* =============================================================================
+   STAGE 3 LOADING - Streaming, chairman loading, and thinking states
+   ============================================================================= */
+
+/* Streaming styles */
+.stage3 .typing-indicator {
+  display: inline-block;
+  margin-inline-start: 8px;
+  color: var(--color-success);
+  animation: blink 0.8s infinite;
+}
+
+.stage3 .complete-badge {
+  display: inline-block;
+  margin-inline-start: 8px;
+  padding: 2px 6px;
+  background: var(--color-success-light);
+  color: var(--color-success-dark);
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.stage3 .error-badge {
+  display: inline-block;
+  margin-inline-start: 8px;
+  padding: 2px 6px;
+  background: var(--color-warning-light);
+  color: var(--color-warning-dark);
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Truncation warning - shown when response hit max_tokens */
+.truncation-warning {
+  margin-block-end: 16px;
+  padding: 10px 14px;
+  background: var(--color-amber-50);
+  border: 1px solid var(--color-amber-200);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.truncation-warning-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-amber-700);
+}
+
+.dark .truncation-warning {
+  background: var(--overlay-amber-10);
+  border-color: var(--color-amber-600);
+}
+
+.dark .truncation-warning-text {
+  color: var(--color-amber-400);
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+.stage3 .cursor {
+  display: inline-block;
+  color: var(--color-success-dark);
+  animation: blink 0.8s infinite;
+  margin-inline-start: 2px;
+}
+
+.stage3 .empty-message {
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+/* Loading state */
+.stage3 .stage-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  color: var(--color-text-secondary);
+}
+
+/* Spinner styles removed - now using unified <Spinner /> component */
+
+/* Thinking state */
+.stage3 .thinking-badge {
+  display: inline-block;
+  margin-inline-start: 8px;
+  padding: 2px 6px;
+  background: var(--color-warning-light);
+  color: var(--color-amber-700);
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.stage3 .thinking-dots {
+  display: inline-block;
+  margin-inline-start: 2px;
+}
+
+.stage3 .thinking-dots span {
+  animation: dotPulse 1.4s infinite ease-in-out;
+  opacity: 0;
+}
+
+.stage3 .thinking-dots span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.stage3 .thinking-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.stage3 .thinking-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dotPulse {
+  0%,
+  60%,
+  100% {
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 1;
+  }
+}
+
+/* =============================================================================
+   CHAIRMAN LOADING STATE - Premium animation with LLM icon
+   ============================================================================= */
+
+.chairman-loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  gap: 20px;
+}
+
+.chairman-loading-icon-wrapper {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chairman-loading-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: var(--radius-md);
+  z-index: var(--z-base);
+  animation: chairman-icon-float 2s ease-in-out infinite;
+}
+
+.chairman-loading-pulse {
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  transform: translate(-50%, -50%);
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--color-emerald-500);
+  opacity: 0.15;
+  animation: chairman-pulse 2s ease-out infinite;
+}
+
+@keyframes chairman-icon-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes chairman-pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.3;
+  }
+
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 0.1;
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.3;
+  }
+}
+
+.chairman-loading-text {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-secondary);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.chairman-loading-title {
+  color: var(--color-text-primary);
+}
+
+.chairman-loading-dots {
+  display: inline-flex;
+  gap: 2px;
+  min-width: 24px;
+}
+
+.chairman-loading-dots span {
+  animation: chairman-dot-bounce 1.4s ease-in-out infinite;
+  color: var(--color-emerald-500);
+  font-weight: 600;
+}
+
+.chairman-loading-dots span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.chairman-loading-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.chairman-loading-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes chairman-dot-bounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+/* Dark mode chairman loading */
+.dark .chairman-loading-pulse {
+  background: var(--color-emerald-400);
+  opacity: 0.2;
+}
+
+.dark .chairman-loading-title {
+  color: var(--color-text-primary);
+}
+
+.dark .chairman-loading-dots span {
+  color: var(--color-emerald-400);
+}
+
+/* Mobile adjustments */
+@media (width <= 640px) {
+  .chairman-loading-container {
+    padding: 32px 16px;
+    gap: 16px;
+  }
+
+  .chairman-loading-icon-wrapper {
+    width: 56px;
+    height: 56px;
+  }
+
+  .chairman-loading-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .chairman-loading-pulse {
+    width: 56px;
+    height: 56px;
+  }
+
+  .chairman-loading-text {
+    font-size: 14px;
+  }
+}
+
+/* Legacy thinking container - kept for backwards compat */
+.stage3 .thinking-container {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stage3 .thinking-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  padding: 16px 24px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.stage3 .thinking-icon {
+  font-size: 24px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* ===== DARK MODE ===== */
+
+.dark .stage3 .complete-badge {
+  background: var(--color-success-light);
+  color: var(--stage3-text-primary);
+}
+
+.dark .stage3 .error-badge {
+  background: var(--color-warning-light);
+  color: var(--color-warning);
+}
+
+.dark .stage3 .thinking-badge {
+  background: var(--color-warning-light);
+  color: var(--color-warning);
+}
+
+.dark .stage3 .thinking-message {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}

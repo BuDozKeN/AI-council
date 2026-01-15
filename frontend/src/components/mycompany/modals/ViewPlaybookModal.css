@@ -1,0 +1,428 @@
+/**
+ * ViewPlaybookModal.css - Styles for viewing/editing playbooks
+ *
+ * Includes playbook metadata, tags, department assignment, and content editing.
+ */
+
+/* ============================================================================
+   PLAYBOOK TAGS & METADATA
+   ============================================================================ */
+
+.mc-playbook-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-block-start: 6px;
+}
+
+.mc-tag {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+}
+
+/* Title row with SOP badge inline */
+.mc-playbook-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-block-end: 4px;
+}
+
+/* Playbook meta row */
+.mc-playbook-meta-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-block-end: 16px;
+  padding-block-end: 12px;
+  border-block-end: 1px solid var(--color-border);
+}
+
+/* ============================================================================
+   PLAYBOOK DEPARTMENT ASSIGNMENT
+   ============================================================================ */
+
+.mc-playbook-departments {
+  margin: 16px 0;
+  padding: 12px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.mc-playbook-departments h4 {
+  margin: 0 0 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.mc-dept-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mc-dept-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.15s ease;
+}
+
+.mc-dept-checkbox:hover {
+  border-color: var(--color-border-dark);
+  background: var(--color-bg-hover);
+}
+
+.mc-dept-checkbox input[type='checkbox'] {
+  margin: 0;
+  cursor: pointer;
+}
+
+.mc-dept-checkbox.owner {
+  background: var(--color-blue-100);
+  border-color: var(--color-blue-300);
+}
+
+.mc-dept-checkbox.owner input[type='checkbox'] {
+  cursor: not-allowed;
+}
+
+.mc-owner-label {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  font-style: italic;
+}
+
+.mc-dept-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* ============================================================================
+   DEPARTMENT BADGES - View and Edit Modes
+   ============================================================================ */
+
+/* Department badges container in view mode */
+.mc-dept-badges-view {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Inline department editing */
+.mc-dept-edit-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.mc-dept-label {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  margin-inline-end: 4px;
+}
+
+/* Owner star indicator */
+.mc-owner-star {
+  font-weight: 700;
+  margin-inline-start: 2px;
+}
+
+/* ============================================================================
+   DEPARTMENT CHIPS - MINI SELECTION BUTTONS
+   ============================================================================ */
+
+/* Mini department chip for inline editing */
+.mc-dept-chip-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-tertiary);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-dept-chip-mini:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-secondary);
+}
+
+.mc-dept-chip-mini.selected {
+  border-style: solid;
+  cursor: pointer;
+}
+
+.mc-dept-chip-mini:disabled {
+  cursor: default;
+  opacity: 0.9;
+}
+
+/* Clickable container for department badges */
+.mc-dept-badges-clickable {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 4px 8px;
+  margin: -4px -8px;
+  border-radius: var(--radius-default);
+  transition: background 0.15s ease;
+}
+
+.mc-dept-badges-clickable[style*='pointer']:hover {
+  background: var(--color-bg-hover);
+}
+
+/* Small pencil icon for department editing hint */
+.mc-pencil-icon-small {
+  width: 14px;
+  height: 14px;
+  color: var(--color-text-tertiary);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  flex-shrink: 0;
+}
+
+.mc-dept-badges-clickable:hover .mc-pencil-icon-small {
+  opacity: 1;
+}
+
+/* Done button for department editing */
+.mc-dept-done-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: var(--color-green-100);
+  border: 1px solid var(--color-green-300);
+  border-radius: var(--radius-sm);
+  color: var(--color-green-700);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  margin-inline-start: 4px;
+}
+
+.mc-dept-done-btn:hover {
+  background: var(--color-green-200);
+  border-color: var(--color-green-400);
+}
+
+.mc-dept-done-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ============================================================================
+   VIEW/EDIT MODAL STYLES (shared with other view modals)
+   ============================================================================ */
+
+/* Content section wrapper */
+.mc-content-section {
+  padding: 16px 20px;
+}
+
+.mc-section-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+/* Full-width edit textarea container */
+.mc-edit-full {
+  width: 100%;
+}
+
+.mc-edit-textarea-full {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-secondary);
+  resize: vertical;
+  min-height: 300px;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.mc-edit-textarea-full:focus {
+  outline: none;
+  border-color: var(--color-indigo-500);
+  box-shadow: 0 0 0 3px rgb(var(--color-indigo-500-rgb, 99, 102, 241), 0.08);
+  background: var(--color-bg-primary);
+}
+
+.mc-edit-textarea-full::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+/* Field group wrapper */
+.mc-field-group {
+  margin-block-end: 16px;
+}
+
+/* Title inline edit input */
+.mc-title-inline-edit {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-indigo-500);
+  border-radius: var(--radius-default);
+  padding: 4px 8px;
+  background: var(--color-bg-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(var(--color-indigo-500-rgb, 99, 102, 241), 0.1);
+  flex: 1;
+  min-width: 200px;
+}
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+/* Playbook meta row */
+.dark .mc-playbook-meta-row,
+[data-theme='dark'] .mc-playbook-meta-row {
+  border-block-end-color: var(--color-border);
+}
+
+/* Playbook tags & departments */
+.dark .mc-playbook-departments,
+[data-theme='dark'] .mc-playbook-departments {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .mc-playbook-departments h4,
+[data-theme='dark'] .mc-playbook-departments h4 {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-dept-checkbox,
+[data-theme='dark'] .mc-dept-checkbox {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border);
+}
+
+.dark .mc-dept-checkbox:hover,
+[data-theme='dark'] .mc-dept-checkbox:hover {
+  border-color: var(--color-border-dark);
+  background: var(--color-bg-tertiary);
+}
+
+.dark .mc-dept-checkbox.owner,
+[data-theme='dark'] .mc-dept-checkbox.owner {
+  background: var(--overlay-blue-15);
+  border-color: var(--overlay-blue-30, rgb(var(--color-blue-500-rgb), 0.3));
+}
+
+.dark .mc-owner-label,
+[data-theme='dark'] .mc-owner-label {
+  color: var(--color-text-tertiary);
+}
+
+/* Department label */
+.dark .mc-dept-label,
+[data-theme='dark'] .mc-dept-label {
+  color: var(--color-text-tertiary);
+}
+
+/* Department chips */
+.dark .mc-dept-chip-mini,
+[data-theme='dark'] .mc-dept-chip-mini {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-dept-chip-mini:hover:not(:disabled),
+[data-theme='dark'] .mc-dept-chip-mini:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-dept-badges-clickable[style*='pointer']:hover,
+[data-theme='dark'] .mc-dept-badges-clickable[style*='pointer']:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .mc-pencil-icon-small,
+[data-theme='dark'] .mc-pencil-icon-small {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-dept-done-btn,
+[data-theme='dark'] .mc-dept-done-btn {
+  background: var(--overlay-green-15);
+  border-color: var(--overlay-green-30, rgb(var(--color-green-500-rgb), 0.3));
+  color: var(--color-green-400);
+}
+
+.dark .mc-dept-done-btn:hover,
+[data-theme='dark'] .mc-dept-done-btn:hover {
+  background: var(--overlay-green-20);
+  border-color: var(--overlay-green-40, rgb(var(--color-green-500-rgb), 0.4));
+}
+
+/* View/Edit styles */
+.dark .mc-section-title,
+[data-theme='dark'] .mc-section-title {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-edit-textarea-full,
+[data-theme='dark'] .mc-edit-textarea-full {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-edit-textarea-full:focus,
+[data-theme='dark'] .mc-edit-textarea-full:focus {
+  border-color: var(--color-indigo-400);
+  background: var(--color-bg-primary);
+}
+
+.dark .mc-edit-textarea-full::placeholder,
+[data-theme='dark'] .mc-edit-textarea-full::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-title-inline-edit,
+[data-theme='dark'] .mc-title-inline-edit {
+  color: var(--color-text-primary);
+  border-color: var(--color-indigo-400);
+  background: var(--color-bg-primary);
+}

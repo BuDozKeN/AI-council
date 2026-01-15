@@ -4,6 +4,8 @@
  * Extracted from MyCompany.jsx for better maintainability.
  */
 
+import './ViewProjectModal.css';
+import '../../ui/Modal.css';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../../api';

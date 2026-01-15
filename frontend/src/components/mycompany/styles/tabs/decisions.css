@@ -715,3 +715,103 @@
   background: var(--overlay-blue-15);
   color: var(--color-blue-400);
 }
+  /* ========== DECISIONS TAB - MOBILE ========== */
+
+  /* Decisions row: clean card */
+  .mc-decision-row {
+    flex-wrap: wrap;
+    padding: 14px 16px;
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-lg);
+    margin-block-end: 8px;
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-xs);
+    row-gap: 8px;
+  }
+
+  /* Hide all action buttons on mobile */
+
+  /* Double class for specificity over hover states */
+  .mc-decision-row.mc-decision-row .mc-elegant-actions,
+  .mc-decision-row.mc-decision-row .mc-elegant-right .mc-elegant-actions {
+    display: none;
+  }
+
+  /* Show date, hide it when it would show actions */
+  .mc-decision-row.mc-decision-row .mc-elegant-date,
+  .mc-decision-row .mc-elegant-date[class] {
+    display: block;
+    opacity: 1;
+  }
+
+  /* Right side: just the date */
+  .mc-decision-row .mc-elegant-right {
+    display: flex;
+    align-items: center;
+    min-width: auto;
+  }
+
+  /* Content area */
+  .mc-decision-row .mc-elegant-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Title styling */
+  .mc-decision-row .mc-elegant-title {
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.3;
+    margin-block-end: 4px;
+  }
+
+  /* Badges wrap */
+  .mc-decision-row .mc-elegant-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  /* Status dot: visible on left */
+  .mc-decision-row .mc-status-dot {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    margin-inline-end: 4px;
+  }
+
+  /* ========== COMMON LIST IMPROVEMENTS ========== */
+
+  /* Remove border between items when using cards */
+  .mc-elegant-list,
+  .mc-projects-list {
+    padding: 0;
+    background: transparent;
+    border: none;
+    gap: 0;
+  }
+
+  /* Search input: larger on mobile */
+  .mc-search-input-wrapper {
+    height: 44px;
+    max-width: none; /* Remove desktop max-width constraint */
+    min-width: 0;
+  }
+
+  .mc-search-input {
+    height: 100%;
+    font-size: 16px; /* Prevent iOS zoom */
+    padding: 8px 32px 8px 36px; /* Adjust padding for smaller height */
+  }
+
+  /* Filter row: more breathing room */
+  .mc-decisions-filters,
+  .mc-projects-filters {
+    gap: 12px;
+    margin-block-end: 16px;
+  }
+
+  /* Empty filtered state */
+  .mc-empty-filtered {
+    padding: 32px 16px;
+  }

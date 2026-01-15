@@ -1,0 +1,294 @@
+/**
+ * AddPlaybookModal.css - Styles for adding new playbooks
+ *
+ * Includes type pills and department assignment specific to add flow.
+ */
+
+/* ============================================================================
+   UNIFIED FORM STYLES (from modals.css)
+   ============================================================================ */
+
+.mc-form-unified {
+  margin-block-end: 20px;
+}
+
+.mc-label-unified {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-block-end: 8px;
+}
+
+.mc-input-unified {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+  transition: all 0.15s ease;
+}
+
+.mc-input-unified:hover {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border-dark);
+}
+
+.mc-input-unified:focus {
+  outline: none;
+  background: var(--color-bg-primary);
+  border-color: var(--color-indigo-500);
+  box-shadow: 0 0 0 3px var(--overlay-indigo-10);
+}
+
+.mc-input-unified::placeholder {
+  color: var(--color-text-tertiary);
+  font-weight: 400;
+}
+
+.mc-textarea-unified {
+  min-height: auto;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+/* ============================================================================
+   TYPE PILLS (SOP, Framework, Policy)
+   ============================================================================ */
+
+.mc-type-pills-unified {
+  display: flex;
+  gap: 6px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 4px;
+}
+
+.mc-type-pill-unified {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-default);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex: 1;
+  justify-content: center;
+}
+
+.mc-type-pill-unified:hover:not(.selected) {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+.mc-type-pill-unified.sop:hover:not(.selected) {
+  background: var(--color-blue-200);
+  color: var(--color-blue-700);
+}
+
+.mc-type-pill-unified.framework:hover:not(.selected) {
+  background: var(--color-amber-200);
+  color: var(--color-amber-700);
+}
+
+.mc-type-pill-unified.policy:hover:not(.selected) {
+  background: var(--color-purple-200);
+  color: var(--color-violet-600);
+}
+
+.mc-type-pill-unified.selected {
+  background: var(--color-bg-primary);
+  box-shadow: var(--shadow-xs);
+}
+
+.mc-type-pill-unified svg {
+  opacity: 0.7;
+}
+
+.mc-type-pill-unified.selected svg {
+  opacity: 1;
+}
+
+/* ============================================================================
+   PLAYBOOK DEPARTMENT ASSIGNMENT
+   ============================================================================ */
+
+.mc-playbook-departments {
+  margin: 16px 0;
+  padding: 12px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.mc-playbook-departments h4 {
+  margin: 0 0 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.mc-dept-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.mc-dept-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.15s ease;
+}
+
+.mc-dept-checkbox:hover {
+  border-color: var(--color-border-dark);
+  background: var(--color-bg-hover);
+}
+
+.mc-dept-checkbox input[type='checkbox'] {
+  margin: 0;
+  cursor: pointer;
+}
+
+.mc-dept-checkbox.owner {
+  background: var(--color-blue-100);
+  border-color: var(--color-blue-300);
+}
+
+.mc-dept-checkbox.owner input[type='checkbox'] {
+  cursor: not-allowed;
+}
+
+.mc-owner-label {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  font-style: italic;
+}
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+/* Unified form styles */
+.dark .mc-label-unified,
+[data-theme='dark'] .mc-label-unified {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-input-unified,
+[data-theme='dark'] .mc-input-unified {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .mc-input-unified:hover,
+[data-theme='dark'] .mc-input-unified:hover {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border-dark);
+}
+
+.dark .mc-input-unified:focus,
+[data-theme='dark'] .mc-input-unified:focus {
+  background: var(--color-bg-primary);
+  border-color: var(--color-indigo-400);
+}
+
+.dark .mc-input-unified::placeholder,
+[data-theme='dark'] .mc-input-unified::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+/* Type pills */
+.dark .mc-type-pills-unified,
+[data-theme='dark'] .mc-type-pills-unified {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .mc-type-pill-unified,
+[data-theme='dark'] .mc-type-pill-unified {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-type-pill-unified:hover:not(.selected),
+[data-theme='dark'] .mc-type-pill-unified:hover:not(.selected) {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.dark .mc-type-pill-unified.sop:hover:not(.selected),
+[data-theme='dark'] .mc-type-pill-unified.sop:hover:not(.selected) {
+  background: var(--overlay-blue-20);
+  color: var(--color-blue-400);
+}
+
+.dark .mc-type-pill-unified.framework:hover:not(.selected),
+[data-theme='dark'] .mc-type-pill-unified.framework:hover:not(.selected) {
+  background: var(--overlay-amber-20);
+  color: var(--color-amber-400);
+}
+
+.dark .mc-type-pill-unified.policy:hover:not(.selected),
+[data-theme='dark'] .mc-type-pill-unified.policy:hover:not(.selected) {
+  background: var(--overlay-purple-20);
+  color: var(--color-violet-400);
+}
+
+.dark .mc-type-pill-unified.selected,
+[data-theme='dark'] .mc-type-pill-unified.selected {
+  background: var(--color-bg-primary);
+}
+
+/* Department assignment */
+.dark .mc-playbook-departments,
+[data-theme='dark'] .mc-playbook-departments {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .mc-playbook-departments h4,
+[data-theme='dark'] .mc-playbook-departments h4 {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-dept-checkbox,
+[data-theme='dark'] .mc-dept-checkbox {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border);
+}
+
+.dark .mc-dept-checkbox:hover,
+[data-theme='dark'] .mc-dept-checkbox:hover {
+  border-color: var(--color-border-dark);
+  background: var(--color-bg-tertiary);
+}
+
+.dark .mc-dept-checkbox.owner,
+[data-theme='dark'] .mc-dept-checkbox.owner {
+  background: var(--overlay-blue-15);
+  border-color: var(--overlay-blue-30, rgb(var(--color-blue-500-rgb), 0.3));
+}
+
+.dark .mc-owner-label,
+[data-theme='dark'] .mc-owner-label {
+  color: var(--color-text-tertiary);
+}

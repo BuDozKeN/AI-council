@@ -35,7 +35,7 @@ import { toast } from '../../ui/sonner';
 import { invalidateCouncilStats } from '../../../hooks/useCouncilStats';
 import { logger } from '../../../utils/logger';
 import type { LLMPresetFull, ModelRegistryEntry, StageConfig } from '../../../types/business';
-import '../styles/tabs/llm-hub.css';
+import '../styles/tabs/llm-hub/index.css';
 
 // Persona icon mapping - labels and hints come from translations (llmHub.personas.{personaKey})
 const PERSONA_ICONS: Record<string, typeof FileText> = {

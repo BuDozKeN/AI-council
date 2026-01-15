@@ -1,0 +1,291 @@
+/* =============================================================================
+   STAGE 3 BASE - Core container, header, and chairman styles
+   ============================================================================= */
+
+/* Import reusable TOC styles */
+@import url('../../ui/table-of-contents/toc-base.css');
+@import url('../../ui/table-of-contents/toc-mobile.css');
+@import url('../../ui/table-of-contents/toc-variants.css');
+@import url('../../ui/table-of-contents/toc-dark-mode.css');
+
+/* =============================================================================
+   SCROLL MARGIN - Prevents headings from hiding under fixed headers
+   ============================================================================= */
+
+h2,
+h3 {
+  scroll-margin-block-start: 6rem;
+}
+
+/* =============================================================================
+   SAVE ERROR BAR
+   ============================================================================= */
+
+.save-error-bar {
+  padding: 12px 16px;
+  background: var(--color-error-light);
+  border: 1px solid var(--color-red-300);
+  border-radius: var(--radius-md);
+  color: var(--color-red-600);
+  font-size: var(--text-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.stage3 {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Collapsible styles */
+.stage3 .stage-title.clickable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.stage3 .stage-title.clickable:hover {
+  color: var(--color-success-dark);
+}
+
+.stage3 .collapse-arrow {
+  font-size: 12px;
+  color: var(--color-success-muted);
+  margin-inline-end: 4px;
+  transition: transform 0.2s ease;
+}
+
+.stage3 .collapsed-summary {
+  margin-inline-start: 12px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60%;
+}
+
+/* Collapsed state */
+.stage3.collapsed {
+  padding: 12px 20px;
+}
+
+.stage3.collapsed .stage-title {
+  margin-block-end: 0;
+}
+
+.final-response {
+  background: var(--color-bg-primary);
+  padding: 24px 28px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-success-border);
+  box-shadow: var(--shadow-md);
+  position: relative;
+}
+
+/* Premium paper effect for chairman synthesis - uses ::after to avoid conflict with noise-overlay::before */
+.final-response::after {
+  content: '';
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  height: 4px;
+  background: var(--color-emerald-500);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  z-index: var(--z-base); /* Above noise texture */
+}
+
+/* Header row - contains chairman icon and copy button */
+.stage3-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-block-end: 12px;
+}
+
+/* Copy button in header - pushed to right */
+.stage3-header-copy {
+  margin-inline-start: auto;
+}
+
+/* Cost badge - shows estimated query cost */
+.stage3-cost-badge {
+  margin-inline-start: auto;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-sm);
+  cursor: default;
+  transition: opacity 0.2s ease;
+}
+
+.stage3-cost-badge:hover {
+  opacity: 0.8;
+}
+
+/* Chairman indicator - compact icon display */
+.chairman-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.3s var(--ease-spring);
+}
+
+/* Celebration state - subtle pulse */
+.chairman-indicator.celebrating {
+  animation: chairman-celebrate 0.6s var(--ease-spring);
+}
+
+@keyframes chairman-celebrate {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  30% {
+    transform: scale(1.08);
+  }
+
+  60% {
+    transform: scale(0.98);
+  }
+}
+
+.chairman-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+}
+
+/* Council completion glow effect */
+.final-content-wrapper.complete-glow {
+  animation: council-complete-glow 0.8s ease-out;
+}
+
+@keyframes council-complete-glow {
+  0% {
+    box-shadow: 0 0 0 0 var(--overlay-emerald-10);
+  }
+
+  40% {
+    box-shadow: 0 0 30px 8px var(--overlay-emerald-15);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 var(--overlay-emerald-10);
+  }
+}
+
+/* Icon size for inline copy buttons */
+.copy-icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* Content wrapper - contains the content */
+.final-content-wrapper {
+  position: relative;
+}
+
+/* Stage3-specific copy button - ghost style, blends in until hover */
+.stage3-copy-btn.copy-btn-unified {
+  border-color: transparent;
+  color: var(--color-text-tertiary);
+  background: transparent;
+  backdrop-filter: none;
+  box-shadow: none;
+  opacity: 0.4;
+}
+
+.stage3-copy-btn.copy-btn-unified:hover {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-hover);
+  opacity: 1;
+}
+
+.stage3-copy-btn.copy-btn-unified.copied {
+  border-color: var(--color-success);
+  color: var(--color-success);
+  background: var(--color-success-light);
+  opacity: 1;
+}
+
+/* Mobile: smaller copy button */
+@media (width <= 640px) {
+  .stage3-header-copy {
+    padding: 4px 8px;
+  }
+}
+
+/* KB saved badge in collapsed header */
+.stage3 .kb-saved-badge {
+  padding: 2px 8px;
+  background: var(--color-success-light);
+  color: var(--color-success-dark);
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  font-size: 11px;
+}
+
+/* ===== DARK MODE ===== */
+
+.dark .stage3 .stage-title.clickable:hover {
+  color: var(--stage3-text-primary);
+}
+
+.dark .stage3 .collapse-arrow {
+  color: var(--color-text-muted);
+}
+
+.dark .stage3 .collapsed-summary {
+  color: var(--color-text-secondary);
+}
+
+.dark .stage3 .kb-saved-badge {
+  background: var(--color-success-light);
+  color: var(--stage3-text-primary);
+}
+
+.dark .final-response {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-lg);
+}
+
+.dark .final-response::after {
+  background: var(--color-success);
+}
+
+.dark .chairman-label {
+  color: var(--stage3-text-primary);
+}
+
+/* Dark mode Stage3 copy button - ghost style */
+.dark .stage3-copy-btn.copy-btn-unified {
+  border-color: transparent;
+  color: var(--color-text-tertiary);
+  background: transparent;
+  backdrop-filter: none;
+  opacity: 0.4;
+}
+
+.dark .stage3-copy-btn.copy-btn-unified:hover {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-hover);
+  opacity: 1;
+}
+
+.dark .stage3-copy-btn.copy-btn-unified.copied {
+  border-color: var(--color-success);
+  color: var(--color-success);
+  background: var(--overlay-green-15);
+  opacity: 1;
+}
