@@ -91,6 +91,7 @@
 .context-icon-btn.mode-toggle {
   margin-inline-start: 4px;
   border-inline-start: 1px solid var(--color-border-light);
+  /* stylelint-disable-next-line declaration-property-value-no-unknown -- padding-inline shorthand with 2 values */
   padding-inline: 6px 2px;
   border-radius: 0;
   width: auto;
