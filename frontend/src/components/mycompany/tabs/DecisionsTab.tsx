@@ -149,8 +149,25 @@ export function DecisionsTab({
           </defs>
 
           {/* Trophy base */}
-          <rect x="45" y="80" width="30" height="8" rx="2" fill="url(#decisionsGradient)" opacity="0.4" />
-          <rect x="50" y="72" width="20" height="8" rx="1" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" />
+          <rect
+            x="45"
+            y="80"
+            width="30"
+            height="8"
+            rx="2"
+            fill="url(#decisionsGradient)"
+            opacity="0.4"
+          />
+          <rect
+            x="50"
+            y="72"
+            width="20"
+            height="8"
+            rx="1"
+            fill="var(--color-bg-card)"
+            stroke="var(--color-border)"
+            strokeWidth="1.5"
+          />
 
           {/* Trophy cup */}
           <path
@@ -194,8 +211,16 @@ export function DecisionsTab({
           <circle cx="100" cy="30" r="2" fill="var(--color-purple-500)" opacity="0.6" />
           <rect x="15" y="45" width="3" height="3" fill="var(--color-indigo-400)" opacity="0.5" />
           <rect x="102" y="50" width="3" height="3" fill="var(--color-purple-400)" opacity="0.5" />
-          <path d="M 25 60 L 27 62 L 25 64 L 23 62 Z" fill="var(--color-indigo-300)" opacity="0.4" />
-          <path d="M 95 65 L 97 67 L 95 69 L 93 67 Z" fill="var(--color-purple-300)" opacity="0.4" />
+          <path
+            d="M 25 60 L 27 62 L 25 64 L 23 62 Z"
+            fill="var(--color-indigo-300)"
+            opacity="0.4"
+          />
+          <path
+            d="M 95 65 L 97 67 L 95 69 L 93 67 Z"
+            fill="var(--color-purple-300)"
+            opacity="0.4"
+          />
         </motion.svg>
 
         <p className="mc-empty-title">{t('mycompany.allCaughtUp')}</p>

@@ -686,18 +686,24 @@ export default function Sidebar({
                 <ConversationSkeletonGroup count={5} />
               ) : searchQuery && searchResultCount === 0 ? (
                 <div className="no-conversations">
-                  <span className="no-conv-icon"><Search size={20} /></span>
+                  <span className="no-conv-icon">
+                    <Search size={20} />
+                  </span>
                   {t('sidebar.noResultsFor', { query: searchQuery })}
                 </div>
               ) : totalConversations === 0 ? (
                 <div className="no-conversations">
-                  <span className="no-conv-icon"><MessageSquare size={20} /></span>
+                  <span className="no-conv-icon">
+                    <MessageSquare size={20} />
+                  </span>
                   <span>{t('sidebar.readyWhenYouAre')}</span>
                   <span className="no-conv-hint">{t('sidebar.startNewConversation')}</span>
                 </div>
               ) : filter === 'archived' && filteredBySearch.archived.length === 0 ? (
                 <div className="no-conversations">
-                  <span className="no-conv-icon"><Archive size={20} /></span>
+                  <span className="no-conv-icon">
+                    <Archive size={20} />
+                  </span>
                   {t('sidebar.nothingArchived')}
                 </div>
               ) : filter !== 'archived' && filteredBySearch.active.length === 0 ? (

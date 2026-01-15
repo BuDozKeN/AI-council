@@ -279,13 +279,47 @@ export function PlaybooksTab({
           {/* Stack of books */}
           <g>
             {/* Back book */}
-            <rect x="30" y="48" width="50" height="8" rx="1" fill="url(#playbookGradient)" opacity="0.3" />
-            <rect x="30" y="48" width="50" height="36" rx="2" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" />
+            <rect
+              x="30"
+              y="48"
+              width="50"
+              height="8"
+              rx="1"
+              fill="url(#playbookGradient)"
+              opacity="0.3"
+            />
+            <rect
+              x="30"
+              y="48"
+              width="50"
+              height="36"
+              rx="2"
+              fill="var(--color-bg-card)"
+              stroke="var(--color-border)"
+              strokeWidth="1.5"
+            />
             <line x1="35" y1="48" x2="35" y2="84" stroke="var(--color-border)" strokeWidth="1" />
 
             {/* Middle book */}
-            <rect x="36" y="38" width="50" height="8" rx="1" fill="url(#playbookGradient)" opacity="0.4" />
-            <rect x="36" y="38" width="50" height="36" rx="2" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" />
+            <rect
+              x="36"
+              y="38"
+              width="50"
+              height="8"
+              rx="1"
+              fill="url(#playbookGradient)"
+              opacity="0.4"
+            />
+            <rect
+              x="36"
+              y="38"
+              width="50"
+              height="36"
+              rx="2"
+              fill="var(--color-bg-card)"
+              stroke="var(--color-border)"
+              strokeWidth="1.5"
+            />
             <line x1="41" y1="38" x2="41" y2="74" stroke="var(--color-border)" strokeWidth="1" />
 
             {/* Front book (open) */}
@@ -296,13 +330,53 @@ export function PlaybooksTab({
               strokeWidth="1.5"
             />
             <path d="M 42 28 L 60 30 L 78 28" fill="url(#playbookGradient)" opacity="0.5" />
-            <line x1="60" y1="30" x2="60" y2="66" stroke="var(--color-border)" strokeWidth="1" strokeDasharray="2,2" />
+            <line
+              x1="60"
+              y1="30"
+              x2="60"
+              y2="66"
+              stroke="var(--color-border)"
+              strokeWidth="1"
+              strokeDasharray="2,2"
+            />
 
             {/* Page lines */}
-            <line x1="48" y1="36" x2="56" y2="36" stroke="var(--color-text-tertiary)" strokeWidth="1" opacity="0.3" />
-            <line x1="48" y1="42" x2="56" y2="42" stroke="var(--color-text-tertiary)" strokeWidth="1" opacity="0.3" />
-            <line x1="64" y1="36" x2="72" y2="36" stroke="var(--color-text-tertiary)" strokeWidth="1" opacity="0.3" />
-            <line x1="64" y1="42" x2="72" y2="42" stroke="var(--color-text-tertiary)" strokeWidth="1" opacity="0.3" />
+            <line
+              x1="48"
+              y1="36"
+              x2="56"
+              y2="36"
+              stroke="var(--color-text-tertiary)"
+              strokeWidth="1"
+              opacity="0.3"
+            />
+            <line
+              x1="48"
+              y1="42"
+              x2="56"
+              y2="42"
+              stroke="var(--color-text-tertiary)"
+              strokeWidth="1"
+              opacity="0.3"
+            />
+            <line
+              x1="64"
+              y1="36"
+              x2="72"
+              y2="36"
+              stroke="var(--color-text-tertiary)"
+              strokeWidth="1"
+              opacity="0.3"
+            />
+            <line
+              x1="64"
+              y1="42"
+              x2="72"
+              y2="42"
+              stroke="var(--color-text-tertiary)"
+              strokeWidth="1"
+              opacity="0.3"
+            />
           </g>
         </motion.svg>
 

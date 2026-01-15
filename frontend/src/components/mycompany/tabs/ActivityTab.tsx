@@ -158,19 +158,51 @@ export function ActivityTab({
           />
 
           {/* Activity nodes (empty/inactive) */}
-          <circle cx="60" cy="35" r="8" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" opacity="0.5" />
+          <circle
+            cx="60"
+            cy="35"
+            r="8"
+            fill="var(--color-bg-card)"
+            stroke="var(--color-border)"
+            strokeWidth="1.5"
+            opacity="0.5"
+          />
           <circle cx="60" cy="35" r="3" fill="url(#activityGradient)" opacity="0.3" />
 
-          <circle cx="60" cy="60" r="8" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" opacity="0.4" />
+          <circle
+            cx="60"
+            cy="60"
+            r="8"
+            fill="var(--color-bg-card)"
+            stroke="var(--color-border)"
+            strokeWidth="1.5"
+            opacity="0.4"
+          />
           <circle cx="60" cy="60" r="3" fill="url(#activityGradient)" opacity="0.2" />
 
-          <circle cx="60" cy="85" r="8" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" opacity="0.3" />
+          <circle
+            cx="60"
+            cy="85"
+            r="8"
+            fill="var(--color-bg-card)"
+            stroke="var(--color-border)"
+            strokeWidth="1.5"
+            opacity="0.3"
+          />
           <circle cx="60" cy="85" r="3" fill="url(#activityGradient)" opacity="0.1" />
 
           {/* Peaceful moon/stars decoration */}
           <circle cx="85" cy="30" r="10" fill="url(#activityGradient)" opacity="0.2" />
-          <path d="M 22 50 L 24 52 L 26 50 L 24 48 Z" fill="var(--color-indigo-400)" opacity="0.3" />
-          <path d="M 95 70 L 97 72 L 99 70 L 97 68 Z" fill="var(--color-purple-400)" opacity="0.3" />
+          <path
+            d="M 22 50 L 24 52 L 26 50 L 24 48 Z"
+            fill="var(--color-indigo-400)"
+            opacity="0.3"
+          />
+          <path
+            d="M 95 70 L 97 72 L 99 70 L 97 68 Z"
+            fill="var(--color-purple-400)"
+            opacity="0.3"
+          />
           <circle cx="30" cy="80" r="2" fill="var(--color-indigo-300)" opacity="0.4" />
         </motion.svg>
 

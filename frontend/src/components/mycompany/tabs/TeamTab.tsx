@@ -75,7 +75,14 @@ export function TeamTab({
           <g>
             {/* Top person (leader) */}
             <circle cx="60" cy="30" r="10" fill="url(#teamGradient)" opacity="0.5" />
-            <circle cx="60" cy="30" r="10" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" />
+            <circle
+              cx="60"
+              cy="30"
+              r="10"
+              fill="var(--color-bg-card)"
+              stroke="var(--color-border)"
+              strokeWidth="1.5"
+            />
             <circle cx="60" cy="30" r="4" fill="var(--color-indigo-500)" opacity="0.4" />
 
             {/* Connection lines */}
@@ -87,21 +94,72 @@ export function TeamTab({
 
             {/* Team members (bottom row) */}
             <circle cx="35" cy="75" r="8" fill="url(#teamGradient)" opacity="0.4" />
-            <circle cx="35" cy="75" r="8" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" />
+            <circle
+              cx="35"
+              cy="75"
+              r="8"
+              fill="var(--color-bg-card)"
+              stroke="var(--color-border)"
+              strokeWidth="1.5"
+            />
             <circle cx="35" cy="75" r="3" fill="var(--color-indigo-500)" opacity="0.3" />
 
             <circle cx="60" cy="75" r="8" fill="url(#teamGradient)" opacity="0.4" />
-            <circle cx="60" cy="75" r="8" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" />
+            <circle
+              cx="60"
+              cy="75"
+              r="8"
+              fill="var(--color-bg-card)"
+              stroke="var(--color-border)"
+              strokeWidth="1.5"
+            />
             <circle cx="60" cy="75" r="3" fill="var(--color-indigo-500)" opacity="0.3" />
 
             <circle cx="85" cy="75" r="8" fill="url(#teamGradient)" opacity="0.4" />
-            <circle cx="85" cy="75" r="8" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" />
+            <circle
+              cx="85"
+              cy="75"
+              r="8"
+              fill="var(--color-bg-card)"
+              stroke="var(--color-border)"
+              strokeWidth="1.5"
+            />
             <circle cx="85" cy="75" r="3" fill="var(--color-indigo-500)" opacity="0.3" />
 
             {/* Department boxes underneath */}
-            <rect x="25" y="88" width="20" height="8" rx="2" fill="url(#teamGradient)" opacity="0.2" stroke="var(--color-border)" strokeWidth="1" />
-            <rect x="50" y="88" width="20" height="8" rx="2" fill="url(#teamGradient)" opacity="0.2" stroke="var(--color-border)" strokeWidth="1" />
-            <rect x="75" y="88" width="20" height="8" rx="2" fill="url(#teamGradient)" opacity="0.2" stroke="var(--color-border)" strokeWidth="1" />
+            <rect
+              x="25"
+              y="88"
+              width="20"
+              height="8"
+              rx="2"
+              fill="url(#teamGradient)"
+              opacity="0.2"
+              stroke="var(--color-border)"
+              strokeWidth="1"
+            />
+            <rect
+              x="50"
+              y="88"
+              width="20"
+              height="8"
+              rx="2"
+              fill="url(#teamGradient)"
+              opacity="0.2"
+              stroke="var(--color-border)"
+              strokeWidth="1"
+            />
+            <rect
+              x="75"
+              y="88"
+              width="20"
+              height="8"
+              rx="2"
+              fill="url(#teamGradient)"
+              opacity="0.2"
+              stroke="var(--color-border)"
+              strokeWidth="1"
+            />
           </g>
         </motion.svg>
 

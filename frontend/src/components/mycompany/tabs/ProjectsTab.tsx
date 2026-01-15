@@ -209,19 +209,97 @@ export function ProjectsTab({
           </defs>
 
           {/* Kanban columns */}
-          <rect x="15" y="25" width="28" height="70" rx="6" fill="url(#projectGradient)" opacity="0.2" />
-          <rect x="48" y="25" width="28" height="70" rx="6" fill="url(#projectGradient)" opacity="0.3" />
-          <rect x="81" y="25" width="28" height="70" rx="6" fill="url(#projectGradient)" opacity="0.4" />
+          <rect
+            x="15"
+            y="25"
+            width="28"
+            height="70"
+            rx="6"
+            fill="url(#projectGradient)"
+            opacity="0.2"
+          />
+          <rect
+            x="48"
+            y="25"
+            width="28"
+            height="70"
+            rx="6"
+            fill="url(#projectGradient)"
+            opacity="0.3"
+          />
+          <rect
+            x="81"
+            y="25"
+            width="28"
+            height="70"
+            rx="6"
+            fill="url(#projectGradient)"
+            opacity="0.4"
+          />
 
           {/* Task cards in columns */}
-          <rect x="18" y="30" width="22" height="14" rx="3" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" />
-          <rect x="18" y="48" width="22" height="14" rx="3" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" />
-          <rect x="18" y="66" width="22" height="14" rx="3" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" />
+          <rect
+            x="18"
+            y="30"
+            width="22"
+            height="14"
+            rx="3"
+            fill="var(--color-bg-card)"
+            stroke="var(--color-border)"
+            strokeWidth="1.5"
+          />
+          <rect
+            x="18"
+            y="48"
+            width="22"
+            height="14"
+            rx="3"
+            fill="var(--color-bg-card)"
+            stroke="var(--color-border)"
+            strokeWidth="1.5"
+          />
+          <rect
+            x="18"
+            y="66"
+            width="22"
+            height="14"
+            rx="3"
+            fill="var(--color-bg-card)"
+            stroke="var(--color-border)"
+            strokeWidth="1.5"
+          />
 
-          <rect x="51" y="30" width="22" height="14" rx="3" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" />
-          <rect x="51" y="48" width="22" height="14" rx="3" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" />
+          <rect
+            x="51"
+            y="30"
+            width="22"
+            height="14"
+            rx="3"
+            fill="var(--color-bg-card)"
+            stroke="var(--color-border)"
+            strokeWidth="1.5"
+          />
+          <rect
+            x="51"
+            y="48"
+            width="22"
+            height="14"
+            rx="3"
+            fill="var(--color-bg-card)"
+            stroke="var(--color-border)"
+            strokeWidth="1.5"
+          />
 
-          <rect x="84" y="30" width="22" height="14" rx="3" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" />
+          <rect
+            x="84"
+            y="30"
+            width="22"
+            height="14"
+            rx="3"
+            fill="var(--color-bg-card)"
+            stroke="var(--color-border)"
+            strokeWidth="1.5"
+          />
         </motion.svg>
 
         <p className="mc-empty-title">{t('mycompany.startFirstProject')}</p>
