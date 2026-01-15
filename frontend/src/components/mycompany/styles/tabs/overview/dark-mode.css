@@ -280,12 +280,12 @@
   border-block-end-color: var(--color-border);
 }
 
-.dark .mc-team-header span,
-.dark .mc-playbooks-header span,
-.dark .mc-decisions-header span,
-[data-theme='dark'] .mc-team-header span,
-[data-theme='dark'] .mc-playbooks-header span,
-[data-theme='dark'] .mc-decisions-header span {
+.dark .mc-team-header > span:first-child,
+.dark .mc-playbooks-header > span:first-child,
+.dark .mc-decisions-header > span:first-child,
+[data-theme='dark'] .mc-team-header > span:first-child,
+[data-theme='dark'] .mc-playbooks-header > span:first-child,
+[data-theme='dark'] .mc-decisions-header > span:first-child {
   color: var(--color-text-secondary);
 }
 

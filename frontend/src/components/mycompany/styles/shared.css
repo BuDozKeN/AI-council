@@ -488,6 +488,9 @@
 
 /* Text button actions (Source, Promote, Delete) */
 .mc-text-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 12px;
   font-weight: 500;
   padding: 6px 12px;

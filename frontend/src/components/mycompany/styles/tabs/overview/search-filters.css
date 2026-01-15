@@ -17,9 +17,10 @@
   border-bottom: 1px solid var(--color-border);
 }
 
-.mc-team-header span,
-.mc-playbooks-header span,
-.mc-decisions-header span {
+/* Target only the stats text span, not button inner spans */
+.mc-team-header > span:first-child,
+.mc-playbooks-header > span:first-child,
+.mc-decisions-header > span:first-child {
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--color-text-secondary);

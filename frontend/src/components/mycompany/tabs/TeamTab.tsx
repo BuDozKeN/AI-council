@@ -10,7 +10,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { Plus } from 'lucide-react';
+import { Plus, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '../../ui/button';
 import { getDeptColor } from '../../../lib/colors';
@@ -225,13 +225,8 @@ export function TeamTab({
                         onViewDepartment && onViewDepartment(dept);
                       }}
                     >
-                      <span className="mc-context-icon">📄</span>
-                      <span>{t('mycompany.viewContext')}</span>
-                      {dept.context_md && (
-                        <span className="mc-context-size">
-                          {Math.round(dept.context_md.length / 1000)}k
-                        </span>
-                      )}
+                      <FileText size={14} className="mc-context-icon" />
+                      <span>{t('mycompany.aboutDepartment', { name: dept.name })}</span>
                     </button>
 
                     {/* Roles list */}
@@ -245,6 +240,7 @@ export function TeamTab({
                             onAddRole && onAddRole(dept.id);
                           }}
                         >
+                          <Plus size={14} />
                           {t('mycompany.newRole')}
                         </button>
                       </div>

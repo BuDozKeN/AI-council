@@ -1483,6 +1483,7 @@
     "departmentsRoles": "{{depts}} departamentos • {{roles}} roles",
     "roles": "roles",
     "viewContext": "Ver Directrices",
+    "aboutDepartment": "Sobre {{name}}",
     "rolesLabel": "Roles",
     "newRole": "Nuevo Rol",
     "addRolesToDept": "Agregar roles a este departamento",
