@@ -1625,7 +1625,7 @@ function App() {
                   onToggleCompanyContext={setUseCompanyContext}
                   useDepartmentContext={useDepartmentContext}
                   onToggleDepartmentContext={setUseDepartmentContext}
-                                    // Upload progress
+                  // Upload progress
                   isUploading={isUploading}
                   // Knowledge Base navigation (now part of My Company)
                   onViewKnowledgeBase={() => {

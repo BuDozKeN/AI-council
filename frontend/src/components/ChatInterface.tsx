@@ -31,7 +31,6 @@ import './chat/FollowUpBar.css';
 import './chat/input/index.css';
 import './ImageUpload.css';
 
-
 // Image upload type (matching ImageUpload.tsx)
 interface UploadedImage {
   file: File;
@@ -567,61 +566,61 @@ export default function ChatInterface({
       {/* Input form for follow-ups */}
       {/* NOTE: LandingHero handles the empty state (no messages), so this form only shows for follow-ups */}
       <form
-          className={`input-form relative ${imageUpload.isDragging ? 'dragging' : ''}`}
-          onSubmit={handleSubmit}
-          {...imageUpload.dropZoneProps}
-        >
-          {imageUpload.dragOverlay}
-          {imageUpload.fileInput}
+        className={`input-form relative ${imageUpload.isDragging ? 'dragging' : ''}`}
+        onSubmit={handleSubmit}
+        {...imageUpload.dropZoneProps}
+      >
+        {imageUpload.dragOverlay}
+        {imageUpload.fileInput}
 
-          {/* ChatInput with context icons inside (omnibar) */}
-          <ChatInput
-            input={input}
-            onInputChange={setInput}
-            onKeyDown={handleKeyDown}
-            onSubmit={() => handleSubmit({ preventDefault: () => {} } as React.FormEvent)}
-            isLoading={isLoading}
-            onStopGeneration={onStopGeneration}
-            hasMessages={hasMessages}
-            hasImages={attachedImages.length > 0}
-            imageUpload={imageUpload}
-            // Company context for dynamic stats
-            companyId={selectedBusiness}
-            // Context props for follow-ups (icons inside omnibar)
-            chatMode={chatMode}
-            onChatModeChange={setChatMode}
-            projects={projects}
-            selectedProject={selectedProject}
-            onSelectProject={onSelectProject}
-            departments={departments}
-            selectedDepartments={selectedDepartments}
-            onSelectDepartments={onSelectDepartments}
-            roles={allRoles}
-            selectedRoles={selectedRoles}
-            onSelectRoles={onSelectRoles}
-            playbooks={playbooks}
-            selectedPlaybooks={selectedPlaybooks}
-            onSelectPlaybooks={onSelectPlaybooks}
-            onResetAll={() => {
-              onSelectProject(null);
-              onSelectDepartments([]);
-              onSelectRoles([]);
-              onSelectPlaybooks([]);
-            }}
-            // Conversation modifier chips
-            {...(onSelectModifier ? { selectedModifier, onSelectModifier } : {})}
-            // Response style selector
-            {...(onSelectPreset
-              ? {
-                  selectedPreset,
-                  departmentPreset,
-                  departmentName,
-                  onSelectPreset,
-                  onOpenLLMHub,
-                }
-              : {})}
-          />
-        </form>
+        {/* ChatInput with context icons inside (omnibar) */}
+        <ChatInput
+          input={input}
+          onInputChange={setInput}
+          onKeyDown={handleKeyDown}
+          onSubmit={() => handleSubmit({ preventDefault: () => {} } as React.FormEvent)}
+          isLoading={isLoading}
+          onStopGeneration={onStopGeneration}
+          hasMessages={hasMessages}
+          hasImages={attachedImages.length > 0}
+          imageUpload={imageUpload}
+          // Company context for dynamic stats
+          companyId={selectedBusiness}
+          // Context props for follow-ups (icons inside omnibar)
+          chatMode={chatMode}
+          onChatModeChange={setChatMode}
+          projects={projects}
+          selectedProject={selectedProject}
+          onSelectProject={onSelectProject}
+          departments={departments}
+          selectedDepartments={selectedDepartments}
+          onSelectDepartments={onSelectDepartments}
+          roles={allRoles}
+          selectedRoles={selectedRoles}
+          onSelectRoles={onSelectRoles}
+          playbooks={playbooks}
+          selectedPlaybooks={selectedPlaybooks}
+          onSelectPlaybooks={onSelectPlaybooks}
+          onResetAll={() => {
+            onSelectProject(null);
+            onSelectDepartments([]);
+            onSelectRoles([]);
+            onSelectPlaybooks([]);
+          }}
+          // Conversation modifier chips
+          {...(onSelectModifier ? { selectedModifier, onSelectModifier } : {})}
+          // Response style selector
+          {...(onSelectPreset
+            ? {
+                selectedPreset,
+                departmentPreset,
+                departmentName,
+                onSelectPreset,
+                onOpenLLMHub,
+              }
+            : {})}
+        />
+      </form>
 
       {/* Progress Capsule */}
       {(() => {
