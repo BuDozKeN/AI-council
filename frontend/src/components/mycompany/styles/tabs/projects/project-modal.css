@@ -1,0 +1,129 @@
+/* Projects Tab - Modal */
+
+/* Extracted from projects.css lines 488-613 */
+
+/* ============================================================================
+   PROJECT MODAL - Status & Source Badges
+   ============================================================================ */
+
+.mc-status-badge {
+  padding: 4px 12px;
+  border-radius: var(--radius-default);
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+/* Source badge - indicates how project was created */
+.mc-source-badge {
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--color-sky-50);
+  color: var(--color-sky-600);
+  border: 1px solid var(--color-sky-200);
+}
+
+.mc-source-badge.council {
+  background: var(--color-purple-50);
+  color: var(--color-violet-600);
+  border-color: var(--color-purple-200);
+}
+
+.mc-source-badge.import {
+  background: var(--color-amber-100);
+  color: var(--color-amber-700);
+  border-color: var(--color-amber-200);
+}
+
+.mc-meta-info {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+/* Source conversation link */
+.mc-source-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  margin-inline-start: auto;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-source-link:hover {
+  color: var(--color-indigo-600);
+  background: var(--color-violet-50);
+}
+
+.mc-source-link svg {
+  opacity: 0.7;
+}
+
+.mc-source-link:hover svg {
+  opacity: 1;
+}
+
+/* ============================================================================
+   PROJECT MODAL - Tabs
+   ============================================================================ */
+
+.mc-project-tabs {
+  display: flex;
+  gap: 4px;
+  margin-block-end: 16px;
+  border-block-end: 1px solid var(--color-border);
+  padding-block-end: 0;
+}
+
+.mc-project-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: transparent;
+  border: none;
+  border-block-end: 2px solid transparent;
+  margin-block-end: -1px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-project-tab:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+}
+
+.mc-project-tab.active {
+  color: var(--color-indigo-600);
+  border-block-end-color: var(--color-indigo-600);
+}
+
+.mc-tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.mc-project-tab.active .mc-tab-badge {
+  background: var(--color-indigo-100);
+  color: var(--color-indigo-600);
+}

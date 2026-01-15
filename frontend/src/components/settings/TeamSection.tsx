@@ -17,6 +17,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../ui/select';
 import { useTeam, type TeamRole } from './hooks/useTeam';
 import type { User } from '@supabase/supabase-js';
+import './TeamSection.css';
 
 interface TeamSectionProps {
   user: User | null;

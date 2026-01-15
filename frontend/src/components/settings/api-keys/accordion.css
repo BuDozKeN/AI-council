@@ -1,0 +1,223 @@
+/* API Keys Section - Accordion Styles
+   Provider accordion design, triggers, animations */
+
+/* =============================================================================
+   API Keys - Accordion Provider Design
+   ============================================================================= */
+
+/* Page intro */
+.api-page-intro {
+  margin-block-end: 8px;
+}
+
+.api-page-intro h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 8px;
+}
+
+.api-page-intro p {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Accordion root */
+.api-provider-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Accordion item */
+.api-provider-item {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.api-provider-item.coming-soon {
+  opacity: 0.6;
+}
+
+/* Accordion trigger (header) */
+.api-provider-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: start;
+}
+
+.api-provider-trigger:hover {
+  background: var(--color-bg-secondary);
+}
+
+.api-provider-trigger[data-state='open'] {
+  border-block-end: 1px solid var(--color-border);
+}
+
+.provider-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  margin-inline-end: 12px;
+}
+
+.provider-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.provider-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.provider-logo.openrouter {
+  background: var(--color-provider-openrouter);
+  color: var(--color-text-inverse);
+}
+
+.provider-logo.anthropic {
+  background: var(--color-provider-anthropic);
+  color: var(--color-text-inverse);
+}
+
+.provider-details h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+/* Title row with inline status dot */
+.provider-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Compact status indicator dot */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-dot.connected {
+  background: var(--color-green-500);
+  box-shadow: 0 0 6px rgb(var(--color-green-500-rgb), 0.5);
+}
+
+.status-dot.paused {
+  background: var(--color-gray-400);
+}
+
+.status-dot.invalid {
+  background: var(--color-red-500);
+  box-shadow: 0 0 6px rgb(var(--color-red-500-rgb), 0.5);
+}
+
+.provider-tagline {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.provider-status-badge {
+  flex-shrink: 0;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: var(--radius-2xl);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-pill.connected {
+  background: var(--overlay-green-10);
+  color: var(--color-green-500);
+}
+
+.status-pill.invalid {
+  background: var(--overlay-red-10);
+  color: var(--color-red-500);
+}
+
+.status-pill.not-connected {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-muted);
+}
+
+.status-pill.disabled {
+  background: var(--overlay-black-15);
+  color: var(--color-gray-400);
+}
+
+/* Chevron animation */
+.accordion-chevron {
+  color: var(--color-text-muted);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.api-provider-trigger[data-state='open'] .accordion-chevron {
+  transform: rotate(180deg);
+}
+
+/* Accordion content */
+.api-provider-content {
+  overflow: hidden;
+}
+
+.api-provider-content[data-state='open'] {
+  animation: slideDown 0.2s ease-out;
+}
+
+.api-provider-content[data-state='closed'] {
+  animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+
+  to {
+    height: var(--radix-accordion-content-height);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    height: var(--radix-accordion-content-height);
+    opacity: 1;
+  }
+
+  to {
+    height: 0;
+    opacity: 0;
+  }
+}

@@ -122,7 +122,7 @@
 }
 
 /* Mobile adjustments */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .hard-gate-modal .app-modal-body {
     padding: var(--space-3);
   }

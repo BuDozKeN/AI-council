@@ -1,0 +1,336 @@
+/**
+ * MyCompany Mobile Shell - Layout Styles
+ * Safe areas, landscape mode, filters, polish
+ *
+ * Key features:
+ * - Safe area handling for notched devices
+ * - Landscape mode optimizations
+ * - Filter stacking
+ * - Mobile polish
+ */
+
+/* ============================================================================
+   P0-4: SAFE AREA HANDLING
+   For notched devices (iPhone X+, Android)
+   ============================================================================ */
+
+@supports (padding: env(safe-area-inset-bottom)) {
+  @media (width <= 640px) {
+    /* Floating bottom nav respects safe area */
+    .mc-tabs {
+      inset-block-end: calc(12px + env(safe-area-inset-bottom));
+    }
+
+    /* Panel height accounts for safe areas - use dvh for mobile browser chrome */
+    .mc-panel {
+      height: 100vh; /* Fallback */
+      height: 100dvh; /* Dynamic viewport height for mobile browsers */
+      max-height: 100vh;
+      max-height: 100dvh;
+      padding-block-start: env(safe-area-inset-top, 0);
+    }
+
+    /* Modal content safe area - use fallbacks to prevent calc failures */
+    .app-modal-content {
+      max-height: calc(
+        100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 40px
+      );
+    }
+
+    /* Floating action buttons */
+    .mc-fab {
+      inset-block-end: calc(90px + env(safe-area-inset-bottom));
+    }
+  }
+}
+
+/* ============================================================================
+   LANDSCAPE MODE OPTIMIZATIONS
+   ============================================================================ */
+
+@media (width <= 1024px) and (orientation: landscape) {
+  .mc-panel {
+    height: 100vh;
+    border-radius: 0;
+  }
+
+  /* Bottom nav becomes more compact in landscape */
+  .mc-tabs {
+    padding: 4px 8px;
+  }
+
+  .mc-tab {
+    flex: 1 1 0;
+    flex-direction: row;
+    gap: 4px;
+    min-width: 0;
+    min-height: 36px;
+    padding: 4px 6px;
+  }
+
+  .mc-tab-label {
+    font-size: 11px;
+  }
+
+  .mc-tab-icon {
+    font-size: 16px;
+  }
+
+  /* More horizontal space for content */
+  .mc-content {
+    padding: 12px 24px;
+    padding-block-end: calc(60px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Stats in a row in landscape */
+  .mc-stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .mc-stat-card {
+    padding: 10px;
+  }
+
+  .mc-stat-value {
+    font-size: 1.25rem;
+  }
+}
+
+/* ============================================================================
+   P0-5: FILTER STACKING ON MOBILE
+   Prevent horizontal overflow
+   ============================================================================ */
+
+@media (width <= 640px) {
+  /* Filters row on mobile - compact single row */
+  .mc-projects-filters {
+    flex-flow: row nowrap;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 0;
+  }
+
+  .mc-filters-left {
+    flex-flow: row nowrap;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Filter dropdowns shrink to content */
+  .mc-filters-left > * {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 50%;
+  }
+
+  /* Hide "New" button - FAB is used instead */
+  .mc-projects-filters .mc-btn-clean,
+  .mc-projects-filters > button {
+    display: none;
+  }
+
+  /* Tab headers - compact on mobile */
+  .mc-team-header,
+  .mc-playbooks-header,
+  .mc-decisions-header {
+    flex-flow: row nowrap;
+    gap: 8px;
+    padding: 4px 0;
+  }
+
+  .mc-team-header span,
+  .mc-playbooks-header span,
+  .mc-decisions-header span {
+    font-size: 0.75rem;
+  }
+
+  /* Playbooks filters - compact */
+  .mc-playbooks-header {
+    gap: 6px;
+  }
+
+  /* Hide header buttons on mobile - FAB is used instead */
+  .mc-team-header > button,
+  .mc-playbooks-header > button {
+    display: none;
+  }
+
+  /* Decisions filters - responsive row layout */
+  .mc-decisions-filters {
+    display: flex;
+    flex-flow: row nowrap;
+    gap: 8px;
+    padding: 4px 0;
+    align-items: stretch;
+  }
+
+  /* Department filter - allow shrink but maintain usability */
+  .mc-decisions-filters .mc-dept-filter {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 45%;
+  }
+
+  /* Search input takes remaining space */
+  .mc-decisions-filters .mc-search-input-wrapper {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: none;
+  }
+}
+
+/* Extra small mobile - more compact layouts (380px and below) */
+@media (width <= 640px) {
+  .mc-decisions-filters {
+    gap: 6px;
+  }
+
+  .mc-decisions-filters .mc-dept-filter {
+    max-width: 40%;
+  }
+
+  /* Slightly tighter content padding on very small screens */
+  .mc-content {
+    padding: 8px 12px;
+    padding-block-end: calc(70px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .mc-overview-hero {
+    padding: 12px 14px;
+    gap: 8px;
+  }
+
+  .mc-context-card {
+    padding: 12px 14px;
+  }
+
+  /* Sticky toolbar - match smaller card padding for negative margins */
+  .mc-context-sticky-toolbar {
+    inset-block-start: 0;
+    margin-inline: -14px;
+    padding-inline: 14px;
+    width: calc(100% + 28px);
+  }
+}
+
+/* ============================================================================
+   P0-6: SKELETON LOADERS - Mobile-aware
+   ============================================================================ */
+
+@media (width <= 640px) {
+  .mc-skeleton-stats {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .mc-skeleton-stats > div,
+  .mc-skeleton-stats > * {
+    width: 100%;
+    height: 60px;
+  }
+
+  .mc-skeleton-row {
+    min-height: 52px;
+  }
+}
+
+/* ============================================================================
+   ADDITIONAL MOBILE POLISH
+   ============================================================================ */
+
+@media (width <= 640px) {
+  /* Stats grid: horizontal scroll cards */
+  .mc-projects-stats {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-block-end: 4px;
+    margin: 0 -16px;
+    padding-inline: 16px;
+  }
+
+  .mc-projects-stats::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mc-stat-pill {
+    flex-shrink: 0;
+  }
+
+  /* Elegant list on mobile */
+  .mc-elegant-list {
+    padding: 2px;
+    border-radius: var(--radius-lg);
+  }
+
+  .mc-elegant-row {
+    border-radius: var(--radius-default);
+    gap: 10px;
+  }
+
+  /* Content area more room for text */
+  .mc-elegant-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .mc-elegant-title {
+    font-size: 15px;
+    -webkit-line-clamp: 2;
+  }
+
+  /* Badges wrap nicely */
+  .mc-elegant-badges {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  /* Department badges: limit visible, show +N */
+  .mc-dept-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    max-width: 100%;
+  }
+
+  .mc-dept-badges > *:nth-child(n + 3) {
+    display: none;
+  }
+
+  .mc-dept-badges-overflow {
+    display: inline-flex;
+    font-size: 10px;
+    padding: 2px 6px;
+    background: var(--color-border);
+    color: var(--color-text-secondary);
+    border-radius: var(--radius-sm);
+  }
+
+  /* Empty states: compact on mobile */
+  .mc-empty {
+    padding: 32px 16px;
+  }
+
+  .mc-empty-cta {
+    position: fixed;
+    inset-block-end: calc(80px + env(safe-area-inset-bottom, 0px));
+    inset-inline-end: 16px;
+    z-index: var(--z-sticky);
+  }
+}
+
+/* ============================================================================
+   ACTIVE/TAP STATE FOR MOBILE CARDS
+   ============================================================================ */
+
+@media (width <= 640px) {
+  .mc-project-row-compact:active,
+  .mc-elegant-row:active,
+  .mc-decision-row:active {
+    background: var(--color-bg-hover);
+    transform: scale(0.99);
+  }
+}

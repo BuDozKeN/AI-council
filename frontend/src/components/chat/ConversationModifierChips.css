@@ -78,7 +78,7 @@
 }
 
 /* Mobile: smaller chips */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .modifier-chips {
     gap: 2px;
   }
@@ -98,7 +98,7 @@
 }
 
 /* Very small screens: icon only */
-@media (max-width: 480px) {
+@media (width <= 640px) {
   .modifier-chip .modifier-label {
     display: none;
   }

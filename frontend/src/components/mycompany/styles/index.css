@@ -9,10 +9,13 @@
  * - shell.css       - Overlay, panel, header, tabs, content area
  * - badges.css      - Type, department, scope, meta badges
  * - shared.css      - Loading states, forms, buttons
- * - modals.css      - Modal patterns, confirm, promote views
  * - legacy.css      - AI synthesize, context headers (to be migrated)
  * - tabs/*.css      - Tab-specific styles
  * - mobile.css      - Mobile responsive overrides (must be last)
+ *
+ * Note: Modal styles moved to component-scoped CSS files:
+ *       - ui/Modal.css (shared modal base styles)
+ *       - mycompany/modals/*.css (component-specific modal styles)
  */
 
 /* ============================================================================
@@ -20,35 +23,37 @@
    ============================================================================ */
 
 /* Reusable layout patterns - import first so tabs can use them */
-@import './layouts.css';
+@import url('./layouts.css');
 
 /* Core layout and shell */
-@import './shell.css';
+@import url('./shell.css');
 
 /* Shared components */
-@import './badges.css';
-@import './shared.css';
+@import url('./badges.css');
+@import url('./shared.css');
 
 /* Tab-specific styles */
-@import './tabs/overview.css';
-@import './tabs/playbooks.css';
-@import './tabs/decisions.css';
-@import './tabs/activity.css';
-@import './tabs/projects.css';
-@import './tabs/team.css';
-@import './tabs/usage.css';
-
-/* Modal styles */
-@import './modals.css';
+@import url('./tabs/overview/index.css');
+@import url('./tabs/playbooks.css');
+@import url('./tabs/decisions.css');
+@import url('./tabs/activity.css');
+@import url('./tabs/projects/index.css');
+@import url('./tabs/team.css');
+@import url('./tabs/usage.css');
 
 /* ============================================================================
    REMAINING LEGACY STYLES
    Extracted from MyCompany.css - AI synthesize, context header, editor toolbar
    ============================================================================ */
-@import './legacy.css';
+@import url('./legacy.css');
 
 /* ============================================================================
    MOBILE RESPONSIVE OVERRIDES
    Mobile styles must come LAST to override everything else
+   Tab-specific mobile styles are in each tab's CSS file
    ============================================================================ */
-@import './mobile.css';
+@import url('./shell/mobile/navigation.css');
+@import url('./shell/mobile/touch.css');
+@import url('./shell/mobile/fab.css');
+@import url('./shell/mobile/layout.css');
+@import url('./shell/mobile/dark-mode.css');

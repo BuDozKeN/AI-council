@@ -25,7 +25,6 @@
   border-radius: var(--radius-default);
   background: var(--overlay-white-90);
   backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   color: var(--color-text-tertiary);
   cursor: pointer;
   transition: all 0.15s ease;
@@ -148,7 +147,7 @@
    MOBILE - Always visible (no hover state)
    ============================================================================= */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .copy-btn-unified {
     opacity: 0.6;
     pointer-events: auto;

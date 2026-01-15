@@ -247,7 +247,7 @@
    MOBILE STYLES
    ============================================================================ */
 
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .mc-activity-header {
     margin-block-end: 12px;
   }

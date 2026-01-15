@@ -9,7 +9,7 @@ import { Sparkles, Check, RefreshCw, FileText, CheckCircle2 } from 'lucide-react
 import { logger } from '../../../utils/logger';
 import { hapticSuccess } from '../../../lib/haptics';
 import { CELEBRATION } from '../../../lib/animation-constants';
-import '../../ProjectModal.css'; // Reuse ProjectModal styles
+import '../../project-modal/index.css'; // Reuse ProjectModal styles
 
 interface AddDepartmentModalProps {
   companyId: string;

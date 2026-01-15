@@ -1,0 +1,145 @@
+/* API Keys Section - Mobile Styles
+   Mobile-specific adjustments and responsive layouts */
+
+/* =============================================================================
+   Mobile Adjustments for API Keys Tab
+   ============================================================================= */
+
+@media (width <= 640px) {
+  .api-key-status {
+    flex-wrap: wrap;
+  }
+
+  .api-key-status .masked-key {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+
+  .api-key-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .api-key-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .api-provider-trigger {
+    padding: 14px 16px;
+  }
+
+  .provider-logo {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .provider-details h3 {
+    font-size: 14px;
+  }
+
+  .provider-tagline {
+    font-size: 11px;
+  }
+
+  .provider-explainer {
+    padding: 16px;
+  }
+
+  .explainer-section h4 {
+    font-size: 13px;
+  }
+
+  .explainer-section p {
+    font-size: 12px;
+  }
+
+  .provider-connection {
+    padding: 16px;
+  }
+
+  .setup-step {
+    gap: 10px;
+  }
+
+  .step-number {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    min-height: 22px;
+    font-size: 11px;
+  }
+
+  .step-content p {
+    font-size: 12px;
+  }
+
+  .provider-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .provider-status-badge {
+    margin-inline-start: 50px;
+  }
+
+  .provider-connection-status {
+    padding: 16px;
+  }
+
+  .provider-connection-status .api-key-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .provider-connection-status .api-key-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .provider-setup-guide {
+    padding: 16px;
+  }
+
+  .byok-inline {
+    padding: 10px 12px;
+  }
+
+  .byok-key {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+
+  .byok-badge {
+    font-size: 9px;
+    padding: 2px 4px;
+  }
+}
+
+/* Very small phones - even more compact */
+@media (width <= 640px) {
+  .provider-logo {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+    border-radius: var(--radius-md);
+  }
+
+  .provider-info {
+    gap: 10px;
+  }
+
+  .step-number {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+    font-size: 10px;
+  }
+
+  .setup-step {
+    gap: 8px;
+  }
+}

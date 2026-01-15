@@ -177,9 +177,24 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
+    // CSS code splitting - separate CSS per chunk for optimal caching
+    cssCodeSplit: true,
+
+    // Minify CSS aggressively in production
+    cssMinify: 'lightningcss', // Faster than esbuild, better output
+
     // Optimize chunk sizes for better caching and load performance
     rollupOptions: {
       output: {
+        // Separate CSS files by route/chunk for better caching
+        assetFileNames: (assetInfo) => {
+          // CSS files get content-hash for long-term caching
+          if (assetInfo.name.endsWith('.css')) {
+            return 'assets/css/[name].[hash].css';
+          }
+          return 'assets/[name].[hash].[ext]';
+        },
+
         manualChunks: {
           // Core React runtime - rarely changes, cache well
           'vendor-react': ['react', 'react-dom'],
@@ -218,6 +233,53 @@ export default defineConfig(({ mode }) => ({
     minify: 'esbuild',
     esbuildOptions: {
       drop: ['console', 'debugger'],
+      // CSS tree-shaking - remove unused CSS
+      treeShaking: true,
+    },
+
+    // Report compressed size for better bundle analysis
+    reportCompressedSize: true,
+
+    // Target modern browsers for smaller bundles
+    target: 'es2020',
+  },
+
+  // CSS optimization configuration
+  css: {
+    devSourcemap: true, // Enable CSS sourcemaps in dev
+
+    // PostCSS optimizations
+    postcss: {
+      plugins: [
+        // Tailwind CSS v4 handles its own optimizations
+        // Additional PostCSS plugins can be added here
+      ],
+    },
+
+    // CSS preprocessor options (if using Sass/Less in future)
+    preprocessorOptions: {},
+
+    // Lightning CSS configuration for maximum optimization
+    lightningcss: {
+      // Minify options
+      minify: true,
+
+      // Target modern browsers (reduces polyfills)
+      targets: {
+        chrome: 90,
+        firefox: 88,
+        safari: 14,
+        edge: 90,
+      },
+
+      // Draft syntax support (CSS nesting, etc.)
+      drafts: {
+        nesting: true,
+        customMedia: true,
+      },
+
+      // Enable CSS modules tree-shaking
+      unusedSymbols: [],
     },
   },
 }));

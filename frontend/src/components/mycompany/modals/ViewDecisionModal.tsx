@@ -11,6 +11,8 @@
  * Extracted from MyCompany.jsx for better maintainability.
  */
 
+import './ViewDecisionModal.css';
+import '../../ui/Modal.css';
 import { useTranslation } from 'react-i18next';
 import { AppModal } from '../../ui/AppModal';
 import { Button } from '../../ui/button';

@@ -1,0 +1,381 @@
+/* Overview Tab - Context Card */
+
+/* Extracted from overview.css lines 244-622 */
+
+/* ============================================================================
+   STATS GRID
+   ============================================================================ */
+
+.mc-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--gap);
+  margin-block-end: var(--gap-lg);
+}
+
+.mc-stat-card {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  min-height: var(--space-16);
+  text-align: center;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.mc-stat-card::before {
+  content: '';
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  height: 3px;
+  background: var(--color-indigo-500);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.mc-stat-card:hover {
+  border-color: var(--color-border-dark);
+  box-shadow: var(--shadow-sm);
+}
+
+.mc-stat-card:hover::before {
+  opacity: 1;
+}
+
+.mc-stat-icon {
+  color: var(--color-indigo-500);
+  margin-block-end: var(--space-1);
+}
+
+.mc-stat-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mc-stat-card.selected {
+  border-color: var(--color-blue-500);
+  background: var(--color-blue-50);
+}
+
+.mc-stat-card.selected::before {
+  opacity: 1;
+  background: var(--color-indigo-500);
+}
+
+.mc-stat-value {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-none);
+}
+
+/* Semantic stat value colors */
+.mc-stat-value.active {
+  color: var(--color-blue-700);
+}
+
+.mc-stat-value.completed {
+  color: var(--color-green-700);
+}
+
+.mc-stat-value.archived {
+  color: var(--color-text-tertiary);
+}
+
+.mc-stat-value.decisions {
+  color: var(--color-amber-700);
+}
+
+.mc-stat-value.total {
+  color: var(--color-emerald-600);
+}
+
+.mc-stat-value.sops {
+  color: var(--color-blue-700);
+}
+
+.mc-stat-value.frameworks {
+  color: var(--color-amber-700);
+}
+
+.mc-stat-value.policies {
+  color: var(--color-violet-700);
+}
+
+.mc-stat-label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
+  margin-block-start: var(--space-1);
+}
+
+/* Clickable stat cards */
+.mc-stat-card.clickable {
+  cursor: pointer;
+}
+
+/* ============================================================================
+   CONTEXT SECTION
+   ============================================================================ */
+
+.mc-context-section {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.mc-context-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--card-padding) var(--card-padding-lg);
+  background: var(--color-bg-primary);
+}
+
+.mc-context-section h3 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.mc-context-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--card-padding-sm) var(--card-padding);
+  border-block-end: 1px solid var(--color-border);
+  background: var(--color-bg-primary);
+}
+
+.mc-context-section-header h3 {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.mc-expand-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-expand-btn:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-secondary);
+}
+
+.mc-expand-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.mc-context-section {
+  position: relative;
+}
+
+/* =============================================================================
+   CONTEXT CARD - Premium card styling (same pattern as Stage 3 .final-response)
+   Simple structure: card container > sticky toolbar > content
+   ============================================================================= */
+
+.mc-context-card {
+  position: relative;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  border-block-start: 3px solid var(--color-border-dark);
+  background: var(--color-bg-primary);
+  box-shadow: var(--shadow-md);
+
+  /* Normal card - content flows naturally, parent scrolls */
+  padding: var(--card-padding-xl);
+
+  /* Extra bottom padding to extend card below content */
+  padding-block-end: 3rem;
+
+  /* Account for scrollbar width (8px) */
+  margin-inline-end: 8px;
+}
+
+/* Context card header - title and metadata */
+.mc-context-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-block-end: 16px;
+  padding-block-end: 12px;
+  border-block-end: 1px solid var(--color-border);
+}
+
+.mc-context-card-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.mc-context-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.mc-context-meta .mc-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mc-context-meta .mc-meta-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-tertiary);
+}
+
+.mc-context-meta .mc-meta-value {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+/* Sticky toolbar - sticks to top when scrolling the body */
+.mc-context-sticky-toolbar {
+  position: sticky;
+  inset-block-start: 0;
+
+  /* Must be higher than .mc-scroll-top-fab (z-elevated = 10) so TOC dropdown appears above FAB.
+     Using z-dropdown (100) to ensure it's definitively above ALL floating elements */
+  z-index: var(--z-dropdown, 100);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 0;
+  margin-block-end: 12px;
+
+  /* Opaque background to cover content scrolling behind */
+  background: var(--color-bg-primary);
+}
+
+/* Copy button in toolbar - override CopyButton's default absolute positioning */
+.mc-context-copy-btn {
+  /* Override CopyButton's position: absolute to work in flex layout */
+  position: relative;
+  inset-block-start: auto;
+  inset-inline-end: auto;
+
+  /* Always visible in toolbar (not hover-dependent) */
+  opacity: 0.7;
+  pointer-events: auto;
+
+  /* Flex positioning */
+  margin-inline-start: auto;
+  flex-shrink: 0;
+}
+
+.mc-context-copy-btn:hover {
+  opacity: 1;
+}
+
+/* Desktop TOC - show on large screens */
+.mc-desktop-toc {
+  display: none;
+}
+
+@media (width >= 769px) {
+  .mc-desktop-toc {
+    display: inline-flex;
+  }
+
+  .mc-mobile-toc {
+    display: none;
+  }
+}
+
+/* Mobile TOC - show on small screens */
+@media (width <= 640px) {
+  .mc-mobile-toc {
+    display: inline-flex;
+  }
+}
+
+/* Content area - flows naturally, parent scrolls */
+.mc-context-content {
+  /* Content just flows - no scroll here */
+}
+
+/* =============================================================================
+   SCROLL TO TOP FAB - Floating action button for quick return to top
+   Positioned at bottom right, vertically aligned with copy button
+   ============================================================================= */
+
+.mc-scroll-top-fab {
+  position: sticky;
+  inset-block-end: 20px;
+  align-self: flex-end;
+  margin-block-start: -36px; /* Don't add extra space */
+  margin-inline-end: var(--card-padding-xl); /* Align with copy button's right edge */
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-default);
+  color: var(--color-slate-500);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+  opacity: 0.85;
+  z-index: var(--z-elevated);
+
+  /* Animation on appear */
+  animation: mc-fab-appear 0.2s ease-out;
+}
+
+@keyframes mc-fab-appear {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 0.85;
+    transform: translateY(0);
+  }
+}
+
+.mc-scroll-top-fab:hover {
+  opacity: 1;
+  color: var(--color-slate-700);
+  box-shadow: var(--shadow-md);
+  transform: scale(1.05);
+}
+
+.mc-scroll-top-fab:active {
+  transform: scale(0.95);
+}
+
+.mc-scroll-top-fab svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}

@@ -119,25 +119,20 @@
   /* ============================================================================
      SHADOWS (Premium layered - 3x depth for modern look)
      ============================================================================ */
-  --shadow-xs: 0 1px 2px rgb(0, 0, 0, 0.08), 0 0 1px rgb(0, 0, 0, 0.04);
-  --shadow-sm:
-    0 2px 4px rgb(0, 0, 0, 0.12), 0 1px 2px rgb(0, 0, 0, 0.08), 0 0 1px rgb(0, 0, 0, 0.04);
+  --shadow-xs: 0 1px 2px rgb(0 0 0 / 8%), 0 0 1px rgb(0 0 0 / 4%);
+  --shadow-sm: 0 2px 4px rgb(0 0 0 / 12%), 0 1px 2px rgb(0 0 0 / 8%), 0 0 1px rgb(0 0 0 / 4%);
   --shadow-md:
-    0 8px 16px -4px rgb(0, 0, 0, 0.16), 0 4px 8px -2px rgb(0, 0, 0, 0.12),
-    0 0 1px rgb(0, 0, 0, 0.08);
+    0 8px 16px -4px rgb(0 0 0 / 16%), 0 4px 8px -2px rgb(0 0 0 / 12%), 0 0 1px rgb(0 0 0 / 8%);
   --shadow-lg:
-    0 16px 32px -8px rgb(0, 0, 0, 0.2), 0 8px 16px -4px rgb(0, 0, 0, 0.14),
-    0 0 1px rgb(0, 0, 0, 0.08);
+    0 16px 32px -8px rgb(0 0 0 / 20%), 0 8px 16px -4px rgb(0 0 0 / 14%), 0 0 1px rgb(0 0 0 / 8%);
   --shadow-xl:
-    0 24px 48px -12px rgb(0, 0, 0, 0.24), 0 12px 24px -6px rgb(0, 0, 0, 0.16),
-    0 0 1px rgb(0, 0, 0, 0.08);
+    0 24px 48px -12px rgb(0 0 0 / 24%), 0 12px 24px -6px rgb(0 0 0 / 16%), 0 0 1px rgb(0 0 0 / 8%);
   --shadow-2xl:
-    0 32px 64px -16px rgb(0, 0, 0, 0.32), 0 16px 32px -8px rgb(0, 0, 0, 0.2),
-    0 0 1px rgb(0, 0, 0, 0.08);
+    0 32px 64px -16px rgb(0 0 0 / 32%), 0 16px 32px -8px rgb(0 0 0 / 20%), 0 0 1px rgb(0 0 0 / 8%);
 
   /* Focus ring (accessibility) - using iris brand color */
   --shadow-focus: 0 0 0 3px rgb(var(--color-focus-rgb), 0.35);
-  --shadow-focus-error: 0 0 0 3px rgb(239, 68, 68, 0.35);
+  --shadow-focus-error: 0 0 0 3px rgb(239 68 68 / 35%);
 
   /* ============================================================================
      NOISE TEXTURES (2025 Premium Trend - Vercel/Linear style)
@@ -316,15 +311,13 @@
   --color-info-subtle: #253743;
 
   /* --- Shadows (premium layered for dark mode) --- */
-  --shadow-sm: 0 2px 4px rgb(0, 0, 0, 0.4), 0 1px 2px rgb(0, 0, 0, 0.3), 0 0 1px rgb(0, 0, 0, 0.2);
+  --shadow-sm: 0 2px 4px rgb(0 0 0 / 40%), 0 1px 2px rgb(0 0 0 / 30%), 0 0 1px rgb(0 0 0 / 20%);
   --shadow-md:
-    0 8px 16px -4px rgb(0, 0, 0, 0.5), 0 4px 8px -2px rgb(0, 0, 0, 0.35), 0 0 1px rgb(0, 0, 0, 0.2);
+    0 8px 16px -4px rgb(0 0 0 / 50%), 0 4px 8px -2px rgb(0 0 0 / 35%), 0 0 1px rgb(0 0 0 / 20%);
   --shadow-lg:
-    0 16px 32px -8px rgb(0, 0, 0, 0.55), 0 8px 16px -4px rgb(0, 0, 0, 0.4),
-    0 0 1px rgb(0, 0, 0, 0.2);
+    0 16px 32px -8px rgb(0 0 0 / 55%), 0 8px 16px -4px rgb(0 0 0 / 40%), 0 0 1px rgb(0 0 0 / 20%);
   --shadow-xl:
-    0 24px 48px -12px rgb(0, 0, 0, 0.6), 0 12px 24px -6px rgb(0, 0, 0, 0.45),
-    0 0 1px rgb(0, 0, 0, 0.2);
+    0 24px 48px -12px rgb(0 0 0 / 60%), 0 12px 24px -6px rgb(0 0 0 / 45%), 0 0 1px rgb(0 0 0 / 20%);
 
   /* --- Sidebar --- */
   --sidebar-bg: var(--color-bg-subtle);
@@ -348,9 +341,11 @@
     transform: scale(0);
     opacity: 0;
   }
+
   60% {
     transform: scale(1.2);
   }
+
   100% {
     transform: scale(1);
     opacity: 1;
@@ -365,10 +360,11 @@
 @keyframes complete-glow {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgb(16, 185, 129, 0);
+    box-shadow: 0 0 0 0 rgb(16 185 129 / 0%);
   }
+
   40% {
-    box-shadow: 0 0 20px 4px rgb(16, 185, 129, 0.25);
+    box-shadow: 0 0 20px 4px rgb(16 185 129 / 25%);
   }
 }
 
@@ -382,12 +378,15 @@
     transform: scale(0.5);
     opacity: 0;
   }
+
   50% {
     transform: scale(1.25);
   }
+
   70% {
     transform: scale(0.95);
   }
+
   100% {
     transform: scale(1);
     opacity: 1;
@@ -404,12 +403,15 @@
     transform: scale(0) rotate(-15deg);
     opacity: 0;
   }
+
   50% {
     transform: scale(1.3) rotate(5deg);
   }
+
   70% {
     transform: scale(0.9) rotate(-2deg);
   }
+
   100% {
     transform: scale(1) rotate(0deg);
     opacity: 1;
@@ -426,6 +428,7 @@
     opacity: 0;
     transform: translateY(12px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -441,24 +444,31 @@
 .animate-stagger > *:nth-child(1) {
   animation-delay: 0ms;
 }
+
 .animate-stagger > *:nth-child(2) {
   animation-delay: 50ms;
 }
+
 .animate-stagger > *:nth-child(3) {
   animation-delay: 100ms;
 }
+
 .animate-stagger > *:nth-child(4) {
   animation-delay: 150ms;
 }
+
 .animate-stagger > *:nth-child(5) {
   animation-delay: 200ms;
 }
+
 .animate-stagger > *:nth-child(6) {
   animation-delay: 250ms;
 }
+
 .animate-stagger > *:nth-child(7) {
   animation-delay: 300ms;
 }
+
 .animate-stagger > *:nth-child(8) {
   animation-delay: 350ms;
 }
@@ -473,10 +483,12 @@
     transform: scale(1);
     opacity: 0.8;
   }
+
   50% {
     transform: scale(1.15);
     opacity: 0.4;
   }
+
   100% {
     transform: scale(1);
     opacity: 0.8;
@@ -493,6 +505,7 @@
     opacity: 1;
     transform: translateY(0);
   }
+
   100% {
     opacity: 0;
     transform: translateY(4px);
@@ -509,15 +522,19 @@
   100% {
     transform: translateX(0);
   }
+
   20% {
     transform: translateX(-3px) rotate(-1deg);
   }
+
   40% {
     transform: translateX(3px) rotate(1deg);
   }
+
   60% {
     transform: translateX(-2px) rotate(-0.5deg);
   }
+
   80% {
     transform: translateX(2px) rotate(0.5deg);
   }

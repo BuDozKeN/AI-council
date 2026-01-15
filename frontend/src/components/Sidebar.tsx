@@ -45,7 +45,7 @@ import { api } from '../api';
 import { logger } from '../utils/logger';
 import type { Conversation, ConversationSortBy } from '../types/conversation';
 import type { Department } from '../types/business';
-import './Sidebar.css';
+import './sidebar/index.css';
 
 interface DepartmentConversationGroup {
   name: string;

@@ -246,7 +246,7 @@
    MOBILE ADJUSTMENTS
    ============================================================================= */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Larger trigger for touch */
   .llm-preset-trigger {
     min-height: 44px;
@@ -345,17 +345,17 @@
 
 /* Preset colors - dark mode */
 .dark .llm-preset-item.preset-conservative .llm-preset-item-icon {
-  background: var(--overlay-blue-15, rgb(59, 130, 246, 0.15));
+  background: var(--overlay-blue-15, rgb(59 130 246 / 15%));
   color: var(--color-blue-400);
 }
 
 .dark .llm-preset-item.preset-balanced .llm-preset-item-icon {
-  background: var(--overlay-amber-15, rgb(245, 158, 11, 0.15));
+  background: var(--overlay-amber-15, rgb(245 158 11 / 15%));
   color: var(--color-amber-400);
 }
 
 .dark .llm-preset-item.preset-creative .llm-preset-item-icon {
-  background: var(--overlay-purple-15, rgb(168, 85, 247, 0.15));
+  background: var(--overlay-purple-15, rgb(168 85 247 / 15%));
   color: var(--color-purple-400);
 }
 
@@ -369,7 +369,7 @@
 }
 
 /* Mobile dark mode */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .dark .llm-preset-item {
     background: var(--color-bg-tertiary);
   }

@@ -1,0 +1,338 @@
+/* LLM Hub - Responsive & Persona */
+
+/* Extracted from llm-hub.css lines 795-end */
+
+/* ============================================================================
+   Persona Textarea
+   ============================================================================ */
+
+.llm-persona-textarea {
+  width: 100%;
+  min-height: 180px;
+  margin-block-start: 12px;
+  padding: 12px 14px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono, monospace);
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  resize: vertical;
+  transition: border-color 0.15s ease;
+}
+
+.llm-persona-textarea:focus {
+  outline: none;
+  border-color: var(--color-brand-primary);
+}
+
+.llm-persona-textarea::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+/* ============================================================================
+   Responsive
+   ============================================================================ */
+
+@media (width <= 640px) {
+  .llm-card-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .llm-inner-card-icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Hide desktop hint on mobile */
+  .llm-creativity-hint {
+    display: none;
+  }
+
+  /* Hide desktop header and description */
+  .llm-stage-header {
+    display: none;
+  }
+
+  .llm-inner-card-desc {
+    display: none;
+  }
+
+  .llm-stages {
+    gap: 0;
+    margin-block-start: 0;
+  }
+
+  /* Inner card body - tight on mobile */
+  .llm-inner-card-body {
+    padding: 12px 14px 14px;
+  }
+
+  /* ========================================
+     Mobile Stage Cards - Ultra compact
+     ======================================== */
+  .llm-stage-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    overflow: visible;
+  }
+
+  .llm-stage-row:first-child {
+    padding-block-start: 0;
+  }
+
+  .llm-stage-row:last-child {
+    padding-block-end: 0;
+  }
+
+  .llm-stage-row:hover {
+    border-color: transparent;
+  }
+
+  /* Hide desktop controls on mobile */
+  .llm-stage-label,
+  .llm-stage-hint,
+  .llm-stage-controls,
+  .llm-length-wrapper--desktop {
+    display: none;
+  }
+
+  /* ========================================
+     Mobile Layout - New clean structure
+     Row 1: Title ───●─── [Badge]
+     Row 2: Response [dropdown]
+     ======================================== */
+
+  /* Slider section - stacked layout */
+  .llm-mobile-slider-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+  }
+
+  /* Top line: Label left, Badge right */
+  .llm-mobile-slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .llm-mobile-slider-row .llm-stage-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  .llm-mobile-slider-row .llm-badge {
+    font-size: 9px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 4px;
+    text-align: center;
+  }
+
+  /* Slider below */
+  .llm-mobile-slider-row .range-slider {
+    width: 100%;
+  }
+
+  /* Response section - stacked layout */
+  .llm-mobile-length-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+  }
+
+  .llm-mobile-length-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  .llm-mobile-length-row .llm-length-select {
+    width: 100%;
+    height: 32px;
+    min-height: 32px;
+    font-size: 13px;
+    padding: 0 12px;
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-primary);
+  }
+
+  /* Separator between stages - stronger divider */
+  .llm-stage-row + .llm-stage-row {
+    margin-block-start: 6px;
+    padding-block-start: 10px;
+    border-block-start: 2px solid var(--color-border);
+  }
+
+  /* ========================================
+     Actions - Tiny default button
+     ======================================== */
+  .llm-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-block-start: 8px;
+  }
+
+  /* Hide Save button on mobile - auto-save */
+  .llm-actions .llm-btn-save {
+    display: none;
+  }
+
+  /* Tiny text link style */
+  .llm-btn-reset {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--color-text-quaternary);
+    cursor: pointer;
+  }
+
+  .llm-btn-reset:active {
+    color: var(--color-text-tertiary);
+  }
+
+  .llm-btn-reset svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  /* Show "Default" text on mobile */
+  .llm-btn-reset-text {
+    display: inline;
+  }
+
+  /* Model section responsive */
+  .llm-model-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .llm-model-role {
+    min-width: 0;
+    max-width: none;
+    padding-block-start: 0;
+  }
+
+  .llm-model-grid {
+    flex-wrap: wrap;
+  }
+
+  /*
+   * Mobile: ONLY change height for touch targets (44px).
+   * Width stays 180px via CSS vars - DO NOT override width here!
+   * This is the key pattern to prevent the "mobile override trap".
+   */
+  [data-llm-select] {
+    --llm-pill-height: 44px; /* Touch target - width stays at 180px */
+  }
+
+  .llm-model-grid .llm-model-add,
+  .llm-model-chain .llm-model-add {
+    --llm-pill-height: 44px;
+
+    margin-block-start: 0;
+  }
+
+  .llm-model-chain {
+    flex-wrap: wrap;
+  }
+}
+
+@media (width <= 640px) {
+  .llm-card-header {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .llm-card-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .llm-card-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .llm-card-body {
+    padding: 12px;
+  }
+
+  .llm-inner-card-header {
+    padding: 10px 12px;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .llm-inner-card-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .llm-inner-card-icon svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .llm-inner-card-title {
+    font-size: 13px;
+  }
+
+  .llm-inner-card-body {
+    padding: 8px 10px 10px;
+  }
+
+  .llm-stage-row {
+    padding: 8px 0;
+    gap: 3px;
+  }
+
+  /* Compact for small screens */
+  .llm-mobile-slider-row,
+  .llm-mobile-length-row {
+    gap: 3px;
+  }
+
+  .llm-mobile-slider-row .llm-stage-name,
+  .llm-mobile-length-label {
+    font-size: 11px;
+  }
+
+  .llm-mobile-slider-row .llm-badge {
+    font-size: 8px;
+    padding: 2px 8px;
+  }
+
+  .llm-mobile-length-row .llm-length-select {
+    height: 28px;
+    min-height: 28px;
+    font-size: 12px;
+    padding: 0 10px;
+  }
+
+  .llm-stage-row + .llm-stage-row {
+    margin-block-start: 4px;
+    padding-block-start: 8px;
+  }
+
+  /* 480px: Height already set at 768px via CSS vars, no width override needed */
+}

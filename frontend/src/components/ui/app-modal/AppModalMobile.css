@@ -1,0 +1,388 @@
+/**
+ * AppModal - Mobile & Responsive Styles
+ *
+ * Mobile bottom sheet behavior, responsive adjustments, and touch-friendly form inputs.
+ */
+
+/* ===========================================
+   Responsive adjustments (≤640px)
+   =========================================== */
+
+@media (width <= 640px) {
+  .app-modal-content {
+    width: 95%;
+    max-height: 90vh;
+  }
+
+  .app-modal-header {
+    padding: 14px 16px;
+  }
+
+  .app-modal-body {
+    padding: 16px;
+  }
+
+  .app-modal-footer {
+    padding: 16px;
+    gap: 8px;
+  }
+
+  /* Footer with actions - stack on mobile */
+  .app-modal-footer-with-actions {
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  .app-modal-footer-left {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .app-modal-footer-right {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Buttons - full width on mobile */
+  .app-modal-btn {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+
+  .app-modal-btn-action {
+    min-height: 44px;
+    padding: 10px 14px;
+    flex: 1;
+    justify-content: center;
+  }
+
+  /* Inline confirm - stack buttons */
+  .app-modal-confirm-inline {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .app-modal-confirm-inline span {
+    width: 100%;
+    text-align: center;
+    font-size: 14px;
+  }
+
+  .app-modal-confirm-inline button {
+    flex: 1;
+    min-width: 80px;
+  }
+}
+
+/* ===========================================
+   Mobile Bottom Sheet Behavior (≤640px)
+   Transform centered modals into bottom sheets
+   =========================================== */
+
+@media (width <= 640px) {
+  /* Modal slides up from bottom like iOS/Android */
+  .app-modal-content {
+    position: fixed;
+    inset: auto 0 0;
+    transform: none;
+    width: 100%;
+    max-width: none;
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+
+    /* Use max-height to constrain, let content determine actual height */
+    max-height: 95dvh;
+    max-height: calc(95dvh - env(safe-area-inset-top, 0px));
+    animation: app-modal-slide-up 250ms ease-out;
+
+    /* Ensure flex layout constraints children properly */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .app-modal-content[data-state='closed'] {
+    animation: app-modal-slide-down 200ms ease-in;
+  }
+
+  /* Clickable drag handle area - tap to close */
+  .app-modal-drag-handle {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    height: 32px;
+    cursor: pointer;
+    z-index: calc(var(--z-elevated) + 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Visual drag handle bar (inside the clickable area) */
+  .app-modal-drag-handle::before {
+    content: '';
+    width: 36px;
+    height: 4px;
+    background: var(--color-slate-300);
+    border-radius: var(--radius-xs);
+    transition: background 0.15s ease;
+  }
+
+  .app-modal-drag-handle:hover::before,
+  .app-modal-drag-handle:active::before {
+    background: var(--color-slate-400);
+  }
+
+  /* Dark mode drag handle - more visible */
+  .dark .app-modal-drag-handle::before,
+  [data-theme='dark'] .app-modal-drag-handle::before {
+    background: var(--color-slate-500);
+  }
+
+  .dark .app-modal-drag-handle:hover::before,
+  .dark .app-modal-drag-handle:active::before,
+  [data-theme='dark'] .app-modal-drag-handle:hover::before,
+  [data-theme='dark'] .app-modal-drag-handle:active::before {
+    background: var(--color-slate-400);
+  }
+
+  /* Hide the old pseudo-element since we have a real element now */
+  .app-modal-content::before {
+    display: none;
+  }
+
+  /* Header - MUST stay visible, never scrolls away */
+  .app-modal-header {
+    padding-block-start: 24px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: var(--z-base);
+    background: var(--color-bg-primary);
+  }
+
+  /* Dark mode header background on mobile */
+  .dark .app-modal-header,
+  [data-theme='dark'] .app-modal-header {
+    background: var(--color-bg-secondary);
+  }
+
+  /* Body - fills available space and scrolls */
+  .app-modal-body {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ONLY when body has mc-modal-no-padding, it contains its own header/body/footer structure
+     and needs to be a flex container. Other modals (like Settings) should NOT get this. */
+  .app-modal-body.mc-modal-no-padding {
+    padding: 0;
+
+    /* This container must be a flex column so children can flex properly */
+    display: flex;
+    flex-direction: column;
+
+    /* Don't scroll at this level - let inner .mc-modal-body scroll */
+    overflow: hidden;
+  }
+
+  /* MyCompany modals need explicit height for flex children to calculate.
+     Use :has() to target the parent container when it has mc-modal-no-padding body. */
+  .app-modal-content:has(.mc-modal-no-padding) {
+    height: 90dvh;
+    height: calc(90dvh - env(safe-area-inset-top, 0px));
+  }
+
+  /* Settings modal - has its own fixed-height layout, just needs padding removed.
+     SettingsLayout.css handles the internal flex layout with fixed heights for consistency. */
+  .app-modal-body.settings-modal-body {
+    padding: 0;
+  }
+
+  /* Footer respects safe area */
+  .app-modal-footer,
+  .app-modal-footer-with-actions {
+    flex-shrink: 0;
+    padding-block-end: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Full-size modals take more space on mobile */
+  .app-modal-full {
+    max-height: 100dvh;
+    max-height: calc(100dvh - env(safe-area-inset-top, 20px));
+    height: 100dvh;
+    height: calc(100dvh - env(safe-area-inset-top, 20px));
+    border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  }
+
+  /* Close button gets 44px touch target */
+  .app-modal-close {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Footer buttons get 44px touch target */
+  .app-modal-btn {
+    min-height: 44px;
+    padding: 12px 20px;
+  }
+
+  /* =========================================================================
+     MYCOMPANY MODAL STRUCTURE FIX
+     When modals use contentClassName="mc-modal-no-padding", they place
+     their own header/body/footer structure inside .app-modal-body.
+     We need to make that structure flex properly.
+     ========================================================================= */
+
+  /* Custom headers inside app-modal-body - don't shrink */
+  .app-modal-body > .mc-modal-header-clean {
+    flex-shrink: 0;
+    padding-block-start: 24px; /* Account for drag handle */
+  }
+
+  /* Custom body inside app-modal-body - this is the scrollable area */
+  .app-modal-body > .mc-modal-body {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 16px;
+  }
+
+  /* Footer inside app-modal-body - don't shrink, respect safe area */
+  .app-modal-body > .app-modal-footer-with-actions {
+    flex-shrink: 0;
+    padding-block-end: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* FORMS: When a form is the direct child of app-modal-body */
+  .app-modal-body > form {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* The layout container inside forms should fill and scroll */
+  .app-modal-body > form > .mc-promote-layout-v2 {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 16px;
+  }
+
+  /* Form footers - both .app-modal-footer (from AppModal.Footer) */
+  .app-modal-body > form > .app-modal-footer {
+    flex-shrink: 0;
+    padding-block-end: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Decision content area - make scrollable */
+  .mc-decision-content {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Promote modal sidebar - stack vertically on mobile */
+  .mc-promote-sidebar {
+    width: 100%;
+  }
+}
+
+/* Slide up animation for bottom sheet */
+@keyframes app-modal-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes app-modal-slide-down {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+
+/* Very small phones - full screen modal */
+@media (width <= 640px) {
+  .app-modal-content {
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  }
+
+  .app-modal-lg,
+  .app-modal-xl,
+  .app-modal-full {
+    max-height: 100dvh;
+    max-height: calc(100dvh - env(safe-area-inset-top, 0px));
+    border-radius: 0;
+  }
+
+  .app-modal-lg::before,
+  .app-modal-xl::before,
+  .app-modal-full::before {
+    display: none; /* No drag handle for full-screen */
+  }
+
+  .app-modal-lg .app-modal-header,
+  .app-modal-xl .app-modal-header,
+  .app-modal-full .app-modal-header {
+    padding-block-start: calc(16px + env(safe-area-inset-top, 0px));
+  }
+}
+
+/* ===========================================
+   MOBILE FORM INPUTS - Standardized for ALL modals
+   Prevents iOS zoom and ensures touch-friendly targets
+   =========================================== */
+
+@media (width <= 640px) {
+  /* Text inputs inside modals - prevent iOS zoom with 16px font */
+  .app-modal-body input[type='text'],
+  .app-modal-body input[type='email'],
+  .app-modal-body input[type='password'],
+  .app-modal-body input[type='search'],
+  .app-modal-body input[type='url'],
+  .app-modal-body input[type='number'],
+  .app-modal-body textarea {
+    font-size: 16px; /* Prevents iOS auto-zoom on focus */
+    min-height: 44px; /* Touch-friendly target */
+  }
+
+  /* Textareas - reasonable minimum height */
+  .app-modal-body textarea {
+    min-height: 100px;
+  }
+
+  /* Buttons inside modal body - touch-friendly */
+  .app-modal-body button {
+    min-height: 44px;
+  }
+
+  /* Labels - slightly larger for readability */
+  .app-modal-body label {
+    font-size: 13px;
+  }
+}

@@ -101,7 +101,7 @@
 }
 
 /* On desktop, hide swipe functionality */
-@media (min-width: 769px) {
+@media (width >= 769px) {
   .swipeable-row-container {
     overflow: visible;
   }

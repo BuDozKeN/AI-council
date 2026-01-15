@@ -1,0 +1,382 @@
+/* Projects Tab - Timeline View */
+
+/* Extracted from projects.css lines 614-992 */
+
+/* ============================================================================
+   PROJECT DECISIONS - Timeline View
+   ============================================================================ */
+
+.mc-project-decisions {
+  min-height: 200px;
+}
+
+.mc-empty-decisions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+/* Hide icon in empty decisions */
+.mc-empty-decisions .mc-empty-icon {
+  display: none;
+}
+
+.mc-empty-decisions .mc-empty-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin: 0 0 6px;
+}
+
+.mc-empty-decisions .mc-empty-hint {
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+  margin: 0;
+  max-width: 280px;
+}
+
+/* Decisions loading state */
+.mc-decisions-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  gap: 12px;
+}
+
+.mc-decisions-loading span {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+/* ============================================================================
+   TIMELINE STRUCTURE
+   ============================================================================ */
+
+.mc-decisions-timeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.mc-timeline-item {
+  display: flex;
+  gap: 16px;
+  padding: 0;
+}
+
+.mc-timeline-connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 20px;
+  flex-shrink: 0;
+}
+
+.mc-timeline-dot {
+  width: 10px;
+  height: 10px;
+  background: var(--color-violet-600);
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-block-start: 14px;
+}
+
+.mc-timeline-line {
+  width: 2px;
+  flex: 1;
+  background: var(--color-border);
+  margin-block-start: 4px;
+}
+
+.mc-timeline-content {
+  flex: 1;
+  padding-block-end: 24px;
+  min-width: 0;
+}
+
+/* ============================================================================
+   TIMELINE HEADER (Collapsed View)
+   ============================================================================ */
+
+.mc-timeline-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.mc-timeline-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.mc-timeline-title-badges {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-inline-start: auto;
+}
+
+.mc-timeline-iteration-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--color-border);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.mc-timeline-dept-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.mc-timeline-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.mc-timeline-date {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.mc-timeline-chevron {
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-tertiary);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.mc-timeline-chevron.expanded {
+  transform: rotate(180deg);
+}
+
+.mc-timeline-header:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+}
+
+.mc-timeline-item.expanded .mc-timeline-header {
+  border-radius: var(--radius-default) var(--radius-default) 0 0;
+  border-block-end-color: transparent;
+}
+
+/* ============================================================================
+   TIMELINE BODY (Expanded View)
+   ============================================================================ */
+
+.mc-timeline-body {
+  padding: 16px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-block-start: none;
+  border-radius: 0 0 8px 8px;
+}
+
+.mc-timeline-body .markdown-content {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+}
+
+/* Question box in expanded view */
+.mc-timeline-question-box {
+  background: var(--color-bg-secondary);
+  border-inline-start: 3px solid var(--color-indigo-500);
+  padding: 12px 14px;
+  margin-block-end: 12px;
+  border-radius: 0 6px 6px 0;
+}
+
+.mc-timeline-question-box .mc-timeline-question-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-indigo-500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+  margin-block-end: 4px;
+}
+
+.mc-timeline-question-text {
+  font-size: 13px;
+  color: var(--color-text-primary);
+  margin: 0;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.mc-timeline-question-label {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Council and department badges in timeline */
+.mc-timeline-council {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  background: var(--color-blue-100);
+  color: var(--color-blue-700);
+  border-radius: var(--radius-sm);
+}
+
+.mc-timeline-dept {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  background: var(--color-purple-100);
+  color: var(--color-violet-600);
+  border-radius: var(--radius-sm);
+}
+
+/* Source link button */
+.mc-timeline-source-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-block-start: 12px;
+  padding: 6px 12px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-default);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-indigo-600);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-timeline-source-link:hover {
+  background: var(--color-indigo-100);
+  border-color: var(--color-indigo-200);
+}
+
+/* ============================================================================
+   GROUPED TIMELINE - Visual linking for related decisions
+   ============================================================================ */
+
+.mc-timeline-group {
+  margin-block-end: 16px;
+}
+
+.mc-timeline-group.linked {
+  background: var(--color-sky-50);
+  border-inline-start: 3px solid var(--color-blue-500);
+  border-radius: 0 8px 8px 0;
+  padding: 12px 12px 12px 16px;
+  margin-inline-start: -4px;
+}
+
+/* Items in a linked group */
+.mc-timeline-item.in-group {
+  margin-block-end: 8px;
+}
+
+.mc-timeline-item.in-group:last-child {
+  margin-block-end: 0;
+}
+
+/* Linked line between decisions in same conversation */
+.mc-timeline-line.linked {
+  background: var(--color-blue-500);
+  width: 2px;
+}
+
+/* ============================================================================
+   TIMELINE SUMMARY
+   ============================================================================ */
+
+.mc-timeline-summary {
+  margin-block-end: 16px;
+  padding: 14px 16px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--color-text-primary);
+  line-height: 1.7;
+}
+
+/* Markdown inside summary */
+.mc-timeline-summary .markdown-viewer {
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+.mc-timeline-summary .markdown-viewer p {
+  margin: 0 0 8px;
+}
+
+.mc-timeline-summary .markdown-viewer p:last-child {
+  margin-block-end: 0;
+}
+
+.mc-timeline-summary .markdown-viewer strong {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.mc-timeline-summary .markdown-viewer ul,
+.mc-timeline-summary .markdown-viewer ol {
+  margin: 8px 0;
+  padding-inline-start: 20px;
+}
+
+.mc-timeline-summary .markdown-viewer li {
+  margin-block-end: 4px;
+}
+
+.mc-timeline-summary-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+/* Legacy context summary */
+.mc-timeline-context {
+  margin-block-end: 16px;
+  padding: 12px 14px;
+  background: var(--color-bg-secondary);
+  border-inline-start: 3px solid var(--color-blue-500);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--color-text-primary);
+  line-height: 1.6;
+}

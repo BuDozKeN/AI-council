@@ -1,0 +1,209 @@
+/* =============================================================================
+   HOVER ACTIONS
+   ============================================================================= */
+
+.hover-actions {
+  position: absolute;
+  inset-inline-end: 4px;
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+
+  /* Clean background - no overlap since content shrinks on hover */
+  background: transparent;
+  padding: 2px;
+  border-radius: var(--radius-md);
+}
+
+.conversation-item:hover .hover-actions,
+.conversation-item.focused .hover-actions {
+  opacity: 1;
+}
+
+.hover-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  color: var(--sidebar-text-secondary);
+  transition: all 0.15s ease;
+}
+
+.hover-action-btn:hover {
+  background: var(--sidebar-hover-bg);
+  color: var(--sidebar-text-primary);
+}
+
+.hover-action-btn.starred {
+  color: var(--color-amber-500);
+}
+
+.hover-action-btn.starred:hover {
+  background: var(--overlay-amber-20);
+  color: var(--color-amber-600);
+}
+
+.hover-action-btn.active {
+  color: var(--sidebar-active-border);
+}
+
+.hover-action-btn.danger:hover {
+  background: var(--overlay-red-20);
+  color: var(--color-error);
+}
+
+/* =============================================================================
+   BULK ACTION BAR
+   ============================================================================= */
+
+.bulk-action-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  margin: var(--space-2) var(--space-3);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--sidebar-border);
+  border-radius: var(--radius-lg);
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+}
+
+.bulk-count {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--sidebar-text-primary);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bulk-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.bulk-cancel-btn {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--sidebar-text-secondary);
+  background: transparent;
+  border: 1px solid var(--sidebar-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.bulk-cancel-btn:hover {
+  background: var(--overlay-white-10);
+  border-color: var(--sidebar-text-muted);
+  color: var(--sidebar-text-primary);
+}
+
+.bulk-delete-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--color-text-inverse);
+  background: var(--color-error);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.bulk-delete-btn:hover:not(:disabled) {
+  background: var(--color-error-hover);
+}
+
+.bulk-delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =============================================================================
+   LOAD MORE BUTTON
+   ============================================================================= */
+
+.load-more-btn {
+  width: calc(100% - 24px);
+  margin: 12px 12px 16px;
+  padding: 10px 16px;
+  background: var(--sidebar-hover-bg);
+  border: 1px solid var(--sidebar-border);
+  border-radius: var(--radius-md);
+  color: var(--sidebar-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.load-more-btn:hover:not(:disabled) {
+  background: var(--sidebar-active-bg);
+  border-color: var(--sidebar-active-border);
+  color: var(--sidebar-text-primary);
+}
+
+.load-more-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* =============================================================================
+   INFINITE SCROLL TRIGGER
+   ============================================================================= */
+
+.load-more-trigger {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+
+.load-more-spinner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--sidebar-text-muted);
+}
+
+/* =============================================================================
+   LOAD MORE HINT
+   ============================================================================= */
+
+.load-more-hint {
+  padding: var(--space-3) var(--space-4);
+  text-align: center;
+}
+
+.load-more-hint-text {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  font-style: italic;
+}

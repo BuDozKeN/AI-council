@@ -150,7 +150,7 @@
 }
 
 /* Mobile - ensure text truncation works */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .multi-dept-placeholder,
   .multi-dept-single,
   .multi-dept-count {

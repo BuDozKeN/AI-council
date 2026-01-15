@@ -1,0 +1,201 @@
+/* ============================================================================
+   PROJECT MODAL - FORM FIELDS
+   ============================================================================ */
+
+/* Field container */
+.pm-field {
+  margin-block-end: 20px;
+}
+
+.pm-field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-slate-500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-block-end: 8px;
+}
+
+/* Field header with label + action button */
+.pm-field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-block-end: 4px;
+}
+
+.pm-field-header label {
+  margin-block-end: 0;
+}
+
+.pm-optional {
+  font-weight: 400;
+  text-transform: none;
+  color: var(--color-slate-300);
+}
+
+/* Text input - matches mc-input-unified */
+.pm-field input[type='text'] {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border-dark);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  transition: all 0.15s ease;
+}
+
+.pm-field input[type='text']:hover {
+  border-color: var(--color-slate-300);
+}
+
+.pm-field input[type='text']:focus {
+  outline: none;
+  border-color: var(--color-brand-primary);
+  box-shadow: var(--shadow-focus);
+}
+
+.pm-field input[type='text']::placeholder {
+  color: var(--color-text-tertiary);
+  font-weight: 400;
+}
+
+.pm-field input[type='text']:disabled {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+/* Textarea */
+.pm-field textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border-dark);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  resize: vertical;
+  transition: all 0.15s ease;
+}
+
+.pm-field textarea:hover {
+  border-color: var(--color-slate-300);
+}
+
+.pm-field textarea:focus {
+  outline: none;
+  border-color: var(--color-brand-primary);
+  box-shadow: var(--shadow-focus);
+}
+
+.pm-field textarea::placeholder {
+  color: var(--color-text-tertiary);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.pm-field textarea:disabled {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+/* Hint text below label */
+.pm-hint {
+  font-size: 13px;
+  color: var(--color-slate-300);
+  margin-block-end: 10px;
+  line-height: 1.4;
+}
+
+.pm-hint-ai {
+  color: var(--color-purple-600);
+  font-weight: 500;
+}
+
+/* Field hint text */
+.pm-field-hint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: var(--color-slate-400);
+}
+
+/* Inline hint next to label */
+.pm-field-hint-inline {
+  font-size: 11px;
+  color: var(--color-slate-400);
+  font-weight: 400;
+  margin-inline-start: auto;
+}
+
+/* Required/optional field markers */
+.pm-required {
+  color: var(--color-error);
+  font-weight: 600;
+}
+
+/* Context header with edit toggle */
+.pm-context-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-block-end: 8px;
+}
+
+.pm-context-header label {
+  margin-block-end: 0;
+}
+
+.pm-context-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-sm);
+  color: var(--color-slate-500);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pm-context-toggle:hover:not(:disabled) {
+  background: var(--color-slate-100);
+  border-color: var(--color-slate-300);
+  color: var(--color-slate-600);
+}
+
+.pm-context-toggle:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Context editor textarea */
+.pm-context-editor {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+  min-height: 180px;
+}
+
+/* No context placeholder */
+.pm-no-context {
+  color: var(--color-slate-400);
+  font-style: italic;
+  margin: 0;
+  padding: 8px 0;
+}
+
+/* Tiny icon for toggle buttons */
+.pm-btn-icon-tiny {
+  width: 12px;
+  height: 12px;
+}

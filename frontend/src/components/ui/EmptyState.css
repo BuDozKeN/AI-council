@@ -97,7 +97,7 @@
 .empty-state-large .empty-state-message {
   margin-block-end: 20px;
   font-size: 15px;
-  max-width: 360px;
+  max-width: 640px;
   color: var(--color-text-secondary);
 }
 

@@ -1,0 +1,175 @@
+/* ============================================================================
+   PROJECT MODAL - ACTIONS & BUTTONS
+   ============================================================================ */
+
+/* Actions footer */
+.pm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-block-start: 20px;
+  border-block-start: 1px solid var(--color-slate-100);
+  margin-block-start: 24px;
+}
+
+/* Review step actions - 3 buttons */
+.pm-actions-review {
+  gap: 8px;
+}
+
+/* Cancel button */
+.pm-btn-cancel {
+  padding: 10px 20px;
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-primary);
+  color: var(--color-slate-500);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pm-btn-cancel:hover:not(:disabled) {
+  border-color: var(--color-slate-300);
+  color: var(--color-slate-600);
+  background: var(--color-slate-50);
+}
+
+.pm-btn-cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Create button */
+.pm-btn-create {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-indigo-500);
+  color: var(--color-text-inverse);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px var(--color-indigo-light);
+}
+
+.pm-btn-create:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgb(var(--color-indigo-rgb), 0.4);
+}
+
+.pm-btn-create:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Back button */
+.pm-btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-primary);
+  color: var(--color-slate-500);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pm-btn-back:hover:not(:disabled) {
+  border-color: var(--color-slate-300);
+  background: var(--color-slate-50);
+}
+
+.pm-btn-back:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Regenerate button */
+.pm-btn-regen {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border: 1px solid var(--color-violet-200);
+  border-radius: var(--radius-md);
+  background: var(--color-purple-50);
+  color: var(--color-purple-600);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pm-btn-regen:hover:not(:disabled) {
+  background: var(--color-purple-100);
+  border-color: var(--color-violet-300);
+}
+
+.pm-btn-regen:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Spinning animation for regenerate */
+@keyframes pm-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.pm-spinning {
+  animation: pm-spin 1s linear infinite;
+}
+
+/* Skip AI button */
+.pm-btn-skip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-slate-500);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pm-btn-skip:hover:not(:disabled) {
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+  color: var(--color-slate-600);
+}
+
+.pm-btn-skip:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Button icon */
+.pm-btn-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.pm-btn-icon-small {
+  width: 14px;
+  height: 14px;
+}

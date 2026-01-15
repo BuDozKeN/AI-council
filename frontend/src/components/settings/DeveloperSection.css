@@ -1,0 +1,192 @@
+/* Developer Section - Feature toggles and debug settings */
+
+/* Warning banner at top of developer section */
+.dev-warning-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--overlay-amber-10);
+  border: 1px solid rgb(var(--color-amber-500-rgb), 0.3);
+  border-radius: var(--radius-md);
+  color: var(--color-amber-500);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.dev-warning-banner svg {
+  flex-shrink: 0;
+}
+
+/* Toggle row styling */
+.dev-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* Sub-row variant with top border (for nested options) */
+.dev-toggle-row.bordered {
+  margin-block-start: 16px;
+  padding-block-start: 16px;
+  border-block-start: 1px solid var(--color-border-secondary);
+}
+
+.dev-toggle-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  flex: 1;
+}
+
+.dev-toggle-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-lg);
+  flex-shrink: 0;
+}
+
+.dev-toggle-icon.mock {
+  background: var(--color-amber-500);
+  color: var(--color-text-inverse);
+}
+
+.dev-toggle-icon.caching {
+  background: var(--color-blue-500);
+  color: var(--color-text-inverse);
+}
+
+.dev-toggle-icon.usage {
+  background: var(--color-purple-500);
+  color: var(--color-text-inverse);
+}
+
+.dev-toggle-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dev-toggle-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.dev-toggle-desc {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.dev-toggle-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+/* Status badge - fixed width to prevent layout shift on toggle */
+.dev-status-badge {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  min-width: 70px;
+  text-align: center;
+}
+
+.dev-status-badge.active {
+  background: var(--overlay-amber-15);
+  color: var(--color-amber-500);
+}
+
+.dev-status-badge.inactive {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-muted);
+}
+
+/* Info boxes */
+.dev-info-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  margin-block-start: 12px;
+}
+
+.dev-info-box.success {
+  background: var(--overlay-green-10);
+  color: var(--color-green-500);
+  border: 1px solid var(--overlay-green-20);
+}
+
+.dev-info-box.info {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+}
+
+.dev-info-box svg {
+  flex-shrink: 0;
+}
+
+/* Mobile adjustments for developer section */
+@media (width <= 640px) {
+  .dev-toggle-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .dev-toggle-control {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .dev-toggle-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .dev-toggle-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .dev-toggle-label {
+    font-size: 13px;
+  }
+
+  .dev-toggle-desc {
+    font-size: 11px;
+  }
+
+  .dev-warning-banner {
+    font-size: 12px;
+    padding: 10px 12px;
+  }
+}
+
+/* Very small phones - even more compact icons */
+@media (width <= 640px) {
+  .dev-toggle-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .dev-toggle-icon svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .dev-toggle-info {
+    gap: 10px;
+  }
+}

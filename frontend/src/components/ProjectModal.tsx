@@ -12,7 +12,7 @@ import { logger } from '../utils/logger';
 import { hapticSuccess } from '../lib/haptics';
 import { CELEBRATION } from '../lib/animation-constants';
 import type { Department, Project } from '../types/business';
-import './ProjectModal.css';
+import './project-modal/index.css';
 
 interface InitialContext {
   userQuestion?: string;

@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { useProfile } from './hooks/useProfile';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import type { User } from '@supabase/supabase-js';
+import './ProfileSection.css';
 
 const ProfileSkeleton = () => (
   <>

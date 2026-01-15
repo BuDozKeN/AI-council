@@ -1,0 +1,212 @@
+/**
+ * ViewRoleModal.css - Styles for viewing/editing roles
+ *
+ * Includes role metadata and content editing.
+ */
+
+/* ============================================================================
+   ROLE METADATA
+   ============================================================================ */
+
+.mc-role-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-block-end: 16px;
+}
+
+.mc-role-dept-badge {
+  font-size: 0.6875rem;
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+}
+
+.mc-role-title-badge {
+  font-size: 0.75rem;
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+  padding: 4px 12px;
+  border-radius: var(--radius-lg);
+}
+
+.mc-section {
+  margin-block-start: 16px;
+}
+
+.mc-section h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin: 0 0 10px;
+}
+
+.mc-markdown-raw {
+  background: var(--color-code-bg);
+  color: var(--color-code-text);
+  padding: 18px;
+  border-radius: var(--radius-lg);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.65;
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  margin: 0;
+}
+
+.mc-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-block-end: 10px;
+}
+
+.mc-section-header h4 {
+  margin: 0;
+}
+
+.mc-role-desc-badge {
+  font-size: 0.75rem;
+  background: var(--color-purple-100);
+  color: var(--color-purple-600);
+  padding: 4px 12px;
+  border-radius: var(--radius-lg);
+}
+
+/* ============================================================================
+   VIEW/EDIT MODAL STYLES
+   ============================================================================ */
+
+/* Content section wrapper */
+.mc-content-section {
+  padding: 16px 20px;
+}
+
+.mc-section-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+/* Full-width edit textarea container */
+.mc-edit-full {
+  width: 100%;
+}
+
+.mc-edit-textarea-full {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-secondary);
+  resize: vertical;
+  min-height: 300px;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.mc-edit-textarea-full:focus {
+  outline: none;
+  border-color: var(--color-indigo-500);
+  box-shadow: 0 0 0 3px rgb(var(--color-indigo-500-rgb, 99, 102, 241), 0.08);
+  background: var(--color-bg-primary);
+}
+
+.mc-edit-textarea-full::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+/* Field group wrapper */
+.mc-field-group {
+  margin-block-end: 16px;
+}
+
+/* Title inline edit input */
+.mc-title-inline-edit {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-indigo-500);
+  border-radius: var(--radius-default);
+  padding: 4px 8px;
+  background: var(--color-bg-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(var(--color-indigo-500-rgb, 99, 102, 241), 0.1);
+  flex: 1;
+  min-width: 200px;
+}
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+/* Role metadata */
+.dark .mc-role-dept-badge,
+[data-theme='dark'] .mc-role-dept-badge {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-role-title-badge,
+[data-theme='dark'] .mc-role-title-badge {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-section h4,
+[data-theme='dark'] .mc-section h4 {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-markdown-raw,
+[data-theme='dark'] .mc-markdown-raw {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-role-desc-badge,
+[data-theme='dark'] .mc-role-desc-badge {
+  background: var(--overlay-purple-15);
+  color: var(--color-violet-400);
+}
+
+/* View/Edit styles */
+.dark .mc-section-title,
+[data-theme='dark'] .mc-section-title {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-edit-textarea-full,
+[data-theme='dark'] .mc-edit-textarea-full {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-edit-textarea-full:focus,
+[data-theme='dark'] .mc-edit-textarea-full:focus {
+  border-color: var(--color-indigo-400);
+  background: var(--color-bg-primary);
+}
+
+.dark .mc-edit-textarea-full::placeholder,
+[data-theme='dark'] .mc-edit-textarea-full::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-title-inline-edit,
+[data-theme='dark'] .mc-title-inline-edit {
+  color: var(--color-text-primary);
+  border-color: var(--color-indigo-400);
+  background: var(--color-bg-primary);
+}

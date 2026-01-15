@@ -1,0 +1,82 @@
+/**
+ * Usage Tab - Header & Period Toggle
+ *
+ * Header section with title and period selector (Today/Week/Month/All).
+ */
+
+/* ============================================================================
+   HEADER & PERIOD TOGGLE
+   ============================================================================ */
+
+.mc-usage-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.mc-usage-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.mc-usage-period-toggle {
+  display: flex;
+  align-items: center;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: 3px;
+  gap: 1px;
+  border: 1px solid var(--color-border-subtle);
+}
+
+.mc-usage-period-opt {
+  padding: 6px 14px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-tertiary);
+  background: transparent;
+  border: none;
+  border-radius: calc(var(--radius-md) - 2px);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mc-usage-period-opt:hover:not(.active, :disabled) {
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary);
+}
+
+.mc-usage-period-opt.active {
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  box-shadow: 0 1px 3px var(--overlay-black-8);
+  font-weight: 600;
+}
+
+.mc-usage-period-opt:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Loading state */
+.mc-usage-period-toggle.loading {
+  opacity: 0.7;
+}
+
+.mc-usage-period-toggle.loading .mc-usage-period-opt.active {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
+}

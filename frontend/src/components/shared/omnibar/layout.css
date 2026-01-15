@@ -1,0 +1,258 @@
+/* OmniBar - Layout & Container */
+
+/* Extracted from OmniBar.css lines 168-422 */
+
+/* =============================================================================
+   MAIN CONTAINER - Glass morphism effect
+   ============================================================================= */
+
+.omni-bar {
+  display: flex;
+  flex-direction: column;
+  background: var(--overlay-white-75);
+  backdrop-filter: blur(32px) saturate(180%);
+  border: 1px solid var(--overlay-white-40);
+  border-radius: var(--radius-xl);
+  box-shadow:
+    var(--shadow-md),
+    inset 0 1px 0 var(--overlay-white-80);
+
+  /* Only transition box-shadow for focus effects, not background/border (causes flickering on theme change) */
+  transition: box-shadow 0.25s ease;
+  overflow: hidden;
+}
+
+.omni-bar:focus-within {
+  background: var(--overlay-white-95);
+  border-color: var(--color-indigo-500);
+  box-shadow:
+    0 4px 24px var(--overlay-indigo-15),
+    0 2px 8px var(--overlay-black-5),
+    inset 0 1px 0 var(--overlay-white-90);
+}
+
+.omni-bar-wrapper.has-content .omni-bar {
+  border-color: var(--color-indigo-500);
+}
+
+.omni-bar-wrapper.is-loading .omni-bar {
+  opacity: 0.8;
+}
+
+/* Council mode accent */
+.omni-bar-wrapper.council-mode .omni-bar {
+  border-color: var(--color-indigo-400);
+}
+
+.omni-bar-wrapper.council-mode .omni-bar:focus-within {
+  border-color: var(--color-indigo-500);
+  box-shadow:
+    0 4px 24px var(--overlay-indigo-20),
+    0 2px 8px var(--overlay-black-5),
+    inset 0 1px 0 var(--overlay-white-90);
+}
+
+/* =============================================================================
+   LANDING VARIANT - Premium elevated card with sophisticated shadow
+   Higher specificity to override council-mode and has-content states
+   ============================================================================= */
+
+.omni-bar-wrapper.omni-bar-landing .omni-bar,
+.omni-bar-wrapper.omni-bar-landing.has-content .omni-bar,
+.omni-bar-wrapper.omni-bar-landing.council-mode .omni-bar,
+.omni-bar-wrapper.omni-bar-landing.council-mode.has-content .omni-bar {
+  border-radius: 20px;
+  background: var(--color-bg-primary);
+  border: none;
+  box-shadow:
+    0 2px 4px var(--overlay-black-10),
+    0 8px 24px var(--overlay-black-15),
+    0 24px 48px var(--overlay-black-20);
+
+  /* Only transition box-shadow for hover effects, not background (causes flickering on theme change) */
+  transition: box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.omni-bar-wrapper.omni-bar-landing .omni-bar:hover {
+  box-shadow:
+    0 2px 4px var(--overlay-black-10),
+    0 12px 32px var(--overlay-black-20),
+    0 32px 64px var(--overlay-black-30);
+}
+
+/* Focus state - no visible ring, just subtle shadow enhancement */
+.omni-bar-wrapper.omni-bar-landing .omni-bar:focus-within,
+.omni-bar-wrapper.omni-bar-landing.council-mode .omni-bar:focus-within {
+  border: none;
+  box-shadow:
+    0 2px 4px var(--overlay-black-10),
+    0 12px 32px var(--overlay-black-20),
+    0 32px 64px var(--overlay-black-30);
+}
+
+/* Compact variant - smaller for follow-up messages */
+.omni-bar-compact .omni-bar {
+  border-radius: var(--radius-lg);
+}
+
+/* =============================================================================
+   TWO-ROW LAYOUT: Top (textarea) + Bottom (icons + actions)
+   ============================================================================= */
+
+/* Top row: Textarea with optional keyboard hint */
+.omni-bar-top {
+  position: relative;
+  padding: 10px 16px 6px;
+}
+
+.omni-bar-landing .omni-bar-top {
+  padding: 16px 20px 12px;
+}
+
+.omni-bar-compact .omni-bar-top {
+  padding: 8px 12px 4px;
+}
+
+/* Input textarea - compact like Perplexity but with scroll room */
+.omni-bar-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--color-text-primary);
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+  min-height: 24px;
+  max-height: 200px;
+  padding: 0;
+}
+
+.omni-bar-landing .omni-bar-input {
+  font-size: 16px;
+  font-weight: 400;
+  min-height: 28px;
+  max-height: 280px;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+}
+
+/* Remove browser focus outline from textarea - high specificity to override defaults */
+.omni-bar .omni-bar-input:focus,
+.omni-bar .omni-bar-input:focus-visible,
+.omni-bar-wrapper .omni-bar .omni-bar-input:focus,
+.omni-bar-wrapper .omni-bar .omni-bar-input:focus-visible {
+  outline: none;
+  box-shadow: none;
+  border: none;
+}
+
+.omni-bar-compact .omni-bar-input {
+  font-size: 14px;
+  min-height: 22px;
+  max-height: 150px;
+}
+
+.omni-bar-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.omni-bar-input:disabled {
+  opacity: 0.7;
+}
+
+/* Keyboard shortcut hint - positioned at top-right corner, doesn't block input */
+.omni-bar-kbd {
+  position: absolute;
+  inset-block-start: 16px;
+  inset-inline-end: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  background: var(--overlay-black-8);
+  border: 1px solid var(--overlay-black-5);
+  border-radius: var(--radius-md);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--color-text-tertiary);
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* Bottom row: Context icons (left) + Actions (right) */
+.omni-bar-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px 8px;
+  border-block-start: 1px solid var(--color-border-light);
+}
+
+.omni-bar-landing .omni-bar-bottom {
+  padding: 10px 18px 14px;
+  border-block-start: none;
+}
+
+.omni-bar-compact .omni-bar-bottom {
+  padding: 4px 10px 6px;
+}
+
+/* When no context icons, hide the bottom row divider */
+.omni-bar-wrapper:not(.has-context-icons) .omni-bar-bottom {
+  border-block-start: none;
+  padding-block-start: 0;
+}
+
+/* Left side: Context icons - flex-start to align left */
+.omni-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  justify-content: flex-start;
+}
+
+/* Context icons capsule - groups icons in a subtle pill (desktop only) */
+
+/* Height MUST match the 1AI/5AIs toggle exactly (~30.5px) */
+.context-icons-capsule {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+
+  /* 22px icons + 3px top + 3.5px bottom + 2px border = 30.5px (matches toggle) */
+  padding: 3px 6px 3.5px;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-full);
+
+  /* Allow badges to overflow outside the capsule */
+  overflow: visible;
+}
+
+/* Icons inside capsule - 22px to match toggle height (~30px total with padding) */
+.context-icons-capsule .omni-icon-btn {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
+
+  /* Position relative for badge positioning */
+  position: relative;
+  overflow: visible;
+}
+
+/* Badges overflow outside the capsule - closer to icons */
+.context-icons-capsule .omni-icon-badge {
+  inset-block-start: -5px;
+  inset-inline-end: -5px;
+}
+
+/* Right side: Attach + Send */
+.omni-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

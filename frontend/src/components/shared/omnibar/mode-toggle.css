@@ -1,0 +1,170 @@
+/* OmniBar - Mode Toggle */
+
+/* Extracted from OmniBar.css lines 1-167 */
+
+/**
+ * OmniBar - Unified input styles
+ *
+ * Premium input component used across landing and in-app contexts.
+ * Two-row layout: textarea on top, icons + actions on bottom.
+ */
+
+.omni-bar-wrapper {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+/* Landing variant - wider for hero */
+.omni-bar-landing {
+  max-width: 720px;
+}
+
+/* Mode toggle for landing variant - Premium segmented control */
+.omni-mode-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  margin-block-end: 16px;
+  padding: 4px;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: 100px;
+  width: fit-content;
+  margin-inline: auto;
+}
+
+.omni-mode-btn {
+  position: relative;
+  padding: 10px 20px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 100px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.omni-mode-btn::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentcolor;
+  opacity: 0.4;
+  transition: all 0.2s ease;
+}
+
+.omni-mode-btn:hover {
+  color: var(--color-text-secondary);
+}
+
+.omni-mode-btn.active {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.omni-mode-btn.active::before {
+  background: var(--color-indigo-500);
+  opacity: 1;
+}
+
+/* Quick mode indicator - single dot */
+.omni-mode-btn:first-child::before {
+  width: 6px;
+  height: 6px;
+}
+
+/* Council mode indicator - triple dot effect */
+.omni-mode-btn:last-child::before {
+  width: 16px;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(
+    90deg,
+    currentcolor 0%,
+    currentcolor 20%,
+    transparent 20%,
+    transparent 40%,
+    currentcolor 40%,
+    currentcolor 60%,
+    transparent 60%,
+    transparent 80%,
+    currentcolor 80%,
+    currentcolor 100%
+  );
+}
+
+.omni-mode-btn:last-child.active::before {
+  background: linear-gradient(
+    90deg,
+    var(--color-indigo-500) 0%,
+    var(--color-indigo-500) 20%,
+    transparent 20%,
+    transparent 40%,
+    var(--color-indigo-500) 40%,
+    var(--color-indigo-500) 60%,
+    transparent 60%,
+    transparent 80%,
+    var(--color-indigo-500) 80%,
+    var(--color-indigo-500) 100%
+  );
+  opacity: 1;
+}
+
+/* =============================================================================
+   INLINE MODE TOGGLE - Single clickable button that toggles between 1 AI / 5 AIs
+   ============================================================================= */
+
+/* The toggle is a single button - click anywhere to switch modes */
+.omni-inline-mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 2px;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-light);
+  border-radius: 100px;
+  margin-inline-start: 4px;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.omni-inline-mode-toggle:hover:not(:disabled) {
+  border-color: var(--color-border-dark);
+}
+
+.omni-inline-mode-toggle:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}
+
+.omni-inline-mode-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Inner spans are visual indicators only (not clickable themselves) */
+.inline-mode-indicator {
+  padding: 4px 10px;
+  background: transparent;
+  color: var(--color-text-tertiary);
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 100px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  pointer-events: none; /* Not clickable - parent button handles clicks */
+}
+
+.inline-mode-indicator.active {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  box-shadow: 0 1px 2px var(--overlay-black-10);
+}

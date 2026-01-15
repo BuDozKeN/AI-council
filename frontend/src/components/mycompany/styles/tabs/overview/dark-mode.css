@@ -1,0 +1,414 @@
+/* Overview Tab - Dark Mode */
+
+/* Extracted from overview.css lines 894-1303 */
+
+/* =============================================================================
+   DARK MODE - Overview Tab
+   ============================================================================= */
+
+/* Compact header bar */
+.dark .mc-overview-title,
+[data-theme='dark'] .mc-overview-title {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-meta-inline,
+[data-theme='dark'] .mc-meta-inline {
+  color: var(--color-text-tertiary);
+}
+
+/* Hero section */
+.dark .mc-overview-hero,
+[data-theme='dark'] .mc-overview-hero {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-lg);
+}
+
+.dark .mc-overview-hero::before,
+[data-theme='dark'] .mc-overview-hero::before {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-border) 20%,
+    var(--color-border-dark) 50%,
+    var(--color-border) 80%,
+    transparent 100%
+  );
+  opacity: 0.4;
+}
+
+.dark .mc-overview-title,
+[data-theme='dark'] .mc-overview-title {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-overview-description,
+[data-theme='dark'] .mc-overview-description {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-meta-label,
+[data-theme='dark'] .mc-meta-label {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-meta-value,
+[data-theme='dark'] .mc-meta-value {
+  color: var(--color-text-primary);
+}
+
+/* Empty context */
+.dark .mc-empty-context,
+[data-theme='dark'] .mc-empty-context {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-empty-context-icon,
+[data-theme='dark'] .mc-empty-context-icon {
+  color: var(--color-indigo-400);
+}
+
+.dark .mc-empty-context-title,
+[data-theme='dark'] .mc-empty-context-title {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-empty-context-hint,
+[data-theme='dark'] .mc-empty-context-hint {
+  color: var(--color-text-secondary);
+}
+
+/* Legacy class support */
+.dark .mc-empty-context .mc-empty-icon,
+[data-theme='dark'] .mc-empty-context .mc-empty-icon {
+  color: var(--color-indigo-300);
+}
+
+.dark .mc-empty-context .mc-empty-title,
+[data-theme='dark'] .mc-empty-context .mc-empty-title {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-empty-context .mc-empty-hint,
+[data-theme='dark'] .mc-empty-context .mc-empty-hint {
+  color: var(--color-text-secondary);
+}
+
+/* Stats grid */
+.dark .mc-stat-card,
+[data-theme='dark'] .mc-stat-card {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .mc-stat-card:hover,
+[data-theme='dark'] .mc-stat-card:hover {
+  border-color: var(--color-border-dark);
+  box-shadow: 0 4px 12px var(--overlay-black-30);
+}
+
+.dark .mc-stat-card.selected,
+[data-theme='dark'] .mc-stat-card.selected {
+  border-color: var(--color-blue-400);
+  background: var(--overlay-blue-10);
+}
+
+.dark .mc-stat-value,
+[data-theme='dark'] .mc-stat-value {
+  color: var(--color-text-primary);
+}
+
+/* Semantic stat value colors - dark mode (brighter) */
+.dark .mc-stat-value.active,
+[data-theme='dark'] .mc-stat-value.active {
+  color: var(--color-blue-400);
+}
+
+.dark .mc-stat-value.completed,
+[data-theme='dark'] .mc-stat-value.completed {
+  color: var(--color-green-500);
+}
+
+.dark .mc-stat-value.archived,
+[data-theme='dark'] .mc-stat-value.archived {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-stat-value.decisions,
+[data-theme='dark'] .mc-stat-value.decisions {
+  color: var(--color-amber-400);
+}
+
+.dark .mc-stat-value.total,
+[data-theme='dark'] .mc-stat-value.total {
+  color: var(--color-emerald-400);
+}
+
+.dark .mc-stat-value.sops,
+[data-theme='dark'] .mc-stat-value.sops {
+  color: var(--color-blue-400);
+}
+
+.dark .mc-stat-value.frameworks,
+[data-theme='dark'] .mc-stat-value.frameworks {
+  color: var(--color-amber-400);
+}
+
+.dark .mc-stat-value.policies,
+[data-theme='dark'] .mc-stat-value.policies {
+  color: var(--color-violet-400);
+}
+
+.dark .mc-stat-label,
+[data-theme='dark'] .mc-stat-label {
+  color: var(--color-text-secondary);
+}
+
+/* Context section */
+.dark .mc-context-section,
+[data-theme='dark'] .mc-context-section {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .mc-context-header,
+[data-theme='dark'] .mc-context-header {
+  background: var(--color-bg-secondary);
+}
+
+.dark .mc-context-section h3,
+[data-theme='dark'] .mc-context-section h3 {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-context-section-header,
+[data-theme='dark'] .mc-context-section-header {
+  border-block-end-color: var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+.dark .mc-context-section-header h3,
+[data-theme='dark'] .mc-context-section-header h3 {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-expand-btn,
+[data-theme='dark'] .mc-expand-btn {
+  border-color: var(--color-border);
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-expand-btn:hover,
+[data-theme='dark'] .mc-expand-btn:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border-dark);
+  color: var(--color-text-secondary);
+}
+
+/* Context content - the markdown area */
+.dark .mc-context-content,
+[data-theme='dark'] .mc-context-content {
+  background: transparent;
+}
+
+/* Context card dark mode styling */
+.dark .mc-context-card,
+[data-theme='dark'] .mc-context-card {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  border-block-start-color: var(--color-border-dark);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Context card header dark mode */
+.dark .mc-context-card-header,
+[data-theme='dark'] .mc-context-card-header {
+  border-block-end-color: var(--color-border);
+}
+
+.dark .mc-context-card-title,
+[data-theme='dark'] .mc-context-card-title {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-context-meta .mc-meta-label,
+[data-theme='dark'] .mc-context-meta .mc-meta-label {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-context-meta .mc-meta-value,
+[data-theme='dark'] .mc-context-meta .mc-meta-value {
+  color: var(--color-text-secondary);
+}
+
+/* Stat icons dark mode */
+.dark .mc-stat-icon,
+[data-theme='dark'] .mc-stat-icon {
+  color: var(--color-indigo-400);
+}
+
+/* Sticky toolbar - must have opaque background in dark mode too */
+.dark .mc-context-sticky-toolbar,
+[data-theme='dark'] .mc-context-sticky-toolbar {
+  background: var(--color-bg-secondary);
+}
+
+/* Scroll top FAB */
+.dark .mc-scroll-top-fab,
+[data-theme='dark'] .mc-scroll-top-fab {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-scroll-top-fab:hover,
+[data-theme='dark'] .mc-scroll-top-fab:hover {
+  color: var(--color-text-secondary);
+  box-shadow: 0 2px 8px var(--overlay-black-30);
+}
+
+/* Tab headers */
+.dark .mc-team-header,
+.dark .mc-playbooks-header,
+.dark .mc-decisions-header,
+[data-theme='dark'] .mc-team-header,
+[data-theme='dark'] .mc-playbooks-header,
+[data-theme='dark'] .mc-decisions-header {
+  border-block-end-color: var(--color-border);
+}
+
+.dark .mc-team-header span,
+.dark .mc-playbooks-header span,
+.dark .mc-decisions-header span,
+[data-theme='dark'] .mc-team-header span,
+[data-theme='dark'] .mc-playbooks-header span,
+[data-theme='dark'] .mc-decisions-header span {
+  color: var(--color-text-secondary);
+}
+
+/* Departments */
+.dark .mc-dept,
+[data-theme='dark'] .mc-dept {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .mc-dept-header:hover,
+[data-theme='dark'] .mc-dept-header:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .mc-dept-name,
+[data-theme='dark'] .mc-dept-name {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-dept-meta,
+[data-theme='dark'] .mc-dept-meta {
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-tertiary);
+}
+
+.dark .mc-expand-icon,
+[data-theme='dark'] .mc-expand-icon {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-dept-desc,
+[data-theme='dark'] .mc-dept-desc {
+  color: var(--color-text-secondary);
+}
+
+/* Roles */
+.dark .mc-roles,
+[data-theme='dark'] .mc-roles {
+  border-block-start-color: var(--color-border);
+  background: var(--color-bg-primary);
+}
+
+.dark .mc-role,
+[data-theme='dark'] .mc-role {
+  background: var(--color-bg-secondary);
+}
+
+.dark .mc-role-name,
+[data-theme='dark'] .mc-role-name {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-role-title,
+[data-theme='dark'] .mc-role-title {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-no-items,
+[data-theme='dark'] .mc-no-items {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-add-btn,
+[data-theme='dark'] .mc-add-btn {
+  border-color: var(--color-border);
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-add-btn:hover,
+[data-theme='dark'] .mc-add-btn:hover {
+  border-color: var(--color-amber-400);
+  color: var(--color-amber-400);
+  background: var(--overlay-amber-10);
+}
+
+/* Search & filters */
+.dark .mc-search-input,
+[data-theme='dark'] .mc-search-input {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .mc-search-input::placeholder,
+[data-theme='dark'] .mc-search-input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-search-input:focus,
+[data-theme='dark'] .mc-search-input:focus {
+  border-color: var(--color-brand-primary);
+  box-shadow: 0 0 0 3px var(--overlay-blue-20);
+}
+
+.dark .mc-search-icon,
+[data-theme='dark'] .mc-search-icon {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-search-clear,
+[data-theme='dark'] .mc-search-clear {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-search-clear:hover,
+[data-theme='dark'] .mc-search-clear:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-filter-results,
+[data-theme='dark'] .mc-filter-results {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-clear-filters,
+[data-theme='dark'] .mc-clear-filters {
+  color: var(--color-blue-400);
+  background: var(--overlay-blue-15);
+}
+
+.dark .mc-clear-filters:hover,
+[data-theme='dark'] .mc-clear-filters:hover {
+  background: var(--overlay-blue-20);
+}

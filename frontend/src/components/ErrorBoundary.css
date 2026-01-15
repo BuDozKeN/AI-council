@@ -23,7 +23,7 @@
   background-color: var(--color-bg-primary);
   border-radius: var(--radius-xl, 16px);
   padding: 48px;
-  max-width: 480px;
+  max-width: 640px;
   width: 100%;
   text-align: center;
   box-shadow: var(--shadow-md);

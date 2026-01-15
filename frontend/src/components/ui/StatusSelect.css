@@ -186,7 +186,7 @@
 }
 
 /* Mobile trigger improvements */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .status-select-trigger {
     min-height: 44px;
     padding: 10px 12px;

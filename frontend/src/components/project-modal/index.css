@@ -1,0 +1,25 @@
+/* ProjectModal CSS Module - Split for maintainability (max 300 lines per file) */
+
+/* Modal layout & error banner */
+@import url('./project-modal-layout.css');
+
+/* Form fields & inputs */
+@import url('./project-modal-form.css');
+
+/* AI features (preview, buttons, loading) */
+@import url('./project-modal-ai.css');
+
+/* Departments display & editor */
+@import url('./project-modal-departments.css');
+
+/* Actions & buttons */
+@import url('./project-modal-actions.css');
+
+/* Success state */
+@import url('./project-modal-success.css');
+
+/* Mobile responsive */
+@import url('./project-modal-mobile.css');
+
+/* Dark mode */
+@import url('./project-modal-dark.css');

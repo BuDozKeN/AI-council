@@ -1,0 +1,160 @@
+/* =============================================================================
+   MODEL SUMMARY PILLS - Collapsed view showing provider groups
+   ============================================================================= */
+
+.stage1 .model-summary-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-block-start: 12px;
+}
+
+.stage1 .model-summary-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  transition: all 0.2s ease;
+}
+
+/* Success state is subtle - no green highlight, just normal pill */
+
+/* Success is the expected state, we only highlight errors/streaming */
+.stage1 .model-summary-pill.complete {
+  /* Intentionally same as default - success doesn't need visual emphasis */
+}
+
+.stage1 .model-summary-pill.streaming {
+  border-color: var(--color-info);
+  background: var(--color-info-light);
+}
+
+.stage1 .model-summary-pill.error {
+  border-color: var(--color-error);
+  background: var(--color-error-subtle);
+  color: var(--color-error-hover);
+}
+
+.stage1 .model-summary-pill .pill-error {
+  color: var(--color-error);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.stage1 .model-summary-pill .pill-check {
+  color: var(--color-success);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.stage1 .model-summary-pill .pill-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.stage1 .model-summary-pill .pill-label {
+  /* No uppercase - use natural capitalization like Stage 2 */
+}
+
+/* Dark mode pills */
+.dark .stage1 .model-summary-pill {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+/* Dark mode: success state stays subtle */
+.dark .stage1 .model-summary-pill.complete {
+  /* Intentionally same as default dark mode - success doesn't need visual emphasis */
+}
+
+.dark .stage1 .model-summary-pill.streaming {
+  border-color: var(--color-info);
+  background: var(--overlay-blue-10);
+}
+
+.dark .stage1 .model-summary-pill.error {
+  border-color: var(--color-error);
+  background: var(--overlay-red-15);
+  color: var(--color-error-subtle);
+}
+
+.dark .stage1 .model-summary-pill .pill-error {
+  color: var(--color-error);
+}
+
+/* Pulsing "thinking" indicator for streaming pills */
+.stage1 .model-summary-pill .pill-thinking-indicator {
+  position: relative;
+  width: 8px;
+  height: 8px;
+  margin-inline-end: 2px;
+}
+
+.stage1 .model-summary-pill .pill-thinking-dot {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-info);
+  animation: pill-thinking-pulse 1.4s ease-in-out infinite;
+}
+
+.stage1 .model-summary-pill .pill-thinking-dot::after {
+  content: '';
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--color-info);
+  animation: pill-thinking-ring 1.4s ease-out infinite;
+}
+
+@keyframes pill-thinking-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: scale(0.85);
+  }
+}
+
+@keyframes pill-thinking-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+/* Dark mode thinking indicator */
+.dark .stage1 .model-summary-pill .pill-thinking-dot {
+  background: var(--color-indigo-400);
+}
+
+.dark .stage1 .model-summary-pill .pill-thinking-dot::after {
+  background: var(--color-indigo-400);
+}
+
+/* NOTE: .tabs and .tab styles are defined ONLY in Stage2.css
+   Stage 1 uses .model-summary-pill for its collapsed pills.
+   This ensures one source of truth for tab/pill styles. */

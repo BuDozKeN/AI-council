@@ -4,6 +4,8 @@
  * Extracted from MyCompany.jsx for better maintainability.
  */
 
+import './PromoteDecisionModal.css';
+import '../../ui/Modal.css';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import MarkdownViewer from '../../MarkdownViewer';

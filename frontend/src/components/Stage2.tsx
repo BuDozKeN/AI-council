@@ -8,7 +8,7 @@ import { getModelPersona } from '../config/modelPersonas';
 import { useCompletionCelebration } from '../hooks/useCelebration';
 import { CELEBRATION } from '../lib/animation-constants';
 import type { Provider, ProviderIconPaths, Stage2Props, Stage2DisplayData } from '../types/stages';
-import './Stage2.css';
+import './stage2/Stage2.css';
 
 // Provider icon paths (same as Stage1)
 const PROVIDER_ICON_PATH: ProviderIconPaths = {

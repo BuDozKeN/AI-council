@@ -1,0 +1,179 @@
+/* =============================================================================
+   STAGE 3 CONTENT - Typography, code blocks, and content formatting
+   ============================================================================= */
+
+/* =============================================================================
+   FINAL RESPONSE - Container for Stage3 content
+   ============================================================================= */
+
+.final-response {
+  position: relative;
+}
+
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Code block with hover-reveal copy button - dark theme for readability */
+.code-block-wrapper {
+  position: relative;
+  margin: 12px 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-code-bg);
+  border: 1px solid var(--color-code-border);
+}
+
+.code-block-wrapper .code-language {
+  position: absolute;
+  inset-block-start: 8px;
+  inset-inline-start: 12px;
+  font-size: 11px;
+  color: var(--color-slate-400);
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  z-index: var(--z-base);
+}
+
+/* Copy button positioning in code blocks */
+.code-block-wrapper.copyable .copy-btn-unified {
+  inset-block-start: 6px;
+  inset-inline-end: 6px;
+}
+
+.code-block-wrapper pre {
+  margin: 0;
+  padding: 36px 12px 12px;
+  overflow-x: auto;
+  background: var(--color-code-bg);
+}
+
+.code-block-wrapper code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-code-text);
+}
+
+/* Inline code styling (for short snippets like table names, paths) */
+.inline-code {
+  display: inline;
+  padding: 1px 4px;
+  background: var(--overlay-black-5);
+  border-radius: var(--radius-xs);
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  color: inherit;
+}
+
+/* =============================================================================
+   PREMIUM TYPOGRAPHY - Chairman Synthesis
+   Elevated typography for the flagship output
+   ============================================================================= */
+
+.final-text {
+  color: var(--color-text-primary);
+
+  /* Premium typography: 18px with relaxed line-height for synthesis */
+  font-size: var(--text-lg); /* 18px */
+  line-height: var(--leading-relaxed); /* 1.625 */
+  letter-spacing: var(--tracking-normal); /* Slight negative for modern look */
+}
+
+/* Prose heading hierarchy - clear visual structure */
+.final-text .prose h2 {
+  font-size: var(--text-2xl); /* 24px */
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-tight);
+  margin-block: var(--space-8) var(--space-4); /* 32px - major section spacing */ /* 16px */
+  color: var(--color-text-default);
+}
+
+.final-text .prose h3 {
+  font-size: var(--text-xl); /* 20px */
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-tight);
+  margin-block: var(--space-6) var(--space-3); /* 24px */ /* 12px */
+  color: var(--color-text-default);
+}
+
+.final-text .prose h4 {
+  font-size: var(--text-lg); /* 18px */
+  font-weight: var(--font-semibold);
+  margin-block: var(--space-5) var(--space-2); /* 20px */ /* 8px */
+  color: var(--color-text-default);
+}
+
+/* Paragraph spacing */
+.final-text .prose p {
+  margin-block-end: var(--space-4); /* 16px between paragraphs */
+}
+
+/* List styling */
+.final-text .prose ul,
+.final-text .prose ol {
+  margin-block-end: var(--space-4);
+  padding-inline-start: var(--space-6);
+}
+
+.final-text .prose li {
+  margin-block-end: var(--space-2);
+}
+
+/* Blockquote - premium callout styling */
+.final-text .prose blockquote {
+  border-inline-start: 3px solid var(--color-success);
+  padding-inline-start: var(--space-4);
+  margin: var(--space-6) 0;
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.final-text.error-text {
+  color: var(--color-error);
+}
+
+/* ===== DARK MODE ===== */
+
+.dark .final-text {
+  color: var(--color-text-primary);
+}
+
+.dark .stage3 .code-block-wrapper {
+  background: var(--color-code-bg);
+  border-color: var(--color-code-border);
+}
+
+.dark .stage3 .code-block-wrapper .code-language {
+  color: var(--color-slate-400);
+}
+
+.dark .stage3 .code-block-wrapper .copy-code-btn {
+  border-color: var(--color-code-border);
+  color: var(--color-code-text);
+}
+
+.dark .stage3 .code-block-wrapper .copy-code-btn:hover {
+  background: var(--color-slate-700);
+}
+
+.dark .stage3 .code-block-wrapper pre {
+  background: var(--color-code-bg);
+}
+
+.dark .stage3 .code-block-wrapper code {
+  color: var(--color-code-text);
+}
+
+.dark .stage3 .inline-code {
+  background: var(--overlay-shimmer);
+}

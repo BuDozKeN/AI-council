@@ -1,0 +1,232 @@
+.stage2 {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+
+  /* Transition for celebration state */
+  transition:
+    box-shadow 0.4s ease-out,
+    border-color 0.3s ease;
+}
+
+/* Stage completion celebration - subtle violet glow effect */
+.stage2.celebrating {
+  border-color: var(--color-violet-500);
+  box-shadow:
+    var(--shadow-sm),
+    0 0 20px 2px var(--overlay-purple-15),
+    0 0 40px 4px var(--overlay-purple-10);
+}
+
+/* Accordion wrapper */
+.stage2-accordion {
+  border: none;
+}
+
+.stage2-accordion-item {
+  border: none;
+}
+
+/* Accordion trigger - use higher specificity to override Radix defaults */
+.stage2-accordion .stage2-trigger {
+  padding: 0;
+  font-weight: inherit;
+  text-decoration: none;
+}
+
+.stage2-accordion .stage2-trigger:hover {
+  text-decoration: none;
+}
+
+.stage2-trigger-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.stage2-icon {
+  flex-shrink: 0;
+}
+
+.stage2-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Winner badge - minimal, just medal + icon */
+.stage2-winner {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-inline-start: auto;
+  flex-shrink: 0;
+}
+
+.stage2-winner .winner-medal {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.stage2-winner .winner-model-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  border-radius: 50%;
+}
+
+/* Accordion content */
+.stage2-content {
+  padding-block-start: 0; /* Tabs provide their own margin-block-start to match Stage 1 */
+}
+
+.stage2-section-title {
+  margin: 20px 0 8px;
+  color: var(--color-purple-600);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.stage2-section-title:first-of-type {
+  margin-block-start: 0;
+}
+
+/* Inline copy button */
+.copy-btn-inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.copy-btn-inline:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-brand-primary);
+  color: var(--color-brand-primary);
+}
+
+.stage2 h4 {
+  margin: 20px 0 8px;
+  color: var(--color-text-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.stage2 h4:first-of-type {
+  margin-block-start: 0;
+}
+
+.stage-description {
+  margin: 0 0 12px;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.aggregate-rankings {
+  background: var(--color-brand-primary-light);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  margin-block-end: 20px;
+  border: 2px solid var(--color-blue-200);
+}
+
+.aggregate-rankings h4 {
+  margin: 0 0 12px;
+  color: var(--color-blue-600);
+  font-size: 15px;
+}
+
+.aggregate-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.aggregate-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-blue-200);
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.1s ease;
+}
+
+.aggregate-item.clickable {
+  cursor: pointer;
+}
+
+.aggregate-item.clickable:hover {
+  background: var(--color-blue-50);
+  border-color: var(--color-blue-300);
+}
+
+.aggregate-item.clickable:active {
+  transform: scale(0.98);
+}
+
+.aggregate-item.clickable:focus-visible {
+  outline: 2px solid var(--color-blue-500);
+  outline-offset: 2px;
+}
+
+.rank-position {
+  color: var(--color-blue-600);
+  font-weight: 700;
+  font-size: 16px;
+  min-width: 28px;
+  line-height: 1;
+}
+
+/* Medal emoji sizing for top 3 ranks */
+.aggregate-item.rank-1 .rank-position,
+.aggregate-item.rank-2 .rank-position,
+.aggregate-item.rank-3 .rank-position {
+  font-size: 18px;
+}
+
+/* Gold winner - highlighted row */
+.aggregate-item.rank-1 {
+  background: var(--color-indigo-50);
+  border-color: var(--color-indigo-300);
+}
+
+/* Silver - subtle highlight */
+.aggregate-item.rank-2 {
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+}
+
+/* Bronze - very subtle */
+.aggregate-item.rank-3 {
+  background: var(--color-bg-primary);
+  border-color: var(--color-slate-200);
+}
+
+.rank-model {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-primary);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.rank-score {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+}

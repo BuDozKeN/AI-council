@@ -13,7 +13,7 @@
 }
 
 /* Show only on mobile */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .mobile-bottom-nav {
     display: flex;
     justify-content: space-around;

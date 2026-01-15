@@ -1,0 +1,177 @@
+/* Collapsible styles */
+.stage2 .stage-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  margin-block-end: 0; /* Match Stage 1 collapsed - tabs provide their own margin-block-start */
+}
+
+.stage2 .stage-title.clickable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.stage2 .stage-title.clickable:hover {
+  color: var(--color-brand-primary);
+}
+
+.stage2 .collapse-arrow {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  transition: transform 0.2s ease;
+}
+
+.stage2 .collapsed-summary {
+  margin-inline-start: auto;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stage2 .winner-badge {
+  padding: 2px 8px;
+  background: var(--color-warning-light);
+  color: var(--color-amber-700);
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+}
+
+/* Collapsed state */
+.stage2.collapsed {
+  padding: 12px 20px;
+}
+
+.stage2.collapsed .stage-title {
+  margin-block-end: 0;
+}
+
+/* NOTE: .model-summary-pill styles are defined ONLY in Stage1.css
+   Stage 2 uses .tab class for its reviewer pills - see below.
+   This ensures one source of truth for pill styles. */
+
+.ranking-content {
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.parsed-ranking {
+  margin-block-start: 16px;
+  padding-block-start: 16px;
+  border-block-start: 2px solid var(--color-border);
+}
+
+.parsed-ranking strong {
+  color: var(--color-blue-600);
+  font-size: 13px;
+}
+
+.parsed-ranking ol {
+  margin: 8px 0 0;
+  padding-inline-start: 24px;
+  color: var(--color-text-primary);
+}
+
+.parsed-ranking li {
+  margin: 4px 0;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.rank-count {
+  color: var(--color-text-tertiary);
+  font-size: 12px;
+}
+
+/* Pulse animation for streaming badge */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.stage2 .tab.complete {
+  border-color: var(--color-success);
+}
+
+.stage2 .tab.streaming {
+  border-color: var(--color-info);
+}
+
+.stage2 .typing-indicator {
+  display: inline-block;
+  margin-inline-start: 8px;
+  color: var(--color-success);
+  animation: blink 0.8s infinite;
+}
+
+.stage2 .complete-badge {
+  display: inline-block;
+  margin-inline-start: 8px;
+  padding: 2px 6px;
+  background: var(--color-success-light);
+  color: var(--color-success-dark);
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.stage2 .error-badge {
+  display: inline-block;
+  margin-inline-start: 8px;
+  padding: 2px 6px;
+  background: var(--color-error-subtle);
+  color: var(--color-error);
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+.stage2 .cursor {
+  display: inline-block;
+  color: var(--color-brand-primary);
+  animation: blink 0.8s infinite;
+  margin-inline-start: 2px;
+}
+
+.stage2 .empty-message {
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.stage2 .error-text {
+  color: var(--color-error-dark);
+}
+
+/* Loading state */
+.stage2 .stage-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  color: var(--color-text-secondary);
+}
+
+/* Spinner styles removed - now using unified <Spinner /> component */

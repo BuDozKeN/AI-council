@@ -21,7 +21,7 @@ import type {
   CodeBlockProps,
   TouchStartData,
 } from '../types/stages';
-import './Stage1.css';
+import './stage1/Stage1.css';
 
 // Map provider to icon file path
 const PROVIDER_ICON_PATH: ProviderIconPaths = {

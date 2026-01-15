@@ -13,7 +13,13 @@ import { Stage3Actions } from './Stage3Actions';
 // import { TableOfContents } from '../ui/TableOfContents';
 import type { Department, Project } from '../../types/business';
 import type { UsageData } from '../../types/conversation';
-import '../Stage3.css';
+import './styles/Stage3Base.css';
+import './styles/Stage3Content.css';
+import './styles/Stage3Dropdowns.css';
+import './styles/Stage3Loading.css';
+import './styles/Stage3Mobile.css';
+import './styles/Stage3SaveToolbar.css';
+import './styles/Stage3Toolbar.css';
 
 const log = logger.scope('Stage3');
 

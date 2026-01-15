@@ -113,7 +113,7 @@
 }
 
 /* Mobile - same visual size, expanded touch target via pseudo-element */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .switch-root {
     /* Keep same visual dimensions as desktop */
     position: relative;
