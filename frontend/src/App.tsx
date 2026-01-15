@@ -48,16 +48,6 @@ declare global {
   }
 }
 
-// Triage state type
-interface TriageResult {
-  constraints?: Record<string, unknown>;
-  enhanced_query?: string;
-  follow_up_question?: string;
-  ready?: boolean;
-}
-
-type TriageState = null | 'analyzing' | TriageResult;
-
 // Image upload type
 interface UploadedImage {
   file: File;
@@ -280,10 +270,6 @@ function App() {
   // SEO: FAQ schema for AI search engines (landing page only)
   useFAQSchema();
 
-  // Triage state
-  const [triageState, setTriageState] = useState<TriageState>(null);
-  const [originalQuery, setOriginalQuery] = useState('');
-  const [isTriageLoading, setIsTriageLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false); // Image upload in progress
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
@@ -734,67 +720,6 @@ function App() {
     );
   }
 
-  // Triage handlers (currently disabled but kept for future use)
-  // @ts-expect-error - Kept for future use when triage is re-enabled
-
-  const _handleStartTriage = async (content: string) => {
-    if (!currentConversationId) return;
-
-    setOriginalQuery(content);
-    setIsTriageLoading(true);
-    setTriageState('analyzing');
-
-    // Only pass businessId if useCompanyContext is enabled
-    const effectiveBusinessId = useCompanyContext ? selectedBusiness : null;
-
-    try {
-      const result = await api.analyzeTriage(content, effectiveBusinessId);
-      setTriageState(result as TriageResult);
-    } catch (error) {
-      log.error('Triage analysis failed:', error);
-      // On error, skip triage and go directly to council
-      handleSendToCouncil(content);
-    } finally {
-      setIsTriageLoading(false);
-    }
-  };
-
-  const handleTriageRespond = async (response: string) => {
-    if (!triageState || triageState === 'analyzing') return;
-    const triageResult = triageState as TriageResult;
-
-    setIsTriageLoading(true);
-
-    // Only pass businessId if useCompanyContext is enabled
-    const effectiveBusinessId = useCompanyContext ? selectedBusiness : null;
-
-    try {
-      const result = await api.continueTriage(
-        originalQuery,
-        triageResult.constraints || {},
-        response,
-        effectiveBusinessId
-      );
-      setTriageState(result as TriageResult);
-    } catch (error) {
-      log.error('Triage continue failed:', error);
-      // On error, proceed with what we have
-      handleSendToCouncil(triageResult.enhanced_query || originalQuery);
-    } finally {
-      setIsTriageLoading(false);
-    }
-  };
-
-  const handleTriageSkip = () => {
-    // Skip triage and send original query to council
-    handleSendToCouncil(originalQuery);
-  };
-
-  const handleTriageProceed = (enhancedQuery: string) => {
-    // Proceed with the enhanced query
-    handleSendToCouncil(enhancedQuery);
-  };
-
   // Use stop generation from context
   const handleStopGeneration = contextStopGeneration;
 
@@ -806,13 +731,9 @@ function App() {
     await handleSendToCouncil(content, images);
   };
 
-  // This is called after triage is complete (or skipped) to send to council
+  // Send message to council
   const handleSendToCouncil = async (content: string, images: UploadedImage[] | null = null) => {
     if (!currentConversationId) return;
-
-    // Clear triage state
-    setTriageState(null);
-    setOriginalQuery('');
 
     // Create new AbortController for this request
     abortControllerRef.current = new AbortController();
@@ -1705,13 +1626,6 @@ function App() {
                   onToggleCompanyContext={setUseCompanyContext}
                   useDepartmentContext={useDepartmentContext}
                   onToggleDepartmentContext={setUseDepartmentContext}
-                  // Triage props
-                  triageState={triageState}
-                  originalQuestion={originalQuery}
-                  isTriageLoading={isTriageLoading}
-                  onTriageRespond={handleTriageRespond}
-                  onTriageSkip={handleTriageSkip}
-                  onTriageProceed={handleTriageProceed}
                   // Upload progress
                   isUploading={isUploading}
                   // Knowledge Base navigation (now part of My Company)

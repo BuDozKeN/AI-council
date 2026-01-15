@@ -52,6 +52,14 @@ interface AlertModalState {
   variant: 'info' | 'success' | 'warning' | 'error';
 }
 
+interface DeleteConfirmState {
+  type: 'department' | 'role';
+  id: string;
+  deptId?: string; // Required for role deletion
+  name: string;
+  roleCount?: number; // For department deletion warning
+}
+
 /**
  * Organization Manager - View and edit company structure
  *
@@ -86,6 +94,7 @@ export default function Organization({
   const [showAddRole, setShowAddRole] = useState<string | null>(null);
   const [newRole, setNewRole] = useState<NewItem>({ id: '', name: '', description: '' });
   const [alertModal, setAlertModal] = useState<AlertModalState | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<DeleteConfirmState | null>(null);
 
   // Fetch departments on mount
   useEffect(() => {
@@ -267,6 +276,56 @@ export default function Organization({
     setSaving(false);
   }
 
+  // Handle deleting a department
+  async function handleDeleteDepartment() {
+    if (!deleteConfirm || deleteConfirm.type !== 'department') return;
+
+    setSaving(true);
+    try {
+      await api.deleteDepartment(companyId, deleteConfirm.id);
+      await fetchOrganization();
+      toast.success(t('organization.toast.deptDeleted', { name: deleteConfirm.name }), {
+        duration: 3000,
+      });
+      setDeleteConfirm(null);
+      // If the deleted dept was expanded, clear expansion
+      if (expandedDept === deleteConfirm.id) {
+        setExpandedDept(null);
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : t('common.unknownError');
+      setAlertModal({
+        title: t('common.error'),
+        message: t('organization.errors.deleteDeptFailed', { message }),
+        variant: 'error',
+      });
+    }
+    setSaving(false);
+  }
+
+  // Handle deleting a role
+  async function handleDeleteRole() {
+    if (!deleteConfirm || deleteConfirm.type !== 'role' || !deleteConfirm.deptId) return;
+
+    setSaving(true);
+    try {
+      await api.deleteRole(companyId, deleteConfirm.deptId, deleteConfirm.id);
+      await fetchOrganization();
+      toast.success(t('organization.toast.roleDeleted', { name: deleteConfirm.name }), {
+        duration: 3000,
+      });
+      setDeleteConfirm(null);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : t('common.unknownError');
+      setAlertModal({
+        title: t('common.error'),
+        message: t('organization.errors.deleteRoleFailed', { message }),
+        variant: 'error',
+      });
+    }
+    setSaving(false);
+  }
+
   // Handle viewing role system prompt
   async function handleViewRolePrompt(deptId: string, roleId: string) {
     try {
@@ -362,6 +421,21 @@ export default function Organization({
                     >
                       ✏️
                     </button>
+                    <button
+                      className="org-icon-btn org-icon-btn-danger"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeleteConfirm({
+                          type: 'department',
+                          id: dept.id,
+                          name: dept.name,
+                          roleCount: dept.roles?.length || 0,
+                        });
+                      }}
+                      title={t('organization.deleteDepartment')}
+                    >
+                      🗑️
+                    </button>
                     <span className="org-expand-icon">{expandedDept === dept.id ? '▼' : '▶'}</span>
                   </div>
                 </div>
@@ -394,6 +468,20 @@ export default function Organization({
                               title={t('organization.editRole')}
                             >
                               ✏️
+                            </button>
+                            <button
+                              className="org-icon-btn small org-icon-btn-danger"
+                              onClick={() =>
+                                setDeleteConfirm({
+                                  type: 'role',
+                                  id: role.id,
+                                  deptId: dept.id,
+                                  name: role.name,
+                                })
+                              }
+                              title={t('organization.deleteRole')}
+                            >
+                              🗑️
                             </button>
                           </div>
                         </div>
@@ -645,6 +733,47 @@ export default function Organization({
             <AppModal.Footer>
               <Button variant="default" onClick={() => setViewingRolePrompt(null)}>
                 {t('common.close')}
+              </Button>
+            </AppModal.Footer>
+          </>
+        )}
+      </AppModal>
+
+      {/* Delete Confirmation Modal */}
+      <AppModal
+        isOpen={!!deleteConfirm}
+        onClose={() => setDeleteConfirm(null)}
+        title={
+          deleteConfirm?.type === 'department'
+            ? t('organization.deleteDepartmentTitle')
+            : t('organization.deleteRoleTitle')
+        }
+        size="sm"
+      >
+        {deleteConfirm && (
+          <>
+            <p className="org-delete-message">
+              {deleteConfirm.type === 'department'
+                ? t('organization.deleteDepartmentMessage', { name: deleteConfirm.name })
+                : t('organization.deleteRoleMessage', { name: deleteConfirm.name })}
+            </p>
+            {deleteConfirm.type === 'department' && (deleteConfirm.roleCount ?? 0) > 0 && (
+              <p className="org-delete-warning">
+                {t('organization.deleteDepartmentWarning', { count: deleteConfirm.roleCount ?? 0 })}
+              </p>
+            )}
+            <AppModal.Footer>
+              <Button variant="outline" onClick={() => setDeleteConfirm(null)} disabled={saving}>
+                {t('common.cancel')}
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={
+                  deleteConfirm.type === 'department' ? handleDeleteDepartment : handleDeleteRole
+                }
+                disabled={saving}
+              >
+                {saving ? t('common.deleting') : t('common.delete')}
               </Button>
             </AppModal.Footer>
           </>
