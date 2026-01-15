@@ -11,7 +11,8 @@
 
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FolderKanban, CheckCircle, Archive, RotateCcw, Trash2, Plus } from 'lucide-react';
+import { CheckCircle, Archive, RotateCcw, Trash2, Plus } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Button } from '../../ui/button';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { SortSelect } from '../../ui/SortSelect';
@@ -189,9 +190,125 @@ export function ProjectsTab({
   if (projects.length === 0) {
     return (
       <div className="mc-empty">
-        <FolderKanban size={32} className="mc-empty-icon" />
+        <motion.svg
+          width="120"
+          height="120"
+          viewBox="0 0 120 120"
+          fill="none"
+          className="mc-empty-icon-svg"
+          style={{ marginBottom: '16px' }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+        >
+          <defs>
+            <linearGradient id="projectGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="var(--color-indigo-500)" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="var(--color-purple-500)" stopOpacity="0.6" />
+            </linearGradient>
+          </defs>
+
+          {/* Kanban columns */}
+          <rect
+            x="15"
+            y="25"
+            width="28"
+            height="70"
+            rx="6"
+            fill="url(#projectGradient)"
+            opacity="0.2"
+          />
+          <rect
+            x="48"
+            y="25"
+            width="28"
+            height="70"
+            rx="6"
+            fill="url(#projectGradient)"
+            opacity="0.3"
+          />
+          <rect
+            x="81"
+            y="25"
+            width="28"
+            height="70"
+            rx="6"
+            fill="url(#projectGradient)"
+            opacity="0.4"
+          />
+
+          {/* Task cards in columns */}
+          <rect
+            x="18"
+            y="30"
+            width="22"
+            height="14"
+            rx="3"
+            fill="var(--color-bg-card)"
+            stroke="var(--color-border)"
+            strokeWidth="1.5"
+          />
+          <rect
+            x="18"
+            y="48"
+            width="22"
+            height="14"
+            rx="3"
+            fill="var(--color-bg-card)"
+            stroke="var(--color-border)"
+            strokeWidth="1.5"
+          />
+          <rect
+            x="18"
+            y="66"
+            width="22"
+            height="14"
+            rx="3"
+            fill="var(--color-bg-card)"
+            stroke="var(--color-border)"
+            strokeWidth="1.5"
+          />
+
+          <rect
+            x="51"
+            y="30"
+            width="22"
+            height="14"
+            rx="3"
+            fill="var(--color-bg-card)"
+            stroke="var(--color-border)"
+            strokeWidth="1.5"
+          />
+          <rect
+            x="51"
+            y="48"
+            width="22"
+            height="14"
+            rx="3"
+            fill="var(--color-bg-card)"
+            stroke="var(--color-border)"
+            strokeWidth="1.5"
+          />
+
+          <rect
+            x="84"
+            y="30"
+            width="22"
+            height="14"
+            rx="3"
+            fill="var(--color-bg-card)"
+            stroke="var(--color-border)"
+            strokeWidth="1.5"
+          />
+        </motion.svg>
+
         <p className="mc-empty-title">{t('mycompany.startFirstProject')}</p>
         <p className="mc-empty-hint">{t('mycompany.projectsHelp')}</p>
+
+        <Button variant="default" onClick={onAddProject} style={{ marginTop: '8px' }}>
+          <Plus size={16} />
+          {t('mycompany.newProject')}
+        </Button>
       </div>
     );
   }
