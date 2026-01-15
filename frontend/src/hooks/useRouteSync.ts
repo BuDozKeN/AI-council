@@ -12,6 +12,7 @@ import { useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { VALID_COMPANY_TABS } from '../router';
 import type { MyCompanyTab } from '../components/mycompany/hooks';
+import type { Conversation } from '../types/conversation';
 
 interface UseRouteSyncOptions {
   // Modal states
@@ -38,7 +39,7 @@ interface UseRouteSyncOptions {
   // Conversation
   currentConversationId: string | null;
   setCurrentConversationId: (id: string | null) => void;
-  setCurrentConversation: (conversation: unknown) => void;
+  setCurrentConversation: (conversation: Conversation | null) => void;
   handleNewConversation: () => void;
 }
 
