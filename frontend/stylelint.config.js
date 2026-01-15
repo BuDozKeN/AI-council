@@ -1,7 +1,13 @@
 /** @type {import('stylelint').Config} */
+import deprecationWarnings from './stylelint-plugins/deprecation-warnings.js';
+
 export default {
+  plugins: [deprecationWarnings],
   extends: ['stylelint-config-standard'],
   rules: {
+    // Custom deprecation warnings plugin
+    'axcouncil/no-deprecated-patterns': true,
+
     // Prevent !important in custom code (library files exempted via overrides)
     'declaration-no-important': true,
 

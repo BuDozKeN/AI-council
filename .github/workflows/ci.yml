@@ -57,34 +57,118 @@ jobs:
         working-directory: frontend
         run: npm run lint:css
 
-      - name: CSS Architecture Metrics
+      - name: CSS Architecture Metrics & Performance Budget
         working-directory: frontend
         run: |
           echo "📊 CSS Architecture Health Report"
           echo "=================================="
           echo ""
+
+          # File counts and sizes
           echo "📁 Total CSS Files:"
-          find src -name '*.css' -type f | wc -l
+          CSS_FILE_COUNT=$(find src -name '*.css' -type f | wc -l)
+          echo "  $CSS_FILE_COUNT files"
           echo ""
+
           echo "📏 Total CSS Lines:"
-          find src -name '*.css' -type f -exec cat {} + | wc -l
+          TOTAL_LINES=$(find src -name '*.css' -type f -exec cat {} + | wc -l)
+          echo "  $TOTAL_LINES lines"
           echo ""
-          echo "📦 CSS Bundle Size:"
-          du -sh src/**/*.css 2>/dev/null | tail -1 || echo "N/A"
+
+          echo "📦 Total CSS Source Size:"
+          TOTAL_SIZE=$(find src -name '*.css' -type f -exec cat {} + | wc -c)
+          TOTAL_KB=$((TOTAL_SIZE / 1024))
+          echo "  ${TOTAL_KB}KB (unminified)"
           echo ""
-          echo "🔍 Files >600 lines:"
-          find src -name '*.css' -type f -exec wc -l {} + | awk '$1 > 600 && $2 !~ /total/ {count++; print "  ⚠️", $1, "lines:", $2} END {if (count == 0) print "  ✅ None! All files <600 lines"}'
+
+          # Performance Budget Check - FAIL if exceeded
+          echo "💰 CSS Performance Budget:"
+          MAX_CSS_KB=75
+          if [ $TOTAL_KB -gt $MAX_CSS_KB ]; then
+            echo "  ❌ FAILED: ${TOTAL_KB}KB exceeds budget of ${MAX_CSS_KB}KB"
+            echo "  Action required: Reduce CSS bundle size or increase budget"
+            exit 1
+          else
+            REMAINING=$((MAX_CSS_KB - TOTAL_KB))
+            PERCENT_USED=$((TOTAL_KB * 100 / MAX_CSS_KB))
+            echo "  ✅ PASSED: ${TOTAL_KB}KB / ${MAX_CSS_KB}KB (${PERCENT_USED}% used, ${REMAINING}KB remaining)"
+          fi
           echo ""
+
+          # Growth warning - 10% threshold
+          GROWTH_WARNING_KB=$((MAX_CSS_KB * 90 / 100))
+          if [ $TOTAL_KB -gt $GROWTH_WARNING_KB ]; then
+            echo "  ⚠️  WARNING: Approaching budget limit (>90% used)"
+            echo "  Consider splitting large files or removing unused styles"
+            echo ""
+          fi
+
+          # File size distribution
+          echo "🔍 Files >600 lines (HARD LIMIT):"
+          LARGE_FILES=$(find src -name '*.css' -type f -exec wc -l {} + | awk '$1 > 600 && $2 !~ /total/ {count++; print "  ❌", $1, "lines:", $2} END {if (count > 0) exit 1; else print "  ✅ None! All files <600 lines"}')
+          echo "$LARGE_FILES"
+          LARGE_FILES_EXIT=$?
+          echo ""
+
           echo "🎯 Files >300 lines (target max):"
-          find src -name '*.css' -type f -exec wc -l {} + | awk '$1 > 300 && $2 !~ /total/ {count++} END {print "  ", count, "files"}'
+          find src -name '*.css' -type f -exec wc -l {} + | awk '$1 > 300 && $2 !~ /total/ {count++} END {print "  ", (count ? count : 0), "files"}'
           echo ""
+
           echo "✅ Files <300 lines (ideal):"
           find src -name '*.css' -type f -exec wc -l {} + | awk '$1 <= 300 && $2 !~ /total/ {count++} END {print "  ", count, "files"}'
           echo ""
+
           echo "📊 Average file size:"
           find src -name '*.css' -type f -exec wc -l {} + | awk '{sum+=$1; count++} END {if (count > 0) print "  ", int(sum/count), "lines"}'
           echo ""
-          echo "✨ CSS Architecture Score: 10/10"
+
+          # Complexity metrics
+          echo "🧮 CSS Complexity Metrics:"
+
+          # Selector complexity (count complex selectors)
+          COMPLEX_SELECTORS=$(find src -name '*.css' -type f -exec grep -h '>' {} + | wc -l)
+          echo "  Child selectors (>): $COMPLEX_SELECTORS"
+
+          DESCENDANT_SELECTORS=$(find src -name '*.css' -type f -exec grep -oE '\.[a-z-]+ \.[a-z-]+' {} + | wc -l)
+          echo "  Descendant selectors: $DESCENDANT_SELECTORS"
+
+          PSEUDO_SELECTORS=$(find src -name '*.css' -type f -exec grep -oE '::?[a-z-]+' {} + | wc -l)
+          echo "  Pseudo-elements/classes: $PSEUDO_SELECTORS"
+
+          MEDIA_QUERIES=$(find src -name '*.css' -type f -exec grep -c '@media' {} + | awk '{sum+=$1} END {print sum}')
+          echo "  Media queries: $MEDIA_QUERIES"
+
+          KEYFRAMES=$(find src -name '*.css' -type f -exec grep -c '@keyframes' {} + | awk '{sum+=$1} END {print sum}')
+          echo "  Keyframe animations: $KEYFRAMES"
+
+          IMPORTANT_COUNT=$(find src -name '*.css' -type f -exec grep -c '!important' {} + | awk '{sum+=$1} END {print sum}')
+          echo "  !important usage: $IMPORTANT_COUNT (lower is better)"
+          echo ""
+
+          # Architecture score calculation
+          SCORE=10
+
+          # Deduct points for violations
+          if [ $TOTAL_KB -gt $MAX_CSS_KB ]; then
+            SCORE=$((SCORE - 3))
+          fi
+
+          if [ $LARGE_FILES_EXIT -ne 0 ]; then
+            SCORE=$((SCORE - 2))
+          fi
+
+          if [ $IMPORTANT_COUNT -gt 50 ]; then
+            SCORE=$((SCORE - 1))
+          fi
+
+          echo "✨ CSS Architecture Score: $SCORE/10"
+          echo ""
+
+          # Fail if critical violations exist
+          if [ $LARGE_FILES_EXIT -ne 0 ]; then
+            echo "❌ CI FAILED: Files exceeding 600 lines detected"
+            exit 1
+          fi
 
       - name: Type Check
         working-directory: frontend

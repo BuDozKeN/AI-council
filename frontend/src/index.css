@@ -1,7 +1,30 @@
+/* =============================================================================
+   CSS CASCADE LAYERS - Enterprise-Grade Specificity Control
+   Defines explicit layer order for predictable cascade without specificity wars
+   ============================================================================= */
+
+/**
+ * Layer Order (from lowest to highest specificity):
+ * 1. reset      - CSS resets, normalize (browser defaults)
+ * 2. tokens     - Design tokens (CSS custom properties)
+ * 3. base       - Base element styles (body, headings, links)
+ * 4. components - Component-specific styles
+ * 5. utilities  - Utility classes (Tailwind, helpers)
+ * 6. overrides  - Last-resort overrides (use sparingly)
+ *
+ * Benefits:
+ * - No more specificity wars (!important not needed)
+ * - Clear override hierarchy
+ * - Component styles can't accidentally override utilities
+ * - Easy to reason about cascade order
+ */
+@layer reset, tokens, base, components, utilities, overrides;
+
 /* Inter font is loaded via index.html with preload for non-blocking load */
 
 /* font-display: swap is included in the Google Fonts URL */
 
+@layer base {
 :root {
   font-family:
     Geist,
@@ -19,8 +42,10 @@
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
+} /* End @layer base */
 
 /* Typography classes for premium headings */
+@layer base {
 h1,
 h2,
 h3,
@@ -38,8 +63,10 @@ h1 {
 h2 {
   letter-spacing: -0.025em;
 }
+} /* End @layer base */
 
 /* Accessibility: Screen reader only utility class */
+@layer utilities {
 .sr-only {
   position: absolute;
   width: 1px;
@@ -74,8 +101,10 @@ h2 {
   box-shadow: var(--shadow-md);
   text-decoration: none;
 }
+} /* End @layer utilities */
 
 /* Global focus indicator for accessibility */
+@layer base {
 *:focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
@@ -144,6 +173,7 @@ select:focus-visible {
   border-color: var(--color-blue-500);
   box-shadow: 0 0 0 3px var(--overlay-blue-20);
 }
+} /* End @layer base */
 
 /* Box-sizing is handled in tailwind.css @layer base */
 
@@ -151,6 +181,7 @@ select:focus-visible {
    NOISE TEXTURE UTILITIES (2025 Premium Trend)
    Add .noise-overlay class to elements for subtle grain texture
    ============================================================================= */
+@layer utilities {
 .noise-overlay {
   position: relative;
 }
@@ -180,7 +211,9 @@ select:focus-visible {
   opacity: var(--noise-opacity-medium);
   mix-blend-mode: soft-light;
 }
+} /* End @layer utilities */
 
+@layer base {
 body {
   margin: 0;
   min-width: 320px;
@@ -203,8 +236,10 @@ html.dark body {
   width: 100vw;
   overflow: hidden;
 }
+} /* End @layer base */
 
 /* Global markdown styling */
+@layer components {
 .markdown-content {
   padding: 12px;
 }
@@ -346,10 +381,13 @@ html.dark body {
     background: var(--color-bg-tertiary);
   }
 }
+} /* End @layer components */
 
 /* =============================================================================
    GLOBAL MOBILE TOUCH TARGETS & TYPOGRAPHY
    ============================================================================= */
+
+@layer base {
 
 @media (width <= 640px) {
   /* Global touch target enforcement - 44px minimum per Apple/Google guidelines */
@@ -473,3 +511,4 @@ html.dark body {
     min-height: 44px;
   }
 }
+} /* End @layer base */
