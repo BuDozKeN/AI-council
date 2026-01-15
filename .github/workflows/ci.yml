@@ -82,21 +82,37 @@ jobs:
           echo ""
 
           # Performance Budget Check - FAIL if exceeded
-          echo "💰 CSS Performance Budget:"
-          MAX_CSS_KB=1100
-          if [ $TOTAL_KB -gt $MAX_CSS_KB ]; then
-            echo "  ❌ FAILED: ${TOTAL_KB}KB exceeds budget of ${MAX_CSS_KB}KB"
+          echo "💰 CSS Source Performance Budget:"
+          MAX_CSS_SOURCE_KB=1100
+          if [ $TOTAL_KB -gt $MAX_CSS_SOURCE_KB ]; then
+            echo "  ❌ FAILED: ${TOTAL_KB}KB exceeds budget of ${MAX_CSS_SOURCE_KB}KB"
             echo "  Action required: Reduce CSS bundle size or increase budget"
             exit 1
           else
-            REMAINING=$((MAX_CSS_KB - TOTAL_KB))
-            PERCENT_USED=$((TOTAL_KB * 100 / MAX_CSS_KB))
-            echo "  ✅ PASSED: ${TOTAL_KB}KB / ${MAX_CSS_KB}KB (${PERCENT_USED}% used, ${REMAINING}KB remaining)"
+            REMAINING=$((MAX_CSS_SOURCE_KB - TOTAL_KB))
+            PERCENT_USED=$((TOTAL_KB * 100 / MAX_CSS_SOURCE_KB))
+            echo "  ✅ PASSED: ${TOTAL_KB}KB / ${MAX_CSS_SOURCE_KB}KB (${PERCENT_USED}% used, ${REMAINING}KB remaining)"
+          fi
+          echo ""
+
+          # Built bundle size check (informational)
+          echo "📊 Built CSS Bundle Size:"
+          BUILT_CSS_SIZE=$(find dist/assets/css -name '*.css' -type f -exec cat {} + 2>/dev/null | wc -c || echo "0")
+          BUILT_CSS_KB=$((BUILT_CSS_SIZE / 1024))
+          MAX_BUILT_KB=700
+          if [ $BUILT_CSS_KB -gt 0 ]; then
+            if [ $BUILT_CSS_KB -gt $MAX_BUILT_KB ]; then
+              echo "  ⚠️  WARNING: ${BUILT_CSS_KB}KB exceeds target of ${MAX_BUILT_KB}KB (not blocking)"
+            else
+              echo "  ✅ ${BUILT_CSS_KB}KB / ${MAX_BUILT_KB}KB target"
+            fi
+          else
+            echo "  ℹ️  No built bundle found (build not run in this job)"
           fi
           echo ""
 
           # Growth warning - 10% threshold
-          GROWTH_WARNING_KB=$((MAX_CSS_KB * 90 / 100))
+          GROWTH_WARNING_KB=$((MAX_CSS_SOURCE_KB * 90 / 100))
           if [ $TOTAL_KB -gt $GROWTH_WARNING_KB ]; then
             echo "  ⚠️  WARNING: Approaching budget limit (>90% used)"
             echo "  Consider splitting large files or removing unused styles"
