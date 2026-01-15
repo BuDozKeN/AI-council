@@ -18,7 +18,7 @@
 
 .usage-text {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   color: var(--color-text-secondary);
 }
 
@@ -29,7 +29,7 @@
 
 .plans-section h3 {
   margin: 0 0 16px;
-  font-size: 16px;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--color-text-primary);
 }
@@ -73,7 +73,7 @@
   padding: 4px 12px;
   background: var(--color-indigo-500);
   color: var(--color-text-inverse);
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 600;
   border-radius: var(--radius-lg);
   white-space: nowrap;
@@ -86,7 +86,7 @@
 
 .plan-header h4 {
   margin: 0 0 8px;
-  font-size: 16px;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--color-text-primary);
 }
@@ -96,19 +96,19 @@
 }
 
 .plan-price .price {
-  font-size: 28px;
+  font-size: var(--text-3xl);
   font-weight: 700;
   color: var(--color-text-primary);
 }
 
 .plan-price .period {
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--color-text-muted);
 }
 
 .plan-queries {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   color: var(--color-text-muted);
 }
 
@@ -124,7 +124,7 @@
   align-items: flex-start;
   gap: 8px;
   padding: 6px 0;
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   color: var(--color-text-secondary);
 }
 
@@ -161,14 +161,14 @@
 
 .manage-title {
   margin: 0 0 var(--space-1) 0;
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--color-text-primary);
 }
 
 .manage-desc {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   color: var(--color-text-muted);
 }
 
@@ -178,7 +178,7 @@
 
 .stripe-note {
   text-align: center;
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--color-text-tertiary);
   margin-top: 24px;
 }

@@ -205,14 +205,14 @@
 
 .mc-empty-context-title {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--color-text-primary);
 }
 
 .mc-empty-context-hint {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--text-sm);
   max-width: 280px;
   line-height: 1.5;
   color: var(--color-text-secondary);
@@ -226,14 +226,14 @@
 }
 
 .mc-empty-context .mc-empty-title {
-  font-size: 15px;
+  font-size: var(--text-sm-plus);
   font-weight: 600;
   color: var(--color-text-primary);
   margin: 0;
 }
 
 .mc-empty-context .mc-empty-hint {
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--color-text-secondary);
   max-width: 320px;
   margin: 0 auto var(--space-4);

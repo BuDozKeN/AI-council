@@ -74,7 +74,7 @@
 
   /* Typography - readable on mobile */
   .final-text {
-    font-size: 16px;
+    font-size: var(--text-base);
     line-height: 1.7;
   }
 
@@ -109,7 +109,7 @@
   .stage3-content .table-scroll-wrapper th,
   .stage3-content .table-scroll-wrapper td {
     padding: 8px 10px;
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
     white-space: nowrap;
   }
 
@@ -156,7 +156,7 @@
     justify-content: center;
     gap: 6px;
     padding: 10px 12px;
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
     background: var(--color-bg-primary);
     border: none;
     border-radius: var(--radius-md);
@@ -197,7 +197,7 @@
     justify-content: center;
     gap: 6px;
     padding: 10px 12px;
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
     background: var(--color-bg-primary);
     border: none;
     border-radius: var(--radius-md);
@@ -241,7 +241,7 @@
     justify-content: center;
     gap: 6px;
     padding: 8px 12px;
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
     background: var(--color-bg-primary);
     border: none;
     border-radius: var(--radius-md);
@@ -284,7 +284,7 @@
     min-height: 48px;
     justify-content: center;
     padding: 12px 16px;
-    font-size: 15px;
+    font-size: var(--text-sm-plus);
     font-weight: 600;
     border-radius: var(--radius-lg);
     box-shadow: 0 2px 4px var(--overlay-emerald-20);
@@ -305,12 +305,12 @@
   }
 
   .save-status-text {
-    font-size: 14px;
+    font-size: var(--text-sm);
     font-weight: 500;
   }
 
   .save-view-link {
-    font-size: 14px;
+    font-size: var(--text-sm);
     min-height: 36px;
     display: inline-flex;
     align-items: center;
@@ -324,7 +324,7 @@
     width: 100%;
     min-height: 44px;
     justify-content: center;
-    font-size: 14px;
+    font-size: var(--text-sm);
   }
 }
 
@@ -375,7 +375,7 @@
 }
 
 .save-project-option-mobile .save-project-option-name {
-  font-size: 15px;
+  font-size: var(--text-sm-plus);
   font-weight: 500;
   color: var(--color-text-primary);
 }
@@ -386,7 +386,7 @@
 }
 
 .save-project-option-mobile .save-project-option-desc {
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   color: var(--color-text-secondary);
   margin-top: 2px;
 }
@@ -403,7 +403,7 @@
   background: var(--color-bg-primary);
   border: 2px dashed var(--color-purple-300);
   border-radius: var(--radius-md);
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--color-purple-600);
   cursor: pointer;
@@ -479,17 +479,17 @@
   .save-project-pill {
     min-height: 44px;
     padding: 10px 8px;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
 
   .playbook-trigger-pill {
     min-height: 40px;
     padding: 8px;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
 
   .save-action-btn {
     min-height: 52px;
-    font-size: 15px;
+    font-size: var(--text-sm-plus);
   }
 }

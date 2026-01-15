@@ -88,7 +88,7 @@
   /* Show labels on bottom nav - truncate if needed */
   .mc-tab-label {
     display: block;
-    font-size: 9px;
+    font-size: var(--text-2xs);
     font-weight: 500;
     letter-spacing: 0;
     max-width: 100%;

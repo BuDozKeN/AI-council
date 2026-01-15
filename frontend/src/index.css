@@ -95,7 +95,7 @@
     background: var(--color-focus);
     color: var(--color-text-inverse);
     font-weight: 600;
-    font-size: 14px;
+    font-size: var(--text-sm);
     border-radius: var(--radius-md);
     z-index: var(--z-toast);
     box-shadow: var(--shadow-md);
@@ -418,7 +418,7 @@
     .final-text,
     .ranking-content,
     .markdown-content {
-      font-size: 16px;
+      font-size: var(--text-base);
       line-height: 1.7;
       letter-spacing: 0.01em;
     }
@@ -452,7 +452,7 @@
     }
 
     .markdown-content pre code {
-      font-size: 13px;
+      font-size: var(--text-xs-plus);
       line-height: 1.5;
     }
 
@@ -479,7 +479,7 @@
 
     /* Stage titles */
     .stage-title {
-      font-size: 15px;
+      font-size: var(--text-sm-plus);
       flex-wrap: wrap;
       gap: 6px;
     }
@@ -501,7 +501,7 @@
     }
 
     .stage-title {
-      font-size: 14px;
+      font-size: var(--text-sm);
     }
 
     /* Ensure buttons remain tappable - use .no-touch-target to opt out */

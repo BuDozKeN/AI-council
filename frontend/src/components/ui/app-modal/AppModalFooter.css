@@ -21,7 +21,7 @@
    =========================================== */
 
 .app-modal-btn {
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
   padding: 9px 16px;
   border-radius: var(--radius-md);
@@ -92,7 +92,7 @@
 
 /* Action button variants - smaller for inline actions */
 .app-modal-btn-action {
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   padding: 7px 12px;
 }
 
@@ -118,7 +118,7 @@
 
 /* Small button variants */
 .app-modal-btn-sm {
-  font-size: 12px;
+  font-size: var(--text-xs);
   padding: 5px 10px;
 }
 
@@ -136,7 +136,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   color: var(--color-red-600);
   font-weight: 500;
 }

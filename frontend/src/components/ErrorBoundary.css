@@ -43,7 +43,7 @@
 
 .error-boundary-status-code {
   display: block;
-  font-size: 48px;
+  font-size: var(--text-5xl);
   font-weight: 700;
   color: var(--color-gray-300);
   margin-bottom: 8px;
@@ -51,14 +51,14 @@
 }
 
 .error-boundary-title {
-  font-size: 24px;
+  font-size: var(--text-2xl);
   font-weight: 600;
   color: var(--color-gray-900);
   margin: 0 0 12px;
 }
 
 .error-boundary-message {
-  font-size: 16px;
+  font-size: var(--text-base);
   color: var(--color-gray-500);
   margin-bottom: 32px;
   line-height: 1.5;
@@ -74,7 +74,7 @@
 .error-boundary-btn {
   border-radius: var(--radius-md, 8px);
   padding: 12px 24px;
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
@@ -109,7 +109,7 @@
 .error-boundary-summary {
   cursor: pointer;
   color: var(--color-gray-500);
-  font-size: 14px;
+  font-size: var(--text-sm);
   margin-bottom: 8px;
 }
 
@@ -145,7 +145,7 @@
   border-radius: var(--radius-md, 8px);
   padding: 16px;
   padding-right: 44px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--color-red-800);
   overflow: auto;
   max-height: 200px;

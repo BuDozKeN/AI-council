@@ -69,7 +69,7 @@
 
   /* Model name - readable, not monospace */
   .model-name {
-    font-size: 14px;
+    font-size: var(--text-sm);
     font-family: var(--font-sans, system-ui);
     margin-bottom: 14px;
     flex-wrap: wrap;
@@ -86,7 +86,7 @@
   }
 
   .stage1 .model-card-name {
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
 
   /* LLM icon - slightly larger for visibility */
@@ -102,12 +102,12 @@
 
   /* Card content - readable */
   .stage1 .model-card-content {
-    font-size: 14px;
+    font-size: var(--text-sm);
     line-height: 1.6;
   }
 
   .stage1 .model-card-preview {
-    font-size: 14px;
+    font-size: var(--text-sm);
     line-height: 1.6;
   }
 
@@ -115,7 +115,7 @@
   .complete-badge,
   .error-badge,
   .stopped-badge {
-    font-size: 9px;
+    font-size: var(--text-2xs);
     padding: 3px 6px;
     min-height: auto; /* Badges aren't buttons */
   }
@@ -149,7 +149,7 @@
 
   .stage1 .model-summary-pill {
     padding: 6px 10px;
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
 
   .stage1 .model-summary-pill .pill-icon {
@@ -178,16 +178,16 @@
   }
 
   .stage1 .model-card-name {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
 
   .stage1 .model-card-content,
   .stage1 .model-card-preview {
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
   }
 
   .stage1 .model-summary-pill {
     padding: 5px 8px;
-    font-size: 10px;
+    font-size: var(--text-2xs);
   }
 }

@@ -20,7 +20,7 @@
   border-left: 3px solid transparent;
   background: transparent;
   border-radius: var(--radius-md);
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--color-gray-700);
   cursor: pointer;
@@ -81,7 +81,7 @@
   border-inline-start-width: 4px;
   background: var(--color-bg-tertiary); /* Visible card in light mode */
   border-radius: var(--radius-lg);
-  font-size: 16px;
+  font-size: var(--text-base);
 
   /* Ensure touch events work properly inside Framer Motion drag containers */
   touch-action: manipulation;

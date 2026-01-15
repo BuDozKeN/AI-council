@@ -30,14 +30,14 @@
 
 .error-state-title {
   margin: 0;
-  font-size: 15px;
+  font-size: var(--text-sm-plus);
   font-weight: 600;
   color: var(--color-text-primary);
 }
 
 .error-state-message {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--color-slate-500);
   max-width: 320px;
 }
@@ -48,7 +48,7 @@
   gap: 6px;
   margin-top: 8px;
   padding: 8px 16px;
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 500;
   color: var(--color-info);
   background: var(--color-info-light);

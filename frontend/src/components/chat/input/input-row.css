@@ -53,7 +53,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-full);
   background: var(--color-bg-primary);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   color: var(--color-text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -211,7 +211,7 @@ button.role-select-trigger:focus {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-full);
   background: var(--color-bg-tertiary);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 500;
   color: var(--color-text-muted);
   cursor: pointer;
@@ -239,7 +239,7 @@ button.role-select-trigger:focus {
 }
 
 .pill-icon {
-  font-size: 12px;
+  font-size: var(--text-xs);
   line-height: 1;
 }
 
@@ -261,7 +261,7 @@ button.role-select-trigger:focus {
 }
 
 .selector-item label {
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--color-text-secondary);
 }
@@ -271,7 +271,7 @@ button.role-select-trigger:focus {
   border: 1px solid var(--color-border-dark);
   border-radius: var(--radius-md);
   background: var(--color-bg-primary);
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--color-text-primary);
   cursor: pointer;
   min-width: 150px;
@@ -304,7 +304,7 @@ button.role-select-trigger:focus {
   background: transparent; /* Borderless - inherits from input-row */
   border: none;
   color: var(--color-text-primary);
-  font-size: 16px;
+  font-size: var(--text-base);
   font-family: inherit;
   line-height: 1.5;
   outline: none;

@@ -69,11 +69,11 @@
   }
 
   .mc-tab-label {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
 
   .mc-tab-icon {
-    font-size: 16px;
+    font-size: var(--text-base);
   }
 
   /* More horizontal space for content */
@@ -278,7 +278,7 @@
   }
 
   .mc-elegant-title {
-    font-size: 15px;
+    font-size: var(--text-sm-plus);
     -webkit-line-clamp: 2;
   }
 
@@ -302,7 +302,7 @@
 
   .mc-dept-badges-overflow {
     display: inline-flex;
-    font-size: 10px;
+    font-size: var(--text-2xs);
     padding: 2px 6px;
     background: var(--color-border);
     color: var(--color-text-secondary);

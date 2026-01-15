@@ -81,7 +81,7 @@
 }
 
 .org-empty-icon {
-  font-size: 48px;
+  font-size: var(--text-5xl);
   margin-bottom: 12px;
 }
 
@@ -156,7 +156,7 @@
   border: none;
   cursor: pointer;
   padding: 4px;
-  font-size: 14px;
+  font-size: var(--text-sm);
   opacity: 0.6;
   transition: opacity 0.2s;
 }
@@ -166,7 +166,7 @@
 }
 
 .org-icon-btn.small {
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 
 .org-icon-btn-danger:hover {
@@ -175,7 +175,7 @@
 }
 
 .org-expand-icon {
-  font-size: 10px;
+  font-size: var(--text-2xs);
   color: var(--color-gray-400);
 }
 

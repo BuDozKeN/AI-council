@@ -7,7 +7,7 @@
   padding: 8px 16px;
   background: var(--color-amber-600);
   color: var(--color-text-inverse);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 500;
   z-index: var(--z-modal, 1000);
   flex-shrink: 0;
@@ -55,7 +55,7 @@
 @media (width <= 640px) {
   .mock-mode-banner {
     padding: 6px 12px;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
 
   .mock-mode-banner-content {

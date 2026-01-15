@@ -28,7 +28,7 @@
   }
 
   .omni-bar-input {
-    font-size: 16px; /* Prevent iOS zoom */
+    font-size: var(--text-base); /* Prevent iOS zoom */
   }
 
   .omni-mode-toggle {
@@ -78,7 +78,7 @@
 
   .inline-mode-indicator {
     padding: 5px 10px;
-    font-size: 11px;
+    font-size: var(--text-xs);
     min-height: unset;
   }
 
@@ -90,7 +90,7 @@
 
   .context-popover-item {
     padding: 14px 16px; /* Match DepartmentCheckboxItem mobile padding */
-    font-size: 16px; /* Match DepartmentCheckboxItem mobile font */
+    font-size: var(--text-base); /* Match DepartmentCheckboxItem mobile font */
     min-height: 56px; /* Match DepartmentCheckboxItem mobile height */
     background: var(--color-bg-tertiary); /* Card background - visible in light mode */
     border-radius: var(--radius-lg); /* Match DepartmentCheckboxItem */
@@ -122,7 +122,7 @@
   /* Larger accordion headers for Playbooks */
   .context-popover-group-header.clickable {
     padding: 14px 12px;
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
     min-height: 48px;
     gap: 10px;
   }
@@ -138,7 +138,7 @@
   }
 
   .context-popover-group-header .section-count {
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
   }
 
   /* Larger expanded items container */
@@ -151,7 +151,7 @@
   /* Items inside expanded sections (Playbooks) */
   .context-popover-group-items .context-popover-item {
     padding: 12px 14px;
-    font-size: 15px;
+    font-size: var(--text-sm-plus);
     min-height: 48px;
   }
 }

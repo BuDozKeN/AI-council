@@ -12,7 +12,7 @@
   border: 1px solid var(--color-violet-200);
   border-radius: var(--radius-lg);
   margin-bottom: 12px;
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--color-violet-700);
   font-weight: 500;
 }
@@ -34,7 +34,7 @@
   border: none;
   border-radius: var(--radius-md);
   color: var(--color-text-inverse);
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -66,7 +66,7 @@
   background: var(--color-purple-100);
   border-radius: var(--radius-md);
   color: var(--color-purple-600);
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 500;
 }
 
@@ -79,7 +79,7 @@
   background: var(--color-purple-50);
   border-radius: var(--radius-md);
   margin-top: 10px;
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   color: var(--color-purple-600);
   font-weight: 500;
 }
@@ -100,7 +100,7 @@
   padding: 12px 16px;
   background: var(--color-indigo-light);
   border-bottom: 1px solid var(--color-purple-200);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 600;
   color: var(--color-purple-600);
 }
@@ -121,7 +121,7 @@
   background: transparent;
   border-radius: var(--radius-sm);
   color: var(--color-violet-400);
-  font-size: 18px;
+  font-size: var(--text-lg);
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -154,14 +154,14 @@
 
 .pm-preview-section h4 {
   margin: 0 0 4px;
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 600;
   color: var(--color-violet-700);
 }
 
 .pm-preview-section p {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   color: var(--color-violet-900);
   line-height: 1.5;
 }
@@ -169,7 +169,7 @@
 /* Preview markdown content */
 .pm-preview-markdown {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--text-xs);
   line-height: 1.5;
   white-space: pre-wrap;
   overflow-wrap: break-word;
@@ -193,7 +193,7 @@
   border: 1px solid var(--color-emerald-400);
   border-radius: var(--radius-lg);
   margin-bottom: 20px;
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--color-emerald-700);
   font-weight: 500;
 }
@@ -215,7 +215,7 @@
   border: 1px solid var(--color-slate-200);
   border-radius: var(--radius-lg);
   margin-bottom: 16px;
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--color-slate-600);
   font-weight: 500;
 }
@@ -238,7 +238,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   color: var(--color-slate-400);
   transition: all 0.3s ease;
 }

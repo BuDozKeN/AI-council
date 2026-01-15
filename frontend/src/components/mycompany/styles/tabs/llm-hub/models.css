@@ -41,13 +41,13 @@
 }
 
 .llm-model-role-label {
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 500;
   color: var(--color-text-primary);
 }
 
 .llm-model-role-hint {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--color-text-tertiary);
 }
 
@@ -102,7 +102,7 @@
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 500;
   color: var(--color-text-primary);
   cursor: pointer;
@@ -136,7 +136,7 @@
   background: var(--color-bg-primary);
   border: 1px dashed var(--color-border);
   border-radius: var(--radius-md);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 500;
   color: var(--color-text-tertiary);
   cursor: pointer;
@@ -170,7 +170,7 @@
   background: var(--color-bg-primary);
   border: 1px dashed var(--color-border);
   border-radius: var(--radius-md);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 500;
   color: var(--color-text-tertiary);
   cursor: pointer;
@@ -211,7 +211,7 @@
   background: var(--color-bg-tertiary);
   border: 1px dashed var(--color-border);
   border-radius: var(--radius-md);
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 500;
   color: var(--color-text-quaternary);
   cursor: not-allowed;
@@ -248,7 +248,7 @@
   background: var(--color-danger);
   border-radius: var(--radius-md);
   color: var(--color-white);
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 600;
   cursor: pointer;
   opacity: 0;
@@ -334,7 +334,7 @@
 }
 
 .llm-model-chain-label {
-  font-size: 9px;
+  font-size: var(--text-2xs);
   font-weight: 600;
   color: var(--color-text-tertiary);
   text-transform: uppercase;

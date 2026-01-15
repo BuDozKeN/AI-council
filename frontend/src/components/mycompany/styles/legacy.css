@@ -17,7 +17,7 @@
 
 .mc-field-label {
   display: block;
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 600;
   color: var(--color-text-secondary);
   text-transform: uppercase;
@@ -40,13 +40,13 @@
 }
 
 .mc-section-label {
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 600;
   color: var(--color-text-primary);
 }
 
 .mc-section-hint {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--color-text-tertiary);
 }
 
@@ -59,7 +59,7 @@
 /* Small button variant for header buttons */
 .mc-btn-clean.small {
   padding: 6px 12px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   gap: 5px;
 }
 
@@ -77,7 +77,7 @@
   align-items: center;
   gap: 5px;
   padding: 5px 10px;
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 500;
   color: var(--color-text-secondary);
   background: var(--color-bg-secondary);
@@ -126,7 +126,7 @@
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 500;
   color: var(--color-violet-600);
   background: var(--color-violet-50);
@@ -186,7 +186,7 @@
 
 .mc-countdown-num {
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--text-sm);
   min-width: 16px;
   text-align: center;
 }
@@ -204,7 +204,7 @@
 }
 
 .mc-ai-synthesize-hint {
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--color-violet-600);
   opacity: 0.8;
 }
@@ -221,7 +221,7 @@
 }
 
 .mc-ai-synthesize-warning {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--color-text-tertiary);
   font-weight: 400;
   font-style: italic;
@@ -237,7 +237,7 @@
 .mc-status-badge {
   padding: 4px 12px;
   border-radius: var(--radius-md);
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 500;
   text-transform: capitalize;
 }
@@ -245,7 +245,7 @@
 .mc-source-badge {
   padding: 3px 10px;
   border-radius: var(--radius-sm);
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 500;
   background: var(--color-sky-50);
   color: var(--color-sky-600);

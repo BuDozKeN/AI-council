@@ -24,7 +24,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--color-text-primary);
   margin: 0 0 10px;
@@ -36,7 +36,7 @@
 }
 
 .explainer-section p {
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   color: var(--color-text-secondary);
   line-height: 1.7;
   margin: 0 0 10px;
@@ -106,7 +106,7 @@
 }
 
 .setup-steps h4 {
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--color-text-primary);
   margin: 0 0 16px;
@@ -133,7 +133,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -144,7 +144,7 @@
 }
 
 .step-content p {
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   color: var(--color-text-secondary);
   line-height: 1.6;
   margin: 0 0 4px;
@@ -172,7 +172,7 @@
 
 .step-content code {
   font-family: var(--font-mono, monospace);
-  font-size: 12px;
+  font-size: var(--text-xs);
   background: var(--color-bg-tertiary);
   padding: 2px 6px;
   border-radius: var(--radius-sm);
@@ -190,7 +190,7 @@
 }
 
 .api-key-form .form-group label {
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 500;
   color: var(--color-text-primary);
   margin-bottom: 8px;
@@ -205,7 +205,7 @@
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
   font-family: var(--font-mono, monospace);
-  font-size: 14px;
+  font-size: var(--text-sm);
   letter-spacing: 0.5px;
 }
 

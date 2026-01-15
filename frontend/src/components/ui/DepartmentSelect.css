@@ -106,7 +106,7 @@
   border-radius: var(--radius-md);
   padding: 10px 12px;
   padding-right: 36px;
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--color-text-primary);
   outline: none;
@@ -165,7 +165,7 @@
   border: none;
   background: var(--color-bg-secondary);
   border-radius: var(--radius-lg);
-  font-size: 16px;
+  font-size: var(--text-base);
   color: var(--color-text-primary);
   cursor: pointer;
   transition: all 0.15s ease;
@@ -204,7 +204,7 @@
 
 /* Item label */
 .dept-select-item-mobile .dept-select-item-label {
-  font-size: 16px;
+  font-size: var(--text-base);
   font-weight: 500;
 }
 

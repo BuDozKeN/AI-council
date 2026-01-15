@@ -15,7 +15,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   font-family: var(--font-mono, monospace);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   line-height: 1.6;
   color: var(--color-text-primary);
   resize: vertical;
@@ -127,13 +127,13 @@
   }
 
   .llm-mobile-slider-row .llm-stage-name {
-    font-size: 12px;
+    font-size: var(--text-xs);
     font-weight: 600;
     color: var(--color-text-primary);
   }
 
   .llm-mobile-slider-row .llm-badge {
-    font-size: 9px;
+    font-size: var(--text-2xs);
     font-weight: 600;
     padding: 3px 10px;
     border-radius: 4px;
@@ -154,7 +154,7 @@
   }
 
   .llm-mobile-length-label {
-    font-size: 12px;
+    font-size: var(--text-xs);
     font-weight: 600;
     color: var(--color-text-primary);
   }
@@ -163,7 +163,7 @@
     width: 100%;
     height: 32px;
     min-height: 32px;
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
     padding: 0 12px;
     border-radius: 6px;
     border: 1px solid var(--color-border);
@@ -199,7 +199,7 @@
     padding: 0;
     background: transparent;
     border: none;
-    font-size: 10px;
+    font-size: var(--text-2xs);
     font-weight: 500;
     color: var(--color-text-quaternary);
     cursor: pointer;
@@ -294,7 +294,7 @@
   }
 
   .llm-inner-card-title {
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
   }
 
   .llm-inner-card-body {
@@ -314,18 +314,18 @@
 
   .llm-mobile-slider-row .llm-stage-name,
   .llm-mobile-length-label {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
 
   .llm-mobile-slider-row .llm-badge {
-    font-size: 8px;
+    font-size: var(--text-2xs);
     padding: 2px 8px;
   }
 
   .llm-mobile-length-row .llm-length-select {
     height: 28px;
     min-height: 28px;
-    font-size: 12px;
+    font-size: var(--text-xs);
     padding: 0 10px;
   }
 

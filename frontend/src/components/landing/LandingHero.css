@@ -68,7 +68,7 @@
 }
 
 .landing-logo-text {
-  font-size: 28px;
+  font-size: var(--text-3xl);
   font-weight: 700;
   background: linear-gradient(135deg, var(--color-indigo-500) 0%, var(--color-indigo-400) 100%);
   -webkit-text-fill-color: transparent;
@@ -76,7 +76,7 @@
 }
 
 .landing-headline {
-  font-size: 44px;
+  font-size: var(--text-5xl);
   font-weight: 700;
   color: var(--color-text-primary);
   line-height: 1.15;
@@ -115,7 +115,7 @@
 }
 
 .stat-number {
-  font-size: 20px;
+  font-size: var(--text-xl);
   font-weight: 700;
   color: var(--color-indigo-600);
   letter-spacing: -0.02em;
@@ -126,7 +126,7 @@
 }
 
 .stat-label {
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--color-text-secondary);
   letter-spacing: 0.01em;
@@ -145,7 +145,7 @@
 
 @media (width <= 640px) {
   .landing-headline {
-    font-size: 34px;
+    font-size: var(--text-4xl);
   }
 
   .landing-stats {
@@ -158,11 +158,11 @@
   }
 
   .stat-number {
-    font-size: 18px;
+    font-size: var(--text-lg);
   }
 
   .stat-label {
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
   }
 
   .stat-arrow {
@@ -222,7 +222,7 @@
   }
 
   .landing-headline {
-    font-size: 28px;
+    font-size: var(--text-3xl);
     line-height: 1.25;
   }
 
@@ -236,11 +236,11 @@
   }
 
   .stat-number {
-    font-size: 16px;
+    font-size: var(--text-base);
   }
 
   .stat-label {
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
 
   .stat-arrow {
@@ -249,7 +249,7 @@
   }
 
   .logo-text {
-    font-size: 24px;
+    font-size: var(--text-2xl);
   }
 }
 
@@ -261,7 +261,7 @@
   }
 
   .landing-headline {
-    font-size: 26px;
+    font-size: var(--text-2xl);
   }
 
   .landing-stats {
@@ -273,11 +273,11 @@
   }
 
   .stat-number {
-    font-size: 15px;
+    font-size: var(--text-sm-plus);
   }
 
   .stat-label {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
 
   .stat-arrow {
@@ -286,7 +286,7 @@
   }
 
   .logo-text {
-    font-size: 22px;
+    font-size: var(--text-2xl);
   }
 }
 

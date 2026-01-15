@@ -174,11 +174,11 @@
   }
 
   .mc-empty-context .mc-empty-title {
-    font-size: 14px;
+    font-size: var(--text-sm);
   }
 
   .mc-empty-context .mc-empty-hint {
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
     max-width: 280px;
     margin-bottom: 12px;
   }

@@ -28,7 +28,7 @@
 
 .image-analysis-summary::before {
   content: '▶';
-  font-size: 10px;
+  font-size: var(--text-2xs);
   transition: transform 0.2s ease;
 }
 
@@ -41,12 +41,12 @@
 }
 
 .image-icon {
-  font-size: 16px;
+  font-size: var(--text-base);
 }
 
 .expand-hint {
   margin-left: auto;
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 400;
   color: var(--color-slate-500);
 }
@@ -60,7 +60,7 @@
   border-top: 1px solid var(--color-info-light);
   background: var(--color-bg-primary);
   border-radius: 0 0 var(--radius-md) var(--radius-md);
-  font-size: 14px;
+  font-size: var(--text-sm);
   line-height: 1.6;
   color: var(--color-text-primary);
   max-height: 400px;
@@ -71,7 +71,7 @@
 .image-analysis-content h3 {
   color: var(--color-blue-700);
   margin: 16px 0 8px;
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 
 .image-analysis-content h2:first-child,

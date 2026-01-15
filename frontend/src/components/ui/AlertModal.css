@@ -43,14 +43,14 @@
 
 .alert-modal-title {
   margin: 0 0 8px;
-  font-size: 18px;
+  font-size: var(--text-lg);
   font-weight: 600;
   color: var(--color-text-primary);
 }
 
 .alert-modal-message {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--text-sm);
   line-height: 1.5;
   color: var(--color-text-secondary);
   max-width: 320px;

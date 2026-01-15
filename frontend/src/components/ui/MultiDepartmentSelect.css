@@ -121,7 +121,7 @@
   padding: 12px;
   text-align: center;
   color: var(--color-text-tertiary);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
 }
 
 /* =============================================================================

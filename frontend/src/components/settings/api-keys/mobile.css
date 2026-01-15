@@ -11,7 +11,7 @@
   }
 
   .api-key-status .masked-key {
-    font-size: 12px;
+    font-size: var(--text-xs);
     padding: 4px 8px;
   }
 
@@ -32,15 +32,15 @@
   .provider-logo {
     width: 32px;
     height: 32px;
-    font-size: 14px;
+    font-size: var(--text-sm);
   }
 
   .provider-details h3 {
-    font-size: 14px;
+    font-size: var(--text-sm);
   }
 
   .provider-tagline {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
 
   .provider-explainer {
@@ -48,11 +48,11 @@
   }
 
   .explainer-section h4 {
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
   }
 
   .explainer-section p {
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
 
   .provider-connection {
@@ -68,11 +68,11 @@
     height: 22px;
     min-width: 22px;
     min-height: 22px;
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
 
   .step-content p {
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
 
   .provider-header {
@@ -108,12 +108,12 @@
   }
 
   .byok-key {
-    font-size: 11px;
+    font-size: var(--text-xs);
     padding: 3px 6px;
   }
 
   .byok-badge {
-    font-size: 9px;
+    font-size: var(--text-2xs);
     padding: 2px 4px;
   }
 }
@@ -123,7 +123,7 @@
   .provider-logo {
     width: 28px;
     height: 28px;
-    font-size: 12px;
+    font-size: var(--text-xs);
     border-radius: var(--radius-md);
   }
 
@@ -136,7 +136,7 @@
     height: 20px;
     min-width: 20px;
     min-height: 20px;
-    font-size: 10px;
+    font-size: var(--text-2xs);
   }
 
   .setup-step {

@@ -44,13 +44,13 @@
   }
 
   .mc-elegant-date {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
 
   /* Make action buttons more touch-friendly */
   .mc-text-btn {
     padding: 10px 14px;
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
     min-height: 44px;
     display: inline-flex;
     align-items: center;

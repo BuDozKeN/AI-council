@@ -16,7 +16,7 @@
   backdrop-filter: blur(12px) saturate(180%);
   border: none;
   border-radius: var(--radius-full);
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--color-slate-500);
@@ -152,7 +152,7 @@
 }
 
 .stage3-mobile-outline-title {
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -211,7 +211,7 @@
   padding: 14px 12px;
   margin-bottom: 2px;
   border-radius: var(--radius-lg);
-  font-size: 15px;
+  font-size: var(--text-sm-plus);
   line-height: 1.45;
   color: var(--color-text-secondary);
   text-decoration: none;
@@ -250,7 +250,7 @@
 
 /* Section number badge */
 .stage3-mobile-link-number {
-  font-size: 10px;
+  font-size: var(--text-2xs);
   font-weight: 700;
   color: var(--color-text-tertiary);
   background: var(--color-bg-hover);
@@ -283,7 +283,7 @@
 /* H3 level - subtle indent */
 .stage3-mobile-outline-link.level-3 {
   padding-left: 24px;
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 
 .stage3-mobile-outline-link.level-3 .stage3-mobile-link-indicator {

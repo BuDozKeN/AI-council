@@ -47,7 +47,7 @@
 
 .pm-success-title {
   margin: 0 0 8px;
-  font-size: 20px;
+  font-size: var(--text-xl);
   font-weight: 600;
   color: var(--color-text-primary);
   animation: fade-slide-up 0.4s ease-out 0.2s both;
@@ -55,7 +55,7 @@
 
 .pm-success-message {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--color-text-secondary);
   animation: fade-slide-up 0.4s ease-out 0.35s both;
 }

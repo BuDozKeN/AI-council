@@ -820,7 +820,7 @@ html.dark,
   .input-form button.send-button,
   .input-form button.stop-button {
     padding: 8px 12px;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
 
   .chat-interface .input-form {
@@ -993,7 +993,7 @@ html.dark *,
   input[type='search'],
   textarea,
   select {
-    font-size: 16px !important;
+    font-size: var(--text-base) !important;
   }
   /* stylelint-enable declaration-no-important */
 
@@ -1065,7 +1065,7 @@ a,
   p.text-muted,
   .text-secondary.text-secondary,
   .text-muted.text-muted {
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
   }
 
   /* Reduce line height for denser content */
@@ -1090,7 +1090,7 @@ a,
   p.text-muted,
   .text-secondary.text-secondary,
   .text-muted.text-muted {
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
 }
 
@@ -1154,7 +1154,7 @@ button:not(:disabled):active,
 button.btn-variant-default,
 .btn-variant-default {
   padding: 12px 28px;
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
   letter-spacing: -0.01em;
   border-radius: 12px;
@@ -1190,7 +1190,7 @@ button.btn-variant-default:active:not(:disabled),
 button.btn-variant-secondary,
 .btn-variant-secondary {
   padding: 12px 28px;
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
   letter-spacing: -0.01em;
   border-radius: 12px;
@@ -1216,7 +1216,7 @@ button.btn-variant-secondary:active:not(:disabled),
 button.btn-variant-outline,
 .btn-variant-outline {
   padding: 12px 28px;
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
   letter-spacing: -0.01em;
   border-radius: 12px;
@@ -1244,7 +1244,7 @@ button.btn-variant-outline:active:not(:disabled),
 button.btn-variant-ghost,
 .btn-variant-ghost {
   padding: 12px 28px;
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
   letter-spacing: -0.01em;
   border-radius: 12px;
@@ -1267,7 +1267,7 @@ button.btn-variant-ghost:active:not(:disabled),
 button.btn-variant-destructive,
 .btn-variant-destructive {
   padding: 12px 28px;
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
   letter-spacing: -0.01em;
   border-radius: 12px;
@@ -1297,7 +1297,7 @@ button.btn-variant-destructive:active:not(:disabled),
 button.btn-variant-success,
 .btn-variant-success {
   padding: 12px 28px;
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
   letter-spacing: -0.01em;
   border-radius: 12px;
@@ -1327,7 +1327,7 @@ button.btn-variant-success:active:not(:disabled),
 button.btn-variant-link,
 .btn-variant-link {
   padding: 8px 16px;
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
   letter-spacing: -0.01em;
   border-radius: 8px;
@@ -1351,13 +1351,13 @@ button.btn-variant-link:hover:not(:disabled),
   [class*='btn-variant-'].h-10 {
     padding: 8px 16px;
     min-height: 36px;
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
   }
 
   [class*='btn-variant-'].h-11 {
     padding: 10px 20px;
     min-height: 40px;
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
   }
 }
 
@@ -1366,13 +1366,13 @@ button.btn-variant-link:hover:not(:disabled),
   [class*='btn-variant-'].h-10 {
     padding: 6px 12px;
     min-height: 32px;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
 
   [class*='btn-variant-'].h-11 {
     padding: 8px 14px;
     min-height: 36px;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
 }
 
@@ -1381,13 +1381,13 @@ button.btn-variant-link:hover:not(:disabled),
   [class*='btn-variant-'].h-10 {
     padding: 5px 10px;
     min-height: 28px;
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
 
   [class*='btn-variant-'].h-11 {
     padding: 6px 12px;
     min-height: 32px;
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
 }
 

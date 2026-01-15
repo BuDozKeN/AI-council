@@ -71,8 +71,11 @@
   --font-mono: 'Geist Mono', 'JetBrains Mono', 'Fira Code', monospace;
 
   /* Font sizes (rem for accessibility) */
+  --text-2xs: 0.625rem; /* 10px - tiny labels, badges */
   --text-xs: 0.75rem; /* 12px */
+  --text-xs-plus: 0.8125rem; /* 13px - common UI text */
   --text-sm: 0.875rem; /* 14px */
+  --text-sm-plus: 0.9375rem; /* 15px - slightly larger body */
   --text-base: 1rem; /* 16px */
   --text-lg: 1.125rem; /* 18px */
   --text-xl: 1.25rem; /* 20px */

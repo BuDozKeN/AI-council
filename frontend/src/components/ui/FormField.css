@@ -24,7 +24,7 @@
 .form-field-label {
   display: block;
   margin-bottom: 6px;
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 600;
   color: var(--color-text-primary);
 }
@@ -40,7 +40,7 @@
 
 .form-field-hint {
   margin: 0 0 8px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--color-text-tertiary);
   line-height: 1.4;
 }
@@ -54,7 +54,7 @@
   padding: 10px 14px;
   border: 1px solid var(--color-border-dark);
   border-radius: var(--radius-md);
-  font-size: 16px; /* 16px prevents iOS auto-zoom on focus */
+  font-size: var(--text-base); /* 16px prevents iOS auto-zoom on focus */
   font-weight: 500;
   color: var(--color-text-primary);
   background: var(--color-bg-primary);
@@ -93,7 +93,7 @@
   padding: 12px 14px;
   border: 1px solid var(--color-border-dark);
   border-radius: var(--radius-md);
-  font-size: 16px; /* 16px prevents iOS auto-zoom on focus */
+  font-size: var(--text-base); /* 16px prevents iOS auto-zoom on focus */
   font-family: inherit;
   font-weight: 500;
   line-height: 1.6;
@@ -137,7 +137,7 @@
   padding-right: 36px;
   border: 1px solid var(--color-border-dark);
   border-radius: var(--radius-md);
-  font-size: 16px; /* 16px prevents iOS auto-zoom on focus */
+  font-size: var(--text-base); /* 16px prevents iOS auto-zoom on focus */
   font-weight: 500;
   color: var(--color-text-primary);
   background: var(--color-bg-primary);
@@ -186,7 +186,7 @@
 
 .form-field-error-text {
   margin: 6px 0 0;
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--color-error);
 }
 
@@ -207,7 +207,7 @@
 .form-group label {
   display: block;
   margin-bottom: 6px;
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 600;
   color: var(--color-text-primary);
 }
@@ -219,7 +219,7 @@
   padding: 10px 14px;
   border: 1px solid var(--color-border-dark);
   border-radius: var(--radius-md);
-  font-size: 16px; /* 16px prevents iOS auto-zoom on focus */
+  font-size: var(--text-base); /* 16px prevents iOS auto-zoom on focus */
   color: var(--color-text-primary);
   background: var(--color-bg-primary);
   transition:
@@ -265,7 +265,7 @@
 .form-hint {
   display: block;
   margin-top: 6px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--color-text-tertiary);
 }
 

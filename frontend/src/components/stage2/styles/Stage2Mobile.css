@@ -56,7 +56,7 @@
   .stage2-content .table-scroll-wrapper th,
   .stage2-content .table-scroll-wrapper td {
     padding: 8px 10px;
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
     white-space: nowrap;
   }
 
@@ -95,7 +95,7 @@
 
   /* Collapse arrow - smaller */
   .stage2 .collapse-arrow {
-    font-size: 10px;
+    font-size: var(--text-2xs);
   }
 
   /* Winner badge - more compact on mobile with smaller icons */
@@ -126,7 +126,7 @@
   .stage2 .tab {
     /* Match Stage 1 pills exactly */
     padding: 6px 10px;
-    font-size: 11px;
+    font-size: var(--text-xs);
     line-height: 1;
   }
 
@@ -158,7 +158,7 @@
   }
 
   .stage2 .model-info {
-    font-size: 14px;
+    font-size: var(--text-sm);
     gap: 8px;
   }
 
@@ -176,7 +176,7 @@
 
   /* Ranking content - readable typography */
   .ranking-content {
-    font-size: 15px;
+    font-size: var(--text-sm-plus);
     line-height: 1.65;
   }
 
@@ -190,7 +190,7 @@
   }
 
   .aggregate-rankings h4 {
-    font-size: 14px;
+    font-size: var(--text-sm);
     margin-bottom: 12px;
   }
 
@@ -209,7 +209,7 @@
 
   /* Rank position - prominent but compact */
   .rank-position {
-    font-size: 16px;
+    font-size: var(--text-base);
     font-weight: 700;
     min-width: 32px;
     color: var(--color-blue-600);
@@ -218,7 +218,7 @@
   /* Model name - takes remaining space */
   .rank-model {
     flex: 1;
-    font-size: 14px;
+    font-size: var(--text-sm);
     font-family: var(--font-sans, system-ui);
     gap: 6px;
   }
@@ -230,7 +230,7 @@
 
   /* Score - right aligned */
   .rank-score {
-    font-size: 14px;
+    font-size: var(--text-sm);
     font-weight: 600;
     margin-left: auto;
   }
@@ -251,7 +251,7 @@
   }
 
   .parsed-ranking li {
-    font-size: 14px;
+    font-size: var(--text-sm);
     padding: 4px 0;
   }
 
@@ -267,19 +267,19 @@
 
   /* Collapsed summary */
   .stage2 .collapsed-summary {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
 
   /* Section titles */
   .stage2-section-title {
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
     margin: 16px 0 10px;
   }
 
   /* Status badges */
   .stage2 .complete-badge,
   .stage2 .error-badge {
-    font-size: 9px;
+    font-size: var(--text-2xs);
     padding: 3px 6px;
   }
 }
@@ -303,7 +303,7 @@
 
   /* Collapse arrow smaller */
   .stage2 .collapse-arrow {
-    font-size: 8px;
+    font-size: var(--text-2xs);
   }
 
   /* Winner badge - compact with smaller icons */
@@ -325,7 +325,7 @@
 
   .stage2 .tab {
     padding: 5px 8px;
-    font-size: 10px;
+    font-size: var(--text-2xs);
   }
 
   .aggregate-item {
@@ -334,15 +334,15 @@
   }
 
   .rank-position {
-    font-size: 15px;
+    font-size: var(--text-sm-plus);
     min-width: 28px;
   }
 
   .rank-model {
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
   }
 
   .rank-score {
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
   }
 }

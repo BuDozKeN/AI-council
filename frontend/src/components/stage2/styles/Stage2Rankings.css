@@ -50,7 +50,7 @@
 }
 
 .stage2-title {
-  font-size: 16px;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--color-text-primary);
 }
@@ -65,7 +65,7 @@
 }
 
 .stage2-winner .winner-medal {
-  font-size: 18px;
+  font-size: var(--text-lg);
   line-height: 1;
 }
 
@@ -84,7 +84,7 @@
 .stage2-section-title {
   margin: 20px 0 8px;
   color: var(--color-purple-600);
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 
@@ -115,7 +115,7 @@
 .stage2 h4 {
   margin: 20px 0 8px;
   color: var(--color-text-primary);
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 
@@ -126,7 +126,7 @@
 .stage-description {
   margin: 0 0 12px;
   color: var(--color-text-secondary);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   line-height: 1.5;
 }
 
@@ -141,7 +141,7 @@
 .aggregate-rankings h4 {
   margin: 0 0 12px;
   color: var(--color-blue-600);
-  font-size: 15px;
+  font-size: var(--text-sm-plus);
 }
 
 .aggregate-list {
@@ -185,7 +185,7 @@
 .rank-position {
   color: var(--color-blue-600);
   font-weight: 700;
-  font-size: 16px;
+  font-size: var(--text-base);
   min-width: 28px;
   line-height: 1;
 }
@@ -194,7 +194,7 @@
 .aggregate-item.rank-1 .rank-position,
 .aggregate-item.rank-2 .rank-position,
 .aggregate-item.rank-3 .rank-position {
-  font-size: 18px;
+  font-size: var(--text-lg);
 }
 
 /* Gold winner - highlighted row */
@@ -221,12 +221,12 @@
   align-items: center;
   gap: 6px;
   color: var(--color-text-primary);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 500;
 }
 
 .rank-score {
   color: var(--color-text-secondary);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 600;
 }

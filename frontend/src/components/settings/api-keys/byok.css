@@ -23,7 +23,7 @@
   align-items: center;
   gap: 6px;
   padding: 6px 10px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   border-radius: var(--radius-default);
   z-index: var(--z-elevated);
   animation: byok-toast-fade-in 0.2s ease-out;
@@ -67,7 +67,7 @@
 /* Masked key */
 .byok-key {
   font-family: var(--font-mono, monospace);
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--color-text-secondary);
   background: var(--color-bg-tertiary);
   padding: 4px 8px;
@@ -81,7 +81,7 @@
 
 /* Status badges */
 .byok-badge {
-  font-size: 10px;
+  font-size: var(--text-2xs);
   font-weight: 500;
   padding: 2px 6px;
   border-radius: var(--radius-sm);
@@ -163,7 +163,7 @@
   align-items: center;
   gap: 8px;
   padding: 8px 10px;
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   color: var(--color-text-primary);
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -210,7 +210,7 @@
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
   font-family: var(--font-mono, monospace);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
 }
 
 .byok-replace-form input:focus {

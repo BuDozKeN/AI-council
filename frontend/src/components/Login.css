@@ -103,7 +103,7 @@
 }
 
 .login-title {
-  font-size: 32px;
+  font-size: var(--text-3xl);
   font-weight: 700;
   color: var(--color-text-inverse);
   margin: 0 0 8px;
@@ -112,14 +112,14 @@
 }
 
 .login-subtitle {
-  font-size: 20px;
+  font-size: var(--text-xl);
   font-weight: 500;
   color: var(--overlay-white-90);
   margin: 0 0 4px;
 }
 
 .login-description {
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--overlay-white-60);
   margin: 0;
 }
@@ -135,7 +135,7 @@
   background: var(--color-bg-primary);
   border: none;
   border-radius: var(--radius-lg);
-  font-size: 16px;
+  font-size: var(--text-base);
   font-weight: 500;
   color: var(--color-text-primary);
   cursor: pointer;
@@ -174,7 +174,7 @@
 }
 
 .divider span {
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   color: var(--overlay-white-80);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -196,7 +196,7 @@
 
 /* Scoped to login-form to prevent global leakage */
 .login-form .form-group label {
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--overlay-white-80);
 }
@@ -206,7 +206,7 @@
   background: rgb(var(--color-slate-800-rgb), 0.8);
   border: 1px solid var(--overlay-white-20);
   border-radius: var(--radius-md);
-  font-size: 15px;
+  font-size: var(--text-sm-plus);
   color: var(--color-text-inverse);
   transition: all 0.2s ease;
 }
@@ -229,7 +229,7 @@
   background: rgb(var(--color-indigo-rgb), 0.85);
   border: 1px solid var(--overlay-white-10);
   border-radius: var(--radius-md);
-  font-size: 16px;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--color-text-inverse);
   cursor: pointer;
@@ -254,7 +254,7 @@
   color: var(--color-red-300);
   padding: 12px 14px;
   border-radius: var(--radius-md);
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 
 .success-message {
@@ -263,7 +263,7 @@
   color: var(--color-green-300);
   padding: 12px 14px;
   border-radius: var(--radius-md);
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 
 /* Footer */
@@ -280,7 +280,7 @@
   border: none;
   color: var(--overlay-white-80);
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--text-sm);
   padding: 4px 8px;
   transition: color 0.2s ease;
 }
@@ -303,11 +303,11 @@
   }
 
   .login-title {
-    font-size: 28px;
+    font-size: var(--text-3xl);
   }
 
   .login-subtitle {
-    font-size: 18px;
+    font-size: var(--text-lg);
   }
 }
 

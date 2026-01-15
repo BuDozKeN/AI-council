@@ -253,7 +253,7 @@
   cursor: pointer;
   transition: all 0.15s ease;
   color: var(--overlay-white-90);
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
   min-width: 140px;
   height: auto;
@@ -283,7 +283,7 @@
   border: 1px solid var(--overlay-white-20);
   border-radius: var(--radius-md);
   color: var(--overlay-white-90);
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
   min-width: 140px;
 }
@@ -402,7 +402,7 @@
   z-index: var(--z-base);
   background: transparent;
   border: none;
-  font-size: 18px;
+  font-size: var(--text-lg);
   cursor: pointer;
   color: rgb(var(--color-white-rgb, 255, 255, 255), 0.4);
   width: 32px;

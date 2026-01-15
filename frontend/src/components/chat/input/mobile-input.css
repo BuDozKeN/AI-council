@@ -42,7 +42,7 @@
   .message-input {
     min-height: 24px;
     padding: 8px 0;
-    font-size: 16px; /* Prevents iOS zoom on focus */
+    font-size: var(--text-base); /* Prevents iOS zoom on focus */
   }
 
   /* Action buttons on mobile */
@@ -106,7 +106,7 @@
   }
 
   .message-label {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
 
   /* Stack context bar vertically on very small screens */
@@ -189,12 +189,12 @@
   .send-button,
   .stop-button {
     padding: 8px 14px;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
 
   .context-bar button.context-select-trigger,
   button.context-select-trigger {
-    font-size: 11px;
+    font-size: var(--text-xs);
     padding: 4px 6px;
   }
 }

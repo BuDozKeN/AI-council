@@ -36,7 +36,7 @@
   background: transparent;
   border-radius: var(--radius-default);
   color: var(--sidebar-text-secondary);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   text-align: left;
   cursor: pointer;
   transition: all 0.12s ease;

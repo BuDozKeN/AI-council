@@ -78,7 +78,7 @@
   .pm-ai-success,
   .pm-manual-badge {
     padding: 10px 14px;
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
   }
 
   /* Actions - allow wrapping */
@@ -98,7 +98,7 @@
   .pm-error {
     margin: 12px 16px 0;
     padding: 10px 14px;
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
   }
 
   /* Field spacing - tighter */
@@ -124,6 +124,6 @@
   }
 
   .pm-success-title {
-    font-size: 18px;
+    font-size: var(--text-lg);
   }
 }

@@ -70,7 +70,7 @@
   .app-modal-confirm-inline span {
     width: 100%;
     text-align: center;
-    font-size: 14px;
+    font-size: var(--text-sm);
   }
 
   .app-modal-confirm-inline button {
@@ -367,7 +367,7 @@
   .app-modal-body input[type='url'],
   .app-modal-body input[type='number'],
   .app-modal-body textarea {
-    font-size: 16px; /* Prevents iOS auto-zoom on focus */
+    font-size: var(--text-base); /* Prevents iOS auto-zoom on focus */
     min-height: 44px; /* Touch-friendly target */
   }
 
@@ -383,6 +383,6 @@
 
   /* Labels - slightly larger for readability */
   .app-modal-body label {
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
   }
 }

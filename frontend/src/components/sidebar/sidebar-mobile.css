@@ -226,7 +226,7 @@
   .search-input {
     min-height: 44px;
     padding: 12px 36px 12px 40px;
-    font-size: 16px; /* Prevents iOS zoom on focus */
+    font-size: var(--text-base); /* Prevents iOS zoom on focus */
     border-radius: var(--radius-lg);
   }
 
@@ -242,7 +242,7 @@
     right: 10px;
     width: 24px;
     height: 24px;
-    font-size: 16px;
+    font-size: var(--text-base);
   }
 
   /* More padding around search on mobile */
@@ -264,11 +264,11 @@
   }
 
   .group-name {
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
 
   .group-count {
-    font-size: 11px;
+    font-size: var(--text-xs);
     padding: 3px 8px;
   }
 

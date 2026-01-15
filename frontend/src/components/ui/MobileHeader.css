@@ -22,7 +22,7 @@
   background: transparent;
   border: none;
   color: var(--color-text-primary);
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;
   border-radius: var(--radius-md);
@@ -43,7 +43,7 @@
 
 .mobile-header-title {
   flex: 1;
-  font-size: 18px;
+  font-size: var(--text-lg);
   font-weight: 600;
   color: var(--color-text-primary);
   overflow: hidden;

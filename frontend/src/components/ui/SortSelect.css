@@ -10,7 +10,7 @@
   border: 1px solid var(--color-slate-200);
   border-radius: var(--radius-lg);
   font-family: inherit;
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 500;
   color: var(--color-slate-600);
   cursor: pointer;
@@ -60,7 +60,7 @@
   align-items: center;
   gap: 8px;
   padding: 8px 10px;
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   color: var(--color-gray-700);
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -109,7 +109,7 @@
   border: none;
   background: var(--color-bg-secondary);
   border-radius: var(--radius-lg);
-  font-size: 16px;
+  font-size: var(--text-base);
   color: var(--color-gray-700);
   cursor: pointer;
   transition: all 0.15s ease;
@@ -148,7 +148,7 @@
 
 /* Item label */
 .sort-select-item-mobile .sort-select-item-label {
-  font-size: 16px;
+  font-size: var(--text-base);
   font-weight: 500;
 }
 
@@ -157,7 +157,7 @@
   .sort-select-trigger {
     min-height: 40px;
     padding: 8px 12px;
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
     border-radius: var(--radius-lg);
   }
 }

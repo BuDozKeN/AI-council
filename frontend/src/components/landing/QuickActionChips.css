@@ -17,7 +17,7 @@
   backdrop-filter: blur(8px);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-full);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 500;
   color: var(--color-text-secondary);
   cursor: pointer;
@@ -70,6 +70,6 @@
 
   .quick-action-chip {
     padding: 6px 10px;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
 }

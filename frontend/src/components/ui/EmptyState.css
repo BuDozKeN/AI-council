@@ -46,14 +46,14 @@
 
 .empty-state-title {
   margin: 0;
-  font-size: 15px;
+  font-size: var(--text-sm-plus);
   font-weight: 600;
   color: var(--color-text-primary);
 }
 
 .empty-state-message {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--color-slate-500);
   max-width: 280px;
   line-height: 1.5;
@@ -91,12 +91,12 @@
 
 .empty-state-large .empty-state-title {
   margin-bottom: 8px;
-  font-size: 24px;
+  font-size: var(--text-2xl);
 }
 
 .empty-state-large .empty-state-message {
   margin-bottom: 20px;
-  font-size: 15px;
+  font-size: var(--text-sm-plus);
   max-width: 640px;
   color: var(--color-text-secondary);
 }
@@ -113,7 +113,7 @@
 }
 
 .empty-state-hint {
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   color: var(--color-text-tertiary);
   padding: 6px 12px;
   background: var(--color-slate-50);

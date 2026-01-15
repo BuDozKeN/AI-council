@@ -31,7 +31,7 @@
 }
 
 .pull-refresh-text {
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 500;
   color: var(--color-slate-600);
   background: var(--color-bg-primary);
