@@ -19,6 +19,7 @@ import json
 from ..auth import get_current_user
 from .. import storage
 from ..security import SecureHTTPException
+from ..i18n import t, get_locale_from_request
 
 # Import shared rate limiter (ensures limits are tracked globally)
 from ..rate_limit import limiter
@@ -35,12 +36,12 @@ router = APIRouter(prefix="", tags=["projects"])
 UUID_PATTERN = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', re.I)
 
 
-def validate_uuid(value: str, field_name: str = "id") -> str:
+def validate_uuid(value: str, field_name: str = "id", locale: str = 'en') -> str:
     """Validate that a value is a valid UUID format."""
     if not value or not UUID_PATTERN.match(value):
         raise HTTPException(
             status_code=400,
-            detail=f"Invalid {field_name}: must be a valid UUID"
+            detail=t('errors.invalid_uuid', locale, field=field_name)
         )
     return value
 
@@ -123,6 +124,7 @@ async def create_project(request: Request, company_id: str,
     user: dict = Depends(get_current_user)
 ):
     """Create a new project."""
+    locale = get_locale_from_request(request)
     access_token = user.get("access_token")
     user_id = user.get("id")
 
@@ -141,7 +143,7 @@ async def create_project(request: Request, company_id: str,
         )
 
         if not result:
-            raise HTTPException(status_code=500, detail="Failed to create project - no result returned")
+            raise HTTPException(status_code=500, detail=t('errors.project_create_failed', locale))
 
         return {"project": result}
     except HTTPException:
@@ -157,12 +159,13 @@ async def create_project(request: Request, company_id: str,
 @limiter.limit("100/minute;500/hour")
 async def get_project(request: Request, project_id: str, user: dict = Depends(get_current_user)):
     """Get a single project."""
-    validate_uuid(project_id, "project_id")
+    locale = get_locale_from_request(request)
+    validate_uuid(project_id, "project_id", locale)
     access_token = user.get("access_token")
     project = storage.get_project(project_id, access_token)
 
     if not project:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=404, detail=t('errors.project_not_found', locale))
 
     return {"project": project}
 
@@ -174,7 +177,8 @@ async def update_project(request: Request, project_id: str,
     user: dict = Depends(get_current_user)
 ):
     """Update a project's name, description, context, or status."""
-    validate_uuid(project_id, "project_id")
+    locale = get_locale_from_request(request)
+    validate_uuid(project_id, "project_id", locale)
     access_token = user.get("access_token")
 
     try:
@@ -191,7 +195,7 @@ async def update_project(request: Request, project_id: str,
         )
 
         if not result:
-            raise HTTPException(status_code=404, detail="Resource not found")
+            raise HTTPException(status_code=404, detail=t('errors.project_not_found', locale))
 
         return {"project": result}
     except ValueError as e:
@@ -214,7 +218,8 @@ async def touch_project(request: Request, project_id: str, user: dict = Depends(
 @limiter.limit("20/minute;50/hour")
 async def delete_project(request: Request, project_id: str, user: dict = Depends(get_current_user)):
     """Delete a project permanently."""
-    validate_uuid(project_id, "project_id")
+    locale = get_locale_from_request(request)
+    validate_uuid(project_id, "project_id", locale)
     access_token = user.get("access_token")
 
     try:
@@ -222,7 +227,7 @@ async def delete_project(request: Request, project_id: str, user: dict = Depends
 
         deleted_project = storage.delete_project(project_id, access_token)
         if not deleted_project:
-            raise HTTPException(status_code=404, detail="Project not found or could not be deleted")
+            raise HTTPException(status_code=404, detail=t('errors.project_delete_failed', locale))
 
         if deleted_project.get("company_id"):
             await company_router.log_activity(
@@ -771,20 +776,21 @@ async def regenerate_project_context(
     """
     Regenerate project context by synthesizing ALL decisions associated with this project.
     """
-    validate_uuid(project_id, "project_id")
+    locale = get_locale_from_request(request)
+    validate_uuid(project_id, "project_id", locale)
     from ..openrouter import query_model, MOCK_LLM
     from ..database import get_supabase_service
     from ..personas import get_db_persona_with_fallback
 
     access_token = user.get("access_token")
     if not access_token:
-        raise HTTPException(status_code=401, detail="Authentication required")
+        raise HTTPException(status_code=401, detail=t('errors.authentication_required', locale))
 
     service_client = get_supabase_service()
 
     project_result = service_client.table("projects").select("*").eq("id", project_id).single().execute()
     if not project_result.data:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=404, detail=t('errors.project_not_found', locale))
 
     project = project_result.data
 
@@ -946,7 +952,7 @@ Today's date: {today_date}"""
     if result_data is None:
         raise HTTPException(
             status_code=500,
-            detail=f"All AI models failed to regenerate context. Last error: {last_error}"
+            detail=t('errors.ai_regenerate_failed', locale, error=last_error)
         )
 
     new_context = result_data.get("context_md", "")
@@ -972,7 +978,8 @@ async def get_project_report(request: Request, project_id: str,
     user: dict = Depends(get_current_user)
 ):
     """Generate a professional report of all decisions made for a project."""
-    validate_uuid(project_id, "project_id")
+    locale = get_locale_from_request(request)
+    validate_uuid(project_id, "project_id", locale)
     from .. import knowledge
 
     try:
@@ -980,13 +987,13 @@ async def get_project_report(request: Request, project_id: str,
 
         project = storage.get_project(project_id, access_token)
         if not project:
-            raise HTTPException(status_code=404, detail="Resource not found")
+            raise HTTPException(status_code=404, detail=t('errors.project_not_found', locale))
 
         project_name = project.get('name', 'Untitled Project')
         company_id = project.get('company_id')
 
         if not company_id:
-            raise HTTPException(status_code=400, detail="Project has no company association")
+            raise HTTPException(status_code=400, detail=t('errors.project_no_company', locale))
 
         report = knowledge.generate_project_report(
             project_id=project_id,
