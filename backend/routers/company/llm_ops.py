@@ -23,6 +23,7 @@ from .utils import (
     check_rate_limits,
 )
 from ...security import log_app_event
+from ...i18n import t, get_locale_from_request
 
 # Import shared rate limiter (ensures limits are tracked globally)
 from ...rate_limit import limiter
@@ -35,7 +36,7 @@ router = APIRouter(prefix="/company", tags=["llm-ops"])
 # ACCESS HELPERS
 # =============================================================================
 
-def verify_admin_access(client, company_uuid: str, user: dict) -> dict:
+def verify_admin_access(client, company_uuid: str, user: dict, locale: str = 'en') -> dict:
     """
     Verify user is owner or admin of the company.
     Returns company data if access is granted.
@@ -68,10 +69,10 @@ def verify_admin_access(client, company_uuid: str, user: dict) -> dict:
             company = client.table("companies").select("*").eq("id", company_uuid).single().execute()
             return company.data
 
-    raise HTTPException(status_code=403, detail="Admin access required")
+    raise HTTPException(status_code=403, detail=t('errors.admin_access_required', locale))
 
 
-def verify_owner_access(client, company_uuid: str, user: dict) -> dict:
+def verify_owner_access(client, company_uuid: str, user: dict, locale: str = 'en') -> dict:
     """
     Verify user is owner of the company.
     Returns company data if access is granted.
@@ -88,7 +89,7 @@ def verify_owner_access(client, company_uuid: str, user: dict) -> dict:
     if result.data:
         return result.data[0]
 
-    raise HTTPException(status_code=403, detail="Owner access required")
+    raise HTTPException(status_code=403, detail=t('errors.owner_access_required', locale))
 
 
 # =============================================================================
@@ -176,15 +177,16 @@ async def get_llm_usage(request: Request, company_id: ValidCompanyId,
     Returns daily usage breakdown, model usage, and summary statistics.
     Only accessible by company owners and admins.
     """
+    locale = get_locale_from_request(request)
     client = get_service_client()
 
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail="Company not found")
+        raise HTTPException(status_code=404, detail=t('errors.company_not_found', locale))
 
     # Verify admin access
-    verify_admin_access(client, company_uuid, user)
+    verify_admin_access(client, company_uuid, user, locale)
 
     # Get daily usage analytics
     daily_data = await get_usage_analytics(company_uuid, days)
@@ -318,14 +320,15 @@ async def get_rate_limit_status(request: Request, company_id: ValidCompanyId,
     Returns current usage vs limits for sessions, tokens, and budget.
     Only accessible by company owners and admins.
     """
+    locale = get_locale_from_request(request)
     client = get_service_client()
 
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail="Company not found")
+        raise HTTPException(status_code=404, detail=t('errors.company_not_found', locale))
 
-    verify_admin_access(client, company_uuid, user)
+    verify_admin_access(client, company_uuid, user, locale)
 
     # Get rate limit config
     config = await get_rate_limit_config(company_uuid)
@@ -368,14 +371,15 @@ async def update_rate_limits(request: Request, company_id: ValidCompanyId,
 
     Only company owners can update rate limits.
     """
+    locale = get_locale_from_request(request)
     client = get_service_client()
 
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail="Company not found")
+        raise HTTPException(status_code=404, detail=t('errors.company_not_found', locale))
 
-    verify_owner_access(client, company_uuid, user)
+    verify_owner_access(client, company_uuid, user, locale)
 
     # Build update data (only include non-None values)
     update_data = {}
@@ -391,7 +395,7 @@ async def update_rate_limits(request: Request, company_id: ValidCompanyId,
         update_data['alert_threshold_percent'] = body.alert_threshold_percent
 
     if not update_data:
-        raise HTTPException(status_code=400, detail="No updates provided")
+        raise HTTPException(status_code=400, detail=t('errors.no_updates_provided', locale))
 
     update_data['updated_at'] = datetime.now().isoformat()
 
@@ -412,7 +416,7 @@ async def update_rate_limits(request: Request, company_id: ValidCompanyId,
         return {'success': True, 'updated': update_data}
     except Exception as e:
         log_app_event("RATE_LIMITS_UPDATE_FAILED", level="ERROR", error=str(e))
-        raise HTTPException(status_code=500, detail="Failed to update rate limits")
+        raise HTTPException(status_code=500, detail=t('errors.rate_limits_update_failed', locale))
 
 
 @router.get("/{company_id}/llm-ops/alerts")
@@ -427,14 +431,15 @@ async def get_budget_alerts(request: Request, company_id: ValidCompanyId,
 
     Only accessible by company owners and admins.
     """
+    locale = get_locale_from_request(request)
     client = get_service_client()
 
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail="Company not found")
+        raise HTTPException(status_code=404, detail=t('errors.company_not_found', locale))
 
-    verify_admin_access(client, company_uuid, user)
+    verify_admin_access(client, company_uuid, user, locale)
 
     query = client.table('budget_alerts') \
         .select('*') \
@@ -477,14 +482,15 @@ async def acknowledge_alert(request: Request, company_id: ValidCompanyId,
 
     Only accessible by company owners and admins.
     """
+    locale = get_locale_from_request(request)
     client = get_service_client()
 
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail="Company not found")
+        raise HTTPException(status_code=404, detail=t('errors.company_not_found', locale))
 
-    verify_admin_access(client, company_uuid, user)
+    verify_admin_access(client, company_uuid, user, locale)
 
     user_id = user.get('id') if isinstance(user, dict) else user.id
 
@@ -499,14 +505,14 @@ async def acknowledge_alert(request: Request, company_id: ValidCompanyId,
             .execute()
 
         if not result.data:
-            raise HTTPException(status_code=404, detail="Alert not found")
+            raise HTTPException(status_code=404, detail=t('errors.alert_not_found', locale))
 
         return {'success': True}
     except HTTPException:
         raise
     except Exception as e:
         log_app_event("ALERT_ACKNOWLEDGE_FAILED", level="ERROR", error=str(e))
-        raise HTTPException(status_code=500, detail="Failed to acknowledge alert")
+        raise HTTPException(status_code=500, detail=t('errors.acknowledge_alert_failed', locale))
 
 
 # =============================================================================
@@ -577,15 +583,16 @@ async def get_llm_presets(request: Request, company_id: ValidCompanyId,
     Returns conservative, balanced, creative presets with their configs.
     Only accessible by company owners.
     """
+    locale = get_locale_from_request(request)
     client = get_service_client()
 
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail="Company not found")
+        raise HTTPException(status_code=404, detail=t('errors.company_not_found', locale))
 
     # Verify owner access for LLM Hub
-    verify_owner_access(client, company_uuid, user)
+    verify_owner_access(client, company_uuid, user, locale)
 
     # Get all presets
     result = client.table("llm_presets") \
@@ -622,19 +629,20 @@ async def update_llm_preset(request: Request, company_id: ValidCompanyId,
     Only company owners can modify presets.
     Valid preset_ids: conservative, balanced, creative
     """
+    locale = get_locale_from_request(request)
     client = get_service_client()
 
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail="Company not found")
+        raise HTTPException(status_code=404, detail=t('errors.company_not_found', locale))
 
-    verify_owner_access(client, company_uuid, user)
+    verify_owner_access(client, company_uuid, user, locale)
 
     # Validate preset_id
     valid_presets = {'conservative', 'balanced', 'creative'}
     if preset_id not in valid_presets:
-        raise HTTPException(status_code=400, detail=f"Invalid preset_id. Must be one of: {valid_presets}")
+        raise HTTPException(status_code=400, detail=t('errors.invalid_preset_id', locale, valid_presets=str(valid_presets)))
 
     # Build update data
     update_data: Dict[str, Any] = {'updated_at': datetime.now().isoformat()}
@@ -651,7 +659,7 @@ async def update_llm_preset(request: Request, company_id: ValidCompanyId,
         }
 
     if len(update_data) == 1:  # Only updated_at
-        raise HTTPException(status_code=400, detail="No updates provided")
+        raise HTTPException(status_code=400, detail=t('errors.no_updates_provided', locale))
 
     try:
         result = client.table("llm_presets") \
@@ -660,7 +668,7 @@ async def update_llm_preset(request: Request, company_id: ValidCompanyId,
             .execute()
 
         if not result.data:
-            raise HTTPException(status_code=404, detail="Preset not found")
+            raise HTTPException(status_code=404, detail=t('errors.preset_not_found', locale))
 
         log_app_event(
             "LLM_PRESET_UPDATED",
@@ -675,7 +683,7 @@ async def update_llm_preset(request: Request, company_id: ValidCompanyId,
         raise
     except Exception as e:
         log_app_event("LLM_PRESET_UPDATE_FAILED", level="ERROR", error=str(e))
-        raise HTTPException(status_code=500, detail="Failed to update preset")
+        raise HTTPException(status_code=500, detail=t('errors.preset_update_failed', locale))
 
 
 # Consolidated roles for LLM Hub
@@ -704,14 +712,15 @@ async def get_model_registry(request: Request, company_id: ValidCompanyId,
     Always returns ALL consolidated roles in the 'roles' list, even if they have no models yet.
     Only accessible by company owners.
     """
+    locale = get_locale_from_request(request)
     client = get_service_client()
 
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail="Company not found")
+        raise HTTPException(status_code=404, detail=t('errors.company_not_found', locale))
 
-    verify_owner_access(client, company_uuid, user)
+    verify_owner_access(client, company_uuid, user, locale)
 
     # Build query - get global models (company_id IS NULL) and company-specific
     # Only fetch consolidated roles
@@ -773,14 +782,15 @@ async def update_model_registry_entry(request: Request, company_id: ValidCompany
     For global models, this creates a company-specific override.
     Only company owners can modify models.
     """
+    locale = get_locale_from_request(request)
     client = get_service_client()
 
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail="Company not found")
+        raise HTTPException(status_code=404, detail=t('errors.company_not_found', locale))
 
-    verify_owner_access(client, company_uuid, user)
+    verify_owner_access(client, company_uuid, user, locale)
 
     # Get existing model
     existing = client.table("model_registry") \
@@ -789,7 +799,7 @@ async def update_model_registry_entry(request: Request, company_id: ValidCompany
         .execute()
 
     if not existing.data:
-        raise HTTPException(status_code=404, detail="Model not found")
+        raise HTTPException(status_code=404, detail=t('errors.model_not_found', locale))
 
     # Build update data
     update_data: Dict[str, Any] = {'updated_at': datetime.now().isoformat()}
@@ -806,7 +816,7 @@ async def update_model_registry_entry(request: Request, company_id: ValidCompany
         update_data['notes'] = body.notes
 
     if len(update_data) == 1:  # Only updated_at
-        raise HTTPException(status_code=400, detail="No updates provided")
+        raise HTTPException(status_code=400, detail=t('errors.no_updates_provided', locale))
 
     try:
         # If it's a global model, we update directly (for owner's system)
@@ -817,7 +827,7 @@ async def update_model_registry_entry(request: Request, company_id: ValidCompany
             .execute()
 
         if not result.data:
-            raise HTTPException(status_code=404, detail="Model not found")
+            raise HTTPException(status_code=404, detail=t('errors.model_not_found', locale))
 
         log_app_event(
             "MODEL_REGISTRY_UPDATED",
@@ -832,7 +842,7 @@ async def update_model_registry_entry(request: Request, company_id: ValidCompany
         raise
     except Exception as e:
         log_app_event("MODEL_REGISTRY_UPDATE_FAILED", level="ERROR", error=str(e))
-        raise HTTPException(status_code=500, detail="Failed to update model")
+        raise HTTPException(status_code=500, detail=t('errors.model_update_failed', locale))
 
 
 @router.post("/{company_id}/llm-hub/models")
@@ -847,14 +857,15 @@ async def create_model_registry_entry(request: Request, company_id: ValidCompany
     This creates a global model (company_id = NULL).
     Only company owners can create models.
     """
+    locale = get_locale_from_request(request)
     client = get_service_client()
 
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail="Company not found")
+        raise HTTPException(status_code=404, detail=t('errors.company_not_found', locale))
 
-    verify_owner_access(client, company_uuid, user)
+    verify_owner_access(client, company_uuid, user, locale)
 
     try:
         result = client.table("model_registry").insert({
@@ -868,7 +879,7 @@ async def create_model_registry_entry(request: Request, company_id: ValidCompany
         }).execute()
 
         if not result.data:
-            raise HTTPException(status_code=500, detail="Failed to create model")
+            raise HTTPException(status_code=500, detail=t('errors.model_create_failed', locale))
 
         log_app_event(
             "MODEL_REGISTRY_CREATED",
@@ -883,10 +894,10 @@ async def create_model_registry_entry(request: Request, company_id: ValidCompany
         if 'unique' in str(e).lower():
             raise HTTPException(
                 status_code=409,
-                detail="A model with this role and priority already exists"
+                detail=t('errors.model_already_exists', locale)
             )
         log_app_event("MODEL_REGISTRY_CREATE_FAILED", level="ERROR", error=str(e))
-        raise HTTPException(status_code=500, detail="Failed to create model")
+        raise HTTPException(status_code=500, detail=t('errors.model_create_failed', locale))
 
 
 @router.delete("/{company_id}/llm-hub/models/{model_uuid}")
@@ -901,14 +912,15 @@ async def delete_model_registry_entry(request: Request, company_id: ValidCompany
     Only company owners can delete models.
     Warning: This permanently removes the model from the registry.
     """
+    locale = get_locale_from_request(request)
     client = get_service_client()
 
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail="Company not found")
+        raise HTTPException(status_code=404, detail=t('errors.company_not_found', locale))
 
-    verify_owner_access(client, company_uuid, user)
+    verify_owner_access(client, company_uuid, user, locale)
 
     try:
         # Get model info for logging before delete
@@ -918,7 +930,7 @@ async def delete_model_registry_entry(request: Request, company_id: ValidCompany
             .execute()
 
         if not existing.data:
-            raise HTTPException(status_code=404, detail="Model not found")
+            raise HTTPException(status_code=404, detail=t('errors.model_not_found', locale))
 
         model_info = existing.data[0]
 
@@ -942,7 +954,7 @@ async def delete_model_registry_entry(request: Request, company_id: ValidCompany
         raise
     except Exception as e:
         log_app_event("MODEL_REGISTRY_DELETE_FAILED", level="ERROR", error=str(e))
-        raise HTTPException(status_code=500, detail="Failed to delete model")
+        raise HTTPException(status_code=500, detail=t('errors.model_delete_failed', locale))
 
 
 # =============================================================================
@@ -995,14 +1007,15 @@ async def get_personas(request: Request, company_id: ValidCompanyId,
     Returns personas that can be customized (sop_writer, framework_author, etc.).
     Only accessible by company owners.
     """
+    locale = get_locale_from_request(request)
     client = get_service_client()
 
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail="Company not found")
+        raise HTTPException(status_code=404, detail=t('errors.company_not_found', locale))
 
-    verify_owner_access(client, company_uuid, user)
+    verify_owner_access(client, company_uuid, user, locale)
 
     # Get global personas that are editable
     result = client.table("ai_personas") \
@@ -1073,17 +1086,18 @@ async def get_persona(request: Request, company_id: ValidCompanyId,
     Returns company-specific override if it exists, otherwise global.
     Only accessible by company owners.
     """
+    locale = get_locale_from_request(request)
     client = get_service_client()
 
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail="Company not found")
+        raise HTTPException(status_code=404, detail=t('errors.company_not_found', locale))
 
-    verify_owner_access(client, company_uuid, user)
+    verify_owner_access(client, company_uuid, user, locale)
 
     if persona_key not in EDITABLE_PERSONAS:
-        raise HTTPException(status_code=400, detail="Persona not editable")
+        raise HTTPException(status_code=400, detail=t('errors.persona_not_editable', locale))
 
     # Try company-specific first
     company_result = client.table("ai_personas") \
@@ -1118,7 +1132,7 @@ async def get_persona(request: Request, company_id: ValidCompanyId,
         .execute()
 
     if not global_result.data:
-        raise HTTPException(status_code=404, detail="Persona not found")
+        raise HTTPException(status_code=404, detail=t('errors.persona_not_found', locale))
 
     p = global_result.data[0]
     return {
@@ -1150,17 +1164,18 @@ async def update_persona(request: Request, company_id: ValidCompanyId,
     If already company-specific, updates it directly.
     Only company owners can modify personas.
     """
+    locale = get_locale_from_request(request)
     client = get_service_client()
 
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail="Company not found")
+        raise HTTPException(status_code=404, detail=t('errors.company_not_found', locale))
 
-    verify_owner_access(client, company_uuid, user)
+    verify_owner_access(client, company_uuid, user, locale)
 
     if persona_key not in EDITABLE_PERSONAS:
-        raise HTTPException(status_code=400, detail="Persona not editable")
+        raise HTTPException(status_code=400, detail=t('errors.persona_not_editable', locale))
 
     # Build update data
     update_data: Dict[str, Any] = {'updated_at': datetime.now().isoformat()}
@@ -1175,7 +1190,7 @@ async def update_persona(request: Request, company_id: ValidCompanyId,
         update_data['user_prompt_template'] = body.user_prompt_template
 
     if len(update_data) == 1:  # Only updated_at
-        raise HTTPException(status_code=400, detail="No updates provided")
+        raise HTTPException(status_code=400, detail=t('errors.no_updates_provided', locale))
 
     try:
         # Check if company-specific override exists
@@ -1212,7 +1227,7 @@ async def update_persona(request: Request, company_id: ValidCompanyId,
                 .execute()
 
             if not global_persona.data:
-                raise HTTPException(status_code=404, detail="Global persona not found")
+                raise HTTPException(status_code=404, detail=t('errors.persona_not_found', locale))
 
             # Create new company-specific persona
             new_persona = {
@@ -1242,7 +1257,7 @@ async def update_persona(request: Request, company_id: ValidCompanyId,
         raise
     except Exception as e:
         log_app_event("PERSONA_UPDATE_FAILED", level="ERROR", error=str(e))
-        raise HTTPException(status_code=500, detail="Failed to update persona")
+        raise HTTPException(status_code=500, detail=t('errors.persona_update_failed', locale))
 
 
 @router.delete("/{company_id}/llm-hub/personas/{persona_key}/reset")
@@ -1257,17 +1272,18 @@ async def reset_persona(request: Request, company_id: ValidCompanyId,
     Deletes the company-specific override, reverting to the global persona.
     Only company owners can reset personas.
     """
+    locale = get_locale_from_request(request)
     client = get_service_client()
 
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail="Company not found")
+        raise HTTPException(status_code=404, detail=t('errors.company_not_found', locale))
 
-    verify_owner_access(client, company_uuid, user)
+    verify_owner_access(client, company_uuid, user, locale)
 
     if persona_key not in EDITABLE_PERSONAS:
-        raise HTTPException(status_code=400, detail="Persona not editable")
+        raise HTTPException(status_code=400, detail=t('errors.persona_not_editable', locale))
 
     try:
         # Delete company-specific override
@@ -1290,4 +1306,4 @@ async def reset_persona(request: Request, company_id: ValidCompanyId,
 
     except Exception as e:
         log_app_event("PERSONA_RESET_FAILED", level="ERROR", error=str(e))
-        raise HTTPException(status_code=500, detail="Failed to reset persona")
+        raise HTTPException(status_code=500, detail=t('errors.persona_reset_failed', locale))

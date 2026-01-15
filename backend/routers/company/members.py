@@ -13,6 +13,7 @@ from datetime import datetime
 
 from ...auth import get_current_user
 from ...security import log_security_event, log_app_event, log_error
+from ...i18n import t, get_locale_from_request
 from .utils import (
     get_service_client,
     verify_company_access,
@@ -47,12 +48,13 @@ async def get_company_members(request: Request, company_id: ValidCompanyId,
     Get all members of the company with their roles.
     Any company member can view the member list.
     """
+    locale = get_locale_from_request(request)
     client = get_service_client()
 
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=404, detail=t('errors.company_not_found', locale))
 
     # SECURITY: Verify user has access to this company
     verify_company_access(client, company_uuid, user)
@@ -98,12 +100,13 @@ async def add_company_member(
     For MVP: Directly adds member by user_id (assumes user already exists in auth.users).
     Future: Will use invitation system with email.
     """
+    locale = get_locale_from_request(request)
     client = get_service_client()
 
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=404, detail=t('errors.company_not_found', locale))
 
     # Get current user's role in this company
     current_user_id = user.get('id') if isinstance(user, dict) else user.id
@@ -119,11 +122,11 @@ async def add_company_member(
         log_security_event("ACCESS_DENIED", user_id=current_user_id,
                           resource_type="company_members", resource_id=company_uuid,
                           details={"action": "add_member"}, severity="WARNING")
-        raise HTTPException(status_code=403, detail="Only owners and admins can add members")
+        raise HTTPException(status_code=403, detail=t('errors.admin_access_required', locale))
 
     # Validate role
     if data.role not in ["admin", "member"]:
-        raise HTTPException(status_code=400, detail="Role must be 'admin' or 'member'")
+        raise HTTPException(status_code=400, detail=t('errors.invalid_role', locale))
 
     # Look up user by email in auth.users
     # Using service client to access auth schema
@@ -132,7 +135,7 @@ async def add_company_member(
     if not user_result.data:
         raise HTTPException(
             status_code=404,
-            detail=f"No user found with email: {data.email}. They must sign up first."
+            detail=t('errors.user_not_found_by_email', locale, email=data.email)
         )
 
     new_user_id = user_result.data
@@ -145,7 +148,7 @@ async def add_company_member(
         .execute()
 
     if existing.data:
-        raise HTTPException(status_code=400, detail="User is already a member of this company")
+        raise HTTPException(status_code=400, detail=t('errors.user_already_member', locale))
 
     # Add the member
     result = client.table("company_members").insert({
@@ -156,7 +159,7 @@ async def add_company_member(
     }).execute()
 
     if not result.data:
-        raise HTTPException(status_code=500, detail="Failed to add member")
+        raise HTTPException(status_code=500, detail=t('errors.member_add_failed', locale))
 
     # Log the activity
     await log_activity(
@@ -186,16 +189,17 @@ async def update_company_member(request: Request, company_id: ValidCompanyId,
     - Owners can change anyone's role (except their own owner status)
     - Admins can only change member roles (not other admins or owner)
     """
+    locale = get_locale_from_request(request)
     client = get_service_client()
 
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=404, detail=t('errors.company_not_found', locale))
 
     # Validate role
     if data.role not in ["admin", "member"]:
-        raise HTTPException(status_code=400, detail="Role must be 'admin' or 'member'")
+        raise HTTPException(status_code=400, detail=t('errors.invalid_role', locale))
 
     current_user_id = user.get('id') if isinstance(user, dict) else user.id
 
@@ -208,7 +212,7 @@ async def update_company_member(request: Request, company_id: ValidCompanyId,
         .execute()
 
     if not my_membership.data or my_membership.data["role"] not in ["owner", "admin"]:
-        raise HTTPException(status_code=403, detail="Only owners and admins can update members")
+        raise HTTPException(status_code=403, detail=t('errors.admin_access_required', locale))
 
     my_role = my_membership.data["role"]
 
@@ -221,16 +225,16 @@ async def update_company_member(request: Request, company_id: ValidCompanyId,
         .execute()
 
     if not target.data:
-        raise HTTPException(status_code=404, detail="Member not found")
+        raise HTTPException(status_code=404, detail=t('errors.member_not_found', locale))
 
     target_role = target.data["role"]
 
     # Permission checks
     if target_role == "owner":
-        raise HTTPException(status_code=403, detail="Cannot change owner's role")
+        raise HTTPException(status_code=403, detail=t('errors.cannot_change_owner_role', locale))
 
     if my_role == "admin" and target_role == "admin":
-        raise HTTPException(status_code=403, detail="Admins cannot modify other admins")
+        raise HTTPException(status_code=403, detail=t('errors.admin_cannot_modify_admin', locale))
 
     # Update the role
     result = client.table("company_members") \
@@ -239,7 +243,7 @@ async def update_company_member(request: Request, company_id: ValidCompanyId,
         .execute()
 
     if not result.data:
-        raise HTTPException(status_code=500, detail="Failed to update member")
+        raise HTTPException(status_code=500, detail=t('errors.member_update_failed', locale))
 
     await log_activity(
         company_id=company_uuid,
@@ -263,12 +267,13 @@ async def remove_company_member(request: Request, company_id: ValidCompanyId,
     - Admins can only remove regular members
     - Members cannot remove anyone
     """
+    locale = get_locale_from_request(request)
     client = get_service_client()
 
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=404, detail=t('errors.company_not_found', locale))
 
     current_user_id = user.get('id') if isinstance(user, dict) else user.id
 
@@ -284,7 +289,7 @@ async def remove_company_member(request: Request, company_id: ValidCompanyId,
         log_security_event("ACCESS_DENIED", user_id=current_user_id,
                           resource_type="company_members", resource_id=company_uuid,
                           details={"action": "remove_member"}, severity="WARNING")
-        raise HTTPException(status_code=403, detail="Only owners and admins can remove members")
+        raise HTTPException(status_code=403, detail=t('errors.admin_access_required', locale))
 
     my_role = my_membership.data["role"]
 
@@ -297,20 +302,20 @@ async def remove_company_member(request: Request, company_id: ValidCompanyId,
         .execute()
 
     if not target.data:
-        raise HTTPException(status_code=404, detail="Member not found")
+        raise HTTPException(status_code=404, detail=t('errors.member_not_found', locale))
 
     target_role = target.data["role"]
     target_user_id = target.data["user_id"]
 
     # Permission checks
     if target_user_id == current_user_id:
-        raise HTTPException(status_code=403, detail="Cannot remove yourself")
+        raise HTTPException(status_code=403, detail=t('errors.cannot_remove_yourself', locale))
 
     if target_role == "owner":
-        raise HTTPException(status_code=403, detail="Cannot remove the owner")
+        raise HTTPException(status_code=403, detail=t('errors.cannot_remove_owner', locale))
 
     if my_role == "admin" and target_role == "admin":
-        raise HTTPException(status_code=403, detail="Admins cannot remove other admins")
+        raise HTTPException(status_code=403, detail=t('errors.admin_cannot_remove_admin', locale))
 
     # Remove the member
     client.table("company_members") \
@@ -351,12 +356,13 @@ async def get_company_usage(request: Request, company_id: ValidCompanyId,
 
     Returns aggregate data only - no user-level breakdown (privacy by design).
     """
+    locale = get_locale_from_request(request)
     client = get_service_client()
 
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=404, detail=t('errors.company_not_found', locale))
 
     # Check if user is owner or admin
     current_user_id = user.get('id') if isinstance(user, dict) else user.id
@@ -370,7 +376,7 @@ async def get_company_usage(request: Request, company_id: ValidCompanyId,
             .execute()
 
         if not my_membership.data or my_membership.data["role"] not in ["owner", "admin"]:
-            raise HTTPException(status_code=403, detail="Only owners and admins can view usage")
+            raise HTTPException(status_code=403, detail=t('errors.admin_access_required', locale))
     except HTTPException:
         raise
     except Exception:
@@ -382,12 +388,12 @@ async def get_company_usage(request: Request, company_id: ValidCompanyId,
                 .maybe_single() \
                 .execute()
             if not company_check.data or company_check.data.get("user_id") != current_user_id:
-                raise HTTPException(status_code=403, detail="Only owners and admins can view usage")
+                raise HTTPException(status_code=403, detail=t('errors.admin_access_required', locale))
         except HTTPException:
             raise
         except Exception as e:
             log_error(e, "members.get_usage_permission_check")
-            raise HTTPException(status_code=403, detail="Only owners and admins can view usage")
+            raise HTTPException(status_code=403, detail=t('errors.admin_access_required', locale))
 
     # Get usage data - handle case where usage_events table might not exist
     try:
