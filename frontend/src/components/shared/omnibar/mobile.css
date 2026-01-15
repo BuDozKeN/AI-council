@@ -143,9 +143,9 @@
 
   /* Larger expanded items container */
   .context-popover-group-items {
-    margin-inline-start: 20px;
-    padding-inline-start: 12px;
-    margin-block-start: 8px;
+    margin-left: 20px;
+    padding-left: 12px;
+    margin-top: 8px;
   }
 
   /* Items inside expanded sections (Playbooks) */

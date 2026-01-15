@@ -20,7 +20,7 @@
   flex-direction: column;
   align-items: flex-start;
   padding: 8px 0;
-  margin-block-end: var(--space-3, 12px);
+  margin-bottom: var(--space-3, 12px);
 
   /* Background to cover content scrolling behind */
   background: inherit;
@@ -84,7 +84,7 @@
 
 .toc-sticky-progress-fill {
   position: absolute;
-  inset-inline-start: 0;
+  left: 0;
   inset-block-start: 0;
   height: 100%;
   background: var(--color-iris-500);
@@ -116,13 +116,13 @@
   /* SOLID background to prevent content bleeding through */
   background: var(--color-bg-primary);
   border: 1px solid var(--overlay-black-5);
-  border-block-start: none;
+  border-top: none;
   border-radius: 0 0 12px 12px;
   padding: 8px;
 
   /* Extra bottom padding so shadow/container extends below all items */
-  padding-block-end: 16px;
-  margin-block-start: -1px;
+  padding-bottom: 16px;
+  margin-top: -1px;
   box-shadow:
     0 4px 16px var(--overlay-black-8),
     0 8px 32px var(--overlay-black-5);
@@ -137,14 +137,14 @@
   /* ABSOLUTE positioning so dropdown overlays content below instead of flowing inline */
   position: absolute;
   inset-block-start: 100%;
-  inset-inline-start: 0;
+  left: 0;
   z-index: var(--z-dropdown, 100);
 }
 
 .toc-sticky-header {
   padding: 4px 8px 8px;
-  border-block-end: 1px solid var(--overlay-black-5);
-  margin-block-end: 4px;
+  border-bottom: 1px solid var(--overlay-black-5);
+  margin-bottom: 4px;
 }
 
 .toc-sticky-title {
@@ -223,7 +223,7 @@
 
 /* H3 level indent */
 .toc-sticky-link.level-3 {
-  padding-inline-start: 20px;
+  padding-left: 20px;
 }
 
 .toc-sticky-link.level-3 .toc-sticky-dot {
@@ -249,9 +249,9 @@
 }
 
 .toc-inline-header {
-  padding-block-end: 8px;
-  margin-block-end: 8px;
-  border-block-end: 1px solid var(--color-slate-100);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--color-slate-100);
 }
 
 .toc-inline-title {

@@ -10,7 +10,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: var(--gap);
-  margin-block-end: var(--gap-lg);
+  margin-bottom: var(--gap-lg);
 }
 
 .mc-stat-card {
@@ -29,7 +29,7 @@
   content: '';
   position: absolute;
   inset-block-start: 0;
-  inset-inline: 0;
+  right: 0;
   height: 3px;
   background: var(--color-indigo-500);
   opacity: 0;
@@ -47,7 +47,7 @@
 
 .mc-stat-icon {
   color: var(--color-indigo-500);
-  margin-block-end: var(--space-1);
+  margin-bottom: var(--space-1);
 }
 
 .mc-stat-content {
@@ -111,7 +111,7 @@
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
   color: var(--color-text-secondary);
-  margin-block-start: var(--space-1);
+  margin-top: var(--space-1);
 }
 
 /* Clickable stat cards */
@@ -150,7 +150,7 @@
   align-items: center;
   justify-content: space-between;
   padding: var(--card-padding-sm) var(--card-padding);
-  border-block-end: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
   background: var(--color-bg-primary);
 }
 
@@ -200,7 +200,7 @@
   position: relative;
   border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
-  border-block-start: 3px solid var(--color-border-dark);
+  border-top: 3px solid var(--color-border-dark);
   background: var(--color-bg-primary);
   box-shadow: var(--shadow-md);
 
@@ -208,10 +208,10 @@
   padding: var(--card-padding-xl);
 
   /* Extra bottom padding to extend card below content */
-  padding-block-end: 3rem;
+  padding-bottom: 3rem;
 
   /* Account for scrollbar width (8px) */
-  margin-inline-end: 8px;
+  margin-right: 8px;
 }
 
 /* Context card header - title and metadata */
@@ -219,9 +219,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-block-end: 16px;
-  padding-block-end: 12px;
-  border-block-end: 1px solid var(--color-border);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .mc-context-card-title {
@@ -268,7 +268,7 @@
   justify-content: space-between;
   gap: 8px;
   padding: 12px 0;
-  margin-block-end: 12px;
+  margin-bottom: 12px;
 
   /* Opaque background to cover content scrolling behind */
   background: var(--color-bg-primary);
@@ -279,14 +279,14 @@
   /* Override CopyButton's position: absolute to work in flex layout */
   position: relative;
   inset-block-start: auto;
-  inset-inline-end: auto;
+  right: auto;
 
   /* Always visible in toolbar (not hover-dependent) */
   opacity: 0.7;
   pointer-events: auto;
 
   /* Flex positioning */
-  margin-inline-start: auto;
+  margin-left: auto;
   flex-shrink: 0;
 }
 
@@ -328,10 +328,10 @@
 
 .mc-scroll-top-fab {
   position: sticky;
-  inset-block-end: 20px;
+  bottom: 20px;
   align-self: flex-end;
-  margin-block-start: -36px; /* Don't add extra space */
-  margin-inline-end: var(--card-padding-xl); /* Align with copy button's right edge */
+  margin-top: -36px; /* Don't add extra space */
+  margin-right: var(--card-padding-xl); /* Align with copy button's right edge */
   width: 28px;
   height: 28px;
   display: flex;

@@ -29,7 +29,7 @@
 .app-modal-content {
   position: fixed;
   inset-block-start: 50%;
-  inset-inline-start: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
   background: var(--color-bg-primary);
   border-radius: var(--radius-lg, 12px);

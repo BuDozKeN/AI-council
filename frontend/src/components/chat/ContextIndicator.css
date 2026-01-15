@@ -14,7 +14,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-block-end: 4px; /* Gap between question and pills since parent is block now */
+  margin-bottom: 4px; /* Gap between question and pills since parent is block now */
 }
 
 .context-question-icon {

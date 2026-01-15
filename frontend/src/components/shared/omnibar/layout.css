@@ -166,7 +166,7 @@
 .omni-bar-kbd {
   position: absolute;
   inset-block-start: 16px;
-  inset-inline-end: 20px;
+  right: 20px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -187,12 +187,12 @@
   align-items: center;
   justify-content: space-between;
   padding: 6px 12px 8px;
-  border-block-start: 1px solid var(--color-border-light);
+  border-top: 1px solid var(--color-border-light);
 }
 
 .omni-bar-landing .omni-bar-bottom {
   padding: 10px 18px 14px;
-  border-block-start: none;
+  border-top: none;
 }
 
 .omni-bar-compact .omni-bar-bottom {
@@ -201,8 +201,8 @@
 
 /* When no context icons, hide the bottom row divider */
 .omni-bar-wrapper:not(.has-context-icons) .omni-bar-bottom {
-  border-block-start: none;
-  padding-block-start: 0;
+  border-top: none;
+  padding-top: 0;
 }
 
 /* Left side: Context icons - flex-start to align left */
@@ -247,7 +247,7 @@
 /* Badges overflow outside the capsule - closer to icons */
 .context-icons-capsule .omni-icon-badge {
   inset-block-start: -5px;
-  inset-inline-end: -5px;
+  right: -5px;
 }
 
 /* Right side: Attach + Send */

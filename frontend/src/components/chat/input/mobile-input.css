@@ -11,8 +11,8 @@
   .scroll-to-top-fab {
     width: 32px;
     height: 32px;
-    inset-block-end: 80px;
-    inset-inline-end: 16px;
+    bottom: 80px;
+    right: 16px;
     opacity: 0.7;
   }
 
@@ -58,7 +58,7 @@
   }
 
   .message-group {
-    margin-block-end: 24px;
+    margin-bottom: 24px;
   }
 
   .user-message .message-content {
@@ -147,14 +147,14 @@
 
   .department-pills,
   .role-pills {
-    margin-inline-start: 0;
+    margin-left: 0;
     width: 100%;
     justify-content: center;
     flex-wrap: wrap;
   }
 
   .department-pills-compact {
-    margin-inline-start: 0;
+    margin-left: 0;
     width: 100%;
     justify-content: center;
   }
@@ -165,7 +165,7 @@
   }
 
   .role-pills-compact {
-    margin-inline-start: 0;
+    margin-left: 0;
     width: 100%;
     justify-content: center;
   }

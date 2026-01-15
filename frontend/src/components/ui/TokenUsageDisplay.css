@@ -4,7 +4,7 @@
  */
 
 .token-usage-display {
-  margin-block-start: var(--space-2);
+  margin-top: var(--space-2);
   padding: var(--space-2) var(--space-3);
   background: var(--color-bg-tertiary);
   border: 1px solid var(--color-border-secondary);
@@ -92,9 +92,9 @@
 
 /* Expanded details */
 .token-usage-details {
-  margin-block-start: var(--space-3);
-  padding-block-start: var(--space-3);
-  border-block-start: 1px solid var(--color-border-secondary);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-secondary);
 }
 
 .token-usage-breakdown {
@@ -131,9 +131,9 @@
 
 /* Per-model breakdown */
 .token-usage-models {
-  margin-block-start: var(--space-3);
-  padding-block-start: var(--space-2);
-  border-block-start: 1px dashed var(--color-border-secondary);
+  margin-top: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--color-border-secondary);
 }
 
 .token-usage-models-header {
@@ -142,7 +142,7 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--color-text-tertiary);
-  margin-block-end: var(--space-2);
+  margin-bottom: var(--space-2);
 }
 
 .token-usage-model-row {
@@ -164,7 +164,7 @@
 
 /* Cache savings */
 .token-usage-savings {
-  margin-block-start: var(--space-3);
+  margin-top: var(--space-3);
   padding: var(--space-2);
   background: var(--color-green-50);
   border-radius: var(--radius-sm);

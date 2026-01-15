@@ -14,7 +14,7 @@
   opacity: 0;
   transition: opacity 0.15s ease;
   flex-shrink: 0;
-  margin-inline-start: -4px;
+  margin-left: -4px;
 }
 
 .conversation-item:hover .drag-handle {

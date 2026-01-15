@@ -9,7 +9,7 @@
 .llm-persona-textarea {
   width: 100%;
   min-height: 180px;
-  margin-block-start: 12px;
+  margin-top: 12px;
   padding: 12px 14px;
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
@@ -62,7 +62,7 @@
 
   .llm-stages {
     gap: 0;
-    margin-block-start: 0;
+    margin-top: 0;
   }
 
   /* Inner card body - tight on mobile */
@@ -85,11 +85,11 @@
   }
 
   .llm-stage-row:first-child {
-    padding-block-start: 0;
+    padding-top: 0;
   }
 
   .llm-stage-row:last-child {
-    padding-block-end: 0;
+    padding-bottom: 0;
   }
 
   .llm-stage-row:hover {
@@ -172,9 +172,9 @@
 
   /* Separator between stages - stronger divider */
   .llm-stage-row + .llm-stage-row {
-    margin-block-start: 6px;
-    padding-block-start: 10px;
-    border-block-start: 2px solid var(--color-border);
+    margin-top: 6px;
+    padding-top: 10px;
+    border-top: 2px solid var(--color-border);
   }
 
   /* ========================================
@@ -183,7 +183,7 @@
   .llm-actions {
     display: flex;
     justify-content: flex-end;
-    margin-block-start: 8px;
+    margin-top: 8px;
   }
 
   /* Hide Save button on mobile - auto-save */
@@ -229,7 +229,7 @@
   .llm-model-role {
     min-width: 0;
     max-width: none;
-    padding-block-start: 0;
+    padding-top: 0;
   }
 
   .llm-model-grid {
@@ -249,7 +249,7 @@
   .llm-model-chain .llm-model-add {
     --llm-pill-height: 44px;
 
-    margin-block-start: 0;
+    margin-top: 0;
   }
 
   .llm-model-chain {
@@ -330,8 +330,8 @@
   }
 
   .llm-stage-row + .llm-stage-row {
-    margin-block-start: 4px;
-    padding-block-start: 8px;
+    margin-top: 4px;
+    padding-top: 8px;
   }
 
   /* 480px: Height already set at 768px via CSS vars, no width override needed */

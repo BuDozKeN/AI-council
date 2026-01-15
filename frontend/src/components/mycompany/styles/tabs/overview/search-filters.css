@@ -12,9 +12,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-block-end: 16px;
-  padding-block-end: 12px;
-  border-block-end: 1px solid var(--color-border);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .mc-team-header span,
@@ -90,7 +90,7 @@
 
 /* Roles */
 .mc-roles {
-  border-block-start: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-border);
   padding: 14px 18px;
   background: var(--color-bg-primary);
 }
@@ -102,11 +102,11 @@
   padding: 12px 14px;
   background: var(--color-bg-secondary);
   border-radius: var(--radius-md);
-  margin-block-end: 8px;
+  margin-bottom: 8px;
 }
 
 .mc-role:last-of-type {
-  margin-block-end: 0;
+  margin-bottom: 0;
 }
 
 .mc-role-info {
@@ -135,7 +135,7 @@
 .mc-add-btn {
   display: block;
   width: 100%;
-  margin-block-start: 12px;
+  margin-top: 12px;
   padding: 10px;
   background: none;
   border: 1px dashed var(--color-border);
@@ -160,7 +160,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-block-end: 16px;
+  margin-bottom: 16px;
 }
 
 /* Search input wrapper */
@@ -173,7 +173,7 @@
 
 .mc-search-icon {
   position: absolute;
-  inset-inline-start: 12px;
+  left: 12px;
   inset-block-start: 50%;
   transform: translateY(-50%);
   color: var(--color-text-tertiary);
@@ -205,7 +205,7 @@
 
 .mc-search-clear {
   position: absolute;
-  inset-inline-end: 8px;
+  right: 8px;
   inset-block-start: 50%;
   transform: translateY(-50%);
   width: 20px;
@@ -255,7 +255,7 @@
   gap: 12px;
   font-size: 13px;
   color: var(--color-text-secondary);
-  margin-block-end: 12px;
+  margin-bottom: 12px;
 }
 
 .mc-clear-filters {

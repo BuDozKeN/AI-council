@@ -3,7 +3,7 @@
    ============================================= */
 
 .save-mode-selector {
-  margin-block-end: 16px;
+  margin-bottom: 16px;
 }
 
 .save-mode-label {
@@ -11,7 +11,7 @@
   font-size: 0.85rem;
   font-weight: 500;
   color: var(--color-text-secondary);
-  margin-block-end: 10px;
+  margin-bottom: 10px;
 }
 
 .save-mode-options {
@@ -30,7 +30,7 @@
   background: var(--color-bg-secondary);
   cursor: pointer;
   transition: all 0.15s ease;
-  text-align: start;
+  text-align: left;
 }
 
 .save-mode-option:hover {
@@ -101,7 +101,7 @@
   color: var(--color-text-inverse);
   cursor: pointer;
   padding: 0;
-  margin-inline-start: 2px;
+  margin-left: 2px;
   font-size: 1rem;
   line-height: 1;
   opacity: 0.7;

@@ -36,8 +36,8 @@
   position: sticky;
   inset-block-start: 8px;
   float: inline-end;
-  margin-inline-start: 8px;
-  margin-block-end: 8px;
+  margin-left: 8px;
+  margin-bottom: 8px;
   width: 28px;
   height: 28px;
   display: flex;
@@ -81,8 +81,8 @@
 
 .scrollable-scroll-top-btn {
   position: absolute;
-  inset-block-end: 12px;
-  inset-inline-end: 12px;
+  bottom: 12px;
+  right: 12px;
   width: 28px;
   height: 28px;
   display: flex;
@@ -122,8 +122,8 @@
   }
 
   .scrollable-scroll-top-btn {
-    inset-block-end: 8px;
-    inset-inline-end: 8px;
+    bottom: 8px;
+    right: 8px;
     width: 32px;
     height: 32px;
   }

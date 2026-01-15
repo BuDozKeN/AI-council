@@ -164,7 +164,7 @@
 .mc-empty-icon-svg {
   display: block;
   color: var(--color-text-tertiary);
-  margin-block-end: var(--space-2);
+  margin-bottom: var(--space-2);
   transition:
     transform 0.3s ease,
     filter 0.3s ease;
@@ -396,7 +396,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 6px;
-  margin-block-start: 2px;
+  margin-top: 2px;
 }
 
 /* Type badges - compact chips */
@@ -472,13 +472,13 @@
   gap: 4px;
   flex-shrink: 0;
   position: absolute;
-  inset-inline-end: 0;
+  right: 0;
   inset-block-start: 50%;
   transform: translateY(-50%);
   opacity: 0;
   transition: opacity 0.15s ease;
   background: inherit;
-  padding-inline-start: 8px;
+  padding-left: 8px;
 }
 
 .mc-elegant-row:hover .mc-elegant-actions {
@@ -538,7 +538,7 @@
 .mc-confirm-label {
   font-size: 11px;
   color: var(--color-text-tertiary);
-  margin-inline-end: 4px;
+  margin-right: 4px;
 }
 
 .mc-text-btn.no {

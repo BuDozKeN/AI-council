@@ -3,7 +3,7 @@
   display: none;
   position: absolute;
   inset-block-start: 8px;
-  inset-inline-start: 50%;
+  left: 50%;
   transform: translateX(-50%);
   z-index: var(--z-elevated);
   padding: 4px;
@@ -28,7 +28,7 @@
   }
 
   .stage1 .model-card.expanded .model-card-header {
-    padding-block-start: 16px; /* Make room for swipe indicator */
+    padding-top: 16px; /* Make room for swipe indicator */
   }
 }
 
@@ -71,7 +71,7 @@
   .model-name {
     font-size: 14px;
     font-family: var(--font-sans, system-ui);
-    margin-block-end: 14px;
+    margin-bottom: 14px;
     flex-wrap: wrap;
     gap: 8px;
   }
@@ -82,7 +82,7 @@
   }
 
   .stage1 .model-card-header {
-    margin-block-end: 10px;
+    margin-bottom: 10px;
   }
 
   .stage1 .model-card-name {
@@ -122,10 +122,10 @@
 
   /* Code blocks - edge to edge */
   .stage1 .code-block-wrapper {
-    margin-inline: -14px;
+    margin-left: -14px;
     border-radius: 0;
-    border-inline-start: none;
-    border-inline-end: none;
+    border-left: none;
+    border-right: none;
   }
 
   .stage1 .code-block-wrapper .copy-code-btn {
@@ -144,7 +144,7 @@
   /* Summary pills in collapsed view */
   .stage1 .model-summary-pills {
     gap: 6px;
-    margin-block-start: 10px;
+    margin-top: 10px;
   }
 
   .stage1 .model-summary-pill {

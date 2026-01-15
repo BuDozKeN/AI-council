@@ -15,9 +15,9 @@
   gap: 10px;
   width: 100%;
   padding: 10px 12px;
-  padding-inline-start: 10px;
+  padding-left: 10px;
   border: none;
-  border-inline-start: 3px solid transparent;
+  border-left: 3px solid transparent;
   background: transparent;
   border-radius: var(--radius-md);
   font-size: 14px;
@@ -25,7 +25,7 @@
   color: var(--color-gray-700);
   cursor: pointer;
   transition: all 0.1s ease;
-  text-align: start;
+  text-align: left;
 }
 
 .dept-checkbox-item:hover {
@@ -77,7 +77,7 @@
   gap: 14px;
   min-height: 56px;
   padding: 14px 16px;
-  padding-inline-start: 14px;
+  padding-left: 14px;
   border-inline-start-width: 4px;
   background: var(--color-bg-tertiary); /* Visible card in light mode */
   border-radius: var(--radius-lg);

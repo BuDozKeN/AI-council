@@ -46,19 +46,19 @@
 .messages-container > * {
   width: 100%;
   max-width: 72ch; /* ~680-720px based on typography - optimal reading width */
-  margin-inline: auto;
+  margin-left: auto;
 }
 
 /* NOTE: .empty-state styles have been consolidated into ui/EmptyState.css
    The chat EmptyState components now use the unified ui/EmptyState component */
 
 .message-group {
-  margin-block-end: 32px;
+  margin-bottom: 32px;
 }
 
 .user-message,
 .assistant-message {
-  margin-block-end: 16px;
+  margin-bottom: 16px;
   animation: message-slide-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
@@ -87,7 +87,7 @@
   font-size: 12px;
   font-weight: 600;
   color: var(--color-text-secondary);
-  margin-block-end: 8px;
+  margin-bottom: 8px;
   text-transform: none; /* Remove uppercase for proper brand display */
   letter-spacing: 0.3px;
 }

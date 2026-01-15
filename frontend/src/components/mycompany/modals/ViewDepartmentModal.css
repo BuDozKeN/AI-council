@@ -13,7 +13,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-block-end: 16px;
+  margin-bottom: 16px;
 }
 
 .mc-role-dept-badge {
@@ -41,7 +41,7 @@
 }
 
 .mc-section {
-  margin-block-start: 16px;
+  margin-top: 16px;
 }
 
 .mc-section h4 {
@@ -70,7 +70,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-block-end: 10px;
+  margin-bottom: 10px;
 }
 
 .mc-section-header h4 {
@@ -90,7 +90,7 @@
    ============================================================================ */
 
 .mc-dept-expanded {
-  border-block-start: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-border);
   background: var(--color-bg-primary);
 }
 
@@ -107,7 +107,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  text-align: start;
+  text-align: left;
 }
 
 .mc-view-context-btn:hover {
@@ -167,8 +167,8 @@
    ============================================================================ */
 
 .mc-preset-section {
-  padding-block-end: 16px;
-  border-block-end: 1px solid var(--color-border);
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .mc-preset-row {
@@ -211,7 +211,7 @@
 /* Settings section (for response style selector) */
 .mc-settings-section {
   padding: 16px 20px;
-  border-block-end: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .mc-settings-row {
@@ -287,7 +287,7 @@
 
 /* Field group wrapper */
 .mc-field-group {
-  margin-block-end: 16px;
+  margin-bottom: 16px;
 }
 
 /* Title inline edit input */

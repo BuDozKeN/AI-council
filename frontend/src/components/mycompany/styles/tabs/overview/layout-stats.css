@@ -110,7 +110,7 @@
   flex-shrink: 0;
 
   /* Account for scrollbar width (8px) */
-  margin-inline-end: 8px;
+  margin-right: 8px;
 }
 
 /* Subtle accent bar at top */
@@ -118,7 +118,7 @@
   content: '';
   position: absolute;
   inset-block-start: 0;
-  inset-inline: 0;
+  right: 0;
   height: 3px;
   background: linear-gradient(
     90deg,
@@ -222,7 +222,7 @@
 .mc-empty-context .mc-empty-icon {
   display: block; /* Override display: none from shared.css */
   color: var(--color-indigo-400);
-  margin-block-end: var(--space-2);
+  margin-bottom: var(--space-2);
 }
 
 .mc-empty-context .mc-empty-title {
@@ -242,5 +242,5 @@
 
 /* Generate with AI button */
 .mc-generate-context-btn {
-  margin-block-start: var(--space-2);
+  margin-top: var(--space-2);
 }

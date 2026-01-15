@@ -9,7 +9,7 @@
   .sidebar.sidebar--pinned,
   .sidebar {
     position: fixed;
-    inset-inline-start: 0;
+    left: 0;
     inset-block-start: 0;
     width: 85vw;
     max-width: 320px;
@@ -66,7 +66,7 @@
 
   /* Expanded panel takes remaining space and scrolls internally */
   .sidebar .sidebar-expanded-panel {
-    border-inline-start: none;
+    border-left: none;
 
     /* CRITICAL: Constrain height so it doesn't push footer off screen */
     flex: 1 1 0;
@@ -103,9 +103,9 @@
   .sidebar .sidebar-footer {
     flex-shrink: 0;
     padding: 12px 16px;
-    padding-block-end: calc(12px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
     background: var(--sidebar-bg);
-    border-block-start: 1px solid var(--sidebar-border);
+    border-top: 1px solid var(--sidebar-border);
   }
 
   /* Make footer buttons touch-friendly */
@@ -200,7 +200,7 @@
   .sidebar .conversation-item.starred .title-star,
   .conversation-item-swipeable.starred .title-star {
     display: inline-flex;
-    margin-inline-start: 4px;
+    margin-left: 4px;
   }
 
   /* Make bulk action bar touch-friendly on mobile */
@@ -232,14 +232,14 @@
 
   /* Larger search icon on mobile */
   .search-icon {
-    inset-inline-start: 14px;
+    left: 14px;
     width: 18px;
     height: 18px;
   }
 
   /* Larger clear button on mobile */
   .search-clear {
-    inset-inline-end: 10px;
+    right: 10px;
     width: 24px;
     height: 24px;
     font-size: 16px;

@@ -10,7 +10,7 @@
   align-items: flex-start;
   justify-content: space-between;
   padding: 16px 20px;
-  border-block-end: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--color-border-light);
   flex-shrink: 0;
 }
 
@@ -37,7 +37,7 @@
 .app-modal-badge {
   display: inline-block;
   padding: 3px 8px;
-  margin-inline-start: 10px;
+  margin-left: 10px;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
@@ -86,7 +86,7 @@
 /* Extra content after title (e.g., count pill) */
 .app-modal-title-extra {
   display: inline-block;
-  margin-inline-start: 10px;
+  margin-left: 10px;
   padding: 2px 8px;
   font-size: 12px;
   font-weight: 500;
@@ -162,6 +162,6 @@
 
 /* Minimal header (no border) */
 .app-modal-header-minimal {
-  border-block-end: none;
-  padding-block-end: 8px;
+  border-bottom: none;
+  padding-bottom: 8px;
 }

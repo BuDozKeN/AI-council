@@ -7,7 +7,7 @@
 
 /* Page intro */
 .api-page-intro {
-  margin-block-end: 8px;
+  margin-bottom: 8px;
 }
 
 .api-page-intro h2 {
@@ -53,7 +53,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  text-align: start;
+  text-align: left;
 }
 
 .api-provider-trigger:hover {
@@ -61,7 +61,7 @@
 }
 
 .api-provider-trigger[data-state='open'] {
-  border-block-end: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .provider-header {
@@ -69,7 +69,7 @@
   align-items: center;
   justify-content: space-between;
   flex: 1;
-  margin-inline-end: 12px;
+  margin-right: 12px;
 }
 
 .provider-info {

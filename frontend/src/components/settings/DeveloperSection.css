@@ -28,9 +28,9 @@
 
 /* Sub-row variant with top border (for nested options) */
 .dev-toggle-row.bordered {
-  margin-block-start: 16px;
-  padding-block-start: 16px;
-  border-block-start: 1px solid var(--color-border-secondary);
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border-secondary);
 }
 
 .dev-toggle-info {
@@ -118,7 +118,7 @@
   padding: 10px 14px;
   border-radius: var(--radius-md);
   font-size: 13px;
-  margin-block-start: 12px;
+  margin-top: 12px;
 }
 
 .dev-info-box.success {

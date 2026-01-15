@@ -1,6 +1,6 @@
 /* Image Analysis Section */
 .image-analysis-section {
-  margin-block-end: 16px;
+  margin-bottom: 16px;
   border: 1px solid var(--color-info-light);
   border-radius: var(--radius-md);
   background: var(--color-brand-primary-light);
@@ -45,7 +45,7 @@
 }
 
 .expand-hint {
-  margin-inline-start: auto;
+  margin-left: auto;
   font-size: 12px;
   font-weight: 400;
   color: var(--color-slate-500);
@@ -57,7 +57,7 @@
 
 .image-analysis-content {
   padding: 16px;
-  border-block-start: 1px solid var(--color-info-light);
+  border-top: 1px solid var(--color-info-light);
   background: var(--color-bg-primary);
   border-radius: 0 0 var(--radius-md) var(--radius-md);
   font-size: 14px;
@@ -76,7 +76,7 @@
 
 .image-analysis-content h2:first-child,
 .image-analysis-content h3:first-child {
-  margin-block-start: 0;
+  margin-top: 0;
 }
 
 .image-analysis-content p {
@@ -86,11 +86,11 @@
 .image-analysis-content ul,
 .image-analysis-content ol {
   margin: 8px 0;
-  padding-inline-start: 24px;
+  padding-left: 24px;
 }
 
 .image-analysis-content hr {
   border: none;
-  border-block-start: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-border);
   margin: 16px 0;
 }

@@ -5,14 +5,14 @@
 /* Streaming styles */
 .stage3 .typing-indicator {
   display: inline-block;
-  margin-inline-start: 8px;
+  margin-left: 8px;
   color: var(--color-success);
   animation: blink 0.8s infinite;
 }
 
 .stage3 .complete-badge {
   display: inline-block;
-  margin-inline-start: 8px;
+  margin-left: 8px;
   padding: 2px 6px;
   background: var(--color-success-light);
   color: var(--color-success-dark);
@@ -24,7 +24,7 @@
 
 .stage3 .error-badge {
   display: inline-block;
-  margin-inline-start: 8px;
+  margin-left: 8px;
   padding: 2px 6px;
   background: var(--color-warning-light);
   color: var(--color-warning-dark);
@@ -36,7 +36,7 @@
 
 /* Truncation warning - shown when response hit max_tokens */
 .truncation-warning {
-  margin-block-end: 16px;
+  margin-bottom: 16px;
   padding: 10px 14px;
   background: var(--color-amber-50);
   border: 1px solid var(--color-amber-200);
@@ -76,7 +76,7 @@
   display: inline-block;
   color: var(--color-success-dark);
   animation: blink 0.8s infinite;
-  margin-inline-start: 2px;
+  margin-left: 2px;
 }
 
 .stage3 .empty-message {
@@ -98,7 +98,7 @@
 /* Thinking state */
 .stage3 .thinking-badge {
   display: inline-block;
-  margin-inline-start: 8px;
+  margin-left: 8px;
   padding: 2px 6px;
   background: var(--color-warning-light);
   color: var(--color-amber-700);
@@ -110,7 +110,7 @@
 
 .stage3 .thinking-dots {
   display: inline-block;
-  margin-inline-start: 2px;
+  margin-left: 2px;
 }
 
 .stage3 .thinking-dots span {
@@ -176,7 +176,7 @@
 .chairman-loading-pulse {
   position: absolute;
   inset-block-start: 50%;
-  inset-inline-start: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
   width: 64px;
   height: 64px;

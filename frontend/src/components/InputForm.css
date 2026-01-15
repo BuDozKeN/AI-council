@@ -8,7 +8,7 @@
   flex-direction: column;
   gap: 8px;
   padding: 16px 24px;
-  padding-block-end: max(
+  padding-bottom: max(
     16px,
     env(safe-area-inset-bottom, 16px)
   ); /* Safe area for notched devices */
@@ -29,7 +29,7 @@
   content: '';
   position: absolute;
   inset-block-start: -40px;
-  inset-inline: 0;
+  right: 0;
   height: 40px;
   background: linear-gradient(to bottom, transparent 0%, var(--color-bg-primary) 100%);
   pointer-events: none;
@@ -48,5 +48,5 @@
 .input-form > * {
   width: 100%;
   max-width: 72ch; /* Match reading column width */
-  margin-inline: auto;
+  margin-left: auto;
 }

@@ -12,7 +12,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-block-end: 16px;
+  margin-bottom: 16px;
 }
 
 .mc-role-dept-badge {
@@ -33,7 +33,7 @@
 }
 
 .mc-section {
-  margin-block-start: 16px;
+  margin-top: 16px;
 }
 
 .mc-section h4 {
@@ -62,7 +62,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-block-end: 10px;
+  margin-bottom: 10px;
 }
 
 .mc-section-header h4 {
@@ -128,7 +128,7 @@
 
 /* Field group wrapper */
 .mc-field-group {
-  margin-block-end: 16px;
+  margin-bottom: 16px;
 }
 
 /* Title inline edit input */

@@ -10,7 +10,7 @@
 
 /* Remove the header border line for Settings modal - cleaner look */
 .app-modal-content:has(.settings-modal-body) .app-modal-header {
-  border-block-end: none;
+  border-bottom: none;
 }
 
 .settings-content {
@@ -52,7 +52,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
-  margin-block-end: 4px;
+  margin-bottom: 4px;
 }
 
 .settings-tab:hover {
@@ -100,7 +100,7 @@
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  margin-block-end: var(--space-6);
+  margin-bottom: var(--space-6);
   overflow: hidden;
 }
 
@@ -108,7 +108,7 @@
 .settings-panel .settings-card > div:first-child {
   padding: var(--space-5) var(--space-6);
   background: var(--color-bg-secondary);
-  border-block-end: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 /* Card title styling */
@@ -137,7 +137,7 @@
 .card-header {
   padding: var(--space-4) var(--space-5);
   background: var(--color-bg-secondary);
-  border-block-end: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .card-header h3 {
@@ -162,16 +162,16 @@
    ============================================================================= */
 
 .form-group {
-  margin-block-end: var(--space-5);
+  margin-bottom: var(--space-5);
 }
 
 .form-group:last-child {
-  margin-block-end: 0;
+  margin-bottom: 0;
 }
 
 .form-group label {
   display: block;
-  margin-block-end: var(--space-2);
+  margin-bottom: var(--space-2);
   font-size: 13px;
   font-weight: 600;
   color: var(--color-text-primary);
@@ -221,7 +221,7 @@
 
 .input-hint {
   display: block;
-  margin-block-start: var(--space-2);
+  margin-top: var(--space-2);
   font-size: 12px;
   color: var(--color-text-tertiary);
 }
@@ -231,9 +231,9 @@
   align-items: center;
   justify-content: flex-end;
   gap: var(--space-4);
-  margin-block-start: var(--space-6);
-  padding-block-start: var(--space-5);
-  border-block-start: 1px solid var(--color-border-light);
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--color-border-light);
 }
 
 /* Buttons - uses design system tokens */
@@ -303,7 +303,7 @@
   border-radius: var(--radius-md);
   color: var(--color-error-dark);
   font-size: 13px;
-  margin-block-end: 20px;
+  margin-bottom: 20px;
 }
 
 /* Responsive - Tablet */
@@ -327,7 +327,7 @@
     width: auto;
     min-width: auto;
     background: transparent;
-    border-inline-end: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
     border-radius: 0;
     padding: 8px 4px; /* Minimal: 4px each side */
     flex-direction: column;
@@ -368,7 +368,7 @@
   .settings-tab.active::before {
     content: '';
     position: absolute;
-    inset-inline-start: -3px;
+    left: -3px;
     inset-block-start: 50%;
     transform: translateY(-50%);
     width: 2px;
@@ -399,13 +399,13 @@
     background: transparent;
     border: none;
     border-radius: 0;
-    margin-block-end: var(--space-4);
+    margin-bottom: var(--space-4);
     box-shadow: none;
   }
 
   .settings-panel .settings-card > div:first-child {
     background: transparent;
-    border-block-end: none;
+    border-bottom: none;
     padding: 0 0 var(--space-2) 0;
   }
 
@@ -415,9 +415,9 @@
 
   /* Section dividers */
   .settings-panel .settings-card + .settings-card {
-    border-block-start: 1px solid var(--color-border-light);
-    padding-block-start: var(--space-4);
-    margin-block-start: var(--space-4);
+    border-top: 1px solid var(--color-border-light);
+    padding-top: var(--space-4);
+    margin-top: var(--space-4);
   }
 
   /* Make content titles prominent - use double class for higher specificity */
@@ -431,16 +431,16 @@
   .settings-content .settings-panel .settings-card [class*='CardDescription'] {
     font-size: 12px;
     color: var(--color-text-tertiary);
-    margin-block-start: 2px;
+    margin-top: 2px;
   }
 
   /* Form groups - better spacing */
   .settings-panel .form-group {
-    margin-block-end: var(--space-5);
+    margin-bottom: var(--space-5);
   }
 
   .settings-panel .form-group:last-child {
-    margin-block-end: 0;
+    margin-bottom: 0;
   }
 
   .settings-panel .form-group label {
@@ -448,7 +448,7 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: var(--color-text-muted);
-    margin-block-end: var(--space-2);
+    margin-bottom: var(--space-2);
     font-weight: 500;
   }
 
@@ -530,7 +530,7 @@
   }
 
   .settings-tab.active::before {
-    inset-inline-start: -3px;
+    left: -3px;
     width: 2px;
     height: 12px;
   }
@@ -607,7 +607,7 @@
   }
 
   .settings-tab.active::before {
-    inset-inline-start: -3px;
+    left: -3px;
     width: 2px;
     height: 10px;
   }
@@ -618,7 +618,7 @@
 
   /* Tighter form spacing on very small screens */
   .settings-panel .form-group {
-    margin-block-end: var(--space-4);
+    margin-bottom: var(--space-4);
   }
 
   .settings-panel .form-group label {

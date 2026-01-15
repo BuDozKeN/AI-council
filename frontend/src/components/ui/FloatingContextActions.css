@@ -49,14 +49,14 @@
   justify-content: space-between;
   gap: 12px;
   padding: 8px 0;
-  margin-block-end: 12px;
+  margin-bottom: 12px;
 
   /* Background to cover content scrolling behind - use explicit color */
   background: var(--color-bg-primary);
 
   /* Extend to full width to cover scrolling content */
-  margin-inline: -20px;
-  padding-inline: 20px;
+  margin-left: -20px;
+  padding-left: 20px;
   width: calc(100% + 40px);
 }
 
@@ -70,8 +70,8 @@
   z-index: var(--z-raised, 10);
   display: flex;
   justify-content: flex-end;
-  margin-block-end: -36px; /* Pull content up behind button */
-  padding-block-end: 8px;
+  margin-bottom: -36px; /* Pull content up behind button */
+  padding-bottom: 8px;
   pointer-events: none; /* Allow clicks through the wrapper */
 }
 
@@ -181,8 +181,8 @@
 
 .floating-scroll-top-btn {
   position: absolute;
-  inset-block-end: 12px;
-  inset-inline-end: 12px;
+  bottom: 12px;
+  right: 12px;
   width: 28px;
   height: 28px;
   display: flex;
@@ -258,8 +258,8 @@
   }
 
   .floating-scroll-top-btn {
-    inset-block-end: 10px;
-    inset-inline-end: 10px;
+    bottom: 10px;
+    right: 10px;
     width: 32px;
     height: 32px;
   }
@@ -317,11 +317,11 @@
 /* Sticky scroll-to-top wrapper for no-border variant */
 .floating-scroll-top-sticky-wrapper {
   position: sticky;
-  inset-block-end: 12px;
+  bottom: 12px;
   display: flex;
   justify-content: flex-end;
   pointer-events: none;
-  margin-block-start: -40px; /* Don't add extra space */
+  margin-top: -40px; /* Don't add extra space */
   z-index: var(--z-elevated);
 }
 

@@ -11,7 +11,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding-block-end: env(safe-area-inset-bottom, 16px);
+  padding-bottom: env(safe-area-inset-bottom, 16px);
 }
 
 /* Field wrapper - relative for absolute dropdown positioning */
@@ -81,25 +81,25 @@
 .context-badge-tooltip-arrow {
   position: absolute;
   inset-block-start: -6px;
-  inset-inline-start: 50%;
+  left: 50%;
   transform: translateX(-50%);
   width: 0;
   height: 0;
-  border-inline-start: 6px solid transparent;
-  border-inline-end: 6px solid transparent;
-  border-block-end: 6px solid var(--color-border);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid var(--color-border);
 }
 
 .context-badge-tooltip-arrow::after {
   content: '';
   position: absolute;
   inset-block-start: 1px;
-  inset-inline-start: -5px;
+  left: -5px;
   width: 0;
   height: 0;
-  border-inline-start: 5px solid transparent;
-  border-inline-end: 5px solid transparent;
-  border-block-end: 5px solid var(--color-bg-primary);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid var(--color-bg-primary);
 }
 
 .context-badge-tooltip-item {
@@ -110,7 +110,7 @@
 }
 
 .context-badge-tooltip-portal .context-badge-tooltip-item:not(:last-child) {
-  border-block-end: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 @keyframes tooltipFadeIn {
@@ -161,13 +161,13 @@
 .context-select-icon {
   color: var(--color-text-tertiary);
   flex-shrink: 0;
-  margin-inline-end: 8px;
+  margin-right: 8px;
 }
 
 .context-select-placeholder {
   color: var(--color-text-secondary);
   flex: 1;
-  text-align: start;
+  text-align: left;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -208,7 +208,7 @@
 }
 
 .context-multiselect-chevron {
-  margin-inline-start: auto;
+  margin-left: auto;
   color: var(--color-text-tertiary);
   transition: transform 0.2s ease;
 }
@@ -221,7 +221,7 @@
 .context-multiselect-dropdown {
   position: absolute;
   inset-block-start: 100%;
-  inset-inline: 0;
+  right: 0;
   display: flex;
   flex-direction: column;
   max-height: 200px;
@@ -230,7 +230,7 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
-  margin-block-start: 4px;
+  margin-top: 4px;
   z-index: var(--z-sticky);
 }
 
@@ -244,13 +244,13 @@
   border: none;
   font-size: 15px;
   color: var(--color-text-primary);
-  text-align: start;
+  text-align: left;
   cursor: pointer;
   transition: background 0.1s ease;
 }
 
 .context-multiselect-item:not(:last-child) {
-  border-block-end: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .context-multiselect-item:active {
@@ -352,9 +352,9 @@
   flex-direction: column;
   gap: 12px;
   padding: 4px 0 0;
-  margin-inline-start: 8px;
-  border-inline-start: 2px solid var(--color-border);
-  padding-inline-start: 12px;
+  margin-left: 8px;
+  border-left: 2px solid var(--color-border);
+  padding-left: 12px;
 }
 
 .dark .context-playbooks-expanded {
@@ -384,7 +384,7 @@
   color: var(--color-text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  padding-inline-start: 4px;
+  padding-left: 4px;
 }
 
 .context-pb-type-mobile svg {
@@ -404,7 +404,7 @@
   font-size: 14px;
   font-weight: 500;
   color: var(--color-text-primary);
-  text-align: start;
+  text-align: left;
   cursor: pointer;
   transition: all 0.15s ease;
 }
