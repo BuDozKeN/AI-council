@@ -201,175 +201,174 @@
   color: var(--color-indigo-400);
 }
 
-  /* ========== PLAYBOOKS TAB - MOBILE ========== */
+/* ========== PLAYBOOKS TAB - MOBILE ========== */
 
-  /* Playbook group headers */
-  .mc-playbook-group {
-    margin-block-end: 20px;
-  }
+/* Playbook group headers */
+.mc-playbook-group {
+  margin-block-end: 20px;
+}
 
-  .mc-group-title {
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--color-text-tertiary);
-    margin-block-end: 10px;
-    padding: 0 4px;
-  }
+.mc-group-title {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-tertiary);
+  margin-block-end: 10px;
+  padding: 0 4px;
+}
 
-  .mc-group-count {
-    font-size: 12px;
-    font-weight: 400;
-  }
+.mc-group-count {
+  font-size: 12px;
+  font-weight: 400;
+}
 
-  /* Playbook rows: simplified cards */
-  .mc-elegant-row {
-    flex-wrap: wrap;
-    padding: 14px 16px;
-    background: var(--color-bg-primary);
-    border-radius: var(--radius-lg);
-    margin-block-end: 8px;
-    border: 1px solid var(--color-border);
-    box-shadow: var(--shadow-xs);
-    row-gap: 8px;
-  }
+/* Playbook rows: simplified cards */
+.mc-elegant-row {
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-lg);
+  margin-block-end: 8px;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
+  row-gap: 8px;
+}
 
-  /* Hide action buttons on mobile - tap opens detail */
+/* Hide action buttons on mobile - tap opens detail */
 
-  /* Double class for specificity over hover states */
-  .mc-elegant-row.mc-elegant-row .mc-elegant-actions,
-  .mc-elegant-row .mc-elegant-actions[class] {
-    display: none;
-  }
+/* Double class for specificity over hover states */
+.mc-elegant-row.mc-elegant-row .mc-elegant-actions,
+.mc-elegant-row .mc-elegant-actions[class] {
+  display: none;
+}
 
-  /* Activity tab: SHOW source link on mobile - important for navigation */
+/* Activity tab: SHOW source link on mobile - important for navigation */
 
-  /* Triple selector to override the hide rule above */
-  .mc-activity .mc-elegant-row.mc-elegant-row .mc-elegant-actions,
-  .mc-activity.mc-activity .mc-elegant-row .mc-elegant-actions {
-    display: flex;
-    position: static;
-    opacity: 1;
-    background: transparent;
-    padding-inline-start: 0;
-    margin-inline-start: auto;
-    flex-shrink: 0;
-  }
+/* Triple selector to override the hide rule above */
+.mc-activity .mc-elegant-row.mc-elegant-row .mc-elegant-actions,
+.mc-activity.mc-activity .mc-elegant-row .mc-elegant-actions {
+  display: flex;
+  position: static;
+  opacity: 1;
+  background: transparent;
+  padding-inline-start: 0;
+  margin-inline-start: auto;
+  flex-shrink: 0;
+}
 
-  /*
+/*
    * Playbooks: tap-to-reveal actions on mobile
    * Row needs position: relative for absolute-positioned actions
    */
-  .mc-playbooks .mc-elegant-row {
-    position: relative;
-  }
+.mc-playbooks .mc-elegant-row {
+  position: relative;
+}
 
-  /* Subtle highlight when row is active (tapped) */
-  .mc-playbooks .mc-elegant-row.mobile-active {
-    background: var(--color-bg-secondary);
-  }
+/* Subtle highlight when row is active (tapped) */
+.mc-playbooks .mc-elegant-row.mobile-active {
+  background: var(--color-bg-secondary);
+}
 
-  /* When row is long-pressed (has .mobile-active class), show the actions */
-  .mc-playbooks .mc-elegant-row.mobile-active .mc-elegant-actions {
-    display: flex;
-    position: absolute;
-    inset-inline-end: 8px;
-    inset-block-start: 50%;
-    transform: translateY(-50%);
-    opacity: 1;
-    background: transparent;
-    padding: 0;
-    gap: 12px;
-    z-index: var(--z-elevated);
-  }
+/* When row is long-pressed (has .mobile-active class), show the actions */
+.mc-playbooks .mc-elegant-row.mobile-active .mc-elegant-actions {
+  display: flex;
+  position: absolute;
+  inset-inline-end: 8px;
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+  opacity: 1;
+  background: transparent;
+  padding: 0;
+  gap: 12px;
+  z-index: var(--z-elevated);
+}
 
-  /* Playbooks action buttons on mobile - tiny subtle text */
-  .mc-playbooks .mc-elegant-row.mobile-active .mc-text-btn {
-    font-size: 11px;
-    padding: 4px 6px;
-    background: transparent;
-    border: none;
-    font-weight: 500;
-    min-height: auto;
-  }
+/* Playbooks action buttons on mobile - tiny subtle text */
+.mc-playbooks .mc-elegant-row.mobile-active .mc-text-btn {
+  font-size: 11px;
+  padding: 4px 6px;
+  background: transparent;
+  border: none;
+  font-weight: 500;
+  min-height: auto;
+}
 
-  .mc-playbooks .mc-elegant-row.mobile-active .mc-text-btn.archive {
-    color: var(--color-amber-600);
-  }
+.mc-playbooks .mc-elegant-row.mobile-active .mc-text-btn.archive {
+  color: var(--color-amber-600);
+}
 
-  .mc-playbooks .mc-elegant-row.mobile-active .mc-text-btn.delete {
-    color: var(--color-red-500);
-  }
+.mc-playbooks .mc-elegant-row.mobile-active .mc-text-btn.delete {
+  color: var(--color-red-500);
+}
 
-  /* Dark mode for revealed actions */
-  .dark .mc-playbooks .mc-elegant-row.mobile-active .mc-text-btn.archive {
-    color: var(--color-amber-400);
-  }
+/* Dark mode for revealed actions */
+.dark .mc-playbooks .mc-elegant-row.mobile-active .mc-text-btn.archive {
+  color: var(--color-amber-400);
+}
 
-  .dark .mc-playbooks .mc-elegant-row.mobile-active .mc-text-btn.delete {
-    color: var(--color-red-400);
-  }
+.dark .mc-playbooks .mc-elegant-row.mobile-active .mc-text-btn.delete {
+  color: var(--color-red-400);
+}
 
-  /* Activity source button styling on mobile */
-  .mc-activity .mc-text-btn.source {
-    font-size: 12px;
-    padding: 6px 10px;
-    background: var(--color-blue-50);
-    border-radius: var(--radius-md);
-    color: var(--color-blue-600);
-    font-weight: 500;
-  }
+/* Activity source button styling on mobile */
+.mc-activity .mc-text-btn.source {
+  font-size: 12px;
+  padding: 6px 10px;
+  background: var(--color-blue-50);
+  border-radius: var(--radius-md);
+  color: var(--color-blue-600);
+  font-weight: 500;
+}
 
-  /* Content layout - column on mobile for clean stacking */
-  .mc-elegant-content {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
+/* Content layout - column on mobile for clean stacking */
+.mc-elegant-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
 
-  /* Title: full width, truncated */
-  .mc-elegant-title {
-    width: 100%;
-    font-size: 15px;
-    font-weight: 500;
-    line-height: 1.3;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
+/* Title: full width, truncated */
+.mc-elegant-title {
+  width: 100%;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 
-  /* Badges row: horizontal, left-aligned under title */
-  .mc-elegant-badges {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    align-items: center;
-  }
+/* Badges row: horizontal, left-aligned under title */
+.mc-elegant-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
 
-  /* Department badges: smaller */
-  .mc-elegant-dept {
-    font-size: 11px;
-    padding: 2px 6px;
-    border-radius: var(--radius-sm);
-  }
+/* Department badges: smaller */
+.mc-elegant-dept {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+}
 
-  /* Show max 2 department badges */
-  .mc-elegant-dept:nth-of-type(n + 3) {
-    display: none;
-  }
+/* Show max 2 department badges */
+.mc-elegant-dept:nth-of-type(n + 3) {
+  display: none;
+}
 
-  /* Type badge: subtle */
-  .mc-elegant-badge {
-    font-size: 10px;
-    padding: 2px 6px;
-  }
+/* Type badge: subtle */
+.mc-elegant-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+}
 
-  /* Hide type dot on mobile - badge is enough */
-  .mc-elegant-row .mc-type-dot {
-    display: none;
-  }
-
+/* Hide type dot on mobile - badge is enough */
+.mc-elegant-row .mc-type-dot {
+  display: none;
+}

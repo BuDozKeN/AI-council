@@ -81,7 +81,7 @@ const DEPRECATED_SELECTORS = [
   // '.chat-interface-mega-file', // Example
 ];
 
-const ruleFunction = (primary, secondaryOptions, context) => {
+const ruleFunction = (primary, _secondaryOptions, _context) => {
   return (root, result) => {
     const validOptions = stylelint.utils.validateOptions(result, ruleName, {
       actual: primary,

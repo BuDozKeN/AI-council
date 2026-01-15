@@ -676,81 +676,80 @@
   }
 }
 
-  /* ========== PROJECTS TAB - MOBILE ========== */
+/* ========== PROJECTS TAB - MOBILE ========== */
 
-  /* Project row: clean card-like appearance */
-  .mc-project-row-compact {
-    flex-wrap: wrap;
-    padding: 14px 16px;
-    background: var(--color-bg-primary);
-    border-radius: var(--radius-lg);
-    margin-block-end: 8px;
-    border: 1px solid var(--color-border);
-    box-shadow: var(--shadow-xs);
-  }
+/* Project row: clean card-like appearance */
+.mc-project-row-compact {
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-lg);
+  margin-block-end: 8px;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
+}
 
-  /* Hide hover actions on mobile - tap opens detail view */
+/* Hide hover actions on mobile - tap opens detail view */
 
-  /* Double class selector for specificity over hover states */
-  .mc-project-row-compact.mc-project-row-compact .mc-project-actions,
-  .mc-project-row-compact .mc-project-actions[class] {
-    display: none;
-  }
+/* Double class selector for specificity over hover states */
+.mc-project-row-compact.mc-project-row-compact .mc-project-actions,
+.mc-project-row-compact .mc-project-actions[class] {
+  display: none;
+}
 
-  /* Always show meta on mobile (no hover state) */
-  .mc-project-row-compact.mc-project-row-compact .mc-project-meta,
-  .mc-project-row-compact .mc-project-meta[class] {
-    display: flex;
-    margin-inline-start: auto;
-  }
+/* Always show meta on mobile (no hover state) */
+.mc-project-row-compact.mc-project-row-compact .mc-project-meta,
+.mc-project-row-compact .mc-project-meta[class] {
+  display: flex;
+  margin-inline-start: auto;
+}
 
-  /* Title group: allow name to wrap, limit badges */
-  .mc-project-title-group {
-    flex: 1;
-    min-width: 0;
-    flex-wrap: wrap;
-    gap: 6px;
-    row-gap: 4px;
-  }
+/* Title group: allow name to wrap, limit badges */
+.mc-project-title-group {
+  flex: 1;
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 6px;
+  row-gap: 4px;
+}
 
-  .mc-project-name {
-    width: 100%;
-    font-size: 15px;
-    font-weight: 500;
-    line-height: 1.3;
-    margin-block-end: 2px;
-  }
+.mc-project-name {
+  width: 100%;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  margin-block-end: 2px;
+}
 
-  /* Show max 2 department badges on mobile */
-  .mc-project-dept-badge {
-    font-size: 11px;
-    padding: 2px 6px;
-  }
+/* Show max 2 department badges on mobile */
+.mc-project-dept-badge {
+  font-size: 11px;
+  padding: 2px 6px;
+}
 
-  .mc-project-dept-badge:nth-child(n + 4) {
-    display: none;
-  }
+.mc-project-dept-badge:nth-child(n + 4) {
+  display: none;
+}
 
-  /* Meta: compact right-aligned */
-  .mc-project-meta {
-    flex-shrink: 0;
-    gap: 6px;
-  }
+/* Meta: compact right-aligned */
+.mc-project-meta {
+  flex-shrink: 0;
+  gap: 6px;
+}
 
-  .mc-project-decision-count {
-    font-size: 13px;
-    min-width: 20px;
-  }
+.mc-project-decision-count {
+  font-size: 13px;
+  min-width: 20px;
+}
 
-  .mc-project-time {
-    font-size: 12px;
-    color: var(--color-text-tertiary);
-  }
+.mc-project-time {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+}
 
-  /* Status dot: slightly larger for visibility */
-  .mc-project-row-compact .mc-status-dot {
-    width: 8px;
-    height: 8px;
-    flex-shrink: 0;
-  }
-
+/* Status dot: slightly larger for visibility */
+.mc-project-row-compact .mc-status-dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+}

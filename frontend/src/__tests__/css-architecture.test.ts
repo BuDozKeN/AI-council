@@ -35,11 +35,7 @@ function findCSSFiles(dir: string): string[] {
 
       if (entry.isDirectory()) {
         // Skip node_modules, dist, etc.
-        if (
-          !entry.name.startsWith('.') &&
-          entry.name !== 'node_modules' &&
-          entry.name !== 'dist'
-        ) {
+        if (!entry.name.startsWith('.') && entry.name !== 'node_modules' && entry.name !== 'dist') {
           walk(fullPath);
         }
       } else if (entry.isFile() && entry.name.endsWith('.css')) {
@@ -106,12 +102,7 @@ function countSignificantLines(filePath: string): number {
     }
 
     // Skip empty lines, single-line comments, and lines in block comments
-    if (
-      !trimmed ||
-      trimmed.startsWith('//') ||
-      trimmed.startsWith('/*') ||
-      inBlockComment
-    ) {
+    if (!trimmed || trimmed.startsWith('//') || trimmed.startsWith('/*') || inBlockComment) {
       continue;
     }
 
@@ -154,9 +145,7 @@ describe('CSS Architecture - File Organization', () => {
       const hasTsx = componentFiles.includes(expectedTsxPath);
 
       if (!hasTsx) {
-        console.warn(
-          `Warning: CSS file without component: ${cssFile.replace(SRC_DIR, '')}`
-        );
+        console.warn(`Warning: CSS file without component: ${cssFile.replace(SRC_DIR, '')}`);
       }
 
       // This is a warning, not a hard failure
@@ -183,9 +172,7 @@ describe('CSS Architecture - File Size Limits', () => {
     });
 
     if (violations.length > 0) {
-      const message = violations
-        .map((v) => `  - ${v.file}: ${v.lines} lines`)
-        .join('\n');
+      const message = violations.map((v) => `  - ${v.file}: ${v.lines} lines`).join('\n');
 
       expect.fail(
         `Found ${violations.length} CSS file(s) exceeding 600 lines:\n${message}\n\nAction: Split these files into smaller components.`
@@ -209,9 +196,7 @@ describe('CSS Architecture - File Size Limits', () => {
 
     // This is informational, not a failure
     if (largeFiles.length > 0) {
-      console.log(
-        `\nℹ️  ${largeFiles.length} CSS file(s) exceed 300 lines (target):`
-      );
+      console.log(`\nℹ️  ${largeFiles.length} CSS file(s) exceed 300 lines (target):`);
       largeFiles.forEach((f) => {
         console.log(`   - ${f.file}: ${f.lines} lines`);
       });
@@ -283,9 +268,7 @@ describe('CSS Architecture - Color Usage', () => {
       );
     }
 
-    console.log(
-      `\n🎨 Hardcoded colors: ${violations.length} (target: 0 for enterprise quality)`
-    );
+    console.log(`\n🎨 Hardcoded colors: ${violations.length} (target: 0 for enterprise quality)`);
 
     // Track but don't fail - this is a gradual improvement metric
     expect(true).toBe(true);
@@ -505,7 +488,7 @@ describe('CSS Architecture - Best Practices', () => {
       const content = readFileSync(designTokensPath, 'utf-8');
       expect(content).toContain('DesignToken');
       expect(content).toContain('CSSVar');
-    } catch (error) {
+    } catch {
       expect.fail('Design tokens TypeScript definitions missing');
     }
   });

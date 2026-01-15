@@ -9,7 +9,6 @@
 
 /* No pseudo-element fades - glass morphism input creates the seamless scroll effect */
 
-
 /* =============================================================================
    OMNIBAR - All-in-one input with context icons inside
    Perplexity-style: [🏢 👤 📋 ⚡ | Follow up...                    📎 ↑]
@@ -246,7 +245,6 @@
   cursor: not-allowed;
 }
 
-
 /* =============================================================================
    INLINE MODE TOGGLE - Clear "1 AI / 5 AIs" pill (replaces Zap icon)
    ============================================================================= */
@@ -369,5 +367,3 @@
   background: var(--color-text-inverse);
   border-radius: 2px;
 }
-
-

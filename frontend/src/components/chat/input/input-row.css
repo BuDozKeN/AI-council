@@ -338,7 +338,6 @@ button.role-select-trigger:focus {
   color: var(--color-text-tertiary);
 }
 
-
 /* =============================================================================
    INPUT ACTION BUTTONS - Clean icon-only buttons
    ============================================================================= */
@@ -444,5 +443,3 @@ button.role-select-trigger:focus {
   background: var(--color-text-inverse);
   border-radius: 2px;
 }
-
-

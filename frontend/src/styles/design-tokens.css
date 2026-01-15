@@ -120,20 +120,15 @@
      SHADOWS (Premium layered - 3x depth for modern look)
      ============================================================================ */
   --shadow-xs: 0 1px 2px rgb(0 0 0 / 8%), 0 0 1px rgb(0 0 0 / 4%);
-  --shadow-sm:
-    0 2px 4px rgb(0 0 0 / 12%), 0 1px 2px rgb(0 0 0 / 8%), 0 0 1px rgb(0 0 0 / 4%);
+  --shadow-sm: 0 2px 4px rgb(0 0 0 / 12%), 0 1px 2px rgb(0 0 0 / 8%), 0 0 1px rgb(0 0 0 / 4%);
   --shadow-md:
-    0 8px 16px -4px rgb(0 0 0 / 16%), 0 4px 8px -2px rgb(0 0 0 / 12%),
-    0 0 1px rgb(0 0 0 / 8%);
+    0 8px 16px -4px rgb(0 0 0 / 16%), 0 4px 8px -2px rgb(0 0 0 / 12%), 0 0 1px rgb(0 0 0 / 8%);
   --shadow-lg:
-    0 16px 32px -8px rgb(0 0 0 / 20%), 0 8px 16px -4px rgb(0 0 0 / 14%),
-    0 0 1px rgb(0 0 0 / 8%);
+    0 16px 32px -8px rgb(0 0 0 / 20%), 0 8px 16px -4px rgb(0 0 0 / 14%), 0 0 1px rgb(0 0 0 / 8%);
   --shadow-xl:
-    0 24px 48px -12px rgb(0 0 0 / 24%), 0 12px 24px -6px rgb(0 0 0 / 16%),
-    0 0 1px rgb(0 0 0 / 8%);
+    0 24px 48px -12px rgb(0 0 0 / 24%), 0 12px 24px -6px rgb(0 0 0 / 16%), 0 0 1px rgb(0 0 0 / 8%);
   --shadow-2xl:
-    0 32px 64px -16px rgb(0 0 0 / 32%), 0 16px 32px -8px rgb(0 0 0 / 20%),
-    0 0 1px rgb(0 0 0 / 8%);
+    0 32px 64px -16px rgb(0 0 0 / 32%), 0 16px 32px -8px rgb(0 0 0 / 20%), 0 0 1px rgb(0 0 0 / 8%);
 
   /* Focus ring (accessibility) - using iris brand color */
   --shadow-focus: 0 0 0 3px rgb(var(--color-focus-rgb), 0.35);
@@ -320,11 +315,9 @@
   --shadow-md:
     0 8px 16px -4px rgb(0 0 0 / 50%), 0 4px 8px -2px rgb(0 0 0 / 35%), 0 0 1px rgb(0 0 0 / 20%);
   --shadow-lg:
-    0 16px 32px -8px rgb(0 0 0 / 55%), 0 8px 16px -4px rgb(0 0 0 / 40%),
-    0 0 1px rgb(0 0 0 / 20%);
+    0 16px 32px -8px rgb(0 0 0 / 55%), 0 8px 16px -4px rgb(0 0 0 / 40%), 0 0 1px rgb(0 0 0 / 20%);
   --shadow-xl:
-    0 24px 48px -12px rgb(0 0 0 / 60%), 0 12px 24px -6px rgb(0 0 0 / 45%),
-    0 0 1px rgb(0 0 0 / 20%);
+    0 24px 48px -12px rgb(0 0 0 / 60%), 0 12px 24px -6px rgb(0 0 0 / 45%), 0 0 1px rgb(0 0 0 / 20%);
 
   /* --- Sidebar --- */
   --sidebar-bg: var(--color-bg-subtle);

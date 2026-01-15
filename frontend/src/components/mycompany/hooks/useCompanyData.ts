@@ -266,7 +266,7 @@ export function useCompanyData({
     },
     // Note: loaded state flags are checked via isTabAlreadyLoaded but not in deps
     // to avoid re-triggering. departmentsLoaded also intentionally excluded.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     [companyId, activeTab, activityLimit]
   );
 
@@ -277,6 +277,7 @@ export function useCompanyData({
 
   // Reset data when company changes
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect */
     setOverview(null);
     setDepartments([]);
     setPlaybooks([]);
@@ -301,6 +302,7 @@ export function useCompanyData({
     setActivityLoaded(false);
     // Reset activity pagination
     setActivityHasMore(false);
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [companyId]);
 
   // Reset loaded flag for a specific tab (used by pull-to-refresh)
