@@ -32,14 +32,13 @@
 /* Two-column grid with explicit row alignment */
 .mc-promote-grid {
   display: grid;
-  grid-template-columns: 260px 1fr;
-  grid-template-rows: auto auto auto auto auto;
-  grid-template-areas:
-    'dept-label    summary-header'
-    'dept-select   summary-content'
-    'type-label    decision-label'
-    'type-row      type-row'
-    'source-link   .';
+  grid-template:
+    'dept-label    summary-header' auto
+    'dept-select   summary-content' auto
+    'type-label    decision-label' auto
+    'type-row      type-row' auto
+    'source-link   .' auto
+    / 260px 1fr;
   gap: 6px 20px;
   align-items: start;
 }
@@ -95,10 +94,7 @@
 /* Decision content - absolutely positioned to match type-cards height */
 .mc-grid-area-decision-content {
   position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 280px; /* 260px type-cards width + 20px gap */
+  inset: 0 0 0 280px; /* 260px type-cards width + 20px gap */
   display: flex;
   flex-direction: column;
 }

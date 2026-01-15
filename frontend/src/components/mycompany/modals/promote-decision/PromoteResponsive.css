@@ -53,10 +53,7 @@
 
   .mc-grid-area-decision-content {
     position: static;
-    left: auto;
-    right: auto;
-    top: auto;
-    bottom: auto;
+    inset: auto;
     min-height: 150px;
   }
 
