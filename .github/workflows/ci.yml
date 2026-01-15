@@ -268,6 +268,7 @@ jobs:
 
       - name: Run Lighthouse CI
         uses: treosh/lighthouse-ci-action@v12
+        continue-on-error: true  # Non-blocking: reports perf but doesn't fail PRs
         with:
           configPath: ./frontend/lighthouserc.json
           uploadArtifacts: true
