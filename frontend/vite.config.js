@@ -246,7 +246,11 @@ export default defineConfig(({ mode }) => ({
               return 'vendor-motion';
             }
             // Markdown rendering - only needed when viewing messages
-            if (id.includes('react-markdown') || id.includes('remark-gfm') || id.includes('rehype-slug')) {
+            if (
+              id.includes('react-markdown') ||
+              id.includes('remark-gfm') ||
+              id.includes('rehype-slug')
+            ) {
               return 'vendor-markdown';
             }
             // Radix UI components - used throughout, cache together
@@ -262,7 +266,11 @@ export default defineConfig(({ mode }) => ({
               return 'vendor-supabase';
             }
             // TanStack Query - data fetching/caching layer
-            if (id.includes('@tanstack/react-query') || id.includes('@tanstack/query-async-storage-persister') || id.includes('@tanstack/react-query-persist-client')) {
+            if (
+              id.includes('@tanstack/react-query') ||
+              id.includes('@tanstack/query-async-storage-persister') ||
+              id.includes('@tanstack/react-query-persist-client')
+            ) {
               return 'vendor-query';
             }
           }

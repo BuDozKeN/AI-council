@@ -129,7 +129,7 @@ function CouncilStages({ msg, conversation }: CouncilStagesProps) {
       {(msg.loading?.stage1 ||
         msg.stage1 ||
         (msg.stage1Streaming && Object.keys(msg.stage1Streaming).length > 0)) && (
-        <Suspense fallback={<CouncilLoader message="Loading stage..." />}>
+        <Suspense fallback={<CouncilLoader text="Loading stage..." />}>
           <Stage1
             {...(msg.stage1 ? { responses: msg.stage1 } : {})}
             {...(msg.stage1Streaming ? { streaming: msg.stage1Streaming } : {})}
@@ -154,7 +154,7 @@ function CouncilStages({ msg, conversation }: CouncilStagesProps) {
           const labelToModel = msg.metadata?.label_to_model ?? msg.label_to_model;
           const stage2Rankings = msg.metadata?.aggregate_rankings ?? msg.aggregate_rankings;
           return (
-            <Suspense fallback={<CouncilLoader message="Loading stage..." />}>
+            <Suspense fallback={<CouncilLoader text="Loading stage..." />}>
               <Stage2
                 {...(msg.stage2 ? { rankings: msg.stage2 } : {})}
                 {...(msg.stage2Streaming ? { streaming: msg.stage2Streaming } : {})}
@@ -325,7 +325,7 @@ export function MessageList({
                         }
                       }
                       return (
-                        <Suspense fallback={<CouncilLoader message="Loading stage..." />}>
+                        <Suspense fallback={<CouncilLoader text="Loading stage..." />}>
                           <Stage3
                             finalResponse={msg.stage3 ?? null}
                             streaming={msg.stage3Streaming ?? null}
