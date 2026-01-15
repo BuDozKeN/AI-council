@@ -238,8 +238,12 @@ export default defineConfig(({ mode }) => ({
           // Vendor chunk splitting
           if (id.includes('node_modules')) {
             // Core React runtime - rarely changes, cache well
-            if (id.includes('react') || id.includes('react-dom')) {
+            if (id.includes('react') && !id.includes('react-markdown') && !id.includes('react-i18next') && !id.includes('react-router')) {
               return 'vendor-react';
+            }
+            // Router - needed early, cache separately
+            if (id.includes('react-router-dom')) {
+              return 'vendor-router';
             }
             // Animation library - large, cache separately
             if (id.includes('framer-motion')) {
@@ -252,6 +256,18 @@ export default defineConfig(({ mode }) => ({
               id.includes('rehype-slug')
             ) {
               return 'vendor-markdown';
+            }
+            // i18n - internationalization, loaded on every page
+            if (
+              id.includes('i18next') ||
+              id.includes('react-i18next') ||
+              id.includes('i18next-browser-languagedetector')
+            ) {
+              return 'vendor-i18n';
+            }
+            // Command palette - large component, lazy loadable
+            if (id.includes('cmdk')) {
+              return 'vendor-cmdk';
             }
             // Radix UI components - used throughout, cache together
             if (id.includes('@radix-ui')) {

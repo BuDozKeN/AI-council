@@ -9,7 +9,7 @@
 
 const LANG_REGEX = /:(not\()?:?(-webkit-any\(|is\()?:lang\([^)]+\)\)?/g;
 
-module.exports = () => {
+const stripRTL = () => {
   return {
     postcssPlugin: 'postcss-strip-rtl',
     Rule(rule) {
@@ -37,9 +37,9 @@ module.exports = () => {
 
           // Clean up any leftover pseudo-class artifacts
           rule.selector = rule.selector
-            .replace(/:not\(\)/g, '')  // Remove empty :not()
-            .replace(/:{2,}/g, ':')     // Remove multiple colons
-            .replace(/\s+/g, ' ')       // Normalize whitespace
+            .replace(/:not\(\)/g, '') // Remove empty :not()
+            .replace(/:{2,}/g, ':') // Remove multiple colons
+            .replace(/\s+/g, ' ') // Normalize whitespace
             .trim();
 
           // If selector became empty or invalid, remove the rule
@@ -52,4 +52,6 @@ module.exports = () => {
   };
 };
 
-module.exports.postcss = true;
+stripRTL.postcss = true;
+
+export default stripRTL;

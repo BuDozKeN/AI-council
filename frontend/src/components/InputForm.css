@@ -8,18 +8,10 @@
   flex-direction: column;
   gap: 8px;
   padding: 16px 24px;
-  padding-bottom: max(
-    16px,
-    env(safe-area-inset-bottom, 16px)
-  ); /* Safe area for notched devices */
-
+  padding-bottom: max(16px, env(safe-area-inset-bottom, 16px)); /* Safe area for notched devices */
   flex-shrink: 0;
   scrollbar-gutter: stable both-edges; /* Match messages-container for alignment */
-
-  /* Solid background for the input area */
   background: var(--color-bg-primary);
-
-  /* Positioned at bottom */
   position: relative;
   z-index: var(--z-sticky);
 }
@@ -28,7 +20,8 @@
 .input-form::before {
   content: '';
   position: absolute;
-  inset-block-start: -40px;
+  top: -40px;
+  left: 0;
   right: 0;
   height: 40px;
   background: linear-gradient(to bottom, transparent 0%, var(--color-bg-primary) 100%);
