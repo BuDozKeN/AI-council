@@ -185,7 +185,8 @@ export function PromoteDecisionModal({
                 value={title}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
                 placeholder={t('modals.titlePlaceholder')}
-                autoFocus
+                autoComplete="off"
+                inputMode="text"
               />
             </div>
 
