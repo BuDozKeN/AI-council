@@ -11,7 +11,7 @@
 
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FolderKanban, CheckCircle, Archive, RotateCcw, Trash2, Plus } from 'lucide-react';
+import { CheckCircle, Archive, RotateCcw, Trash2, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '../../ui/button';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
@@ -229,7 +229,7 @@ export function ProjectsTab({
 
         <Button variant="default" onClick={onAddProject} style={{ marginTop: '8px' }}>
           <Plus size={16} />
-          {t('projects.newProject')}
+          {t('mycompany.newProject')}
         </Button>
       </div>
     );

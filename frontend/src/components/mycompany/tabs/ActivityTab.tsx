@@ -6,7 +6,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { ClipboardList, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { formatDateGroup } from '../../../lib/dateUtils';
 import { ScrollableContent } from '../../ui/ScrollableContent';
