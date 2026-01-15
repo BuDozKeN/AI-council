@@ -22,6 +22,11 @@ from typing import Optional, List
 from fastapi import Request, HTTPException
 from pathlib import Path
 
+try:
+    from ..i18n import t, get_locale_from_header
+except ImportError:
+    from backend.i18n import t, get_locale_from_header
+
 
 # =============================================================================
 # XSS PROTECTION
@@ -361,13 +366,22 @@ class InputSanitizationMiddleware:
         if scope["type"] != "http":
             return await self.app(scope, receive, send)
 
-        # Validate headers
+        # Extract locale from Accept-Language header
         headers = dict(scope.get("headers", []))
+        accept_language = None
+        for key, value in headers.items():
+            if key == b"accept-language":
+                accept_language = value.decode('utf-8', errors='replace')
+                break
+        locale = get_locale_from_header(accept_language)
+
+        # Validate headers
         for key, value in headers.items():
             try:
                 header_value = value.decode('utf-8', errors='replace')
                 if not validate_safe_header_value(header_value):
                     # Block request with dangerous header
+                    error_msg = t('errors.invalid_request', locale)
                     await send({
                         "type": "http.response.start",
                         "status": 400,
@@ -375,7 +389,7 @@ class InputSanitizationMiddleware:
                     })
                     await send({
                         "type": "http.response.body",
-                        "body": b'{"detail":"Invalid header value detected"}',
+                        "body": f'{{"detail":"{error_msg}"}}'.encode('utf-8'),
                     })
                     return
             except Exception:
@@ -384,6 +398,7 @@ class InputSanitizationMiddleware:
         # Validate query string
         query_string = scope.get("query_string", b"").decode('utf-8', errors='replace')
         if len(query_string) > 8192:  # Limit query string length
+            error_msg = t('errors.invalid_request', locale)
             await send({
                 "type": "http.response.start",
                 "status": 400,
@@ -391,7 +406,7 @@ class InputSanitizationMiddleware:
             })
             await send({
                 "type": "http.response.body",
-                "body": b'{"detail":"Query string too long"}',
+                "body": f'{{"detail":"{error_msg}"}}'.encode('utf-8'),
             })
             return
 
@@ -403,12 +418,15 @@ class InputSanitizationMiddleware:
 # CONVENIENCE VALIDATORS
 # =============================================================================
 
-def validate_company_id(company_id: str) -> str:
+def validate_company_id(company_id: str, locale: str = 'en') -> str:
     """Validate and sanitize company ID (UUID or slug)."""
-    from ..security import validate_uuid_format
+    try:
+        from ..security import validate_uuid_format
+    except ImportError:
+        from backend.security import validate_uuid_format
 
     if not company_id:
-        raise HTTPException(status_code=400, detail="Company ID required")
+        raise HTTPException(status_code=400, detail=t('errors.missing_required_field', locale, field='company_id'))
 
     # Check if UUID
     if validate_uuid_format(company_id):
@@ -416,7 +434,7 @@ def validate_company_id(company_id: str) -> str:
 
     # Otherwise, validate as slug (alphanumeric + hyphens/underscores)
     if not re.match(r'^[a-zA-Z0-9_-]{1,100}$', company_id):
-        raise HTTPException(status_code=400, detail="Invalid company ID format")
+        raise HTTPException(status_code=400, detail=t('errors.invalid_parameter', locale, param='company_id'))
 
     return company_id
 

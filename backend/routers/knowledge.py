@@ -19,6 +19,7 @@ from .. import storage
 from .. import knowledge
 from ..security import SecureHTTPException
 from .. import model_registry
+from ..i18n import t, get_locale_from_request
 
 # Import shared rate limiter (ensures limits are tracked globally)
 # Note: The shared limiter already handles user-based rate limiting via token hash
@@ -35,12 +36,12 @@ router = APIRouter(prefix="/knowledge", tags=["knowledge"])
 UUID_PATTERN = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', re.I)
 
 
-def validate_uuid(value: str, field_name: str = "id") -> str:
+def validate_uuid(value: str, field_name: str = "id", locale: str = 'en') -> str:
     """Validate that a value is a valid UUID format."""
     if not value or not UUID_PATTERN.match(value):
         raise HTTPException(
             status_code=400,
-            detail=f"Invalid {field_name}: must be a valid UUID"
+            detail=t('errors.invalid_parameter', locale, param=field_name)
         )
     return value
 
@@ -249,6 +250,7 @@ async def create_knowledge_entry(request: Request, entry_request: CreateKnowledg
     """Create a new knowledge entry."""
     from ..routers import company as company_router
 
+    locale = get_locale_from_request(request)
     try:
         access_token = user.get("access_token")
 
@@ -303,9 +305,9 @@ async def create_knowledge_entry(request: Request, entry_request: CreateKnowledg
 
             return result
 
-        raise HTTPException(status_code=500, detail="Failed to create knowledge entry")
+        raise HTTPException(status_code=500, detail=t('errors.knowledge_entry_create_failed', locale))
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=404, detail=t('errors.not_found', locale))
     except Exception as e:
         raise SecureHTTPException.internal_error(str(e))
 
@@ -322,6 +324,7 @@ async def get_knowledge_entries(request: Request, company_id: str,
     user: dict = Depends(get_current_user)
 ):
     """Get knowledge entries for a company with filtering options."""
+    locale = get_locale_from_request(request)
     try:
         access_token = user.get("access_token")
 
@@ -340,7 +343,7 @@ async def get_knowledge_entries(request: Request, company_id: str,
         )
         return {"entries": entries}
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=404, detail=t('errors.not_found', locale))
     except Exception as e:
         raise SecureHTTPException.internal_error(str(e))
 
@@ -352,6 +355,7 @@ async def get_knowledge_count_for_conversation(request: Request, conversation_id
     user: dict = Depends(get_current_user)
 ):
     """Get count of knowledge entries saved from a specific conversation."""
+    locale = get_locale_from_request(request)
     try:
         access_token = user.get("access_token")
         company_uuid = storage.resolve_company_id(company_id, access_token)
@@ -362,7 +366,7 @@ async def get_knowledge_count_for_conversation(request: Request, conversation_id
         )
         return {"count": count}
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=404, detail=t('errors.not_found', locale))
     except Exception as e:
         raise SecureHTTPException.internal_error(str(e))
 
@@ -374,6 +378,7 @@ async def get_conversation_linked_project(request: Request, conversation_id: str
     user: dict = Depends(get_current_user)
 ):
     """Check if a conversation has a linked project."""
+    locale = get_locale_from_request(request)
     try:
         from ..database import get_supabase_with_auth
         access_token = user.get("access_token")
@@ -426,7 +431,7 @@ async def get_conversation_linked_project(request: Request, conversation_id: str
 
         return {"project": project_result.data}
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=404, detail=t('errors.not_found', locale))
     except Exception as e:
         raise SecureHTTPException.internal_error(str(e))
 
@@ -439,6 +444,7 @@ async def get_conversation_decision(request: Request, conversation_id: str,
     user: dict = Depends(get_current_user)
 ):
     """Check if a specific decision exists for this conversation and response index."""
+    locale = get_locale_from_request(request)
     try:
         from ..database import get_supabase_with_auth, get_supabase_service
         access_token = user.get("access_token")
@@ -488,7 +494,7 @@ async def get_conversation_decision(request: Request, conversation_id: str,
 
         return {"decision": None}
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=404, detail=t('errors.not_found', locale))
     except Exception as e:
         raise SecureHTTPException.internal_error(str(e))
 
@@ -500,7 +506,8 @@ async def update_knowledge_entry(request: Request, entry_id: str,
     user: dict = Depends(get_current_user)
 ):
     """Update a knowledge entry."""
-    validate_uuid(entry_id, "entry_id")
+    locale = get_locale_from_request(request)
+    validate_uuid(entry_id, "entry_id", locale)
     try:
         result = knowledge.update_knowledge_entry(
             entry_id=entry_id,
@@ -510,7 +517,7 @@ async def update_knowledge_entry(request: Request, entry_id: str,
         )
         if result:
             return result
-        raise HTTPException(status_code=404, detail="Entry not found or access denied")
+        raise HTTPException(status_code=404, detail=t('errors.knowledge_entry_not_found', locale))
     except Exception as e:
         raise SecureHTTPException.internal_error(str(e))
 
@@ -521,7 +528,8 @@ async def delete_knowledge_entry(request: Request, entry_id: str,
     user: dict = Depends(get_current_user)
 ):
     """Soft delete a knowledge entry."""
-    validate_uuid(entry_id, "entry_id")
+    locale = get_locale_from_request(request)
+    validate_uuid(entry_id, "entry_id", locale)
     try:
         success = knowledge.deactivate_knowledge_entry(
             entry_id=entry_id,
@@ -530,7 +538,7 @@ async def delete_knowledge_entry(request: Request, entry_id: str,
         )
         if success:
             return {"success": True}
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=404, detail=t('errors.not_found', locale))
     except Exception as e:
         raise SecureHTTPException.internal_error(str(e))
 

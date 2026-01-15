@@ -227,7 +227,44 @@
     "gettingStarted": "Primeros Pasos",
     "gettingStartedDesc": "Aprende lo básico de AI Council",
     "support": "Contactar Soporte",
-    "supportDesc": "Obtén ayuda de nuestro equipo"
+    "supportDesc": "Obtén ayuda de nuestro equipo",
+    "keyboardShortcuts": "Atajos de Teclado",
+    "keyboardShortcutsDesc": "Acelera tu flujo de trabajo",
+    "searchHelp": "Buscar ayuda...",
+    "shortcuts": {
+      "title": "Atajos de Teclado",
+      "commandPalette": "Abrir paleta de comandos",
+      "newChat": "Nueva conversación",
+      "search": "Buscar conversaciones",
+      "settings": "Abrir configuración",
+      "escape": "Cerrar modal / cancelar"
+    },
+    "faq": {
+      "title": "Preguntas Frecuentes",
+      "whatIsCouncil": "¿Qué es un Consejo de IA?",
+      "whatIsCouncilAnswer": "Un Consejo de IA es 5 modelos de IA diferentes (como ChatGPT, Claude, Gemini) trabajando juntos. Cada uno responde tu pregunta, revisan las respuestas de los demás, y luego las mejores ideas se combinan en una respuesta final.",
+      "howManyAIs": "¿Cuántas IAs están involucradas?",
+      "howManyAIsAnswer": "Por defecto, 5 modelos de IA responden tu pregunta en la Etapa 1. Luego 3 modelos revisan y clasifican esas respuestas en la Etapa 2. Finalmente, un modelo sintetiza la mejor respuesta en la Etapa 3.",
+      "whatAreStages": "¿Qué significan las etapas?",
+      "whatAreStagesAnswer": "Etapa 1 (Respuestas): Cada IA da su perspectiva. Etapa 2 (Revisión): Las IAs votan cuál respuesta es mejor. Etapa 3 (Síntesis): Las mejores ideas se combinan en una respuesta completa.",
+      "howLongTakes": "¿Cuánto tiempo tarda?",
+      "howLongTakesAnswer": "Una deliberación completa del consejo típicamente tarda 30-60 segundos. El modo rápido (1 IA) es más rápido con 5-10 segundos.",
+      "whatIsDepartment": "¿Qué son los departamentos y roles?",
+      "whatIsDepartmentAnswer": "Los departamentos y roles ayudan a la IA a entender tu empresa. Cuando seleccionas 'Marketing' o 'CTO', la IA adapta su consejo a esa perspectiva.",
+      "whatIsPlaybook": "¿Qué es un playbook?",
+      "whatIsPlaybookAnswer": "Los playbooks son las guías de tu empresa - SOPs (procedimientos), Frameworks (modelos de pensamiento) y Políticas (reglas). La IA los consulta cuando da consejos.",
+      "canITrustAI": "¿Puedo confiar en las respuestas de la IA?",
+      "canITrustAIAnswer": "La IA puede cometer errores. Siempre verifica las decisiones importantes. El formato de consejo ayuda mostrando múltiples perspectivas y destacando desacuerdos.",
+      "whereDataStored": "¿Dónde se almacenan mis datos?",
+      "whereDataStoredAnswer": "Tus datos se almacenan de forma segura en nuestra base de datos en la nube. No entrenamos modelos de IA con tus conversaciones. Puedes eliminar tus datos en cualquier momento."
+    },
+    "quickTips": {
+      "title": "Consejos Rápidos",
+      "tip1": "Usa ⌘K (o Ctrl+K) para navegar rápidamente a cualquier lugar",
+      "tip2": "Selecciona departamentos para obtener consejos específicos por rol",
+      "tip3": "Guarda respuestas importantes en tu base de conocimientos",
+      "tip4": "Crea proyectos para rastrear decisiones relacionadas"
+    }
   },
   "auth": {
     "signIn": "Iniciar sesión",
@@ -364,10 +401,13 @@
     "deletingConversations": "Eliminando conversaciones",
     "deleteConversations": "Eliminar {{count}} conversación",
     "deleteConversations_other": "Eliminar {{count}} conversaciones",
+    "admin": "Administrador",
+    "adminPortal": "Portal de Administración de Plataforma",
     "tooltips": {
       "company": "Gestiona los departamentos, roles y playbooks de tu empresa",
       "settings": "Actualiza tu perfil, facturación y preferencias",
-      "signOut": "Cerrar sesión de tu cuenta"
+      "signOut": "Cerrar sesión de tu cuenta",
+      "admin": "Administración de plataforma"
     }
   },
   "settings": {
@@ -1016,7 +1056,11 @@
     "sessionExpired": "Tu sesión ha expirado. Inicia sesión de nuevo.",
     "serverError": "Error del servidor. Inténtalo más tarde.",
     "timeout": "La solicitud tardó demasiado. Inténtalo de nuevo.",
-    "offline": "Parece que estás sin conexión"
+    "offline": "Parece que estás sin conexión",
+    "tokenLimitReached": "Mensaje demasiado largo. Intenta acortar tu pregunta.",
+    "tokenLimitHint": "Tu mensaje tiene {{current}} caracteres. El máximo es {{max}}.",
+    "contextTooLarge": "Demasiado contexto seleccionado. Intenta quitar algunos playbooks o documentos.",
+    "rateLimited": "Demasiadas solicitudes. Espera un momento e inténtalo de nuevo."
   },
   "dates": {
     "justNow": "Ahora mismo",
@@ -1162,7 +1206,16 @@
       "creativity": "Creatividad",
       "response": "Respuesta",
       "responseLength": "Longitud de Respuesta",
-      "creativityHint": "La creatividad controla qué tan predecibles o variadas son las respuestas de la IA. Valores bajos dan respuestas consistentes y enfocadas. Valores altos permiten más originalidad e ideas inesperadas."
+      "creativityHint": "La creatividad controla qué tan predecibles o variadas son las respuestas de la IA. Valores bajos dan respuestas consistentes y enfocadas. Valores altos permiten más originalidad e ideas inesperadas.",
+      "whatIsThis": "¿Qué es esto?"
+    },
+    "explainers": {
+      "temperature": "Qué tan creativa debe ser la IA. Bajo = más seguro, alto = más variado.",
+      "tokens": "Palabras que la IA puede escribir. 500 tokens ≈ 1 página de texto.",
+      "maxTokens": "Longitud máxima de respuesta. Respuestas más largas cuestan más.",
+      "model": "Qué cerebro de IA usar. Diferentes modelos tienen diferentes fortalezas.",
+      "preset": "Configuración preconfigurada para casos de uso comunes.",
+      "fallback": "Modelo de respaldo si el principal no está disponible."
     },
     "primary": "Principal",
     "fallback": "Respaldo {{num}}",
@@ -1380,6 +1433,7 @@
     "create": "Crear",
     "recentConversations": "Conversaciones Recientes",
     "theme": "Tema",
+    "emptyState": "No se encontraron comandos. Prueba palabras clave como 'crear', 'nuevo' o 'configuración'",
     "actions": {
       "openSettings": "Abrir Configuración",
       "openSettingsDesc": "Perfil, facturación, equipo, claves API",

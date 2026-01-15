@@ -23,6 +23,7 @@ from .. import billing
 from .. import leaderboard
 from .. import attachments
 from .. import image_analyzer
+from ..i18n import t, get_locale_from_request
 from ..council import (
     stage1_stream_responses,
     stage2_stream_rankings,
@@ -134,10 +135,10 @@ class TriageContinueRequest(BaseModel):
 # HELPER FUNCTIONS
 # =============================================================================
 
-def _verify_conversation_ownership(conversation: dict, user: dict) -> None:
+def _verify_conversation_ownership(conversation: dict, user: dict, locale: str = 'en') -> None:
     """Verify user owns the conversation. Raises HTTPException if not."""
     if conversation.get("user_id") and conversation.get("user_id") != user["id"]:
-        raise HTTPException(status_code=403, detail="Access denied")
+        raise HTTPException(status_code=403, detail=t('errors.forbidden', locale))
 
 
 def _build_council_conversation_history(conversation: dict) -> List[Dict[str, str]]:
@@ -256,12 +257,13 @@ async def create_conversation(request: Request, create_request: CreateConversati
 @limiter.limit("100/minute;500/hour")
 async def get_conversation(request: Request, conversation_id: str, user: dict = Depends(get_current_user)):
     """Get a specific conversation by ID."""
+    locale = get_locale_from_request(request)
     access_token = user.get("access_token")
     conversation = storage.get_conversation(conversation_id, access_token=access_token)
     if conversation is None:
-        raise HTTPException(status_code=404, detail="Conversation not found")
+        raise HTTPException(status_code=404, detail=t('errors.conversation_not_found', locale))
 
-    _verify_conversation_ownership(conversation, user)
+    _verify_conversation_ownership(conversation, user, locale)
     return conversation
 
 
@@ -277,14 +279,15 @@ async def send_message(
     Send a message to the AI Council and stream the multi-stage response.
     This is the main council deliberation endpoint.
     """
+    locale = get_locale_from_request(request)
     access_token = user.get("access_token")
 
     # Check if conversation exists
     conversation = storage.get_conversation(conversation_id, access_token=access_token)
     if conversation is None:
-        raise HTTPException(status_code=404, detail="Conversation not found")
+        raise HTTPException(status_code=404, detail=t('errors.conversation_not_found', locale))
 
-    _verify_conversation_ownership(conversation, user)
+    _verify_conversation_ownership(conversation, user, locale)
 
     # Check billing limits before running council
     can_query_result = billing.check_can_query(user["id"], access_token=access_token)
@@ -766,13 +769,14 @@ async def chat_with_chairman(
     Send a follow-up chat message and stream a response from the Chairman only.
     Used for iterating on council advice without running full deliberation.
     """
+    locale = get_locale_from_request(request)
     access_token = user.get("access_token")
 
     conversation = storage.get_conversation(conversation_id, access_token=access_token)
     if conversation is None:
-        raise HTTPException(status_code=404, detail="Conversation not found")
+        raise HTTPException(status_code=404, detail=t('errors.conversation_not_found', locale))
 
-    _verify_conversation_ownership(conversation, user)
+    _verify_conversation_ownership(conversation, user, locale)
 
     # Check billing limits
     can_query_result = billing.check_can_query(user["id"], access_token=access_token)
@@ -974,12 +978,13 @@ async def rename_conversation(request: Request, conversation_id: str,
     user: dict = Depends(get_current_user)
 ):
     """Rename a conversation (must be owner)."""
+    locale = get_locale_from_request(request)
     access_token = user.get("access_token")
     conversation = storage.get_conversation(conversation_id, access_token=access_token)
     if conversation is None:
-        raise HTTPException(status_code=404, detail="Conversation not found")
+        raise HTTPException(status_code=404, detail=t('errors.conversation_not_found', locale))
 
-    _verify_conversation_ownership(conversation, user)
+    _verify_conversation_ownership(conversation, user, locale)
 
     storage.update_conversation_title(conversation_id, rename_request.title, access_token=access_token)
     return {"success": True, "title": rename_request.title}
@@ -992,12 +997,13 @@ async def update_conversation_department(request: Request, conversation_id: str,
     user: dict = Depends(get_current_user)
 ):
     """Update the department of a conversation (must be owner)."""
+    locale = get_locale_from_request(request)
     access_token = user.get("access_token")
     conversation = storage.get_conversation(conversation_id, access_token=access_token)
     if conversation is None:
-        raise HTTPException(status_code=404, detail="Conversation not found")
+        raise HTTPException(status_code=404, detail=t('errors.conversation_not_found', locale))
 
-    _verify_conversation_ownership(conversation, user)
+    _verify_conversation_ownership(conversation, user, locale)
 
     storage.update_conversation_department(conversation_id, dept_request.department, access_token=access_token)
     return {"success": True, "department": dept_request.department}
@@ -1010,12 +1016,13 @@ async def star_conversation(request: Request, conversation_id: str,
     user: dict = Depends(get_current_user)
 ):
     """Star or unstar a conversation (must be owner)."""
+    locale = get_locale_from_request(request)
     access_token = user.get("access_token")
     conversation = storage.get_conversation(conversation_id, access_token=access_token)
     if conversation is None:
-        raise HTTPException(status_code=404, detail="Conversation not found")
+        raise HTTPException(status_code=404, detail=t('errors.conversation_not_found', locale))
 
-    _verify_conversation_ownership(conversation, user)
+    _verify_conversation_ownership(conversation, user, locale)
 
     storage.star_conversation(conversation_id, star_request.starred, access_token=access_token)
     return {"success": True, "starred": star_request.starred}
@@ -1028,12 +1035,13 @@ async def archive_conversation(request: Request, conversation_id: str,
     user: dict = Depends(get_current_user)
 ):
     """Archive or unarchive a conversation (must be owner)."""
+    locale = get_locale_from_request(request)
     access_token = user.get("access_token")
     conversation = storage.get_conversation(conversation_id, access_token=access_token)
     if conversation is None:
-        raise HTTPException(status_code=404, detail="Conversation not found")
+        raise HTTPException(status_code=404, detail=t('errors.conversation_not_found', locale))
 
-    _verify_conversation_ownership(conversation, user)
+    _verify_conversation_ownership(conversation, user, locale)
 
     storage.archive_conversation(conversation_id, archive_request.archived, access_token=access_token)
     return {"success": True, "archived": archive_request.archived}
@@ -1043,16 +1051,17 @@ async def archive_conversation(request: Request, conversation_id: str,
 @limiter.limit("20/minute;50/hour")
 async def delete_conversation(request: Request, conversation_id: str, user: dict = Depends(get_current_user)):
     """Permanently delete a conversation (must be owner)."""
+    locale = get_locale_from_request(request)
     access_token = user.get("access_token")
     conversation = storage.get_conversation(conversation_id, access_token=access_token)
     if conversation is None:
-        raise HTTPException(status_code=404, detail="Conversation not found")
+        raise HTTPException(status_code=404, detail=t('errors.conversation_not_found', locale))
 
-    _verify_conversation_ownership(conversation, user)
+    _verify_conversation_ownership(conversation, user, locale)
 
     success = storage.delete_conversation(conversation_id, access_token=access_token)
     if not success:
-        raise HTTPException(status_code=404, detail="Conversation not found")
+        raise HTTPException(status_code=404, detail=t('errors.conversation_not_found', locale))
     return {"success": True}
 
 
@@ -1100,12 +1109,13 @@ async def export_conversation_markdown(request: Request, conversation_id: str,
     user: dict = Depends(get_current_user)
 ):
     """Export a conversation as a formatted Markdown file (must be owner)."""
+    locale = get_locale_from_request(request)
     access_token = user.get("access_token")
     conversation = storage.get_conversation(conversation_id, access_token=access_token)
     if conversation is None:
-        raise HTTPException(status_code=404, detail="Conversation not found")
+        raise HTTPException(status_code=404, detail=t('errors.conversation_not_found', locale))
 
-    _verify_conversation_ownership(conversation, user)
+    _verify_conversation_ownership(conversation, user, locale)
 
     # Build the markdown content
     md_lines = []
@@ -1207,11 +1217,12 @@ async def export_all_user_data(request: Request, user: dict = Depends(get_curren
 
     This endpoint is rate-limited to prevent abuse.
     """
+    locale = get_locale_from_request(request)
     user_id = user.get("id")
     access_token = user.get("access_token")
 
     if not user_id:
-        raise HTTPException(status_code=401, detail="User ID not found")
+        raise HTTPException(status_code=401, detail=t('errors.user_not_found', locale))
 
     try:
         from ..database import get_supabase_with_auth
