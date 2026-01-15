@@ -72,6 +72,7 @@
     "remove": "Remove",
     "loading": "Loading...",
     "saving": "Saving...",
+    "deleting": "Deleting...",
     "error": "Error",
     "success": "Success",
     "confirm": "Confirm",
@@ -667,6 +668,9 @@
     "aiIntro": "Just describe your project - AI will structure it beautifully",
     "projectPlaceholder": "What's this project about? Goals, constraints, background... just type whatever comes to mind",
     "aiStructuring": "AI is structuring your project...",
+    "aiStageConnecting": "Connecting to AI...",
+    "aiStageAnalyzing": "Analyzing your description...",
+    "aiStageOrganizing": "Organizing into sections...",
     "skipAI": "Skip AI",
     "createWithAI": "Create with AI",
     "aiProcessing": "Processing...",
@@ -1020,31 +1024,6 @@
     "userMenu": "User menu",
     "notifications": "Notifications"
   },
-  "triage": {
-    "you": "You",
-    "preCouncil": "Pre-Council",
-    "gotIt": "Got it!",
-    "editConstraints": "Edit constraints",
-    "constraints": {
-      "who": "Who",
-      "goal": "Goal",
-      "budget": "Budget",
-      "priority": "Priority"
-    },
-    "saveAndSend": "Save & Send",
-    "sendToCouncil": "Send to Council",
-    "sending": "Sending...",
-    "startOver": "Start over",
-    "defaultQuestions": {
-      "intro": "To give you the best answer, I need a bit more context:",
-      "who": "Who is this for? (yourself, a team, customers?)",
-      "budget": "What's your budget or resource constraints?",
-      "timeline": "What's your timeline?",
-      "priority": "What's most important: speed, cost, or quality?"
-    },
-    "placeholder": "Add more context...",
-    "reply": "Reply"
-  },
   "organization": {
     "title": "Organization Structure",
     "description": "Manage {{company}}'s structure: {{depts}} departments, {{roles}} roles",
@@ -1058,8 +1037,10 @@
     "rolesCount_other": "{{count}} roles",
     "rolesCount": "{{count}} roles",
     "editDepartment": "Edit department",
+    "deleteDepartment": "Delete department",
     "viewPrompt": "View Prompt",
     "editRole": "Edit role",
+    "deleteRole": "Delete role",
     "noRoles": "No roles defined yet",
     "newRole": "New Role",
     "addRole": "Add Role",
@@ -1067,6 +1048,11 @@
     "addDepartmentTitle": "Add Department",
     "editDepartmentTitle": "Edit Department",
     "editRoleTitle": "Edit Role",
+    "deleteDepartmentTitle": "Delete Department",
+    "deleteRoleTitle": "Delete Role",
+    "deleteDepartmentMessage": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+    "deleteRoleMessage": "Are you sure you want to delete the role \"{{name}}\"? This action cannot be undone.",
+    "deleteDepartmentWarning": "This will also delete {{count}} role(s) in this department.",
     "rolePromptTitle": "Role System Prompt",
     "promptNotFound": "File not found - using default prompt",
     "noPrompt": "No custom prompt defined",
@@ -1094,7 +1080,9 @@
       "deptCreated": "Department \"{{name}}\" created",
       "roleAdded": "Role \"{{name}}\" added",
       "deptUpdated": "Department \"{{name}}\" updated",
-      "roleUpdated": "Role \"{{name}}\" updated"
+      "roleUpdated": "Role \"{{name}}\" updated",
+      "deptDeleted": "Department \"{{name}}\" deleted",
+      "roleDeleted": "Role \"{{name}}\" deleted"
     },
     "errors": {
       "notFound": "Company not found",
@@ -1102,7 +1090,9 @@
       "createDeptFailed": "Failed to create department: {{message}}",
       "createRoleFailed": "Failed to create role: {{message}}",
       "updateDeptFailed": "Failed to update department: {{message}}",
-      "updateRoleFailed": "Failed to update role: {{message}}"
+      "updateRoleFailed": "Failed to update role: {{message}}",
+      "deleteDeptFailed": "Failed to delete department: {{message}}",
+      "deleteRoleFailed": "Failed to delete role: {{message}}"
     }
   },
   "llmHub": {
