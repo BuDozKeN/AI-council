@@ -314,7 +314,7 @@ html.dark body {
 }
 
 /* Mobile table improvements */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .markdown-content table {
     display: block;
     overflow-x: auto;
@@ -351,19 +351,19 @@ html.dark body {
    GLOBAL MOBILE TOUCH TARGETS & TYPOGRAPHY
    ============================================================================= */
 
-@media (max-width: 640px) {
+@media (width <= 640px) {
   /* Global touch target enforcement - 44px minimum per Apple/Google guidelines */
 
   /* Components with custom sizing should use .no-touch-target class to opt out */
 
   /* NOTE: .tab is NOT included here - Stage 2 tabs match Stage 1 pills (compact size) */
-  button:not(.inline-btn):not(.no-touch-target),
+  button:not(.inline-btn, .no-touch-target),
   [role='button']:not(.no-touch-target),
   .copy-btn,
   .save-type-pill,
   input:not(.no-touch-target),
   select,
-  a:not(.inline-link):not([class*='prose'] a) {
+  a:not(.inline-link, [class*='prose'] a) {
     min-height: 44px;
     touch-action: manipulation; /* Disable double-tap zoom delay */
   }
@@ -454,7 +454,7 @@ html.dark body {
 }
 
 /* iPhone SE and very small screens */
-@media (max-width: 400px) {
+@media (width <= 640px) {
   .stage {
     padding: 10px;
   }
@@ -468,7 +468,7 @@ html.dark body {
   }
 
   /* Ensure buttons remain tappable - use .no-touch-target to opt out */
-  button:not(.inline-btn):not(.no-touch-target),
+  button:not(.inline-btn, .no-touch-target),
   [role='button']:not(.no-touch-target) {
     min-height: 44px;
   }

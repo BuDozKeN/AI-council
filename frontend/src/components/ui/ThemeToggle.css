@@ -53,7 +53,7 @@
 }
 
 /* Mobile adjustments - icon only, no background */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .theme-toggle-container {
     inset-block-start: 12px;
     inset-inline-end: 12px;

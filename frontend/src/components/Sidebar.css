@@ -49,7 +49,7 @@
    MOBILE SIDEBAR
    ============================================================================= */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Mobile sidebar - use high specificity to override state classes */
   .sidebar.sidebar--collapsed,
   .sidebar.sidebar--hovered,
@@ -79,7 +79,7 @@
   }
 }
 
-@media (max-width: 400px) {
+@media (width <= 640px) {
   .sidebar.sidebar--collapsed,
   .sidebar.sidebar--hovered,
   .sidebar.sidebar--pinned,
@@ -90,7 +90,7 @@
 }
 
 /* Mobile layout adjustments */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Hide icon rail on mobile - show expanded content instead */
   .sidebar .sidebar-icon-rail {
     display: none;
@@ -863,7 +863,7 @@ button.sidebar-new-btn:hover {
    MOBILE TOUCH TARGET FIXES (P0)
    ============================================================================= */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* ==========================================================================
      MOBILE SWIPEABLE CONVERSATION ITEMS - Compact spacing
      ========================================================================== */
@@ -885,7 +885,6 @@ button.sidebar-new-btn:hover {
     background: var(--sidebar-bg);
     border-radius: var(--radius-md);
     -webkit-touch-callout: none;
-    -webkit-user-select: none;
     user-select: none;
   }
 
@@ -911,7 +910,6 @@ button.sidebar-new-btn:hover {
     margin: 0;
     flex-wrap: nowrap;
     -webkit-touch-callout: none;
-    -webkit-user-select: none;
     user-select: none;
   }
 
@@ -1508,7 +1506,7 @@ button.sidebar-new-btn:hover {
    LANDSCAPE ORIENTATION SUPPORT
    ============================================================================= */
 
-@media (max-width: 900px) and (orientation: landscape) {
+@media (width <= 1024px) and (orientation: landscape) {
   .sidebar.sidebar--collapsed,
   .sidebar.sidebar--hovered,
   .sidebar.sidebar--pinned,
@@ -1595,7 +1593,7 @@ button.sidebar-new-btn:hover {
 }
 
 /* Hide drag handle on mobile (use long-press instead) */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .sidebar .drag-handle,
   .conversation-item .drag-handle {
     display: none;

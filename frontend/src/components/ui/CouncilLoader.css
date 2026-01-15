@@ -126,7 +126,7 @@
    Desktop shows the full carousel, mobile just shows the loading text
    ============================================================================= */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Hide the icons carousel on mobile */
   .council-loader__icons {
     display: none;

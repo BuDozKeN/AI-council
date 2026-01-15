@@ -543,7 +543,6 @@
   cursor: pointer;
   transition: all 0.15s ease;
   user-select: none;
-  -webkit-user-select: none;
   box-shadow: none;
 }
 
@@ -578,7 +577,6 @@
   cursor: pointer;
   transition: all 0.15s ease;
   user-select: none;
-  -webkit-user-select: none;
 }
 
 .llm-model-grid .llm-model-add:hover,
@@ -827,7 +825,7 @@
    Responsive
    ============================================================================ */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .llm-card-icon {
     width: 32px;
     height: 32px;
@@ -1049,7 +1047,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 640px) {
   .llm-card-header {
     padding: 12px 14px;
     gap: 10px;

@@ -88,7 +88,7 @@
   transition: all 0.2s ease;
 }
 
-.mc-usage-period-opt:hover:not(.active):not(:disabled) {
+.mc-usage-period-opt:hover:not(.active, :disabled) {
   color: var(--color-text-secondary);
   background: var(--color-bg-secondary);
 }
@@ -315,7 +315,7 @@
 }
 
 /* Wider label column on larger screens */
-@media (min-width: 1200px) {
+@media (width >= 1200px) {
   .mc-usage-model-row {
     grid-template-columns: 120px 1fr 100px;
   }
@@ -518,7 +518,7 @@
   gap: var(--space-3);
 }
 
-@media (max-width: 480px) {
+@media (width <= 640px) {
   .mc-usage-extra-stats {
     grid-template-columns: 1fr;
   }
@@ -605,7 +605,7 @@
    - Safe area handling
    ============================================================================ */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Main container - tighter layout */
   .mc-usage {
     gap: var(--space-2);
@@ -837,7 +837,7 @@
 }
 
 /* Extra small mobile (≤380px) - even more compact */
-@media (max-width: 380px) {
+@media (width <= 640px) {
   .mc-usage {
     gap: var(--space-1-5);
   }
@@ -870,7 +870,7 @@
 }
 
 /* Landscape mode - optimize for horizontal space */
-@media (max-width: 900px) and (orientation: landscape) {
+@media (width <= 1024px) and (orientation: landscape) {
   /* Stats grid - 4 columns in landscape */
   .mc-stats-grid {
     grid-template-columns: repeat(4, 1fr);
@@ -896,7 +896,7 @@
 }
 
 /* Dark mode mobile cards */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .dark .mc-usage-section {
     background: var(--color-bg-secondary);
     border-color: var(--color-border);

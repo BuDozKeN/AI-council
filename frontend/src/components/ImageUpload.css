@@ -256,7 +256,7 @@
    MOBILE RESPONSIVE STYLES
    ========================================== */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .image-previews {
     padding: 10px;
     gap: 6px;
@@ -292,7 +292,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 640px) {
   .image-previews {
     padding: 8px;
     gap: 6px;

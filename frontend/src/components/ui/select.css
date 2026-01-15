@@ -314,7 +314,7 @@
    MOBILE - Touch-friendly sizes
    ============================================================================ */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Trigger - larger touch target
      Using :where() to reduce specificity to 0, allowing component-specific
      styles (like llm-hub.css) to easily override without needing high specificity.

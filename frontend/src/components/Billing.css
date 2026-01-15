@@ -13,7 +13,7 @@
   background: var(--color-bg-primary);
   border-radius: var(--radius-xl);
   width: 100%;
-  max-width: 900px;
+  max-width: 1024px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: var(--shadow-modal);
@@ -108,7 +108,7 @@
   padding: 32px;
 }
 
-@media (max-width: 800px) {
+@media (width <= 1024px) {
   .billing-plans {
     grid-template-columns: 1fr;
   }
@@ -254,13 +254,13 @@
   color: var(--color-text-primary);
 }
 
-.plan-btn:not(.current):not(.upgrade):not(.downgrade) {
+.plan-btn:not(.current, .upgrade, .downgrade) {
   background: var(--color-bg-primary);
   border-color: var(--color-brand-primary);
   color: var(--color-brand-primary);
 }
 
-.plan-btn:not(.current):not(.upgrade):not(.downgrade):hover:not(:disabled) {
+.plan-btn:not(.current, .upgrade, .downgrade):hover:not(:disabled) {
   background: var(--color-brand-primary);
   color: var(--color-text-inverse);
 }

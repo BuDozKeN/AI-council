@@ -9,7 +9,6 @@
   inset: 0;
   background: var(--overlay-black-40);
   backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
   z-index: var(--z-modal, 1000);
   animation: app-modal-overlay-show 150ms ease-out;
 }
@@ -19,7 +18,6 @@
 [data-theme='dark'] .app-modal-overlay {
   background: var(--overlay-black-80);
   backdrop-filter: blur(48px) saturate(150%);
-  -webkit-backdrop-filter: blur(48px) saturate(150%);
 }
 
 .app-modal-overlay[data-state='closed'] {
@@ -89,7 +87,7 @@
 /* Size variants */
 .app-modal-sm {
   width: 90%;
-  max-width: 400px;
+  max-width: 640px;
 }
 
 .app-modal-md {
@@ -104,7 +102,7 @@
 
 .app-modal-xl {
   width: 90%;
-  max-width: 900px;
+  max-width: 1024px;
 }
 
 .app-modal-full {
@@ -469,7 +467,7 @@
    Responsive adjustments
    =========================================== */
 
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .app-modal-content {
     width: 95%;
     max-height: 90vh;
@@ -545,7 +543,7 @@
    Transform centered modals into bottom sheets
    =========================================== */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Modal slides up from bottom like iOS/Android */
   .app-modal-content {
     position: fixed;
@@ -788,7 +786,7 @@
 }
 
 /* Very small phones - full screen modal */
-@media (max-width: 480px) {
+@media (width <= 640px) {
   .app-modal-content {
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   }
@@ -901,7 +899,7 @@
 }
 
 /* Mobile - slightly larger for touch */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .app-modal-copy-btn {
     width: 32px;
     height: 32px;
@@ -920,7 +918,7 @@
    Prevents iOS zoom and ensures touch-friendly targets
    =========================================== */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Text inputs inside modals - prevent iOS zoom with 16px font */
   .app-modal-body input[type='text'],
   .app-modal-body input[type='email'],

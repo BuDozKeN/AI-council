@@ -71,7 +71,6 @@
   font-size: 28px;
   font-weight: 700;
   background: linear-gradient(135deg, var(--color-indigo-500) 0%, var(--color-indigo-400) 100%);
-  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
@@ -87,7 +86,6 @@
 
 .headline-emphasis {
   background: linear-gradient(135deg, var(--color-indigo-600) 0%, var(--color-indigo-500) 100%);
-  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
@@ -145,7 +143,7 @@
   flex-shrink: 0;
 }
 
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .landing-headline {
     font-size: 34px;
   }
@@ -183,7 +181,7 @@
 }
 
 /* Responsive */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   /* Mobile: Fill height and position OmniBar at bottom like Perplexity */
   .landing-hero-aurora {
     align-items: stretch;
@@ -217,7 +215,7 @@
 }
 
 /* Small phones - further optimizations */
-@media (max-width: 480px) {
+@media (width <= 640px) {
   .landing-hero {
     padding: 12px;
     gap: 20px;
@@ -256,7 +254,7 @@
 }
 
 /* Very small phones */
-@media (max-width: 360px) {
+@media (width <= 640px) {
   .landing-hero {
     padding: 10px;
     gap: 16px;
@@ -334,7 +332,6 @@
 
 .dark .landing-logo-text {
   background: linear-gradient(135deg, var(--color-accent-iris) 0%, var(--color-indigo-300) 100%);
-  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
@@ -371,7 +368,6 @@
 
 .dark .headline-emphasis {
   background: linear-gradient(135deg, var(--color-indigo-400) 0%, var(--color-indigo-300) 100%);
-  -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }

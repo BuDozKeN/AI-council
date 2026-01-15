@@ -174,7 +174,6 @@
   flex-direction: column;
   background: var(--overlay-white-75);
   backdrop-filter: blur(32px) saturate(180%);
-  -webkit-backdrop-filter: blur(32px) saturate(180%);
   border: 1px solid var(--overlay-white-40);
   border-radius: var(--radius-xl);
   box-shadow:
@@ -842,7 +841,7 @@
    MOBILE ADJUSTMENTS
    ============================================================================= */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .omni-bar-wrapper {
     max-width: 100%;
   }
@@ -1267,7 +1266,7 @@
    MOBILE DARK MODE OVERRIDES
    ============================================================================= */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Mobile dark mode - card items with proper background */
   .dark .context-popover-item {
     background: var(--color-bg-tertiary);

@@ -13,7 +13,7 @@
    The pm-form needs to be visible and scrollable
    ============================================================================ */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Make the pm-modal-body flex container for proper height calculation */
   .app-modal-body.pm-modal-body {
     display: flex;
@@ -878,7 +878,7 @@
    Note: Base input/button sizing is handled by AppModal.css standardized styles
    ============================================================================ */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Form padding - tighter on mobile */
   .pm-form {
     padding: 16px;

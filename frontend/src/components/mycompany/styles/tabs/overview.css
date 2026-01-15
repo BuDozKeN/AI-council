@@ -81,7 +81,7 @@
 }
 
 /* Hide metadata on very small screens */
-@media (max-width: 480px) {
+@media (width <= 640px) {
   .mc-meta-inline {
     display: none;
   }
@@ -139,7 +139,7 @@
   color: var(--color-text-secondary);
   margin: 0;
   line-height: 1.6;
-  max-width: 600px;
+  max-width: 640px;
 }
 
 /* Right side of hero - meta + edit button */
@@ -538,7 +538,7 @@
   display: none;
 }
 
-@media (min-width: 769px) {
+@media (width >= 769px) {
   .mc-desktop-toc {
     display: inline-flex;
   }
@@ -549,7 +549,7 @@
 }
 
 /* Mobile TOC - show on small screens */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .mc-mobile-toc {
     display: inline-flex;
   }
@@ -851,7 +851,7 @@
 }
 
 /* Responsive department filter */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .mc-dept-filter {
     min-width: 0;
     flex: 0 1 auto;
@@ -859,7 +859,7 @@
   }
 }
 
-@media (max-width: 380px) {
+@media (width <= 640px) {
   .mc-dept-filter {
     max-width: 40%;
   }

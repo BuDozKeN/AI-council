@@ -53,6 +53,10 @@ jobs:
         working-directory: frontend
         run: npm run lint
 
+      - name: Run CSS Lint (Stylelint)
+        working-directory: frontend
+        run: npm run lint:css
+
       - name: Type Check
         working-directory: frontend
         run: npm run type-check

@@ -112,7 +112,7 @@
 }
 
 /* Mobile adjustments */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .soft-gate-modal .app-modal-body {
     padding: var(--space-3);
   }

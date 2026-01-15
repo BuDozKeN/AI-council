@@ -489,7 +489,7 @@
 }
 
 /* Responsive - Tablet */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .settings-modal {
     width: 95%;
     max-height: 90vh;
@@ -681,7 +681,7 @@
 }
 
 /* Small phones */
-@media (max-width: 480px) {
+@media (width <= 640px) {
   .settings-modal {
     width: 100%;
     max-width: 100%;
@@ -772,7 +772,7 @@
 }
 
 /* Very small phones */
-@media (max-width: 360px) {
+@media (width <= 640px) {
   .settings-sidebar {
     width: auto;
     min-width: auto;
@@ -867,7 +867,7 @@
 }
 
 /* Mobile adjustments for language selector */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .language-flag {
     width: 20px;
     height: 14px;
@@ -1080,7 +1080,7 @@
 }
 
 /* Mobile: icon-only button */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .add-member-btn {
     width: 44px;
     height: 44px;
@@ -1094,7 +1094,7 @@
 }
 
 /* Mobile responsiveness for Team */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .form-row {
     flex-direction: column;
   }
@@ -1334,7 +1334,7 @@
 }
 
 /* Mobile adjustments for API tab */
-@media (max-width: 480px) {
+@media (width <= 640px) {
   .api-key-status {
     flex-wrap: wrap;
   }
@@ -1797,7 +1797,7 @@
 }
 
 /* Mobile adjustments for accordion design */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .api-provider-trigger {
     padding: 14px 16px;
   }
@@ -2146,7 +2146,7 @@
 }
 
 /* Mobile - even more compact */
-@media (max-width: 380px) {
+@media (width <= 640px) {
   .byok-inline {
     padding: 10px 12px;
   }
@@ -2316,7 +2316,7 @@
 }
 
 /* Mobile adjustments for developer section */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .dev-toggle-row {
     flex-direction: column;
     align-items: flex-start;
@@ -2353,7 +2353,7 @@
 }
 
 /* Very small phones - even more compact icons */
-@media (max-width: 380px) {
+@media (width <= 640px) {
   .dev-toggle-icon {
     width: 28px;
     height: 28px;

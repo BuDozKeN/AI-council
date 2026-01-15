@@ -337,7 +337,7 @@
    MOBILE ADJUSTMENTS
    ============================================================================= */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Slightly larger trigger for touch */
   .response-style-trigger {
     padding: 5px 10px;
@@ -494,7 +494,7 @@
 }
 
 /* Mobile dark mode */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .dark .response-style-item {
     background: var(--color-bg-tertiary);
   }

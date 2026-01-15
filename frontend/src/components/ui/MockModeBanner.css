@@ -52,7 +52,7 @@
 }
 
 /* Mobile adjustments */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .mock-mode-banner {
     padding: 6px 12px;
     font-size: 12px;

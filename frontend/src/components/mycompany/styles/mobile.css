@@ -15,7 +15,7 @@
    ============================================================================ */
 
 /* Mobile TOC trigger - show on mobile, hide on desktop (sticky variant is used instead) */
-@media (min-width: 769px) {
+@media (width >= 769px) {
   .mc-mobile-toc.stage3-mobile-toc-trigger {
     display: none;
   }
@@ -31,7 +31,7 @@
    - Works well for 4-8 tabs; beyond 8 consider a "More" menu
    ============================================================================ */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Restructure panel layout for bottom nav */
   .mc-panel {
     display: flex;
@@ -199,7 +199,7 @@
    No hover = must show actions always
    ============================================================================ */
 
-@media (hover: none), (max-width: 768px) {
+@media (hover: none), (width <= 640px) {
   /* Elegant list row actions - always visible */
   .mc-elegant-actions {
     opacity: 1;
@@ -258,7 +258,7 @@
    Apple HIG / Material Design compliance
    ============================================================================ */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* List rows need adequate touch targets */
   .mc-elegant-row {
     min-height: 56px;
@@ -311,7 +311,7 @@
    ============================================================================ */
 
 @supports (padding: env(safe-area-inset-bottom)) {
-  @media (max-width: 768px) {
+  @media (width <= 640px) {
     /* Floating bottom nav respects safe area */
     .mc-tabs {
       inset-block-end: calc(12px + env(safe-area-inset-bottom));
@@ -345,7 +345,7 @@
    Prevent horizontal overflow
    ============================================================================ */
 
-@media (max-width: 640px) {
+@media (width <= 640px) {
   /* Filters row on mobile - compact single row */
   .mc-projects-filters {
     flex-flow: row nowrap;
@@ -425,12 +425,12 @@
 }
 
 /* Small mobile - compact layouts (640px and below) */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   /* Button sizing is handled globally in tailwind.css */
 }
 
 /* Extra small mobile - more compact layouts (380px and below) */
-@media (max-width: 380px) {
+@media (width <= 640px) {
   .mc-decisions-filters {
     gap: 6px;
   }
@@ -467,7 +467,7 @@
    P0-6: SKELETON LOADERS - Mobile-aware
    ============================================================================ */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .mc-skeleton-stats {
     flex-direction: column;
     gap: 8px;
@@ -488,7 +488,7 @@
    ADDITIONAL MOBILE POLISH
    ============================================================================ */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Stats grid: horizontal scroll cards */
   .mc-projects-stats {
     overflow-x: auto;
@@ -581,7 +581,7 @@
   display: none; /* Hidden on desktop */
 }
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .mc-fab {
     display: flex;
     align-items: center;
@@ -668,7 +668,7 @@
    SWIPE HINT (visual cue for swipeable items)
    ============================================================================ */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .mc-swipe-hint {
     position: absolute;
     inset-inline-end: -4px;
@@ -703,7 +703,7 @@
    LANDSCAPE MODE OPTIMIZATIONS
    ============================================================================ */
 
-@media (max-width: 900px) and (orientation: landscape) {
+@media (width <= 1024px) and (orientation: landscape) {
   .mc-panel {
     height: 100vh;
     border-radius: 0;
@@ -757,7 +757,7 @@
    Clean, scannable rows without clutter
    ============================================================================ */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* ========== OVERVIEW TAB - MOBILE ========== */
 
   /* Hero section: premium card styling on mobile */
@@ -1303,7 +1303,7 @@
    DARK MODE ADJUSTMENTS FOR MOBILE CARDS
    ============================================================================ */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .dark .mc-project-row-compact,
   .dark .mc-elegant-row,
   .dark .mc-decision-row {
@@ -1341,7 +1341,7 @@
    ACTIVE/TAP STATE FOR MOBILE CARDS
    ============================================================================ */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .mc-project-row-compact:active,
   .mc-elegant-row:active,
   .mc-decision-row:active {
@@ -1380,7 +1380,7 @@
 }
 
 /* Show on mobile, position back button, keep company switcher */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .mc-mobile-back-btn {
     display: flex;
     position: absolute;
@@ -1427,7 +1427,7 @@
    USAGE TAB MOBILE - Ensure proper layout and scrolling
    ============================================================================ */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Usage tab layout - ensure it fills content area and scrolls */
   .mc-usage {
     flex: 1;

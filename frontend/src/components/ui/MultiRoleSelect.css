@@ -268,7 +268,7 @@
 }
 
 /* Mobile trigger improvements */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .multi-role-trigger {
     min-height: 48px;
     padding: 10px 14px;

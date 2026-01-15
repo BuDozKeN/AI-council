@@ -274,7 +274,7 @@
 
 .dark .command-palette-item[data-selected='true'] .command-palette-item-icon {
   background: var(--color-accent);
-  background: rgb(99, 102, 241, 0.2);
+  background: rgb(99 102 241 / 20%);
   color: var(--color-accent-iris);
 }
 
@@ -294,7 +294,7 @@
    MOBILE RESPONSIVE
    ============================================================================ */
 
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .command-palette-overlay {
     padding-block-start: 10vh;
     align-items: flex-start;

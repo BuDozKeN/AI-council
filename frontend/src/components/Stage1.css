@@ -224,7 +224,7 @@
 }
 
 /* Non-medal ranks (#4, #5, etc.) - subtle text */
-.stage1 .model-card-rank:not(.rank-1):not(.rank-2):not(.rank-3) {
+.stage1 .model-card-rank:not(.rank-1, .rank-2, .rank-3) {
   color: var(--color-text-tertiary);
   font-size: 12px;
 }
@@ -395,7 +395,7 @@
 }
 
 /* Hide topic on mobile - saves space */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .stage-topic {
     display: none;
   }
@@ -1061,7 +1061,7 @@
 }
 
 /* Show swipe indicator only on mobile for expanded cards */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .stage1 .model-card.expanded {
     position: relative;
   }
@@ -1104,7 +1104,7 @@
    MOBILE RESPONSIVE - Stage 1 Polish
    ============================================================================= */
 
-@media (max-width: 640px) {
+@media (width <= 640px) {
   /* Stage container */
   .stage.stage1 {
     padding: 12px;
@@ -1211,7 +1211,7 @@
 }
 
 /* iPhone SE */
-@media (max-width: 400px) {
+@media (width <= 640px) {
   .stage.stage1 {
     padding: 10px;
   }

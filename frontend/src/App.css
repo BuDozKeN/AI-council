@@ -102,7 +102,7 @@
 }
 
 /* Mobile responsive styles */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .sidebar-edge-indicator {
     display: flex;
   }
@@ -124,7 +124,7 @@
 }
 
 /* Tablet adjustments */
-@media (min-width: 769px) and (max-width: 1024px) {
+@media (width >= 769px) and (width <= 1024px) {
   .app {
     /* Sidebar will be slightly narrower on tablets if needed */
   }
@@ -157,7 +157,7 @@
 }
 
 /* Mobile: bump z-index so landing overlays mobile sidebar */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .main-content-landing {
     z-index: calc(var(--z-modal) - 2);
   }

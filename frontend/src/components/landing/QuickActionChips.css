@@ -5,7 +5,7 @@
   flex-wrap: wrap;
   justify-content: center;
   gap: 8px;
-  max-width: 600px;
+  max-width: 640px;
 }
 
 .quick-action-chip {
@@ -63,7 +63,7 @@
 }
 
 /* Responsive */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .quick-action-chips {
     gap: 6px;
   }

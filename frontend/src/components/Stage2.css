@@ -241,7 +241,6 @@
 .stage2 .tab {
   /* Reset button defaults to match Stage 1 span-based pills */
   appearance: none;
-  -webkit-appearance: none;
   margin: 0;
   font-family: inherit;
   line-height: normal;
@@ -738,7 +737,7 @@
 }
 
 /* Mobile: scroll shadows to hint at scrollable content */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .stage2 .table-scroll-wrapper {
     background:
       linear-gradient(to right, var(--color-bg-primary) 30%, transparent),
@@ -787,7 +786,7 @@
    MOBILE RESPONSIVE - Full mobile overhaul for Stage 2
    ============================================================================= */
 
-@media (max-width: 640px) {
+@media (width <= 640px) {
   /* Stage container */
   .stage2 {
     padding: 12px;
@@ -1001,7 +1000,7 @@
 }
 
 /* Even smaller screens (iPhone SE) */
-@media (max-width: 400px) {
+@media (width <= 640px) {
   .stage2 {
     padding: 10px;
   }

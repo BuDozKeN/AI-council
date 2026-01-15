@@ -233,7 +233,7 @@
 }
 
 /* Responsive */
-@media (max-width: 480px) {
+@media (width <= 640px) {
   .ai-assist-wrapper.ai-assist-inline {
     flex-direction: column;
   }

@@ -1,5 +1,5 @@
 /* Import reusable TOC styles */
-@import './ui/TableOfContents.css';
+@import url('./ui/TableOfContents.css');
 
 /* =============================================================================
    SCROLL MARGIN - Prevents headings from hiding under fixed headers
@@ -211,7 +211,7 @@ h3 {
 }
 
 /* Mobile: smaller copy button */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .stage3-header-copy {
     padding: 4px 8px;
   }
@@ -253,7 +253,6 @@ h3 {
   box-shadow: none;
   background: transparent;
   backdrop-filter: none;
-  -webkit-backdrop-filter: none;
   border: 1px solid transparent;
   border-radius: var(--radius-md);
   color: var(--color-text-tertiary);
@@ -303,7 +302,7 @@ h3 {
 }
 
 /* Mobile toolbar adjustments */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .stage3-sticky-toolbar {
     inset-block-start: 50px;
     padding: 6px 0;
@@ -322,7 +321,7 @@ h3 {
 }
 
 /* Desktop - show only copy button (mobile TOC trigger hidden via its own rule) */
-@media (min-width: 1280px) {
+@media (width >= 1280px) {
   .stage3-sticky-toolbar {
     justify-content: flex-end;
   }
@@ -746,7 +745,7 @@ h3 {
 }
 
 /* Mobile adjustments */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .chairman-loading-container {
     padding: 32px 16px;
     gap: 16px;
@@ -922,17 +921,17 @@ h3 {
 }
 
 /* Type-specific hover states - lighter version of selected colors */
-.save-type-pill.sop:hover:not(:disabled):not(.selected) {
+.save-type-pill.sop:hover:not(:disabled, .selected) {
   background: var(--color-blue-200);
   color: var(--color-blue-700);
 }
 
-.save-type-pill.framework:hover:not(:disabled):not(.selected) {
+.save-type-pill.framework:hover:not(:disabled, .selected) {
   background: var(--color-amber-200);
   color: var(--color-amber-700);
 }
 
-.save-type-pill.policy:hover:not(:disabled):not(.selected) {
+.save-type-pill.policy:hover:not(:disabled, .selected) {
   background: var(--color-purple-200);
   color: var(--color-purple-600);
 }
@@ -1942,7 +1941,7 @@ h3 {
 }
 
 /* Dark mode mobile/tablet toolbar overrides - visible buttons inside container */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Pills with dark background INSIDE darker container (no border = unified look) */
   .dark .save-dept-trigger,
   .dark .save-project-pill,
@@ -2116,7 +2115,7 @@ h3 {
 }
 
 /* Show scrollbar hint on mobile */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .table-scroll-wrapper {
     /* Subtle shadow to indicate scrollable content */
     background:
@@ -2149,7 +2148,7 @@ h3 {
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Stage3 container padding */
   .stage3 {
     padding: 12px;
@@ -2549,7 +2548,7 @@ h3 {
 }
 
 /* Even smaller screens (iPhone SE, etc) */
-@media (max-width: 400px) {
+@media (width <= 640px) {
   .stage3 {
     padding: 10px;
   }

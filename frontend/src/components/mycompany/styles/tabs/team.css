@@ -422,7 +422,7 @@
    MOBILE RESPONSIVENESS
    ============================================================================ */
 
-@media (max-width: 640px) {
+@media (width <= 640px) {
   /* NOTE: .mc-team-header mobile overrides are in mobile.css */
 
   /* Department rows - touch friendly */

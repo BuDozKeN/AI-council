@@ -235,7 +235,7 @@
    Mobile - larger touch targets
    =========================================== */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .floating-copy-btn {
     width: 32px;
     height: 32px;

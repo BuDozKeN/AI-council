@@ -95,7 +95,6 @@
   border-radius: 50%;
   background: var(--overlay-white-80);
   backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
   color: var(--color-text-tertiary);
   cursor: pointer;
   transition: all 0.2s ease;
@@ -456,7 +455,7 @@
 }
 
 /* Mobile: Position copy button absolute instead of sticky+float */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .stage-user .user-copy-btn {
     position: absolute;
     inset-block-start: 8px;
@@ -1425,7 +1424,7 @@ button.role-select-trigger:focus {
    MOBILE STYLES - Context popover and BottomSheet overrides
    ============================================================================= */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* In BottomSheet: remove max-height so list fills available space */
   .bottom-sheet-body .context-popover-list {
     max-height: none;
@@ -2353,7 +2352,7 @@ button.role-select-trigger:focus {
    ========================================== */
 
 /* Tablet and below */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .scroll-to-top-fab {
     width: 32px;
     height: 32px;
@@ -2425,7 +2424,7 @@ button.role-select-trigger:focus {
 }
 
 /* Small phones */
-@media (max-width: 480px) {
+@media (width <= 640px) {
   .messages-container {
     padding: 0 12px 12px;
   }
@@ -2523,7 +2522,7 @@ button.role-select-trigger:focus {
 }
 
 /* Very small phones */
-@media (max-width: 360px) {
+@media (width <= 640px) {
   .input-form {
     padding: 10px;
   }
@@ -2611,7 +2610,7 @@ button.mobile-role-select {
    MOBILE INPUT FORM - Clean background
    ========================================== */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Clean background on mobile - omnibar has its own shadow */
   .input-form {
     background: var(--color-bg-primary);
@@ -2625,7 +2624,7 @@ button.mobile-role-select {
 }
 
 /* Dark mode mobile */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   [data-theme='dark'] .input-form,
   .dark .input-form {
     background: var(--color-bg-primary);
@@ -3147,7 +3146,7 @@ button.mobile-role-select {
    OMNIBAR - Mobile Responsive
    ============================================================================= */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .omnibar {
     padding: 10px 16px; /* Match mobile message padding */
     border-radius: var(--radius-xl);
@@ -3203,7 +3202,7 @@ button.mobile-role-select {
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 640px) {
   .omnibar {
     padding: 8px 14px; /* Match small phone message padding */
   }

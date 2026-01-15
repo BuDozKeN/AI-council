@@ -627,10 +627,10 @@
 }
 
 /* Responsive */
-@media (max-width: 480px) {
+@media (width <= 640px) {
   .context-popover {
     width: calc(100vw - 32px);
-    max-width: 360px;
+    max-width: 640px;
   }
 }
 

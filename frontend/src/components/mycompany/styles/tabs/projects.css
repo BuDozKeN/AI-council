@@ -1646,7 +1646,7 @@
    Hide non-essential metadata to maximize content real estate
    ============================================================================ */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Hide timestamps on mobile - not essential, saves space */
   .mc-project-timestamps {
     display: none;

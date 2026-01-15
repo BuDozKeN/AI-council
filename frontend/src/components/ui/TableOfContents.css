@@ -37,7 +37,6 @@
   z-index: var(--z-header);
   background: var(--overlay-white-60);
   backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid var(--overlay-white-30);
   border-radius: var(--radius-md);
   padding: var(--card-padding-sm);
@@ -211,20 +210,20 @@
 }
 
 /* Show floating TOC on larger screens */
-@media (min-width: 1280px) {
+@media (width >= 1280px) {
   .stage3-floating-toc {
     display: block;
     inset-inline-end: 24px;
   }
 }
 
-@media (min-width: 1600px) {
+@media (width >= 1600px) {
   .stage3-floating-toc {
     inset-inline-end: 32px;
   }
 }
 
-@media (min-width: 1920px) {
+@media (width >= 1920px) {
   .stage3-floating-toc {
     inset-inline-end: 40px;
   }
@@ -273,7 +272,6 @@
   padding: 6px 12px 6px 10px;
   background: var(--overlay-white-95);
   backdrop-filter: blur(12px) saturate(180%);
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
   border: none;
   border-radius: var(--radius-full);
   font-size: 12px;
@@ -339,7 +337,7 @@
 }
 
 /* Hide on desktop */
-@media (min-width: 1280px) {
+@media (width >= 1280px) {
   .stage3-mobile-toc-trigger {
     display: none;
   }
@@ -357,7 +355,6 @@
   align-items: flex-end;
   background: var(--overlay-black-40);
   backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
   animation: tocOverlayFadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -733,7 +730,7 @@
 }
 
 /* Hide sticky TOC on mobile - doesn't work well in compact content areas */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .toc-sticky-wrapper {
     display: none;
   }
@@ -747,7 +744,6 @@
   padding: 6px 12px 6px 8px;
   background: var(--overlay-white-95);
   backdrop-filter: blur(12px) saturate(180%);
-  -webkit-backdrop-filter: blur(12px) saturate(180%);
   border: 1px solid var(--overlay-black-5);
   border-radius: var(--radius-full);
   font-size: 12px;
