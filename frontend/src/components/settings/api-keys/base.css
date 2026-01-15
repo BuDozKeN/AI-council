@@ -104,27 +104,8 @@
   gap: 6px;
 }
 
-.btn-danger-outline {
-  background: transparent;
-  border: 1px solid var(--overlay-red-30, rgb(var(--color-red-500-rgb), 0.3));
-  color: var(--color-red-500);
-  padding: 8px 14px;
-  border-radius: var(--radius-default);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.btn-danger-outline:hover:not(:disabled) {
-  background: var(--overlay-red-10);
-  border-color: var(--overlay-red-50, rgb(var(--color-red-500-rgb), 0.5));
-}
-
-.btn-danger-outline:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+/* NOTE: Use <Button variant="destructive"> for danger buttons.
+   All button styles are in tailwind.css (.btn-variant-*) as single source of truth */
 
 /* Setup state (not connected) */
 .api-key-setup {

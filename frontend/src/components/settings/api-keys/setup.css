@@ -219,12 +219,8 @@
   color: var(--color-text-muted);
 }
 
-.api-key-form .btn-primary {
+/* Style Button components within the api-key-form for full-width layout */
+.api-key-form .btn-variant-default {
   margin-top: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
   width: 100%;
-  padding: 12px;
 }

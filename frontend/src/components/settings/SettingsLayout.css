@@ -236,51 +236,8 @@
   border-top: 1px solid var(--color-border-light);
 }
 
-/* Buttons - uses design system tokens */
-.btn-primary {
-  padding: 10px 20px;
-  background: var(--color-primary);
-  border: none;
-  border-radius: var(--radius-md);
-  color: var(--color-primary-text);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: var(--color-primary-hover);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
-}
-
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn-outline {
-  padding: 10px 20px;
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-border-dark);
-  border-radius: var(--radius-md);
-  color: var(--color-text-secondary);
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-outline:hover:not(:disabled) {
-  background: var(--color-bg-tertiary);
-  border-color: var(--color-text-tertiary);
-}
-
-.btn-outline:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+/* NOTE: Use <Button variant="default|outline|ghost|destructive"> from ui/button.tsx
+   All button styles are defined in tailwind.css (.btn-variant-*) as single source of truth */
 
 .save-message {
   font-size: 13px;

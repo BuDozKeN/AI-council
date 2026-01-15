@@ -225,40 +225,5 @@
   gap: 8px;
 }
 
-.byok-replace-actions .btn-ghost {
-  padding: 6px 12px;
-  background: transparent;
-  border: none;
-  color: var(--color-text-secondary);
-  font-size: 13px;
-  cursor: pointer;
-  border-radius: var(--radius-default);
-}
-
-.byok-replace-actions .btn-ghost:hover {
-  background: var(--color-bg-secondary);
-  color: var(--color-text-primary);
-}
-
-.byok-replace-actions .btn-primary {
-  padding: 6px 14px;
-  background: var(--color-primary);
-  border: none;
-  color: var(--color-primary-text);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  border-radius: var(--radius-default);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.byok-replace-actions .btn-primary:hover:not(:disabled) {
-  background: var(--color-primary-hover);
-}
-
-.byok-replace-actions .btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+/* NOTE: Use <Button variant="ghost|default"> from ui/button.tsx
+   All button styles are in tailwind.css (.btn-variant-*) as single source of truth */
