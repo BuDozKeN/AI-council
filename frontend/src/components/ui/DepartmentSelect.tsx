@@ -27,7 +27,8 @@ import { getDeptColor } from '../../lib/colors';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from './BottomSheet';
 import type { Department } from '../../types/business';
-import './DepartmentSelect.css';
+import './select.css'; // Base select styles - single source of truth
+import './DepartmentSelect.css'; // Department-specific additions only
 
 // Check if we're on mobile/tablet for bottom sheet vs dropdown
 const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
@@ -130,7 +131,11 @@ export function DepartmentSelect({
     return (
       <>
         <button
-          className={cn('dept-select-trigger', selectedColor && 'has-selection', className)}
+          className={cn(
+            'select-trigger select-trigger--compact dept-select-trigger',
+            selectedColor && 'has-selection',
+            className
+          )}
           disabled={disabled}
           onClick={() => setOpen(true)}
           style={triggerStyle}
@@ -183,7 +188,11 @@ export function DepartmentSelect({
   return (
     <SelectPrimitive.Root value={value || 'all'} onValueChange={onValueChange} disabled={disabled}>
       <SelectPrimitive.Trigger
-        className={cn('dept-select-trigger', selectedColor && 'has-selection', className)}
+        className={cn(
+          'select-trigger select-trigger--compact dept-select-trigger',
+          selectedColor && 'has-selection',
+          className
+        )}
         style={triggerStyle}
       >
         {showIcon && <Building2 className="h-3.5 w-3.5" />}

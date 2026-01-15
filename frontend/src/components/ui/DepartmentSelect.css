@@ -1,27 +1,26 @@
 /**
  * DepartmentSelect Styles
- * Uses CSS custom properties for department-specific colors
+ *
+ * IMPORTANT: Base trigger styling comes from select.css (single source of truth).
+ * This file contains ONLY department-specific additions:
+ * - Department color support via CSS custom properties
+ * - Selected state with department color
+ * - Dropdown items with department-specific hover/selected colors
  */
 
-/* Trigger button - inherits from save-dept-trigger when used in Stage3 */
+/* =============================================================================
+   TRIGGER ADDITIONS - Department color support
+   ============================================================================= */
+
+/* Department trigger extends base select-trigger--compact with color support */
 .dept-select-trigger {
-  display: inline-flex;
-  align-items: center;
+  /* Inherit from select-trigger--compact, add department-specific gap */
   gap: 6px;
-  padding: 6px 10px;
-  background: transparent;
-  border: none;
-  border-radius: var(--radius-md);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--color-slate-500);
-  cursor: pointer;
-  transition: all 0.15s ease;
 }
 
-/* When a department is selected, show its color */
+/* When a department is selected, show its color (overrides base styles) */
 .dept-select-trigger.has-selection {
-  border: 1px solid currentcolor;
+  /* Colors come from inline style: background, color, borderColor */
   opacity: 0.9;
 }
 
@@ -29,23 +28,9 @@
   opacity: 1;
 }
 
-.dept-select-trigger:hover:not(.has-selection) {
-  background: var(--color-bg-primary);
-  color: var(--color-gray-700);
-}
-
-.dept-select-trigger:focus {
-  outline: none;
-}
-
-.dept-select-trigger:focus:not(.has-selection) {
-  background: var(--color-bg-primary);
-}
-
-.dept-select-trigger[data-disabled] {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+/* =============================================================================
+   DROPDOWN CONTENT
+   ============================================================================= */
 
 /* Dropdown content - Design System compliant */
 .dept-select-content {
@@ -55,7 +40,7 @@
   min-width: 8rem;
   overflow: hidden;
   border-radius: var(--radius-lg);
-  border: 1px solid var(--color-gray-200);
+  border: 1px solid var(--color-border);
   background: var(--color-bg-primary);
   box-shadow: var(--shadow-lg);
 }
@@ -106,7 +91,11 @@
   min-width: var(--radix-select-trigger-width);
 }
 
-/* Individual items */
+/* =============================================================================
+   DROPDOWN ITEMS - Department color support
+   ============================================================================= */
+
+/* Individual items with department color support */
 .dept-select-item {
   position: relative;
   display: flex;
@@ -119,20 +108,20 @@
   padding-right: 36px;
   font-size: 14px;
   font-weight: 500;
-  color: var(--color-gray-700);
+  color: var(--color-text-primary);
   outline: none;
   transition: all 0.1s ease;
 }
 
 /* Hover state - uses CSS variable from inline style */
 .dept-select-item[data-highlighted] {
-  background: var(--dept-hover-bg, var(--color-gray-100));
+  background: var(--dept-hover-bg, var(--color-bg-hover));
 }
 
 /* Selected/checked state */
 .dept-select-item[data-state='checked'] {
-  background: var(--dept-checked-bg, var(--color-gray-100));
-  color: var(--dept-checked-text, var(--color-gray-700));
+  background: var(--dept-checked-bg, var(--color-bg-hover));
+  color: var(--dept-checked-text, var(--color-text-primary));
 }
 
 /* Disabled state */
@@ -150,7 +139,7 @@
   width: 16px;
   align-items: center;
   justify-content: center;
-  color: var(--dept-checked-text, var(--color-emerald-600));
+  color: var(--dept-checked-text, var(--color-indigo-500));
 }
 
 /* =============================================================================
@@ -177,20 +166,20 @@
   background: var(--color-bg-secondary);
   border-radius: var(--radius-lg);
   font-size: 16px;
-  color: var(--color-gray-700);
+  color: var(--color-text-primary);
   cursor: pointer;
   transition: all 0.15s ease;
   text-align: left;
 }
 
 .dept-select-item-mobile:active {
-  background: var(--color-gray-200);
+  background: var(--color-bg-tertiary);
   transform: scale(0.98);
 }
 
 .dept-select-item-mobile.selected {
-  background: var(--dept-bg, var(--color-gray-100));
-  color: var(--dept-text, var(--color-gray-700));
+  background: var(--dept-bg, var(--color-bg-hover));
+  color: var(--dept-text, var(--color-text-primary));
 }
 
 /* Radio indicator for single select */
@@ -200,7 +189,7 @@
   justify-content: center;
   width: 22px;
   height: 22px;
-  border: 2px solid var(--color-gray-300);
+  border: 2px solid var(--color-border);
   border-radius: 50%;
   background: var(--color-bg-primary);
   transition: all 0.1s ease;
@@ -208,8 +197,8 @@
 }
 
 .dept-select-radio.checked {
-  background: var(--radio-checked-bg, var(--color-gray-600));
-  border-color: var(--radio-checked-border, var(--color-gray-600));
+  background: var(--radio-checked-bg, var(--color-brand-primary));
+  border-color: var(--radio-checked-border, var(--color-brand-primary));
   color: var(--color-text-inverse);
 }
 
@@ -219,27 +208,9 @@
   font-weight: 500;
 }
 
-/* Mobile trigger improvements */
-@media (width <= 640px) {
-  .dept-select-trigger {
-    min-height: 44px;
-    padding: 10px 12px;
-    font-size: 15px;
-  }
-}
-
 /* =============================================================================
    DARK MODE
    ============================================================================= */
-
-.dark .dept-select-trigger {
-  color: var(--color-gray-400);
-}
-
-.dark .dept-select-trigger:hover:not(.has-selection) {
-  background: var(--color-bg-secondary);
-  color: var(--color-gray-200);
-}
 
 .dark .dept-select-content {
   background: var(--color-bg-secondary);
@@ -247,7 +218,7 @@
 }
 
 .dark .dept-select-item {
-  color: var(--color-gray-300);
+  color: var(--color-text-secondary);
 }
 
 .dark .dept-select-item[data-highlighted] {
@@ -256,7 +227,7 @@
 
 .dark .dept-select-item-mobile {
   background: var(--color-bg-tertiary);
-  color: var(--color-gray-300);
+  color: var(--color-text-secondary);
 }
 
 .dark .dept-select-item-mobile:active {
