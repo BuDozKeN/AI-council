@@ -272,7 +272,9 @@ export function useCompanyData({
 
   // Load data when tab changes
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect -- loadData calls setState but this is intentional data loading pattern */
     loadData();
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [loadData]);
 
   // Reset data when company changes
