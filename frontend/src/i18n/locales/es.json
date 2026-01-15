@@ -1024,6 +1024,31 @@
     "userMenu": "Menú de usuario",
     "notifications": "Notificaciones"
   },
+  "triage": {
+    "you": "Tú",
+    "preCouncil": "Pre-Consejo",
+    "gotIt": "¡Entendido!",
+    "editConstraints": "Editar restricciones",
+    "constraints": {
+      "who": "Quién",
+      "goal": "Objetivo",
+      "budget": "Presupuesto",
+      "priority": "Prioridad"
+    },
+    "saveAndSend": "Guardar y Enviar",
+    "sendToCouncil": "Enviar al Consejo",
+    "sending": "Enviando...",
+    "startOver": "Empezar de nuevo",
+    "defaultQuestions": {
+      "intro": "Para darte la mejor respuesta, necesito un poco más de contexto:",
+      "who": "¿Para quién es esto? (¿para ti, un equipo, clientes?)",
+      "budget": "¿Cuál es tu presupuesto o restricciones de recursos?",
+      "timeline": "¿Cuál es tu plazo?",
+      "priority": "¿Qué es más importante: velocidad, costo o calidad?"
+    },
+    "placeholder": "Agregar más contexto...",
+    "reply": "Responder"
+  },
   "organization": {
     "title": "Estructura Organizacional",
     "description": "Gestiona la estructura de {{company}}: {{depts}} departamentos, {{roles}} roles",
