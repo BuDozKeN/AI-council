@@ -2,23 +2,21 @@
 export default {
   extends: ['stylelint-config-standard'],
   rules: {
-    // Prevent !important (temporarily disabled for launch, will fix during file splitting)
-    // TODO: Re-enable after removing 22 custom !important, keeping 60 justified library overrides
-    'declaration-no-important': null, // Was: true - disabled for launch
+    // Prevent !important in custom code (library files exempted via overrides)
+    'declaration-no-important': true,
 
     // Prevent hardcoded z-index values - use CSS variables
     // Note: Currently just documenting intention; custom plugin needed for enforcement
     // All z-index should use: var(--z-base), var(--z-elevated), var(--z-dropdown), etc.
 
     // Prevent hardcoded colors - use CSS variables or Tailwind
-    // TODO: Change to 'error' after fixing 897 existing violations (audit: 2026-01-15)
+    // Note: Token definition files are exempt via overrides below
+    // Changed from 'warning' to TRUE (error) now that all violations are fixed
     'color-no-hex': [true, {
       message: 'Avoid hex colors. Use CSS custom properties (var(--color-*)) from design tokens instead.',
-      severity: 'warning', // Temporarily warning - will fail CI once existing violations fixed
     }],
     'color-named': ['never', {
       message: 'Avoid named colors. Use CSS custom properties (var(--color-*)) from design tokens instead.',
-      severity: 'warning',
     }],
 
     // Consistent units
@@ -71,4 +69,21 @@ export default {
     ],
   },
   ignoreFiles: ['**/node_modules/**', '**/dist/**'],
+  overrides: [
+    {
+      // Token definition files - exempt from color rules (they DEFINE the colors)
+      files: ['**/design-tokens.css', '**/tailwind.css'],
+      rules: {
+        'color-no-hex': null,
+        'color-named': null,
+      },
+    },
+    {
+      // Third-party library files - exempt from !important rule
+      files: ['**/sonner.css'],
+      rules: {
+        'declaration-no-important': null,
+      },
+    },
+  ],
 };

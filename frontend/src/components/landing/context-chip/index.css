@@ -1,7 +1,7 @@
 /* ContextChip - Component CSS imports */
 
-@import './trigger.css';
-@import './desktop-popover.css';
-@import './mobile-sheet.css';
-@import './chip-strips.css';
-@import './dark-mode.css';
+@import url('./trigger.css');
+@import url('./desktop-popover.css');
+@import url('./mobile-sheet.css');
+@import url('./chip-strips.css');
+@import url('./dark-mode.css');

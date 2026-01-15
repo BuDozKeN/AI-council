@@ -1,0 +1,167 @@
+/**
+ * AppModal - Header Styles
+ *
+ * Header section, title, badge, description, close button, and header variants.
+ */
+
+/* Header */
+.app-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-block-end: 1px solid var(--color-border-light);
+  flex-shrink: 0;
+}
+
+.app-modal-header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Screen reader only - Radix accessibility requirement */
+.app-modal-title,
+.app-modal-description-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Badge - category label after title */
+.app-modal-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  margin-inline-start: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: var(--radius-sm, 4px);
+  vertical-align: middle;
+}
+
+/* Badge variants */
+.app-modal-badge-default {
+  background: var(--color-slate-100);
+  color: var(--color-slate-600);
+}
+
+.app-modal-badge-success {
+  background: var(--color-emerald-50);
+  color: var(--color-emerald-700);
+}
+
+.app-modal-badge-info {
+  background: var(--color-blue-50);
+  color: var(--color-blue-700);
+}
+
+.app-modal-badge-warning {
+  background: var(--color-amber-50);
+  color: var(--color-amber-700);
+}
+
+.app-modal-badge-purple {
+  background: var(--color-violet-50);
+  color: var(--color-violet-700);
+}
+
+/* Visual title display */
+.app-modal-title-display {
+  display: inline;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+  vertical-align: middle;
+}
+
+/* Extra content after title (e.g., count pill) */
+.app-modal-title-extra {
+  display: inline-block;
+  margin-inline-start: 10px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: var(--color-slate-100);
+  border-radius: var(--radius-full, 9999px);
+  vertical-align: middle;
+}
+
+.app-modal-description {
+  display: block;
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+/* Close button */
+.app-modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  margin: -4px -8px -4px 12px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md, 8px);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.app-modal-close:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+.app-modal-close:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}
+
+/* ===========================================
+   Header style variants
+   Use headerClassName="app-modal-header-gradient" etc.
+   =========================================== */
+
+/* Gradient header (like Leaderboard) */
+.app-modal-header-gradient {
+  background: var(--color-brand-primary);
+  border-block-end-color: transparent;
+}
+
+.app-modal-header-gradient .app-modal-title-display {
+  color: var(--color-text-inverse);
+}
+
+.app-modal-header-gradient .app-modal-description {
+  color: var(--overlay-white-80);
+}
+
+.app-modal-header-gradient .app-modal-close {
+  color: var(--color-text-inverse);
+  opacity: 0.8;
+}
+
+.app-modal-header-gradient .app-modal-close:hover {
+  background: var(--overlay-white-10);
+  opacity: 1;
+}
+
+/* Minimal header (no border) */
+.app-modal-header-minimal {
+  border-block-end: none;
+  padding-block-end: 8px;
+}

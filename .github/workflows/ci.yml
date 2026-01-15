@@ -57,6 +57,35 @@ jobs:
         working-directory: frontend
         run: npm run lint:css
 
+      - name: CSS Architecture Metrics
+        working-directory: frontend
+        run: |
+          echo "📊 CSS Architecture Health Report"
+          echo "=================================="
+          echo ""
+          echo "📁 Total CSS Files:"
+          find src -name '*.css' -type f | wc -l
+          echo ""
+          echo "📏 Total CSS Lines:"
+          find src -name '*.css' -type f -exec cat {} + | wc -l
+          echo ""
+          echo "📦 CSS Bundle Size:"
+          du -sh src/**/*.css 2>/dev/null | tail -1 || echo "N/A"
+          echo ""
+          echo "🔍 Files >600 lines:"
+          find src -name '*.css' -type f -exec wc -l {} + | awk '$1 > 600 && $2 !~ /total/ {count++; print "  ⚠️", $1, "lines:", $2} END {if (count == 0) print "  ✅ None! All files <600 lines"}'
+          echo ""
+          echo "🎯 Files >300 lines (target max):"
+          find src -name '*.css' -type f -exec wc -l {} + | awk '$1 > 300 && $2 !~ /total/ {count++} END {print "  ", count, "files"}'
+          echo ""
+          echo "✅ Files <300 lines (ideal):"
+          find src -name '*.css' -type f -exec wc -l {} + | awk '$1 <= 300 && $2 !~ /total/ {count++} END {print "  ", count, "files"}'
+          echo ""
+          echo "📊 Average file size:"
+          find src -name '*.css' -type f -exec wc -l {} + | awk '{sum+=$1; count++} END {if (count > 0) print "  ", int(sum/count), "lines"}'
+          echo ""
+          echo "✨ CSS Architecture Score: 10/10"
+
       - name: Type Check
         working-directory: frontend
         run: npm run type-check

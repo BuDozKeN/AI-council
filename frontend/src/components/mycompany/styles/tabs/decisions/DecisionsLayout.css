@@ -1,0 +1,216 @@
+/**
+ * Decisions Tab Styles
+ * Decision list, items, badges, promote flow, view modal
+ */
+
+/* ============================================================================
+   DECISIONS TAB - List & Items
+   ============================================================================ */
+
+.mc-decision-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mc-decision-item {
+  padding: 16px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.mc-decision-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mc-decision-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mc-decision-title {
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.mc-decision-date {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+}
+
+/* Badges row for promoted decisions */
+.mc-decision-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-block-start: 6px;
+}
+
+/* Promoted decision card styling */
+.mc-decision-item.promoted {
+  border-inline-start: 3px solid var(--color-emerald-500);
+}
+
+/* ============================================================================
+   PROMOTED LABELS & BADGES
+   ============================================================================ */
+
+/* Green "Promoted" label with checkmark */
+.mc-promoted-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-emerald-700);
+  background: var(--color-emerald-100);
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+}
+
+.mc-promoted-label .icon {
+  font-size: 0.875rem;
+}
+
+/* Promoted info row in modal */
+.mc-promoted-info-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Pending promotion label */
+.mc-pending-label {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+.mc-decision-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-block-end: 10px;
+}
+
+/* ============================================================================
+   DECISION ACTIONS
+   ============================================================================ */
+
+.mc-decision-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-block-start: 12px;
+  border-block-start: 1px solid var(--color-border);
+}
+
+/* Icon-based action buttons for decisions */
+.mc-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+.mc-action-btn:hover {
+  background: var(--color-border);
+}
+
+.mc-action-btn .icon {
+  font-size: 0.875rem;
+}
+
+/* View button - subtle gray */
+.mc-action-btn.view {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+.mc-action-btn.view:hover {
+  background: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+/* Promote button - orange accent */
+.mc-action-btn.promote {
+  background: var(--color-orange-50);
+  color: var(--color-orange-700);
+  border-color: var(--color-orange-200);
+}
+
+.mc-action-btn.promote:hover {
+  background: var(--color-orange-100);
+  border-color: var(--color-orange-300);
+}
+
+/* Archive button - subtle red */
+.mc-action-btn.archive {
+  background: var(--color-red-50);
+  color: var(--color-red-700);
+  border-color: var(--color-red-200);
+}
+
+.mc-action-btn.archive:hover {
+  background: var(--color-red-100);
+  border-color: var(--color-red-300);
+}
+
+/* NOTE: .mc-text-btn styles are now in shared.css */
+
+/* ============================================================================
+   PROMOTED BADGE VARIANTS
+   ============================================================================ */
+
+.mc-promoted-badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: var(--color-emerald-100);
+  color: var(--color-emerald-700);
+  padding: 4px 10px;
+  border-radius: var(--radius-md);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Promoted type colors */
+.mc-promoted-badge.sop {
+  background: var(--color-blue-100);
+  color: var(--color-blue-700);
+}
+
+.mc-promoted-badge.framework {
+  background: var(--color-amber-100);
+  color: var(--color-amber-700);
+}
+
+.mc-promoted-badge.policy {
+  background: var(--color-violet-100);
+  color: var(--color-violet-700);
+}
+
+/* Council type badge */
+.mc-council-badge {
+  font-size: 0.75rem;
+  background: var(--color-indigo-100);
+  color: var(--color-indigo-700);
+  padding: 3px 10px;
+  border-radius: var(--radius-lg);
+  font-weight: 500;
+}
+

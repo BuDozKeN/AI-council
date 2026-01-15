@@ -1,0 +1,170 @@
+/**
+ * Promote Decision Modal - V2 Layout
+ *
+ * Sidebar + content area layout with type cards.
+ */
+
+/* Full-width promote modal */
+.mc-promote-modal-full {
+  max-width: 1024px;
+  width: 95%;
+}
+
+/* No padding on modal content - handled by layout */
+.mc-modal-no-padding {
+  padding: 0;
+}
+
+/* Layout: sidebar left, content right */
+.mc-promote-layout-v2 {
+  display: flex;
+  gap: 24px;
+  padding: 24px;
+}
+
+/* Left sidebar with options */
+.mc-promote-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Full content area */
+.mc-promote-content-full {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Type cards - vertical selection */
+.mc-type-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mc-type-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: start;
+}
+
+.mc-type-card:hover {
+  border-color: var(--color-border-dark);
+  background: var(--color-bg-secondary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 8%);
+}
+
+/* Type-specific selected states */
+.mc-type-card.selected.sop {
+  border-color: var(--color-blue-700);
+  background: var(--color-blue-100);
+  box-shadow: 0 0 0 1px var(--color-blue-700);
+}
+
+.mc-type-card.selected.framework {
+  border-color: var(--color-amber-700);
+  background: var(--color-amber-100);
+  box-shadow: 0 0 0 1px var(--color-amber-700);
+}
+
+.mc-type-card.selected.policy {
+  border-color: var(--color-violet-600);
+  background: var(--color-purple-100);
+  box-shadow: 0 0 0 1px var(--color-violet-600);
+}
+
+.mc-type-card.selected.project {
+  border-color: var(--color-indigo-400);
+  background: var(--color-indigo-50);
+  box-shadow: 0 0 0 1px var(--color-indigo-400);
+}
+
+.mc-type-card-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.mc-type-card.selected.sop .mc-type-card-icon {
+  color: var(--color-blue-700);
+}
+
+.mc-type-card.selected.framework .mc-type-card-icon {
+  color: var(--color-amber-700);
+}
+
+.mc-type-card.selected.policy .mc-type-card-icon {
+  color: var(--color-violet-600);
+}
+
+.mc-type-card.selected.project .mc-type-card-icon {
+  color: var(--color-indigo-600);
+}
+
+.mc-type-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mc-type-card-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.mc-type-card.selected.sop .mc-type-card-label {
+  color: var(--color-blue-800);
+}
+
+.mc-type-card.selected.framework .mc-type-card-label {
+  color: var(--color-amber-800);
+}
+
+.mc-type-card.selected.policy .mc-type-card-label {
+  color: var(--color-purple-800);
+}
+
+.mc-type-card.selected.project .mc-type-card-label {
+  color: var(--color-indigo-800);
+}
+
+.mc-type-card-desc {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+}
+
+.mc-type-card.selected.sop .mc-type-card-desc {
+  color: var(--color-blue-500);
+}
+
+.mc-type-card.selected.framework .mc-type-card-desc {
+  color: var(--color-amber-600);
+}
+
+.mc-type-card.selected.policy .mc-type-card-desc {
+  color: var(--color-violet-500);
+}
+
+.mc-type-card.selected.project .mc-type-card-desc {
+  color: var(--color-indigo-500);
+}
+
+/* Department select in modal */
+.mc-dept-select-modal {
+  min-width: 180px;
+}

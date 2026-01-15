@@ -1,6 +1,7 @@
 /* Projects Tab - Dark Mode */
 
 /* Extracted from projects.css lines 993-end */
+
 /* ============================================================================
    TIMELINE ANSWER & COPY
    ============================================================================ */
@@ -674,6 +675,7 @@
     flex-wrap: wrap;
   }
 }
+
   /* ========== PROJECTS TAB - MOBILE ========== */
 
   /* Project row: clean card-like appearance */

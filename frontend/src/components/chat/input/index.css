@@ -1,7 +1,7 @@
 /* ChatInput - Component CSS imports */
 
-@import './input-row.css';
-@import './mobile-input.css';
-@import './omnibar.css';
-@import './omnibar-dark.css';
-@import './omnibar-mobile.css';
+@import url('./input-row.css');
+@import url('./mobile-input.css');
+@import url('./omnibar.css');
+@import url('./omnibar-dark.css');
+@import url('./omnibar-mobile.css');

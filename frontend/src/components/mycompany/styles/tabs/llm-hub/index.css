@@ -1,6 +1,6 @@
 /* LLM Hub - Component CSS imports */
 
-@import './cards.css';
-@import './stages.css';
-@import './models.css';
-@import './responsive.css';
+@import url('./cards.css');
+@import url('./stages.css');
+@import url('./models.css');
+@import url('./responsive.css');

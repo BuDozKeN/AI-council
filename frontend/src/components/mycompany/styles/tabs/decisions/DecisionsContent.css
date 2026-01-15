@@ -1,0 +1,286 @@
+/* =============================================================================
+   DECISION META (Modal View)
+   ============================================================================= */
+
+.mc-decision-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-block-end: 16px;
+}
+
+.mc-meta-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Promoted info text */
+.mc-promoted-info {
+  font-size: 0.8125rem;
+  color: var(--color-emerald-700);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mc-promoted-info .icon {
+  font-size: 0.75rem;
+}
+
+.mc-promoter {
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+/* Promoted badge in modal header */
+.mc-promoted {
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: var(--color-emerald-100);
+  color: var(--color-emerald-700);
+  padding: 4px 10px;
+  border-radius: var(--radius-default);
+}
+
+/* Promoted type colors in modal */
+.mc-promoted.sop {
+  background: var(--color-blue-100);
+  color: var(--color-blue-700);
+}
+
+.mc-promoted.framework {
+  background: var(--color-amber-100);
+  color: var(--color-amber-700);
+}
+
+.mc-promoted.policy {
+  background: var(--color-violet-100);
+  color: var(--color-violet-700);
+}
+
+/* ============================================================================
+   DECISION QUESTION BOX (Modal)
+   ============================================================================ */
+
+.mc-decision-question {
+  background: var(--color-sky-50);
+  border: 1px solid var(--color-sky-200);
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+  margin-block-end: 16px;
+}
+
+.mc-decision-question-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-sky-700);
+  margin-block-end: 6px;
+}
+
+.mc-decision-question-text {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-sky-900);
+  line-height: 1.5;
+}
+
+/* ============================================================================
+   DECISION CONTENT (Modal)
+   ============================================================================ */
+
+.mc-decision-content {
+  position: relative;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  padding: 20px 24px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  max-height: 450px;
+  overflow-y: auto;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
+/* Unified floating copy button - icon only, matches Stage3 */
+.mc-content-copy-btn {
+  position: sticky;
+  inset-block-start: 8px;
+  float: inline-end;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: var(--shadow-xs);
+  z-index: var(--z-elevated);
+  margin-inline-start: 12px;
+  margin-block-end: 8px;
+}
+
+.mc-content-copy-btn:hover {
+  background: var(--color-success-light);
+  border-color: var(--color-success);
+  color: var(--color-success-dark);
+}
+
+.mc-content-copy-btn.copied {
+  background: var(--color-success-light);
+  border-color: var(--color-success);
+  color: var(--color-success-dark);
+}
+
+.mc-content-copy-btn .copy-icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* Markdown rendered content inside decisions */
+.mc-decision-content h1,
+.mc-decision-content h2,
+.mc-decision-content h3 {
+  color: var(--color-text-primary);
+  margin-block: 1.25em 0.5em;
+  font-weight: 600;
+}
+
+.mc-decision-content h1 {
+  font-size: 1.5rem;
+}
+
+.mc-decision-content h2 {
+  font-size: 1.25rem;
+}
+
+.mc-decision-content h3 {
+  font-size: 1.1rem;
+}
+
+.mc-decision-content h1:first-child,
+.mc-decision-content h2:first-child,
+.mc-decision-content h3:first-child {
+  margin-block-start: 0;
+}
+
+.mc-decision-content p {
+  margin-block-end: 1em;
+}
+
+.mc-decision-content ul,
+.mc-decision-content ol {
+  margin: 0.75em 0;
+  padding-inline-start: 1.5em;
+}
+
+.mc-decision-content li {
+  margin-block-end: 0.4em;
+}
+
+.mc-decision-content strong {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.mc-decision-content code {
+  background: var(--color-bg-hover);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  color: var(--color-amber-700);
+}
+
+.mc-decision-content pre {
+  background: var(--color-code-bg);
+  color: var(--color-code-text);
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  overflow-x: auto;
+  margin: 1em 0;
+  border: 1px solid var(--color-code-border);
+}
+
+.mc-decision-content pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+
+.mc-decision-content blockquote {
+  border-inline-start: 3px solid var(--color-indigo-500);
+  margin: 1em 0;
+  padding-inline-start: 1em;
+  color: var(--color-text-primary);
+  font-style: italic;
+}
+
+/* ============================================================================
+   DECISION SOURCE LINK
+   ============================================================================ */
+
+.mc-decision-source-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-block-start: 20px;
+  padding: 10px 14px;
+  background: var(--color-sky-50);
+  border: 1px solid var(--color-sky-200);
+  border-radius: var(--radius-md);
+  color: var(--color-sky-700);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: fit-content;
+}
+
+.mc-decision-source-link:hover {
+  background: var(--color-sky-100);
+  border-color: var(--color-sky-300);
+  color: var(--color-sky-800);
+}
+
+.mc-decision-source-link svg {
+  flex-shrink: 0;
+}
+
+/* Project link button in decision modal */
+.mc-project-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  background: var(--color-blue-100);
+  border: 1px solid var(--color-blue-300);
+  border-radius: var(--radius-md);
+  color: var(--color-blue-700);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-project-link-btn:hover {
+  background: var(--color-blue-200);
+  border-color: var(--color-blue-400);
+}
+
+.mc-promoted-label.project {
+  background: var(--color-blue-100);
+  color: var(--color-blue-700);
+}
+

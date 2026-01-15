@@ -1,8 +1,8 @@
 /* OmniBar - Component CSS imports */
 
-@import './mode-toggle.css';
-@import './layout.css';
-@import './controls.css';
-@import './popover.css';
-@import './mobile.css';
-@import './dark-mode.css';
+@import url('./mode-toggle.css');
+@import url('./layout.css');
+@import url('./controls.css');
+@import url('./popover.css');
+@import url('./mobile.css');
+@import url('./dark-mode.css');

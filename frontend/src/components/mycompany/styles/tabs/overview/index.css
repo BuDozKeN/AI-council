@@ -1,7 +1,7 @@
 /* Overview Tab - Component CSS imports */
 
-@import './layout-stats.css';
-@import './context-card.css';
-@import './search-filters.css';
-@import './dark-mode.css';
-@import './mobile.css';
+@import url('./layout-stats.css');
+@import url('./context-card.css');
+@import url('./search-filters.css');
+@import url('./dark-mode.css');
+@import url('./mobile.css');

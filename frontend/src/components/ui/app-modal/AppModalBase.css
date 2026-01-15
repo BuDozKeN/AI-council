@@ -1,0 +1,159 @@
+/**
+ * AppModal - Base Styles
+ *
+ * Overlay, content container, size variants, and core animations.
+ */
+
+/* Overlay - backdrop behind modal */
+.app-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--overlay-black-40);
+  backdrop-filter: blur(16px) saturate(180%);
+  z-index: var(--z-modal, 1000);
+  animation: app-modal-overlay-show 150ms ease-out;
+}
+
+/* Dark mode - stronger blur for premium frosted glass effect */
+.dark .app-modal-overlay,
+[data-theme='dark'] .app-modal-overlay {
+  background: var(--overlay-black-80);
+  backdrop-filter: blur(48px) saturate(150%);
+}
+
+.app-modal-overlay[data-state='closed'] {
+  animation: app-modal-overlay-hide 150ms ease-in;
+}
+
+/* Content - the modal panel */
+.app-modal-content {
+  position: fixed;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-modal, 1000);
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: app-modal-content-show 200ms ease-out;
+}
+
+/* Dark mode - premium elevated appearance */
+.dark .app-modal-content,
+[data-theme='dark'] .app-modal-content {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  box-shadow:
+    0 0 0 1px var(--overlay-white-10),
+    0 24px 48px -12px var(--overlay-black-40),
+    0 0 60px -20px var(--overlay-indigo-20);
+}
+
+/* Dark mode - header background */
+.dark .app-modal-header,
+[data-theme='dark'] .app-modal-header {
+  background: var(--color-bg-secondary);
+  border-block-end-color: var(--color-border);
+}
+
+/* Dark mode - body background */
+.dark .app-modal-body,
+[data-theme='dark'] .app-modal-body {
+  background: var(--color-bg-secondary);
+}
+
+.app-modal-content[data-state='closed'] {
+  animation: app-modal-content-hide 150ms ease-in;
+}
+
+/* Focus outline for accessibility */
+.app-modal-content:focus {
+  outline: none;
+}
+
+.app-modal-content:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 2px;
+}
+
+/* Drag handle - hidden on desktop, shown on mobile via media query */
+.app-modal-drag-handle {
+  display: none;
+}
+
+/* Size variants */
+.app-modal-sm {
+  width: 90%;
+  max-width: 640px;
+}
+
+.app-modal-md {
+  width: 90%;
+  max-width: 560px;
+}
+
+.app-modal-lg {
+  width: 90%;
+  max-width: 700px;
+}
+
+.app-modal-xl {
+  width: 90%;
+  max-width: 1024px;
+}
+
+.app-modal-full {
+  width: 95%;
+  max-width: 1200px;
+  height: 90vh;
+  max-height: 90vh;
+}
+
+/* Animations */
+@keyframes app-modal-overlay-show {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes app-modal-overlay-hide {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes app-modal-content-show {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes app-modal-content-hide {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.96);
+  }
+}

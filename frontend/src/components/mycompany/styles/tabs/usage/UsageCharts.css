@@ -1,0 +1,190 @@
+/**
+ * Usage Tab - Charts & Visualizations
+ *
+ * Cost charts, model breakdown bars, and budget progress.
+ */
+
+/* ============================================================================
+   CHARTS
+   ============================================================================ */
+
+.mc-usage-chart-container {
+  width: 100%;
+
+  /* Height is now dynamic based on data - controlled by JS */
+}
+
+/* Recharts tooltip customization - doubled selector to override library styles */
+.recharts-tooltip-wrapper.recharts-tooltip-wrapper {
+  outline: none;
+}
+
+/* Empty chart state */
+.mc-usage-chart-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: var(--space-3);
+  color: var(--color-text-tertiary);
+}
+
+.mc-usage-chart-empty svg {
+  opacity: 0.4;
+}
+
+.mc-usage-chart-empty span {
+  font-size: 0.875rem;
+}
+
+/* ============================================================================
+   MODEL BREAKDOWN - Horizontal Bars
+   ============================================================================ */
+
+.mc-usage-model-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.mc-usage-model-row {
+  display: grid;
+  grid-template-columns: 100px 1fr 80px;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+/* Wider label column on larger screens */
+@media (width >= 1200px) {
+  .mc-usage-model-row {
+    grid-template-columns: 120px 1fr 100px;
+  }
+}
+
+.mc-usage-model-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.mc-usage-model-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.mc-usage-model-name {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mc-usage-model-bar-wrapper {
+  height: 24px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.mc-usage-model-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-sm);
+  transition: width 0.3s ease;
+  min-width: 4px;
+}
+
+.mc-usage-model-values {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.mc-usage-model-cost {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.mc-usage-model-tokens {
+  font-size: 0.6875rem;
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================================
+   BUDGET PROGRESS
+   ============================================================================ */
+
+.mc-usage-budget {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.mc-usage-budget-header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+}
+
+.mc-usage-budget-current {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.mc-usage-budget-limit {
+  font-size: 0.875rem;
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.mc-usage-budget-bar {
+  height: 8px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.mc-usage-budget-fill {
+  height: 100%;
+  background: var(--color-blue-500);
+  border-radius: var(--radius-full);
+  transition: width 0.3s ease;
+}
+
+.mc-usage-budget-fill.warning {
+  background: var(--color-amber-500);
+}
+
+.mc-usage-budget-fill.exceeded {
+  background: var(--color-red-500);
+}
+
+.mc-usage-budget-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mc-usage-budget-percent {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+}
+
+.mc-usage-budget-warning {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: 0.75rem;
+  color: var(--color-amber-500);
+}

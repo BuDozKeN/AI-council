@@ -1,7 +1,7 @@
 /* Projects Tab - Component CSS imports */
 
-@import './layout-stats.css';
-@import './project-list.css';
-@import './project-modal.css';
-@import './timeline.css';
-@import './dark-mode.css';
+@import url('./layout-stats.css');
+@import url('./project-list.css');
+@import url('./project-modal.css');
+@import url('./timeline.css');
+@import url('./dark-mode.css');
