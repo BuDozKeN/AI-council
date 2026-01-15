@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { ArrowUp } from 'lucide-react';
-import Triage from './Triage';
 import ImageUpload from './ImageUpload';
 import CouncilProgressCapsule from './CouncilProgressCapsule';
 import { Spinner } from './ui/Spinner';
@@ -32,16 +31,6 @@ import './chat/FollowUpBar.css';
 import './chat/input/index.css';
 import './ImageUpload.css';
 
-// Triage result type (compatible with App.tsx)
-interface TriageResult {
-  constraints?: Record<string, unknown>;
-  enhanced_query?: string;
-  follow_up_question?: string;
-  questions?: string;
-  ready?: boolean;
-}
-
-type TriageState = null | 'analyzing' | TriageResult;
 
 // Image upload type (matching ImageUpload.tsx)
 interface UploadedImage {
@@ -95,13 +84,6 @@ interface ChatInterfaceProps {
   onToggleCompanyContext: (value: boolean) => void;
   useDepartmentContext: boolean;
   onToggleDepartmentContext: (value: boolean) => void;
-  // Triage props
-  triageState: TriageState;
-  originalQuestion: string;
-  isTriageLoading: boolean;
-  onTriageRespond: (response: string) => void;
-  onTriageSkip: () => void;
-  onTriageProceed: (query: string) => void;
   // Upload progress
   isUploading: boolean;
   // Decision navigation
@@ -178,13 +160,6 @@ export default function ChatInterface({
   onToggleCompanyContext: _onToggleCompanyContext,
   useDepartmentContext: _useDepartmentContext,
   onToggleDepartmentContext: _onToggleDepartmentContext,
-  // Triage props
-  triageState,
-  originalQuestion,
-  isTriageLoading,
-  onTriageRespond,
-  onTriageSkip,
-  onTriageProceed,
   // Upload progress
   isUploading,
   // Decision navigation
@@ -500,26 +475,6 @@ export default function ChatInterface({
             conversationTitle={conversation?.title}
           />
         )}
-
-        {/* Triage - show at top when active */}
-        {triageState === 'analyzing' && (
-          <div className="triage-analyzing">
-            <Spinner size="md" />
-            <span>Understanding what you need...</span>
-          </div>
-        )}
-
-        {triageState && triageState !== 'analyzing' && (
-          <Triage
-            triageResult={triageState}
-            originalQuestion={originalQuestion}
-            onRespond={onTriageRespond}
-            onSkip={onTriageSkip}
-            onProceed={onTriageProceed}
-            isLoading={isTriageLoading || isLoading}
-          />
-        )}
-
         {/* Show council loader while loading conversation */}
         {isLoadingConversation && !hasMessages && (
           <div className="council-loader-overlay">
@@ -609,10 +564,9 @@ export default function ChatInterface({
         </button>
       )}
 
-      {/* Input form when no triage active */}
+      {/* Input form for follow-ups */}
       {/* NOTE: LandingHero handles the empty state (no messages), so this form only shows for follow-ups */}
-      {!triageState && (
-        <form
+      <form
           className={`input-form relative ${imageUpload.isDragging ? 'dragging' : ''}`}
           onSubmit={handleSubmit}
           {...imageUpload.dropZoneProps}
@@ -668,7 +622,6 @@ export default function ChatInterface({
               : {})}
           />
         </form>
-      )}
 
       {/* Progress Capsule */}
       {(() => {

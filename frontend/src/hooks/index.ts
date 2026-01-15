@@ -11,7 +11,6 @@ export * from './queries';
 export { useMessageStreaming } from './useMessageStreaming';
 export { useFeatureFlags } from './useFeatureFlags';
 export { useBulkConversationActions } from './useBulkConversationActions';
-export { useTriage } from './useTriage';
 export { usePrefetchCompany, usePrefetchConversation } from './usePrefetch';
 
 // Gesture and UI Hooks
@@ -63,6 +62,5 @@ export type {
   UseMessageStreamingOptions,
 } from './useMessageStreaming';
 export type { UseBulkConversationActionsOptions } from './useBulkConversationActions';
-export type { UseTriageOptions } from './useTriage';
 export type { FeatureFlags, FeatureFlagName } from './useFeatureFlags';
 export type { ArticleMetadata } from './useArticleSchema';
