@@ -66,7 +66,7 @@ const lazyWithType = <T extends ComponentType<any>>(factory: () => Promise<{ def
 // Most returning users skip this, reducing initial bundle
 const Login = lazyWithType(() => import('./components/Login'));
 // ChatInterface is lazy-loaded since LandingHero is shown first
-// This moves ~200KB+ (Stage1/2/3, Triage, MessageList) out of initial bundle
+// This moves ~200KB+ (Stage1/2/3, MessageList) out of initial bundle
 const ChatInterface = lazyWithType(() => import('./components/ChatInterface'));
 const Leaderboard = lazyWithType(() => import('./components/Leaderboard'));
 const Settings = lazyWithType(() => import('./components/settings'));
@@ -723,11 +723,10 @@ function App() {
   // Use stop generation from context
   const handleStopGeneration = contextStopGeneration;
 
-  // This is called when user submits a message - goes directly to council (triage disabled)
+  // This is called when user submits a message - goes directly to council
   const handleSendMessage = async (content: string, images: UploadedImage[] | null = null) => {
     if (!currentConversationId) return;
     // TRIAGE DISABLED: Go directly to council
-    // To re-enable triage, change this back to: await handleStartTriage(content);
     await handleSendToCouncil(content, images);
   };
 

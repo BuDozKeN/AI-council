@@ -10,7 +10,7 @@
 .mc-playbooks-filters {
   display: flex;
   gap: 12px;
-  margin-block-end: 20px;
+  margin-bottom: 20px;
   flex-wrap: wrap;
 }
 
@@ -38,7 +38,7 @@
 }
 
 .mc-empty-filter p {
-  margin-block-end: 12px;
+  margin-bottom: 12px;
 }
 
 /* ============================================================================
@@ -46,7 +46,7 @@
    ============================================================================ */
 
 .mc-playbook-group {
-  margin-block-end: 24px;
+  margin-bottom: 24px;
 }
 
 .mc-group-title {
@@ -161,7 +161,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-block-end: 16px;
+  margin-bottom: 16px;
 }
 
 .mc-doc-type {
@@ -187,7 +187,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-block-end: 16px;
+  margin-bottom: 16px;
 }
 
 /* =============================================================================
@@ -205,7 +205,7 @@
 
 /* Playbook group headers */
 .mc-playbook-group {
-  margin-block-end: 20px;
+  margin-bottom: 20px;
 }
 
 .mc-group-title {
@@ -213,7 +213,7 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--color-text-tertiary);
-  margin-block-end: 10px;
+  margin-bottom: 10px;
   padding: 0 4px;
 }
 
@@ -228,7 +228,7 @@
   padding: 14px 16px;
   background: var(--color-bg-primary);
   border-radius: var(--radius-lg);
-  margin-block-end: 8px;
+  margin-bottom: 8px;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-xs);
   row-gap: 8px;
@@ -251,8 +251,8 @@
   position: static;
   opacity: 1;
   background: transparent;
-  padding-inline-start: 0;
-  margin-inline-start: auto;
+  padding-left: 0;
+  margin-left: auto;
   flex-shrink: 0;
 }
 
@@ -273,7 +273,7 @@
 .mc-playbooks .mc-elegant-row.mobile-active .mc-elegant-actions {
   display: flex;
   position: absolute;
-  inset-inline-end: 8px;
+  right: 8px;
   inset-block-start: 50%;
   transform: translateY(-50%);
   opacity: 1;

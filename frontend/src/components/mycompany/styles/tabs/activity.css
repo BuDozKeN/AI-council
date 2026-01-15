@@ -13,7 +13,7 @@
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
-  margin-block-end: 20px;
+  margin-bottom: 20px;
   font-size: 0.875rem;
   color: var(--color-text-secondary);
 }
@@ -80,7 +80,7 @@
    ============================================================================ */
 
 .mc-activity-group {
-  margin-block-end: 24px;
+  margin-bottom: 24px;
 }
 
 .mc-activity-date {
@@ -140,7 +140,7 @@
   color: var(--color-text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  margin-block-end: 2px;
+  margin-bottom: 2px;
 }
 
 .mc-activity-title {
@@ -249,11 +249,11 @@
 
 @media (width <= 640px) {
   .mc-activity-header {
-    margin-block-end: 12px;
+    margin-bottom: 12px;
   }
 
   .mc-activity-group {
-    margin-block-end: 16px;
+    margin-bottom: 16px;
   }
 
   .mc-source-icon-btn {

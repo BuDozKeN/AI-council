@@ -21,7 +21,7 @@
   justify-content: center;
   background: var(--color-success-light);
   border-radius: 50%;
-  margin-block-end: 20px;
+  margin-bottom: 20px;
   animation: success-ring-pulse 0.8s ease-out;
 }
 

@@ -12,7 +12,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
-  margin-block-start: 6px;
+  margin-top: 6px;
 }
 
 .mc-tag {
@@ -30,7 +30,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-block-end: 4px;
+  margin-bottom: 4px;
 }
 
 /* Playbook meta row */
@@ -39,9 +39,9 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
-  margin-block-end: 16px;
-  padding-block-end: 12px;
-  border-block-end: 1px solid var(--color-border);
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border);
 }
 
 /* ============================================================================
@@ -136,13 +136,13 @@
 .mc-dept-label {
   font-size: 0.75rem;
   color: var(--color-text-tertiary);
-  margin-inline-end: 4px;
+  margin-right: 4px;
 }
 
 /* Owner star indicator */
 .mc-owner-star {
   font-weight: 700;
-  margin-inline-start: 2px;
+  margin-left: 2px;
 }
 
 /* ============================================================================
@@ -225,7 +225,7 @@
   color: var(--color-green-700);
   cursor: pointer;
   transition: all 0.15s ease;
-  margin-inline-start: 4px;
+  margin-left: 4px;
 }
 
 .mc-dept-done-btn:hover {
@@ -289,7 +289,7 @@
 
 /* Field group wrapper */
 .mc-field-group {
-  margin-block-end: 16px;
+  margin-bottom: 16px;
 }
 
 /* Title inline edit input */

@@ -1,7 +1,7 @@
 .council-progress-capsule {
   position: fixed;
-  inset-block-end: 2rem;
-  inset-inline-start: 50%;
+  bottom: 2rem;
+  left: 50%;
   transform: translateX(-50%);
   z-index: var(--z-sticky);
 }
@@ -148,7 +148,7 @@
 /* Mobile adjustments */
 @media (width <= 640px) {
   .council-progress-capsule {
-    inset-block-end: 5rem; /* Above mobile browser chrome */
+    bottom: 5rem; /* Above mobile browser chrome */
   }
 
   .capsule-inner {

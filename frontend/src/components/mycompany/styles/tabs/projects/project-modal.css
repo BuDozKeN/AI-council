@@ -48,7 +48,7 @@
   align-items: center;
   gap: 4px;
   padding: 4px 8px;
-  margin-inline-start: auto;
+  margin-left: auto;
   background: transparent;
   border: none;
   border-radius: var(--radius-sm);
@@ -78,9 +78,9 @@
 .mc-project-tabs {
   display: flex;
   gap: 4px;
-  margin-block-end: 16px;
-  border-block-end: 1px solid var(--color-border);
-  padding-block-end: 0;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 0;
 }
 
 .mc-project-tab {
@@ -90,8 +90,8 @@
   padding: 10px 16px;
   background: transparent;
   border: none;
-  border-block-end: 2px solid transparent;
-  margin-block-end: -1px;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
   font-size: 13px;
   font-weight: 500;
   color: var(--color-text-secondary);

@@ -15,13 +15,13 @@
   font-size: 1.375rem;
   font-weight: 700;
   color: var(--color-slate-800);
-  padding-block-end: 0.5rem;
-  border-block-end: 2px solid var(--color-warning);
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--color-warning);
 }
 
 /* First h2 shouldn't have top margin */
 .prose h2:first-child {
-  margin-block-start: 0;
+  margin-top: 0;
 }
 
 /* Subsection headings */
@@ -50,13 +50,13 @@
 /* Lists */
 .prose ul {
   margin-block: 0.75rem;
-  padding-inline-start: 1.25rem;
+  padding-left: 1.25rem;
   list-style-type: disc;
 }
 
 .prose ol {
   margin-block: 0.75rem;
-  padding-inline-start: 1.25rem;
+  padding-left: 1.25rem;
 }
 
 .prose li {
@@ -91,7 +91,7 @@
 .prose blockquote {
   margin-block: 0.75rem;
   padding: 0.5rem 0.75rem;
-  border-inline-start: 3px solid var(--color-border-dark);
+  border-left: 3px solid var(--color-border-dark);
   color: var(--color-gray-500);
   font-size: 0.8125rem;
   font-style: normal;
@@ -181,7 +181,7 @@
 .prose th {
   background-color: var(--color-bg-secondary);
   font-weight: 600;
-  text-align: start;
+  text-align: left;
   color: var(--color-slate-800);
   font-size: 0.8125rem;
   text-transform: uppercase;
@@ -222,7 +222,7 @@
 .prose hr {
   margin-block: 2rem;
   border: none;
-  border-block-start: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-border);
 }
 
 /* Hide or minimize repetitive metadata at the start */
@@ -231,13 +231,13 @@
   padding: 0.5rem 0.75rem;
   background-color: var(--color-bg-secondary);
   border-radius: var(--radius-md);
-  border-inline-start: 3px solid var(--color-border-dark);
+  border-left: 3px solid var(--color-border-dark);
 }
 
 /* Make the first h1 after metadata more prominent */
 .prose > blockquote:first-child + h1,
 .prose > blockquote:first-child + hr + h1 {
-  margin-block-start: 0;
+  margin-top: 0;
 }
 
 /* =============================================================================

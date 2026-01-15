@@ -16,7 +16,7 @@
 
 .search-icon {
   position: absolute;
-  inset-inline-start: 10px;
+  left: 10px;
   width: 16px;
   height: 16px;
   color: var(--sidebar-text-muted);
@@ -51,7 +51,7 @@
 
 .search-clear {
   position: absolute;
-  inset-inline-end: 8px;
+  right: 8px;
   width: 20px;
   height: 20px;
   padding: 0;
@@ -74,7 +74,7 @@
 }
 
 .search-results-count {
-  margin-block-start: 6px;
+  margin-top: 6px;
   font-size: 11px;
   color: var(--sidebar-text-muted);
   text-align: center;
@@ -87,7 +87,7 @@
 
 .sidebar-filter {
   padding: 8px 12px;
-  border-block-end: 1px solid var(--sidebar-border);
+  border-bottom: 1px solid var(--sidebar-border);
   display: flex;
   gap: 6px;
   align-items: center;

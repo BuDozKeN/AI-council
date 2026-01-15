@@ -24,7 +24,7 @@
 .stage3-floating-toc {
   display: none;
   position: fixed;
-  inset-inline-end: var(--space-6);
+  right: var(--space-6);
 
   /* Position from top instead of bottom for better vertical space usage */
   inset-block-start: 120px;
@@ -61,9 +61,9 @@
 
 /* TOC Header */
 .stage3-toc-header {
-  padding-block-end: 6px;
-  margin-block-end: 6px;
-  border-block-end: 1px solid var(--overlay-black-5);
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--overlay-black-5);
 }
 
 .stage3-toc-title {
@@ -81,7 +81,7 @@
 /* Collapse toggle button */
 .stage3-toc-toggle {
   position: absolute;
-  inset-inline-start: -10px;
+  left: -10px;
   inset-block-start: 50%;
   transform: translateY(-50%);
   width: 20px;
@@ -123,7 +123,7 @@
 }
 
 .stage3-floating-toc.collapsed .stage3-toc-toggle {
-  inset-inline-start: -10px;
+  left: -10px;
 }
 
 .stage3-floating-toc.collapsed .stage3-toc-link {
@@ -207,19 +207,19 @@
 @media (width >= 1280px) {
   .stage3-floating-toc {
     display: block;
-    inset-inline-end: 24px;
+    right: 24px;
   }
 }
 
 @media (width >= 1600px) {
   .stage3-floating-toc {
-    inset-inline-end: 32px;
+    right: 32px;
   }
 }
 
 @media (width >= 1920px) {
   .stage3-floating-toc {
-    inset-inline-end: 40px;
+    right: 40px;
   }
 }
 

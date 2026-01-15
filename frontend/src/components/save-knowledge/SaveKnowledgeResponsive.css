@@ -49,7 +49,7 @@
   }
 
   .form-group {
-    margin-block-end: 10px;
+    margin-bottom: 10px;
   }
 
   .form-group input,
@@ -65,7 +65,7 @@
 
   .context-info {
     padding: 10px;
-    margin-block-end: 10px;
+    margin-bottom: 10px;
   }
 
   .context-text {

@@ -56,9 +56,9 @@
 }
 
 .mc-usage-roster-note {
-  margin-block-start: var(--space-3);
-  padding-block-start: var(--space-3);
-  border-block-start: 1px solid var(--color-border-subtle);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-subtle);
   font-size: 0.75rem;
   color: var(--color-text-tertiary);
   line-height: 1.5;
@@ -85,7 +85,7 @@
   justify-content: space-between;
   align-items: center;
   padding: var(--space-2) 0;
-  border-block-end: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .mc-usage-extra-label {

@@ -9,7 +9,7 @@
   background: var(--color-slate-50);
   border: 1px solid var(--color-slate-200);
   border-radius: var(--radius-md);
-  margin-block-end: 12px;
+  margin-bottom: 12px;
 }
 
 /* Individual image preview - responsive sizing */
@@ -32,8 +32,8 @@
 
 .image-preview-item .image-name {
   position: absolute;
-  inset-block-end: 0;
-  inset-inline: 0;
+  bottom: 0;
+  right: 0;
   padding: 2px 4px;
   background: var(--overlay-black-70);
   color: var(--color-text-inverse);
@@ -53,7 +53,7 @@
 .remove-image-btn {
   position: absolute;
   inset-block-start: 2px;
-  inset-inline-end: 2px;
+  right: 2px;
   width: 20px;
   height: 20px;
   border: none;
@@ -187,7 +187,7 @@
   padding: 8px 12px;
   border-radius: var(--radius-md);
   font-size: 13px;
-  margin-block-end: 12px;
+  margin-bottom: 12px;
 }
 
 /* Drag state indicator on input form */
@@ -198,8 +198,8 @@
 /* Image attachment button - inline inside textarea (right side, subtle) */
 .attach-image-btn-inline {
   position: absolute;
-  inset-block-end: 10px;
-  inset-inline-end: 10px;
+  bottom: 10px;
+  right: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -236,7 +236,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-block-start: 12px;
+  margin-top: 12px;
 }
 
 .user-message-images img {
@@ -270,7 +270,7 @@
     min-width: 44px;
     min-height: 44px;
     inset-block-start: -4px;
-    inset-inline-end: -4px;
+    right: -4px;
   }
 
   .user-message-images img {
@@ -282,8 +282,8 @@
   .attach-image-btn-inline {
     width: 28px;
     height: 28px;
-    inset-block-end: 12px;
-    inset-inline-end: 12px;
+    bottom: 12px;
+    right: 12px;
   }
 
   .attach-image-btn-inline svg {

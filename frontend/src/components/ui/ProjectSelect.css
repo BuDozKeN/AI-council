@@ -132,7 +132,7 @@
   gap: 8px;
   border-radius: var(--radius-md);
   padding: 10px 12px;
-  padding-inline-end: 36px;
+  padding-right: 36px;
   font-size: 14px;
   font-weight: 500;
   color: var(--color-gray-700);
@@ -185,7 +185,7 @@
 
 /* Current project badge */
 .project-select-current-badge {
-  margin-inline-start: auto;
+  margin-left: auto;
   padding: 2px 6px;
   background: var(--color-indigo-100);
   color: var(--color-indigo-700);
@@ -199,7 +199,7 @@
 /* Checkmark indicator - orange like DepartmentSelect */
 .project-select-item-indicator {
   position: absolute;
-  inset-inline-end: 12px;
+  right: 12px;
   display: flex;
   height: 16px;
   width: 16px;
@@ -235,7 +235,7 @@
   color: var(--color-gray-700);
   cursor: pointer;
   transition: all 0.15s ease;
-  text-align: start;
+  text-align: left;
 }
 
 .project-select-item-mobile:active {

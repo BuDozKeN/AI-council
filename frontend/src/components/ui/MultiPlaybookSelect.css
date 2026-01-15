@@ -18,7 +18,7 @@
   cursor: pointer;
   transition: all 0.15s ease;
   width: 100%;
-  text-align: start;
+  text-align: left;
 }
 
 .multi-playbook-trigger:hover {
@@ -163,11 +163,11 @@
 
 /* Type group */
 .multi-playbook-group {
-  margin-block-end: 8px;
+  margin-bottom: 8px;
 }
 
 .multi-playbook-group:last-child {
-  margin-block-end: 0;
+  margin-bottom: 0;
 }
 
 .multi-playbook-group-header {
@@ -180,12 +180,12 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--color-gray-500);
-  border-block-end: 1px solid var(--color-gray-100);
-  margin-block-end: 4px;
+  border-bottom: 1px solid var(--color-gray-100);
+  margin-bottom: 4px;
 }
 
 .multi-playbook-group-count {
-  margin-inline-start: auto;
+  margin-left: auto;
   padding: 2px 6px;
   background: var(--color-gray-100);
   border-radius: var(--radius-full);
@@ -207,7 +207,7 @@
   color: var(--color-gray-700);
   cursor: pointer;
   transition: all 0.1s ease;
-  text-align: start;
+  text-align: left;
 }
 
 .multi-playbook-item:hover {
@@ -262,11 +262,11 @@
 
 /* Mobile type group */
 .multi-playbook-group-mobile {
-  margin-block-end: 12px;
+  margin-bottom: 12px;
 }
 
 .multi-playbook-group-mobile:last-child {
-  margin-block-end: 0;
+  margin-bottom: 0;
 }
 
 .multi-playbook-group-header-mobile {
@@ -279,8 +279,8 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--color-gray-500);
-  border-block-end: 1px solid var(--color-gray-100);
-  margin-block-end: 8px;
+  border-bottom: 1px solid var(--color-gray-100);
+  margin-bottom: 8px;
 }
 
 .multi-playbook-group-header-mobile .multi-playbook-group-count {
@@ -303,7 +303,7 @@
   color: var(--color-gray-700);
   cursor: pointer;
   transition: all 0.15s ease;
-  text-align: start;
+  text-align: left;
 }
 
 .multi-playbook-item-mobile:active {

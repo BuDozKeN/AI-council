@@ -14,7 +14,7 @@
   justify-content: space-between;
   gap: 8px;
   padding: 8px 0;
-  margin-block-end: 8px;
+  margin-bottom: 8px;
 
   /* No shared background - each child element styles itself independently */
   background: transparent;
@@ -40,7 +40,7 @@
   opacity: 0.4;
   transition: all 0.2s ease;
   flex-shrink: 0;
-  margin-inline-start: auto;
+  margin-left: auto;
 }
 
 .stage3-sticky-toolbar .stage3-copy-btn:hover {

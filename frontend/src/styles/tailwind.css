@@ -165,14 +165,7 @@
     --color-info-light: #dbeafe;
 
     /* Department colors - for badges and UI elements */
-    --color-dept-engineering: #3b82f6;
-    --color-dept-design: #8b5cf6;
-    --color-dept-product: #10b981;
-    --color-dept-marketing: #6366f1;
-    --color-dept-legal: #6b7280;
-    --color-dept-finance: #14b8a6;
-    --color-dept-hr: #ec4899;
-    --color-dept-operations: #f97316;
+    --color-dept-design: #8b5cf6; /* Only design dept color is used (RangeSlider.css) */
 
     /* Curator (purple theme) */
     --color-curator-primary: #9c27b0;
@@ -383,9 +376,6 @@
     --overlay-purple-10: rgb(139 92 246 / 10%);
     --overlay-purple-15: rgb(139 92 246 / 15%);
     --overlay-purple-20: rgb(139 92 246 / 20%);
-    --overlay-amber-10: rgb(245 158 11 / 10%);
-    --overlay-amber-15: rgb(245 158 11 / 15%);
-    --overlay-amber-20: rgb(245 158 11 / 20%);
     --overlay-orange-30: rgb(249 115 22 / 30%);
     --overlay-orange-40: rgb(249 115 22 / 40%);
     --overlay-orange-60: rgb(249 115 22 / 60%);
@@ -393,9 +383,6 @@
     --overlay-green-30: rgb(34 197 94 / 30%);
     --overlay-green-15: rgb(34 197 94 / 15%);
     --overlay-green-20: rgb(34 197 94 / 20%);
-    --overlay-emerald-10: rgb(16 185 129 / 10%);
-    --overlay-emerald-15: rgb(16 185 129 / 15%);
-    --overlay-emerald-20: rgb(16 185 129 / 20%);
     --overlay-red-10: rgb(239 68 68 / 10%);
     --overlay-red-15: rgb(239 68 68 / 15%);
     --overlay-red-20: rgb(239 68 68 / 20%);
@@ -408,45 +395,7 @@
     --color-provider-openrouter: #6366f1;
     --color-provider-anthropic: #d4a574;
 
-    /* Knowledge Base (dark theme) */
-    --color-kb-bg-primary: #1a1a2e;
-    --color-kb-bg-secondary: #1e1e32;
-    --color-kb-bg-tertiary: #16162a;
-    --color-kb-bg-hover: #252540;
-    --color-kb-border: #2d2d44;
-    --color-kb-border-light: #3d3d5c;
-    --color-kb-text-primary: #fff;
-    --color-kb-text-secondary: #ccd;
-    --color-kb-text-muted: #88a;
-    --color-kb-text-dim: #66a;
-    --color-kb-text-subtle: #aac;
-    --color-kb-accent: #4a4ae8;
-    --color-kb-accent-hover: #5a5af8;
-    --color-kb-error: #ff6b6b;
-
-    /* KB Category badges */
-    --color-kb-cat-technical-bg: #2d4a7c;
-    --color-kb-cat-technical-text: #6fa8dc;
-    --color-kb-cat-ux-bg: #5c2d7c;
-    --color-kb-cat-ux-text: #b47cdc;
-    --color-kb-cat-feature-bg: #2d7c4a;
-    --color-kb-cat-feature-text: #6fdc8f;
-    --color-kb-cat-policy-bg: #7c5c2d;
-    --color-kb-cat-policy-text: #dcb46f;
-    --color-kb-cat-process-bg: #7c2d5c;
-    --color-kb-cat-process-text: #dc6fb4;
-    --color-kb-cat-role-bg: #2d7c7c;
-    --color-kb-cat-role-text: #6fdcdc;
-    --color-kb-cat-framework-bg: #4a2d7c;
-    --color-kb-cat-framework-text: #8f6fdc;
-    --color-kb-cat-sop-bg: #7c7c2d;
-    --color-kb-cat-sop-text: #dcdc6f;
-
-    /* KB Status badges */
-    --color-kb-status-superseded-bg: #7c5c2d;
-    --color-kb-status-superseded-text: #dcb46f;
-    --color-kb-status-archived-bg: #4a4a5c;
-    --color-kb-status-archived-text: #99a;
+    /* Knowledge Base tokens removed - not currently used (can re-add if needed) */
 
     /* ===== SIDEBAR TOKENS (Perplexity-style) ===== */
     --sidebar-width-collapsed: 56px;
@@ -720,9 +669,6 @@ html.dark,
   --overlay-purple-10: rgb(139 92 246 / 15%);
   --overlay-purple-15: rgb(139 92 246 / 20%);
   --overlay-purple-20: rgb(139 92 246 / 25%);
-  --overlay-amber-10: rgb(245 158 11 / 15%);
-  --overlay-amber-15: rgb(245 158 11 / 20%);
-  --overlay-amber-20: rgb(245 158 11 / 25%);
   --overlay-orange-30: rgb(249 115 22 / 35%);
   --overlay-orange-40: rgb(249 115 22 / 45%);
   --overlay-orange-60: rgb(249 115 22 / 65%);
@@ -730,9 +676,6 @@ html.dark,
   --overlay-green-30: rgb(34 197 94 / 35%);
   --overlay-green-15: rgb(34 197 94 / 20%);
   --overlay-green-20: rgb(34 197 94 / 25%);
-  --overlay-emerald-10: rgb(16 185 129 / 15%);
-  --overlay-emerald-15: rgb(16 185 129 / 20%);
-  --overlay-emerald-20: rgb(16 185 129 / 25%);
   --overlay-red-10: rgb(239 68 68 / 15%);
   --overlay-red-15: rgb(239 68 68 / 20%);
   --overlay-red-20: rgb(239 68 68 / 25%);
@@ -825,7 +768,7 @@ html.dark,
   }
 
   .messages-container .message-group {
-    margin-block-end: 16px;
+    margin-bottom: 16px;
   }
 
   /* Landing hero - horizontal layout in landscape */
@@ -918,7 +861,7 @@ html.dark,
 
   /* Ensure adequate spacing between touch targets */
   .touch-spacing > * + * {
-    margin-inline-start: 8px;
+    margin-left: 8px;
   }
 }
 

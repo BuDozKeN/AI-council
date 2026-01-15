@@ -40,14 +40,14 @@
 
 .no-conv-icon {
   font-size: 24px;
-  margin-block-end: 4px;
+  margin-bottom: 4px;
   opacity: 0.7;
 }
 
 .no-conv-hint {
   font-size: 12px;
   color: var(--sidebar-text-muted);
-  margin-block-start: 4px;
+  margin-top: 4px;
 }
 
 /* =============================================================================
@@ -55,7 +55,7 @@
    ============================================================================= */
 
 .conversation-group {
-  margin-block-end: 8px;
+  margin-bottom: 8px;
 }
 
 .group-header {
@@ -174,7 +174,7 @@
   color: var(--sidebar-text-secondary);
   font-size: 13px;
   font-weight: 400;
-  margin-block-end: 0;
+  margin-bottom: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -200,7 +200,7 @@
 
 .conversation-meta span:not(:first-child)::before {
   content: '·';
-  margin-inline-end: 6px;
+  margin-right: 6px;
   color: var(--sidebar-text-muted);
 }
 
@@ -220,7 +220,7 @@
   color: var(--color-text-inverse);
   padding: 1px 5px;
   border-radius: var(--radius-sm);
-  margin-inline-end: 6px;
+  margin-right: 6px;
   text-transform: uppercase;
   font-weight: 600;
   vertical-align: middle;
@@ -228,13 +228,13 @@
 
 /* Starred styling - uses amber for intuitive star color */
 .conversation-item.starred {
-  border-inline-start: 3px solid var(--color-amber-500);
-  padding-inline-start: 13px;
+  border-left: 3px solid var(--color-amber-500);
+  padding-left: 13px;
 }
 
 .title-star {
   color: var(--color-amber-500);
-  margin-inline-end: 6px;
+  margin-right: 6px;
   flex-shrink: 0;
   font-size: 14px;
 }
@@ -242,8 +242,8 @@
 /* Selected styling (multi-select for bulk actions) - distinct from active */
 .conversation-item.selected {
   background: var(--overlay-blue-10); /* Blue tint for selection */
-  border-inline-start: 3px solid var(--color-primary);
-  padding-inline-start: 13px;
+  border-left: 3px solid var(--color-primary);
+  padding-left: 13px;
 }
 
 .conversation-item.selected .conversation-title {
@@ -253,7 +253,7 @@
 /* When both selected AND active, show selected state takes visual priority */
 .conversation-item.selected.active {
   background: var(--overlay-blue-15);
-  border-inline-start: 3px solid var(--color-primary);
+  border-left: 3px solid var(--color-primary);
 }
 
 /* Dark mode selected styling */

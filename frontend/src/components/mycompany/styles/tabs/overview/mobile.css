@@ -29,7 +29,7 @@
 
   .mc-overview-title {
     font-size: 1rem;
-    margin-block-end: 4px;
+    margin-bottom: 4px;
   }
 
   .mc-overview-description {
@@ -44,7 +44,7 @@
     align-items: center;
     gap: 12px;
     width: 100%;
-    margin-block-start: 8px;
+    margin-top: 8px;
   }
 
   .mc-overview-meta {
@@ -73,7 +73,7 @@
 
   /* Edit button - push to right on mobile */
   .mc-overview-hero-right > button {
-    margin-inline-start: auto;
+    margin-left: auto;
   }
 
   /* Hide stats grid on Overview - users can tap into tabs to see counts */
@@ -117,10 +117,10 @@
   /* Context card - match hero padding for alignment */
   .mc-context-card {
     padding: 16px 20px;
-    padding-block-end: 3rem;
+    padding-bottom: 3rem;
     background: var(--color-bg-primary);
     border: 1px solid var(--color-border);
-    border-block-start: 3px solid var(--color-border-dark);
+    border-top: 3px solid var(--color-border-dark);
     border-radius: var(--radius-lg);
 
     /* Shadow must be preserved for depth effect */
@@ -170,7 +170,7 @@
     display: block;
     width: 28px;
     height: 28px;
-    margin-block-end: 4px;
+    margin-bottom: 4px;
   }
 
   .mc-empty-context .mc-empty-title {
@@ -180,7 +180,7 @@
   .mc-empty-context .mc-empty-hint {
     font-size: 13px;
     max-width: 280px;
-    margin-block-end: 12px;
+    margin-bottom: 12px;
   }
 
   .mc-generate-context-btn {

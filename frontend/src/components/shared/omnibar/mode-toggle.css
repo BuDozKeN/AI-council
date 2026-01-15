@@ -25,13 +25,13 @@
   display: flex;
   justify-content: center;
   gap: 0;
-  margin-block-end: 16px;
+  margin-bottom: 16px;
   padding: 4px;
   background: var(--color-bg-tertiary);
   border: 1px solid var(--color-border-primary);
   border-radius: 100px;
   width: fit-content;
-  margin-inline: auto;
+  margin-left: auto;
 }
 
 .omni-mode-btn {
@@ -131,7 +131,7 @@
   background: var(--color-bg-tertiary);
   border: 1px solid var(--color-border-light);
   border-radius: 100px;
-  margin-inline-start: 4px;
+  margin-left: 4px;
   cursor: pointer;
   transition: border-color 0.15s ease;
 }

@@ -4,7 +4,7 @@
 
 .sidebar-header {
   padding: 12px;
-  border-block-end: none;
+  border-bottom: none;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -20,7 +20,7 @@
 
 /* Hovered state - offset header to align with expanded panel, not icon rail */
 .sidebar--hovered .sidebar-header {
-  margin-inline-start: var(--sidebar-width-collapsed);
+  margin-left: var(--sidebar-width-collapsed);
 }
 
 /* New Chat button (expanded) - Perplexity style: simple + icon */

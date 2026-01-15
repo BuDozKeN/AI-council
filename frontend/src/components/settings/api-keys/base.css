@@ -13,7 +13,7 @@
   padding: 12px 16px;
   border-radius: var(--radius-md);
   font-size: 13px;
-  margin-block-end: 16px;
+  margin-bottom: 16px;
 }
 
 .api-message.error {
@@ -148,17 +148,17 @@
 
 .api-key-benefits ul {
   margin: 0;
-  padding-inline-start: 20px;
+  padding-left: 20px;
 }
 
 .api-key-benefits li {
   font-size: 13px;
   color: var(--color-text-secondary);
-  margin-block-end: 6px;
+  margin-bottom: 6px;
 }
 
 .api-key-benefits li:last-child {
-  margin-block-end: 0;
+  margin-bottom: 0;
 }
 
 .api-key-form {
@@ -168,7 +168,7 @@
 }
 
 .api-key-form .form-group {
-  margin-block-end: 0;
+  margin-bottom: 0;
 }
 
 .api-key-form input {
@@ -215,5 +215,5 @@
 }
 
 .info-card p:last-child {
-  margin-block-end: 0;
+  margin-bottom: 0;
 }

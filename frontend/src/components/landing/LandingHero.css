@@ -64,7 +64,7 @@
 }
 
 .landing-logo {
-  margin-block-end: 16px;
+  margin-bottom: 16px;
 }
 
 .landing-logo-text {
@@ -177,7 +177,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-block-start: 16px; /* Extra breathing room from pills above */
+  margin-top: 16px; /* Extra breathing room from pills above */
 }
 
 /* Responsive */
@@ -192,7 +192,7 @@
     flex: 1;
     height: 100%;
     padding: 16px;
-    padding-block-end: 16px; /* Space above bottom nav */
+    padding-bottom: 16px; /* Space above bottom nav */
     gap: 0; /* Remove gap - use flex spacing instead */
     justify-content: flex-end; /* Push everything toward bottom */
   }
@@ -210,7 +210,7 @@
   /* OmniBar container stays at bottom */
   .omni-bar-container {
     flex-shrink: 0;
-    margin-block-start: 24px; /* Space between header and input */
+    margin-top: 24px; /* Space between header and input */
   }
 }
 

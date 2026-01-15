@@ -154,7 +154,7 @@
   .ranking-model {
     flex-wrap: wrap;
     gap: 8px;
-    margin-block-end: 14px;
+    margin-bottom: 14px;
   }
 
   .stage2 .model-info {
@@ -186,12 +186,12 @@
 
   .aggregate-rankings {
     padding: 14px;
-    margin-block-end: 16px;
+    margin-bottom: 16px;
   }
 
   .aggregate-rankings h4 {
     font-size: 14px;
-    margin-block-end: 12px;
+    margin-bottom: 12px;
   }
 
   .aggregate-list {
@@ -232,7 +232,7 @@
   .rank-score {
     font-size: 14px;
     font-weight: 600;
-    margin-inline-start: auto;
+    margin-left: auto;
   }
 
   /* Hide count on mobile to save space */
@@ -242,12 +242,12 @@
 
   /* Parsed ranking section */
   .parsed-ranking {
-    margin-block-start: 14px;
-    padding-block-start: 14px;
+    margin-top: 14px;
+    padding-top: 14px;
   }
 
   .parsed-ranking ol {
-    padding-inline-start: 20px;
+    padding-left: 20px;
   }
 
   .parsed-ranking li {

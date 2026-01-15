@@ -51,8 +51,8 @@
 
 .stage3-mobile-toc-progress-fill {
   position: absolute;
-  inset-block-end: 0;
-  inset-inline-start: 0;
+  bottom: 0;
+  left: 0;
   width: 100%;
   background: var(--color-emerald-500);
   border-radius: var(--radius-xs);
@@ -148,7 +148,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px 12px;
-  border-block-end: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .stage3-mobile-outline-title {
@@ -209,7 +209,7 @@
   align-items: flex-start;
   gap: 12px;
   padding: 14px 12px;
-  margin-block-end: 2px;
+  margin-bottom: 2px;
   border-radius: var(--radius-lg);
   font-size: 15px;
   line-height: 1.45;
@@ -257,7 +257,7 @@
   padding: 2px 6px;
   border-radius: var(--radius-sm);
   flex-shrink: 0;
-  margin-inline-start: auto;
+  margin-left: auto;
 }
 
 /* Active state */
@@ -282,7 +282,7 @@
 
 /* H3 level - subtle indent */
 .stage3-mobile-outline-link.level-3 {
-  padding-inline-start: 24px;
+  padding-left: 24px;
   font-size: 14px;
 }
 

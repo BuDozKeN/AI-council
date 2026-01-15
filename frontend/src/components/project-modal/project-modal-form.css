@@ -4,7 +4,7 @@
 
 /* Field container */
 .pm-field {
-  margin-block-end: 20px;
+  margin-bottom: 20px;
 }
 
 .pm-field label {
@@ -14,7 +14,7 @@
   color: var(--color-slate-500);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-block-end: 8px;
+  margin-bottom: 8px;
 }
 
 /* Field header with label + action button */
@@ -22,11 +22,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-block-end: 4px;
+  margin-bottom: 4px;
 }
 
 .pm-field-header label {
-  margin-block-end: 0;
+  margin-bottom: 0;
 }
 
 .pm-optional {
@@ -110,7 +110,7 @@
 .pm-hint {
   font-size: 13px;
   color: var(--color-slate-300);
-  margin-block-end: 10px;
+  margin-bottom: 10px;
   line-height: 1.4;
 }
 
@@ -131,7 +131,7 @@
   font-size: 11px;
   color: var(--color-slate-400);
   font-weight: 400;
-  margin-inline-start: auto;
+  margin-left: auto;
 }
 
 /* Required/optional field markers */
@@ -145,11 +145,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-block-end: 8px;
+  margin-bottom: 8px;
 }
 
 .pm-context-header label {
-  margin-block-end: 0;
+  margin-bottom: 0;
 }
 
 .pm-context-toggle {

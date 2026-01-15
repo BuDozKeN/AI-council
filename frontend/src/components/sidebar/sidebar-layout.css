@@ -7,7 +7,7 @@
 .sidebar {
   /* Clean light background like Perplexity */
   background: var(--sidebar-bg);
-  border-inline-end: 1px solid var(--sidebar-border);
+  border-right: 1px solid var(--sidebar-border);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -58,7 +58,7 @@
 }
 
 .sidebar--pinned .sidebar-expanded-panel {
-  border-inline-start: none;
+  border-left: none;
 }
 
 /* =============================================================================

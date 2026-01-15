@@ -36,7 +36,7 @@
 .omni-icon-badge {
   position: absolute;
   inset-block-start: -2px;
-  inset-inline-end: -2px;
+  right: -2px;
   min-width: 14px;
   height: 14px;
   padding: 0 4px;

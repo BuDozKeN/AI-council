@@ -60,7 +60,7 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  margin-inline-start: auto;
+  margin-left: auto;
   flex-shrink: 0;
 }
 
@@ -78,7 +78,7 @@
 
 /* Accordion content */
 .stage2-content {
-  padding-block-start: 0; /* Tabs provide their own margin-block-start to match Stage 1 */
+  padding-top: 0; /* Tabs provide their own margin-block-start to match Stage 1 */
 }
 
 .stage2-section-title {
@@ -89,7 +89,7 @@
 }
 
 .stage2-section-title:first-of-type {
-  margin-block-start: 0;
+  margin-top: 0;
 }
 
 /* Inline copy button */
@@ -120,7 +120,7 @@
 }
 
 .stage2 h4:first-of-type {
-  margin-block-start: 0;
+  margin-top: 0;
 }
 
 .stage-description {
@@ -134,7 +134,7 @@
   background: var(--color-brand-primary-light);
   padding: 16px;
   border-radius: var(--radius-md);
-  margin-block-end: 20px;
+  margin-bottom: 20px;
   border: 2px solid var(--color-blue-200);
 }
 

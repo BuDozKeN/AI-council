@@ -10,7 +10,7 @@
   display: flex;
   flex-direction: column;
   gap: 0;
-  margin-block-start: 12px;
+  margin-top: 12px;
 }
 
 .llm-model-row {
@@ -18,16 +18,16 @@
   align-items: flex-start;
   gap: 16px;
   padding: 12px 0;
-  border-block-end: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--color-border-light);
 }
 
 .llm-model-row:first-child {
-  padding-block-start: 0;
+  padding-top: 0;
 }
 
 .llm-model-row:last-child {
-  border-block-end: none;
-  padding-block-end: 0;
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .llm-model-role {
@@ -37,7 +37,7 @@
   min-width: 120px;
   max-width: 120px;
   flex-shrink: 0;
-  padding-block-start: 6px;
+  padding-top: 6px;
 }
 
 .llm-model-role-label {
@@ -223,7 +223,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   flex: 1;
-  text-align: start;
+  text-align: left;
 }
 
 .llm-model-icon {
@@ -235,7 +235,7 @@
 }
 
 .select-item .llm-model-icon {
-  margin-inline-end: 8px;
+  margin-right: 8px;
 }
 
 /* Long-press delete overlay */
@@ -276,14 +276,14 @@
 }
 
 .llm-model-dropdown .select-item {
-  border-block-end: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--color-border-light);
   border-radius: 0;
   padding: 10px 14px;
-  padding-inline-end: 40px;
+  padding-right: 40px;
 }
 
 .llm-model-dropdown .select-item:last-child {
-  border-block-end: none;
+  border-bottom: none;
 }
 
 .llm-model-dropdown .select-item:hover,
@@ -339,7 +339,7 @@
   color: var(--color-text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  padding-inline-start: 2px;
+  padding-left: 2px;
 }
 
 .llm-model-chain-item:first-child .llm-model-chain-label {
@@ -354,5 +354,5 @@
 
 .llm-model-chain .llm-model-add {
   align-self: flex-end;
-  margin-block-start: 14px;
+  margin-top: 14px;
 }

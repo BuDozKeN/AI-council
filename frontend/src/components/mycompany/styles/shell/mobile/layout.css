@@ -18,7 +18,7 @@
   @media (width <= 640px) {
     /* Floating bottom nav respects safe area */
     .mc-tabs {
-      inset-block-end: calc(12px + env(safe-area-inset-bottom));
+      bottom: calc(12px + env(safe-area-inset-bottom));
     }
 
     /* Panel height accounts for safe areas - use dvh for mobile browser chrome */
@@ -27,7 +27,7 @@
       height: 100dvh; /* Dynamic viewport height for mobile browsers */
       max-height: 100vh;
       max-height: 100dvh;
-      padding-block-start: env(safe-area-inset-top, 0);
+      padding-top: env(safe-area-inset-top, 0);
     }
 
     /* Modal content safe area - use fallbacks to prevent calc failures */
@@ -39,7 +39,7 @@
 
     /* Floating action buttons */
     .mc-fab {
-      inset-block-end: calc(90px + env(safe-area-inset-bottom));
+      bottom: calc(90px + env(safe-area-inset-bottom));
     }
   }
 }
@@ -79,7 +79,7 @@
   /* More horizontal space for content */
   .mc-content {
     padding: 12px 24px;
-    padding-block-end: calc(60px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
   }
 
   /* Stats in a row in landscape */
@@ -194,7 +194,7 @@
   /* Slightly tighter content padding on very small screens */
   .mc-content {
     padding: 8px 12px;
-    padding-block-end: calc(70px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(70px + env(safe-area-inset-bottom, 0px));
   }
 
   .mc-overview-hero {
@@ -209,8 +209,8 @@
   /* Sticky toolbar - match smaller card padding for negative margins */
   .mc-context-sticky-toolbar {
     inset-block-start: 0;
-    margin-inline: -14px;
-    padding-inline: 14px;
+    margin-left: -14px;
+    padding-left: 14px;
     width: calc(100% + 28px);
   }
 }
@@ -246,9 +246,9 @@
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    padding-block-end: 4px;
+    padding-bottom: 4px;
     margin: 0 -16px;
-    padding-inline: 16px;
+    padding-left: 16px;
   }
 
   .mc-projects-stats::-webkit-scrollbar {
@@ -316,8 +316,8 @@
 
   .mc-empty-cta {
     position: fixed;
-    inset-block-end: calc(80px + env(safe-area-inset-bottom, 0px));
-    inset-inline-end: 16px;
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    right: 16px;
     z-index: var(--z-sticky);
   }
 }

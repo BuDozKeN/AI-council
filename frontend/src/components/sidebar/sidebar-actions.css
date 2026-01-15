@@ -4,7 +4,7 @@
 
 .hover-actions {
   position: absolute;
-  inset-inline-end: 4px;
+  right: 4px;
   inset-block-start: 50%;
   transform: translateY(-50%);
   display: flex;

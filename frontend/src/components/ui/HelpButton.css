@@ -6,8 +6,8 @@
 /* Container - fixed position bottom-right, above everything */
 .help-button-container {
   position: fixed;
-  inset-block-end: 80px; /* Higher to avoid TanStack devtools */
-  inset-inline-end: 24px;
+  bottom: 80px; /* Higher to avoid TanStack devtools */
+  right: 24px;
   z-index: var(--z-toast); /* Always on top, even above modals */
   isolation: isolate; /* Create own stacking context */
   pointer-events: auto; /* Ensure clicks are captured */
@@ -62,8 +62,8 @@
 /* Help Panel - slides up from the button */
 .help-panel {
   position: absolute;
-  inset-block-end: 60px;
-  inset-inline-end: 0;
+  bottom: 60px;
+  right: 0;
   width: 280px;
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border-light);
@@ -91,7 +91,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  border-block-end: 1px solid var(--color-border-light);
+  border-bottom: 1px solid var(--color-border-light);
   background: var(--color-bg-secondary);
 }
 
@@ -190,7 +190,7 @@
 /* Language Section */
 .help-language-section {
   padding: 12px 16px;
-  border-block-start: 1px solid var(--color-border-light);
+  border-top: 1px solid var(--color-border-light);
 }
 
 .help-language-header {
@@ -200,7 +200,7 @@
   font-size: 12px;
   font-weight: 500;
   color: var(--color-text-secondary);
-  margin-block-end: 8px;
+  margin-bottom: 8px;
 }
 
 .help-language-options {
@@ -240,7 +240,7 @@
 /* Panel footer */
 .help-panel-footer {
   padding: 8px 16px;
-  border-block-start: 1px solid var(--color-border-light);
+  border-top: 1px solid var(--color-border-light);
   background: var(--color-bg-secondary);
 }
 

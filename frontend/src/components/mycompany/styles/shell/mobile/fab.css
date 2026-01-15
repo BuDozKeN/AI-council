@@ -23,8 +23,8 @@
     align-items: center;
     justify-content: center;
     position: fixed;
-    inset-block-end: calc(80px + env(safe-area-inset-bottom, 0px));
-    inset-inline-end: 16px;
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    right: 16px;
     width: 56px;
     height: 56px;
     background: var(--color-indigo-600);
@@ -70,7 +70,7 @@
   display: none;
   position: absolute;
   inset-block-start: 0;
-  inset-inline-start: 50%;
+  left: 50%;
   transform: translateX(-50%) translateY(-100%);
   padding: 12px;
   transition: transform 0.2s ease;
@@ -107,7 +107,7 @@
 @media (width <= 640px) {
   .mc-swipe-hint {
     position: absolute;
-    inset-inline-end: -4px;
+    right: -4px;
     inset-block-start: 50%;
     transform: translateY(-50%);
     width: 4px;

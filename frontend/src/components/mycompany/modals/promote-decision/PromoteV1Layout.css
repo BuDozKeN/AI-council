@@ -7,7 +7,7 @@
 .mc-promote-intro {
   font-size: 0.9375rem;
   color: var(--color-text-secondary);
-  margin-block-end: 20px;
+  margin-bottom: 20px;
   line-height: 1.5;
 }
 
@@ -15,7 +15,7 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-block-end: 24px;
+  margin-bottom: 24px;
 }
 
 .mc-promote-type {
@@ -57,7 +57,7 @@
   font-size: 1rem;
   font-weight: 600;
   color: var(--color-text-primary);
-  margin-block-end: 2px;
+  margin-bottom: 2px;
 }
 
 .mc-promote-type.selected .mc-promote-type-label {
@@ -72,14 +72,14 @@
 }
 
 .mc-promote-preview {
-  margin-block-end: 20px;
+  margin-bottom: 20px;
 }
 
 .mc-promote-preview-label {
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--color-text-secondary);
-  margin-block-end: 8px;
+  margin-bottom: 8px;
 }
 
 .mc-promote-preview input {

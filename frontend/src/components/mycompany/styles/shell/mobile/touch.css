@@ -17,11 +17,11 @@
   .mc-elegant-actions {
     opacity: 1;
     position: relative;
-    inset-inline-end: auto;
+    right: auto;
     inset-block-start: auto;
     transform: none;
     background: transparent;
-    padding-inline-start: 0;
+    padding-left: 0;
   }
 
   /* Date stays visible alongside actions */

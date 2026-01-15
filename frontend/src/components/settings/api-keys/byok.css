@@ -11,14 +11,14 @@
   position: relative;
   padding: 12px 16px;
   background: var(--color-bg-secondary);
-  border-block-end: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 /* Toast notification - positioned absolutely to avoid layout shift */
 .byok-toast {
   position: absolute;
   inset-block-start: -32px;
-  inset-inline: 16px;
+  right: 16px;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -193,7 +193,7 @@
 .byok-replace-form {
   padding: 12px 16px;
   background: var(--color-bg-tertiary);
-  border-block-end: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .byok-replace-form form {

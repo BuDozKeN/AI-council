@@ -5,7 +5,7 @@
  */
 
 .mc-form-unified {
-  margin-block-end: 20px;
+  margin-bottom: 20px;
 }
 
 .mc-label-unified {
@@ -15,7 +15,7 @@
   color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-block-end: 8px;
+  margin-bottom: 8px;
 }
 
 .mc-input-unified {

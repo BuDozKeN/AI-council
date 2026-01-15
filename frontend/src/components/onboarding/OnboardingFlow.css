@@ -38,7 +38,7 @@
   width: 48px;
   height: 48px;
   color: var(--color-text-brand);
-  margin-block-end: var(--space-2);
+  margin-bottom: var(--space-2);
 }
 
 .onboarding-title {
@@ -90,7 +90,7 @@
 
 .onboarding-input-icon {
   position: absolute;
-  inset-inline-start: var(--space-3);
+  left: var(--space-3);
   width: 20px;
   height: 20px;
   color: var(--color-text-tertiary);
@@ -98,14 +98,14 @@
 }
 
 .onboarding-input-wrapper .form-input {
-  padding-inline-start: calc(var(--space-3) + 20px + var(--space-2));
+  padding-left: calc(var(--space-3) + 20px + var(--space-2));
 }
 
 .onboarding-actions {
   display: flex;
   flex-direction: column;
   gap: var(--gap-sm);
-  margin-block-start: var(--space-2);
+  margin-top: var(--space-2);
 }
 
 .onboarding-submit {
@@ -332,7 +332,7 @@
 .council-member-check {
   position: absolute;
   inset-block-start: -6px;
-  inset-inline-end: -6px;
+  right: -6px;
   width: 22px;
   height: 22px;
   display: flex;
@@ -489,7 +489,7 @@
 
 .onboarding-start-btn {
   width: 100%;
-  margin-block-start: var(--space-2);
+  margin-top: var(--space-2);
 }
 
 /* Mobile adjustments */
@@ -508,7 +508,7 @@
 
   .onboarding-department {
     flex-direction: row;
-    text-align: start;
+    text-align: left;
     padding: var(--card-padding);
   }
 
