@@ -1,0 +1,114 @@
+/**
+ * Promote Decision Modal - Unified Form Styles
+ *
+ * Form inputs, labels, and type pills for playbook creation.
+ */
+
+.mc-form-unified {
+  margin-bottom: 20px;
+}
+
+.mc-label-unified {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.mc-input-unified {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+  transition: all 0.15s ease;
+}
+
+.mc-input-unified:hover {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border-dark);
+}
+
+.mc-input-unified:focus {
+  outline: none;
+  background: var(--color-bg-primary);
+  border-color: var(--color-indigo-500);
+  box-shadow: 0 0 0 3px var(--overlay-indigo-10);
+}
+
+.mc-input-unified::placeholder {
+  color: var(--color-text-tertiary);
+  font-weight: 400;
+}
+
+.mc-textarea-unified {
+  min-height: auto;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+/* Type pills for playbook creation */
+.mc-type-pills-unified {
+  display: flex;
+  gap: 6px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 4px;
+}
+
+.mc-type-pill-unified {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-default);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex: 1;
+  justify-content: center;
+}
+
+.mc-type-pill-unified:hover:not(.selected) {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+.mc-type-pill-unified.sop:hover:not(.selected) {
+  background: var(--color-blue-200);
+  color: var(--color-blue-700);
+}
+
+.mc-type-pill-unified.framework:hover:not(.selected) {
+  background: var(--color-amber-200);
+  color: var(--color-amber-700);
+}
+
+.mc-type-pill-unified.policy:hover:not(.selected) {
+  background: var(--color-purple-200);
+  color: var(--color-violet-600);
+}
+
+.mc-type-pill-unified.selected {
+  background: var(--color-bg-primary);
+  box-shadow: var(--shadow-xs);
+}
+
+.mc-type-pill-unified svg {
+  opacity: 0.7;
+}
+
+.mc-type-pill-unified.selected svg {
+  opacity: 1;
+}

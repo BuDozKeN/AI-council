@@ -1,4 +1,4 @@
-@import 'tailwindcss';
+@import url('tailwindcss');
 
 @config "../../tailwind.config.js";
 
@@ -33,7 +33,7 @@
 
   /* Prevent text size adjustment on orientation change (iOS) */
   html {
-    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
   }
 
   :root {
@@ -82,9 +82,8 @@
 
     /* Additional shadows not in design-tokens.css */
     --shadow-modal:
-      0 32px 64px -16px rgb(0, 0, 0, 0.35), 0 16px 32px -8px rgb(0, 0, 0, 0.25),
-      0 0 1px rgb(0, 0, 0, 0.08);
-    --shadow-focus: 0 0 0 3px rgb(99, 102, 241, 0.25);
+      0 32px 64px -16px rgb(0 0 0 / 35%), 0 16px 32px -8px rgb(0 0 0 / 25%), 0 0 1px rgb(0 0 0 / 8%);
+    --shadow-focus: 0 0 0 3px rgb(99 102 241 / 25%);
 
     /* ===== COLOR TOKENS ===== */
 
@@ -123,7 +122,7 @@
 
     /* Brand colors - Indigo */
     --color-indigo: #6366f1;
-    --color-indigo-light: rgb(99, 102, 241, 0.1);
+    --color-indigo-light: rgb(99 102 241 / 10%);
 
     /* Button component tokens - direct values to avoid variable resolution issues */
     --color-primary: #4f46e5; /* WCAG AA: 6.39:1 (was #6366f1 4.47:1) - Indigo-600 */
@@ -166,14 +165,7 @@
     --color-info-light: #dbeafe;
 
     /* Department colors - for badges and UI elements */
-    --color-dept-engineering: #3b82f6;
-    --color-dept-design: #8b5cf6;
-    --color-dept-product: #10b981;
-    --color-dept-marketing: #6366f1;
-    --color-dept-legal: #6b7280;
-    --color-dept-finance: #14b8a6;
-    --color-dept-hr: #ec4899;
-    --color-dept-operations: #f97316;
+    --color-dept-design: #8b5cf6; /* Only design dept color is used (RangeSlider.css) */
 
     /* Curator (purple theme) */
     --color-curator-primary: #9c27b0;
@@ -350,107 +342,60 @@
     /* Pre-computed overlay backgrounds for common use cases */
 
     /* Dark overlays (black with alpha) */
-    --overlay-black-5: rgb(0, 0, 0, 0.05);
-    --overlay-black-8: rgb(0, 0, 0, 0.08);
-    --overlay-black-10: rgb(0, 0, 0, 0.1);
-    --overlay-black-15: rgb(0, 0, 0, 0.15);
-    --overlay-black-20: rgb(0, 0, 0, 0.2);
-    --overlay-black-30: rgb(0, 0, 0, 0.3);
-    --overlay-black-40: rgb(0, 0, 0, 0.4);
-    --overlay-black-50: rgb(0, 0, 0, 0.5);
-    --overlay-black-60: rgb(0, 0, 0, 0.6);
-    --overlay-black-70: rgb(0, 0, 0, 0.7);
-    --overlay-black-80: rgb(0, 0, 0, 0.8);
+    --overlay-black-5: rgb(0 0 0 / 5%);
+    --overlay-black-8: rgb(0 0 0 / 8%);
+    --overlay-black-10: rgb(0 0 0 / 10%);
+    --overlay-black-15: rgb(0 0 0 / 15%);
+    --overlay-black-20: rgb(0 0 0 / 20%);
+    --overlay-black-30: rgb(0 0 0 / 30%);
+    --overlay-black-40: rgb(0 0 0 / 40%);
+    --overlay-black-50: rgb(0 0 0 / 50%);
+    --overlay-black-60: rgb(0 0 0 / 60%);
+    --overlay-black-70: rgb(0 0 0 / 70%);
+    --overlay-black-80: rgb(0 0 0 / 80%);
 
     /* Light overlays (white with alpha) */
-    --overlay-white-5: rgb(255, 255, 255, 0.05);
-    --overlay-white-8: rgb(255, 255, 255, 0.08);
-    --overlay-white-10: rgb(255, 255, 255, 0.1);
-    --overlay-white-15: rgb(255, 255, 255, 0.15);
-    --overlay-white-20: rgb(255, 255, 255, 0.2);
-    --overlay-white-25: rgb(255, 255, 255, 0.25);
-    --overlay-white-30: rgb(255, 255, 255, 0.3);
-    --overlay-white-40: rgb(255, 255, 255, 0.4);
-    --overlay-white-50: rgb(255, 255, 255, 0.5);
-    --overlay-white-60: rgb(255, 255, 255, 0.6);
-    --overlay-white-80: rgb(255, 255, 255, 0.8);
-    --overlay-white-90: rgb(255, 255, 255, 0.9);
-    --overlay-white-95: rgb(255, 255, 255, 0.95);
+    --overlay-white-5: rgb(255 255 255 / 5%);
+    --overlay-white-8: rgb(255 255 255 / 8%);
+    --overlay-white-10: rgb(255 255 255 / 10%);
+    --overlay-white-15: rgb(255 255 255 / 15%);
+    --overlay-white-20: rgb(255 255 255 / 20%);
+    --overlay-white-25: rgb(255 255 255 / 25%);
+    --overlay-white-30: rgb(255 255 255 / 30%);
+    --overlay-white-40: rgb(255 255 255 / 40%);
+    --overlay-white-50: rgb(255 255 255 / 50%);
+    --overlay-white-60: rgb(255 255 255 / 60%);
+    --overlay-white-80: rgb(255 255 255 / 80%);
+    --overlay-white-90: rgb(255 255 255 / 90%);
+    --overlay-white-95: rgb(255 255 255 / 95%);
 
     /* Color overlays (for badges, highlights, etc.) */
-    --overlay-blue-10: rgb(59, 130, 246, 0.1);
-    --overlay-blue-15: rgb(59, 130, 246, 0.15);
-    --overlay-blue-20: rgb(59, 130, 246, 0.2);
-    --overlay-purple-10: rgb(139, 92, 246, 0.1);
-    --overlay-purple-15: rgb(139, 92, 246, 0.15);
-    --overlay-purple-20: rgb(139, 92, 246, 0.2);
-    --overlay-amber-10: rgb(245, 158, 11, 0.1);
-    --overlay-amber-15: rgb(245, 158, 11, 0.15);
-    --overlay-amber-20: rgb(245, 158, 11, 0.2);
-    --overlay-orange-30: rgb(249, 115, 22, 0.3);
-    --overlay-orange-40: rgb(249, 115, 22, 0.4);
-    --overlay-orange-60: rgb(249, 115, 22, 0.6);
-    --overlay-green-10: rgb(34, 197, 94, 0.1);
-    --overlay-green-30: rgb(34, 197, 94, 0.3);
-    --overlay-green-15: rgb(34, 197, 94, 0.15);
-    --overlay-green-20: rgb(34, 197, 94, 0.2);
-    --overlay-emerald-10: rgb(16, 185, 129, 0.1);
-    --overlay-emerald-15: rgb(16, 185, 129, 0.15);
-    --overlay-emerald-20: rgb(16, 185, 129, 0.2);
-    --overlay-red-10: rgb(239, 68, 68, 0.1);
-    --overlay-red-15: rgb(239, 68, 68, 0.15);
-    --overlay-red-20: rgb(239, 68, 68, 0.2);
-    --overlay-indigo-10: rgb(99, 102, 241, 0.1);
-    --overlay-indigo-15: rgb(99, 102, 241, 0.15);
-    --overlay-indigo-20: rgb(99, 102, 241, 0.2);
-    --overlay-indigo-25: rgb(99, 102, 241, 0.25);
+    --overlay-blue-10: rgb(59 130 246 / 10%);
+    --overlay-blue-15: rgb(59 130 246 / 15%);
+    --overlay-blue-20: rgb(59 130 246 / 20%);
+    --overlay-purple-10: rgb(139 92 246 / 10%);
+    --overlay-purple-15: rgb(139 92 246 / 15%);
+    --overlay-purple-20: rgb(139 92 246 / 20%);
+    --overlay-orange-30: rgb(249 115 22 / 30%);
+    --overlay-orange-40: rgb(249 115 22 / 40%);
+    --overlay-orange-60: rgb(249 115 22 / 60%);
+    --overlay-green-10: rgb(34 197 94 / 10%);
+    --overlay-green-30: rgb(34 197 94 / 30%);
+    --overlay-green-15: rgb(34 197 94 / 15%);
+    --overlay-green-20: rgb(34 197 94 / 20%);
+    --overlay-red-10: rgb(239 68 68 / 10%);
+    --overlay-red-15: rgb(239 68 68 / 15%);
+    --overlay-red-20: rgb(239 68 68 / 20%);
+    --overlay-indigo-10: rgb(99 102 241 / 10%);
+    --overlay-indigo-15: rgb(99 102 241 / 15%);
+    --overlay-indigo-20: rgb(99 102 241 / 20%);
+    --overlay-indigo-25: rgb(99 102 241 / 25%);
 
     /* Provider brand colors */
     --color-provider-openrouter: #6366f1;
     --color-provider-anthropic: #d4a574;
 
-    /* Red scale - for errors, danger states */
-    --color-red-500: #ef4444;
-
-    /* Knowledge Base (dark theme) */
-    --color-kb-bg-primary: #1a1a2e;
-    --color-kb-bg-secondary: #1e1e32;
-    --color-kb-bg-tertiary: #16162a;
-    --color-kb-bg-hover: #252540;
-    --color-kb-border: #2d2d44;
-    --color-kb-border-light: #3d3d5c;
-    --color-kb-text-primary: #fff;
-    --color-kb-text-secondary: #ccd;
-    --color-kb-text-muted: #88a;
-    --color-kb-text-dim: #66a;
-    --color-kb-text-subtle: #aac;
-    --color-kb-accent: #4a4ae8;
-    --color-kb-accent-hover: #5a5af8;
-    --color-kb-error: #ff6b6b;
-
-    /* KB Category badges */
-    --color-kb-cat-technical-bg: #2d4a7c;
-    --color-kb-cat-technical-text: #6fa8dc;
-    --color-kb-cat-ux-bg: #5c2d7c;
-    --color-kb-cat-ux-text: #b47cdc;
-    --color-kb-cat-feature-bg: #2d7c4a;
-    --color-kb-cat-feature-text: #6fdc8f;
-    --color-kb-cat-policy-bg: #7c5c2d;
-    --color-kb-cat-policy-text: #dcb46f;
-    --color-kb-cat-process-bg: #7c2d5c;
-    --color-kb-cat-process-text: #dc6fb4;
-    --color-kb-cat-role-bg: #2d7c7c;
-    --color-kb-cat-role-text: #6fdcdc;
-    --color-kb-cat-framework-bg: #4a2d7c;
-    --color-kb-cat-framework-text: #8f6fdc;
-    --color-kb-cat-sop-bg: #7c7c2d;
-    --color-kb-cat-sop-text: #dcdc6f;
-
-    /* KB Status badges */
-    --color-kb-status-superseded-bg: #7c5c2d;
-    --color-kb-status-superseded-text: #dcb46f;
-    --color-kb-status-archived-bg: #4a4a5c;
-    --color-kb-status-archived-text: #99a;
+    /* Knowledge Base tokens removed - not currently used (can re-add if needed) */
 
     /* ===== SIDEBAR TOKENS (Perplexity-style) ===== */
     --sidebar-width-collapsed: 56px;
@@ -468,18 +413,18 @@
     --sidebar-text-primary: #1a1a1a;
     --sidebar-text-secondary: #666;
     --sidebar-text-muted: #999;
-    --sidebar-hover-bg: rgb(0, 0, 0, 0.04);
-    --sidebar-active-bg: rgb(0, 0, 0, 0.06);
+    --sidebar-hover-bg: rgb(0 0 0 / 4%);
+    --sidebar-active-bg: rgb(0 0 0 / 6%);
     --sidebar-active-border: #6366f1;
     --sidebar-icon-color: #666;
     --sidebar-icon-active: #1a1a1a;
-    --sidebar-scrollbar-thumb: rgb(0, 0, 0, 0.12);
+    --sidebar-scrollbar-thumb: rgb(0 0 0 / 12%);
     --sidebar-scrollbar-track: transparent;
 
     /* Sidebar button - Perplexity teal accent */
     --sidebar-btn-primary: #20b2aa;
     --sidebar-btn-primary-hover: #1a9994;
-    --sidebar-btn-primary-shadow: rgb(32, 178, 170, 0.25);
+    --sidebar-btn-primary-shadow: rgb(32 178 170 / 25%);
 
     /* Aurora background colors */
     --white: #fff;
@@ -496,29 +441,29 @@
     --stage1-bg-gradient-end: #dbeafe;
     --stage1-border: #93c5fd;
     --stage1-text-primary: #1e40af;
-    --stage1-shadow-color: rgb(59, 130, 246, 0.15);
+    --stage1-shadow-color: rgb(59 130 246 / 15%);
     --stage2-bg-gradient-start: #faf5ff;
     --stage2-bg-gradient-end: #f3e8ff;
     --stage2-border: #e9d5ff;
     --stage2-text-primary: #7c3aed;
-    --stage2-shadow-color: rgb(139, 92, 246, 0.15);
+    --stage2-shadow-color: rgb(139 92 246 / 15%);
     --stage3-bg-gradient-start: #ecfdf5;
     --stage3-bg-gradient-end: #d1fae5;
     --stage3-border: #6ee7b7;
     --stage3-text-primary: #065f46;
-    --stage3-shadow-color: rgb(16, 185, 129, 0.15);
+    --stage3-shadow-color: rgb(16 185 129 / 15%);
 
     /* Avatar states */
     --avatar-waiting-bg: #f9fafb;
     --avatar-waiting-border: #e5e7eb;
     --avatar-thinking-bg: #eff6ff;
     --avatar-thinking-border: #3b82f6;
-    --avatar-thinking-ring: rgb(59, 130, 246, 0.2);
+    --avatar-thinking-ring: rgb(59 130 246 / 20%);
     --avatar-complete-bg: #ecfdf5;
     --avatar-complete-border: #10b981;
     --avatar-reviewing-bg: #eef2ff;
     --avatar-reviewing-border: #6366f1;
-    --avatar-reviewing-ring: rgb(99, 102, 241, 0.2);
+    --avatar-reviewing-ring: rgb(99 102 241 / 20%);
 
     /* Thinking stream */
     --thinking-stream-bg: #1e293b;
@@ -548,8 +493,8 @@
     --stage-progress-text: #6b7280;
 
     /* Overlays */
-    --overlay-bg: rgb(255, 255, 255, 0.95);
-    --overlay-shimmer: rgb(255, 255, 255, 0.4);
+    --overlay-bg: rgb(255 255 255 / 95%);
+    --overlay-shimmer: rgb(255 255 255 / 40%);
 
     /* Skeleton loading - subtle shimmer animation */
     --skeleton-base: #e2e8f0; /* slate-200 - matches bg-secondary feel */
@@ -565,7 +510,7 @@ html.light {
   --color-text-primary: #333;
   --color-text-secondary: #666;
   --color-text-tertiary: #9ca3af;
-  --color-text-muted: #666666; /* WCAG AA: 5.74:1 contrast on white */
+  --color-text-muted: #666; /* WCAG AA: 5.74:1 contrast on white */
   --color-bg-primary: #fff;
   --color-bg-secondary: #f9fafb;
   --color-bg-tertiary: #f5f5f5;
@@ -633,7 +578,7 @@ html.dark,
   /* Brand colors - slightly brighter for dark mode */
   --color-brand-primary: #60a5fa;
   --color-brand-primary-hover: #3b82f6;
-  --color-brand-primary-light: rgb(59, 130, 246, 0.15);
+  --color-brand-primary-light: rgb(59 130 246 / 15%);
 
   /* Button component tokens - dark mode (direct values) */
   --color-primary: #6366f1; /* Indigo-500 */
@@ -653,10 +598,10 @@ html.dark,
   --color-success-hover: #10b981; /* Emerald-500 */
 
   /* Semantic colors - adjusted for dark */
-  --color-success-light: rgb(16, 185, 129, 0.15);
-  --color-error-light: rgb(239, 68, 68, 0.15);
-  --color-warning-light: rgb(245, 158, 11, 0.15);
-  --color-info-light: rgb(59, 130, 246, 0.15);
+  --color-success-light: rgb(16 185 129 / 15%);
+  --color-error-light: rgb(239 68 68 / 15%);
+  --color-warning-light: rgb(245 158 11 / 15%);
+  --color-info-light: rgb(59 130 246 / 15%);
 
   /* Slate scale - inverted for dark mode UI */
   --color-slate-50: #1e293b;
@@ -683,77 +628,71 @@ html.dark,
   --stage2-bg-gradient-end: #0f172a;
   --stage2-border: #8b5cf6;
   --stage2-text-primary: #c4b5fd;
-  --stage2-shadow-color: rgb(139, 92, 246, 0.25);
+  --stage2-shadow-color: rgb(139 92 246 / 25%);
   --stage3-bg-gradient-start: #1e293b;
   --stage3-bg-gradient-end: #0f172a;
   --stage3-border: #10b981;
   --stage3-text-primary: #6ee7b7;
 
   /* Overlays - dark variants */
-  --overlay-bg: rgb(15, 23, 42, 0.95);
-  --overlay-shimmer: rgb(255, 255, 255, 0.05);
+  --overlay-bg: rgb(15 23 42 / 95%);
+  --overlay-shimmer: rgb(255 255 255 / 5%);
 
   /* Dark mode overlay tokens - inverted for dark backgrounds */
 
   /* In dark mode, use white overlays to lighten, black to darken further */
-  --overlay-black-5: rgb(0, 0, 0, 0.15);
-  --overlay-black-8: rgb(0, 0, 0, 0.2);
-  --overlay-black-10: rgb(0, 0, 0, 0.25);
-  --overlay-black-15: rgb(0, 0, 0, 0.3);
-  --overlay-black-20: rgb(0, 0, 0, 0.35);
-  --overlay-black-30: rgb(0, 0, 0, 0.45);
-  --overlay-black-40: rgb(0, 0, 0, 0.5);
-  --overlay-black-50: rgb(0, 0, 0, 0.6);
-  --overlay-white-5: rgb(255, 255, 255, 0.05);
-  --overlay-white-8: rgb(255, 255, 255, 0.08);
-  --overlay-white-10: rgb(255, 255, 255, 0.1);
-  --overlay-white-15: rgb(255, 255, 255, 0.15);
-  --overlay-white-20: rgb(255, 255, 255, 0.2);
-  --overlay-white-30: rgb(255, 255, 255, 0.25);
-  --overlay-white-40: rgb(255, 255, 255, 0.3);
-  --overlay-white-50: rgb(255, 255, 255, 0.4);
-  --overlay-white-60: rgb(255, 255, 255, 0.5);
-  --overlay-white-80: rgb(255, 255, 255, 0.6);
-  --overlay-white-90: rgb(255, 255, 255, 0.7);
-  --overlay-white-95: rgb(255, 255, 255, 0.8);
+  --overlay-black-5: rgb(0 0 0 / 15%);
+  --overlay-black-8: rgb(0 0 0 / 20%);
+  --overlay-black-10: rgb(0 0 0 / 25%);
+  --overlay-black-15: rgb(0 0 0 / 30%);
+  --overlay-black-20: rgb(0 0 0 / 35%);
+  --overlay-black-30: rgb(0 0 0 / 45%);
+  --overlay-black-40: rgb(0 0 0 / 50%);
+  --overlay-black-50: rgb(0 0 0 / 60%);
+  --overlay-white-5: rgb(255 255 255 / 5%);
+  --overlay-white-8: rgb(255 255 255 / 8%);
+  --overlay-white-10: rgb(255 255 255 / 10%);
+  --overlay-white-15: rgb(255 255 255 / 15%);
+  --overlay-white-20: rgb(255 255 255 / 20%);
+  --overlay-white-30: rgb(255 255 255 / 25%);
+  --overlay-white-40: rgb(255 255 255 / 30%);
+  --overlay-white-50: rgb(255 255 255 / 40%);
+  --overlay-white-60: rgb(255 255 255 / 50%);
+  --overlay-white-80: rgb(255 255 255 / 60%);
+  --overlay-white-90: rgb(255 255 255 / 70%);
+  --overlay-white-95: rgb(255 255 255 / 80%);
 
   /* Color overlays - same values work in dark mode */
-  --overlay-blue-10: rgb(59, 130, 246, 0.15);
-  --overlay-blue-15: rgb(59, 130, 246, 0.2);
-  --overlay-blue-20: rgb(59, 130, 246, 0.25);
-  --overlay-purple-10: rgb(139, 92, 246, 0.15);
-  --overlay-purple-15: rgb(139, 92, 246, 0.2);
-  --overlay-purple-20: rgb(139, 92, 246, 0.25);
-  --overlay-amber-10: rgb(245, 158, 11, 0.15);
-  --overlay-amber-15: rgb(245, 158, 11, 0.2);
-  --overlay-amber-20: rgb(245, 158, 11, 0.25);
-  --overlay-orange-30: rgb(249, 115, 22, 0.35);
-  --overlay-orange-40: rgb(249, 115, 22, 0.45);
-  --overlay-orange-60: rgb(249, 115, 22, 0.65);
-  --overlay-green-10: rgb(34, 197, 94, 0.15);
-  --overlay-green-30: rgb(34, 197, 94, 0.35);
-  --overlay-green-15: rgb(34, 197, 94, 0.2);
-  --overlay-green-20: rgb(34, 197, 94, 0.25);
-  --overlay-emerald-10: rgb(16, 185, 129, 0.15);
-  --overlay-emerald-15: rgb(16, 185, 129, 0.2);
-  --overlay-emerald-20: rgb(16, 185, 129, 0.25);
-  --overlay-red-10: rgb(239, 68, 68, 0.15);
-  --overlay-red-15: rgb(239, 68, 68, 0.2);
-  --overlay-red-20: rgb(239, 68, 68, 0.25);
-  --overlay-indigo-10: rgb(99, 102, 241, 0.15);
-  --overlay-indigo-15: rgb(99, 102, 241, 0.2);
-  --overlay-indigo-20: rgb(99, 102, 241, 0.25);
-  --overlay-indigo-25: rgb(99, 102, 241, 0.3);
+  --overlay-blue-10: rgb(59 130 246 / 15%);
+  --overlay-blue-15: rgb(59 130 246 / 20%);
+  --overlay-blue-20: rgb(59 130 246 / 25%);
+  --overlay-purple-10: rgb(139 92 246 / 15%);
+  --overlay-purple-15: rgb(139 92 246 / 20%);
+  --overlay-purple-20: rgb(139 92 246 / 25%);
+  --overlay-orange-30: rgb(249 115 22 / 35%);
+  --overlay-orange-40: rgb(249 115 22 / 45%);
+  --overlay-orange-60: rgb(249 115 22 / 65%);
+  --overlay-green-10: rgb(34 197 94 / 15%);
+  --overlay-green-30: rgb(34 197 94 / 35%);
+  --overlay-green-15: rgb(34 197 94 / 20%);
+  --overlay-green-20: rgb(34 197 94 / 25%);
+  --overlay-red-10: rgb(239 68 68 / 15%);
+  --overlay-red-15: rgb(239 68 68 / 20%);
+  --overlay-red-20: rgb(239 68 68 / 25%);
+  --overlay-indigo-10: rgb(99 102 241 / 15%);
+  --overlay-indigo-15: rgb(99 102 241 / 20%);
+  --overlay-indigo-20: rgb(99 102 241 / 25%);
+  --overlay-indigo-25: rgb(99 102 241 / 30%);
 
   /* Skeleton loading - dark mode (subtle, not jarring) */
   --skeleton-base: #1e293b; /* slate-800 - dark base */
   --skeleton-shimmer: #334155; /* slate-700 - subtle lighter shimmer */
 
   /* Glass morphism - dark mode */
-  --glass-bg: rgb(30, 41, 59, 0.85);
-  --glass-bg-focus: rgb(30, 41, 59, 0.95);
-  --glass-border: rgb(51, 65, 85, 0.6);
-  --glass-shadow: 0 4px 16px rgb(0, 0, 0, 0.3);
+  --glass-bg: rgb(30 41 59 / 85%);
+  --glass-bg-focus: rgb(30 41 59 / 95%);
+  --glass-border: rgb(51 65 85 / 60%);
+  --glass-shadow: 0 4px 16px rgb(0 0 0 / 30%);
 
   /* Sidebar - dark mode (Perplexity-style dark) */
   --sidebar-bg: #171717;
@@ -762,11 +701,11 @@ html.dark,
   --sidebar-text-primary: #f5f5f5;
   --sidebar-text-secondary: #a0a0a0;
   --sidebar-text-muted: #666;
-  --sidebar-hover-bg: rgb(255, 255, 255, 0.06);
-  --sidebar-active-bg: rgb(255, 255, 255, 0.08);
+  --sidebar-hover-bg: rgb(255 255 255 / 6%);
+  --sidebar-active-bg: rgb(255 255 255 / 8%);
   --sidebar-icon-color: #a0a0a0;
   --sidebar-icon-active: #f5f5f5;
-  --sidebar-scrollbar-thumb: rgb(255, 255, 255, 0.15);
+  --sidebar-scrollbar-thumb: rgb(255 255 255 / 15%);
 }
 
 @layer base {
@@ -803,7 +742,7 @@ html.dark,
    MOBILE LANDSCAPE ORIENTATION SUPPORT
    ============================================================================ */
 
-@media (max-width: 900px) and (orientation: landscape) {
+@media (width <= 1024px) and (orientation: landscape) {
   /* Reduce vertical heights in landscape - use higher specificity */
   .chat-interface .input-form {
     padding: 10px 16px;
@@ -829,7 +768,7 @@ html.dark,
   }
 
   .messages-container .message-group {
-    margin-block-end: 16px;
+    margin-bottom: 16px;
   }
 
   /* Landing hero - horizontal layout in landscape */
@@ -871,7 +810,7 @@ html.dark,
 }
 
 /* iPhone SE landscape specific (568px wide) */
-@media (max-height: 400px) and (orientation: landscape) {
+@media (height <= 400px) and (orientation: landscape) {
   .chat-interface .message-input,
   textarea.message-input {
     min-height: 36px;
@@ -900,7 +839,7 @@ html.dark,
    TOUCH TARGET MINIMUM SIZE UTILITIES
    ============================================================================ */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Ensure minimum 44x44px touch targets on mobile */
 
   /* Components with custom sizing should use .no-touch-target class to opt out */
@@ -922,7 +861,7 @@ html.dark,
 
   /* Ensure adequate spacing between touch targets */
   .touch-spacing > * + * {
-    margin-inline-start: 8px;
+    margin-left: 8px;
   }
 }
 
@@ -952,8 +891,67 @@ html {
   overscroll-behavior: contain;
 }
 
+/* ============================================================================
+   CUSTOM SCROLLBAR STYLING - Premium dark mode scrollbars
+   ============================================================================ */
+
+/* Scrollbar track */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--overlay-black-15);
+  border-radius: var(--radius-full);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background 0.15s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--overlay-black-30);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* Dark mode scrollbars */
+html.dark ::-webkit-scrollbar-thumb,
+[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background: var(--overlay-white-15);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover,
+[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
+  background: var(--overlay-white-30);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* Firefox scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--overlay-black-15) transparent;
+}
+
+html.dark *,
+[data-theme='dark'] * {
+  scrollbar-color: var(--overlay-white-15) transparent;
+}
+
+/* Thin scrollbars for sidebar */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
 /* Hide scrollbars on mobile (iOS pattern) */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .messages-container::-webkit-scrollbar,
   .sidebar::-webkit-scrollbar,
   .mc-content::-webkit-scrollbar {
@@ -986,7 +984,7 @@ html {
    MOBILE TYPOGRAPHY REFINEMENTS
    ============================================================================ */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Prevent iOS zoom on input focus - 16px minimum prevents Safari auto-zoom */
   /* stylelint-disable declaration-no-important */
   input[type='text'],
@@ -1001,7 +999,6 @@ html {
 
   /* Enable iOS text size adjustment */
   body {
-    -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
 }
@@ -1050,7 +1047,7 @@ a,
    Using double-class specificity to ensure they override component defaults.
    ============================================================================ */
 
-@media (max-width: 768px) {
+@media (width <= 640px) {
   /* Tighter spacing on mobile for more content visibility */
   .gap-tight.gap-tight {
     gap: 8px;
@@ -1077,7 +1074,7 @@ a,
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 640px) {
   /* Even tighter on small phones */
   .gap-tight.gap-tight {
     gap: 6px;
@@ -1137,6 +1134,22 @@ button:not(:disabled):active,
    any conflicting utility classes applied via CVA.
    ============================================================================ */
 
+/* Shared transition for all button variants - smooth micro-interactions */
+[class*='btn-variant-'] {
+  transition:
+    background-color 0.15s ease-out,
+    box-shadow 0.15s ease-out,
+    transform 0.1s ease-out,
+    border-color 0.15s ease-out;
+}
+
+/* Button inner span - ensure icon + text are inline (Button component wraps children in span) */
+[class*='btn-variant-'] > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 /* Primary Button - Indigo with premium shadow */
 button.btn-variant-default,
 .btn-variant-default {
@@ -1149,18 +1162,18 @@ button.btn-variant-default,
   background-color: var(--color-primary);
   color: var(--color-primary-text);
   box-shadow:
-    0 1px 3px rgb(99, 102, 241, 0.3),
-    0 2px 8px rgb(99, 102, 241, 0.15),
-    inset 0 1px 0 rgb(255, 255, 255, 0.1);
+    0 1px 3px rgb(99 102 241 / 30%),
+    0 2px 8px rgb(99 102 241 / 15%),
+    inset 0 1px 0 rgb(255 255 255 / 10%);
 }
 
 button.btn-variant-default:hover:not(:disabled),
 .btn-variant-default:hover:not(:disabled) {
   background-color: var(--color-primary-hover);
   box-shadow:
-    0 2px 6px rgb(99, 102, 241, 0.35),
-    0 4px 12px rgb(99, 102, 241, 0.2),
-    inset 0 1px 0 rgb(255, 255, 255, 0.15);
+    0 2px 6px rgb(99 102 241 / 35%),
+    0 4px 12px rgb(99 102 241 / 20%),
+    inset 0 1px 0 rgb(255 255 255 / 15%);
   transform: translateY(-1px);
 }
 
@@ -1169,8 +1182,8 @@ button.btn-variant-default:active:not(:disabled),
   background-color: var(--color-primary-active);
   transform: translateY(0) scale(0.98);
   box-shadow:
-    0 1px 2px rgb(99, 102, 241, 0.2),
-    inset 0 1px 0 rgb(255, 255, 255, 0.05);
+    0 1px 2px rgb(99 102 241 / 20%),
+    inset 0 1px 0 rgb(255 255 255 / 5%);
 }
 
 /* Secondary Button - Muted gray with subtle depth */
@@ -1184,13 +1197,13 @@ button.btn-variant-secondary,
   min-height: 44px;
   background-color: var(--color-bg-muted);
   color: var(--color-text-default);
-  box-shadow: 0 1px 2px rgb(0, 0, 0, 0.05);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
 }
 
 button.btn-variant-secondary:hover:not(:disabled),
 .btn-variant-secondary:hover:not(:disabled) {
   background-color: var(--color-bg-emphasis);
-  box-shadow: 0 2px 4px rgb(0, 0, 0, 0.08);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 8%);
   transform: translateY(-1px);
 }
 
@@ -1211,14 +1224,14 @@ button.btn-variant-outline,
   background-color: var(--color-bg-base);
   color: var(--color-text-default);
   border: 1px solid var(--color-border-default);
-  box-shadow: 0 1px 2px rgb(0, 0, 0, 0.04);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 4%);
 }
 
 button.btn-variant-outline:hover:not(:disabled),
 .btn-variant-outline:hover:not(:disabled) {
   background-color: var(--color-bg-subtle);
   border-color: var(--color-border-emphasis);
-  box-shadow: 0 2px 4px rgb(0, 0, 0, 0.06);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 6%);
   transform: translateY(-1px);
 }
 
@@ -1262,16 +1275,16 @@ button.btn-variant-destructive,
   background-color: var(--color-error);
   color: var(--color-error-text);
   box-shadow:
-    0 1px 3px rgb(239, 68, 68, 0.3),
-    0 2px 8px rgb(239, 68, 68, 0.15);
+    0 1px 3px rgb(239 68 68 / 30%),
+    0 2px 8px rgb(239 68 68 / 15%);
 }
 
 button.btn-variant-destructive:hover:not(:disabled),
 .btn-variant-destructive:hover:not(:disabled) {
   background-color: var(--color-error-hover);
   box-shadow:
-    0 2px 6px rgb(239, 68, 68, 0.35),
-    0 4px 12px rgb(239, 68, 68, 0.2);
+    0 2px 6px rgb(239 68 68 / 35%),
+    0 4px 12px rgb(239 68 68 / 20%);
   transform: translateY(-1px);
 }
 
@@ -1292,16 +1305,16 @@ button.btn-variant-success,
   background-color: var(--color-success);
   color: var(--color-success-text);
   box-shadow:
-    0 1px 3px rgb(16, 185, 129, 0.3),
-    0 2px 8px rgb(16, 185, 129, 0.15);
+    0 1px 3px rgb(16 185 129 / 30%),
+    0 2px 8px rgb(16 185 129 / 15%);
 }
 
 button.btn-variant-success:hover:not(:disabled),
 .btn-variant-success:hover:not(:disabled) {
   background-color: var(--color-success-hover);
   box-shadow:
-    0 2px 6px rgb(16, 185, 129, 0.35),
-    0 4px 12px rgb(16, 185, 129, 0.2);
+    0 2px 6px rgb(16 185 129 / 35%),
+    0 4px 12px rgb(16 185 129 / 20%);
   transform: translateY(-1px);
 }
 
@@ -1334,7 +1347,7 @@ button.btn-variant-link:hover:not(:disabled),
    =========================================== */
 
 /* Tablet (768px) - slightly smaller buttons */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   [class*='btn-variant-'].h-10 {
     padding: 8px 16px;
     min-height: 36px;
@@ -1349,7 +1362,7 @@ button.btn-variant-link:hover:not(:disabled),
 }
 
 /* Mobile (640px) - compact buttons */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   [class*='btn-variant-'].h-10 {
     padding: 6px 12px;
     min-height: 32px;
@@ -1364,7 +1377,7 @@ button.btn-variant-link:hover:not(:disabled),
 }
 
 /* Extra small (380px) - most compact */
-@media (max-width: 380px) {
+@media (width <= 640px) {
   [class*='btn-variant-'].h-10 {
     padding: 5px 10px;
     min-height: 28px;
@@ -1375,5 +1388,58 @@ button.btn-variant-link:hover:not(:disabled),
     padding: 6px 12px;
     min-height: 32px;
     font-size: 11px;
+  }
+}
+
+/* ============================================================================
+   INTERACTIVE CARD UTILITIES - Premium Hover Micro-Interactions
+
+   Add .card-interactive to any card/list item for delightful hover lift.
+   Respects prefers-reduced-motion.
+   ============================================================================ */
+
+.card-interactive {
+  transition:
+    transform 0.15s ease-out,
+    box-shadow 0.15s ease-out,
+    border-color 0.15s ease-out,
+    background-color 0.15s ease-out;
+}
+
+.card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 12px rgb(0 0 0 / 8%),
+    0 2px 4px rgb(0 0 0 / 4%);
+}
+
+.card-interactive:active {
+  transform: translateY(0) scale(0.99);
+}
+
+/* Dark mode - stronger shadow for visibility */
+.dark .card-interactive:hover,
+[data-theme='dark'] .card-interactive:hover {
+  box-shadow:
+    0 4px 16px rgb(0 0 0 / 30%),
+    0 2px 6px rgb(0 0 0 / 20%);
+}
+
+/* Subtle variant - less pronounced lift */
+.card-interactive-subtle:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .card-interactive,
+  .card-interactive-subtle {
+    transition: none;
+  }
+
+  .card-interactive:hover,
+  .card-interactive-subtle:hover {
+    transform: none;
   }
 }

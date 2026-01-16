@@ -23,7 +23,7 @@ interface MetaConfig {
   keywords?: string;
 }
 
-const BASE_URL = 'https://axcouncil.vercel.app';
+const BASE_URL = 'https://axcouncil.ai';
 
 // Default meta config (used as fallback)
 const DEFAULT_META: MetaConfig = {

@@ -1,0 +1,205 @@
+/**
+ * ViewProjectModal.css - Styles for viewing/editing projects
+ *
+ * Includes activity source links and view/edit patterns.
+ */
+
+/* ============================================================================
+   ACTIVITY SOURCE LINKS
+   ============================================================================ */
+
+.mc-activity-source {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 0.6875rem;
+  color: var(--color-indigo-500);
+  background: var(--color-indigo-50);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-indigo-200);
+}
+
+.mc-activity-source::before {
+  content: '💬 ';
+}
+
+.mc-activity-source-link {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 0.6875rem;
+  font-family: inherit;
+  color: var(--color-indigo-500);
+  background: var(--color-indigo-50);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-indigo-200);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-activity-source-link:hover {
+  background: var(--color-indigo-100);
+  border-color: var(--color-indigo-300);
+  color: var(--color-indigo-600);
+}
+
+.mc-activity-source-link::before {
+  content: '💬 ';
+}
+
+/* ============================================================================
+   ACTIVITY RIGHT COLUMN
+   ============================================================================ */
+
+.mc-activity-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.mc-activity-arrow {
+  color: var(--color-text-tertiary);
+  font-size: 0.875rem;
+}
+
+.mc-activity-item.clickable:hover .mc-activity-arrow {
+  color: var(--color-indigo-500);
+}
+
+/* ============================================================================
+   VIEW/EDIT MODAL STYLES
+   ============================================================================ */
+
+/* Content section wrapper */
+.mc-content-section {
+  padding: 16px 20px;
+}
+
+.mc-section-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+/* Full-width edit textarea container */
+.mc-edit-full {
+  width: 100%;
+}
+
+.mc-edit-textarea-full {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-secondary);
+  resize: vertical;
+  min-height: 300px;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.mc-edit-textarea-full:focus {
+  outline: none;
+  border-color: var(--color-indigo-500);
+  box-shadow: 0 0 0 3px rgb(var(--color-indigo-500-rgb, 99, 102, 241), 0.08);
+  background: var(--color-bg-primary);
+}
+
+.mc-edit-textarea-full::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+/* Field group wrapper */
+.mc-field-group {
+  margin-bottom: 16px;
+}
+
+/* Title inline edit input */
+.mc-title-inline-edit {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-indigo-500);
+  border-radius: var(--radius-default);
+  padding: 4px 8px;
+  background: var(--color-bg-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(var(--color-indigo-500-rgb, 99, 102, 241), 0.1);
+  flex: 1;
+  min-width: 200px;
+}
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+/* Activity source links */
+.dark .mc-activity-source,
+[data-theme='dark'] .mc-activity-source {
+  background: var(--overlay-indigo-10);
+  color: var(--color-indigo-400);
+  border-color: var(--overlay-indigo-20);
+}
+
+.dark .mc-activity-source-link,
+[data-theme='dark'] .mc-activity-source-link {
+  background: var(--overlay-indigo-10);
+  color: var(--color-indigo-400);
+  border-color: var(--overlay-indigo-20);
+}
+
+.dark .mc-activity-source-link:hover,
+[data-theme='dark'] .mc-activity-source-link:hover {
+  background: var(--overlay-indigo-20);
+  border-color: var(--overlay-indigo-30, rgb(var(--color-indigo-rgb), 0.3));
+}
+
+/* Activity right column */
+.dark .mc-activity-arrow,
+[data-theme='dark'] .mc-activity-arrow {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-activity-item.clickable:hover .mc-activity-arrow,
+[data-theme='dark'] .mc-activity-item.clickable:hover .mc-activity-arrow {
+  color: var(--color-indigo-400);
+}
+
+/* View/Edit styles */
+.dark .mc-section-title,
+[data-theme='dark'] .mc-section-title {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-edit-textarea-full,
+[data-theme='dark'] .mc-edit-textarea-full {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-edit-textarea-full:focus,
+[data-theme='dark'] .mc-edit-textarea-full:focus {
+  border-color: var(--color-indigo-400);
+  background: var(--color-bg-primary);
+}
+
+.dark .mc-edit-textarea-full::placeholder,
+[data-theme='dark'] .mc-edit-textarea-full::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-title-inline-edit,
+[data-theme='dark'] .mc-title-inline-edit {
+  color: var(--color-text-primary);
+  border-color: var(--color-indigo-400);
+  background: var(--color-bg-primary);
+}

@@ -5,6 +5,8 @@
  * Now includes LLM Preset selector for configuring response style per department.
  */
 
+import './ViewDepartmentModal.css';
+import '../../ui/Modal.css';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from '../../ui/sonner';

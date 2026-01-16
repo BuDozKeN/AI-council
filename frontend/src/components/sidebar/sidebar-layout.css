@@ -1,0 +1,86 @@
+/* =============================================================================
+   PERPLEXITY-STYLE COLLAPSIBLE SIDEBAR - LAYOUT & STATES
+   =============================================================================
+   Clean, minimal design matching Perplexity's aesthetic
+   ============================================================================= */
+
+.sidebar {
+  /* Clean light background like Perplexity */
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex-shrink: 0;
+  position: relative;
+
+  /* Must be above landing page (z-sticky) on desktop */
+  z-index: calc(var(--z-sticky) + 1);
+  overflow: hidden;
+
+  /* Smooth transition */
+  transition: width var(--sidebar-transition);
+}
+
+/* =============================================================================
+   SIDEBAR STATES
+   ============================================================================= */
+
+/* Collapsed state - icon rail only */
+.sidebar--collapsed {
+  width: var(--sidebar-width-collapsed);
+}
+
+/* Hovered state - icon rail + expanded panel */
+.sidebar--hovered {
+  width: calc(var(--sidebar-width-collapsed) + var(--sidebar-width-expanded));
+}
+
+/* Pinned state - full expanded width (no icon rail) */
+.sidebar--pinned {
+  width: var(--sidebar-width-expanded);
+}
+
+/* =============================================================================
+   MAIN CONTENT AREA
+   ============================================================================= */
+
+.sidebar-main {
+  display: flex;
+  flex: 1;
+  min-height: 0; /* Required for flex children to constrain height and enable scrolling */
+  overflow: hidden;
+}
+
+/* When pinned, panel takes full width */
+.sidebar--pinned .sidebar-main {
+  flex-direction: column;
+}
+
+.sidebar--pinned .sidebar-expanded-panel {
+  border-left: none;
+}
+
+/* =============================================================================
+   COLLAPSED NAV (Legacy - kept for backwards compatibility)
+   ============================================================================= */
+
+.sidebar-collapsed-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0;
+  flex: 1;
+}
+
+/* =============================================================================
+   EXPANDED CONTENT WRAPPER
+   ============================================================================= */
+
+.sidebar-expanded-content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex-shrink: 0;
+}

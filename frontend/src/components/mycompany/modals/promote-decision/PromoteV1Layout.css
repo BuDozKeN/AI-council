@@ -1,0 +1,102 @@
+/**
+ * Promote Decision Modal - V1 Layout (Legacy)
+ *
+ * Vertical type selection with inline preview.
+ */
+
+.mc-promote-intro {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.mc-promote-types {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.mc-promote-type {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px;
+  background: var(--color-bg-secondary);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-promote-type:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+}
+
+.mc-promote-type.selected {
+  background: var(--color-indigo-50);
+  border-color: var(--color-indigo-500);
+  box-shadow: 0 0 0 3px rgb(var(--color-indigo-500-rgb, 99, 102, 241), 0.1);
+}
+
+.mc-promote-type-icon {
+  font-size: 1.75rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.mc-promote-type-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.mc-promote-type-label {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 2px;
+}
+
+.mc-promote-type.selected .mc-promote-type-label {
+  color: var(--color-indigo-600);
+}
+
+.mc-promote-type-desc {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--color-text-tertiary);
+  line-height: 1.4;
+}
+
+.mc-promote-preview {
+  margin-bottom: 20px;
+}
+
+.mc-promote-preview-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+}
+
+.mc-promote-preview input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 0.9375rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.mc-promote-preview input:focus {
+  outline: none;
+  border-color: var(--color-indigo-500);
+  box-shadow: 0 0 0 3px rgb(var(--color-indigo-500-rgb, 99, 102, 241), 0.1);
+}

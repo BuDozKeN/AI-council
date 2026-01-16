@@ -1,0 +1,530 @@
+/**
+ * Modal.css - Shared modal styles for MyCompany modals
+ *
+ * Base styles used across all modal components.
+ * Component-specific modal styles should be in their own CSS files.
+ */
+
+/* ============================================================================
+   MODAL BODY & SCROLL
+   ============================================================================ */
+
+.mc-modal-body {
+  padding: 22px;
+  overflow-y: auto;
+  position: relative;
+}
+
+/* Desktop only: constrain max-height */
+@media (width >= 769px) {
+  .mc-modal-body {
+    max-height: 60vh;
+  }
+}
+
+/* Mobile: flex child for AppModal bottom sheet layout */
+@media (width <= 640px) {
+  .mc-modal-body {
+    flex: 1 1 0;
+    min-height: 0;
+    padding: 16px;
+    overflow: hidden auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Scroll to top button for modal body */
+.mc-modal-scroll-top {
+  position: sticky;
+  bottom: 16px;
+  left: calc(100% - 52px);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  border-radius: 50%;
+  color: var(--color-slate-500);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+  opacity: 0.9;
+  z-index: var(--z-elevated);
+  pointer-events: auto;
+}
+
+.mc-modal-scroll-top:hover {
+  opacity: 1;
+  color: var(--color-slate-700);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.mc-modal-scroll-top:active {
+  transform: scale(0.95);
+}
+
+.mc-modal-scroll-top svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Mobile - larger touch target */
+@media (width <= 640px) {
+  .mc-modal-scroll-top {
+    width: 40px;
+    height: 40px;
+    bottom: 12px;
+    left: calc(100% - 56px);
+  }
+}
+
+/* ============================================================================
+   MODAL HEADER
+   ============================================================================ */
+
+.mc-modal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.mc-modal-header-left h2 {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Modal hint text */
+.mc-modal-hint {
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  background: var(--color-amber-100);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  color: var(--color-amber-800);
+  line-height: 1.5;
+}
+
+/* ============================================================================
+   CLEAN MODAL HEADER (2025 Design)
+   ============================================================================ */
+
+.mc-modal-header-clean {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+.mc-header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Type badge in header */
+.mc-type-badge-header {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+/* Title display with pencil hover */
+.mc-title-display {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mc-title-display.editable {
+  cursor: pointer;
+  padding: 4px 8px;
+  margin: -4px -8px;
+  border-radius: var(--radius-default);
+  transition: background 0.15s ease;
+}
+
+.mc-title-display.editable:hover {
+  background: var(--color-bg-hover);
+}
+
+.mc-pencil-icon {
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.mc-title-display.editable:hover .mc-pencil-icon {
+  opacity: 1;
+}
+
+/* Title input for editable headers */
+.mc-title-input {
+  flex: 1;
+  font-size: 1.25rem;
+  font-weight: 600;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-primary);
+}
+
+.mc-title-input:focus {
+  outline: none;
+  border-color: var(--color-orange-500);
+  box-shadow: var(--shadow-focus);
+}
+
+/* ============================================================================
+   FORM GROUPS
+   ============================================================================ */
+
+.mc-form-group {
+  margin-bottom: 18px;
+}
+
+.mc-form-group:last-child {
+  margin-bottom: 0;
+}
+
+.mc-form-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+}
+
+.mc-form-group input,
+.mc-form-group textarea,
+.mc-form-group select {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.mc-form-group input:focus,
+.mc-form-group textarea:focus,
+.mc-form-group select:focus {
+  outline: none;
+  border-color: var(--color-orange-500);
+  box-shadow: var(--shadow-focus);
+}
+
+/* ============================================================================
+   SELECT DROPDOWN
+   ============================================================================ */
+
+.mc-select {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+.mc-select:focus {
+  outline: none;
+  border-color: var(--color-indigo-500);
+  box-shadow: 0 0 0 3px rgb(var(--color-indigo-500-rgb, 99, 102, 241), 0.1);
+}
+
+.mc-select:hover {
+  border-color: var(--color-border-dark);
+}
+
+/* ============================================================================
+   EDIT MODE (Textarea, Split View)
+   ============================================================================ */
+
+.mc-edit-textarea {
+  width: 100%;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 300px;
+  background: var(--color-code-bg);
+  color: var(--color-code-text);
+}
+
+.mc-edit-textarea:focus {
+  outline: none;
+  border-color: var(--color-orange-500);
+  box-shadow: var(--shadow-focus);
+}
+
+.mc-edit-textarea.large {
+  min-height: 400px;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+/* Split edit view - markdown source on left, live preview on right */
+.mc-edit-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  min-height: 400px;
+}
+
+.mc-edit-input,
+.mc-edit-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mc-edit-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.mc-edit-preview .mc-context-content {
+  flex: 1;
+  padding: 16px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+.mc-edit-input .mc-edit-textarea {
+  flex: 1;
+  min-height: 350px;
+}
+
+/* Responsive - stack on smaller screens */
+@media (width <= 1024px) {
+  .mc-edit-split {
+    grid-template-columns: 1fr;
+  }
+
+  .mc-edit-preview {
+    order: -1;
+  }
+
+  .mc-edit-preview .mc-context-content {
+    max-height: 200px;
+  }
+}
+
+/* ============================================================================
+   CLEAN MODAL CLOSE BUTTON
+   ============================================================================ */
+
+.mc-modal-close-clean {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.mc-modal-close-clean:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+.mc-modal-close-clean svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+/* Modal body & scroll */
+.dark .mc-modal-scroll-top,
+[data-theme='dark'] .mc-modal-scroll-top {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-modal-scroll-top:hover,
+[data-theme='dark'] .mc-modal-scroll-top:hover {
+  color: var(--color-text-primary);
+  box-shadow: 0 4px 12px var(--overlay-black-30);
+}
+
+/* Modal hint */
+.dark .mc-modal-hint,
+[data-theme='dark'] .mc-modal-hint {
+  background: var(--overlay-amber-15);
+  color: var(--color-amber-400);
+}
+
+/* Clean modal header */
+.dark .mc-modal-header-clean,
+[data-theme='dark'] .mc-modal-header-clean {
+  border-block-end-color: var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+.dark .mc-title-display,
+[data-theme='dark'] .mc-title-display {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-title-display.editable:hover,
+[data-theme='dark'] .mc-title-display.editable:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .mc-pencil-icon,
+[data-theme='dark'] .mc-pencil-icon {
+  color: var(--color-text-tertiary);
+}
+
+.dark .mc-title-input,
+[data-theme='dark'] .mc-title-input {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .mc-title-input:focus,
+[data-theme='dark'] .mc-title-input:focus {
+  border-color: var(--color-amber-400);
+}
+
+/* Form groups */
+.dark .mc-form-group label,
+[data-theme='dark'] .mc-form-group label {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-form-group input,
+.dark .mc-form-group textarea,
+.dark .mc-form-group select,
+[data-theme='dark'] .mc-form-group input,
+[data-theme='dark'] .mc-form-group textarea,
+[data-theme='dark'] .mc-form-group select {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark .mc-form-group input:focus,
+.dark .mc-form-group textarea:focus,
+.dark .mc-form-group select:focus,
+[data-theme='dark'] .mc-form-group input:focus,
+[data-theme='dark'] .mc-form-group textarea:focus,
+[data-theme='dark'] .mc-form-group select:focus {
+  border-color: var(--color-amber-400);
+}
+
+/* Select dropdown */
+.dark .mc-select,
+[data-theme='dark'] .mc-select {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239ca3af' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+}
+
+.dark .mc-select:hover,
+[data-theme='dark'] .mc-select:hover {
+  border-color: var(--color-border-dark);
+}
+
+.dark .mc-select:focus,
+[data-theme='dark'] .mc-select:focus {
+  border-color: var(--color-indigo-400);
+  box-shadow: 0 0 0 3px var(--overlay-indigo-15);
+}
+
+/* Edit textarea */
+.dark .mc-edit-textarea,
+[data-theme='dark'] .mc-edit-textarea {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-edit-textarea:focus,
+[data-theme='dark'] .mc-edit-textarea:focus {
+  border-color: var(--color-amber-400);
+}
+
+/* Edit split view */
+.dark .mc-edit-label,
+[data-theme='dark'] .mc-edit-label {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-edit-preview .mc-context-content,
+[data-theme='dark'] .mc-edit-preview .mc-context-content {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+}
+
+/* Modal close button */
+.dark .mc-modal-close-clean,
+[data-theme='dark'] .mc-modal-close-clean {
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-modal-close-clean:hover,
+[data-theme='dark'] .mc-modal-close-clean:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}

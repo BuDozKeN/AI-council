@@ -1,0 +1,12 @@
+/**
+ * AppModal - Body Styles
+ *
+ * Main content area of the modal.
+ */
+
+/* Body */
+.app-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}

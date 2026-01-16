@@ -239,7 +239,6 @@ export default function MyCompany({
     if (highlightedDecisionId && companyData.decisions.length > 0 && activeTab === 'decisions') {
       const decision = companyData.decisions.find((d) => d.id === highlightedDecisionId);
       if (decision && !editingItem) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: syncing external prop to internal state
         setEditingItem({ type: 'decision', data: decision });
         setHighlightedDecisionId(null);
       }
@@ -250,7 +249,6 @@ export default function MyCompany({
     if (highlightedPlaybookId && companyData.playbooks.length > 0 && activeTab === 'playbooks') {
       const playbook = companyData.playbooks.find((p) => p.id === highlightedPlaybookId);
       if (playbook && !editingItem) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: syncing external prop to internal state
         setEditingItem({ type: 'playbook', data: playbook });
         setHighlightedPlaybookId(null);
       }
@@ -266,7 +264,6 @@ export default function MyCompany({
     ) {
       const project = companyData.projects.find((p) => p.id === highlightedProjectId);
       if (project && !editingItem) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: syncing external prop to internal state
         setEditingItem({ type: 'project', data: project });
         setHighlightedProjectId(null);
       }

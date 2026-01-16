@@ -1,0 +1,101 @@
+/**
+ * Usage Tab - Roster & Extra Stats
+ *
+ * Council roster list and extra statistics grid.
+ */
+
+/* ============================================================================
+   COUNCIL ROSTER
+   ============================================================================ */
+
+.mc-usage-roster {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.mc-usage-roster-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2-5) var(--space-3);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+}
+
+.mc-usage-roster-status {
+  color: var(--color-emerald-500);
+  flex-shrink: 0;
+}
+
+.mc-usage-roster-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mc-usage-roster-name {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.mc-usage-roster-role {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+}
+
+.mc-usage-roster-provider {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--color-text-quaternary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.mc-usage-roster-note {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border-subtle);
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  line-height: 1.5;
+}
+
+/* ============================================================================
+   EXTRA STATS
+   ============================================================================ */
+
+.mc-usage-extra-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+}
+
+@media (width <= 640px) {
+  .mc-usage-extra-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mc-usage-extra-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.mc-usage-extra-label {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+}
+
+.mc-usage-extra-value {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}

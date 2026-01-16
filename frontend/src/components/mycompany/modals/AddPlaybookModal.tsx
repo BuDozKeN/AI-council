@@ -1,3 +1,5 @@
+import './AddPlaybookModal.css';
+import '../../project-modal/index.css'; // Reuse ProjectModal styles
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../../api';
@@ -13,7 +15,6 @@ import { CELEBRATION } from '../../../lib/animation-constants';
 import { getPlaybookTypeColor } from '../../../lib/colors';
 import { DOC_TYPES } from '../constants';
 import type { Department } from '../../../types/business';
-import '../../ProjectModal.css'; // Reuse ProjectModal styles
 
 type PlaybookType = 'sop' | 'framework' | 'policy';
 

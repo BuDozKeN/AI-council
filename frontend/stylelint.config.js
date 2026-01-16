@@ -1,8 +1,14 @@
 /** @type {import('stylelint').Config} */
+import deprecationWarnings from './stylelint-plugins/deprecation-warnings.js';
+
 export default {
+  plugins: [deprecationWarnings],
   extends: ['stylelint-config-standard'],
   rules: {
-    // Prevent !important (warn to allow gradual cleanup)
+    // Custom deprecation warnings plugin
+    'axcouncil/no-deprecated-patterns': true,
+
+    // Prevent !important in custom code (library files exempted via overrides)
     'declaration-no-important': true,
 
     // Prevent hardcoded z-index values - use CSS variables
@@ -10,8 +16,14 @@ export default {
     // All z-index should use: var(--z-base), var(--z-elevated), var(--z-dropdown), etc.
 
     // Prevent hardcoded colors - use CSS variables or Tailwind
-    // 'color-no-hex': true, // Too strict for now - enable after migration
-    'color-named': 'never',
+    // Note: Token definition files are exempt via overrides below
+    // Changed from 'warning' to TRUE (error) now that all violations are fixed
+    'color-no-hex': [true, {
+      message: 'Avoid hex colors. Use CSS custom properties (var(--color-*)) from design tokens instead.',
+    }],
+    'color-named': ['never', {
+      message: 'Avoid named colors. Use CSS custom properties (var(--color-*)) from design tokens instead.',
+    }],
 
     // Consistent units
     'length-zero-no-unit': true,
@@ -48,6 +60,12 @@ export default {
     // Allow duplicate selectors in media queries
     'no-duplicate-selectors': null,
 
+    // TODO: Fix and enable after structural refactor (audit: 2026-01-15)
+    'no-descending-specificity': null, // 50+ violations - fix during file splitting
+    'media-feature-range-notation': null, // Modern range syntax - fix in batch
+    'keyframes-name-pattern': null, // Allow any keyframe naming
+    'property-no-deprecated': null, // Temporarily allow deprecated properties
+
     // Ignore specific function names (CSS variables)
     'function-no-unknown': [
       true,
@@ -57,4 +75,21 @@ export default {
     ],
   },
   ignoreFiles: ['**/node_modules/**', '**/dist/**'],
+  overrides: [
+    {
+      // Token definition files - exempt from color rules (they DEFINE the colors)
+      files: ['**/design-tokens.css', '**/tailwind.css'],
+      rules: {
+        'color-no-hex': null,
+        'color-named': null,
+      },
+    },
+    {
+      // Third-party library files - exempt from !important rule
+      files: ['**/sonner.css'],
+      rules: {
+        'declaration-no-important': null,
+      },
+    },
+  ],
 };

@@ -1,0 +1,193 @@
+/* ===== SWIPE INDICATOR FOR MOBILE ===== */
+.swipe-indicator {
+  display: none;
+  position: absolute;
+  inset-block-start: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-elevated);
+  padding: 4px;
+}
+
+.swipe-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--color-slate-300);
+  border-radius: var(--radius-xs);
+  transition: background 0.15s ease;
+}
+
+/* Show swipe indicator only on mobile for expanded cards */
+@media (width <= 640px) {
+  .stage1 .model-card.expanded {
+    position: relative;
+  }
+
+  .stage1 .model-card.expanded .swipe-indicator {
+    display: block;
+  }
+
+  .stage1 .model-card.expanded .model-card-header {
+    padding-top: 16px; /* Make room for swipe indicator */
+  }
+}
+
+/* Dark mode swipe handle */
+.dark .swipe-handle {
+  background: var(--color-text-muted);
+}
+
+/* Touch feedback - visual hint that card can be swiped */
+@media (hover: none) and (pointer: coarse) {
+  .stage1 .model-card.expanded .swipe-handle {
+    animation: swipe-hint 2s ease-in-out 1s 1;
+  }
+}
+
+@keyframes swipe-hint {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  50% {
+    transform: translateY(4px);
+    opacity: 0.6;
+  }
+}
+
+/* =============================================================================
+   MOBILE RESPONSIVE - Stage 1 Polish
+   ============================================================================= */
+
+@media (width <= 640px) {
+  /* Stage container */
+  .stage.stage1 {
+    padding: 12px;
+  }
+
+  /* Model name - readable, not monospace */
+  .model-name {
+    font-size: 14px;
+    font-family: var(--font-sans, system-ui);
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* Model cards - proper padding */
+  .stage1 .model-card {
+    padding: 14px;
+  }
+
+  .stage1 .model-card-header {
+    margin-bottom: 10px;
+  }
+
+  .stage1 .model-card-name {
+    font-size: 12px;
+  }
+
+  /* LLM icon - slightly larger for visibility */
+  .stage1 .llm-icon-wrapper {
+    width: 32px;
+    height: 32px;
+  }
+
+  .stage1 .llm-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Card content - readable */
+  .stage1 .model-card-content {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .stage1 .model-card-preview {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* Badges - readable but not oversized */
+  .complete-badge,
+  .error-badge,
+  .stopped-badge {
+    font-size: 9px;
+    padding: 3px 6px;
+    min-height: auto; /* Badges aren't buttons */
+  }
+
+  /* Code blocks - edge to edge */
+  .stage1 .code-block-wrapper {
+    margin-left: -14px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  .stage1 .code-block-wrapper .copy-code-btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 10px;
+  }
+
+  /* Expand button - proper touch target */
+  .stage1 .expand-btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 10px;
+  }
+
+  /* Summary pills in collapsed view */
+  .stage1 .model-summary-pills {
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .stage1 .model-summary-pill {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .stage1 .model-summary-pill .pill-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Expanded card */
+  .stage1 .model-card.expanded {
+    max-height: 60vh;
+  }
+
+  .stage1 .model-card.expanded .model-card-content {
+    max-height: calc(60vh - 80px);
+  }
+}
+
+/* iPhone SE */
+@media (width <= 640px) {
+  .stage.stage1 {
+    padding: 10px;
+  }
+
+  .stage1 .model-card {
+    padding: 12px;
+  }
+
+  .stage1 .model-card-name {
+    font-size: 11px;
+  }
+
+  .stage1 .model-card-content,
+  .stage1 .model-card-preview {
+    font-size: 13px;
+  }
+
+  .stage1 .model-summary-pill {
+    padding: 5px 8px;
+    font-size: 10px;
+  }
+}

@@ -36,7 +36,7 @@ import type {
   Playbook,
   UserPreferences,
 } from '../../types/business';
-import './ContextChip.css';
+import './context-chip/index.css';
 
 // Multi-select dropdown component for mobile
 interface MultiSelectDropdownProps {

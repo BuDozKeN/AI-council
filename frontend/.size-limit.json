@@ -7,7 +7,7 @@
   },
   {
     "name": "CSS bundle",
-    "path": "dist/assets/*.css",
+    "path": "dist/assets/css/*.css",
     "limit": "120 KB",
     "gzip": true
   },

@@ -1,0 +1,45 @@
+/* =============================================================================
+   INPUT FORM - Minimal, ChatGPT-style input
+   Clean floating input at bottom, no visual chrome
+   ============================================================================= */
+
+.input-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 24px;
+  padding-bottom: max(16px, env(safe-area-inset-bottom, 16px)); /* Safe area for notched devices */
+  flex-shrink: 0;
+  scrollbar-gutter: stable both-edges; /* Match messages-container for alignment */
+  background: var(--color-bg-primary);
+  position: relative;
+  z-index: var(--z-sticky);
+}
+
+/* Gradient fade above input - content fades gracefully into the input area */
+.input-form::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(to bottom, transparent 0%, var(--color-bg-primary) 100%);
+  pointer-events: none;
+}
+
+/* Dark mode input form */
+.dark .input-form {
+  background: var(--color-bg-primary);
+}
+
+.dark .input-form::before {
+  background: linear-gradient(to bottom, transparent 0%, var(--color-bg-primary) 100%);
+}
+
+/* Input form children constrained to reading column - use same centering as messages */
+.input-form > * {
+  width: 100%;
+  max-width: 72ch; /* Match reading column width */
+  margin-left: auto;
+}

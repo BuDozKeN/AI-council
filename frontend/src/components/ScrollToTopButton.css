@@ -1,0 +1,47 @@
+/* Floating scroll-to-top button (FAB style) - fixed position */
+.scroll-to-top-fab {
+  position: fixed;
+  bottom: 100px; /* Above input form */
+  right: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--overlay-white-80);
+  backdrop-filter: blur(24px) saturate(180%);
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+  z-index: var(--z-overlay);
+  opacity: 0.8;
+}
+
+.scroll-to-top-fab:hover {
+  background: var(--overlay-white-90);
+  color: var(--color-text-secondary);
+  opacity: 1;
+  box-shadow: var(--shadow-sm);
+}
+
+.scroll-to-top-fab:active {
+  transform: scale(0.95);
+  opacity: 1;
+}
+
+.dark .scroll-to-top-fab,
+[data-theme='dark'] .scroll-to-top-fab {
+  background: var(--overlay-black-50);
+  color: var(--color-text-tertiary);
+  box-shadow: var(--shadow-xs);
+}
+
+.dark .scroll-to-top-fab:hover,
+[data-theme='dark'] .scroll-to-top-fab:hover {
+  background: var(--overlay-black-60);
+  color: var(--color-text-secondary);
+}

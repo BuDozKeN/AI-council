@@ -20,10 +20,8 @@ from ..auth import get_current_user
 from .. import storage
 from ..security import SecureHTTPException
 
-# Import rate limiter
-from slowapi import Limiter
-from slowapi.util import get_remote_address
-limiter = Limiter(key_func=get_remote_address)
+# Import shared rate limiter (ensures limits are tracked globally)
+from ..rate_limit import limiter
 
 
 router = APIRouter(prefix="", tags=["projects"])
@@ -107,7 +105,8 @@ class MergeDecisionRequest(BaseModel):
 # =============================================================================
 
 @router.get("/companies/{company_id}/projects")
-async def list_projects(company_id: str, user: dict = Depends(get_current_user)):
+@limiter.limit("100/minute;500/hour")
+async def list_projects(request: Request, company_id: str, user: dict = Depends(get_current_user)):
     """List all active projects for a company."""
     access_token = user.get("access_token")
     try:
@@ -118,8 +117,8 @@ async def list_projects(company_id: str, user: dict = Depends(get_current_user))
 
 
 @router.post("/companies/{company_id}/projects")
-async def create_project(
-    company_id: str,
+@limiter.limit("30/minute;100/hour")
+async def create_project(request: Request, company_id: str,
     project: ProjectCreate,
     user: dict = Depends(get_current_user)
 ):
@@ -155,7 +154,8 @@ async def create_project(
 
 
 @router.get("/projects/{project_id}")
-async def get_project(project_id: str, user: dict = Depends(get_current_user)):
+@limiter.limit("100/minute;500/hour")
+async def get_project(request: Request, project_id: str, user: dict = Depends(get_current_user)):
     """Get a single project."""
     validate_uuid(project_id, "project_id")
     access_token = user.get("access_token")
@@ -168,8 +168,8 @@ async def get_project(project_id: str, user: dict = Depends(get_current_user)):
 
 
 @router.patch("/projects/{project_id}")
-async def update_project(
-    project_id: str,
+@limiter.limit("30/minute;100/hour")
+async def update_project(request: Request, project_id: str,
     update: ProjectUpdate,
     user: dict = Depends(get_current_user)
 ):
@@ -202,7 +202,8 @@ async def update_project(
 
 
 @router.post("/projects/{project_id}/touch")
-async def touch_project(project_id: str, user: dict = Depends(get_current_user)):
+@limiter.limit("100/minute;500/hour")
+async def touch_project(request: Request, project_id: str, user: dict = Depends(get_current_user)):
     """Update a project's last_accessed_at timestamp."""
     access_token = user.get("access_token")
     success = storage.touch_project_last_accessed(project_id, access_token)
@@ -210,7 +211,8 @@ async def touch_project(project_id: str, user: dict = Depends(get_current_user))
 
 
 @router.delete("/projects/{project_id}")
-async def delete_project(project_id: str, user: dict = Depends(get_current_user)):
+@limiter.limit("20/minute;50/hour")
+async def delete_project(request: Request, project_id: str, user: dict = Depends(get_current_user)):
     """Delete a project permanently."""
     validate_uuid(project_id, "project_id")
     access_token = user.get("access_token")
@@ -238,8 +240,8 @@ async def delete_project(project_id: str, user: dict = Depends(get_current_user)
 
 
 @router.get("/companies/{company_id}/projects/stats")
-async def list_projects_with_stats(
-    company_id: str,
+@limiter.limit("100/minute;500/hour")
+async def list_projects_with_stats(request: Request, company_id: str,
     status: Optional[str] = None,
     include_archived: bool = False,
     user: dict = Depends(get_current_user)
@@ -392,8 +394,14 @@ async def structure_project_context(
 ):
     """
     Use AI to structure a free-form project description into organized context.
+
+    Performance optimizations:
+    - Redis caching: Identical requests return cached results instantly
+    - Parallel model queries: All models queried simultaneously, first success wins
     """
+    import asyncio
     from ..openrouter import query_model, MOCK_LLM
+    from ..openrouter import get_cached_llm_response, cache_llm_response
     from ..personas import get_db_persona_with_fallback
 
     if MOCK_LLM:
@@ -441,55 +449,76 @@ For context_md, use these sections (skip any that don't apply):
         {"role": "user", "content": prompt}
     ]
 
-    # Use short timeouts for fast models - fail fast and try next
-    MODEL_TIMEOUTS = {
-        'google/gemini-2.5-flash': 8.0,
-        'openai/gpt-4o-mini': 8.0,
-        'anthropic/claude-3-5-haiku-20241022': 8.0,
-    }
-    DEFAULT_TIMEOUT = 10.0
+    # Check Redis cache first - identical requests return instantly
+    if structure_request.company_id:
+        primary_model = models[0] if models else 'openai/gpt-4o'
+        cached = await get_cached_llm_response(
+            company_id=structure_request.company_id,
+            model=primary_model,
+            messages=messages
+        )
+        if cached and cached.get('content'):
+            structured = _parse_structured_response(cached['content'], free_text)
+            if structured:
+                return {"structured": structured}
 
-    for model in models:
+    # Query all models in parallel - first valid response wins
+    MODEL_TIMEOUT = 8.0  # Uniform timeout for parallel queries
+
+    async def query_with_model(model: str):
+        """Query a single model and return (model, result) tuple."""
         try:
-            timeout = MODEL_TIMEOUTS.get(model, DEFAULT_TIMEOUT)
-            result = await query_model(model=model, messages=messages, timeout=timeout)
-
-            # Track internal LLM usage if company_id provided
-            if structure_request.company_id and result and result.get('usage'):
-                try:
-                    from .company.utils import save_internal_llm_usage
-                    await save_internal_llm_usage(
-                        company_id=structure_request.company_id,
-                        operation_type='context_structuring',
-                        model=model,
-                        usage=result['usage']
-                    )
-                except Exception:
-                    pass  # Don't fail structuring if tracking fails
-
+            result = await query_model(model=model, messages=messages, timeout=MODEL_TIMEOUT)
             if result and result.get('content'):
-                content = result['content']
-                if content.startswith('```'):
-                    content = content.split('```')[1]
-                    if content.startswith('json'):
-                        content = content[4:]
-                if '```' in content:
-                    content = content.split('```')[0]
-                content = content.strip()
-
-                try:
-                    structured = json.loads(content)
-                    if not structured.get('suggested_name') or structured.get('suggested_name') == 'New Project':
-                        from ..knowledge_fallback import _short_title
-                        structured['suggested_name'] = _short_title(free_text, max_words=4)
-                    return {"structured": structured}
-                except json.JSONDecodeError:
-                    continue
-            else:
-                continue
+                return (model, result)
         except Exception:
-            continue
+            pass
+        return (model, None)
 
+    # Run all model queries in parallel
+    results = await asyncio.gather(
+        *[query_with_model(model) for model in models],
+        return_exceptions=True
+    )
+
+    # Find first successful result
+    successful_model = None
+    successful_result = None
+    for item in results:
+        if isinstance(item, Exception):
+            continue
+        model, result = item
+        if result and result.get('content'):
+            structured = _parse_structured_response(result['content'], free_text)
+            if structured:
+                successful_model = model
+                successful_result = result
+
+                # Track internal LLM usage
+                if structure_request.company_id and result.get('usage'):
+                    try:
+                        from .company.utils import save_internal_llm_usage
+                        await save_internal_llm_usage(
+                            company_id=structure_request.company_id,
+                            operation_type='context_structuring',
+                            model=model,
+                            usage=result['usage']
+                        )
+                    except Exception:
+                        pass
+
+                # Cache the successful response
+                if structure_request.company_id:
+                    await cache_llm_response(
+                        company_id=structure_request.company_id,
+                        model=model,
+                        messages=messages,
+                        response=result
+                    )
+
+                return {"structured": structured}
+
+    # All models failed - return fallback
     from ..knowledge_fallback import _short_title
     fallback_title = project_name or _short_title(free_text, max_words=4)
     return {
@@ -499,6 +528,30 @@ For context_md, use these sections (skip any that don't apply):
             "suggested_name": fallback_title
         }
     }
+
+
+def _parse_structured_response(content: str, free_text: str) -> dict | None:
+    """Parse LLM response into structured project data."""
+    try:
+        # Strip markdown code blocks
+        if content.startswith('```'):
+            content = content.split('```')[1]
+            if content.startswith('json'):
+                content = content[4:]
+        if '```' in content:
+            content = content.split('```')[0]
+        content = content.strip()
+
+        structured = json.loads(content)
+
+        # Ensure we have a valid project name
+        if not structured.get('suggested_name') or structured.get('suggested_name') == 'New Project':
+            from ..knowledge_fallback import _short_title
+            structured['suggested_name'] = _short_title(free_text, max_words=4)
+
+        return structured
+    except (json.JSONDecodeError, KeyError, TypeError):
+        return None
 
 
 # =============================================================================
@@ -914,8 +967,8 @@ Today's date: {today_date}"""
 
 
 @router.get("/projects/{project_id}/report")
-async def get_project_report(
-    project_id: str,
+@limiter.limit("10/minute;30/hour")
+async def get_project_report(request: Request, project_id: str,
     user: dict = Depends(get_current_user)
 ):
     """Generate a professional report of all decisions made for a project."""

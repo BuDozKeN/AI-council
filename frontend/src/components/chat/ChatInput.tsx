@@ -7,7 +7,7 @@
  * Mom Test: Every icon has a clear tooltip explaining what it does
  */
 
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as Popover from '@radix-ui/react-popover';
 import * as Tooltip from '@radix-ui/react-tooltip';
@@ -128,6 +128,9 @@ export function ChatInput({
   // Track which playbook sections are expanded (accordion within dropdown)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
+  // Ref for textarea to scroll into view on focus
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
   // Get translated tooltips
   const TOOLTIPS = {
     projects: t('chat.tooltips.projects'),
@@ -196,6 +199,19 @@ export function ChatInput({
       : [...selectedPlaybooks, id];
     onSelectPlaybooks(newSelection);
   };
+
+  // Scroll input into view when focused on mobile (keyboard covers input otherwise)
+  const handleFocus = useCallback(() => {
+    if (isMobile) {
+      // Small delay to let keyboard start appearing
+      setTimeout(() => {
+        textareaRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }, 100);
+    }
+  }, [isMobile]);
 
   // Project list content - single select (radio-style)
   const projectList = (
@@ -489,6 +505,7 @@ export function ChatInput({
         {/* Top row: Just the textarea */}
         <div className="omni-top">
           <textarea
+            ref={textareaRef}
             id="chat-message-input"
             name="message"
             className="omni-input"
@@ -497,6 +514,7 @@ export function ChatInput({
             value={input}
             onChange={(e) => onInputChange(e.target.value)}
             onKeyDown={onKeyDown}
+            onFocus={handleFocus}
             onPaste={imageUpload.handlePaste}
             disabled={isLoading}
             rows={1}

@@ -1,0 +1,191 @@
+/* Billing Section - Plans, pricing, and subscription management */
+
+/* Usage Bar */
+.usage-bar {
+  height: 10px;
+  background: var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.usage-fill {
+  height: 100%;
+  background: var(--color-indigo-500);
+  border-radius: var(--radius-sm);
+  transition: width 0.3s ease;
+}
+
+.usage-text {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+/* Plans */
+.plans-section {
+  margin-top: 24px;
+}
+
+.plans-section h3 {
+  margin: 0 0 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px; /* Space before Manage subscription card */
+}
+
+.plan-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-primary);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 20px 16px;
+  transition: all 0.2s;
+}
+
+.plan-card:hover {
+  border-color: var(--color-border-dark);
+}
+
+.plan-card.current {
+  border-color: var(--color-brand-primary);
+  background: var(--color-brand-primary-light);
+}
+
+.plan-card.popular {
+  border-color: var(--color-purple-600);
+}
+
+.popular-badge {
+  position: absolute;
+  inset-block-start: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 12px;
+  background: var(--color-indigo-500);
+  color: var(--color-text-inverse);
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--radius-lg);
+  white-space: nowrap;
+}
+
+.plan-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.plan-header h4 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.plan-price {
+  margin-bottom: 4px;
+}
+
+.plan-price .price {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.plan-price .period {
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+.plan-queries {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  flex: 1; /* Push button to bottom by filling available space */
+}
+
+.plan-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.plan-features .check {
+  color: var(--color-success);
+  font-weight: bold;
+}
+
+.plan-action {
+  margin-top: auto;
+}
+
+.plan-action button {
+  width: 100%;
+}
+
+/* Manage Card */
+.manage-card .card-body {
+  padding: 0;
+}
+
+.manage-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+}
+
+.manage-content > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.manage-title {
+  margin: 0 0 var(--space-1) 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.manage-desc {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.manage-content button {
+  flex-shrink: 0;
+}
+
+.stripe-note {
+  text-align: center;
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  margin-top: 24px;
+}
+
+/* Mobile responsiveness */
+@media (width <= 640px) {
+  .plans-grid {
+    grid-template-columns: 1fr;
+  }
+}

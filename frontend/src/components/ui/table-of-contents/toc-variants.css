@@ -1,0 +1,314 @@
+/* =============================================================================
+   TABLE OF CONTENTS - Variants (Sticky + Inline)
+   Alternative TOC layouts for different use cases
+   ============================================================================= */
+
+/* =============================================================================
+   STICKY VARIANT - Capsule at top of content (recommended for embedded areas)
+
+   Use this variant when TOC should be INSIDE the content container.
+   Shows as a collapsible pill that expands to a dropdown list.
+   ============================================================================= */
+
+.toc-sticky-wrapper {
+  position: sticky;
+  inset-block-start: 0;
+
+  /* Use z-dropdown (100) to ensure dropdown appears above sibling FABs which use z-elevated (10) */
+  z-index: var(--z-dropdown, 100);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 8px 0;
+  margin-bottom: var(--space-3, 12px);
+
+  /* Background to cover content scrolling behind */
+  background: inherit;
+}
+
+/* Hide sticky TOC on mobile - doesn't work well in compact content areas */
+@media (width <= 640px) {
+  .toc-sticky-wrapper {
+    display: none;
+  }
+}
+
+/* Trigger button - pill style */
+.toc-sticky-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 6px 8px;
+  background: var(--overlay-white-95);
+  backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid var(--overlay-black-5);
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-slate-600);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    var(--shadow-sm),
+    inset 0 1px 0 var(--overlay-white-80);
+}
+
+.toc-sticky-trigger:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    var(--shadow-md),
+    inset 0 1px 0 var(--overlay-white-90);
+  color: var(--color-slate-800);
+}
+
+.toc-sticky-trigger:active {
+  transform: scale(0.98);
+  transition-duration: 0.1s;
+}
+
+.toc-sticky-trigger.expanded {
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border-block-end-color: transparent;
+}
+
+/* Progress bar - horizontal */
+.toc-sticky-progress {
+  width: 32px;
+  height: 3px;
+  background: var(--color-slate-200);
+  border-radius: var(--radius-xs, 2px);
+  position: relative;
+  overflow: hidden;
+}
+
+.toc-sticky-progress-fill {
+  position: absolute;
+  left: 0;
+  inset-block-start: 0;
+  height: 100%;
+  background: var(--color-iris-500);
+  border-radius: var(--radius-xs, 2px);
+  transition: width 0.3s ease;
+}
+
+.toc-sticky-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.toc-sticky-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--color-slate-400);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.toc-sticky-trigger:hover .toc-sticky-icon {
+  color: var(--color-slate-600);
+}
+
+/* Dropdown list */
+.toc-sticky-dropdown {
+  /* SOLID background to prevent content bleeding through */
+  background: var(--color-bg-primary);
+  border: 1px solid var(--overlay-black-5);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  padding: 8px;
+
+  /* Extra bottom padding so shadow/container extends below all items */
+  padding-bottom: 16px;
+  margin-top: -1px;
+  box-shadow:
+    0 4px 16px var(--overlay-black-8),
+    0 8px 32px var(--overlay-black-5);
+
+  /* Increased max-height to fit more items */
+  max-height: 400px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  min-width: 200px;
+  max-width: 320px;
+
+  /* ABSOLUTE positioning so dropdown overlays content below instead of flowing inline */
+  position: absolute;
+  inset-block-start: 100%;
+  left: 0;
+  z-index: var(--z-dropdown, 100);
+}
+
+.toc-sticky-header {
+  padding: 4px 8px 8px;
+  border-bottom: 1px solid var(--overlay-black-5);
+  margin-bottom: 4px;
+}
+
+.toc-sticky-title {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-slate-400);
+}
+
+.toc-sticky-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toc-sticky-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--radius-md, 6px);
+  text-decoration: none;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.toc-sticky-link:hover {
+  background: var(--overlay-black-5);
+}
+
+.toc-sticky-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-slate-300);
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.toc-sticky-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-slate-600);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.15s ease;
+}
+
+.toc-sticky-link:hover .toc-sticky-dot {
+  background: var(--color-slate-500);
+}
+
+.toc-sticky-link:hover .toc-sticky-text {
+  color: var(--color-slate-800);
+}
+
+/* Active state */
+.toc-sticky-link.active {
+  background: var(--overlay-indigo-10);
+}
+
+.toc-sticky-link.active .toc-sticky-dot {
+  background: var(--color-iris-500);
+  box-shadow: 0 0 0 2px var(--overlay-indigo-20);
+}
+
+.toc-sticky-link.active .toc-sticky-text {
+  color: var(--color-iris-600);
+  font-weight: 600;
+}
+
+/* H3 level indent */
+.toc-sticky-link.level-3 {
+  padding-left: 20px;
+}
+
+.toc-sticky-link.level-3 .toc-sticky-dot {
+  width: 4px;
+  height: 4px;
+  opacity: 0.6;
+}
+
+.toc-sticky-link.level-3 .toc-sticky-text {
+  font-size: 11px;
+  color: var(--color-slate-500);
+}
+
+/* =============================================================================
+   INLINE VARIANT - Static list for sidebars
+   ============================================================================= */
+
+.toc-inline {
+  padding: var(--space-3, 12px);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-slate-100);
+  border-radius: var(--radius-lg, 12px);
+}
+
+.toc-inline-header {
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--color-slate-100);
+}
+
+.toc-inline-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-slate-400);
+}
+
+.toc-inline-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toc-inline-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--radius-md, 6px);
+  text-decoration: none;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.toc-inline-link:hover {
+  background: var(--overlay-black-5);
+}
+
+.toc-inline-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-slate-300);
+  flex-shrink: 0;
+}
+
+.toc-inline-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-slate-600);
+}
+
+.toc-inline-link.active {
+  background: var(--overlay-indigo-10);
+}
+
+.toc-inline-link.active .toc-inline-dot {
+  background: var(--color-iris-500);
+}
+
+.toc-inline-link.active .toc-inline-text {
+  color: var(--color-iris-600);
+  font-weight: 600;
+}

@@ -4,6 +4,7 @@ import { Button } from '../ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
 import { useBilling } from './hooks/useBilling';
 import { formatCurrency } from '../../lib/currencyUtils';
+import './BillingSection.css';
 
 const BillingSkeleton = () => (
   <>

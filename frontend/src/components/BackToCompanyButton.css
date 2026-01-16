@@ -1,0 +1,35 @@
+/* Back to My Company floating button */
+.back-to-company-btn {
+  position: absolute;
+  inset-block-start: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-dropdown);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--color-slate-800);
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-inverse);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.back-to-company-btn:hover {
+  background: var(--color-slate-700);
+  box-shadow: var(--shadow-md);
+  transform: translateX(-50%) translateY(-1px);
+}
+
+.back-to-company-btn:active {
+  transform: translateX(-50%) translateY(0);
+}
+
+.back-to-company-btn svg {
+  flex-shrink: 0;
+}

@@ -7,7 +7,7 @@
 .theme-toggle-container {
   position: fixed;
   inset-block-start: 16px;
-  inset-inline-end: 16px;
+  right: 16px;
   z-index: var(--z-toast); /* Always on top, even above modals */
   isolation: isolate; /* Create own stacking context */
   pointer-events: auto; /* Ensure clicks are captured */
@@ -53,10 +53,10 @@
 }
 
 /* Mobile adjustments - icon only, no background */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .theme-toggle-container {
     inset-block-start: 12px;
-    inset-inline-end: 12px;
+    right: 12px;
   }
 
   .theme-toggle-btn {

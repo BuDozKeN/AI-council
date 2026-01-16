@@ -1,0 +1,136 @@
+/**
+ * MyCompany Mobile Shell - FAB & Interactions
+ * Floating action button, pull to refresh, swipe hints
+ *
+ * Key features:
+ * - FAB in thumb zone
+ * - Pull to refresh indicator
+ * - Swipe hints for discoverability
+ */
+
+/* ============================================================================
+   FLOATING ACTION BUTTON (FAB)
+   Primary creation action in thumb zone
+   ============================================================================ */
+
+.mc-fab {
+  display: none; /* Hidden on desktop */
+}
+
+@media (width <= 640px) {
+  .mc-fab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    right: 16px;
+    width: 56px;
+    height: 56px;
+    background: var(--color-indigo-600);
+    color: var(--color-text-inverse);
+    border: none;
+    border-radius: var(--radius-xl);
+    box-shadow:
+      var(--shadow-lg),
+      0 0 0 1px var(--overlay-indigo-20);
+    cursor: pointer;
+    z-index: var(--z-overlay);
+    transition: all 0.2s ease;
+  }
+
+  .mc-fab:hover {
+    transform: scale(1.05);
+    box-shadow:
+      0 6px 16px var(--overlay-indigo-20),
+      0 3px 6px var(--overlay-black-15);
+  }
+
+  .mc-fab:active {
+    transform: scale(0.95);
+  }
+
+  .mc-fab svg {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Hide the inline "New" button when FAB is shown */
+  .mc-projects-filters .mc-btn-clean.primary,
+  .mc-playbooks-header .mc-btn-clean.primary {
+    display: none;
+  }
+}
+
+/* ============================================================================
+   PULL TO REFRESH INDICATOR
+   ============================================================================ */
+
+.mc-pull-indicator {
+  display: none;
+  position: absolute;
+  inset-block-start: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100%);
+  padding: 12px;
+  transition: transform 0.2s ease;
+}
+
+.mc-pull-indicator.visible {
+  transform: translateX(-50%) translateY(0);
+}
+
+.mc-pull-indicator svg {
+  width: 24px;
+  height: 24px;
+  color: var(--color-text-tertiary);
+}
+
+.mc-pull-indicator.refreshing svg {
+  animation: mc-spin 1s linear infinite;
+}
+
+@keyframes mc-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================================================
+   SWIPE HINT (visual cue for swipeable items)
+   ============================================================================ */
+
+@media (width <= 640px) {
+  .mc-swipe-hint {
+    position: absolute;
+    right: -4px;
+    inset-block-start: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 32px;
+    background: var(--color-border-dark);
+    border-radius: var(--radius-xs);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .mc-elegant-row:first-child .mc-swipe-hint {
+    opacity: 0.5;
+    animation: swipe-hint 2s ease-in-out infinite;
+  }
+
+  @keyframes swipe-hint {
+    0%,
+    100% {
+      transform: translateY(-50%) translateX(0);
+    }
+
+    50% {
+      transform: translateY(-50%) translateX(-4px);
+    }
+  }
+}

@@ -8,7 +8,7 @@ Endpoints for managing saved council decisions:
 - Generate AI summaries
 """
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from typing import Optional, List
 import re
@@ -28,6 +28,9 @@ from .utils import (
     DecisionCreate,
     PromoteDecision,
 )
+
+# Import shared rate limiter (ensures limits are tracked globally)
+from ...rate_limit import limiter
 
 
 router = APIRouter(prefix="/company", tags=["company-decisions"])
@@ -81,8 +84,8 @@ def _sync_project_departments_internal(project_id: str):
 # =============================================================================
 
 @router.get("/{company_id}/decisions")
-async def get_decisions(
-    company_id: str,
+@limiter.limit("100/minute;500/hour")
+async def get_decisions(request: Request, company_id: str,
     search: Optional[str] = None,
     limit: int = 50,
     user=Depends(get_current_user)
@@ -155,7 +158,8 @@ async def get_decisions(
 
 
 @router.post("/{company_id}/decisions")
-async def create_decision(company_id: ValidCompanyId, data: DecisionCreate, user=Depends(get_current_user)):
+@limiter.limit("30/minute;100/hour")
+async def create_decision(request: Request, company_id: ValidCompanyId, data: DecisionCreate, user=Depends(get_current_user)):
     """Save a new decision from a council session."""
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
@@ -248,7 +252,8 @@ async def create_decision(company_id: ValidCompanyId, data: DecisionCreate, user
 
 
 @router.get("/{company_id}/decisions/{decision_id}")
-async def get_decision(company_id: ValidCompanyId, decision_id: ValidDecisionId, user=Depends(get_current_user)):
+@limiter.limit("100/minute;500/hour")
+async def get_decision(request: Request, company_id: ValidCompanyId, decision_id: ValidDecisionId, user=Depends(get_current_user)):
     """Get a single decision (knowledge entry)."""
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
@@ -297,7 +302,8 @@ async def get_decision(company_id: ValidCompanyId, decision_id: ValidDecisionId,
 
 
 @router.post("/{company_id}/decisions/{decision_id}/archive")
-async def archive_decision(company_id: ValidCompanyId, decision_id: ValidDecisionId, user=Depends(get_current_user)):
+@limiter.limit("30/minute;100/hour")
+async def archive_decision(request: Request, company_id: ValidCompanyId, decision_id: ValidDecisionId, user=Depends(get_current_user)):
     """Archive (soft delete) a decision."""
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
@@ -349,7 +355,8 @@ async def archive_decision(company_id: ValidCompanyId, decision_id: ValidDecisio
 
 
 @router.delete("/{company_id}/decisions/{decision_id}")
-async def delete_decision(company_id: ValidCompanyId, decision_id: ValidDecisionId, user=Depends(get_current_user)):
+@limiter.limit("20/minute;50/hour")
+async def delete_decision(request: Request, company_id: ValidCompanyId, decision_id: ValidDecisionId, user=Depends(get_current_user)):
     """Permanently delete a decision."""
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
@@ -388,7 +395,8 @@ async def delete_decision(company_id: ValidCompanyId, decision_id: ValidDecision
 
 
 @router.post("/{company_id}/decisions/{decision_id}/promote")
-async def promote_decision(company_id: ValidCompanyId, decision_id: ValidDecisionId, data: PromoteDecision, user=Depends(get_current_user)):
+@limiter.limit("20/minute;50/hour")
+async def promote_decision(request: Request, company_id: ValidCompanyId, decision_id: ValidDecisionId, data: PromoteDecision, user=Depends(get_current_user)):
     """Promote a decision to a playbook (SOP/framework/policy)."""
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
@@ -485,7 +493,8 @@ async def promote_decision(company_id: ValidCompanyId, decision_id: ValidDecisio
 
 
 @router.post("/{company_id}/decisions/{decision_id}/link-project")
-async def link_decision_to_project(company_id: str, decision_id: str, data: LinkDecisionToProject, user=Depends(get_current_user)):
+@limiter.limit("30/minute;100/hour")
+async def link_decision_to_project(request: Request, company_id: str, decision_id: str, data: LinkDecisionToProject, user=Depends(get_current_user)):
     """Link a decision to an existing project."""
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
@@ -547,7 +556,8 @@ async def link_decision_to_project(company_id: str, decision_id: str, data: Link
 
 
 @router.post("/{company_id}/decisions/{decision_id}/create-project")
-async def create_project_from_decision(company_id: str, decision_id: str, data: CreateProjectFromDecision, user=Depends(get_current_user)):
+@limiter.limit("20/minute;50/hour")
+async def create_project_from_decision(request: Request, company_id: str, decision_id: str, data: CreateProjectFromDecision, user=Depends(get_current_user)):
     """Create a new project from a decision."""
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
@@ -704,8 +714,8 @@ Use sections: ## Objective, ## Key Insights, ## Deliverables, ## Success Criteri
 
 
 @router.get("/{company_id}/projects/{project_id}/decisions")
-async def get_project_decisions(
-    company_id: str,
+@limiter.limit("100/minute;500/hour")
+async def get_project_decisions(request: Request, company_id: str,
     project_id: str,
     limit: int = 100,
     user=Depends(get_current_user)
@@ -784,7 +794,8 @@ async def get_project_decisions(
 
 
 @router.post("/{company_id}/projects/{project_id}/sync-departments")
-async def sync_project_departments(company_id: str, project_id: str, user=Depends(get_current_user)):
+@limiter.limit("30/minute;100/hour")
+async def sync_project_departments(request: Request, company_id: str, project_id: str, user=Depends(get_current_user)):
     """Recalculate project's department_ids from all its active decisions."""
     service_client = get_service_client()
     user_client = get_client(user)
@@ -810,8 +821,8 @@ async def sync_project_departments(company_id: str, project_id: str, user=Depend
 
 
 @router.post("/{company_id}/decisions/{decision_id}/generate-summary")
-async def generate_decision_summary(
-    company_id: str,
+@limiter.limit("10/minute;30/hour")
+async def generate_decision_summary(request: Request, company_id: str,
     decision_id: str,
     user=Depends(get_current_user)
 ):

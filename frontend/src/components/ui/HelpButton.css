@@ -6,8 +6,8 @@
 /* Container - fixed position bottom-right, above everything */
 .help-button-container {
   position: fixed;
-  inset-block-end: 80px; /* Higher to avoid TanStack devtools */
-  inset-inline-end: 24px;
+  bottom: 80px; /* Higher to avoid TanStack devtools */
+  right: 24px;
   z-index: var(--z-toast); /* Always on top, even above modals */
   isolation: isolate; /* Create own stacking context */
   pointer-events: auto; /* Ensure clicks are captured */
@@ -62,13 +62,13 @@
 /* Help Panel - slides up from the button */
 .help-panel {
   position: absolute;
-  inset-block-end: 60px;
-  inset-inline-end: 0;
+  bottom: 60px;
+  right: 0;
   width: 280px;
-  background: var(--color-bg-primary, #fff);
-  border: 1px solid var(--color-border-light, #f1f5f9);
-  border-radius: var(--radius-lg, 12px);
-  box-shadow: var(--shadow-xl, 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1));
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
   overflow: hidden;
   animation: helpPanelSlideUp 0.2s ease-out;
 }
@@ -91,14 +91,14 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  border-block-end: 1px solid var(--color-border-light, #f1f5f9);
-  background: var(--color-bg-secondary, #f9fafb);
+  border-bottom: 1px solid var(--color-border-light);
+  background: var(--color-bg-secondary);
 }
 
 .help-panel-title {
   font-size: 14px;
   font-weight: 600;
-  color: var(--color-text-primary, #333);
+  color: var(--color-text-primary);
   margin: 0;
 }
 
@@ -110,16 +110,16 @@
   height: 24px;
   padding: 0;
   border: none;
-  border-radius: var(--radius-sm, 4px);
+  border-radius: var(--radius-sm);
   background: transparent;
-  color: var(--color-text-tertiary, #9ca3af);
+  color: var(--color-text-tertiary);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .help-panel-close:hover {
-  background: var(--color-bg-hover, #f3f4f6);
-  color: var(--color-text-primary, #333);
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
 }
 
 /* Panel content */
@@ -133,13 +133,13 @@
   align-items: center;
   gap: 12px;
   padding: 10px 12px;
-  border-radius: var(--radius-md, 8px);
+  border-radius: var(--radius-md);
   text-decoration: none;
   transition: background 0.15s ease;
 }
 
 .help-link:hover {
-  background: var(--color-bg-hover, #f3f4f6);
+  background: var(--color-bg-hover);
 }
 
 .help-link-icon {
@@ -148,9 +148,9 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: var(--radius-md, 8px);
-  background: var(--color-brand-primary-light, #f0f7ff);
-  color: var(--color-brand-primary, #4a90e2);
+  border-radius: var(--radius-md);
+  background: var(--color-brand-primary-light);
+  color: var(--color-brand-primary);
   flex-shrink: 0;
 }
 
@@ -165,19 +165,19 @@
 .help-link-label {
   font-size: 13px;
   font-weight: 500;
-  color: var(--color-text-primary, #333);
+  color: var(--color-text-primary);
 }
 
 .help-link-desc {
   font-size: 11px;
-  color: var(--color-text-tertiary, #9ca3af);
+  color: var(--color-text-tertiary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .help-link-external {
-  color: var(--color-text-tertiary, #9ca3af);
+  color: var(--color-text-tertiary);
   flex-shrink: 0;
   opacity: 0;
   transition: opacity 0.15s ease;
@@ -190,7 +190,7 @@
 /* Language Section */
 .help-language-section {
   padding: 12px 16px;
-  border-block-start: 1px solid var(--color-border-light, #f1f5f9);
+  border-top: 1px solid var(--color-border-light);
 }
 
 .help-language-header {
@@ -199,8 +199,8 @@
   gap: 8px;
   font-size: 12px;
   font-weight: 500;
-  color: var(--color-text-secondary, #666);
-  margin-block-end: 8px;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
 }
 
 .help-language-options {
@@ -211,10 +211,10 @@
 .help-language-btn {
   flex: 1;
   padding: 8px 12px;
-  border: 1px solid var(--color-border, #e5e7eb);
-  border-radius: var(--radius-md, 8px);
-  background: var(--color-bg-primary, #fff);
-  color: var(--color-text-secondary, #666);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-primary);
+  color: var(--color-text-secondary);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -222,37 +222,37 @@
 }
 
 .help-language-btn:hover {
-  background: var(--color-bg-hover, #f3f4f6);
-  border-color: var(--color-border-dark, #d1d5db);
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
 }
 
 .help-language-btn.active {
-  background: var(--color-brand-primary, #4a90e2);
-  border-color: var(--color-brand-primary, #4a90e2);
-  color: var(--color-text-inverse, #fff);
+  background: var(--color-brand-primary);
+  border-color: var(--color-brand-primary);
+  color: var(--color-text-inverse);
 }
 
 .help-language-btn.active:hover {
-  background: var(--color-brand-primary-hover, #3b82f6);
-  border-color: var(--color-brand-primary-hover, #3b82f6);
+  background: var(--color-brand-primary-hover);
+  border-color: var(--color-brand-primary-hover);
 }
 
 /* Panel footer */
 .help-panel-footer {
   padding: 8px 16px;
-  border-block-start: 1px solid var(--color-border-light, #f1f5f9);
-  background: var(--color-bg-secondary, #f9fafb);
+  border-top: 1px solid var(--color-border-light);
+  background: var(--color-bg-secondary);
 }
 
 .help-panel-version {
   font-size: 11px;
-  color: var(--color-text-tertiary, #9ca3af);
+  color: var(--color-text-tertiary);
   margin: 0;
   text-align: center;
 }
 
 /* Mobile: hide completely - language is in settings, like Perplexity */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .help-button-container {
     display: none;
   }
@@ -273,48 +273,48 @@
 }
 
 .dark .help-panel {
-  background: var(--color-bg-primary, #1e293b);
-  border-color: var(--color-border, #334155);
+  background: var(--color-bg-primary);
+  border-color: var(--color-border);
   box-shadow:
-    0 20px 25px -5px rgb(0 0 0 / 0.3),
-    0 8px 10px -6px rgb(0 0 0 / 0.2);
+    0 20px 25px -5px rgb(0 0 0 / 30%),
+    0 8px 10px -6px rgb(0 0 0 / 20%);
 }
 
 .dark .help-panel-header {
-  background: var(--color-bg-secondary, #0f172a);
-  border-color: var(--color-border, #334155);
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
 }
 
 .dark .help-link:hover {
-  background: var(--color-bg-hover, #334155);
+  background: var(--color-bg-hover);
 }
 
 .dark .help-link-icon {
-  background: rgb(74 144 226 / 0.15);
+  background: rgb(74 144 226 / 15%);
 }
 
 .dark .help-panel-footer {
-  background: var(--color-bg-secondary, #0f172a);
-  border-color: var(--color-border, #334155);
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
 }
 
 .dark .help-language-section {
-  border-color: var(--color-border, #334155);
+  border-color: var(--color-border);
 }
 
 .dark .help-language-btn {
-  background: var(--color-bg-secondary, #0f172a);
-  border-color: var(--color-border, #334155);
-  color: var(--color-text-secondary, #9ca3af);
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
 }
 
 .dark .help-language-btn:hover {
-  background: var(--color-bg-hover, #334155);
-  border-color: var(--color-border-dark, #475569);
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
 }
 
 .dark .help-language-btn.active {
-  background: var(--color-brand-primary, #4a90e2);
-  border-color: var(--color-brand-primary, #4a90e2);
-  color: var(--color-text-inverse, #fff);
+  background: var(--color-brand-primary);
+  border-color: var(--color-brand-primary);
+  color: var(--color-text-inverse);
 }

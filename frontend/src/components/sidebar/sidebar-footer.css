@@ -1,0 +1,204 @@
+/* =============================================================================
+   SIDEBAR FOOTER - Perplexity clean style
+   ============================================================================= */
+
+.sidebar-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--sidebar-border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Collapsed footer */
+.sidebar-footer--collapsed {
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  border-top: none;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.user-email {
+  font-size: 12px;
+  color: var(--sidebar-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.sidebar-footer-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+/* Unified footer button style - icon + text, consistent treatment */
+.footer-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--sidebar-text-secondary);
+  font-size: 12px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  white-space: nowrap;
+}
+
+.footer-btn:hover {
+  background: var(--sidebar-hover-bg);
+  color: var(--sidebar-text-primary);
+}
+
+.footer-btn svg {
+  flex-shrink: 0;
+}
+
+/* Sign out - slightly muted to differentiate from primary actions */
+.footer-btn.sign-out-btn {
+  color: var(--sidebar-text-muted);
+}
+
+.footer-btn.sign-out-btn:hover {
+  color: var(--sidebar-text-primary);
+}
+
+/* =============================================================================
+   MODE TOGGLE BUTTONS
+   ============================================================================= */
+
+.mode-toggle-section {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.mode-toggle-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid;
+}
+
+.mode-toggle-btn .mode-indicator {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.mode-toggle-btn .mode-label {
+  flex: 1;
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* Production mode - green */
+.mode-toggle-btn.production {
+  background: var(--overlay-emerald-15);
+  border-color: rgb(var(--color-emerald-500-rgb), 0.5);
+  color: var(--color-success);
+}
+
+.mode-toggle-btn.production .mode-indicator {
+  background: var(--color-success);
+  box-shadow: 0 0 6px rgb(var(--color-emerald-500-rgb), 0.5);
+}
+
+.mode-toggle-btn.production:hover {
+  background: var(--overlay-emerald-20);
+}
+
+/* Mock mode - orange */
+.mode-toggle-btn.mock {
+  background: var(--overlay-amber-15);
+  border-color: rgb(var(--color-amber-500-rgb), 0.5);
+  color: var(--color-warning);
+}
+
+.mode-toggle-btn.mock .mode-indicator {
+  background: var(--color-warning);
+  box-shadow: 0 0 6px rgb(var(--color-amber-500-rgb), 0.5);
+}
+
+.mode-toggle-btn.mock:hover {
+  background: var(--overlay-amber-20);
+}
+
+/* Caching enabled - blue */
+.mode-toggle-btn.caching.enabled {
+  background: var(--overlay-blue-15);
+  border-color: rgb(var(--color-blue-500-rgb), 0.5);
+  color: var(--color-primary);
+}
+
+.mode-toggle-btn.caching.enabled .mode-indicator {
+  background: var(--color-primary);
+  box-shadow: 0 0 6px rgb(var(--color-blue-500-rgb), 0.5);
+}
+
+.mode-toggle-btn.caching.enabled:hover {
+  background: var(--overlay-blue-20);
+}
+
+/* Caching disabled - gray */
+.mode-toggle-btn.caching.disabled {
+  background: var(--overlay-white-5);
+  border-color: var(--sidebar-border);
+  color: var(--sidebar-text-muted);
+}
+
+.mode-toggle-btn.caching.disabled .mode-indicator {
+  background: var(--sidebar-text-muted);
+}
+
+.mode-toggle-btn.caching.disabled:hover {
+  background: var(--overlay-white-10);
+}
+
+/* Toggling state */
+.mode-toggle-btn.toggling {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.mode-toggle-btn.toggling .mode-indicator {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.mode-toggle-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

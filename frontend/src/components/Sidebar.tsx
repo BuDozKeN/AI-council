@@ -11,6 +11,9 @@ import {
   Building2,
   LogOut,
   Trophy,
+  MessageSquare,
+  Search,
+  Archive,
 } from 'lucide-react';
 import {
   useMockMode,
@@ -42,7 +45,7 @@ import { api } from '../api';
 import { logger } from '../utils/logger';
 import type { Conversation, ConversationSortBy } from '../types/conversation';
 import type { Department } from '../types/business';
-import './Sidebar.css';
+import './sidebar/index.css';
 
 interface DepartmentConversationGroup {
   name: string;
@@ -686,18 +689,24 @@ export default function Sidebar({
                 <ConversationSkeletonGroup count={5} />
               ) : searchQuery && searchResultCount === 0 ? (
                 <div className="no-conversations">
-                  <span className="no-conv-icon">🔍</span>
+                  <span className="no-conv-icon">
+                    <Search size={20} />
+                  </span>
                   {t('sidebar.noResultsFor', { query: searchQuery })}
                 </div>
               ) : totalConversations === 0 ? (
                 <div className="no-conversations">
-                  <span className="no-conv-icon">💬</span>
+                  <span className="no-conv-icon">
+                    <MessageSquare size={20} />
+                  </span>
                   <span>{t('sidebar.readyWhenYouAre')}</span>
                   <span className="no-conv-hint">{t('sidebar.startNewConversation')}</span>
                 </div>
               ) : filter === 'archived' && filteredBySearch.archived.length === 0 ? (
                 <div className="no-conversations">
-                  <span className="no-conv-icon">📦</span>
+                  <span className="no-conv-icon">
+                    <Archive size={20} />
+                  </span>
                   {t('sidebar.nothingArchived')}
                 </div>
               ) : filter !== 'archived' && filteredBySearch.active.length === 0 ? (
@@ -821,19 +830,19 @@ export default function Sidebar({
         >
           <SidebarIconButton
             icon={<Building2 className="h-4 w-4" />}
-            title={t('sidebar.myCompany')}
+            title={`${t('sidebar.myCompany')} — ${t('sidebar.tooltips.company')}`}
             onClick={onOpenMyCompany ?? (() => {})}
             onMouseEnter={myCompanyHoverHandlers.onMouseEnter}
             onMouseLeave={myCompanyHoverHandlers.onMouseLeave}
           />
           <SidebarIconButton
             icon={<Settings className="h-4 w-4" />}
-            title={t('sidebar.settings')}
+            title={`${t('sidebar.settings')} — ${t('sidebar.tooltips.settings')}`}
             onClick={onOpenSettings ?? (() => {})}
           />
           <SidebarIconButton
             icon={<LogOut className="h-4 w-4" />}
-            title={t('auth.signOut')}
+            title={t('sidebar.tooltips.signOut')}
             onClick={onSignOut ?? (() => {})}
           />
         </div>

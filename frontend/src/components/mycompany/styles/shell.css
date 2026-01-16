@@ -34,7 +34,6 @@
   justify-content: center;
   z-index: var(--z-modal);
   backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
   animation: mc-overlay-fade-in 0.2s ease-out;
   overflow: hidden;
 }
@@ -111,7 +110,7 @@
 .mc-dismiss-hint {
   position: absolute;
   inset-block-start: 6px;
-  inset-inline-start: 50%;
+  left: 50%;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
@@ -239,7 +238,7 @@
 /* Company Switcher - Button with dropdown */
 .mc-company-switcher {
   position: relative;
-  margin-block-start: 8px;
+  margin-top: 8px;
 }
 
 /* Modern select trigger for company switcher */
@@ -325,7 +324,7 @@
 .mc-chevron {
   color: rgb(var(--color-white-rgb, 255, 255, 255), 0.5);
   transition: transform 0.2s ease;
-  margin-inline-start: 2px;
+  margin-left: 2px;
 }
 
 .mc-chevron.open {
@@ -335,7 +334,7 @@
 .mc-company-dropdown {
   position: absolute;
   inset-block-start: calc(100% + 8px);
-  inset-inline-start: 0;
+  left: 0;
   min-width: 220px;
   background: var(--color-bg-primary);
   border-radius: var(--radius-lg);
@@ -366,7 +365,7 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  text-align: start;
+  text-align: left;
   transition: background 0.15s ease;
 }
 
@@ -395,7 +394,7 @@
 
 /* Divider between company options */
 .mc-company-option:not(:last-child) {
-  border-block-end: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .mc-close-btn {
@@ -429,7 +428,7 @@
   gap: 4px;
   padding: 12px 20px;
   background: var(--color-bg-secondary);
-  border-block-end: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .mc-tab {
@@ -451,8 +450,8 @@
 .mc-tab::after {
   content: '';
   position: absolute;
-  inset-block-end: -12px;
-  inset-inline-start: 50%;
+  bottom: -12px;
+  left: 50%;
   transform: translateX(-50%);
   width: 0;
   height: 2px;

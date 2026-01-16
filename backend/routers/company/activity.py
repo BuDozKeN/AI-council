@@ -6,7 +6,7 @@ Endpoints for activity log management:
 - Cleanup orphaned activity entries
 """
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from typing import Optional
 from datetime import datetime, timedelta
 
@@ -19,6 +19,9 @@ from .utils import (
     ValidCompanyId,
 )
 
+# Import shared rate limiter (ensures limits are tracked globally)
+from ...rate_limit import limiter
+
 
 router = APIRouter(prefix="/company", tags=["company-activity"])
 
@@ -28,8 +31,8 @@ router = APIRouter(prefix="/company", tags=["company-activity"])
 # =============================================================================
 
 @router.get("/{company_id}/activity")
-async def get_activity_logs(
-    company_id: ValidCompanyId,
+@limiter.limit("100/minute;500/hour")
+async def get_activity_logs(request: Request, company_id: ValidCompanyId,
     limit: int = 50,
     event_type: Optional[str] = None,
     days: Optional[int] = None,
@@ -103,8 +106,8 @@ async def get_activity_logs(
 
 
 @router.delete("/{company_id}/activity/cleanup")
-async def cleanup_orphaned_activity_logs(
-    company_id: ValidCompanyId,
+@limiter.limit("10/minute;30/hour")
+async def cleanup_orphaned_activity_logs(request: Request, company_id: ValidCompanyId,
     user=Depends(get_current_user)
 ):
     """

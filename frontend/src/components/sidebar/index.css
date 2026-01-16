@@ -1,0 +1,28 @@
+/* Sidebar CSS Module - Split for maintainability (max 300 lines per file) */
+
+/* Layout & states */
+@import url('./sidebar-layout.css');
+
+/* Header, buttons, pins */
+@import url('./sidebar-header.css');
+
+/* Icon rail & expanded panel */
+@import url('./sidebar-navigation.css');
+
+/* Search & filters */
+@import url('./sidebar-search.css');
+
+/* Conversation list & groups */
+@import url('./sidebar-conversations.css');
+
+/* Hover & bulk actions */
+@import url('./sidebar-actions.css');
+
+/* Footer & mode toggles */
+@import url('./sidebar-footer.css');
+
+/* Mobile responsive */
+@import url('./sidebar-mobile.css');
+
+/* Drag & drop */
+@import url('./sidebar-drag.css');

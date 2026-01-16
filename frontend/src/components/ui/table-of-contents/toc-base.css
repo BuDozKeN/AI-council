@@ -1,0 +1,256 @@
+/* =============================================================================
+   TABLE OF CONTENTS - Base Desktop Styles
+   Shared scrollbar + floating TOC sidebar for desktop
+   ============================================================================= */
+
+/* =============================================================================
+   SHARED SCROLLBAR STYLES - Hidden but functional
+   ============================================================================= */
+
+.toc-scrollable {
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.toc-scrollable::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Opera */
+}
+
+/* =============================================================================
+   STAGE 3 FLOATING TOC - Desktop sidebar (fixed position, right edge)
+   ============================================================================= */
+
+.stage3-floating-toc {
+  display: none;
+  position: fixed;
+  right: var(--space-6);
+
+  /* Position from top instead of bottom for better vertical space usage */
+  inset-block-start: 120px;
+  z-index: var(--z-header);
+  background: var(--overlay-white-60);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--overlay-white-30);
+  border-radius: var(--radius-md);
+  padding: var(--card-padding-sm);
+  box-shadow: var(--shadow-xs);
+  opacity: 0.6;
+  transition: all 0.2s ease;
+  min-width: 180px;
+  max-width: 240px;
+
+  /* Much taller - use most of viewport, leave room for header and bottom padding */
+  max-height: calc(100vh - 180px);
+
+  /* Hidden scrollbar - functional but invisible */
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.stage3-floating-toc::-webkit-scrollbar {
+  display: none;
+}
+
+.stage3-floating-toc:hover {
+  opacity: 1;
+  background: var(--overlay-white-95);
+  box-shadow: var(--shadow-sm);
+}
+
+/* TOC Header */
+.stage3-toc-header {
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid var(--overlay-black-5);
+}
+
+.stage3-toc-title {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-slate-500);
+  letter-spacing: 0.02em;
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+/* Collapse toggle button */
+.stage3-toc-toggle {
+  position: absolute;
+  left: -10px;
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--overlay-white-90);
+  border: 1px solid var(--overlay-black-10);
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: all 0.15s ease;
+  color: var(--color-slate-500);
+  box-shadow: var(--shadow-xs);
+}
+
+.stage3-floating-toc:hover .stage3-toc-toggle {
+  opacity: 1;
+}
+
+.stage3-toc-toggle:hover {
+  background: var(--color-slate-100);
+  color: var(--color-slate-700);
+  transform: translateY(-50%) scale(1.1);
+}
+
+/* Collapsed state */
+.stage3-floating-toc.collapsed {
+  padding: 8px 6px;
+  min-width: auto;
+  max-width: 24px;
+  cursor: pointer;
+}
+
+.stage3-floating-toc.collapsed:hover {
+  opacity: 1;
+  background: var(--overlay-white-95);
+}
+
+.stage3-floating-toc.collapsed .stage3-toc-toggle {
+  left: -10px;
+}
+
+.stage3-floating-toc.collapsed .stage3-toc-link {
+  padding: 4px;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* TOC List */
+.stage3-toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stage3-toc-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.stage3-toc-link:hover {
+  background: var(--overlay-black-5);
+}
+
+/* Dot indicator */
+.stage3-toc-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-slate-500);
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+/* Text label */
+.stage3-toc-text {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-slate-600);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+  transition: all 0.15s ease;
+}
+
+.stage3-toc-link:hover .stage3-toc-dot {
+  background: var(--color-slate-600);
+}
+
+.stage3-toc-link:hover .stage3-toc-text {
+  color: var(--color-slate-700);
+}
+
+/* Active state */
+.stage3-toc-link.active {
+  background: var(--overlay-emerald-15);
+  border-radius: var(--radius-2xl);
+}
+
+.stage3-toc-link.active .stage3-toc-dot {
+  background: var(--color-emerald-500);
+  opacity: 1;
+}
+
+.stage3-toc-link.active .stage3-toc-text {
+  color: var(--color-emerald-600);
+  font-weight: 500;
+}
+
+/* Show floating TOC on larger screens */
+@media (width >= 1280px) {
+  .stage3-floating-toc {
+    display: block;
+    right: 24px;
+  }
+}
+
+@media (width >= 1600px) {
+  .stage3-floating-toc {
+    right: 32px;
+  }
+}
+
+@media (width >= 1920px) {
+  .stage3-floating-toc {
+    right: 40px;
+  }
+}
+
+/* Dark mode - prefers-color-scheme */
+@media (prefers-color-scheme: dark) {
+  .stage3-floating-toc {
+    background: var(--overlay-black-60);
+    border-color: var(--overlay-white-8);
+  }
+
+  .stage3-floating-toc:hover {
+    background: var(--overlay-black-80);
+  }
+
+  .stage3-toc-toggle {
+    color: var(--color-slate-400);
+  }
+
+  .stage3-toc-toggle:hover {
+    color: var(--color-slate-300);
+  }
+
+  .stage3-floating-toc.collapsed:hover {
+    background: var(--overlay-black-80);
+  }
+
+  .stage3-toc-header {
+    border-block-end-color: var(--overlay-white-8);
+  }
+
+  .stage3-toc-title {
+    color: var(--color-slate-400);
+  }
+}

@@ -1,0 +1,402 @@
+/* =============================================================================
+   CONVERSATION LIST
+   ============================================================================= */
+
+.conversation-list {
+  flex: 1 1 0; /* Full shorthand: grow, shrink, basis=0 */
+  min-height: 0; /* Required for flex item to shrink below content height */
+  overflow: hidden auto; /* Prevent horizontal overflow */
+  padding: 8px 4px;
+}
+
+/* Scrollbar styling - dark theme */
+.conversation-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.conversation-list::-webkit-scrollbar-track {
+  background: var(--sidebar-scrollbar-track);
+}
+
+.conversation-list::-webkit-scrollbar-thumb {
+  background: var(--sidebar-scrollbar-thumb);
+  border-radius: var(--radius-xs);
+}
+
+.conversation-list::-webkit-scrollbar-thumb:hover {
+  background: var(--sidebar-text-muted);
+}
+
+.no-conversations {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--sidebar-text-muted);
+  font-size: 14px;
+}
+
+.no-conv-icon {
+  font-size: 24px;
+  margin-bottom: 4px;
+  opacity: 0.7;
+}
+
+.no-conv-hint {
+  font-size: 12px;
+  color: var(--sidebar-text-muted);
+  margin-top: 4px;
+}
+
+/* =============================================================================
+   CONVERSATION GROUPS - Perplexity section headers
+   ============================================================================= */
+
+.conversation-group {
+  margin-bottom: 8px;
+}
+
+.group-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  margin: 8px 8px 4px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+  border-radius: var(--radius-md);
+  gap: 6px;
+}
+
+.group-header:hover {
+  background: var(--sidebar-hover-bg);
+}
+
+.group-header:active {
+  background: var(--sidebar-active-bg);
+}
+
+.chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--sidebar-text-muted);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 10px;
+  flex-shrink: 0;
+}
+
+.chevron.expanded {
+  transform: rotate(90deg);
+}
+
+.group-name {
+  flex: 1;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sidebar-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.group-count {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--sidebar-text-muted);
+  background: var(--sidebar-hover-bg);
+  padding: 2px 6px;
+  border-radius: var(--radius-lg);
+  min-width: 18px;
+  text-align: center;
+}
+
+.group-header:hover .group-count {
+  background: var(--overlay-black-8);
+}
+
+.dark .group-header:hover .group-count {
+  background: var(--overlay-white-10);
+}
+
+/* =============================================================================
+   CONVERSATION ITEMS - Perplexity simple text style
+   ============================================================================= */
+
+.group-conversations {
+  padding: 0 8px;
+}
+
+.conversation-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  margin: 2px 0;
+  background: transparent;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    transform 0.15s ease,
+    opacity 0.15s ease,
+    box-shadow 0.15s ease;
+  gap: 8px;
+}
+
+.conversation-item:hover {
+  background: var(--sidebar-hover-bg);
+}
+
+.conversation-item.active {
+  background: var(--sidebar-active-bg);
+}
+
+.conversation-content {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  transition: max-width 0.15s ease;
+}
+
+/* On hover, shrink content to make room for actions */
+.conversation-item:hover .conversation-content {
+  max-width: calc(100% - 120px); /* Reserve space for 4 action buttons (~30px each) */
+}
+
+.conversation-title {
+  display: flex;
+  align-items: center;
+  color: var(--sidebar-text-secondary);
+  font-size: 13px;
+  font-weight: 400;
+  margin-bottom: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+}
+
+.conversation-item:hover .conversation-title {
+  color: var(--sidebar-text-primary);
+}
+
+.conversation-item.active .conversation-title {
+  color: var(--sidebar-text-primary);
+  font-weight: 500;
+}
+
+.conversation-meta {
+  display: none; /* Hide meta info for cleaner look */
+}
+
+.conversation-time {
+  color: var(--sidebar-text-muted);
+}
+
+.conversation-meta span:not(:first-child)::before {
+  content: '·';
+  margin-right: 6px;
+  color: var(--sidebar-text-muted);
+}
+
+/* Archived styling */
+.conversation-item.archived {
+  opacity: 0.6;
+}
+
+.conversation-item.archived .conversation-title {
+  color: var(--sidebar-text-muted);
+}
+
+.archived-badge {
+  display: inline-block;
+  font-size: 9px;
+  background: var(--color-warning);
+  color: var(--color-text-inverse);
+  padding: 1px 5px;
+  border-radius: var(--radius-sm);
+  margin-right: 6px;
+  text-transform: uppercase;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+/* Starred styling - uses amber for intuitive star color */
+.conversation-item.starred {
+  border-left: 3px solid var(--color-amber-500);
+  padding-left: 13px;
+}
+
+.title-star {
+  color: var(--color-amber-500);
+  margin-right: 6px;
+  flex-shrink: 0;
+  font-size: 14px;
+}
+
+/* Selected styling (multi-select for bulk actions) - distinct from active */
+.conversation-item.selected {
+  background: var(--overlay-blue-10); /* Blue tint for selection */
+  border-left: 3px solid var(--color-primary);
+  padding-left: 13px;
+}
+
+.conversation-item.selected .conversation-title {
+  color: var(--sidebar-text-primary);
+}
+
+/* When both selected AND active, show selected state takes visual priority */
+.conversation-item.selected.active {
+  background: var(--overlay-blue-15);
+  border-left: 3px solid var(--color-primary);
+}
+
+/* Dark mode selected styling */
+.dark .conversation-item.selected {
+  background: var(--overlay-blue-15);
+}
+
+.dark .conversation-item.selected.active {
+  background: var(--overlay-blue-20);
+}
+
+/* Keyboard focus state styling */
+.conversation-item.focused {
+  outline: 2px solid var(--sidebar-active-border);
+  outline-offset: -2px;
+}
+
+/* =============================================================================
+   TITLE EDIT INPUT
+   ============================================================================= */
+
+.conversation-title-edit {
+  flex: 1;
+  min-width: 0;
+}
+
+.title-edit-input {
+  width: 100%;
+  padding: 4px 8px;
+  border: 1px solid var(--sidebar-active-border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--sidebar-text-primary);
+  background: var(--overlay-white-10);
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(var(--color-indigo-rgb), 0.15);
+}
+
+.title-edit-input:focus {
+  border-color: var(--sidebar-active-border);
+}
+
+/* =============================================================================
+   DELETE MODAL
+   ============================================================================= */
+
+.delete-modal-body {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.delete-modal-cancel {
+  padding: 10px 20px;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-dark);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.delete-modal-cancel:hover {
+  background: var(--color-bg-active);
+}
+
+.delete-modal-confirm {
+  padding: 10px 20px;
+  background: var(--color-error);
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--color-text-inverse);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.delete-modal-confirm:hover {
+  background: var(--color-error-hover);
+}
+
+/* =============================================================================
+   EXPORT BUTTON
+   ============================================================================= */
+
+.export-btn {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--sidebar-border);
+  border-radius: var(--radius-sm);
+  color: var(--sidebar-text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.conversation-item:hover .export-btn {
+  opacity: 1;
+}
+
+.export-btn:hover {
+  background: var(--sidebar-hover-bg);
+  border-color: var(--sidebar-active-border);
+  color: var(--sidebar-text-primary);
+}
+
+/* =============================================================================
+   SHOW MORE BUTTON
+   ============================================================================= */
+
+.show-more-btn {
+  width: 100%;
+  padding: 8px;
+  margin: 4px 0 8px;
+  background: transparent;
+  border: 1px dashed var(--sidebar-border);
+  border-radius: var(--radius-md);
+  color: var(--sidebar-text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.show-more-btn:hover {
+  background: var(--sidebar-hover-bg);
+  border-color: var(--sidebar-active-border);
+  color: var(--sidebar-text-primary);
+}
+
+/* Firefox scrollbar support (global) */
+.conversation-list {
+  scrollbar-width: thin;
+  scrollbar-color: var(--sidebar-scrollbar-thumb) var(--sidebar-scrollbar-track);
+}

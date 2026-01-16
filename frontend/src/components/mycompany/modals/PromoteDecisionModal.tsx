@@ -4,6 +4,8 @@
  * Extracted from MyCompany.jsx for better maintainability.
  */
 
+import './PromoteDecisionModal.css';
+import '../../ui/Modal.css';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import MarkdownViewer from '../../MarkdownViewer';
@@ -170,28 +172,96 @@ export function PromoteDecisionModal({
     >
       <form onSubmit={handleSubmit}>
         <div className="mc-promote-layout-v2">
-          {/* LEFT side: Options */}
-          <div className="mc-promote-sidebar">
-            {/* Title Input */}
-            <div className="mc-form-unified">
-              <label htmlFor="promote-decision-title" className="mc-label-unified">
-                {t('modals.title')}
-              </label>
-              <input
-                id="promote-decision-title"
-                name="promote-title"
-                type="text"
-                className="mc-input-unified"
-                value={title}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
-                placeholder={t('modals.titlePlaceholder')}
-                autoFocus
-              />
+          {/* TITLE - Full width at top for maximum space */}
+          <div className="mc-promote-title-row">
+            <label htmlFor="promote-decision-title" className="mc-label-unified">
+              {t('modals.title')}
+            </label>
+            <input
+              id="promote-decision-title"
+              name="promote-title"
+              type="text"
+              className="mc-input-unified"
+              value={title}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
+              placeholder={t('modals.titlePlaceholder')}
+              autoComplete="off"
+              inputMode="text"
+            />
+          </div>
+
+          {/* Two-column grid with aligned rows */}
+          <div className="mc-promote-grid">
+            {/* ROW 1: DEPARTMENTS label | SUMMARY header */}
+            <label className="mc-label-unified mc-grid-area-dept-label">
+              {t('modals.departments')}
+            </label>
+            <div className="mc-grid-area-summary-header">
+              <label className="mc-label-unified">{t('modals.summary')}</label>
+              <div className="mc-summary-actions">
+                {summary && (
+                  <button
+                    type="button"
+                    className="mc-expand-btn"
+                    onClick={() => setSummaryExpanded(!summaryExpanded)}
+                    title={summaryExpanded ? t('modals.collapse') : t('modals.expand')}
+                  >
+                    {summaryExpanded ? (
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <polyline points="4 14 10 14 10 20" />
+                        <polyline points="20 10 14 10 14 4" />
+                        <line x1="14" y1="10" x2="21" y2="3" />
+                        <line x1="3" y1="21" x2="10" y2="14" />
+                      </svg>
+                    ) : (
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <polyline points="15 3 21 3 21 9" />
+                        <polyline points="9 21 3 21 3 15" />
+                        <line x1="21" y1="3" x2="14" y2="10" />
+                        <line x1="3" y1="21" x2="10" y2="14" />
+                      </svg>
+                    )}
+                  </button>
+                )}
+                {!summary && companyId && decision?.id && (
+                  <button
+                    type="button"
+                    className="mc-generate-summary-btn"
+                    onClick={handleGenerateSummary}
+                    disabled={generatingSummary}
+                  >
+                    {generatingSummary ? (
+                      <>
+                        <Spinner size="xs" variant="muted" />
+                        {t('modals.generating')}
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw size={16} />
+                        {t('modals.generate')}
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
             </div>
 
-            {/* Department selector - multi-select */}
-            <div className="mc-form-unified">
-              <label className="mc-label-unified">{t('modals.departments')}</label>
+            {/* ROW 2: DEPARTMENTS select | SUMMARY content */}
+            <div className="mc-grid-area-dept-select">
               <MultiDepartmentSelect
                 value={departmentIds}
                 onValueChange={setDepartmentIds}
@@ -200,57 +270,87 @@ export function PromoteDecisionModal({
                 className="mc-dept-select-modal"
               />
             </div>
+            <div
+              className={`mc-promote-question-text mc-grid-area-summary-content ${summaryExpanded ? 'expanded' : ''}`}
+            >
+              {generatingSummary ? (
+                <span className="mc-generating-text">{t('modals.generatingAISummary')}</span>
+              ) : summary ? (
+                <MarkdownViewer content={summary} />
+              ) : (
+                <span className="mc-no-summary">{t('modals.noSummaryAvailable')}</span>
+              )}
+            </div>
 
-            {/* Type selector - vertical cards */}
-            <div className="mc-form-unified">
-              <label className="mc-label-unified">{t('modals.promoteTo')}</label>
-              <div className="mc-type-cards">
-                {DOC_TYPES.map((type) => {
-                  const Icon = type.icon;
-                  const isSelected = docType === type.value;
-                  return (
-                    <button
-                      key={type.value}
-                      type="button"
-                      className={`mc-type-card ${type.value} ${isSelected ? 'selected' : ''}`}
-                      onClick={() => setDocType(type.value)}
-                    >
-                      <Icon className="mc-type-card-icon" />
-                      <div className="mc-type-card-text">
-                        <span className="mc-type-card-label">{t(type.labelKey)}</span>
-                        <span className="mc-type-card-desc">{t(type.descKey)}</span>
-                      </div>
-                    </button>
-                  );
-                })}
+            {/* ROW 3: PROMOTE TO label | COUNCIL DECISION label */}
+            <label className="mc-label-unified mc-grid-area-type-label">
+              {t('modals.promoteTo')}
+            </label>
+            <label className="mc-label-unified mc-grid-area-decision-label">
+              {t('modals.councilDecision')}
+            </label>
+
+            {/* ROW 4: Type cards + Council Decision in flex row (left column controls height) */}
+            <div className="mc-type-row">
+              <div className="mc-grid-area-type-cards">
+                <div className="mc-type-cards">
+                  {DOC_TYPES.map((type) => {
+                    const Icon = type.icon;
+                    const isSelected = docType === type.value;
+                    return (
+                      <button
+                        key={type.value}
+                        type="button"
+                        className={`mc-type-card ${type.value} ${isSelected ? 'selected' : ''}`}
+                        onClick={() => setDocType(type.value)}
+                      >
+                        <Icon className="mc-type-card-icon" />
+                        <div className="mc-type-card-text">
+                          <span className="mc-type-card-label">{t(type.labelKey)}</span>
+                          <span className="mc-type-card-desc">{t(type.descKey)}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Project selector - only shown when docType is 'project' */}
+                {docType === 'project' && (
+                  <div className="mc-project-select-wrapper">
+                    <label className="mc-label-unified">{t('modals.addToProject')}</label>
+                    <ProjectSelect
+                      value={selectedProjectId || null}
+                      onValueChange={setSelectedProjectId}
+                      projects={activeProjects}
+                      includeCreate={true}
+                      createLabel={t('modals.newProject')}
+                      currentProjectId={decision?.project_id ?? null}
+                    />
+                    {existingProject && (
+                      <p className="mc-existing-project-hint">
+                        {t('modals.decisionAlreadyInProject', { name: existingProject.name })}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="mc-grid-area-decision-content">
+                <div className="mc-promote-content-rendered">
+                  {decision?.content ? (
+                    <MarkdownViewer content={decision.content} />
+                  ) : (
+                    <p className="mc-no-content">{t('modals.noContentAvailable')}</p>
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* Project selector - only shown when docType is 'project' */}
-            {docType === 'project' && (
-              <div className="mc-form-unified">
-                <label className="mc-label-unified">{t('modals.addToProject')}</label>
-                <ProjectSelect
-                  value={selectedProjectId || null}
-                  onValueChange={setSelectedProjectId}
-                  projects={activeProjects}
-                  includeCreate={true}
-                  createLabel={t('modals.newProject')}
-                  currentProjectId={decision?.project_id ?? null}
-                />
-                {existingProject && (
-                  <p className="mc-existing-project-hint">
-                    {t('modals.decisionAlreadyInProject', { name: existingProject.name })}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {/* Source link - compact inline text */}
+            {/* Source link - separate grid row for proper alignment */}
             {hasSource && onViewSource && (
               <button
                 type="button"
-                className="mc-source-link-compact"
+                className="mc-source-link-compact mc-grid-area-source-link"
                 onClick={() => onViewSource(decision.source_conversation_id!)}
               >
                 <svg
@@ -266,95 +366,6 @@ export function PromoteDecisionModal({
                 {t('modals.viewSource')}
               </button>
             )}
-          </div>
-
-          {/* RIGHT side: Summary + council response */}
-          <div className="mc-promote-content-full">
-            {/* AI Summary - what this conversation is about */}
-            <div className={`mc-promote-question ${summaryExpanded ? 'expanded' : ''}`}>
-              <div className="mc-promote-question-header">
-                <label className="mc-label-unified">{t('modals.summary')}</label>
-                <div className="mc-summary-actions">
-                  {summary && (
-                    <button
-                      type="button"
-                      className="mc-expand-btn"
-                      onClick={() => setSummaryExpanded(!summaryExpanded)}
-                      title={summaryExpanded ? t('modals.collapse') : t('modals.expand')}
-                    >
-                      {summaryExpanded ? (
-                        <svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <polyline points="4 14 10 14 10 20" />
-                          <polyline points="20 10 14 10 14 4" />
-                          <line x1="14" y1="10" x2="21" y2="3" />
-                          <line x1="3" y1="21" x2="10" y2="14" />
-                        </svg>
-                      ) : (
-                        <svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <polyline points="15 3 21 3 21 9" />
-                          <polyline points="9 21 3 21 3 15" />
-                          <line x1="21" y1="3" x2="14" y2="10" />
-                          <line x1="3" y1="21" x2="10" y2="14" />
-                        </svg>
-                      )}
-                    </button>
-                  )}
-                  {!summary && companyId && decision?.id && (
-                    <button
-                      type="button"
-                      className="mc-generate-summary-btn"
-                      onClick={handleGenerateSummary}
-                      disabled={generatingSummary}
-                    >
-                      {generatingSummary ? (
-                        <>
-                          <Spinner size="xs" variant="muted" />
-                          {t('modals.generating')}
-                        </>
-                      ) : (
-                        <>
-                          <RefreshCw size={16} />
-                          {t('modals.generate')}
-                        </>
-                      )}
-                    </button>
-                  )}
-                </div>
-              </div>
-              <div className={`mc-promote-question-text ${summaryExpanded ? 'expanded' : ''}`}>
-                {generatingSummary ? (
-                  <span className="mc-generating-text">{t('modals.generatingAISummary')}</span>
-                ) : summary ? (
-                  <MarkdownViewer content={summary} />
-                ) : (
-                  <span className="mc-no-summary">{t('modals.noSummaryAvailable')}</span>
-                )}
-              </div>
-            </div>
-
-            {/* Council response */}
-            <label className="mc-label-unified">{t('modals.councilDecision')}</label>
-            <div className="mc-promote-content-rendered">
-              {decision?.content ? (
-                <MarkdownViewer content={decision.content} />
-              ) : (
-                <p className="mc-no-content">{t('modals.noContentAvailable')}</p>
-              )}
-            </div>
           </div>
         </div>
 

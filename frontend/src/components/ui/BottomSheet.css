@@ -7,16 +7,14 @@
   inset: 0;
   background: var(--overlay-black-40);
   backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
   z-index: var(--z-modal, 1000);
   cursor: pointer; /* Tap anywhere outside to dismiss */
 }
 
 .bottom-sheet-content {
   position: fixed;
-  inset-block-end: 0;
-  inset-inline-start: 0;
-  inset-inline-end: 0;
+  bottom: 0;
+  right: 0;
   background: var(--color-bg-primary);
   border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
   min-height: 85vh; /* Fixed height - no resize between tabs */
@@ -32,8 +30,8 @@
 }
 
 /* Dragging state - disable transitions for immediate feedback */
-/* stylelint-disable-next-line declaration-no-important */
 .bottom-sheet-content.is-dragging {
+  /* stylelint-disable-next-line declaration-no-important -- Required to override inline styles from Framer Motion */
   transition: none !important;
   cursor: grabbing;
 }
@@ -119,7 +117,7 @@
 }
 
 /* Desktop - render as centered modal */
-@media (min-width: 769px) {
+@media (width >= 769px) {
   /* Use attribute selector for higher specificity over framer-motion inline styles */
   .bottom-sheet-content[class],
   div.bottom-sheet-content {
@@ -138,7 +136,7 @@
 
   .bottom-sheet-header {
     padding: 20px 24px 16px;
-    border-block-end: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
   }
 
   .bottom-sheet-body {
@@ -147,7 +145,7 @@
 }
 
 /* Tablet */
-@media (max-width: 768px) and (min-width: 481px) {
+@media (width <= 640px) and (width >= 481px) {
   .bottom-sheet-content {
     min-height: 85vh;
     max-height: 85vh;
@@ -155,7 +153,7 @@
 }
 
 /* Small phones */
-@media (max-width: 480px) {
+@media (width <= 640px) {
   .bottom-sheet-content {
     min-height: 85vh; /* Fixed height - same as tablet for consistency */
     max-height: 85vh;
@@ -180,7 +178,7 @@
 }
 
 /* Very small phones - full screen sheet */
-@media (max-width: 360px) {
+@media (width <= 640px) {
   .bottom-sheet-content {
     min-height: 100vh;
     max-height: 100vh;
@@ -190,7 +188,7 @@
 }
 
 /* Landscape mode */
-@media (max-width: 900px) and (orientation: landscape) {
+@media (width <= 1024px) and (orientation: landscape) {
   .bottom-sheet-content {
     min-height: 100vh;
     max-height: 100vh;
@@ -255,7 +253,7 @@
   color: var(--color-gray-200);
 }
 
-@media (min-width: 769px) {
+@media (width >= 769px) {
   .dark .bottom-sheet-header {
     border-color: var(--color-border);
   }

@@ -1,0 +1,393 @@
+/**
+ * Usage Tab - Mobile & Responsive Styles
+ *
+ * All mobile adjustments, landscape mode, and dark mode overrides.
+ * Following mobile patterns from mobile.css:
+ * - Horizontal scroll for stats (thumb-friendly)
+ * - Touch targets 44px minimum
+ * - Card-based sections
+ * - Safe area handling
+ */
+
+/* ============================================================================
+   MOBILE ADJUSTMENTS (≤640px)
+   ============================================================================ */
+
+@media (width <= 640px) {
+  /* Main container - tighter layout */
+  .mc-usage {
+    gap: var(--space-2);
+  }
+
+  /* Scroll content padding */
+  .mc-usage .mc-usage-scroll .scrollable-content-inner {
+    padding-bottom: var(--space-4);
+  }
+
+  /* Empty banner - compact */
+  .mc-usage-empty-banner {
+    padding: var(--space-2) var(--space-3);
+    font-size: 0.6875rem;
+    gap: var(--space-2);
+    border-radius: var(--radius-md);
+  }
+
+  .mc-usage-empty-banner svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Header - stack on small screens */
+  .mc-usage-header {
+    flex-direction: row;
+    gap: var(--space-2);
+  }
+
+  .mc-usage-title {
+    font-size: 1rem;
+  }
+
+  .mc-usage-period-opt {
+    padding: 5px 10px;
+    font-size: 0.6875rem;
+  }
+
+  /* Stats grid - 2x2 on mobile */
+  .mc-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-2);
+  }
+
+  .mc-stat-card {
+    padding: var(--space-3);
+    gap: var(--space-2);
+  }
+
+  .mc-stat-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .mc-stat-value {
+    font-size: 1rem;
+  }
+
+  .mc-stat-label {
+    font-size: 0.6875rem;
+  }
+
+  /* ScrollableContent */
+  .mc-usage .mc-usage-scroll {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mc-usage .mc-usage-scroll.scrollable-content-wrapper {
+    overflow: hidden;
+  }
+
+  .mc-usage .mc-usage-scroll .scrollable-content-inner {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Sections - compact cards */
+  .mc-usage-section {
+    padding: var(--space-2);
+    margin-bottom: var(--space-1-5);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-xs);
+  }
+
+  .mc-usage-section-title {
+    font-size: 0.75rem;
+    margin-bottom: var(--space-1-5);
+  }
+
+  /* Chart container - dynamic height from JS */
+  .mc-usage-chart-container {
+    margin: 0 -4px;
+  }
+
+  /* Model breakdown - compact on mobile */
+  .mc-usage-model-bars {
+    gap: var(--space-2);
+  }
+
+  .mc-usage-model-row {
+    grid-template-columns: 80px 1fr 60px;
+    gap: var(--space-2);
+  }
+
+  .mc-usage-model-name {
+    font-size: 0.75rem;
+  }
+
+  .mc-usage-model-bar-wrapper {
+    height: 20px;
+  }
+
+  .mc-usage-model-cost {
+    font-size: 0.75rem;
+  }
+
+  .mc-usage-model-tokens {
+    font-size: 0.625rem;
+  }
+
+  .mc-usage-models-empty {
+    min-height: 80px;
+    padding: var(--space-3);
+  }
+
+  .mc-usage-models-empty p {
+    font-size: 0.75rem;
+    max-width: 240px;
+  }
+
+  /* Budget progress - compact */
+  .mc-usage-budget-current {
+    font-size: 1.125rem;
+  }
+
+  .mc-usage-budget-limit {
+    font-size: 0.8125rem;
+  }
+
+  .mc-usage-budget-bar {
+    height: 6px;
+  }
+
+  .mc-usage-budget-percent,
+  .mc-usage-budget-warning {
+    font-size: 0.6875rem;
+  }
+
+  /* Council roster - compact cards */
+  .mc-usage-roster {
+    gap: var(--space-1-5);
+  }
+
+  .mc-usage-roster-item {
+    padding: var(--space-2) var(--space-2-5);
+    gap: var(--space-2);
+    border-radius: var(--radius-md);
+  }
+
+  .mc-usage-roster-status svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .mc-usage-roster-name {
+    font-size: 0.75rem;
+  }
+
+  .mc-usage-roster-role {
+    font-size: 0.6875rem;
+  }
+
+  .mc-usage-roster-provider {
+    font-size: 0.625rem;
+  }
+
+  .mc-usage-roster-note {
+    margin-top: var(--space-2);
+    padding-top: var(--space-2);
+    font-size: 0.6875rem;
+  }
+
+  /* Extra stats - 2 columns on mobile */
+  .mc-usage-extra-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-2);
+  }
+
+  .mc-usage-extra-stat {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: var(--space-1-5) 0;
+  }
+
+  .mc-usage-extra-label {
+    font-size: 0.6875rem;
+  }
+
+  .mc-usage-extra-value {
+    font-size: 0.875rem;
+    font-weight: 700;
+  }
+
+  /* Alerts - touch friendly */
+  .mc-usage-alerts {
+    padding: 0;
+    gap: var(--space-2);
+  }
+
+  .mc-usage-alert {
+    padding: var(--space-2) var(--space-2-5);
+    font-size: 0.75rem;
+    gap: var(--space-2);
+  }
+
+  .mc-usage-alert-dismiss {
+    padding: var(--space-1-5) var(--space-2-5);
+    min-height: 36px;
+    font-size: 0.6875rem;
+  }
+
+  /* Usage tab layout - ensure it fills content area and scrolls */
+  .mc-usage {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ScrollableContent wrapper must fill remaining space */
+  .mc-usage .mc-usage-scroll.scrollable-content-wrapper {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* Inner scroll container */
+  .mc-usage .scrollable-content-inner {
+    flex: 1;
+    overflow: hidden auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ============================================================================
+   EXTRA SMALL MOBILE (≤380px)
+   ============================================================================ */
+
+@media (width <= 640px) {
+  .mc-usage {
+    gap: var(--space-1-5);
+  }
+
+  .mc-usage-empty-banner {
+    padding: var(--space-1-5) var(--space-2);
+    font-size: 0.625rem;
+  }
+
+  .mc-stats-grid {
+    gap: var(--space-1-5);
+  }
+
+  .mc-stat-card {
+    padding: var(--space-2);
+  }
+
+  .mc-stat-value {
+    font-size: 0.875rem;
+  }
+
+  .mc-usage-section {
+    padding: var(--space-2);
+    margin-bottom: var(--space-1-5);
+  }
+
+  .mc-usage-extra-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================================
+   LANDSCAPE MODE (≤1024px)
+   ============================================================================ */
+
+@media (width <= 1024px) and (orientation: landscape) {
+  /* Stats grid - 4 columns in landscape */
+  .mc-stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-2);
+  }
+
+  /* Two-column layout for sections */
+  .mc-usage-scroll {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+    align-items: start;
+  }
+
+  .mc-usage-section {
+    margin-bottom: 0;
+  }
+
+  /* Model breakdown - horizontal bars work well in landscape */
+  .mc-usage-model-row {
+    grid-template-columns: 100px 1fr 80px;
+  }
+}
+
+/* ============================================================================
+   DARK MODE - Mobile Cards
+   ============================================================================ */
+
+@media (width <= 640px) {
+  .dark .mc-usage-section {
+    background: var(--color-bg-secondary);
+    border-color: var(--color-border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .dark .mc-usage .mc-stat-card {
+    background: var(--color-bg-secondary);
+    border-color: var(--color-border);
+  }
+
+  .dark .mc-usage-empty-banner {
+    background: var(--color-bg-tertiary);
+    border-color: var(--color-border);
+  }
+}
+
+/* ============================================================================
+   DARK MODE - Accent Colors
+   ============================================================================ */
+
+/* Accent stat card - emerald/green tones */
+.dark .mc-stat-card.accent .mc-stat-icon,
+.dark .mc-stat-card.accent .mc-stat-value {
+  color: var(--color-emerald-400);
+}
+
+/* Alert icon - amber tones */
+.dark .mc-usage-alert-icon {
+  color: var(--color-amber-400);
+}
+
+/* Budget progress bars - brighter in dark mode */
+.dark .mc-usage-budget-fill {
+  background: var(--color-blue-400);
+}
+
+.dark .mc-usage-budget-fill.warning {
+  background: var(--color-amber-400);
+}
+
+.dark .mc-usage-budget-fill.exceeded {
+  background: var(--color-red-400);
+}
+
+/* Budget warning text */
+.dark .mc-usage-budget-warning {
+  color: var(--color-amber-400);
+}
+
+/* Council roster status - emerald/green tones */
+.dark .mc-usage-roster-status {
+  color: var(--color-emerald-400);
+}

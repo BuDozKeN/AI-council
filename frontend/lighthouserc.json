@@ -1,9 +1,14 @@
 {
   "ci": {
     "collect": {
-      "numberOfRuns": 3,
+      "numberOfRuns": 5,
       "staticDistDir": "./frontend/dist",
-      "url": ["http://localhost/"]
+      "url": ["http://localhost/"],
+      "settings": {
+        "maxWaitForFcp": 30000,
+        "maxWaitForLoad": 60000,
+        "throttlingMethod": "simulate"
+      }
     },
     "assert": {
       "assertions": {

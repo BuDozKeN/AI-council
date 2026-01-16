@@ -8,13 +8,17 @@
  * Uses framer-motion spring animations for smooth message appearance.
  */
 
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import Stage1 from '../Stage1';
-import Stage2 from '../Stage2';
-import Stage3 from '../stage3';
+import { CouncilLoader } from '../ui/CouncilLoader';
+
+// Performance: Lazy-load Stage components to split CSS into separate chunks
+// This reduces initial ChatInterface bundle by ~69KB
+const Stage1 = lazy(() => import('../Stage1'));
+const Stage2 = lazy(() => import('../Stage2'));
+const Stage3 = lazy(() => import('../stage3'));
 import { TokenUsageDisplay, type UsageData } from '../ui/TokenUsageDisplay';
 import { CopyButton } from '../ui/CopyButton';
 import { makeClickable } from '../../utils/a11y';
@@ -126,19 +130,21 @@ function CouncilStages({ msg, conversation }: CouncilStagesProps) {
       {(msg.loading?.stage1 ||
         msg.stage1 ||
         (msg.stage1Streaming && Object.keys(msg.stage1Streaming).length > 0)) && (
-        <Stage1
-          {...(msg.stage1 ? { responses: msg.stage1 } : {})}
-          {...(msg.stage1Streaming ? { streaming: msg.stage1Streaming } : {})}
-          isLoading={msg.loading?.stage1 ?? false}
-          {...(msg.stopped !== undefined ? { stopped: msg.stopped } : {})}
-          isComplete={isStageComplete}
-          defaultCollapsed={true}
-          {...(conversation?.title ? { conversationTitle: conversation.title } : {})}
-          {...(msg.imageAnalysis ? { imageAnalysis: msg.imageAnalysis } : {})}
-          expandedModel={expandedModel}
-          onExpandedModelChange={setExpandedModel}
-          {...(aggregateRankings ? { aggregateRankings } : {})}
-        />
+        <Suspense fallback={<CouncilLoader text="Loading stage..." />}>
+          <Stage1
+            {...(msg.stage1 ? { responses: msg.stage1 } : {})}
+            {...(msg.stage1Streaming ? { streaming: msg.stage1Streaming } : {})}
+            isLoading={msg.loading?.stage1 ?? false}
+            {...(msg.stopped !== undefined ? { stopped: msg.stopped } : {})}
+            isComplete={isStageComplete}
+            defaultCollapsed={true}
+            {...(conversation?.title ? { conversationTitle: conversation.title } : {})}
+            {...(msg.imageAnalysis ? { imageAnalysis: msg.imageAnalysis } : {})}
+            expandedModel={expandedModel}
+            onExpandedModelChange={setExpandedModel}
+            {...(aggregateRankings ? { aggregateRankings } : {})}
+          />
+        </Suspense>
       )}
 
       {/* Stage 2 - show with streaming or final rankings */}
@@ -149,16 +155,18 @@ function CouncilStages({ msg, conversation }: CouncilStagesProps) {
           const labelToModel = msg.metadata?.label_to_model ?? msg.label_to_model;
           const stage2Rankings = msg.metadata?.aggregate_rankings ?? msg.aggregate_rankings;
           return (
-            <Stage2
-              {...(msg.stage2 ? { rankings: msg.stage2 } : {})}
-              {...(msg.stage2Streaming ? { streaming: msg.stage2Streaming } : {})}
-              {...(labelToModel ? { labelToModel } : {})}
-              {...(stage2Rankings ? { aggregateRankings: stage2Rankings } : {})}
-              isLoading={msg.loading?.stage2 ?? false}
-              isComplete={isStageComplete}
-              {...(conversation?.title ? { conversationTitle: conversation.title } : {})}
-              onModelClick={handleRankingClick}
-            />
+            <Suspense fallback={<CouncilLoader text="Loading stage..." />}>
+              <Stage2
+                {...(msg.stage2 ? { rankings: msg.stage2 } : {})}
+                {...(msg.stage2Streaming ? { streaming: msg.stage2Streaming } : {})}
+                {...(labelToModel ? { labelToModel } : {})}
+                {...(stage2Rankings ? { aggregateRankings: stage2Rankings } : {})}
+                isLoading={msg.loading?.stage2 ?? false}
+                isComplete={isStageComplete}
+                {...(conversation?.title ? { conversationTitle: conversation.title } : {})}
+                onModelClick={handleRankingClick}
+              />
+            </Suspense>
           );
         })()}
     </>
@@ -318,25 +326,27 @@ export function MessageList({
                         }
                       }
                       return (
-                        <Stage3
-                          finalResponse={msg.stage3 ?? null}
-                          streaming={msg.stage3Streaming ?? null}
-                          isLoading={msg.loading?.stage3 ?? false}
-                          companyId={selectedBusiness ?? null}
-                          departmentId={selectedDepartment ?? null}
-                          conversationId={conversation?.id ?? null}
-                          conversationTitle={conversation?.title ?? null}
-                          responseIndex={index}
-                          userQuestion={userQuestion}
-                          {...(msg.usage ? { usage: msg.usage } : {})}
-                          {...(projects.length > 0 ? { projects } : {})}
-                          {...(selectedProject !== undefined
-                            ? { currentProjectId: selectedProject }
-                            : {})}
-                          {...(onSelectProject ? { onSelectProject } : {})}
-                          {...(onOpenProjectModal ? { onCreateProject: onOpenProjectModal } : {})}
-                          {...(onViewDecision ? { onViewDecision } : {})}
-                        />
+                        <Suspense fallback={<CouncilLoader text="Loading stage..." />}>
+                          <Stage3
+                            finalResponse={msg.stage3 ?? null}
+                            streaming={msg.stage3Streaming ?? null}
+                            isLoading={msg.loading?.stage3 ?? false}
+                            companyId={selectedBusiness ?? null}
+                            departmentId={selectedDepartment ?? null}
+                            conversationId={conversation?.id ?? null}
+                            conversationTitle={conversation?.title ?? null}
+                            responseIndex={index}
+                            userQuestion={userQuestion}
+                            {...(msg.usage ? { usage: msg.usage } : {})}
+                            {...(projects.length > 0 ? { projects } : {})}
+                            {...(selectedProject !== undefined
+                              ? { currentProjectId: selectedProject }
+                              : {})}
+                            {...(onSelectProject ? { onSelectProject } : {})}
+                            {...(onOpenProjectModal ? { onCreateProject: onOpenProjectModal } : {})}
+                            {...(onViewDecision ? { onViewDecision } : {})}
+                          />
+                        </Suspense>
                       );
                     })()}
 

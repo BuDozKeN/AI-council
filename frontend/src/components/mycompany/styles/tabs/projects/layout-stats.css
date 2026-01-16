@@ -1,0 +1,91 @@
+/* Projects Tab - Layout & Stats */
+
+/* Extracted from projects.css lines 1-88 */
+
+/**
+ * Projects Tab Styles
+ * Project list, rows, timeline, modal, decisions view
+ */
+
+/* ============================================================================
+   PROJECTS TAB - Layout & Stats
+   ============================================================================ */
+
+.mc-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Stats row - left aligned, horizontal, compact */
+.mc-projects-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.mc-stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-stat-pill:hover {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+}
+
+.mc-stat-pill.active {
+  background: var(--color-blue-50);
+  border-color: var(--color-blue-500);
+}
+
+.mc-stat-num {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.mc-stat-text {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+
+/* Filters row */
+.mc-projects-filters {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.mc-filters-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Empty filtered state - minimal, no borders */
+.mc-empty-filtered {
+  padding: 40px 24px;
+  text-align: center;
+  color: var(--color-text-tertiary);
+  font-size: 14px;
+  background: transparent;
+  border: none;
+}
+
+.mc-projects-section {
+  margin-bottom: 16px;
+}

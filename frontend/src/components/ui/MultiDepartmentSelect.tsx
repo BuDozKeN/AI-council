@@ -24,7 +24,8 @@ import { cn } from '../../lib/utils';
 import { BottomSheet } from './BottomSheet';
 import { DepartmentCheckboxItem } from './DepartmentCheckboxItem';
 import type { Department } from '../../types/business';
-import './MultiDepartmentSelect.css';
+import './select.css'; // Base select styles - single source of truth
+import './MultiDepartmentSelect.css'; // Department-specific additions only
 
 // Check if we're on mobile/tablet for bottom sheet vs dropdown
 // Use 768px to include tablets like iPad Mini
@@ -134,7 +135,7 @@ export function MultiDepartmentSelect({
       <>
         <button
           className={cn(
-            'multi-dept-trigger',
+            'select-trigger select-trigger--compact multi-dept-trigger',
             selectedDepts.length > 0 && 'has-selection',
             className
           )}
@@ -161,7 +162,11 @@ export function MultiDepartmentSelect({
   return (
     <Popover.Root open={open} onOpenChange={setOpen}>
       <Popover.Trigger
-        className={cn('multi-dept-trigger', selectedDepts.length > 0 && 'has-selection', className)}
+        className={cn(
+          'select-trigger select-trigger--compact multi-dept-trigger',
+          selectedDepts.length > 0 && 'has-selection',
+          className
+        )}
         disabled={disabled}
         title={tooltipText}
       >

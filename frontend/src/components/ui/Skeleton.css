@@ -82,14 +82,14 @@
   display: flex;
   gap: 12px;
   padding: 12px 8px;
-  border-block-end: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .skeleton-table-row {
   display: flex;
   gap: 12px;
   padding: 12px 8px;
-  border-block-end: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 /* Avatar skeleton */
@@ -172,7 +172,7 @@
 
 /* User message skeleton - right aligned */
 .skeleton-message.user .skeleton-message-content {
-  margin-inline-start: auto;
+  margin-left: auto;
   background: var(--color-brand-primary-light);
 }
 
@@ -202,7 +202,7 @@
 }
 
 /* Mobile adjustments */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .skeleton-message {
     padding: 12px;
   }
@@ -213,7 +213,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 640px) {
   .skeleton-message-content {
     max-width: 95%;
   }

@@ -7,11 +7,14 @@ Endpoints for development/debugging settings:
 """
 
 import os
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
 from ..auth import get_current_user
 from .. import config
+
+# Import shared rate limiter (ensures limits are tracked globally)
+from ..rate_limit import limiter
 
 
 router = APIRouter(prefix="/settings", tags=["dev-settings"])
@@ -49,7 +52,8 @@ VALID_MOCK_LENGTHS = {512, 1024, 1536, 2048, 4096, 8192}
 # =============================================================================
 
 @router.get("/mock-mode")
-async def get_mock_mode(user: dict = Depends(get_current_user)):
+@limiter.limit("60/minute;200/hour")
+async def get_mock_mode(request: Request, user: dict = Depends(get_current_user)):
     """Get current mock mode status. Requires authentication."""
     from .. import openrouter
     return {
@@ -60,7 +64,8 @@ async def get_mock_mode(user: dict = Depends(get_current_user)):
 
 
 @router.post("/mock-mode")
-async def set_mock_mode(mock_request: MockModeRequest, user: dict = Depends(get_current_user)):
+@limiter.limit("20/minute;60/hour")
+async def set_mock_mode(request: Request, mock_request: MockModeRequest, user: dict = Depends(get_current_user)):
     """
     Toggle mock mode on/off at runtime. Requires authentication.
     SECURITY: Only allowed in development environment.
@@ -95,7 +100,8 @@ async def set_mock_mode(mock_request: MockModeRequest, user: dict = Depends(get_
 
 
 @router.get("/caching-mode")
-async def get_caching_mode(user: dict = Depends(get_current_user)):
+@limiter.limit("60/minute;200/hour")
+async def get_caching_mode(request: Request, user: dict = Depends(get_current_user)):
     """Get current prompt caching status. Requires authentication."""
     return {
         "enabled": config.ENABLE_PROMPT_CACHING,
@@ -104,21 +110,23 @@ async def get_caching_mode(user: dict = Depends(get_current_user)):
 
 
 @router.post("/caching-mode")
-async def set_caching_mode(request: CachingModeRequest, user: dict = Depends(get_current_user)):
+@limiter.limit("20/minute;60/hour")
+async def set_caching_mode(request: Request, caching_request: CachingModeRequest, user: dict = Depends(get_current_user)):
     """
     Toggle prompt caching on/off at runtime. Requires authentication.
     """
-    config.ENABLE_PROMPT_CACHING = request.enabled
+    config.ENABLE_PROMPT_CACHING = caching_request.enabled
 
     return {
         "success": True,
         "enabled": config.ENABLE_PROMPT_CACHING,
-        "message": f"Prompt caching {'enabled' if request.enabled else 'disabled'}"
+        "message": f"Prompt caching {'enabled' if caching_request.enabled else 'disabled'}"
     }
 
 
 @router.get("/mock-length-override")
-async def get_mock_length_override(user: dict = Depends(get_current_user)):
+@limiter.limit("60/minute;200/hour")
+async def get_mock_length_override(request: Request, user: dict = Depends(get_current_user)):
     """Get current mock length override status. Requires authentication."""
     return {
         "length_override": config.MOCK_LLM_LENGTH_OVERRIDE,
@@ -127,8 +135,8 @@ async def get_mock_length_override(user: dict = Depends(get_current_user)):
 
 
 @router.post("/mock-length-override")
-async def set_mock_length_override(
-    request: MockLengthOverrideRequest,
+@limiter.limit("20/minute;60/hour")
+async def set_mock_length_override(request: Request, override_request: MockLengthOverrideRequest,
     user: dict = Depends(get_current_user)
 ):
     """
@@ -142,18 +150,18 @@ async def set_mock_length_override(
     modifying their production LLM Hub configuration.
     """
     # Validate the override value
-    if request.length_override is not None and request.length_override not in VALID_MOCK_LENGTHS:
+    if override_request.length_override is not None and override_request.length_override not in VALID_MOCK_LENGTHS:
         raise HTTPException(
             status_code=400,
             detail=f"Invalid length_override. Must be None or one of: {sorted(VALID_MOCK_LENGTHS)}"
         )
 
-    config.MOCK_LLM_LENGTH_OVERRIDE = request.length_override
+    config.MOCK_LLM_LENGTH_OVERRIDE = override_request.length_override
 
-    if request.length_override is None:
+    if override_request.length_override is None:
         message = "Mock length override disabled - using LLM Hub settings"
     else:
-        message = f"Mock length override set to {request.length_override} tokens"
+        message = f"Mock length override set to {override_request.length_override} tokens"
 
     return {
         "success": True,

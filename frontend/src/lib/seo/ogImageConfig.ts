@@ -14,7 +14,7 @@
  * - Professional appearance in Slack, Twitter, LinkedIn
  */
 
-const BASE_URL = 'https://axcouncil.vercel.app';
+const BASE_URL = 'https://axcouncil.ai';
 
 // Default OG image config (used as fallback)
 const DEFAULT_OG_IMAGE: OGImageConfig = {

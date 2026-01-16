@@ -1,0 +1,119 @@
+/**
+ * Usage Tab - Layout & Structure
+ *
+ * Base layout, sections, and empty states for the Usage tab.
+ */
+
+/* ============================================================================
+   LAYOUT
+   ============================================================================ */
+
+.mc-usage {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: var(--space-4);
+  overflow: hidden; /* Contain children */
+
+  /* NOTE: Padding is provided by parent .mc-content
+   * Desktop: 24px (shell.css)
+   * Mobile: 12px 16px (mobile.css @768px)
+   * Extra small: 8px 12px (mobile.css @380px)
+   * DO NOT add padding here - it will double up with parent */
+}
+
+.mc-usage-scroll {
+  flex: 1;
+  min-height: 0;
+}
+
+/* When using ScrollableContent wrapper, ensure it fills space */
+.mc-usage-scroll.scrollable-content-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+/* The inner scrollable div needs explicit overflow */
+.mc-usage-scroll .scrollable-content-inner {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Add padding to scroll content for sections */
+.mc-usage-scroll .mc-usage-section:last-child {
+  margin-bottom: var(--space-4);
+}
+
+/* ============================================================================
+   SECTIONS
+   ============================================================================ */
+
+.mc-usage-section {
+  padding: var(--space-4);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-4);
+}
+
+.mc-usage-section-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-3) 0;
+}
+
+/* ============================================================================
+   EMPTY STATE
+   ============================================================================ */
+
+.mc-usage-empty-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-secondary);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.mc-usage-empty-banner svg {
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+/* Subtle styling for sections when in empty state */
+.mc-usage-section.empty-state {
+  opacity: 0.7;
+}
+
+.mc-stats-grid.empty-state {
+  opacity: 0.6;
+}
+
+.mc-stats-grid.empty-state .mc-stat-value {
+  color: var(--color-text-tertiary);
+}
+
+/* Empty model list */
+.mc-usage-models-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  padding: var(--space-4);
+  text-align: center;
+}
+
+.mc-usage-models-empty p {
+  font-size: 0.8125rem;
+  color: var(--color-text-tertiary);
+  line-height: 1.5;
+  max-width: 280px;
+}

@@ -17,10 +17,8 @@ from ..auth import get_current_user
 from .. import billing
 from ..security import SecureHTTPException
 
-# Import rate limiter
-from slowapi import Limiter
-from slowapi.util import get_remote_address
-limiter = Limiter(key_func=get_remote_address)
+# Import shared rate limiter (ensures limits are tracked globally)
+from ..rate_limit import limiter
 
 
 router = APIRouter(prefix="/billing", tags=["billing"])
@@ -47,19 +45,22 @@ class BillingPortalRequest(BaseModel):
 # =============================================================================
 
 @router.get("/plans")
-async def get_billing_plans():
+@limiter.limit("100/minute;500/hour")
+async def get_billing_plans(request: Request):
     """Get available subscription plans."""
     return billing.get_available_plans()
 
 
 @router.get("/subscription")
-async def get_subscription(user: dict = Depends(get_current_user)):
+@limiter.limit("100/minute;500/hour")
+async def get_subscription(request: Request, user: dict = Depends(get_current_user)):
     """Get current user's subscription status."""
     return billing.get_user_subscription(user["id"], access_token=user.get("access_token"))
 
 
 @router.get("/can-query")
-async def check_can_query(user: dict = Depends(get_current_user)):
+@limiter.limit("100/minute;500/hour")
+async def check_can_query(request: Request, user: dict = Depends(get_current_user)):
     """Check if user can make a council query."""
     return billing.check_can_query(user["id"], access_token=user.get("access_token"))
 
@@ -101,6 +102,7 @@ async def create_billing_portal(request: Request, portal: BillingPortalRequest, 
 
 
 @router.post("/webhook")
+@limiter.limit("1000/hour")
 async def stripe_webhook(request: Request):
     """Handle Stripe webhook events."""
     payload = await request.body()

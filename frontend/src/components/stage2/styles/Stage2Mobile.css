@@ -1,0 +1,348 @@
+/* =============================================================================
+   TABLE SCROLL WRAPPER - Isolates table scrolling from page scroll
+   ============================================================================= */
+
+.stage2 .table-scroll-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 12px 0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+
+  /* Prevent touch events from propagating to parent */
+  overscroll-behavior-x: contain;
+}
+
+.stage2 .table-scroll-wrapper table {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  width: max-content;
+  min-width: 100%;
+}
+
+/* Mobile: scroll shadows to hint at scrollable content */
+@media (width <= 640px) {
+  .stage2 .table-scroll-wrapper {
+    background:
+      linear-gradient(to right, var(--color-bg-primary) 30%, transparent),
+      linear-gradient(to right, transparent, var(--color-bg-primary) 70%) 100% 0,
+      linear-gradient(to right, var(--overlay-black-10), transparent),
+      linear-gradient(to right, transparent, var(--overlay-black-10)) 100% 0;
+    background-repeat: no-repeat;
+    background-size:
+      40px 100%,
+      40px 100%,
+      14px 100%,
+      14px 100%;
+    background-attachment: local, local, scroll, scroll;
+  }
+
+  .dark .stage2 .table-scroll-wrapper {
+    background:
+      linear-gradient(to right, var(--color-bg-primary) 30%, transparent),
+      linear-gradient(to right, transparent, var(--color-bg-primary) 70%) 100% 0,
+      linear-gradient(to right, var(--overlay-white-5), transparent),
+      linear-gradient(to right, transparent, var(--overlay-white-5)) 100% 0;
+    background-repeat: no-repeat;
+    background-size:
+      40px 100%,
+      40px 100%,
+      14px 100%,
+      14px 100%;
+    background-attachment: local, local, scroll, scroll;
+  }
+
+  .stage2-content .table-scroll-wrapper th,
+  .stage2-content .table-scroll-wrapper td {
+    padding: 8px 10px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  .stage2 .table-scroll-wrapper td:first-child {
+    white-space: normal;
+    min-width: 80px;
+    max-width: 120px;
+  }
+}
+
+/* =============================================================================
+   MOBILE RESPONSIVE - Full mobile overhaul for Stage 2
+   ============================================================================= */
+
+@media (width <= 640px) {
+  /* Stage container */
+  .stage2 {
+    padding: 12px;
+  }
+
+  /* Stage title - ensure single line on mobile */
+  .stage2 .stage-title {
+    gap: 6px;
+  }
+
+  /* Scale down the title icon slightly */
+  .stage2-header .stage-title > svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Hide conversation title topic on mobile to save space */
+  .stage2 .stage-topic {
+    display: none;
+  }
+
+  /* Collapse arrow - smaller */
+  .stage2 .collapse-arrow {
+    font-size: 10px;
+  }
+
+  /* Winner badge - more compact on mobile with smaller icons */
+  .stage2-winner {
+    padding: 3px 5px;
+    gap: 3px;
+    border-radius: var(--radius-md);
+  }
+
+  .stage2 .stage2-winner svg {
+    width: 12px;
+    height: 12px;
+  }
+
+  .stage2-winner .winner-model-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Tabs - compact wrapping pills to match Stage 1 exactly */
+  .stage2 .tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-block: 10px 12px;
+  }
+
+  .stage2 .tab {
+    /* Match Stage 1 pills exactly */
+    padding: 6px 10px;
+    font-size: 11px;
+    line-height: 1;
+  }
+
+  .stage2 .tab .tab-icon-wrapper {
+    width: 16px;
+    height: 16px;
+  }
+
+  .stage2 .tab .tab-status-badge {
+    /* Hide badge on mobile to match Stage 1 simplicity */
+    display: none;
+  }
+
+  .stage2 .tab .tab-model-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Tab content - more padding for readability */
+  .stage2 .tab-content {
+    padding: 14px;
+  }
+
+  /* Model info header */
+  .ranking-model {
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .stage2 .model-info {
+    font-size: 14px;
+    gap: 8px;
+  }
+
+  .stage2 .model-info-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Copy button - proper touch target */
+  .stage2 .copy-btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 10px;
+  }
+
+  /* Ranking content - readable typography */
+  .ranking-content {
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  /* ===========================================
+     AGGREGATE RANKINGS - Vertical cards
+     =========================================== */
+
+  .aggregate-rankings {
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+
+  .aggregate-rankings h4 {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .aggregate-list {
+    gap: 8px;
+  }
+
+  /* Each ranking item - compact horizontal layout on mobile */
+  .aggregate-item {
+    flex-direction: row;
+    align-items: center;
+    padding: 12px 14px;
+    gap: 12px;
+    border-radius: var(--radius-md);
+  }
+
+  /* Rank position - prominent but compact */
+  .rank-position {
+    font-size: 16px;
+    font-weight: 700;
+    min-width: 32px;
+    color: var(--color-blue-600);
+  }
+
+  /* Model name - takes remaining space */
+  .rank-model {
+    flex: 1;
+    font-size: 14px;
+    font-family: var(--font-sans, system-ui);
+    gap: 6px;
+  }
+
+  .stage2 .rank-model-icon {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* Score - right aligned */
+  .rank-score {
+    font-size: 14px;
+    font-weight: 600;
+    margin-left: auto;
+  }
+
+  /* Hide count on mobile to save space */
+  .rank-count {
+    display: none;
+  }
+
+  /* Parsed ranking section */
+  .parsed-ranking {
+    margin-top: 14px;
+    padding-top: 14px;
+  }
+
+  .parsed-ranking ol {
+    padding-left: 20px;
+  }
+
+  .parsed-ranking li {
+    font-size: 14px;
+    padding: 4px 0;
+  }
+
+  /* Winner badge in header */
+  .stage2-winner {
+    padding: 6px 10px;
+  }
+
+  .stage2-winner .winner-model-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Collapsed summary */
+  .stage2 .collapsed-summary {
+    font-size: 11px;
+  }
+
+  /* Section titles */
+  .stage2-section-title {
+    font-size: 13px;
+    margin: 16px 0 10px;
+  }
+
+  /* Status badges */
+  .stage2 .complete-badge,
+  .stage2 .error-badge {
+    font-size: 9px;
+    padding: 3px 6px;
+  }
+}
+
+/* Even smaller screens (iPhone SE) */
+@media (width <= 640px) {
+  .stage2 {
+    padding: 10px;
+  }
+
+  /* Ultra compact title for tiny screens - scale icons, keep full text */
+  .stage2 .stage-title {
+    gap: 4px;
+  }
+
+  /* Scale down the title icon */
+  .stage2-header .stage-title > svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Collapse arrow smaller */
+  .stage2 .collapse-arrow {
+    font-size: 8px;
+  }
+
+  /* Winner badge - compact with smaller icons */
+  .stage2-winner {
+    padding: 2px 4px;
+    gap: 2px;
+    border-radius: var(--radius-md);
+  }
+
+  .stage2 .stage2-winner svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  .stage2-winner .winner-model-icon {
+    width: 12px;
+    height: 12px;
+  }
+
+  .stage2 .tab {
+    padding: 5px 8px;
+    font-size: 10px;
+  }
+
+  .aggregate-item {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .rank-position {
+    font-size: 15px;
+    min-width: 28px;
+  }
+
+  .rank-model {
+    font-size: 13px;
+  }
+
+  .rank-score {
+    font-size: 13px;
+  }
+}

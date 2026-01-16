@@ -1,0 +1,316 @@
+/* =============================================================================
+   DARK MODE - Decisions Tab
+   ============================================================================= */
+
+/* Note: Decision items, titles, dates use semantic tokens - no override needed */
+
+/* Promoted decision */
+.dark .mc-decision-item.promoted,
+[data-theme='dark'] .mc-decision-item.promoted {
+  border-inline-start-color: var(--color-emerald-400);
+}
+
+/* Promoted labels */
+.dark .mc-promoted-label,
+[data-theme='dark'] .mc-promoted-label {
+  background: var(--overlay-emerald-15);
+  color: var(--color-emerald-400);
+}
+
+/* Note: Pending label, decision actions, action btns use semantic tokens */
+
+/* Action buttons with colors - need overlay backgrounds */
+.dark .mc-action-btn.promote,
+[data-theme='dark'] .mc-action-btn.promote {
+  background: var(--overlay-amber-15);
+  color: var(--color-amber-400);
+  border-color: var(--overlay-amber-20);
+}
+
+.dark .mc-action-btn.promote:hover,
+[data-theme='dark'] .mc-action-btn.promote:hover {
+  background: var(--overlay-amber-20);
+}
+
+.dark .mc-action-btn.archive,
+[data-theme='dark'] .mc-action-btn.archive {
+  background: var(--overlay-red-10);
+  color: var(--color-red-400);
+  border-color: var(--overlay-red-20);
+}
+
+.dark .mc-action-btn.archive:hover,
+[data-theme='dark'] .mc-action-btn.archive:hover {
+  background: var(--overlay-red-20);
+}
+
+/* Promoted badges - dark mode */
+.dark .mc-promoted-badge,
+[data-theme='dark'] .mc-promoted-badge {
+  background: var(--overlay-emerald-15);
+  color: var(--color-emerald-400);
+}
+
+.dark .mc-promoted-badge.sop,
+[data-theme='dark'] .mc-promoted-badge.sop {
+  background: var(--overlay-blue-15);
+  color: var(--color-blue-400);
+}
+
+.dark .mc-promoted-badge.framework,
+[data-theme='dark'] .mc-promoted-badge.framework {
+  background: var(--overlay-amber-15);
+  color: var(--color-amber-400);
+}
+
+.dark .mc-promoted-badge.policy,
+[data-theme='dark'] .mc-promoted-badge.policy {
+  background: var(--overlay-purple-15);
+  color: var(--color-violet-400);
+}
+
+/* Council badge */
+.dark .mc-council-badge,
+[data-theme='dark'] .mc-council-badge {
+  background: var(--overlay-indigo-15);
+  color: var(--color-indigo-400);
+}
+
+/* Decision meta */
+.dark .mc-promoted-info,
+[data-theme='dark'] .mc-promoted-info {
+  color: var(--color-emerald-400);
+}
+
+/* Note: .mc-promoter uses semantic token */
+
+.dark .mc-promoted,
+[data-theme='dark'] .mc-promoted {
+  background: var(--overlay-emerald-15);
+  color: var(--color-emerald-400);
+}
+
+.dark .mc-promoted.sop,
+[data-theme='dark'] .mc-promoted.sop {
+  background: var(--overlay-blue-15);
+  color: var(--color-blue-400);
+}
+
+.dark .mc-promoted.framework,
+[data-theme='dark'] .mc-promoted.framework {
+  background: var(--overlay-amber-15);
+  color: var(--color-amber-400);
+}
+
+.dark .mc-promoted.policy,
+[data-theme='dark'] .mc-promoted.policy {
+  background: var(--overlay-purple-15);
+  color: var(--color-violet-400);
+}
+
+/* Decision question box */
+.dark .mc-decision-question,
+[data-theme='dark'] .mc-decision-question {
+  background: var(--overlay-blue-10);
+  border-color: var(--overlay-blue-20);
+}
+
+.dark .mc-decision-question-label,
+[data-theme='dark'] .mc-decision-question-label {
+  color: var(--color-sky-400);
+}
+
+.dark .mc-decision-question-text,
+[data-theme='dark'] .mc-decision-question-text {
+  color: var(--color-text-primary);
+}
+
+/* Decision content */
+.dark .mc-decision-content,
+[data-theme='dark'] .mc-decision-content {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-decision-content h1,
+.dark .mc-decision-content h2,
+.dark .mc-decision-content h3,
+[data-theme='dark'] .mc-decision-content h1,
+[data-theme='dark'] .mc-decision-content h2,
+[data-theme='dark'] .mc-decision-content h3 {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-decision-content strong,
+[data-theme='dark'] .mc-decision-content strong {
+  color: var(--color-text-primary);
+}
+
+.dark .mc-decision-content code,
+[data-theme='dark'] .mc-decision-content code {
+  background: var(--color-bg-hover);
+  color: var(--color-amber-400);
+}
+
+.dark .mc-decision-content blockquote,
+[data-theme='dark'] .mc-decision-content blockquote {
+  border-inline-start-color: var(--color-indigo-400);
+  color: var(--color-text-secondary);
+}
+
+/* Copy button */
+.dark .mc-content-copy-btn,
+[data-theme='dark'] .mc-content-copy-btn {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .mc-content-copy-btn:hover,
+[data-theme='dark'] .mc-content-copy-btn:hover {
+  background: var(--overlay-green-15);
+  border-color: var(--color-green-500);
+  color: var(--color-green-400);
+}
+
+.dark .mc-content-copy-btn.copied,
+[data-theme='dark'] .mc-content-copy-btn.copied {
+  background: var(--overlay-green-15);
+  border-color: var(--color-green-500);
+  color: var(--color-green-400);
+}
+
+/* Decision source link */
+.dark .mc-decision-source-link,
+[data-theme='dark'] .mc-decision-source-link {
+  background: var(--overlay-blue-10);
+  border-color: var(--overlay-blue-20);
+  color: var(--color-sky-400);
+}
+
+.dark .mc-decision-source-link:hover,
+[data-theme='dark'] .mc-decision-source-link:hover {
+  background: var(--overlay-blue-20);
+  border-color: var(--overlay-blue-20);
+}
+
+/* Project link button */
+.dark .mc-project-link-btn,
+[data-theme='dark'] .mc-project-link-btn {
+  background: var(--overlay-blue-15);
+  border-color: var(--overlay-blue-20);
+  color: var(--color-blue-400);
+}
+
+.dark .mc-project-link-btn:hover,
+[data-theme='dark'] .mc-project-link-btn:hover {
+  background: var(--overlay-blue-20);
+}
+
+.dark .mc-promoted-label.project,
+[data-theme='dark'] .mc-promoted-label.project {
+  background: var(--overlay-blue-15);
+  color: var(--color-blue-400);
+}
+
+/* ========== DECISIONS TAB - MOBILE ========== */
+
+/* Decisions row: clean card */
+.mc-decision-row {
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-lg);
+  margin-bottom: 8px;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
+  row-gap: 8px;
+}
+
+/* Hide all action buttons on mobile */
+
+/* Double class for specificity over hover states */
+.mc-decision-row.mc-decision-row .mc-elegant-actions,
+.mc-decision-row.mc-decision-row .mc-elegant-right .mc-elegant-actions {
+  display: none;
+}
+
+/* Show date, hide it when it would show actions */
+.mc-decision-row.mc-decision-row .mc-elegant-date,
+.mc-decision-row .mc-elegant-date[class] {
+  display: block;
+  opacity: 1;
+}
+
+/* Right side: just the date */
+.mc-decision-row .mc-elegant-right {
+  display: flex;
+  align-items: center;
+  min-width: auto;
+}
+
+/* Content area */
+.mc-decision-row .mc-elegant-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Title styling */
+.mc-decision-row .mc-elegant-title {
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+
+/* Badges wrap */
+.mc-decision-row .mc-elegant-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Status dot: visible on left */
+.mc-decision-row .mc-status-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  margin-right: 4px;
+}
+
+/* ========== COMMON LIST IMPROVEMENTS ========== */
+
+/* Remove border between items when using cards */
+.mc-elegant-list,
+.mc-projects-list {
+  padding: 0;
+  background: transparent;
+  border: none;
+  gap: 0;
+}
+
+/* Search input: larger on mobile */
+.mc-search-input-wrapper {
+  height: 44px;
+  max-width: none; /* Remove desktop max-width constraint */
+  min-width: 0;
+}
+
+.mc-search-input {
+  height: 100%;
+  font-size: 16px; /* Prevent iOS zoom */
+  padding: 8px 32px 8px 36px; /* Adjust padding for smaller height */
+}
+
+/* Filter row: more breathing room */
+.mc-decisions-filters,
+.mc-projects-filters {
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* Empty filtered state */
+.mc-empty-filtered {
+  padding: 32px 16px;
+}

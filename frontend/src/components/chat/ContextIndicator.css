@@ -1,0 +1,158 @@
+/* =============================================================================
+   CONTEXT INDICATOR CONTENT STYLES
+   The sticky positioning is handled by StickyHeader component.
+   These styles are for the content inside the indicator only.
+   ============================================================================= */
+
+.context-indicator {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+/* Question line - what the user asked (AI-summarized) */
+.context-indicator-question {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px; /* Gap between question and pills since parent is block now */
+}
+
+.context-question-icon {
+  flex-shrink: 0;
+  color: var(--color-blue-500);
+  width: 14px;
+  height: 14px;
+}
+
+.context-question-text {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  line-height: 1.3;
+  flex: 1;
+}
+
+/* Context pills row */
+.context-indicator-pills {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.context-indicator-label {
+  font-weight: 500;
+  font-size: 10px;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.context-indicator-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.context-indicator-item.company {
+  background: var(--color-blue-100);
+  color: var(--color-blue-700);
+}
+
+.context-indicator-item.project {
+  background: var(--color-purple-100);
+  color: var(--color-purple-700);
+}
+
+/* Department pills use dynamic colors via CSS variables from getDeptColor() */
+.context-indicator-item.department {
+  background: var(--dept-bg, var(--color-amber-100));
+  color: var(--dept-text, var(--color-amber-700));
+}
+
+.context-indicator-item.role {
+  background: var(--color-green-100);
+  color: var(--color-green-700);
+}
+
+/* Dark mode pills */
+.dark .context-indicator-item.company,
+[data-theme='dark'] .context-indicator-item.company {
+  background: var(--overlay-blue-15);
+  color: var(--color-blue-300);
+}
+
+.dark .context-indicator-item.project,
+[data-theme='dark'] .context-indicator-item.project {
+  background: var(--overlay-purple-15);
+  color: var(--color-purple-300);
+}
+
+/* Department pills - dark mode uses slightly transparent version of dynamic color */
+.dark .context-indicator-item.department,
+[data-theme='dark'] .context-indicator-item.department {
+  background: var(--dept-bg, var(--overlay-amber-15));
+  color: var(--dept-text, var(--color-amber-300));
+  opacity: 0.9; /* Slightly muted for dark mode */
+}
+
+.dark .context-indicator-item.role,
+[data-theme='dark'] .context-indicator-item.role {
+  background: var(--overlay-green-15);
+  color: var(--color-green-300);
+}
+
+/* Playbook pills - uses established color scheme from colors.ts:
+   - SOP: blue-100/blue-700
+   - Framework: amber-100/amber-700
+   - Policy: purple-100/purple-600
+*/
+.context-indicator-item.playbook {
+  background: var(--color-blue-100);
+  color: var(--color-blue-700);
+}
+
+/* Playbook type variants - match PLAYBOOK_TYPE_COLORS */
+.context-indicator-item.playbook.sop {
+  background: var(--color-blue-100);
+  color: var(--color-blue-700);
+}
+
+.context-indicator-item.playbook.framework {
+  background: var(--color-amber-100);
+  color: var(--color-amber-700);
+}
+
+.context-indicator-item.playbook.policy {
+  background: var(--color-purple-100);
+  color: var(--color-purple-600);
+}
+
+/* Dark mode playbook pills */
+.dark .context-indicator-item.playbook,
+[data-theme='dark'] .context-indicator-item.playbook {
+  background: var(--overlay-blue-15);
+  color: var(--color-blue-300);
+}
+
+.dark .context-indicator-item.playbook.sop,
+[data-theme='dark'] .context-indicator-item.playbook.sop {
+  background: var(--overlay-blue-15);
+  color: var(--color-blue-300);
+}
+
+.dark .context-indicator-item.playbook.framework,
+[data-theme='dark'] .context-indicator-item.playbook.framework {
+  background: var(--overlay-amber-15);
+  color: var(--color-amber-300);
+}
+
+.dark .context-indicator-item.playbook.policy,
+[data-theme='dark'] .context-indicator-item.playbook.policy {
+  background: var(--overlay-purple-15);
+  color: var(--color-purple-300);
+}

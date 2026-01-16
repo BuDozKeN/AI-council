@@ -12,7 +12,7 @@
  * └──────────────────────────────────────────────────────┘
  */
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import TextareaAutosize from 'react-textarea-autosize';
@@ -42,7 +42,7 @@ import { DepartmentCheckboxItem } from '../ui/DepartmentCheckboxItem';
 import { ResponseStyleSelector } from '../chat/ResponseStyleSelector';
 import type { Business, Department, Role, Playbook, Project } from '../../types/business';
 import '../ui/Tooltip.css';
-import './OmniBar.css';
+import './omnibar/index.css';
 
 // Check if we're on mobile/tablet for bottom sheet vs popover
 const isMobileDevice = () => typeof window !== 'undefined' && window.innerWidth <= 768;
@@ -282,6 +282,19 @@ export function OmniBar({
       handleSubmit();
     }
   };
+
+  // Scroll input into view when focused on mobile (keyboard covers input otherwise)
+  const handleFocus = useCallback(() => {
+    if (isMobile) {
+      // Small delay to let keyboard start appearing
+      setTimeout(() => {
+        textareaRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }, 100);
+    }
+  }, [isMobile]);
 
   const currentPlaceholder =
     placeholder || (chatMode === 'chat' ? t('omnibar.placeholderChat') : t('omnibar.placeholder'));
@@ -672,6 +685,7 @@ export function OmniBar({
             value={value}
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={handleKeyDown}
+            onFocus={handleFocus}
             placeholder={currentPlaceholder}
             className="omni-bar-input"
             minRows={1}
@@ -797,7 +811,7 @@ export function OmniBar({
                   >
                     <span
                       className={cn(
-                        'inline-mode-btn no-touch-target',
+                        'inline-mode-indicator no-touch-target',
                         chatMode === 'chat' && 'active'
                       )}
                       aria-hidden="true"
@@ -806,7 +820,7 @@ export function OmniBar({
                     </span>
                     <span
                       className={cn(
-                        'inline-mode-btn no-touch-target',
+                        'inline-mode-indicator no-touch-target',
                         chatMode === 'council' && 'active'
                       )}
                       aria-hidden="true"

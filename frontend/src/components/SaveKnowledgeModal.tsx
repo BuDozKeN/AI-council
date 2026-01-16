@@ -869,14 +869,12 @@ export default function SaveKnowledgeModal({
             <Button variant="outline" onClick={() => onClose()} disabled={saving}>
               {t('common.cancel')}
             </Button>
-            <Button variant="default" onClick={handleSave} disabled={saving}>
-              {saving
-                ? t('common.saving')
-                : saveMode === 'just_save'
-                  ? t('common.save')
-                  : saveMode === 'remember'
-                    ? t('modals.saveAndRemember')
-                    : t('modals.createPlaybook')}
+            <Button variant="default" onClick={handleSave} loading={saving}>
+              {saveMode === 'just_save'
+                ? t('common.save')
+                : saveMode === 'remember'
+                  ? t('modals.saveAndRemember')
+                  : t('modals.createPlaybook')}
             </Button>
           </AppModal.Footer>
         </>

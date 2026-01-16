@@ -12,10 +12,8 @@ from fastapi import APIRouter, Depends, Request
 from ..auth import get_current_user
 from .. import leaderboard
 
-# Import rate limiter
-from slowapi import Limiter
-from slowapi.util import get_remote_address
-limiter = Limiter(key_func=get_remote_address)
+# Import shared rate limiter (ensures limits are tracked globally)
+from ..rate_limit import limiter
 
 
 router = APIRouter(prefix="/leaderboard", tags=["leaderboard"])

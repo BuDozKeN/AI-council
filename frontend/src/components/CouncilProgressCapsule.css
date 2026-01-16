@@ -1,7 +1,15 @@
+/* =============================================================================
+   COUNCIL PROGRESS CAPSULE
+   Status indicator showing which AIs are thinking/reviewing/writing
+
+   Design: Matches Tooltip pattern (dark bg that adapts to theme)
+   Consistency: Uses semantic tokens, no hardcoded colors
+   ============================================================================= */
+
 .council-progress-capsule {
   position: fixed;
-  inset-block-end: 2rem;
-  inset-inline-start: 50%;
+  bottom: 2rem;
+  left: 50%;
   transform: translateX(-50%);
   z-index: var(--z-sticky);
 }
@@ -38,22 +46,29 @@
   }
 }
 
+/* =============================================================================
+   CAPSULE INNER - Main pill container
+   Uses Tooltip pattern: dark bg + light text that auto-adapts to theme
+   ============================================================================= */
+
 .capsule-inner {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 0.625rem 1rem;
-  background: var(--color-slate-800);
-  color: var(--color-text-inverse);
+  background: var(--color-text-primary);
+  color: var(--color-bg-primary);
   border-radius: var(--radius-full);
-  box-shadow: var(--shadow-lg);
-  border: 1px solid rgb(var(--color-slate-600-rgb), 0.6);
+  box-shadow: 0 2px 8px var(--overlay-black-20);
   font-size: 0.875rem;
   font-weight: 500;
   letter-spacing: 0.025em;
 }
 
-/* Pulsing dot indicator */
+/* =============================================================================
+   PULSING DOT INDICATOR - Shows AI is actively thinking
+   ============================================================================= */
+
 .pulse-container {
   position: relative;
   display: flex;
@@ -67,7 +82,7 @@
   height: 100%;
   width: 100%;
   border-radius: var(--radius-full);
-  background-color: var(--color-emerald-400);
+  background-color: var(--color-success);
   opacity: 0.75;
   animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
@@ -78,7 +93,7 @@
   border-radius: var(--radius-full);
   height: 0.625rem;
   width: 0.625rem;
-  background-color: var(--color-emerald-400);
+  background-color: var(--color-success);
 }
 
 @keyframes ping {
@@ -93,10 +108,12 @@
   white-space: nowrap;
 }
 
-/* Stopped state - gray instead of green, no animation */
+/* =============================================================================
+   STOPPED STATE - User cancelled the council
+   ============================================================================= */
+
 .council-progress-capsule.stopped .capsule-inner {
-  background: var(--color-slate-600);
-  border-color: rgb(var(--color-slate-500-rgb), 0.6);
+  background: var(--color-text-tertiary);
 }
 
 .stopped-indicator {
@@ -111,14 +128,17 @@
   display: inline-block;
   height: 0.5rem;
   width: 0.5rem;
-  background-color: var(--color-gray-400);
+  background-color: var(--color-bg-primary);
   border-radius: var(--radius-sm);
+  opacity: 0.6;
 }
 
-/* Uploading state - blue theme */
+/* =============================================================================
+   UPLOADING STATE - Image being analyzed
+   ============================================================================= */
+
 .council-progress-capsule.uploading .capsule-inner {
-  background: var(--color-blue-800);
-  border-color: rgb(var(--color-blue-500-rgb), 0.6);
+  background: var(--color-info);
 }
 
 .upload-indicator {
@@ -145,10 +165,13 @@
   }
 }
 
-/* Mobile adjustments */
-@media (max-width: 640px) {
+/* =============================================================================
+   MOBILE ADJUSTMENTS
+   ============================================================================= */
+
+@media (width < 641px) {
   .council-progress-capsule {
-    inset-block-end: 5rem; /* Above mobile browser chrome */
+    bottom: 5rem; /* Above mobile browser chrome */
   }
 
   .capsule-inner {
@@ -157,44 +180,22 @@
   }
 }
 
-/* ============================================================================
-   DARK MODE
-   Dark capsule with subtle glow - matches the dark UI theme
-   ============================================================================ */
+/* =============================================================================
+   REDUCED MOTION
+   ============================================================================= */
 
-.dark .capsule-inner {
-  background: var(--color-slate-800);
-  color: var(--color-slate-100);
-  border-color: var(--color-slate-600);
-  box-shadow:
-    0 4px 12px var(--overlay-black-40),
-    0 0 0 1px var(--overlay-white-10);
-}
+@media (prefers-reduced-motion: reduce) {
+  .council-progress-capsule.fade-in,
+  .council-progress-capsule.fade-out {
+    animation: none;
+  }
 
-.dark .pulse-ring {
-  background-color: var(--color-emerald-400);
-}
+  .pulse-ring {
+    animation: none;
+    opacity: 0.5;
+  }
 
-.dark .pulse-dot {
-  background-color: var(--color-emerald-400);
-}
-
-/* Stopped state dark mode */
-.dark .council-progress-capsule.stopped .capsule-inner {
-  background: var(--color-slate-700);
-  border-color: var(--color-slate-500);
-}
-
-.dark .stopped-square {
-  background-color: var(--color-slate-400);
-}
-
-/* Uploading state dark mode */
-.dark .council-progress-capsule.uploading .capsule-inner {
-  background: var(--color-slate-800);
-  border-color: var(--color-blue-500);
-  color: var(--color-blue-200);
-  box-shadow:
-    0 4px 12px var(--overlay-black-40),
-    0 0 8px var(--overlay-blue-20);
+  .upload-icon {
+    animation: none;
+  }
 }

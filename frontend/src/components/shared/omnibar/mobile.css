@@ -1,0 +1,157 @@
+/* OmniBar - Mobile Responsive */
+
+/* Extracted from OmniBar.css lines 840-993 */
+
+/* =============================================================================
+   MOBILE ADJUSTMENTS
+   ============================================================================= */
+
+@media (width <= 640px) {
+  .omni-bar-wrapper {
+    max-width: 100%;
+  }
+
+  .omni-bar-top {
+    padding: 10px 12px 6px;
+  }
+
+  .omni-bar-landing .omni-bar-top {
+    padding: 12px 14px 8px;
+  }
+
+  .omni-bar-bottom {
+    padding: 6px 10px 10px;
+  }
+
+  .omni-bar-landing .omni-bar-bottom {
+    padding: 8px 12px 12px;
+  }
+
+  .omni-bar-input {
+    font-size: 16px; /* Prevent iOS zoom */
+  }
+
+  .omni-mode-toggle {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .omni-mode-btn {
+    flex: 1;
+  }
+
+  /* On mobile, capsule and toggle should be compact but matching (~32px) */
+  .context-icons-capsule {
+    padding: 4px 6px;
+    gap: 2px;
+  }
+
+  /* Icons inside capsule - 22px like desktop, compact */
+  .context-icons-capsule .omni-icon-btn {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    min-height: 22px;
+  }
+
+  /* Attach button - larger touch target */
+  .omni-icon-btn.attach {
+    width: 36px;
+    height: 36px;
+  }
+
+  /* Reset button - compact */
+  .omni-reset-all {
+    width: 28px;
+    height: 28px;
+  }
+
+  .omni-bar-submit {
+    width: 36px;
+    height: 36px;
+  }
+
+  /* Inline mode toggle - compact to match capsule */
+  .omni-inline-mode-toggle {
+    padding: 2px;
+  }
+
+  .inline-mode-indicator {
+    padding: 5px 10px;
+    font-size: 11px;
+    min-height: unset;
+  }
+
+  /* Context popover on mobile - card-style items like DepartmentCheckboxItem */
+  .context-popover-list {
+    gap: 6px; /* Gap between card items */
+    padding: 8px;
+  }
+
+  .context-popover-item {
+    padding: 14px 16px; /* Match DepartmentCheckboxItem mobile padding */
+    font-size: 16px; /* Match DepartmentCheckboxItem mobile font */
+    min-height: 56px; /* Match DepartmentCheckboxItem mobile height */
+    background: var(--color-bg-tertiary); /* Card background - visible in light mode */
+    border-radius: var(--radius-lg); /* Match DepartmentCheckboxItem */
+  }
+
+  .context-popover-item:active {
+    background: var(--color-bg-hover);
+    transform: scale(0.98);
+  }
+
+  .context-popover-item.selected {
+    background: var(--color-bg-hover);
+  }
+
+  /* Larger checkbox/radio on mobile */
+  .context-popover-checkbox,
+  .context-popover-radio {
+    width: 22px;
+    height: 22px;
+    border-radius: var(--radius-md);
+  }
+
+  .context-popover-checkbox svg,
+  .context-popover-radio svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Larger accordion headers for Playbooks */
+  .context-popover-group-header.clickable {
+    padding: 14px 12px;
+    font-size: 13px;
+    min-height: 48px;
+    gap: 10px;
+  }
+
+  .context-popover-group-header .section-chevron {
+    width: 16px;
+    height: 16px;
+  }
+
+  .context-popover-group-header svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .context-popover-group-header .section-count {
+    font-size: 13px;
+  }
+
+  /* Larger expanded items container */
+  .context-popover-group-items {
+    margin-left: 20px;
+    padding-left: 12px;
+    margin-top: 8px;
+  }
+
+  /* Items inside expanded sections (Playbooks) */
+  .context-popover-group-items .context-popover-item {
+    padding: 12px 14px;
+    font-size: 15px;
+    min-height: 48px;
+  }
+}

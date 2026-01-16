@@ -1,0 +1,106 @@
+/**
+ * AppModal - Utility Components
+ *
+ * Copy button and scroll-to-top button utilities.
+ */
+
+/* ===========================================
+   Copy Button - Sticky top-right inside modal body
+   =========================================== */
+
+.app-modal-copy-btn {
+  position: sticky;
+  inset-block-start: 0;
+  float: inline-end;
+  margin-left: 8px;
+  margin-bottom: 8px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-md);
+  color: var(--color-slate-500);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+  opacity: 0.7;
+  z-index: var(--z-raised);
+}
+
+.app-modal-copy-btn:hover {
+  opacity: 1;
+  color: var(--color-slate-700);
+  box-shadow: var(--shadow-md);
+}
+
+.app-modal-copy-btn:active {
+  transform: scale(0.95);
+}
+
+.app-modal-copy-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.app-modal-copy-btn.copied {
+  color: var(--color-green-600);
+  border-color: var(--color-green-200);
+  background: var(--color-green-50);
+}
+
+/* ===========================================
+   Scroll to Top Button - Absolute bottom-right
+   =========================================== */
+
+.app-modal-scroll-top-btn {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  border-radius: 50%;
+  color: var(--color-slate-500);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+  opacity: 0.7;
+  z-index: var(--z-elevated);
+}
+
+.app-modal-scroll-top-btn:hover {
+  opacity: 1;
+  color: var(--color-slate-700);
+  box-shadow: var(--shadow-md);
+}
+
+.app-modal-scroll-top-btn:active {
+  transform: scale(0.95);
+}
+
+.app-modal-scroll-top-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Mobile - slightly larger for touch */
+@media (width <= 640px) {
+  .app-modal-copy-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .app-modal-scroll-top-btn {
+    bottom: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+  }
+}

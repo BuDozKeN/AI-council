@@ -1,0 +1,143 @@
+/* =============================================================================
+   SIDEBAR HEADER
+   ============================================================================= */
+
+.sidebar-header {
+  padding: 12px;
+  border-bottom: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* Collapsed state - center icon */
+.sidebar--collapsed .sidebar-header {
+  padding: 12px 8px;
+  justify-content: center;
+}
+
+/* Hovered state - offset header to align with expanded panel, not icon rail */
+.sidebar--hovered .sidebar-header {
+  margin-left: var(--sidebar-width-collapsed);
+}
+
+/* New Chat button (expanded) - Perplexity style: simple + icon */
+.sidebar .sidebar-new-btn,
+.sidebar-header .sidebar-new-btn,
+button.sidebar-new-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 34px;
+  background: transparent;
+  border: 1px solid var(--sidebar-border);
+  border-radius: var(--radius-md);
+  color: var(--sidebar-text-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-default),
+    border-color var(--duration-fast) var(--ease-default);
+}
+
+.sidebar .sidebar-new-btn:hover,
+.sidebar-header .sidebar-new-btn:hover,
+button.sidebar-new-btn:hover {
+  background: var(--sidebar-hover-bg);
+  border-color: var(--sidebar-text-muted);
+  transform: none;
+  box-shadow: none;
+}
+
+.sidebar-btn-text {
+  white-space: nowrap;
+}
+
+/* Button component wraps children in span - ensure icon + text are inline */
+.sidebar-new-btn > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Pin/Unpin button - subtle */
+.sidebar-pin-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--sidebar-text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.sidebar-pin-btn:hover {
+  background: var(--sidebar-hover-bg);
+  color: var(--sidebar-text-primary);
+}
+
+.sidebar--pinned .sidebar-pin-btn {
+  color: var(--sidebar-icon-active);
+}
+
+/* =============================================================================
+   ICON BUTTONS (collapsed state) - Perplexity minimal style
+   ============================================================================= */
+
+.sidebar-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--sidebar-icon-color);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sidebar-icon-btn:hover {
+  background: var(--sidebar-hover-bg);
+  color: var(--sidebar-text-primary);
+}
+
+/* Primary button - simple circle with accent color */
+.sidebar-icon-btn--primary {
+  background: transparent;
+  border: 1px solid var(--sidebar-border);
+  color: var(--sidebar-text-primary);
+}
+
+.sidebar-icon-btn--primary:hover {
+  background: var(--sidebar-hover-bg);
+  border-color: var(--sidebar-text-muted);
+  color: var(--sidebar-text-primary);
+  transform: none;
+}
+
+.sidebar-icon-btn--active {
+  background: var(--sidebar-active-bg);
+  color: var(--sidebar-icon-active);
+}
+
+.sidebar-icon-btn--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sidebar-icon-btn--disabled:hover {
+  background: transparent;
+  transform: none;
+}

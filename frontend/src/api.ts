@@ -1156,6 +1156,45 @@ export const api = {
     };
   },
 
+  /**
+   * Delete a department and all its roles.
+   * @param {string} companyId - The company ID
+   * @param {string} departmentId - The department ID to delete
+   * @returns {Promise<{success: boolean, deleted_department: string, deleted_roles: number}>}
+   */
+  async deleteDepartment(companyId: string, departmentId: string) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/company/${companyId}/departments/${departmentId}`,
+      { method: 'DELETE', headers }
+    );
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to delete department' }));
+      throw new Error(error.detail || 'Failed to delete department');
+    }
+    return response.json();
+  },
+
+  /**
+   * Delete a role.
+   * @param {string} companyId - The company ID
+   * @param {string} departmentId - The department ID
+   * @param {string} roleId - The role ID to delete
+   * @returns {Promise<{success: boolean, deleted_role: string}>}
+   */
+  async deleteRole(companyId: string, departmentId: string, roleId: string) {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/company/${companyId}/departments/${departmentId}/roles/${roleId}`,
+      { method: 'DELETE', headers }
+    );
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to delete role' }));
+      throw new Error(error.detail || 'Failed to delete role');
+    }
+    return response.json();
+  },
+
   // ============ Projects API ============
 
   /**

@@ -16,13 +16,42 @@ Usage:
     # Returns: 'google/gemini-2.5-flash'
 """
 
-from typing import List, Optional
+from typing import List, Optional, Dict, Tuple
 import os
+import time
 import logging
 from supabase import create_client, Client
 
 # Use module-level logger
 _logger = logging.getLogger(__name__)
+
+# =============================================================================
+# IN-MEMORY CACHE (Performance optimization for council-stats endpoint)
+# =============================================================================
+_MODEL_CACHE_TTL = 300  # 5 minutes in seconds
+_model_cache: Dict[str, Tuple[List[str], float]] = {}
+
+
+def _get_cache_key(role: str, company_id: Optional[str]) -> str:
+    """Generate cache key for role/company combination."""
+    return f"{role}:{company_id or 'global'}"
+
+
+def _get_from_cache(role: str, company_id: Optional[str]) -> Optional[List[str]]:
+    """Get models from cache if not expired."""
+    key = _get_cache_key(role, company_id)
+    if key in _model_cache:
+        models, expiry = _model_cache[key]
+        if time.time() < expiry:
+            return models
+        del _model_cache[key]
+    return None
+
+
+def _set_cache(role: str, company_id: Optional[str], models: List[str]) -> None:
+    """Store models in cache with TTL."""
+    key = _get_cache_key(role, company_id)
+    _model_cache[key] = (models, time.time() + _MODEL_CACHE_TTL)
 
 # =============================================================================
 # ROLE CONSOLIDATION
@@ -123,6 +152,11 @@ async def get_models(role: str, company_id: Optional[str] = None) -> List[str]:
     # Resolve role aliases (e.g., 'sop_writer' -> 'document_writer')
     resolved_role = _resolve_role(role)
 
+    # Check cache first (5-minute TTL for performance)
+    cached = _get_from_cache(resolved_role, company_id)
+    if cached is not None:
+        return cached
+
     try:
         supabase = _get_supabase_client()
         if supabase:
@@ -137,7 +171,9 @@ async def get_models(role: str, company_id: Optional[str] = None) -> List[str]:
                     .order('priority')
                 company_result = company_query.execute()
                 if company_result.data and len(company_result.data) > 0:
-                    return [row['model_id'] for row in company_result.data]
+                    models = [row['model_id'] for row in company_result.data]
+                    _set_cache(resolved_role, company_id, models)
+                    return models
 
             # Fall back to global models (company_id IS NULL)
             global_query = supabase.table('model_registry') \
@@ -148,12 +184,16 @@ async def get_models(role: str, company_id: Optional[str] = None) -> List[str]:
                 .order('priority')
             result = global_query.execute()
             if result.data and len(result.data) > 0:
-                return [row['model_id'] for row in result.data]
+                models = [row['model_id'] for row in result.data]
+                _set_cache(resolved_role, company_id, models)
+                return models
     except Exception as e:
         _logger.warning(f"get_models({role}->{resolved_role}) failed: {type(e).__name__}")
 
     # Fallback to hardcoded with resolved role
-    return FALLBACK_MODELS.get(resolved_role, [])
+    fallback = FALLBACK_MODELS.get(resolved_role, [])
+    _set_cache(resolved_role, company_id, fallback)
+    return fallback
 
 
 async def get_primary_model(role: str, company_id: Optional[str] = None) -> Optional[str]:

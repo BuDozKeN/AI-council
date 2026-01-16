@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { useProfile } from './hooks/useProfile';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import type { User } from '@supabase/supabase-js';
+import './ProfileSection.css';
 
 const ProfileSkeleton = () => (
   <>
@@ -121,8 +122,8 @@ export function ProfileSection({ user, isOpen }: ProfileSectionProps) {
             </div>
 
             <div className="form-actions">
-              <Button type="submit" variant="default" disabled={isSaving}>
-                {isSaving ? t('common.saving') : t('settings.saveChanges')}
+              <Button type="submit" variant="default" loading={isSaving}>
+                {t('settings.saveChanges')}
               </Button>
             </div>
           </form>

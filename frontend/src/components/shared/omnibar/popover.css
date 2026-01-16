@@ -1,0 +1,260 @@
+/* OmniBar - Context Popover */
+
+/* Extracted from OmniBar.css lines 583-839 */
+
+/* =============================================================================
+   CONTEXT POPOVER - Selection list dropdown
+   ============================================================================= */
+
+.context-popover-content {
+  z-index: var(--z-modal-dropdown);
+  min-width: 180px;
+  max-width: 260px;
+  max-height: 300px;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-primary);
+  box-shadow: var(--shadow-lg);
+  animation: contextPopoverIn 0.15s ease-out;
+}
+
+@keyframes contextPopoverIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.context-popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+/* Clear button inside popover header */
+.context-popover-clear {
+  padding: 4px 8px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-tertiary);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.context-popover-clear:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.context-popover-clear:active {
+  background: var(--color-bg-hover);
+}
+
+/* Reset all button - small, outside capsule */
+.omni-reset-all {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-quaternary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.omni-reset-all:hover:not(:disabled) {
+  color: var(--color-text-secondary);
+}
+
+.omni-reset-all:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.context-popover-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px; /* Small gap between items */
+  padding: 6px;
+  overflow-y: auto;
+  max-height: 250px;
+}
+
+.context-popover-empty {
+  padding: 12px;
+  text-align: center;
+  color: var(--color-text-tertiary);
+  font-size: 13px;
+}
+
+.context-popover-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.1s ease;
+  text-align: left;
+}
+
+.context-popover-item:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.context-popover-item.selected {
+  background: var(--color-bg-tertiary);
+}
+
+.context-popover-checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--color-border-dark);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-primary);
+  transition: all 0.1s ease;
+  flex-shrink: 0;
+}
+
+.context-popover-checkbox.checked {
+  background: var(--color-indigo-500);
+  border-color: var(--color-indigo-500);
+  color: var(--color-text-inverse);
+}
+
+.context-popover-radio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--color-border-dark);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-primary);
+  transition: all 0.1s ease;
+  flex-shrink: 0;
+}
+
+.context-popover-radio.checked {
+  background: var(--color-emerald-500);
+  border-color: var(--color-emerald-500);
+  color: var(--color-text-inverse);
+}
+
+/* Playbook grouping */
+.context-popover-group {
+  margin-bottom: 4px;
+}
+
+.context-popover-group:last-child {
+  margin-bottom: 0;
+}
+
+.context-popover-group-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.context-popover-group-header svg {
+  width: 12px;
+  height: 12px;
+  opacity: 0.7;
+}
+
+.context-popover-group-header.clickable {
+  width: 100%;
+  padding: 10px;
+  margin: 0;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-tertiary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.context-popover-group-header.clickable:hover {
+  background: var(--color-bg-hover);
+}
+
+.context-popover-group-header .section-chevron {
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.context-popover-group-header .section-chevron.expanded {
+  transform: rotate(90deg);
+}
+
+.context-popover-group-header .section-label {
+  flex: 1;
+  text-align: left;
+}
+
+.context-popover-group-header .section-count {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--color-text-quaternary);
+  margin-left: auto;
+}
+
+.context-popover-group-header .section-count .selected-count {
+  color: inherit;
+  font-weight: 600;
+}
+
+.context-popover-group-items {
+  padding-left: 8px;
+  margin-top: 4px;
+  border-left: 2px solid var(--color-border-light);
+  margin-left: 16px;
+}
+
+/* Playbook type colors */
+.context-popover-group-header.sop {
+  color: var(--color-blue-700);
+}
+
+.context-popover-group-header.framework {
+  color: var(--color-amber-700);
+}
+
+.context-popover-group-header.policy {
+  color: var(--color-purple-600);
+}

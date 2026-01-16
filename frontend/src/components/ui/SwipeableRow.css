@@ -22,9 +22,8 @@
 /* Action buttons container - subtle styling */
 .swipeable-row-actions {
   position: absolute;
-  inset-block-start: 0;
-  inset-inline-end: 0;
-  inset-block-end: 0;
+  inset-block: 0;
+  right: 0;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -102,7 +101,7 @@
 }
 
 /* On desktop, hide swipe functionality */
-@media (min-width: 769px) {
+@media (width >= 769px) {
   .swipeable-row-container {
     overflow: visible;
   }
@@ -121,7 +120,7 @@
   .swipeable-row-container:first-child::after {
     content: '';
     position: absolute;
-    inset-inline-end: 4px;
+    right: 4px;
     inset-block-start: 50%;
     transform: translateY(-50%);
     width: 3px;

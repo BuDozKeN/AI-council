@@ -449,27 +449,29 @@ class TestFailureScenarios:
         from backend.mock_llm import generate_mock_response
 
         with patch('backend.mock_llm.MOCK_LLM_SCENARIO', 'one_model_fails'):
-            # GPT models should fail
+            # GPT models should always fail (deterministic)
             result = await generate_mock_response(
                 "openai/gpt-4o",
                 [{"role": "user", "content": "Hello"}]
             )
             assert result is None
 
-            # Non-GPT models have a chance of success
-            # (20% random failure, so most should succeed)
-            successes = 0
-            for _ in range(20):  # More iterations for statistical stability
+            # Non-GPT models succeed when random.random() >= 0.2
+            # Mock random to return 0.5 (always succeeds) for deterministic test
+            with patch('backend.mock_llm.random.random', return_value=0.5):
                 result = await generate_mock_response(
                     "anthropic/claude-3",
                     [{"role": "user", "content": "Hello"}]
                 )
-                if result is not None:
-                    successes += 1
+                assert result is not None, "Non-GPT model should succeed when random >= 0.2"
 
-            # Should have at least some successes (expect ~16 out of 20)
-            # Using >= 10 to account for bad luck (50% threshold)
-            assert successes >= 10
+            # Also test that non-GPT models fail when random < 0.2
+            with patch('backend.mock_llm.random.random', return_value=0.1):
+                result = await generate_mock_response(
+                    "anthropic/claude-3",
+                    [{"role": "user", "content": "Hello"}]
+                )
+                assert result is None, "Non-GPT model should fail when random < 0.2"
 
 
 # =============================================================================

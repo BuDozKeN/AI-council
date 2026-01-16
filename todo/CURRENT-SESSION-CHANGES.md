@@ -1,116 +1,63 @@
-# Current Session Changes (January 3, 2026)
+# Current Session Changes (January 15, 2026)
 
-This document summarizes uncommitted changes from the current development session.
+This document summarizes changes from the current development session.
 
 ## Summary
 
-Major UI/UX improvements focused on the OmniBar component and mobile experience.
+Security enhancement focused on brute force protection for authentication endpoints.
 
 ## Key Changes
 
-### 1. OmniBar Context Icons Capsule Styling
-**Files:** `ChatInterface.css`, `ChatInput.tsx`
+### 1. Brute Force Protection (PR #62 - MERGED)
+**Files:** `backend/auth.py`, `backend/tests/test_auth.py`
 
-- Added capsule background to context icons (Project, Departments, Roles, Playbooks)
-- Made the icons capsule match the "1 AI / 5 AIs" toggle exactly (both 38px height)
-- Used `!important` to override global 44px touch target enforcement for icons inside capsule
-- All colors use design system CSS variables (no hardcoded colors)
+Added IP-based brute force protection to authentication:
+- **Lockout threshold**: 10 failed attempts within 5-minute window
+- **Lockout duration**: 15 minutes once threshold exceeded
+- **RFC 7231 compliant**: `Retry-After` header shows actual remaining lockout time
+- **Security events**: `AUTH_LOCKOUT`, `AUTH_BLOCKED`, `AUTH_FAILURE` logged
+- **Separate tracking**: Lockout timestamps persist independently from failure records
+- **14 new tests** covering lockout behavior, Retry-After accuracy, and edge cases
 
-### 2. Context Popover Improvements
-**Files:** `ChatInterface.css`, `OmniBar.css`, `ChatInput.tsx`, `OmniBar.tsx`
+Key implementation details:
+- `_failed_attempts: dict[str, list[float]]` - Tracks failure timestamps per IP
+- `_lockout_until: dict[str, float]` - Tracks lockout expiry separately
+- Lockouts persist even after failure records expire (prevents bypass)
+- Successful auth clears failure records but NOT active lockouts
 
-- Added context popovers for departments, roles, and playbooks selection
-- Playbooks are grouped by type (SOP, Framework, Policy) with accordion-style expand/collapse
-- Mobile uses BottomSheet component instead of popovers
-- DepartmentCheckboxItem component for consistent department selection UI
+### 2. Bug Fixes During PR Review
 
-### 3. Stage1/Stage2 Styling Refinements
-**Files:** `Stage1.css`, `Stage2.css`
+**Bug #1 - Lockout Duration**: Fixed issue where lockouts expired after 5 minutes instead of 15 minutes because `_cleanup_old_attempts` removed failure records before lockout expired. Solution: Separate `_lockout_until` dict tracks lockout expiry independently.
 
-- Simplified rank badge styling (just emoji, no backgrounds)
-- Tabs and pills consistency between stages
-- Mobile responsive adjustments
+**Bug #2 - Retry-After Header**: Fixed issue where `Retry-After` always showed 900 seconds regardless of actual remaining time. Solution: Calculate `remaining = int(_lockout_until[ip] - time.time())` and use that in header.
 
-### 4. Mobile Bottom Navigation
-**New Files:** `MobileBottomNav.tsx`, `MobileBottomNav.css`
+### 3. Audit Dashboard Updated
+**Files:** `AUDIT_DASHBOARD.md`
 
-- New mobile bottom navigation component
-- PWA-ready icons added (`pwa-192x192.svg`, `pwa-512x512.svg`)
+- Updated to v19
+- Security section updated with brute force protection details
+- OWASP A07 (Auth Failures) enhanced with lockout specifics
+- Score history updated with security audit entry
 
-### 5. Brand Icons
-**Files:** `BrandIcons.tsx`
-
-- Added new model icons (Meta, Moonshot)
-- Updated icon exports
-
-### 6. Backend Improvements
-**Files:** `backend/main.py`, `backend/council.py`, `backend/attachments.py`
-
-- Attachment handling improvements
-- Council orchestration refinements
-- LLM ops router updates
-
-### 7. Database Migrations
-**New Files:**
-- `20260102100000_fix_rls_initplan_performance.sql` - RLS performance fix
-- `20260102200000_parse_failure_tracking.sql` - Parse failure tracking
-
-## Files Changed (59 total)
-
-### Frontend (Core)
-- `App.tsx`, `App.css` - Main app updates
-- `ChatInterface.tsx`, `ChatInterface.css` - Chat interface and context icons
-- `OmniBar.tsx`, `OmniBar.css` - Landing page OmniBar
-- `ChatInput.tsx` - Follow-up input with context icons
-- `MessageList.tsx` - Message list updates
-
-### Frontend (Stages)
-- `Stage1.tsx`, `Stage1.css` - Expert responses stage
-- `Stage2.tsx`, `Stage2.css` - Peer review stage
-- `Stage3.css`, `Stage3Content.tsx`, `stage3/index.tsx` - Synthesis stage
-
-### Frontend (UI Components)
-- `BottomSheet.tsx`, `BottomSheet.css` - Mobile bottom sheet
-- `EmptyState.tsx`, `EmptyState.css` - Empty state component
-- `FormField.tsx`, `FormField.css` - Form field component
-- `ThemeToggle.tsx`, `ThemeToggle.css` - Theme toggle button
-- `AppModal.tsx` - Modal updates
-- `DepartmentCheckboxItem.css` - Department checkbox styling
-
-### Frontend (Other)
-- `LandingHero.tsx`, `LandingHero.css` - Landing page hero
-- `Sidebar.tsx`, `Sidebar.css` - Sidebar updates
-- `SidebarIconButton.tsx` - Icon button component
-- `modelPersonas.ts` - Model configuration
-- `tailwind.css`, `index.css` - Global styles
-- `vite.config.js` - Vite configuration
+## Files Changed
 
 ### Backend
-- `main.py` - API entry point
-- `council.py` - Council orchestration
-- `attachments.py` - File attachments
-- `billing.py` - Billing logic
-- `config.py` - Configuration
-- `model_registry.py` - Model registry
-- `routers/company/llm_ops.py` - LLM ops endpoints
-- `routers/company/utils.py` - Utility functions
-- `routers/knowledge.py` - Knowledge endpoints
+- `backend/auth.py` - Brute force protection implementation
+- `backend/tests/test_auth.py` - 14 test cases for auth failure tracking
 
-### Configuration
-- `CLAUDE.md` - Updated development guide
-- `.gitignore` - Git ignore rules
-- `pyproject.toml` - Python dependencies
+### Documentation
+- `AUDIT_DASHBOARD.md` - Updated security audit section
+- `todo/CURRENT-SESSION-CHANGES.md` - This file
 
 ## Testing Notes
 
-1. Check OmniBar on both desktop and mobile viewports
-2. Verify context icons capsule matches toggle height (38px)
-3. Test context popovers open/close on desktop
-4. Test BottomSheet opens on mobile for context selection
-5. Verify no hardcoded colors (all use CSS variables)
+1. Run auth tests: `pytest backend/tests/test_auth.py -v`
+2. Verify brute force: Make 10+ failed auth attempts, check for 429 response
+3. Verify Retry-After: Check header shows actual remaining time, not full 900s
+4. Verify lockout persistence: Confirm lockout doesn't clear on successful auth
 
 ## Deploy Steps
 
-After committing:
-1. `git push origin master` - Triggers Vercel auto-deploy
-2. `curl -s -X POST "https://api.render.com/deploy/srv-d4pfrai4i8rc73e6h28g?key=M17Ys96WsOs"` - Trigger Render deploy
+Already merged to master. Auto-deploy via:
+1. Vercel (frontend) - No changes
+2. Render (backend) - Will auto-deploy on master push

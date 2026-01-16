@@ -4,7 +4,7 @@ import * as Popover from '@radix-ui/react-popover';
 import { BottomSheet } from '../ui/BottomSheet';
 import { FolderKanban, ChevronDown, Plus, FolderX } from 'lucide-react';
 import type { Project } from '../../types/business';
-import '../Stage3.css';
+import './styles/Stage3Dropdowns.css';
 
 interface ProjectWithContext {
   id: string;

@@ -1,0 +1,220 @@
+/* Team Section - Team member management */
+
+/* Add member form */
+.add-member-form {
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.form-row .form-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+.form-row .form-select {
+  width: 120px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+.form-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-danger);
+  font-size: 13px;
+}
+
+.form-hint {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Members list */
+.members-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Compact single-line member row */
+.member-row-compact {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-subtle);
+  transition: all 0.15s ease;
+}
+
+.member-row-compact:hover {
+  border-color: var(--color-border-default);
+  background: var(--color-bg-hover);
+}
+
+.member-row-compact.current {
+  background: var(--color-bg-accent);
+  border-color: var(--color-brand-primary);
+}
+
+.member-row-compact .member-role-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.member-row-compact .member-name {
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--color-text-primary);
+}
+
+.member-row-compact .member-role-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: var(--color-bg-secondary);
+  margin-left: auto;
+}
+
+.member-row-compact .member-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: var(--space-2);
+}
+
+.member-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.icon-btn:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.icon-btn.promote:hover {
+  color: var(--color-blue-500);
+  background: var(--overlay-blue-10);
+}
+
+.icon-btn.demote:hover {
+  color: var(--color-amber-500);
+  background: var(--overlay-amber-10);
+}
+
+.icon-btn.danger:hover {
+  color: var(--color-danger);
+  background: var(--overlay-red-10);
+}
+
+/* Usage grid */
+.usage-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.usage-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.usage-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.usage-label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* Add Member button - full button on desktop, icon-only on mobile */
+.add-member-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.add-member-btn .add-member-text {
+  display: inline;
+}
+
+/* Mobile: icon-only button */
+@media (width <= 640px) {
+  .add-member-btn {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .add-member-btn .add-member-text {
+    display: none;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+
+  .form-row .form-input,
+  .form-row .form-select {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .usage-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

@@ -1,0 +1,105 @@
+/* =============================================================================
+   SEARCH SECTION
+   ============================================================================= */
+
+.sidebar-search {
+  padding: 12px 16px 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  width: 16px;
+  height: 16px;
+  color: var(--sidebar-text-muted);
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 32px 8px 34px;
+  border: 1px solid var(--sidebar-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  font-size: 13px;
+  color: var(--sidebar-text-primary);
+  transition: all 0.15s;
+}
+
+.search-input:hover {
+  border-color: var(--sidebar-text-muted);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--sidebar-text-muted);
+  background: transparent;
+  box-shadow: none;
+}
+
+.search-input::placeholder {
+  color: var(--sidebar-text-muted);
+}
+
+.search-clear {
+  position: absolute;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: var(--sidebar-hover-bg);
+  border: none;
+  border-radius: 50%;
+  color: var(--sidebar-text-secondary);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.search-clear:hover {
+  background: var(--sidebar-active-bg);
+  color: var(--sidebar-text-primary);
+}
+
+.search-results-count {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--sidebar-text-muted);
+  text-align: center;
+}
+
+/* =============================================================================
+   FILTER SECTION
+   Uses compact Select variant from design system (select.css)
+   ============================================================================= */
+
+.sidebar-filter {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--sidebar-border);
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* Layout only - trigger styles come from select.css .select-trigger--compact */
+
+/* Both dropdowns share space equally for visual consistency */
+.sidebar-filter .filter-select-trigger,
+.sidebar-filter .sort-select-trigger {
+  flex: 1;
+  min-width: 0;
+}

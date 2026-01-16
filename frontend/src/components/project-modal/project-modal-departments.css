@@ -1,0 +1,97 @@
+/* ============================================================================
+   PROJECT MODAL - DEPARTMENTS
+   ============================================================================ */
+
+/* Department display in review step */
+.pm-departments-display {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  background: var(--color-slate-50);
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-md);
+}
+
+.pm-dept-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid;
+
+  /* Colors set via inline styles from getDeptColor() */
+}
+
+.pm-dept-edit-btn {
+  margin-left: auto;
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-sm);
+  color: var(--color-slate-500);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pm-dept-edit-btn:hover:not(:disabled) {
+  background: var(--color-slate-100);
+  border-color: var(--color-slate-300);
+  color: var(--color-slate-600);
+}
+
+.pm-dept-edit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pm-departments-none {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--color-slate-50);
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-md);
+  color: var(--color-slate-400);
+  font-size: 13px;
+  font-style: italic;
+}
+
+/* Inline department editor in review step */
+.pm-departments-editor {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pm-departments-editor > *:first-child {
+  flex: 1;
+}
+
+.pm-dept-done-btn {
+  padding: 8px 14px;
+  background: var(--color-indigo);
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--color-text-inverse);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.pm-dept-done-btn:hover:not(:disabled) {
+  background: var(--color-indigo-600);
+}
+
+.pm-dept-done-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

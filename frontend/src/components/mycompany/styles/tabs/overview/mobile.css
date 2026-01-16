@@ -1,0 +1,190 @@
+/* Overview Tab - Mobile Responsive */
+
+/* Extracted from overview.css lines 1304-end */
+
+/* ============================================================================
+   MOBILE-SIMPLIFIED LIST VIEWS
+   Clean, scannable rows without clutter
+   ============================================================================ */
+
+@media (width <= 640px) {
+  /* ========== OVERVIEW TAB - MOBILE ========== */
+
+  /* Hero section: premium card styling on mobile */
+  .mc-overview-hero {
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px 20px;
+
+    /* Keep card styling on mobile */
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-primary);
+    box-shadow: var(--shadow-md);
+
+    /* No margin - parent handles spacing */
+    margin: 0;
+    width: 100%;
+  }
+
+  .mc-overview-title {
+    font-size: 1rem;
+    margin-bottom: 4px;
+  }
+
+  .mc-overview-description {
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--color-text-secondary);
+  }
+
+  /* Hero right section - meta + edit on mobile */
+  .mc-overview-hero-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    margin-top: 8px;
+  }
+
+  .mc-overview-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .mc-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .mc-meta-label {
+    font-size: 0.5625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-tertiary);
+  }
+
+  .mc-meta-value {
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  /* Edit button - push to right on mobile */
+  .mc-overview-hero-right > button {
+    margin-left: auto;
+  }
+
+  /* Hide stats grid on Overview - users can tap into tabs to see counts */
+  .mc-overview .mc-stats-grid {
+    display: none;
+  }
+
+  /* Context section: fill all remaining height on mobile */
+  .mc-context-section--compact {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mc-context-section--compact .mc-context-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+
+    /* Remove any max-height constraints */
+    max-height: none;
+
+    /* Edge-to-edge on mobile - remove ALL card styling */
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    background: transparent;
+  }
+
+  /* Ensure the overview tab fills available space */
+
+  /* ========== OVERVIEW TAB - MOBILE ========== */
+
+  /* Overview container - scrollable on mobile */
+  .mc-overview {
+    padding: 0; /* Parent .mc-content provides padding */
+    gap: 12px;
+  }
+
+  /* Context card - match hero padding for alignment */
+  .mc-context-card {
+    padding: 16px 20px;
+    padding-bottom: 3rem;
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border);
+    border-top: 3px solid var(--color-border-dark);
+    border-radius: var(--radius-lg);
+
+    /* Shadow must be preserved for depth effect */
+    box-shadow: var(--shadow-md);
+
+    /* Ensure card contains all content - no overflow clipping */
+    overflow: visible;
+
+    /* CRITICAL: Ensure card expands to fit ALL content */
+    flex-shrink: 0;
+    height: auto;
+    min-height: fit-content;
+
+    /* Match hero: no margin on mobile */
+    margin: 0;
+    width: 100%;
+  }
+
+  /* Content inside card must flow naturally - no constraints */
+  .mc-context-card .mc-context-content {
+    /* Ensure content is not constrained */
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+  }
+
+  /* MarkdownViewer prose inside card - ensure it renders fully */
+  .mc-context-card .prose {
+    /* Ensure all markdown content displays fully */
+    overflow: visible;
+    height: auto;
+  }
+
+  /* Empty context state in Overview - proper mobile layout */
+  .mc-empty-context {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px 16px;
+    gap: 8px;
+  }
+
+  .mc-empty-context .mc-empty-icon {
+    display: block;
+    width: 28px;
+    height: 28px;
+    margin-bottom: 4px;
+  }
+
+  .mc-empty-context .mc-empty-title {
+    font-size: 14px;
+  }
+
+  .mc-empty-context .mc-empty-hint {
+    font-size: 13px;
+    max-width: 280px;
+    margin-bottom: 12px;
+  }
+
+  .mc-generate-context-btn {
+    width: 100%;
+    max-width: 200px;
+  }
+}

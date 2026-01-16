@@ -7,6 +7,7 @@ import { CopyButton } from '../ui/CopyButton';
 import { CheckCircle2 } from 'lucide-react';
 import { hapticSuccess } from '../../lib/haptics';
 import { CELEBRATION } from '../../lib/animation-constants';
+import { celebrateCouncilComplete } from '../../lib/celebrate';
 import { formatCostAuto } from '../../lib/currencyUtils';
 import type { Stage3ContentProps, CodeBlockProps } from '../../types/stages';
 import type { UsageData } from '../../types/conversation';
@@ -137,6 +138,7 @@ function Stage3Content({
       const celebrationTimer = setTimeout(() => {
         setShowCompleteCelebration(true);
         hapticSuccess();
+        celebrateCouncilComplete(); // 🎉 Confetti celebration!
       }, CELEBRATION.CURSOR_FADE);
 
       // Reset celebration after animation
@@ -236,6 +238,13 @@ function Stage3Content({
           )}
         </div>
       </div>
+
+      {/* AI Disclaimer - subtle note after complete responses */}
+      {isComplete && !hasError && (
+        <p className="ai-disclaimer" title={t('stages.aiDisclaimerFull')}>
+          {t('stages.aiDisclaimer')}
+        </p>
+      )}
     </>
   );
 }

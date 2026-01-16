@@ -9,7 +9,7 @@ import { useCompletionCelebration } from '../hooks/useCelebration';
 import { CELEBRATION } from '../lib/animation-constants';
 import { makeClickable } from '../utils/a11y';
 import type { Provider, ProviderIconPaths, Stage2Props, Stage2DisplayData } from '../types/stages';
-import './Stage2.css';
+import './stage2/Stage2.css';
 
 // Provider icon paths (same as Stage1)
 const PROVIDER_ICON_PATH: ProviderIconPaths = {
@@ -147,7 +147,7 @@ function Stage2({
   // Use the reusable celebration hook for stage completion
   const { isCelebrating: showCompleteCelebration } = useCompletionCelebration(
     allComplete && displayData.length > 0,
-    { duration: CELEBRATION.STAGE_COMPLETE }
+    { duration: CELEBRATION.STAGE_COMPLETE, confetti: 'winner' }
   );
 
   // Auto-select first tab with content (deferred to avoid cascading renders)
@@ -211,6 +211,12 @@ function Stage2({
       <h3 className="stage-title clickable" {...makeClickable(toggleCollapsed)}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
         <span className="font-semibold tracking-tight">{t('stages.expertsReview')}</span>
+        {/* Hint for first-time users - shows what this stage does */}
+        {!isCollapsed && (
+          <span className="stage-hint" title={t('stages.stage2Full')}>
+            {t('stages.stage2Hint')}
+          </span>
+        )}
 
         {/* Winner badge - medal emoji with icon, modern clean style */}
         {winnerModel && (

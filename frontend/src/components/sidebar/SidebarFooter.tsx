@@ -5,7 +5,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { Briefcase } from 'lucide-react';
+import { Briefcase, Settings, LogOut } from 'lucide-react';
 import { DEV_MODE } from './hooks';
 
 interface User {
@@ -91,24 +91,30 @@ export function SidebarFooter({
       </div>
       <div className="sidebar-footer-buttons">
         <button
-          className="company-btn"
+          className="footer-btn company-btn"
           onClick={onOpenMyCompany}
           onMouseEnter={onCompanyMouseEnter}
           onMouseLeave={onCompanyMouseLeave}
-          title={t('sidebar.myCompany')}
+          title={t('sidebar.tooltips.company')}
         >
           <Briefcase className="h-3.5 w-3.5" />
-          {t('mobileNav.company')}
+          <span>{t('sidebar.myCompany')}</span>
         </button>
         <button
-          className="settings-btn"
+          className="footer-btn settings-btn"
           onClick={onOpenSettings}
-          title={t('sidebar.settingsProfile')}
+          title={t('sidebar.tooltips.settings')}
         >
-          {t('sidebar.settings')}
+          <Settings className="h-3.5 w-3.5" />
+          <span>{t('sidebar.settings')}</span>
         </button>
-        <button className="sign-out-btn" onClick={onSignOut} title={t('sidebar.signOut')}>
-          {t('auth.signOut')}
+        <button
+          className="footer-btn sign-out-btn"
+          onClick={onSignOut}
+          title={t('sidebar.signOut')}
+        >
+          <LogOut className="h-3.5 w-3.5" />
+          <span>{t('sidebar.signOut')}</span>
         </button>
       </div>
     </div>

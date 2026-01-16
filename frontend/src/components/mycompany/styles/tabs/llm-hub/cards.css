@@ -1,0 +1,247 @@
+/* LLM Hub - Card Styles */
+
+/* Extracted from llm-hub.css lines 1-244 */
+
+/**
+ * LLM Hub - Consistent with Settings design
+ * Clean, neutral, premium
+ */
+
+/* ============================================================================
+   Base
+   ============================================================================ */
+
+.llm-hub {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.llm-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.llm-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 48px;
+  text-align: center;
+}
+
+.llm-error svg {
+  color: var(--color-text-tertiary);
+}
+
+.llm-error p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-text-secondary);
+}
+
+/* ============================================================================
+   Top-Level Cards - Match Settings Card Style
+   ============================================================================ */
+
+.llm-card {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: border-color 0.15s ease;
+}
+
+.llm-card:hover {
+  border-color: var(--color-border-dark);
+}
+
+.llm-card--expanded {
+  border-color: var(--color-brand-primary);
+}
+
+/* Card Header - Clean, no colored icons */
+.llm-card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 16px 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.llm-card-header:hover {
+  background: var(--color-bg-secondary);
+}
+
+/* Icon - Neutral style matching Settings */
+.llm-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.llm-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.llm-card-info h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 2px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.llm-card-info p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+}
+
+.llm-card-chevron {
+  color: var(--color-text-tertiary);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.llm-card-chevron.rotated {
+  transform: rotate(90deg);
+}
+
+/* Card Body */
+.llm-card-body {
+  padding: 12px 20px 20px;
+}
+
+/* ============================================================================
+   Inner Cards (Second Level)
+   ============================================================================ */
+
+.llm-inner-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.llm-inner-card {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  transition: all 0.15s ease;
+}
+
+.llm-inner-card:hover {
+  border-color: var(--color-border);
+}
+
+.llm-inner-card--expanded {
+  border-color: var(--color-border-dark);
+}
+
+/* Inner card header */
+.llm-inner-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.llm-inner-card-header:hover {
+  background: var(--color-bg-tertiary);
+}
+
+/* Inner card icon - Simple neutral circle */
+.llm-inner-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+}
+
+.llm-inner-card-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.llm-inner-card-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.llm-inner-card-desc {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Inner card body */
+.llm-inner-card-body {
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--color-border-light);
+}
+
+/* Tags */
+.llm-default-tag {
+  font-size: 8px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 100px;
+  background: var(--color-green-100);
+  color: var(--color-green-700);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.dark .llm-default-tag {
+  background: var(--color-green-900);
+  color: var(--color-green-300);
+}
+
+.llm-customized-tag {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}

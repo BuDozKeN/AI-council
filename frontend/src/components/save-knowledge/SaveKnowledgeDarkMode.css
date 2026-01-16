@@ -1,0 +1,200 @@
+/* =============================================
+   SAVE MODE SELECTOR - Progressive Disclosure
+   ============================================= */
+
+.save-mode-selector {
+  margin-bottom: 16px;
+}
+
+.save-mode-label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin-bottom: 10px;
+}
+
+.save-mode-options {
+  display: flex;
+  gap: 10px;
+}
+
+.save-mode-option {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.save-mode-option:hover {
+  border-color: var(--color-accent);
+  background: var(--color-bg-hover);
+}
+
+.save-mode-option.selected {
+  border-color: var(--color-accent);
+  background: var(--overlay-blue-10);
+}
+
+.save-mode-icon {
+  font-size: 1.3rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.save-mode-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.save-mode-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.save-mode-desc {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  line-height: 1.3;
+}
+
+/* =============================================
+   TAGS INPUT
+   ============================================= */
+
+.tags-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: var(--color-accent);
+  color: var(--color-text-inverse);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.tag-remove {
+  background: none;
+  border: none;
+  color: var(--color-text-inverse);
+  cursor: pointer;
+  padding: 0;
+  margin-left: 2px;
+  font-size: 1rem;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.15s;
+}
+
+.tag-remove:hover {
+  opacity: 1;
+}
+
+.tags-input-container input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+  font-size: 0.9rem;
+}
+
+.tags-input-container input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+/* Responsive adjustments for save mode selector */
+@media (width <= 640px) {
+  .save-mode-options {
+    flex-direction: column;
+  }
+
+  .save-mode-option {
+    flex: none;
+  }
+}
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .form-group input,
+.dark .form-group select,
+.dark .form-group textarea {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .context-info {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .tooltip-icon {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+}
+
+.dark .tooltip-text {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .tooltip-text::before {
+  border-block-start-color: var(--color-bg-secondary);
+}
+
+.dark .project-preview-form {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .project-preview-field input,
+.dark .project-preview-field textarea {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .save-mode-option {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .save-mode-option:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .save-mode-option.selected {
+  background: var(--overlay-blue-15);
+}
+
+.dark .tags-input-container input {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .success-message .success-location {
+  background: var(--color-bg-tertiary);
+}

@@ -1,0 +1,25 @@
+/* =============================================================================
+   STAGE 3 - Master CSS (imports component-scoped files)
+   Total: ~2,410 lines split across 7 focused files
+   ============================================================================= */
+
+/* Base styles - stage container, header, chairman (288 lines) */
+@import url('./styles/Stage3Base.css');
+
+/* Sticky toolbar - TOC + copy button (111 lines) */
+@import url('./styles/Stage3Toolbar.css');
+
+/* Content - typography, code blocks, prose (179 lines) */
+@import url('./styles/Stage3Content.css');
+
+/* Loading states - streaming, chairman loading, thinking (366 lines) */
+@import url('./styles/Stage3Loading.css');
+
+/* Save toolbar - department, type pills, save button (378 lines) */
+@import url('./styles/Stage3SaveToolbar.css');
+
+/* Dropdowns - unified system for project/playbook selection (593 lines) */
+@import url('./styles/Stage3Dropdowns.css');
+
+/* Mobile responsive - all mobile overrides (495 lines) */
+@import url('./styles/Stage3Mobile.css');

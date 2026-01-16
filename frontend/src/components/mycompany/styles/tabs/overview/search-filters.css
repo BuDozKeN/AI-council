@@ -1,0 +1,276 @@
+/* Overview Tab - Search & Filters */
+
+/* Extracted from overview.css lines 623-893 */
+
+/* =============================================================================
+   TAB HEADERS - Consistent styling across all tabs
+   ============================================================================= */
+
+.mc-team-header,
+.mc-playbooks-header,
+.mc-decisions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Target only the stats text span, not button inner spans */
+.mc-team-header > span:first-child,
+.mc-playbooks-header > span:first-child,
+.mc-decisions-header > span:first-child {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+/* ============================================================================
+   DEPARTMENTS & ROLES (Team structure in Overview)
+   ============================================================================ */
+
+.mc-departments {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mc-dept {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.mc-dept-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.mc-dept-header:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.mc-dept-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mc-dept-name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.mc-dept-meta {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-tertiary);
+  padding: 3px 10px;
+  border-radius: var(--radius-lg);
+}
+
+.mc-expand-icon {
+  font-size: 10px;
+  color: var(--color-text-tertiary);
+}
+
+.mc-dept-desc {
+  margin: 0;
+  padding: 0 18px 14px;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+/* Roles */
+.mc-roles {
+  border-top: 1px solid var(--color-border);
+  padding: 14px 18px;
+  background: var(--color-bg-primary);
+}
+
+.mc-role {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+}
+
+.mc-role:last-of-type {
+  margin-bottom: 0;
+}
+
+.mc-role-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mc-role-name {
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.mc-role-title {
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+}
+
+.mc-no-items {
+  font-size: 0.875rem;
+  color: var(--color-text-tertiary);
+  font-style: italic;
+  margin: 8px 0;
+}
+
+.mc-add-btn {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px;
+  background: none;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.mc-add-btn:hover {
+  border-color: var(--color-amber-500);
+  color: var(--color-amber-500);
+  background: var(--overlay-amber-10);
+}
+
+/* ============================================================================
+   SEARCH & FILTERS (shared across tabs)
+   ============================================================================ */
+
+.mc-decisions-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* Search input wrapper */
+.mc-search-input-wrapper {
+  position: relative;
+  flex: 1;
+  max-width: 320px;
+  min-width: 0; /* Allow shrinking in flex context */
+}
+
+.mc-search-icon {
+  position: absolute;
+  left: 12px;
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-tertiary);
+  pointer-events: none;
+  width: 16px;
+  height: 16px;
+}
+
+.mc-search-input {
+  width: 100%;
+  padding: 10px 36px 10px 38px;
+  font-size: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  transition: all 0.15s ease;
+}
+
+.mc-search-input::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.mc-search-input:focus {
+  outline: none;
+  border-color: var(--color-blue-400);
+  box-shadow: 0 0 0 3px var(--overlay-blue-15);
+}
+
+.mc-search-clear {
+  position: absolute;
+  right: 8px;
+  inset-block-start: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--color-text-tertiary);
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-search-clear:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+/* Department filter in decisions */
+.mc-dept-filter {
+  min-width: 140px;
+  flex-shrink: 1;
+}
+
+/* Responsive department filter */
+@media (width <= 640px) {
+  .mc-dept-filter {
+    min-width: 0;
+    flex: 0 1 auto;
+    max-width: 45%;
+  }
+}
+
+@media (width <= 640px) {
+  .mc-dept-filter {
+    max-width: 40%;
+  }
+}
+
+/* Filter results count */
+.mc-filter-results {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-bottom: 12px;
+}
+
+.mc-clear-filters {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-blue-600);
+  background: var(--color-blue-50);
+  border: none;
+  border-radius: var(--radius-default);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mc-clear-filters:hover {
+  background: var(--color-blue-100);
+}

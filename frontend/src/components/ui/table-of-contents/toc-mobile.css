@@ -1,0 +1,298 @@
+/* =============================================================================
+   TABLE OF CONTENTS - Mobile Styles
+   Mobile trigger pill + bottom sheet overlay
+   ============================================================================= */
+
+/* =============================================================================
+   MOBILE TOC TRIGGER - Floating pill button
+   ============================================================================= */
+
+.stage3-mobile-toc-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px 6px 10px;
+  background: var(--overlay-white-95);
+  backdrop-filter: blur(12px) saturate(180%);
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-slate-500);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    var(--shadow-sm),
+    inset 0 1px 0 var(--overlay-white-80);
+}
+
+.stage3-mobile-toc-trigger:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    var(--shadow-md),
+    inset 0 1px 0 var(--overlay-white-90);
+}
+
+.stage3-mobile-toc-trigger:active {
+  transform: scale(0.97);
+  transition-duration: 0.1s;
+}
+
+/* Progress indicator bar */
+.stage3-mobile-toc-progress {
+  width: 3px;
+  height: 14px;
+  background: var(--color-slate-200);
+  border-radius: var(--radius-xs);
+  position: relative;
+  overflow: hidden;
+}
+
+.stage3-mobile-toc-progress-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: var(--color-emerald-500);
+  border-radius: var(--radius-xs);
+  transition: height 0.3s ease;
+}
+
+.stage3-mobile-toc-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.stage3-mobile-toc-icon {
+  width: 12px;
+  height: 12px;
+  color: var(--color-slate-400);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.stage3-mobile-toc-trigger:hover .stage3-mobile-toc-icon {
+  transform: translateY(1px);
+}
+
+/* Hide on desktop */
+@media (width >= 1280px) {
+  .stage3-mobile-toc-trigger {
+    display: none;
+  }
+}
+
+/* =============================================================================
+   MOBILE TOC SHEET - Bottom sheet overlay
+   ============================================================================= */
+
+.stage3-mobile-outline-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-dropdown);
+  display: flex;
+  align-items: flex-end;
+  background: var(--overlay-black-40);
+  backdrop-filter: blur(4px);
+  animation: tocOverlayFadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes tocOverlayFadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0);
+  }
+
+  to {
+    opacity: 1;
+    backdrop-filter: blur(4px);
+  }
+}
+
+.stage3-mobile-outline-sheet {
+  width: 100%;
+  max-height: 70vh;
+  overflow: hidden;
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+  animation: tocSheetSlideUp 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  box-shadow: var(--shadow-xl);
+}
+
+@keyframes tocSheetSlideUp {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Drag handle */
+.stage3-mobile-sheet-handle {
+  width: 36px;
+  height: 5px;
+  background: var(--color-border-dark);
+  border-radius: var(--radius-full);
+  margin: 8px auto 0;
+  opacity: 0.6;
+}
+
+/* Header */
+.stage3-mobile-outline-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.stage3-mobile-outline-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-tertiary);
+}
+
+.stage3-mobile-outline-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--color-bg-hover);
+  border: none;
+  border-radius: 50%;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.stage3-mobile-outline-close:hover {
+  background: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.stage3-mobile-outline-close:active {
+  transform: scale(0.92);
+}
+
+/* Scrollable list container */
+.stage3-mobile-outline-list {
+  list-style: none;
+  margin: 0;
+  padding: 8px 12px 32px;
+  max-height: calc(70vh - 80px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
+  /* Explicit background to prevent gap artifacts in margin spaces between items */
+  background: var(--color-bg-primary);
+
+  /* Hidden scrollbar */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.stage3-mobile-outline-list::-webkit-scrollbar {
+  display: none;
+}
+
+/* Link items */
+.stage3-mobile-outline-link {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 12px;
+  margin-bottom: 2px;
+  border-radius: var(--radius-lg);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: all 0.15s ease;
+  position: relative;
+
+  /* Explicit background to prevent gap artifacts between items */
+  background: var(--color-bg-primary);
+}
+
+.stage3-mobile-outline-link:hover {
+  background: var(--color-bg-hover);
+}
+
+.stage3-mobile-outline-link:active {
+  background: var(--color-bg-active);
+  transform: scale(0.99);
+}
+
+/* Vertical line indicator */
+.stage3-mobile-link-indicator {
+  width: 3px;
+  height: 100%;
+  min-height: 20px;
+  background: var(--color-border);
+  border-radius: var(--radius-xs);
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.stage3-mobile-link-text {
+  flex: 1;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* Section number badge */
+.stage3-mobile-link-number {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-hover);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* Active state */
+.stage3-mobile-outline-link.active {
+  background: var(--overlay-emerald-10, rgb(var(--color-emerald-500-rgb), 0.08));
+}
+
+.stage3-mobile-outline-link.active .stage3-mobile-link-indicator {
+  background: var(--color-emerald-500);
+  box-shadow: 0 0 8px rgb(var(--color-emerald-500-rgb), 0.3);
+}
+
+.stage3-mobile-outline-link.active .stage3-mobile-link-text {
+  color: var(--color-emerald-700);
+  font-weight: 600;
+}
+
+.stage3-mobile-outline-link.active .stage3-mobile-link-number {
+  background: var(--overlay-emerald-15);
+  color: var(--color-emerald-600);
+}
+
+/* H3 level - subtle indent */
+.stage3-mobile-outline-link.level-3 {
+  padding-left: 24px;
+  font-size: 14px;
+}
+
+.stage3-mobile-outline-link.level-3 .stage3-mobile-link-indicator {
+  width: 2px;
+  background: var(--color-border);
+  opacity: 0.6;
+}
+
+.stage3-mobile-outline-link.level-3 .stage3-mobile-link-text {
+  color: var(--color-text-tertiary);
+  font-weight: 400;
+}

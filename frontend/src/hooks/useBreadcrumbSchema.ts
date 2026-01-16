@@ -16,7 +16,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-const BASE_URL = 'https://axcouncil.vercel.app';
+const BASE_URL = 'https://axcouncil.ai';
 
 // Human-readable labels for breadcrumb segments
 const BREADCRUMB_LABELS: Record<string, string> = {

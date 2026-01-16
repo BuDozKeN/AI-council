@@ -48,7 +48,7 @@
   padding: var(--space-4);
   background: var(--color-bg-secondary);
   border-radius: var(--radius-lg);
-  text-align: start;
+  text-align: left;
 }
 
 .hard-gate-info-title {
@@ -60,18 +60,18 @@
 
 .hard-gate-info-list {
   margin: 0;
-  padding-inline-start: var(--space-5);
+  padding-left: var(--space-5);
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
   line-height: var(--leading-relaxed);
 }
 
 .hard-gate-info-list li {
-  margin-block-end: var(--space-1);
+  margin-bottom: var(--space-1);
 }
 
 .hard-gate-info-list li:last-child {
-  margin-block-end: 0;
+  margin-bottom: 0;
 }
 
 /* Actions */
@@ -122,7 +122,7 @@
 }
 
 /* Mobile adjustments */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .hard-gate-modal .app-modal-body {
     padding: var(--space-3);
   }

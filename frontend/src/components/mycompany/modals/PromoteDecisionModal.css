@@ -1,0 +1,27 @@
+/**
+ * PromoteDecisionModal.css - Styles for promoting council decisions
+ *
+ * Supports two layouts:
+ * - V1: Vertical type selection with inline preview (legacy)
+ * - V2: Sidebar + content area layout for better readability
+ *
+ * Split into focused modules for maintainability.
+ */
+
+/* V1 Layout - Legacy vertical selection */
+@import url('./promote-decision/PromoteV1Layout.css');
+
+/* Unified Form Styles - Inputs and type pills */
+@import url('./promote-decision/PromoteFormStyles.css');
+
+/* V2 Layout - Sidebar with type cards */
+@import url('./promote-decision/PromoteV2Layout.css');
+
+/* Content & Summary - Question header and rendered content */
+@import url('./promote-decision/PromoteContent.css');
+
+/* Responsive - Mobile adjustments */
+@import url('./promote-decision/PromoteResponsive.css');
+
+/* Dark Mode - All color overrides */
+@import url('./promote-decision/PromoteDarkMode.css');

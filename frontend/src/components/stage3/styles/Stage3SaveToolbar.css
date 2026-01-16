@@ -1,0 +1,378 @@
+/* =============================================================================
+   STAGE 3 SAVE TOOLBAR - Decision saving interface
+   ============================================================================= */
+
+/* Save actions container */
+.stage3-actions {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
+}
+
+/* ============================================================================
+   SAVE TOOLBAR - Unified, modern design (v2)
+   ============================================================================ */
+
+/* Unified toolbar container */
+.save-toolbar-unified {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* Options group - visually contained */
+.save-options-group {
+  display: inline-flex;
+  align-items: center;
+  background: var(--color-slate-50);
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-lg);
+  padding: 4px;
+  gap: 0;
+}
+
+/* Compact department trigger - visible button styling */
+.save-dept-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-slate-200);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-slate-600);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-width: auto;
+  width: auto;
+  height: auto;
+  box-shadow: none;
+}
+
+.save-dept-trigger:hover {
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+  color: var(--color-slate-700);
+}
+
+.save-dept-trigger:focus {
+  outline: none;
+  background: var(--color-slate-50);
+  border-color: var(--color-slate-300);
+}
+
+/* Department trigger with selection - subtle accent border to indicate selection */
+.save-dept-trigger.has-selection {
+  font-weight: 600;
+  border-left: 3px solid var(--color-emerald-500);
+  box-shadow: 0 1px 3px var(--overlay-black-10);
+}
+
+.save-dept-trigger svg:last-child {
+  /* Hide default chevron, we use icon instead */
+  display: none;
+}
+
+/* Divider between dept and type */
+.save-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--color-slate-200);
+  margin: 0 2px;
+}
+
+/* Type selector pills - inside the group */
+.save-type-pills {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.save-type-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--color-slate-500);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+/* Type-specific hover states - lighter version of selected colors */
+.save-type-pill.sop:hover:not(:disabled, .selected) {
+  background: var(--color-blue-200);
+  color: var(--color-blue-700);
+}
+
+.save-type-pill.framework:hover:not(:disabled, .selected) {
+  background: var(--color-amber-200);
+  color: var(--color-amber-700);
+}
+
+.save-type-pill.policy:hover:not(:disabled, .selected) {
+  background: var(--color-purple-200);
+  color: var(--color-purple-600);
+}
+
+/* Type-specific selected states - consistent with playbook colors */
+.save-type-pill.selected.sop {
+  background: var(--color-blue-100);
+  color: var(--color-blue-700);
+  box-shadow: 0 1px 2px var(--overlay-blue-15);
+}
+
+.save-type-pill.selected.framework {
+  background: var(--color-amber-100);
+  color: var(--color-amber-700);
+  box-shadow: 0 1px 2px var(--overlay-amber-15);
+}
+
+.save-type-pill.selected.policy {
+  background: var(--color-purple-100);
+  color: var(--color-purple-600);
+  box-shadow: 0 1px 2px var(--overlay-purple-15);
+}
+
+.save-type-pill:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.save-type-pill svg {
+  opacity: 0.7;
+}
+
+.save-type-pill.selected svg {
+  opacity: 1;
+}
+
+/* Saved state - type-specific colors with checkmark indicator */
+.save-type-pill.saved {
+  cursor: default;
+}
+
+.save-type-pill.saved.sop {
+  background: var(--color-blue-100);
+  color: var(--color-blue-700);
+  box-shadow: 0 1px 2px var(--overlay-blue-15);
+}
+
+.save-type-pill.saved.framework {
+  background: var(--color-amber-100);
+  color: var(--color-amber-700);
+  box-shadow: 0 1px 2px var(--overlay-amber-15);
+}
+
+.save-type-pill.saved.policy {
+  background: var(--color-purple-100);
+  color: var(--color-purple-600);
+  box-shadow: 0 1px 2px var(--overlay-purple-15);
+}
+
+.save-type-pill.saved svg {
+  opacity: 1;
+}
+
+/* Main save button - matches toolbar-pill height for symmetry */
+.save-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  background: var(--color-emerald-600);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-inverse);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px var(--overlay-emerald-20);
+}
+
+.save-action-btn:hover:not(:disabled) {
+  background: var(--color-emerald-700);
+  box-shadow: 0 4px 8px var(--overlay-emerald-20);
+  transform: translateY(-1px);
+}
+
+.save-action-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.save-action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.save-action-btn.loading {
+  background: var(--color-gray-500);
+  box-shadow: none;
+}
+
+/* ============================================================================
+   SAVE SUCCESS - Blue access button (replaces the green save button)
+   ============================================================================ */
+
+/*
+ * Saved status group - shows "Decision saved" + "View in project" link
+ * Premium styling - subtle emerald accent without garish background
+ */
+.save-status-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 12px 6px 14px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-left: 3px solid var(--color-emerald-500);
+  border-radius: var(--radius-md);
+  animation: save-celebration 0.4s ease-out;
+}
+
+/* Celebration animation when save succeeds */
+@keyframes save-celebration {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+
+  50% {
+    transform: scale(1.02);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.save-status-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.save-status-text svg {
+  width: 16px;
+  height: 16px;
+  color: var(--color-emerald-500);
+}
+
+.save-view-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-blue-600);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.save-view-link:hover {
+  color: var(--color-blue-700);
+}
+
+.save-access-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--color-blue-600);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-inverse);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px var(--overlay-blue-20);
+}
+
+.save-access-btn:hover {
+  background: var(--color-blue-700);
+  box-shadow: 0 4px 8px var(--overlay-blue-20);
+  transform: translateY(-1px);
+}
+
+.save-access-btn:active {
+  transform: translateY(0);
+}
+
+.save-access-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ===== DARK MODE ===== */
+
+.dark .stage3-actions {
+  border-block-start-color: var(--color-border);
+}
+
+.dark .save-options-group {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .save-dept-trigger {
+  color: var(--color-text-secondary);
+}
+
+.dark .save-dept-trigger:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+/* Department trigger with selection in dark mode */
+.dark .save-dept-trigger.has-selection {
+  font-weight: 600;
+  border-left: 3px solid var(--color-emerald-500);
+  box-shadow: 0 1px 3px var(--overlay-black-30);
+  color: var(--color-text-primary);
+}
+
+.dark .save-divider {
+  background: var(--color-border);
+}
+
+.dark .save-type-pill {
+  color: var(--color-text-secondary);
+}
+
+.dark .save-status-group {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border);
+  border-inline-start-color: var(--color-emerald-400);
+}
+
+.dark .save-status-text {
+  color: var(--color-text-primary);
+}
+
+.dark .save-status-text svg {
+  color: var(--color-emerald-400);
+}
+
+.dark .save-view-link {
+  color: var(--color-brand-primary);
+}
+
+.dark .save-view-link:hover {
+  color: var(--blue-300);
+}

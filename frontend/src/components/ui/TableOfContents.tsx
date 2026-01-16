@@ -41,7 +41,10 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, X } from 'lucide-react';
 import { makeClickable } from '../../utils/a11y';
-import './TableOfContents.css';
+import './table-of-contents/toc-base.css';
+import './table-of-contents/toc-mobile.css';
+import './table-of-contents/toc-variants.css';
+import './table-of-contents/toc-dark-mode.css';
 
 export interface Heading {
   id: string;

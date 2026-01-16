@@ -14,7 +14,13 @@ import { Stage3Actions } from './Stage3Actions';
 // import { TableOfContents } from '../ui/TableOfContents';
 import type { Department, Project } from '../../types/business';
 import type { UsageData } from '../../types/conversation';
-import '../Stage3.css';
+import './styles/Stage3Base.css';
+import './styles/Stage3Content.css';
+import './styles/Stage3Dropdowns.css';
+import './styles/Stage3Loading.css';
+import './styles/Stage3Mobile.css';
+import './styles/Stage3SaveToolbar.css';
+import './styles/Stage3Toolbar.css';
 
 const log = logger.scope('Stage3');
 
@@ -368,6 +374,12 @@ function Stage3({
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
         <Sparkles className="h-5 w-5 text-amber-500 flex-shrink-0" />
         <span className="font-semibold tracking-tight">{t('stages.bestAnswer')}</span>
+        {/* Hint for first-time users - shows what this stage does */}
+        {!isCollapsed && (
+          <span className="stage-hint" title={t('stages.stage3Full')}>
+            {t('stages.stage3Hint')}
+          </span>
+        )}
         {isCollapsed && savedDecisionId && (
           <span className="collapsed-summary">
             <span className="kb-saved-badge">{t('common.saved')}</span>

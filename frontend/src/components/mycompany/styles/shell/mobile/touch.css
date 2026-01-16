@@ -1,0 +1,119 @@
+/**
+ * MyCompany Mobile Shell - Touch Styles
+ * Always-visible actions and 44px touch targets
+ *
+ * Key features:
+ * - Always-visible actions (no hover dependency)
+ * - 44px minimum touch targets (Apple HIG / Material Design)
+ */
+
+/* ============================================================================
+   P0-2: ALWAYS-VISIBLE ACTIONS ON TOUCH DEVICES
+   No hover = must show actions always
+   ============================================================================ */
+
+@media (hover: none), (width <= 640px) {
+  /* Elegant list row actions - always visible */
+  .mc-elegant-actions {
+    opacity: 1;
+    position: relative;
+    right: auto;
+    inset-block-start: auto;
+    transform: none;
+    background: transparent;
+    padding-left: 0;
+  }
+
+  /* Date stays visible alongside actions */
+  .mc-elegant-row:hover .mc-elegant-date {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Compact row actions */
+  .mc-row-actions {
+    opacity: 1;
+  }
+
+  /* Elegant right side: stack date and actions */
+  .mc-elegant-right {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    min-width: auto;
+  }
+
+  .mc-elegant-date {
+    font-size: 11px;
+  }
+
+  /* Make action buttons more touch-friendly */
+  .mc-text-btn {
+    padding: 10px 14px;
+    font-size: 13px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Icon buttons need 44px touch target */
+  .mc-icon-btn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}
+
+/* ============================================================================
+   P0-3: 44px MINIMUM TOUCH TARGETS
+   Apple HIG / Material Design compliance
+   ============================================================================ */
+
+@media (width <= 640px) {
+  /* List rows need adequate touch targets */
+  .mc-elegant-row {
+    min-height: 56px;
+    padding: 14px 16px;
+  }
+
+  .mc-compact-row {
+    min-height: 52px;
+    padding: 12px 14px;
+  }
+
+  /* Project rows */
+  .mc-project-row {
+    min-height: 56px;
+    padding: 14px 16px;
+  }
+
+  /* Activity rows */
+  .mc-activity-row,
+  .mc-timeline-item {
+    min-height: 52px;
+  }
+
+  /* All buttons - enforce 44px minimum */
+  .mc-btn-clean,
+  .mc-action-btn,
+  .mc-text-btn,
+  button[class*='mc-'] {
+    min-height: 44px;
+  }
+
+  /* Filter pills */
+  .mc-stat-pill {
+    min-height: 44px;
+    padding: 10px 14px;
+  }
+
+  /* Close button in header */
+  .mc-close-btn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+}

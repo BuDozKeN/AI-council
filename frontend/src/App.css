@@ -31,7 +31,7 @@
   display: none;
   position: fixed;
   inset-block-start: 50%;
-  inset-inline-start: 0;
+  left: 0;
   transform: translateY(-50%);
   z-index: var(--z-modal);
   width: 20px;
@@ -102,7 +102,7 @@
 }
 
 /* Mobile responsive styles */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .sidebar-edge-indicator {
     display: flex;
   }
@@ -124,7 +124,7 @@
 }
 
 /* Tablet adjustments */
-@media (min-width: 769px) and (max-width: 1024px) {
+@media (width >= 769px) and (width <= 1024px) {
   .app {
     /* Sidebar will be slightly narrower on tablets if needed */
   }
@@ -157,7 +157,7 @@
 }
 
 /* Mobile: bump z-index so landing overlays mobile sidebar */
-@media (max-width: 768px) {
+@media (width <= 640px) {
   .main-content-landing {
     z-index: calc(var(--z-modal) - 2);
   }
@@ -165,7 +165,7 @@
   /* Add bottom padding for mobile bottom navigation */
   .main-content-chat,
   .main-content-landing {
-    padding-block-end: 72px; /* Height of mobile bottom nav + safe area */
+    padding-bottom: 72px; /* Height of mobile bottom nav + safe area */
   }
 }
 

@@ -4,6 +4,8 @@
  * Extracted from MyCompany.jsx for better maintainability.
  */
 
+import './ViewPlaybookModal.css';
+import '../../ui/Modal.css';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import MarkdownViewer from '../../MarkdownViewer';

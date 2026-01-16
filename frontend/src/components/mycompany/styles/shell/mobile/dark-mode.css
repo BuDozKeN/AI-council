@@ -1,0 +1,42 @@
+/**
+ * MyCompany Mobile Shell - Dark Mode Styles
+ * Dark mode adjustments for mobile cards and UI
+ */
+
+/* ============================================================================
+   DARK MODE ADJUSTMENTS FOR MOBILE CARDS
+   ============================================================================ */
+
+@media (width <= 640px) {
+  .dark .mc-project-row-compact,
+  .dark .mc-elegant-row,
+  .dark .mc-decision-row {
+    background: var(--color-bg-secondary);
+    border-color: var(--color-border);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .dark .mc-project-row-compact:active,
+  .dark .mc-elegant-row:active,
+  .dark .mc-decision-row:active {
+    background: var(--color-bg-tertiary);
+  }
+
+  /* Context card - dark mode on mobile */
+  .dark .mc-context-card {
+    background: var(--color-bg-secondary);
+    border-color: var(--color-border);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .dark .mc-context-sticky-toolbar {
+    background: var(--color-bg-secondary);
+  }
+
+  /* Hero section - dark mode on mobile */
+  .dark .mc-overview-hero {
+    background: var(--color-bg-secondary);
+    border-color: var(--color-border);
+    box-shadow: var(--shadow-lg);
+  }
+}

@@ -13,7 +13,7 @@ import { hapticSuccess } from '../lib/haptics';
 import { CELEBRATION } from '../lib/animation-constants';
 import { makeClickable } from '../utils/a11y';
 import type { Department, Project } from '../types/business';
-import './ProjectModal.css';
+import './project-modal/index.css';
 
 interface InitialContext {
   userQuestion?: string;
@@ -69,10 +69,32 @@ export default function ProjectModal({
 
   // UI state
   const [structuring, setStructuring] = useState(false);
+  const [structuringStage, setStructuringStage] = useState(0); // 0: connecting, 1: analyzing, 2: organizing
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isAIGenerated, setIsAIGenerated] = useState(false); // Track if AI was used
   const [isEditingDetails, setIsEditingDetails] = useState(false); // Toggle between view/edit for project details
+
+  // Animated progress stages during AI structuring
+  const structuringStages = [
+    t('modals.aiStageConnecting', 'Connecting to AI...'),
+    t('modals.aiStageAnalyzing', 'Analyzing your description...'),
+    t('modals.aiStageOrganizing', 'Organizing into sections...'),
+  ];
+
+  // Advance progress stages during structuring
+  useEffect(() => {
+    if (!structuring) {
+      setStructuringStage(0);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setStructuringStage((prev) => Math.min(prev + 1, structuringStages.length - 1));
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [structuring, structuringStages.length]);
 
   // Auto-process when initialContext is provided (from council session)
   useEffect(() => {
@@ -251,8 +273,29 @@ export default function ProjectModal({
             />
             {structuring && (
               <div className="pm-ai-structuring">
-                <Spinner size="sm" variant="brand" />
-                <span>{t('modals.aiStructuring')}</span>
+                <div className="pm-ai-progress">
+                  {structuringStages.map((stage, index) => (
+                    <div
+                      key={index}
+                      className={`pm-ai-progress-step ${
+                        index < structuringStage
+                          ? 'completed'
+                          : index === structuringStage
+                            ? 'active'
+                            : ''
+                      }`}
+                    >
+                      {index < structuringStage ? (
+                        <Check size={14} className="pm-ai-progress-check" />
+                      ) : index === structuringStage ? (
+                        <Spinner size="xs" variant="brand" />
+                      ) : (
+                        <span className="pm-ai-progress-dot" />
+                      )}
+                      <span>{stage}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>

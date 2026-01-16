@@ -16,10 +16,8 @@ from ..security import SecureHTTPException
 from .. import model_registry
 from ..database import get_supabase_service
 
-# Import rate limiter
-from slowapi import Limiter
-from slowapi.util import get_remote_address
-limiter = Limiter(key_func=get_remote_address)
+# Import shared rate limiter (ensures limits are tracked globally)
+from ..rate_limit import limiter
 
 
 async def _get_user_company_id(user: dict) -> Optional[str]:
@@ -71,7 +69,8 @@ class AIWriteAssistRequest(BaseModel):
 # =============================================================================
 
 @router.post("/utils/polish-text")
-async def polish_text(request: PolishTextRequest, user: dict = Depends(get_current_user)):
+@limiter.limit("15/minute;60/hour")
+async def polish_text(request: Request, polish_request: PolishTextRequest, user: dict = Depends(get_current_user)):
     """
     Use AI to polish/rewrite user-provided text for clarity and structure.
     """
@@ -84,7 +83,7 @@ async def polish_text(request: PolishTextRequest, user: dict = Depends(get_curre
     company_id = await _get_user_company_id(user)
 
     # Special handling for markdown conversion
-    if request.field_type == "markdown":
+    if polish_request.field_type == "markdown":
         prompt = f"""You are a markdown formatting expert. Convert the following text into clean, well-structured Markdown.
 
 RULES:
@@ -102,7 +101,7 @@ RULES:
 6. Output ONLY the formatted markdown, no explanations
 
 TEXT TO CONVERT:
-{request.text}
+{polish_request.text}
 
 MARKDOWN:"""
 
@@ -144,7 +143,7 @@ MARKDOWN:"""
         "additional": "This is additional context for an AI advisor. Rewrite it clearly and concisely."
     }
 
-    field_context = field_prompts.get(request.field_type, "Rewrite this text clearly and concisely.")
+    field_context = field_prompts.get(polish_request.field_type, "Rewrite this text clearly and concisely.")
 
     prompt = f"""You are a helpful writing assistant. The user has written some rough notes and wants you to polish them into clear, well-structured text.
 
@@ -159,7 +158,7 @@ IMPORTANT:
 - Output ONLY the polished text, nothing else
 
 User's rough text:
-{request.text}
+{polish_request.text}
 
 Polished version:"""
 

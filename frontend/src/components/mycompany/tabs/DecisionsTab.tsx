@@ -11,7 +11,7 @@
 
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CheckCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { ScrollableContent } from '../../ui/ScrollableContent';
 import { getDeptColor } from '../../../lib/colors';
@@ -131,7 +131,99 @@ export function DecisionsTab({
   if (pendingDecisions.length === 0) {
     return (
       <div className="mc-empty">
-        <CheckCircle size={40} className="mc-empty-icon-svg" />
+        <motion.svg
+          width="120"
+          height="120"
+          viewBox="0 0 120 120"
+          fill="none"
+          className="mc-empty-icon-svg"
+          style={{ marginBottom: '16px' }}
+          initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+          animate={{ opacity: 1, scale: 1, rotate: 0 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+        >
+          <defs>
+            <linearGradient id="decisionsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="var(--color-indigo-500)" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="var(--color-purple-500)" stopOpacity="0.6" />
+            </linearGradient>
+          </defs>
+
+          {/* Trophy base */}
+          <rect
+            x="45"
+            y="80"
+            width="30"
+            height="8"
+            rx="2"
+            fill="url(#decisionsGradient)"
+            opacity="0.4"
+          />
+          <rect
+            x="50"
+            y="72"
+            width="20"
+            height="8"
+            rx="1"
+            fill="var(--color-bg-card)"
+            stroke="var(--color-border)"
+            strokeWidth="1.5"
+          />
+
+          {/* Trophy cup */}
+          <path
+            d="M 35 35 L 35 50 Q 35 65 50 68 L 70 68 Q 85 65 85 50 L 85 35 Z"
+            fill="url(#decisionsGradient)"
+            opacity="0.5"
+          />
+          <path
+            d="M 35 35 L 35 50 Q 35 65 50 68 L 70 68 Q 85 65 85 50 L 85 35 Z"
+            fill="var(--color-bg-card)"
+            stroke="var(--color-border)"
+            strokeWidth="1.5"
+          />
+
+          {/* Trophy handles */}
+          <path
+            d="M 30 40 Q 25 40 25 45 Q 25 50 30 50"
+            fill="none"
+            stroke="var(--color-border)"
+            strokeWidth="1.5"
+          />
+          <path
+            d="M 90 40 Q 95 40 95 45 Q 95 50 90 50"
+            fill="none"
+            stroke="var(--color-border)"
+            strokeWidth="1.5"
+          />
+
+          {/* Checkmark in trophy */}
+          <path
+            d="M 52 48 L 58 54 L 68 42"
+            fill="none"
+            stroke="var(--color-indigo-500)"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+
+          {/* Confetti particles */}
+          <circle cx="20" cy="25" r="2" fill="var(--color-indigo-500)" opacity="0.6" />
+          <circle cx="100" cy="30" r="2" fill="var(--color-purple-500)" opacity="0.6" />
+          <rect x="15" y="45" width="3" height="3" fill="var(--color-indigo-400)" opacity="0.5" />
+          <rect x="102" y="50" width="3" height="3" fill="var(--color-purple-400)" opacity="0.5" />
+          <path
+            d="M 25 60 L 27 62 L 25 64 L 23 62 Z"
+            fill="var(--color-indigo-300)"
+            opacity="0.4"
+          />
+          <path
+            d="M 95 65 L 97 67 L 95 69 L 93 67 Z"
+            fill="var(--color-purple-300)"
+            opacity="0.4"
+          />
+        </motion.svg>
+
         <p className="mc-empty-title">{t('mycompany.allCaughtUp')}</p>
         <p className="mc-empty-hint">{t('mycompany.noPendingDecisions')}</p>
       </div>
