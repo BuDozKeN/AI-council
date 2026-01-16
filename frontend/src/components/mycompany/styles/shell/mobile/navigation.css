@@ -13,7 +13,7 @@
    ============================================================================ */
 
 /* Mobile TOC trigger - show on mobile, hide on desktop (sticky variant is used instead) */
-@media (width >= 769px) {
+@media (width >= 641px) {
   .mc-mobile-toc.stage3-mobile-toc-trigger {
     display: none;
   }

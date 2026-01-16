@@ -1,42 +1,41 @@
 /**
- * Haptic Feedback Utilities
- *
- * Provides haptic feedback on supported devices (iOS, Android)
- * Gracefully degrades on unsupported devices
+ * Haptic Feedback Utility
+ * Provides tactile feedback on mobile devices for premium app-like feel
+ * Falls back gracefully on unsupported devices
  */
 
 /**
  * Check if haptic feedback is supported
  */
-export const isHapticSupported = () => {
+export const isHapticSupported = (): boolean => {
   return 'vibrate' in navigator;
 };
 
 /**
- * Light haptic feedback - for button presses, selections
- * Duration: 10ms
+ * Light haptic feedback - subtle tap
+ * Use for: Button taps, toggles, minor interactions
  */
-export const hapticLight = () => {
+export const hapticLight = (): void => {
   if (isHapticSupported()) {
     navigator.vibrate(10);
   }
 };
 
 /**
- * Medium haptic feedback - for confirmations, tab switches
- * Duration: 20ms
+ * Medium haptic feedback - noticeable tap
+ * Use for: Form submissions, confirmations, selections
  */
-export const hapticMedium = () => {
+export const hapticMedium = (): void => {
   if (isHapticSupported()) {
     navigator.vibrate(20);
   }
 };
 
 /**
- * Heavy haptic feedback - for important actions, errors
- * Duration: 30ms
+ * Heavy haptic feedback - strong tap
+ * Use for: Errors, important alerts, destructive actions
  */
-export const hapticHeavy = () => {
+export const hapticHeavy = (): void => {
   if (isHapticSupported()) {
     navigator.vibrate(30);
   }
@@ -44,62 +43,45 @@ export const hapticHeavy = () => {
 
 /**
  * Success haptic pattern - double tap
- * Pattern: 10ms on, 50ms off, 10ms on
+ * Use for: Successful operations, completions
  */
-export const hapticSuccess = () => {
+export const hapticSuccess = (): void => {
   if (isHapticSupported()) {
     navigator.vibrate([10, 50, 10]);
   }
 };
 
 /**
- * Warning haptic pattern - triple tap
- * Pattern: 10ms on, 30ms off, 10ms on, 30ms off, 20ms on
+ * Error haptic pattern - triple tap
+ * Use for: Errors, validation failures
  */
-export const hapticWarning = () => {
+export const hapticError = (): void => {
   if (isHapticSupported()) {
-    navigator.vibrate([10, 30, 10, 30, 20]);
+    navigator.vibrate([20, 50, 20, 50, 20]);
   }
 };
 
 /**
- * Error haptic pattern - long buzz
- * Duration: 50ms
+ * Selection haptic - very subtle
+ * Use for: List scrolling, slider dragging, continuous interactions
  */
-export const hapticError = () => {
-  if (isHapticSupported()) {
-    navigator.vibrate(50);
-  }
-};
-
-/**
- * Selection changed haptic - very light
- * Duration: 5ms
- */
-export const hapticSelection = () => {
+export const hapticSelection = (): void => {
   if (isHapticSupported()) {
     navigator.vibrate(5);
   }
 };
 
 /**
- * Impact haptic - for swipe actions revealing
- * Duration: 15ms
+ * Haptic object for cleaner imports
  */
-export const hapticImpact = () => {
-  if (isHapticSupported()) {
-    navigator.vibrate(15);
-  }
-};
-
-export default {
-  isSupported: isHapticSupported,
+export const haptic = {
   light: hapticLight,
   medium: hapticMedium,
   heavy: hapticHeavy,
   success: hapticSuccess,
-  warning: hapticWarning,
   error: hapticError,
   selection: hapticSelection,
-  impact: hapticImpact,
+  isSupported: isHapticSupported,
 };
+
+export default haptic;

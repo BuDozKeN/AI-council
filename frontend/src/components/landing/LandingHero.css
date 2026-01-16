@@ -395,7 +395,7 @@
 }
 
 /* Hide on mobile - keyboard shortcuts less relevant */
-@media (width <= 768px) {
+@media (width <= 640px) {
   .keyboard-hint {
     display: none;
   }

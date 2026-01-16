@@ -299,7 +299,7 @@
   display: none;
 }
 
-@media (width >= 769px) {
+@media (width >= 641px) {
   .mc-desktop-toc {
     display: inline-flex;
   }

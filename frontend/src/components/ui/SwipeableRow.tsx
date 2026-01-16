@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect, ReactNode } from 'react';
 import { motion, useMotionValue, useTransform, animate, PanInfo } from 'framer-motion';
-import { hapticImpact, hapticLight } from '../../lib/haptics';
+import { hapticMedium, hapticLight } from '../../lib/haptics';
 import { makeClickable } from '../../utils/a11y';
 import './SwipeableRow.css';
 
@@ -53,7 +53,7 @@ export function SwipeableRow({
       if (offsetX < -threshold || velocityX < -500) {
         animate(x, -actionWidth, { type: 'spring', stiffness: 500, damping: 30 });
         setIsOpen(true);
-        hapticImpact();
+        hapticMedium();
       } else {
         // Snap closed
         animate(x, 0, { type: 'spring', stiffness: 500, damping: 30 });

@@ -124,7 +124,7 @@
 }
 
 /* Tablet adjustments */
-@media (width >= 769px) and (width <= 1024px) {
+@media (width >= 641px) and (width <= 1024px) {
   .app {
     /* Sidebar will be slightly narrower on tablets if needed */
   }

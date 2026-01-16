@@ -42,7 +42,7 @@
 }
 
 /* Hide on desktop */
-@media (width >= 769px) {
+@media (width >= 641px) {
   .pull-to-refresh-indicator {
     display: none;
   }

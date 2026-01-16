@@ -5,6 +5,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { Loader2 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import { haptic } from '@/lib/haptics';
 
 /**
  * Button component with Notion/Figma-inspired variants
@@ -75,6 +76,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       loadingText,
       children,
       disabled,
+      onClick,
       ...props
     },
     ref
@@ -82,10 +84,31 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : 'button';
     const isDisabled = disabled || loading;
 
-    // For asChild, we can't modify children so just pass through
+    // Add haptic feedback on click for mobile
+    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (!isDisabled) {
+        // Different haptics for different button types
+        if (variant === 'destructive') {
+          haptic.heavy();
+        } else if (variant === 'success') {
+          haptic.success();
+        } else {
+          haptic.light();
+        }
+      }
+      onClick?.(e);
+    };
+
+    // For asChild, pass handleClick to preserve onClick and haptic feedback
+    // Radix Slot will compose this with any onClick on the child element
     if (asChild) {
       return (
-        <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+        <Comp
+          className={cn(buttonVariants({ variant, size, className }))}
+          ref={ref}
+          onClick={handleClick}
+          {...props}
+        />
       );
     }
 
@@ -94,6 +117,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(buttonVariants({ variant, size, className }), loading && 'relative')}
         ref={ref}
         disabled={isDisabled}
+        onClick={handleClick}
         {...props}
       >
         {loading && (

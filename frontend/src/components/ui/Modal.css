@@ -16,7 +16,7 @@
 }
 
 /* Desktop only: constrain max-height */
-@media (width >= 769px) {
+@media (width >= 641px) {
   .mc-modal-body {
     max-height: 60vh;
   }
