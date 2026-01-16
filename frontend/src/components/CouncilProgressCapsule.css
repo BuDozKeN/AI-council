@@ -169,7 +169,7 @@
    MOBILE ADJUSTMENTS
    ============================================================================= */
 
-@media (width < 641px) {
+@media (width <= 640px) {
   .council-progress-capsule {
     bottom: 5rem; /* Above mobile browser chrome */
   }

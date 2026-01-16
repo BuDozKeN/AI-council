@@ -117,7 +117,7 @@
 }
 
 /* Desktop - render as centered modal */
-@media (width >= 769px) {
+@media (width >= 641px) {
   /* Use attribute selector for higher specificity over framer-motion inline styles */
   .bottom-sheet-content[class],
   div.bottom-sheet-content {
@@ -253,7 +253,7 @@
   color: var(--color-gray-200);
 }
 
-@media (width >= 769px) {
+@media (width >= 641px) {
   .dark .bottom-sheet-header {
     border-color: var(--color-border);
   }

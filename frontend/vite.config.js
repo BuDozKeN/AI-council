@@ -29,25 +29,26 @@ export default defineConfig(({ mode }) => ({
         name: 'AxCouncil - Strategic AI Advisory Platform',
         short_name: 'AxCouncil',
         description: 'Multi-model AI advisory platform for strategic decision making',
-        theme_color: '#f97316',
+        theme_color: '#4a90e2',
         background_color: '#0a0a0a',
         display: 'standalone',
         start_url: '/',
         icons: [
           {
-            src: 'favicon-32x32.png',
+            src: 'favicon.svg',
             sizes: '32x32',
-            type: 'image/png',
+            type: 'image/svg+xml',
           },
           {
-            src: 'apple-touch-icon.png',
+            src: 'favicon.svg',
             sizes: '180x180',
-            type: 'image/png',
+            type: 'image/svg+xml',
           },
           {
             src: 'pwa-192x192.svg',
             sizes: '192x192',
             type: 'image/svg+xml',
+            purpose: 'any',
           },
           {
             src: 'pwa-512x512.svg',

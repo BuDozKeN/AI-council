@@ -60,7 +60,7 @@
 }
 
 /* Hide on desktop */
-@media (width >= 769px) {
+@media (width >= 641px) {
   .mobile-header {
     display: none;
   }
