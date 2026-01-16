@@ -5,7 +5,18 @@
  * when semantic button elements can't be used due to styling/layout constraints.
  */
 
-import type { KeyboardEvent, MouseEvent } from 'react';
+import type { KeyboardEvent, MouseEvent, SyntheticEvent } from 'react';
+
+/**
+ * Flexible callback type that accepts various event handler signatures.
+ * Supports handlers that:
+ * - Take no arguments: () => void
+ * - Take MouseEvent: (e: MouseEvent) => void
+ * - Take KeyboardEvent: (e: KeyboardEvent) => void
+ * - Take either: (e: MouseEvent | KeyboardEvent) => void
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type InteractiveCallback = ((e: any) => void) | (() => void) | undefined;
 
 /**
  * Creates keyboard-accessible props for clickable divs/spans
@@ -25,17 +36,19 @@ import type { KeyboardEvent, MouseEvent } from 'react';
  *   onKeyDown={handleKeyDown}
  * >
  */
-export function makeClickable(
-  onClick: (e: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>) => void
-) {
+export function makeClickable(onClick: InteractiveCallback) {
+  if (!onClick) {
+    return {};
+  }
+
   return {
     role: 'button' as const,
     tabIndex: 0,
-    onClick,
+    onClick: onClick as (e: MouseEvent<HTMLElement>) => void,
     onKeyDown: (e: KeyboardEvent<HTMLElement>) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault(); // Prevent space from scrolling
-        onClick(e);
+        (onClick as (e: SyntheticEvent) => void)(e);
       }
     },
   };
@@ -52,13 +65,15 @@ export function makeClickable(
  *   onKeyDown={handleKeyPress(handleClick)}
  * >
  */
-export function handleKeyPress(
-  callback: (e: MouseEvent<HTMLElement> | KeyboardEvent<HTMLElement>) => void
-) {
+export function handleKeyPress(callback: InteractiveCallback) {
+  if (!callback) {
+    return undefined;
+  }
+
   return (e: KeyboardEvent<HTMLElement>) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      callback(e);
+      (callback as (e: SyntheticEvent) => void)(e);
     }
   };
 }
