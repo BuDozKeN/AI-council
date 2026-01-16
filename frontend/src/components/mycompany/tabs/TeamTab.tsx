@@ -14,6 +14,7 @@ import { Users, Plus } from 'lucide-react';
 import { Button } from '../../ui/button';
 import { getDeptColor } from '../../../lib/colors';
 import { ScrollableContent } from '../../ui/ScrollableContent';
+import { makeClickable } from '../../../utils/a11y';
 import type { Department, Role } from '../../../types/business';
 
 interface ExtendedDepartment extends Department {
@@ -83,7 +84,7 @@ export function TeamTab({
               <div key={dept.id} className="mc-dept-container">
                 <div
                   className={`mc-elegant-row mc-dept-row ${isExpanded ? 'expanded' : ''}`}
-                  onClick={() => onExpandDept && onExpandDept(isExpanded ? null : dept.id)}
+                  {...(onExpandDept ? makeClickable(() => onExpandDept(isExpanded ? null : dept.id)) : {})}
                 >
                   {/* Department color indicator */}
                   <div className="mc-dept-indicator" style={{ background: deptColors.text }} />
@@ -143,7 +144,7 @@ export function TeamTab({
                             <div
                               key={role.id}
                               className="mc-role-row"
-                              onClick={(e) => {
+                              {...makeClickable((e) => {
                                 e.stopPropagation();
                                 onViewRole &&
                                   onViewRole({
@@ -151,7 +152,7 @@ export function TeamTab({
                                     departmentName: dept.name,
                                     departmentId: dept.id,
                                   });
-                              }}
+                              })}
                             >
                               <span className="mc-role-name">{role.name}</span>
                               {role.title && <span className="mc-role-title">{role.title}</span>}

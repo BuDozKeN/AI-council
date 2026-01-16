@@ -16,6 +16,7 @@ import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { ScrollableContent } from '../../ui/ScrollableContent';
 import { getDeptColor } from '../../../lib/colors';
 import { formatDateCompact } from '../../../lib/dateUtils';
+import { makeClickable } from '../../../utils/a11y';
 import type { Department } from '../../../types/business';
 
 // Note: ScrollableContent provides sticky copy button + scroll-to-top for lists
@@ -227,7 +228,7 @@ export function DecisionsTab({
                 <div
                   key={decision.id}
                   className={`mc-elegant-row mc-decision-row ${isDeleting ? 'deleting' : ''}`}
-                  onClick={() => !isDeleting && onPromoteDecision && onPromoteDecision(decision)}
+                  {...(!isDeleting && onPromoteDecision ? makeClickable(() => onPromoteDecision(decision)) : {})}
                 >
                   {/* Status indicator - amber for pending */}
                   <div className="mc-status-dot draft" />

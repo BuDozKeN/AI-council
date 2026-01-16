@@ -40,6 +40,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { makeClickable } from '../../utils/a11y';
 import './TableOfContents.css';
 
 export interface Heading {
@@ -374,6 +375,7 @@ export function TableOfContents({
         {/* Bottom sheet drawer - rendered via portal to escape parent stacking contexts */}
         {isSheetOpen &&
           createPortal(
+            // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/click-events-have-key-events
             <div
               className="stage3-mobile-outline-overlay"
               onClick={() => setIsSheetOpen(false)}
@@ -381,7 +383,7 @@ export function TableOfContents({
               aria-modal="true"
               aria-label="Table of contents"
             >
-              <div className="stage3-mobile-outline-sheet" onClick={(e) => e.stopPropagation()}>
+              <div className="stage3-mobile-outline-sheet" {...makeClickable((e) => e.stopPropagation())}>
                 {/* Drag handle */}
                 <div className="stage3-mobile-sheet-handle" />
 
@@ -424,6 +426,7 @@ export function TableOfContents({
   // ============================================================================
   if (variant === 'floating') {
     return (
+      // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/click-events-have-key-events
       <nav
         ref={tocRef}
         className={`stage3-floating-toc ${isCollapsed ? 'collapsed' : ''} ${className}`}

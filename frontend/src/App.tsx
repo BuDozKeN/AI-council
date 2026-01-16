@@ -1551,7 +1551,7 @@ function App() {
 
       <div className="app">
         {/* Sidebar navigation - semantic aside landmark for screen readers */}
-        <aside role="complementary" aria-label="Conversation history and navigation">
+        <aside aria-label="Conversation history and navigation">
           <Sidebar
             conversations={conversations}
             currentConversationId={currentConversationId}

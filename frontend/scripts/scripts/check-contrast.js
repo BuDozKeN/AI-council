@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console, no-undef */
 /**
  * Color Contrast Checker - WCAG 2.1 AA Compliance
  *

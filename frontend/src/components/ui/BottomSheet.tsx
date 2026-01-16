@@ -8,6 +8,7 @@ import {
 } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { motion, AnimatePresence, PanInfo, useMotionValue, useTransform } from 'framer-motion';
+import { handleKeyPress } from '../../utils/a11y';
 import './BottomSheet.css';
 
 interface BottomSheetProps {
@@ -203,6 +204,7 @@ function SheetContent({
       <div
         className="bottom-sheet-handle"
         onClick={() => onClose?.()}
+        onKeyDown={handleKeyPress(() => onClose?.())}
         role="button"
         tabIndex={0}
         aria-label="Close sheet"
@@ -247,7 +249,8 @@ function SheetContent({
       </Dialog.Description>
 
       {/* Body - tap empty space to close, wheel handler via useEffect for scroll fix */}
-      <div ref={bodyRef} className="bottom-sheet-body" onClick={handleBodyClick}>
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
+      <div ref={bodyRef} className="bottom-sheet-body" onClick={handleBodyClick} onKeyDown={handleKeyPress(handleBodyClick)}>
         {children}
       </div>
     </motion.div>

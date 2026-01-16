@@ -7,6 +7,7 @@ import { CopyButton } from './ui/CopyButton';
 import { getModelPersona } from '../config/modelPersonas';
 import { useCompletionCelebration } from '../hooks/useCelebration';
 import { CELEBRATION } from '../lib/animation-constants';
+import { makeClickable } from '../utils/a11y';
 import type { Provider, ProviderIconPaths, Stage2Props, Stage2DisplayData } from '../types/stages';
 import './Stage2.css';
 
@@ -207,7 +208,7 @@ function Stage2({
       className={`stage stage2 ${isCollapsed ? 'collapsed' : ''} ${showCompleteCelebration ? 'celebrating' : ''}`}
       data-stage="stage2"
     >
-      <h3 className="stage-title clickable" onClick={toggleCollapsed}>
+      <h3 className="stage-title clickable" {...makeClickable(toggleCollapsed)}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
         <span className="font-semibold tracking-tight">{t('stages.expertsReview')}</span>
 
@@ -387,21 +388,9 @@ function Stage2({
                           totalVoters,
                         }) + (isClickable ? ` ${t('stages.clickToViewResponse')}` : '')
                       }
-                      onClick={
-                        isClickable && onModelClick ? () => onModelClick(agg.model) : undefined
-                      }
-                      role={isClickable ? 'button' : undefined}
-                      tabIndex={isClickable ? 0 : undefined}
-                      onKeyDown={
-                        isClickable && onModelClick
-                          ? (e: React.KeyboardEvent) => {
-                              if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault();
-                                onModelClick(agg.model);
-                              }
-                            }
-                          : undefined
-                      }
+                      {...(isClickable && onModelClick
+                        ? makeClickable(() => onModelClick(agg.model))
+                        : {})}
                     >
                       <span className="rank-position">{getRankLabel(index + 1)}</span>
                       <span className="rank-model">

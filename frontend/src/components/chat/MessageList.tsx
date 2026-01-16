@@ -17,6 +17,7 @@ import Stage2 from '../Stage2';
 import Stage3 from '../stage3';
 import { TokenUsageDisplay, type UsageData } from '../ui/TokenUsageDisplay';
 import { CopyButton } from '../ui/CopyButton';
+import { makeClickable } from '../../utils/a11y';
 import type { Project } from '../../types/business';
 import type { Conversation, StreamingState } from '../../types/conversation';
 import type { AggregateRanking } from '../../types/stages';
@@ -188,7 +189,7 @@ function UserMessage({ content }: { content: string }) {
         {/* Sticky copy button - stays visible when scrolling long content */}
         <CopyButton text={content} size="sm" className="user-copy-btn no-touch-target" />
 
-        <div className="user-collapse-row" onClick={() => setIsCollapsed(!isCollapsed)}>
+        <div className="user-collapse-row" {...makeClickable(() => setIsCollapsed(!isCollapsed))}>
           <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
           {/* Collapsed preview */}
           {isCollapsed && <span className="user-preview-inline">{previewText}</span>}
@@ -196,7 +197,7 @@ function UserMessage({ content }: { content: string }) {
 
         {/* Expanded content - no extra wrapper box */}
         {!isCollapsed && (
-          <div className="markdown-content user-expanded" onClick={() => setIsCollapsed(true)}>
+          <div className="markdown-content user-expanded" {...makeClickable(() => setIsCollapsed(true))}>
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
           </div>
         )}

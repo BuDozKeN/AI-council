@@ -16,6 +16,7 @@ import { Spinner } from '../../ui/Spinner';
 import { AIWriteAssist } from '../../ui/AIWriteAssist';
 import { FloatingContextActions } from '../../ui/FloatingContextActions';
 import { toast } from '../../ui/sonner';
+import { makeClickable } from '../../../utils/a11y';
 import {
   Bookmark,
   CheckCircle,
@@ -509,7 +510,7 @@ export function ViewProjectModal({
           ) : (
             <h2
               className="mc-title-display editable"
-              onClick={() => setIsEditingName(true)}
+              {...makeClickable(() => setIsEditingName(true))}
               title={t('modals.clickToEditName')}
             >
               {editedName || project.name}
@@ -821,7 +822,7 @@ export function ViewProjectModal({
                         <div className="mc-timeline-content">
                           <div
                             className="mc-timeline-header"
-                            onClick={() => handleExpandDecision(decision.id)}
+                            {...makeClickable(() => handleExpandDecision(decision.id))}
                           >
                             {/* Single row: Title | Dept Badge | #N | Date | Chevron */}
                             <div className="mc-timeline-title-row">

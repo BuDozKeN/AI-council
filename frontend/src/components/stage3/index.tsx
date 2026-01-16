@@ -5,6 +5,7 @@ import { CopyButton } from '../ui/CopyButton';
 import { api } from '../../api';
 import { getModelPersona } from '../../config/modelPersonas';
 import { logger } from '../../utils/logger';
+import { makeClickable } from '../../utils/a11y';
 import { useDecisionState } from './hooks/useDecisionState';
 import { useSaveActions } from './hooks/useSaveActions';
 import Stage3Content from './Stage3Content';
@@ -363,7 +364,7 @@ function Stage3({
       aria-busy={isStreaming}
       aria-live="polite"
     >
-      <h3 className="stage-title clickable" onClick={toggleCollapsed}>
+      <h3 className="stage-title clickable" {...makeClickable(toggleCollapsed)}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
         <Sparkles className="h-5 w-5 text-amber-500 flex-shrink-0" />
         <span className="font-semibold tracking-tight">{t('stages.bestAnswer')}</span>

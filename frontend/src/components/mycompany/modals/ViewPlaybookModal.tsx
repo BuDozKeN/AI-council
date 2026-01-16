@@ -13,6 +13,7 @@ import { FloatingContextActions } from '../../ui/FloatingContextActions';
 import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { toast } from '../../ui/sonner';
 import { getDeptColor } from '../../../lib/colors';
+import { makeClickable } from '../../../utils/a11y';
 import type { Department, Playbook } from '../../../types/business';
 
 type DocType = 'sop' | 'framework' | 'policy';
@@ -152,7 +153,7 @@ export function ViewPlaybookModal({
           ) : (
             <h1
               className="mc-title-display editable"
-              onClick={() => setIsEditingTitle(true)}
+              {...makeClickable(() => setIsEditingTitle(true))}
               title={t('modals.clickToEditTitle')}
             >
               {editedTitle || playbook.title}

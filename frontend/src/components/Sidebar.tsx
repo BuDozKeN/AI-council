@@ -566,6 +566,7 @@ export default function Sidebar({
       {/* Header with New Chat and Pin toggle */}
       <div
         className="sidebar-header"
+        role="presentation"
         onMouseEnter={handleExpandedAreaEnter}
         onMouseLeave={handleExpandedAreaLeave}
       >
@@ -604,6 +605,7 @@ export default function Sidebar({
         {!isPinned && (
           <div
             className="sidebar-icon-rail"
+            role="presentation"
             onMouseEnter={handleExpandedAreaEnter}
             onMouseLeave={handleExpandedAreaLeave}
           >
@@ -635,6 +637,7 @@ export default function Sidebar({
         {isExpanded && (
           <div
             className="sidebar-expanded-panel"
+            role="presentation"
             onMouseEnter={handleExpandedAreaEnter}
             onMouseLeave={handleExpandedAreaLeave}
           >
@@ -812,6 +815,7 @@ export default function Sidebar({
         // Keep expanded when hovering over footer icons
         <div
           className="sidebar-footer sidebar-footer--collapsed"
+          role="presentation"
           onMouseEnter={handleExpandedAreaEnter}
           onMouseLeave={handleExpandedAreaLeave}
         >

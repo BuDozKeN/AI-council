@@ -11,6 +11,7 @@ import { hapticLight } from '../lib/haptics';
 import { springs, interactionStates } from '../lib/animations';
 import { useCompletionCelebration } from '../hooks/useCelebration';
 import { CELEBRATION } from '../lib/animation-constants';
+import { makeClickable } from '../utils/a11y';
 import type {
   Provider,
   ProviderIconPaths,
@@ -262,7 +263,6 @@ const ModelCard = memo(function ModelCard({
       onTouchEnd={handleTouchEnd}
       tabIndex={0}
       role="article"
-      aria-expanded={isExpanded}
       aria-label={`${displayName} response${data.isStreaming ? ', generating' : data.isComplete ? ', complete' : ''}`}
     >
       {/* Header */}
@@ -602,7 +602,7 @@ function Stage1({
       className={`stage stage1 ${isCollapsed ? 'collapsed' : ''} ${showCompleteCelebration ? 'celebrating' : ''}`}
       data-stage="stage1"
     >
-      <h3 className="stage-title clickable" onClick={toggleCollapsed}>
+      <h3 className="stage-title clickable" {...makeClickable(toggleCollapsed)}>
         <span className="collapse-arrow">{isCollapsed ? '▶' : '▼'}</span>
         <span className="font-semibold tracking-tight">
           {t('stages.expertsRespondCount', { count: expertCount })}

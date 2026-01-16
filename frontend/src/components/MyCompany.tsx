@@ -4,6 +4,7 @@ import { Skeleton } from './ui/Skeleton';
 import { PullToRefreshIndicator } from './ui/PullToRefreshIndicator';
 import { usePullToRefresh, useSwipeGesture } from '../hooks';
 import { hapticLight, hapticSuccess, hapticMedium } from '../lib/haptics';
+import { makeClickable } from '../utils/a11y';
 
 // Extracted components
 import { MyCompanyHeader } from './mycompany/MyCompanyHeader';
@@ -705,11 +706,11 @@ export default function MyCompany({
   );
 
   return (
-    <div className="mc-overlay" onClick={handleOverlayClick}>
+    <div className="mc-overlay" {...makeClickable(handleOverlayClick)}>
       <div
         className="mc-panel"
         ref={panelSwipeRef as React.RefObject<HTMLDivElement>}
-        onClick={(e) => e.stopPropagation()}
+        {...makeClickable((e) => e.stopPropagation())}
       >
         <MyCompanyHeader
           companyName={companyName}

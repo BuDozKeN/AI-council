@@ -8,6 +8,7 @@ import { AlertModal } from './ui/AlertModal';
 import { AIWriteAssist } from './ui/AIWriteAssist';
 import { toast } from './ui/sonner';
 import { logger } from '../utils/logger';
+import { makeClickable } from '../utils/a11y';
 import type { Department, Business } from '../types/business';
 import './Organization.css';
 
@@ -343,7 +344,7 @@ export default function Organization({
                 {/* Department Header */}
                 <div
                   className="org-dept-header"
-                  onClick={() => setExpandedDept(expandedDept === dept.id ? null : dept.id)}
+                  {...makeClickable(() => setExpandedDept(expandedDept === dept.id ? null : dept.id))}
                 >
                   <div className="org-dept-info">
                     <h3 className="org-dept-name">{dept.name}</h3>
