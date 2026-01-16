@@ -224,7 +224,9 @@ export function ResponseStyleSelector({
         <Tooltip.Provider delayDuration={400}>
           <Tooltip.Root>
             <Tooltip.Trigger asChild>
-              <span {...(!disabled ? makeClickable(() => setOpen(true)) : {})}>{triggerButton}</span>
+              <span {...(!disabled ? makeClickable(() => setOpen(true)) : {})}>
+                {triggerButton}
+              </span>
             </Tooltip.Trigger>
             <Tooltip.Portal>
               <Tooltip.Content className="tooltip-content" sideOffset={8}>

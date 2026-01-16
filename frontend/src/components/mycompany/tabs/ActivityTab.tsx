@@ -252,7 +252,9 @@ export function ActivityTab({
                   <div
                     key={log.id}
                     className={`mc-elegant-row ${isClickable ? '' : 'no-hover'} ${isDeleted ? 'deleted-item' : ''}`}
-                    {...(isClickable && onActivityClick ? makeClickable(() => onActivityClick(log)) : {})}
+                    {...(isClickable && onActivityClick
+                      ? makeClickable(() => onActivityClick(log))
+                      : {})}
                     title={isDeleted ? 'This item has been deleted' : undefined}
                   >
                     {/* Event type indicator */}

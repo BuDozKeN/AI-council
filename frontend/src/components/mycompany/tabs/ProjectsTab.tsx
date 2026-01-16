@@ -434,21 +434,33 @@ export function ProjectsTab({
       <div className="mc-stats-grid">
         <div
           className={`mc-stat-card clickable ${projectStatusFilter === 'active' ? 'selected' : ''}`}
-          {...(onStatusFilterChange ? makeClickable(() => onStatusFilterChange(projectStatusFilter === 'active' ? 'all' : 'active')) : {})}
+          {...(onStatusFilterChange
+            ? makeClickable(() =>
+                onStatusFilterChange(projectStatusFilter === 'active' ? 'all' : 'active')
+              )
+            : {})}
         >
           <div className="mc-stat-value active">{stats.active}</div>
           <div className="mc-stat-label">{t('mycompany.active')}</div>
         </div>
         <div
           className={`mc-stat-card clickable ${projectStatusFilter === 'completed' ? 'selected' : ''}`}
-          {...(onStatusFilterChange ? makeClickable(() => onStatusFilterChange(projectStatusFilter === 'completed' ? 'all' : 'completed')) : {})}
+          {...(onStatusFilterChange
+            ? makeClickable(() =>
+                onStatusFilterChange(projectStatusFilter === 'completed' ? 'all' : 'completed')
+              )
+            : {})}
         >
           <div className="mc-stat-value completed">{stats.completed}</div>
           <div className="mc-stat-label">{t('mycompany.completed')}</div>
         </div>
         <div
           className={`mc-stat-card clickable ${projectStatusFilter === 'archived' ? 'selected' : ''}`}
-          {...(onStatusFilterChange ? makeClickable(() => onStatusFilterChange(projectStatusFilter === 'archived' ? 'all' : 'archived')) : {})}
+          {...(onStatusFilterChange
+            ? makeClickable(() =>
+                onStatusFilterChange(projectStatusFilter === 'archived' ? 'all' : 'archived')
+              )
+            : {})}
         >
           <div className="mc-stat-value archived">{stats.archived}</div>
           <div className="mc-stat-label">{t('mycompany.archived')}</div>

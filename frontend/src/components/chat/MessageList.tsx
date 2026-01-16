@@ -205,7 +205,10 @@ function UserMessage({ content }: { content: string }) {
 
         {/* Expanded content - no extra wrapper box */}
         {!isCollapsed && (
-          <div className="markdown-content user-expanded" {...makeClickable(() => setIsCollapsed(true))}>
+          <div
+            className="markdown-content user-expanded"
+            {...makeClickable(() => setIsCollapsed(true))}
+          >
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
           </div>
         )}

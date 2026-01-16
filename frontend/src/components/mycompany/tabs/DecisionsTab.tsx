@@ -320,7 +320,9 @@ export function DecisionsTab({
                 <div
                   key={decision.id}
                   className={`mc-elegant-row mc-decision-row ${isDeleting ? 'deleting' : ''}`}
-                  {...(!isDeleting && onPromoteDecision ? makeClickable(() => onPromoteDecision(decision)) : {})}
+                  {...(!isDeleting && onPromoteDecision
+                    ? makeClickable(() => onPromoteDecision(decision))
+                    : {})}
                 >
                   {/* Status indicator - amber for pending */}
                   <div className="mc-status-dot draft" />

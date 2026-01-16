@@ -250,7 +250,12 @@ function SheetContent({
 
       {/* Body - tap empty space to close, wheel handler via useEffect for scroll fix */}
       {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
-      <div ref={bodyRef} className="bottom-sheet-body" onClick={handleBodyClick} onKeyDown={handleKeyPress(handleBodyClick)}>
+      <div
+        ref={bodyRef}
+        className="bottom-sheet-body"
+        onClick={handleBodyClick}
+        onKeyDown={handleKeyPress(handleBodyClick)}
+      >
         {children}
       </div>
     </motion.div>

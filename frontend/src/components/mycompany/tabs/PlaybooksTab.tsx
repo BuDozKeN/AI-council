@@ -405,21 +405,31 @@ export function PlaybooksTab({
         </div>
         <div
           className={`mc-stat-card clickable ${playbookTypeFilter === 'sop' ? 'selected' : ''}`}
-          {...(onTypeFilterChange ? makeClickable(() => onTypeFilterChange(playbookTypeFilter === 'sop' ? 'all' : 'sop')) : {})}
+          {...(onTypeFilterChange
+            ? makeClickable(() => onTypeFilterChange(playbookTypeFilter === 'sop' ? 'all' : 'sop'))
+            : {})}
         >
           <div className="mc-stat-value sops">{allSops.length}</div>
           <div className="mc-stat-label">{t('mycompany.sops')}</div>
         </div>
         <div
           className={`mc-stat-card clickable ${playbookTypeFilter === 'framework' ? 'selected' : ''}`}
-          {...(onTypeFilterChange ? makeClickable(() => onTypeFilterChange(playbookTypeFilter === 'framework' ? 'all' : 'framework')) : {})}
+          {...(onTypeFilterChange
+            ? makeClickable(() =>
+                onTypeFilterChange(playbookTypeFilter === 'framework' ? 'all' : 'framework')
+              )
+            : {})}
         >
           <div className="mc-stat-value frameworks">{allFrameworks.length}</div>
           <div className="mc-stat-label">{t('mycompany.frameworks')}</div>
         </div>
         <div
           className={`mc-stat-card clickable ${playbookTypeFilter === 'policy' ? 'selected' : ''}`}
-          {...(onTypeFilterChange ? makeClickable(() => onTypeFilterChange(playbookTypeFilter === 'policy' ? 'all' : 'policy')) : {})}
+          {...(onTypeFilterChange
+            ? makeClickable(() =>
+                onTypeFilterChange(playbookTypeFilter === 'policy' ? 'all' : 'policy')
+              )
+            : {})}
         >
           <div className="mc-stat-value policies">{allPolicies.length}</div>
           <div className="mc-stat-label">{t('mycompany.policies')}</div>

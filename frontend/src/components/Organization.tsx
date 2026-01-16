@@ -403,7 +403,9 @@ export default function Organization({
                 {/* Department Header */}
                 <div
                   className="org-dept-header"
-                  {...makeClickable(() => setExpandedDept(expandedDept === dept.id ? null : dept.id))}
+                  {...makeClickable(() =>
+                    setExpandedDept(expandedDept === dept.id ? null : dept.id)
+                  )}
                 >
                   <div className="org-dept-info">
                     <h3 className="org-dept-name">{dept.name}</h3>

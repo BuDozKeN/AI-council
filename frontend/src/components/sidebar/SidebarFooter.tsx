@@ -51,7 +51,12 @@ export function SidebarFooter({
   if (!user) return null;
 
   return (
-    <div className="sidebar-footer" role="presentation" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+    <div
+      className="sidebar-footer"
+      role="presentation"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
       {/* Mode Toggles - Dev only */}
       {DEV_MODE && (
         <div className="mode-toggle-section">

@@ -386,7 +386,10 @@ export function TableOfContents({
               aria-modal="true"
               aria-label="Table of contents"
             >
-              <div className="stage3-mobile-outline-sheet" {...makeClickable((e) => e.stopPropagation())}>
+              <div
+                className="stage3-mobile-outline-sheet"
+                {...makeClickable((e) => e.stopPropagation())}
+              >
                 {/* Drag handle */}
                 <div className="stage3-mobile-sheet-handle" />
 

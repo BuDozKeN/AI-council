@@ -196,7 +196,9 @@ export function TeamTab({
               <div key={dept.id} className="mc-dept-container">
                 <div
                   className={`mc-elegant-row mc-dept-row ${isExpanded ? 'expanded' : ''}`}
-                  {...(onExpandDept ? makeClickable(() => onExpandDept(isExpanded ? null : dept.id)) : {})}
+                  {...(onExpandDept
+                    ? makeClickable(() => onExpandDept(isExpanded ? null : dept.id))
+                    : {})}
                 >
                   {/* Department color indicator */}
                   <div className="mc-dept-indicator" style={{ background: deptColors.text }} />
