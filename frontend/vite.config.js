@@ -34,33 +34,35 @@ export default defineConfig(({ mode }) => ({
         display: 'standalone',
         start_url: '/',
         icons: [
+          // PNG icons for iOS/Android compatibility (required for apple-touch-icon)
           {
-            src: 'favicon.svg',
+            src: 'favicon-32x32.png',
             sizes: '32x32',
-            type: 'image/svg+xml',
+            type: 'image/png',
           },
           {
-            src: 'favicon.svg',
+            src: 'apple-touch-icon.png',
             sizes: '180x180',
-            type: 'image/svg+xml',
+            type: 'image/png',
           },
           {
-            src: 'pwa-192x192.svg',
+            src: 'pwa-192x192.png',
             sizes: '192x192',
-            type: 'image/svg+xml',
+            type: 'image/png',
             purpose: 'any',
           },
           {
-            src: 'pwa-512x512.svg',
+            src: 'pwa-512x512.png',
             sizes: '512x512',
-            type: 'image/svg+xml',
+            type: 'image/png',
             purpose: 'any maskable',
           },
+          // SVG icon for modern browsers (scalable)
           {
             src: 'favicon.svg',
             sizes: 'any',
             type: 'image/svg+xml',
-            purpose: 'any maskable',
+            purpose: 'any',
           },
         ],
       },

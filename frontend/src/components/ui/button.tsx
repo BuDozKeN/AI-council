@@ -99,10 +99,16 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       onClick?.(e);
     };
 
-    // For asChild, we can't modify children so just pass through
+    // For asChild, pass handleClick to preserve onClick and haptic feedback
+    // Radix Slot will compose this with any onClick on the child element
     if (asChild) {
       return (
-        <Comp className={cn(buttonVariants({ variant, size, className }))} ref={ref} {...props} />
+        <Comp
+          className={cn(buttonVariants({ variant, size, className }))}
+          ref={ref}
+          onClick={handleClick}
+          {...props}
+        />
       );
     }
 
