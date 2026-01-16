@@ -20,6 +20,7 @@ import { ScrollableContent } from '../../ui/ScrollableContent';
 import { Skeleton } from '../../ui/Skeleton';
 import { formatRelativeDate } from '../../../lib/dateUtils';
 import { getDeptColor } from '../../../lib/colors';
+import { makeClickable } from '../../../utils/a11y';
 import type { Department, Project } from '../../../types/business';
 
 type ProjectStatusFilter = 'all' | 'active' | 'completed' | 'archived';
@@ -323,7 +324,7 @@ export function ProjectsTab({
       <div
         key={project.id}
         className={`mc-project-row-compact ${isFading ? 'fading' : ''}`}
-        onClick={() => !isFading && onProjectClick && onProjectClick(project)}
+        {...(!isFading && onProjectClick ? makeClickable(() => onProjectClick(project)) : {})}
       >
         {/* Status indicator dot */}
         <div className={`mc-status-dot ${project.status}`} />
@@ -433,30 +434,33 @@ export function ProjectsTab({
       <div className="mc-stats-grid">
         <div
           className={`mc-stat-card clickable ${projectStatusFilter === 'active' ? 'selected' : ''}`}
-          onClick={() =>
-            onStatusFilterChange &&
-            onStatusFilterChange(projectStatusFilter === 'active' ? 'all' : 'active')
-          }
+          {...(onStatusFilterChange
+            ? makeClickable(() =>
+                onStatusFilterChange(projectStatusFilter === 'active' ? 'all' : 'active')
+              )
+            : {})}
         >
           <div className="mc-stat-value active">{stats.active}</div>
           <div className="mc-stat-label">{t('mycompany.active')}</div>
         </div>
         <div
           className={`mc-stat-card clickable ${projectStatusFilter === 'completed' ? 'selected' : ''}`}
-          onClick={() =>
-            onStatusFilterChange &&
-            onStatusFilterChange(projectStatusFilter === 'completed' ? 'all' : 'completed')
-          }
+          {...(onStatusFilterChange
+            ? makeClickable(() =>
+                onStatusFilterChange(projectStatusFilter === 'completed' ? 'all' : 'completed')
+              )
+            : {})}
         >
           <div className="mc-stat-value completed">{stats.completed}</div>
           <div className="mc-stat-label">{t('mycompany.completed')}</div>
         </div>
         <div
           className={`mc-stat-card clickable ${projectStatusFilter === 'archived' ? 'selected' : ''}`}
-          onClick={() =>
-            onStatusFilterChange &&
-            onStatusFilterChange(projectStatusFilter === 'archived' ? 'all' : 'archived')
-          }
+          {...(onStatusFilterChange
+            ? makeClickable(() =>
+                onStatusFilterChange(projectStatusFilter === 'archived' ? 'all' : 'archived')
+              )
+            : {})}
         >
           <div className="mc-stat-value archived">{stats.archived}</div>
           <div className="mc-stat-label">{t('mycompany.archived')}</div>

@@ -95,6 +95,7 @@ export function HelpButton() {
     <div className="help-button-container" data-testid="language-button">
       {/* Language Panel */}
       {isOpen && (
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
         <div
           className="help-panel"
           ref={panelRef}

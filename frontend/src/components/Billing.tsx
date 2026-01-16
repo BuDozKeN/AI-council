@@ -4,6 +4,7 @@ import { api } from '../api';
 import { Button } from './ui/button';
 import { logger } from '../utils/logger';
 import { formatCurrency } from '../lib/currencyUtils';
+import { makeClickable } from '../utils/a11y';
 import './Billing.css';
 
 const log = logger.scope('Billing');
@@ -102,8 +103,8 @@ export default function Billing({ onClose }: BillingProps) {
 
   if (loading) {
     return (
-      <div className="billing-overlay" onClick={handleOverlayClick}>
-        <div className="billing-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="billing-overlay" {...makeClickable(handleOverlayClick)}>
+        <div className="billing-modal" {...makeClickable((e) => e.stopPropagation())}>
           <div className="billing-loading">{t('billing.loadingBilling')}</div>
         </div>
       </div>
@@ -116,8 +117,8 @@ export default function Billing({ onClose }: BillingProps) {
   const isUnlimited = queriesLimit === -1;
 
   return (
-    <div className="billing-overlay" onClick={handleOverlayClick}>
-      <div className="billing-modal" onClick={(e) => e.stopPropagation()}>
+    <div className="billing-overlay" {...makeClickable(handleOverlayClick)}>
+      <div className="billing-modal" {...makeClickable((e) => e.stopPropagation())}>
         <div className="billing-header">
           <h2>{t('billing.subscriptionPlans')}</h2>
           <button className="billing-close" onClick={onClose}>

@@ -4,6 +4,7 @@ import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { X, ChevronUp, Copy, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { logger } from '../../utils/logger';
+import { handleKeyPress } from '../../utils/a11y';
 import './AppModal.css';
 
 type BadgeVariant = 'default' | 'success' | 'info' | 'warning' | 'purple';
@@ -289,6 +290,11 @@ const AppModalBase = React.forwardRef<HTMLDivElement, AppModalProps>(
                       onClose?.();
                     }
                   }}
+                  onKeyDown={handleKeyPress(() => {
+                    if (!shouldIgnoreClose()) {
+                      onClose?.();
+                    }
+                  })}
                   onTouchStart={handleDragHandleTouchStart}
                   onTouchEnd={handleDragHandleTouchEnd}
                   role="button"

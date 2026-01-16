@@ -10,6 +10,7 @@ import { ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { formatDateGroup } from '../../../lib/dateUtils';
 import { ScrollableContent } from '../../ui/ScrollableContent';
+import { makeClickable } from '../../../utils/a11y';
 
 // Promoted types array for validation
 const PROMOTED_TYPES = ['sop', 'framework', 'policy', 'project'] as const;
@@ -251,9 +252,9 @@ export function ActivityTab({
                   <div
                     key={log.id}
                     className={`mc-elegant-row ${isClickable ? '' : 'no-hover'} ${isDeleted ? 'deleted-item' : ''}`}
-                    onClick={
-                      isClickable && onActivityClick ? () => onActivityClick(log) : undefined
-                    }
+                    {...(isClickable && onActivityClick
+                      ? makeClickable(() => onActivityClick(log))
+                      : {})}
                     title={isDeleted ? 'This item has been deleted' : undefined}
                   >
                     {/* Event type indicator */}

@@ -10,6 +10,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { makeClickable } from '../../utils/a11y';
 import type { Department } from '../../types/business';
 import type { Conversation, ConversationSortBy } from '../../types/conversation';
 
@@ -40,7 +41,7 @@ export function FilterSortBar({
 }: FilterSortBarProps) {
   const { t } = useTranslation();
   return (
-    <div className="sidebar-filter" onClick={(e) => e.stopPropagation()}>
+    <div className="sidebar-filter" {...makeClickable((e) => e.stopPropagation())}>
       <Select value={filter} onValueChange={onFilterChange}>
         <SelectTrigger variant="compact" className="filter-select-trigger">
           <SelectValue placeholder={t('sidebar.allConversations')} />

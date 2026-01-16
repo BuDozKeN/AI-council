@@ -16,6 +16,7 @@ import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Command } from 'cmdk';
 import { createPortal } from 'react-dom';
+import { handleKeyPress } from '../../utils/a11y';
 import type { Conversation } from '../../types/conversation';
 import type { Department, Project, Playbook } from '../../types/business';
 import './CommandPalette.css';
@@ -588,8 +589,18 @@ export function CommandPalette({
   if (!mounted || !isOpen) return null;
 
   const content = (
-    <div className="command-palette-overlay" onClick={() => onOpenChange(false)}>
-      <div className="command-palette-container" onClick={(e) => e.stopPropagation()}>
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+    <div
+      className="command-palette-overlay"
+      onClick={() => onOpenChange(false)}
+      onKeyDown={handleKeyPress(() => onOpenChange(false))}
+    >
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
+      <div
+        className="command-palette-container"
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={handleKeyPress((e) => e.stopPropagation())}
+      >
         <Command className="command-palette" shouldFilter={true} loop={true}>
           <div className="command-palette-header">
             <Icons.Search />

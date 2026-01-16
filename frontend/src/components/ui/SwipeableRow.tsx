@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect, ReactNode } from 'react';
 import { motion, useMotionValue, useTransform, animate, PanInfo } from 'framer-motion';
 import { hapticImpact, hapticLight } from '../../lib/haptics';
+import { makeClickable } from '../../utils/a11y';
 import './SwipeableRow.css';
 
 interface SwipeAction {
@@ -117,7 +118,7 @@ export function SwipeableRow({
   if (disabled || actions.length === 0) {
     // No swipe behavior if disabled or no actions
     return (
-      <div className={`swipeable-row ${className}`} onClick={onClick}>
+      <div className={`swipeable-row ${className}`} {...(onClick ? makeClickable(onClick) : {})}>
         {children}
       </div>
     );

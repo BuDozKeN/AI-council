@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { Activity, Zap, DollarSign, ChevronDown, ChevronUp } from 'lucide-react';
 import { getShowTokenUsage } from '../settings/tokenUsageSettings';
 import { formatCostAuto } from '../../lib/currencyUtils';
+import { makeClickable } from '../../utils/a11y';
 import './TokenUsageDisplay.css';
 
 // Model pricing (per 1M tokens) - Official provider pricing as of Dec 2025
@@ -185,7 +186,7 @@ export function TokenUsageDisplay({
 
   return (
     <div className={`token-usage-display ${className}`}>
-      <div className="token-usage-header" onClick={() => setIsExpanded(!isExpanded)}>
+      <div className="token-usage-header" {...makeClickable(() => setIsExpanded(!isExpanded))}>
         <div className="token-usage-summary">
           <Activity size={14} className="token-usage-icon" />
           <span className="token-usage-label">{stageLabel}:</span>

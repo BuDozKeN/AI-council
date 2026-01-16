@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronLeft, Building2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { makeClickable, handleKeyPress } from '../../utils/a11y';
 
 interface Company {
   id: string;
@@ -32,6 +33,7 @@ export function MyCompanyHeader({
     <header
       className="mc-header mc-header-dismissible"
       onClick={onHeaderClick}
+      onKeyDown={handleKeyPress(onHeaderClick)}
       role="button"
       tabIndex={0}
       aria-label="Click to close, or press Escape"
@@ -68,7 +70,7 @@ export function MyCompanyHeader({
           <span className="mc-title-suffix">Command Center</span>
         </div>
         {/* Company switcher - always show on mobile for clear company display, only show dropdown if multiple companies */}
-        <div className="mc-company-switcher" onClick={(e) => e.stopPropagation()}>
+        <div className="mc-company-switcher" {...makeClickable((e) => e.stopPropagation())}>
           {allCompanies.length > 1 ? (
             <Select
               value={companyId}
