@@ -42,7 +42,7 @@ class TestVerifyConversationOwnership:
         with pytest.raises(HTTPException) as exc:
             _verify_conversation_ownership(conversation, user)
         assert exc.value.status_code == 403
-        assert "Access denied" in exc.value.detail
+        assert "forbidden" in exc.value.detail.lower()
 
     def test_allows_access_when_no_user_id_in_conversation(self):
         """Should allow access if conversation has no user_id (legacy data)."""

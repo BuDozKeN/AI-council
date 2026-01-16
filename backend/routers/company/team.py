@@ -16,6 +16,7 @@ import json
 import logging
 
 from ...auth import get_current_user
+from ...i18n import t, get_locale_from_request
 
 logger = logging.getLogger(__name__)
 from .utils import (
@@ -379,12 +380,13 @@ async def get_team(request: Request, company_id: ValidCompanyId, user=Depends(ge
     Get all departments with their roles from DATABASE.
     Returns hierarchical structure: departments → roles.
     """
+    locale = get_locale_from_request(request)
     client = get_service_client()
 
     try:
         company_uuid = resolve_company_id(client, company_id)
     except HTTPException:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=404, detail=t('errors.company_not_found', locale))
 
     verify_company_access(client, company_uuid, user)
 
@@ -450,6 +452,7 @@ async def get_team(request: Request, company_id: ValidCompanyId, user=Depends(ge
 @limiter.limit("30/minute;100/hour")
 async def create_department(request: Request, company_id: ValidCompanyId, data: DepartmentCreate, user=Depends(get_current_user)):
     """Create a new department."""
+    locale = get_locale_from_request(request)
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
 
@@ -473,7 +476,7 @@ async def create_department(request: Request, company_id: ValidCompanyId, data: 
     }).execute()
 
     if not result.data:
-        raise HTTPException(status_code=400, detail="Failed to create department")
+        raise HTTPException(status_code=400, detail=t('errors.department_create_failed', locale))
 
     return {"department": result.data[0]}
 
@@ -482,6 +485,7 @@ async def create_department(request: Request, company_id: ValidCompanyId, data: 
 @limiter.limit("30/minute;100/hour")
 async def update_department(request: Request, company_id: ValidCompanyId, dept_id: ValidDeptId, data: DepartmentUpdate, user=Depends(get_current_user)):
     """Update a department."""
+    locale = get_locale_from_request(request)
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
 
@@ -495,7 +499,7 @@ async def update_department(request: Request, company_id: ValidCompanyId, dept_i
         .execute()
 
     if not result.data:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=404, detail=t('errors.department_not_found', locale))
 
     return {"department": result.data[0]}
 
@@ -504,6 +508,7 @@ async def update_department(request: Request, company_id: ValidCompanyId, dept_i
 @limiter.limit("30/minute;100/hour")
 async def create_role(request: Request, company_id: ValidCompanyId, dept_id: ValidDeptId, data: RoleCreate, user=Depends(get_current_user)):
     """Create a new role in a department."""
+    locale = get_locale_from_request(request)
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
 
@@ -529,7 +534,7 @@ async def create_role(request: Request, company_id: ValidCompanyId, dept_id: Val
     }).execute()
 
     if not result.data:
-        raise HTTPException(status_code=400, detail="Failed to create role")
+        raise HTTPException(status_code=400, detail=t('errors.role_create_failed', locale))
 
     return {"role": result.data[0]}
 
@@ -538,6 +543,7 @@ async def create_role(request: Request, company_id: ValidCompanyId, dept_id: Val
 @limiter.limit("30/minute;100/hour")
 async def update_role(request: Request, company_id: ValidCompanyId, dept_id: ValidDeptId, role_id: ValidRoleId, data: RoleUpdate, user=Depends(get_current_user)):
     """Update a role."""
+    locale = get_locale_from_request(request)
     client = get_client(user)
 
     update_data = {k: v for k, v in data.dict().items() if v is not None}
@@ -550,7 +556,7 @@ async def update_role(request: Request, company_id: ValidCompanyId, dept_id: Val
         .execute()
 
     if not result.data:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=404, detail=t('errors.role_not_found', locale))
 
     return {"role": result.data[0]}
 
@@ -559,6 +565,7 @@ async def update_role(request: Request, company_id: ValidCompanyId, dept_id: Val
 @limiter.limit("100/minute;500/hour")
 async def get_role(request: Request, company_id: ValidCompanyId, dept_id: ValidDeptId, role_id: ValidRoleId, user=Depends(get_current_user)):
     """Get a single role with full details including system prompt."""
+    locale = get_locale_from_request(request)
     client = get_client(user)
 
     result = client.table("roles") \
@@ -569,7 +576,7 @@ async def get_role(request: Request, company_id: ValidCompanyId, dept_id: ValidD
         .execute()
 
     if not result.data:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=404, detail=t('errors.role_not_found', locale))
 
     return {"role": result.data}
 
@@ -592,6 +599,7 @@ async def delete_department(
     """
     from ...security import log_app_event
 
+    locale = get_locale_from_request(request)
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
 
@@ -604,7 +612,7 @@ async def delete_department(
         .execute()
 
     if not dept_result.data:
-        raise HTTPException(status_code=404, detail="Department not found")
+        raise HTTPException(status_code=404, detail=t('errors.department_not_found', locale))
 
     dept_name = dept_result.data.get("name", "Unknown")
 
@@ -631,7 +639,7 @@ async def delete_department(
         .execute()
 
     if not delete_result.data:
-        raise HTTPException(status_code=404, detail="Failed to delete department")
+        raise HTTPException(status_code=404, detail=t('errors.department_delete_failed', locale))
 
     log_app_event(
         "DEPARTMENT_DELETED",
@@ -660,6 +668,7 @@ async def delete_role(
     """Delete a role permanently."""
     from ...security import log_app_event
 
+    locale = get_locale_from_request(request)
     client = get_client(user)
 
     # Get role info for logging
@@ -671,7 +680,7 @@ async def delete_role(
         .execute()
 
     if not role_result.data:
-        raise HTTPException(status_code=404, detail="Role not found")
+        raise HTTPException(status_code=404, detail=t('errors.role_not_found', locale))
 
     role_name = role_result.data.get("name", "Unknown")
 
@@ -683,7 +692,7 @@ async def delete_role(
         .execute()
 
     if not delete_result.data:
-        raise HTTPException(status_code=404, detail="Failed to delete role")
+        raise HTTPException(status_code=404, detail=t('errors.role_delete_failed', locale))
 
     log_app_event(
         "ROLE_DELETED",

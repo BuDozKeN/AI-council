@@ -15,6 +15,7 @@ import re
 
 from ...auth import get_current_user
 from ...security import escape_sql_like_pattern, log_app_event
+from ...i18n import t, get_locale_from_request
 from .utils import (
     get_client,
     get_service_client,
@@ -161,6 +162,7 @@ async def get_decisions(request: Request, company_id: str,
 @limiter.limit("30/minute;100/hour")
 async def create_decision(request: Request, company_id: ValidCompanyId, data: DecisionCreate, user=Depends(get_current_user)):
     """Save a new decision from a council session."""
+    locale = get_locale_from_request(request)
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
 
@@ -195,7 +197,7 @@ async def create_decision(request: Request, company_id: ValidCompanyId, data: De
     result = client.table("knowledge_entries").insert(insert_data).execute()
 
     if not result.data:
-        raise HTTPException(status_code=400, detail="Failed to save decision")
+        raise HTTPException(status_code=400, detail=t('errors.decision_save_failed', locale))
 
     entry = result.data[0]
     decision_id = entry.get("id")
@@ -255,6 +257,7 @@ async def create_decision(request: Request, company_id: ValidCompanyId, data: De
 @limiter.limit("100/minute;500/hour")
 async def get_decision(request: Request, company_id: ValidCompanyId, decision_id: ValidDecisionId, user=Depends(get_current_user)):
     """Get a single decision (knowledge entry)."""
+    locale = get_locale_from_request(request)
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
 
@@ -266,10 +269,10 @@ async def get_decision(request: Request, company_id: ValidCompanyId, decision_id
             .eq("is_active", True) \
             .execute()
     except Exception:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=404, detail=t('errors.decision_not_found', locale))
 
     if not result.data or len(result.data) == 0:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=404, detail=t('errors.decision_not_found', locale))
 
     entry = result.data[0]
 
@@ -305,6 +308,7 @@ async def get_decision(request: Request, company_id: ValidCompanyId, decision_id
 @limiter.limit("30/minute;100/hour")
 async def archive_decision(request: Request, company_id: ValidCompanyId, decision_id: ValidDecisionId, user=Depends(get_current_user)):
     """Archive (soft delete) a decision."""
+    locale = get_locale_from_request(request)
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
 
@@ -317,7 +321,7 @@ async def archive_decision(request: Request, company_id: ValidCompanyId, decisio
         .execute()
 
     if not check.data:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=404, detail=t('errors.decision_not_found', locale))
 
     project_id = check.data.get("project_id")
 
@@ -327,7 +331,7 @@ async def archive_decision(request: Request, company_id: ValidCompanyId, decisio
         .execute()
 
     if not result.data:
-        raise HTTPException(status_code=400, detail="Failed to archive decision")
+        raise HTTPException(status_code=400, detail=t('errors.decision_archive_failed', locale))
 
     if project_id:
         try:
@@ -358,6 +362,7 @@ async def archive_decision(request: Request, company_id: ValidCompanyId, decisio
 @limiter.limit("20/minute;50/hour")
 async def delete_decision(request: Request, company_id: ValidCompanyId, decision_id: ValidDecisionId, user=Depends(get_current_user)):
     """Permanently delete a decision."""
+    locale = get_locale_from_request(request)
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
 
@@ -369,7 +374,7 @@ async def delete_decision(request: Request, company_id: ValidCompanyId, decision
         .execute()
 
     if not check.data:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=404, detail=t('errors.decision_not_found', locale))
 
     decision_title = check.data.get("title", "Decision")
 
@@ -398,6 +403,7 @@ async def delete_decision(request: Request, company_id: ValidCompanyId, decision
 @limiter.limit("20/minute;50/hour")
 async def promote_decision(request: Request, company_id: ValidCompanyId, decision_id: ValidDecisionId, data: PromoteDecision, user=Depends(get_current_user)):
     """Promote a decision to a playbook (SOP/framework/policy)."""
+    locale = get_locale_from_request(request)
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
 
@@ -409,10 +415,10 @@ async def promote_decision(request: Request, company_id: ValidCompanyId, decisio
         .execute()
 
     if not decision.data:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=404, detail=t('errors.decision_not_found', locale))
 
     if data.doc_type not in ['sop', 'framework', 'policy']:
-        raise HTTPException(status_code=400, detail="doc_type must be 'sop', 'framework', or 'policy'")
+        raise HTTPException(status_code=400, detail=t('errors.invalid_doc_type', locale))
 
     base_slug = data.slug
     if not base_slug:
@@ -449,7 +455,7 @@ async def promote_decision(request: Request, company_id: ValidCompanyId, decisio
     }).execute()
 
     if not doc_result.data:
-        raise HTTPException(status_code=400, detail="Failed to create playbook")
+        raise HTTPException(status_code=400, detail=t('errors.playbook_create_failed', locale))
 
     doc_id = doc_result.data[0]["id"]
 
@@ -496,6 +502,7 @@ async def promote_decision(request: Request, company_id: ValidCompanyId, decisio
 @limiter.limit("30/minute;100/hour")
 async def link_decision_to_project(request: Request, company_id: str, decision_id: str, data: LinkDecisionToProject, user=Depends(get_current_user)):
     """Link a decision to an existing project."""
+    locale = get_locale_from_request(request)
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
 
@@ -508,7 +515,7 @@ async def link_decision_to_project(request: Request, company_id: str, decision_i
         .execute()
 
     if not decision.data:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=404, detail=t('errors.decision_not_found', locale))
 
     project = client.table("projects") \
         .select("id, name, department_ids") \
@@ -518,7 +525,7 @@ async def link_decision_to_project(request: Request, company_id: str, decision_i
         .execute()
 
     if not project.data:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=404, detail=t('errors.project_not_found', locale))
 
     result = client.table("knowledge_entries") \
         .update({
@@ -529,7 +536,7 @@ async def link_decision_to_project(request: Request, company_id: str, decision_i
         .execute()
 
     if not result.data:
-        raise HTTPException(status_code=400, detail="Failed to link decision to project")
+        raise HTTPException(status_code=400, detail=t('errors.decision_link_failed', locale))
 
     _sync_project_departments_internal(data.project_id)
 
@@ -559,6 +566,7 @@ async def link_decision_to_project(request: Request, company_id: str, decision_i
 @limiter.limit("20/minute;50/hour")
 async def create_project_from_decision(request: Request, company_id: str, decision_id: str, data: CreateProjectFromDecision, user=Depends(get_current_user)):
     """Create a new project from a decision."""
+    locale = get_locale_from_request(request)
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
 
@@ -571,7 +579,7 @@ async def create_project_from_decision(request: Request, company_id: str, decisi
         .execute()
 
     if not decision.data:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=404, detail=t('errors.decision_not_found', locale))
 
     dept_ids = data.department_ids
     if not dept_ids:
@@ -583,7 +591,7 @@ async def create_project_from_decision(request: Request, company_id: str, decisi
         user_id = getattr(user, 'id', None) or getattr(user, 'sub', None)
 
     if not user_id:
-        raise HTTPException(status_code=401, detail="Could not determine user ID from authentication")
+        raise HTTPException(status_code=401, detail=t('errors.auth_user_id_missing', locale))
 
     decision_content = decision.data.get("content") or ""
     user_question = decision.data.get("question") or decision.data.get("title") or ""
@@ -680,7 +688,7 @@ Use sections: ## Objective, ## Key Insights, ## Deliverables, ## Success Criteri
     }).execute()
 
     if not project_result.data:
-        raise HTTPException(status_code=400, detail="Failed to create project")
+        raise HTTPException(status_code=400, detail=t('errors.project_create_failed', locale))
 
     project_id = project_result.data[0]["id"]
 
@@ -721,6 +729,7 @@ async def get_project_decisions(request: Request, company_id: str,
     user=Depends(get_current_user)
 ):
     """Get all decisions linked to a specific project."""
+    locale = get_locale_from_request(request)
     client = get_client(user)
 
     try:
@@ -736,7 +745,7 @@ async def get_project_decisions(request: Request, company_id: str,
         .execute()
 
     if not project_result.data:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=404, detail=t('errors.project_not_found', locale))
 
     decisions_result = client.table("knowledge_entries") \
         .select("*") \
@@ -797,6 +806,7 @@ async def get_project_decisions(request: Request, company_id: str,
 @limiter.limit("30/minute;100/hour")
 async def sync_project_departments(request: Request, company_id: str, project_id: str, user=Depends(get_current_user)):
     """Recalculate project's department_ids from all its active decisions."""
+    locale = get_locale_from_request(request)
     service_client = get_service_client()
     user_client = get_client(user)
     company_uuid = resolve_company_id(user_client, company_id)
@@ -809,7 +819,7 @@ async def sync_project_departments(request: Request, company_id: str, project_id
         .execute()
 
     if not project_check.data:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=404, detail=t('errors.project_not_found', locale))
 
     updated_dept_ids = _sync_project_departments_internal(project_id)
 
@@ -827,6 +837,7 @@ async def generate_decision_summary(request: Request, company_id: str,
     user=Depends(get_current_user)
 ):
     """Generate an AI summary for a decision."""
+    locale = get_locale_from_request(request)
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
 
@@ -838,7 +849,7 @@ async def generate_decision_summary(request: Request, company_id: str,
         .execute()
 
     if not result.data:
-        raise HTTPException(status_code=404, detail="Resource not found")
+        raise HTTPException(status_code=404, detail=t('errors.decision_not_found', locale))
 
     existing_summary = result.data.get("content_summary")
 

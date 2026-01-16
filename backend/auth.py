@@ -8,6 +8,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional
 from .database import get_supabase
 from .security import log_security_event, get_client_ip
+from .i18n import t, get_locale_from_request
 
 logger = logging.getLogger(__name__)
 
@@ -91,6 +92,7 @@ async def get_current_user(
         HTTPException 401 if token is missing or invalid
         HTTPException 429 if IP is locked out due to too many failures
     """
+    locale = get_locale_from_request(request)
     client_ip = get_client_ip(request)
 
     # Check for lockout before processing
@@ -105,7 +107,7 @@ async def get_current_user(
             )
             raise HTTPException(
                 status_code=429,
-                detail="Too many failed attempts. Please try again later.",
+                detail=t('errors.rate_limit_exceeded', locale),
                 headers={"Retry-After": str(remaining)}
             )
         else:
@@ -117,7 +119,7 @@ async def get_current_user(
         log_security_event("AUTH_FAILURE", ip_address=client_ip, details={"reason": "missing_token"}, severity="WARNING")
         raise HTTPException(
             status_code=401,
-            detail="Authentication required",
+            detail=t('errors.unauthorized', locale),
             headers={"WWW-Authenticate": "Bearer"}
         )
 
@@ -133,7 +135,7 @@ async def get_current_user(
             log_security_event("AUTH_FAILURE", ip_address=client_ip, details={"reason": "invalid_token"}, severity="WARNING")
             raise HTTPException(
                 status_code=401,
-                detail="Authentication required",
+                detail=t('errors.unauthorized', locale),
                 headers={"WWW-Authenticate": "Bearer"}
             )
 
@@ -154,7 +156,7 @@ async def get_current_user(
         log_security_event("AUTH_FAILURE", ip_address=client_ip, details={"reason": "verification_error", "error": str(e)}, severity="WARNING")
         raise HTTPException(
             status_code=401,
-            detail="Authentication required",
+            detail=t('errors.unauthorized', locale),
             headers={"WWW-Authenticate": "Bearer"}
         )
 
