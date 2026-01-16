@@ -11,6 +11,7 @@ import { Sparkles, Check, RefreshCw, Edit3, FileText, CheckCircle2 } from 'lucid
 import { logger } from '../utils/logger';
 import { hapticSuccess } from '../lib/haptics';
 import { CELEBRATION } from '../lib/animation-constants';
+import { makeClickable } from '../utils/a11y';
 import type { Department, Project } from '../types/business';
 import './project-modal/index.css';
 
@@ -441,7 +442,7 @@ export default function ProjectModal({
                 />
               </AIWriteAssist>
             ) : (
-              <div className="pm-preview" onClick={() => setIsEditingDetails(true)}>
+              <div className="pm-preview" {...makeClickable(() => setIsEditingDetails(true))}>
                 <div className="pm-preview-content clickable">
                   {editedContext ? (
                     <MarkdownViewer content={editedContext} />

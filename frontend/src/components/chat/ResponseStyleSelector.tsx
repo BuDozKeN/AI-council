@@ -16,6 +16,7 @@ import * as Tooltip from '@radix-ui/react-tooltip';
 import { Target, Zap, Sparkles, Settings2, Check, ChevronDown, Building2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from '../ui/BottomSheet';
+import { makeClickable } from '../../utils/a11y';
 import type { LLMPresetId } from '../../types/business';
 import '../ui/Tooltip.css';
 import './ResponseStyleSelector.css';
@@ -223,7 +224,9 @@ export function ResponseStyleSelector({
         <Tooltip.Provider delayDuration={400}>
           <Tooltip.Root>
             <Tooltip.Trigger asChild>
-              <span onClick={() => !disabled && setOpen(true)}>{triggerButton}</span>
+              <span {...(!disabled ? makeClickable(() => setOpen(true)) : {})}>
+                {triggerButton}
+              </span>
             </Tooltip.Trigger>
             <Tooltip.Portal>
               <Tooltip.Content className="tooltip-content" sideOffset={8}>

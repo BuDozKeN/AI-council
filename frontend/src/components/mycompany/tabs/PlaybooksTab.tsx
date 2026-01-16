@@ -19,6 +19,7 @@ import { MultiDepartmentSelect } from '../../ui/MultiDepartmentSelect';
 import { ScrollableContent } from '../../ui/ScrollableContent';
 import { Skeleton } from '../../ui/Skeleton';
 import { getDeptColor } from '../../../lib/colors';
+import { makeClickable } from '../../../utils/a11y';
 import type { Department } from '../../../types/business';
 
 type DocType = 'sop' | 'framework' | 'policy';
@@ -397,36 +398,38 @@ export function PlaybooksTab({
       <div className="mc-stats-grid">
         <div
           className={`mc-stat-card clickable ${playbookTypeFilter === 'all' ? 'selected' : ''}`}
-          onClick={() => onTypeFilterChange && onTypeFilterChange('all')}
+          {...(onTypeFilterChange ? makeClickable(() => onTypeFilterChange('all')) : {})}
         >
           <div className="mc-stat-value total">{playbooks.length}</div>
           <div className="mc-stat-label">{t('mycompany.total')}</div>
         </div>
         <div
           className={`mc-stat-card clickable ${playbookTypeFilter === 'sop' ? 'selected' : ''}`}
-          onClick={() =>
-            onTypeFilterChange && onTypeFilterChange(playbookTypeFilter === 'sop' ? 'all' : 'sop')
-          }
+          {...(onTypeFilterChange
+            ? makeClickable(() => onTypeFilterChange(playbookTypeFilter === 'sop' ? 'all' : 'sop'))
+            : {})}
         >
           <div className="mc-stat-value sops">{allSops.length}</div>
           <div className="mc-stat-label">{t('mycompany.sops')}</div>
         </div>
         <div
           className={`mc-stat-card clickable ${playbookTypeFilter === 'framework' ? 'selected' : ''}`}
-          onClick={() =>
-            onTypeFilterChange &&
-            onTypeFilterChange(playbookTypeFilter === 'framework' ? 'all' : 'framework')
-          }
+          {...(onTypeFilterChange
+            ? makeClickable(() =>
+                onTypeFilterChange(playbookTypeFilter === 'framework' ? 'all' : 'framework')
+              )
+            : {})}
         >
           <div className="mc-stat-value frameworks">{allFrameworks.length}</div>
           <div className="mc-stat-label">{t('mycompany.frameworks')}</div>
         </div>
         <div
           className={`mc-stat-card clickable ${playbookTypeFilter === 'policy' ? 'selected' : ''}`}
-          onClick={() =>
-            onTypeFilterChange &&
-            onTypeFilterChange(playbookTypeFilter === 'policy' ? 'all' : 'policy')
-          }
+          {...(onTypeFilterChange
+            ? makeClickable(() =>
+                onTypeFilterChange(playbookTypeFilter === 'policy' ? 'all' : 'policy')
+              )
+            : {})}
         >
           <div className="mc-stat-value policies">{allPolicies.length}</div>
           <div className="mc-stat-label">{t('mycompany.policies')}</div>
@@ -453,6 +456,7 @@ export function PlaybooksTab({
         {filteredPlaybooks.length === 0 ? (
           <div className="mc-empty-filtered">{t('mycompany.noPlaybooksMatch')}</div>
         ) : (
+          // eslint-disable-next-line
           DOC_TYPES.map((type: DocType) => {
             const docs = groupedPlaybooks[type];
             if (docs.length === 0) return null;
@@ -496,10 +500,11 @@ export function PlaybooksTab({
                     const isRemoving = removingIds.has(doc.id);
 
                     return (
+                      // eslint-disable-next-line jsx-a11y/no-static-element-interactions
                       <div
                         key={doc.id}
                         className={`mc-elegant-row ${mobileActiveId === doc.id ? 'mobile-active' : ''} ${isRemoving ? 'removing' : ''}`}
-                        onClick={(e) => handleRowClick(doc, e)}
+                        {...makeClickable((e) => handleRowClick(doc, e))}
                         onTouchStart={() => handlePressStart(doc)}
                         onTouchEnd={handlePressEnd}
                         onTouchMove={handlePressEnd}

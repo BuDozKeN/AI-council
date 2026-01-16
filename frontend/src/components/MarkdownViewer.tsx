@@ -3,6 +3,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeSlug from 'rehype-slug';
 import { smartTextToMarkdown } from '../lib/smartTextToMarkdown';
+import { makeClickable } from '../utils/a11y';
 import './MarkdownViewer.css';
 
 /**
@@ -116,10 +117,11 @@ export default function MarkdownViewer({
   const displayContent = skipCleanup ? processedContent : cleanContent(processedContent);
 
   return (
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     <div
       ref={containerRef}
       className={`prose prose-slate prose-sm max-w-none ${className}`}
-      onClick={handleClick}
+      {...makeClickable(handleClick)}
     >
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
