@@ -91,7 +91,7 @@
     --color-text-primary: #333;
     --color-text-secondary: #666;
     --color-text-tertiary: #6b7280; /* WCAG AA: 5.06:1 (was #9ca3af 2.54:1) */
-    --color-text-muted: #666666; /* WCAG AA: 5.74:1 contrast on white */
+    --color-text-muted: #666; /* WCAG AA: 5.74:1 contrast on white */
     --color-text-inverse: #fff;
 
     /* Background colors */
