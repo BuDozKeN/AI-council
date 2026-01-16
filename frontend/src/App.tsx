@@ -1550,41 +1550,46 @@ function App() {
       />
 
       <div className="app">
-        <Sidebar
-          conversations={conversations}
-          currentConversationId={currentConversationId}
-          onSelectConversation={handleSidebarSelectConversation}
-          onNewConversation={handleSidebarNewConversation}
-          isMobileOpen={isMobileSidebarOpen}
-          onMobileClose={handleMobileClose}
-          onOpenLeaderboard={handleOpenLeaderboard}
-          onOpenSettings={handleOpenSettings}
-          onOpenMyCompany={handleOpenMyCompany}
-          onPreloadMyCompany={preloadMyCompany}
-          onArchiveConversation={(id: string, archived?: boolean) =>
-            handleArchiveConversation(id, archived ?? true)
-          }
-          onStarConversation={(id: string, starred?: boolean) =>
-            handleStarConversation(id, starred ?? true)
-          }
-          onDeleteConversation={handleDeleteConversation}
-          onBulkDeleteConversations={handleBulkDeleteConversations}
-          onRenameConversation={handleRenameConversation}
-          onSearch={handleSearchConversations}
-          hasMoreConversations={hasMoreConversations}
-          departments={availableDepartments}
-          user={user}
-          onSignOut={signOut}
-          sortBy={conversationSortBy}
-          onSortByChange={handleSortByChange}
-          onUpdateConversationDepartment={handleUpdateConversationDepartment}
-          onRefresh={refreshConversations}
-          companyId={selectedBusiness}
-        />
+        {/* Sidebar navigation - semantic aside landmark for screen readers */}
+        <aside role="complementary" aria-label="Conversation history and navigation">
+          <Sidebar
+            conversations={conversations}
+            currentConversationId={currentConversationId}
+            onSelectConversation={handleSidebarSelectConversation}
+            onNewConversation={handleSidebarNewConversation}
+            isMobileOpen={isMobileSidebarOpen}
+            onMobileClose={handleMobileClose}
+            onOpenLeaderboard={handleOpenLeaderboard}
+            onOpenSettings={handleOpenSettings}
+            onOpenMyCompany={handleOpenMyCompany}
+            onPreloadMyCompany={preloadMyCompany}
+            onArchiveConversation={(id: string, archived?: boolean) =>
+              handleArchiveConversation(id, archived ?? true)
+            }
+            onStarConversation={(id: string, starred?: boolean) =>
+              handleStarConversation(id, starred ?? true)
+            }
+            onDeleteConversation={handleDeleteConversation}
+            onBulkDeleteConversations={handleBulkDeleteConversations}
+            onRenameConversation={handleRenameConversation}
+            onSearch={handleSearchConversations}
+            hasMoreConversations={hasMoreConversations}
+            departments={availableDepartments}
+            user={user}
+            onSignOut={signOut}
+            sortBy={conversationSortBy}
+            onSortByChange={handleSortByChange}
+            onUpdateConversationDepartment={handleUpdateConversationDepartment}
+            onRefresh={refreshConversations}
+            companyId={selectedBusiness}
+          />
+        </aside>
 
         {/* Main content area - Landing Hero or Chat Interface */}
-        {/* Transition: Landing slides up and fades out while chat slides up from below */}
-        <AnimatePresence mode="wait">
+        {/* Semantic main landmark with ID for skip-to-content link */}
+        <main id="main-content" aria-label="Chat interface">
+          {/* Transition: Landing slides up and fades out while chat slides up from below */}
+          <AnimatePresence mode="wait">
           {showLandingHero ? (
             <motion.div
               key="landing"
@@ -1771,7 +1776,8 @@ function App() {
               </Suspense>
             </motion.div>
           )}
-        </AnimatePresence>
+          </AnimatePresence>
+        </main>
 
         {/* Lazy-loaded modals wrapped in Suspense for code splitting */}
         {/* Only render when open to avoid loading spinner on initial page load */}

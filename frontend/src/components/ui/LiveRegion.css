@@ -1,0 +1,19 @@
+/**
+ * LiveRegion - Screen reader announcements
+ *
+ * This component is visually hidden but announced by screen readers.
+ * Uses the same pattern as .sr-only from index.css but allows dynamic content.
+ */
+
+.live-region {
+  /* Visually hide but keep in accessibility tree */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

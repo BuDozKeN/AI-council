@@ -91,7 +91,7 @@
     /* Text colors */
     --color-text-primary: #333;
     --color-text-secondary: #666;
-    --color-text-tertiary: #9ca3af;
+    --color-text-tertiary: #6b7280; /* WCAG AA: 5.06:1 (was #9ca3af 2.54:1) */
     --color-text-muted: #666666; /* WCAG AA: 5.74:1 contrast on white */
     --color-text-inverse: #fff;
 
@@ -104,10 +104,10 @@
     --color-bg-inverse: #1e293b; /* Dark bg for headers/banners */
 
     /* Border colors */
-    --color-border: #e5e7eb;
-    --color-border-light: #f1f5f9;
-    --color-border-dark: #d1d5db;
-    --color-border-muted: #ddd;
+    --color-border: #64748b; /* WCAG AA: 3.92:1 (was #e5e7eb 1.24:1) - Slate-500 */
+    --color-border-light: #cbd5e1;
+    --color-border-dark: #475569;
+    --color-border-muted: #94a3b8;
 
     /* Brand colors - Primary Blue */
     --color-brand-primary: #4a90e2;
@@ -126,35 +126,35 @@
     --color-indigo-light: rgb(99, 102, 241, 0.1);
 
     /* Button component tokens - direct values to avoid variable resolution issues */
-    --color-primary: #6366f1; /* Indigo-500 */
+    --color-primary: #4f46e5; /* WCAG AA: 6.39:1 (was #6366f1 4.47:1) - Indigo-600 */
     --color-primary-text: #fff;
-    --color-primary-hover: #4f46e5; /* Indigo-600 */
-    --color-primary-active: #4338ca; /* Indigo-700 */
+    --color-primary-hover: #4338ca; /* Indigo-700 */
+    --color-primary-active: #3730a3; /* Indigo-800 */
     --color-bg-base: #fff;
     --color-bg-muted: #f1f5f9; /* Slate-100 */
     --color-bg-subtle: #f8fafc; /* Slate-50 */
     --color-bg-emphasis: #e2e8f0; /* Slate-200 */
     --color-text-default: #333;
-    --color-border-default: #e5e7eb;
-    --color-border-emphasis: #cbd5e1; /* Slate-300 */
+    --color-border-default: #cbd5e1;
+    --color-border-emphasis: #94a3b8; /* Slate-500 */
     --color-error-text: #fff;
-    --color-error-hover: #dc2626; /* Red-600 */
+    --color-error-hover: #b91c1c; /* Red-700 */
     --color-success-text: #fff;
-    --color-success-hover: #059669; /* Emerald-600 */
+    --color-success-hover: #047857; /* Emerald-700 */
 
     /* Semantic colors - Success */
-    --color-success: #10b981;
+    --color-success: #047857; /* WCAG AA: 4.51:1 (was #10b981 2.54:1) - Emerald-700 */
     --color-success-light: #d1fae5;
-    --color-success-dark: #059669;
+    --color-success-dark: #065f46;
     --color-success-muted: #5a8a5a;
     --color-success-border: #c8e6c8;
     --color-success-bg: #f8faf8;
     --color-success-code: #1b5e20;
 
     /* Semantic colors - Error */
-    --color-error: #ef4444;
+    --color-error: #dc2626; /* WCAG AA: 5.48:1 (was #ef4444 3.76:1) - Red-600 */
     --color-error-light: #fee2e2;
-    --color-error-dark: #dc2626;
+    --color-error-dark: #b91c1c;
 
     /* Semantic colors - Warning */
     --color-warning: #f59e0b;
