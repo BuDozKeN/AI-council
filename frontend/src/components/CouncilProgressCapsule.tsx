@@ -188,6 +188,9 @@ export default function CouncilProgressCapsule({
   return (
     <div
       className={`council-progress-capsule ${fadeOut ? 'fade-out' : 'fade-in'} ${status.isStopped ? 'stopped' : ''} ${status.isUploading ? 'uploading' : ''}`}
+      role="status"
+      aria-live="polite"
+      aria-busy={!isComplete && !stopped}
     >
       <div className="capsule-inner">
         {/* Pulsing dot - like the "typing" indicator in chat apps */}

@@ -350,7 +350,12 @@ const ModelCard = memo(function ModelCard({
       </div>
 
       {/* Content */}
-      <div className={`model-card-content ${isExpanded ? '' : 'truncated'}`}>
+      <div
+        className={`model-card-content ${isExpanded ? '' : 'truncated'}`}
+        role="status"
+        aria-live="polite"
+        aria-busy={data.isStreaming}
+      >
         {data.isEmpty ? (
           <p className="model-card-empty">{t('stages.noResponse')}</p>
         ) : data.hasError ? (
