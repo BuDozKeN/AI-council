@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1170 2532" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a90e2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#357abd;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Light background -->
+  <rect width="1170" height="2532" fill="#f8f9fa"/>
+  
+  <!-- Logo container centered -->
+  <g transform="translate(585, 1100)">
+    <!-- Logo circle -->
+    <circle r="180" fill="url(#logoGrad)"/>
+    
+    <!-- Ax text -->
+    <text x="0" y="50" font-family="-apple-system, BlinkMacSystemFont, system-ui, sans-serif" 
+          font-size="128" font-weight="700" fill="white" text-anchor="middle">Ax</text>
+    
+    <!-- Council dots -->
+    <circle cx="-100" cy="112" r="16" fill="white" opacity="0.8"/>
+    <circle cx="-40" cy="128" r="16" fill="white" opacity="0.9"/>
+    <circle cx="20" cy="128" r="16" fill="white" opacity="0.9"/>
+    <circle cx="80" cy="112" r="16" fill="white" opacity="0.8"/>
+  </g>
+  
+  <!-- App name -->
+  <text x="585" y="1420" font-family="-apple-system, BlinkMacSystemFont, system-ui, sans-serif" 
+        font-size="48" font-weight="600" fill="#1a1a1a" text-anchor="middle" letter-spacing="-0.5">AxCouncil</text>
+  
+  <!-- Tagline -->
+  <text x="585" y="1480" font-family="-apple-system, BlinkMacSystemFont, system-ui, sans-serif" 
+        font-size="28" font-weight="400" fill="#6b7280" text-anchor="middle">Strategic AI Advisory</text>
+</svg>
