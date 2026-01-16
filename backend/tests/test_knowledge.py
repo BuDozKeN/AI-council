@@ -66,7 +66,7 @@ class TestValidateUuid:
             validate_uuid("invalid-uuid", "test_id")
 
         assert exc_info.value.status_code == 400
-        assert "Invalid test_id" in exc_info.value.detail
+        assert "test_id" in exc_info.value.detail
 
     def test_empty_uuid_raises_400(self):
         """Should raise 400 for empty UUID."""

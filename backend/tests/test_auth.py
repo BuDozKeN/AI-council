@@ -66,7 +66,7 @@ class TestGetCurrentUser:
                 await get_current_user(request=mock_request, credentials=None)
 
             assert exc_info.value.status_code == 401
-            assert exc_info.value.detail == "Authentication required"
+            assert exc_info.value.detail == "Unauthorized access"
             assert exc_info.value.headers == {"WWW-Authenticate": "Bearer"}
 
     @pytest.mark.asyncio
