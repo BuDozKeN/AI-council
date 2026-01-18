@@ -264,6 +264,7 @@ interface StreamingContext {
   selectedRoles: string[];
   selectedPlaybooks: string[];
   selectedProject: string | null;
+  selectedPreset: 'conservative' | 'balanced' | 'creative' | null;
   useCompanyContext: boolean;
   useDepartmentContext: boolean;
 }
@@ -301,6 +302,7 @@ export function useMessageStreaming({
     selectedRoles,
     selectedPlaybooks,
     selectedProject,
+    selectedPreset,
     useCompanyContext,
     useDepartmentContext,
   } = context;
@@ -861,6 +863,7 @@ export function useMessageStreaming({
             playbooks: effectivePlaybooks,
             projectId: selectedProject,
             attachmentIds: attachmentIds,
+            preset: selectedPreset,
             signal: abortControllerRef.current?.signal,
           }
         );
@@ -890,6 +893,7 @@ export function useMessageStreaming({
       selectedRoles,
       selectedPlaybooks,
       selectedProject,
+      selectedPreset,
       useCompanyContext,
       useDepartmentContext,
       setCurrentConversationId,
