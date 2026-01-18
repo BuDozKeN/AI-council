@@ -400,6 +400,7 @@
 .mc-timestamp:first-child::before {
   display: none;
 }
+
 /* Projects Tab - Dark Mode */
 
 /* Extracted from projects.css lines 993-end */
