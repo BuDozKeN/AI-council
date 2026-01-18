@@ -254,3 +254,75 @@
     color: var(--color-slate-400);
   }
 }
+
+/* =============================================================================
+   MANUAL DARK MODE OVERRIDES - User-toggled dark mode (.dark class)
+   ============================================================================= */
+
+.dark .stage3-floating-toc,
+[data-theme='dark'] .stage3-floating-toc {
+  background: var(--overlay-black-60);
+  border-color: var(--overlay-white-8);
+}
+
+.dark .stage3-floating-toc:hover,
+[data-theme='dark'] .stage3-floating-toc:hover {
+  background: var(--overlay-black-80);
+}
+
+.dark .stage3-floating-toc.collapsed:hover,
+[data-theme='dark'] .stage3-floating-toc.collapsed:hover {
+  background: var(--overlay-black-80);
+}
+
+.dark .stage3-toc-header {
+  border-block-end-color: var(--overlay-white-5);
+}
+
+.dark .stage3-toc-title {
+  color: var(--color-slate-500);
+}
+
+.dark .stage3-toc-toggle {
+  background: var(--overlay-black-90);
+  border-color: var(--overlay-white-10);
+  color: var(--color-slate-500);
+}
+
+.dark .stage3-toc-toggle:hover {
+  background: var(--overlay-black-80);
+  color: var(--color-slate-400);
+}
+
+.dark .stage3-toc-link:hover {
+  background: var(--overlay-white-5);
+}
+
+.dark .stage3-toc-dot {
+  background: var(--color-slate-500);
+}
+
+.dark .stage3-toc-text {
+  color: var(--color-slate-500);
+}
+
+.dark .stage3-toc-link:hover .stage3-toc-dot {
+  background: var(--color-slate-400);
+}
+
+.dark .stage3-toc-link:hover .stage3-toc-text {
+  color: var(--color-slate-300);
+}
+
+.dark .stage3-toc-link.active {
+  background: var(--overlay-emerald-10);
+}
+
+.dark .stage3-toc-link.active .stage3-toc-dot {
+  background: var(--color-emerald-400);
+  box-shadow: 0 0 0 3px var(--overlay-emerald-20);
+}
+
+.dark .stage3-toc-link.active .stage3-toc-text {
+  color: var(--color-emerald-400);
+}

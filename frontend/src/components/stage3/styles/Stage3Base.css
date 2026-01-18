@@ -6,7 +6,6 @@
 @import url('../../ui/table-of-contents/toc-base.css');
 @import url('../../ui/table-of-contents/toc-mobile.css');
 @import url('../../ui/table-of-contents/toc-variants.css');
-@import url('../../ui/table-of-contents/toc-dark-mode.css');
 
 /* =============================================================================
    SCROLL MARGIN - Prevents headings from hiding under fixed headers

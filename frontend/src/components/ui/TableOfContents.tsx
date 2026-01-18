@@ -44,7 +44,6 @@ import { makeClickable } from '../../utils/a11y';
 import './table-of-contents/toc-base.css';
 import './table-of-contents/toc-mobile.css';
 import './table-of-contents/toc-variants.css';
-import './table-of-contents/toc-dark-mode.css';
 
 export interface Heading {
   id: string;
