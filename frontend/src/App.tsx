@@ -1748,7 +1748,7 @@ function App() {
             <ProjectModal
               companyId={selectedBusiness}
               departments={availableDepartments}
-              initialContext={projectModalContext ?? undefined}
+              {...(projectModalContext ? { initialContext: projectModalContext } : {})}
               onClose={() => {
                 // Check if fixed-position buttons were clicked recently (within 500ms)
                 const themeToggleClickTime = (
