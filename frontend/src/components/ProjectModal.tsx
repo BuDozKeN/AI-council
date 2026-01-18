@@ -13,13 +13,8 @@ import { hapticSuccess } from '../lib/haptics';
 import { CELEBRATION } from '../lib/animation-constants';
 import { makeClickable } from '../utils/a11y';
 import type { Department, Project } from '../types/business';
+import type { ProjectModalContext } from '../hooks/useModalState';
 import './project-modal/index.css';
-
-interface InitialContext {
-  userQuestion?: string;
-  councilResponse?: string;
-  departmentIds?: string[];
-}
 
 interface ExtendedProject extends Project {
   context_md?: string;
@@ -30,7 +25,7 @@ interface ProjectModalProps {
   departments?: Department[];
   onClose: () => void;
   onProjectCreated?: (project: ExtendedProject) => void;
-  initialContext?: InitialContext;
+  initialContext?: ProjectModalContext;
 }
 
 /**

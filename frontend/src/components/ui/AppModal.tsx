@@ -30,6 +30,8 @@ interface AppModalProps {
   showScrollTop?: boolean | undefined;
   scrollThreshold?: number | undefined;
   copyText?: string | null | undefined;
+  onCloseAutoFocus?: ((event: Event) => void) | undefined;
+  onOpenAutoFocus?: ((event: Event) => void) | undefined;
 }
 
 interface AppModalFooterProps {
@@ -89,6 +91,8 @@ const AppModalBase = React.forwardRef<HTMLDivElement, AppModalProps>(
       showScrollTop = true,
       scrollThreshold = 150,
       copyText = null,
+      onCloseAutoFocus,
+      onOpenAutoFocus,
     },
     ref
   ) => {
@@ -224,6 +228,8 @@ const AppModalBase = React.forwardRef<HTMLDivElement, AppModalProps>(
               else if (ref) ref.current = node;
             }}
             className={cn('app-modal-content', `app-modal-${size}`, className)}
+            onCloseAutoFocus={onCloseAutoFocus}
+            onOpenAutoFocus={onOpenAutoFocus}
             onPointerDownOutside={(e) => {
               // Don't close if clicking the theme toggle
               const target = e.target as HTMLElement;

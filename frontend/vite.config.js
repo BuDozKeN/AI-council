@@ -198,104 +198,12 @@ export default defineConfig(({ mode }) => ({
           return 'assets/[name].[hash].[ext]';
         },
 
-        manualChunks(id) {
-          // MyCompany tab CSS splitting - lazy-load tab-specific CSS
-          // This reduces initial MyCompany bundle by ~100KB
-          if (id.includes('/tabs/usage/') || id.includes('UsageTab')) {
-            return 'usage-tab';
-          }
-          if (id.includes('/tabs/llm-hub/') || id.includes('LLMHubTab')) {
-            return 'llm-hub-tab';
-          }
-          if (id.includes('/tabs/projects/') || id.includes('ProjectsTab')) {
-            return 'projects-tab';
-          }
-          if (id.includes('/tabs/decisions/') || id.includes('DecisionsTab')) {
-            return 'decisions-tab';
-          }
-          if (id.includes('/tabs/activity/') || id.includes('ActivityTab')) {
-            return 'activity-tab';
-          }
-          if (id.includes('/tabs/playbooks/') || id.includes('PlaybooksTab')) {
-            return 'playbooks-tab';
-          }
-          if (id.includes('/tabs/team/') || id.includes('TeamTab')) {
-            return 'team-tab';
-          }
-          if (id.includes('/tabs/overview/') || id.includes('OverviewTab')) {
-            return 'overview-tab';
-          }
-
-          // Deliberation stage CSS splitting - lazy-load stage-specific CSS
-          // This reduces initial ChatInterface bundle by ~69KB
-          if (id.includes('/stage1/') || id.includes('Stage1')) {
-            return 'stage1';
-          }
-          if (id.includes('/stage2/') || id.includes('Stage2')) {
-            return 'stage2';
-          }
-          if (id.includes('/stage3/') || id.includes('Stage3')) {
-            return 'stage3';
-          }
-
-          // Vendor chunk splitting
-          if (id.includes('node_modules')) {
-            // Core React runtime - rarely changes, cache well
-            if (id.includes('react') && !id.includes('react-markdown') && !id.includes('react-i18next') && !id.includes('react-router')) {
-              return 'vendor-react';
-            }
-            // Router - needed early, cache separately
-            if (id.includes('react-router-dom')) {
-              return 'vendor-router';
-            }
-            // Animation library - large, cache separately
-            if (id.includes('framer-motion')) {
-              return 'vendor-motion';
-            }
-            // Markdown rendering - only needed when viewing messages
-            if (
-              id.includes('react-markdown') ||
-              id.includes('remark-gfm') ||
-              id.includes('rehype-slug')
-            ) {
-              return 'vendor-markdown';
-            }
-            // i18n - internationalization, loaded on every page
-            // NOTE: react-i18next MUST stay with React (not separated) because it calls
-            // React.createContext at module initialization. Separating it causes
-            // "Cannot read properties of undefined (reading 'createContext')" error.
-            if (
-              id.includes('i18next') &&
-              !id.includes('react-i18next') // react-i18next stays with React chunk
-            ) {
-              return 'vendor-i18n';
-            }
-            // Command palette - large component, lazy loadable
-            if (id.includes('cmdk')) {
-              return 'vendor-cmdk';
-            }
-            // Radix UI components - used throughout, cache together
-            if (id.includes('@radix-ui')) {
-              return 'vendor-radix';
-            }
-            // Monitoring/analytics
-            if (id.includes('@sentry/react') || id.includes('web-vitals')) {
-              return 'vendor-monitoring';
-            }
-            // Supabase client - auth/database, changes rarely
-            if (id.includes('@supabase/supabase-js')) {
-              return 'vendor-supabase';
-            }
-            // TanStack Query - data fetching/caching layer
-            if (
-              id.includes('@tanstack/react-query') ||
-              id.includes('@tanstack/query-async-storage-persister') ||
-              id.includes('@tanstack/react-query-persist-client')
-            ) {
-              return 'vendor-query';
-            }
-          }
-        },
+// DISABLED: Manual chunk splitting caused circular dependency errors
+        // ("Cannot access 'Wn' before initialization", "Cannot read properties of undefined (reading 'createContext')")
+        // The tab/stage/vendor chunking created import cycles where modules referenced
+        // each other before initialization. Let Vite's default chunking handle this.
+        // TODO: Re-enable with proper dependency analysis to avoid circular refs
+        // manualChunks(id) { ... },
       },
     },
     // Warn if any chunk exceeds 500KB (reasonable target for code splitting)
