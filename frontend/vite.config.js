@@ -261,10 +261,12 @@ export default defineConfig(({ mode }) => ({
               return 'vendor-markdown';
             }
             // i18n - internationalization, loaded on every page
+            // NOTE: react-i18next MUST stay with React (not separated) because it calls
+            // React.createContext at module initialization. Separating it causes
+            // "Cannot read properties of undefined (reading 'createContext')" error.
             if (
-              id.includes('i18next') ||
-              id.includes('react-i18next') ||
-              id.includes('i18next-browser-languagedetector')
+              id.includes('i18next') &&
+              !id.includes('react-i18next') // react-i18next stays with React chunk
             ) {
               return 'vendor-i18n';
             }
