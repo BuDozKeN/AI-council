@@ -494,9 +494,7 @@ export default function ChatInterface({
             selectedProject={selectedProject || undefined}
             projects={projects}
             onSelectProject={onSelectProject}
-            onOpenProjectModal={(context) =>
-              onOpenProjectModal(context ? { type: 'new', ...context } : { type: 'new' })
-            }
+            onOpenProjectModal={(context) => onOpenProjectModal(context ?? {})}
             onProjectCreated={onProjectCreated}
             onViewDecision={(decisionId: string | null, viewType?: string, contextId?: string) => {
               if (decisionId) {

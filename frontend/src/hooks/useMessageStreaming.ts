@@ -8,7 +8,7 @@
  * to reduce CPU usage during streaming (~60fps cap instead of per-token).
  */
 
-import { useCallback, useRef, useEffect } from 'react';
+import { useCallback, useRef, useEffect, type Dispatch, type SetStateAction } from 'react';
 import { api } from '../api';
 import { logger } from '../utils/logger';
 import type { Conversation, Message, StreamingState } from '../types/conversation';
@@ -264,16 +264,9 @@ interface StreamingContext {
   selectedRoles: string[];
   selectedPlaybooks: string[];
   selectedProject: string | null;
+  selectedPreset: 'conservative' | 'balanced' | 'creative' | null;
   useCompanyContext: boolean;
   useDepartmentContext: boolean;
-}
-
-/** Summarized conversation for list display */
-interface ConversationListItem {
-  id: string;
-  title?: string;
-  created_at?: string;
-  message_count?: number;
 }
 
 interface ConversationState {
@@ -281,7 +274,7 @@ interface ConversationState {
   currentConversation: StreamableConversation | null;
   setCurrentConversationId: (id: string | null) => void;
   setCurrentConversation: (updater: ConversationUpdater) => void;
-  setConversations: (updater: (prev: ConversationListItem[]) => ConversationListItem[]) => void;
+  setConversations: Dispatch<SetStateAction<Conversation[]>>;
   skipNextLoadRef: React.MutableRefObject<boolean>;
   loadConversations: () => void;
 }
@@ -309,6 +302,7 @@ export function useMessageStreaming({
     selectedRoles,
     selectedPlaybooks,
     selectedProject,
+    selectedPreset,
     useCompanyContext,
     useDepartmentContext,
   } = context;
@@ -816,6 +810,7 @@ export function useMessageStreaming({
               created_at: newConv.created_at,
               message_count: 0,
               title: initialTitle,
+              messages: [],
             },
             ...prev,
           ]);
@@ -868,6 +863,7 @@ export function useMessageStreaming({
             playbooks: effectivePlaybooks,
             projectId: selectedProject,
             attachmentIds: attachmentIds,
+            preset: selectedPreset,
             signal: abortControllerRef.current?.signal,
           }
         );
@@ -897,6 +893,7 @@ export function useMessageStreaming({
       selectedRoles,
       selectedPlaybooks,
       selectedProject,
+      selectedPreset,
       useCompanyContext,
       useDepartmentContext,
       setCurrentConversationId,

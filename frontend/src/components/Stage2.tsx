@@ -322,6 +322,9 @@ function Stage2({
             </div>
             <div
               className={`ranking-content ${activeData.hasError || activeData.isEmpty ? 'error-text' : ''}`}
+              role="status"
+              aria-live="polite"
+              aria-busy={activeData.isStreaming}
             >
               {activeData.isEmpty ? (
                 <p className="empty-message">{t('stages.noEvaluation')}</p>

@@ -9,9 +9,9 @@ import { useReducer, useCallback } from 'react';
 import type { MyCompanyTab } from '../components/mycompany/hooks';
 
 export interface ProjectModalContext {
-  id?: string;
-  name?: string;
-  [key: string]: unknown;
+  userQuestion?: string;
+  councilResponse?: string;
+  departmentIds?: string[];
 }
 
 export interface PromoteDecision {
