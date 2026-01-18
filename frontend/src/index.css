@@ -87,7 +87,7 @@
     left: 4px;
     width: auto;
     height: auto;
-    padding: 12px 24px;
+    padding: var(--space-3) var(--space-6);
     margin: 0;
     overflow: visible;
     clip: auto;
@@ -95,7 +95,7 @@
     background: var(--color-focus);
     color: var(--color-text-inverse);
     font-weight: 600;
-    font-size: 14px;
+    font-size: var(--text-sm);
     border-radius: var(--radius-md);
     z-index: var(--z-toast);
     box-shadow: var(--shadow-md);
@@ -241,7 +241,7 @@
 /* Global markdown styling */
 @layer components {
   .markdown-content {
-    padding: 12px;
+    padding: var(--space-3);
   }
 
   .markdown-content p {
@@ -258,7 +258,7 @@
   .markdown-content h4,
   .markdown-content h5,
   .markdown-content h6 {
-    margin: 16px 0 8px;
+    margin: var(--space-4) 0 8px;
   }
 
   .markdown-content h1:first-child,
@@ -273,16 +273,16 @@
   .markdown-content ul,
   .markdown-content ol {
     margin: 0 0 12px;
-    padding-left: 24px;
+    padding-left: var(--space-6);
   }
 
   .markdown-content li {
-    margin: 4px 0;
+    margin: var(--space-1) 0;
   }
 
   .markdown-content pre {
     background: var(--color-bg-tertiary);
-    padding: 12px;
+    padding: var(--space-3);
     border-radius: var(--radius-sm);
     overflow-x: auto;
     margin: 0 0 12px;
@@ -290,7 +290,7 @@
 
   .markdown-content code {
     background: var(--color-bg-tertiary);
-    padding: 2px 6px;
+    padding: var(--space-0-5) var(--space-1-5);
     border-radius: var(--radius-sm);
     font-family: monospace;
     font-size: 0.9em;
@@ -303,7 +303,7 @@
 
   .markdown-content blockquote {
     margin: 0 0 12px;
-    padding-left: 16px;
+    padding-left: var(--space-4);
     border-left: 4px solid var(--color-border-muted);
     color: var(--color-text-secondary);
   }
@@ -312,13 +312,13 @@
   .markdown-content table {
     width: 100%;
     border-collapse: collapse;
-    margin: 12px 0;
+    margin: var(--space-3) 0;
     font-size: 0.95em;
   }
 
   .markdown-content th,
   .markdown-content td {
-    padding: 10px 12px;
+    padding: var(--space-2-5) var(--space-3);
     text-align: left;
     border: 1px solid var(--color-border-muted);
   }
@@ -341,7 +341,7 @@
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    margin: 12px 0;
+    margin: var(--space-3) 0;
   }
 
   .table-wrapper table {
@@ -359,7 +359,7 @@
 
     .markdown-content th,
     .markdown-content td {
-      padding: 8px 10px;
+      padding: var(--space-2) var(--space-2-5);
       font-size: 0.85em;
       min-width: 80px;
     }
@@ -418,7 +418,7 @@
     .final-text,
     .ranking-content,
     .markdown-content {
-      font-size: 16px;
+      font-size: var(--text-base);
       line-height: 1.7;
       letter-spacing: 0.01em;
     }
@@ -441,18 +441,18 @@
 
     /* Lists with good spacing */
     .markdown-content li {
-      margin: 6px 0;
+      margin: var(--space-1-5) 0;
       line-height: 1.6;
     }
 
     /* Code blocks - readable */
     .markdown-content code {
       font-size: 0.875em;
-      padding: 3px 6px;
+      padding: var(--space-1) var(--space-1-5);
     }
 
     .markdown-content pre code {
-      font-size: 13px;
+      font-size: var(--text-xs-plus);
       line-height: 1.5;
     }
 
@@ -462,7 +462,7 @@
     .copy-code-btn:not(.no-touch-target) {
       min-height: 44px;
       min-width: 44px;
-      padding: 10px;
+      padding: var(--space-2-5);
     }
 
     .copy-btn .copy-icon,
@@ -474,34 +474,34 @@
 
     /* Stage containers - consistent padding */
     .stage {
-      padding: 12px;
+      padding: var(--space-3);
     }
 
     /* Stage titles */
     .stage-title {
-      font-size: 15px;
+      font-size: var(--text-sm-plus);
       flex-wrap: wrap;
-      gap: 6px;
+      gap: var(--gap-xs-plus);
     }
 
     /* Collapsed state */
     .stage.collapsed {
-      padding: 10px 12px;
+      padding: var(--space-2-5) var(--space-3);
     }
   }
 
   /* iPhone SE and very small screens */
   @media (width <= 640px) {
     .stage {
-      padding: 10px;
+      padding: var(--space-2-5);
     }
 
     .stage.collapsed {
-      padding: 8px 10px;
+      padding: var(--space-2) var(--space-2-5);
     }
 
     .stage-title {
-      font-size: 14px;
+      font-size: var(--text-sm);
     }
 
     /* Ensure buttons remain tappable - use .no-touch-target to opt out */

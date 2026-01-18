@@ -72,7 +72,7 @@
   inset-block-start: 0;
   left: 50%;
   transform: translateX(-50%) translateY(-100%);
-  padding: 12px;
+  padding: var(--space-3);
   transition: transform 0.2s ease;
 }
 

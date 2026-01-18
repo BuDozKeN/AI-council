@@ -9,7 +9,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 16px 20px;
+  padding: var(--space-4) var(--space-5);
   border-bottom: 1px solid var(--color-border-light);
   flex-shrink: 0;
 }
@@ -36,9 +36,9 @@
 /* Badge - category label after title */
 .app-modal-badge {
   display: inline-block;
-  padding: 3px 8px;
-  margin-left: 10px;
-  font-size: 11px;
+  padding: var(--space-1) var(--space-2);
+  margin-left: var(--space-2-5);
+  font-size: var(--text-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -76,7 +76,7 @@
 .app-modal-title-display {
   display: inline;
   margin: 0;
-  font-size: 18px;
+  font-size: var(--text-lg);
   font-weight: 600;
   color: var(--color-text-primary);
   line-height: 1.4;
@@ -86,9 +86,9 @@
 /* Extra content after title (e.g., count pill) */
 .app-modal-title-extra {
   display: inline-block;
-  margin-left: 10px;
-  padding: 2px 8px;
-  font-size: 12px;
+  margin-left: var(--space-2-5);
+  padding: var(--space-0-5) var(--space-2);
+  font-size: var(--text-xs);
   font-weight: 500;
   color: var(--color-text-secondary);
   background: var(--color-slate-100);
@@ -98,8 +98,8 @@
 
 .app-modal-description {
   display: block;
-  margin: 4px 0 0;
-  font-size: 14px;
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-sm);
   color: var(--color-text-secondary);
 }
 
@@ -163,5 +163,5 @@
 /* Minimal header (no border) */
 .app-modal-header-minimal {
   border-bottom: none;
-  padding-bottom: 8px;
+  padding-bottom: var(--space-2);
 }

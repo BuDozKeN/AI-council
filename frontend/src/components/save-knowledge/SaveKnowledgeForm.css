@@ -6,19 +6,19 @@
 }
 
 .modal-body {
-  padding: 16px 20px;
+  padding: var(--space-4) var(--space-5);
   overflow-y: auto;
   flex: 1;
   min-height: 0;
 }
 
 .form-group {
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: var(--space-1-5);
   font-size: 0.85rem;
   font-weight: 500;
   color: var(--color-text-secondary);
@@ -28,7 +28,7 @@
 .form-group select,
 .form-group textarea {
   width: 100%;
-  padding: 10px 12px;
+  padding: var(--space-2-5) var(--space-3);
   border: 1px solid var(--color-border-dark);
   border-radius: var(--radius-md);
   background: var(--color-bg-primary);
@@ -61,17 +61,17 @@
 }
 
 .form-group .hint {
-  margin: 4px 0 0;
+  margin: var(--space-1) 0 0;
   font-size: 0.75rem;
   color: var(--color-text-secondary);
 }
 
 /* Context info at top */
 .context-info {
-  padding: 10px 12px;
+  padding: var(--space-2-5) var(--space-3);
   background: var(--color-bg-secondary);
   border-radius: var(--radius-md);
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
   border-left: 3px solid var(--color-accent);
 }
 
@@ -79,7 +79,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 
 .context-label {
@@ -105,7 +105,7 @@
   color: var(--color-accent);
   font-size: 0.8rem;
   cursor: pointer;
-  padding: 2px 6px;
+  padding: var(--space-0-5) var(--space-1-5);
   border-radius: var(--radius-sm);
   transition: background 0.15s;
 }
@@ -117,7 +117,7 @@
 /* Two-column layout for department and category */
 .form-row {
   display: flex;
-  gap: 12px;
+  gap: var(--gap);
 }
 
 .form-group-half {
@@ -127,14 +127,14 @@
 .modal-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  padding: 16px 20px;
+  gap: var(--gap-sm-plus);
+  padding: var(--space-4) var(--space-5);
   border-top: 1px solid var(--color-border);
 }
 
 .cancel-btn,
 .save-btn {
-  padding: 10px 20px;
+  padding: var(--space-2-5) var(--space-5);
   border-radius: var(--radius-md);
   font-size: 0.9rem;
   font-weight: 500;
@@ -172,20 +172,20 @@
 }
 
 .error-message {
-  padding: 10px 12px;
+  padding: var(--space-2-5) var(--space-3);
   background: var(--overlay-red-15);
   border: 1px solid var(--overlay-red-30, rgb(var(--color-red-500-rgb), 0.3));
   border-radius: var(--radius-md);
   color: var(--color-red-400);
   font-size: 0.85rem;
-  margin-top: 12px;
+  margin-top: var(--space-3);
 }
 
 .success-message {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 32px 24px;
+  padding: var(--space-8) var(--space-6);
   text-align: center;
 }
 
@@ -200,7 +200,7 @@
   border-radius: 50%;
   font-size: 1.75rem;
   color: var(--color-accent);
-  margin-bottom: 20px;
+  margin-bottom: var(--space-5);
 }
 
 .success-message .success-title {
@@ -220,11 +220,11 @@
 .success-message .success-location {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 12px 16px;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-3) var(--space-4);
   background: var(--color-bg-secondary);
   border-radius: var(--radius-md);
-  margin-bottom: 20px;
+  margin-bottom: var(--space-5);
   width: 100%;
   max-width: 300px;
 }
@@ -245,7 +245,7 @@
 }
 
 .success-message .success-dismiss-btn {
-  padding: 10px 24px;
+  padding: var(--space-2-5) var(--space-6);
   background: var(--color-accent);
   border: none;
   border-radius: var(--radius-md);
@@ -265,7 +265,7 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-sm);
 }
 
 .field-with-tooltip select {
@@ -307,7 +307,7 @@
   right: 0;
   min-width: 200px;
   max-width: 280px;
-  padding: 10px 12px;
+  padding: var(--space-2-5) var(--space-3);
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -365,7 +365,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 50px 20px;
+  padding: var(--space-12) var(--space-5);
   text-align: center;
 }
 
@@ -380,7 +380,7 @@
 
 /* Extracting hint - higher specificity to override .extracting-message p */
 .extracting-message .extracting-hint {
-  margin-top: 8px;
+  margin-top: var(--space-2);
   color: var(--color-text-muted);
   font-size: 0.85rem;
   font-weight: 400;
@@ -394,8 +394,8 @@
 
 /* Project preview/edit form */
 .project-preview-form {
-  margin-top: 12px;
-  padding: 14px;
+  margin-top: var(--space-3);
+  padding: var(--space-3-5);
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-accent);
   border-radius: var(--radius-md);
@@ -405,7 +405,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
 }
 
 .project-preview-label {
@@ -420,12 +420,12 @@
 }
 
 .project-preview-field {
-  margin-bottom: 10px;
+  margin-bottom: var(--space-2-5);
 }
 
 .project-preview-field label {
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: var(--space-1);
   font-size: 0.8rem;
   font-weight: 500;
   color: var(--color-text-secondary);
@@ -434,7 +434,7 @@
 .project-preview-field input,
 .project-preview-field textarea {
   width: 100%;
-  padding: 8px 10px;
+  padding: var(--space-2) var(--space-2-5);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-bg-primary);
@@ -459,13 +459,13 @@
 .project-preview-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  margin-top: 12px;
+  gap: var(--gap-sm);
+  margin-top: var(--space-3);
 }
 
 .project-cancel-btn,
 .project-create-btn {
-  padding: 8px 14px;
+  padding: var(--space-2) var(--space-3-5);
   border-radius: var(--radius-md);
   font-size: 0.85rem;
   font-weight: 500;
@@ -507,7 +507,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px 16px;
+  padding: var(--space-6) var(--space-4);
   text-align: center;
 }
 
@@ -521,7 +521,7 @@
 }
 
 .project-extracting-hint {
-  margin-top: 4px;
+  margin-top: var(--space-1);
   color: var(--color-text-muted);
   font-size: 0.8rem;
 }
@@ -529,7 +529,7 @@
 /* Field hint text */
 .field-hint {
   display: block;
-  margin-top: 4px;
+  margin-top: var(--space-1);
   font-size: 0.75rem;
   color: var(--color-text-muted);
 }

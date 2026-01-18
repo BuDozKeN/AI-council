@@ -23,15 +23,15 @@
 .context-desktop-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 16px;
+  gap: var(--gap-md);
+  padding: var(--space-4);
   overflow-y: auto;
   flex: 1;
 }
 
 /* Fixed footer - Apply button always visible */
 .context-desktop-footer {
-  padding: 12px 14px;
+  padding: var(--space-3) var(--space-3-5);
   background: var(--color-bg-primary);
   border-top: 1px solid var(--color-border-light);
   flex-shrink: 0;
@@ -41,11 +41,11 @@
 .context-desktop-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
 }
 
 .context-desktop-label {
-  font-size: 10px;
+  font-size: var(--text-2xs);
   font-weight: 600;
   color: var(--color-text-tertiary);
   text-transform: uppercase;
@@ -58,7 +58,7 @@
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   padding: 0 10px;
 }
 
@@ -74,26 +74,26 @@
 .context-desktop-select-icon {
   color: var(--color-text-tertiary);
   flex-shrink: 0;
-  margin-right: 6px;
+  margin-right: var(--space-1-5);
 }
 
 /* Multi-select chips container */
 .context-desktop-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--gap-xs);
 }
 
 /* Generic chip style */
 .context-desktop-chip {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 5px 8px;
+  gap: var(--gap-xs);
+  padding: var(--space-1) var(--space-2);
   background: var(--chip-bg, var(--color-bg-secondary));
   border: 1px solid var(--chip-border, var(--color-border));
   border-radius: var(--radius-md);
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 500;
   color: var(--chip-text, var(--color-text-secondary));
   cursor: pointer;
@@ -153,13 +153,13 @@
 .context-desktop-more-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
   width: 100%;
-  padding: 8px 10px;
+  padding: var(--space-2) var(--space-2-5);
   background: transparent;
   border: 1px dashed var(--color-border);
   border-radius: var(--radius-md);
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 500;
   color: var(--color-text-tertiary);
   cursor: pointer;
@@ -198,8 +198,8 @@
 .context-desktop-playbooks {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding-left: 4px;
+  gap: var(--gap-sm);
+  padding-left: var(--space-1);
   animation: slideInSection 0.15s ease-out;
 }
 
@@ -218,14 +218,14 @@
 .context-desktop-pb-group {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--gap-xs);
 }
 
 .context-desktop-pb-type {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 9px;
+  gap: var(--gap-xs);
+  font-size: var(--text-2xs);
   font-weight: 600;
   color: var(--color-text-tertiary);
   text-transform: uppercase;
@@ -239,18 +239,18 @@
 .context-desktop-pb-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--gap-xs);
 }
 
 /* Desktop apply button - in fixed footer */
 .context-desktop-apply-btn {
   display: block;
   width: 100%;
-  padding: 10px 16px;
+  padding: var(--space-2-5) var(--space-4);
   background: var(--color-brand-primary);
   border: none;
   border-radius: var(--radius-md);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 600;
   color: var(--color-text-inverse);
   cursor: pointer;
@@ -276,7 +276,7 @@
 
 /* Sections */
 .context-section {
-  padding: 10px 14px;
+  padding: var(--space-2-5) var(--space-3-5);
   border-bottom: 1px solid var(--color-border-light);
 }
 
@@ -285,7 +285,7 @@
 }
 
 .context-section-title {
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 600;
   color: var(--color-text-tertiary);
   text-transform: uppercase;
@@ -297,9 +297,9 @@
 .context-option {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: var(--gap);
   width: 100%;
-  padding: 12px;
+  padding: var(--space-3);
   background: transparent;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -327,7 +327,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: var(--space-0-5);
 }
 
 .context-option.active .context-option-radio {
@@ -349,10 +349,10 @@
 .context-option-label {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
   font-weight: 600;
   color: var(--color-text-primary);
-  margin-bottom: 2px;
+  margin-bottom: var(--space-0-5);
 }
 
 .context-option-label svg {
@@ -360,15 +360,15 @@
 }
 
 .context-option-desc {
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   color: var(--color-text-secondary);
   margin: 0;
 }
 
 .context-option-current {
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--color-text-tertiary);
-  margin: 4px 0 0;
+  margin: var(--space-1) 0 0;
   font-style: italic;
 }
 
@@ -376,19 +376,19 @@
 .context-companies {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
 }
 
 .context-company-btn {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--gap-sm-plus);
   width: 100%;
-  padding: 12px 14px;
+  padding: var(--space-3) var(--space-3-5);
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--color-text-primary);
   text-align: left;
@@ -431,19 +431,19 @@
 .context-presets {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
 }
 
 .context-preset {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-sm);
   width: 100%;
-  padding: 10px 12px;
+  padding: var(--space-2-5) var(--space-3);
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--color-text-primary);
   text-align: left;
@@ -472,9 +472,9 @@
 .context-advanced-summary {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 12px 16px;
-  font-size: 13px;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-xs-plus);
   font-weight: 500;
   color: var(--color-text-secondary);
   cursor: pointer;
@@ -500,24 +500,24 @@
 }
 
 .context-advanced-content {
-  padding: 0 16px 16px;
+  padding: 0 var(--space-4) 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--gap);
 }
 
 /* Field styling */
 .context-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
 }
 
 .context-field-label {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
+  gap: var(--gap-xs-plus);
+  font-size: var(--text-xs);
   font-weight: 500;
   color: var(--color-text-secondary);
 }
@@ -533,7 +533,7 @@
 .context-field-multi {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--gap-sm);
 }
 
 .context-multi-select {
@@ -544,12 +544,12 @@
 .context-apply-btn {
   display: block;
   width: calc(100% - 28px);
-  margin: 12px 14px 14px;
-  padding: 10px 16px;
+  margin: var(--space-3) var(--space-3-5) var(--space-3-5);
+  padding: var(--space-2-5) var(--space-4);
   background: var(--color-brand-primary);
   border: none;
   border-radius: var(--radius-md);
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 600;
   color: var(--color-text-inverse);
   cursor: pointer;

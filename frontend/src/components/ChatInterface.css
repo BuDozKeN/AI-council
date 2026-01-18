@@ -28,14 +28,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 24px;
-  margin: 16px;
+  gap: var(--gap);
+  padding: var(--space-6);
+  margin: var(--space-4);
   background: var(--color-indigo-50);
   border: 2px solid var(--color-indigo-500);
   border-radius: var(--radius-lg);
   color: var(--color-indigo-600);
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
 }
 

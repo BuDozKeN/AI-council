@@ -12,11 +12,11 @@
 .llm-preset-trigger {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-1-5) var(--space-2-5);
   border: 1px solid currentcolor;
   border-radius: var(--radius-md);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -93,21 +93,21 @@
 .llm-preset-list {
   display: flex;
   flex-direction: column;
-  padding: 6px;
+  padding: var(--space-1-5);
 }
 
 .llm-preset-separator {
   height: 1px;
   background: var(--color-border-light);
-  margin: 4px 6px;
+  margin: var(--space-1) var(--space-1-5);
 }
 
 .llm-preset-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--gap-sm-plus);
   width: 100%;
-  padding: 10px 12px;
+  padding: var(--space-2-5) var(--space-3);
   border: none;
   background: transparent;
   border-radius: var(--radius-md);
@@ -143,18 +143,18 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--gap-2xs);
 }
 
 .llm-preset-item-name {
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 500;
   color: var(--color-text-primary);
   line-height: 1.2;
 }
 
 .llm-preset-item-desc {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--color-text-tertiary);
   line-height: 1.3;
   overflow: hidden;
@@ -250,22 +250,22 @@
   /* Larger trigger for touch */
   .llm-preset-trigger {
     min-height: 44px;
-    padding: 10px 12px;
-    font-size: 15px;
+    padding: var(--space-2-5) var(--space-3);
+    font-size: var(--text-sm-plus);
   }
 
   /* Card-style items in bottom sheet */
   .llm-preset-list {
-    gap: 6px;
-    padding: 8px;
+    gap: var(--gap-xs-plus);
+    padding: var(--space-2);
   }
 
   .llm-preset-separator {
-    margin: 4px 0;
+    margin: var(--space-1) 0;
   }
 
   .llm-preset-item {
-    padding: 14px 16px;
+    padding: var(--space-3-5) var(--space-4);
     min-height: 56px;
     background: var(--color-bg-tertiary);
     border-radius: var(--radius-lg);
@@ -282,11 +282,11 @@
   }
 
   .llm-preset-item-name {
-    font-size: 15px;
+    font-size: var(--text-sm-plus);
   }
 
   .llm-preset-item-desc {
-    font-size: 12px;
+    font-size: var(--text-xs);
     white-space: normal;
   }
 

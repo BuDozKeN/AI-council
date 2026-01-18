@@ -3,7 +3,7 @@
    ============================================= */
 
 .save-mode-selector {
-  margin-bottom: 16px;
+  margin-bottom: var(--space-4);
 }
 
 .save-mode-label {
@@ -11,20 +11,20 @@
   font-size: 0.85rem;
   font-weight: 500;
   color: var(--color-text-secondary);
-  margin-bottom: 10px;
+  margin-bottom: var(--space-2-5);
 }
 
 .save-mode-options {
   display: flex;
-  gap: 10px;
+  gap: var(--gap-sm-plus);
 }
 
 .save-mode-option {
   flex: 1;
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  padding: 12px;
+  gap: var(--gap-sm-plus);
+  padding: var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-bg-secondary);
@@ -52,7 +52,7 @@
 .save-mode-text {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--gap-2xs);
 }
 
 .save-mode-name {
@@ -74,20 +74,20 @@
 .tags-input-container {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--gap-sm);
 }
 
 .tags-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
 }
 
 .tag-chip {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
+  gap: var(--gap-xs);
+  padding: var(--space-1) var(--space-2);
   background: var(--color-accent);
   color: var(--color-text-inverse);
   border-radius: var(--radius-sm);
@@ -101,7 +101,7 @@
   color: var(--color-text-inverse);
   cursor: pointer;
   padding: 0;
-  margin-left: 2px;
+  margin-left: var(--space-0-5);
   font-size: 1rem;
   line-height: 1;
   opacity: 0.7;
@@ -114,7 +114,7 @@
 
 .tags-input-container input {
   width: 100%;
-  padding: 10px 12px;
+  padding: var(--space-2-5) var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-bg-secondary);

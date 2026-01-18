@@ -12,15 +12,15 @@
 .dept-checkbox-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--gap-sm-plus);
   width: 100%;
-  padding: 10px 12px;
-  padding-left: 10px;
+  padding: var(--space-2-5) var(--space-3);
+  padding-left: var(--space-2-5);
   border: none;
   border-left: 3px solid transparent;
   background: transparent;
   border-radius: var(--radius-md);
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--color-gray-700);
   cursor: pointer;
@@ -74,14 +74,14 @@
    ============================================================================= */
 
 .dept-checkbox-item.mobile {
-  gap: 14px;
+  gap: var(--gap-plus);
   min-height: 56px;
-  padding: 14px 16px;
-  padding-left: 14px;
+  padding: var(--space-3-5) var(--space-4);
+  padding-left: var(--space-3-5);
   border-inline-start-width: 4px;
   background: var(--color-bg-tertiary); /* Visible card in light mode */
   border-radius: var(--radius-lg);
-  font-size: 16px;
+  font-size: var(--text-base);
 
   /* Ensure touch events work properly inside Framer Motion drag containers */
   touch-action: manipulation;

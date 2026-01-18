@@ -4,17 +4,17 @@
 
 /* Field container */
 .pm-field {
-  margin-bottom: 20px;
+  margin-bottom: var(--space-5);
 }
 
 .pm-field label {
   display: block;
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 600;
   color: var(--color-slate-500);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 
 /* Field header with label + action button */
@@ -22,7 +22,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: var(--space-1);
 }
 
 .pm-field-header label {
@@ -38,10 +38,10 @@
 /* Text input - matches mc-input-unified */
 .pm-field input[type='text'] {
   width: 100%;
-  padding: 10px 14px;
+  padding: var(--space-2-5) var(--space-3-5);
   border: 1px solid var(--color-border-dark);
   border-radius: var(--radius-md);
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--color-text-primary);
   background: var(--color-bg-primary);
@@ -72,10 +72,10 @@
 /* Textarea */
 .pm-field textarea {
   width: 100%;
-  padding: 12px 14px;
+  padding: var(--space-3) var(--space-3-5);
   border: 1px solid var(--color-border-dark);
   border-radius: var(--radius-md);
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-family: inherit;
   line-height: 1.6;
   color: var(--color-text-primary);
@@ -108,9 +108,9 @@
 
 /* Hint text below label */
 .pm-hint {
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   color: var(--color-slate-300);
-  margin-bottom: 10px;
+  margin-bottom: var(--space-2-5);
   line-height: 1.4;
 }
 
@@ -121,14 +121,14 @@
 
 /* Field hint text */
 .pm-field-hint {
-  margin: 6px 0 0;
-  font-size: 12px;
+  margin: var(--space-1-5) 0 0;
+  font-size: var(--text-xs);
   color: var(--color-slate-400);
 }
 
 /* Inline hint next to label */
 .pm-field-hint-inline {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--color-slate-400);
   font-weight: 400;
   margin-left: auto;
@@ -145,7 +145,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 
 .pm-context-header label {
@@ -155,13 +155,13 @@
 .pm-context-toggle {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
+  gap: var(--gap-xs);
+  padding: var(--space-1) var(--space-2-5);
   background: transparent;
   border: 1px solid var(--color-slate-200);
   border-radius: var(--radius-sm);
   color: var(--color-slate-500);
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -181,7 +181,7 @@
 /* Context editor textarea */
 .pm-context-editor {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   line-height: 1.5;
   min-height: 180px;
 }
@@ -191,7 +191,7 @@
   color: var(--color-slate-400);
   font-style: italic;
   margin: 0;
-  padding: 8px 0;
+  padding: var(--space-2) 0;
 }
 
 /* Tiny icon for toggle buttons */

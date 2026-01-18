@@ -9,7 +9,7 @@
   align-items: center;
   justify-content: center;
   background-color: var(--color-gray-50);
-  padding: 20px;
+  padding: var(--space-5);
   font-family:
     system-ui,
     -apple-system,
@@ -22,7 +22,7 @@
 .error-boundary-card {
   background-color: var(--color-bg-primary);
   border-radius: var(--radius-xl, 16px);
-  padding: 48px;
+  padding: var(--space-12);
   max-width: 640px;
   width: 100%;
   text-align: center;
@@ -31,7 +31,7 @@
 }
 
 .error-boundary-icon {
-  margin-bottom: 24px;
+  margin-bottom: var(--space-6);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -43,38 +43,38 @@
 
 .error-boundary-status-code {
   display: block;
-  font-size: 48px;
+  font-size: var(--text-5xl);
   font-weight: 700;
   color: var(--color-gray-300);
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
   letter-spacing: -0.02em;
 }
 
 .error-boundary-title {
-  font-size: 24px;
+  font-size: var(--text-2xl);
   font-weight: 600;
   color: var(--color-gray-900);
   margin: 0 0 12px;
 }
 
 .error-boundary-message {
-  font-size: 16px;
+  font-size: var(--text-base);
   color: var(--color-gray-500);
-  margin-bottom: 32px;
+  margin-bottom: var(--space-8);
   line-height: 1.5;
 }
 
 .error-boundary-buttons {
   display: flex;
-  gap: 12px;
+  gap: var(--gap);
   justify-content: center;
   flex-wrap: wrap;
 }
 
 .error-boundary-btn {
   border-radius: var(--radius-md, 8px);
-  padding: 12px 24px;
-  font-size: 14px;
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
@@ -102,15 +102,15 @@
 }
 
 .error-boundary-details {
-  margin-top: 32px;
+  margin-top: var(--space-8);
   text-align: left;
 }
 
 .error-boundary-summary {
   cursor: pointer;
   color: var(--color-gray-500);
-  font-size: 14px;
-  margin-bottom: 8px;
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-2);
 }
 
 .error-boundary-error-container {
@@ -143,9 +143,9 @@
   background-color: var(--color-red-50);
   border: 1px solid var(--color-red-200);
   border-radius: var(--radius-md, 8px);
-  padding: 16px;
+  padding: var(--space-4);
   padding-right: 44px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--color-red-800);
   overflow: auto;
   max-height: 200px;

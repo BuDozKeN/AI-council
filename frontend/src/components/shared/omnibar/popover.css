@@ -35,8 +35,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 12px 8px;
-  font-size: 11px;
+  padding: var(--space-2-5) var(--space-3) 8px;
+  font-size: var(--text-xs);
   font-weight: 600;
   color: var(--color-text-tertiary);
   text-transform: uppercase;
@@ -46,12 +46,12 @@
 
 /* Clear button inside popover header */
 .context-popover-clear {
-  padding: 4px 8px;
+  padding: var(--space-1) var(--space-2);
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--color-text-tertiary);
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 500;
   text-transform: none;
   letter-spacing: normal;
@@ -96,29 +96,29 @@
 .context-popover-list {
   display: flex;
   flex-direction: column;
-  gap: 2px; /* Small gap between items */
-  padding: 6px;
+  gap: var(--gap-2xs); /* Small gap between items */
+  padding: var(--space-1-5);
   overflow-y: auto;
   max-height: 250px;
 }
 
 .context-popover-empty {
-  padding: 12px;
+  padding: var(--space-3);
   text-align: center;
   color: var(--color-text-tertiary);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
 }
 
 .context-popover-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--gap-sm-plus);
   width: 100%;
-  padding: 8px 10px;
+  padding: var(--space-2) var(--space-2-5);
   border: none;
   background: transparent;
   border-radius: var(--radius-md);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   color: var(--color-text-primary);
   cursor: pointer;
   transition: all 0.1s ease;
@@ -173,7 +173,7 @@
 
 /* Playbook grouping */
 .context-popover-group {
-  margin-bottom: 4px;
+  margin-bottom: var(--space-1);
 }
 
 .context-popover-group:last-child {
@@ -183,9 +183,9 @@
 .context-popover-group-header {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 10px 4px;
-  font-size: 10px;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-2) var(--space-2-5) 4px;
+  font-size: var(--text-2xs);
   font-weight: 600;
   color: var(--color-text-tertiary);
   text-transform: uppercase;
@@ -200,7 +200,7 @@
 
 .context-popover-group-header.clickable {
   width: 100%;
-  padding: 10px;
+  padding: var(--space-2-5);
   margin: 0;
   border: none;
   border-radius: var(--radius-md);
@@ -228,7 +228,7 @@
 }
 
 .context-popover-group-header .section-count {
-  font-size: 10px;
+  font-size: var(--text-2xs);
   font-weight: 500;
   color: var(--color-text-quaternary);
   margin-left: auto;
@@ -240,10 +240,10 @@
 }
 
 .context-popover-group-items {
-  padding-left: 8px;
-  margin-top: 4px;
+  padding-left: var(--space-2);
+  margin-top: var(--space-1);
   border-left: 2px solid var(--color-border-light);
-  margin-left: 16px;
+  margin-left: var(--space-4);
 }
 
 /* Playbook type colors */

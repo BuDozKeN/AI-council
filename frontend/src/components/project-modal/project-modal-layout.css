@@ -12,24 +12,24 @@
 .pm-error {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin: 16px 24px 0;
-  padding: 12px 16px;
+  gap: var(--gap-sm);
+  margin: var(--space-4) var(--space-6) 0;
+  padding: var(--space-3) var(--space-4);
   background: var(--color-red-50);
   border: 1px solid var(--color-red-300);
   border-radius: var(--radius-lg);
   color: var(--color-error-dark);
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 
 /* Form */
 .pm-form {
-  padding: 24px;
+  padding: var(--space-6);
 }
 
 /* Context field - first field, no extra spacing */
 .pm-context-field {
-  margin-bottom: 20px;
+  margin-bottom: var(--space-5);
 }
 
 /* ============================================================================

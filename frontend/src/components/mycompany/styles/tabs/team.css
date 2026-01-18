@@ -10,14 +10,14 @@
 .mc-team {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--gap-md);
 }
 
 /* NOTE: .mc-team-header is defined in overview.css (shared with playbooks/decisions headers) */
 
 /* Department container */
 .mc-dept-container {
-  margin-bottom: 4px;
+  margin-bottom: var(--space-1);
 }
 
 /* Department row - clickable to expand */
@@ -46,15 +46,15 @@
 
 /* Role count meta text */
 .mc-elegant-meta {
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--color-text-tertiary);
   margin-left: auto;
-  padding-right: 8px;
+  padding-right: var(--space-2);
 }
 
 /* Expand chevron */
 .mc-expand-chevron {
-  font-size: 18px;
+  font-size: var(--text-lg);
   color: var(--color-text-tertiary);
   transition: transform 0.2s ease;
   display: inline-block;
@@ -68,7 +68,7 @@
 .mc-dept-expanded-content {
   background: var(--color-bg-secondary);
   border-radius: 0 0 8px 8px;
-  padding: 12px 16px 16px;
+  padding: var(--space-3) var(--space-4) 16px;
   margin-top: -2px;
 }
 
@@ -76,17 +76,17 @@
 .mc-context-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
+  gap: var(--gap-sm);
+  padding: var(--space-2-5) var(--space-3-5);
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-default);
   cursor: pointer;
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   color: var(--color-text-secondary);
   transition: all 0.15s ease;
   width: 100%;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
 }
 
 .mc-context-btn:hover {
@@ -95,15 +95,15 @@
 }
 
 .mc-context-icon {
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 
 .mc-context-size {
   margin-left: auto;
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--color-text-tertiary);
   background: var(--color-bg-tertiary);
-  padding: 2px 6px;
+  padding: var(--space-0-5) var(--space-1-5);
   border-radius: var(--radius-sm);
 }
 
@@ -111,18 +111,18 @@
 .mc-roles-section {
   background: var(--color-bg-primary);
   border-radius: var(--radius-default);
-  padding: 12px;
+  padding: var(--space-3);
 }
 
 .mc-roles-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 
 .mc-roles-label {
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -132,14 +132,14 @@
 .mc-roles-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--gap-2xs);
 }
 
 .mc-role-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
+  gap: var(--gap-sm);
+  padding: var(--space-2) var(--space-3);
   background: var(--color-bg-secondary);
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -151,28 +151,28 @@
 }
 
 .mc-role-row .mc-role-name {
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 500;
   color: var(--color-text-primary);
 }
 
 .mc-role-row .mc-role-title {
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--color-text-secondary);
   margin-left: auto;
 }
 
 .mc-no-roles {
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--color-text-tertiary);
   text-align: center;
-  padding: 12px;
+  padding: var(--space-3);
   margin: 0;
 }
 
 .mc-text-btn.add {
   color: var(--color-primary);
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 
 .mc-text-btn.add:hover {
@@ -186,21 +186,21 @@
 .mc-members {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--gap-md);
 }
 
 .mc-members-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-bottom: 12px;
+  padding-bottom: var(--space-3);
   border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .mc-members-count {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-sm);
   font-size: 0.875rem;
   color: var(--color-text-secondary);
 }
@@ -212,15 +212,15 @@
 .mc-add-member-form {
   background: var(--color-bg-secondary);
   border-radius: var(--radius-md);
-  padding: 16px;
+  padding: var(--space-4);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--gap);
 }
 
 .mc-form-row {
   display: flex;
-  gap: 8px;
+  gap: var(--gap-sm);
   flex-wrap: wrap;
 }
 
@@ -236,7 +236,7 @@
 .mc-form-error {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
   color: var(--color-danger);
   font-size: 0.8125rem;
 }
@@ -254,14 +254,14 @@
 .mc-members-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--gap-xs);
 }
 
 .mc-member-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
+  gap: var(--gap);
+  padding: var(--space-3) var(--space-4);
   background: var(--color-bg-primary);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border-subtle);
@@ -292,7 +292,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--gap-2xs);
 }
 
 .mc-member-name {
@@ -314,7 +314,7 @@
 .mc-member-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--gap-xs);
 }
 
 /* ============================================================================
@@ -360,23 +360,23 @@
    ============================================================================ */
 
 .mc-usage-section {
-  margin-top: 24px;
-  padding-top: 20px;
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
   border-top: 1px solid var(--color-border-subtle);
 }
 
 .mc-usage-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
+  gap: var(--gap);
 }
 
 .mc-usage-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 16px;
+  gap: var(--gap-xs);
+  padding: var(--space-4);
   background: var(--color-bg-secondary);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border-subtle);
@@ -402,8 +402,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 48px;
+  gap: var(--gap);
+  padding: var(--space-12);
   color: var(--color-text-secondary);
 }
 
@@ -411,8 +411,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 24px;
+  gap: var(--gap);
+  padding: var(--space-6);
   background: var(--overlay-red-10);
   border-radius: var(--radius-md);
   color: var(--color-danger);
@@ -436,25 +436,25 @@
   }
 
   .mc-elegant-meta {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
 
   /* Expanded content - full width */
   .mc-dept-expanded-content {
-    padding: 10px 12px 14px;
+    padding: var(--space-2-5) var(--space-3) 14px;
   }
 
   .mc-context-btn {
-    padding: 12px;
-    font-size: 14px;
+    padding: var(--space-3);
+    font-size: var(--text-sm);
   }
 
   .mc-roles-section {
-    padding: 10px;
+    padding: var(--space-2-5);
   }
 
   .mc-role-row {
-    padding: 10px 12px;
+    padding: var(--space-2-5) var(--space-3);
     min-height: 44px;
   }
 
@@ -471,7 +471,7 @@
 
   .mc-member-row {
     flex-wrap: wrap;
-    gap: 8px;
+    gap: var(--gap-sm);
   }
 
   .mc-member-joined {

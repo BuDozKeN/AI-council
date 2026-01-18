@@ -14,7 +14,7 @@
 .mc-projects {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--gap-md);
   flex: 1;
   min-height: 0;
 }
@@ -23,15 +23,15 @@
 .mc-projects-stats {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 0;
+  gap: var(--gap-sm);
+  padding: var(--space-2) 0;
 }
 
 .mc-stat-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-1-5) var(--space-3);
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-2xl);
@@ -50,13 +50,13 @@
 }
 
 .mc-stat-num {
-  font-size: 15px;
+  font-size: var(--text-sm-plus);
   font-weight: 700;
   line-height: 1;
 }
 
 .mc-stat-text {
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--color-text-secondary);
   font-weight: 500;
 }
@@ -66,26 +66,26 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 8px 0;
+  gap: var(--gap);
+  padding: var(--space-2) 0;
 }
 
 .mc-filters-left {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-sm);
 }
 
 /* Empty filtered state - minimal, no borders */
 .mc-empty-filtered {
-  padding: 40px 24px;
+  padding: var(--space-10) var(--space-6);
   text-align: center;
   color: var(--color-text-tertiary);
-  font-size: 14px;
+  font-size: var(--text-sm);
   background: transparent;
   border: none;
 }
 
 .mc-projects-section {
-  margin-bottom: 16px;
+  margin-bottom: var(--space-4);
 }

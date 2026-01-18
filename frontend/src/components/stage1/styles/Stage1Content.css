@@ -1,7 +1,7 @@
 .model-name {
   color: var(--color-text-muted);
-  font-size: 12px;
-  margin-bottom: 12px;
+  font-size: var(--text-xs);
+  margin-bottom: var(--space-3);
   font-family: var(--font-mono);
   display: flex;
   align-items: center;
@@ -18,7 +18,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 8px;
+  padding: var(--space-1) var(--space-2);
   background: transparent;
   border: 1px solid var(--color-border-dark);
   border-radius: var(--radius-sm);
@@ -41,7 +41,7 @@
 /* Code block with copy button - dark theme for readability */
 .stage1 .code-block-wrapper {
   position: relative;
-  margin: 12px 0;
+  margin: var(--space-3) 0;
   border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--color-code-bg);
@@ -52,7 +52,7 @@
   position: absolute;
   inset-block-start: 8px;
   left: 12px;
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--color-slate-400);
   text-transform: uppercase;
   font-family: var(--font-mono);
@@ -66,7 +66,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px 8px;
+  padding: var(--space-1) var(--space-2);
   background: transparent;
   border: 1px solid var(--color-code-border);
   border-radius: var(--radius-sm);
@@ -87,14 +87,14 @@
 
 .stage1 .code-block-wrapper pre {
   margin: 0;
-  padding: 36px 12px 12px;
+  padding: var(--space-8) var(--space-3) var(--space-3);
   overflow-x: auto;
   background: var(--color-code-bg);
 }
 
 .stage1 .code-block-wrapper code {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   line-height: 1.5;
   color: var(--color-code-text);
 }
@@ -102,7 +102,7 @@
 /* Inline code styling (for short snippets like table names, paths) */
 .inline-code {
   display: inline;
-  padding: 1px 4px;
+  padding: var(--space-px) var(--space-1);
   background: var(--overlay-black-5);
   border-radius: var(--radius-xs);
   font-family: var(--font-mono);
@@ -122,8 +122,8 @@
 
 /* Status icons */
 .status-icon {
-  margin-right: 6px;
-  font-size: 12px;
+  margin-right: var(--space-1-5);
+  font-size: var(--text-xs);
 }
 
 .streaming-dot {
@@ -165,43 +165,43 @@
 
 .typing-indicator {
   display: inline-block;
-  margin-left: 8px;
+  margin-left: var(--space-2);
   color: var(--color-success);
   animation: blink 0.8s infinite;
 }
 
 .complete-badge {
   display: inline-block;
-  margin-left: 8px;
-  padding: 2px 6px;
+  margin-left: var(--space-2);
+  padding: var(--space-0-5) var(--space-1-5);
   background: var(--color-success-light);
   color: var(--color-success-dark);
   border-radius: var(--radius-sm);
-  font-size: 10px;
+  font-size: var(--text-2xs);
   font-weight: 600;
   text-transform: uppercase;
 }
 
 .error-badge {
   display: inline-block;
-  margin-left: 8px;
-  padding: 2px 6px;
+  margin-left: var(--space-2);
+  padding: var(--space-0-5) var(--space-1-5);
   background: var(--color-error-subtle);
   color: var(--color-error);
   border-radius: var(--radius-sm);
-  font-size: 10px;
+  font-size: var(--text-2xs);
   font-weight: 600;
   text-transform: uppercase;
 }
 
 .stopped-badge {
   display: inline-block;
-  margin-left: 8px;
-  padding: 2px 6px;
+  margin-left: var(--space-2);
+  padding: var(--space-0-5) var(--space-1-5);
   background: var(--color-bg-tertiary);
   color: var(--color-gray-500);
   border-radius: var(--radius-sm);
-  font-size: 10px;
+  font-size: var(--text-2xs);
   font-weight: 600;
   text-transform: uppercase;
 }
@@ -221,7 +221,7 @@
   display: inline-block;
   color: var(--color-brand-primary);
   animation: blink 0.8s infinite;
-  margin-left: 2px;
+  margin-left: var(--space-0-5);
 }
 
 .empty-message {
@@ -233,7 +233,7 @@
 .stage-loading {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 24px;
+  gap: var(--gap);
+  padding: var(--space-6);
   color: var(--color-text-secondary);
 }

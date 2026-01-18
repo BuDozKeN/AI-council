@@ -745,8 +745,8 @@ html.dark,
 @media (width <= 1024px) and (orientation: landscape) {
   /* Reduce vertical heights in landscape - use higher specificity */
   .chat-interface .input-form {
-    padding: 10px 16px;
-    gap: 8px;
+    padding: var(--space-2-5) var(--space-4);
+    gap: var(--gap-sm);
   }
 
   .chat-interface .message-input,
@@ -764,18 +764,18 @@ html.dark,
 
   /* Messages container - maximize vertical space */
   .chat-interface .messages-container {
-    padding: 12px 16px;
+    padding: var(--space-3) var(--space-4);
   }
 
   .messages-container .message-group {
-    margin-bottom: 16px;
+    margin-bottom: var(--space-4);
   }
 
   /* Landing hero - horizontal layout in landscape */
   .landing-page .landing-hero,
   section.landing-hero {
     max-width: 90vw;
-    gap: 16px;
+    gap: var(--gap-md);
   }
 
   /* Modal optimization - reduce height */
@@ -800,12 +800,12 @@ html.dark,
   /* Reduce padding on modals */
   .mc-panel .mc-header,
   .mc-panel .mc-content {
-    padding: 12px 16px;
+    padding: var(--space-3) var(--space-4);
   }
 
   /* Context bar stays compact */
   .chat-interface .context-bar {
-    gap: 6px;
+    gap: var(--gap-xs-plus);
   }
 }
 
@@ -819,12 +819,12 @@ html.dark,
 
   .input-form button.send-button,
   .input-form button.stop-button {
-    padding: 8px 12px;
-    font-size: 12px;
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-xs);
   }
 
   .chat-interface .input-form {
-    padding: 8px 12px;
+    padding: var(--space-2) var(--space-3);
   }
 
   .modal-overlay .mc-panel,
@@ -856,12 +856,12 @@ html.dark,
   .button.icon-only,
   button.icon-btn,
   .icon-btn {
-    padding: 10px;
+    padding: var(--space-2-5);
   }
 
   /* Ensure adequate spacing between touch targets */
   .touch-spacing > * + * {
-    margin-left: 8px;
+    margin-left: var(--space-2);
   }
 }
 
@@ -993,7 +993,7 @@ html.dark *,
   input[type='search'],
   textarea,
   select {
-    font-size: 16px !important;
+    font-size: var(--text-base) !important;
   }
   /* stylelint-enable declaration-no-important */
 
@@ -1050,12 +1050,12 @@ a,
 @media (width <= 640px) {
   /* Tighter spacing on mobile for more content visibility */
   .gap-tight.gap-tight {
-    gap: 8px;
+    gap: var(--gap-sm);
   }
 
   /* Compact padding utility */
   .p-compact.p-compact {
-    padding: 12px;
+    padding: var(--space-3);
   }
 
   /* Smaller font for secondary text */
@@ -1065,7 +1065,7 @@ a,
   p.text-muted,
   .text-secondary.text-secondary,
   .text-muted.text-muted {
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
   }
 
   /* Reduce line height for denser content */
@@ -1077,11 +1077,11 @@ a,
 @media (width <= 640px) {
   /* Even tighter on small phones */
   .gap-tight.gap-tight {
-    gap: 6px;
+    gap: var(--gap-xs-plus);
   }
 
   .p-compact.p-compact {
-    padding: 10px;
+    padding: var(--space-2-5);
   }
 
   span.text-secondary,
@@ -1090,7 +1090,7 @@ a,
   p.text-muted,
   .text-secondary.text-secondary,
   .text-muted.text-muted {
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
 }
 
@@ -1147,17 +1147,17 @@ button:not(:disabled):active,
 [class*='btn-variant-'] > span {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-sm);
 }
 
 /* Primary Button - Indigo with premium shadow */
 button.btn-variant-default,
 .btn-variant-default {
-  padding: 12px 28px;
-  font-size: 14px;
+  padding: var(--space-3) var(--space-8);
+  font-size: var(--text-sm);
   font-weight: 500;
   letter-spacing: -0.01em;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   min-height: 44px;
   background-color: var(--color-primary);
   color: var(--color-primary-text);
@@ -1189,11 +1189,11 @@ button.btn-variant-default:active:not(:disabled),
 /* Secondary Button - Muted gray with subtle depth */
 button.btn-variant-secondary,
 .btn-variant-secondary {
-  padding: 12px 28px;
-  font-size: 14px;
+  padding: var(--space-3) var(--space-8);
+  font-size: var(--text-sm);
   font-weight: 500;
   letter-spacing: -0.01em;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   min-height: 44px;
   background-color: var(--color-bg-muted);
   color: var(--color-text-default);
@@ -1215,11 +1215,11 @@ button.btn-variant-secondary:active:not(:disabled),
 /* Outline Button - Bordered with clean look */
 button.btn-variant-outline,
 .btn-variant-outline {
-  padding: 12px 28px;
-  font-size: 14px;
+  padding: var(--space-3) var(--space-8);
+  font-size: var(--text-sm);
   font-weight: 500;
   letter-spacing: -0.01em;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   min-height: 44px;
   background-color: var(--color-bg-base);
   color: var(--color-text-default);
@@ -1243,11 +1243,11 @@ button.btn-variant-outline:active:not(:disabled),
 /* Ghost Button - Minimal with subtle hover */
 button.btn-variant-ghost,
 .btn-variant-ghost {
-  padding: 12px 28px;
-  font-size: 14px;
+  padding: var(--space-3) var(--space-8);
+  font-size: var(--text-sm);
   font-weight: 500;
   letter-spacing: -0.01em;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   min-height: 44px;
   background-color: transparent;
   color: var(--color-text-default);
@@ -1266,11 +1266,11 @@ button.btn-variant-ghost:active:not(:disabled),
 /* Destructive Button - Red with warning presence */
 button.btn-variant-destructive,
 .btn-variant-destructive {
-  padding: 12px 28px;
-  font-size: 14px;
+  padding: var(--space-3) var(--space-8);
+  font-size: var(--text-sm);
   font-weight: 500;
   letter-spacing: -0.01em;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   min-height: 44px;
   background-color: var(--color-error);
   color: var(--color-error-text);
@@ -1296,11 +1296,11 @@ button.btn-variant-destructive:active:not(:disabled),
 /* Success Button - Green with positive presence */
 button.btn-variant-success,
 .btn-variant-success {
-  padding: 12px 28px;
-  font-size: 14px;
+  padding: var(--space-3) var(--space-8);
+  font-size: var(--text-sm);
   font-weight: 500;
   letter-spacing: -0.01em;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   min-height: 44px;
   background-color: var(--color-success);
   color: var(--color-success-text);
@@ -1326,11 +1326,11 @@ button.btn-variant-success:active:not(:disabled),
 /* Link Button - Text style */
 button.btn-variant-link,
 .btn-variant-link {
-  padding: 8px 16px;
-  font-size: 14px;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
   font-weight: 500;
   letter-spacing: -0.01em;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   min-height: 36px;
   background-color: transparent;
   color: var(--color-primary);
@@ -1349,45 +1349,45 @@ button.btn-variant-link:hover:not(:disabled),
 /* Tablet (768px) - slightly smaller buttons */
 @media (width <= 640px) {
   [class*='btn-variant-'].h-10 {
-    padding: 8px 16px;
+    padding: var(--space-2) var(--space-4);
     min-height: 36px;
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
   }
 
   [class*='btn-variant-'].h-11 {
-    padding: 10px 20px;
+    padding: var(--space-2-5) var(--space-5);
     min-height: 40px;
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
   }
 }
 
 /* Mobile (640px) - compact buttons */
 @media (width <= 640px) {
   [class*='btn-variant-'].h-10 {
-    padding: 6px 12px;
+    padding: var(--space-1-5) var(--space-3);
     min-height: 32px;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
 
   [class*='btn-variant-'].h-11 {
-    padding: 8px 14px;
+    padding: var(--space-2) var(--space-3-5);
     min-height: 36px;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
 }
 
 /* Extra small (380px) - most compact */
 @media (width <= 640px) {
   [class*='btn-variant-'].h-10 {
-    padding: 5px 10px;
+    padding: var(--space-1) var(--space-2-5);
     min-height: 28px;
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
 
   [class*='btn-variant-'].h-11 {
-    padding: 6px 12px;
+    padding: var(--space-1-5) var(--space-3);
     min-height: 32px;
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
 }
 

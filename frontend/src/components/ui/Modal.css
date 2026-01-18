@@ -10,7 +10,7 @@
    ============================================================================ */
 
 .mc-modal-body {
-  padding: 22px;
+  padding: var(--space-5);
   overflow-y: auto;
   position: relative;
 }
@@ -27,7 +27,7 @@
   .mc-modal-body {
     flex: 1 1 0;
     min-height: 0;
-    padding: 16px;
+    padding: var(--space-4);
     overflow: hidden auto;
     -webkit-overflow-scrolling: touch;
   }
@@ -88,7 +88,7 @@
 .mc-modal-header-left {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--gap);
   flex: 1;
   min-width: 0;
 }
@@ -102,7 +102,7 @@
 /* Modal hint text */
 .mc-modal-hint {
   margin: 0 0 16px;
-  padding: 12px 16px;
+  padding: var(--space-3) var(--space-4);
   background: var(--color-amber-100);
   border-radius: var(--radius-md);
   font-size: 0.875rem;
@@ -118,7 +118,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px;
+  padding: var(--space-5) var(--space-6);
   border-bottom: 1px solid var(--color-border);
   background: var(--color-bg-secondary);
 }
@@ -126,7 +126,7 @@
 .mc-header-title-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--gap);
   flex: 1;
   min-width: 0;
 }
@@ -135,7 +135,7 @@
 .mc-type-badge-header {
   font-size: 0.6875rem;
   font-weight: 600;
-  padding: 4px 10px;
+  padding: var(--space-1) var(--space-2-5);
   border-radius: var(--radius-sm);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -150,7 +150,7 @@
   color: var(--color-text-primary);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-sm);
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -159,7 +159,7 @@
 
 .mc-title-display.editable {
   cursor: pointer;
-  padding: 4px 8px;
+  padding: var(--space-1) var(--space-2);
   margin: -4px -8px;
   border-radius: var(--radius-default);
   transition: background 0.15s ease;
@@ -187,7 +187,7 @@
   flex: 1;
   font-size: 1.25rem;
   font-weight: 600;
-  padding: 8px 12px;
+  padding: var(--space-2) var(--space-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-bg-primary);
@@ -216,14 +216,14 @@
   font-size: 0.875rem;
   font-weight: 500;
   color: var(--color-text-secondary);
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 
 .mc-form-group input,
 .mc-form-group textarea,
 .mc-form-group select {
   width: 100%;
-  padding: 11px 14px;
+  padding: var(--space-3) var(--space-3-5);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   font-size: 0.9375rem;
@@ -246,7 +246,7 @@
 
 .mc-select {
   width: 100%;
-  padding: 10px 12px;
+  padding: var(--space-2-5) var(--space-3);
   font-size: 0.9375rem;
   font-family: inherit;
   border: 1px solid var(--color-border);
@@ -280,7 +280,7 @@
 
 .mc-edit-textarea {
   width: 100%;
-  padding: 16px;
+  padding: var(--space-4);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   font-family: var(--font-mono);
@@ -309,7 +309,7 @@
 .mc-edit-split {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: var(--gap-md);
   min-height: 400px;
 }
 
@@ -317,7 +317,7 @@
 .mc-edit-preview {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--gap-sm);
 }
 
 .mc-edit-label {
@@ -330,7 +330,7 @@
 
 .mc-edit-preview .mc-context-content {
   flex: 1;
-  padding: 16px;
+  padding: var(--space-4);
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);

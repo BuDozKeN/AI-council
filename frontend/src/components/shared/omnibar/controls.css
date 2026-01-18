@@ -39,11 +39,11 @@
   right: -2px;
   min-width: 14px;
   height: 14px;
-  padding: 0 4px;
+  padding: 0 var(--space-1);
   border-radius: var(--radius-full);
   background: var(--color-slate-600);
   color: var(--color-text-inverse);
-  font-size: 9px;
+  font-size: var(--text-2xs);
   font-weight: 600;
   line-height: 14px;
   text-align: center;

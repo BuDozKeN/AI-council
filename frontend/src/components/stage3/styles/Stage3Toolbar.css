@@ -12,9 +12,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding: 8px 0;
-  margin-bottom: 8px;
+  gap: var(--gap-sm);
+  padding: var(--space-2) 0;
+  margin-bottom: var(--space-2);
 
   /* No shared background - each child element styles itself independently */
   background: transparent;
@@ -30,7 +30,7 @@
 .stage3-sticky-toolbar .stage3-copy-btn {
   width: 32px;
   height: 32px;
-  padding: 6px;
+  padding: var(--space-1-5);
   box-shadow: none;
   background: transparent;
   backdrop-filter: none;
@@ -64,13 +64,13 @@
 @media (width <= 640px) {
   .stage3-sticky-toolbar {
     inset-block-start: 50px;
-    padding: 6px 0;
+    padding: var(--space-1-5) 0;
   }
 
   .stage3-sticky-toolbar .stage3-copy-btn {
     width: 28px;
     height: 28px;
-    padding: 5px;
+    padding: var(--space-1);
   }
 
   .stage3-sticky-toolbar .stage3-copy-btn .copy-btn-icon {

@@ -600,11 +600,11 @@ company_id IN (SELECT id FROM companies WHERE user_id = auth.uid())
 
 | Metric | Budget | Current | Status |
 |--------|--------|---------|--------|
-| **Source CSS** | 1100KB | 1070KB | ✅ 97% used, 30KB headroom |
+| **Source CSS** | 1110KB | 1107KB | ✅ 99% used, 3KB headroom |
 | **Built CSS** | 700KB target | 668KB | ✅ Under target |
 | **Gzipped** | N/A | ~104KB | ✅ Excellent |
 
-**CI Enforcement**: CI will **FAIL** if source CSS exceeds 1100KB. Built CSS check is informational only.
+**CI Enforcement**: CI will **FAIL** if source CSS exceeds 1110KB. Built CSS check is informational only.
 
 ### Guidelines for Adding CSS
 

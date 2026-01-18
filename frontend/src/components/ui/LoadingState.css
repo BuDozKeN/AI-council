@@ -10,14 +10,14 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 32px;
+  gap: var(--gap);
+  padding: var(--space-8);
   min-height: 120px;
 }
 
 .loading-state-message {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--color-slate-500);
   text-align: center;
 }

@@ -7,13 +7,13 @@
 .multi-playbook-trigger {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 10px;
+  gap: var(--gap-sm);
+  padding: var(--space-1-5) var(--space-2-5);
   min-height: 36px;
   background: var(--color-bg-primary);
   border: 1px solid var(--color-gray-200);
   border-radius: var(--radius-md);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   color: var(--color-gray-700);
   cursor: pointer;
   transition: all 0.15s ease;
@@ -61,7 +61,7 @@
 .multi-playbook-badges {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: var(--gap-xs);
   flex: 1;
 }
 
@@ -69,10 +69,10 @@
 .multi-playbook-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 6px 2px 8px;
+  gap: var(--gap-xs);
+  padding: var(--space-0-5) var(--space-1-5) 2px 8px;
   border-radius: var(--radius-sm);
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 500;
   background: var(--color-gray-100);
   color: var(--color-gray-700);
@@ -102,7 +102,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1px;
+  padding: var(--space-px);
   background: transparent;
   border: none;
   border-radius: var(--radius-sm);
@@ -148,22 +148,22 @@
 
 /* List container */
 .multi-playbook-list {
-  padding: 8px;
+  padding: var(--space-2);
   overflow-y: auto;
   max-height: 334px;
 }
 
 /* Empty state */
 .multi-playbook-empty {
-  padding: 16px;
+  padding: var(--space-4);
   text-align: center;
   color: var(--color-gray-400);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
 }
 
 /* Type group */
 .multi-playbook-group {
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 
 .multi-playbook-group:last-child {
@@ -173,23 +173,23 @@
 .multi-playbook-group-header {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  font-size: 11px;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-1-5) var(--space-3);
+  font-size: var(--text-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--color-gray-500);
   border-bottom: 1px solid var(--color-gray-100);
-  margin-bottom: 4px;
+  margin-bottom: var(--space-1);
 }
 
 .multi-playbook-group-count {
   margin-left: auto;
-  padding: 2px 6px;
+  padding: var(--space-0-5) var(--space-1-5);
   background: var(--color-gray-100);
   border-radius: var(--radius-full);
-  font-size: 10px;
+  font-size: var(--text-2xs);
   font-weight: 600;
 }
 
@@ -197,13 +197,13 @@
 .multi-playbook-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--gap-sm-plus);
   width: 100%;
-  padding: 8px 12px;
+  padding: var(--space-2) var(--space-3);
   border: none;
   background: transparent;
   border-radius: var(--radius-md);
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--color-gray-700);
   cursor: pointer;
   transition: all 0.1s ease;
@@ -256,13 +256,13 @@
 .multi-playbook-list-mobile {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--gap-xs);
   padding: 0;
 }
 
 /* Mobile type group */
 .multi-playbook-group-mobile {
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
 }
 
 .multi-playbook-group-mobile:last-child {
@@ -272,34 +272,34 @@
 .multi-playbook-group-header-mobile {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 4px 10px;
-  font-size: 12px;
+  gap: var(--gap-sm);
+  padding: var(--space-2) var(--space-1) 10px;
+  font-size: var(--text-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--color-gray-500);
   border-bottom: 1px solid var(--color-gray-100);
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 
 .multi-playbook-group-header-mobile .multi-playbook-group-count {
-  padding: 3px 8px;
-  font-size: 11px;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-xs);
 }
 
 /* Mobile item - larger touch targets */
 .multi-playbook-item-mobile {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: var(--gap-plus);
   width: 100%;
   min-height: 48px;
-  padding: 12px 16px;
+  padding: var(--space-3) var(--space-4);
   border: none;
   background: var(--color-bg-secondary);
   border-radius: var(--radius-lg);
-  font-size: 16px;
+  font-size: var(--text-base);
   color: var(--color-gray-700);
   cursor: pointer;
   transition: all 0.15s ease;
@@ -322,7 +322,7 @@
 }
 
 .multi-playbook-item-mobile .multi-playbook-item-label {
-  font-size: 16px;
+  font-size: var(--text-base);
   font-weight: 500;
 }
 
@@ -330,17 +330,17 @@
 @media (width <= 640px) {
   .multi-playbook-trigger {
     min-height: 48px;
-    padding: 10px 14px;
-    font-size: 15px;
+    padding: var(--space-2-5) var(--space-3-5);
+    font-size: var(--text-sm-plus);
   }
 
   .multi-playbook-badge {
-    font-size: 13px;
-    padding: 4px 8px 4px 10px;
+    font-size: var(--text-xs-plus);
+    padding: var(--space-1) var(--space-2) 4px 10px;
   }
 
   .multi-playbook-badge-remove {
-    padding: 4px;
+    padding: var(--space-1);
     min-width: 24px;
     min-height: 24px;
   }

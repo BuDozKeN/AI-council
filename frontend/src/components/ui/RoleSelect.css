@@ -7,12 +7,12 @@
 .role-select-trigger {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-1-5) var(--space-2-5);
   background: transparent;
   border: none;
   border-radius: var(--radius-md);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 500;
   color: var(--color-slate-500);
   cursor: pointer;
@@ -91,7 +91,7 @@
 
 /* Viewport */
 .role-select-viewport {
-  padding: 8px;
+  padding: var(--space-2);
   min-width: var(--radix-select-trigger-width);
 }
 
@@ -104,9 +104,9 @@
   user-select: none;
   align-items: center;
   border-radius: var(--radius-md, 8px);
-  padding: 10px 12px;
+  padding: var(--space-2-5) var(--space-3);
   padding-right: 36px;
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 500;
   color: var(--color-gray-700);
   outline: none;
@@ -178,7 +178,7 @@
 .role-select-list-mobile {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--gap-sm);
   padding: 0;
 }
 
@@ -186,14 +186,14 @@
 .role-select-item-mobile {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: var(--gap-plus);
   width: 100%;
   min-height: 56px;
-  padding: 14px 16px;
+  padding: var(--space-3-5) var(--space-4);
   border: none;
   background: var(--color-bg-secondary);
   border-radius: var(--radius-lg);
-  font-size: 16px;
+  font-size: var(--text-base);
   color: var(--color-gray-700);
   cursor: pointer;
   transition: all 0.15s ease;
@@ -232,7 +232,7 @@
 
 /* Item label */
 .role-select-item-mobile .role-select-item-label {
-  font-size: 16px;
+  font-size: var(--text-base);
   font-weight: 500;
 }
 
@@ -240,7 +240,7 @@
 @media (width <= 640px) {
   .role-select-trigger {
     min-height: 44px;
-    padding: 10px 12px;
-    font-size: 15px;
+    padding: var(--space-2-5) var(--space-3);
+    font-size: var(--text-sm-plus);
   }
 }

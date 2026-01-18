@@ -11,8 +11,8 @@
   }
 
   .api-key-status .masked-key {
-    font-size: 12px;
-    padding: 4px 8px;
+    font-size: var(--text-xs);
+    padding: var(--space-1) var(--space-2);
   }
 
   .api-key-actions {
@@ -26,41 +26,41 @@
   }
 
   .api-provider-trigger {
-    padding: 14px 16px;
+    padding: var(--space-3-5) var(--space-4);
   }
 
   .provider-logo {
     width: 32px;
     height: 32px;
-    font-size: 14px;
+    font-size: var(--text-sm);
   }
 
   .provider-details h3 {
-    font-size: 14px;
+    font-size: var(--text-sm);
   }
 
   .provider-tagline {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
 
   .provider-explainer {
-    padding: 16px;
+    padding: var(--space-4);
   }
 
   .explainer-section h4 {
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
   }
 
   .explainer-section p {
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
 
   .provider-connection {
-    padding: 16px;
+    padding: var(--space-4);
   }
 
   .setup-step {
-    gap: 10px;
+    gap: var(--gap-sm-plus);
   }
 
   .step-number {
@@ -68,17 +68,17 @@
     height: 22px;
     min-width: 22px;
     min-height: 22px;
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
 
   .step-content p {
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
 
   .provider-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
+    gap: var(--gap-sm);
   }
 
   .provider-status-badge {
@@ -86,7 +86,7 @@
   }
 
   .provider-connection-status {
-    padding: 16px;
+    padding: var(--space-4);
   }
 
   .provider-connection-status .api-key-actions {
@@ -100,21 +100,21 @@
   }
 
   .provider-setup-guide {
-    padding: 16px;
+    padding: var(--space-4);
   }
 
   .byok-inline {
-    padding: 10px 12px;
+    padding: var(--space-2-5) var(--space-3);
   }
 
   .byok-key {
-    font-size: 11px;
-    padding: 3px 6px;
+    font-size: var(--text-xs);
+    padding: var(--space-1) var(--space-1-5);
   }
 
   .byok-badge {
-    font-size: 9px;
-    padding: 2px 4px;
+    font-size: var(--text-2xs);
+    padding: var(--space-0-5) var(--space-1);
   }
 }
 
@@ -123,12 +123,12 @@
   .provider-logo {
     width: 28px;
     height: 28px;
-    font-size: 12px;
+    font-size: var(--text-xs);
     border-radius: var(--radius-md);
   }
 
   .provider-info {
-    gap: 10px;
+    gap: var(--gap-sm-plus);
   }
 
   .step-number {
@@ -136,10 +136,10 @@
     height: 20px;
     min-width: 20px;
     min-height: 20px;
-    font-size: 10px;
+    font-size: var(--text-2xs);
   }
 
   .setup-step {
-    gap: 8px;
+    gap: var(--gap-sm);
   }
 }

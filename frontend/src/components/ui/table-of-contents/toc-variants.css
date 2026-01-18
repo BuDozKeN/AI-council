@@ -19,7 +19,7 @@
   display: inline-flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 8px 0;
+  padding: var(--space-2) 0;
   margin-bottom: var(--space-3, 12px);
 
   /* Background to cover content scrolling behind */
@@ -37,13 +37,13 @@
 .toc-sticky-trigger {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 12px 6px 8px;
+  gap: var(--gap-sm);
+  padding: var(--space-1-5) var(--space-3) 6px 8px;
   background: var(--overlay-white-95);
   backdrop-filter: blur(12px) saturate(180%);
   border: 1px solid var(--overlay-black-5);
   border-radius: var(--radius-full);
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--color-slate-600);
@@ -118,10 +118,10 @@
   border: 1px solid var(--overlay-black-5);
   border-top: none;
   border-radius: 0 0 12px 12px;
-  padding: 8px;
+  padding: var(--space-2);
 
   /* Extra bottom padding so shadow/container extends below all items */
-  padding-bottom: 16px;
+  padding-bottom: var(--space-4);
   margin-top: -1px;
   box-shadow:
     0 4px 16px var(--overlay-black-8),
@@ -142,13 +142,13 @@
 }
 
 .toc-sticky-header {
-  padding: 4px 8px 8px;
+  padding: var(--space-1) var(--space-2) 8px;
   border-bottom: 1px solid var(--overlay-black-5);
-  margin-bottom: 4px;
+  margin-bottom: var(--space-1);
 }
 
 .toc-sticky-title {
-  font-size: 10px;
+  font-size: var(--text-2xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -161,14 +161,14 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--gap-2xs);
 }
 
 .toc-sticky-link {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 8px;
+  gap: var(--gap-sm);
+  padding: var(--space-1-5) var(--space-2);
   border-radius: var(--radius-md, 6px);
   text-decoration: none;
   transition: all 0.15s ease;
@@ -189,7 +189,7 @@
 }
 
 .toc-sticky-text {
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 500;
   color: var(--color-slate-600);
   white-space: nowrap;
@@ -223,7 +223,7 @@
 
 /* H3 level indent */
 .toc-sticky-link.level-3 {
-  padding-left: 20px;
+  padding-left: var(--space-5);
 }
 
 .toc-sticky-link.level-3 .toc-sticky-dot {
@@ -233,7 +233,7 @@
 }
 
 .toc-sticky-link.level-3 .toc-sticky-text {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--color-slate-500);
 }
 
@@ -249,13 +249,13 @@
 }
 
 .toc-inline-header {
-  padding-bottom: 8px;
-  margin-bottom: 8px;
+  padding-bottom: var(--space-2);
+  margin-bottom: var(--space-2);
   border-bottom: 1px solid var(--color-slate-100);
 }
 
 .toc-inline-title {
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -268,14 +268,14 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--gap-2xs);
 }
 
 .toc-inline-link {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 8px;
+  gap: var(--gap-sm);
+  padding: var(--space-1-5) var(--space-2);
   border-radius: var(--radius-md, 6px);
   text-decoration: none;
   transition: all 0.15s ease;
@@ -295,7 +295,7 @@
 }
 
 .toc-inline-text {
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 500;
   color: var(--color-slate-600);
 }

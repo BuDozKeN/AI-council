@@ -6,8 +6,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 8px 10px;
+  gap: var(--gap-xs);
+  padding: var(--space-2) var(--space-2-5);
   width: var(--sidebar-width-collapsed);
   flex-shrink: 0;
   border-right: 1px solid var(--sidebar-border);
@@ -44,10 +44,10 @@
 
 /* Panel controls (search + filter/sort) */
 .sidebar-panel-controls {
-  padding: 12px 16px;
+  padding: var(--space-3) var(--space-4);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--gap-sm);
   border-bottom: 1px solid var(--sidebar-border);
   flex-shrink: 0;
 }

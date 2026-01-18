@@ -8,14 +8,14 @@
   align-items: center;
   width: 100%;
   max-width: 72ch;
-  padding: 4px 0;
+  padding: var(--space-1) 0;
 }
 
 /* Icon buttons container - left aligned */
 .followup-context-icons {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: var(--gap-2xs);
 }
 
 /* Individual icon button */
@@ -52,11 +52,11 @@
   right: -2px;
   min-width: 14px;
   height: 14px;
-  padding: 0 4px;
+  padding: 0 var(--space-1);
   border-radius: var(--radius-full);
   background: var(--color-slate-600);
   color: var(--color-text-inverse);
-  font-size: 9px;
+  font-size: var(--text-2xs);
   font-weight: 600;
   line-height: 14px;
   text-align: center;
@@ -89,10 +89,10 @@
 
 /* Mode toggle icon */
 .context-icon-btn.mode-toggle {
-  margin-left: 4px;
+  margin-left: var(--space-1);
   border-left: 1px solid var(--color-border-light);
-  padding-left: 6px;
-  padding-right: 2px;
+  padding-left: var(--space-1-5);
+  padding-right: var(--space-0-5);
   border-radius: 0;
   width: auto;
 }
@@ -135,8 +135,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 12px 8px;
-  font-size: 11px;
+  padding: var(--space-2-5) var(--space-3) 8px;
+  font-size: var(--text-xs);
   font-weight: 600;
   color: var(--color-text-tertiary);
   text-transform: uppercase;
@@ -146,12 +146,12 @@
 
 /* Clear button inside popover header */
 .context-popover-clear {
-  padding: 4px 8px;
+  padding: var(--space-1) var(--space-2);
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--color-text-tertiary);
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 500;
   text-transform: none;
   letter-spacing: normal;
@@ -171,29 +171,29 @@
 .context-popover-list {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 6px;
+  gap: var(--gap-2xs);
+  padding: var(--space-1-5);
   overflow-y: auto;
   max-height: 250px;
 }
 
 .context-popover-empty {
-  padding: 12px;
+  padding: var(--space-3);
   text-align: center;
   color: var(--color-text-tertiary);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
 }
 
 .context-popover-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--gap-sm-plus);
   width: 100%;
-  padding: 8px 10px;
+  padding: var(--space-2) var(--space-2-5);
   border: none;
   background: transparent;
   border-radius: var(--radius-md);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   color: var(--color-text-primary);
   cursor: pointer;
   transition: all 0.1s ease;
@@ -248,7 +248,7 @@
 
 /* Playbook grouping */
 .context-popover-group {
-  margin-bottom: 4px;
+  margin-bottom: var(--space-1);
 }
 
 .context-popover-group:last-child {
@@ -258,9 +258,9 @@
 .context-popover-group-header {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 10px 4px;
-  font-size: 10px;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-2) var(--space-2-5) 4px;
+  font-size: var(--text-2xs);
   font-weight: 600;
   color: var(--color-text-tertiary);
   text-transform: uppercase;
@@ -275,7 +275,7 @@
 
 .context-popover-group-header.clickable {
   width: 100%;
-  padding: 10px;
+  padding: var(--space-2-5);
   margin: 0;
   border: none;
   border-radius: var(--radius-md);
@@ -303,7 +303,7 @@
 }
 
 .context-popover-group-header .section-count {
-  font-size: 10px;
+  font-size: var(--text-2xs);
   font-weight: 500;
   color: var(--color-text-quaternary);
   margin-left: auto;
@@ -315,10 +315,10 @@
 }
 
 .context-popover-group-items {
-  padding-left: 8px;
-  margin-top: 4px;
+  padding-left: var(--space-2);
+  margin-top: var(--space-1);
   border-left: 2px solid var(--color-border-light);
-  margin-left: 16px;
+  margin-left: var(--space-4);
 }
 
 /* Playbook type colors */
@@ -437,13 +437,13 @@
 
   /* Context popover on mobile - card-style items like DepartmentCheckboxItem */
   .context-popover-list {
-    gap: 6px;
-    padding: 8px;
+    gap: var(--gap-xs-plus);
+    padding: var(--space-2);
   }
 
   .context-popover-item {
-    padding: 14px 16px;
-    font-size: 16px;
+    padding: var(--space-3-5) var(--space-4);
+    font-size: var(--text-base);
     min-height: 56px;
     background: var(--color-bg-tertiary);
     border-radius: var(--radius-lg);
@@ -474,10 +474,10 @@
 
   /* Larger accordion headers for Playbooks */
   .context-popover-group-header.clickable {
-    padding: 14px 12px;
-    font-size: 13px;
+    padding: var(--space-3-5) var(--space-3);
+    font-size: var(--text-xs-plus);
     min-height: 48px;
-    gap: 10px;
+    gap: var(--gap-sm-plus);
   }
 
   .context-popover-group-header .section-chevron {
@@ -491,20 +491,20 @@
   }
 
   .context-popover-group-header .section-count {
-    font-size: 13px;
+    font-size: var(--text-xs-plus);
   }
 
   /* Larger expanded items container */
   .context-popover-group-items {
-    margin-left: 20px;
-    padding-left: 12px;
-    margin-top: 8px;
+    margin-left: var(--space-5);
+    padding-left: var(--space-3);
+    margin-top: var(--space-2);
   }
 
   /* Items inside expanded sections (Playbooks) */
   .context-popover-group-items .context-popover-item {
-    padding: 12px 14px;
-    font-size: 15px;
+    padding: var(--space-3) var(--space-3-5);
+    font-size: var(--text-sm-plus);
     min-height: 48px;
   }
 

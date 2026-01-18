@@ -39,7 +39,7 @@
 .skeleton-text-block {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--gap-sm);
 }
 
 /* =============================================================================
@@ -64,8 +64,8 @@
 .skeleton-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 0;
+  gap: var(--gap);
+  padding: var(--space-3) 0;
 }
 
 .skeleton-row .skeleton {
@@ -80,15 +80,15 @@
 
 .skeleton-table-header {
   display: flex;
-  gap: 12px;
-  padding: 12px 8px;
+  gap: var(--gap);
+  padding: var(--space-3) var(--space-2);
   border-bottom: 1px solid var(--color-border);
 }
 
 .skeleton-table-row {
   display: flex;
-  gap: 12px;
-  padding: 12px 8px;
+  gap: var(--gap);
+  padding: var(--space-3) var(--space-2);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -119,15 +119,15 @@
 .skeleton-message {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  padding: 16px;
+  gap: var(--gap);
+  padding: var(--space-4);
   animation: skeleton-message-fade 0.3s ease-out;
 }
 
 .skeleton-message-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-sm);
 }
 
 .skeleton-message-avatar {
@@ -146,8 +146,8 @@
 .skeleton-message-content {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 16px;
+  gap: var(--gap-sm);
+  padding: var(--space-4);
   background: var(--color-bg-secondary);
   border-radius: var(--radius-md);
   max-width: 80%;
@@ -204,11 +204,11 @@
 /* Mobile adjustments */
 @media (width <= 640px) {
   .skeleton-message {
-    padding: 12px;
+    padding: var(--space-3);
   }
 
   .skeleton-message-content {
-    padding: 12px;
+    padding: var(--space-3);
     max-width: 90%;
   }
 }
@@ -236,9 +236,9 @@
 .skeleton-conversation {
   display: flex;
   align-items: center;
-  padding: 8px 12px;
-  margin: 2px 0;
-  gap: 8px;
+  padding: var(--space-2) var(--space-3);
+  margin: var(--space-0-5) 0;
+  gap: var(--gap-sm);
   animation: skeleton-message-fade 0.3s ease-out;
 }
 
@@ -246,7 +246,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
   min-width: 0;
 }
 
@@ -265,7 +265,7 @@
 .skeleton-conversation-group {
   display: flex;
   flex-direction: column;
-  padding: 8px 4px;
+  padding: var(--space-2) var(--space-1);
 }
 
 /* Staggered animation for multiple skeletons */

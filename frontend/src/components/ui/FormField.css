@@ -10,7 +10,7 @@
    ============================================================================ */
 
 .form-field {
-  margin-bottom: 16px;
+  margin-bottom: var(--space-4);
 }
 
 .form-field:last-child {
@@ -23,15 +23,15 @@
 
 .form-field-label {
   display: block;
-  margin-bottom: 6px;
-  font-size: 13px;
+  margin-bottom: var(--space-1-5);
+  font-size: var(--text-xs-plus);
   font-weight: 600;
   color: var(--color-text-primary);
 }
 
 .form-field-required {
   color: var(--color-error);
-  margin-left: 2px;
+  margin-left: var(--space-0-5);
 }
 
 /* ============================================================================
@@ -40,7 +40,7 @@
 
 .form-field-hint {
   margin: 0 0 8px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--color-text-tertiary);
   line-height: 1.4;
 }
@@ -51,10 +51,10 @@
 
 .form-input {
   width: 100%;
-  padding: 10px 14px;
+  padding: var(--space-2-5) var(--space-3-5);
   border: 1px solid var(--color-border-dark);
   border-radius: var(--radius-md);
-  font-size: 16px; /* 16px prevents iOS auto-zoom on focus */
+  font-size: var(--text-base); /* 16px prevents iOS auto-zoom on focus */
   font-weight: 500;
   color: var(--color-text-primary);
   background: var(--color-bg-primary);
@@ -90,10 +90,10 @@
 
 .form-textarea {
   width: 100%;
-  padding: 12px 14px;
+  padding: var(--space-3) var(--space-3-5);
   border: 1px solid var(--color-border-dark);
   border-radius: var(--radius-md);
-  font-size: 16px; /* 16px prevents iOS auto-zoom on focus */
+  font-size: var(--text-base); /* 16px prevents iOS auto-zoom on focus */
   font-family: inherit;
   font-weight: 500;
   line-height: 1.6;
@@ -133,11 +133,11 @@
 
 .form-select {
   width: 100%;
-  padding: 10px 14px;
+  padding: var(--space-2-5) var(--space-3-5);
   padding-right: 36px;
   border: 1px solid var(--color-border-dark);
   border-radius: var(--radius-md);
-  font-size: 16px; /* 16px prevents iOS auto-zoom on focus */
+  font-size: var(--text-base); /* 16px prevents iOS auto-zoom on focus */
   font-weight: 500;
   color: var(--color-text-primary);
   background: var(--color-bg-primary);
@@ -185,8 +185,8 @@
 }
 
 .form-field-error-text {
-  margin: 6px 0 0;
-  font-size: 12px;
+  margin: var(--space-1-5) 0 0;
+  font-size: var(--text-xs);
   color: var(--color-error);
 }
 
@@ -197,7 +197,7 @@
 
 /* Settings / SaveKnowledgeModal style */
 .form-group {
-  margin-bottom: 16px;
+  margin-bottom: var(--space-4);
 }
 
 .form-group:last-child {
@@ -206,8 +206,8 @@
 
 .form-group label {
   display: block;
-  margin-bottom: 6px;
-  font-size: 13px;
+  margin-bottom: var(--space-1-5);
+  font-size: var(--text-xs-plus);
   font-weight: 600;
   color: var(--color-text-primary);
 }
@@ -216,10 +216,10 @@
 .form-group textarea,
 .form-group select {
   width: 100%;
-  padding: 10px 14px;
+  padding: var(--space-2-5) var(--space-3-5);
   border: 1px solid var(--color-border-dark);
   border-radius: var(--radius-md);
-  font-size: 16px; /* 16px prevents iOS auto-zoom on focus */
+  font-size: var(--text-base); /* 16px prevents iOS auto-zoom on focus */
   color: var(--color-text-primary);
   background: var(--color-bg-primary);
   transition:
@@ -264,8 +264,8 @@
 .input-hint,
 .form-hint {
   display: block;
-  margin-top: 6px;
-  font-size: 12px;
+  margin-top: var(--space-1-5);
+  font-size: var(--text-xs);
   color: var(--color-text-tertiary);
 }
 

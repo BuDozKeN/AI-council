@@ -10,13 +10,13 @@
 .stage3-mobile-toc-trigger {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 12px 6px 10px;
+  gap: var(--gap-sm);
+  padding: var(--space-1-5) var(--space-3) 6px 10px;
   background: var(--overlay-white-95);
   backdrop-filter: blur(12px) saturate(180%);
   border: none;
   border-radius: var(--radius-full);
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 600;
   letter-spacing: -0.01em;
   color: var(--color-slate-500);
@@ -138,7 +138,7 @@
   height: 5px;
   background: var(--color-border-dark);
   border-radius: var(--radius-full);
-  margin: 8px auto 0;
+  margin: var(--space-2) auto 0;
   opacity: 0.6;
 }
 
@@ -147,12 +147,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px 12px;
+  padding: var(--space-4) var(--space-5) 12px;
   border-bottom: 1px solid var(--color-border);
 }
 
 .stage3-mobile-outline-title {
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -186,7 +186,7 @@
 .stage3-mobile-outline-list {
   list-style: none;
   margin: 0;
-  padding: 8px 12px 32px;
+  padding: var(--space-2) var(--space-3) 32px;
   max-height: calc(70vh - 80px);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
@@ -207,11 +207,11 @@
 .stage3-mobile-outline-link {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 14px 12px;
-  margin-bottom: 2px;
+  gap: var(--gap);
+  padding: var(--space-3-5) var(--space-3);
+  margin-bottom: var(--space-0-5);
   border-radius: var(--radius-lg);
-  font-size: 15px;
+  font-size: var(--text-sm-plus);
   line-height: 1.45;
   color: var(--color-text-secondary);
   text-decoration: none;
@@ -250,11 +250,11 @@
 
 /* Section number badge */
 .stage3-mobile-link-number {
-  font-size: 10px;
+  font-size: var(--text-2xs);
   font-weight: 700;
   color: var(--color-text-tertiary);
   background: var(--color-bg-hover);
-  padding: 2px 6px;
+  padding: var(--space-0-5) var(--space-1-5);
   border-radius: var(--radius-sm);
   flex-shrink: 0;
   margin-left: auto;
@@ -282,8 +282,8 @@
 
 /* H3 level - subtle indent */
 .stage3-mobile-outline-link.level-3 {
-  padding-left: 24px;
-  font-size: 14px;
+  padding-left: var(--space-6);
+  font-size: var(--text-sm);
 }
 
 .stage3-mobile-outline-link.level-3 .stage3-mobile-link-indicator {

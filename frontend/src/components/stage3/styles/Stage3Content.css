@@ -25,7 +25,7 @@
 /* Code block with hover-reveal copy button - dark theme for readability */
 .code-block-wrapper {
   position: relative;
-  margin: 12px 0;
+  margin: var(--space-3) 0;
   border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--color-code-bg);
@@ -36,7 +36,7 @@
   position: absolute;
   inset-block-start: 8px;
   left: 12px;
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--color-slate-400);
   text-transform: uppercase;
   font-family: var(--font-mono);
@@ -52,14 +52,14 @@
 
 .code-block-wrapper pre {
   margin: 0;
-  padding: 36px 12px 12px;
+  padding: var(--space-8) var(--space-3) var(--space-3);
   overflow-x: auto;
   background: var(--color-code-bg);
 }
 
 .code-block-wrapper code {
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   line-height: 1.5;
   color: var(--color-code-text);
 }
@@ -67,7 +67,7 @@
 /* Inline code styling (for short snippets like table names, paths) */
 .inline-code {
   display: inline;
-  padding: 1px 4px;
+  padding: var(--space-px) var(--space-1);
   background: var(--overlay-black-5);
   border-radius: var(--radius-xs);
   font-family: var(--font-mono);

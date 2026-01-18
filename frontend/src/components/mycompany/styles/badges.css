@@ -27,7 +27,7 @@
 .mc-type-badge {
   font-size: 0.6875rem;
   font-weight: 600;
-  padding: 3px 8px;
+  padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -53,7 +53,7 @@
 .mc-dept-badge {
   font-size: 0.6875rem;
   font-weight: 500;
-  padding: 3px 8px;
+  padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
   flex-shrink: 0;
   border: 1px solid;
@@ -65,7 +65,7 @@
 .mc-scope-badge {
   font-size: 0.6875rem;
   font-weight: 500;
-  padding: 3px 8px;
+  padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
   flex-shrink: 0;
   background: var(--color-bg-hover);
@@ -88,7 +88,7 @@
 .mc-meta-badge {
   font-size: 0.6875rem;
   font-weight: 500;
-  padding: 3px 8px;
+  padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
   background: var(--color-border);
   color: var(--color-text-secondary);
@@ -111,14 +111,14 @@
 .mc-playbook-badges {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-sm);
 }
 
 .mc-playbook-version {
   font-size: 0.75rem;
   color: var(--color-text-tertiary);
   background: var(--color-border);
-  padding: 2px 8px;
+  padding: var(--space-0-5) var(--space-2);
   border-radius: var(--radius-md);
 }
 
@@ -126,7 +126,7 @@
 .mc-tag {
   font-size: 0.6875rem;
   font-weight: 500;
-  padding: 2px 8px;
+  padding: var(--space-0-5) var(--space-2);
   border-radius: var(--radius-sm);
   background: var(--color-bg-hover);
   color: var(--color-text-primary);
@@ -137,7 +137,7 @@
 .mc-council-badge {
   font-size: 0.6875rem;
   font-weight: 600;
-  padding: 3px 8px;
+  padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
   background: var(--color-indigo-100);
   color: var(--color-indigo-700);
@@ -167,7 +167,7 @@
 .mc-mini-badge {
   font-size: 0.625rem;
   font-weight: 600;
-  padding: 2px 6px;
+  padding: var(--space-0-5) var(--space-1-5);
   border-radius: var(--radius-sm);
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -177,10 +177,10 @@
 .mc-promoted-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--gap-xs);
   font-size: 0.6875rem;
   font-weight: 500;
-  padding: 3px 8px;
+  padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
   background: var(--color-green-50);
   color: var(--color-green-700);
@@ -196,10 +196,10 @@
 .mc-pending-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--gap-xs);
   font-size: 0.6875rem;
   font-weight: 500;
-  padding: 3px 8px;
+  padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
   background: var(--color-amber-50);
   color: var(--color-amber-700);

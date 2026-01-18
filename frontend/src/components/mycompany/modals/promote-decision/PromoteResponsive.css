@@ -12,8 +12,8 @@
     min-height: 0;
     overflow: hidden auto;
     -webkit-overflow-scrolling: touch;
-    padding: 16px;
-    gap: 16px;
+    padding: var(--space-4);
+    gap: var(--gap-md);
   }
 
   .mc-promote-title-row {
@@ -24,7 +24,7 @@
   .mc-promote-grid {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: var(--gap);
     flex: 1 1 0;
     min-height: 0;
   }
@@ -43,7 +43,7 @@
   /* Type row stacks on mobile - reset absolute positioning */
   .mc-type-row {
     flex-direction: column;
-    gap: 12px;
+    gap: var(--gap);
     position: static;
   }
 
@@ -60,7 +60,7 @@
   /* Remove extra margins on mobile */
   .mc-grid-area-type-label,
   .mc-grid-area-decision-label {
-    margin-top: 8px;
+    margin-top: var(--space-2);
   }
 
   .mc-grid-area-source-link {

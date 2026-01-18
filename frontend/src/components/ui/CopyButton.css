@@ -20,7 +20,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px;
+  padding: var(--space-1-5);
   border: 1px solid var(--overlay-black-10);
   border-radius: var(--radius-default);
   background: var(--overlay-white-90);
@@ -105,7 +105,7 @@
    ============================================================================= */
 
 .copy-btn-sm {
-  padding: 4px;
+  padding: var(--space-1);
 }
 
 .copy-btn-sm .copy-btn-icon {
@@ -114,11 +114,11 @@
 }
 
 .copy-btn-md {
-  padding: 6px;
+  padding: var(--space-1-5);
 }
 
 .copy-btn-lg {
-  padding: 8px;
+  padding: var(--space-2);
 }
 
 .copy-btn-lg .copy-btn-icon {

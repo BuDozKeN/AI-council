@@ -41,7 +41,7 @@
 .stage2-trigger-content {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--gap-sm);
   width: 100%;
 }
 
@@ -50,7 +50,7 @@
 }
 
 .stage2-title {
-  font-size: 16px;
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--color-text-primary);
 }
@@ -59,13 +59,13 @@
 .stage2-winner {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--gap-xs);
   margin-left: auto;
   flex-shrink: 0;
 }
 
 .stage2-winner .winner-medal {
-  font-size: 18px;
+  font-size: var(--text-lg);
   line-height: 1;
 }
 
@@ -82,9 +82,9 @@
 }
 
 .stage2-section-title {
-  margin: 20px 0 8px;
+  margin: var(--space-5) 0 8px;
   color: var(--color-purple-600);
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 
@@ -97,7 +97,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 4px;
+  padding: var(--space-1);
   background: transparent;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
@@ -113,9 +113,9 @@
 }
 
 .stage2 h4 {
-  margin: 20px 0 8px;
+  margin: var(--space-5) 0 8px;
   color: var(--color-text-primary);
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 
@@ -126,35 +126,35 @@
 .stage-description {
   margin: 0 0 12px;
   color: var(--color-text-secondary);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   line-height: 1.5;
 }
 
 .aggregate-rankings {
   background: var(--color-brand-primary-light);
-  padding: 16px;
+  padding: var(--space-4);
   border-radius: var(--radius-md);
-  margin-bottom: 20px;
+  margin-bottom: var(--space-5);
   border: 2px solid var(--color-blue-200);
 }
 
 .aggregate-rankings h4 {
   margin: 0 0 12px;
   color: var(--color-blue-600);
-  font-size: 15px;
+  font-size: var(--text-sm-plus);
 }
 
 .aggregate-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
 }
 
 .aggregate-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 12px;
+  gap: var(--gap-sm-plus);
+  padding: var(--space-2) var(--space-3);
   background: var(--color-bg-primary);
   border-radius: var(--radius-md);
   border: 1px solid var(--color-blue-200);
@@ -185,7 +185,7 @@
 .rank-position {
   color: var(--color-blue-600);
   font-weight: 700;
-  font-size: 16px;
+  font-size: var(--text-base);
   min-width: 28px;
   line-height: 1;
 }
@@ -194,7 +194,7 @@
 .aggregate-item.rank-1 .rank-position,
 .aggregate-item.rank-2 .rank-position,
 .aggregate-item.rank-3 .rank-position {
-  font-size: 18px;
+  font-size: var(--text-lg);
 }
 
 /* Gold winner - highlighted row */
@@ -219,14 +219,14 @@
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--gap-xs-plus);
   color: var(--color-text-primary);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 500;
 }
 
 .rank-score {
   color: var(--color-text-secondary);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 600;
 }

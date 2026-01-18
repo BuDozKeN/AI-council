@@ -10,11 +10,11 @@
 .mc-decision-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--gap);
 }
 
 .mc-decision-item {
-  padding: 16px;
+  padding: var(--space-4);
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
@@ -23,13 +23,13 @@
 .mc-decision-info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--gap-xs);
 }
 
 .mc-decision-title-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--gap-sm-plus);
 }
 
 .mc-decision-title {
@@ -46,8 +46,8 @@
 .mc-decision-badges {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 6px;
+  gap: var(--gap-xs-plus);
+  margin-top: var(--space-1-5);
 }
 
 /* Promoted decision card styling */
@@ -63,12 +63,12 @@
 .mc-promoted-label {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--gap-xs);
   font-size: 0.8125rem;
   font-weight: 500;
   color: var(--color-emerald-700);
   background: var(--color-emerald-100);
-  padding: 6px 12px;
+  padding: var(--space-1-5) var(--space-3);
   border-radius: var(--radius-md);
 }
 
@@ -80,7 +80,7 @@
 .mc-promoted-info-row {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--gap-sm-plus);
   flex-wrap: wrap;
 }
 
@@ -94,8 +94,8 @@
 .mc-decision-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 10px;
+  gap: var(--gap-xs-plus);
+  margin-bottom: var(--space-2-5);
 }
 
 /* ============================================================================
@@ -105,8 +105,8 @@
 .mc-decision-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding-top: 12px;
+  gap: var(--gap-sm);
+  padding-top: var(--space-3);
   border-top: 1px solid var(--color-border);
 }
 
@@ -114,8 +114,8 @@
 .mc-action-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-1-5) var(--space-3);
   border-radius: var(--radius-md);
   font-size: 0.8125rem;
   font-weight: 500;
@@ -181,11 +181,11 @@
   font-weight: 500;
   background: var(--color-emerald-100);
   color: var(--color-emerald-700);
-  padding: 4px 10px;
+  padding: var(--space-1) var(--space-2-5);
   border-radius: var(--radius-md);
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--gap-xs);
 }
 
 /* Promoted type colors */
@@ -209,7 +209,7 @@
   font-size: 0.75rem;
   background: var(--color-indigo-100);
   color: var(--color-indigo-700);
-  padding: 3px 10px;
+  padding: var(--space-1) var(--space-2-5);
   border-radius: var(--radius-lg);
   font-weight: 500;
 }

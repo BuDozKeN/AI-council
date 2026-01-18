@@ -7,12 +7,12 @@
   z-index: var(--z-dropdown);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
+  gap: var(--gap-xs-plus);
+  padding: var(--space-2) var(--space-4);
   background: var(--color-slate-800);
   border: none;
   border-radius: var(--radius-full);
-  font-size: 13px;
+  font-size: var(--text-xs-plus);
   font-weight: 500;
   color: var(--color-text-inverse);
   cursor: pointer;
