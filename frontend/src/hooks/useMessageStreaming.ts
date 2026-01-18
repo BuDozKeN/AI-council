@@ -8,7 +8,7 @@
  * to reduce CPU usage during streaming (~60fps cap instead of per-token).
  */
 
-import { useCallback, useRef, useEffect } from 'react';
+import { useCallback, useRef, useEffect, type Dispatch, type SetStateAction } from 'react';
 import { api } from '../api';
 import { logger } from '../utils/logger';
 import type { Conversation, Message, StreamingState } from '../types/conversation';
@@ -268,20 +268,12 @@ interface StreamingContext {
   useDepartmentContext: boolean;
 }
 
-/** Summarized conversation for list display */
-interface ConversationListItem {
-  id: string;
-  title?: string;
-  created_at?: string;
-  message_count?: number;
-}
-
 interface ConversationState {
   currentConversationId: string | null;
   currentConversation: StreamableConversation | null;
   setCurrentConversationId: (id: string | null) => void;
   setCurrentConversation: (updater: ConversationUpdater) => void;
-  setConversations: (updater: (prev: ConversationListItem[]) => ConversationListItem[]) => void;
+  setConversations: Dispatch<SetStateAction<Conversation[]>>;
   skipNextLoadRef: React.MutableRefObject<boolean>;
   loadConversations: () => void;
 }
@@ -816,6 +808,7 @@ export function useMessageStreaming({
               created_at: newConv.created_at,
               message_count: 0,
               title: initialTitle,
+              messages: [],
             },
             ...prev,
           ]);

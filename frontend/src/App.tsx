@@ -38,8 +38,7 @@ import MobileBottomNav from './components/ui/MobileBottomNav';
 import { CommandPalette } from './components/ui/CommandPalette';
 import { useTheme } from 'next-themes';
 import { logger } from './utils/logger';
-import type { Conversation, Message } from './types/conversation';
-import type { UsageData } from './components/ui/TokenUsageDisplay';
+import type { Conversation } from './types/conversation';
 import './App.css';
 
 // Extend Window interface for pending question feature
@@ -165,7 +164,6 @@ function App() {
     isLoading,
     setIsLoading,
     skipNextLoadRef,
-    abortControllerRef,
     loadConversations,
     loadConversation,
     handleNewConversation: contextNewConversation,
@@ -174,7 +172,6 @@ function App() {
     handleStarConversation,
     handleDeleteConversation,
     handleRenameConversation,
-    handleStopGeneration: contextStopGeneration,
     refreshConversations,
     handleSortByChange,
   } = useConversation();
@@ -725,11 +722,6 @@ function App() {
 
   // Send message wrapper (TRIAGE DISABLED: Go directly to council)
   const handleSendMessage = async (content: string, images: UploadedImage[] | null = null) => {
-    await sendToCouncil(content, images);
-  };
-
-  // Send to council - delegates to hook
-  const handleSendToCouncil = async (content: string, images: UploadedImage[] | null = null) => {
     await sendToCouncil(content, images);
   };
 
