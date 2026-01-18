@@ -241,7 +241,9 @@ export default defineConfig(({ mode }) => ({
           // Vendor chunk splitting
           if (id.includes('node_modules')) {
             // Core React runtime - rarely changes, cache well
-            if (id.includes('react') && !id.includes('react-markdown') && !id.includes('react-i18next') && !id.includes('react-router')) {
+            // NOTE: react-i18next is included here (not excluded) because it calls
+            // React.createContext() at module init. Separating it causes "createContext" errors.
+            if (id.includes('react') && !id.includes('react-markdown') && !id.includes('react-router')) {
               return 'vendor-react';
             }
             // Router - needed early, cache separately
@@ -261,10 +263,10 @@ export default defineConfig(({ mode }) => ({
               return 'vendor-markdown';
             }
             // i18n - internationalization, loaded on every page
+            // NOTE: react-i18next is now bundled with vendor-react (see above)
             if (
-              id.includes('i18next') ||
-              id.includes('react-i18next') ||
-              id.includes('i18next-browser-languagedetector')
+              (id.includes('i18next') || id.includes('i18next-browser-languagedetector')) &&
+              !id.includes('react-i18next')
             ) {
               return 'vendor-i18n';
             }
