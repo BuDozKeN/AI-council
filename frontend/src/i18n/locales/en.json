@@ -60,7 +60,15 @@
     "oneAI": "1 AI",
     "fiveAIs": "5 AIs",
     "multiAI": "{{count}} AIs",
-    "attach": "Add a photo or screenshot"
+    "attach": "Add a photo or screenshot",
+    "tooltips": {
+      "context": "Choose company context for better answers",
+      "noCompany": "No company set up yet. Go to My Company to create one.",
+      "noProjects": "No projects available. Create projects in My Company.",
+      "noDepartments": "No departments configured. Set up departments in My Company.",
+      "noRoles": "No roles configured. Add roles in My Company.",
+      "noPlaybooks": "No playbooks uploaded yet. Add playbooks in My Company."
+    }
   },
   "imageUpload": {
     "dropImagesHere": "Drop images here",
@@ -339,19 +347,20 @@
       "departments": "Add team expertise",
       "roles": "Add expert perspectives",
       "playbooks": "Apply company guides",
-      "councilMode": "Multiple AIs debate, one best answer",
-      "chatMode": "Quick single AI response",
-      "send": "Send question",
-      "stop": "Stop generating",
-      "reset": "Clear all"
+      "councilMode": "Multiple AI experts will debate your question and give you the best combined answer. Takes longer but more thorough.",
+      "chatMode": "Get a quick answer from one AI. Faster, but just one perspective.",
+      "send": "Send your question to the AI",
+      "stop": "Stop the AI from writing more",
+      "reset": "Start fresh - clear everything"
     },
     "responseStyle": {
       "label": "Response style",
       "title": "Response Style",
+      "tooltip": "Control how the AI writes - from factual and precise to creative and varied",
       "departmentDefault": "Department Default",
       "departmentUsing": "{{dept}}: {{preset}}",
-      "tooltipOverride": "Override: {{preset}}",
-      "tooltipDefault": "Using department default",
+      "tooltipOverride": "AI is set to {{preset}} mode - click to change how creative the responses are",
+      "tooltipDefault": "Click to control how creative vs precise the AI's answers are",
       "llmHubLink": "LLM Hub Settings",
       "llmHubDesc": "Customize AI models and behavior",
       "presets": {
@@ -360,9 +369,9 @@
         "creative": "Creative"
       },
       "descriptions": {
-        "conservative": "Lower temperature, safer responses",
-        "balanced": "Default settings for most use cases",
-        "creative": "Higher temperature, more varied responses"
+        "conservative": "Factual, focused answers - best for data and compliance",
+        "balanced": "Good for most questions - reliable and flexible",
+        "creative": "More original ideas - great for brainstorming"
       }
     }
   },

@@ -7,7 +7,7 @@
    ============================================================================= */
 
 .admin-table-container {
-  overflow-x: auto;
+  overflow: auto; /* Enable mouse wheel scrolling for table content */
 }
 
 .admin-table {

@@ -19,7 +19,7 @@
 
 .admin-portal {
   display: flex;
-  min-height: 100vh;
+  height: 100vh; /* Fixed height to enable scrolling within .admin-main */
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
 }
@@ -209,6 +209,7 @@
 .admin-main {
   flex: 1;
   min-width: 0;
+  min-height: 0; /* Required for flex scroll chain - allows content to shrink and scroll */
   overflow-y: auto;
 }
 
@@ -242,7 +243,6 @@
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  overflow: hidden;
 }
 
 .admin-tab-header {
