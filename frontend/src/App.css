@@ -130,6 +130,14 @@
   }
 }
 
+/* Main content wrapper - must expand to fill available space */
+#main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
 /* Main content areas - Landing and Chat */
 .main-content-landing,
 .main-content-chat {
