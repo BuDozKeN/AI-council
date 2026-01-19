@@ -619,7 +619,11 @@
     "department": "Departamento",
     "deptContext": "Contexto Dept",
     "toggleCompanyContext": "Alternar contexto de empresa (conocimiento principal)",
-    "toggleDeptContext": "Alternar contexto de departamento (conocimiento del departamento)"
+    "toggleDeptContext": "Alternar contexto de departamento (conocimiento del departamento)",
+    "context": "Contexto",
+    "configure": "Configurar contexto",
+    "configureContext": "Configurar Contexto",
+    "hoverToSelect": "Pasa el cursor sobre una categoría para ver opciones"
   },
   "stages": {
     "stage1": "Respuestas",
