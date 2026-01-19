@@ -3718,7 +3718,9 @@ export const api = {
   /**
    * Cancel a pending invitation (admin only).
    */
-  async cancelAdminInvitation(invitationId: string): Promise<{ success: boolean; message: string }> {
+  async cancelAdminInvitation(
+    invitationId: string
+  ): Promise<{ success: boolean; message: string }> {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}${API_VERSION}/admin/invitations/${invitationId}`, {
       method: 'DELETE',
@@ -3818,10 +3820,7 @@ export const api = {
   /**
    * Accept an invitation after signup (public, no auth).
    */
-  async acceptInvitation(
-    token: string,
-    userId: string
-  ): Promise<AcceptInvitationResponse> {
+  async acceptInvitation(token: string, userId: string): Promise<AcceptInvitationResponse> {
     const response = await fetch(
       `${API_BASE}${API_VERSION}/invitations/accept?token=${encodeURIComponent(token)}`,
       {
@@ -3898,15 +3897,7 @@ export interface AdminAuditLog {
   actor_email: string | null;
   actor_type: 'user' | 'admin' | 'system' | 'api';
   action: string;
-  action_category:
-    | 'auth'
-    | 'user'
-    | 'company'
-    | 'admin'
-    | 'data'
-    | 'api'
-    | 'billing'
-    | 'security';
+  action_category: 'auth' | 'user' | 'company' | 'admin' | 'data' | 'api' | 'billing' | 'security';
   resource_type: string | null;
   resource_id: string | null;
   resource_name: string | null;
