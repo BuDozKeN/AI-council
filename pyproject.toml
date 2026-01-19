@@ -9,7 +9,7 @@ dependencies = [
     "uvicorn[standard]>=0.32.0",
     "python-dotenv>=1.0.0",
     "httpx>=0.27.0",
-    "pydantic>=2.9.0",
+    "pydantic[email]>=2.9.0",
     "supabase>=2.0.0",
     "gunicorn>=21.0.0",
     "pillow>=10.0.0",  # Image optimization for uploads
@@ -21,6 +21,7 @@ dependencies = [
     "numpy>=1.26.0",  # Vector math for embeddings/similarity
     "qdrant-client>=1.9.0",  # Vector database for semantic search
     "apscheduler>=3.10.0",  # Scheduled background tasks
+    "email-validator>=2.0.0",  # Email validation for Pydantic EmailStr
 ]
 
 [project.optional-dependencies]

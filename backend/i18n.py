@@ -151,8 +151,14 @@ def get_locale_from_header(accept_language: Optional[str]) -> str:
     for lang_part in accept_language.split(','):
         lang_part = lang_part.strip()
         if ';q=' in lang_part:
-            lang, quality = lang_part.split(';q=')
-            quality = float(quality)
+            lang, quality_str = lang_part.split(';q=', 1)
+            try:
+                quality = float(quality_str)
+                # Clamp quality to valid range [0, 1]
+                quality = max(0.0, min(1.0, quality))
+            except (ValueError, TypeError):
+                # Malformed quality value - use default
+                quality = 1.0
         else:
             lang = lang_part
             quality = 1.0

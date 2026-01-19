@@ -11,6 +11,8 @@ from .leaderboard import router as leaderboard_router
 from .dev_settings import router as dev_settings_router
 from .ai_utils import router as ai_utils_router
 from .profile import router as profile_router
+from .admin import router as admin_router
+from .invitations import router as invitations_router
 from .v1 import v1_router
 
 __all__ = [
@@ -25,5 +27,7 @@ __all__ = [
     'dev_settings_router',
     'ai_utils_router',
     'profile_router',
+    'admin_router',
+    'invitations_router',
     'v1_router',
 ]

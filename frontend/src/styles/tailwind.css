@@ -1344,50 +1344,24 @@ button.btn-variant-link:hover:not(:disabled),
 
 /* ===========================================
    Button Mobile Responsive Sizes
+   WCAG 2.1 requires 44px minimum touch target
    =========================================== */
 
-/* Tablet (768px) - slightly smaller buttons */
+/* Mobile (640px and below) - WCAG compliant touch targets */
 @media (width <= 640px) {
-  [class*='btn-variant-'].h-10 {
-    padding: var(--space-2) var(--space-4);
+  /* All buttons must be at least 44px for touch accessibility */
+  [class*='btn-variant-'].h-10,
+  [class*='btn-variant-'].h-11 {
+    padding: var(--space-2-5) var(--space-4);
+    min-height: 44px; /* WCAG minimum touch target */
+    font-size: var(--text-sm);
+  }
+
+  /* Buttons can use .btn-compact class to be smaller if needed (use with caution) */
+  [class*='btn-variant-'].btn-compact {
+    padding: var(--space-2) var(--space-3);
     min-height: 36px;
     font-size: var(--text-xs-plus);
-  }
-
-  [class*='btn-variant-'].h-11 {
-    padding: var(--space-2-5) var(--space-5);
-    min-height: 40px;
-    font-size: var(--text-xs-plus);
-  }
-}
-
-/* Mobile (640px) - compact buttons */
-@media (width <= 640px) {
-  [class*='btn-variant-'].h-10 {
-    padding: var(--space-1-5) var(--space-3);
-    min-height: 32px;
-    font-size: var(--text-xs);
-  }
-
-  [class*='btn-variant-'].h-11 {
-    padding: var(--space-2) var(--space-3-5);
-    min-height: 36px;
-    font-size: var(--text-xs);
-  }
-}
-
-/* Extra small (380px) - most compact */
-@media (width <= 640px) {
-  [class*='btn-variant-'].h-10 {
-    padding: var(--space-1) var(--space-2-5);
-    min-height: 28px;
-    font-size: var(--text-xs);
-  }
-
-  [class*='btn-variant-'].h-11 {
-    padding: var(--space-1-5) var(--space-3);
-    min-height: 32px;
-    font-size: var(--text-xs);
   }
 }
 

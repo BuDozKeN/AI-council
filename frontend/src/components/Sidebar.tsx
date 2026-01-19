@@ -14,6 +14,7 @@ import {
   MessageSquare,
   Search,
   Archive,
+  Shield,
 } from 'lucide-react';
 import {
   useMockMode,
@@ -81,6 +82,8 @@ interface SidebarProps {
   isLoading?: boolean;
   onUpdateConversationDepartment?: (id: string, department: string) => void;
   companyId?: string | null;
+  isAdmin?: boolean;
+  onOpenAdmin?: () => void;
 }
 
 /**
@@ -117,6 +120,8 @@ export default function Sidebar({
   isLoading = false,
   onUpdateConversationDepartment,
   companyId = null,
+  isAdmin = false,
+  onOpenAdmin,
 }: SidebarProps) {
   const { t } = useTranslation();
   // Prefetch company data on hover for instant navigation
@@ -813,6 +818,8 @@ export default function Sidebar({
           onToggleCachingMode={toggleCachingMode}
           onOpenMyCompany={onOpenMyCompany ?? (() => {})}
           onOpenSettings={onOpenSettings ?? (() => {})}
+          onOpenAdmin={onOpenAdmin}
+          isAdmin={isAdmin}
           onSignOut={onSignOut ?? (() => {})}
           onMouseEnter={handleExpandedAreaEnter}
           onMouseLeave={handleExpandedAreaLeave}
@@ -828,6 +835,15 @@ export default function Sidebar({
           onMouseEnter={handleExpandedAreaEnter}
           onMouseLeave={handleExpandedAreaLeave}
         >
+          {/* Admin button - only for super admins */}
+          {isAdmin && onOpenAdmin && (
+            <SidebarIconButton
+              icon={<Shield className="h-4 w-4" />}
+              title={t('sidebar.adminPortal', 'Platform Admin Portal')}
+              onClick={onOpenAdmin}
+              className="admin-icon-btn"
+            />
+          )}
           <SidebarIconButton
             icon={<Building2 className="h-4 w-4" />}
             title={`${t('sidebar.myCompany')} — ${t('sidebar.tooltips.company')}`}

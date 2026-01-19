@@ -619,7 +619,11 @@
     "department": "Departamento",
     "deptContext": "Contexto Dept",
     "toggleCompanyContext": "Alternar contexto de empresa (conocimiento principal)",
-    "toggleDeptContext": "Alternar contexto de departamento (conocimiento del departamento)"
+    "toggleDeptContext": "Alternar contexto de departamento (conocimiento del departamento)",
+    "context": "Contexto",
+    "configure": "Configurar contexto",
+    "configureContext": "Configurar Contexto",
+    "hoverToSelect": "Pasa el cursor sobre una categoría para ver opciones"
   },
   "stages": {
     "stage1": "Respuestas",
@@ -857,6 +861,8 @@
     "saveChanges": "Guardar Cambios",
     "departmentBadge": "DEPARTAMENTO",
     "rolesCount": "{{count}} roles",
+    "rolesCount_one": "{{count}} rol",
+    "rolesCount_other": "{{count}} roles",
     "departmentSaved": "Contexto del departamento \"{{name}}\" guardado",
     "failedToSaveDepartment": "Error al guardar departamento",
     "enterDepartmentContext": "Ingresa la documentación de contexto para este departamento...",
@@ -1415,13 +1421,21 @@
     "selectContext": "Seleccionar Contexto"
   },
   "multiSelect": {
-    "deptsCount": "{{count}} depts",
+    "deptsCount": "{{count}} deps",
+    "deptsCount_one": "{{count}} dep",
+    "deptsCount_other": "{{count}} deps",
     "rolesCount": "{{count}} roles",
-    "playbooksCount": "{{count}} playbooks"
+    "rolesCount_one": "{{count}} rol",
+    "rolesCount_other": "{{count}} roles",
+    "playbooksCount": "{{count}} playbooks",
+    "playbooksCount_one": "{{count}} playbook",
+    "playbooksCount_other": "{{count}} playbooks"
   },
   "mobileNav": {
     "new": "Nuevo",
-    "company": "Empresa"
+    "history": "Chats",
+    "company": "Empresa",
+    "settings": "Ajustes"
   },
   "modeToggle": {
     "quick": "Rápido",
@@ -1536,6 +1550,9 @@
     "newDepartment": "Nuevo Departamento",
     "departmentsRoles": "{{depts}} departamentos • {{roles}} roles",
     "roles": "roles",
+    "roleCount": "{{count}} roles",
+    "roleCount_one": "{{count}} rol",
+    "roleCount_other": "{{count}} roles",
     "viewContext": "Ver Directrices",
     "aboutDepartment": "Sobre {{name}}",
     "rolesLabel": "Roles",
@@ -1672,5 +1689,62 @@
     "conversationTitle": "Conversación - AxCouncil",
     "myCompanyTitle": "Mi Empresa - AxCouncil",
     "settingsTitle": "Configuración - AxCouncil"
+  },
+  "admin": {
+    "backToApp": "Volver a la App",
+    "title": "Portal de Administración",
+    "badge": "Administrador de Plataforma",
+    "tabs": {
+      "users": "Usuarios",
+      "companies": "Empresas",
+      "audit": "Registros de Auditoría",
+      "admins": "Roles de Admin",
+      "settings": "Configuración"
+    },
+    "stats": {
+      "totalUsers": "Total de Usuarios",
+      "totalCompanies": "Total de Empresas",
+      "totalConversations": "Conversaciones",
+      "totalMessages": "Mensajes"
+    },
+    "users": {
+      "title": "Gestión de Usuarios",
+      "description": "Ver y gestionar todos los usuarios de la plataforma.",
+      "searchPlaceholder": "Buscar por email...",
+      "email": "Email",
+      "createdAt": "Creado",
+      "lastSignIn": "Último Acceso",
+      "status": "Estado"
+    },
+    "companies": {
+      "title": "Gestión de Empresas",
+      "description": "Ver y gestionar todas las empresas de la plataforma.",
+      "searchPlaceholder": "Buscar por nombre...",
+      "name": "Nombre de Empresa",
+      "owner": "Propietario",
+      "conversations": "Conversaciones",
+      "createdAt": "Creado"
+    },
+    "admins": {
+      "title": "Roles de Administrador",
+      "description": "Gestionar acceso y roles de administradores de plataforma.",
+      "email": "Email",
+      "role": "Rol",
+      "grantedAt": "Otorgado"
+    },
+    "audit": {
+      "title": "Registros de Auditoría",
+      "description": "Ver actividad y registros de seguridad de toda la plataforma.",
+      "searchPlaceholder": "Buscar acciones...",
+      "allCategories": "Todas las Categorías",
+      "allActors": "Todos los Tipos de Actor",
+      "errorLoading": "Error al cargar registros de auditoría"
+    },
+    "settings": {
+      "title": "Configuración de Plataforma",
+      "description": "Configurar ajustes y preferencias globales de la plataforma.",
+      "comingSoon": "Configuración de Plataforma Próximamente",
+      "comingSoonDesc": "Las opciones de configuración global estarán disponibles en una futura actualización."
+    }
   }
 }

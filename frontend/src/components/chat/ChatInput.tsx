@@ -20,9 +20,11 @@ import {
   ScrollText,
   Shield,
   ChevronRight,
+  ChevronDown,
   FolderKanban,
   RotateCcw,
   Send,
+  Settings2,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from '../ui/BottomSheet';
@@ -32,6 +34,7 @@ import type { ReactNode, KeyboardEvent, ClipboardEvent } from 'react';
 import type { Department, Role, Playbook, Project, LLMPresetId } from '../../types/business';
 import { ResponseStyleSelector } from './ResponseStyleSelector';
 import '../ui/Tooltip.css';
+import '../shared/omnibar/popover.css';
 
 // Tooltips are now fetched via i18n - see getTooltips() function below
 
@@ -121,12 +124,18 @@ export function ChatInput({
 }: ChatInputProps) {
   const { t } = useTranslation();
   const { aiCount } = useCouncilStats(companyId);
-  const [projectOpen, setProjectOpen] = useState(false);
-  const [deptOpen, setDeptOpen] = useState(false);
-  const [roleOpen, setRoleOpen] = useState(false);
-  const [playbookOpen, setPlaybookOpen] = useState(false);
   // Track which playbook sections are expanded (accordion within dropdown)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+  // Mobile unified context menu (Perplexity style - single button for all context)
+  const [mobileContextOpen, setMobileContextOpen] = useState(false);
+  const [mobileContextSection, setMobileContextSection] = useState<Record<string, boolean>>({
+    project: false,
+    departments: false,
+    roles: false,
+    playbooks: false,
+  });
+  // Desktop: Two-column hover dropdown - track which category is active
+  const [activeContextTab, setActiveContextTab] = useState<string | null>(null);
 
   // Ref for textarea to scroll into view on focus
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -169,6 +178,21 @@ export function ChatInput({
     selectedDepartments.length > 0 ||
     selectedRoles.length > 0 ||
     selectedPlaybooks.length > 0;
+
+  // Total selection count for mobile context button badge
+  const totalSelectionCount =
+    (selectedProject ? 1 : 0) +
+    selectedDepartments.length +
+    selectedRoles.length +
+    selectedPlaybooks.length;
+
+  // Toggle mobile context section
+  const toggleMobileContextSection = (section: string) => {
+    setMobileContextSection((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
 
   // Get selected project name for display
   const selectedProjectName = selectedProject
@@ -213,44 +237,76 @@ export function ChatInput({
     }
   }, [isMobile]);
 
+  // Auto-select first available context tab when dropdown opens
+  const handleContextDropdownOpen = (open: boolean) => {
+    setMobileContextOpen(open);
+    if (open && !activeContextTab) {
+      // Auto-select first available category
+      if (hasProjects) setActiveContextTab('project');
+      else if (hasDepartments) setActiveContextTab('departments');
+      else if (hasRoles) setActiveContextTab('roles');
+      else if (hasPlaybooks) setActiveContextTab('playbooks');
+    }
+    if (!open) {
+      setActiveContextTab(null);
+    }
+  };
+
   // Project list content - single select (radio-style)
+  // Sort selected project to top for better UX
+  const sortedProjects = [...projects]
+    .filter((p) => p.status === 'active')
+    .sort((a, b) => {
+      const aSelected = selectedProject === a.id;
+      const bSelected = selectedProject === b.id;
+      if (aSelected && !bSelected) return -1;
+      if (!aSelected && bSelected) return 1;
+      return 0;
+    });
+
   const projectList = (
     <div className="context-popover-list">
       {projects.length === 0 ? (
         <div className="context-popover-empty">{t('context.noProjects')}</div>
       ) : (
-        projects
-          .filter((p) => p.status === 'active')
-          .map((proj) => {
-            const isSelected = selectedProject === proj.id;
-            return (
-              <button
-                key={proj.id}
-                className={cn('context-popover-item', isSelected && 'selected')}
-                onClick={() => {
-                  onSelectProject?.(isSelected ? null : proj.id);
-                  setProjectOpen(false);
-                }}
-                type="button"
-              >
-                <div className={cn('context-popover-radio', isSelected && 'checked')}>
-                  {isSelected && <Check size={10} />}
-                </div>
-                <span>{proj.name}</span>
-              </button>
-            );
-          })
+        sortedProjects.map((proj) => {
+          const isSelected = selectedProject === proj.id;
+          return (
+            <button
+              key={proj.id}
+              className={cn('context-popover-item', isSelected && 'selected')}
+              onClick={() => {
+                onSelectProject?.(isSelected ? null : proj.id);
+              }}
+              type="button"
+            >
+              <div className={cn('context-popover-radio', isSelected && 'checked')}>
+                {isSelected && <Check />}
+              </div>
+              <span>{proj.name}</span>
+            </button>
+          );
+        })
       )}
     </div>
   );
 
   // Department list content - uses shared DepartmentCheckboxItem for consistency with Stage3
+  // Sort selected items to top for better UX
+  const sortedDepartments = [...departments].sort((a, b) => {
+    const aSelected = selectedDepartments.includes(a.id);
+    const bSelected = selectedDepartments.includes(b.id);
+    if (aSelected && !bSelected) return -1;
+    if (!aSelected && bSelected) return 1;
+    return 0;
+  });
+
   const departmentList = (
     <div className="context-popover-list">
       {departments.length === 0 ? (
         <div className="context-popover-empty">{t('context.noDepartments')}</div>
       ) : (
-        departments.map((dept) => (
+        sortedDepartments.map((dept) => (
           <DepartmentCheckboxItem
             key={dept.id}
             department={dept}
@@ -264,12 +320,21 @@ export function ChatInput({
   );
 
   // Role list content
+  // Sort selected items to top for better UX
+  const sortedRoles = [...roles].sort((a, b) => {
+    const aSelected = selectedRoles.includes(a.id);
+    const bSelected = selectedRoles.includes(b.id);
+    if (aSelected && !bSelected) return -1;
+    if (!aSelected && bSelected) return 1;
+    return 0;
+  });
+
   const roleList = (
     <div className="context-popover-list">
       {roles.length === 0 ? (
         <div className="context-popover-empty">{t('context.noRoles')}</div>
       ) : (
-        roles.map((role) => {
+        sortedRoles.map((role) => {
           const isSelected = selectedRoles.includes(role.id);
           return (
             <button
@@ -279,7 +344,7 @@ export function ChatInput({
               type="button"
             >
               <div className={cn('context-popover-checkbox', isSelected && 'checked')}>
-                {isSelected && <Check size={12} />}
+                {isSelected && <Check />}
               </div>
               <span>{role.name}</span>
             </button>
@@ -323,6 +388,7 @@ export function ChatInput({
   };
 
   // Playbook list content - grouped by type with collapsible sections
+  // Sort selected items to top within each group for better UX
   const playbookList = (
     <div className="context-popover-list">
       {playbooks.length === 0 ? (
@@ -333,6 +399,14 @@ export function ChatInput({
           .map((type) => {
             const config = playbookTypeConfig[type]!;
             const items = groupedPlaybooks[type] ?? [];
+            // Sort selected items to top
+            const sortedItems = [...items].sort((a, b) => {
+              const aSelected = selectedPlaybooks.includes(a.id);
+              const bSelected = selectedPlaybooks.includes(b.id);
+              if (aSelected && !bSelected) return -1;
+              if (!aSelected && bSelected) return 1;
+              return 0;
+            });
             const isExpanded = expandedSections[type] ?? false;
             const selectedCount = getSelectedCount(type);
             return (
@@ -355,7 +429,7 @@ export function ChatInput({
                 </button>
                 {isExpanded && (
                   <div className="context-popover-group-items">
-                    {items.map((pb) => {
+                    {sortedItems.map((pb) => {
                       const isSelected = selectedPlaybooks.includes(pb.id);
                       return (
                         <button
@@ -365,7 +439,7 @@ export function ChatInput({
                           type="button"
                         >
                           <div className={cn('context-popover-checkbox', isSelected && 'checked')}>
-                            {isSelected && <Check size={12} />}
+                            {isSelected && <Check />}
                           </div>
                           <span>{pb.title || pb.name}</span>
                         </button>
@@ -376,6 +450,109 @@ export function ChatInput({
               </div>
             );
           })
+      )}
+    </div>
+  );
+
+  // Mobile unified context menu content (Perplexity-inspired)
+  // Shows all categories in accordion style within a single bottom sheet
+  const mobileContextMenuContent = (
+    <div className="mobile-context-menu">
+      {/* Project Section */}
+      {hasProjects && (
+        <div className="context-section">
+          <button
+            type="button"
+            className={cn('context-section-header', mobileContextSection.project && 'expanded')}
+            onClick={() => toggleMobileContextSection('project')}
+          >
+            <FolderKanban size={16} />
+            <span className="context-section-label">
+              {selectedProjectName || t('context.project')}
+            </span>
+            {selectedProject && <span className="context-section-badge">1</span>}
+            <ChevronRight
+              size={14}
+              className={cn('context-section-chevron', mobileContextSection.project && 'rotated')}
+            />
+          </button>
+          {mobileContextSection.project && (
+            <div className="context-section-content">{projectList}</div>
+          )}
+        </div>
+      )}
+
+      {/* Departments Section */}
+      {hasDepartments && (
+        <div className="context-section">
+          <button
+            type="button"
+            className={cn('context-section-header', mobileContextSection.departments && 'expanded')}
+            onClick={() => toggleMobileContextSection('departments')}
+          >
+            <Building2 size={16} />
+            <span className="context-section-label">{t('departments.title')}</span>
+            {selectedDepartments.length > 0 && (
+              <span className="context-section-badge">{selectedDepartments.length}</span>
+            )}
+            <ChevronRight
+              size={14}
+              className={cn(
+                'context-section-chevron',
+                mobileContextSection.departments && 'rotated'
+              )}
+            />
+          </button>
+          {mobileContextSection.departments && (
+            <div className="context-section-content">{departmentList}</div>
+          )}
+        </div>
+      )}
+
+      {/* Roles Section */}
+      {hasRoles && (
+        <div className="context-section">
+          <button
+            type="button"
+            className={cn('context-section-header', mobileContextSection.roles && 'expanded')}
+            onClick={() => toggleMobileContextSection('roles')}
+          >
+            <Users size={16} />
+            <span className="context-section-label">{t('roles.title')}</span>
+            {selectedRoles.length > 0 && (
+              <span className="context-section-badge">{selectedRoles.length}</span>
+            )}
+            <ChevronRight
+              size={14}
+              className={cn('context-section-chevron', mobileContextSection.roles && 'rotated')}
+            />
+          </button>
+          {mobileContextSection.roles && <div className="context-section-content">{roleList}</div>}
+        </div>
+      )}
+
+      {/* Playbooks Section */}
+      {hasPlaybooks && (
+        <div className="context-section">
+          <button
+            type="button"
+            className={cn('context-section-header', mobileContextSection.playbooks && 'expanded')}
+            onClick={() => toggleMobileContextSection('playbooks')}
+          >
+            <BookOpen size={16} />
+            <span className="context-section-label">{t('context.playbooks')}</span>
+            {selectedPlaybooks.length > 0 && (
+              <span className="context-section-badge">{selectedPlaybooks.length}</span>
+            )}
+            <ChevronRight
+              size={14}
+              className={cn('context-section-chevron', mobileContextSection.playbooks && 'rotated')}
+            />
+          </button>
+          {mobileContextSection.playbooks && (
+            <div className="context-section-content">{playbookList}</div>
+          )}
+        </div>
       )}
     </div>
   );
@@ -394,104 +571,6 @@ export function ChatInput({
       </Tooltip.Root>
     </Tooltip.Provider>
   );
-
-  // Render context icon with popover
-  const renderContextIcon = (
-    icon: React.ReactNode,
-    label: string,
-    tooltipText: string,
-    count: number,
-    open: boolean,
-    setOpen: (open: boolean) => void,
-    content: React.ReactNode,
-    colorClass?: string,
-    onClear?: () => void
-  ) => {
-    const iconButton = (
-      <button
-        type="button"
-        className={cn('omni-icon-btn', count > 0 && 'has-selection', colorClass)}
-        onClick={() => (isMobile ? setOpen(true) : undefined)}
-        disabled={disabled}
-        aria-label={label}
-      >
-        {icon}
-        {count > 0 && <span className="omni-icon-badge">{count}</span>}
-      </button>
-    );
-
-    // Header with optional Clear button (matches OmniBar)
-    const header = (
-      <div className="context-popover-header">
-        <span>{label}</span>
-        {count > 0 && onClear && (
-          <button
-            type="button"
-            className="context-popover-clear"
-            onClick={(e) => {
-              e.stopPropagation();
-              onClear();
-            }}
-          >
-            {t('common.clear')}
-          </button>
-        )}
-      </div>
-    );
-
-    if (isMobile) {
-      return (
-        <>
-          {withTooltip(iconButton, tooltipText)}
-          <BottomSheet
-            isOpen={open}
-            onClose={() => setOpen(false)}
-            title={label}
-            headerAction={
-              count > 0 && onClear ? (
-                <button
-                  type="button"
-                  className="context-popover-clear"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onClear();
-                  }}
-                >
-                  {t('common.clear')}
-                </button>
-              ) : undefined
-            }
-          >
-            {content}
-          </BottomSheet>
-        </>
-      );
-    }
-
-    return (
-      <Popover.Root open={open} onOpenChange={setOpen}>
-        <Tooltip.Provider delayDuration={400}>
-          <Tooltip.Root>
-            <Popover.Trigger asChild>
-              <Tooltip.Trigger asChild>{iconButton}</Tooltip.Trigger>
-            </Popover.Trigger>
-            <Tooltip.Portal>
-              <Tooltip.Content className="tooltip-content" sideOffset={8}>
-                {tooltipText}
-                <Tooltip.Arrow className="tooltip-arrow" />
-              </Tooltip.Content>
-            </Tooltip.Portal>
-          </Tooltip.Root>
-        </Tooltip.Provider>
-        <Popover.Portal>
-          <Popover.Content className="context-popover-content" align="start" sideOffset={8}>
-            {header}
-            {content}
-          </Popover.Content>
-        </Popover.Portal>
-      </Popover.Root>
-    );
-  };
 
   return (
     <>
@@ -527,73 +606,192 @@ export function ChatInput({
           <div className="omni-left">
             {showContextIcons && (
               <>
-                {/* Context icons capsule - groups related icons visually */}
-                <div className="context-icons-capsule">
-                  {hasProjects &&
-                    renderContextIcon(
-                      <FolderKanban size={16} />,
-                      selectedProjectName || t('context.project'),
-                      TOOLTIPS.projects,
-                      selectedProject ? 1 : 0,
-                      projectOpen,
-                      setProjectOpen,
-                      projectList,
-                      'project',
-                      () => onSelectProject?.(null)
-                    )}
-                  {hasDepartments &&
-                    renderContextIcon(
-                      <Building2 size={16} />,
-                      t('departments.title'),
-                      TOOLTIPS.departments,
-                      selectedDepartments.length,
-                      deptOpen,
-                      setDeptOpen,
-                      departmentList,
-                      'dept',
-                      () => onSelectDepartments?.([])
-                    )}
-                  {hasRoles &&
-                    renderContextIcon(
-                      <Users size={16} />,
-                      t('roles.title'),
-                      TOOLTIPS.roles,
-                      selectedRoles.length,
-                      roleOpen,
-                      setRoleOpen,
-                      roleList,
-                      'role',
-                      () => onSelectRoles?.([])
-                    )}
-                  {hasPlaybooks &&
-                    renderContextIcon(
-                      <BookOpen size={16} />,
-                      t('context.playbooks'),
-                      TOOLTIPS.playbooks,
-                      selectedPlaybooks.length,
-                      playbookOpen,
-                      setPlaybookOpen,
-                      playbookList,
-                      'playbook',
-                      () => onSelectPlaybooks?.([])
-                    )}
-                </div>
-
-                {/* Reset All button - outside capsule, smaller */}
-                {hasAnySelections &&
-                  onResetAll &&
-                  withTooltip(
+                {/* MOBILE: Single Context button (Perplexity style) */}
+                {isMobile && (hasProjects || hasDepartments || hasRoles || hasPlaybooks) && (
+                  <>
                     <button
                       type="button"
-                      className="omni-reset-all no-touch-target"
-                      onClick={onResetAll}
+                      className={cn(
+                        'mobile-context-btn',
+                        totalSelectionCount > 0 && 'has-selection'
+                      )}
+                      onClick={() => setMobileContextOpen(true)}
                       disabled={disabled}
-                      aria-label="Reset all selections"
+                      aria-label={t('context.configure')}
                     >
-                      <RotateCcw size={12} />
-                    </button>,
-                    TOOLTIPS.reset
-                  )}
+                      <Settings2 size={16} />
+                      <span className="mobile-context-label">{t('context.context')}</span>
+                      {totalSelectionCount > 0 && (
+                        <span className="mobile-context-badge">{totalSelectionCount}</span>
+                      )}
+                    </button>
+                    <BottomSheet
+                      isOpen={mobileContextOpen}
+                      onClose={() => setMobileContextOpen(false)}
+                      title={t('context.configureContext')}
+                      headerAction={
+                        hasAnySelections && onResetAll ? (
+                          <button
+                            type="button"
+                            className="context-popover-clear"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onResetAll();
+                            }}
+                          >
+                            {t('common.clearAll')}
+                          </button>
+                        ) : undefined
+                      }
+                    >
+                      {mobileContextMenuContent}
+                    </BottomSheet>
+                  </>
+                )}
+
+                {/* DESKTOP: Two-column hover dropdown (same as OmniBar) */}
+                {!isMobile && (hasProjects || hasDepartments || hasRoles || hasPlaybooks) && (
+                  <Popover.Root open={mobileContextOpen} onOpenChange={handleContextDropdownOpen}>
+                    <Popover.Trigger asChild>
+                      <button
+                        type="button"
+                        className={cn(
+                          'context-trigger',
+                          totalSelectionCount > 0 && 'has-selection'
+                        )}
+                        disabled={disabled}
+                      >
+                        <span>{t('context.context')}</span>
+                        {totalSelectionCount > 0 && (
+                          <span className="context-trigger-badge">{totalSelectionCount}</span>
+                        )}
+                        <ChevronDown size={14} className="context-trigger-chevron" />
+                      </button>
+                    </Popover.Trigger>
+                    <Popover.Portal>
+                      <Popover.Content
+                        className="context-dropdown"
+                        side="bottom"
+                        align="start"
+                        sideOffset={8}
+                        collisionPadding={16}
+                      >
+                        {/* Two-column layout: categories left, options right */}
+                        <div className="context-dropdown-layout">
+                          {/* Left: Category menu */}
+                          <div className="context-dropdown-menu">
+                            {hasProjects && (
+                              <div
+                                role="menuitem"
+                                tabIndex={0}
+                                className={cn(
+                                  'context-menu-item',
+                                  activeContextTab === 'project' && 'active'
+                                )}
+                                onMouseEnter={() => setActiveContextTab('project')}
+                                onFocus={() => setActiveContextTab('project')}
+                              >
+                                <FolderKanban size={16} />
+                                <span>{t('context.project')}</span>
+                                {selectedProject && <span className="context-menu-badge">1</span>}
+                                <ChevronRight size={14} className="context-menu-arrow" />
+                              </div>
+                            )}
+                            {hasDepartments && (
+                              <div
+                                role="menuitem"
+                                tabIndex={0}
+                                className={cn(
+                                  'context-menu-item',
+                                  activeContextTab === 'departments' && 'active'
+                                )}
+                                onMouseEnter={() => setActiveContextTab('departments')}
+                                onFocus={() => setActiveContextTab('departments')}
+                              >
+                                <Building2 size={16} />
+                                <span>{t('departments.title')}</span>
+                                {selectedDepartments.length > 0 && (
+                                  <span className="context-menu-badge">
+                                    {selectedDepartments.length}
+                                  </span>
+                                )}
+                                <ChevronRight size={14} className="context-menu-arrow" />
+                              </div>
+                            )}
+                            {hasRoles && (
+                              <div
+                                role="menuitem"
+                                tabIndex={0}
+                                className={cn(
+                                  'context-menu-item',
+                                  activeContextTab === 'roles' && 'active'
+                                )}
+                                onMouseEnter={() => setActiveContextTab('roles')}
+                                onFocus={() => setActiveContextTab('roles')}
+                              >
+                                <Users size={16} />
+                                <span>{t('roles.title')}</span>
+                                {selectedRoles.length > 0 && (
+                                  <span className="context-menu-badge">{selectedRoles.length}</span>
+                                )}
+                                <ChevronRight size={14} className="context-menu-arrow" />
+                              </div>
+                            )}
+                            {hasPlaybooks && (
+                              <div
+                                role="menuitem"
+                                tabIndex={0}
+                                className={cn(
+                                  'context-menu-item',
+                                  activeContextTab === 'playbooks' && 'active'
+                                )}
+                                onMouseEnter={() => setActiveContextTab('playbooks')}
+                                onFocus={() => setActiveContextTab('playbooks')}
+                              >
+                                <BookOpen size={16} />
+                                <span>{t('context.playbooks')}</span>
+                                {selectedPlaybooks.length > 0 && (
+                                  <span className="context-menu-badge">
+                                    {selectedPlaybooks.length}
+                                  </span>
+                                )}
+                                <ChevronRight size={14} className="context-menu-arrow" />
+                              </div>
+                            )}
+                            {/* Clear All button at bottom of menu */}
+                            {hasAnySelections && onResetAll && (
+                              <div className="context-menu-divider" />
+                            )}
+                            {hasAnySelections && onResetAll && (
+                              <button
+                                type="button"
+                                className="context-menu-clear"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onResetAll();
+                                }}
+                              >
+                                <RotateCcw size={14} />
+                                <span>{t('common.clearAll')}</span>
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Right: Options panel (always visible, content changes on hover) */}
+                          <div className="context-dropdown-panel">
+                            {activeContextTab === 'project' && projectList}
+                            {activeContextTab === 'departments' && departmentList}
+                            {activeContextTab === 'roles' && roleList}
+                            {activeContextTab === 'playbooks' && playbookList}
+                            {!activeContextTab && (
+                              <div className="context-panel-hint">{t('context.hoverToSelect')}</div>
+                            )}
+                          </div>
+                        </div>
+                      </Popover.Content>
+                    </Popover.Portal>
+                  </Popover.Root>
+                )}
 
                 {/* Mode toggle - dynamic "1 AI / N AIs" pill based on LLM Hub config */}
                 <Tooltip.Provider delayDuration={400}>

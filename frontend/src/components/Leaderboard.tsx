@@ -44,6 +44,7 @@ export default function Leaderboard({ isOpen, onClose }: LeaderboardProps) {
     if (isOpen) {
       loadLeaderboard();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   const loadLeaderboard = async () => {

@@ -185,6 +185,8 @@
 
 .stage3-toc-link:hover .stage3-toc-text {
   color: var(--color-slate-700);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* Active state */
@@ -312,6 +314,8 @@
 
 .dark .stage3-toc-link:hover .stage3-toc-text {
   color: var(--color-slate-300);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .dark .stage3-toc-link.active {

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable no-console */
 /**
  * Generate PNG icons for PWA from SVG source
  * Required for iOS compatibility (apple-touch-icon must be PNG)

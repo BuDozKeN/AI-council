@@ -110,6 +110,7 @@
     "all": "All",
     "none": "None",
     "clear": "Clear",
+    "clearAll": "Clear All",
     "unknown": "Unknown",
     "saved": "Saved",
     "skip": "Skip",
@@ -383,7 +384,8 @@
     "nothingArchived": "Nothing archived yet",
     "noActiveConversations": "No active conversations",
     "scrollForMore": "Scroll for more conversations",
-    "searchPlaceholder": "Search conversations... (⌘K)",
+    "searchPlaceholder": "Search...",
+    "searchPlaceholderShortcut": "(⌘K)",
     "resultsCount": "{{count}} result",
     "resultsCount_other": "{{count}} results",
     "allConversations": "All Conversations",
@@ -619,7 +621,11 @@
     "department": "Department",
     "deptContext": "Dept Context",
     "toggleCompanyContext": "Toggle company-wide context (main company knowledge)",
-    "toggleDeptContext": "Toggle department-specific context (department knowledge)"
+    "toggleDeptContext": "Toggle department-specific context (department knowledge)",
+    "context": "Context",
+    "configure": "Configure context",
+    "configureContext": "Configure Context",
+    "hoverToSelect": "Hover over a category to see options"
   },
   "stages": {
     "stage1": "Answers",
@@ -857,6 +863,8 @@
     "saveChanges": "Save Changes",
     "departmentBadge": "DEPARTMENT",
     "rolesCount": "{{count}} roles",
+    "rolesCount_one": "{{count}} role",
+    "rolesCount_other": "{{count}} roles",
     "departmentSaved": "Department \"{{name}}\" context saved",
     "failedToSaveDepartment": "Failed to save department",
     "enterDepartmentContext": "Enter the context documentation for this department...",
@@ -1416,12 +1424,20 @@
   },
   "multiSelect": {
     "deptsCount": "{{count}} depts",
+    "deptsCount_one": "{{count}} dept",
+    "deptsCount_other": "{{count}} depts",
     "rolesCount": "{{count}} roles",
-    "playbooksCount": "{{count}} playbooks"
+    "rolesCount_one": "{{count}} role",
+    "rolesCount_other": "{{count}} roles",
+    "playbooksCount": "{{count}} playbooks",
+    "playbooksCount_one": "{{count}} playbook",
+    "playbooksCount_other": "{{count}} playbooks"
   },
   "mobileNav": {
     "new": "New",
-    "company": "Company"
+    "history": "Chats",
+    "company": "Company",
+    "settings": "Settings"
   },
   "modeToggle": {
     "quick": "Quick",
@@ -1536,6 +1552,9 @@
     "newDepartment": "New Department",
     "departmentsRoles": "{{depts}} departments • {{roles}} roles",
     "roles": "roles",
+    "roleCount": "{{count}} roles",
+    "roleCount_one": "{{count}} role",
+    "roleCount_other": "{{count}} roles",
     "viewContext": "View Guidelines",
     "aboutDepartment": "About {{name}}",
     "rolesLabel": "Roles",
@@ -1672,5 +1691,62 @@
     "conversationTitle": "Conversation - AxCouncil",
     "myCompanyTitle": "My Company - AxCouncil",
     "settingsTitle": "Settings - AxCouncil"
+  },
+  "admin": {
+    "backToApp": "Back to App",
+    "title": "Admin Portal",
+    "badge": "Platform Admin",
+    "tabs": {
+      "users": "Users",
+      "companies": "Companies",
+      "audit": "Audit Logs",
+      "admins": "Admin Roles",
+      "settings": "Settings"
+    },
+    "stats": {
+      "totalUsers": "Total Users",
+      "totalCompanies": "Total Companies",
+      "totalConversations": "Conversations",
+      "totalMessages": "Messages"
+    },
+    "users": {
+      "title": "User Management",
+      "description": "View and manage all users across the platform.",
+      "searchPlaceholder": "Search by email...",
+      "email": "Email",
+      "createdAt": "Created",
+      "lastSignIn": "Last Sign In",
+      "status": "Status"
+    },
+    "companies": {
+      "title": "Company Management",
+      "description": "View and manage all companies on the platform.",
+      "searchPlaceholder": "Search by name...",
+      "name": "Company Name",
+      "owner": "Owner",
+      "conversations": "Conversations",
+      "createdAt": "Created"
+    },
+    "admins": {
+      "title": "Admin Roles",
+      "description": "Manage platform administrator access and roles.",
+      "email": "Email",
+      "role": "Role",
+      "grantedAt": "Granted"
+    },
+    "audit": {
+      "title": "Audit Logs",
+      "description": "View platform-wide activity and security logs.",
+      "searchPlaceholder": "Search actions...",
+      "allCategories": "All Categories",
+      "allActors": "All Actor Types",
+      "errorLoading": "Failed to load audit logs"
+    },
+    "settings": {
+      "title": "Platform Settings",
+      "description": "Configure platform-wide settings and preferences.",
+      "comingSoon": "Platform Settings Coming Soon",
+      "comingSoonDesc": "Global configuration options will be available in a future update."
+    }
   }
 }

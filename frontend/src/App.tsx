@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import { LandingHero } from './components/landing';
 import { useAuth } from './AuthContext';
@@ -23,6 +24,7 @@ import {
   useCanonical,
   useFullSEO,
   useMessageStreaming,
+  useAdminAccess,
   type ProjectModalContext,
 } from './hooks';
 import { useDynamicMeta } from './hooks/useDynamicMeta';
@@ -271,6 +273,12 @@ function App() {
   // Theme state from next-themes
   const { theme, setTheme } = useTheme();
 
+  // Admin access check - determines if user can access admin portal
+  const { isAdmin } = useAdminAccess();
+
+  // Navigation hook for full-page route changes (e.g., /admin)
+  const navigate = useNavigate();
+
   // Compute department preset from selected department (for ResponseStyleSelector default)
   const departmentPreset = useMemo<import('./types/business').LLMPresetId>(() => {
     if (selectedDepartments.length > 0 && availableDepartments.length > 0) {
@@ -488,6 +496,7 @@ function App() {
 
       return { deleted: ids };
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       conversations,
       currentConversationId,
@@ -541,6 +550,11 @@ function App() {
   const handleOpenMyCompany = useCallback(() => {
     navigateToCompany('overview');
   }, [navigateToCompany]);
+
+  // Handler for opening admin portal (full-page navigation)
+  const handleOpenAdmin = useCallback(() => {
+    navigate('/admin');
+  }, [navigate]);
 
   // Memoized callback for MyCompany tab changes
   const handleMyCompanyTabChange = useCallback(
@@ -850,6 +864,8 @@ function App() {
             onUpdateConversationDepartment={handleUpdateConversationDepartment}
             onRefresh={refreshConversations}
             companyId={selectedBusiness}
+            isAdmin={isAdmin}
+            onOpenAdmin={handleOpenAdmin}
           />
         </aside>
 

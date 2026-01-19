@@ -1,112 +1,284 @@
-/* OmniBar - Context Popover */
-
-/* Extracted from OmniBar.css lines 583-839 */
+/* OmniBar - Context Dropdown (Two-Column Hover Style) */
 
 /* =============================================================================
-   CONTEXT POPOVER - Selection list dropdown
+   CONTEXT TRIGGER BUTTON - Clean pill button
    ============================================================================= */
 
-.context-popover-content {
-  z-index: var(--z-modal-dropdown);
-  min-width: 180px;
-  max-width: 260px;
-  max-height: 300px;
-  overflow: hidden;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
-  background: var(--color-bg-primary);
-  box-shadow: var(--shadow-lg);
-  animation: contextPopoverIn 0.15s ease-out;
+.context-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
-@keyframes contextPopoverIn {
+.context-trigger:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.context-trigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.context-trigger.has-selection {
+  background: var(--color-indigo-50);
+  border-color: var(--color-indigo-200);
+  color: var(--color-indigo-700);
+}
+
+.context-trigger-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  background: var(--color-indigo-100);
+  color: var(--color-indigo-600);
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+}
+
+.context-trigger-chevron {
+  color: var(--color-text-tertiary);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+[data-state='open'] .context-trigger-chevron {
+  transform: rotate(180deg);
+}
+
+/* Dark mode trigger */
+.dark .context-trigger {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .context-trigger:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+}
+
+.dark .context-trigger.has-selection {
+  background: var(--overlay-indigo-15);
+  border-color: var(--color-indigo-600);
+  color: var(--color-indigo-300);
+}
+
+.dark .context-trigger-badge {
+  background: var(--color-indigo-900);
+  color: var(--color-indigo-300);
+}
+
+/* =============================================================================
+   CONTEXT DROPDOWN - Two-column hover menu (fixed size, no jumping)
+   ============================================================================= */
+
+.context-dropdown {
+  z-index: var(--z-modal-dropdown);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-primary);
+  box-shadow: var(--shadow-xl);
+  animation: dropdownFadeIn 0.12s ease-out;
+  overflow: hidden;
+}
+
+@keyframes dropdownFadeIn {
   from {
     opacity: 0;
-    transform: scale(0.95) translateY(-4px);
+    transform: translateY(-4px);
   }
 
   to {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: translateY(0);
   }
 }
 
-.context-popover-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--space-2-5) var(--space-3) 8px;
-  font-size: var(--text-xs);
-  font-weight: 600;
-  color: var(--color-text-tertiary);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 1px solid var(--color-border-light);
+.dark .context-dropdown {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border-dark);
 }
 
-/* Clear button inside popover header */
-.context-popover-clear {
-  padding: var(--space-1) var(--space-2);
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--color-text-tertiary);
-  font-size: var(--text-xs);
+/* =============================================================================
+   TWO-COLUMN LAYOUT - Categories left, options right
+   ============================================================================= */
+
+.context-dropdown-layout {
+  display: flex;
+  min-width: 420px;
+  max-width: 520px;
+}
+
+/* Left column: Category menu */
+.context-dropdown-menu {
+  width: 160px;
+  padding: 6px;
+  border-right: 1px solid var(--color-border-light);
+  flex-shrink: 0;
+}
+
+.dark .context-dropdown-menu {
+  border-right-color: var(--color-border);
+}
+
+/* Menu item - ALL items identical styling */
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
   font-weight: 500;
-  text-transform: none;
-  letter-spacing: normal;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: background 0.1s ease;
+}
+
+.context-menu-item:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.context-menu-item.active {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .context-menu-item:hover,
+.dark .context-menu-item.active {
+  background: var(--color-bg-hover);
+}
+
+/* Icon - same color for all */
+.context-menu-item > svg:first-child {
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+}
+
+.context-menu-item > span {
+  flex: 1;
+}
+
+/* Badge - subtle, only shows when there's a selection */
+.context-menu-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-tertiary);
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+}
+
+.dark .context-menu-badge {
+  background: var(--color-bg-hover);
+  color: var(--color-text-quaternary);
+}
+
+/* Arrow - always visible, points right */
+.context-menu-arrow {
+  color: var(--color-text-quaternary);
+  flex-shrink: 0;
+}
+
+/* Divider above Clear All */
+.context-menu-divider {
+  height: 1px;
+  margin: 6px 0;
+  background: var(--color-border-light);
+}
+
+.dark .context-menu-divider {
+  background: var(--color-border);
+}
+
+/* Clear All button */
+.context-menu-clear {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-text-tertiary);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.context-popover-clear:hover {
+.context-menu-clear:hover {
   background: var(--color-bg-tertiary);
   color: var(--color-text-secondary);
 }
 
-.context-popover-clear:active {
+.context-menu-clear svg {
+  width: 14px;
+  height: 14px;
+}
+
+.dark .context-menu-clear:hover {
   background: var(--color-bg-hover);
 }
 
-/* Reset all button - small, outside capsule */
-.omni-reset-all {
+/* Right column: Options panel - fixed height to prevent jittering */
+.context-dropdown-panel {
+  flex: 1;
+  min-width: 200px;
+  min-height: 280px;
+  max-height: 280px;
+  padding: 6px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.context-panel-hint {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
-  padding: 0;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
+  padding: 40px 20px;
   color: var(--color-text-quaternary);
-  cursor: pointer;
-  transition: all 0.15s ease;
+  font-size: var(--text-sm);
 }
 
-.omni-reset-all:hover:not(:disabled) {
-  color: var(--color-text-secondary);
-}
-
-.omni-reset-all:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
+/* =============================================================================
+   SHARED LIST & ITEM STYLES (Used by both dropdown and mobile)
+   ============================================================================= */
 
 .context-popover-list {
   display: flex;
   flex-direction: column;
-  gap: var(--gap-2xs); /* Small gap between items */
-  padding: var(--space-1-5);
-  overflow-y: auto;
-  max-height: 250px;
+  gap: 2px;
 }
 
 .context-popover-empty {
-  padding: var(--space-3);
+  padding: var(--space-4);
   text-align: center;
   color: var(--color-text-tertiary);
-  font-size: var(--text-xs-plus);
+  font-size: var(--text-sm);
 }
 
 .context-popover-item {
@@ -114,14 +286,15 @@
   align-items: center;
   gap: var(--gap-sm-plus);
   width: 100%;
-  padding: var(--space-2) var(--space-2-5);
+  padding: var(--space-2-5) var(--space-3);
   border: none;
   background: transparent;
   border-radius: var(--radius-md);
-  font-size: var(--text-xs-plus);
+  font-size: var(--text-sm);
+  font-weight: 500;
   color: var(--color-text-primary);
   cursor: pointer;
-  transition: all 0.1s ease;
+  transition: background 0.1s ease;
   text-align: left;
 }
 
@@ -132,6 +305,19 @@
 .context-popover-item.selected {
   background: var(--color-bg-tertiary);
 }
+
+.dark .context-popover-item:hover {
+  background: var(--color-bg-hover);
+}
+
+.dark .context-popover-item.selected {
+  background: var(--color-bg-hover);
+}
+
+/* =============================================================================
+   CHECKBOX & RADIO INDICATORS
+   Match DepartmentCheckboxItem sizing for consistency (16px desktop)
+   ============================================================================= */
 
 .context-popover-checkbox {
   display: flex;
@@ -150,6 +336,11 @@
   background: var(--color-indigo-500);
   border-color: var(--color-indigo-500);
   color: var(--color-text-inverse);
+}
+
+.context-popover-checkbox svg {
+  width: 12px;
+  height: 12px;
 }
 
 .context-popover-radio {
@@ -171,9 +362,17 @@
   color: var(--color-text-inverse);
 }
 
-/* Playbook grouping */
+.context-popover-radio svg {
+  width: 10px;
+  height: 10px;
+}
+
+/* =============================================================================
+   PLAYBOOK GROUPING (Accordion inside playbooks section)
+   ============================================================================= */
+
 .context-popover-group {
-  margin-bottom: var(--space-1);
+  margin-bottom: 4px;
 }
 
 .context-popover-group:last-child {
@@ -183,13 +382,13 @@
 .context-popover-group-header {
   display: flex;
   align-items: center;
-  gap: var(--gap-xs-plus);
-  padding: var(--space-2) var(--space-2-5) 4px;
-  font-size: var(--text-2xs);
+  gap: 8px;
+  padding: 8px 12px;
+  font-size: var(--text-xs);
   font-weight: 600;
   color: var(--color-text-tertiary);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
 }
 
 .context-popover-group-header svg {
@@ -200,17 +399,15 @@
 
 .context-popover-group-header.clickable {
   width: 100%;
-  padding: var(--space-2-5);
-  margin: 0;
   border: none;
   border-radius: var(--radius-md);
-  background: var(--color-bg-tertiary);
+  background: transparent;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background 0.1s ease;
 }
 
 .context-popover-group-header.clickable:hover {
-  background: var(--color-bg-hover);
+  background: var(--color-bg-tertiary);
 }
 
 .context-popover-group-header .section-chevron {
@@ -228,33 +425,73 @@
 }
 
 .context-popover-group-header .section-count {
-  font-size: var(--text-2xs);
+  font-size: 10px;
   font-weight: 500;
   color: var(--color-text-quaternary);
   margin-left: auto;
 }
 
-.context-popover-group-header .section-count .selected-count {
-  color: inherit;
-  font-weight: 600;
-}
-
 .context-popover-group-items {
-  padding-left: var(--space-2);
-  margin-top: var(--space-1);
+  padding-left: 10px;
+  margin-top: 4px;
+  margin-left: 16px;
   border-left: 2px solid var(--color-border-light);
-  margin-left: var(--space-4);
 }
 
 /* Playbook type colors */
 .context-popover-group-header.sop {
-  color: var(--color-blue-700);
+  color: var(--color-blue-600);
 }
 
 .context-popover-group-header.framework {
-  color: var(--color-amber-700);
+  color: var(--color-amber-600);
 }
 
 .context-popover-group-header.policy {
   color: var(--color-purple-600);
+}
+
+/* =============================================================================
+   CLEAR BUTTON & RESET ALL
+   ============================================================================= */
+
+.context-popover-clear {
+  padding: 4px 8px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-tertiary);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.context-popover-clear:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+}
+
+.omni-reset-all {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-quaternary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.omni-reset-all:hover:not(:disabled) {
+  color: var(--color-text-secondary);
+}
+
+.omni-reset-all:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }

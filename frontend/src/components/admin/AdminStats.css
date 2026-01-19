@@ -1,0 +1,128 @@
+/**
+ * AdminStats.css - Admin dashboard statistics cards
+ */
+
+/* =============================================================================
+   STATS GRID
+   ============================================================================= */
+
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.admin-stat-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.admin-stat-card--loading {
+  height: 80px;
+}
+
+.admin-stat-skeleton {
+  width: 100%;
+  height: 40px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  animation: admin-pulse 1.5s infinite;
+}
+
+@keyframes admin-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.admin-stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.admin-stat-card--blue .admin-stat-icon {
+  background: var(--overlay-blue-15);
+  color: var(--color-primary);
+}
+
+.admin-stat-card--green .admin-stat-icon {
+  background: var(--overlay-emerald-15);
+  color: var(--color-success);
+}
+
+.admin-stat-card--purple .admin-stat-icon {
+  background: rgb(139 92 246 / 15%);
+  color: var(--color-violet-500);
+}
+
+.admin-stat-card--orange .admin-stat-icon {
+  background: var(--overlay-amber-15);
+  color: var(--color-warning);
+}
+
+.admin-stat-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5, 2px);
+}
+
+.admin-stat-value {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.admin-stat-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Stats section wrapper for demo indicator */
+.admin-stats-section {
+  position: relative;
+}
+
+/* Demo stat card visual indicator */
+.admin-stat-card--demo {
+  border: 1px dashed var(--color-warning);
+}
+
+/* =============================================================================
+   RESPONSIVE
+   ============================================================================= */
+
+@media (max-width: 1025px) {
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 641px) {
+  .admin-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .admin-stat-card {
+  background: var(--color-bg-secondary);
+}

@@ -131,7 +131,6 @@
   background: var(--color-bg-tertiary);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-full);
-  margin-left: var(--space-1);
   cursor: pointer;
   transition: border-color 0.15s ease;
 }

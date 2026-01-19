@@ -227,6 +227,11 @@
   color: var(--color-text-inverse);
 }
 
+.context-popover-checkbox svg {
+  width: 12px;
+  height: 12px;
+}
+
 .context-popover-radio {
   display: flex;
   align-items: center;
@@ -244,6 +249,11 @@
   background: var(--color-emerald-500);
   border-color: var(--color-emerald-500);
   color: var(--color-text-inverse);
+}
+
+.context-popover-radio svg {
+  width: 10px;
+  height: 10px;
 }
 
 /* Playbook grouping */

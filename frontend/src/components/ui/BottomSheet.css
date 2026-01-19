@@ -14,7 +14,9 @@
 .bottom-sheet-content {
   position: fixed;
   bottom: 0;
+  left: 0;
   right: 0;
+  width: 100%;
   background: var(--color-bg-primary);
   border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
   min-height: 85vh; /* Fixed height - no resize between tabs */

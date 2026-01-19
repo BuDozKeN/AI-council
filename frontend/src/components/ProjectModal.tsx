@@ -263,6 +263,7 @@ export default function ProjectModal({
               placeholder={t('modals.projectPlaceholder')}
               disabled={structuring}
               rows={5}
+              // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus
               enterKeyHint="done"
             />

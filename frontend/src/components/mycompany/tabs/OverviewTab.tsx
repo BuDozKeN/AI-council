@@ -159,7 +159,12 @@ export function OverviewTab({
               minHeadings={2}
               className="mc-desktop-toc"
             />
-            <CopyButton text={contextMd} size="sm" className="mc-context-copy-btn" />
+            <CopyButton
+              text={contextMd}
+              size="sm"
+              className="mc-context-copy-btn"
+              tooltip={t('mycompany.copyBusinessContext', 'Copy business context')}
+            />
           </div>
         )}
 
