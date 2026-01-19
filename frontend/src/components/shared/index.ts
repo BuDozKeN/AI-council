@@ -2,4 +2,4 @@
  * Shared components - used across multiple contexts
  */
 
-export { OmniBar } from './OmniBar';
+export { default as OmniBar } from './OmniBar';
