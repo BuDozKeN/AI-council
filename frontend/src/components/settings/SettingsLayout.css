@@ -280,30 +280,30 @@
   }
 
   .settings-sidebar {
-    /* Minimal icon rail */
+    /* Icon rail with touch-friendly spacing */
     width: auto;
     min-width: auto;
     background: transparent;
     border-right: 1px solid var(--color-border);
     border-radius: 0;
-    padding: var(--space-2) var(--space-1); /* Minimal: 4px each side */
+    padding: var(--space-3) var(--space-2);
     flex-direction: column;
     align-items: center;
-    gap: var(--gap-plus);
+    gap: var(--gap-sm);
     flex-shrink: 0;
     align-self: stretch;
   }
 
   /* Mobile tabs - use higher specificity to override desktop styles without !important */
   .settings-sidebar .settings-tab {
-    /* Minimal: just the icon */
-    width: 18px;
-    height: 18px;
-    min-height: 18px;
+    /* Touch-friendly icon size (32px is comfortable touch target) */
+    width: 32px;
+    height: 32px;
+    min-height: 32px;
     padding: 0;
     justify-content: center;
     margin: 0;
-    border-radius: 0;
+    border-radius: var(--radius-sm);
     transition: color 0.12s ease;
     background: transparent;
     color: var(--color-text-tertiary);
@@ -334,8 +334,8 @@
     border-radius: var(--radius-xs);
   }
 
-  .settings-tab .tab-icon {
-    font-size: var(--text-sm-plus);
+  .settings-sidebar .settings-tab .tab-icon {
+    font-size: var(--text-base);
   }
 
   .settings-tab .tab-label {
@@ -451,8 +451,8 @@
   }
 }
 
-/* Small phones */
-@media (width <= 640px) {
+/* Small phones (400px and below) */
+@media (width <= 400px) {
   .settings-modal {
     width: 100%;
     max-width: 100%;
@@ -468,61 +468,26 @@
   }
 
   .settings-sidebar {
-    width: auto;
-    min-width: auto;
-    padding: var(--space-1-5) var(--space-1); /* Minimal: 3px each side */
-    align-items: center;
-    gap: var(--gap);
-    border-radius: 0;
+    padding: var(--space-2) var(--space-1-5);
+    gap: var(--gap-sm-plus);
   }
 
-  .settings-tab {
-    width: 16px;
-    height: 16px;
-    min-height: 16px;
+  .settings-sidebar .settings-tab {
+    width: 28px;
+    height: 28px;
+    min-height: 28px;
   }
 
-  .settings-tab .tab-icon {
+  .settings-sidebar .settings-tab .tab-icon {
     font-size: var(--text-sm);
   }
 
   .settings-tab.active::before {
-    left: -3px;
-    width: 2px;
-    height: 12px;
+    height: 16px;
   }
 
   .settings-panel {
-    padding: var(--space-4) var(--space-4) 20px 14px; /* Top, Right, Bottom, Left - consistent with tablet */
-  }
-
-  /* Inside BottomSheet: fill available space */
-  .bottom-sheet-body:has(.settings-content) {
-    display: flex;
-    flex-direction: column;
-
-    /* Disable scroll on outer container - inner .settings-panel handles scrolling */
-    overflow: hidden;
-  }
-
-  .bottom-sheet-body .settings-content {
-    flex: 1;
-    min-height: 0; /* Critical: allow shrinking for scroll to work */
-    max-height: 100%; /* Constrain to parent */
-    overflow: hidden;
-  }
-
-  .bottom-sheet-body .settings-sidebar {
-    align-self: stretch;
-  }
-
-  .bottom-sheet-body .settings-panel {
-    overflow-y: auto;
-    flex: 1;
-    min-height: 0; /* Critical: allow shrinking */
-    -webkit-overflow-scrolling: touch;
-    touch-action: pan-y; /* Override Framer Motion's pan-x to allow vertical touch scroll */
-    overscroll-behavior: contain; /* Prevent scroll chaining to parent */
+    padding: var(--space-4) var(--space-4) 20px 14px;
   }
 
   .settings-section h3 {
@@ -542,35 +507,29 @@
   }
 }
 
-/* Very small phones */
-@media (width <= 640px) {
+/* Very small phones (360px and below) */
+@media (width <= 360px) {
   .settings-sidebar {
-    width: auto;
-    min-width: auto;
-    padding: var(--space-1) var(--space-0-5); /* Minimal: 2px each side */
-    align-items: center;
-    gap: var(--gap-sm-plus);
-    border-radius: 0;
+    padding: var(--space-1-5) var(--space-1);
+    gap: var(--gap-sm);
   }
 
-  .settings-tab {
-    width: 14px;
-    height: 14px;
-    min-height: 14px;
+  .settings-sidebar .settings-tab {
+    width: 24px;
+    height: 24px;
+    min-height: 24px;
   }
 
-  .settings-tab .tab-icon {
-    font-size: var(--text-xs);
+  .settings-sidebar .settings-tab .tab-icon {
+    font-size: var(--text-xs-plus);
   }
 
   .settings-tab.active::before {
-    left: -3px;
-    width: 2px;
-    height: 10px;
+    height: 14px;
   }
 
   .settings-panel {
-    padding: var(--space-3) var(--space-3) 16px 10px; /* Top, Right, Bottom, Left - maintain breathing room */
+    padding: var(--space-3) var(--space-3) 16px 10px;
   }
 
   /* Tighter form spacing on very small screens */
