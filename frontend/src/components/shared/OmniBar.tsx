@@ -207,15 +207,25 @@ export function OmniBar({
     playbooks: false,
   });
 
-  // Auto-expand sections that have selections when popover opens
+  // Track previous open state to detect when popover opens
+  const prevMobileContextOpenRef = useRef(mobileContextOpen);
+
+  // Auto-expand sections that have selections when popover opens (only on transition from closed to open)
   useEffect(() => {
-    if (mobileContextOpen) {
-      setMobileContextSection({
-        company: !!selectedBusiness,
-        project: !!selectedProject,
-        departments: selectedDepartments.length > 0,
-        roles: selectedRoles.length > 0,
-        playbooks: selectedPlaybooks.length > 0,
+    const wasOpen = prevMobileContextOpenRef.current;
+    prevMobileContextOpenRef.current = mobileContextOpen;
+
+    // Only expand on open transition, not on every change
+    if (mobileContextOpen && !wasOpen) {
+      // Use requestAnimationFrame to avoid synchronous setState in effect
+      requestAnimationFrame(() => {
+        setMobileContextSection({
+          company: !!selectedBusiness,
+          project: !!selectedProject,
+          departments: selectedDepartments.length > 0,
+          roles: selectedRoles.length > 0,
+          playbooks: selectedPlaybooks.length > 0,
+        });
       });
     }
   }, [mobileContextOpen, selectedBusiness, selectedProject, selectedDepartments.length, selectedRoles.length, selectedPlaybooks.length]);

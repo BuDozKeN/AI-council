@@ -38,6 +38,7 @@ export default function Billing({ onClose }: BillingProps) {
 
   useEffect(() => {
     loadBillingData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadBillingData = async () => {
