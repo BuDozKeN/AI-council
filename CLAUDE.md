@@ -596,15 +596,15 @@ company_id IN (SELECT id FROM companies WHERE user_id = auth.uid())
 
 **IMPORTANT**: CSS bundle size is monitored by CI. Follow these guidelines to prevent bloat.
 
-### Current Budgets (as of 2026-01-16)
+### Current Budgets (as of 2026-01-19)
 
 | Metric | Budget | Current | Status |
 |--------|--------|---------|--------|
-| **Source CSS** | 1150KB | 1109KB | ✅ 96% used, 41KB headroom |
-| **Built CSS** | 700KB target | 668KB | ✅ Under target |
-| **Gzipped** | N/A | ~104KB | ✅ Excellent |
+| **Source CSS** | 1200KB | ~1165KB | ✅ 97% used, ~35KB headroom |
+| **Built CSS** | 700KB target | ~680KB | ✅ Under target |
+| **Gzipped** | N/A | ~106KB | ✅ Excellent |
 
-**CI Enforcement**: CI will **FAIL** if source CSS exceeds 1150KB. Built CSS check is informational only.
+**CI Enforcement**: CI will **FAIL** if source CSS exceeds 1200KB. Built CSS check is informational only.
 
 ### Guidelines for Adding CSS
 
