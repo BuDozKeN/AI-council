@@ -18,7 +18,6 @@
   justify-content: flex-start;
 }
 
-
 /* Thin scrollbar styling */
 .messages-container::-webkit-scrollbar {
   width: 8px;
