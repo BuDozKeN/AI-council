@@ -56,9 +56,9 @@
 /* NOTE: .empty-state styles have been consolidated into ui/EmptyState.css
    The chat EmptyState components now use the unified ui/EmptyState component */
 
+/* Centering inherited from .messages-container > * */
 .message-group {
   margin-bottom: var(--space-8);
-  /* Note: centering (max-width, margin auto) inherited from .messages-container > * */
 }
 
 .user-message,
