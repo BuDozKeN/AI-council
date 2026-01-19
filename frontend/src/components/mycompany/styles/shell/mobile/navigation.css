@@ -54,8 +54,7 @@
     justify-content: flex-start;
     gap: var(--gap-xs);
     box-shadow: var(--shadow-lg);
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: auto hidden;
     box-sizing: border-box;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none; /* Firefox */
