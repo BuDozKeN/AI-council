@@ -10,7 +10,7 @@
  * - Platform settings
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -61,22 +61,21 @@ export default function AdminPortal() {
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, isLoading: adminLoading, error } = useAdminAccess();
 
-  // Determine active tab from URL
-  const [activeTab, setActiveTab] = useState<AdminTab>('users');
-
-  useEffect(() => {
+  // Derive active tab from URL (no useState to avoid setState in effect)
+  const activeTab = useMemo<AdminTab>(() => {
     const path = location.pathname;
     const matchedTab = ADMIN_TABS.find((tab) => path.startsWith(tab.path));
-    if (matchedTab) {
-      setActiveTab(matchedTab.id);
-    } else if (path === '/admin') {
-      // Default to users tab
+    return matchedTab?.id ?? 'users';
+  }, [location.pathname]);
+
+  // Redirect to default tab if at /admin root
+  useEffect(() => {
+    if (location.pathname === '/admin') {
       navigate('/admin/users', { replace: true });
     }
   }, [location.pathname, navigate]);
 
   const handleTabChange = (tab: AdminTab) => {
-    setActiveTab(tab);
     const tabConfig = ADMIN_TABS.find((t) => t.id === tab);
     if (tabConfig) {
       navigate(tabConfig.path);

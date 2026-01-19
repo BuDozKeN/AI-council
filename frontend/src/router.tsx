@@ -24,26 +24,6 @@ import { ErrorPage } from './components/ErrorPage';
 // Lazy load admin portal for code splitting (admin is rarely accessed)
 const AdminPortal = lazy(() => import('./components/admin/AdminPortal'));
 
-// Minimal loading fallback for admin portal
-const AdminFallback = () => (
-  <div className="admin-loading-fallback" style={{
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100vh',
-    background: 'var(--color-bg-primary, #fafafa)'
-  }}>
-    <div className="admin-loading-spinner" style={{
-      width: '40px',
-      height: '40px',
-      border: '3px solid var(--color-border, #e5e5e5)',
-      borderTopColor: 'var(--color-primary, #6366f1)',
-      borderRadius: '50%',
-      animation: 'spin 1s linear infinite'
-    }} />
-  </div>
-);
-
 // The App component handles all rendering - routes just control what's visible
 // This is a "modal overlay with URL sync" approach - keeps current UX but URLs change
 export const router = createBrowserRouter([
@@ -79,7 +59,24 @@ export const router = createBrowserRouter([
   {
     path: '/admin',
     element: (
-      <Suspense fallback={<AdminFallback />}>
+      <Suspense fallback={
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100vh',
+          background: 'var(--color-bg-primary, #fafafa)'
+        }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            border: '3px solid var(--color-border, #e5e5e5)',
+            borderTopColor: 'var(--color-primary, #6366f1)',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }} />
+        </div>
+      }>
         <AdminPortal />
       </Suspense>
     ),
