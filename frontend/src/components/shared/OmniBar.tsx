@@ -182,11 +182,27 @@ export function OmniBar({
 
   // Mom-friendly tooltip descriptions - actionable, clear (translated)
   const TOOLTIPS = {
+    // Mode tooltips
     councilMode: t('chat.tooltips.councilMode'),
     chatMode: t('chat.tooltips.chatMode'),
+    // Action tooltips
     attach: t('omnibar.attach'),
     send: t('chat.tooltips.send'),
     stop: t('chat.tooltips.stop'),
+    reset: t('chat.tooltips.reset'),
+    // Context tooltips - explain what each category does for your mum
+    context: t('omnibar.tooltips.context', 'Choose company context for better answers'),
+    company: t('chat.tooltips.company'),
+    projects: t('chat.tooltips.projects'),
+    departments: t('chat.tooltips.departments'),
+    roles: t('chat.tooltips.roles'),
+    playbooks: t('chat.tooltips.playbooks'),
+    // Empty state tooltips - when no items available
+    noCompany: t('omnibar.tooltips.noCompany', 'No company set up yet'),
+    noProjects: t('omnibar.tooltips.noProjects', 'No projects available'),
+    noDepartments: t('omnibar.tooltips.noDepartments', 'No departments configured'),
+    noRoles: t('omnibar.tooltips.noRoles', 'No roles configured'),
+    noPlaybooks: t('omnibar.tooltips.noPlaybooks', 'No playbooks uploaded yet'),
   };
 
   // Playbook type config with icons and labels (translated)
@@ -731,12 +747,18 @@ export function OmniBar({
   );
 
   // Wrap button with tooltip for mom-friendly help
-  const withTooltip = (button: React.ReactNode, tooltipText: string) => (
+  // side: 'top' | 'right' | 'bottom' | 'left' - where tooltip appears relative to trigger
+  // Use 'left' for dropdown menu items so tooltip doesn't block clicking
+  const withTooltip = (
+    button: React.ReactNode,
+    tooltipText: string,
+    side: 'top' | 'right' | 'bottom' | 'left' = 'top'
+  ) => (
     <Tooltip.Provider delayDuration={400}>
       <Tooltip.Root>
         <Tooltip.Trigger asChild>{button}</Tooltip.Trigger>
         <Tooltip.Portal>
-          <Tooltip.Content className="tooltip-content" sideOffset={8}>
+          <Tooltip.Content className="tooltip-content" side={side} sideOffset={8}>
             {tooltipText}
             <Tooltip.Arrow className="tooltip-arrow" />
           </Tooltip.Content>
@@ -761,26 +783,32 @@ export function OmniBar({
       {/* Mode toggle - only for landing variant when showModeToggle is true */}
       {showModeToggle && variant === 'landing' && onChatModeChange && (
         <div className="omni-mode-toggle" role="radiogroup" aria-label="Response mode">
-          <button
-            type="button"
-            name="response-mode"
-            className={`omni-mode-btn ${chatMode === 'chat' ? 'active' : ''}`}
-            onClick={() => onChatModeChange('chat')}
-            role="radio"
-            aria-checked={chatMode === 'chat'}
-          >
-            {t('omnibar.oneAI')}
-          </button>
-          <button
-            type="button"
-            name="response-mode"
-            className={`omni-mode-btn ${chatMode === 'council' ? 'active' : ''}`}
-            onClick={() => onChatModeChange('council')}
-            role="radio"
-            aria-checked={chatMode === 'council'}
-          >
-            {t('omnibar.multiAI', { count: aiCount })}
-          </button>
+          {withTooltip(
+            <button
+              type="button"
+              name="response-mode"
+              className={`omni-mode-btn ${chatMode === 'chat' ? 'active' : ''}`}
+              onClick={() => onChatModeChange('chat')}
+              role="radio"
+              aria-checked={chatMode === 'chat'}
+            >
+              {t('omnibar.oneAI')}
+            </button>,
+            TOOLTIPS.chatMode
+          )}
+          {withTooltip(
+            <button
+              type="button"
+              name="response-mode"
+              className={`omni-mode-btn ${chatMode === 'council' ? 'active' : ''}`}
+              onClick={() => onChatModeChange('council')}
+              role="radio"
+              aria-checked={chatMode === 'council'}
+            >
+              {t('omnibar.multiAI', { count: aiCount })}
+            </button>,
+            TOOLTIPS.councilMode
+          )}
         </div>
       )}
 
@@ -869,22 +897,34 @@ export function OmniBar({
                 {/* DESKTOP: Two-column hover dropdown (ChatGPT style) */}
                 {!isMobile && (
                   <Popover.Root open={mobileContextOpen} onOpenChange={setMobileContextOpen}>
-                    <Popover.Trigger asChild>
-                      <button
-                        type="button"
-                        className={cn(
-                          'context-trigger',
-                          totalSelectionCount > 0 && 'has-selection'
-                        )}
-                        disabled={disabled}
-                      >
-                        <span>{t('context.context')}</span>
-                        {totalSelectionCount > 0 && (
-                          <span className="context-trigger-badge">{totalSelectionCount}</span>
-                        )}
-                        <ChevronDown size={14} className="context-trigger-chevron" />
-                      </button>
-                    </Popover.Trigger>
+                    <Tooltip.Provider delayDuration={400}>
+                      <Tooltip.Root>
+                        <Tooltip.Trigger asChild>
+                          <Popover.Trigger asChild>
+                            <button
+                              type="button"
+                              className={cn(
+                                'context-trigger',
+                                totalSelectionCount > 0 && 'has-selection'
+                              )}
+                              disabled={disabled}
+                            >
+                              <span>{t('context.context')}</span>
+                              {totalSelectionCount > 0 && (
+                                <span className="context-trigger-badge">{totalSelectionCount}</span>
+                              )}
+                              <ChevronDown size={14} className="context-trigger-chevron" />
+                            </button>
+                          </Popover.Trigger>
+                        </Tooltip.Trigger>
+                        <Tooltip.Portal>
+                          <Tooltip.Content className="tooltip-content" sideOffset={8}>
+                            {TOOLTIPS.context}
+                            <Tooltip.Arrow className="tooltip-arrow" />
+                          </Tooltip.Content>
+                        </Tooltip.Portal>
+                      </Tooltip.Root>
+                    </Tooltip.Provider>
                     <Popover.Portal>
                       <Popover.Content
                         className="context-dropdown"
@@ -897,101 +937,116 @@ export function OmniBar({
                         <div className="context-dropdown-layout">
                           {/* Left: Category menu */}
                           <div className="context-dropdown-menu">
-                            {hasBusinesses && (
-                              <div
-                                role="menuitem"
-                                tabIndex={0}
-                                className={cn(
-                                  'context-menu-item',
-                                  activeContextTab === 'company' && 'active'
-                                )}
-                                onMouseEnter={() => setActiveContextTab('company')}
-                                onFocus={() => setActiveContextTab('company')}
-                              >
-                                <Briefcase size={16} />
-                                <span>{t('context.company')}</span>
-                                {selectedBusiness && <span className="context-menu-badge">1</span>}
-                                <ChevronRight size={14} className="context-menu-arrow" />
-                              </div>
-                            )}
-                            {hasProjects && (
-                              <div
-                                role="menuitem"
-                                tabIndex={0}
-                                className={cn(
-                                  'context-menu-item',
-                                  activeContextTab === 'project' && 'active'
-                                )}
-                                onMouseEnter={() => setActiveContextTab('project')}
-                                onFocus={() => setActiveContextTab('project')}
-                              >
-                                <FolderKanban size={16} />
-                                <span>{t('context.project')}</span>
-                                {selectedProject && <span className="context-menu-badge">1</span>}
-                                <ChevronRight size={14} className="context-menu-arrow" />
-                              </div>
-                            )}
-                            {hasDepartments && (
-                              <div
-                                role="menuitem"
-                                tabIndex={0}
-                                className={cn(
-                                  'context-menu-item',
-                                  activeContextTab === 'departments' && 'active'
-                                )}
-                                onMouseEnter={() => setActiveContextTab('departments')}
-                                onFocus={() => setActiveContextTab('departments')}
-                              >
-                                <Building2 size={16} />
-                                <span>{t('departments.title')}</span>
-                                {selectedDepartments.length > 0 && (
-                                  <span className="context-menu-badge">
-                                    {selectedDepartments.length}
-                                  </span>
-                                )}
-                                <ChevronRight size={14} className="context-menu-arrow" />
-                              </div>
-                            )}
-                            {hasRoles && (
-                              <div
-                                role="menuitem"
-                                tabIndex={0}
-                                className={cn(
-                                  'context-menu-item',
-                                  activeContextTab === 'roles' && 'active'
-                                )}
-                                onMouseEnter={() => setActiveContextTab('roles')}
-                                onFocus={() => setActiveContextTab('roles')}
-                              >
-                                <Users size={16} />
-                                <span>{t('roles.title')}</span>
-                                {selectedRoles.length > 0 && (
-                                  <span className="context-menu-badge">{selectedRoles.length}</span>
-                                )}
-                                <ChevronRight size={14} className="context-menu-arrow" />
-                              </div>
-                            )}
-                            {hasPlaybooks && (
-                              <div
-                                role="menuitem"
-                                tabIndex={0}
-                                className={cn(
-                                  'context-menu-item',
-                                  activeContextTab === 'playbooks' && 'active'
-                                )}
-                                onMouseEnter={() => setActiveContextTab('playbooks')}
-                                onFocus={() => setActiveContextTab('playbooks')}
-                              >
-                                <BookOpen size={16} />
-                                <span>{t('context.playbooks')}</span>
-                                {selectedPlaybooks.length > 0 && (
-                                  <span className="context-menu-badge">
-                                    {selectedPlaybooks.length}
-                                  </span>
-                                )}
-                                <ChevronRight size={14} className="context-menu-arrow" />
-                              </div>
-                            )}
+                            {hasBusinesses &&
+                              withTooltip(
+                                <div
+                                  role="menuitem"
+                                  tabIndex={0}
+                                  className={cn(
+                                    'context-menu-item',
+                                    activeContextTab === 'company' && 'active'
+                                  )}
+                                  onMouseEnter={() => setActiveContextTab('company')}
+                                  onFocus={() => setActiveContextTab('company')}
+                                >
+                                  <Briefcase size={16} />
+                                  <span>{t('context.company')}</span>
+                                  {selectedBusiness && <span className="context-menu-badge">1</span>}
+                                  <ChevronRight size={14} className="context-menu-arrow" />
+                                </div>,
+                                TOOLTIPS.company,
+                                'left'
+                              )}
+                            {hasProjects &&
+                              withTooltip(
+                                <div
+                                  role="menuitem"
+                                  tabIndex={0}
+                                  className={cn(
+                                    'context-menu-item',
+                                    activeContextTab === 'project' && 'active'
+                                  )}
+                                  onMouseEnter={() => setActiveContextTab('project')}
+                                  onFocus={() => setActiveContextTab('project')}
+                                >
+                                  <FolderKanban size={16} />
+                                  <span>{t('context.project')}</span>
+                                  {selectedProject && <span className="context-menu-badge">1</span>}
+                                  <ChevronRight size={14} className="context-menu-arrow" />
+                                </div>,
+                                TOOLTIPS.projects,
+                                'left'
+                              )}
+                            {hasDepartments &&
+                              withTooltip(
+                                <div
+                                  role="menuitem"
+                                  tabIndex={0}
+                                  className={cn(
+                                    'context-menu-item',
+                                    activeContextTab === 'departments' && 'active'
+                                  )}
+                                  onMouseEnter={() => setActiveContextTab('departments')}
+                                  onFocus={() => setActiveContextTab('departments')}
+                                >
+                                  <Building2 size={16} />
+                                  <span>{t('departments.title')}</span>
+                                  {selectedDepartments.length > 0 && (
+                                    <span className="context-menu-badge">
+                                      {selectedDepartments.length}
+                                    </span>
+                                  )}
+                                  <ChevronRight size={14} className="context-menu-arrow" />
+                                </div>,
+                                TOOLTIPS.departments,
+                                'left'
+                              )}
+                            {hasRoles &&
+                              withTooltip(
+                                <div
+                                  role="menuitem"
+                                  tabIndex={0}
+                                  className={cn(
+                                    'context-menu-item',
+                                    activeContextTab === 'roles' && 'active'
+                                  )}
+                                  onMouseEnter={() => setActiveContextTab('roles')}
+                                  onFocus={() => setActiveContextTab('roles')}
+                                >
+                                  <Users size={16} />
+                                  <span>{t('roles.title')}</span>
+                                  {selectedRoles.length > 0 && (
+                                    <span className="context-menu-badge">{selectedRoles.length}</span>
+                                  )}
+                                  <ChevronRight size={14} className="context-menu-arrow" />
+                                </div>,
+                                TOOLTIPS.roles,
+                                'left'
+                              )}
+                            {hasPlaybooks &&
+                              withTooltip(
+                                <div
+                                  role="menuitem"
+                                  tabIndex={0}
+                                  className={cn(
+                                    'context-menu-item',
+                                    activeContextTab === 'playbooks' && 'active'
+                                  )}
+                                  onMouseEnter={() => setActiveContextTab('playbooks')}
+                                  onFocus={() => setActiveContextTab('playbooks')}
+                                >
+                                  <BookOpen size={16} />
+                                  <span>{t('context.playbooks')}</span>
+                                  {selectedPlaybooks.length > 0 && (
+                                    <span className="context-menu-badge">
+                                      {selectedPlaybooks.length}
+                                    </span>
+                                  )}
+                                  <ChevronRight size={14} className="context-menu-arrow" />
+                                </div>,
+                                TOOLTIPS.playbooks,
+                                'left'
+                              )}
                             {/* Clear All button at bottom of menu */}
                             {hasAnySelections && onResetAll && (
                               <div className="context-menu-divider" />
@@ -1013,6 +1068,25 @@ export function OmniBar({
 
                           {/* Right: Options panel (always visible, content changes on hover) */}
                           <div className="context-dropdown-panel">
+                            {/* Panel header with description - helps mum understand */}
+                            {activeContextTab && (
+                              <div className="context-panel-header">
+                                <span className="context-panel-title">
+                                  {activeContextTab === 'company' && t('context.company')}
+                                  {activeContextTab === 'project' && t('context.project')}
+                                  {activeContextTab === 'departments' && t('departments.title')}
+                                  {activeContextTab === 'roles' && t('roles.title')}
+                                  {activeContextTab === 'playbooks' && t('context.playbooks')}
+                                </span>
+                                <span className="context-panel-desc">
+                                  {activeContextTab === 'company' && TOOLTIPS.company}
+                                  {activeContextTab === 'project' && TOOLTIPS.projects}
+                                  {activeContextTab === 'departments' && TOOLTIPS.departments}
+                                  {activeContextTab === 'roles' && TOOLTIPS.roles}
+                                  {activeContextTab === 'playbooks' && TOOLTIPS.playbooks}
+                                </span>
+                              </div>
+                            )}
                             {activeContextTab === 'company' && companyList}
                             {activeContextTab === 'project' && projectList}
                             {activeContextTab === 'departments' && departmentList}
@@ -1031,36 +1105,44 @@ export function OmniBar({
             )}
             {/* Inline mode toggle - next to Context for consistency */}
             {onChatModeChange && !showModeToggle && (
-              <button
-                type="button"
+              <div
                 className="omni-inline-mode-toggle no-touch-target"
-                onClick={() => {
-                  if (!disabled) {
-                    onChatModeChange(chatMode === 'chat' ? 'council' : 'chat');
-                  }
-                }}
-                disabled={disabled}
-                aria-label={`Response mode: ${chatMode === 'chat' ? t('omnibar.oneAI') : t('omnibar.multiAI', { count: aiCount })}. Click to toggle.`}
+                role="radiogroup"
+                aria-label="Response mode"
               >
-                <span
-                  className={cn(
-                    'inline-mode-indicator no-touch-target',
-                    chatMode === 'chat' && 'active'
-                  )}
-                  aria-hidden="true"
-                >
-                  {t('omnibar.oneAI')}
-                </span>
-                <span
-                  className={cn(
-                    'inline-mode-indicator no-touch-target',
-                    chatMode === 'council' && 'active'
-                  )}
-                  aria-hidden="true"
-                >
-                  {t('omnibar.multiAI', { count: aiCount })}
-                </span>
-              </button>
+                {withTooltip(
+                  <button
+                    type="button"
+                    className={cn(
+                      'inline-mode-indicator no-touch-target',
+                      chatMode === 'chat' && 'active'
+                    )}
+                    onClick={() => !disabled && onChatModeChange('chat')}
+                    disabled={disabled}
+                    role="radio"
+                    aria-checked={chatMode === 'chat'}
+                  >
+                    {t('omnibar.oneAI')}
+                  </button>,
+                  TOOLTIPS.chatMode
+                )}
+                {withTooltip(
+                  <button
+                    type="button"
+                    className={cn(
+                      'inline-mode-indicator no-touch-target',
+                      chatMode === 'council' && 'active'
+                    )}
+                    onClick={() => !disabled && onChatModeChange('council')}
+                    disabled={disabled}
+                    role="radio"
+                    aria-checked={chatMode === 'council'}
+                  >
+                    {t('omnibar.multiAI', { count: aiCount })}
+                  </button>,
+                  TOOLTIPS.councilMode
+                )}
+              </div>
             )}
             {/* Response Style Selector - next to mode toggle */}
             {onSelectPreset && (
@@ -1093,39 +1175,43 @@ export function OmniBar({
                 TOOLTIPS.attach
               )}
 
-            {/* Submit/Stop button */}
+            {/* Submit/Stop button with tooltips */}
             <AnimatePresence mode="wait">
-              {isLoading ? (
-                <motion.button
-                  key="stop"
-                  type="button"
-                  className="omni-bar-submit omni-bar-stop"
-                  onClick={onStop}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={springs.snappy}
-                  whileTap={interactionStates.buttonTap}
-                >
-                  <StopCircle className="h-5 w-5" />
-                </motion.button>
-              ) : (
-                <motion.button
-                  key="submit"
-                  type="submit"
-                  className={cn('omni-bar-submit', hasContent && 'active')}
-                  disabled={!hasContent}
-                  onClick={handleSubmit}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={springs.snappy}
-                  whileHover={interactionStates.buttonHover}
-                  whileTap={interactionStates.buttonTap}
-                >
-                  <Send className="h-5 w-5" />
-                </motion.button>
-              )}
+              {isLoading
+                ? withTooltip(
+                    <motion.button
+                      key="stop"
+                      type="button"
+                      className="omni-bar-submit omni-bar-stop"
+                      onClick={onStop}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={springs.snappy}
+                      whileTap={interactionStates.buttonTap}
+                    >
+                      <StopCircle className="h-5 w-5" />
+                    </motion.button>,
+                    TOOLTIPS.stop
+                  )
+                : withTooltip(
+                    <motion.button
+                      key="submit"
+                      type="submit"
+                      className={cn('omni-bar-submit', hasContent && 'active')}
+                      disabled={!hasContent}
+                      onClick={handleSubmit}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={springs.snappy}
+                      whileHover={interactionStates.buttonHover}
+                      whileTap={interactionStates.buttonTap}
+                    >
+                      <Send className="h-5 w-5" />
+                    </motion.button>,
+                    TOOLTIPS.send
+                  )}
             </AnimatePresence>
           </div>
         </div>

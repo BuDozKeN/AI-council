@@ -211,12 +211,12 @@ export function ResponseStyleSelector({
     </div>
   );
 
-  // Wrap trigger with tooltip
+  // Wrap trigger with tooltip - mum-friendly: explain WHAT it does, not just current state
   const tooltipContent = isUsingOverride
-    ? t('chat.responseStyle.tooltipOverride', 'Override: {{preset}}', {
+    ? t('chat.responseStyle.tooltipOverride', 'AI is set to {{preset}} mode - click to change how creative the responses are', {
         preset: getLabel(effectivePreset),
       })
-    : t('chat.responseStyle.tooltipDefault', 'Using department default');
+    : t('chat.responseStyle.tooltipDefault', 'Click to control how creative vs precise the AI\'s answers are');
 
   if (isMobile) {
     return (

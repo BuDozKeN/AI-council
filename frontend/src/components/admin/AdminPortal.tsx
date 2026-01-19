@@ -1753,13 +1753,6 @@ function InvitationsTab() {
             </SelectContent>
           </Select>
 
-          <button
-            className="admin-icon-btn admin-icon-btn--secondary"
-            onClick={() => refetch()}
-            title={t('common.refresh', 'Refresh')}
-          >
-            <RefreshCw className="h-4 w-4" />
-          </button>
         </div>
       </div>
 
