@@ -145,7 +145,6 @@
    TABLE STATES
    ============================================================================= */
 
-.admin-table-loading,
 .admin-table-error,
 .admin-table-empty {
   display: flex;
@@ -159,6 +158,70 @@
 
 .admin-table-error {
   color: var(--color-destructive);
+}
+
+/* =============================================================================
+   SKELETON LOADING
+   ============================================================================= */
+
+.admin-table-skeleton {
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-sm);
+  animation: admin-skeleton-pulse 1.5s infinite;
+}
+
+.admin-table-skeleton--text {
+  height: 16px;
+  width: 100%;
+}
+
+.admin-table-skeleton--short {
+  width: 60%;
+}
+
+.admin-table-skeleton--medium {
+  width: 80%;
+}
+
+.admin-table-skeleton--badge {
+  height: 24px;
+  width: 70px;
+  border-radius: var(--radius-full);
+}
+
+.admin-table-skeleton--icon {
+  height: 16px;
+  width: 16px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.admin-table-skeleton--btn {
+  height: 32px;
+  width: 32px;
+  border-radius: var(--radius-md);
+}
+
+.admin-skeleton-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.admin-skeleton-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+@keyframes admin-skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
 }
 
 /* =============================================================================
