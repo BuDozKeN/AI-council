@@ -7,21 +7,32 @@
    Single button that opens unified context menu - replaces individual icons
    ============================================================================= */
 
+/* Context button - MUST match .omni-inline-mode-toggle dimensions exactly */
 .mobile-context-btn {
   display: flex;
   align-items: center;
-  gap: var(--gap-2xs);
-  padding: var(--space-1) var(--space-2-5); /* Compact to match mode toggle */
+  gap: var(--gap-xs);
+  padding: var(--space-0-5); /* Match mode toggle outer padding */
   background: var(--color-bg-tertiary);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-full);
   color: var(--color-text-secondary);
-  font-size: var(--text-xs); /* 12px - matches mode toggle */
+  font-size: var(--text-xs);
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
-  min-height: 28px; /* Match mode toggle height */
   flex-shrink: 0;
+}
+
+/* Inner content area - matches .inline-mode-indicator padding */
+.mobile-context-btn .mobile-context-label {
+  padding: var(--space-1) var(--space-2-5);
+  white-space: nowrap;
+}
+
+/* Icon inside the button */
+.mobile-context-btn svg {
+  margin-left: var(--space-1-5);
 }
 
 .mobile-context-btn:hover:not(:disabled) {
@@ -62,26 +73,18 @@
   color: var(--color-indigo-300);
 }
 
-.mobile-context-label {
-  white-space: nowrap;
-}
-
-/* Standardize mobile context button icon - compact to match mode toggle */
-.mobile-context-btn svg {
-  width: 14px;
-  height: 14px;
-}
-
+/* Badge for selection count - positioned inside the button */
 .mobile-context-badge {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  margin-right: var(--space-1);
   background: var(--color-indigo-500);
   color: var(--color-white);
-  font-size: 9px; /* Very compact badge */
+  font-size: var(--text-2xs);
   font-weight: 700;
   border-radius: var(--radius-full);
 }

@@ -32,8 +32,6 @@ import {
   ScrollText,
   Shield,
   ChevronRight,
-  RotateCcw,
-  Settings2,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { springs, interactionStates } from '../../lib/animations';
@@ -179,30 +177,14 @@ export function OmniBar({
   const { t } = useTranslation();
   const { aiCount } = useCouncilStats(selectedBusiness);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const capsuleRef = useRef<HTMLDivElement>(null);
-  const [capsuleScrolledEnd, setCapsuleScrolledEnd] = useState(false);
-
-  // Track capsule scroll position to hide/show fade indicator
-  const handleCapsuleScroll = useCallback(() => {
-    const capsule = capsuleRef.current;
-    if (!capsule) return;
-    const isAtEnd = capsule.scrollLeft + capsule.clientWidth >= capsule.scrollWidth - 2;
-    setCapsuleScrolledEnd(isAtEnd);
-  }, []);
 
   // Mom-friendly tooltip descriptions - actionable, clear (translated)
   const TOOLTIPS = {
-    company: t('chat.tooltips.company'),
-    projects: t('chat.tooltips.projects'),
-    departments: t('chat.tooltips.departments'),
-    roles: t('chat.tooltips.roles'),
-    playbooks: t('chat.tooltips.playbooks'),
     councilMode: t('chat.tooltips.councilMode'),
     chatMode: t('chat.tooltips.chatMode'),
     attach: t('omnibar.attach'),
     send: t('chat.tooltips.send'),
     stop: t('chat.tooltips.stop'),
-    reset: t('chat.tooltips.reset'),
   };
 
   // Playbook type config with icons and labels (translated)
@@ -213,12 +195,7 @@ export function OmniBar({
     other: { label: t('context.other'), icon: <BookOpen size={12} /> },
   };
 
-  // Popover states for context icons
-  const [companyOpen, setCompanyOpen] = useState(false);
-  const [projectOpen, setProjectOpen] = useState(false);
-  const [deptOpen, setDeptOpen] = useState(false);
-  const [roleOpen, setRoleOpen] = useState(false);
-  const [playbookOpen, setPlaybookOpen] = useState(false);
+  // Popover states for unified context menu
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   // Mobile unified context menu (Perplexity style - single button for all context)
   const [mobileContextOpen, setMobileContextOpen] = useState(false);
@@ -383,7 +360,6 @@ export function OmniBar({
               className={cn('context-popover-item', isSelected && 'selected')}
               onClick={() => {
                 onSelectBusiness?.(isSelected ? null : biz.id);
-                setCompanyOpen(false);
               }}
               type="button"
             >
@@ -414,7 +390,6 @@ export function OmniBar({
                 className={cn('context-popover-item', isSelected && 'selected')}
                 onClick={() => {
                   onSelectProject?.(isSelected ? null : proj.id);
-                  setProjectOpen(false);
                 }}
                 type="button"
               >
@@ -696,116 +671,6 @@ export function OmniBar({
     </Tooltip.Provider>
   );
 
-  // Render context icon with popover
-  const renderContextIcon = (
-    icon: React.ReactNode,
-    label: string,
-    tooltipText: string,
-    count: number,
-    open: boolean,
-    setOpen: (open: boolean) => void,
-    content: React.ReactNode,
-    colorClass?: string,
-    onClear?: () => void
-  ) => {
-    const iconButton = (
-      <button
-        type="button"
-        className={cn('omni-icon-btn no-touch-target', count > 0 && 'has-selection', colorClass)}
-        onClick={() => (isMobile ? setOpen(true) : undefined)}
-        disabled={disabled}
-        aria-label={label}
-      >
-        {icon}
-        {count > 0 && <span className="omni-icon-badge">{count}</span>}
-      </button>
-    );
-
-    // Header with optional Clear button
-    const header = (
-      <div className="context-popover-header">
-        <span>{label}</span>
-        {count > 0 && onClear && (
-          <button
-            type="button"
-            className="context-popover-clear"
-            onClick={(e) => {
-              e.stopPropagation();
-              onClear();
-            }}
-          >
-            {t('common.clear')}
-          </button>
-        )}
-      </div>
-    );
-
-    if (isMobile) {
-      return (
-        <>
-          {withTooltip(iconButton, tooltipText)}
-          <BottomSheet
-            isOpen={open}
-            onClose={() => setOpen(false)}
-            title={label}
-            headerAction={
-              count > 0 && onClear ? (
-                <button
-                  type="button"
-                  className="context-popover-clear"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onClear();
-                  }}
-                >
-                  {t('common.clear')}
-                </button>
-              ) : undefined
-            }
-          >
-            {content}
-          </BottomSheet>
-        </>
-      );
-    }
-
-    return (
-      <Popover.Root open={open} onOpenChange={setOpen}>
-        <Tooltip.Provider delayDuration={400}>
-          <Tooltip.Root>
-            <Popover.Trigger asChild>
-              <Tooltip.Trigger asChild>{iconButton}</Tooltip.Trigger>
-            </Popover.Trigger>
-            <Tooltip.Portal>
-              <Tooltip.Content className="tooltip-content" sideOffset={8}>
-                {tooltipText}
-                <Tooltip.Arrow className="tooltip-arrow" />
-              </Tooltip.Content>
-            </Tooltip.Portal>
-          </Tooltip.Root>
-        </Tooltip.Provider>
-        <Popover.Portal>
-          <Popover.Content
-            className="context-popover-content"
-            side="top"
-            align="start"
-            sideOffset={8}
-            onInteractOutside={(e) => {
-              // Don't close if clicking the theme toggle
-              const target = e.target as HTMLElement;
-              if (target.closest('.theme-toggle-container')) {
-                e.preventDefault();
-              }
-            }}
-          >
-            {header}
-            {content}
-          </Popover.Content>
-        </Popover.Portal>
-      </Popover.Root>
-    );
-  };
-
   const containerClasses = cn(
     'omni-bar-wrapper',
     variant === 'landing' && 'omni-bar-landing',
@@ -881,11 +746,11 @@ export function OmniBar({
 
         {/* Bottom row: Context icons (left) + Actions (right) */}
         <div className="omni-bar-bottom">
-          {/* Left side: Context icons */}
+          {/* Left side: Context button (unified for mobile & desktop) */}
           <div className="omni-bar-left">
             {hasAnyContextIcons && (
               <>
-                {/* MOBILE: Single Context button (Perplexity style) */}
+                {/* MOBILE: Context button opens BottomSheet */}
                 {isMobile && (
                   <>
                     <button
@@ -898,7 +763,6 @@ export function OmniBar({
                       disabled={disabled}
                       aria-label={t('context.configure')}
                     >
-                      <Settings2 size={18} />
                       <span className="mobile-context-label">{t('context.context')}</span>
                       {totalSelectionCount > 0 && (
                         <span className="mobile-context-badge">{totalSelectionCount}</span>
@@ -928,113 +792,62 @@ export function OmniBar({
                   </>
                 )}
 
-                {/* DESKTOP: Individual context icons in capsule */}
+                {/* DESKTOP: Context button opens Popover (consistent with mobile) */}
                 {!isMobile && (
-                  <div
-                    className={cn(
-                      'context-icons-capsule-wrapper',
-                      !capsuleScrolledEnd && 'has-more'
-                    )}
-                  >
-                    <div
-                      ref={capsuleRef}
-                      className="context-icons-capsule"
-                      onScroll={handleCapsuleScroll}
-                    >
-                      {hasBusinesses &&
-                        renderContextIcon(
-                          <Briefcase size={20} />,
-                          selectedCompanyName || t('context.company'),
-                          TOOLTIPS.company,
-                          selectedBusiness ? 1 : 0,
-                          companyOpen,
-                          setCompanyOpen,
-                          companyList,
-                          'company',
-                          () => onSelectBusiness?.(null)
+                  <Popover.Root open={mobileContextOpen} onOpenChange={setMobileContextOpen}>
+                    <Popover.Trigger asChild>
+                      <button
+                        type="button"
+                        className={cn(
+                          'mobile-context-btn',
+                          totalSelectionCount > 0 && 'has-selection'
                         )}
-                      {hasProjects &&
-                        renderContextIcon(
-                          <FolderKanban size={20} />,
-                          selectedProjectName || t('context.project'),
-                          TOOLTIPS.projects,
-                          selectedProject ? 1 : 0,
-                          projectOpen,
-                          setProjectOpen,
-                          projectList,
-                          'project',
-                          () => onSelectProject?.(null)
+                        disabled={disabled}
+                        aria-label={t('context.configure')}
+                      >
+                        <span className="mobile-context-label">{t('context.context')}</span>
+                        {totalSelectionCount > 0 && (
+                          <span className="mobile-context-badge">{totalSelectionCount}</span>
                         )}
-                      {hasDepartments &&
-                        renderContextIcon(
-                          <Building2 size={20} />,
-                          t('departments.title'),
-                          TOOLTIPS.departments,
-                          selectedDepartments.length,
-                          deptOpen,
-                          setDeptOpen,
-                          departmentList,
-                          'dept',
-                          () => onSelectDepartments?.([])
-                        )}
-                      {hasRoles &&
-                        renderContextIcon(
-                          <Users size={20} />,
-                          t('roles.title'),
-                          TOOLTIPS.roles,
-                          selectedRoles.length,
-                          roleOpen,
-                          setRoleOpen,
-                          roleList,
-                          'role',
-                          () => onSelectRoles?.([])
-                        )}
-                      {hasPlaybooks &&
-                        renderContextIcon(
-                          <BookOpen size={20} />,
-                          t('context.playbooks'),
-                          TOOLTIPS.playbooks,
-                          selectedPlaybooks.length,
-                          playbookOpen,
-                          setPlaybookOpen,
-                          playbookList,
-                          'playbook',
-                          () => onSelectPlaybooks?.([])
-                        )}
-                    </div>
-                  </div>
+                      </button>
+                    </Popover.Trigger>
+                    <Popover.Portal>
+                      <Popover.Content
+                        className="context-popover-content desktop-context-popover"
+                        side="top"
+                        align="start"
+                        sideOffset={8}
+                        collisionPadding={16}
+                      >
+                        <div className="context-popover-header">
+                          <span>{t('context.configureContext')}</span>
+                          {hasAnySelections && onResetAll && (
+                            <button
+                              type="button"
+                              className="context-popover-clear"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onResetAll();
+                              }}
+                            >
+                              {t('common.clearAll')}
+                            </button>
+                          )}
+                        </div>
+                        {mobileContextMenuContent}
+                      </Popover.Content>
+                    </Popover.Portal>
+                  </Popover.Root>
                 )}
-
-                {/* Reset All button - outside capsule, smaller (desktop only) */}
-                {!isMobile &&
-                  hasAnySelections &&
-                  onResetAll &&
-                  withTooltip(
-                    <button
-                      type="button"
-                      className="omni-reset-all no-touch-target"
-                      onClick={onResetAll}
-                      disabled={disabled}
-                      aria-label="Reset all selections"
-                    >
-                      <RotateCcw size={14} />
-                    </button>,
-                    TOOLTIPS.reset
-                  )}
               </>
             )}
-          </div>
-
-          {/* Right side: Mode Toggle + Response Style + Attach + Send */}
-          <div className="omni-bar-right">
-            {/* Inline mode toggle - compact pill that toggles on any click */}
+            {/* Inline mode toggle - next to Context for consistency */}
             {onChatModeChange && !showModeToggle && (
               <button
                 type="button"
                 className="omni-inline-mode-toggle no-touch-target"
                 onClick={() => {
                   if (!disabled) {
-                    // Toggle between modes
                     onChatModeChange(chatMode === 'chat' ? 'council' : 'chat');
                   }
                 }}
@@ -1061,7 +874,7 @@ export function OmniBar({
                 </span>
               </button>
             )}
-            {/* Response Style Selector - compact icon (right side like Perplexity) */}
+            {/* Response Style Selector - next to mode toggle */}
             {onSelectPreset && (
               <ResponseStyleSelector
                 selectedPreset={selectedPreset}
@@ -1072,6 +885,10 @@ export function OmniBar({
                 compact
               />
             )}
+          </div>
+
+          {/* Right side: Attach + Send only */}
+          <div className="omni-bar-right">
 
             {/* Image attach button */}
             {showImageButton &&

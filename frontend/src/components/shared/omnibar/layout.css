@@ -205,11 +205,11 @@
   padding-top: 0;
 }
 
-/* Left side: Context icons - flex-start to align left */
+/* Left side: Context button + Mode toggle + Response style - all aligned */
 .omni-bar-left {
   display: flex;
   align-items: center;
-  gap: var(--gap-xs-plus);
+  gap: var(--gap-sm);
   flex: 1;
   justify-content: flex-start;
 }
