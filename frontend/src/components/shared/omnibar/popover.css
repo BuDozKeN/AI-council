@@ -24,12 +24,15 @@
   min-width: 320px;
   max-width: 380px;
   max-height: 480px;
+  overflow: visible; /* Override hidden from base */
   overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 /* Mobile context menu content inside desktop popover */
 .desktop-context-popover .mobile-context-menu {
   padding: var(--space-2);
+  overflow: visible; /* Let parent handle scroll */
 }
 
 @keyframes contextPopoverIn {
