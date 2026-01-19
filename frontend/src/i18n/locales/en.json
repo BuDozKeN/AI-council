@@ -110,6 +110,7 @@
     "all": "All",
     "none": "None",
     "clear": "Clear",
+    "clearAll": "Clear All",
     "unknown": "Unknown",
     "saved": "Saved",
     "skip": "Skip",
@@ -620,7 +621,10 @@
     "department": "Department",
     "deptContext": "Dept Context",
     "toggleCompanyContext": "Toggle company-wide context (main company knowledge)",
-    "toggleDeptContext": "Toggle department-specific context (department knowledge)"
+    "toggleDeptContext": "Toggle department-specific context (department knowledge)",
+    "context": "Context",
+    "configure": "Configure context",
+    "configureContext": "Configure Context"
   },
   "stages": {
     "stage1": "Answers",
@@ -858,6 +862,8 @@
     "saveChanges": "Save Changes",
     "departmentBadge": "DEPARTMENT",
     "rolesCount": "{{count}} roles",
+    "rolesCount_one": "{{count}} role",
+    "rolesCount_other": "{{count}} roles",
     "departmentSaved": "Department \"{{name}}\" context saved",
     "failedToSaveDepartment": "Failed to save department",
     "enterDepartmentContext": "Enter the context documentation for this department...",
@@ -1417,12 +1423,20 @@
   },
   "multiSelect": {
     "deptsCount": "{{count}} depts",
+    "deptsCount_one": "{{count}} dept",
+    "deptsCount_other": "{{count}} depts",
     "rolesCount": "{{count}} roles",
-    "playbooksCount": "{{count}} playbooks"
+    "rolesCount_one": "{{count}} role",
+    "rolesCount_other": "{{count}} roles",
+    "playbooksCount": "{{count}} playbooks",
+    "playbooksCount_one": "{{count}} playbook",
+    "playbooksCount_other": "{{count}} playbooks"
   },
   "mobileNav": {
     "new": "New",
-    "company": "Company"
+    "history": "Chats",
+    "company": "Company",
+    "settings": "Settings"
   },
   "modeToggle": {
     "quick": "Quick",
@@ -1537,6 +1551,9 @@
     "newDepartment": "New Department",
     "departmentsRoles": "{{depts}} departments • {{roles}} roles",
     "roles": "roles",
+    "roleCount": "{{count}} roles",
+    "roleCount_one": "{{count}} role",
+    "roleCount_other": "{{count}} roles",
     "viewContext": "View Guidelines",
     "aboutDepartment": "About {{name}}",
     "rolesLabel": "Roles",

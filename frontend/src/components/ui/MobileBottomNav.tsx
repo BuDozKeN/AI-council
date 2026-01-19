@@ -48,7 +48,7 @@ function MobileBottomNav({
         aria-current={activeTab === 'history' ? 'page' : undefined}
       >
         <MessageSquare className="mobile-nav-icon" size={24} />
-        <span className="mobile-nav-label">{t('sidebar.history')}</span>
+        <span className="mobile-nav-label">{t('mobileNav.history')}</span>
       </button>
 
       <button
@@ -68,7 +68,7 @@ function MobileBottomNav({
         aria-current={activeTab === 'settings' ? 'page' : undefined}
       >
         <Settings className="mobile-nav-icon" size={24} />
-        <span className="mobile-nav-label">{t('sidebar.settings')}</span>
+        <span className="mobile-nav-label">{t('mobileNav.settings')}</span>
       </button>
     </nav>
   );

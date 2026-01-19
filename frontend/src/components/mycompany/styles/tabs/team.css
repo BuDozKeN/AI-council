@@ -430,6 +430,22 @@
     min-height: 52px;
   }
 
+  /* Mobile tap feedback - Issue #49 fix */
+  .mc-dept-row:active {
+    background: var(--color-bg-hover);
+    transform: scale(0.99);
+  }
+
+  .mc-role-row:active {
+    background: var(--color-bg-hover);
+    transform: scale(0.99);
+  }
+
+  .mc-context-btn:active {
+    background: var(--color-bg-hover);
+    transform: scale(0.98);
+  }
+
   .mc-dept-indicator {
     width: 3px;
     height: 20px;

@@ -21,9 +21,17 @@ interface CopyButtonProps {
   size?: 'sm' | 'md' | 'lg';
   inline?: boolean;
   className?: string;
+  /** Custom tooltip text - defaults to "Copy" */
+  tooltip?: string;
 }
 
-export function CopyButton({ text, size = 'md', inline = false, className = '' }: CopyButtonProps) {
+export function CopyButton({
+  text,
+  size = 'md',
+  inline = false,
+  className = '',
+  tooltip = 'Copy',
+}: CopyButtonProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = async (e: React.MouseEvent) => {
@@ -49,8 +57,8 @@ export function CopyButton({ text, size = 'md', inline = false, className = '' }
       type="button"
       className={`copy-btn-unified ${sizeClass} ${inlineClass} ${copied ? 'copied' : ''} ${className}`.trim()}
       onClick={handleCopy}
-      title={copied ? 'Copied!' : 'Copy'}
-      aria-label={copied ? 'Copied to clipboard' : 'Copy to clipboard'}
+      title={copied ? 'Copied!' : tooltip}
+      aria-label={copied ? 'Copied to clipboard' : tooltip}
     >
       {copied ? <Check className="copy-btn-icon" /> : <Copy className="copy-btn-icon" />}
     </button>

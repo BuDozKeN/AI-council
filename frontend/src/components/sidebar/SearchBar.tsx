@@ -5,9 +5,24 @@
  * Supports Cmd+K global shortcut via external ref.
  */
 
-import { useRef, forwardRef, useImperativeHandle } from 'react';
+import { useRef, forwardRef, useImperativeHandle, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Spinner } from '../ui/Spinner';
+
+// Mobile detection hook - matches pattern used elsewhere in codebase
+function useIsMobile(): boolean {
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' && window.innerWidth <= 640
+  );
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 640);
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  return isMobile;
+}
 
 interface SearchBarProps {
   searchQuery: string;
@@ -28,12 +43,18 @@ export const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(function Searc
 ) {
   const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
+  const isMobile = useIsMobile();
 
   // Expose focus method to parent
   useImperativeHandle(ref, () => ({
     focus: () => inputRef.current?.focus(),
     blur: () => inputRef.current?.blur(),
   }));
+
+  // Build placeholder - hide keyboard shortcut on mobile
+  // Translation includes "(⌘K)" which we strip out on mobile devices
+  const fullPlaceholder = t('sidebar.searchPlaceholder');
+  const placeholder = isMobile ? fullPlaceholder.replace(/\s*\(⌘K\)$/, '') : fullPlaceholder;
 
   return (
     <div className="sidebar-search">
@@ -54,7 +75,7 @@ export const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(function Searc
           name="search"
           type="search"
           inputMode="search"
-          placeholder={t('sidebar.searchPlaceholder')}
+          placeholder={placeholder}
           aria-label={t('sidebar.searchConversations')}
           aria-describedby={searchQuery ? 'search-results-count' : undefined}
           value={searchQuery}

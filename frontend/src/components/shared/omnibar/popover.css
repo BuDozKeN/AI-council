@@ -19,6 +19,59 @@
   animation: contextPopoverIn 0.15s ease-out;
 }
 
+/* Desktop unified context popover - wider to fit accordion sections */
+.desktop-context-popover {
+  min-width: 280px;
+  max-width: 320px;
+  max-height: 400px;
+  overflow: hidden auto; /* x:hidden y:auto shorthand */
+  overscroll-behavior: contain;
+}
+
+/* Mobile context menu content inside desktop popover - compact styling */
+.desktop-context-popover .mobile-context-menu {
+  padding: var(--space-1-5);
+  gap: var(--gap-2xs);
+}
+
+/* Compact context sections for desktop */
+.desktop-context-popover .context-section {
+  border-radius: var(--radius-md);
+}
+
+.desktop-context-popover .context-section-header {
+  padding: var(--space-2) var(--space-2-5);
+  font-size: var(--text-sm);
+}
+
+.desktop-context-popover .context-section-header > svg:first-child {
+  width: 14px;
+  height: 14px;
+}
+
+.desktop-context-popover .context-section-badge {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  font-size: var(--text-2xs);
+}
+
+.desktop-context-popover .context-section-content {
+  padding: var(--space-1-5);
+  padding-top: 0;
+}
+
+.desktop-context-popover .context-section-content .context-popover-list {
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.desktop-context-popover .context-section-content .context-popover-item {
+  padding: var(--space-1-5) var(--space-2);
+  min-height: 32px;
+  font-size: var(--text-xs-plus);
+}
+
 @keyframes contextPopoverIn {
   from {
     opacity: 0;
@@ -77,7 +130,7 @@
   height: 22px;
   padding: 0;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md); /* Consistent with other buttons */
   background: transparent;
   color: var(--color-text-quaternary);
   cursor: pointer;

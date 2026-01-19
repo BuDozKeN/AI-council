@@ -857,6 +857,8 @@
     "saveChanges": "Guardar Cambios",
     "departmentBadge": "DEPARTAMENTO",
     "rolesCount": "{{count}} roles",
+    "rolesCount_one": "{{count}} rol",
+    "rolesCount_other": "{{count}} roles",
     "departmentSaved": "Contexto del departamento \"{{name}}\" guardado",
     "failedToSaveDepartment": "Error al guardar departamento",
     "enterDepartmentContext": "Ingresa la documentación de contexto para este departamento...",
@@ -1415,13 +1417,21 @@
     "selectContext": "Seleccionar Contexto"
   },
   "multiSelect": {
-    "deptsCount": "{{count}} depts",
+    "deptsCount": "{{count}} deps",
+    "deptsCount_one": "{{count}} dep",
+    "deptsCount_other": "{{count}} deps",
     "rolesCount": "{{count}} roles",
-    "playbooksCount": "{{count}} playbooks"
+    "rolesCount_one": "{{count}} rol",
+    "rolesCount_other": "{{count}} roles",
+    "playbooksCount": "{{count}} playbooks",
+    "playbooksCount_one": "{{count}} playbook",
+    "playbooksCount_other": "{{count}} playbooks"
   },
   "mobileNav": {
     "new": "Nuevo",
-    "company": "Empresa"
+    "history": "Chats",
+    "company": "Empresa",
+    "settings": "Ajustes"
   },
   "modeToggle": {
     "quick": "Rápido",
@@ -1536,6 +1546,9 @@
     "newDepartment": "Nuevo Departamento",
     "departmentsRoles": "{{depts}} departamentos • {{roles}} roles",
     "roles": "roles",
+    "roleCount": "{{count}} roles",
+    "roleCount_one": "{{count}} rol",
+    "roleCount_other": "{{count}} roles",
     "viewContext": "Ver Directrices",
     "aboutDepartment": "Sobre {{name}}",
     "rolesLabel": "Roles",

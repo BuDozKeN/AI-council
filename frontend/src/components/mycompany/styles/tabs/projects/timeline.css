@@ -398,7 +398,7 @@
 
 .mc-timeline-answer-label {
   display: block;
-  font-size: 11px;
+  font-size: var(--text-xs); /* 12px - closest to 11px */
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -481,7 +481,7 @@
   background: var(--color-amber-50);
   border: 1px solid var(--color-amber-300);
   border-radius: var(--radius-md);
-  font-size: 14px;
+  font-size: var(--text-sm); /* 14px */
   font-weight: 400;
   color: var(--color-amber-800);
   line-height: 1.7;

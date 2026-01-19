@@ -194,16 +194,27 @@
 }
 
 /* =============================================================================
-   LOAD MORE HINT
+   LOAD MORE HINT - Subtle fade gradient instead of text
    ============================================================================= */
 
 .load-more-hint {
-  padding: var(--space-3) var(--space-4);
-  text-align: center;
+  /* Fade gradient to indicate more content below */
+  position: relative;
+  height: 32px;
+  background: linear-gradient(to bottom, transparent, var(--color-bg-primary) 80%);
+  pointer-events: none;
+  margin-top: calc(-1 * var(--space-6)); /* Overlap the last item */
 }
 
+/* Hide the text - keep for accessibility but visually hidden */
 .load-more-hint-text {
-  font-size: 0.75rem;
-  color: var(--color-text-tertiary);
-  font-style: italic;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

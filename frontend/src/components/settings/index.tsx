@@ -105,55 +105,67 @@ export default function Settings({
         {/* Content */}
         <div className="settings-content">
           {/* Sidebar tabs */}
-          <div className="settings-sidebar">
+          <div className="settings-sidebar" role="tablist" aria-label={t('settings.title')}>
             <button
               className={`settings-tab ${activeTab === 'profile' ? 'active' : ''}`}
               onClick={() => setActiveTab('profile')}
-              data-tooltip={t('settings.profile')}
+              aria-label={t('settings.profile')}
+              aria-selected={activeTab === 'profile'}
+              role="tab"
             >
-              <User size={18} className="tab-icon" />
+              <User size={18} className="tab-icon" aria-hidden="true" />
               <span className="tab-label">{t('settings.profile')}</span>
             </button>
             <button
               className={`settings-tab ${activeTab === 'billing' ? 'active' : ''}`}
               onClick={() => setActiveTab('billing')}
-              data-tooltip={t('settings.billing')}
+              aria-label={t('settings.billing')}
+              aria-selected={activeTab === 'billing'}
+              role="tab"
             >
-              <CreditCard size={18} className="tab-icon" />
+              <CreditCard size={18} className="tab-icon" aria-hidden="true" />
               <span className="tab-label">{t('settings.billing')}</span>
             </button>
             {companyId && (
               <button
                 className={`settings-tab ${activeTab === 'team' ? 'active' : ''}`}
                 onClick={() => setActiveTab('team')}
-                data-tooltip={t('settings.team')}
+                aria-label={t('settings.team')}
+                aria-selected={activeTab === 'team'}
+                role="tab"
               >
-                <Users size={18} className="tab-icon" />
+                <Users size={18} className="tab-icon" aria-hidden="true" />
                 <span className="tab-label">{t('settings.team')}</span>
               </button>
             )}
             <button
               className={`settings-tab ${activeTab === 'api' ? 'active' : ''}`}
               onClick={() => setActiveTab('api')}
-              data-tooltip={t('settings.apiKeys')}
+              aria-label={t('settings.apiKeys')}
+              aria-selected={activeTab === 'api'}
+              role="tab"
             >
-              <Key size={18} className="tab-icon" />
+              <Key size={18} className="tab-icon" aria-hidden="true" />
               <span className="tab-label">{t('settings.apiKeys')}</span>
             </button>
             <button
               className={`settings-tab ${activeTab === 'developer' ? 'active' : ''}`}
               onClick={() => setActiveTab('developer')}
-              data-tooltip={t('settings.developer')}
+              aria-label={t('settings.developer')}
+              aria-selected={activeTab === 'developer'}
+              role="tab"
             >
-              <FlaskConical size={18} className="tab-icon" />
+              <FlaskConical size={18} className="tab-icon" aria-hidden="true" />
               <span className="tab-label">{t('settings.developer')}</span>
             </button>
             <button
               className={`settings-tab ${activeTab === 'ai-config' ? 'active' : ''}`}
               onClick={() => setActiveTab('ai-config')}
-              data-tooltip={t('settings.llmHub', 'LLM Hub')}
+              aria-label={t('settings.llmHub', 'LLM Hub')}
+              aria-selected={activeTab === 'ai-config'}
+              role="tab"
             >
-              <Cpu size={18} className="tab-icon" />
+              <Cpu size={18} className="tab-icon" aria-hidden="true" />
               <span className="tab-label">{t('settings.llmHub', 'LLM Hub')}</span>
             </button>
           </div>

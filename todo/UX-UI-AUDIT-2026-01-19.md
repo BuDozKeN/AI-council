@@ -17,10 +17,10 @@
 | Enterprise Ready | 6/10 | 8/10 | 🟡 Close but not there |
 | **$25M Worthy?** | **Not Yet** | Yes | Fixable with focused effort |
 
-**Total Issues Found:** 24
+**Total Issues Found:** 28
 - Critical: 2
-- Major: 7
-- Minor: 9
+- Major: 10 (3 new mobile-specific)
+- Minor: 10 (1 new mobile-specific, 1 false positive removed)
 - Cosmetic: 6
 
 ---
@@ -283,10 +283,66 @@
 - [x] Chat interface → Stage 3 loading
 - [x] Chat interface → Complete response
 
-### Mobile (375×812)
-- [x] Landing page
-- [x] Sidebar opened
-- [x] Settings bottom sheet
+### Mobile (375×812) - DETAILED AUDIT COMPLETED
+- [x] Landing page - cramped toolbar (UXUI-016 confirmed)
+- [x] Sidebar opened - doesn't fill screen width (60% width issue)
+- [x] Settings bottom sheet - actually opens as centered modal, not bottom sheet
+- [x] My Company → Overview tab - clean
+- [x] My Company → Team tab - "1 roles" bug confirmed (UXUI-003)
+- [x] My Company → Projects tab - stat card color inconsistency confirmed (UXUI-004)
+- [x] Settings → Profile - modal pattern not mobile-native
+- [x] Settings → Developer - toggles work correctly
+- [x] Settings → LLM Hub - working (no error seen in this session)
+- [x] Chat interface with existing conversation - displays well
+- [x] Chat response collapsible sections - work correctly
+- [x] Bottom navigation bar - "Configur..." truncation (NEW ISSUE)
+
+#### NEW MOBILE-SPECIFIC FINDINGS (2026-01-19 Evening Session)
+
+**UXUI-025: Bottom Navigation "Configuración" Truncated**
+- **Location:** Bottom navigation bar → rightmost tab
+- **Observed:** Shows "Configur..." instead of full word
+- **Impact:** Looks unprofessional, text cut off
+- **Fix Required:** Shorten to "Config" or use icon-only at small widths
+- **Files:** `frontend/src/components/BottomNavigation.tsx`
+- **Severity:** Major
+- **Status:** 🟠 Open
+
+**UXUI-026: Sidebar Width Too Narrow on Mobile**
+- **Location:** Sidebar/History panel when opened on mobile
+- **Observed:** Takes ~60% of screen width, content visible behind
+- **Impact:** Not following mobile patterns (should be full-width overlay)
+- **Fix Required:** Make sidebar 100% width on mobile with dark overlay
+- **Files:** `frontend/src/components/Sidebar.tsx`, `Sidebar.css`
+- **Severity:** Major
+- **Status:** 🟠 Open
+
+**UXUI-027: Settings Opens as Modal Instead of Bottom Sheet on Mobile**
+- **Location:** Settings on mobile viewport
+- **Observed:** Opens as centered floating modal with left sidebar tabs
+- **Impact:** Not mobile-native pattern; hard to navigate; small close button
+- **Fix Required:** Convert to full-screen view or bottom sheet on mobile
+- **Files:** `frontend/src/components/Settings.tsx`
+- **Severity:** Major
+- **Status:** 🟠 Open
+
+**UXUI-028: Ctrl+K Hint Shown on Touch Devices**
+- **Location:** Landing page → below input area
+- **Observed:** "Presiona Ctrl+K para navegar" shown on mobile
+- **Impact:** Keyboard shortcut irrelevant on touch devices
+- **Fix Required:** Hide on viewport < 640px
+- **Files:** OmniBar component
+- **Severity:** Minor
+- **Status:** 🟡 Open
+
+~~**UXUI-029: Help Button (Palm Tree Icon) Positioning**~~ **INVALID - FALSE POSITIVE**
+- **Note:** The palm tree icon is the **TanStack Query devtools** button, not a help button
+- **Action:** Ignore in future audits - this is a dev tool, not user-facing UI
+- **Status:** ❌ Removed from audit
+
+### Elements to IGNORE in Future Audits
+- 🌴 **Palm tree/island icon** (bottom-right) = TanStack Query devtools (dev-only)
+- **"Open Tanstack query devtools" button** = Dev tool, not production UI
 
 ### NOT YET AUDITED (Next Pass Required)
 - [ ] Login page (logged out state)
@@ -324,16 +380,20 @@
 4. [ ] Fix cache hit rate coloring - UXUI-005
 5. [ ] Fix activity log jargon - UXUI-006
 6. [ ] Add current plan indicator - UXUI-008
+7. [ ] **NEW** Fix bottom nav truncation "Configur..." - UXUI-025
 
 ### Next Week (Medium Priority)
-7. [ ] Standardize number colors in stats cards - UXUI-004
-8. [ ] Fix mobile sidebar auto-close - UXUI-007
-9. [ ] Review confetti frequency - UXUI-009
-10. [ ] Add missing tooltips and hints - UXUI-010 through UXUI-017
+8. [ ] Standardize number colors in stats cards - UXUI-004
+9. [ ] Fix mobile sidebar auto-close - UXUI-007
+10. [ ] Review confetti frequency - UXUI-009
+11. [ ] **NEW** Make sidebar full-width on mobile - UXUI-026
+12. [ ] **NEW** Convert Settings to bottom sheet on mobile - UXUI-027
+13. [ ] Add missing tooltips and hints - UXUI-010 through UXUI-017
+14. [ ] **NEW** Hide Ctrl+K hint on mobile - UXUI-028
 
 ### Backlog (Low Priority)
-11. [ ] Cosmetic consistency fixes - UXUI-019 through UXUI-024
-12. [ ] Complete audit of remaining screens
+15. [ ] Cosmetic consistency fixes - UXUI-019 through UXUI-024
+16. [ ] Complete audit of remaining screens
 
 ---
 
@@ -367,5 +427,5 @@ Or for a quick check of specific area:
 ---
 
 *Document created: 2026-01-19*
-*Last updated: 2026-01-19*
+*Last updated: 2026-01-19 (Mobile deep-dive session added 5 new issues)*
 *Next scheduled audit: 2026-01-26*

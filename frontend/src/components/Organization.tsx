@@ -131,6 +131,7 @@ export default function Organization({
     return () => {
       cancelled = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyId]);
 
   // Refetch function for after mutations
@@ -503,6 +504,7 @@ export default function Organization({
                           placeholder={t('organization.placeholders.roleName')}
                           value={newRole.name}
                           onChange={(e) => setNewRole({ ...newRole, name: e.target.value })}
+                          // eslint-disable-next-line jsx-a11y/no-autofocus
                           autoFocus
                         />
                         <AIWriteAssist
@@ -572,6 +574,7 @@ export default function Organization({
             placeholder={t('organization.placeholders.deptName')}
             value={newDept.name}
             onChange={(e) => setNewDept({ ...newDept, name: e.target.value })}
+            // eslint-disable-next-line jsx-a11y/no-autofocus
             autoFocus
           />
         </div>

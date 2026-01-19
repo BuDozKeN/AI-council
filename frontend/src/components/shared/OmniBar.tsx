@@ -32,7 +32,6 @@ import {
   ScrollText,
   Shield,
   ChevronRight,
-  RotateCcw,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { springs, interactionStates } from '../../lib/animations';
@@ -181,17 +180,11 @@ export function OmniBar({
 
   // Mom-friendly tooltip descriptions - actionable, clear (translated)
   const TOOLTIPS = {
-    company: t('chat.tooltips.company'),
-    projects: t('chat.tooltips.projects'),
-    departments: t('chat.tooltips.departments'),
-    roles: t('chat.tooltips.roles'),
-    playbooks: t('chat.tooltips.playbooks'),
     councilMode: t('chat.tooltips.councilMode'),
     chatMode: t('chat.tooltips.chatMode'),
     attach: t('omnibar.attach'),
     send: t('chat.tooltips.send'),
     stop: t('chat.tooltips.stop'),
-    reset: t('chat.tooltips.reset'),
   };
 
   // Playbook type config with icons and labels (translated)
@@ -202,15 +195,56 @@ export function OmniBar({
     other: { label: t('context.other'), icon: <BookOpen size={12} /> },
   };
 
-  // Popover states for context icons
-  const [companyOpen, setCompanyOpen] = useState(false);
-  const [projectOpen, setProjectOpen] = useState(false);
-  const [deptOpen, setDeptOpen] = useState(false);
-  const [roleOpen, setRoleOpen] = useState(false);
-  const [playbookOpen, setPlaybookOpen] = useState(false);
+  // Popover states for unified context menu
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+  // Mobile unified context menu (Perplexity style - single button for all context)
+  const [mobileContextOpen, setMobileContextOpen] = useState(false);
+  const [mobileContextSection, setMobileContextSection] = useState<Record<string, boolean>>({
+    company: false,
+    project: false,
+    departments: false,
+    roles: false,
+    playbooks: false,
+  });
 
-  const isMobile = isMobileDevice();
+  // Track previous open state to detect when popover opens
+  const prevMobileContextOpenRef = useRef(mobileContextOpen);
+
+  // Auto-expand sections that have selections when popover opens (only on transition from closed to open)
+  useEffect(() => {
+    const wasOpen = prevMobileContextOpenRef.current;
+    prevMobileContextOpenRef.current = mobileContextOpen;
+
+    // Only expand on open transition, not on every change
+    if (mobileContextOpen && !wasOpen) {
+      // Use requestAnimationFrame to avoid synchronous setState in effect
+      requestAnimationFrame(() => {
+        setMobileContextSection({
+          company: !!selectedBusiness,
+          project: !!selectedProject,
+          departments: selectedDepartments.length > 0,
+          roles: selectedRoles.length > 0,
+          playbooks: selectedPlaybooks.length > 0,
+        });
+      });
+    }
+  }, [
+    mobileContextOpen,
+    selectedBusiness,
+    selectedProject,
+    selectedDepartments.length,
+    selectedRoles.length,
+    selectedPlaybooks.length,
+  ]);
+
+  // Make isMobile reactive to window resize
+  const [isMobile, setIsMobile] = useState(isMobileDevice());
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(isMobileDevice());
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   const disabled = isLoading;
   const isCouncilMode = chatMode === 'council';
 
@@ -231,6 +265,22 @@ export function OmniBar({
     selectedDepartments.length > 0 ||
     selectedRoles.length > 0 ||
     selectedPlaybooks.length > 0;
+
+  // Total selection count for mobile context button badge
+  const totalSelectionCount =
+    (selectedBusiness ? 1 : 0) +
+    (selectedProject ? 1 : 0) +
+    selectedDepartments.length +
+    selectedRoles.length +
+    selectedPlaybooks.length;
+
+  // Toggle mobile context section
+  const toggleMobileContextSection = (section: string) => {
+    setMobileContextSection((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
 
   // Get selected company name for display
   const selectedCompanyName = selectedBusiness
@@ -340,7 +390,6 @@ export function OmniBar({
               className={cn('context-popover-item', isSelected && 'selected')}
               onClick={() => {
                 onSelectBusiness?.(isSelected ? null : biz.id);
-                setCompanyOpen(false);
               }}
               type="button"
             >
@@ -371,7 +420,6 @@ export function OmniBar({
                 className={cn('context-popover-item', isSelected && 'selected')}
                 onClick={() => {
                   onSelectProject?.(isSelected ? null : proj.id);
-                  setProjectOpen(false);
                 }}
                 type="button"
               >
@@ -511,6 +559,133 @@ export function OmniBar({
     </div>
   );
 
+  // Mobile unified context menu content (Perplexity-inspired)
+  // Shows all categories in accordion style within a single bottom sheet
+  const mobileContextMenuContent = (
+    <div className="mobile-context-menu">
+      {/* Company Section */}
+      {hasBusinesses && (
+        <div className="context-section">
+          <button
+            type="button"
+            className={cn('context-section-header', mobileContextSection.company && 'expanded')}
+            onClick={() => toggleMobileContextSection('company')}
+          >
+            <Briefcase size={16} />
+            <span className="context-section-label">
+              {selectedCompanyName || t('context.company')}
+            </span>
+            {selectedBusiness && <span className="context-section-badge">1</span>}
+            <ChevronRight
+              size={14}
+              className={cn('context-section-chevron', mobileContextSection.company && 'rotated')}
+            />
+          </button>
+          {mobileContextSection.company && (
+            <div className="context-section-content">{companyList}</div>
+          )}
+        </div>
+      )}
+
+      {/* Project Section */}
+      {hasProjects && (
+        <div className="context-section">
+          <button
+            type="button"
+            className={cn('context-section-header', mobileContextSection.project && 'expanded')}
+            onClick={() => toggleMobileContextSection('project')}
+          >
+            <FolderKanban size={16} />
+            <span className="context-section-label">
+              {selectedProjectName || t('context.project')}
+            </span>
+            {selectedProject && <span className="context-section-badge">1</span>}
+            <ChevronRight
+              size={14}
+              className={cn('context-section-chevron', mobileContextSection.project && 'rotated')}
+            />
+          </button>
+          {mobileContextSection.project && (
+            <div className="context-section-content">{projectList}</div>
+          )}
+        </div>
+      )}
+
+      {/* Departments Section */}
+      {hasDepartments && (
+        <div className="context-section">
+          <button
+            type="button"
+            className={cn('context-section-header', mobileContextSection.departments && 'expanded')}
+            onClick={() => toggleMobileContextSection('departments')}
+          >
+            <Building2 size={16} />
+            <span className="context-section-label">{t('departments.title')}</span>
+            {selectedDepartments.length > 0 && (
+              <span className="context-section-badge">{selectedDepartments.length}</span>
+            )}
+            <ChevronRight
+              size={14}
+              className={cn(
+                'context-section-chevron',
+                mobileContextSection.departments && 'rotated'
+              )}
+            />
+          </button>
+          {mobileContextSection.departments && (
+            <div className="context-section-content">{departmentList}</div>
+          )}
+        </div>
+      )}
+
+      {/* Roles Section */}
+      {hasRoles && (
+        <div className="context-section">
+          <button
+            type="button"
+            className={cn('context-section-header', mobileContextSection.roles && 'expanded')}
+            onClick={() => toggleMobileContextSection('roles')}
+          >
+            <Users size={16} />
+            <span className="context-section-label">{t('roles.title')}</span>
+            {selectedRoles.length > 0 && (
+              <span className="context-section-badge">{selectedRoles.length}</span>
+            )}
+            <ChevronRight
+              size={14}
+              className={cn('context-section-chevron', mobileContextSection.roles && 'rotated')}
+            />
+          </button>
+          {mobileContextSection.roles && <div className="context-section-content">{roleList}</div>}
+        </div>
+      )}
+
+      {/* Playbooks Section */}
+      {hasPlaybooks && (
+        <div className="context-section">
+          <button
+            type="button"
+            className={cn('context-section-header', mobileContextSection.playbooks && 'expanded')}
+            onClick={() => toggleMobileContextSection('playbooks')}
+          >
+            <BookOpen size={16} />
+            <span className="context-section-label">{t('context.playbooks')}</span>
+            {selectedPlaybooks.length > 0 && (
+              <span className="context-section-badge">{selectedPlaybooks.length}</span>
+            )}
+            <ChevronRight
+              size={14}
+              className={cn('context-section-chevron', mobileContextSection.playbooks && 'rotated')}
+            />
+          </button>
+          {mobileContextSection.playbooks && (
+            <div className="context-section-content">{playbookList}</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+
   // Wrap button with tooltip for mom-friendly help
   const withTooltip = (button: React.ReactNode, tooltipText: string) => (
     <Tooltip.Provider delayDuration={400}>
@@ -525,116 +700,6 @@ export function OmniBar({
       </Tooltip.Root>
     </Tooltip.Provider>
   );
-
-  // Render context icon with popover
-  const renderContextIcon = (
-    icon: React.ReactNode,
-    label: string,
-    tooltipText: string,
-    count: number,
-    open: boolean,
-    setOpen: (open: boolean) => void,
-    content: React.ReactNode,
-    colorClass?: string,
-    onClear?: () => void
-  ) => {
-    const iconButton = (
-      <button
-        type="button"
-        className={cn('omni-icon-btn no-touch-target', count > 0 && 'has-selection', colorClass)}
-        onClick={() => (isMobile ? setOpen(true) : undefined)}
-        disabled={disabled}
-        aria-label={label}
-      >
-        {icon}
-        {count > 0 && <span className="omni-icon-badge">{count}</span>}
-      </button>
-    );
-
-    // Header with optional Clear button
-    const header = (
-      <div className="context-popover-header">
-        <span>{label}</span>
-        {count > 0 && onClear && (
-          <button
-            type="button"
-            className="context-popover-clear"
-            onClick={(e) => {
-              e.stopPropagation();
-              onClear();
-            }}
-          >
-            {t('common.clear')}
-          </button>
-        )}
-      </div>
-    );
-
-    if (isMobile) {
-      return (
-        <>
-          {withTooltip(iconButton, tooltipText)}
-          <BottomSheet
-            isOpen={open}
-            onClose={() => setOpen(false)}
-            title={label}
-            headerAction={
-              count > 0 && onClear ? (
-                <button
-                  type="button"
-                  className="context-popover-clear"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onClear();
-                  }}
-                >
-                  {t('common.clear')}
-                </button>
-              ) : undefined
-            }
-          >
-            {content}
-          </BottomSheet>
-        </>
-      );
-    }
-
-    return (
-      <Popover.Root open={open} onOpenChange={setOpen}>
-        <Tooltip.Provider delayDuration={400}>
-          <Tooltip.Root>
-            <Popover.Trigger asChild>
-              <Tooltip.Trigger asChild>{iconButton}</Tooltip.Trigger>
-            </Popover.Trigger>
-            <Tooltip.Portal>
-              <Tooltip.Content className="tooltip-content" sideOffset={8}>
-                {tooltipText}
-                <Tooltip.Arrow className="tooltip-arrow" />
-              </Tooltip.Content>
-            </Tooltip.Portal>
-          </Tooltip.Root>
-        </Tooltip.Provider>
-        <Popover.Portal>
-          <Popover.Content
-            className="context-popover-content"
-            side="top"
-            align="start"
-            sideOffset={8}
-            onInteractOutside={(e) => {
-              // Don't close if clicking the theme toggle
-              const target = e.target as HTMLElement;
-              if (target.closest('.theme-toggle-container')) {
-                e.preventDefault();
-              }
-            }}
-          >
-            {header}
-            {content}
-          </Popover.Content>
-        </Popover.Portal>
-      </Popover.Root>
-    );
-  };
 
   const containerClasses = cn(
     'omni-bar-wrapper',
@@ -711,131 +776,135 @@ export function OmniBar({
 
         {/* Bottom row: Context icons (left) + Actions (right) */}
         <div className="omni-bar-bottom">
-          {/* Left side: Context icons */}
+          {/* Left side: Context button (unified for mobile & desktop) */}
           <div className="omni-bar-left">
             {hasAnyContextIcons && (
               <>
-                {/* Context icons capsule - groups related icons visually */}
-                <div className="context-icons-capsule">
-                  {hasBusinesses &&
-                    renderContextIcon(
-                      <Briefcase size={16} />,
-                      selectedCompanyName || t('context.company'),
-                      TOOLTIPS.company,
-                      selectedBusiness ? 1 : 0,
-                      companyOpen,
-                      setCompanyOpen,
-                      companyList,
-                      'company',
-                      () => onSelectBusiness?.(null)
-                    )}
-                  {hasProjects &&
-                    renderContextIcon(
-                      <FolderKanban size={16} />,
-                      selectedProjectName || t('context.project'),
-                      TOOLTIPS.projects,
-                      selectedProject ? 1 : 0,
-                      projectOpen,
-                      setProjectOpen,
-                      projectList,
-                      'project',
-                      () => onSelectProject?.(null)
-                    )}
-                  {hasDepartments &&
-                    renderContextIcon(
-                      <Building2 size={16} />,
-                      t('departments.title'),
-                      TOOLTIPS.departments,
-                      selectedDepartments.length,
-                      deptOpen,
-                      setDeptOpen,
-                      departmentList,
-                      'dept',
-                      () => onSelectDepartments?.([])
-                    )}
-                  {hasRoles &&
-                    renderContextIcon(
-                      <Users size={16} />,
-                      t('roles.title'),
-                      TOOLTIPS.roles,
-                      selectedRoles.length,
-                      roleOpen,
-                      setRoleOpen,
-                      roleList,
-                      'role',
-                      () => onSelectRoles?.([])
-                    )}
-                  {hasPlaybooks &&
-                    renderContextIcon(
-                      <BookOpen size={16} />,
-                      t('context.playbooks'),
-                      TOOLTIPS.playbooks,
-                      selectedPlaybooks.length,
-                      playbookOpen,
-                      setPlaybookOpen,
-                      playbookList,
-                      'playbook',
-                      () => onSelectPlaybooks?.([])
-                    )}
-                </div>
-
-                {/* Reset All button - outside capsule, smaller */}
-                {hasAnySelections &&
-                  onResetAll &&
-                  withTooltip(
+                {/* MOBILE: Context button opens BottomSheet */}
+                {isMobile && (
+                  <>
                     <button
                       type="button"
-                      className="omni-reset-all"
-                      onClick={onResetAll}
+                      className={cn(
+                        'mobile-context-btn',
+                        totalSelectionCount > 0 && 'has-selection'
+                      )}
+                      onClick={() => setMobileContextOpen(true)}
                       disabled={disabled}
-                      aria-label="Reset all selections"
+                      aria-label={t('context.configure')}
                     >
-                      <RotateCcw size={12} />
-                    </button>,
-                    TOOLTIPS.reset
-                  )}
-
-                {/* Inline mode toggle - compact pill that toggles on any click */}
-                {onChatModeChange && !showModeToggle && (
-                  <button
-                    type="button"
-                    className="omni-inline-mode-toggle no-touch-target"
-                    onClick={() => {
-                      if (!disabled) {
-                        // Toggle between modes
-                        onChatModeChange(chatMode === 'chat' ? 'council' : 'chat');
+                      <span className="mobile-context-label">{t('context.context')}</span>
+                      {totalSelectionCount > 0 && (
+                        <span className="mobile-context-badge">{totalSelectionCount}</span>
+                      )}
+                    </button>
+                    <BottomSheet
+                      isOpen={mobileContextOpen}
+                      onClose={() => setMobileContextOpen(false)}
+                      title={t('context.configureContext')}
+                      headerAction={
+                        hasAnySelections && onResetAll ? (
+                          <button
+                            type="button"
+                            className="context-popover-clear"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onResetAll();
+                            }}
+                          >
+                            {t('common.clearAll')}
+                          </button>
+                        ) : undefined
                       }
-                    }}
-                    disabled={disabled}
-                    aria-label={`Response mode: ${chatMode === 'chat' ? t('omnibar.oneAI') : t('omnibar.multiAI', { count: aiCount })}. Click to toggle.`}
-                  >
-                    <span
-                      className={cn(
-                        'inline-mode-indicator no-touch-target',
-                        chatMode === 'chat' && 'active'
-                      )}
-                      aria-hidden="true"
                     >
-                      {t('omnibar.oneAI')}
-                    </span>
-                    <span
-                      className={cn(
-                        'inline-mode-indicator no-touch-target',
-                        chatMode === 'council' && 'active'
-                      )}
-                      aria-hidden="true"
-                    >
-                      {t('omnibar.multiAI', { count: aiCount })}
-                    </span>
-                  </button>
+                      {mobileContextMenuContent}
+                    </BottomSheet>
+                  </>
+                )}
+
+                {/* DESKTOP: Context button opens Popover (consistent with mobile) */}
+                {!isMobile && (
+                  <Popover.Root open={mobileContextOpen} onOpenChange={setMobileContextOpen}>
+                    <Popover.Trigger asChild>
+                      <button
+                        type="button"
+                        className={cn(
+                          'mobile-context-btn',
+                          totalSelectionCount > 0 && 'has-selection'
+                        )}
+                        disabled={disabled}
+                        aria-label={t('context.configure')}
+                      >
+                        <span className="mobile-context-label">{t('context.context')}</span>
+                        {totalSelectionCount > 0 && (
+                          <span className="mobile-context-badge">{totalSelectionCount}</span>
+                        )}
+                      </button>
+                    </Popover.Trigger>
+                    <Popover.Portal>
+                      <Popover.Content
+                        className="context-popover-content desktop-context-popover"
+                        side="top"
+                        align="start"
+                        sideOffset={8}
+                        collisionPadding={16}
+                      >
+                        <div className="context-popover-header">
+                          <span>{t('context.configureContext')}</span>
+                          {hasAnySelections && onResetAll && (
+                            <button
+                              type="button"
+                              className="context-popover-clear"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onResetAll();
+                              }}
+                            >
+                              {t('common.clearAll')}
+                            </button>
+                          )}
+                        </div>
+                        {mobileContextMenuContent}
+                      </Popover.Content>
+                    </Popover.Portal>
+                  </Popover.Root>
                 )}
               </>
             )}
-          </div>
-
-          {/* Right side: Response Style + Attach + Send */}
-          <div className="omni-bar-right">
-            {/* Response Style Selector - compact icon (right side like Perplexity) */}
+            {/* Inline mode toggle - next to Context for consistency */}
+            {onChatModeChange && !showModeToggle && (
+              <button
+                type="button"
+                className="omni-inline-mode-toggle no-touch-target"
+                onClick={() => {
+                  if (!disabled) {
+                    onChatModeChange(chatMode === 'chat' ? 'council' : 'chat');
+                  }
+                }}
+                disabled={disabled}
+                aria-label={`Response mode: ${chatMode === 'chat' ? t('omnibar.oneAI') : t('omnibar.multiAI', { count: aiCount })}. Click to toggle.`}
+              >
+                <span
+                  className={cn(
+                    'inline-mode-indicator no-touch-target',
+                    chatMode === 'chat' && 'active'
+                  )}
+                  aria-hidden="true"
+                >
+                  {t('omnibar.oneAI')}
+                </span>
+                <span
+                  className={cn(
+                    'inline-mode-indicator no-touch-target',
+                    chatMode === 'council' && 'active'
+                  )}
+                  aria-hidden="true"
+                >
+                  {t('omnibar.multiAI', { count: aiCount })}
+                </span>
+              </button>
+            )}
+            {/* Response Style Selector - next to mode toggle */}
             {onSelectPreset && (
               <ResponseStyleSelector
                 selectedPreset={selectedPreset}
@@ -846,7 +915,10 @@ export function OmniBar({
                 compact
               />
             )}
+          </div>
 
+          {/* Right side: Attach + Send only */}
+          <div className="omni-bar-right">
             {/* Image attach button */}
             {showImageButton &&
               onImageClick &&
@@ -858,7 +930,7 @@ export function OmniBar({
                   disabled={isLoading}
                   aria-label="Attach image"
                 >
-                  <ImageIcon size={18} />
+                  <ImageIcon size={20} />
                 </button>,
                 TOOLTIPS.attach
               )}

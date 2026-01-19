@@ -496,6 +496,7 @@ function App() {
 
       return { deleted: ids };
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       conversations,
       currentConversationId,

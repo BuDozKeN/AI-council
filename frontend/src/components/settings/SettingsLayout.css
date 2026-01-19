@@ -214,7 +214,7 @@
   color: var(--color-text-tertiary);
   cursor: not-allowed;
   opacity: 0.7;
-  border-color: transparent;
+  border-color: var(--color-border-light); /* Subtle border instead of transparent */
   pointer-events: none;
   user-select: none;
 }
@@ -294,16 +294,19 @@
     align-self: stretch;
   }
 
-  /* Mobile tabs - use higher specificity to override desktop styles without !important */
+  /* Mobile tabs - iOS tab bar style with icon + label stacked vertically */
   .settings-sidebar .settings-tab {
-    /* Touch-friendly icon size (32px is comfortable touch target) */
-    width: 32px;
-    height: 32px;
-    min-height: 32px;
-    padding: 0;
+    /* WCAG 44px minimum touch target */
+    width: 52px;
+    min-height: 52px;
+    height: auto;
+    padding: var(--space-1) var(--space-1);
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
+    gap: 2px;
     margin: 0;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
     transition: color 0.12s ease;
     background: transparent;
     color: var(--color-text-tertiary);
@@ -338,8 +341,16 @@
     font-size: var(--text-base);
   }
 
+  /* Show small labels below icons like iOS tab bar */
   .settings-tab .tab-label {
-    display: none;
+    display: block;
+    font-size: var(--text-2xs); /* 10px - smallest token size */
+    line-height: 1;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 44px;
   }
 
   .settings-panel {
@@ -402,11 +413,10 @@
 
   .settings-panel .form-group label {
     font-size: var(--text-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.02em;
     color: var(--color-text-muted);
     margin-bottom: var(--space-2);
-    font-weight: 500;
+    font-weight: 600;
   }
 
   /* Inputs - premium feel */
