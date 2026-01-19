@@ -112,10 +112,7 @@ export function MyCompanyTabs({ activeTab, onTabChange }: MyCompanyTabsProps) {
 
   return (
     <div className="mc-tabs-wrapper">
-      <nav
-        ref={tabsRef}
-        className={cn('mc-tabs', isScrolledEnd && 'scrolled-end')}
-      >
+      <nav ref={tabsRef} className={cn('mc-tabs', isScrolledEnd && 'scrolled-end')}>
         {TABS.map((tab) => (
           <button
             key={tab.id}
@@ -132,10 +129,7 @@ export function MyCompanyTabs({ activeTab, onTabChange }: MyCompanyTabsProps) {
         ))}
       </nav>
       {/* Scroll fade indicator - shows when more tabs are hidden */}
-      <div
-        className={cn('mc-tabs-fade', isScrolledEnd && 'hidden')}
-        aria-hidden="true"
-      />
+      <div className={cn('mc-tabs-fade', isScrolledEnd && 'hidden')} aria-hidden="true" />
     </div>
   );
 }

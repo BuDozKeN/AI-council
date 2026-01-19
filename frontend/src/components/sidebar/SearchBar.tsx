@@ -54,9 +54,7 @@ export const SearchBar = forwardRef<SearchBarRef, SearchBarProps>(function Searc
   // Build placeholder - hide keyboard shortcut on mobile
   // Translation includes "(⌘K)" which we strip out on mobile devices
   const fullPlaceholder = t('sidebar.searchPlaceholder');
-  const placeholder = isMobile
-    ? fullPlaceholder.replace(/\s*\(⌘K\)$/, '')
-    : fullPlaceholder;
+  const placeholder = isMobile ? fullPlaceholder.replace(/\s*\(⌘K\)$/, '') : fullPlaceholder;
 
   return (
     <div className="sidebar-search">

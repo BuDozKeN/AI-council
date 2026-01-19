@@ -265,9 +265,7 @@ export default function AcceptInvite() {
                 )}
 
                 <div className="accept-invite-form-group">
-                  <label htmlFor="password">
-                    {t('acceptInvite.passwordLabel', 'Password')}
-                  </label>
+                  <label htmlFor="password">{t('acceptInvite.passwordLabel', 'Password')}</label>
                   <div className="accept-invite-input-wrapper">
                     <Lock className="accept-invite-input-icon" />
                     <input

@@ -188,9 +188,9 @@ export function ChatInput({
 
   // Toggle mobile context section
   const toggleMobileContextSection = (section: string) => {
-    setMobileContextSection(prev => ({
+    setMobileContextSection((prev) => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
   };
 
@@ -421,12 +421,13 @@ export function ChatInput({
               {selectedProjectName || t('context.project')}
             </span>
             {selectedProject && <span className="context-section-badge">1</span>}
-            <ChevronRight size={14} className={cn('context-section-chevron', mobileContextSection.project && 'rotated')} />
+            <ChevronRight
+              size={14}
+              className={cn('context-section-chevron', mobileContextSection.project && 'rotated')}
+            />
           </button>
           {mobileContextSection.project && (
-            <div className="context-section-content">
-              {projectList}
-            </div>
+            <div className="context-section-content">{projectList}</div>
           )}
         </div>
       )}
@@ -444,12 +445,16 @@ export function ChatInput({
             {selectedDepartments.length > 0 && (
               <span className="context-section-badge">{selectedDepartments.length}</span>
             )}
-            <ChevronRight size={14} className={cn('context-section-chevron', mobileContextSection.departments && 'rotated')} />
+            <ChevronRight
+              size={14}
+              className={cn(
+                'context-section-chevron',
+                mobileContextSection.departments && 'rotated'
+              )}
+            />
           </button>
           {mobileContextSection.departments && (
-            <div className="context-section-content">
-              {departmentList}
-            </div>
+            <div className="context-section-content">{departmentList}</div>
           )}
         </div>
       )}
@@ -467,13 +472,12 @@ export function ChatInput({
             {selectedRoles.length > 0 && (
               <span className="context-section-badge">{selectedRoles.length}</span>
             )}
-            <ChevronRight size={14} className={cn('context-section-chevron', mobileContextSection.roles && 'rotated')} />
+            <ChevronRight
+              size={14}
+              className={cn('context-section-chevron', mobileContextSection.roles && 'rotated')}
+            />
           </button>
-          {mobileContextSection.roles && (
-            <div className="context-section-content">
-              {roleList}
-            </div>
-          )}
+          {mobileContextSection.roles && <div className="context-section-content">{roleList}</div>}
         </div>
       )}
 
@@ -490,12 +494,13 @@ export function ChatInput({
             {selectedPlaybooks.length > 0 && (
               <span className="context-section-badge">{selectedPlaybooks.length}</span>
             )}
-            <ChevronRight size={14} className={cn('context-section-chevron', mobileContextSection.playbooks && 'rotated')} />
+            <ChevronRight
+              size={14}
+              className={cn('context-section-chevron', mobileContextSection.playbooks && 'rotated')}
+            />
           </button>
           {mobileContextSection.playbooks && (
-            <div className="context-section-content">
-              {playbookList}
-            </div>
+            <div className="context-section-content">{playbookList}</div>
           )}
         </div>
       )}
@@ -654,7 +659,10 @@ export function ChatInput({
                   <>
                     <button
                       type="button"
-                      className={cn('mobile-context-btn', totalSelectionCount > 0 && 'has-selection')}
+                      className={cn(
+                        'mobile-context-btn',
+                        totalSelectionCount > 0 && 'has-selection'
+                      )}
                       onClick={() => setMobileContextOpen(true)}
                       disabled={disabled}
                       aria-label={t('context.configure')}
@@ -744,7 +752,8 @@ export function ChatInput({
                 )}
 
                 {/* Reset All button - outside capsule, smaller (desktop only) */}
-                {!isMobile && hasAnySelections &&
+                {!isMobile &&
+                  hasAnySelections &&
                   onResetAll &&
                   withTooltip(
                     <button

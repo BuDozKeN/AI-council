@@ -262,9 +262,9 @@ export function OmniBar({
 
   // Toggle mobile context section
   const toggleMobileContextSection = (section: string) => {
-    setMobileContextSection(prev => ({
+    setMobileContextSection((prev) => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
   };
 
@@ -564,12 +564,13 @@ export function OmniBar({
               {selectedCompanyName || t('context.company')}
             </span>
             {selectedBusiness && <span className="context-section-badge">1</span>}
-            <ChevronRight size={14} className={cn('context-section-chevron', mobileContextSection.company && 'rotated')} />
+            <ChevronRight
+              size={14}
+              className={cn('context-section-chevron', mobileContextSection.company && 'rotated')}
+            />
           </button>
           {mobileContextSection.company && (
-            <div className="context-section-content">
-              {companyList}
-            </div>
+            <div className="context-section-content">{companyList}</div>
           )}
         </div>
       )}
@@ -587,12 +588,13 @@ export function OmniBar({
               {selectedProjectName || t('context.project')}
             </span>
             {selectedProject && <span className="context-section-badge">1</span>}
-            <ChevronRight size={14} className={cn('context-section-chevron', mobileContextSection.project && 'rotated')} />
+            <ChevronRight
+              size={14}
+              className={cn('context-section-chevron', mobileContextSection.project && 'rotated')}
+            />
           </button>
           {mobileContextSection.project && (
-            <div className="context-section-content">
-              {projectList}
-            </div>
+            <div className="context-section-content">{projectList}</div>
           )}
         </div>
       )}
@@ -610,12 +612,16 @@ export function OmniBar({
             {selectedDepartments.length > 0 && (
               <span className="context-section-badge">{selectedDepartments.length}</span>
             )}
-            <ChevronRight size={14} className={cn('context-section-chevron', mobileContextSection.departments && 'rotated')} />
+            <ChevronRight
+              size={14}
+              className={cn(
+                'context-section-chevron',
+                mobileContextSection.departments && 'rotated'
+              )}
+            />
           </button>
           {mobileContextSection.departments && (
-            <div className="context-section-content">
-              {departmentList}
-            </div>
+            <div className="context-section-content">{departmentList}</div>
           )}
         </div>
       )}
@@ -633,13 +639,12 @@ export function OmniBar({
             {selectedRoles.length > 0 && (
               <span className="context-section-badge">{selectedRoles.length}</span>
             )}
-            <ChevronRight size={14} className={cn('context-section-chevron', mobileContextSection.roles && 'rotated')} />
+            <ChevronRight
+              size={14}
+              className={cn('context-section-chevron', mobileContextSection.roles && 'rotated')}
+            />
           </button>
-          {mobileContextSection.roles && (
-            <div className="context-section-content">
-              {roleList}
-            </div>
-          )}
+          {mobileContextSection.roles && <div className="context-section-content">{roleList}</div>}
         </div>
       )}
 
@@ -656,12 +661,13 @@ export function OmniBar({
             {selectedPlaybooks.length > 0 && (
               <span className="context-section-badge">{selectedPlaybooks.length}</span>
             )}
-            <ChevronRight size={14} className={cn('context-section-chevron', mobileContextSection.playbooks && 'rotated')} />
+            <ChevronRight
+              size={14}
+              className={cn('context-section-chevron', mobileContextSection.playbooks && 'rotated')}
+            />
           </button>
           {mobileContextSection.playbooks && (
-            <div className="context-section-content">
-              {playbookList}
-            </div>
+            <div className="context-section-content">{playbookList}</div>
           )}
         </div>
       )}
@@ -877,7 +883,10 @@ export function OmniBar({
                   <>
                     <button
                       type="button"
-                      className={cn('mobile-context-btn', totalSelectionCount > 0 && 'has-selection')}
+                      className={cn(
+                        'mobile-context-btn',
+                        totalSelectionCount > 0 && 'has-selection'
+                      )}
                       onClick={() => setMobileContextOpen(true)}
                       disabled={disabled}
                       aria-label={t('context.configure')}
@@ -914,78 +923,84 @@ export function OmniBar({
 
                 {/* DESKTOP: Individual context icons in capsule */}
                 {!isMobile && (
-                  <div className={cn('context-icons-capsule-wrapper', !capsuleScrolledEnd && 'has-more')}>
+                  <div
+                    className={cn(
+                      'context-icons-capsule-wrapper',
+                      !capsuleScrolledEnd && 'has-more'
+                    )}
+                  >
                     <div
                       ref={capsuleRef}
                       className="context-icons-capsule"
                       onScroll={handleCapsuleScroll}
                     >
-                    {hasBusinesses &&
-                      renderContextIcon(
-                        <Briefcase size={20} />,
-                        selectedCompanyName || t('context.company'),
-                        TOOLTIPS.company,
-                        selectedBusiness ? 1 : 0,
-                        companyOpen,
-                        setCompanyOpen,
-                        companyList,
-                        'company',
-                        () => onSelectBusiness?.(null)
-                      )}
-                    {hasProjects &&
-                      renderContextIcon(
-                        <FolderKanban size={20} />,
-                        selectedProjectName || t('context.project'),
-                        TOOLTIPS.projects,
-                        selectedProject ? 1 : 0,
-                        projectOpen,
-                        setProjectOpen,
-                        projectList,
-                        'project',
-                        () => onSelectProject?.(null)
-                      )}
-                    {hasDepartments &&
-                      renderContextIcon(
-                        <Building2 size={20} />,
-                        t('departments.title'),
-                        TOOLTIPS.departments,
-                        selectedDepartments.length,
-                        deptOpen,
-                        setDeptOpen,
-                        departmentList,
-                        'dept',
-                        () => onSelectDepartments?.([])
-                      )}
-                    {hasRoles &&
-                      renderContextIcon(
-                        <Users size={20} />,
-                        t('roles.title'),
-                        TOOLTIPS.roles,
-                        selectedRoles.length,
-                        roleOpen,
-                        setRoleOpen,
-                        roleList,
-                        'role',
-                        () => onSelectRoles?.([])
-                      )}
-                    {hasPlaybooks &&
-                      renderContextIcon(
-                        <BookOpen size={20} />,
-                        t('context.playbooks'),
-                        TOOLTIPS.playbooks,
-                        selectedPlaybooks.length,
-                        playbookOpen,
-                        setPlaybookOpen,
-                        playbookList,
-                        'playbook',
-                        () => onSelectPlaybooks?.([])
-                      )}
+                      {hasBusinesses &&
+                        renderContextIcon(
+                          <Briefcase size={20} />,
+                          selectedCompanyName || t('context.company'),
+                          TOOLTIPS.company,
+                          selectedBusiness ? 1 : 0,
+                          companyOpen,
+                          setCompanyOpen,
+                          companyList,
+                          'company',
+                          () => onSelectBusiness?.(null)
+                        )}
+                      {hasProjects &&
+                        renderContextIcon(
+                          <FolderKanban size={20} />,
+                          selectedProjectName || t('context.project'),
+                          TOOLTIPS.projects,
+                          selectedProject ? 1 : 0,
+                          projectOpen,
+                          setProjectOpen,
+                          projectList,
+                          'project',
+                          () => onSelectProject?.(null)
+                        )}
+                      {hasDepartments &&
+                        renderContextIcon(
+                          <Building2 size={20} />,
+                          t('departments.title'),
+                          TOOLTIPS.departments,
+                          selectedDepartments.length,
+                          deptOpen,
+                          setDeptOpen,
+                          departmentList,
+                          'dept',
+                          () => onSelectDepartments?.([])
+                        )}
+                      {hasRoles &&
+                        renderContextIcon(
+                          <Users size={20} />,
+                          t('roles.title'),
+                          TOOLTIPS.roles,
+                          selectedRoles.length,
+                          roleOpen,
+                          setRoleOpen,
+                          roleList,
+                          'role',
+                          () => onSelectRoles?.([])
+                        )}
+                      {hasPlaybooks &&
+                        renderContextIcon(
+                          <BookOpen size={20} />,
+                          t('context.playbooks'),
+                          TOOLTIPS.playbooks,
+                          selectedPlaybooks.length,
+                          playbookOpen,
+                          setPlaybookOpen,
+                          playbookList,
+                          'playbook',
+                          () => onSelectPlaybooks?.([])
+                        )}
                     </div>
                   </div>
                 )}
 
                 {/* Reset All button - outside capsule, smaller (desktop only) */}
-                {!isMobile && hasAnySelections &&
+                {!isMobile &&
+                  hasAnySelections &&
                   onResetAll &&
                   withTooltip(
                     <button
@@ -999,7 +1014,6 @@ export function OmniBar({
                     </button>,
                     TOOLTIPS.reset
                   )}
-
               </>
             )}
           </div>

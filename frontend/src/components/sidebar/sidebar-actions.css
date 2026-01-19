@@ -201,11 +201,7 @@
   /* Fade gradient to indicate more content below */
   position: relative;
   height: 32px;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    var(--color-bg-primary) 80%
-  );
+  background: linear-gradient(to bottom, transparent, var(--color-bg-primary) 80%);
   pointer-events: none;
   margin-top: calc(-1 * var(--space-6)); /* Overlap the last item */
 }
