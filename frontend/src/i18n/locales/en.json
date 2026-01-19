@@ -56,8 +56,8 @@
   "omnibar": {
     "placeholder": "Ask your council anything...",
     "placeholderChat": "Follow up...",
-    "placeholderLanding": "What would you like to know?",
-    "placeholderLandingChat": "Ask me anything...",
+    "placeholderLanding": "What decision do you need help with?",
+    "placeholderLandingChat": "Ask a quick question...",
     "noCompanies": "No companies",
     "oneAI": "1 AI",
     "fiveAIs": "5 AIs",

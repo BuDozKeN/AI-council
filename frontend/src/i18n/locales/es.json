@@ -56,8 +56,8 @@
   "omnibar": {
     "placeholder": "Pregunta lo que quieras a tu consejo...",
     "placeholderChat": "Seguir preguntando...",
-    "placeholderLanding": "¿Qué te gustaría saber?",
-    "placeholderLandingChat": "Pregúntame lo que quieras...",
+    "placeholderLanding": "¿Qué decisión necesitas resolver?",
+    "placeholderLandingChat": "Haz una pregunta rápida...",
     "noCompanies": "Sin empresas",
     "oneAI": "1 IA",
     "fiveAIs": "5 IAs",
