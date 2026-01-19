@@ -130,7 +130,10 @@
   }
 }
 
-/* Main content wrapper - must expand to fill available space */
+/* Main content wrapper - FLEX CHAIN PARTICIPANT
+   This element sits between .app and .main-content-chat.
+   Without these flex properties, content won't center properly.
+   See CLAUDE.md "Flex Container Chain Bug" for details. */
 #main-content {
   flex: 1;
   display: flex;

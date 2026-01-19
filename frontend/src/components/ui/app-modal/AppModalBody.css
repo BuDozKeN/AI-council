@@ -2,11 +2,13 @@
  * AppModal - Body Styles
  *
  * Main content area of the modal.
+ * FLEX CHAIN PARTICIPANT - ensures proper scrolling in modals.
  */
 
 /* Body */
 .app-modal-body {
   flex: 1;
+  min-height: 0; /* Required for flex child to shrink and enable scrolling */
   overflow-y: auto;
   padding: var(--space-5);
 }
