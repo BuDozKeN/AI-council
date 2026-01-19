@@ -122,6 +122,7 @@ export function useRouteSync(options: UseRouteSyncOptions) {
   }, []); // Intentionally runs only on mount - deps accessed via refs to avoid re-runs
 
   // Sync state → URL when modals open/close or conversation changes
+  // IMPORTANT: Use push (not replace) to enable browser back button navigation
   useEffect(() => {
     if (isSyncingFromUrl.current) return;
     isSyncingToUrl.current = true;
@@ -129,12 +130,14 @@ export function useRouteSync(options: UseRouteSyncOptions) {
     const pathname = location.pathname;
 
     try {
+      // Modal navigation - use push to enable back button
+      // Only use replace when we're already on the same route (preventing duplicate entries)
       if (isSettingsOpen && !pathname.startsWith('/settings')) {
-        navigate('/settings', { replace: true });
+        navigate('/settings'); // Push for back button support
       } else if (isMyCompanyOpen && !pathname.startsWith('/company')) {
-        navigate('/company', { replace: true });
+        navigate('/company'); // Push for back button support
       } else if (isLeaderboardOpen && pathname !== '/leaderboard') {
-        navigate('/leaderboard', { replace: true });
+        navigate('/leaderboard'); // Push for back button support
       } else if (!isSettingsOpen && !isMyCompanyOpen && !isLeaderboardOpen) {
         // No modals open - sync conversation URL
         const isOnChatRoute = pathname.startsWith('/chat/');
@@ -148,7 +151,8 @@ export function useRouteSync(options: UseRouteSyncOptions) {
           }
         } else if (pathname !== '/') {
           // Temp or no conversation - go to home
-          // Use push when leaving a conversation so user can go back
+          // Use push when coming from a conversation (so back returns to it)
+          // Use replace when coming from a modal (prevents stacking home entries)
           const wasOnConversation = isOnChatRoute;
           navigate('/', { replace: !wasOnConversation });
         }
@@ -167,34 +171,71 @@ export function useRouteSync(options: UseRouteSyncOptions) {
     navigate,
   ]);
 
-  // Handle browser back button - close modals instead of navigating
+  // Handle browser back/forward buttons - sync modal state with URL
   useEffect(() => {
     const handlePopState = () => {
       const pathname = window.location.pathname;
 
-      // If navigating away from a modal route, close the modal
-      if (!pathname.startsWith('/settings') && isSettingsOpen) {
+      // Sync modal state with URL - open if URL matches, close if it doesn't
+      // This handles both back (closing) and forward (reopening) navigation
+
+      // Settings modal
+      if (pathname.startsWith('/settings')) {
+        if (!isSettingsOpen) {
+          // Close other modals first to prevent conflicts
+          if (isMyCompanyOpen) closeMyCompany();
+          if (isLeaderboardOpen) closeLeaderboard();
+          openSettings();
+        }
+      } else if (isSettingsOpen) {
         closeSettings();
       }
-      if (!pathname.startsWith('/company') && isMyCompanyOpen) {
+
+      // My Company modal
+      if (pathname.startsWith('/company')) {
+        if (!isMyCompanyOpen) {
+          // Close other modals first
+          if (isSettingsOpen) closeSettings();
+          if (isLeaderboardOpen) closeLeaderboard();
+          // Parse tab from URL
+          const pathParts = pathname.split('/').filter(Boolean);
+          const tab = (pathParts[1] as MyCompanyTab) || 'overview';
+          openMyCompany({ tab: VALID_COMPANY_TABS.includes(tab) ? tab : 'overview' });
+        }
+      } else if (isMyCompanyOpen) {
         closeMyCompany();
       }
-      if (pathname !== '/leaderboard' && isLeaderboardOpen) {
+
+      // Leaderboard modal
+      if (pathname === '/leaderboard') {
+        if (!isLeaderboardOpen) {
+          // Close other modals first
+          if (isSettingsOpen) closeSettings();
+          if (isMyCompanyOpen) closeMyCompany();
+          openLeaderboard();
+        }
+      } else if (isLeaderboardOpen) {
         closeLeaderboard();
       }
 
-      // Handle conversation navigation
-      if (pathname.startsWith('/chat/')) {
-        const conversationId = pathname.split('/chat/')[1];
-        if (conversationId && conversationId !== currentConversationId) {
-          // Clear conversation state before setting new ID to prevent stale content
-          setCurrentConversation(null);
-          setCurrentConversationId(conversationId);
-        }
-      } else if (pathname === '/chat' || pathname === '/') {
-        // New conversation or home
-        if (currentConversationId && !currentConversationId.startsWith('temp-')) {
-          handleNewConversation();
+      // Handle conversation navigation (only when no modals should be open)
+      if (
+        !pathname.startsWith('/settings') &&
+        !pathname.startsWith('/company') &&
+        pathname !== '/leaderboard'
+      ) {
+        if (pathname.startsWith('/chat/')) {
+          const conversationId = pathname.split('/chat/')[1];
+          if (conversationId && conversationId !== currentConversationId) {
+            // Clear conversation state before setting new ID to prevent stale content
+            setCurrentConversation(null);
+            setCurrentConversationId(conversationId);
+          }
+        } else if (pathname === '/chat' || pathname === '/') {
+          // New conversation or home
+          if (currentConversationId && !currentConversationId.startsWith('temp-')) {
+            handleNewConversation();
+          }
         }
       }
     };
@@ -206,6 +247,9 @@ export function useRouteSync(options: UseRouteSyncOptions) {
     isMyCompanyOpen,
     isLeaderboardOpen,
     currentConversationId,
+    openSettings,
+    openMyCompany,
+    openLeaderboard,
     closeSettings,
     closeMyCompany,
     closeLeaderboard,
