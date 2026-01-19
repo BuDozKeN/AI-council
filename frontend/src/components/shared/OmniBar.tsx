@@ -374,8 +374,16 @@ export function OmniBar({
     }
   }, [isMobile]);
 
+  // Landing page gets welcoming first-time placeholders, chat view gets follow-up placeholders
   const currentPlaceholder =
-    placeholder || (chatMode === 'chat' ? t('omnibar.placeholderChat') : t('omnibar.placeholder'));
+    placeholder ||
+    (variant === 'landing'
+      ? chatMode === 'chat'
+        ? t('omnibar.placeholderLandingChat')
+        : t('omnibar.placeholderLanding')
+      : chatMode === 'chat'
+        ? t('omnibar.placeholderChat')
+        : t('omnibar.placeholder'));
 
   const hasContent = value.trim().length > 0 || hasImages;
 
@@ -746,17 +754,17 @@ export function OmniBar({
     </div>
   );
 
-  // Wrap button with tooltip for mom-friendly help
+  // Wrap element with tooltip for mom-friendly help
   // side: 'top' | 'right' | 'bottom' | 'left' - where tooltip appears relative to trigger
   // Use 'left' for dropdown menu items so tooltip doesn't block clicking
   const withTooltip = (
-    button: React.ReactNode,
+    element: React.ReactNode,
     tooltipText: string,
     side: 'top' | 'right' | 'bottom' | 'left' = 'top'
   ) => (
     <Tooltip.Provider delayDuration={400}>
       <Tooltip.Root>
-        <Tooltip.Trigger asChild>{button}</Tooltip.Trigger>
+        <Tooltip.Trigger asChild>{element}</Tooltip.Trigger>
         <Tooltip.Portal>
           <Tooltip.Content className="tooltip-content" side={side} sideOffset={8}>
             {tooltipText}
@@ -1109,44 +1117,60 @@ export function OmniBar({
             )}
             {/* Inline mode toggle - next to Context for consistency */}
             {onChatModeChange && !showModeToggle && (
-              <div
-                className="omni-inline-mode-toggle no-touch-target"
-                role="radiogroup"
-                aria-label="Response mode"
-              >
-                {withTooltip(
-                  <button
-                    type="button"
-                    className={cn(
-                      'inline-mode-indicator no-touch-target',
-                      chatMode === 'chat' && 'active'
-                    )}
-                    onClick={() => !disabled && onChatModeChange('chat')}
-                    disabled={disabled}
-                    role="radio"
-                    aria-checked={chatMode === 'chat'}
-                  >
-                    {t('omnibar.oneAI')}
-                  </button>,
-                  TOOLTIPS.chatMode
-                )}
-                {withTooltip(
-                  <button
-                    type="button"
-                    className={cn(
-                      'inline-mode-indicator no-touch-target',
-                      chatMode === 'council' && 'active'
-                    )}
-                    onClick={() => !disabled && onChatModeChange('council')}
-                    disabled={disabled}
-                    role="radio"
-                    aria-checked={chatMode === 'council'}
-                  >
-                    {t('omnibar.multiAI', { count: aiCount })}
-                  </button>,
-                  TOOLTIPS.councilMode
-                )}
-              </div>
+              <Tooltip.Provider delayDuration={400}>
+                <div
+                  className="omni-inline-mode-toggle no-touch-target"
+                  role="radiogroup"
+                  aria-label="Response mode"
+                >
+                  <Tooltip.Root>
+                    <Tooltip.Trigger asChild>
+                      <button
+                        type="button"
+                        className={cn(
+                          'inline-mode-indicator no-touch-target',
+                          chatMode === 'chat' && 'active'
+                        )}
+                        onClick={() => !disabled && onChatModeChange('chat')}
+                        disabled={disabled}
+                        role="radio"
+                        aria-checked={chatMode === 'chat'}
+                      >
+                        {t('omnibar.oneAI')}
+                      </button>
+                    </Tooltip.Trigger>
+                    <Tooltip.Portal>
+                      <Tooltip.Content className="tooltip-content" sideOffset={8}>
+                        {TOOLTIPS.chatMode}
+                        <Tooltip.Arrow className="tooltip-arrow" />
+                      </Tooltip.Content>
+                    </Tooltip.Portal>
+                  </Tooltip.Root>
+                  <Tooltip.Root>
+                    <Tooltip.Trigger asChild>
+                      <button
+                        type="button"
+                        className={cn(
+                          'inline-mode-indicator no-touch-target',
+                          chatMode === 'council' && 'active'
+                        )}
+                        onClick={() => !disabled && onChatModeChange('council')}
+                        disabled={disabled}
+                        role="radio"
+                        aria-checked={chatMode === 'council'}
+                      >
+                        {t('omnibar.multiAI', { count: aiCount })}
+                      </button>
+                    </Tooltip.Trigger>
+                    <Tooltip.Portal>
+                      <Tooltip.Content className="tooltip-content" sideOffset={8}>
+                        {TOOLTIPS.councilMode}
+                        <Tooltip.Arrow className="tooltip-arrow" />
+                      </Tooltip.Content>
+                    </Tooltip.Portal>
+                  </Tooltip.Root>
+                </div>
+              </Tooltip.Provider>
             )}
             {/* Response Style Selector - next to mode toggle */}
             {onSelectPreset && (
