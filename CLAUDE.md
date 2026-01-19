@@ -776,6 +776,47 @@ When building scrollable layouts with cards:
 .child { overflow-y: auto; }  /* Creates scroll-in-scroll mess */
 ```
 
+### Flex Container Chain Bug (CRITICAL)
+
+**Symptom:** Content is not centered or not expanding to fill available space, even though parent containers have `flex: 1` and `align-items: center`.
+
+**Root Cause:** An intermediate wrapper element (often added for accessibility like `<main>` or `<section>`) breaks the flex chain by not having flex properties. Every element from the viewport down to the content needs proper flex styles.
+
+**Real example - Chat interface centering:**
+```
+.app (flex: 1) → #main-content (NO FLEX!) → .main-content-chat (flex: 1) → .messages-container
+                       ↑
+              This broke the chain - content appeared left-aligned
+```
+
+**The Fix:** Ensure EVERY element in the flex chain has appropriate flex properties:
+```css
+/* Wrapper elements must participate in the flex chain */
+#main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;  /* Prevents flex item overflow */
+}
+```
+
+**Debugging checklist:**
+1. Open DevTools → Elements panel
+2. Starting from the misaligned element, click each parent going up
+3. Check the Computed styles for `display`, `flex`, `width`
+4. Look for any element with `display: block` or `flex: 0 1 auto` - that's your culprit
+5. Also check for `min-width: auto` which can prevent shrinking
+
+**Prevention:**
+- When adding semantic wrappers (`<main>`, `<section>`, `<article>`), immediately add flex styles if inside a flex layout
+- Add a comment: `/* Flex chain participant - do not remove flex properties */`
+- Test with sidebar collapsed AND expanded - width differences reveal chain breaks
+
+**Key files maintaining the flex chain:**
+- `App.css` - `.app`, `#main-content`, `.main-content-chat`
+- `ChatInterface.css` - `.chat-interface`
+- `MessageList.css` - `.messages-container`
+
 ### Nested Scroll Containers Bug (CRITICAL)
 
 **Symptom:** Mouse wheel scrolling doesn't work even though:

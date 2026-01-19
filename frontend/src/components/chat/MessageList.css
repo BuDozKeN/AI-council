@@ -14,6 +14,8 @@
   /* Center the content flow on wide screens */
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 /* Thin scrollbar styling */
@@ -42,16 +44,18 @@
   background: var(--color-slate-500);
 }
 
-/* Reading column wrapper - constrains content width */
+/* Reading column wrapper - constrains content width and centers on wide screens */
 .messages-container > * {
   width: 100%;
   max-width: 72ch; /* ~680-720px based on typography - optimal reading width */
   margin-left: auto;
+  margin-right: auto;
 }
 
 /* NOTE: .empty-state styles have been consolidated into ui/EmptyState.css
    The chat EmptyState components now use the unified ui/EmptyState component */
 
+/* Centering inherited from .messages-container > * */
 .message-group {
   margin-bottom: var(--space-8);
 }
