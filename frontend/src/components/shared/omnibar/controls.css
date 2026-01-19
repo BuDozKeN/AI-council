@@ -96,6 +96,22 @@
   height: 36px;
 }
 
+/* Standardize SVG icon sizes for visual consistency (Issue #2 fix) */
+.omni-icon-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.omni-icon-btn.attach svg {
+  width: 20px;
+  height: 20px;
+}
+
+.omni-bar-submit svg {
+  width: 18px;
+  height: 18px;
+}
+
 /* =============================================================================
    SUBMIT/STOP BUTTON
    ============================================================================= */

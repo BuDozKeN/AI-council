@@ -3,16 +3,16 @@
    ============================================================================= */
 
 @media (width <= 640px) {
-  /* Mobile sidebar - use high specificity to override state classes */
+  /* Mobile sidebar - full-width drawer overlay */
   .sidebar.sidebar--collapsed,
   .sidebar.sidebar--hovered,
   .sidebar.sidebar--pinned,
   .sidebar {
     position: fixed;
     left: 0;
-    inset-block-start: 0;
-    width: 85vw;
-    max-width: 320px;
+    top: 0;
+    width: 100%;
+    max-width: 100%;
     min-width: auto;
     height: 100vh;
     height: 100dvh; /* Dynamic viewport height for mobile browsers */
@@ -28,17 +28,18 @@
 
   .sidebar.mobile-open {
     transform: translateX(0);
-    box-shadow: var(--shadow-xl);
+    box-shadow: none; /* No shadow needed for full-width */
   }
 }
 
 @media (width <= 640px) {
+  /* Full-width mobile drawer overlay */
   .sidebar.sidebar--collapsed,
   .sidebar.sidebar--hovered,
   .sidebar.sidebar--pinned,
   .sidebar {
-    width: 90vw;
-    max-width: none;
+    width: 100%;
+    max-width: 100%;
   }
 }
 
@@ -97,6 +98,8 @@
 
   .sidebar .sidebar-new-btn {
     flex: 1;
+    min-height: 44px; /* WCAG touch target */
+    height: 44px;
   }
 
   /* Footer - always visible at bottom on mobile */

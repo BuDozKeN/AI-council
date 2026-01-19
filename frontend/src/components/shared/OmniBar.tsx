@@ -33,6 +33,7 @@ import {
   Shield,
   ChevronRight,
   RotateCcw,
+  Settings2,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { springs, interactionStates } from '../../lib/animations';
@@ -178,6 +179,16 @@ export function OmniBar({
   const { t } = useTranslation();
   const { aiCount } = useCouncilStats(selectedBusiness);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const capsuleRef = useRef<HTMLDivElement>(null);
+  const [capsuleScrolledEnd, setCapsuleScrolledEnd] = useState(false);
+
+  // Track capsule scroll position to hide/show fade indicator
+  const handleCapsuleScroll = useCallback(() => {
+    const capsule = capsuleRef.current;
+    if (!capsule) return;
+    const isAtEnd = capsule.scrollLeft + capsule.clientWidth >= capsule.scrollWidth - 2;
+    setCapsuleScrolledEnd(isAtEnd);
+  }, []);
 
   // Mom-friendly tooltip descriptions - actionable, clear (translated)
   const TOOLTIPS = {
@@ -209,6 +220,15 @@ export function OmniBar({
   const [roleOpen, setRoleOpen] = useState(false);
   const [playbookOpen, setPlaybookOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+  // Mobile unified context menu (Perplexity style - single button for all context)
+  const [mobileContextOpen, setMobileContextOpen] = useState(false);
+  const [mobileContextSection, setMobileContextSection] = useState<Record<string, boolean>>({
+    company: false,
+    project: false,
+    departments: false,
+    roles: false,
+    playbooks: false,
+  });
 
   const isMobile = isMobileDevice();
   const disabled = isLoading;
@@ -231,6 +251,22 @@ export function OmniBar({
     selectedDepartments.length > 0 ||
     selectedRoles.length > 0 ||
     selectedPlaybooks.length > 0;
+
+  // Total selection count for mobile context button badge
+  const totalSelectionCount =
+    (selectedBusiness ? 1 : 0) +
+    (selectedProject ? 1 : 0) +
+    selectedDepartments.length +
+    selectedRoles.length +
+    selectedPlaybooks.length;
+
+  // Toggle mobile context section
+  const toggleMobileContextSection = (section: string) => {
+    setMobileContextSection(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   // Get selected company name for display
   const selectedCompanyName = selectedBusiness
@@ -511,6 +547,127 @@ export function OmniBar({
     </div>
   );
 
+  // Mobile unified context menu content (Perplexity-inspired)
+  // Shows all categories in accordion style within a single bottom sheet
+  const mobileContextMenuContent = (
+    <div className="mobile-context-menu">
+      {/* Company Section */}
+      {hasBusinesses && (
+        <div className="context-section">
+          <button
+            type="button"
+            className={cn('context-section-header', mobileContextSection.company && 'expanded')}
+            onClick={() => toggleMobileContextSection('company')}
+          >
+            <Briefcase size={16} />
+            <span className="context-section-label">
+              {selectedCompanyName || t('context.company')}
+            </span>
+            {selectedBusiness && <span className="context-section-badge">1</span>}
+            <ChevronRight size={14} className={cn('context-section-chevron', mobileContextSection.company && 'rotated')} />
+          </button>
+          {mobileContextSection.company && (
+            <div className="context-section-content">
+              {companyList}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Project Section */}
+      {hasProjects && (
+        <div className="context-section">
+          <button
+            type="button"
+            className={cn('context-section-header', mobileContextSection.project && 'expanded')}
+            onClick={() => toggleMobileContextSection('project')}
+          >
+            <FolderKanban size={16} />
+            <span className="context-section-label">
+              {selectedProjectName || t('context.project')}
+            </span>
+            {selectedProject && <span className="context-section-badge">1</span>}
+            <ChevronRight size={14} className={cn('context-section-chevron', mobileContextSection.project && 'rotated')} />
+          </button>
+          {mobileContextSection.project && (
+            <div className="context-section-content">
+              {projectList}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Departments Section */}
+      {hasDepartments && (
+        <div className="context-section">
+          <button
+            type="button"
+            className={cn('context-section-header', mobileContextSection.departments && 'expanded')}
+            onClick={() => toggleMobileContextSection('departments')}
+          >
+            <Building2 size={16} />
+            <span className="context-section-label">{t('departments.title')}</span>
+            {selectedDepartments.length > 0 && (
+              <span className="context-section-badge">{selectedDepartments.length}</span>
+            )}
+            <ChevronRight size={14} className={cn('context-section-chevron', mobileContextSection.departments && 'rotated')} />
+          </button>
+          {mobileContextSection.departments && (
+            <div className="context-section-content">
+              {departmentList}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Roles Section */}
+      {hasRoles && (
+        <div className="context-section">
+          <button
+            type="button"
+            className={cn('context-section-header', mobileContextSection.roles && 'expanded')}
+            onClick={() => toggleMobileContextSection('roles')}
+          >
+            <Users size={16} />
+            <span className="context-section-label">{t('roles.title')}</span>
+            {selectedRoles.length > 0 && (
+              <span className="context-section-badge">{selectedRoles.length}</span>
+            )}
+            <ChevronRight size={14} className={cn('context-section-chevron', mobileContextSection.roles && 'rotated')} />
+          </button>
+          {mobileContextSection.roles && (
+            <div className="context-section-content">
+              {roleList}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Playbooks Section */}
+      {hasPlaybooks && (
+        <div className="context-section">
+          <button
+            type="button"
+            className={cn('context-section-header', mobileContextSection.playbooks && 'expanded')}
+            onClick={() => toggleMobileContextSection('playbooks')}
+          >
+            <BookOpen size={16} />
+            <span className="context-section-label">{t('context.playbooks')}</span>
+            {selectedPlaybooks.length > 0 && (
+              <span className="context-section-badge">{selectedPlaybooks.length}</span>
+            )}
+            <ChevronRight size={14} className={cn('context-section-chevron', mobileContextSection.playbooks && 'rotated')} />
+          </button>
+          {mobileContextSection.playbooks && (
+            <div className="context-section-content">
+              {playbookList}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+
   // Wrap button with tooltip for mom-friendly help
   const withTooltip = (button: React.ReactNode, tooltipText: string) => (
     <Tooltip.Provider delayDuration={400}>
@@ -715,126 +872,174 @@ export function OmniBar({
           <div className="omni-bar-left">
             {hasAnyContextIcons && (
               <>
-                {/* Context icons capsule - groups related icons visually */}
-                <div className="context-icons-capsule">
-                  {hasBusinesses &&
-                    renderContextIcon(
-                      <Briefcase size={16} />,
-                      selectedCompanyName || t('context.company'),
-                      TOOLTIPS.company,
-                      selectedBusiness ? 1 : 0,
-                      companyOpen,
-                      setCompanyOpen,
-                      companyList,
-                      'company',
-                      () => onSelectBusiness?.(null)
-                    )}
-                  {hasProjects &&
-                    renderContextIcon(
-                      <FolderKanban size={16} />,
-                      selectedProjectName || t('context.project'),
-                      TOOLTIPS.projects,
-                      selectedProject ? 1 : 0,
-                      projectOpen,
-                      setProjectOpen,
-                      projectList,
-                      'project',
-                      () => onSelectProject?.(null)
-                    )}
-                  {hasDepartments &&
-                    renderContextIcon(
-                      <Building2 size={16} />,
-                      t('departments.title'),
-                      TOOLTIPS.departments,
-                      selectedDepartments.length,
-                      deptOpen,
-                      setDeptOpen,
-                      departmentList,
-                      'dept',
-                      () => onSelectDepartments?.([])
-                    )}
-                  {hasRoles &&
-                    renderContextIcon(
-                      <Users size={16} />,
-                      t('roles.title'),
-                      TOOLTIPS.roles,
-                      selectedRoles.length,
-                      roleOpen,
-                      setRoleOpen,
-                      roleList,
-                      'role',
-                      () => onSelectRoles?.([])
-                    )}
-                  {hasPlaybooks &&
-                    renderContextIcon(
-                      <BookOpen size={16} />,
-                      t('context.playbooks'),
-                      TOOLTIPS.playbooks,
-                      selectedPlaybooks.length,
-                      playbookOpen,
-                      setPlaybookOpen,
-                      playbookList,
-                      'playbook',
-                      () => onSelectPlaybooks?.([])
-                    )}
-                </div>
+                {/* MOBILE: Single Context button (Perplexity style) */}
+                {isMobile && (
+                  <>
+                    <button
+                      type="button"
+                      className={cn('mobile-context-btn', totalSelectionCount > 0 && 'has-selection')}
+                      onClick={() => setMobileContextOpen(true)}
+                      disabled={disabled}
+                      aria-label={t('context.configure')}
+                    >
+                      <Settings2 size={18} />
+                      <span className="mobile-context-label">{t('context.context')}</span>
+                      {totalSelectionCount > 0 && (
+                        <span className="mobile-context-badge">{totalSelectionCount}</span>
+                      )}
+                    </button>
+                    <BottomSheet
+                      isOpen={mobileContextOpen}
+                      onClose={() => setMobileContextOpen(false)}
+                      title={t('context.configureContext')}
+                      headerAction={
+                        hasAnySelections && onResetAll ? (
+                          <button
+                            type="button"
+                            className="context-popover-clear"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onResetAll();
+                            }}
+                          >
+                            {t('common.clearAll')}
+                          </button>
+                        ) : undefined
+                      }
+                    >
+                      {mobileContextMenuContent}
+                    </BottomSheet>
+                  </>
+                )}
 
-                {/* Reset All button - outside capsule, smaller */}
-                {hasAnySelections &&
+                {/* DESKTOP: Individual context icons in capsule */}
+                {!isMobile && (
+                  <div className={cn('context-icons-capsule-wrapper', !capsuleScrolledEnd && 'has-more')}>
+                    <div
+                      ref={capsuleRef}
+                      className="context-icons-capsule"
+                      onScroll={handleCapsuleScroll}
+                    >
+                    {hasBusinesses &&
+                      renderContextIcon(
+                        <Briefcase size={20} />,
+                        selectedCompanyName || t('context.company'),
+                        TOOLTIPS.company,
+                        selectedBusiness ? 1 : 0,
+                        companyOpen,
+                        setCompanyOpen,
+                        companyList,
+                        'company',
+                        () => onSelectBusiness?.(null)
+                      )}
+                    {hasProjects &&
+                      renderContextIcon(
+                        <FolderKanban size={20} />,
+                        selectedProjectName || t('context.project'),
+                        TOOLTIPS.projects,
+                        selectedProject ? 1 : 0,
+                        projectOpen,
+                        setProjectOpen,
+                        projectList,
+                        'project',
+                        () => onSelectProject?.(null)
+                      )}
+                    {hasDepartments &&
+                      renderContextIcon(
+                        <Building2 size={20} />,
+                        t('departments.title'),
+                        TOOLTIPS.departments,
+                        selectedDepartments.length,
+                        deptOpen,
+                        setDeptOpen,
+                        departmentList,
+                        'dept',
+                        () => onSelectDepartments?.([])
+                      )}
+                    {hasRoles &&
+                      renderContextIcon(
+                        <Users size={20} />,
+                        t('roles.title'),
+                        TOOLTIPS.roles,
+                        selectedRoles.length,
+                        roleOpen,
+                        setRoleOpen,
+                        roleList,
+                        'role',
+                        () => onSelectRoles?.([])
+                      )}
+                    {hasPlaybooks &&
+                      renderContextIcon(
+                        <BookOpen size={20} />,
+                        t('context.playbooks'),
+                        TOOLTIPS.playbooks,
+                        selectedPlaybooks.length,
+                        playbookOpen,
+                        setPlaybookOpen,
+                        playbookList,
+                        'playbook',
+                        () => onSelectPlaybooks?.([])
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Reset All button - outside capsule, smaller (desktop only) */}
+                {!isMobile && hasAnySelections &&
                   onResetAll &&
                   withTooltip(
                     <button
                       type="button"
-                      className="omni-reset-all"
+                      className="omni-reset-all no-touch-target"
                       onClick={onResetAll}
                       disabled={disabled}
                       aria-label="Reset all selections"
                     >
-                      <RotateCcw size={12} />
+                      <RotateCcw size={14} />
                     </button>,
                     TOOLTIPS.reset
                   )}
 
-                {/* Inline mode toggle - compact pill that toggles on any click */}
-                {onChatModeChange && !showModeToggle && (
-                  <button
-                    type="button"
-                    className="omni-inline-mode-toggle no-touch-target"
-                    onClick={() => {
-                      if (!disabled) {
-                        // Toggle between modes
-                        onChatModeChange(chatMode === 'chat' ? 'council' : 'chat');
-                      }
-                    }}
-                    disabled={disabled}
-                    aria-label={`Response mode: ${chatMode === 'chat' ? t('omnibar.oneAI') : t('omnibar.multiAI', { count: aiCount })}. Click to toggle.`}
-                  >
-                    <span
-                      className={cn(
-                        'inline-mode-indicator no-touch-target',
-                        chatMode === 'chat' && 'active'
-                      )}
-                      aria-hidden="true"
-                    >
-                      {t('omnibar.oneAI')}
-                    </span>
-                    <span
-                      className={cn(
-                        'inline-mode-indicator no-touch-target',
-                        chatMode === 'council' && 'active'
-                      )}
-                      aria-hidden="true"
-                    >
-                      {t('omnibar.multiAI', { count: aiCount })}
-                    </span>
-                  </button>
-                )}
               </>
             )}
           </div>
 
-          {/* Right side: Response Style + Attach + Send */}
+          {/* Right side: Mode Toggle + Response Style + Attach + Send */}
           <div className="omni-bar-right">
+            {/* Inline mode toggle - compact pill that toggles on any click */}
+            {onChatModeChange && !showModeToggle && (
+              <button
+                type="button"
+                className="omni-inline-mode-toggle no-touch-target"
+                onClick={() => {
+                  if (!disabled) {
+                    // Toggle between modes
+                    onChatModeChange(chatMode === 'chat' ? 'council' : 'chat');
+                  }
+                }}
+                disabled={disabled}
+                aria-label={`Response mode: ${chatMode === 'chat' ? t('omnibar.oneAI') : t('omnibar.multiAI', { count: aiCount })}. Click to toggle.`}
+              >
+                <span
+                  className={cn(
+                    'inline-mode-indicator no-touch-target',
+                    chatMode === 'chat' && 'active'
+                  )}
+                  aria-hidden="true"
+                >
+                  {t('omnibar.oneAI')}
+                </span>
+                <span
+                  className={cn(
+                    'inline-mode-indicator no-touch-target',
+                    chatMode === 'council' && 'active'
+                  )}
+                  aria-hidden="true"
+                >
+                  {t('omnibar.multiAI', { count: aiCount })}
+                </span>
+              </button>
+            )}
             {/* Response Style Selector - compact icon (right side like Perplexity) */}
             {onSelectPreset && (
               <ResponseStyleSelector
@@ -858,7 +1063,7 @@ export function OmniBar({
                   disabled={isLoading}
                   aria-label="Attach image"
                 >
-                  <ImageIcon size={18} />
+                  <ImageIcon size={20} />
                 </button>,
                 TOOLTIPS.attach
               )}

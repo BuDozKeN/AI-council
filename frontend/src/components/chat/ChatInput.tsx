@@ -23,6 +23,7 @@ import {
   FolderKanban,
   RotateCcw,
   Send,
+  Settings2,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { BottomSheet } from '../ui/BottomSheet';
@@ -127,6 +128,14 @@ export function ChatInput({
   const [playbookOpen, setPlaybookOpen] = useState(false);
   // Track which playbook sections are expanded (accordion within dropdown)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+  // Mobile unified context menu (Perplexity style - single button for all context)
+  const [mobileContextOpen, setMobileContextOpen] = useState(false);
+  const [mobileContextSection, setMobileContextSection] = useState<Record<string, boolean>>({
+    project: false,
+    departments: false,
+    roles: false,
+    playbooks: false,
+  });
 
   // Ref for textarea to scroll into view on focus
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -169,6 +178,21 @@ export function ChatInput({
     selectedDepartments.length > 0 ||
     selectedRoles.length > 0 ||
     selectedPlaybooks.length > 0;
+
+  // Total selection count for mobile context button badge
+  const totalSelectionCount =
+    (selectedProject ? 1 : 0) +
+    selectedDepartments.length +
+    selectedRoles.length +
+    selectedPlaybooks.length;
+
+  // Toggle mobile context section
+  const toggleMobileContextSection = (section: string) => {
+    setMobileContextSection(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   // Get selected project name for display
   const selectedProjectName = selectedProject
@@ -380,6 +404,104 @@ export function ChatInput({
     </div>
   );
 
+  // Mobile unified context menu content (Perplexity-inspired)
+  // Shows all categories in accordion style within a single bottom sheet
+  const mobileContextMenuContent = (
+    <div className="mobile-context-menu">
+      {/* Project Section */}
+      {hasProjects && (
+        <div className="context-section">
+          <button
+            type="button"
+            className={cn('context-section-header', mobileContextSection.project && 'expanded')}
+            onClick={() => toggleMobileContextSection('project')}
+          >
+            <FolderKanban size={16} />
+            <span className="context-section-label">
+              {selectedProjectName || t('context.project')}
+            </span>
+            {selectedProject && <span className="context-section-badge">1</span>}
+            <ChevronRight size={14} className={cn('context-section-chevron', mobileContextSection.project && 'rotated')} />
+          </button>
+          {mobileContextSection.project && (
+            <div className="context-section-content">
+              {projectList}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Departments Section */}
+      {hasDepartments && (
+        <div className="context-section">
+          <button
+            type="button"
+            className={cn('context-section-header', mobileContextSection.departments && 'expanded')}
+            onClick={() => toggleMobileContextSection('departments')}
+          >
+            <Building2 size={16} />
+            <span className="context-section-label">{t('departments.title')}</span>
+            {selectedDepartments.length > 0 && (
+              <span className="context-section-badge">{selectedDepartments.length}</span>
+            )}
+            <ChevronRight size={14} className={cn('context-section-chevron', mobileContextSection.departments && 'rotated')} />
+          </button>
+          {mobileContextSection.departments && (
+            <div className="context-section-content">
+              {departmentList}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Roles Section */}
+      {hasRoles && (
+        <div className="context-section">
+          <button
+            type="button"
+            className={cn('context-section-header', mobileContextSection.roles && 'expanded')}
+            onClick={() => toggleMobileContextSection('roles')}
+          >
+            <Users size={16} />
+            <span className="context-section-label">{t('roles.title')}</span>
+            {selectedRoles.length > 0 && (
+              <span className="context-section-badge">{selectedRoles.length}</span>
+            )}
+            <ChevronRight size={14} className={cn('context-section-chevron', mobileContextSection.roles && 'rotated')} />
+          </button>
+          {mobileContextSection.roles && (
+            <div className="context-section-content">
+              {roleList}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Playbooks Section */}
+      {hasPlaybooks && (
+        <div className="context-section">
+          <button
+            type="button"
+            className={cn('context-section-header', mobileContextSection.playbooks && 'expanded')}
+            onClick={() => toggleMobileContextSection('playbooks')}
+          >
+            <BookOpen size={16} />
+            <span className="context-section-label">{t('context.playbooks')}</span>
+            {selectedPlaybooks.length > 0 && (
+              <span className="context-section-badge">{selectedPlaybooks.length}</span>
+            )}
+            <ChevronRight size={14} className={cn('context-section-chevron', mobileContextSection.playbooks && 'rotated')} />
+          </button>
+          {mobileContextSection.playbooks && (
+            <div className="context-section-content">
+              {playbookList}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+
   // Wrap button with tooltip for mom-friendly help
   const withTooltip = (button: React.ReactNode, tooltipText: string) => (
     <Tooltip.Provider delayDuration={400}>
@@ -527,60 +649,102 @@ export function ChatInput({
           <div className="omni-left">
             {showContextIcons && (
               <>
-                {/* Context icons capsule - groups related icons visually */}
-                <div className="context-icons-capsule">
-                  {hasProjects &&
-                    renderContextIcon(
-                      <FolderKanban size={16} />,
-                      selectedProjectName || t('context.project'),
-                      TOOLTIPS.projects,
-                      selectedProject ? 1 : 0,
-                      projectOpen,
-                      setProjectOpen,
-                      projectList,
-                      'project',
-                      () => onSelectProject?.(null)
-                    )}
-                  {hasDepartments &&
-                    renderContextIcon(
-                      <Building2 size={16} />,
-                      t('departments.title'),
-                      TOOLTIPS.departments,
-                      selectedDepartments.length,
-                      deptOpen,
-                      setDeptOpen,
-                      departmentList,
-                      'dept',
-                      () => onSelectDepartments?.([])
-                    )}
-                  {hasRoles &&
-                    renderContextIcon(
-                      <Users size={16} />,
-                      t('roles.title'),
-                      TOOLTIPS.roles,
-                      selectedRoles.length,
-                      roleOpen,
-                      setRoleOpen,
-                      roleList,
-                      'role',
-                      () => onSelectRoles?.([])
-                    )}
-                  {hasPlaybooks &&
-                    renderContextIcon(
-                      <BookOpen size={16} />,
-                      t('context.playbooks'),
-                      TOOLTIPS.playbooks,
-                      selectedPlaybooks.length,
-                      playbookOpen,
-                      setPlaybookOpen,
-                      playbookList,
-                      'playbook',
-                      () => onSelectPlaybooks?.([])
-                    )}
-                </div>
+                {/* MOBILE: Single Context button (Perplexity style) */}
+                {isMobile && (hasProjects || hasDepartments || hasRoles || hasPlaybooks) && (
+                  <>
+                    <button
+                      type="button"
+                      className={cn('mobile-context-btn', totalSelectionCount > 0 && 'has-selection')}
+                      onClick={() => setMobileContextOpen(true)}
+                      disabled={disabled}
+                      aria-label={t('context.configure')}
+                    >
+                      <Settings2 size={16} />
+                      <span className="mobile-context-label">{t('context.context')}</span>
+                      {totalSelectionCount > 0 && (
+                        <span className="mobile-context-badge">{totalSelectionCount}</span>
+                      )}
+                    </button>
+                    <BottomSheet
+                      isOpen={mobileContextOpen}
+                      onClose={() => setMobileContextOpen(false)}
+                      title={t('context.configureContext')}
+                      headerAction={
+                        hasAnySelections && onResetAll ? (
+                          <button
+                            type="button"
+                            className="context-popover-clear"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onResetAll();
+                            }}
+                          >
+                            {t('common.clearAll')}
+                          </button>
+                        ) : undefined
+                      }
+                    >
+                      {mobileContextMenuContent}
+                    </BottomSheet>
+                  </>
+                )}
 
-                {/* Reset All button - outside capsule, smaller */}
-                {hasAnySelections &&
+                {/* DESKTOP: Individual context icons in capsule */}
+                {!isMobile && (
+                  <div className="context-icons-capsule">
+                    {hasProjects &&
+                      renderContextIcon(
+                        <FolderKanban size={16} />,
+                        selectedProjectName || t('context.project'),
+                        TOOLTIPS.projects,
+                        selectedProject ? 1 : 0,
+                        projectOpen,
+                        setProjectOpen,
+                        projectList,
+                        'project',
+                        () => onSelectProject?.(null)
+                      )}
+                    {hasDepartments &&
+                      renderContextIcon(
+                        <Building2 size={16} />,
+                        t('departments.title'),
+                        TOOLTIPS.departments,
+                        selectedDepartments.length,
+                        deptOpen,
+                        setDeptOpen,
+                        departmentList,
+                        'dept',
+                        () => onSelectDepartments?.([])
+                      )}
+                    {hasRoles &&
+                      renderContextIcon(
+                        <Users size={16} />,
+                        t('roles.title'),
+                        TOOLTIPS.roles,
+                        selectedRoles.length,
+                        roleOpen,
+                        setRoleOpen,
+                        roleList,
+                        'role',
+                        () => onSelectRoles?.([])
+                      )}
+                    {hasPlaybooks &&
+                      renderContextIcon(
+                        <BookOpen size={16} />,
+                        t('context.playbooks'),
+                        TOOLTIPS.playbooks,
+                        selectedPlaybooks.length,
+                        playbookOpen,
+                        setPlaybookOpen,
+                        playbookList,
+                        'playbook',
+                        () => onSelectPlaybooks?.([])
+                      )}
+                  </div>
+                )}
+
+                {/* Reset All button - outside capsule, smaller (desktop only) */}
+                {!isMobile && hasAnySelections &&
                   onResetAll &&
                   withTooltip(
                     <button

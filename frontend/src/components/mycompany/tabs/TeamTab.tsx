@@ -207,7 +207,7 @@ export function TeamTab({
                   <div className="mc-elegant-content">
                     <span className="mc-elegant-title">{dept.name}</span>
                     <span className="mc-elegant-meta">
-                      {dept.roles?.length || 0} {t('mycompany.roles')}
+                      {t('mycompany.roleCount', { count: dept.roles?.length || 0 })}
                     </span>
                   </div>
 

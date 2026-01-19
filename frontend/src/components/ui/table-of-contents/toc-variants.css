@@ -204,6 +204,8 @@
 
 .toc-sticky-link:hover .toc-sticky-text {
   color: var(--color-slate-800);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* Active state */
@@ -284,6 +286,12 @@
 
 .toc-inline-link:hover {
   background: var(--overlay-black-5);
+}
+
+.toc-inline-link:hover .toc-inline-text {
+  color: var(--color-slate-800);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .toc-inline-dot {
@@ -381,6 +389,8 @@
 .dark .toc-sticky-link:hover .toc-sticky-text,
 [data-theme='dark'] .toc-sticky-link:hover .toc-sticky-text {
   color: var(--color-slate-300);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .dark .toc-sticky-link.active,
@@ -419,6 +429,13 @@
 .dark .toc-inline-link:hover,
 [data-theme='dark'] .toc-inline-link:hover {
   background: var(--overlay-white-5);
+}
+
+.dark .toc-inline-link:hover .toc-inline-text,
+[data-theme='dark'] .toc-inline-link:hover .toc-inline-text {
+  color: var(--color-slate-300);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .dark .toc-inline-dot,

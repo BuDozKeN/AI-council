@@ -244,6 +244,12 @@
   overflow: visible;
 }
 
+/* Standardize SVG icon sizes for visual consistency (Issue #2 fix) */
+.context-icons-capsule .omni-icon-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
 /* Badges overflow outside the capsule - closer to icons */
 .context-icons-capsule .omni-icon-badge {
   inset-block-start: -5px;
@@ -329,6 +335,13 @@
   background: var(--color-bg-tertiary);
   border-color: var(--color-border);
   color: var(--color-text-secondary);
+}
+
+/* Hide keyboard shortcut hint on mobile - not relevant for touch devices */
+@media (width <= 640px) {
+  .omni-bar-kbd {
+    display: none;
+  }
 }
 
 .dark .omni-icon-btn {

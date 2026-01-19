@@ -13,7 +13,7 @@
   pointer-events: auto; /* Ensure clicks are captured */
 }
 
-/* The toggle button - subtle but visible over any background */
+/* The toggle button - subtle but visible over any background (Issue #10 fix) */
 .theme-toggle-btn {
   display: flex;
   align-items: center;
@@ -21,14 +21,14 @@
   width: 32px;
   height: 32px;
   padding: 0;
-  border: 1px solid var(--color-border-light);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-bg-primary);
-  color: var(--color-text-tertiary);
+  color: var(--color-text-secondary);
   cursor: pointer;
   transition: all 0.15s ease;
   box-shadow: var(--shadow-sm);
-  opacity: 0.7;
+  opacity: 0.9;
 }
 
 .theme-toggle-btn:hover {
@@ -59,21 +59,32 @@
     right: 12px;
   }
 
+  /* Mobile: Keep visible with subtle background (Issue #10 fix) */
   .theme-toggle-btn {
-    width: 32px;
-    height: 32px;
-    background: transparent;
+    width: 36px;
+    height: 36px;
+    background: var(--overlay-black-10);
     border: none;
     box-shadow: none;
-    color: var(--color-text-tertiary);
-    opacity: 0.6;
+    color: var(--color-text-secondary);
+    opacity: 0.85;
+    border-radius: var(--radius-full);
+  }
+
+  .dark .theme-toggle-btn {
+    background: var(--overlay-white-10);
   }
 
   .theme-toggle-btn:hover,
   .theme-toggle-btn:active {
     opacity: 1;
-    background: transparent;
-    color: var(--color-text-secondary);
+    background: var(--overlay-black-15);
+    color: var(--color-text-primary);
     box-shadow: none;
+  }
+
+  .dark .theme-toggle-btn:hover,
+  .dark .theme-toggle-btn:active {
+    background: var(--overlay-white-20);
   }
 }
