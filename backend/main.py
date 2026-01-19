@@ -1043,4 +1043,6 @@ async def get_businesses(
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8081)
+    # Use PORT from environment (Render/cloud platforms) or default to 8081 for local dev
+    port = int(os.environ.get("PORT", 8081))
+    uvicorn.run(app, host="0.0.0.0", port=port)

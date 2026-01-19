@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: axcouncil-backend
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: "pip install --upgrade pip && pip install -e ."
+    startCommand: "python -m backend.main"
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.10"
+      - key: ENVIRONMENT
+        value: production
+      # Add your other environment variables in the Render dashboard:
+      # - SUPABASE_URL
+      # - SUPABASE_SERVICE_KEY
+      # - OPENROUTER_API_KEY
+      # - REDIS_URL
+      # - QDRANT_URL
+      # - QDRANT_API_KEY
+      # - SENTRY_DSN
+      # - etc.
+    autoDeploy: true
