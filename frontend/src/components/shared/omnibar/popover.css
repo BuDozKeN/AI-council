@@ -57,7 +57,7 @@
   flex-shrink: 0;
 }
 
-[data-state="open"] .context-trigger-chevron {
+[data-state='open'] .context-trigger-chevron {
   transform: rotate(180deg);
 }
 

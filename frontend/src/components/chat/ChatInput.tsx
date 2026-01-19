@@ -270,23 +270,23 @@ export function ChatInput({
         <div className="context-popover-empty">{t('context.noProjects')}</div>
       ) : (
         sortedProjects.map((proj) => {
-            const isSelected = selectedProject === proj.id;
-            return (
-              <button
-                key={proj.id}
-                className={cn('context-popover-item', isSelected && 'selected')}
-                onClick={() => {
-                  onSelectProject?.(isSelected ? null : proj.id);
-                }}
-                type="button"
-              >
-                <div className={cn('context-popover-radio', isSelected && 'checked')}>
-                  {isSelected && <Check />}
-                </div>
-                <span>{proj.name}</span>
-              </button>
-            );
-          })
+          const isSelected = selectedProject === proj.id;
+          return (
+            <button
+              key={proj.id}
+              className={cn('context-popover-item', isSelected && 'selected')}
+              onClick={() => {
+                onSelectProject?.(isSelected ? null : proj.id);
+              }}
+              type="button"
+            >
+              <div className={cn('context-popover-radio', isSelected && 'checked')}>
+                {isSelected && <Check />}
+              </div>
+              <span>{proj.name}</span>
+            </button>
+          );
+        })
       )}
     </div>
   );
@@ -693,9 +693,7 @@ export function ChatInput({
                               >
                                 <FolderKanban size={16} />
                                 <span>{t('context.project')}</span>
-                                {selectedProject && (
-                                  <span className="context-menu-badge">1</span>
-                                )}
+                                {selectedProject && <span className="context-menu-badge">1</span>}
                                 <ChevronRight size={14} className="context-menu-arrow" />
                               </div>
                             )}
@@ -734,9 +732,7 @@ export function ChatInput({
                                 <Users size={16} />
                                 <span>{t('roles.title')}</span>
                                 {selectedRoles.length > 0 && (
-                                  <span className="context-menu-badge">
-                                    {selectedRoles.length}
-                                  </span>
+                                  <span className="context-menu-badge">{selectedRoles.length}</span>
                                 )}
                                 <ChevronRight size={14} className="context-menu-arrow" />
                               </div>
@@ -788,9 +784,7 @@ export function ChatInput({
                             {activeContextTab === 'roles' && roleList}
                             {activeContextTab === 'playbooks' && playbookList}
                             {!activeContextTab && (
-                              <div className="context-panel-hint">
-                                {t('context.hoverToSelect')}
-                              </div>
+                              <div className="context-panel-hint">{t('context.hoverToSelect')}</div>
                             )}
                           </div>
                         </div>
