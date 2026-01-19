@@ -951,7 +951,9 @@ export function OmniBar({
                                 >
                                   <Briefcase size={16} />
                                   <span>{t('context.company')}</span>
-                                  {selectedBusiness && <span className="context-menu-badge">1</span>}
+                                  {selectedBusiness && (
+                                    <span className="context-menu-badge">1</span>
+                                  )}
                                   <ChevronRight size={14} className="context-menu-arrow" />
                                 </div>,
                                 TOOLTIPS.company,
@@ -1016,7 +1018,9 @@ export function OmniBar({
                                   <Users size={16} />
                                   <span>{t('roles.title')}</span>
                                   {selectedRoles.length > 0 && (
-                                    <span className="context-menu-badge">{selectedRoles.length}</span>
+                                    <span className="context-menu-badge">
+                                      {selectedRoles.length}
+                                    </span>
                                   )}
                                   <ChevronRight size={14} className="context-menu-arrow" />
                                 </div>,

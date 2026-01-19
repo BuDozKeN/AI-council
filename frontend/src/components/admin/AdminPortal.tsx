@@ -1752,7 +1752,6 @@ function InvitationsTab() {
               </SelectItem>
             </SelectContent>
           </Select>
-
         </div>
       </div>
 
