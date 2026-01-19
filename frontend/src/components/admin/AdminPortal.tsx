@@ -37,7 +37,6 @@ import {
   X,
   CheckCircle,
   XCircle,
-  RefreshCw,
   Trash2,
   Ban,
   UserX,
@@ -74,6 +73,115 @@ const ADMIN_TABS: { id: AdminTab; label: string; icon: typeof Users; path: strin
   { id: 'admins', label: 'Admin Roles', icon: Shield, path: '/admin/admins' },
   { id: 'settings', label: 'Settings', icon: Settings, path: '/admin/settings' },
 ];
+
+// =============================================================================
+// SKELETON LOADING COMPONENTS
+// =============================================================================
+
+/** Skeleton cell with icon + text */
+const SkeletonCell = ({ short = false }: { short?: boolean }) => (
+  <td>
+    <div className="admin-skeleton-cell">
+      <div className="admin-table-skeleton admin-table-skeleton--icon" />
+      <div
+        className={`admin-table-skeleton admin-table-skeleton--text ${short ? 'admin-table-skeleton--short' : ''}`}
+      />
+    </div>
+  </td>
+);
+
+/** Skeleton badge (status, role) */
+const SkeletonBadge = () => (
+  <td>
+    <div className="admin-table-skeleton admin-table-skeleton--badge" />
+  </td>
+);
+
+/** Skeleton action buttons */
+const SkeletonActions = ({ count = 2 }: { count?: number }) => (
+  <td>
+    <div className="admin-skeleton-actions">
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="admin-table-skeleton admin-table-skeleton--btn" />
+      ))}
+    </div>
+  </td>
+);
+
+/** Users table skeleton rows */
+const UsersTableSkeleton = () => (
+  <>
+    {Array.from({ length: 5 }).map((_, i) => (
+      <tr key={i}>
+        <SkeletonCell />
+        <SkeletonCell short />
+        <SkeletonCell short />
+        <SkeletonBadge />
+        <SkeletonActions />
+      </tr>
+    ))}
+  </>
+);
+
+/** Companies table skeleton rows */
+const CompaniesTableSkeleton = () => (
+  <>
+    {Array.from({ length: 5 }).map((_, i) => (
+      <tr key={i}>
+        <SkeletonCell />
+        <SkeletonCell />
+        <SkeletonCell short />
+        <SkeletonCell short />
+      </tr>
+    ))}
+  </>
+);
+
+/** Admins table skeleton rows */
+const AdminsTableSkeleton = () => (
+  <>
+    {Array.from({ length: 3 }).map((_, i) => (
+      <tr key={i}>
+        <SkeletonCell />
+        <SkeletonBadge />
+        <SkeletonCell short />
+      </tr>
+    ))}
+  </>
+);
+
+/** Audit logs table skeleton rows */
+const AuditTableSkeleton = () => (
+  <>
+    {Array.from({ length: 5 }).map((_, i) => (
+      <tr key={i}>
+        <SkeletonCell short />
+        <SkeletonCell />
+        <SkeletonCell />
+        <SkeletonBadge />
+        <SkeletonCell short />
+        <SkeletonCell short />
+      </tr>
+    ))}
+  </>
+);
+
+/** Invitations table skeleton rows */
+const InvitationsTableSkeleton = () => (
+  <>
+    {Array.from({ length: 5 }).map((_, i) => (
+      <tr key={i}>
+        <SkeletonCell />
+        <SkeletonCell short />
+        <SkeletonBadge />
+        <SkeletonCell />
+        <SkeletonCell short />
+        <SkeletonCell short />
+        <SkeletonActions count={3} />
+      </tr>
+    ))}
+  </>
+);
 
 export default function AdminPortal() {
   const { t } = useTranslation();
@@ -487,13 +595,6 @@ function UsersTab() {
               className="admin-search-input"
             />
           </div>
-          <button
-            className="admin-icon-btn admin-icon-btn--secondary"
-            onClick={() => refetch()}
-            title={t('common.refresh', 'Refresh')}
-          >
-            <RefreshCw className="h-4 w-4" />
-          </button>
         </div>
       </div>
 
@@ -505,12 +606,7 @@ function UsersTab() {
         </div>
       )}
 
-      {isLoading ? (
-        <div className="admin-table-loading">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>{t('common.loading', 'Loading...')}</span>
-        </div>
-      ) : users.length === 0 ? (
+      {!isLoading && users.length === 0 ? (
         <div className="admin-table-empty">
           <Users className="h-8 w-8" />
           <span>{t('admin.users.noUsers', 'No users found')}</span>
@@ -529,88 +625,92 @@ function UsersTab() {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user: AdminPlatformUser) => {
-                  const isSuspended = isUserSuspended(user);
-                  const isCurrentUser = user.id === currentUser?.id;
-                  const isLoading = actionLoading === user.id;
+                {isLoading ? (
+                  <UsersTableSkeleton />
+                ) : (
+                  users.map((user: AdminPlatformUser) => {
+                    const isSuspended = isUserSuspended(user);
+                    const isCurrentUser = user.id === currentUser?.id;
+                    const isLoading = actionLoading === user.id;
 
-                  return (
-                    <tr key={user.id} className={useDummyData ? 'admin-demo-row' : ''}>
-                      <td>
-                        <div className="admin-user-cell">
-                          <Mail className="h-4 w-4" />
-                          <span>{user.email}</span>
-                          {useDummyData && <span className="admin-demo-badge">DEMO</span>}
-                          {isCurrentUser && <span className="admin-you-badge">You</span>}
-                        </div>
-                      </td>
-                      <td>
-                        <div className="admin-date-cell">
-                          <Calendar className="h-4 w-4" />
-                          <span>{formatDate(user.created_at)}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="admin-date-cell">
-                          <Clock className="h-4 w-4" />
-                          <span>
-                            {user.last_sign_in_at ? formatDate(user.last_sign_in_at) : 'Never'}
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        {isSuspended ? (
-                          <span className="admin-status-badge admin-status-badge--suspended">
-                            <Ban className="h-3 w-3" />
-                            Suspended
-                          </span>
-                        ) : (
-                          <span
-                            className={`admin-status-badge ${user.email_confirmed_at ? 'admin-status-badge--active' : 'admin-status-badge--pending'}`}
-                          >
-                            {user.email_confirmed_at ? 'Verified' : 'Pending'}
-                          </span>
-                        )}
-                      </td>
-                      <td>
-                        {useDummyData || isCurrentUser ? (
-                          <span className="admin-muted">-</span>
-                        ) : (
-                          <div className="admin-actions-cell">
-                            {isLoading ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <>
-                                <button
-                                  className={`admin-icon-btn ${isSuspended ? 'admin-icon-btn--success' : 'admin-icon-btn--warning'}`}
-                                  onClick={() => setUserToSuspend(user)}
-                                  title={
-                                    isSuspended
-                                      ? t('admin.users.unsuspend', 'Unsuspend user')
-                                      : t('admin.users.suspend', 'Suspend user')
-                                  }
-                                >
-                                  {isSuspended ? (
-                                    <UserCheck className="h-4 w-4" />
-                                  ) : (
-                                    <UserX className="h-4 w-4" />
-                                  )}
-                                </button>
-                                <button
-                                  className="admin-icon-btn admin-icon-btn--danger"
-                                  onClick={() => setUserToDelete(user)}
-                                  title={t('admin.users.delete', 'Delete user')}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </button>
-                              </>
-                            )}
+                    return (
+                      <tr key={user.id} className={useDummyData ? 'admin-demo-row' : ''}>
+                        <td>
+                          <div className="admin-user-cell">
+                            <Mail className="h-4 w-4" />
+                            <span>{user.email}</span>
+                            {useDummyData && <span className="admin-demo-badge">DEMO</span>}
+                            {isCurrentUser && <span className="admin-you-badge">You</span>}
                           </div>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
+                        </td>
+                        <td>
+                          <div className="admin-date-cell">
+                            <Calendar className="h-4 w-4" />
+                            <span>{formatDate(user.created_at)}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="admin-date-cell">
+                            <Clock className="h-4 w-4" />
+                            <span>
+                              {user.last_sign_in_at ? formatDate(user.last_sign_in_at) : 'Never'}
+                            </span>
+                          </div>
+                        </td>
+                        <td>
+                          {isSuspended ? (
+                            <span className="admin-status-badge admin-status-badge--suspended">
+                              <Ban className="h-3 w-3" />
+                              Suspended
+                            </span>
+                          ) : (
+                            <span
+                              className={`admin-status-badge ${user.email_confirmed_at ? 'admin-status-badge--active' : 'admin-status-badge--pending'}`}
+                            >
+                              {user.email_confirmed_at ? 'Verified' : 'Pending'}
+                            </span>
+                          )}
+                        </td>
+                        <td>
+                          {useDummyData || isCurrentUser ? (
+                            <span className="admin-muted">-</span>
+                          ) : (
+                            <div className="admin-actions-cell">
+                              {isLoading ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <>
+                                  <button
+                                    className={`admin-icon-btn ${isSuspended ? 'admin-icon-btn--success' : 'admin-icon-btn--warning'}`}
+                                    onClick={() => setUserToSuspend(user)}
+                                    title={
+                                      isSuspended
+                                        ? t('admin.users.unsuspend', 'Unsuspend user')
+                                        : t('admin.users.suspend', 'Suspend user')
+                                    }
+                                  >
+                                    {isSuspended ? (
+                                      <UserCheck className="h-4 w-4" />
+                                    ) : (
+                                      <UserX className="h-4 w-4" />
+                                    )}
+                                  </button>
+                                  <button
+                                    className="admin-icon-btn admin-icon-btn--danger"
+                                    onClick={() => setUserToDelete(user)}
+                                    title={t('admin.users.delete', 'Delete user')}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>
@@ -990,12 +1090,7 @@ function CompaniesTab() {
         </div>
       )}
 
-      {isLoading ? (
-        <div className="admin-table-loading">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>{t('common.loading', 'Loading...')}</span>
-        </div>
-      ) : companies.length === 0 ? (
+      {!isLoading && companies.length === 0 ? (
         <div className="admin-table-empty">
           <Building2 className="h-8 w-8" />
           <span>{t('admin.companies.noCompanies', 'No companies found')}</span>
@@ -1013,35 +1108,39 @@ function CompaniesTab() {
                 </tr>
               </thead>
               <tbody>
-                {companies.map((company: AdminCompanyInfo) => (
-                  <tr key={company.id} className={useDummyData ? 'admin-demo-row' : ''}>
-                    <td>
-                      <div className="admin-company-cell">
-                        <Building2 className="h-4 w-4" />
-                        <span>{company.name}</span>
-                        {useDummyData && <span className="admin-demo-badge">DEMO</span>}
-                      </div>
-                    </td>
-                    <td>
-                      <div className="admin-user-cell">
-                        <Mail className="h-4 w-4" />
-                        <span>{company.owner_email || 'Unknown'}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="admin-count-cell">
-                        <MessageSquare className="h-4 w-4" />
-                        <span>{company.conversation_count}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="admin-date-cell">
-                        <Calendar className="h-4 w-4" />
-                        <span>{formatDate(company.created_at)}</span>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {isLoading ? (
+                  <CompaniesTableSkeleton />
+                ) : (
+                  companies.map((company: AdminCompanyInfo) => (
+                    <tr key={company.id} className={useDummyData ? 'admin-demo-row' : ''}>
+                      <td>
+                        <div className="admin-company-cell">
+                          <Building2 className="h-4 w-4" />
+                          <span>{company.name}</span>
+                          {useDummyData && <span className="admin-demo-badge">DEMO</span>}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="admin-user-cell">
+                          <Mail className="h-4 w-4" />
+                          <span>{company.owner_email || 'Unknown'}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="admin-count-cell">
+                          <MessageSquare className="h-4 w-4" />
+                          <span>{company.conversation_count}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="admin-date-cell">
+                          <Calendar className="h-4 w-4" />
+                          <span>{formatDate(company.created_at)}</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -1123,12 +1222,7 @@ function AdminsTab() {
         </div>
       )}
 
-      {isLoading ? (
-        <div className="admin-table-loading">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>{t('common.loading', 'Loading...')}</span>
-        </div>
-      ) : admins.length === 0 ? (
+      {!isLoading && admins.length === 0 ? (
         <div className="admin-table-empty">
           <Shield className="h-8 w-8" />
           <span>{t('admin.admins.noAdmins', 'No admins found')}</span>
@@ -1144,28 +1238,32 @@ function AdminsTab() {
               </tr>
             </thead>
             <tbody>
-              {admins.map((admin: AdminUserInfo) => (
-                <tr key={admin.id} className={useDummyData ? 'admin-demo-row' : ''}>
-                  <td>
-                    <div className="admin-user-cell">
-                      <Shield className="h-4 w-4" />
-                      <span>{admin.email}</span>
-                      {useDummyData && <span className="admin-demo-badge">DEMO</span>}
-                    </div>
-                  </td>
-                  <td>
-                    <span className={`admin-role-badge admin-role-badge--${admin.role}`}>
-                      {admin.role.replace('_', ' ')}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="admin-date-cell">
-                      <Calendar className="h-4 w-4" />
-                      <span>{formatDate(admin.created_at)}</span>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {isLoading ? (
+                <AdminsTableSkeleton />
+              ) : (
+                admins.map((admin: AdminUserInfo) => (
+                  <tr key={admin.id} className={useDummyData ? 'admin-demo-row' : ''}>
+                    <td>
+                      <div className="admin-user-cell">
+                        <Shield className="h-4 w-4" />
+                        <span>{admin.email}</span>
+                        {useDummyData && <span className="admin-demo-badge">DEMO</span>}
+                      </div>
+                    </td>
+                    <td>
+                      <span className={`admin-role-badge admin-role-badge--${admin.role}`}>
+                        {admin.role.replace('_', ' ')}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="admin-date-cell">
+                        <Calendar className="h-4 w-4" />
+                        <span>{formatDate(admin.created_at)}</span>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -1434,12 +1532,7 @@ function AuditTab() {
         </div>
       )}
 
-      {isLoading ? (
-        <div className="admin-table-loading">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>{t('common.loading', 'Loading...')}</span>
-        </div>
-      ) : logs.length === 0 ? (
+      {!isLoading && logs.length === 0 ? (
         <div className="admin-table-empty">
           <Activity className="h-8 w-8" />
           <span>{t('admin.audit.noLogs', 'No audit logs found')}</span>
@@ -1465,56 +1558,60 @@ function AuditTab() {
                 </tr>
               </thead>
               <tbody>
-                {logs.map((log) => (
-                  <tr key={log.id} className={useDummyData ? 'admin-demo-row' : ''}>
-                    <td>
-                      <div className="admin-date-cell">
-                        <Clock className="h-4 w-4" />
-                        <span>{formatTimestamp(log.timestamp)}</span>
-                        {useDummyData && <span className="admin-demo-badge">DEMO</span>}
-                      </div>
-                    </td>
-                    <td>
-                      <div className="admin-user-cell">
-                        {log.actor_type === 'admin' ? (
-                          <Shield className="h-4 w-4" />
-                        ) : log.actor_type === 'system' ? (
-                          <Activity className="h-4 w-4" />
-                        ) : (
-                          <Users className="h-4 w-4" />
-                        )}
-                        <span title={log.actor_email || undefined}>
-                          {log.actor_email || log.actor_type}
-                        </span>
-                      </div>
-                    </td>
-                    <td>
-                      <span className="admin-action-text">{log.action}</span>
-                    </td>
-                    <td>
-                      <span
-                        className={`admin-category-badge admin-category-badge--${getCategoryColor(log.action_category)}`}
-                      >
-                        {log.action_category}
-                      </span>
-                    </td>
-                    <td>
-                      {log.resource_type ? (
-                        <div className="admin-resource-cell">
-                          <span className="admin-resource-type">{log.resource_type}</span>
-                          {log.resource_name && (
-                            <span className="admin-resource-name">{log.resource_name}</span>
-                          )}
+                {isLoading ? (
+                  <AuditTableSkeleton />
+                ) : (
+                  logs.map((log) => (
+                    <tr key={log.id} className={useDummyData ? 'admin-demo-row' : ''}>
+                      <td>
+                        <div className="admin-date-cell">
+                          <Clock className="h-4 w-4" />
+                          <span>{formatTimestamp(log.timestamp)}</span>
+                          {useDummyData && <span className="admin-demo-badge">DEMO</span>}
                         </div>
-                      ) : (
-                        <span className="admin-muted">-</span>
-                      )}
-                    </td>
-                    <td>
-                      <span className="admin-ip-text">{log.ip_address || '-'}</span>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td>
+                        <div className="admin-user-cell">
+                          {log.actor_type === 'admin' ? (
+                            <Shield className="h-4 w-4" />
+                          ) : log.actor_type === 'system' ? (
+                            <Activity className="h-4 w-4" />
+                          ) : (
+                            <Users className="h-4 w-4" />
+                          )}
+                          <span title={log.actor_email || undefined}>
+                            {log.actor_email || log.actor_type}
+                          </span>
+                        </div>
+                      </td>
+                      <td>
+                        <span className="admin-action-text">{log.action}</span>
+                      </td>
+                      <td>
+                        <span
+                          className={`admin-category-badge admin-category-badge--${getCategoryColor(log.action_category)}`}
+                        >
+                          {log.action_category}
+                        </span>
+                      </td>
+                      <td>
+                        {log.resource_type ? (
+                          <div className="admin-resource-cell">
+                            <span className="admin-resource-type">{log.resource_type}</span>
+                            {log.resource_name && (
+                              <span className="admin-resource-name">{log.resource_name}</span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="admin-muted">-</span>
+                        )}
+                      </td>
+                      <td>
+                        <span className="admin-ip-text">{log.ip_address || '-'}</span>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -1752,14 +1849,6 @@ function InvitationsTab() {
               </SelectItem>
             </SelectContent>
           </Select>
-
-          <button
-            className="admin-icon-btn admin-icon-btn--secondary"
-            onClick={() => refetch()}
-            title={t('common.refresh', 'Refresh')}
-          >
-            <RefreshCw className="h-4 w-4" />
-          </button>
         </div>
       </div>
 
@@ -1776,12 +1865,7 @@ function InvitationsTab() {
         </div>
       )}
 
-      {isLoading ? (
-        <div className="admin-table-loading">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>{t('common.loading', 'Loading...')}</span>
-        </div>
-      ) : invitations.length === 0 ? (
+      {!isLoading && invitations.length === 0 ? (
         <div className="admin-table-empty">
           <UserPlus className="h-8 w-8" />
           <span>{t('admin.invitations.noInvitations', 'No invitations found')}</span>
@@ -1808,66 +1892,70 @@ function InvitationsTab() {
                 </tr>
               </thead>
               <tbody>
-                {invitations.map((invitation: AdminInvitation) => (
-                  <tr key={invitation.id} className={useDummyData ? 'admin-demo-row' : ''}>
-                    <td>
-                      <div className="admin-user-cell">
-                        <Mail className="h-4 w-4" />
-                        <span>{invitation.email}</span>
-                        {/* DUMMY DATA INDICATOR - Shows subtle badge when using sample data */}
-                        {useDummyData && <span className="admin-demo-badge">DEMO</span>}
-                      </div>
-                    </td>
-                    <td>
-                      <span>{invitation.name || '-'}</span>
-                    </td>
-                    <td>
-                      <span className={`admin-status-badge ${getStatusBadge(invitation.status)}`}>
-                        {invitation.status === 'pending' && <Clock className="h-3 w-3" />}
-                        {invitation.status === 'accepted' && <CheckCircle className="h-3 w-3" />}
-                        {invitation.status === 'expired' && <XCircle className="h-3 w-3" />}
-                        {invitation.status === 'cancelled' && <X className="h-3 w-3" />}
-                        {invitation.status}
-                      </span>
-                    </td>
-                    <td>
-                      <span>{invitation.invited_by_email || 'System'}</span>
-                    </td>
-                    <td>
-                      <div className="admin-date-cell">
-                        <Calendar className="h-4 w-4" />
-                        <span>{formatDate(invitation.created_at)}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="admin-date-cell">
-                        <Clock className="h-4 w-4" />
-                        <span>{formatDate(invitation.expires_at)}</span>
-                      </div>
-                    </td>
-                    <td>
-                      {invitation.status === 'pending' && (
-                        <div className="admin-actions-cell">
-                          <button
-                            className="admin-icon-btn admin-icon-btn--secondary"
-                            onClick={() => handleResend(invitation.id)}
-                            title={t('admin.invitations.resend', 'Resend invitation')}
-                          >
-                            <Send className="h-4 w-4" />
-                          </button>
-                          <button
-                            className="admin-icon-btn admin-icon-btn--danger"
-                            onClick={() => handleCancel(invitation.id)}
-                            title={t('admin.invitations.cancel', 'Cancel invitation')}
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
+                {isLoading ? (
+                  <InvitationsTableSkeleton />
+                ) : (
+                  invitations.map((invitation: AdminInvitation) => (
+                    <tr key={invitation.id} className={useDummyData ? 'admin-demo-row' : ''}>
+                      <td>
+                        <div className="admin-user-cell">
+                          <Mail className="h-4 w-4" />
+                          <span>{invitation.email}</span>
+                          {/* DUMMY DATA INDICATOR - Shows subtle badge when using sample data */}
+                          {useDummyData && <span className="admin-demo-badge">DEMO</span>}
                         </div>
-                      )}
-                      {invitation.status !== 'pending' && <span className="admin-muted">-</span>}
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td>
+                        <span>{invitation.name || '-'}</span>
+                      </td>
+                      <td>
+                        <span className={`admin-status-badge ${getStatusBadge(invitation.status)}`}>
+                          {invitation.status === 'pending' && <Clock className="h-3 w-3" />}
+                          {invitation.status === 'accepted' && <CheckCircle className="h-3 w-3" />}
+                          {invitation.status === 'expired' && <XCircle className="h-3 w-3" />}
+                          {invitation.status === 'cancelled' && <X className="h-3 w-3" />}
+                          {invitation.status}
+                        </span>
+                      </td>
+                      <td>
+                        <span>{invitation.invited_by_email || 'System'}</span>
+                      </td>
+                      <td>
+                        <div className="admin-date-cell">
+                          <Calendar className="h-4 w-4" />
+                          <span>{formatDate(invitation.created_at)}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <div className="admin-date-cell">
+                          <Clock className="h-4 w-4" />
+                          <span>{formatDate(invitation.expires_at)}</span>
+                        </div>
+                      </td>
+                      <td>
+                        {invitation.status === 'pending' && (
+                          <div className="admin-actions-cell">
+                            <button
+                              className="admin-icon-btn admin-icon-btn--secondary"
+                              onClick={() => handleResend(invitation.id)}
+                              title={t('admin.invitations.resend', 'Resend invitation')}
+                            >
+                              <Send className="h-4 w-4" />
+                            </button>
+                            <button
+                              className="admin-icon-btn admin-icon-btn--danger"
+                              onClick={() => handleCancel(invitation.id)}
+                              title={t('admin.invitations.cancel', 'Cancel invitation')}
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          </div>
+                        )}
+                        {invitation.status !== 'pending' && <span className="admin-muted">-</span>}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

@@ -2,7 +2,7 @@
  * Admin Access Hook
  *
  * Provides access to check if the current user has platform admin privileges.
- * Admin status is fetched once and cached.
+ * Admin status is fetched once and cached per user session.
  *
  * Usage:
  *   const { isAdmin, adminRole, isLoading, error } = useAdminAccess();
@@ -10,6 +10,9 @@
  *   if (isAdmin) {
  *     // render admin UI
  *   }
+ *
+ * Note: Query is keyed by user ID, so it automatically refetches when user changes.
+ * On auth errors (rate limiting, expired tokens), retry after re-authentication.
  */
 
 import { useQuery } from '@tanstack/react-query';
@@ -25,6 +28,7 @@ export interface AdminAccessState {
 
 export const adminAccessKeys = {
   all: ['admin-access'] as const,
+  user: (userId: string) => ['admin-access', userId] as const,
 };
 
 /**
@@ -39,20 +43,22 @@ export const adminAccessKeys = {
 export function useAdminAccess(): AdminAccessState {
   const { user, loading: isAuthLoading } = useAuth();
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: [...adminAccessKeys.all, user?.id],
+  const { data, isLoading, error, isFetching } = useQuery({
+    queryKey: adminAccessKeys.user(user?.id ?? 'anonymous'),
     queryFn: () => api.checkAdminAccess(),
     enabled: !isAuthLoading && !!user, // Only check when user is authenticated
     staleTime: 5 * 60 * 1000, // 5 minutes - admin status rarely changes
     gcTime: 30 * 60 * 1000, // 30 minutes cache
-    retry: 1, // Only retry once on failure
+    retry: 2, // Retry twice on failure (handles transient auth errors)
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000), // Exponential backoff
     refetchOnWindowFocus: false, // Don't refetch on tab focus
+    refetchOnMount: 'always', // Always check on mount to catch auth state changes
   });
 
   return {
     isAdmin: data?.is_admin ?? false,
     adminRole: data?.role ?? null,
-    isLoading: isAuthLoading || isLoading,
+    isLoading: isAuthLoading || isLoading || isFetching,
     error: error instanceof Error ? error : null,
   };
 }

@@ -56,11 +56,21 @@
   "omnibar": {
     "placeholder": "Pregunta lo que quieras a tu consejo...",
     "placeholderChat": "Seguir preguntando...",
+    "placeholderLanding": "¿Qué decisión necesitas resolver?",
+    "placeholderLandingChat": "Haz una pregunta rápida...",
     "noCompanies": "Sin empresas",
     "oneAI": "1 IA",
     "fiveAIs": "5 IAs",
     "multiAI": "{{count}} IAs",
-    "attach": "Agregar una foto o captura de pantalla"
+    "attach": "Agregar una foto o captura de pantalla",
+    "tooltips": {
+      "context": "Elige el contexto de tu empresa para mejores respuestas",
+      "noCompany": "Aún no hay empresa configurada. Ve a Mi Empresa para crear una.",
+      "noProjects": "No hay proyectos disponibles. Crea proyectos en Mi Empresa.",
+      "noDepartments": "No hay departamentos configurados. Configura departamentos en Mi Empresa.",
+      "noRoles": "No hay roles configurados. Añade roles en Mi Empresa.",
+      "noPlaybooks": "Aún no hay playbooks. Añade playbooks en Mi Empresa."
+    }
   },
   "imageUpload": {
     "dropImagesHere": "Suelta las imágenes aquí",
@@ -110,6 +120,7 @@
     "all": "Todos",
     "none": "Ninguno",
     "clear": "Limpiar",
+    "clearAll": "Limpiar Todo",
     "unknown": "Desconocido",
     "saved": "Guardado",
     "skip": "Omitir",
@@ -338,19 +349,20 @@
       "departments": "Incluye la experiencia de tu equipo en la respuesta",
       "roles": "Agrega perspectivas de expertos específicos (CEO, Analista, etc.)",
       "playbooks": "Aplica las guías de tu empresa a la respuesta",
-      "councilMode": "Múltiples expertos de IA discuten y te dan una respuesta combinada",
-      "chatMode": "Respuesta rápida de una IA — más rápido, más simple",
-      "send": "Enviar tu pregunta",
-      "stop": "Detener la escritura de la IA",
-      "reset": "Limpiar todas las selecciones"
+      "councilMode": "Múltiples expertos de IA debatirán tu pregunta y te darán la mejor respuesta combinada. Toma más tiempo pero es más completo.",
+      "chatMode": "Obtén una respuesta rápida de una sola IA. Más rápido, pero solo una perspectiva.",
+      "send": "Enviar tu pregunta a la IA",
+      "stop": "Detener a la IA de escribir más",
+      "reset": "Empezar de nuevo - limpiar todo"
     },
     "responseStyle": {
       "label": "Estilo de respuesta",
       "title": "Estilo de Respuesta",
+      "tooltip": "Controla cómo escribe la IA - desde factual y preciso hasta creativo y variado",
       "departmentDefault": "Predeterminado del Departamento",
       "departmentUsing": "{{dept}}: {{preset}}",
-      "tooltipOverride": "Personalizado: {{preset}}",
-      "tooltipDefault": "Usando predeterminado del departamento",
+      "tooltipOverride": "La IA está en modo {{preset}} - haz clic para cambiar qué tan creativas son las respuestas",
+      "tooltipDefault": "Haz clic para controlar qué tan creativas vs precisas son las respuestas de la IA",
       "llmHubLink": "Configuración del Centro LLM",
       "llmHubDesc": "Personaliza los modelos de IA y su comportamiento",
       "presets": {
@@ -359,9 +371,9 @@
         "creative": "Creativo"
       },
       "descriptions": {
-        "conservative": "Temperatura baja, respuestas más seguras",
-        "balanced": "Configuración predeterminada para la mayoría de casos",
-        "creative": "Temperatura alta, respuestas más variadas"
+        "conservative": "Respuestas factuales y enfocadas - mejor para datos y cumplimiento",
+        "balanced": "Bueno para la mayoría de preguntas - confiable y flexible",
+        "creative": "Ideas más originales - ideal para lluvia de ideas"
       }
     }
   },
@@ -384,6 +396,7 @@
     "noActiveConversations": "Sin conversaciones activas",
     "scrollForMore": "Desplaza para más conversaciones",
     "searchPlaceholder": "Buscar conversaciones... (⌘K)",
+    "searchPlaceholderShortcut": "(⌘K)",
     "resultsCount": "{{count}} resultado",
     "resultsCount_other": "{{count}} resultados",
     "allConversations": "Todas las conversaciones",
