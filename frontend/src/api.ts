@@ -3520,7 +3520,150 @@ export const api = {
 
     return response.json();
   },
+
+  /**
+   * Check if the current user has admin access.
+   * Returns admin status and role from platform_admins table.
+   */
+  async checkAdminAccess(): Promise<{ is_admin: boolean; role: string | null }> {
+    const headers = await getAuthHeaders();
+    try {
+      const response = await fetch(`${API_BASE}${API_VERSION}/admin/check-access`, {
+        headers,
+      });
+      // 403 means user is not an admin - return gracefully
+      if (response.status === 403) {
+        return { is_admin: false, role: null };
+      }
+      if (!response.ok) {
+        return { is_admin: false, role: null };
+      }
+      return response.json();
+    } catch (error) {
+      console.error('Failed to check admin access:', error);
+      return { is_admin: false, role: null };
+    }
+  },
+
+  /**
+   * Get platform statistics (admin only).
+   */
+  async getAdminStats(): Promise<AdminStats> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}${API_VERSION}/admin/stats`, { headers });
+    if (!response.ok) {
+      throw new Error('Failed to fetch admin stats');
+    }
+    return response.json();
+  },
+
+  /**
+   * List all platform users (admin only).
+   */
+  async listAdminUsers(params?: {
+    page?: number;
+    page_size?: number;
+    search?: string;
+  }): Promise<AdminUsersResponse> {
+    const headers = await getAuthHeaders();
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set('page', params.page.toString());
+    if (params?.page_size) searchParams.set('page_size', params.page_size.toString());
+    if (params?.search) searchParams.set('search', params.search);
+    const url = `${API_BASE}${API_VERSION}/admin/users?${searchParams.toString()}`;
+    const response = await fetch(url, { headers });
+    if (!response.ok) {
+      throw new Error('Failed to fetch users');
+    }
+    return response.json();
+  },
+
+  /**
+   * List all companies (admin only).
+   */
+  async listAdminCompanies(params?: {
+    page?: number;
+    page_size?: number;
+    search?: string;
+  }): Promise<AdminCompaniesResponse> {
+    const headers = await getAuthHeaders();
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set('page', params.page.toString());
+    if (params?.page_size) searchParams.set('page_size', params.page_size.toString());
+    if (params?.search) searchParams.set('search', params.search);
+    const url = `${API_BASE}${API_VERSION}/admin/companies?${searchParams.toString()}`;
+    const response = await fetch(url, { headers });
+    if (!response.ok) {
+      throw new Error('Failed to fetch companies');
+    }
+    return response.json();
+  },
+
+  /**
+   * List all platform admins (admin only).
+   */
+  async listAdminAdmins(): Promise<{ admins: AdminUserInfo[] }> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}${API_VERSION}/admin/admins`, { headers });
+    if (!response.ok) {
+      throw new Error('Failed to fetch admins');
+    }
+    return response.json();
+  },
 };
+
+// =============================================================================
+// Types for Admin Portal
+// =============================================================================
+
+export interface AdminStats {
+  total_users: number;
+  total_companies: number;
+  total_conversations: number;
+  total_messages: number;
+  active_users_24h: number;
+  active_users_7d: number;
+}
+
+export interface AdminPlatformUser {
+  id: string;
+  email: string;
+  created_at: string;
+  last_sign_in_at: string | null;
+  email_confirmed_at: string | null;
+  user_metadata: Record<string, unknown> | null;
+}
+
+export interface AdminUsersResponse {
+  users: AdminPlatformUser[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export interface AdminCompanyInfo {
+  id: string;
+  name: string;
+  created_at: string;
+  user_count: number;
+  conversation_count: number;
+  owner_email: string | null;
+}
+
+export interface AdminCompaniesResponse {
+  companies: AdminCompanyInfo[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export interface AdminUserInfo {
+  id: string;
+  email: string;
+  role: string;
+  created_at: string; // When admin access was granted
+  user_metadata?: Record<string, unknown> | null;
+}
 
 // =============================================================================
 // Types for Public Endpoints

@@ -5,7 +5,7 @@
  */
 
 import { useTranslation } from 'react-i18next';
-import { Briefcase, Settings, LogOut } from 'lucide-react';
+import { Briefcase, Settings, LogOut, Shield } from 'lucide-react';
 import { DEV_MODE } from './hooks';
 
 interface User {
@@ -22,11 +22,13 @@ interface SidebarFooterProps {
   onToggleCachingMode: () => void;
   onOpenMyCompany: () => void;
   onOpenSettings: () => void;
+  onOpenAdmin?: (() => void) | undefined;
+  isAdmin?: boolean | undefined;
   onSignOut: () => void;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
-  onCompanyMouseEnter?: () => void;
-  onCompanyMouseLeave?: () => void;
+  onMouseEnter?: (() => void) | undefined;
+  onMouseLeave?: (() => void) | undefined;
+  onCompanyMouseEnter?: (() => void) | undefined;
+  onCompanyMouseLeave?: (() => void) | undefined;
 }
 
 export function SidebarFooter({
@@ -39,11 +41,11 @@ export function SidebarFooter({
   onToggleCachingMode,
   onOpenMyCompany,
   onOpenSettings,
+  onOpenAdmin,
+  isAdmin = false,
   onSignOut,
-  // Hover handlers to keep panel open when hovering footer
   onMouseEnter,
   onMouseLeave,
-  // Prefetch handlers for instant navigation
   onCompanyMouseEnter,
   onCompanyMouseLeave,
 }: SidebarFooterProps) {
@@ -95,6 +97,16 @@ export function SidebarFooter({
         </span>
       </div>
       <div className="sidebar-footer-buttons">
+        {/* Admin button - icon only for super admins */}
+        {isAdmin && onOpenAdmin && (
+          <button
+            className="footer-btn admin-btn"
+            onClick={onOpenAdmin}
+            title={t('sidebar.adminPortal', 'Platform Admin Portal')}
+          >
+            <Shield className="h-3.5 w-3.5" />
+          </button>
+        )}
         <button
           className="footer-btn company-btn"
           onClick={onOpenMyCompany}
