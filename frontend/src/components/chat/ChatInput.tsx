@@ -124,10 +124,6 @@ export function ChatInput({
 }: ChatInputProps) {
   const { t } = useTranslation();
   const { aiCount } = useCouncilStats(companyId);
-  const [projectOpen, setProjectOpen] = useState(false);
-  const [deptOpen, setDeptOpen] = useState(false);
-  const [roleOpen, setRoleOpen] = useState(false);
-  const [playbookOpen, setPlaybookOpen] = useState(false);
   // Track which playbook sections are expanded (accordion within dropdown)
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   // Mobile unified context menu (Perplexity style - single button for all context)
@@ -281,7 +277,6 @@ export function ChatInput({
                 className={cn('context-popover-item', isSelected && 'selected')}
                 onClick={() => {
                   onSelectProject?.(isSelected ? null : proj.id);
-                  setProjectOpen(false);
                 }}
                 type="button"
               >
@@ -577,104 +572,6 @@ export function ChatInput({
     </Tooltip.Provider>
   );
 
-  // Render context icon with popover
-  const renderContextIcon = (
-    icon: React.ReactNode,
-    label: string,
-    tooltipText: string,
-    count: number,
-    open: boolean,
-    setOpen: (open: boolean) => void,
-    content: React.ReactNode,
-    colorClass?: string,
-    onClear?: () => void
-  ) => {
-    const iconButton = (
-      <button
-        type="button"
-        className={cn('omni-icon-btn', count > 0 && 'has-selection', colorClass)}
-        onClick={() => (isMobile ? setOpen(true) : undefined)}
-        disabled={disabled}
-        aria-label={label}
-      >
-        {icon}
-        {count > 0 && <span className="omni-icon-badge">{count}</span>}
-      </button>
-    );
-
-    // Header with optional Clear button (matches OmniBar)
-    const header = (
-      <div className="context-popover-header">
-        <span>{label}</span>
-        {count > 0 && onClear && (
-          <button
-            type="button"
-            className="context-popover-clear"
-            onClick={(e) => {
-              e.stopPropagation();
-              onClear();
-            }}
-          >
-            {t('common.clear')}
-          </button>
-        )}
-      </div>
-    );
-
-    if (isMobile) {
-      return (
-        <>
-          {withTooltip(iconButton, tooltipText)}
-          <BottomSheet
-            isOpen={open}
-            onClose={() => setOpen(false)}
-            title={label}
-            headerAction={
-              count > 0 && onClear ? (
-                <button
-                  type="button"
-                  className="context-popover-clear"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onClear();
-                  }}
-                >
-                  {t('common.clear')}
-                </button>
-              ) : undefined
-            }
-          >
-            {content}
-          </BottomSheet>
-        </>
-      );
-    }
-
-    return (
-      <Popover.Root open={open} onOpenChange={setOpen}>
-        <Tooltip.Provider delayDuration={400}>
-          <Tooltip.Root>
-            <Popover.Trigger asChild>
-              <Tooltip.Trigger asChild>{iconButton}</Tooltip.Trigger>
-            </Popover.Trigger>
-            <Tooltip.Portal>
-              <Tooltip.Content className="tooltip-content" sideOffset={8}>
-                {tooltipText}
-                <Tooltip.Arrow className="tooltip-arrow" />
-              </Tooltip.Content>
-            </Tooltip.Portal>
-          </Tooltip.Root>
-        </Tooltip.Provider>
-        <Popover.Portal>
-          <Popover.Content className="context-popover-content" align="start" sideOffset={8}>
-            {header}
-            {content}
-          </Popover.Content>
-        </Popover.Portal>
-      </Popover.Root>
-    );
-  };
-
   return (
     <>
       {/* Image error display */}
@@ -785,11 +682,14 @@ export function ChatInput({
                           <div className="context-dropdown-menu">
                             {hasProjects && (
                               <div
+                                role="menuitem"
+                                tabIndex={0}
                                 className={cn(
                                   'context-menu-item',
                                   activeContextTab === 'project' && 'active'
                                 )}
                                 onMouseEnter={() => setActiveContextTab('project')}
+                                onFocus={() => setActiveContextTab('project')}
                               >
                                 <FolderKanban size={16} />
                                 <span>{t('context.project')}</span>
@@ -801,11 +701,14 @@ export function ChatInput({
                             )}
                             {hasDepartments && (
                               <div
+                                role="menuitem"
+                                tabIndex={0}
                                 className={cn(
                                   'context-menu-item',
                                   activeContextTab === 'departments' && 'active'
                                 )}
                                 onMouseEnter={() => setActiveContextTab('departments')}
+                                onFocus={() => setActiveContextTab('departments')}
                               >
                                 <Building2 size={16} />
                                 <span>{t('departments.title')}</span>
@@ -819,11 +722,14 @@ export function ChatInput({
                             )}
                             {hasRoles && (
                               <div
+                                role="menuitem"
+                                tabIndex={0}
                                 className={cn(
                                   'context-menu-item',
                                   activeContextTab === 'roles' && 'active'
                                 )}
                                 onMouseEnter={() => setActiveContextTab('roles')}
+                                onFocus={() => setActiveContextTab('roles')}
                               >
                                 <Users size={16} />
                                 <span>{t('roles.title')}</span>
@@ -837,11 +743,14 @@ export function ChatInput({
                             )}
                             {hasPlaybooks && (
                               <div
+                                role="menuitem"
+                                tabIndex={0}
                                 className={cn(
                                   'context-menu-item',
                                   activeContextTab === 'playbooks' && 'active'
                                 )}
                                 onMouseEnter={() => setActiveContextTab('playbooks')}
+                                onFocus={() => setActiveContextTab('playbooks')}
                               >
                                 <BookOpen size={16} />
                                 <span>{t('context.playbooks')}</span>

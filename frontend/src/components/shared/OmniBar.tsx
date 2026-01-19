@@ -241,7 +241,9 @@ export function OmniBar({
     }
     // Reset on close
     if (!mobileContextOpen && wasOpen) {
-      setActiveContextTab(null);
+      requestAnimationFrame(() => {
+        setActiveContextTab(null);
+      });
     }
   }, [
     mobileContextOpen,
@@ -897,11 +899,14 @@ export function OmniBar({
                           <div className="context-dropdown-menu">
                             {hasBusinesses && (
                               <div
+                                role="menuitem"
+                                tabIndex={0}
                                 className={cn(
                                   'context-menu-item',
                                   activeContextTab === 'company' && 'active'
                                 )}
                                 onMouseEnter={() => setActiveContextTab('company')}
+                                onFocus={() => setActiveContextTab('company')}
                               >
                                 <Briefcase size={16} />
                                 <span>{t('context.company')}</span>
@@ -913,11 +918,14 @@ export function OmniBar({
                             )}
                             {hasProjects && (
                               <div
+                                role="menuitem"
+                                tabIndex={0}
                                 className={cn(
                                   'context-menu-item',
                                   activeContextTab === 'project' && 'active'
                                 )}
                                 onMouseEnter={() => setActiveContextTab('project')}
+                                onFocus={() => setActiveContextTab('project')}
                               >
                                 <FolderKanban size={16} />
                                 <span>{t('context.project')}</span>
@@ -929,11 +937,14 @@ export function OmniBar({
                             )}
                             {hasDepartments && (
                               <div
+                                role="menuitem"
+                                tabIndex={0}
                                 className={cn(
                                   'context-menu-item',
                                   activeContextTab === 'departments' && 'active'
                                 )}
                                 onMouseEnter={() => setActiveContextTab('departments')}
+                                onFocus={() => setActiveContextTab('departments')}
                               >
                                 <Building2 size={16} />
                                 <span>{t('departments.title')}</span>
@@ -947,11 +958,14 @@ export function OmniBar({
                             )}
                             {hasRoles && (
                               <div
+                                role="menuitem"
+                                tabIndex={0}
                                 className={cn(
                                   'context-menu-item',
                                   activeContextTab === 'roles' && 'active'
                                 )}
                                 onMouseEnter={() => setActiveContextTab('roles')}
+                                onFocus={() => setActiveContextTab('roles')}
                               >
                                 <Users size={16} />
                                 <span>{t('roles.title')}</span>
@@ -965,11 +979,14 @@ export function OmniBar({
                             )}
                             {hasPlaybooks && (
                               <div
+                                role="menuitem"
+                                tabIndex={0}
                                 className={cn(
                                   'context-menu-item',
                                   activeContextTab === 'playbooks' && 'active'
                                 )}
                                 onMouseEnter={() => setActiveContextTab('playbooks')}
+                                onFocus={() => setActiveContextTab('playbooks')}
                               >
                                 <BookOpen size={16} />
                                 <span>{t('context.playbooks')}</span>
