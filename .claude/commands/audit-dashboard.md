@@ -11,7 +11,7 @@ You are running the AxCouncil audit dashboard. This command supports **selective
 /audit-dashboard llm-ops billing data     # LLM + Billing + Data architecture
 ```
 
-## Available Audit Categories (39 Total)
+## Available Audit Categories (40 Total)
 
 ### Masterpiece Experience (6) - THE DIFFERENCE MAKERS
 | Shorthand | Full Name | What It Checks |
@@ -23,7 +23,7 @@ You are running the AxCouncil audit dashboard. This command supports **selective
 | `power-user` | Power User Experience | Keyboard shortcuts, Cmd+K, bulk ops |
 | `emotions` | Emotional Journey | How users FEEL at every touchpoint |
 
-### Core Product Quality (14)
+### Core Product Quality (15)
 | Shorthand | Full Name | What It Checks |
 |-----------|-----------|----------------|
 | `security` | Security | OWASP, auth, data protection |
@@ -32,6 +32,7 @@ You are running the AxCouncil audit dashboard. This command supports **selective
 | `css` | CSS Architecture | Single source of truth, conflicts, specificity, dead CSS |
 | `ui` | UI Excellence | Visual design, design system |
 | `ux` | UX Quality | User experience, mum test |
+| `ux-visual` | UX/UI Visual Audit | Chrome DevTools screen-by-screen visual review |
 | `mobile` | Mobile | PWA, responsive, touch |
 | `a11y` | Accessibility | WCAG 2.1 AA |
 | `perf` | Performance | Core Web Vitals, bundle |
@@ -79,7 +80,7 @@ You are running the AxCouncil audit dashboard. This command supports **selective
 ### Meta
 | Shorthand | Full Name | What It Checks |
 |-----------|-----------|----------------|
-| `all` | Full Audit | All 39 categories |
+| `all` | Full Audit | All 40 categories |
 
 ## Your Mission
 
@@ -275,6 +276,12 @@ Update `AUDIT_DASHBOARD.md` in the repository root:
 /audit-dashboard                    # Full weekly audit
 ```
 
+### Visual Audit (Chrome DevTools)
+```
+/audit-ux-visual                    # Full screen-by-screen visual audit
+```
+> Requires Chrome with debug port. Run `dev.bat` first.
+
 ### Fix Issues
 1. Click `file:line` → Opens in VS Code
 2. Tell Claude "fix this issue"
@@ -382,6 +389,14 @@ All audits measure against $25M / Silicon Valley standards:
 #### ui, ux
 - `frontend/src/components/**`
 - `frontend/src/styles/**`
+
+#### ux-visual
+- **Requires Chrome DevTools MCP** - Uses browser automation
+- Screen-by-screen navigation with screenshots
+- Desktop (1440×900) and Mobile (375×812) viewports
+- Tests every button, dropdown, link, state
+- Outputs to `todo/UX-UI-AUDIT-[DATE].md`
+- Reference: `.claude/commands/audit-ux-visual.md`
 
 #### perf
 - `frontend/vite.config.js`
