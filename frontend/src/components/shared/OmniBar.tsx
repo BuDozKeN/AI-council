@@ -228,7 +228,14 @@ export function OmniBar({
         });
       });
     }
-  }, [mobileContextOpen, selectedBusiness, selectedProject, selectedDepartments.length, selectedRoles.length, selectedPlaybooks.length]);
+  }, [
+    mobileContextOpen,
+    selectedBusiness,
+    selectedProject,
+    selectedDepartments.length,
+    selectedRoles.length,
+    selectedPlaybooks.length,
+  ]);
 
   // Make isMobile reactive to window resize
   const [isMobile, setIsMobile] = useState(isMobileDevice());
@@ -912,7 +919,6 @@ export function OmniBar({
 
           {/* Right side: Attach + Send only */}
           <div className="omni-bar-right">
-
             {/* Image attach button */}
             {showImageButton &&
               onImageClick &&
