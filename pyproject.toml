@@ -21,6 +21,7 @@ dependencies = [
     "numpy>=1.26.0",  # Vector math for embeddings/similarity
     "qdrant-client>=1.9.0",  # Vector database for semantic search
     "apscheduler>=3.10.0",  # Scheduled background tasks
+    "email-validator>=2.0.0",  # Email validation for Pydantic EmailStr
 ]
 
 [project.optional-dependencies]
