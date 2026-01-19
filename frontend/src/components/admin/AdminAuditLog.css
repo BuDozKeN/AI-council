@@ -1,0 +1,114 @@
+/**
+ * AdminAuditLog.css - Audit log specific styles
+ */
+
+/* =============================================================================
+   CATEGORY BADGES
+   ============================================================================= */
+
+.admin-category-badge {
+  display: inline-flex;
+  padding: var(--space-0-5, 2px) var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  border-radius: var(--radius-full);
+  text-transform: lowercase;
+}
+
+.admin-category-badge--blue {
+  background: var(--overlay-blue-15);
+  color: var(--color-primary);
+}
+
+.admin-category-badge--green {
+  background: var(--overlay-emerald-15);
+  color: var(--color-success);
+}
+
+.admin-category-badge--purple {
+  background: rgb(139 92 246 / 15%);
+  color: var(--color-violet-500);
+}
+
+.admin-category-badge--orange {
+  background: var(--overlay-amber-15);
+  color: var(--color-warning);
+}
+
+.admin-category-badge--cyan {
+  background: rgb(6 182 212 / 15%);
+  color: rgb(6 182 212);
+}
+
+.admin-category-badge--yellow {
+  background: rgb(234 179 8 / 15%);
+  color: rgb(202 138 4);
+}
+
+.admin-category-badge--pink {
+  background: rgb(236 72 153 / 15%);
+  color: rgb(219 39 119);
+}
+
+.admin-category-badge--red {
+  background: rgb(239 68 68 / 15%);
+  color: var(--color-destructive);
+}
+
+.admin-category-badge--gray {
+  background: var(--overlay-black-10);
+  color: var(--color-text-secondary);
+}
+
+/* =============================================================================
+   AUDIT LOG CELLS
+   ============================================================================= */
+
+/* Action text */
+.admin-action-text {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-primary);
+}
+
+/* Resource cell */
+.admin-resource-cell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5, 2px);
+}
+
+.admin-resource-type {
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-transform: capitalize;
+}
+
+.admin-resource-name {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* IP address */
+.admin-ip-text {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+/* Muted text */
+.admin-muted {
+  color: var(--color-text-muted);
+}
+
+/* Empty state hint */
+.admin-empty-hint {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  margin-top: var(--space-1);
+}

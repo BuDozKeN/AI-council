@@ -5,21 +5,36 @@ Platform administration endpoints for super admins:
 - Check admin access
 - List all users across all companies
 - Manage platform admins
+- View audit logs
+- Platform invitations
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import BaseModel
-from typing import Optional, List
+from datetime import datetime, timedelta
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Path
+from pydantic import BaseModel, EmailStr, Field
+from typing import Optional, List, Literal
+import uuid
 
 from ..auth import get_current_user
 from ..database import get_supabase_service, get_supabase_with_auth
-from ..security import SecureHTTPException, log_app_event
+from ..security import SecureHTTPException, log_app_event, escape_sql_like_pattern
+from ..services.email import send_invitation_email
 
 # Import shared rate limiter
 from ..rate_limit import limiter
 
 
 router = APIRouter(prefix="/admin", tags=["admin"])
+
+
+# =============================================================================
+# AUDIT LOG TYPES
+# =============================================================================
+
+# Valid action categories for audit logging
+AuditActionCategory = Literal[
+    "auth", "user", "company", "admin", "data", "api", "billing", "security"
+]
 
 
 # =============================================================================
@@ -81,12 +96,35 @@ class AuditLogEntry(BaseModel):
     """Audit log entry for admin viewing."""
     id: str
     timestamp: str
-    user_id: Optional[str] = None
-    user_email: Optional[str] = None
+    actor_id: Optional[str] = None
+    actor_email: Optional[str] = None
+    actor_type: str
     action: str
+    action_category: str
     resource_type: Optional[str] = None
     resource_id: Optional[str] = None
-    details: Optional[dict] = None
+    resource_name: Optional[str] = None
+    company_id: Optional[str] = None
+    ip_address: Optional[str] = None
+    metadata: Optional[dict] = None
+
+
+class ListAuditLogsResponse(BaseModel):
+    """Response for listing audit logs."""
+    logs: List[AuditLogEntry]
+    total: int
+    page: int
+    page_size: int
+
+
+class AuditLogFilters(BaseModel):
+    """Filters for audit log queries."""
+    action_category: Optional[str] = None
+    actor_id: Optional[str] = None
+    resource_type: Optional[str] = None
+    company_id: Optional[str] = None
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
 
 
 class PlatformStats(BaseModel):
@@ -97,6 +135,51 @@ class PlatformStats(BaseModel):
     total_messages: int
     active_users_24h: int
     active_users_7d: int
+
+
+# -----------------------------------------------------------------------------
+# Invitation Models
+# -----------------------------------------------------------------------------
+
+class CreateInvitationRequest(BaseModel):
+    """Request to create a platform invitation."""
+    email: EmailStr
+    name: Optional[str] = Field(None, max_length=100)
+    notes: Optional[str] = Field(None, max_length=500)
+    target_company_id: Optional[str] = None
+    target_company_role: Optional[str] = Field(None, pattern="^(owner|admin|member)$")
+
+
+class InvitationInfo(BaseModel):
+    """Invitation info for admin listing."""
+    id: str
+    email: str
+    name: Optional[str] = None
+    status: str
+    invited_by_email: Optional[str] = None
+    created_at: str
+    expires_at: str
+    accepted_at: Optional[str] = None
+    target_company_name: Optional[str] = None
+    resend_count: int = 0
+
+
+class ListInvitationsResponse(BaseModel):
+    """Response for listing invitations."""
+    invitations: List[InvitationInfo]
+    total: int
+    page: int
+    page_size: int
+
+
+class CreateInvitationResponse(BaseModel):
+    """Response after creating an invitation."""
+    success: bool
+    invitation_id: str
+    email: str
+    expires_at: str
+    email_sent: bool
+    email_preview_mode: bool = False
 
 
 # =============================================================================
@@ -127,6 +210,71 @@ async def check_is_platform_admin(user_id: str) -> tuple[bool, Optional[str]]:
             error=str(e)
         )
         return False, None
+
+
+async def log_platform_audit(
+    action: str,
+    action_category: AuditActionCategory,
+    actor_id: Optional[str] = None,
+    actor_email: Optional[str] = None,
+    actor_type: str = "user",
+    resource_type: Optional[str] = None,
+    resource_id: Optional[str] = None,
+    resource_name: Optional[str] = None,
+    company_id: Optional[str] = None,
+    ip_address: Optional[str] = None,
+    user_agent: Optional[str] = None,
+    request_id: Optional[str] = None,
+    old_values: Optional[dict] = None,
+    new_values: Optional[dict] = None,
+    metadata: Optional[dict] = None,
+    is_sensitive: bool = False
+) -> Optional[str]:
+    """
+    Log an audit event to the platform_audit_logs table.
+
+    Returns the log entry ID on success, None on failure.
+    """
+    try:
+        supabase = get_supabase_service()
+
+        log_data = {
+            "action": action,
+            "action_category": action_category,
+            "actor_id": actor_id,
+            "actor_email": actor_email,
+            "actor_type": actor_type,
+            "resource_type": resource_type,
+            "resource_id": resource_id,
+            "resource_name": resource_name,
+            "company_id": company_id,
+            "ip_address": ip_address,
+            "user_agent": user_agent,
+            "request_id": request_id,
+            "old_values": old_values,
+            "new_values": new_values,
+            "metadata": metadata,
+            "is_sensitive": is_sensitive,
+        }
+
+        # Remove None values
+        log_data = {k: v for k, v in log_data.items() if v is not None}
+
+        result = supabase.table("platform_audit_logs").insert(log_data).execute()
+
+        if result.data and len(result.data) > 0:
+            return result.data[0].get("id")
+        return None
+
+    except Exception as e:
+        # Don't fail the main operation if audit logging fails
+        log_app_event(
+            "AUDIT: Failed to write audit log",
+            level="ERROR",
+            action=action,
+            error=str(e)
+        )
+        return None
 
 
 # =============================================================================
@@ -249,6 +397,373 @@ async def list_users(
             error=str(e)
         )
         raise SecureHTTPException.internal_error("Failed to list users")
+
+
+# =============================================================================
+# USER MANAGEMENT ENDPOINTS
+# =============================================================================
+
+
+class UserDetailResponse(BaseModel):
+    """Detailed user info including related data."""
+    id: str
+    email: str
+    created_at: str
+    last_sign_in_at: Optional[str] = None
+    email_confirmed_at: Optional[str] = None
+    user_metadata: Optional[dict] = None
+    is_suspended: bool = False
+    companies: List[dict] = []
+    conversation_count: int = 0
+
+
+class UpdateUserRequest(BaseModel):
+    """Request to update user status."""
+    is_suspended: Optional[bool] = None
+
+
+@router.get("/users/{target_user_id}")
+@limiter.limit("30/minute;100/hour")
+async def get_user_details(
+    request: Request,
+    target_user_id: str = Path(..., description="User ID to get details for"),
+    user: dict = Depends(get_current_user),
+):
+    """
+    Get detailed information about a specific user (admin only).
+    Includes their companies, conversation count, and suspension status.
+    """
+    admin_user_id = user.get("id")
+    admin_email = user.get("email")
+
+    # Verify admin access
+    is_admin, role = await check_is_platform_admin(admin_user_id)
+    if not is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    try:
+        supabase = get_supabase_service()
+
+        # Get user from auth
+        try:
+            user_response = supabase.auth.admin.get_user_by_id(target_user_id)
+            target_user = user_response.user
+        except Exception:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        if not target_user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        # Helper to convert datetime to string
+        def to_str(value):
+            if value is None:
+                return None
+            if hasattr(value, 'isoformat'):
+                return value.isoformat()
+            return str(value)
+
+        # Get user's companies
+        companies_result = supabase.table("companies").select(
+            "id, name, created_at"
+        ).eq("user_id", target_user_id).execute()
+        companies = companies_result.data or []
+
+        # Get conversation count
+        conv_result = supabase.table("conversations").select(
+            "id", count="exact"
+        ).eq("user_id", target_user_id).execute()
+        conversation_count = conv_result.count or 0
+
+        # Check if user is suspended (banned_until in user_metadata)
+        user_metadata = getattr(target_user, "user_metadata", {}) or {}
+        is_suspended = user_metadata.get("is_suspended", False)
+
+        log_app_event(
+            "ADMIN: Viewed user details",
+            user_id=admin_user_id,
+            target_user_id=target_user_id,
+        )
+
+        return UserDetailResponse(
+            id=target_user.id,
+            email=target_user.email or "",
+            created_at=to_str(target_user.created_at) or "",
+            last_sign_in_at=to_str(getattr(target_user, "last_sign_in_at", None)),
+            email_confirmed_at=to_str(getattr(target_user, "email_confirmed_at", None)),
+            user_metadata=user_metadata,
+            is_suspended=is_suspended,
+            companies=companies,
+            conversation_count=conversation_count,
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        log_app_event(
+            "ADMIN: Failed to get user details",
+            level="ERROR",
+            user_id=admin_user_id,
+            target_user_id=target_user_id,
+            error=str(e)
+        )
+        raise SecureHTTPException.internal_error("Failed to get user details")
+
+
+@router.patch("/users/{target_user_id}")
+@limiter.limit("20/minute")
+async def update_user(
+    request: Request,
+    update_data: UpdateUserRequest,
+    target_user_id: str = Path(..., description="User ID to update"),
+    user: dict = Depends(get_current_user),
+):
+    """
+    Update a user's status (admin only).
+    Currently supports suspending/unsuspending users.
+    """
+    admin_user_id = user.get("id")
+    admin_email = user.get("email")
+
+    # Verify admin access
+    is_admin, role = await check_is_platform_admin(admin_user_id)
+    if not is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    # Prevent self-suspension
+    if target_user_id == admin_user_id:
+        raise HTTPException(status_code=400, detail="Cannot modify your own account")
+
+    try:
+        supabase = get_supabase_service()
+
+        # Get current user
+        try:
+            user_response = supabase.auth.admin.get_user_by_id(target_user_id)
+            target_user = user_response.user
+        except Exception:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        if not target_user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        # Check if target is also an admin (prevent suspending admins unless super_admin)
+        target_is_admin, target_role = await check_is_platform_admin(target_user_id)
+        if target_is_admin and role != "super_admin":
+            raise HTTPException(
+                status_code=403,
+                detail="Only super admins can modify other admin accounts"
+            )
+
+        # Update user metadata for suspension
+        if update_data.is_suspended is not None:
+            current_metadata = getattr(target_user, "user_metadata", {}) or {}
+            current_metadata["is_suspended"] = update_data.is_suspended
+            current_metadata["suspended_at"] = datetime.utcnow().isoformat() if update_data.is_suspended else None
+            current_metadata["suspended_by"] = admin_user_id if update_data.is_suspended else None
+
+            # Update user via admin API
+            supabase.auth.admin.update_user_by_id(
+                target_user_id,
+                {"user_metadata": current_metadata}
+            )
+
+            action = "suspend_user" if update_data.is_suspended else "unsuspend_user"
+
+            # Log audit event
+            client_ip = request.client.host if request.client else None
+            await log_platform_audit(
+                action=action,
+                action_category="user",
+                actor_id=admin_user_id,
+                actor_email=admin_email,
+                actor_type="admin",
+                resource_type="user",
+                resource_id=target_user_id,
+                resource_name=target_user.email,
+                ip_address=client_ip,
+            )
+
+            log_app_event(
+                f"ADMIN: {'Suspended' if update_data.is_suspended else 'Unsuspended'} user",
+                user_id=admin_user_id,
+                target_user_id=target_user_id,
+                target_email=target_user.email,
+            )
+
+        return {
+            "success": True,
+            "message": f"User {'suspended' if update_data.is_suspended else 'unsuspended'} successfully",
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        log_app_event(
+            "ADMIN: Failed to update user",
+            level="ERROR",
+            user_id=admin_user_id,
+            target_user_id=target_user_id,
+            error=str(e)
+        )
+        raise SecureHTTPException.internal_error("Failed to update user")
+
+
+@router.delete("/users/{target_user_id}")
+@limiter.limit("10/minute")
+async def delete_user(
+    request: Request,
+    target_user_id: str = Path(..., description="User ID to delete"),
+    user: dict = Depends(get_current_user),
+    confirm: bool = Query(False, description="Confirm deletion"),
+):
+    """
+    Delete a user and all their data (admin only).
+
+    This is a destructive operation that:
+    - Deletes the user from auth
+    - Deletes their companies (and related data)
+    - Deletes their conversations
+    - Deletes their knowledge entries
+
+    Requires confirm=true query parameter as a safety measure.
+    """
+    admin_user_id = user.get("id")
+    admin_email = user.get("email")
+
+    # Verify admin access
+    is_admin, role = await check_is_platform_admin(admin_user_id)
+    if not is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    # Require confirmation
+    if not confirm:
+        raise HTTPException(
+            status_code=400,
+            detail="Deletion requires confirmation. Set confirm=true to proceed."
+        )
+
+    # Prevent self-deletion
+    if target_user_id == admin_user_id:
+        raise HTTPException(status_code=400, detail="Cannot delete your own account")
+
+    try:
+        supabase = get_supabase_service()
+
+        # Get user before deletion (for logging)
+        try:
+            user_response = supabase.auth.admin.get_user_by_id(target_user_id)
+            target_user = user_response.user
+        except Exception:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        if not target_user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        target_email = target_user.email
+
+        # Check if target is also an admin (only super_admin can delete admins)
+        target_is_admin, target_role = await check_is_platform_admin(target_user_id)
+        if target_is_admin and role != "super_admin":
+            raise HTTPException(
+                status_code=403,
+                detail="Only super admins can delete admin accounts"
+            )
+
+        # Get counts for audit before deletion
+        companies_result = supabase.table("companies").select(
+            "id", count="exact"
+        ).eq("user_id", target_user_id).execute()
+        company_count = companies_result.count or 0
+
+        conv_result = supabase.table("conversations").select(
+            "id", count="exact"
+        ).eq("user_id", target_user_id).execute()
+        conv_count = conv_result.count or 0
+
+        # Delete user's data in order (respecting foreign key constraints)
+        # 1. Delete knowledge entries
+        supabase.table("knowledge_entries").delete().eq("user_id", target_user_id).execute()
+
+        # 2. Get user's companies
+        user_companies = supabase.table("companies").select("id").eq("user_id", target_user_id).execute()
+        company_ids = [c["id"] for c in (user_companies.data or [])]
+
+        if company_ids:
+            # 3. Delete messages for user's conversations
+            user_convs = supabase.table("conversations").select("id").eq("user_id", target_user_id).execute()
+            conv_ids = [c["id"] for c in (user_convs.data or [])]
+            if conv_ids:
+                for conv_id in conv_ids:
+                    supabase.table("messages").delete().eq("conversation_id", conv_id).execute()
+
+            # 4. Delete conversations
+            supabase.table("conversations").delete().eq("user_id", target_user_id).execute()
+
+            # 5. Delete company-related data
+            for company_id in company_ids:
+                supabase.table("departments").delete().eq("company_id", company_id).execute()
+                supabase.table("roles").delete().eq("company_id", company_id).execute()
+                supabase.table("org_documents").delete().eq("company_id", company_id).execute()
+
+            # 6. Delete companies
+            supabase.table("companies").delete().eq("user_id", target_user_id).execute()
+
+        # 7. Remove from platform_admins if applicable
+        if target_is_admin:
+            supabase.table("platform_admins").delete().eq("user_id", target_user_id).execute()
+
+        # 8. Finally, delete the auth user
+        supabase.auth.admin.delete_user(target_user_id)
+
+        # Log audit event
+        client_ip = request.client.host if request.client else None
+        await log_platform_audit(
+            action="delete_user",
+            action_category="user",
+            actor_id=admin_user_id,
+            actor_email=admin_email,
+            actor_type="admin",
+            resource_type="user",
+            resource_id=target_user_id,
+            resource_name=target_email,
+            ip_address=client_ip,
+            metadata={
+                "deleted_companies": company_count,
+                "deleted_conversations": conv_count,
+                "was_admin": target_is_admin,
+            },
+            is_sensitive=True,
+        )
+
+        log_app_event(
+            "ADMIN: Deleted user",
+            user_id=admin_user_id,
+            target_user_id=target_user_id,
+            target_email=target_email,
+            companies_deleted=company_count,
+            conversations_deleted=conv_count,
+        )
+
+        return {
+            "success": True,
+            "message": f"User {target_email} and all their data have been deleted",
+            "deleted": {
+                "companies": company_count,
+                "conversations": conv_count,
+            }
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        log_app_event(
+            "ADMIN: Failed to delete user",
+            level="ERROR",
+            user_id=admin_user_id,
+            target_user_id=target_user_id,
+            error=str(e)
+        )
+        raise SecureHTTPException.internal_error("Failed to delete user")
 
 
 @router.get("/admins")
@@ -468,3 +983,719 @@ async def get_platform_stats(request: Request, user: dict = Depends(get_current_
             error=str(e)
         )
         raise SecureHTTPException.internal_error("Failed to get platform stats")
+
+
+@router.get("/audit")
+@limiter.limit("30/minute;100/hour")
+async def list_audit_logs(
+    request: Request,
+    user: dict = Depends(get_current_user),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(50, ge=1, le=100),
+    action_category: Optional[str] = Query(None),
+    actor_type: Optional[str] = Query(None),
+    resource_type: Optional[str] = Query(None),
+    company_id: Optional[str] = Query(None),
+    start_date: Optional[str] = Query(None, description="ISO format date"),
+    end_date: Optional[str] = Query(None, description="ISO format date"),
+    search: Optional[str] = Query(None, description="Search in action or resource_name"),
+):
+    """
+    List platform audit logs with filtering (admin only).
+
+    Filters:
+    - action_category: auth, user, company, admin, data, api, billing, security
+    - actor_type: user, admin, system, api
+    - resource_type: user, company, admin, api_key, etc.
+    - company_id: Filter by specific company
+    - start_date/end_date: Date range filter (ISO format)
+    - search: Text search in action or resource_name
+    """
+    user_id = user.get("id")
+    user_email = user.get("email")
+
+    # Verify admin access
+    is_admin, role = await check_is_platform_admin(user_id)
+    if not is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    try:
+        supabase = get_supabase_service()
+        if supabase is None:
+            raise HTTPException(
+                status_code=500,
+                detail="Database service not available. Check SUPABASE_SERVICE_ROLE_KEY configuration."
+            )
+
+        # Build query
+        query = supabase.table("platform_audit_logs").select(
+            "id, timestamp, actor_id, actor_email, actor_type, action, action_category, "
+            "resource_type, resource_id, resource_name, company_id, ip_address, metadata",
+            count="exact"
+        )
+
+        # Apply filters
+        if action_category:
+            query = query.eq("action_category", action_category)
+
+        if actor_type:
+            query = query.eq("actor_type", actor_type)
+
+        if resource_type:
+            query = query.eq("resource_type", resource_type)
+
+        if company_id:
+            query = query.eq("company_id", company_id)
+
+        if start_date:
+            query = query.gte("timestamp", start_date)
+
+        if end_date:
+            # Add one day to include the end date fully
+            query = query.lte("timestamp", end_date + "T23:59:59Z")
+
+        if search:
+            # Search in action or resource_name (escape special SQL LIKE characters)
+            escaped_search = escape_sql_like_pattern(search)
+            query = query.or_(f"action.ilike.%{escaped_search}%,resource_name.ilike.%{escaped_search}%")
+
+        # Order and paginate
+        offset = (page - 1) * page_size
+        query = query.order("timestamp", desc=True).range(offset, offset + page_size - 1)
+
+        result = query.execute()
+        logs_data = result.data or []
+        total = result.count or 0
+
+        # Convert to response models
+        logs = []
+        for log in logs_data:
+            logs.append(AuditLogEntry(
+                id=log["id"],
+                timestamp=log["timestamp"],
+                actor_id=log.get("actor_id"),
+                actor_email=log.get("actor_email"),
+                actor_type=log.get("actor_type", "user"),
+                action=log["action"],
+                action_category=log["action_category"],
+                resource_type=log.get("resource_type"),
+                resource_id=log.get("resource_id"),
+                resource_name=log.get("resource_name"),
+                company_id=log.get("company_id"),
+                ip_address=str(log["ip_address"]) if log.get("ip_address") else None,
+                metadata=log.get("metadata"),
+            ))
+
+        # Log this access (audit the auditor)
+        client_ip = request.client.host if request.client else None
+        await log_platform_audit(
+            action="view_audit_logs",
+            action_category="admin",
+            actor_id=user_id,
+            actor_email=user_email,
+            actor_type="admin",
+            ip_address=client_ip,
+            metadata={
+                "page": page,
+                "filters": {
+                    "action_category": action_category,
+                    "actor_type": actor_type,
+                    "resource_type": resource_type,
+                    "company_id": company_id,
+                    "start_date": start_date,
+                    "end_date": end_date,
+                    "search": search,
+                }
+            }
+        )
+
+        return ListAuditLogsResponse(
+            logs=logs,
+            total=total,
+            page=page,
+            page_size=page_size
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        log_app_event(
+            "ADMIN: Failed to list audit logs",
+            level="ERROR",
+            user_id=user_id,
+            error=str(e)
+        )
+        raise SecureHTTPException.internal_error("Failed to list audit logs")
+
+
+@router.get("/audit/categories")
+@limiter.limit("60/minute")
+async def get_audit_categories(request: Request, user: dict = Depends(get_current_user)):
+    """
+    Get available audit log categories and action types (admin only).
+    Useful for building filter dropdowns.
+    """
+    user_id = user.get("id")
+
+    # Verify admin access
+    is_admin, role = await check_is_platform_admin(user_id)
+    if not is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    return {
+        "action_categories": [
+            {"value": "auth", "label": "Authentication"},
+            {"value": "user", "label": "User Management"},
+            {"value": "company", "label": "Company Management"},
+            {"value": "admin", "label": "Admin Actions"},
+            {"value": "data", "label": "Data Operations"},
+            {"value": "api", "label": "API Operations"},
+            {"value": "billing", "label": "Billing"},
+            {"value": "security", "label": "Security Events"},
+        ],
+        "actor_types": [
+            {"value": "user", "label": "User"},
+            {"value": "admin", "label": "Platform Admin"},
+            {"value": "system", "label": "System"},
+            {"value": "api", "label": "API"},
+        ],
+        "resource_types": [
+            {"value": "user", "label": "User"},
+            {"value": "company", "label": "Company"},
+            {"value": "admin", "label": "Admin"},
+            {"value": "api_key", "label": "API Key"},
+            {"value": "conversation", "label": "Conversation"},
+            {"value": "setting", "label": "Setting"},
+        ]
+    }
+
+
+@router.post("/audit/export")
+@limiter.limit("5/minute")
+async def export_audit_logs(
+    request: Request,
+    user: dict = Depends(get_current_user),
+    action_category: Optional[str] = Query(None),
+    start_date: Optional[str] = Query(None),
+    end_date: Optional[str] = Query(None),
+    limit: int = Query(1000, ge=1, le=10000),
+):
+    """
+    Export audit logs to JSON (admin only).
+    Limited to 10,000 records per export.
+    """
+    user_id = user.get("id")
+    user_email = user.get("email")
+
+    # Verify admin access - only super_admin can export
+    is_admin, role = await check_is_platform_admin(user_id)
+    if not is_admin or role != "super_admin":
+        raise HTTPException(status_code=403, detail="Super admin access required for export")
+
+    try:
+        supabase = get_supabase_service()
+        if supabase is None:
+            raise HTTPException(
+                status_code=500,
+                detail="Database service not available. Check SUPABASE_SERVICE_ROLE_KEY configuration."
+            )
+
+        # Build query
+        query = supabase.table("platform_audit_logs").select("*")
+
+        if action_category:
+            query = query.eq("action_category", action_category)
+
+        if start_date:
+            query = query.gte("timestamp", start_date)
+
+        if end_date:
+            query = query.lte("timestamp", end_date + "T23:59:59Z")
+
+        query = query.order("timestamp", desc=True).limit(limit)
+
+        result = query.execute()
+        logs = result.data or []
+
+        # Log the export action
+        client_ip = request.client.host if request.client else None
+        await log_platform_audit(
+            action="export_audit_logs",
+            action_category="data",
+            actor_id=user_id,
+            actor_email=user_email,
+            actor_type="admin",
+            ip_address=client_ip,
+            metadata={
+                "record_count": len(logs),
+                "filters": {
+                    "action_category": action_category,
+                    "start_date": start_date,
+                    "end_date": end_date,
+                }
+            },
+            is_sensitive=True
+        )
+
+        return {
+            "success": True,
+            "count": len(logs),
+            "exported_at": datetime.utcnow().isoformat(),
+            "logs": logs
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        log_app_event(
+            "ADMIN: Failed to export audit logs",
+            level="ERROR",
+            user_id=user_id,
+            error=str(e)
+        )
+        raise SecureHTTPException.internal_error("Failed to export audit logs")
+
+
+# =============================================================================
+# INVITATION ENDPOINTS
+# =============================================================================
+
+@router.post("/invitations")
+@limiter.limit("10/minute;50/hour")
+async def create_invitation(
+    request: Request,
+    invitation_data: CreateInvitationRequest,
+    user: dict = Depends(get_current_user),
+):
+    """
+    Create and send a platform invitation (admin only).
+
+    The invited user will receive an email with a link to sign up.
+    """
+    user_id = user.get("id")
+    user_email = user.get("email")
+
+    # Verify admin access
+    is_admin, role = await check_is_platform_admin(user_id)
+    if not is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    try:
+        supabase = get_supabase_service()
+
+        # Check if user already exists (paginate to handle >50 users)
+        try:
+            target_email = invitation_data.email.lower()
+            page = 1
+            per_page = 1000  # Use larger page size to minimize API calls
+            user_found = False
+
+            while not user_found:
+                existing_users = supabase.auth.admin.list_users(page=page, per_page=per_page)
+                if isinstance(existing_users, list):
+                    all_users = existing_users
+                elif hasattr(existing_users, 'users'):
+                    all_users = existing_users.users
+                else:
+                    all_users = list(existing_users) if existing_users else []
+
+                if not all_users:
+                    break  # No more users to check
+
+                for u in all_users:
+                    if u.email and u.email.lower() == target_email:
+                        raise HTTPException(
+                            status_code=400,
+                            detail=f"User with email {invitation_data.email} already exists"
+                        )
+
+                # If we got fewer users than per_page, we've reached the end
+                if len(all_users) < per_page:
+                    break
+                page += 1
+        except HTTPException:
+            raise
+        except Exception:
+            pass  # Continue if we can't check existing users
+
+        # Check for existing pending invitation
+        existing = supabase.table("platform_invitations").select(
+            "id, status"
+        ).eq("email", invitation_data.email.lower()).eq("status", "pending").maybe_single().execute()
+
+        if existing.data:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Pending invitation already exists for {invitation_data.email}"
+            )
+
+        # Generate token and expiry
+        invitation_token = str(uuid.uuid4())
+        expires_at = datetime.utcnow() + timedelta(days=7)
+
+        # Get company name if target company specified
+        target_company_name = None
+        if invitation_data.target_company_id:
+            company_result = supabase.table("companies").select(
+                "name"
+            ).eq("id", invitation_data.target_company_id).maybe_single().execute()
+            if company_result.data:
+                target_company_name = company_result.data.get("name")
+
+        # Create invitation record
+        insert_data = {
+            "email": invitation_data.email.lower(),
+            "name": invitation_data.name,
+            "token": invitation_token,
+            "invited_by": user_id,
+            "invited_by_email": user_email,
+            "expires_at": expires_at.isoformat(),
+            "notes": invitation_data.notes,
+            "target_company_id": invitation_data.target_company_id,
+            "target_company_role": invitation_data.target_company_role or "member",
+        }
+
+        result = supabase.table("platform_invitations").insert(insert_data).execute()
+
+        if not result.data:
+            raise HTTPException(status_code=500, detail="Failed to create invitation")
+
+        invitation_id = result.data[0]["id"]
+
+        # Send invitation email
+        inviter_name = user_email.split("@")[0] if user_email else "An admin"
+        email_result = await send_invitation_email(
+            invitee_email=invitation_data.email,
+            inviter_name=inviter_name,
+            invitation_token=invitation_token,
+            expires_at=expires_at.strftime("%B %d, %Y"),
+        )
+
+        # Update email sent timestamp
+        if email_result.get("success"):
+            supabase.table("platform_invitations").update({
+                "email_sent_at": datetime.utcnow().isoformat(),
+                "email_message_id": email_result.get("message_id"),
+            }).eq("id", invitation_id).execute()
+
+        # Log audit event
+        client_ip = request.client.host if request.client else None
+        await log_platform_audit(
+            action="create_invitation",
+            action_category="user",
+            actor_id=user_id,
+            actor_email=user_email,
+            actor_type="admin",
+            resource_type="invitation",
+            resource_id=invitation_id,
+            resource_name=invitation_data.email,
+            ip_address=client_ip,
+            metadata={
+                "target_company_id": invitation_data.target_company_id,
+                "target_company_name": target_company_name,
+            }
+        )
+
+        log_app_event(
+            "ADMIN: Created invitation",
+            user_id=user_id,
+            invitation_id=invitation_id,
+            invitee_email=invitation_data.email,
+            email_sent=email_result.get("success", False),
+        )
+
+        return CreateInvitationResponse(
+            success=True,
+            invitation_id=invitation_id,
+            email=invitation_data.email,
+            expires_at=expires_at.isoformat(),
+            email_sent=email_result.get("success", False),
+            email_preview_mode=email_result.get("preview_mode", False),
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        log_app_event(
+            "ADMIN: Failed to create invitation",
+            level="ERROR",
+            user_id=user_id,
+            error=str(e)
+        )
+        raise SecureHTTPException.internal_error("Failed to create invitation")
+
+
+@router.get("/invitations")
+@limiter.limit("30/minute;100/hour")
+async def list_invitations(
+    request: Request,
+    user: dict = Depends(get_current_user),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(50, ge=1, le=100),
+    status: Optional[str] = Query(None, description="Filter by status"),
+    search: Optional[str] = Query(None, description="Search by email"),
+):
+    """
+    List platform invitations (admin only).
+    """
+    user_id = user.get("id")
+
+    # Verify admin access
+    is_admin, role = await check_is_platform_admin(user_id)
+    if not is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    try:
+        supabase = get_supabase_service()
+
+        # Build query
+        query = supabase.table("platform_invitations").select(
+            "id, email, name, status, invited_by_email, created_at, expires_at, "
+            "accepted_at, target_company_id, resend_count",
+            count="exact"
+        )
+
+        # Apply filters
+        if status:
+            query = query.eq("status", status)
+
+        if search:
+            query = query.ilike("email", f"%{search}%")
+
+        # Order and paginate
+        offset = (page - 1) * page_size
+        query = query.order("created_at", desc=True).range(offset, offset + page_size - 1)
+
+        result = query.execute()
+        invitations_data = result.data or []
+        total = result.count or 0
+
+        # Enrich with company names
+        invitations = []
+        for inv in invitations_data:
+            target_company_name = None
+            if inv.get("target_company_id"):
+                try:
+                    company_result = supabase.table("companies").select(
+                        "name"
+                    ).eq("id", inv["target_company_id"]).maybe_single().execute()
+                    if company_result.data:
+                        target_company_name = company_result.data.get("name")
+                except Exception:
+                    pass
+
+            invitations.append(InvitationInfo(
+                id=inv["id"],
+                email=inv["email"],
+                name=inv.get("name"),
+                status=inv["status"],
+                invited_by_email=inv.get("invited_by_email"),
+                created_at=inv["created_at"] or "",
+                expires_at=inv["expires_at"] or "",
+                accepted_at=inv.get("accepted_at"),
+                target_company_name=target_company_name,
+                resend_count=inv.get("resend_count", 0),
+            ))
+
+        log_app_event(
+            "ADMIN: Listed invitations",
+            user_id=user_id,
+            total=total,
+            page=page
+        )
+
+        return ListInvitationsResponse(
+            invitations=invitations,
+            total=total,
+            page=page,
+            page_size=page_size
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        log_app_event(
+            "ADMIN: Failed to list invitations",
+            level="ERROR",
+            user_id=user_id,
+            error=str(e)
+        )
+        raise SecureHTTPException.internal_error("Failed to list invitations")
+
+
+@router.delete("/invitations/{invitation_id}")
+@limiter.limit("20/minute")
+async def cancel_invitation(
+    request: Request,
+    invitation_id: str = Path(..., description="Invitation ID to cancel"),
+    user: dict = Depends(get_current_user),
+):
+    """
+    Cancel a pending invitation (admin only).
+    """
+    user_id = user.get("id")
+    user_email = user.get("email")
+
+    # Verify admin access
+    is_admin, role = await check_is_platform_admin(user_id)
+    if not is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    try:
+        supabase = get_supabase_service()
+
+        # Get invitation
+        inv_result = supabase.table("platform_invitations").select(
+            "id, email, status"
+        ).eq("id", invitation_id).maybe_single().execute()
+
+        if not inv_result.data:
+            raise HTTPException(status_code=404, detail="Invitation not found")
+
+        if inv_result.data["status"] != "pending":
+            raise HTTPException(
+                status_code=400,
+                detail=f"Cannot cancel invitation with status: {inv_result.data['status']}"
+            )
+
+        # Update status to cancelled
+        supabase.table("platform_invitations").update({
+            "status": "cancelled",
+            "cancelled_at": datetime.utcnow().isoformat(),
+        }).eq("id", invitation_id).execute()
+
+        # Log audit event
+        client_ip = request.client.host if request.client else None
+        await log_platform_audit(
+            action="cancel_invitation",
+            action_category="user",
+            actor_id=user_id,
+            actor_email=user_email,
+            actor_type="admin",
+            resource_type="invitation",
+            resource_id=invitation_id,
+            resource_name=inv_result.data["email"],
+            ip_address=client_ip,
+        )
+
+        log_app_event(
+            "ADMIN: Cancelled invitation",
+            user_id=user_id,
+            invitation_id=invitation_id,
+            invitee_email=inv_result.data["email"],
+        )
+
+        return {"success": True, "message": "Invitation cancelled"}
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        log_app_event(
+            "ADMIN: Failed to cancel invitation",
+            level="ERROR",
+            user_id=user_id,
+            error=str(e)
+        )
+        raise SecureHTTPException.internal_error("Failed to cancel invitation")
+
+
+@router.post("/invitations/{invitation_id}/resend")
+@limiter.limit("5/minute;20/hour")
+async def resend_invitation(
+    request: Request,
+    invitation_id: str = Path(..., description="Invitation ID to resend"),
+    user: dict = Depends(get_current_user),
+):
+    """
+    Resend invitation email (admin only).
+    Also extends the expiration by 7 days.
+    """
+    user_id = user.get("id")
+    user_email = user.get("email")
+
+    # Verify admin access
+    is_admin, role = await check_is_platform_admin(user_id)
+    if not is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    try:
+        supabase = get_supabase_service()
+
+        # Get invitation
+        inv_result = supabase.table("platform_invitations").select(
+            "id, email, name, token, status, resend_count"
+        ).eq("id", invitation_id).maybe_single().execute()
+
+        if not inv_result.data:
+            raise HTTPException(status_code=404, detail="Invitation not found")
+
+        if inv_result.data["status"] != "pending":
+            raise HTTPException(
+                status_code=400,
+                detail=f"Cannot resend invitation with status: {inv_result.data['status']}"
+            )
+
+        # Extend expiration
+        new_expires_at = datetime.utcnow() + timedelta(days=7)
+
+        # Send email
+        inviter_name = user_email.split("@")[0] if user_email else "An admin"
+        email_result = await send_invitation_email(
+            invitee_email=inv_result.data["email"],
+            inviter_name=inviter_name,
+            invitation_token=inv_result.data["token"],
+            expires_at=new_expires_at.strftime("%B %d, %Y"),
+        )
+
+        # Update invitation record
+        supabase.table("platform_invitations").update({
+            "expires_at": new_expires_at.isoformat(),
+            "resend_count": (inv_result.data.get("resend_count") or 0) + 1,
+            "last_resent_at": datetime.utcnow().isoformat(),
+            "email_sent_at": datetime.utcnow().isoformat() if email_result.get("success") else None,
+            "email_message_id": email_result.get("message_id"),
+        }).eq("id", invitation_id).execute()
+
+        # Log audit event
+        client_ip = request.client.host if request.client else None
+        await log_platform_audit(
+            action="resend_invitation",
+            action_category="user",
+            actor_id=user_id,
+            actor_email=user_email,
+            actor_type="admin",
+            resource_type="invitation",
+            resource_id=invitation_id,
+            resource_name=inv_result.data["email"],
+            ip_address=client_ip,
+            metadata={
+                "resend_count": (inv_result.data.get("resend_count") or 0) + 1,
+            }
+        )
+
+        log_app_event(
+            "ADMIN: Resent invitation",
+            user_id=user_id,
+            invitation_id=invitation_id,
+            invitee_email=inv_result.data["email"],
+            email_sent=email_result.get("success", False),
+        )
+
+        return {
+            "success": True,
+            "message": "Invitation resent",
+            "new_expires_at": new_expires_at.isoformat(),
+            "email_sent": email_result.get("success", False),
+            "email_preview_mode": email_result.get("preview_mode", False),
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        log_app_event(
+            "ADMIN: Failed to resend invitation",
+            level="ERROR",
+            user_id=user_id,
+            error=str(e)
+        )
+        raise SecureHTTPException.internal_error("Failed to resend invitation")

@@ -2,7 +2,7 @@
 
 > **Created**: January 2026
 > **Status**: In Progress
-> **Last Updated**: January 16, 2026
+> **Last Updated**: January 19, 2026
 
 This document outlines the phased implementation plan for the AxCouncil Admin Portal, based on 2025/2026 B2B SaaS best practices, competitive analysis, and the platform's current architecture.
 
@@ -20,7 +20,9 @@ The Admin Portal is a separate full-page interface (`/admin`) for platform admin
 - [x] Users tab with search and pagination
 - [x] Companies tab with search and pagination
 - [x] Admin roles tab (list current admins)
-- [ ] Audit logs tab (placeholder)
+- [x] Audit logs tab with filtering
+- [x] **Platform Invitations** - Invite users via email
+- [x] **User Management** - Delete users (with cascade), suspend/unsuspend
 - [ ] Settings tab (placeholder)
 
 ---
@@ -241,6 +243,37 @@ CREATE INDEX idx_audit_company ON audit_logs(company_id, timestamp DESC);
 - [ ] Access review report (who has access to what)
 - [ ] Admin action summary report
 - [ ] Scheduled report emails
+
+---
+
+## Phase 3.5: Platform Invitations
+**Status: COMPLETE**
+
+### 3.5.1 Invitation System
+Invite-only user onboarding flow for controlled platform growth.
+
+- [x] Database schema (`platform_invitations` table)
+- [x] Admin invitation endpoints (create, list, cancel, resend)
+- [x] Public invitation endpoints (validate, accept)
+- [x] Email service abstraction (placeholder for Resend)
+- [x] Invitations tab in Admin Portal
+- [x] "Invite User" modal with email/name/notes
+- [x] Invitation list with status badges (pending, accepted, expired, cancelled)
+- [x] Resend and cancel actions
+- [x] `/accept-invite` public page for new user signup
+
+**Flow:**
+1. Admin creates invitation → email sent (or logged to console if email disabled)
+2. Recipient clicks link → `/accept-invite?token=xxx`
+3. Page validates token → shows signup form
+4. User creates password → Supabase account created
+5. Invitation marked accepted → user redirected to app
+
+**Future enhancements:**
+- [ ] Resend email integration
+- [ ] Invitation expiry reminders
+- [ ] Bulk invitation import (CSV)
+- [ ] Invitation analytics (open rate, conversion)
 
 ---
 
@@ -488,3 +521,5 @@ frontend/src/components/admin/
 | Date | Author | Changes |
 |------|--------|---------|
 | 2026-01-16 | Claude | Initial roadmap creation |
+| 2026-01-19 | Claude | Added Phase 3.5 Platform Invitations (complete), marked Audit Logs complete |
+| 2026-01-20 | Claude | Added User Management (delete/suspend) - Phase 2.1 partial |

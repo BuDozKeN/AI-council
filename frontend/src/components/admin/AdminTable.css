@@ -1,0 +1,226 @@
+/**
+ * AdminTable.css - Admin portal table styles
+ */
+
+/* =============================================================================
+   TABLE STYLES
+   ============================================================================= */
+
+.admin-table-container {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th {
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.admin-table td {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-sm);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+.admin-table tbody tr:hover {
+  background: var(--color-bg-hover);
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Table cell styles */
+.admin-user-cell,
+.admin-company-cell,
+.admin-date-cell,
+.admin-count-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.admin-user-cell svg,
+.admin-company-cell svg,
+.admin-date-cell svg,
+.admin-count-cell svg {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+/* =============================================================================
+   STATUS BADGES
+   ============================================================================= */
+
+.admin-status-badge {
+  display: inline-flex;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  border-radius: var(--radius-full);
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.admin-status-badge--active {
+  background: var(--overlay-emerald-15);
+  color: var(--color-success);
+}
+
+.admin-status-badge--pending {
+  background: var(--overlay-amber-15);
+  color: var(--color-warning);
+}
+
+.admin-status-badge--expired {
+  background: var(--overlay-black-10);
+  color: var(--color-text-muted);
+}
+
+.admin-status-badge--cancelled {
+  background: rgb(239 68 68 / 15%);
+  color: var(--color-destructive);
+}
+
+.admin-status-badge--suspended {
+  background: rgb(239 68 68 / 15%);
+  color: var(--color-destructive);
+}
+
+/* Role badges */
+.admin-role-badge {
+  display: inline-flex;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  border-radius: var(--radius-full);
+  text-transform: capitalize;
+}
+
+.admin-role-badge--super_admin {
+  background: rgb(139 92 246 / 15%);
+  color: var(--color-violet-500);
+}
+
+.admin-role-badge--admin {
+  background: var(--overlay-blue-15);
+  color: var(--color-primary);
+}
+
+.admin-role-badge--support {
+  background: var(--overlay-emerald-15);
+  color: var(--color-success);
+}
+
+/* "You" badge for current user */
+.admin-you-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 6px;
+  margin-left: var(--space-2);
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+/* =============================================================================
+   TABLE STATES
+   ============================================================================= */
+
+.admin-table-loading,
+.admin-table-error,
+.admin-table-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-12);
+  color: var(--color-text-muted);
+}
+
+.admin-table-error {
+  color: var(--color-destructive);
+}
+
+/* =============================================================================
+   PAGINATION
+   ============================================================================= */
+
+.admin-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+.admin-pagination-info {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.admin-pagination-buttons {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.admin-pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-pagination-btn:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  border-color: var(--color-primary);
+}
+
+.admin-pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Actions cell */
+.admin-actions-cell {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* =============================================================================
+   RESPONSIVE
+   ============================================================================= */
+
+@media (max-width: 641px) {
+  .admin-pagination {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+}

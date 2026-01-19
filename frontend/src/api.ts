@@ -3610,6 +3610,231 @@ export const api = {
     }
     return response.json();
   },
+
+  /**
+   * List platform audit logs (admin only).
+   */
+  async listAdminAuditLogs(filters?: AdminAuditFilters): Promise<AdminAuditLogsResponse> {
+    const headers = await getAuthHeaders();
+    const searchParams = new URLSearchParams();
+    if (filters?.page) searchParams.set('page', filters.page.toString());
+    if (filters?.page_size) searchParams.set('page_size', filters.page_size.toString());
+    if (filters?.action_category) searchParams.set('action_category', filters.action_category);
+    if (filters?.actor_type) searchParams.set('actor_type', filters.actor_type);
+    if (filters?.resource_type) searchParams.set('resource_type', filters.resource_type);
+    if (filters?.company_id) searchParams.set('company_id', filters.company_id);
+    if (filters?.start_date) searchParams.set('start_date', filters.start_date);
+    if (filters?.end_date) searchParams.set('end_date', filters.end_date);
+    if (filters?.search) searchParams.set('search', filters.search);
+    const url = `${API_BASE}${API_VERSION}/admin/audit?${searchParams.toString()}`;
+    const response = await fetch(url, { headers });
+    if (!response.ok) {
+      throw new Error('Failed to fetch audit logs');
+    }
+    return response.json();
+  },
+
+  /**
+   * Get audit log filter categories (admin only).
+   */
+  async getAdminAuditCategories(): Promise<AdminAuditCategories> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}${API_VERSION}/admin/audit/categories`, {
+      headers,
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch audit categories');
+    }
+    return response.json();
+  },
+
+  /**
+   * Export audit logs to JSON (super_admin only).
+   */
+  async exportAdminAuditLogs(params?: {
+    action_category?: string;
+    start_date?: string;
+    end_date?: string;
+    limit?: number;
+  }): Promise<AdminAuditExportResponse> {
+    const headers = await getAuthHeaders();
+    const searchParams = new URLSearchParams();
+    if (params?.action_category) searchParams.set('action_category', params.action_category);
+    if (params?.start_date) searchParams.set('start_date', params.start_date);
+    if (params?.end_date) searchParams.set('end_date', params.end_date);
+    if (params?.limit) searchParams.set('limit', params.limit.toString());
+    const url = `${API_BASE}${API_VERSION}/admin/audit/export?${searchParams.toString()}`;
+    const response = await fetch(url, { method: 'POST', headers });
+    if (!response.ok) {
+      throw new Error('Failed to export audit logs');
+    }
+    return response.json();
+  },
+
+  // ===========================================================================
+  // Admin Invitations
+  // ===========================================================================
+
+  /**
+   * Create and send a platform invitation (admin only).
+   */
+  async createAdminInvitation(data: CreateInvitationRequest): Promise<CreateInvitationResponse> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}${API_VERSION}/admin/invitations`, {
+      method: 'POST',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to create invitation' }));
+      throw new Error(error.detail || 'Failed to create invitation');
+    }
+    return response.json();
+  },
+
+  /**
+   * List platform invitations (admin only).
+   */
+  async listAdminInvitations(params?: {
+    page?: number;
+    page_size?: number;
+    status?: string;
+    search?: string;
+  }): Promise<AdminInvitationsResponse> {
+    const headers = await getAuthHeaders();
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set('page', params.page.toString());
+    if (params?.page_size) searchParams.set('page_size', params.page_size.toString());
+    if (params?.status) searchParams.set('status', params.status);
+    if (params?.search) searchParams.set('search', params.search);
+    const url = `${API_BASE}${API_VERSION}/admin/invitations?${searchParams.toString()}`;
+    const response = await fetch(url, { headers });
+    if (!response.ok) {
+      throw new Error('Failed to fetch invitations');
+    }
+    return response.json();
+  },
+
+  /**
+   * Cancel a pending invitation (admin only).
+   */
+  async cancelAdminInvitation(
+    invitationId: string
+  ): Promise<{ success: boolean; message: string }> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}${API_VERSION}/admin/invitations/${invitationId}`, {
+      method: 'DELETE',
+      headers,
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to cancel invitation' }));
+      throw new Error(error.detail || 'Failed to cancel invitation');
+    }
+    return response.json();
+  },
+
+  /**
+   * Resend invitation email (admin only).
+   */
+  async resendAdminInvitation(invitationId: string): Promise<ResendInvitationResponse> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/admin/invitations/${invitationId}/resend`,
+      { method: 'POST', headers }
+    );
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to resend invitation' }));
+      throw new Error(error.detail || 'Failed to resend invitation');
+    }
+    return response.json();
+  },
+
+  // ===========================================================================
+  // Admin User Management
+  // ===========================================================================
+
+  /**
+   * Get detailed user information (admin only).
+   */
+  async getAdminUserDetails(userId: string): Promise<AdminUserDetails> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}${API_VERSION}/admin/users/${userId}`, { headers });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to fetch user details' }));
+      throw new Error(error.detail || 'Failed to fetch user details');
+    }
+    return response.json();
+  },
+
+  /**
+   * Update a user's status (suspend/unsuspend) (admin only).
+   */
+  async updateAdminUser(
+    userId: string,
+    data: { is_suspended?: boolean }
+  ): Promise<{ success: boolean; message: string }> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}${API_VERSION}/admin/users/${userId}`, {
+      method: 'PATCH',
+      headers: { ...headers, 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to update user' }));
+      throw new Error(error.detail || 'Failed to update user');
+    }
+    return response.json();
+  },
+
+  /**
+   * Delete a user and all their data (admin only).
+   * Requires confirm=true as a safety measure.
+   */
+  async deleteAdminUser(userId: string): Promise<AdminDeleteUserResponse> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}${API_VERSION}/admin/users/${userId}?confirm=true`, {
+      method: 'DELETE',
+      headers,
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to delete user' }));
+      throw new Error(error.detail || 'Failed to delete user');
+    }
+    return response.json();
+  },
+
+  // ===========================================================================
+  // Public Invitation Endpoints (no auth required)
+  // ===========================================================================
+
+  /**
+   * Validate an invitation token (public, no auth).
+   */
+  async validateInvitation(token: string): Promise<InvitationValidation> {
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/invitations/validate?token=${encodeURIComponent(token)}`
+    );
+    return response.json();
+  },
+
+  /**
+   * Accept an invitation after signup (public, no auth).
+   */
+  async acceptInvitation(token: string, userId: string): Promise<AcceptInvitationResponse> {
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/invitations/accept?token=${encodeURIComponent(token)}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId }),
+      }
+    );
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to accept invitation' }));
+      throw new Error(error.detail || 'Failed to accept invitation');
+    }
+    return response.json();
+  },
 };
 
 // =============================================================================
@@ -3663,6 +3888,155 @@ export interface AdminUserInfo {
   role: string;
   created_at: string; // When admin access was granted
   user_metadata?: Record<string, unknown> | null;
+}
+
+export interface AdminAuditLog {
+  id: string;
+  timestamp: string;
+  actor_id: string | null;
+  actor_email: string | null;
+  actor_type: 'user' | 'admin' | 'system' | 'api';
+  action: string;
+  action_category: 'auth' | 'user' | 'company' | 'admin' | 'data' | 'api' | 'billing' | 'security';
+  resource_type: string | null;
+  resource_id: string | null;
+  resource_name: string | null;
+  company_id: string | null;
+  ip_address: string | null;
+  metadata: Record<string, unknown> | null;
+}
+
+export interface AdminAuditLogsResponse {
+  logs: AdminAuditLog[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export interface AdminAuditFilters {
+  page?: number;
+  page_size?: number;
+  action_category?: string;
+  actor_type?: string;
+  resource_type?: string;
+  company_id?: string;
+  start_date?: string;
+  end_date?: string;
+  search?: string;
+}
+
+export interface AdminAuditCategoryOption {
+  value: string;
+  label: string;
+}
+
+export interface AdminAuditCategories {
+  action_categories: AdminAuditCategoryOption[];
+  actor_types: AdminAuditCategoryOption[];
+  resource_types: AdminAuditCategoryOption[];
+}
+
+export interface AdminAuditExportResponse {
+  success: boolean;
+  count: number;
+  exported_at: string;
+  logs: AdminAuditLog[];
+}
+
+// =============================================================================
+// Types for Admin User Management
+// =============================================================================
+
+export interface AdminUserDetails {
+  id: string;
+  email: string;
+  created_at: string;
+  last_sign_in_at: string | null;
+  email_confirmed_at: string | null;
+  user_metadata: Record<string, unknown> | null;
+  is_suspended: boolean;
+  companies: Array<{ id: string; name: string; created_at: string }>;
+  conversation_count: number;
+}
+
+export interface AdminDeleteUserResponse {
+  success: boolean;
+  message: string;
+  deleted: {
+    companies: number;
+    conversations: number;
+  };
+}
+
+export interface AdminUpdateUserResponse {
+  success: boolean;
+  message: string;
+}
+
+// =============================================================================
+// Types for Admin Invitations
+// =============================================================================
+
+export interface CreateInvitationRequest {
+  email: string;
+  name?: string;
+  notes?: string;
+  target_company_id?: string;
+  target_company_role?: 'owner' | 'admin' | 'member';
+}
+
+export interface CreateInvitationResponse {
+  success: boolean;
+  invitation_id: string;
+  email: string;
+  expires_at: string;
+  email_sent: boolean;
+  email_preview_mode: boolean;
+}
+
+export interface AdminInvitation {
+  id: string;
+  email: string;
+  name: string | null;
+  status: 'pending' | 'accepted' | 'expired' | 'cancelled' | 'revoked';
+  invited_by_email: string | null;
+  created_at: string;
+  expires_at: string;
+  accepted_at: string | null;
+  target_company_name: string | null;
+  resend_count: number;
+}
+
+export interface AdminInvitationsResponse {
+  invitations: AdminInvitation[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export interface ResendInvitationResponse {
+  success: boolean;
+  message: string;
+  new_expires_at: string;
+  email_sent: boolean;
+  email_preview_mode: boolean;
+}
+
+// Public invitation validation (no auth required)
+export interface InvitationValidation {
+  is_valid: boolean;
+  email: string | null;
+  name: string | null;
+  expires_at: string | null;
+  target_company_name: string | null;
+  error: string | null;
+}
+
+export interface AcceptInvitationResponse {
+  success: boolean;
+  message: string;
+  added_to_company: boolean;
+  company_name: string | null;
 }
 
 // =============================================================================
