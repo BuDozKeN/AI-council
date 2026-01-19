@@ -43,9 +43,10 @@
   background: var(--color-indigo-600);
 }
 
-/* Content */
+/* Content - FLEX CHAIN PARTICIPANT */
 .org-content {
   flex: 1;
+  min-height: 0; /* Required for flex child to shrink and enable scrolling */
   overflow-y: auto;
   padding: var(--space-5) var(--space-6);
 }

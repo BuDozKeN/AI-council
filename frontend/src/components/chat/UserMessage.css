@@ -3,7 +3,7 @@
    Collapsible with "Your Question" title, collapsed by default
    ============================================================================= */
 
-/* User message wrapper - contains label + card like assistant messages */
+/* User message wrapper - centering inherited from .messages-container > * */
 .user-message-wrapper {
   margin-top: var(--space-4);
 }

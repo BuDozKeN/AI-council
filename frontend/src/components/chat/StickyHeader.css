@@ -6,15 +6,14 @@
  * Blur fade at bottom for smooth content transition.
  */
 
+/* Sticky elements don't respond to parent's align-items, so we use align-self */
 .sticky-header {
   position: sticky;
   inset-block-start: 0;
   z-index: var(--z-sticky);
-
-  /* Match Omnibar reading column width */
   width: 100%;
   max-width: 72ch;
-  margin-left: auto;
+  align-self: center;
 }
 
 /* Background layer - extends full width to cover scrolling content */
