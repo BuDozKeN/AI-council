@@ -160,6 +160,8 @@
     --color-warning: #f59e0b;
     --color-warning-light: #fef3c7;
     --color-warning-dark: #d97706;
+    --color-text-on-warning: #1a1a1a; /* Dark text for warning backgrounds */
+    --color-text-on-error: #fff; /* Light text for error backgrounds */
 
     /* Semantic colors - Info */
     --color-info: #3b82f6;
@@ -604,6 +606,8 @@ html.dark,
   --color-error-light: rgb(239 68 68 / 15%);
   --color-warning-light: rgb(245 158 11 / 15%);
   --color-info-light: rgb(59 130 246 / 15%);
+  --color-text-on-warning: #1a1a1a; /* Same in dark mode - warning bg is bright */
+  --color-text-on-error: #fff; /* Same in dark mode - error bg is bright */
 
   /* Slate scale - inverted for dark mode UI */
   --color-slate-50: #1e293b;

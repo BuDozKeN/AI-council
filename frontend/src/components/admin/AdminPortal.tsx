@@ -41,6 +41,7 @@ import {
   Ban,
   UserX,
   UserCheck,
+  Eye,
 } from 'lucide-react';
 import { useAuth } from '../../AuthContext';
 import { useAdminAccess } from '../../hooks';
@@ -55,6 +56,7 @@ import type {
 } from '../../api';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { ImpersonateUserModal } from './ImpersonateUserModal';
 import './AdminPortal.css';
 import './AdminStats.css';
 import './AdminTable.css';
@@ -499,12 +501,17 @@ const DUMMY_USERS: AdminPlatformUser[] = [
 function UsersTab() {
   const { t } = useTranslation();
   const { user: currentUser } = useAuth();
+  const { adminRole } = useAdminAccess();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [userToDelete, setUserToDelete] = useState<AdminPlatformUser | null>(null);
   const [userToSuspend, setUserToSuspend] = useState<AdminPlatformUser | null>(null);
+  const [userToImpersonate, setUserToImpersonate] = useState<AdminPlatformUser | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const pageSize = 20;
+
+  // Check if current admin can impersonate
+  const canImpersonate = adminRole === 'super_admin' || adminRole === 'admin';
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['admin', 'users', { page, search }],
@@ -680,6 +687,16 @@ function UsersTab() {
                                 <Loader2 className="h-4 w-4 animate-spin" />
                               ) : (
                                 <>
+                                  {/* Impersonate button */}
+                                  {canImpersonate && !isSuspended && (
+                                    <button
+                                      className="admin-icon-btn admin-icon-btn--impersonate"
+                                      onClick={() => setUserToImpersonate(user)}
+                                      title={t('admin.users.impersonate', 'View as user')}
+                                    >
+                                      <Eye className="h-4 w-4" />
+                                    </button>
+                                  )}
                                   <button
                                     className={`admin-icon-btn ${isSuspended ? 'admin-icon-btn--success' : 'admin-icon-btn--warning'}`}
                                     onClick={() => setUserToSuspend(user)}
@@ -737,6 +754,18 @@ function UsersTab() {
           onClose={() => setUserToSuspend(null)}
           onConfirm={() => handleToggleSuspend(userToSuspend)}
           isLoading={actionLoading === userToSuspend.id}
+        />
+      )}
+
+      {/* Impersonate User Modal */}
+      {userToImpersonate && (
+        <ImpersonateUserModal
+          isOpen={!!userToImpersonate}
+          onClose={() => setUserToImpersonate(null)}
+          targetUser={{
+            id: userToImpersonate.id,
+            email: userToImpersonate.email,
+          }}
         />
       )}
     </div>

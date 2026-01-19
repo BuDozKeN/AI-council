@@ -133,6 +133,16 @@
   background: var(--overlay-emerald-15);
 }
 
+.admin-icon-btn--impersonate {
+  color: var(--color-text-secondary);
+}
+
+.admin-icon-btn--impersonate:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background: var(--color-primary-subtle);
+}
+
 /* =============================================================================
    BACK BUTTON
    ============================================================================= */

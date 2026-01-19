@@ -1,0 +1,283 @@
+/**
+ * ImpersonationBanner Styles
+ *
+ * A sticky, non-dismissible banner that appears at the top of the viewport
+ * when an admin is impersonating a user. Uses warning colors for visibility.
+ */
+
+/* Base banner - fixed to top, always visible */
+.impersonation-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-toast);
+  background: linear-gradient(135deg, var(--color-warning) 0%, var(--color-warning-dark) 100%);
+  color: var(--color-text-on-warning);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+/* Content container */
+.impersonation-banner__content {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-md);
+  padding: var(--space-2) var(--space-4);
+  max-width: 100%;
+  position: relative;
+  z-index: var(--z-base);
+}
+
+/* Warning icon */
+.impersonation-banner__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.impersonation-banner__icon svg {
+  width: 20px;
+  height: 20px;
+  color: var(--color-warning-dark);
+}
+
+/* Message section */
+.impersonation-banner__message {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-xs);
+  flex-shrink: 0;
+}
+
+.impersonation-banner__label {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-xs);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-warning-dark);
+}
+
+.impersonation-banner__user-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.impersonation-banner__email {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-on-warning);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Timer section */
+.impersonation-banner__timer {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-xs);
+  padding: var(--space-1) var(--space-2);
+  background: var(--overlay-white-40);
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.impersonation-banner__clock-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--color-warning-dark);
+}
+
+.impersonation-banner__time {
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-on-warning);
+  min-width: 3ch;
+}
+
+.impersonation-banner__time-label {
+  font-size: var(--text-xs);
+  color: var(--color-warning-dark);
+}
+
+/* Reason section */
+.impersonation-banner__reason {
+  display: none; /* Hidden by default, shown on larger screens */
+  flex: 1;
+  min-width: 0;
+}
+
+.impersonation-banner__reason-text {
+  font-size: var(--text-xs);
+  color: var(--color-warning-dark);
+  font-style: italic;
+}
+
+/* Exit button */
+.impersonation-banner__exit {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-xs);
+  padding: var(--space-1-5) var(--space-3);
+  background: var(--color-text-on-warning);
+  color: var(--color-bg-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out);
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.impersonation-banner__exit:hover:not(:disabled) {
+  background: var(--color-text-secondary);
+  transform: translateY(-1px);
+}
+
+.impersonation-banner__exit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.impersonation-banner__exit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.impersonation-banner__exit-icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* Watermark pattern (security indicator) */
+.impersonation-banner__watermark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0.08;
+  white-space: nowrap;
+}
+
+.impersonation-banner__watermark span {
+  font-size: var(--text-xs);
+  font-weight: var(--font-bold);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-text-on-warning);
+  animation: watermark-scroll 20s linear infinite;
+}
+
+@keyframes watermark-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* Urgent state (< 5 minutes) */
+.impersonation-banner--urgent {
+  animation: urgent-pulse 2s ease-in-out infinite;
+}
+
+.impersonation-banner--urgent .impersonation-banner__timer {
+  background: var(--overlay-white-40);
+}
+
+@keyframes urgent-pulse {
+  0%,
+  100% {
+    box-shadow: var(--shadow-lg);
+  }
+
+  50% {
+    box-shadow:
+      var(--shadow-lg),
+      0 0 0 2px var(--color-warning-dark);
+  }
+}
+
+/* Critical state (< 1 minute) */
+.impersonation-banner--critical {
+  background: linear-gradient(135deg, var(--color-error) 0%, var(--color-error-dark) 100%);
+  animation: critical-pulse 1s ease-in-out infinite;
+}
+
+.impersonation-banner--critical .impersonation-banner__icon svg,
+.impersonation-banner--critical .impersonation-banner__label,
+.impersonation-banner--critical .impersonation-banner__clock-icon,
+.impersonation-banner--critical .impersonation-banner__time-label,
+.impersonation-banner--critical .impersonation-banner__reason-text {
+  color: var(--color-error-light);
+}
+
+.impersonation-banner--critical .impersonation-banner__email,
+.impersonation-banner--critical .impersonation-banner__time {
+  color: var(--color-text-on-error);
+}
+
+.impersonation-banner--critical .impersonation-banner__timer {
+  background: var(--overlay-black-20);
+}
+
+@keyframes critical-pulse {
+  0%,
+  100% {
+    box-shadow: var(--shadow-lg);
+  }
+
+  50% {
+    box-shadow:
+      var(--shadow-lg),
+      0 0 0 3px var(--color-error);
+  }
+}
+
+/* Responsive: Tablet and up */
+@media (min-width: 641px) {
+  .impersonation-banner__content {
+    padding: var(--space-2) var(--space-6);
+  }
+
+  .impersonation-banner__email {
+    max-width: 300px;
+  }
+
+  .impersonation-banner__reason {
+    display: block;
+  }
+}
+
+/* Responsive: Desktop */
+@media (min-width: 1025px) {
+  .impersonation-banner__content {
+    padding: var(--space-3) var(--space-8);
+    justify-content: center;
+  }
+
+  .impersonation-banner__email {
+    max-width: none;
+  }
+}
+
+/* Ensure main app content is pushed down when banner is visible */
+:root:has(.impersonation-banner) {
+  --impersonation-banner-height: 44px;
+}
+
+:root:has(.impersonation-banner) .app-wrapper,
+:root:has(.impersonation-banner) .admin-portal {
+  margin-top: var(--impersonation-banner-height);
+}
