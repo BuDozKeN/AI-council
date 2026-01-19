@@ -182,10 +182,16 @@ async def list_users(
 
         # Query auth.users via admin API
         # Note: This requires service role key
-        query = supabase.auth.admin.list_users()
+        response = supabase.auth.admin.list_users()
 
-        # Get all users (Supabase auth admin API)
-        all_users = query
+        # Handle both list response and paginated response object
+        # (Supabase SDK version differences)
+        if isinstance(response, list):
+            all_users = response
+        elif hasattr(response, 'users'):
+            all_users = response.users
+        else:
+            all_users = list(response) if response else []
 
         # Helper to convert datetime to string
         def to_str(value):
@@ -411,7 +417,14 @@ async def get_platform_stats(request: Request, user: dict = Depends(get_current_
         supabase = get_supabase_service()
 
         # Get total users from auth
-        all_users = supabase.auth.admin.list_users()
+        response = supabase.auth.admin.list_users()
+        # Handle both list response and paginated response object
+        if isinstance(response, list):
+            all_users = response
+        elif hasattr(response, 'users'):
+            all_users = response.users
+        else:
+            all_users = list(response) if response else []
         total_users = len(all_users)
 
         # Get total companies
