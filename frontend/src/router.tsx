@@ -59,24 +59,30 @@ export const router = createBrowserRouter([
   {
     path: '/admin',
     element: (
-      <Suspense fallback={
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100vh',
-          background: 'var(--color-bg-primary, #fafafa)'
-        }}>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            border: '3px solid var(--color-border, #e5e5e5)',
-            borderTopColor: 'var(--color-primary, #6366f1)',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite'
-          }} />
-        </div>
-      }>
+      <Suspense
+        fallback={
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100vh',
+              background: 'var(--color-bg-primary, #fafafa)',
+            }}
+          >
+            <div
+              style={{
+                width: '40px',
+                height: '40px',
+                border: '3px solid var(--color-border, #e5e5e5)',
+                borderTopColor: 'var(--color-primary, #6366f1)',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+              }}
+            />
+          </div>
+        }
+      >
         <AdminPortal />
       </Suspense>
     ),

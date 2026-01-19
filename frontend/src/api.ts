@@ -3661,7 +3661,7 @@ export interface AdminUserInfo {
   id: string;
   email: string;
   role: string;
-  granted_at: string;
+  created_at: string; // When admin access was granted
   user_metadata?: Record<string, unknown> | null;
 }
 

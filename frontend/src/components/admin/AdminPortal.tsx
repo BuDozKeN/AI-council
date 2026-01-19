@@ -36,11 +36,7 @@ import {
 import { useAuth } from '../../AuthContext';
 import { useAdminAccess } from '../../hooks';
 import { api } from '../../api';
-import type {
-  AdminPlatformUser,
-  AdminCompanyInfo,
-  AdminUserInfo,
-} from '../../api';
+import type { AdminPlatformUser, AdminCompanyInfo, AdminUserInfo } from '../../api';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import './AdminPortal.css';
 
@@ -288,11 +284,12 @@ function UsersTab() {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['admin', 'users', { page, search }],
-    queryFn: () => api.listAdminUsers({
-      page,
-      page_size: pageSize,
-      ...(search ? { search } : {})
-    }),
+    queryFn: () =>
+      api.listAdminUsers({
+        page,
+        page_size: pageSize,
+        ...(search ? { search } : {}),
+      }),
     staleTime: 30 * 1000,
   });
 
@@ -369,7 +366,9 @@ function UsersTab() {
                     <td>
                       <div className="admin-date-cell">
                         <Clock className="h-4 w-4" />
-                        <span>{user.last_sign_in_at ? formatDate(user.last_sign_in_at) : 'Never'}</span>
+                        <span>
+                          {user.last_sign_in_at ? formatDate(user.last_sign_in_at) : 'Never'}
+                        </span>
                       </div>
                     </td>
                     <td>
@@ -385,12 +384,7 @@ function UsersTab() {
             </table>
           </div>
 
-          <Pagination
-            page={page}
-            totalPages={totalPages}
-            total={total}
-            onPageChange={setPage}
-          />
+          <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
         </>
       )}
     </div>
@@ -409,11 +403,12 @@ function CompaniesTab() {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['admin', 'companies', { page, search }],
-    queryFn: () => api.listAdminCompanies({
-      page,
-      page_size: pageSize,
-      ...(search ? { search } : {})
-    }),
+    queryFn: () =>
+      api.listAdminCompanies({
+        page,
+        page_size: pageSize,
+        ...(search ? { search } : {}),
+      }),
     staleTime: 30 * 1000,
   });
 
@@ -425,7 +420,9 @@ function CompaniesTab() {
     <div className="admin-tab-panel">
       <div className="admin-tab-header">
         <div>
-          <h2 className="admin-section-title">{t('admin.companies.title', 'Company Management')}</h2>
+          <h2 className="admin-section-title">
+            {t('admin.companies.title', 'Company Management')}
+          </h2>
           <p className="admin-section-desc">
             {t('admin.companies.description', 'View and manage all companies on the platform.')}
           </p>
@@ -505,12 +502,7 @@ function CompaniesTab() {
             </table>
           </div>
 
-          <Pagination
-            page={page}
-            totalPages={totalPages}
-            total={total}
-            onPageChange={setPage}
-          />
+          <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
         </>
       )}
     </div>
@@ -585,7 +577,7 @@ function AdminsTab() {
                   <td>
                     <div className="admin-date-cell">
                       <Calendar className="h-4 w-4" />
-                      <span>{formatDate(admin.granted_at)}</span>
+                      <span>{formatDate(admin.created_at)}</span>
                     </div>
                   </td>
                 </tr>
@@ -619,7 +611,12 @@ function AuditTab() {
       <div className="admin-placeholder">
         <Activity className="admin-placeholder-icon" />
         <h3>{t('admin.audit.comingSoon', 'Audit Logs Coming Soon')}</h3>
-        <p>{t('admin.audit.comingSoonDesc', 'Activity logging and audit trail will be available in a future update.')}</p>
+        <p>
+          {t(
+            'admin.audit.comingSoonDesc',
+            'Activity logging and audit trail will be available in a future update.'
+          )}
+        </p>
       </div>
     </div>
   );
@@ -646,7 +643,12 @@ function SettingsTab() {
       <div className="admin-placeholder">
         <Settings className="admin-placeholder-icon" />
         <h3>{t('admin.settings.comingSoon', 'Platform Settings Coming Soon')}</h3>
-        <p>{t('admin.settings.comingSoonDesc', 'Global configuration options will be available in a future update.')}</p>
+        <p>
+          {t(
+            'admin.settings.comingSoonDesc',
+            'Global configuration options will be available in a future update.'
+          )}
+        </p>
       </div>
     </div>
   );
@@ -671,11 +673,15 @@ function Pagination({ page, totalPages, total, onPageChange }: PaginationProps) 
   return (
     <div className="admin-pagination">
       <span className="admin-pagination-info">
-        {t('admin.pagination.showing', 'Showing page {{page}} of {{totalPages}} ({{total}} total)', {
-          page,
-          totalPages,
-          total,
-        })}
+        {t(
+          'admin.pagination.showing',
+          'Showing page {{page}} of {{totalPages}} ({{total}} total)',
+          {
+            page,
+            totalPages,
+            total,
+          }
+        )}
       </span>
       <div className="admin-pagination-buttons">
         <button

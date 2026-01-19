@@ -37,7 +37,7 @@ class AdminUser(BaseModel):
     id: str
     email: str
     role: str
-    granted_at: str
+    created_at: str  # When admin access was granted
     user_metadata: Optional[dict] = None
 
 
@@ -108,13 +108,13 @@ async def check_is_platform_admin(user_id: str) -> tuple[bool, Optional[str]]:
     Check if user is a platform admin.
     Returns (is_admin, role).
 
-    Uses existing schema where revoked_at IS NULL means active.
+    Uses is_active=true to indicate active admin status.
     """
     try:
         supabase = get_supabase_service()
         result = supabase.table("platform_admins").select(
             "role"
-        ).eq("user_id", user_id).is_("revoked_at", "null").maybe_single().execute()
+        ).eq("user_id", user_id).eq("is_active", True).maybe_single().execute()
 
         if result.data:
             return True, result.data.get("role")
@@ -261,10 +261,10 @@ async def list_admins(request: Request, user: dict = Depends(get_current_user)):
     try:
         supabase = get_supabase_service()
 
-        # Get all active admins (revoked_at IS NULL = active)
+        # Get all active admins (is_active = true)
         result = supabase.table("platform_admins").select(
-            "user_id, role, granted_at"
-        ).is_("revoked_at", "null").execute()
+            "user_id, role, created_at"
+        ).eq("is_active", True).execute()
 
         admins = result.data or []
 
@@ -281,7 +281,7 @@ async def list_admins(request: Request, user: dict = Depends(get_current_user)):
                 id=admin["user_id"],
                 email=email,
                 role=admin["role"],
-                granted_at=admin["granted_at"] or "",
+                created_at=admin["created_at"] or "",
             ))
 
         log_app_event(
