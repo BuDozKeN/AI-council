@@ -63,6 +63,12 @@ import {
   SelectValue,
 } from '../ui/select';
 import './AdminPortal.css';
+import './AdminStats.css';
+import './AdminTable.css';
+import './AdminToolbar.css';
+import './AdminButtons.css';
+import './AdminModals.css';
+import './AdminAuditLog.css';
 
 type AdminTab = 'users' | 'companies' | 'invitations' | 'audit' | 'admins' | 'settings';
 
