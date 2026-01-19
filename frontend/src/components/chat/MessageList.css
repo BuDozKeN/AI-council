@@ -18,18 +18,6 @@
   justify-content: flex-start;
 }
 
-/* Explicit desktop centering - higher specificity */
-@media (min-width: 641px) {
-  .chat-interface .messages-container {
-    align-items: center !important;
-  }
-
-  .chat-interface .messages-container > * {
-    max-width: 72ch !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-  }
-}
 
 /* Thin scrollbar styling */
 .messages-container::-webkit-scrollbar {
@@ -70,10 +58,7 @@
 
 .message-group {
   margin-bottom: var(--space-8);
-  width: 100%;
-  max-width: 72ch;
-  margin-left: auto;
-  margin-right: auto;
+  /* Note: centering (max-width, margin auto) inherited from .messages-container > * */
 }
 
 .user-message,
