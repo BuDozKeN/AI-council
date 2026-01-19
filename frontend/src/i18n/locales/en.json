@@ -624,7 +624,8 @@
     "toggleDeptContext": "Toggle department-specific context (department knowledge)",
     "context": "Context",
     "configure": "Configure context",
-    "configureContext": "Configure Context"
+    "configureContext": "Configure Context",
+    "hoverToSelect": "Hover over a category to see options"
   },
   "stages": {
     "stage1": "Answers",

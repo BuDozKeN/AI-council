@@ -81,12 +81,21 @@ export function FollowUpBar({
   };
 
   // Department list content (reusable for popover and bottom sheet)
+  // Sort selected items to top for better UX
+  const sortedDepartments = [...departments].sort((a, b) => {
+    const aSelected = selectedDepartments.includes(a.id);
+    const bSelected = selectedDepartments.includes(b.id);
+    if (aSelected && !bSelected) return -1;
+    if (!aSelected && bSelected) return 1;
+    return 0;
+  });
+
   const departmentList = (
     <div className="context-popover-list">
       {departments.length === 0 ? (
         <div className="context-popover-empty">{t('context.noDepartments')}</div>
       ) : (
-        departments.map((dept) => {
+        sortedDepartments.map((dept) => {
           const isSelected = selectedDepartments.includes(dept.id);
           const colors = getDeptColor(dept.id);
           return (
@@ -103,7 +112,7 @@ export function FollowUpBar({
               }
             >
               <div className={cn('context-popover-checkbox', isSelected && 'checked')}>
-                {isSelected && <Check size={12} />}
+                {isSelected && <Check />}
               </div>
               <span>{dept.name}</span>
             </button>
@@ -114,12 +123,21 @@ export function FollowUpBar({
   );
 
   // Role list content
+  // Sort selected items to top for better UX
+  const sortedRoles = [...roles].sort((a, b) => {
+    const aSelected = selectedRoles.includes(a.id);
+    const bSelected = selectedRoles.includes(b.id);
+    if (aSelected && !bSelected) return -1;
+    if (!aSelected && bSelected) return 1;
+    return 0;
+  });
+
   const roleList = (
     <div className="context-popover-list">
       {roles.length === 0 ? (
         <div className="context-popover-empty">{t('context.noRoles')}</div>
       ) : (
-        roles.map((role) => {
+        sortedRoles.map((role) => {
           const isSelected = selectedRoles.includes(role.id);
           return (
             <button
@@ -129,7 +147,7 @@ export function FollowUpBar({
               type="button"
             >
               <div className={cn('context-popover-checkbox', isSelected && 'checked')}>
-                {isSelected && <Check size={12} />}
+                {isSelected && <Check />}
               </div>
               <span>{role.name}</span>
             </button>
@@ -140,12 +158,21 @@ export function FollowUpBar({
   );
 
   // Playbook list content
+  // Sort selected items to top for better UX
+  const sortedPlaybooks = [...playbooks].sort((a, b) => {
+    const aSelected = selectedPlaybooks.includes(a.id);
+    const bSelected = selectedPlaybooks.includes(b.id);
+    if (aSelected && !bSelected) return -1;
+    if (!aSelected && bSelected) return 1;
+    return 0;
+  });
+
   const playbookList = (
     <div className="context-popover-list">
       {playbooks.length === 0 ? (
         <div className="context-popover-empty">{t('context.noPlaybooks')}</div>
       ) : (
-        playbooks.map((pb) => {
+        sortedPlaybooks.map((pb) => {
           const isSelected = selectedPlaybooks.includes(pb.id);
           return (
             <button
@@ -155,7 +182,7 @@ export function FollowUpBar({
               type="button"
             >
               <div className={cn('context-popover-checkbox', isSelected && 'checked')}>
-                {isSelected && <Check size={12} />}
+                {isSelected && <Check />}
               </div>
               <span>{pb.title || pb.name}</span>
             </button>
