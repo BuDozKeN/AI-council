@@ -672,7 +672,7 @@
   /* stylelint-disable-next-line color-no-hex -- Amber colors for dark mode demo indicator */
   color: #fcd34d;
   /* stylelint-disable-next-line color-no-hex -- Amber background for dark mode demo indicator */
-  background: rgba(252, 211, 77, 0.15);
+  background: rgb(252 211 77 / 15%);
 }
 
 /* Stats section wrapper for demo indicator */
@@ -703,7 +703,7 @@
   /* stylelint-disable-next-line color-no-hex -- Amber colors for dark mode demo indicator */
   color: #fcd34d;
   /* stylelint-disable-next-line color-no-hex -- Amber background for dark mode demo indicator */
-  background: rgba(252, 211, 77, 0.15);
+  background: rgb(252 211 77 / 15%);
 }
 
 /* Demo stat card visual indicator */
@@ -735,7 +735,7 @@
   /* stylelint-disable-next-line color-no-hex -- Amber colors for dark mode demo indicator */
   color: #fcd34d;
   /* stylelint-disable-next-line color-no-hex -- Amber background for dark mode demo indicator */
-  background: rgba(252, 211, 77, 0.15);
+  background: rgb(252 211 77 / 15%);
 }
 
 /* =============================================================================

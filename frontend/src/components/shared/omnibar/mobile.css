@@ -3,6 +3,189 @@
 /* Extracted from OmniBar.css lines 840-993 */
 
 /* =============================================================================
+   MOBILE CONTEXT BUTTON (Perplexity-inspired)
+   Single button that opens unified context menu - replaces individual icons
+   ============================================================================= */
+
+.mobile-context-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-2xs);
+  padding: var(--space-1) var(--space-2-5); /* Compact to match mode toggle */
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs); /* 12px - matches mode toggle */
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: 28px; /* Match mode toggle height */
+  flex-shrink: 0;
+}
+
+.mobile-context-btn:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+}
+
+.mobile-context-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.mobile-context-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mobile-context-btn.has-selection {
+  background: var(--color-indigo-50);
+  border-color: var(--color-indigo-300);
+  color: var(--color-indigo-700);
+}
+
+/* Dark mode - base Context button (matches mode toggle styling) */
+.dark .mobile-context-btn {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.dark .mobile-context-btn:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  border-color: var(--color-border-dark);
+}
+
+.dark .mobile-context-btn.has-selection {
+  background: var(--overlay-indigo-15);
+  border-color: var(--color-indigo-600);
+  color: var(--color-indigo-300);
+}
+
+.mobile-context-label {
+  white-space: nowrap;
+}
+
+/* Standardize mobile context button icon - compact to match mode toggle */
+.mobile-context-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.mobile-context-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background: var(--color-indigo-500);
+  color: white;
+  font-size: 9px; /* Very compact badge */
+  font-weight: 700;
+  border-radius: var(--radius-full);
+}
+
+/* =============================================================================
+   MOBILE CONTEXT MENU (Accordion sections inside BottomSheet)
+   ============================================================================= */
+
+.mobile-context-menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap-xs);
+  padding: var(--space-2);
+}
+
+.context-section {
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.context-section-header {
+  display: flex;
+  align-items: center;
+  gap: var(--gap-sm);
+  width: 100%;
+  padding: var(--space-3-5) var(--space-4);
+  background: transparent;
+  border: none;
+  color: var(--color-text-primary);
+  font-size: var(--text-base);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  text-align: left;
+}
+
+/* Standardize section header icons (Issue #2 fix) */
+.context-section-header > svg:first-child {
+  width: 18px;
+  height: 18px;
+}
+
+.context-section-header:hover {
+  background: var(--color-bg-hover);
+}
+
+.context-section-header:active {
+  background: var(--overlay-black-10);
+}
+
+.context-section-header.expanded {
+  background: var(--color-bg-hover);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.context-section-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.context-section-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  background: var(--color-indigo-500);
+  color: white;
+  font-size: var(--text-xs); /* 12px - closest to 11px */
+  font-weight: 600;
+  border-radius: var(--radius-full);
+}
+
+.context-section-chevron {
+  color: var(--color-text-tertiary);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.context-section-chevron.rotated {
+  transform: rotate(90deg);
+}
+
+.context-section-content {
+  padding: var(--space-2);
+  padding-top: 0;
+}
+
+/* Override nested list styles inside context sections */
+.context-section-content .context-popover-list {
+  padding: 0;
+  gap: var(--gap-xs);
+}
+
+.context-section-content .context-popover-item {
+  padding: var(--space-3) var(--space-3-5);
+  min-height: 48px;
+}
+
+/* =============================================================================
    MOBILE ADJUSTMENTS
    ============================================================================= */
 

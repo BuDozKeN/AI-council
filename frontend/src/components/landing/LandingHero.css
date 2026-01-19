@@ -329,13 +329,13 @@
 }
 
 .dark .stat-pill {
-  background: var(--overlay-white-10);
-  border-color: var(--color-border-secondary);
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
 }
 
 .dark .stat-pill-highlight {
-  background: linear-gradient(135deg, var(--color-indigo-950) 0%, var(--color-indigo-900) 100%);
-  border-color: var(--color-indigo-700);
+  background: var(--color-bg-secondary);
+  border-color: var(--color-indigo-500);
 }
 
 .dark .stat-number {
