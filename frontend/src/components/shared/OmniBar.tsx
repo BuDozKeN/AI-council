@@ -374,8 +374,16 @@ export function OmniBar({
     }
   }, [isMobile]);
 
+  // Landing page gets welcoming first-time placeholders, chat view gets follow-up placeholders
   const currentPlaceholder =
-    placeholder || (chatMode === 'chat' ? t('omnibar.placeholderChat') : t('omnibar.placeholder'));
+    placeholder ||
+    (variant === 'landing'
+      ? chatMode === 'chat'
+        ? t('omnibar.placeholderLandingChat')
+        : t('omnibar.placeholderLanding')
+      : chatMode === 'chat'
+        ? t('omnibar.placeholderChat')
+        : t('omnibar.placeholder'));
 
   const hasContent = value.trim().length > 0 || hasImages;
 
@@ -746,17 +754,17 @@ export function OmniBar({
     </div>
   );
 
-  // Wrap button with tooltip for mom-friendly help
+  // Wrap element with tooltip for mom-friendly help
   // side: 'top' | 'right' | 'bottom' | 'left' - where tooltip appears relative to trigger
   // Use 'left' for dropdown menu items so tooltip doesn't block clicking
   const withTooltip = (
-    button: React.ReactNode,
+    element: React.ReactNode,
     tooltipText: string,
     side: 'top' | 'right' | 'bottom' | 'left' = 'top'
   ) => (
     <Tooltip.Provider delayDuration={400}>
       <Tooltip.Root>
-        <Tooltip.Trigger asChild>{button}</Tooltip.Trigger>
+        <Tooltip.Trigger asChild>{element}</Tooltip.Trigger>
         <Tooltip.Portal>
           <Tooltip.Content className="tooltip-content" side={side} sideOffset={8}>
             {tooltipText}
