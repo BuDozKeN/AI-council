@@ -383,7 +383,8 @@
     "nothingArchived": "Nothing archived yet",
     "noActiveConversations": "No active conversations",
     "scrollForMore": "Scroll for more conversations",
-    "searchPlaceholder": "Search conversations... (⌘K)",
+    "searchPlaceholder": "Search...",
+    "searchPlaceholderShortcut": "(⌘K)",
     "resultsCount": "{{count}} result",
     "resultsCount_other": "{{count}} results",
     "allConversations": "All Conversations",
@@ -1672,5 +1673,62 @@
     "conversationTitle": "Conversation - AxCouncil",
     "myCompanyTitle": "My Company - AxCouncil",
     "settingsTitle": "Settings - AxCouncil"
+  },
+  "admin": {
+    "backToApp": "Back to App",
+    "title": "Admin Portal",
+    "badge": "Platform Admin",
+    "tabs": {
+      "users": "Users",
+      "companies": "Companies",
+      "audit": "Audit Logs",
+      "admins": "Admin Roles",
+      "settings": "Settings"
+    },
+    "stats": {
+      "totalUsers": "Total Users",
+      "totalCompanies": "Total Companies",
+      "totalConversations": "Conversations",
+      "totalMessages": "Messages"
+    },
+    "users": {
+      "title": "User Management",
+      "description": "View and manage all users across the platform.",
+      "searchPlaceholder": "Search by email...",
+      "email": "Email",
+      "createdAt": "Created",
+      "lastSignIn": "Last Sign In",
+      "status": "Status"
+    },
+    "companies": {
+      "title": "Company Management",
+      "description": "View and manage all companies on the platform.",
+      "searchPlaceholder": "Search by name...",
+      "name": "Company Name",
+      "owner": "Owner",
+      "conversations": "Conversations",
+      "createdAt": "Created"
+    },
+    "admins": {
+      "title": "Admin Roles",
+      "description": "Manage platform administrator access and roles.",
+      "email": "Email",
+      "role": "Role",
+      "grantedAt": "Granted"
+    },
+    "audit": {
+      "title": "Audit Logs",
+      "description": "View platform-wide activity and security logs.",
+      "searchPlaceholder": "Search actions...",
+      "allCategories": "All Categories",
+      "allActors": "All Actor Types",
+      "errorLoading": "Failed to load audit logs"
+    },
+    "settings": {
+      "title": "Platform Settings",
+      "description": "Configure platform-wide settings and preferences.",
+      "comingSoon": "Platform Settings Coming Soon",
+      "comingSoonDesc": "Global configuration options will be available in a future update."
+    }
   }
 }
