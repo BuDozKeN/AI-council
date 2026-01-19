@@ -1,0 +1,677 @@
+/**
+ * AdminPortal.css - Admin portal styles
+ *
+ * Full-page admin layout with sidebar navigation.
+ * Uses CSS custom properties from design-tokens.css.
+ */
+
+/* Base layout */
+.admin-portal {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+/* Loading and error states */
+.admin-portal--loading,
+.admin-portal--error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-loading-content,
+.admin-error-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  text-align: center;
+  padding: var(--space-8);
+}
+
+.admin-loading-spinner {
+  width: 48px;
+  height: 48px;
+  color: var(--color-primary);
+}
+
+.admin-error-icon {
+  width: 64px;
+  height: 64px;
+  color: var(--color-text-muted);
+}
+
+.admin-error-icon--denied {
+  color: var(--color-destructive);
+}
+
+.admin-error-content h2 {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  margin: 0;
+}
+
+.admin-error-content p {
+  color: var(--color-text-secondary);
+  max-width: 400px;
+  margin: 0;
+}
+
+.admin-error-detail {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.admin-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: var(--space-4);
+}
+
+.admin-back-btn:hover {
+  background: var(--color-primary-hover);
+}
+
+/* Sidebar */
+.admin-sidebar {
+  width: 260px;
+  min-width: 260px;
+  background: var(--color-bg-secondary);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-sidebar-header {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.admin-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-secondary);
+  background: none;
+  border: none;
+  padding: var(--space-1) 0;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.admin-back-link:hover {
+  color: var(--color-text-primary);
+}
+
+.admin-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  margin: var(--space-3) 0 0 0;
+}
+
+/* Navigation */
+.admin-nav {
+  flex: 1;
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  width: 100%;
+}
+
+.admin-nav-item:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+.admin-nav-item--active {
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+}
+
+.admin-nav-item--active:hover {
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+}
+
+.admin-nav-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* Sidebar footer */
+.admin-sidebar-footer {
+  padding: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.admin-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.admin-user-email {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-user-badge {
+  font-size: var(--font-size-xs);
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  width: fit-content;
+}
+
+/* Main content */
+.admin-main {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+.admin-content {
+  padding: var(--space-6);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* =============================================================================
+   STATS GRID
+   ============================================================================= */
+
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.admin-stat-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.admin-stat-card--loading {
+  height: 80px;
+}
+
+.admin-stat-skeleton {
+  width: 100%;
+  height: 40px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.admin-stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.admin-stat-card--blue .admin-stat-icon {
+  background: var(--overlay-blue-15);
+  color: var(--color-primary);
+}
+
+.admin-stat-card--green .admin-stat-icon {
+  background: var(--overlay-emerald-15);
+  color: var(--color-success);
+}
+
+.admin-stat-card--purple .admin-stat-icon {
+  background: rgba(139, 92, 246, 0.15);
+  color: rgb(139, 92, 246);
+}
+
+.admin-stat-card--orange .admin-stat-icon {
+  background: var(--overlay-amber-15);
+  color: var(--color-warning);
+}
+
+.admin-stat-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.admin-stat-value {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.admin-stat-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* =============================================================================
+   TAB CONTENT
+   ============================================================================= */
+
+.admin-tab-content {
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-tab-panel {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.admin-tab-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.admin-section-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  margin: 0 0 var(--space-1) 0;
+}
+
+.admin-section-desc {
+  color: var(--color-text-secondary);
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
+/* Search box */
+.admin-search-box {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.admin-search-icon {
+  position: absolute;
+  left: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.admin-search-input {
+  width: 280px;
+  padding: var(--space-2) var(--space-3) var(--space-2) var(--space-9);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.admin-search-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-subtle);
+}
+
+.admin-search-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+/* =============================================================================
+   TABLE STYLES
+   ============================================================================= */
+
+.admin-table-container {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table th {
+  text-align: left;
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.admin-table td {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--font-size-sm);
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+.admin-table tbody tr:hover {
+  background: var(--color-bg-hover);
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Table cell styles */
+.admin-user-cell,
+.admin-company-cell,
+.admin-date-cell,
+.admin-count-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.admin-user-cell svg,
+.admin-company-cell svg,
+.admin-date-cell svg,
+.admin-count-cell svg {
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+/* Status badges */
+.admin-status-badge {
+  display: inline-flex;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  border-radius: var(--radius-full);
+}
+
+.admin-status-badge--active {
+  background: var(--overlay-emerald-15);
+  color: var(--color-success);
+}
+
+.admin-status-badge--pending {
+  background: var(--overlay-amber-15);
+  color: var(--color-warning);
+}
+
+/* Role badges */
+.admin-role-badge {
+  display: inline-flex;
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  border-radius: var(--radius-full);
+  text-transform: capitalize;
+}
+
+.admin-role-badge--super_admin {
+  background: rgba(139, 92, 246, 0.15);
+  color: rgb(139, 92, 246);
+}
+
+.admin-role-badge--admin {
+  background: var(--overlay-blue-15);
+  color: var(--color-primary);
+}
+
+.admin-role-badge--support {
+  background: var(--overlay-emerald-15);
+  color: var(--color-success);
+}
+
+/* Table loading, error, empty states */
+.admin-table-loading,
+.admin-table-error,
+.admin-table-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-12);
+  color: var(--color-text-muted);
+}
+
+.admin-table-error {
+  color: var(--color-destructive);
+}
+
+/* =============================================================================
+   PAGINATION
+   ============================================================================= */
+
+.admin-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+.admin-pagination-info {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.admin-pagination-buttons {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.admin-pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-pagination-btn:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  border-color: var(--color-primary);
+}
+
+.admin-pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* =============================================================================
+   PLACEHOLDER
+   ============================================================================= */
+
+.admin-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-12);
+  text-align: center;
+}
+
+.admin-placeholder-icon {
+  width: 48px;
+  height: 48px;
+  color: var(--color-text-muted);
+}
+
+.admin-placeholder h3 {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  margin: 0;
+}
+
+.admin-placeholder p {
+  color: var(--color-text-secondary);
+  margin: 0;
+  max-width: 400px;
+}
+
+/* =============================================================================
+   MOBILE RESPONSIVE
+   ============================================================================= */
+
+@media (max-width: 1024px) {
+  .admin-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-portal {
+    flex-direction: column;
+  }
+
+  .admin-sidebar {
+    width: 100%;
+    min-width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .admin-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: var(--space-2);
+    padding: var(--space-2);
+  }
+
+  .admin-nav-item {
+    flex-shrink: 0;
+    padding: var(--space-2);
+  }
+
+  .admin-nav-item span {
+    display: none;
+  }
+
+  .admin-sidebar-footer {
+    display: none;
+  }
+
+  .admin-content {
+    padding: var(--space-4);
+  }
+
+  .admin-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-tab-header {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .admin-search-box {
+    width: 100%;
+  }
+
+  .admin-search-input {
+    width: 100%;
+  }
+
+  .admin-pagination {
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+}
+
+/* =============================================================================
+   DARK MODE SUPPORT
+   ============================================================================= */
+
+.dark .admin-portal {
+  background: var(--color-bg-primary);
+}
+
+.dark .admin-sidebar {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+.dark .admin-nav-item--active {
+  background: var(--overlay-white-10);
+}
+
+.dark .admin-stat-card {
+  background: var(--color-bg-secondary);
+}
+
+.dark .admin-tab-panel {
+  background: var(--color-bg-secondary);
+}
+
+.dark .admin-search-input {
+  background: var(--color-bg-tertiary);
+}

@@ -12,6 +12,8 @@ export { useMessageStreaming } from './useMessageStreaming';
 export { useFeatureFlags } from './useFeatureFlags';
 export { useBulkConversationActions } from './useBulkConversationActions';
 export { usePrefetchCompany, usePrefetchConversation } from './usePrefetch';
+export { useAdminAccess } from './useAdminAccess';
+export type { AdminAccessState } from './useAdminAccess';
 
 // Gesture and UI Hooks
 export { useSwipeGesture, useGlobalSwipe } from './useSwipeGesture';

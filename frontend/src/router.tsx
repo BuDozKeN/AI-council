@@ -13,11 +13,36 @@
  * - /settings/:tab?        → Settings modal (synced with URL)
  * - /company/:tab?/:itemId?→ MyCompany modal (synced with URL)
  * - /leaderboard           → Leaderboard modal
+ * - /admin                 → Admin portal (full page, separate from main app)
  */
 
+import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import App from './App';
 import { ErrorPage } from './components/ErrorPage';
+
+// Lazy load admin portal for code splitting (admin is rarely accessed)
+const AdminPortal = lazy(() => import('./components/admin/AdminPortal'));
+
+// Minimal loading fallback for admin portal
+const AdminFallback = () => (
+  <div className="admin-loading-fallback" style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100vh',
+    background: 'var(--color-bg-primary, #fafafa)'
+  }}>
+    <div className="admin-loading-spinner" style={{
+      width: '40px',
+      height: '40px',
+      border: '3px solid var(--color-border, #e5e5e5)',
+      borderTopColor: 'var(--color-primary, #6366f1)',
+      borderRadius: '50%',
+      animation: 'spin 1s linear infinite'
+    }} />
+  </div>
+);
 
 // The App component handles all rendering - routes just control what's visible
 // This is a "modal overlay with URL sync" approach - keeps current UX but URLs change
@@ -48,6 +73,24 @@ export const router = createBrowserRouter([
 
       // Catch-all redirect to home
       { path: '*', element: <Navigate to="/" replace /> },
+    ],
+  },
+  // Admin portal - full page, separate layout from main app
+  {
+    path: '/admin',
+    element: (
+      <Suspense fallback={<AdminFallback />}>
+        <AdminPortal />
+      </Suspense>
+    ),
+    errorElement: <ErrorPage />,
+    children: [
+      { index: true, element: null },
+      { path: 'users', element: null },
+      { path: 'companies', element: null },
+      { path: 'audit', element: null },
+      { path: 'admins', element: null },
+      { path: 'settings', element: null },
     ],
   },
 ]);

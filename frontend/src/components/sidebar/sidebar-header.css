@@ -141,3 +141,13 @@ button.sidebar-new-btn:hover {
   background: transparent;
   transform: none;
 }
+
+/* Admin icon button - subtle colored icon, blends in */
+.sidebar-icon-btn.admin-icon-btn {
+  color: var(--color-primary);
+}
+
+.sidebar-icon-btn.admin-icon-btn:hover {
+  background: var(--sidebar-hover-bg);
+  color: var(--color-primary);
+}

@@ -83,7 +83,7 @@ jobs:
 
           # Performance Budget Check - FAIL if exceeded
           echo "💰 CSS Source Performance Budget:"
-          MAX_CSS_SOURCE_KB=1110
+          MAX_CSS_SOURCE_KB=1150
           if [ $TOTAL_KB -gt $MAX_CSS_SOURCE_KB ]; then
             echo "  ❌ FAILED: ${TOTAL_KB}KB exceeds budget of ${MAX_CSS_SOURCE_KB}KB"
             echo "  Action required: Reduce CSS bundle size or increase budget"
