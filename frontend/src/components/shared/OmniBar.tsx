@@ -230,7 +230,14 @@ export function OmniBar({
     playbooks: false,
   });
 
-  const isMobile = isMobileDevice();
+  // Make isMobile reactive to window resize
+  const [isMobile, setIsMobile] = useState(isMobileDevice());
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(isMobileDevice());
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   const disabled = isLoading;
   const isCouncilMode = chatMode === 'council';
 
