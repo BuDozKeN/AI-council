@@ -17,7 +17,7 @@ import uuid
 
 from ..auth import get_current_user
 from ..database import get_supabase_service, get_supabase_with_auth
-from ..security import SecureHTTPException, log_app_event
+from ..security import SecureHTTPException, log_app_event, escape_sql_like_pattern
 from ..services.email import send_invitation_email
 
 # Import shared rate limiter
@@ -1055,8 +1055,9 @@ async def list_audit_logs(
             query = query.lte("timestamp", end_date + "T23:59:59Z")
 
         if search:
-            # Search in action or resource_name
-            query = query.or_(f"action.ilike.%{search}%,resource_name.ilike.%{search}%")
+            # Search in action or resource_name (escape special SQL LIKE characters)
+            escaped_search = escape_sql_like_pattern(search)
+            query = query.or_(f"action.ilike.%{escaped_search}%,resource_name.ilike.%{escaped_search}%")
 
         # Order and paginate
         offset = (page - 1) * page_size
@@ -1282,22 +1283,36 @@ async def create_invitation(
     try:
         supabase = get_supabase_service()
 
-        # Check if user already exists
+        # Check if user already exists (paginate to handle >50 users)
         try:
-            existing_users = supabase.auth.admin.list_users()
-            if isinstance(existing_users, list):
-                all_users = existing_users
-            elif hasattr(existing_users, 'users'):
-                all_users = existing_users.users
-            else:
-                all_users = list(existing_users) if existing_users else []
+            target_email = invitation_data.email.lower()
+            page = 1
+            per_page = 1000  # Use larger page size to minimize API calls
+            user_found = False
 
-            for u in all_users:
-                if u.email and u.email.lower() == invitation_data.email.lower():
-                    raise HTTPException(
-                        status_code=400,
-                        detail=f"User with email {invitation_data.email} already exists"
-                    )
+            while not user_found:
+                existing_users = supabase.auth.admin.list_users(page=page, per_page=per_page)
+                if isinstance(existing_users, list):
+                    all_users = existing_users
+                elif hasattr(existing_users, 'users'):
+                    all_users = existing_users.users
+                else:
+                    all_users = list(existing_users) if existing_users else []
+
+                if not all_users:
+                    break  # No more users to check
+
+                for u in all_users:
+                    if u.email and u.email.lower() == target_email:
+                        raise HTTPException(
+                            status_code=400,
+                            detail=f"User with email {invitation_data.email} already exists"
+                        )
+
+                # If we got fewer users than per_page, we've reached the end
+                if len(all_users) < per_page:
+                    break
+                page += 1
         except HTTPException:
             raise
         except Exception:

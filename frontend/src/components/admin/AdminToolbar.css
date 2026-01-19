@@ -1,0 +1,185 @@
+/**
+ * AdminToolbar.css - Admin portal toolbar, filters, and demo indicators
+ */
+
+/* =============================================================================
+   TOOLBAR & FILTERS
+   ============================================================================= */
+
+/* Modern toolbar layout */
+.admin-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+.admin-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.admin-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Demo banner for sample data */
+.admin-demo-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-5);
+  background: var(--overlay-amber-15);
+  color: var(--color-warning);
+  font-size: var(--font-size-sm);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.admin-demo-banner svg {
+  flex-shrink: 0;
+}
+
+/* =============================================================================
+   DEMO DATA INDICATORS
+   ============================================================================= */
+
+/* Subtle row highlighting for demo data */
+.admin-demo-row {
+  background: var(--overlay-amber-15);
+}
+
+.admin-demo-row:hover {
+  background: var(--overlay-amber-15);
+}
+
+/* Small badge to indicate demo data */
+.admin-demo-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 6px;
+  margin-left: var(--space-2);
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  /* stylelint-disable-next-line color-no-hex -- Amber colors for demo indicator */
+  color: #b45309;
+  /* stylelint-disable-next-line color-no-hex -- Amber background for demo indicator */
+  background: #fef3c7;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.dark .admin-demo-badge {
+  /* stylelint-disable-next-line color-no-hex -- Amber colors for dark mode demo indicator */
+  color: #fcd34d;
+  background: rgb(252 211 77 / 15%);
+}
+
+/* Small demo indicator for stats overview */
+.admin-stats-demo-indicator {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5);
+  padding: var(--space-1) var(--space-3);
+  margin-bottom: var(--space-2);
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  /* stylelint-disable-next-line color-no-hex -- Amber color for demo indicator */
+  color: #b45309;
+  /* stylelint-disable-next-line color-no-hex -- Amber background for demo indicator */
+  background: #fef3c7;
+  border-radius: var(--radius-sm);
+  width: fit-content;
+}
+
+.dark .admin-stats-demo-indicator {
+  /* stylelint-disable-next-line color-no-hex -- Amber colors for dark mode demo indicator */
+  color: #fcd34d;
+  background: rgb(252 211 77 / 15%);
+}
+
+/* Inline DEMO badge for stat values */
+.admin-demo-badge-inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 4px;
+  margin-left: var(--space-1-5);
+  font-size: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  /* stylelint-disable-next-line color-no-hex -- Amber colors for demo indicator */
+  color: #b45309;
+  /* stylelint-disable-next-line color-no-hex -- Amber background for demo indicator */
+  background: #fef3c7;
+  border-radius: var(--radius-xs);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.dark .admin-demo-badge-inline {
+  /* stylelint-disable-next-line color-no-hex -- Amber colors for dark mode demo indicator */
+  color: #fcd34d;
+  background: rgb(252 211 77 / 15%);
+}
+
+/* =============================================================================
+   FILTERS
+   ============================================================================= */
+
+/* Legacy filters layout */
+.admin-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
+}
+
+/* Radix Select trigger for admin portal */
+.admin-select-trigger {
+  min-width: 140px;
+  height: 36px;
+}
+
+/* Legacy native select */
+.admin-filter-select {
+  height: 36px;
+  padding: var(--space-2) var(--space-8) var(--space-2) var(--space-3);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  min-width: 140px;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--space-2) center;
+}
+
+.admin-filter-select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-subtle);
+}
+
+.admin-filter-select:hover {
+  border-color: var(--color-primary);
+}

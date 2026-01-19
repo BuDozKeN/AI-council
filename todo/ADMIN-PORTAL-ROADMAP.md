@@ -22,6 +22,7 @@ The Admin Portal is a separate full-page interface (`/admin`) for platform admin
 - [x] Admin roles tab (list current admins)
 - [x] Audit logs tab with filtering
 - [x] **Platform Invitations** - Invite users via email
+- [x] **User Management** - Delete users (with cascade), suspend/unsuspend
 - [ ] Settings tab (placeholder)
 
 ---
@@ -521,3 +522,4 @@ frontend/src/components/admin/
 |------|--------|---------|
 | 2026-01-16 | Claude | Initial roadmap creation |
 | 2026-01-19 | Claude | Added Phase 3.5 Platform Invitations (complete), marked Audit Logs complete |
+| 2026-01-20 | Claude | Added User Management (delete/suspend) - Phase 2.1 partial |

@@ -55,14 +55,14 @@ import type {
   CreateInvitationRequest,
 } from '../../api';
 import { ThemeToggle } from '../ui/ThemeToggle';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import './AdminPortal.css';
+import './AdminStats.css';
+import './AdminTable.css';
+import './AdminToolbar.css';
+import './AdminButtons.css';
+import './AdminModals.css';
+import './AdminAuditLog.css';
 
 type AdminTab = 'users' | 'companies' | 'invitations' | 'audit' | 'admins' | 'settings';
 
@@ -241,7 +241,11 @@ const DUMMY_STATS = {
 function StatsOverview() {
   const { t } = useTranslation();
 
-  const { data: stats, isLoading, error } = useQuery({
+  const {
+    data: stats,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['admin', 'stats'],
     queryFn: () => api.getAdminStats(),
     staleTime: 60 * 1000, // 1 minute
@@ -580,9 +584,17 @@ function UsersTab() {
                                 <button
                                   className={`admin-icon-btn ${isSuspended ? 'admin-icon-btn--success' : 'admin-icon-btn--warning'}`}
                                   onClick={() => setUserToSuspend(user)}
-                                  title={isSuspended ? t('admin.users.unsuspend', 'Unsuspend user') : t('admin.users.suspend', 'Suspend user')}
+                                  title={
+                                    isSuspended
+                                      ? t('admin.users.unsuspend', 'Unsuspend user')
+                                      : t('admin.users.suspend', 'Suspend user')
+                                  }
                                 >
-                                  {isSuspended ? <UserCheck className="h-4 w-4" /> : <UserX className="h-4 w-4" />}
+                                  {isSuspended ? (
+                                    <UserCheck className="h-4 w-4" />
+                                  ) : (
+                                    <UserX className="h-4 w-4" />
+                                  )}
                                 </button>
                                 <button
                                   className="admin-icon-btn admin-icon-btn--danger"
@@ -657,13 +669,21 @@ function DeleteUserModal({ user, onClose, onConfirm, isLoading }: DeleteUserModa
       tabIndex={-1}
     >
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */}
-      <div className="admin-modal admin-modal--danger" onClick={(e) => e.stopPropagation()} role="document">
+      <div
+        className="admin-modal admin-modal--danger"
+        onClick={(e) => e.stopPropagation()}
+        role="document"
+      >
         <div className="admin-modal-header">
           <h3 id="delete-modal-title">
             <Trash2 className="h-5 w-5" />
             {t('admin.users.deleteTitle', 'Delete User')}
           </h3>
-          <button className="admin-modal-close" onClick={onClose} aria-label={t('common.close', 'Close')}>
+          <button
+            className="admin-modal-close"
+            onClick={onClose}
+            aria-label={t('common.close', 'Close')}
+          >
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -676,7 +696,10 @@ function DeleteUserModal({ user, onClose, onConfirm, isLoading }: DeleteUserModa
                 {t('admin.users.deleteWarning', 'This action cannot be undone')}
               </p>
               <p className="admin-modal-warning-text">
-                {t('admin.users.deleteWarningDesc', 'Deleting this user will permanently remove all their data including companies, conversations, and messages.')}
+                {t(
+                  'admin.users.deleteWarningDesc',
+                  'Deleting this user will permanently remove all their data including companies, conversations, and messages.'
+                )}
               </p>
             </div>
           </div>
@@ -688,7 +711,9 @@ function DeleteUserModal({ user, onClose, onConfirm, isLoading }: DeleteUserModa
             <div>
               <p className="admin-modal-user-email">{user.email}</p>
               <p className="admin-modal-user-meta">
-                {t('admin.users.createdOn', 'Created on {{date}}', { date: formatDate(user.created_at) })}
+                {t('admin.users.createdOn', 'Created on {{date}}', {
+                  date: formatDate(user.created_at),
+                })}
               </p>
             </div>
           </div>
@@ -739,7 +764,13 @@ interface SuspendUserModalProps {
   isLoading: boolean;
 }
 
-function SuspendUserModal({ user, isSuspended, onClose, onConfirm, isLoading }: SuspendUserModalProps) {
+function SuspendUserModal({
+  user,
+  isSuspended,
+  onClose,
+  onConfirm,
+  isLoading,
+}: SuspendUserModalProps) {
   const { t } = useTranslation();
 
   return (
@@ -754,13 +785,23 @@ function SuspendUserModal({ user, isSuspended, onClose, onConfirm, isLoading }: 
       tabIndex={-1}
     >
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */}
-      <div className={`admin-modal ${isSuspended ? 'admin-modal--success' : 'admin-modal--warning'}`} onClick={(e) => e.stopPropagation()} role="document">
+      <div
+        className={`admin-modal ${isSuspended ? 'admin-modal--success' : 'admin-modal--warning'}`}
+        onClick={(e) => e.stopPropagation()}
+        role="document"
+      >
         <div className="admin-modal-header">
           <h3 id="suspend-modal-title">
             {isSuspended ? <UserCheck className="h-5 w-5" /> : <UserX className="h-5 w-5" />}
-            {isSuspended ? t('admin.users.unsuspendTitle', 'Unsuspend User') : t('admin.users.suspendTitle', 'Suspend User')}
+            {isSuspended
+              ? t('admin.users.unsuspendTitle', 'Unsuspend User')
+              : t('admin.users.suspendTitle', 'Suspend User')}
           </h3>
-          <button className="admin-modal-close" onClick={onClose} aria-label={t('common.close', 'Close')}>
+          <button
+            className="admin-modal-close"
+            onClick={onClose}
+            aria-label={t('common.close', 'Close')}
+          >
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -768,8 +809,14 @@ function SuspendUserModal({ user, isSuspended, onClose, onConfirm, isLoading }: 
         <div className="admin-modal-body">
           <p className="admin-modal-text">
             {isSuspended
-              ? t('admin.users.unsuspendDesc', 'This will restore the user\'s access to the platform.')
-              : t('admin.users.suspendDesc', 'This will prevent the user from logging in. Their data will be preserved.')}
+              ? t(
+                  'admin.users.unsuspendDesc',
+                  "This will restore the user's access to the platform."
+                )
+              : t(
+                  'admin.users.suspendDesc',
+                  'This will prevent the user from logging in. Their data will be preserved.'
+                )}
           </p>
 
           <div className="admin-modal-user-info">
@@ -779,7 +826,9 @@ function SuspendUserModal({ user, isSuspended, onClose, onConfirm, isLoading }: 
             <div>
               <p className="admin-modal-user-email">{user.email}</p>
               <p className="admin-modal-user-meta">
-                {isSuspended ? t('admin.users.currentlySuspended', 'Currently suspended') : t('admin.users.currentlyActive', 'Currently active')}
+                {isSuspended
+                  ? t('admin.users.currentlySuspended', 'Currently suspended')
+                  : t('admin.users.currentlyActive', 'Currently active')}
               </p>
             </div>
           </div>
@@ -803,12 +852,16 @@ function SuspendUserModal({ user, isSuspended, onClose, onConfirm, isLoading }: 
             {isLoading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                {isSuspended ? t('admin.users.unsuspending', 'Unsuspending...') : t('admin.users.suspending', 'Suspending...')}
+                {isSuspended
+                  ? t('admin.users.unsuspending', 'Unsuspending...')
+                  : t('admin.users.suspending', 'Suspending...')}
               </>
             ) : (
               <>
                 {isSuspended ? <UserCheck className="h-4 w-4" /> : <UserX className="h-4 w-4" />}
-                {isSuspended ? t('admin.users.confirmUnsuspend', 'Unsuspend User') : t('admin.users.confirmSuspend', 'Suspend User')}
+                {isSuspended
+                  ? t('admin.users.confirmUnsuspend', 'Unsuspend User')
+                  : t('admin.users.confirmSuspend', 'Suspend User')}
               </>
             )}
           </button>
@@ -1391,7 +1444,10 @@ function AuditTab() {
           <Activity className="h-8 w-8" />
           <span>{t('admin.audit.noLogs', 'No audit logs found')}</span>
           <p className="admin-empty-hint">
-            {t('admin.audit.noLogsHint', 'Audit logs will appear as platform actions are recorded.')}
+            {t(
+              'admin.audit.noLogsHint',
+              'Audit logs will appear as platform actions are recorded.'
+            )}
           </p>
         </div>
       ) : (
@@ -1562,12 +1618,7 @@ function InvitationsTab() {
   const pageSize = 20;
 
   // Fetch invitations
-  const {
-    data,
-    isLoading,
-    error,
-    refetch,
-  } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['admin', 'invitations', { page, search, status: statusFilter }],
     queryFn: () =>
       api.listAdminInvitations({
@@ -1684,11 +1735,21 @@ function InvitationsTab() {
               <SelectValue placeholder={t('admin.invitations.allStatuses', 'All Statuses')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t('admin.invitations.allStatuses', 'All Statuses')}</SelectItem>
-              <SelectItem value="pending">{t('admin.invitations.statusPending', 'Pending')}</SelectItem>
-              <SelectItem value="accepted">{t('admin.invitations.statusAccepted', 'Accepted')}</SelectItem>
-              <SelectItem value="expired">{t('admin.invitations.statusExpired', 'Expired')}</SelectItem>
-              <SelectItem value="cancelled">{t('admin.invitations.statusCancelled', 'Cancelled')}</SelectItem>
+              <SelectItem value="all">
+                {t('admin.invitations.allStatuses', 'All Statuses')}
+              </SelectItem>
+              <SelectItem value="pending">
+                {t('admin.invitations.statusPending', 'Pending')}
+              </SelectItem>
+              <SelectItem value="accepted">
+                {t('admin.invitations.statusAccepted', 'Accepted')}
+              </SelectItem>
+              <SelectItem value="expired">
+                {t('admin.invitations.statusExpired', 'Expired')}
+              </SelectItem>
+              <SelectItem value="cancelled">
+                {t('admin.invitations.statusCancelled', 'Cancelled')}
+              </SelectItem>
             </SelectContent>
           </Select>
 
@@ -1707,7 +1768,10 @@ function InvitationsTab() {
         <div className="admin-demo-banner">
           <AlertCircle className="h-4 w-4" />
           <span>
-            {t('admin.invitations.demoMode', 'Showing sample data. Run the database migration to see real invitations.')}
+            {t(
+              'admin.invitations.demoMode',
+              'Showing sample data. Run the database migration to see real invitations.'
+            )}
           </span>
         </div>
       )}
@@ -1800,9 +1864,7 @@ function InvitationsTab() {
                           </button>
                         </div>
                       )}
-                      {invitation.status !== 'pending' && (
-                        <span className="admin-muted">-</span>
-                      )}
+                      {invitation.status !== 'pending' && <span className="admin-muted">-</span>}
                     </td>
                   </tr>
                 ))}
@@ -1882,7 +1944,11 @@ function InviteUserModal({ onClose, onSuccess }: InviteUserModalProps) {
       <div className="admin-modal" onClick={(e) => e.stopPropagation()} role="document">
         <div className="admin-modal-header">
           <h3 id="invite-modal-title">{t('admin.invitations.inviteTitle', 'Invite New User')}</h3>
-          <button className="admin-modal-close" onClick={onClose} aria-label={t('common.close', 'Close')}>
+          <button
+            className="admin-modal-close"
+            onClick={onClose}
+            aria-label={t('common.close', 'Close')}
+          >
             <X className="h-5 w-5" />
           </button>
         </div>

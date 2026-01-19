@@ -1,0 +1,159 @@
+/**
+ * AdminButtons.css - Admin portal button styles
+ */
+
+/* =============================================================================
+   ACTION BUTTONS
+   ============================================================================= */
+
+.admin-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.admin-action-btn--primary {
+  background: var(--color-primary);
+  /* stylelint-disable-next-line color-no-hex -- White text on primary button */
+  color: #fff;
+}
+
+.admin-action-btn--primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.admin-action-btn--secondary {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+
+.admin-action-btn--secondary:hover:not(:disabled) {
+  background: var(--color-bg-hover);
+  border-color: var(--color-primary);
+}
+
+.admin-action-btn--danger {
+  background: var(--color-destructive);
+  /* stylelint-disable-next-line color-no-hex -- White text on danger button */
+  color: #fff;
+}
+
+.admin-action-btn--danger:hover:not(:disabled) {
+  background: rgb(220 38 38);
+}
+
+.admin-action-btn--warning {
+  background: var(--color-warning);
+  /* stylelint-disable-next-line color-no-hex -- Dark text on warning button for contrast */
+  color: #1f2937;
+}
+
+.admin-action-btn--warning:hover:not(:disabled) {
+  background: rgb(217 119 6);
+}
+
+.admin-action-btn--success {
+  background: var(--color-success);
+  /* stylelint-disable-next-line color-no-hex -- White text on success button */
+  color: #fff;
+}
+
+.admin-action-btn--success:hover:not(:disabled) {
+  background: rgb(5 150 105);
+}
+
+.admin-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* =============================================================================
+   ICON BUTTONS
+   ============================================================================= */
+
+.admin-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-icon-btn--secondary {
+  color: var(--color-text-secondary);
+}
+
+.admin-icon-btn--secondary:hover {
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+  background: var(--color-primary-subtle);
+}
+
+.admin-icon-btn--danger {
+  color: var(--color-text-secondary);
+}
+
+.admin-icon-btn--danger:hover {
+  color: var(--color-destructive);
+  border-color: var(--color-destructive);
+  background: rgb(239 68 68 / 10%);
+}
+
+.admin-icon-btn--warning {
+  color: var(--color-text-secondary);
+}
+
+.admin-icon-btn--warning:hover {
+  color: var(--color-warning);
+  border-color: var(--color-warning);
+  background: var(--overlay-amber-15);
+}
+
+.admin-icon-btn--success {
+  color: var(--color-text-secondary);
+}
+
+.admin-icon-btn--success:hover {
+  color: var(--color-success);
+  border-color: var(--color-success);
+  background: var(--overlay-emerald-15);
+}
+
+/* =============================================================================
+   BACK BUTTON
+   ============================================================================= */
+
+.admin-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-primary);
+  /* stylelint-disable-next-line color-no-hex -- White text on primary button */
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: var(--space-4);
+}
+
+.admin-back-btn:hover {
+  background: var(--color-primary-hover);
+}

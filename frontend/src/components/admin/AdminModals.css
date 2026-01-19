@@ -1,0 +1,299 @@
+/**
+ * AdminModals.css - Admin portal modal and form styles
+ */
+
+/* =============================================================================
+   MODAL BASE
+   ============================================================================= */
+
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: admin-fadeIn 0.15s ease-out;
+}
+
+@keyframes admin-fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.admin-modal {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  width: 90%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: admin-modalSlideIn 0.2s ease-out;
+}
+
+@keyframes admin-modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* =============================================================================
+   MODAL HEADER
+   ============================================================================= */
+
+.admin-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.admin-modal-header h3 {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  margin: 0;
+}
+
+.admin-modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-modal-close:hover {
+  background: var(--color-bg-hover);
+  color: var(--color-text-primary);
+}
+
+/* =============================================================================
+   MODAL VARIANTS
+   ============================================================================= */
+
+.admin-modal--danger .admin-modal-header h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-destructive);
+}
+
+.admin-modal--warning .admin-modal-header h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-warning);
+}
+
+.admin-modal--success .admin-modal-header h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-success);
+}
+
+/* =============================================================================
+   MODAL BODY
+   ============================================================================= */
+
+.admin-modal-body {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.admin-modal-text {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+
+/* Warning box */
+.admin-modal-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: rgb(239 68 68 / 10%);
+  border: 1px solid rgb(239 68 68 / 30%);
+  border-radius: var(--radius-md);
+}
+
+.admin-modal-warning > svg {
+  flex-shrink: 0;
+  color: var(--color-destructive);
+}
+
+.admin-modal-warning-title {
+  margin: 0 0 var(--space-1) 0;
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  color: var(--color-destructive);
+}
+
+.admin-modal-warning-text {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+/* =============================================================================
+   MODAL USER INFO
+   ============================================================================= */
+
+.admin-modal-user-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.admin-modal-user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.admin-modal-user-email {
+  margin: 0;
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+
+.admin-modal-user-meta {
+  margin: var(--space-0-5, 2px) 0 0 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+}
+
+/* =============================================================================
+   FORMS
+   ============================================================================= */
+
+.admin-modal-form {
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.admin-modal-error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: rgb(239 68 68 / 10%);
+  border: 1px solid rgb(239 68 68 / 30%);
+  border-radius: var(--radius-md);
+  color: var(--color-destructive);
+  font-size: var(--font-size-sm);
+}
+
+.admin-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.admin-form-group label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.admin-required {
+  color: var(--color-destructive);
+  margin-left: var(--space-1);
+}
+
+.admin-input,
+.admin-textarea {
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+}
+
+.admin-input:focus,
+.admin-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-subtle);
+}
+
+.admin-input::placeholder,
+.admin-textarea::placeholder {
+  color: var(--color-text-muted);
+}
+
+.admin-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* =============================================================================
+   MODAL ACTIONS
+   ============================================================================= */
+
+.admin-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+}
+
+.admin-modal-body + .admin-modal-actions {
+  padding: 0 var(--space-5) var(--space-5);
+}
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .admin-modal {
+  background: var(--color-bg-secondary);
+}
+
+.dark .admin-input,
+.dark .admin-textarea {
+  background: var(--color-bg-tertiary);
+}
