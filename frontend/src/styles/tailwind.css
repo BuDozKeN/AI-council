@@ -101,6 +101,7 @@
     --color-bg-hover: #f3f4f6;
     --color-bg-active: #e5e7eb;
     --color-bg-inverse: #1e293b; /* Dark bg for headers/banners */
+    --color-bg-card: #fff; /* Card/modal surfaces */
 
     /* Border colors */
     --color-border: #64748b; /* WCAG AA: 3.92:1 (was #e5e7eb 1.24:1) - Slate-500 */
@@ -568,6 +569,7 @@ html.dark,
   --color-bg-hover: #334155;
   --color-bg-active: #475569;
   --color-bg-inverse: #1e293b; /* Slightly lighter for dark mode contrast */
+  --color-bg-card: #1e293b; /* Card/modal surfaces - elevated from primary */
 
   /* Border colors */
   --color-border: #334155;
