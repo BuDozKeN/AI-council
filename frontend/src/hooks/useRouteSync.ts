@@ -122,6 +122,7 @@ export function useRouteSync(options: UseRouteSyncOptions) {
   }, []); // Intentionally runs only on mount - deps accessed via refs to avoid re-runs
 
   // Sync state → URL when modals open/close or conversation changes
+  // IMPORTANT: Use push (not replace) to enable browser back button navigation
   useEffect(() => {
     if (isSyncingFromUrl.current) return;
     isSyncingToUrl.current = true;
@@ -129,12 +130,14 @@ export function useRouteSync(options: UseRouteSyncOptions) {
     const pathname = location.pathname;
 
     try {
+      // Modal navigation - use push to enable back button
+      // Only use replace when we're already on the same route (preventing duplicate entries)
       if (isSettingsOpen && !pathname.startsWith('/settings')) {
-        navigate('/settings', { replace: true });
+        navigate('/settings'); // Push for back button support
       } else if (isMyCompanyOpen && !pathname.startsWith('/company')) {
-        navigate('/company', { replace: true });
+        navigate('/company'); // Push for back button support
       } else if (isLeaderboardOpen && pathname !== '/leaderboard') {
-        navigate('/leaderboard', { replace: true });
+        navigate('/leaderboard'); // Push for back button support
       } else if (!isSettingsOpen && !isMyCompanyOpen && !isLeaderboardOpen) {
         // No modals open - sync conversation URL
         const isOnChatRoute = pathname.startsWith('/chat/');
@@ -148,7 +151,8 @@ export function useRouteSync(options: UseRouteSyncOptions) {
           }
         } else if (pathname !== '/') {
           // Temp or no conversation - go to home
-          // Use push when leaving a conversation so user can go back
+          // Use push when coming from a conversation (so back returns to it)
+          // Use replace when coming from a modal (prevents stacking home entries)
           const wasOnConversation = isOnChatRoute;
           navigate('/', { replace: !wasOnConversation });
         }
