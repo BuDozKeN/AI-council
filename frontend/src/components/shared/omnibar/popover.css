@@ -24,8 +24,7 @@
   min-width: 280px;
   max-width: 320px;
   max-height: 400px;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden auto; /* x:hidden y:auto shorthand */
   overscroll-behavior: contain;
 }
 
