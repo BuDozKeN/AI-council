@@ -1117,60 +1117,44 @@ export function OmniBar({
             )}
             {/* Inline mode toggle - next to Context for consistency */}
             {onChatModeChange && !showModeToggle && (
-              <Tooltip.Provider delayDuration={400}>
-                <div
-                  className="omni-inline-mode-toggle no-touch-target"
-                  role="radiogroup"
-                  aria-label="Response mode"
-                >
-                  <Tooltip.Root>
-                    <Tooltip.Trigger asChild>
-                      <button
-                        type="button"
-                        className={cn(
-                          'inline-mode-indicator no-touch-target',
-                          chatMode === 'chat' && 'active'
-                        )}
-                        onClick={() => !disabled && onChatModeChange('chat')}
-                        disabled={disabled}
-                        role="radio"
-                        aria-checked={chatMode === 'chat'}
-                      >
-                        {t('omnibar.oneAI')}
-                      </button>
-                    </Tooltip.Trigger>
-                    <Tooltip.Portal>
-                      <Tooltip.Content className="tooltip-content" sideOffset={8}>
-                        {TOOLTIPS.chatMode}
-                        <Tooltip.Arrow className="tooltip-arrow" />
-                      </Tooltip.Content>
-                    </Tooltip.Portal>
-                  </Tooltip.Root>
-                  <Tooltip.Root>
-                    <Tooltip.Trigger asChild>
-                      <button
-                        type="button"
-                        className={cn(
-                          'inline-mode-indicator no-touch-target',
-                          chatMode === 'council' && 'active'
-                        )}
-                        onClick={() => !disabled && onChatModeChange('council')}
-                        disabled={disabled}
-                        role="radio"
-                        aria-checked={chatMode === 'council'}
-                      >
-                        {t('omnibar.multiAI', { count: aiCount })}
-                      </button>
-                    </Tooltip.Trigger>
-                    <Tooltip.Portal>
-                      <Tooltip.Content className="tooltip-content" sideOffset={8}>
-                        {TOOLTIPS.councilMode}
-                        <Tooltip.Arrow className="tooltip-arrow" />
-                      </Tooltip.Content>
-                    </Tooltip.Portal>
-                  </Tooltip.Root>
-                </div>
-              </Tooltip.Provider>
+              <div
+                className="omni-inline-mode-toggle no-touch-target"
+                role="radiogroup"
+                aria-label="Response mode"
+              >
+                {withTooltip(
+                  <button
+                    type="button"
+                    className={cn(
+                      'inline-mode-indicator no-touch-target',
+                      chatMode === 'chat' && 'active'
+                    )}
+                    onClick={() => !disabled && onChatModeChange('chat')}
+                    disabled={disabled}
+                    role="radio"
+                    aria-checked={chatMode === 'chat'}
+                  >
+                    {t('omnibar.oneAI')}
+                  </button>,
+                  TOOLTIPS.chatMode
+                )}
+                {withTooltip(
+                  <button
+                    type="button"
+                    className={cn(
+                      'inline-mode-indicator no-touch-target',
+                      chatMode === 'council' && 'active'
+                    )}
+                    onClick={() => !disabled && onChatModeChange('council')}
+                    disabled={disabled}
+                    role="radio"
+                    aria-checked={chatMode === 'council'}
+                  >
+                    {t('omnibar.multiAI', { count: aiCount })}
+                  </button>,
+                  TOOLTIPS.councilMode
+                )}
+              </div>
             )}
             {/* Response Style Selector - next to mode toggle */}
             {onSelectPreset && (
