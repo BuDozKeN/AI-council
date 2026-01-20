@@ -89,11 +89,15 @@ function ImpersonationBannerComponent({ onExit }: ImpersonationBannerProps) {
         {/* Timer */}
         <div
           className="impersonation-banner__timer"
-          aria-label={t('admin.impersonation.timeRemaining', 'Time remaining: {{time}}', { time: timeRemainingFormatted })}
+          aria-label={t('admin.impersonation.timeRemaining', 'Time remaining: {{time}}', {
+            time: timeRemainingFormatted,
+          })}
         >
           <Clock className="impersonation-banner__clock-icon" aria-hidden="true" />
           <span className="impersonation-banner__time">{timeRemainingFormatted}</span>
-          <span className="impersonation-banner__time-label">{t('admin.impersonation.remaining', 'remaining')}</span>
+          <span className="impersonation-banner__time-label">
+            {t('admin.impersonation.remaining', 'remaining')}
+          </span>
         </div>
 
         {/* Reason (truncated) */}

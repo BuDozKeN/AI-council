@@ -441,7 +441,9 @@ export function CommandPalette({
       list.push({
         id: `conv-${conv.id}`,
         label: conv.title || t('commandPalette.actions.untitledConversation'),
-        description: conv.created_at ? new Date(conv.created_at).toLocaleDateString(getIntlLocale()) : undefined,
+        description: conv.created_at
+          ? new Date(conv.created_at).toLocaleDateString(getIntlLocale())
+          : undefined,
         icon: <Icons.MessageSquare />,
         category: 'conversations',
         keywords: ['chat', 'history', 'conversation'],

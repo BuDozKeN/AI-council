@@ -487,7 +487,9 @@ function StatsOverview() {
               <div className="admin-stat-content">
                 <span className="admin-stat-value">
                   {stat.value.toLocaleString(getIntlLocale())}
-                  {useDummyData && <span className="admin-demo-badge-inline">{t('admin.demo', 'DEMO')}</span>}
+                  {useDummyData && (
+                    <span className="admin-demo-badge-inline">{t('admin.demo', 'DEMO')}</span>
+                  )}
                 </span>
                 <span className="admin-stat-label">{stat.label}</span>
               </div>

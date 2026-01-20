@@ -90,19 +90,14 @@ function ImpersonateUserModalComponent({
         }
       } catch (err) {
         console.error('[ImpersonateUserModal] Error:', err);
-        setError(err instanceof Error ? err.message : t('admin.impersonation.failed', 'Failed to start impersonation'));
+        setError(
+          err instanceof Error
+            ? err.message
+            : t('admin.impersonation.failed', 'Failed to start impersonation')
+        );
       }
     },
-    [
-      startImpersonation,
-      targetUser.id,
-      reason,
-      acknowledged,
-      isMutating,
-      onSuccess,
-      onClose,
-      t,
-    ]
+    [startImpersonation, targetUser.id, reason, acknowledged, isMutating, onSuccess, onClose, t]
   );
 
   const handleClose = useCallback(() => {
@@ -145,14 +140,19 @@ function ImpersonateUserModalComponent({
           <div className="admin-modal__alert admin-modal__alert--warning">
             <AlertTriangle className="admin-modal__alert-icon" />
             <p className="admin-modal__alert-text">
-              {t('admin.impersonation.securityNotice', 'All actions are logged. Session expires in {{minutes}} minutes.', { minutes: SESSION_DURATION_MINUTES })}
+              {t(
+                'admin.impersonation.securityNotice',
+                'All actions are logged. Session expires in {{minutes}} minutes.',
+                { minutes: SESSION_DURATION_MINUTES }
+              )}
             </p>
           </div>
 
           {/* Reason input with AI assist */}
           <div className="admin-modal__field">
             <label htmlFor="impersonate-reason" className="admin-modal__label">
-              {t('admin.impersonation.reason', 'Reason')} <span className="admin-modal__required">*</span>
+              {t('admin.impersonation.reason', 'Reason')}{' '}
+              <span className="admin-modal__required">*</span>
             </label>
             <AIWriteAssist
               context="impersonation-reason"
@@ -166,7 +166,10 @@ function ImpersonateUserModalComponent({
                 className="admin-modal__textarea"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                placeholder={t('admin.impersonation.reasonPlaceholder', 'e.g., Support ticket #1234 - user reports payment issue')}
+                placeholder={t(
+                  'admin.impersonation.reasonPlaceholder',
+                  'e.g., Support ticket #1234 - user reports payment issue'
+                )}
                 rows={2}
                 disabled={isMutating}
               />
@@ -182,7 +185,12 @@ function ImpersonateUserModalComponent({
               disabled={isMutating}
               className="admin-modal__checkbox"
             />
-            <span>{t('admin.impersonation.acknowledgement', 'User has granted permission for this support session')}</span>
+            <span>
+              {t(
+                'admin.impersonation.acknowledgement',
+                'User has granted permission for this support session'
+              )}
+            </span>
           </label>
 
           {/* Error message */}

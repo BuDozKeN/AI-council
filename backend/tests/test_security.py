@@ -233,7 +233,7 @@ class TestSecureHTTPException:
             resource_id="doc-456"
         )
         assert exc.status_code == 403
-        assert exc.detail == "Access denied"
+        assert exc.detail == "Access forbidden"
 
     def test_unauthorized_generic_message(self):
         """Should return generic 401."""
@@ -268,7 +268,7 @@ class TestSecureHTTPException:
             include_reference=False
         )
         assert exc.status_code == 500
-        assert exc.detail == "An error occurred"
+        assert exc.detail == "Internal server error"
 
     def test_rate_limited_with_headers(self):
         """Should return 429 with proper headers."""
