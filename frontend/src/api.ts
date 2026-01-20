@@ -3785,7 +3785,8 @@ export const api = {
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Failed to cancel invitation' }));
       // Handle both {detail: ...} and {error: {message: ...}} formats
-      const message = error.detail || error.error?.message || error.message || `HTTP ${response.status}`;
+      const message =
+        error.detail || error.error?.message || error.message || `HTTP ${response.status}`;
       console.error('Cancel invitation error:', { status: response.status, error, invitationId });
       throw new Error(message);
     }

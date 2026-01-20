@@ -658,7 +658,7 @@
   background: var(--color-bg-hover);
 }
 
-.admin-table tbody tr[data-selected="true"] {
+.admin-table tbody tr[data-selected='true'] {
   background: var(--color-primary-subtle);
 }
 
@@ -695,4 +695,3 @@
   white-space: nowrap;
   border: 0;
 }
-

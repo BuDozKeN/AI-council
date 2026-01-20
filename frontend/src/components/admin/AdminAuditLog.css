@@ -215,7 +215,7 @@
 
   /* Bullet separator after email */
   .admin-table.admin-table--audit td:nth-child(2)::after {
-    content: "•";
+    content: '•';
     margin-left: var(--space-1);
     color: var(--color-text-muted);
   }

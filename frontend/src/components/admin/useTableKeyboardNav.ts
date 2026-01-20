@@ -46,66 +46,75 @@ export function useTableKeyboardNav({
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const tableBodyRef = useRef<HTMLTableSectionElement>(null);
 
-  const focusRow = useCallback((index: number) => {
-    if (!tableBodyRef.current || index < 0 || index >= rowCount) return;
+  const focusRow = useCallback(
+    (index: number) => {
+      if (!tableBodyRef.current || index < 0 || index >= rowCount) return;
 
-    const rows = tableBodyRef.current.querySelectorAll('tr');
-    const targetRow = rows[index] as HTMLTableRowElement | undefined;
-    if (targetRow) {
-      targetRow.focus();
-      setSelectedIndex(index);
-      onSelectionChange?.(index);
-    }
-  }, [rowCount, onSelectionChange]);
-
-  const handleKeyDown = useCallback((e: React.KeyboardEvent, rowIndex: number) => {
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        if (rowIndex < rowCount - 1) {
-          focusRow(rowIndex + 1);
-        }
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        if (rowIndex > 0) {
-          focusRow(rowIndex - 1);
-        }
-        break;
-      case 'Enter':
-      case ' ':
-        e.preventDefault();
-        onRowAction?.(rowIndex);
-        break;
-      case 'Home':
-        e.preventDefault();
-        focusRow(0);
-        break;
-      case 'End':
-        e.preventDefault();
-        focusRow(rowCount - 1);
-        break;
-      case 'Escape':
-        e.preventDefault();
-        setSelectedIndex(-1);
-        onSelectionChange?.(null);
-        break;
-    }
-  }, [rowCount, focusRow, onRowAction, onSelectionChange]);
-
-  const getRowProps = useCallback((rowIndex: number) => ({
-    tabIndex: 0,
-    'data-selected': (selectedIndex === rowIndex).toString(),
-    onKeyDown: (e: React.KeyboardEvent) => handleKeyDown(e, rowIndex),
-    onFocus: () => {
-      setSelectedIndex(rowIndex);
-      onSelectionChange?.(rowIndex);
+      const rows = tableBodyRef.current.querySelectorAll('tr');
+      const targetRow = rows[index] as HTMLTableRowElement | undefined;
+      if (targetRow) {
+        targetRow.focus();
+        setSelectedIndex(index);
+        onSelectionChange?.(index);
+      }
     },
-    onClick: () => {
-      setSelectedIndex(rowIndex);
-      onSelectionChange?.(rowIndex);
+    [rowCount, onSelectionChange]
+  );
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent, rowIndex: number) => {
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          if (rowIndex < rowCount - 1) {
+            focusRow(rowIndex + 1);
+          }
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          if (rowIndex > 0) {
+            focusRow(rowIndex - 1);
+          }
+          break;
+        case 'Enter':
+        case ' ':
+          e.preventDefault();
+          onRowAction?.(rowIndex);
+          break;
+        case 'Home':
+          e.preventDefault();
+          focusRow(0);
+          break;
+        case 'End':
+          e.preventDefault();
+          focusRow(rowCount - 1);
+          break;
+        case 'Escape':
+          e.preventDefault();
+          setSelectedIndex(-1);
+          onSelectionChange?.(null);
+          break;
+      }
     },
-  }), [selectedIndex, handleKeyDown, onSelectionChange]);
+    [rowCount, focusRow, onRowAction, onSelectionChange]
+  );
+
+  const getRowProps = useCallback(
+    (rowIndex: number) => ({
+      tabIndex: 0,
+      'data-selected': (selectedIndex === rowIndex).toString(),
+      onKeyDown: (e: React.KeyboardEvent) => handleKeyDown(e, rowIndex),
+      onFocus: () => {
+        setSelectedIndex(rowIndex);
+        onSelectionChange?.(rowIndex);
+      },
+      onClick: () => {
+        setSelectedIndex(rowIndex);
+        onSelectionChange?.(rowIndex);
+      },
+    }),
+    [selectedIndex, handleKeyDown, onSelectionChange]
+  );
 
   const focusTable = useCallback(() => {
     if (rowCount > 0) {

@@ -212,7 +212,6 @@ const AuditTableSkeleton = () => (
   </>
 );
 
-
 export default function AdminPortal() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -634,9 +633,7 @@ function UsersTab() {
       id: user.id,
       email: user.email,
       name:
-        (user.user_metadata?.full_name as string) ||
-        (user.user_metadata?.name as string) ||
-        null,
+        (user.user_metadata?.full_name as string) || (user.user_metadata?.name as string) || null,
       status,
       created_at: user.created_at,
       last_sign_in_at: user.last_sign_in_at,
@@ -720,7 +717,10 @@ function UsersTab() {
     const newSuspendedState = !isUserSuspended(user);
 
     // Store previous data for rollback
-    const previousUsersData = queryClient.getQueryData<{ users: AdminPlatformUser[]; total: number }>(['admin', 'users', { search }]);
+    const previousUsersData = queryClient.getQueryData<{
+      users: AdminPlatformUser[];
+      total: number;
+    }>(['admin', 'users', { search }]);
 
     // OPTIMISTIC UPDATE: Immediately update the cache before API call
     queryClient.setQueryData<{ users: AdminPlatformUser[]; total: number } | undefined>(
@@ -774,8 +774,14 @@ function UsersTab() {
     if (user.id === currentUser?.id) return;
 
     // Store previous data for rollback
-    const previousUsersData = queryClient.getQueryData<{ users: AdminPlatformUser[]; total: number }>(['admin', 'users', { search }]);
-    const previousDeletedUsersData = queryClient.getQueryData<{ deleted_users: AdminDeletedUser[]; total: number }>(['admin', 'deleted-users']);
+    const previousUsersData = queryClient.getQueryData<{
+      users: AdminPlatformUser[];
+      total: number;
+    }>(['admin', 'users', { search }]);
+    const previousDeletedUsersData = queryClient.getQueryData<{
+      deleted_users: AdminDeletedUser[];
+      total: number;
+    }>(['admin', 'deleted-users']);
 
     // OPTIMISTIC UPDATE: Immediately remove user from the active users list
     queryClient.setQueryData<{ users: AdminPlatformUser[]; total: number } | undefined>(
@@ -844,11 +850,17 @@ function UsersTab() {
   // Handle restore deleted user with OPTIMISTIC UPDATE
   const handleRestoreUser = async (userId: string, email: string) => {
     // Store previous data for rollback
-    const previousDeletedUsersData = queryClient.getQueryData<{ deleted_users: AdminDeletedUser[]; total: number }>(['admin', 'deleted-users']);
-    const previousUsersData = queryClient.getQueryData<{ users: AdminPlatformUser[]; total: number }>(['admin', 'users', { search }]);
+    const previousDeletedUsersData = queryClient.getQueryData<{
+      deleted_users: AdminDeletedUser[];
+      total: number;
+    }>(['admin', 'deleted-users']);
+    const previousUsersData = queryClient.getQueryData<{
+      users: AdminPlatformUser[];
+      total: number;
+    }>(['admin', 'users', { search }]);
 
     // Find the deleted user to restore
-    const deletedUser = previousDeletedUsersData?.deleted_users.find(u => u.user_id === userId);
+    const deletedUser = previousDeletedUsersData?.deleted_users.find((u) => u.user_id === userId);
 
     // OPTIMISTIC UPDATE: Remove from deleted-users list
     queryClient.setQueryData<{ deleted_users: AdminDeletedUser[]; total: number } | undefined>(
@@ -857,7 +869,7 @@ function UsersTab() {
         if (!old) return old;
         return {
           ...old,
-          deleted_users: old.deleted_users.filter(u => u.user_id !== userId),
+          deleted_users: old.deleted_users.filter((u) => u.user_id !== userId),
           total: Math.max(0, old.total - 1),
         };
       }
@@ -918,23 +930,25 @@ function UsersTab() {
     }
 
     // Store previous data for rollback
-    const previousInvitationsData = queryClient.getQueryData<{ invitations: AdminInvitation[]; total: number }>(['admin', 'invitations', { search }]);
+    const previousInvitationsData = queryClient.getQueryData<{
+      invitations: AdminInvitation[];
+      total: number;
+    }>(['admin', 'invitations', { search }]);
 
     // OPTIMISTIC UPDATE: Immediately update status to 'cancelled'
-    queryClient.setQueryData<{ invitations: AdminInvitation[]; total: number; page: number; page_size: number } | undefined>(
-      ['admin', 'invitations', { search }],
-      (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          invitations: old.invitations.map((inv) =>
-            inv.id === invitationId
-              ? { ...inv, status: 'cancelled' as const, cancelled_at: new Date().toISOString() }
-              : inv
-          ),
-        };
-      }
-    );
+    queryClient.setQueryData<
+      { invitations: AdminInvitation[]; total: number; page: number; page_size: number } | undefined
+    >(['admin', 'invitations', { search }], (old) => {
+      if (!old) return old;
+      return {
+        ...old,
+        invitations: old.invitations.map((inv) =>
+          inv.id === invitationId
+            ? { ...inv, status: 'cancelled' as const, cancelled_at: new Date().toISOString() }
+            : inv
+        ),
+      };
+    });
 
     // Close dialog immediately - user sees instant feedback
     setConfirmDialog({ open: false, invitationId: '', email: '' });
@@ -975,24 +989,29 @@ function UsersTab() {
   // Handle delete invitation (removes cancelled/expired invitations) with OPTIMISTIC UPDATE
   const handleDeleteInvitation = async (invitationId: string, email: string) => {
     // Store previous data for rollback
-    const previousInvitationsData = queryClient.getQueryData<{ invitations: AdminInvitation[]; total: number }>(['admin', 'invitations', { search }]);
+    const previousInvitationsData = queryClient.getQueryData<{
+      invitations: AdminInvitation[];
+      total: number;
+    }>(['admin', 'invitations', { search }]);
 
     // OPTIMISTIC UPDATE: Immediately remove invitation from the list
-    queryClient.setQueryData<{ invitations: AdminInvitation[]; total: number; page: number; page_size: number } | undefined>(
-      ['admin', 'invitations', { search }],
-      (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          invitations: old.invitations.filter((inv) => inv.id !== invitationId),
-          total: Math.max(0, old.total - 1),
-        };
-      }
-    );
+    queryClient.setQueryData<
+      { invitations: AdminInvitation[]; total: number; page: number; page_size: number } | undefined
+    >(['admin', 'invitations', { search }], (old) => {
+      if (!old) return old;
+      return {
+        ...old,
+        invitations: old.invitations.filter((inv) => inv.id !== invitationId),
+        total: Math.max(0, old.total - 1),
+      };
+    });
 
     // Show success immediately
     toast.success(t('admin.users.invitationDeleted', 'Invitation removed'), {
-      description: t('admin.users.invitationDeletedDesc', `The invitation for ${email} has been removed.`),
+      description: t(
+        'admin.users.invitationDeletedDesc',
+        `The invitation for ${email} has been removed.`
+      ),
     });
 
     // Now do the actual API call in background
@@ -1004,7 +1023,9 @@ function UsersTab() {
       // ROLLBACK on error
       console.error('Failed to delete invitation:', err);
       queryClient.setQueryData(['admin', 'invitations', { search }], previousInvitationsData);
-      toast.error(t('admin.users.invitationDeleteFailed', 'Failed to remove invitation - changes reverted'));
+      toast.error(
+        t('admin.users.invitationDeleteFailed', 'Failed to remove invitation - changes reverted')
+      );
     } finally {
       setDeletingInvitationId(null);
     }
@@ -1012,7 +1033,10 @@ function UsersTab() {
 
   // Get status badge
   const getStatusBadge = (row: UnifiedUserRow) => {
-    const statusConfig: Record<UnifiedUserStatus, { class: string; icon: typeof CheckCircle; label: string }> = {
+    const statusConfig: Record<
+      UnifiedUserStatus,
+      { class: string; icon: typeof CheckCircle; label: string }
+    > = {
       active: { class: 'admin-status-badge--active', icon: CheckCircle, label: 'Active' },
       invited: { class: 'admin-status-badge--pending', icon: Clock, label: 'Invited' },
       pending: { class: 'admin-status-badge--pending', icon: Clock, label: 'Pending' },
@@ -1087,7 +1111,12 @@ function UsersTab() {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem
                   variant="danger"
-                  onClick={() => handleDeleteInvitation(row.originalInvitation!.id, row.originalInvitation!.email)}
+                  onClick={() =>
+                    handleDeleteInvitation(
+                      row.originalInvitation!.id,
+                      row.originalInvitation!.email
+                    )
+                  }
                 >
                   <Trash2 className="h-4 w-4" />
                   {t('admin.users.deleteInvitation', 'Delete')}
@@ -1114,7 +1143,10 @@ function UsersTab() {
                 <DropdownMenuItem
                   onSelect={() => {
                     setTimeout(() => {
-                      handleResendInvitation(row.originalInvitation!.id, row.originalInvitation!.email);
+                      handleResendInvitation(
+                        row.originalInvitation!.id,
+                        row.originalInvitation!.email
+                      );
                     }, 0);
                   }}
                 >
@@ -1251,7 +1283,11 @@ function UsersTab() {
           <button
             className={`admin-icon-btn admin-show-deleted-btn ${showDeletedUsers ? 'admin-icon-btn--warning-active' : 'admin-icon-btn--secondary'}`}
             onClick={() => setShowDeletedUsers(!showDeletedUsers)}
-            title={showDeletedUsers ? t('admin.users.hideDeleted', 'Hide deleted users') : t('admin.users.showDeleted', 'Show deleted users')}
+            title={
+              showDeletedUsers
+                ? t('admin.users.hideDeleted', 'Hide deleted users')
+                : t('admin.users.showDeleted', 'Show deleted users')
+            }
           >
             <Archive className="h-4 w-4" />
             {deletedUsersData?.total ? (
@@ -1265,7 +1301,10 @@ function UsersTab() {
         <div className="admin-demo-banner">
           <AlertCircle className="h-4 w-4" />
           <span>
-            {t('admin.users.invitationsLoadError', 'Invitations could not be loaded. Showing users only.')}
+            {t(
+              'admin.users.invitationsLoadError',
+              'Invitations could not be loaded. Showing users only.'
+            )}
           </span>
         </div>
       )}
@@ -1325,7 +1364,8 @@ function UsersTab() {
                   <UsersTableSkeleton />
                 ) : (
                   paginatedRows.map((row, rowIndex) => {
-                    const isCurrentUser = row.type === 'user' && row.originalUser?.id === currentUser?.id;
+                    const isCurrentUser =
+                      row.type === 'user' && row.originalUser?.id === currentUser?.id;
 
                     return (
                       <tr key={row.id} {...getUserRowProps(rowIndex)}>
@@ -1376,149 +1416,184 @@ function UsersTab() {
                 )}
 
                 {/* Deleted Users - integrated into same table for alignment */}
-                {showDeletedUsers && deletedUsersData && deletedUsersData.deleted_users && deletedUsersData.deleted_users.length > 0 && (
-                  <>
-                    {/* Separator row */}
-                    <tr className="admin-table-separator">
-                      <td colSpan={6}>
-                        <div className="admin-table-separator-content">
-                          <Archive className="h-4 w-4" />
-                          <span>{t('admin.users.deletedUsers', 'Deleted Users')} ({deletedUsersData.total ?? 0})</span>
-                        </div>
-                      </td>
-                    </tr>
-                    {/* Deleted user rows */}
-                    {deletedUsersData.deleted_users.map((deletedUser: AdminDeletedUser) => {
-                      const canRestore = deletedUser.can_restore && !deletedUser.is_anonymized;
-                      const isRestoring = restoringId === deletedUser.user_id;
-                      // Extract name from email (part before @)
-                      const emailStr = deletedUser.email ?? '';
-                      const nameFromEmail = emailStr
-                        ? (emailStr.split('@')[0] ?? '').replace(/[._]/g, ' ')
-                        : null;
+                {showDeletedUsers &&
+                  deletedUsersData &&
+                  deletedUsersData.deleted_users &&
+                  deletedUsersData.deleted_users.length > 0 && (
+                    <>
+                      {/* Separator row */}
+                      <tr className="admin-table-separator">
+                        <td colSpan={6}>
+                          <div className="admin-table-separator-content">
+                            <Archive className="h-4 w-4" />
+                            <span>
+                              {t('admin.users.deletedUsers', 'Deleted Users')} (
+                              {deletedUsersData.total ?? 0})
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                      {/* Deleted user rows */}
+                      {deletedUsersData.deleted_users.map((deletedUser: AdminDeletedUser) => {
+                        const canRestore = deletedUser.can_restore && !deletedUser.is_anonymized;
+                        const isRestoring = restoringId === deletedUser.user_id;
+                        // Extract name from email (part before @)
+                        const emailStr = deletedUser.email ?? '';
+                        const nameFromEmail = emailStr
+                          ? (emailStr.split('@')[0] ?? '').replace(/[._]/g, ' ')
+                          : null;
 
-                      // Look up who deleted this user
-                      let deletedByName = 'Unknown';
-                      if (deletedUser.deleted_by) {
-                        if (deletedUser.deleted_by === currentUser?.id) {
-                          deletedByName = currentUser.email?.split('@')[0] || 'you';
-                        } else {
-                          const deleter = usersData?.users?.find((u: AdminPlatformUser) => u.id === deletedUser.deleted_by);
-                          if (deleter?.email) {
-                            deletedByName = deleter.email.split('@')[0] || 'Unknown';
+                        // Look up who deleted this user
+                        let deletedByName = 'Unknown';
+                        if (deletedUser.deleted_by) {
+                          if (deletedUser.deleted_by === currentUser?.id) {
+                            deletedByName = currentUser.email?.split('@')[0] || 'you';
+                          } else {
+                            const deleter = usersData?.users?.find(
+                              (u: AdminPlatformUser) => u.id === deletedUser.deleted_by
+                            );
+                            if (deleter?.email) {
+                              deletedByName = deleter.email.split('@')[0] || 'Unknown';
+                            }
                           }
                         }
-                      }
 
-                      return (
-                        <tr key={`deleted-${deletedUser.user_id}`} className={`admin-deleted-row ${deletedUser.is_anonymized ? 'admin-row-muted' : ''}`}>
-                          {/* Name */}
-                          <td><span>{nameFromEmail || '-'}</span></td>
-                          {/* Email */}
-                          <td>
-                            <div className="admin-user-cell">
-                              <Mail className="h-4 w-4" />
-                              <span>{deletedUser.email || t('admin.users.anonymized', '[Anonymized]')}</span>
-                            </div>
-                          </td>
-                          {/* Status */}
-                          <td>
-                            <div className="admin-status-cell">
-                              {deletedUser.deletion_reason ? (
+                        return (
+                          <tr
+                            key={`deleted-${deletedUser.user_id}`}
+                            className={`admin-deleted-row ${deletedUser.is_anonymized ? 'admin-row-muted' : ''}`}
+                          >
+                            {/* Name */}
+                            <td>
+                              <span>{nameFromEmail || '-'}</span>
+                            </td>
+                            {/* Email */}
+                            <td>
+                              <div className="admin-user-cell">
+                                <Mail className="h-4 w-4" />
+                                <span>
+                                  {deletedUser.email || t('admin.users.anonymized', '[Anonymized]')}
+                                </span>
+                              </div>
+                            </td>
+                            {/* Status */}
+                            <td>
+                              <div className="admin-status-cell">
+                                {deletedUser.deletion_reason ? (
+                                  <Tooltip
+                                    content={
+                                      <div className="admin-audit-reason-tooltip">
+                                        <strong>
+                                          {t('admin.users.deletionReason', 'Reason')}:
+                                        </strong>
+                                        <p>{deletedUser.deletion_reason}</p>
+                                      </div>
+                                    }
+                                    side="top"
+                                  >
+                                    <span className="admin-status-badge admin-status-badge--deleted admin-status-badge--has-reason">
+                                      {t('admin.users.deleted', 'Deleted')}
+                                      <Eye className="h-3 w-3" />
+                                    </span>
+                                  </Tooltip>
+                                ) : (
+                                  <span className="admin-status-badge admin-status-badge--deleted">
+                                    {t('admin.users.deleted', 'Deleted')}
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            {/* Activity - "Deleted by [person]" */}
+                            <td>
+                              <Tooltip content={formatDate(deletedUser.deleted_at)} side="top">
+                                <div className="admin-date-cell" style={{ cursor: 'help' }}>
+                                  <Trash2 className="h-4 w-4" />
+                                  <span>Deleted by {deletedByName}</span>
+                                </div>
+                              </Tooltip>
+                            </td>
+                            {/* Created column - show restoration deadline */}
+                            <td>
+                              {canRestore ? (
                                 <Tooltip
-                                  content={
-                                    <div className="admin-audit-reason-tooltip">
-                                      <strong>{t('admin.users.deletionReason', 'Reason')}:</strong>
-                                      <p>{deletedUser.deletion_reason}</p>
-                                    </div>
-                                  }
+                                  content={t(
+                                    'admin.users.restoreDeadlineTooltip',
+                                    'After this period, the user will be permanently anonymized and cannot be restored.'
+                                  )}
                                   side="top"
                                 >
-                                  <span className="admin-status-badge admin-status-badge--deleted admin-status-badge--has-reason">
-                                    {t('admin.users.deleted', 'Deleted')}
-                                    <Eye className="h-3 w-3" />
+                                  <span
+                                    className="admin-deadline-warning"
+                                    style={{ cursor: 'help' }}
+                                  >
+                                    {deletedUser.days_until_anonymization}{' '}
+                                    {t('admin.users.daysLeft', 'days left')}
                                   </span>
                                 </Tooltip>
                               ) : (
-                                <span className="admin-status-badge admin-status-badge--deleted">
-                                  {t('admin.users.deleted', 'Deleted')}
-                                </span>
+                                <Tooltip
+                                  content={
+                                    deletedUser.is_anonymized
+                                      ? t(
+                                          'admin.users.anonymizedTooltip',
+                                          'This user has been permanently anonymized. All personal data has been removed.'
+                                        )
+                                      : t(
+                                          'admin.users.expiredTooltip',
+                                          'The restoration period has expired.'
+                                        )
+                                  }
+                                  side="top"
+                                >
+                                  <span className="admin-muted" style={{ cursor: 'help' }}>
+                                    {deletedUser.is_anonymized
+                                      ? t('admin.users.anonymized', 'Anonymized')
+                                      : t('admin.users.expired', 'Expired')}
+                                  </span>
+                                </Tooltip>
                               )}
-                            </div>
-                          </td>
-                          {/* Activity - "Deleted by [person]" */}
-                          <td>
-                            <Tooltip content={formatDate(deletedUser.deleted_at)} side="top">
-                              <div className="admin-date-cell" style={{ cursor: 'help' }}>
-                                <Trash2 className="h-4 w-4" />
-                                <span>Deleted by {deletedByName}</span>
+                            </td>
+                            {/* Actions */}
+                            <td>
+                              <div className="admin-actions-cell">
+                                {canRestore ? (
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <button className="admin-kebab-btn" aria-label="Actions">
+                                        <MoreVertical className="h-4 w-4" />
+                                      </button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                      <DropdownMenuItem
+                                        onSelect={() => {
+                                          setTimeout(() => {
+                                            handleRestoreUser(
+                                              deletedUser.user_id,
+                                              deletedUser.email || ''
+                                            );
+                                          }, 0);
+                                        }}
+                                        disabled={isRestoring}
+                                      >
+                                        {isRestoring ? (
+                                          <Loader2 className="h-4 w-4 animate-spin" />
+                                        ) : (
+                                          <RotateCcw className="h-4 w-4" />
+                                        )}
+                                        {t('admin.users.restoreUser', 'Restore User')}
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                ) : (
+                                  <span className="admin-muted">-</span>
+                                )}
                               </div>
-                            </Tooltip>
-                          </td>
-                          {/* Created column - show restoration deadline */}
-                          <td>
-                            {canRestore ? (
-                              <Tooltip
-                                content={t('admin.users.restoreDeadlineTooltip', 'After this period, the user will be permanently anonymized and cannot be restored.')}
-                                side="top"
-                              >
-                                <span className="admin-deadline-warning" style={{ cursor: 'help' }}>
-                                  {deletedUser.days_until_anonymization} {t('admin.users.daysLeft', 'days left')}
-                                </span>
-                              </Tooltip>
-                            ) : (
-                              <Tooltip
-                                content={deletedUser.is_anonymized
-                                  ? t('admin.users.anonymizedTooltip', 'This user has been permanently anonymized. All personal data has been removed.')
-                                  : t('admin.users.expiredTooltip', 'The restoration period has expired.')}
-                                side="top"
-                              >
-                                <span className="admin-muted" style={{ cursor: 'help' }}>
-                                  {deletedUser.is_anonymized
-                                    ? t('admin.users.anonymized', 'Anonymized')
-                                    : t('admin.users.expired', 'Expired')}
-                                </span>
-                              </Tooltip>
-                            )}
-                          </td>
-                          {/* Actions */}
-                          <td>
-                            <div className="admin-actions-cell">
-                              {canRestore ? (
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <button className="admin-kebab-btn" aria-label="Actions">
-                                      <MoreVertical className="h-4 w-4" />
-                                    </button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuItem
-                                      onSelect={() => {
-                                        setTimeout(() => {
-                                          handleRestoreUser(deletedUser.user_id, deletedUser.email || '');
-                                        }, 0);
-                                      }}
-                                      disabled={isRestoring}
-                                    >
-                                      {isRestoring ? (
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                      ) : (
-                                        <RotateCcw className="h-4 w-4" />
-                                      )}
-                                      {t('admin.users.restoreUser', 'Restore User')}
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              ) : (
-                                <span className="admin-muted">-</span>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </>
-                )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </>
+                  )}
               </tbody>
             </table>
           </div>
@@ -1657,7 +1732,9 @@ function DeleteUserModal({ user, onClose, onConfirm }: DeleteUserModalProps) {
               <li>{t('admin.users.softDelete1', 'User will be banned and unable to log in')}</li>
               <li>{t('admin.users.softDelete2', 'All their data is preserved but hidden')}</li>
               <li>{t('admin.users.softDelete3', 'You can restore this user within 30 days')}</li>
-              <li>{t('admin.users.softDelete4', 'After 30 days, their data will be anonymized')}</li>
+              <li>
+                {t('admin.users.softDelete4', 'After 30 days, their data will be anonymized')}
+              </li>
             </ul>
           </div>
 
@@ -1677,14 +1754,25 @@ function DeleteUserModal({ user, onClose, onConfirm }: DeleteUserModalProps) {
 
           {/* Reason input */}
           <div style={{ marginTop: 'var(--space-4)' }}>
-            <label style={{ display: 'block', fontSize: 'var(--font-size-sm)', fontWeight: 500, marginBottom: 'var(--space-2)', color: 'var(--color-text-secondary)' }}>
+            <label
+              style={{
+                display: 'block',
+                fontSize: 'var(--font-size-sm)',
+                fontWeight: 500,
+                marginBottom: 'var(--space-2)',
+                color: 'var(--color-text-secondary)',
+              }}
+            >
               {t('admin.users.deleteReason', 'Reason for deletion (optional)')}
             </label>
             <input
               type="text"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder={t('admin.users.deleteReasonPlaceholder', 'e.g., User requested account deletion')}
+              placeholder={t(
+                'admin.users.deleteReasonPlaceholder',
+                'e.g., User requested account deletion'
+              )}
               className="admin-input"
               style={{ width: '100%' }}
             />
@@ -1692,9 +1780,23 @@ function DeleteUserModal({ user, onClose, onConfirm }: DeleteUserModalProps) {
 
           {/* Type-to-confirm */}
           <div style={{ marginTop: 'var(--space-4)' }}>
-            <label style={{ display: 'block', fontSize: 'var(--font-size-sm)', fontWeight: 500, marginBottom: 'var(--space-2)', color: 'var(--color-text-secondary)' }}>
+            <label
+              style={{
+                display: 'block',
+                fontSize: 'var(--font-size-sm)',
+                fontWeight: 500,
+                marginBottom: 'var(--space-2)',
+                color: 'var(--color-text-secondary)',
+              }}
+            >
               {t('admin.users.typeToConfirm', 'Type the user email to confirm:')}
-              <span style={{ fontFamily: 'monospace', marginLeft: 'var(--space-2)', color: 'var(--color-text-primary)' }}>
+              <span
+                style={{
+                  fontFamily: 'monospace',
+                  marginLeft: 'var(--space-2)',
+                  color: 'var(--color-text-primary)',
+                }}
+              >
                 {user.email}
               </span>
             </label>
@@ -1706,12 +1808,19 @@ function DeleteUserModal({ user, onClose, onConfirm }: DeleteUserModalProps) {
               className="admin-input"
               style={{
                 width: '100%',
-                borderColor: confirmEmail && !isConfirmValid ? 'var(--color-destructive)' : undefined,
+                borderColor:
+                  confirmEmail && !isConfirmValid ? 'var(--color-destructive)' : undefined,
               }}
               autoComplete="off"
             />
             {confirmEmail && !isConfirmValid && (
-              <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-destructive)', marginTop: 'var(--space-1)' }}>
+              <p
+                style={{
+                  fontSize: 'var(--font-size-xs)',
+                  color: 'var(--color-destructive)',
+                  marginTop: 'var(--space-1)',
+                }}
+              >
                 {t('admin.users.emailMismatch', 'Email does not match')}
               </p>
             )}
@@ -1752,12 +1861,7 @@ interface SuspendUserModalProps {
   onConfirm: (reason?: string) => void;
 }
 
-function SuspendUserModal({
-  user,
-  isSuspended,
-  onClose,
-  onConfirm,
-}: SuspendUserModalProps) {
+function SuspendUserModal({ user, isSuspended, onClose, onConfirm }: SuspendUserModalProps) {
   const { t } = useTranslation();
   const [reason, setReason] = useState('');
 
@@ -1837,7 +1941,10 @@ function SuspendUserModal({
                 type="text"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                placeholder={t('admin.users.suspendReasonPlaceholder', 'e.g., Violation of terms of service')}
+                placeholder={t(
+                  'admin.users.suspendReasonPlaceholder',
+                  'e.g., Violation of terms of service'
+                )}
                 className="admin-input"
               />
             </div>
@@ -1854,7 +1961,10 @@ function SuspendUserModal({
                 type="text"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                placeholder={t('admin.users.unsuspendReasonPlaceholder', 'e.g., Issue resolved, user reinstated')}
+                placeholder={t(
+                  'admin.users.unsuspendReasonPlaceholder',
+                  'e.g., Issue resolved, user reinstated'
+                )}
                 className="admin-input"
               />
             </div>
@@ -1947,7 +2057,10 @@ function CompaniesTab() {
 
   // Sort state for companies table
   type CompanySortColumn = 'name' | 'owner' | 'conversations' | 'created_at';
-  const [companySortState, setCompanySortState] = useSortState<CompanySortColumn>('created_at', 'desc');
+  const [companySortState, setCompanySortState] = useSortState<CompanySortColumn>(
+    'created_at',
+    'desc'
+  );
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['admin', 'companies', { page, search }],
@@ -1972,7 +2085,10 @@ function CompaniesTab() {
     : [];
 
   // Apply sorting
-  const companySortGetters: Record<CompanySortColumn, (c: AdminCompanyInfo) => string | number | null> = {
+  const companySortGetters: Record<
+    CompanySortColumn,
+    (c: AdminCompanyInfo) => string | number | null
+  > = {
     name: (c) => c.name.toLowerCase(),
     owner: (c) => c.owner_email?.toLowerCase() ?? '',
     conversations: (c) => c.conversation_count,
@@ -1985,9 +2101,10 @@ function CompaniesTab() {
   const totalPages = Math.ceil(total / pageSize);
 
   // Keyboard navigation for companies table
-  const { tableBodyRef: companiesTableBodyRef, getRowProps: getCompanyRowProps } = useTableKeyboardNav({
-    rowCount: companies.length,
-  });
+  const { tableBodyRef: companiesTableBodyRef, getRowProps: getCompanyRowProps } =
+    useTableKeyboardNav({
+      rowCount: companies.length,
+    });
 
   return (
     <div className="admin-tab-panel">
@@ -2057,7 +2174,11 @@ function CompaniesTab() {
                   <CompaniesTableSkeleton />
                 ) : (
                   companies.map((company: AdminCompanyInfo, rowIndex: number) => (
-                    <tr key={company.id} className={useDummyData ? 'admin-demo-row' : ''} {...getCompanyRowProps(rowIndex)}>
+                    <tr
+                      key={company.id}
+                      className={useDummyData ? 'admin-demo-row' : ''}
+                      {...getCompanyRowProps(rowIndex)}
+                    >
                       <td>
                         <div className="admin-company-cell">
                           <Building2 className="h-4 w-4" />
@@ -2213,7 +2334,11 @@ function AdminsTab() {
                 <AdminsTableSkeleton />
               ) : (
                 admins.map((admin: AdminUserInfo, rowIndex: number) => (
-                  <tr key={admin.id} className={useDummyData ? 'admin-demo-row' : ''} {...getAdminRowProps(rowIndex)}>
+                  <tr
+                    key={admin.id}
+                    className={useDummyData ? 'admin-demo-row' : ''}
+                    {...getAdminRowProps(rowIndex)}
+                  >
                     <td>
                       <div className="admin-user-cell">
                         <Shield className="h-4 w-4" />
@@ -2517,7 +2642,9 @@ function AuditTab() {
               <SelectValue placeholder={t('admin.audit.allCategories', 'All Categories')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t('admin.audit.allCategories', 'All Categories')}</SelectItem>
+              <SelectItem value="all">
+                {t('admin.audit.allCategories', 'All Categories')}
+              </SelectItem>
               {categories?.action_categories.map((cat) => (
                 <SelectItem key={cat.value} value={cat.value}>
                   {cat.label}
@@ -2593,7 +2720,11 @@ function AuditTab() {
                   <AuditTableSkeleton />
                 ) : (
                   logs.map((log, rowIndex) => (
-                    <tr key={log.id} className={useDummyData ? 'admin-demo-row' : ''} {...getAuditRowProps(rowIndex)}>
+                    <tr
+                      key={log.id}
+                      className={useDummyData ? 'admin-demo-row' : ''}
+                      {...getAuditRowProps(rowIndex)}
+                    >
                       <td>
                         <div className="admin-date-cell">
                           <Clock className="h-4 w-4" />
@@ -2980,7 +3111,8 @@ function AnalyticsTab() {
     return {
       total: companies.length,
       avgUsers: companies.length > 0 ? (totalUsers / companies.length).toFixed(1) : '0',
-      avgConversations: companies.length > 0 ? (totalConversations / companies.length).toFixed(1) : '0',
+      avgConversations:
+        companies.length > 0 ? (totalConversations / companies.length).toFixed(1) : '0',
       totalConversations,
     };
   }, [companiesData]);
@@ -3037,7 +3169,9 @@ function AnalyticsTab() {
         ) : (
           <>
             <div className="analytics-hero-card">
-              <span className="analytics-hero-value">{(displayStats?.total_users ?? 0).toLocaleString()}</span>
+              <span className="analytics-hero-value">
+                {(displayStats?.total_users ?? 0).toLocaleString()}
+              </span>
               <span className="analytics-hero-label">Total Users</span>
               <span className="analytics-hero-trend analytics-hero-trend--up">
                 <ArrowUpRight className="h-3.5 w-3.5" />
@@ -3045,24 +3179,33 @@ function AnalyticsTab() {
               </span>
             </div>
             <div className="analytics-hero-card">
-              <span className="analytics-hero-value">{(displayStats?.total_companies ?? 0).toLocaleString()}</span>
+              <span className="analytics-hero-value">
+                {(displayStats?.total_companies ?? 0).toLocaleString()}
+              </span>
               <span className="analytics-hero-label">Companies</span>
               <span className="analytics-hero-trend analytics-hero-trend--neutral">
                 {companyStats.avgUsers} users avg
               </span>
             </div>
             <div className="analytics-hero-card">
-              <span className="analytics-hero-value">{(displayStats?.total_conversations ?? 0).toLocaleString()}</span>
+              <span className="analytics-hero-value">
+                {(displayStats?.total_conversations ?? 0).toLocaleString()}
+              </span>
               <span className="analytics-hero-label">Conversations</span>
               <span className="analytics-hero-trend analytics-hero-trend--neutral">
                 {companyStats.avgConversations}/company
               </span>
             </div>
             <div className="analytics-hero-card">
-              <span className="analytics-hero-value">{(displayStats?.total_messages ?? 0).toLocaleString()}</span>
+              <span className="analytics-hero-value">
+                {(displayStats?.total_messages ?? 0).toLocaleString()}
+              </span>
               <span className="analytics-hero-label">Messages</span>
               <span className="analytics-hero-trend analytics-hero-trend--neutral">
-                {displayStats?.total_conversations ? Math.round(displayStats.total_messages / displayStats.total_conversations) : 0} per convo
+                {displayStats?.total_conversations
+                  ? Math.round(displayStats.total_messages / displayStats.total_conversations)
+                  : 0}{' '}
+                per convo
               </span>
             </div>
           </>
@@ -3086,9 +3229,13 @@ function AnalyticsTab() {
                   <Pie
                     data={[
                       { name: 'Active', value: userStatusBreakdown.active, fill: '#22c55e' },
-                      { name: 'Unverified', value: userStatusBreakdown.unverified, fill: '#f59e0b' },
+                      {
+                        name: 'Unverified',
+                        value: userStatusBreakdown.unverified,
+                        fill: '#f59e0b',
+                      },
                       { name: 'Suspended', value: userStatusBreakdown.suspended, fill: '#ef4444' },
-                    ].filter(d => d.value > 0)}
+                    ].filter((d) => d.value > 0)}
                     cx="50%"
                     cy="50%"
                     innerRadius={45}
@@ -3096,13 +3243,11 @@ function AnalyticsTab() {
                     paddingAngle={2}
                     dataKey="value"
                   >
-                    {[
-                      { fill: '#22c55e' },
-                      { fill: '#f59e0b' },
-                      { fill: '#ef4444' },
-                    ].map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.fill} />
-                    ))}
+                    {[{ fill: '#22c55e' }, { fill: '#f59e0b' }, { fill: '#ef4444' }].map(
+                      (entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      )
+                    )}
                   </Pie>
                   <RechartsTooltip
                     formatter={(value) => [value, 'Users']}
@@ -3150,7 +3295,8 @@ function AnalyticsTab() {
                   { label: 'Expired', value: invitationFunnel.expired, color: '#f59e0b' },
                   { label: 'Cancelled', value: invitationFunnel.cancelled, color: '#94a3b8' },
                 ].map((item) => {
-                  const pct = invitationFunnel.total > 0 ? (item.value / invitationFunnel.total) * 100 : 0;
+                  const pct =
+                    invitationFunnel.total > 0 ? (item.value / invitationFunnel.total) * 100 : 0;
                   return (
                     <div key={item.label} className="analytics-funnel-row">
                       <span className="analytics-funnel-label">{item.label}</span>
@@ -3175,7 +3321,10 @@ function AnalyticsTab() {
         <h3 className="analytics-section-title-premium">Growth Trends</h3>
         <div className="analytics-chart-row">
           <UserGrowthChart totalUsers={displayStats?.total_users ?? 0} isLoading={isLoading} />
-          <CompanyGrowthChart totalCompanies={displayStats?.total_companies ?? 0} isLoading={isLoading} />
+          <CompanyGrowthChart
+            totalCompanies={displayStats?.total_companies ?? 0}
+            isLoading={isLoading}
+          />
         </div>
       </div>
 
@@ -3198,7 +3347,9 @@ function AnalyticsTab() {
           <BarChart3 className="h-5 w-5" />
           Model Performance
           {modelAnalytics && modelAnalytics.total_sessions > 0 && (
-            <span className="analytics-sessions-badge">{modelAnalytics.total_sessions} sessions</span>
+            <span className="analytics-sessions-badge">
+              {modelAnalytics.total_sessions} sessions
+            </span>
           )}
         </h3>
         {modelAnalyticsLoading ? (
@@ -3213,7 +3364,11 @@ function AnalyticsTab() {
                 <span className="analytics-model-card-title">Win Rate by Model</span>
                 {modelAnalytics.overall_leader && (
                   <span className="analytics-leader-badge">
-                    <img src={getProviderIcon(modelAnalytics.overall_leader.model)} alt="" className="analytics-model-icon" />
+                    <img
+                      src={getProviderIcon(modelAnalytics.overall_leader.model)}
+                      alt=""
+                      className="analytics-model-icon"
+                    />
                     {formatModelName(modelAnalytics.overall_leader.model)}
                   </span>
                 )}
@@ -3225,8 +3380,15 @@ function AnalyticsTab() {
                     layout="vertical"
                     margin={{ top: 10, right: 30, left: 10, bottom: 10 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" opacity={0.5} />
-                    <XAxis type="number" tick={{ fontSize: 11, fill: 'var(--color-text-secondary)' }} />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="var(--color-border)"
+                      opacity={0.5}
+                    />
+                    <XAxis
+                      type="number"
+                      tick={{ fontSize: 11, fill: 'var(--color-text-secondary)' }}
+                    />
                     <YAxis
                       dataKey="model"
                       type="category"
@@ -3263,7 +3425,7 @@ function AnalyticsTab() {
                   <RechartsPieChart>
                     <Pie
                       data={modelAnalytics.overall_leaderboard
-                        .filter(m => m.wins > 0)
+                        .filter((m) => m.wins > 0)
                         .slice(0, 6)
                         .map((m) => ({
                           name: formatModelName(m.model),
@@ -3277,11 +3439,13 @@ function AnalyticsTab() {
                       outerRadius={90}
                       paddingAngle={2}
                       dataKey="value"
-                      label={({ name, percent }: { name?: string; percent?: number }) => `${name ?? ''}: ${((percent ?? 0) * 100).toFixed(0)}%`}
+                      label={({ name, percent }: { name?: string; percent?: number }) =>
+                        `${name ?? ''}: ${((percent ?? 0) * 100).toFixed(0)}%`
+                      }
                       labelLine={false}
                     >
                       {modelAnalytics.overall_leaderboard
-                        .filter(m => m.wins > 0)
+                        .filter((m) => m.wins > 0)
                         .slice(0, 6)
                         .map((entry) => (
                           <Cell key={entry.model} fill={getProviderColor(entry.model)} />
@@ -3353,11 +3517,18 @@ function AnalyticsTab() {
                       // Leader highlighting based on original win_rate rank
                       const isLeader = model.originalRank === 1;
                       return (
-                        <tr key={model.model} className={isLeader ? 'analytics-model-row--leader' : ''}>
+                        <tr
+                          key={model.model}
+                          className={isLeader ? 'analytics-model-row--leader' : ''}
+                        >
                           <td>{model.originalRank}</td>
                           <td>
                             <span className="admin-user-cell">
-                              <img src={getProviderIcon(model.model)} alt="" className="analytics-model-icon" />
+                              <img
+                                src={getProviderIcon(model.model)}
+                                alt=""
+                                className="analytics-model-icon"
+                              />
                               {formatModelName(model.model)}
                             </span>
                           </td>
@@ -3365,7 +3536,9 @@ function AnalyticsTab() {
                           <td>{model.sessions}</td>
                           <td>{model.wins}</td>
                           <td>
-                            <span className={`analytics-winrate ${model.win_rate >= 30 ? 'analytics-winrate--high' : model.win_rate >= 15 ? 'analytics-winrate--medium' : 'analytics-winrate--low'}`}>
+                            <span
+                              className={`analytics-winrate ${model.win_rate >= 30 ? 'analytics-winrate--high' : model.win_rate >= 15 ? 'analytics-winrate--medium' : 'analytics-winrate--low'}`}
+                            >
                               {model.win_rate.toFixed(1)}%
                             </span>
                           </td>
@@ -3502,12 +3675,18 @@ function formatModelName(model: string): string {
   // Basic prettification for unknown models
   return name
     .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 }
 
 // Custom tooltip for model charts
-function ModelTooltip({ active, payload }: { active?: boolean; payload?: Array<{ payload: ModelRanking }> }) {
+function ModelTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: Array<{ payload: ModelRanking }>;
+}) {
   if (!active || !payload || !payload.length) return null;
 
   const data = payload[0]?.payload;
@@ -3517,10 +3696,18 @@ function ModelTooltip({ active, payload }: { active?: boolean; payload?: Array<{
     <div className="analytics-model-tooltip">
       <div className="analytics-model-tooltip-header">{formatModelName(data.model)}</div>
       <div className="analytics-model-tooltip-stats">
-        <span>Win Rate: <strong>{data.win_rate.toFixed(1)}%</strong></span>
-        <span>Avg Rank: <strong>{data.avg_rank.toFixed(2)}</strong></span>
-        <span>Sessions: <strong>{data.sessions}</strong></span>
-        <span>Wins: <strong>{data.wins}</strong></span>
+        <span>
+          Win Rate: <strong>{data.win_rate.toFixed(1)}%</strong>
+        </span>
+        <span>
+          Avg Rank: <strong>{data.avg_rank.toFixed(2)}</strong>
+        </span>
+        <span>
+          Sessions: <strong>{data.sessions}</strong>
+        </span>
+        <span>
+          Wins: <strong>{data.wins}</strong>
+        </span>
       </div>
     </div>
   );
@@ -3528,7 +3715,10 @@ function ModelTooltip({ active, payload }: { active?: boolean; payload?: Array<{
 
 // Generate simulated growth data based on current total
 // Uses deterministic variance pattern instead of Math.random() for pure function
-function generateGrowthData(totalNow: number, days: number = 30): { date: string; value: number }[] {
+function generateGrowthData(
+  totalNow: number,
+  days: number = 30
+): { date: string; value: number }[] {
   const data: { date: string; value: number }[] = [];
   const today = new Date();
 
@@ -3717,7 +3907,6 @@ function CompanyGrowthChart({ totalCompanies, isLoading }: CompanyGrowthChartPro
   );
 }
 
-
 // Conversation Activity Chart
 interface ConversationActivityChartProps {
   totalConversations: number;
@@ -3729,20 +3918,30 @@ interface ConversationActivityChartProps {
 // Convert date range value to number of days
 function getDateRangeDays(dateRange: string): number {
   switch (dateRange) {
-    case '7d': return 7;
-    case '30d': return 30;
-    case '90d': return 90;
+    case '7d':
+      return 7;
+    case '30d':
+      return 30;
+    case '90d':
+      return 90;
     case 'ytd': {
       const now = new Date();
       const startOfYear = new Date(now.getFullYear(), 0, 1);
       return Math.ceil((now.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24));
     }
-    case 'all': return 365; // Show last year for "all time"
-    default: return 30;
+    case 'all':
+      return 365; // Show last year for "all time"
+    default:
+      return 30;
   }
 }
 
-function ConversationActivityChart({ totalConversations, totalMessages, isLoading, dateRange = '30d' }: ConversationActivityChartProps) {
+function ConversationActivityChart({
+  totalConversations,
+  totalMessages,
+  isLoading,
+  dateRange = '30d',
+}: ConversationActivityChartProps) {
   const days = getDateRangeDays(dateRange);
 
   const data = useMemo(() => {
@@ -3763,9 +3962,10 @@ function ConversationActivityChart({ totalConversations, totalMessages, isLoadin
       const msgVariance = patterns[(i + 3) % patterns.length] ?? 1;
 
       // Use weekday for 7 days, month/day for longer periods
-      const dateFormat = days <= 14
-        ? date.toLocaleDateString('en-US', { weekday: 'short' })
-        : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const dateFormat =
+        days <= 14
+          ? date.toLocaleDateString('en-US', { weekday: 'short' })
+          : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
       result.push({
         date: dateFormat,
@@ -3792,7 +3992,8 @@ function ConversationActivityChart({ totalConversations, totalMessages, isLoadin
   }
 
   // Get readable label for date range
-  const dateRangeLabel = dateRange === 'ytd' ? 'Year to Date' : dateRange === 'all' ? 'All Time' : `${days} days`;
+  const dateRangeLabel =
+    dateRange === 'ytd' ? 'Year to Date' : dateRange === 'all' ? 'All Time' : `${days} days`;
 
   return (
     <div className="analytics-chart-card analytics-chart-card--wide">
@@ -3829,11 +4030,7 @@ function ConversationActivityChart({ totalConversations, totalMessages, isLoadin
                 boxShadow: 'var(--shadow-lg)',
               }}
             />
-            <Legend
-              wrapperStyle={{ fontSize: '12px' }}
-              iconType="circle"
-              iconSize={8}
-            />
+            <Legend wrapperStyle={{ fontSize: '12px' }} iconType="circle" iconSize={8} />
             <Bar
               dataKey="conversations"
               fill={CHART_COLORS.purple}
