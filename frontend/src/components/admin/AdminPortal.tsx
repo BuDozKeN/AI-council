@@ -241,10 +241,7 @@ export default function AdminPortal() {
           <h2>{t('admin.error', 'Connection Error')}</h2>
           <p>{error.message}</p>
           <div className="admin-error-actions">
-            <button
-              className="admin-retry-btn"
-              onClick={() => window.location.reload()}
-            >
+            <button className="admin-retry-btn" onClick={() => window.location.reload()}>
               {t('admin.retry', 'Retry')}
             </button>
             <button className="admin-back-btn" onClick={handleBackToApp}>

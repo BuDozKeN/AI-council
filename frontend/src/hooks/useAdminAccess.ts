@@ -91,8 +91,12 @@ export function useAdminAccess(): AdminAccessState {
   // - If auth timed out, show timeout error
   // - Otherwise, show query error if any
   const effectiveError = authTimeout
-    ? new Error('Authentication is taking too long. Please refresh the page or check your network connection.')
-    : (error instanceof Error ? error : null);
+    ? new Error(
+        'Authentication is taking too long. Please refresh the page or check your network connection.'
+      )
+    : error instanceof Error
+      ? error
+      : null;
 
   return {
     isAdmin: data?.is_admin ?? false,
