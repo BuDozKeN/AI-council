@@ -1,0 +1,456 @@
+/**
+ * AdminAnalyticsCards.css - Activity, Breakdown, Dark Mode, and Real Chart styles
+ *
+ * Split from AdminAnalytics.css for CSS architecture compliance
+ */
+
+/* =============================================================================
+   ACTIVITY CARDS (Real-time metrics)
+   ============================================================================= */
+
+.analytics-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+
+.analytics-activity-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  text-align: center;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.analytics-activity-card:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-sm);
+}
+
+.analytics-activity-card--loading {
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.analytics-activity-value {
+  font-size: var(--font-size-3xl, 1.875rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.analytics-activity-suffix {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  margin-left: var(--space-1);
+}
+
+.analytics-activity-percent {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.analytics-activity-percent span {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  min-width: 36px;
+}
+
+.analytics-activity-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.analytics-activity-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.3s ease;
+}
+
+.analytics-activity-card--blue .analytics-activity-bar-fill {
+  background: var(--color-primary);
+}
+
+.analytics-activity-card--green .analytics-activity-bar-fill {
+  background: var(--color-success);
+}
+
+.analytics-activity-card--purple .analytics-activity-bar-fill {
+  background: var(--color-violet-500);
+}
+
+.analytics-activity-card--orange .analytics-activity-bar-fill {
+  background: var(--color-warning);
+}
+
+.analytics-activity-context {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--space-2);
+}
+
+.analytics-activity-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* =============================================================================
+   BREAKDOWN CARDS (Status distributions)
+   ============================================================================= */
+
+.analytics-breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-4);
+}
+
+.analytics-breakdown-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+}
+
+.analytics-breakdown-card--loading {
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.analytics-breakdown-title {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-3);
+}
+
+.analytics-breakdown-bar {
+  display: flex;
+  height: 12px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: var(--space-3);
+}
+
+.analytics-breakdown-segment {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.analytics-breakdown-segment--green {
+  background: var(--color-success);
+}
+
+.analytics-breakdown-segment--amber {
+  background: var(--color-warning);
+}
+
+.analytics-breakdown-segment--red {
+  background: var(--color-error);
+}
+
+.analytics-breakdown-segment--blue {
+  background: var(--color-primary);
+}
+
+.analytics-breakdown-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.analytics-breakdown-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1-5, 6px);
+  font-size: var(--font-size-sm);
+}
+
+.analytics-breakdown-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.analytics-breakdown-dot--green {
+  background: var(--color-success);
+}
+
+.analytics-breakdown-dot--amber {
+  background: var(--color-warning);
+}
+
+.analytics-breakdown-dot--red {
+  background: var(--color-error);
+}
+
+.analytics-breakdown-dot--blue {
+  background: var(--color-primary);
+}
+
+.analytics-breakdown-item-label {
+  color: var(--color-text-secondary);
+}
+
+.analytics-breakdown-item-value {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.analytics-breakdown-total {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  text-align: right;
+}
+
+/* Live badge */
+.analytics-section-badge--live {
+  background: var(--overlay-blue-15);
+  color: var(--color-primary);
+}
+
+/* =============================================================================
+   RESPONSIVE - Activity & Breakdown
+   ============================================================================= */
+
+@media (max-width: 1200px) {
+  .analytics-stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 1025px) {
+  .analytics-breakdown-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .analytics-stats-row {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics-activity-card {
+    padding: var(--space-3);
+  }
+
+  .analytics-breakdown-legend {
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+}
+
+/* =============================================================================
+   DARK MODE
+   ============================================================================= */
+
+.dark .analytics-kpi-card {
+  background: var(--color-bg-secondary);
+}
+
+.dark .analytics-chart-placeholder {
+  background: var(--color-bg-secondary);
+}
+
+.dark .analytics-chart-placeholder-header {
+  background: var(--color-bg-tertiary);
+}
+
+.dark .analytics-activity-card {
+  background: var(--color-bg-secondary);
+}
+
+.dark .analytics-breakdown-card {
+  background: var(--color-bg-secondary);
+}
+
+/* =============================================================================
+   REAL CHART CARDS (Recharts)
+   ============================================================================= */
+
+.analytics-chart-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.analytics-chart-card:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-sm);
+}
+
+.analytics-chart-card--wide {
+  grid-column: 1 / -1;
+}
+
+.analytics-chart-card--pie {
+  /* Pie charts need more horizontal space for labels */
+}
+
+.analytics-chart-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.analytics-chart-header svg {
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+}
+
+.analytics-chart-badge {
+  margin-left: auto;
+  padding: var(--space-0-5, 2px) var(--space-2);
+  background: var(--overlay-blue-15);
+  color: var(--color-primary);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.analytics-chart-body {
+  padding: var(--space-4);
+  min-height: 200px;
+}
+
+.analytics-chart-body--pie {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.analytics-chart-loading {
+  padding: var(--space-4);
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.analytics-chart-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-4);
+  min-height: 200px;
+  color: var(--color-text-tertiary);
+  text-align: center;
+  gap: var(--space-2);
+}
+
+.analytics-chart-empty svg {
+  opacity: 0.5;
+}
+
+.analytics-chart-empty span {
+  font-size: var(--font-size-sm);
+}
+
+/* Pie Chart Legend */
+.analytics-pie-legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  padding-top: var(--space-2);
+}
+
+.analytics-pie-legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-sm);
+}
+
+.analytics-pie-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.analytics-pie-legend-label {
+  color: var(--color-text-secondary);
+}
+
+.analytics-pie-legend-value {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Recharts overrides for dark mode compatibility */
+.dark .analytics-chart-card {
+  background: var(--color-bg-secondary);
+}
+
+.dark .analytics-chart-header {
+  background: var(--color-bg-tertiary);
+}
+
+/* Recharts tooltip styling (inherited from component inline styles) */
+.recharts-tooltip-wrapper {
+  z-index: 100;
+}
+
+/* Legend text styling - high specificity to override Recharts inline */
+.analytics-tab .recharts-legend-item-text,
+.analytics-tab--premium .recharts-legend-item-text {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+/* =============================================================================
+   RESPONSIVE - Chart Cards
+   ============================================================================= */
+
+@media (max-width: 768px) {
+  .analytics-chart-body {
+    padding: var(--space-3);
+    min-height: 180px;
+  }
+
+  .analytics-chart-header {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--font-size-xs);
+  }
+
+  .analytics-pie-legend {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding: 0 var(--space-2);
+  }
+
+  .analytics-chart-badge {
+    font-size: 9px;
+    padding: 1px var(--space-1-5, 6px);
+  }
+}

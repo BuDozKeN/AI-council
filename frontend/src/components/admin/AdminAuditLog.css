@@ -112,3 +112,138 @@
   color: var(--color-text-muted);
   margin-top: var(--space-1);
 }
+
+/* Action text with reason (has eye icon) */
+.admin-action-text--has-reason {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  cursor: help;
+}
+
+.admin-action-text--has-reason svg {
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+.admin-action-text--has-reason:hover svg {
+  opacity: 1;
+}
+
+/* Audit reason tooltip */
+.admin-audit-reason-tooltip {
+  max-width: 280px;
+}
+
+.admin-audit-reason-tooltip strong {
+  display: block;
+  margin-bottom: var(--space-1);
+}
+
+.admin-audit-reason-tooltip p {
+  margin: 0;
+  opacity: 0.9;
+}
+
+/* =============================================================================
+   AUDIT LOG MOBILE LAYOUT
+   ============================================================================= */
+
+@media (max-width: 768px) {
+  /* Compact 2-line layout for audit logs:
+     Line 1: Action (bold)
+     Line 2: email • timestamp (inline) */
+
+  /* Override generic table - flexbox with wrap */
+  .admin-table.admin-table--audit tbody tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--space-1);
+    padding: var(--space-2) var(--space-4);
+  }
+
+  /* Reset all cells - hide by default */
+  .admin-table.admin-table--audit td {
+    position: absolute;
+    visibility: hidden;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Cell 3: Action - full width, forces wrap */
+  .admin-table.admin-table--audit td:nth-child(3) {
+    position: static;
+    visibility: visible;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    flex: 0 0 100%;
+    order: 1;
+  }
+
+  .admin-table.admin-table--audit td:nth-child(3) .admin-action-text {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-text-primary);
+    font-family: var(--font-mono, ui-monospace, monospace);
+  }
+
+  /* Cell 2: Email - inline on line 2 */
+  .admin-table.admin-table--audit td:nth-child(2) {
+    position: static;
+    visibility: visible;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    flex: 0 0 auto;
+    order: 2;
+  }
+
+  .admin-table.admin-table--audit td:nth-child(2) .admin-user-cell {
+    display: inline;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+  }
+
+  .admin-table.admin-table--audit td:nth-child(2) .admin-user-cell svg {
+    display: none;
+  }
+
+  /* Bullet separator after email */
+  .admin-table.admin-table--audit td:nth-child(2)::after {
+    content: "•";
+    margin-left: var(--space-1);
+    color: var(--color-text-muted);
+  }
+
+  /* Cell 1: Timestamp - inline after email */
+  .admin-table.admin-table--audit td:first-child {
+    position: static;
+    visibility: visible;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    flex: 0 0 auto;
+    order: 3;
+  }
+
+  .admin-table.admin-table--audit td:first-child .admin-date-cell {
+    display: inline;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+  }
+
+  .admin-table.admin-table--audit td:first-child .admin-date-cell svg {
+    display: none;
+  }
+
+  .admin-table.admin-table--audit td:first-child .admin-demo-badge {
+    display: none;
+  }
+
+  /* Category (4), Resource (5), IP (6) - remain hidden */
+}

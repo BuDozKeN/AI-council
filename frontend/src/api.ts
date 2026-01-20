@@ -3602,6 +3602,18 @@ export const api = {
   },
 
   /**
+   * Get model performance analytics (admin only).
+   */
+  async getModelAnalytics(): Promise<ModelAnalyticsResponse> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}${API_VERSION}/admin/model-analytics`, { headers });
+    if (!response.ok) {
+      throw new Error('Failed to fetch model analytics');
+    }
+    return response.json();
+  },
+
+  /**
    * List all platform users (admin only).
    */
   async listAdminUsers(params?: {
@@ -3772,7 +3784,10 @@ export const api = {
     });
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Failed to cancel invitation' }));
-      throw new Error(error.detail || 'Failed to cancel invitation');
+      // Handle both {detail: ...} and {error: {message: ...}} formats
+      const message = error.detail || error.error?.message || error.message || `HTTP ${response.status}`;
+      console.error('Cancel invitation error:', { status: response.status, error, invitationId });
+      throw new Error(message);
     }
     return response.json();
   },
@@ -3789,6 +3804,25 @@ export const api = {
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Failed to resend invitation' }));
       throw new Error(error.detail || 'Failed to resend invitation');
+    }
+    return response.json();
+  },
+
+  /**
+   * Permanently delete a cancelled/expired invitation (admin only).
+   * This removes the invitation record from the database.
+   */
+  async deleteAdminInvitation(
+    invitationId: string
+  ): Promise<{ success: boolean; message: string }> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/admin/invitations/${invitationId}/permanent`,
+      { method: 'DELETE', headers }
+    );
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to delete invitation' }));
+      throw new Error(error.detail || 'Failed to delete invitation');
     }
     return response.json();
   },
@@ -3815,7 +3849,7 @@ export const api = {
    */
   async updateAdminUser(
     userId: string,
-    data: { is_suspended?: boolean }
+    data: { is_suspended?: boolean; suspend_reason?: string }
   ): Promise<{ success: boolean; message: string }> {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}${API_VERSION}/admin/users/${userId}`, {
@@ -3831,18 +3865,71 @@ export const api = {
   },
 
   /**
-   * Delete a user and all their data (admin only).
-   * Requires confirm=true as a safety measure.
+   * Soft-delete a user (admin only).
+   * By default, performs a soft delete (user can be restored within 30 days).
+   * With permanent=true (super_admin only), permanently deletes all user data.
    */
-  async deleteAdminUser(userId: string): Promise<AdminDeleteUserResponse> {
+  async deleteAdminUser(
+    userId: string,
+    options?: { reason?: string; permanent?: boolean }
+  ): Promise<AdminDeleteUserResponse> {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}${API_VERSION}/admin/users/${userId}?confirm=true`, {
-      method: 'DELETE',
-      headers,
-    });
+    const params = new URLSearchParams({ confirm: 'true' });
+    if (options?.reason) {
+      params.set('reason', options.reason);
+    }
+    if (options?.permanent) {
+      params.set('permanent', 'true');
+    }
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/admin/users/${userId}?${params.toString()}`,
+      {
+        method: 'DELETE',
+        headers,
+      }
+    );
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Failed to delete user' }));
       throw new Error(error.detail || 'Failed to delete user');
+    }
+    return response.json();
+  },
+
+  /**
+   * Restore a soft-deleted user (admin only).
+   * Can only restore within the 30-day restoration window.
+   */
+  async restoreAdminUser(userId: string): Promise<AdminRestoreUserResponse> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}${API_VERSION}/admin/users/${userId}/restore`, {
+      method: 'POST',
+      headers,
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to restore user' }));
+      throw new Error(error.detail || 'Failed to restore user');
+    }
+    return response.json();
+  },
+
+  /**
+   * List soft-deleted users (admin only).
+   */
+  async listDeletedUsers(options?: {
+    include_anonymized?: boolean;
+  }): Promise<{ deleted_users: AdminDeletedUser[]; total: number }> {
+    const headers = await getAuthHeaders();
+    const params = new URLSearchParams();
+    if (options?.include_anonymized) {
+      params.set('include_anonymized', 'true');
+    }
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/admin/users/deleted?${params.toString()}`,
+      { headers }
+    );
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to list deleted users' }));
+      throw new Error(error.detail || 'Failed to list deleted users');
     }
     return response.json();
   },
@@ -3980,6 +4067,28 @@ export interface AdminStats {
   active_users_7d: number;
 }
 
+export interface ModelRanking {
+  model: string;
+  avg_rank: number;
+  sessions: number;
+  wins: number;
+  win_rate: number;
+}
+
+export interface DepartmentLeaderboard {
+  department: string;
+  leader: ModelRanking | null;
+  sessions: number;
+  leaderboard: ModelRanking[];
+}
+
+export interface ModelAnalyticsResponse {
+  overall_leader: ModelRanking | null;
+  total_sessions: number;
+  overall_leaderboard: ModelRanking[];
+  departments: DepartmentLeaderboard[];
+}
+
 export interface AdminPlatformUser {
   id: string;
   email: string;
@@ -4092,10 +4201,36 @@ export interface AdminUserDetails {
 export interface AdminDeleteUserResponse {
   success: boolean;
   message: string;
-  deleted: {
+  type: 'soft_delete' | 'permanent';
+  // For soft delete
+  restoration_deadline_days?: number;
+  data_preserved?: {
     companies: number;
     conversations: number;
   };
+  // For permanent delete
+  deleted?: {
+    companies: number;
+    conversations: number;
+  };
+}
+
+export interface AdminDeletedUser {
+  user_id: string;
+  email: string | null;
+  deleted_at: string;
+  deleted_by: string | null;
+  deletion_reason: string | null;
+  restoration_deadline: string;
+  can_restore: boolean;
+  days_until_anonymization: number | null;
+  is_anonymized: boolean;
+}
+
+export interface AdminRestoreUserResponse {
+  success: boolean;
+  message: string;
+  user_id: string;
 }
 
 export interface AdminUpdateUserResponse {

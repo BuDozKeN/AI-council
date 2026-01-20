@@ -113,9 +113,10 @@
   }
 }
 
-@media (max-width: 641px) {
+@media (max-width: 768px) {
+  /* Hide stats on mobile - redundant with Analytics tab */
   .admin-stats-grid {
-    grid-template-columns: 1fr;
+    display: none;
   }
 }
 

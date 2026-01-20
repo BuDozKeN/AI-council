@@ -1,0 +1,73 @@
+/**
+ * ConfirmDialog.css
+ * Styles for confirmation dialog component
+ */
+
+.confirm-dialog-content {
+  max-width: 400px;
+}
+
+.confirm-dialog-header {
+  text-align: center;
+  gap: var(--space-3);
+}
+
+.confirm-dialog-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-full);
+  margin: 0 auto var(--space-2);
+}
+
+.confirm-dialog-icon--danger {
+  background: var(--color-bg-error);
+  color: var(--color-text-error);
+}
+
+.confirm-dialog-icon--warning {
+  background: var(--color-bg-warning);
+  color: var(--color-text-warning);
+}
+
+.confirm-dialog-icon--info {
+  background: var(--color-bg-info);
+  color: var(--color-text-info);
+}
+
+.confirm-dialog-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.confirm-dialog-description {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.confirm-dialog-footer {
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.confirm-dialog-cancel,
+.confirm-dialog-confirm {
+  flex: 1;
+  min-width: 100px;
+}
+
+/* Mobile: Stack buttons */
+@media (max-width: 640px) {
+  .confirm-dialog-footer {
+    flex-direction: column-reverse;
+  }
+
+  .confirm-dialog-cancel,
+  .confirm-dialog-confirm {
+    width: 100%;
+  }
+}
