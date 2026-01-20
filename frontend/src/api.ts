@@ -3555,13 +3555,21 @@ export const api = {
   /**
    * Check if the current user has admin access.
    * Returns admin status and role from platform_admins table.
+   * Includes a 10-second timeout to prevent hanging indefinitely.
    */
   async checkAdminAccess(): Promise<{ is_admin: boolean; role: string | null }> {
-    const headers = await getAuthHeaders();
+    // Use AbortController for timeout (10s for admin check)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
     try {
+      const headers = await getAuthHeaders();
       const response = await fetch(`${API_BASE}${API_VERSION}/admin/check-access`, {
         headers,
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
+
       // 403 means user is not an admin - return gracefully
       if (response.status === 403) {
         return { is_admin: false, role: null };
@@ -3571,6 +3579,11 @@ export const api = {
       }
       return response.json();
     } catch (error) {
+      clearTimeout(timeoutId);
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.error('Admin access check timed out after 10s');
+        throw new Error('Admin access check timed out. Please check your network connection.');
+      }
       console.error('Failed to check admin access:', error);
       return { is_admin: false, role: null };
     }
