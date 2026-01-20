@@ -26,5 +26,8 @@ Allow: /leaderboard
 # Sitemap location
 Sitemap: https://axcouncil.ai/sitemap.xml
 
+# AI Crawler Content (llms.txt) - curated content for AI models
+# See: https://axcouncil.ai/llms.txt
+
 # Crawl rate (optional - adjust based on server capacity)
 # Crawl-delay: 1

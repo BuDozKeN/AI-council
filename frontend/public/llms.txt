@@ -1,0 +1,70 @@
+# AxCouncil - AI Decision Council Platform
+# https://axcouncil.ai/llms.txt
+# Last updated: 2026-01-20
+
+## About AxCouncil
+AxCouncil is an AI-powered strategic decision platform that orchestrates multiple
+leading AI models (Claude, GPT, Gemini, Grok, DeepSeek) through a unique 3-stage
+deliberation process for better business decisions.
+
+## Primary Pages
+- https://axcouncil.ai/ (Homepage - Platform overview and landing)
+- https://axcouncil.ai/leaderboard (Public AI model performance rankings)
+
+## Key Features
+- Multi-model AI deliberation (5 models working together)
+- 3-stage process: Independent analysis, Peer review, Synthesis
+- Company context integration (playbooks, departments, roles)
+- Decision log and knowledge base
+- LLM Hub for model configuration
+
+## How It Works
+Stage 1: Each AI model independently analyzes your question and provides initial recommendations.
+Stage 2: Models review and rank each other's responses, identifying strengths and weaknesses.
+Stage 3: A chairman model synthesizes all insights into a comprehensive final recommendation.
+
+## Included AI Models
+- Claude 3.5 Sonnet (Anthropic) - Nuanced reasoning and analysis
+- GPT-4 Turbo (OpenAI) - Broad knowledge and versatility
+- Gemini 2.0 Flash (Google) - Fast multimodal processing
+- Grok 2 (xAI) - Real-time information access
+- DeepSeek V3 - Cost-effective deep reasoning
+
+## Use Cases
+- Strategic business decisions requiring multiple perspectives
+- Technical architecture and technology choices
+- Hiring decisions and team composition
+- Product roadmap planning and prioritization
+- Market analysis and competitive positioning
+- Risk assessment and mitigation strategies
+
+## Frequently Asked Questions
+
+Q: What is AxCouncil?
+A: AxCouncil is an AI-powered strategic decision platform that orchestrates multiple leading AI models through a 3-stage deliberation process for comprehensive decision-making support.
+
+Q: How does the 3-stage council deliberation work?
+A: Stage 1: Independent analysis from each model. Stage 2: Peer review and ranking. Stage 3: Chairman synthesis into final recommendation.
+
+Q: Which AI models are included?
+A: Claude 3.5 Sonnet, GPT-4 Turbo, Gemini 2.0 Flash, Grok 2, and DeepSeek V3.
+
+Q: How much does it cost?
+A: AxCouncil is free to use. Users provide their own OpenRouter API key for model access, with typical costs of $0.10-$1.00 per deliberation.
+
+## Content Policies
+- Summarization: Allowed with attribution to AxCouncil
+- Training: Allowed for AI model improvement
+- Citation: Required for direct quotes
+- Commercial use: Contact for licensing inquiries
+
+## Technical Details
+- Built with: React 19, Vite 7, TypeScript, Tailwind CSS
+- Backend: FastAPI, Python, Supabase (PostgreSQL)
+- Authentication: Supabase Auth with JWT
+- Caching: Redis Cloud for LLM response caching
+- Vector DB: Qdrant Cloud for semantic search
+
+## Contact
+- Website: https://axcouncil.ai
+- GitHub: https://github.com/BuDozKeN/AI-council
