@@ -35,7 +35,7 @@
 
   /* AI intro banner - full width, balanced padding */
   .pm-modal-body .pm-ai-intro {
-    margin: 0 0 16px;
+    margin: 0 0 var(--space-4);
     padding: var(--space-3-5) var(--space-4);
     border-radius: var(--radius-lg);
   }
@@ -51,7 +51,7 @@
   .pm-modal-body .pm-actions {
     margin-top: auto;
     padding: var(--space-4) 0;
-    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
     gap: var(--gap-sm-plus);
     border-top: 1px solid var(--color-border);
   }

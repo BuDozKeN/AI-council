@@ -80,7 +80,7 @@
   justify-content: center;
   min-width: 16px;
   height: 16px;
-  padding: 0 4px;
+  padding: 0 var(--space-1);
   margin-right: var(--space-1);
   background: var(--color-bg-tertiary);
   color: var(--color-text-secondary);
@@ -237,7 +237,7 @@
   /* Right side must stay visible - never shrink, but use compact sizing */
   .omni-bar-right {
     flex-shrink: 0;
-    gap: 4px;
+    gap: var(--space-1);
   }
 
   /* Compact action buttons on mobile */
@@ -300,7 +300,7 @@
   }
 
   .inline-mode-indicator {
-    padding: 4px 6px;
+    padding: var(--space-1) 6px;
     font-size: var(--text-2xs); /* 10px - closest to 9px */
     min-height: 24px;
     display: flex;

@@ -291,8 +291,8 @@
   background: var(--color-sky-50);
   border-left: 3px solid var(--color-blue-500);
   border-radius: 0 8px 8px 0;
-  padding: var(--space-3) var(--space-3) 12px 16px;
-  margin-left: -4px;
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+  margin-left: calc(-1 * var(--space-1));
 }
 
 /* Items in a linked group */
@@ -334,7 +334,7 @@
 }
 
 .mc-timeline-summary .markdown-viewer p {
-  margin: 0 0 8px;
+  margin: 0 0 var(--space-2);
 }
 
 .mc-timeline-summary .markdown-viewer p:last-child {
@@ -387,10 +387,10 @@
 
 .mc-timeline-answer {
   position: relative;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
   max-height: 400px;
   overflow-y: auto;
-  padding: 16px;
+  padding: var(--space-4);
   background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -403,7 +403,7 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: var(--color-text-secondary);
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 
 /* Sticky container for copy button */
@@ -412,8 +412,8 @@
   inset-block-start: 0;
   float: inline-end;
   z-index: var(--z-elevated);
-  margin-left: 12px;
-  margin-bottom: 8px;
+  margin-left: var(--space-3);
+  margin-bottom: var(--space-2);
 }
 
 /* Inside content preview */
@@ -422,8 +422,8 @@
   inset-block-start: 0;
   float: inline-end;
   background: var(--color-bg-primary);
-  padding: 4px;
-  margin: -4px -4px 8px 12px;
+  padding: var(--space-1);
+  margin: calc(-1 * var(--space-1)) calc(-1 * var(--space-1)) var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
 }
 
@@ -433,8 +433,8 @@
   inset-block-start: 0;
   float: inline-end;
   background: var(--color-bg-secondary);
-  padding: 4px;
-  margin: -4px -4px 8px 12px;
+  padding: var(--space-1);
+  margin: calc(-1 * var(--space-1)) calc(-1 * var(--space-1)) var(--space-2) var(--space-3);
   border-radius: var(--radius-md);
 }
 
@@ -476,8 +476,8 @@
 
 /* Decision summary in expanded body - NEVER truncate */
 .mc-timeline-body .mc-timeline-summary {
-  margin-bottom: 16px;
-  padding: 14px 16px;
+  margin-bottom: var(--space-4);
+  padding: 14px var(--space-4);
   background: var(--color-amber-50);
   border: 1px solid var(--color-amber-300);
   border-radius: var(--radius-md);

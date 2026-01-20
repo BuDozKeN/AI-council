@@ -119,13 +119,13 @@
 }
 
 .mc-promote-content-rendered p {
-  margin: 0 0 12px;
+  margin: 0 0 var(--space-3);
 }
 
 .mc-promote-content-rendered h1,
 .mc-promote-content-rendered h2,
 .mc-promote-content-rendered h3 {
-  margin-block: 16px 8px;
+  margin-block: var(--space-4) var(--space-2);
 }
 
 .mc-promote-content-rendered ul,

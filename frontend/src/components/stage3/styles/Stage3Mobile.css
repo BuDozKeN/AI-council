@@ -93,7 +93,7 @@
 
   /* Code blocks - edge to edge for more space */
   .code-block-wrapper {
-    margin-left: -16px;
+    margin-left: calc(-1 * var(--space-4));
     border-radius: 0;
     border-left: none;
     border-right: none;

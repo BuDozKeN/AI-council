@@ -345,17 +345,17 @@
 
 /* Preset colors - dark mode */
 .dark .llm-preset-item.preset-conservative .llm-preset-item-icon {
-  background: var(--overlay-blue-15, rgb(59 130 246 / 15%));
+  background: var(--overlay-blue-15);
   color: var(--color-blue-400);
 }
 
 .dark .llm-preset-item.preset-balanced .llm-preset-item-icon {
-  background: var(--overlay-amber-15, rgb(245 158 11 / 15%));
+  background: var(--overlay-amber-15);
   color: var(--color-amber-400);
 }
 
 .dark .llm-preset-item.preset-creative .llm-preset-item-icon {
-  background: var(--overlay-purple-15, rgb(168 85 247 / 15%));
+  background: var(--overlay-purple-15);
   color: var(--color-purple-400);
 }
 

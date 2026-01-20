@@ -121,7 +121,7 @@
 }
 
 .api-key-benefits h4 {
-  margin: 0 0 12px;
+  margin: 0 0 var(--space-3);
   font-size: var(--text-sm);
   font-weight: 600;
   color: var(--color-text-primary);
@@ -182,7 +182,7 @@
 }
 
 .info-card h4 {
-  margin: 0 0 12px;
+  margin: 0 0 var(--space-3);
   font-size: var(--text-sm);
   font-weight: 600;
   color: var(--color-text-primary);
@@ -191,7 +191,7 @@
 .info-card p {
   font-size: var(--text-xs-plus);
   color: var(--color-text-secondary);
-  margin: 0 0 12px;
+  margin: 0 0 var(--space-3);
   line-height: 1.6;
 }
 

@@ -112,7 +112,7 @@
 
   /* Chart container - dynamic height from JS */
   .mc-usage-chart-container {
-    margin: 0 -4px;
+    margin: 0 calc(-1 * var(--space-1));
   }
 
   /* Model breakdown - compact on mobile */

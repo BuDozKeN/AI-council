@@ -261,7 +261,7 @@
 
   /* Ensure container allows clicks through */
   position: relative;
-  z-index: 2;
+  z-index: var(--z-above);
   pointer-events: auto;
 }
 
@@ -279,7 +279,7 @@
 
   /* Ensure buttons are always clickable - explicit mobile touch handling */
   position: relative;
-  z-index: 10;
+  z-index: var(--z-elevated);
   pointer-events: auto;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;

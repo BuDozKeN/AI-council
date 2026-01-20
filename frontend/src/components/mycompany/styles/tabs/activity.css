@@ -89,7 +89,7 @@
   color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin: 0 0 12px;
+  margin: 0 0 var(--space-3);
 }
 
 .mc-activity-list {

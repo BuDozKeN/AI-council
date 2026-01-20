@@ -60,7 +60,7 @@
 
 .mobile-nav-item.active {
   color: var(--color-brand-primary);
-  background: var(--overlay-indigo-10, rgb(99 102 241 / 10%));
+  background: var(--overlay-indigo-10);
   border-radius: var(--radius-lg);
 }
 

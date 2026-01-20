@@ -90,12 +90,12 @@
 }
 
 .admin-status-badge--cancelled {
-  background: rgb(239 68 68 / 15%);
+  background: var(--overlay-red-15);
   color: var(--color-destructive);
 }
 
 .admin-status-badge--suspended {
-  background: rgb(239 68 68 / 15%);
+  background: var(--overlay-red-15);
   color: var(--color-destructive);
 }
 
@@ -110,7 +110,7 @@
 }
 
 .admin-role-badge--super_admin {
-  background: rgb(139 92 246 / 15%);
+  background: var(--overlay-purple-15);
   color: var(--color-violet-500);
 }
 
@@ -275,6 +275,61 @@
 .admin-actions-cell {
   display: flex;
   gap: var(--space-2);
+}
+
+/* =============================================================================
+   AUDIT LOG ACTION TEXT
+   ============================================================================= */
+
+.admin-action-text {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.admin-action-text--has-reason {
+  color: var(--color-primary);
+  cursor: help;
+}
+
+.admin-action-text--has-reason svg {
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.admin-action-text--has-reason:hover {
+  text-decoration: underline;
+}
+
+.admin-action-text--has-reason:hover svg {
+  opacity: 1;
+}
+
+/* Tooltip content for audit reason */
+.admin-audit-reason-tooltip {
+  max-width: 300px;
+  padding: var(--space-1);
+}
+
+.admin-audit-reason-tooltip strong {
+  display: block;
+  margin-bottom: var(--space-1);
+
+  /* Inherit tooltip's inverted color scheme with reduced opacity */
+  color: var(--color-bg-primary);
+  opacity: 0.7;
+  font-size: var(--font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admin-audit-reason-tooltip p {
+  margin: 0;
+
+  /* Inherit tooltip's inverted color scheme */
+  color: var(--color-bg-primary);
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
 }
 
 /* =============================================================================

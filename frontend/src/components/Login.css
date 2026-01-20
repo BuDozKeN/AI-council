@@ -106,7 +106,7 @@
   font-size: var(--text-3xl);
   font-weight: 700;
   color: var(--color-text-inverse);
-  margin: 0 0 8px;
+  margin: 0 0 var(--space-2);
   letter-spacing: -0.5px;
   text-shadow: 0 2px 10px var(--overlay-black-30);
 }
@@ -115,7 +115,7 @@
   font-size: var(--text-xl);
   font-weight: 500;
   color: var(--overlay-white-90);
-  margin: 0 0 4px;
+  margin: 0 0 var(--space-1);
 }
 
 .login-description {
