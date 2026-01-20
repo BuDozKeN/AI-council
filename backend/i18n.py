@@ -12,11 +12,13 @@ Usage:
 """
 
 import json
+import logging
 import os
 from pathlib import Path
 from typing import Dict, Optional
 from functools import lru_cache
 
+logger = logging.getLogger(__name__)
 
 # Supported locales
 SUPPORTED_LOCALES = ['en', 'es', 'de', 'fr', 'pt', 'ja', 'zh', 'ar']
@@ -50,7 +52,7 @@ def load_translations(locale: str) -> Dict[str, str]:
         with open(locale_file, 'r', encoding='utf-8') as f:
             return json.load(f)
     except Exception as e:
-        print(f"[i18n] Error loading translations for {locale}: {e}")
+        logger.warning(f"Error loading translations for {locale}: {e}")
         if locale != DEFAULT_LOCALE:
             return load_translations(DEFAULT_LOCALE)
         return {}

@@ -385,12 +385,12 @@ npm run test:e2e
 
 Use this checklist to track progress:
 
-### Phase 1 (Zero Risk)
-- [ ] Remove unused celebration functions
-- [ ] Remove unused OG image functions
-- [ ] Remove debug console.logs from useImpersonation
-- [ ] Convert backend print() to logger
-- [ ] Clean up root utility scripts
+### Phase 1 (Zero Risk) - COMPLETED 2026-01-20
+- [x] Remove unused celebration functions (celebrate.ts: -150 lines)
+- [x] Remove unused OG image functions (ogImageConfig.ts: -85 lines)
+- [x] Remove debug console.logs from useImpersonation (useImpersonation.ts: -54 lines)
+- [x] Convert backend print() to logger (ai_i18n.py, i18n.py, email.py)
+- [x] Clean up root utility scripts (deleted: main.py, check_context.py, create_project.py, fix_selects.py)
 
 ### Phase 2 (Low Risk)
 - [ ] Rename _refactored files
@@ -413,13 +413,14 @@ Use this checklist to track progress:
 ## Appendix: Full File Location Reference
 
 ### Dead Code Locations
-| Issue | File | Lines |
-|-------|------|-------|
-| Unused celebrate functions | `frontend/src/lib/celebrate.ts` | 19-104 |
-| Unused OG image functions | `frontend/src/lib/seo/ogImageConfig.ts` | 112-137 |
-| Unused webShare functions | `frontend/src/lib/webShare.ts` | all exports |
-| Debug console.logs | `frontend/src/hooks/useImpersonation.ts` | 129-330 |
-| Backend print statements | `backend/ai_i18n.py`, `backend/services/email.py`, `backend/i18n.py` | various |
+| Issue | File | Status |
+|-------|------|--------|
+| ~~Unused celebrate functions~~ | `frontend/src/lib/celebrate.ts` | **REMOVED** |
+| ~~Unused OG image functions~~ | `frontend/src/lib/seo/ogImageConfig.ts` | **REMOVED** |
+| Unused webShare functions | `frontend/src/lib/webShare.ts` | Pending (Phase 2) |
+| ~~Debug console.logs~~ | `frontend/src/hooks/useImpersonation.ts` | **REMOVED** |
+| ~~Backend print statements~~ | `backend/ai_i18n.py`, `backend/services/email.py`, `backend/i18n.py` | **CONVERTED TO LOGGER** |
+| ~~Root utility scripts~~ | `main.py`, `check_context.py`, `create_project.py`, `fix_selects.py` | **DELETED** |
 
 ### Hardcoded Values Locations
 | Issue | File | Lines |
