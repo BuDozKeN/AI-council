@@ -94,7 +94,6 @@ function ImpersonateUserModalComponent({
       }
     },
     [
-      canSubmit,
       startImpersonation,
       targetUser.id,
       reason,
@@ -102,6 +101,7 @@ function ImpersonateUserModalComponent({
       isMutating,
       onSuccess,
       onClose,
+      t,
     ]
   );
 
