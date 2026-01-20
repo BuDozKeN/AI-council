@@ -265,19 +265,27 @@ def get_leaderboard_summary() -> Dict[str, Any]:
     overall = get_overall_leaderboard()
     departments = get_all_department_leaderboards()
 
+    # Total sessions = max sessions of any single model (since all models should
+    # participate in the same sessions, the max is the most accurate count)
+    # Using max instead of sum/len to handle cases where some models might be
+    # missing from a few sessions
+    total_sessions = max((m["sessions"] for m in overall), default=0) if overall else 0
+
     summary = {
         "overall": {
             "leader": overall[0] if overall else None,
-            "total_sessions": sum(m["sessions"] for m in overall) // len(overall) if overall else 0,
+            "total_sessions": total_sessions,
             "leaderboard": overall
         },
         "departments": {}
     }
 
     for dept, leaderboard in departments.items():
+        # Per-department sessions = max sessions of any model in that department
+        dept_sessions = max((m["sessions"] for m in leaderboard), default=0) if leaderboard else 0
         summary["departments"][dept] = {
             "leader": leaderboard[0] if leaderboard else None,
-            "sessions": sum(m["sessions"] for m in leaderboard) // len(leaderboard) if leaderboard else 0,
+            "sessions": dept_sessions,
             "leaderboard": leaderboard
         }
 
