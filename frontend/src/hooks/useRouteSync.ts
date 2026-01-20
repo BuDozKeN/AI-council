@@ -145,9 +145,10 @@ export function useRouteSync(options: UseRouteSyncOptions) {
 
         if (currentConversationId && !currentConversationId.startsWith('temp-')) {
           // Real conversation - ensure URL matches
-          // Use replace here since navigateToChat already pushed
+          // Use push (not replace) to create history entries for back button navigation
+          // The condition check prevents duplicate entries when navigateToChat already pushed
           if (currentUrlConversationId !== currentConversationId) {
-            navigate(`/chat/${currentConversationId}`, { replace: true });
+            navigate(`/chat/${currentConversationId}`);
           }
         } else if (pathname !== '/') {
           // Temp or no conversation - go to home
