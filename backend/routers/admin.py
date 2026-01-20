@@ -453,6 +453,111 @@ class UpdateUserRequest(BaseModel):
     suspend_reason: Optional[str] = None
 
 
+class DeletedUser(BaseModel):
+    """Deleted user information."""
+    user_id: str
+    email: Optional[str] = None  # May be anonymized
+    deleted_at: datetime
+    deleted_by: Optional[str] = None
+    deletion_reason: Optional[str] = None
+    restoration_deadline: datetime
+    can_restore: bool
+    days_until_anonymization: Optional[int] = None
+    is_anonymized: bool
+
+
+# IMPORTANT: This endpoint must be defined BEFORE /users/{target_user_id}
+# to prevent FastAPI from treating "deleted" as a user_id parameter
+@router.get("/users/deleted")
+@limiter.limit("30/minute")
+async def list_deleted_users(
+    request: Request,
+    user: dict = Depends(get_current_user),
+    include_anonymized: bool = Query(False, description="Include anonymized users"),
+):
+    """
+    List soft-deleted users (admin only).
+
+    Returns users that have been soft-deleted and are pending restoration
+    or anonymization.
+    """
+    admin_user_id = user.get("id")
+
+    # Verify admin access
+    is_admin, _ = await check_is_platform_admin(admin_user_id)
+    if not is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    try:
+        supabase = get_supabase_service()
+
+        query = supabase.table("user_deletions").select("*")
+        if not include_anonymized:
+            query = query.is_("anonymized_at", "null")
+        query = query.is_("permanently_deleted_at", "null")
+
+        result = query.order("deleted_at", desc=True).execute()
+
+        deleted_users = []
+        now = datetime.utcnow()
+
+        for record in (result.data or []):
+            restoration_deadline = datetime.fromisoformat(
+                record["restoration_deadline"].replace("Z", "+00:00")
+            ).replace(tzinfo=None)
+            can_restore = restoration_deadline > now and record.get("anonymized_at") is None
+
+            days_until = None
+            if can_restore:
+                days_until = (restoration_deadline - now).days
+
+            # Try to get email from metadata or auth
+            email = None
+            if record.get("metadata", {}).get("original_email"):
+                email = record["metadata"]["original_email"]
+            elif not record.get("anonymized_at"):
+                try:
+                    user_resp = supabase.auth.admin.get_user_by_id(record["user_id"])
+                    if user_resp.user:
+                        email = user_resp.user.email
+                except Exception:
+                    pass
+
+            deleted_users.append(DeletedUser(
+                user_id=record["user_id"],
+                email=email,
+                deleted_at=record["deleted_at"],
+                deleted_by=record.get("deleted_by"),
+                deletion_reason=record.get("deletion_reason"),
+                restoration_deadline=record["restoration_deadline"],
+                can_restore=can_restore,
+                days_until_anonymization=days_until,
+                is_anonymized=record.get("anonymized_at") is not None,
+            ))
+
+        log_app_event(
+            "ADMIN: Listed deleted users",
+            user_id=admin_user_id,
+            count=len(deleted_users),
+        )
+
+        return {
+            "deleted_users": [u.model_dump() for u in deleted_users],
+            "total": len(deleted_users),
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        log_app_event(
+            "ADMIN: Failed to list deleted users",
+            level="ERROR",
+            user_id=admin_user_id,
+            error=str(e)
+        )
+        raise SecureHTTPException.internal_error("Failed to list deleted users")
+
+
 @router.get("/users/{target_user_id}")
 @limiter.limit("30/minute;100/hour")
 async def get_user_details(
@@ -924,111 +1029,8 @@ async def delete_user(
 
 
 # =============================================================================
-# DELETED USERS MANAGEMENT
+# USER RESTORATION
 # =============================================================================
-
-class DeletedUser(BaseModel):
-    """Deleted user information."""
-    user_id: str
-    email: Optional[str] = None  # May be anonymized
-    deleted_at: datetime
-    deleted_by: Optional[str] = None
-    deletion_reason: Optional[str] = None
-    restoration_deadline: datetime
-    can_restore: bool
-    days_until_anonymization: Optional[int] = None
-    is_anonymized: bool
-
-
-@router.get("/users/deleted")
-@limiter.limit("30/minute")
-async def list_deleted_users(
-    request: Request,
-    user: dict = Depends(get_current_user),
-    include_anonymized: bool = Query(False, description="Include anonymized users"),
-):
-    """
-    List soft-deleted users (admin only).
-
-    Returns users that have been soft-deleted and are pending restoration
-    or anonymization.
-    """
-    admin_user_id = user.get("id")
-
-    # Verify admin access
-    is_admin, _ = await check_is_platform_admin(admin_user_id)
-    if not is_admin:
-        raise HTTPException(status_code=403, detail="Admin access required")
-
-    try:
-        supabase = get_supabase_service()
-
-        query = supabase.table("user_deletions").select("*")
-        if not include_anonymized:
-            query = query.is_("anonymized_at", "null")
-        query = query.is_("permanently_deleted_at", "null")
-
-        result = query.order("deleted_at", desc=True).execute()
-
-        deleted_users = []
-        now = datetime.utcnow()
-
-        for record in (result.data or []):
-            restoration_deadline = datetime.fromisoformat(
-                record["restoration_deadline"].replace("Z", "+00:00")
-            ).replace(tzinfo=None)
-            can_restore = restoration_deadline > now and record.get("anonymized_at") is None
-
-            days_until = None
-            if can_restore:
-                days_until = (restoration_deadline - now).days
-
-            # Try to get email from metadata or auth
-            email = None
-            if record.get("metadata", {}).get("original_email"):
-                email = record["metadata"]["original_email"]
-            elif not record.get("anonymized_at"):
-                try:
-                    user_resp = supabase.auth.admin.get_user_by_id(record["user_id"])
-                    if user_resp.user:
-                        email = user_resp.user.email
-                except Exception:
-                    pass
-
-            deleted_users.append(DeletedUser(
-                user_id=record["user_id"],
-                email=email,
-                deleted_at=record["deleted_at"],
-                deleted_by=record.get("deleted_by"),
-                deletion_reason=record.get("deletion_reason"),
-                restoration_deadline=record["restoration_deadline"],
-                can_restore=can_restore,
-                days_until_anonymization=days_until,
-                is_anonymized=record.get("anonymized_at") is not None,
-            ))
-
-        log_app_event(
-            "ADMIN: Listed deleted users",
-            user_id=admin_user_id,
-            count=len(deleted_users),
-        )
-
-        return {
-            "deleted_users": [u.model_dump() for u in deleted_users],
-            "total": len(deleted_users),
-        }
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        log_app_event(
-            "ADMIN: Failed to list deleted users",
-            level="ERROR",
-            user_id=admin_user_id,
-            error=str(e)
-        )
-        raise SecureHTTPException.internal_error("Failed to list deleted users")
-
 
 @router.post("/users/{target_user_id}/restore")
 @limiter.limit("10/minute")
