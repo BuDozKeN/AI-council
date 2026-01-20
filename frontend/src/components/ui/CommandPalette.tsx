@@ -14,6 +14,7 @@
 
 import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import { useTranslation } from 'react-i18next';
+import { getIntlLocale } from '../../i18n';
 import { Command } from 'cmdk';
 import { createPortal } from 'react-dom';
 import { handleKeyPress } from '../../utils/a11y';
@@ -440,7 +441,9 @@ export function CommandPalette({
       list.push({
         id: `conv-${conv.id}`,
         label: conv.title || t('commandPalette.actions.untitledConversation'),
-        description: conv.created_at ? new Date(conv.created_at).toLocaleDateString() : undefined,
+        description: conv.created_at
+          ? new Date(conv.created_at).toLocaleDateString(getIntlLocale())
+          : undefined,
         icon: <Icons.MessageSquare />,
         category: 'conversations',
         keywords: ['chat', 'history', 'conversation'],

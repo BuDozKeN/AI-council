@@ -198,5 +198,3 @@ export const celebrate = {
   fireworks: celebrateFireworks,
   sparkle: celebrateSparkle,
 };
-
-export default celebrate;

@@ -16,6 +16,12 @@ from datetime import datetime, timezone
 from typing import Optional, Dict, Any
 from fastapi import HTTPException, Request
 
+# Import i18n - must be here to avoid circular imports
+try:
+    from .i18n import t
+except ImportError:
+    from backend.i18n import t
+
 # =============================================================================
 # STRUCTURED JSON LOGGING
 # =============================================================================
@@ -219,7 +225,8 @@ class SecureHTTPException:
         resource_type: str = "Resource",
         log_details: Optional[Dict] = None,
         user_id: Optional[str] = None,
-        resource_id: Optional[str] = None
+        resource_id: Optional[str] = None,
+        locale: str = "en"
     ) -> HTTPException:
         """Return a generic 404 without leaking what resource was requested."""
         if log_details or resource_id:
@@ -230,14 +237,15 @@ class SecureHTTPException:
                 resource_id=resource_id,
                 details=log_details
             )
-        return HTTPException(status_code=404, detail="Resource not found")
+        return HTTPException(status_code=404, detail=t("errors.not_found", locale))
 
     @staticmethod
     def access_denied(
         user_id: Optional[str] = None,
         resource_type: Optional[str] = None,
         resource_id: Optional[str] = None,
-        ip_address: Optional[str] = None
+        ip_address: Optional[str] = None,
+        locale: str = "en"
     ) -> HTTPException:
         """Return a generic 403 and log the access attempt."""
         log_security_event(
@@ -248,12 +256,13 @@ class SecureHTTPException:
             ip_address=ip_address,
             severity="WARNING"
         )
-        return HTTPException(status_code=403, detail="Access denied")
+        return HTTPException(status_code=403, detail=t("errors.forbidden", locale))
 
     @staticmethod
     def unauthorized(
         ip_address: Optional[str] = None,
-        details: Optional[Dict] = None
+        details: Optional[Dict] = None,
+        locale: str = "en"
     ) -> HTTPException:
         """Return a generic 401 for auth failures."""
         log_security_event(
@@ -262,7 +271,7 @@ class SecureHTTPException:
             details=details,
             severity="WARNING"
         )
-        return HTTPException(status_code=401, detail="Authentication required")
+        return HTTPException(status_code=401, detail=t("errors.authentication_required", locale))
 
     @staticmethod
     def bad_request(
@@ -283,7 +292,8 @@ class SecureHTTPException:
     def internal_error(
         log_message: str,
         user_id: Optional[str] = None,
-        include_reference: bool = True
+        include_reference: bool = True,
+        locale: str = "en"
     ) -> HTTPException:
         """
         Return a generic 500 error with optional reference ID for support.
@@ -304,9 +314,9 @@ class SecureHTTPException:
         if include_reference:
             return HTTPException(
                 status_code=500,
-                detail=f"An error occurred. Reference: {ref_id}"
+                detail=t("errors.server_error_with_ref", locale, ref_id=ref_id)
             )
-        return HTTPException(status_code=500, detail="An error occurred")
+        return HTTPException(status_code=500, detail=t("errors.server_error", locale))
 
     @staticmethod
     def rate_limited(

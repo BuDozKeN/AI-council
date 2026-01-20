@@ -1708,6 +1708,13 @@
     "title": "Admin Portal",
     "badge": "Platform Admin",
     "loading": "Checking admin access...",
+    "demo": "DEMO",
+    "error": "Connection Error",
+    "retry": "Retry",
+    "notLoggedIn": "Not Logged In",
+    "pleaseLogin": "Please log in to access the admin portal.",
+    "accessDenied": "Access Denied",
+    "notAuthorized": "You are not authorized to access the admin portal. This area is restricted to platform administrators.",
     "tabs": {
       "users": "Users",
       "companies": "Companies",
@@ -1720,7 +1727,8 @@
       "totalUsers": "Total Users",
       "totalCompanies": "Total Companies",
       "totalConversations": "Conversations",
-      "totalMessages": "Messages"
+      "totalMessages": "Messages",
+      "demoMode": "Sample data"
     },
     "users": {
       "title": "User Management",
@@ -1733,7 +1741,31 @@
       "actions": "Actions",
       "impersonate": "View as user",
       "suspend": "Suspend user",
-      "delete": "Delete user"
+      "unsuspend": "Unsuspend user",
+      "delete": "Delete user",
+      "demoMode": "Showing sample data for preview.",
+      "noUsers": "No users found",
+      "you": "You",
+      "never": "Never",
+      "statusSuspended": "Suspended",
+      "statusVerified": "Verified",
+      "statusPending": "Pending",
+      "deleteTitle": "Delete User",
+      "deleteWarning": "This action cannot be undone",
+      "deleteWarningDesc": "Deleting this user will permanently remove all their data including companies, conversations, and messages.",
+      "createdOn": "Created on {{date}}",
+      "deleting": "Deleting...",
+      "confirmDelete": "Delete User",
+      "unsuspendTitle": "Unsuspend User",
+      "suspendTitle": "Suspend User",
+      "unsuspendDesc": "This will restore the user's access to the platform.",
+      "suspendDesc": "This will prevent the user from logging in. Their data will be preserved.",
+      "currentlySuspended": "Currently suspended",
+      "currentlyActive": "Currently active",
+      "unsuspending": "Unsuspending...",
+      "suspending": "Suspending...",
+      "confirmUnsuspend": "Unsuspend User",
+      "confirmSuspend": "Suspend User"
     },
     "companies": {
       "title": "Company Management",
@@ -1742,14 +1774,25 @@
       "name": "Company Name",
       "owner": "Owner",
       "conversations": "Conversations",
-      "createdAt": "Created"
+      "createdAt": "Created",
+      "demoMode": "Showing sample data for preview.",
+      "noCompanies": "No companies found",
+      "unknown": "Unknown"
     },
     "admins": {
       "title": "Admin Roles",
       "description": "Manage platform administrator access and roles.",
       "email": "Email",
       "role": "Role",
-      "grantedAt": "Granted"
+      "grantedAt": "Granted",
+      "demoMode": "Showing sample data for preview.",
+      "noAdmins": "No admins found",
+      "roles": {
+        "super_admin": "Super Admin",
+        "admin": "Admin",
+        "support": "Support",
+        "moderator": "Moderator"
+      }
     },
     "audit": {
       "title": "Audit Logs",
@@ -1757,13 +1800,77 @@
       "searchPlaceholder": "Search actions...",
       "allCategories": "All Categories",
       "allActors": "All Actor Types",
-      "errorLoading": "Failed to load audit logs"
+      "errorLoading": "Failed to load audit logs",
+      "demoMode": "Showing sample data for preview.",
+      "noLogs": "No audit logs found",
+      "noLogsHint": "Audit logs will appear as platform actions are recorded.",
+      "timestamp": "Timestamp",
+      "actor": "Actor",
+      "action": "Action",
+      "category": "Category",
+      "resource": "Resource",
+      "ip": "IP",
+      "reason": "Reason"
+    },
+    "invitations": {
+      "title": "User Invitations",
+      "description": "Invite new users to the platform. They will receive an email with a signup link.",
+      "invite": "Invite User",
+      "searchPlaceholder": "Search by email...",
+      "allStatuses": "All Statuses",
+      "email": "Email",
+      "name": "Name",
+      "status": "Status",
+      "invitedBy": "Invited By",
+      "sentAt": "Sent",
+      "expiresAt": "Expires",
+      "actions": "Actions",
+      "resend": "Resend invitation",
+      "cancel": "Cancel invitation",
+      "demoMode": "Showing sample data. Run the database migration to see real invitations.",
+      "noInvitations": "No invitations found",
+      "noInvitationsHint": "Click \"Invite User\" to send platform invitations.",
+      "statusPending": "Pending",
+      "statusAccepted": "Accepted",
+      "statusExpired": "Expired",
+      "statusCancelled": "Cancelled",
+      "system": "System",
+      "inviteTitle": "Invite New User",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "user@example.com",
+      "nameLabel": "Name (optional)",
+      "namePlaceholder": "John Doe",
+      "notesLabel": "Notes (internal only)",
+      "notesPlaceholder": "Optional notes about this invitation...",
+      "sending": "Sending...",
+      "sendInvite": "Send Invitation"
     },
     "settings": {
       "title": "Platform Settings",
       "description": "Configure platform-wide settings and preferences.",
       "comingSoon": "Platform Settings Coming Soon",
       "comingSoonDesc": "Global configuration options will be available in a future update."
+    },
+    "pagination": {
+      "showing": "Showing page {{page}} of {{totalPages}} ({{total}} total)",
+      "prev": "Previous",
+      "next": "Next"
+    },
+    "impersonation": {
+      "title": "Impersonate User",
+      "securityNotice": "All actions are logged. Session expires in {{minutes}} minutes.",
+      "reason": "Reason",
+      "reasonPlaceholder": "e.g., Support ticket #1234 - user reports payment issue",
+      "acknowledgement": "User has granted permission for this support session",
+      "starting": "Starting...",
+      "start": "Start Impersonation",
+      "failed": "Failed to start impersonation",
+      "viewingAs": "Viewing as:",
+      "timeRemaining": "Time remaining: {{time}}",
+      "remaining": "remaining",
+      "exit": "Exit",
+      "exitMode": "Exit impersonation mode",
+      "watermark": "IMPERSONATION MODE"
     }
   }
 }

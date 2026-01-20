@@ -509,3 +509,117 @@ class TestSubscriptionTiersConfig:
             limit = config["queries_per_month"]
             # Either unlimited (-1) or positive
             assert limit == -1 or limit > 0, f"Invalid limit {limit} for {tier_id}"
+
+
+# =============================================================================
+# Redirect URL Validation Tests (SECURITY)
+# =============================================================================
+
+from backend.routers.billing import validate_redirect_url
+
+
+class TestValidateRedirectUrl:
+    """
+    Test redirect URL validation to prevent open redirect attacks.
+
+    SECURITY: These tests verify that the subdomain matching logic
+    correctly prevents bypass attempts like "evil-axcouncil.com"
+    matching against "axcouncil.com".
+    """
+
+    def test_exact_match_allowed(self):
+        """Should allow exact hostname match."""
+        with patch.dict('os.environ', {'ALLOWED_REDIRECT_HOSTS': 'axcouncil.com'}):
+            assert validate_redirect_url("https://axcouncil.com/success") is True
+
+    def test_subdomain_allowed(self):
+        """Should allow valid subdomains."""
+        with patch.dict('os.environ', {'ALLOWED_REDIRECT_HOSTS': 'axcouncil.com'}):
+            assert validate_redirect_url("https://app.axcouncil.com/success") is True
+            assert validate_redirect_url("https://staging.axcouncil.com/success") is True
+
+    def test_nested_subdomain_allowed(self):
+        """Should allow nested subdomains."""
+        with patch.dict('os.environ', {'ALLOWED_REDIRECT_HOSTS': 'axcouncil.com'}):
+            assert validate_redirect_url("https://api.staging.axcouncil.com/callback") is True
+
+    def test_evil_suffix_blocked(self):
+        """
+        SECURITY: Should block hostnames that end with allowed domain as substring.
+
+        This is the critical security test - "evil-axcouncil.com" should NOT
+        be allowed even though it ends with "axcouncil.com".
+        """
+        with patch.dict('os.environ', {'ALLOWED_REDIRECT_HOSTS': 'axcouncil.com'}):
+            # These should all be BLOCKED - they're attack vectors
+            assert validate_redirect_url("https://evil-axcouncil.com/phishing") is False
+            assert validate_redirect_url("https://fakeaxcouncil.com/phishing") is False
+            assert validate_redirect_url("https://notaxcouncil.com/phishing") is False
+
+    def test_attacker_owned_domain_blocked(self):
+        """
+        SECURITY: Should block attacker-controlled domains that contain the allowed domain.
+
+        Attack scenario: attacker registers "axcouncil.com.attacker.com" and tries
+        to redirect users there after Stripe checkout.
+        """
+        with patch.dict('os.environ', {'ALLOWED_REDIRECT_HOSTS': 'axcouncil.com'}):
+            assert validate_redirect_url("https://axcouncil.com.attacker.com/fake") is False
+            assert validate_redirect_url("https://www.axcouncil.com.evil.org/phish") is False
+
+    def test_completely_different_domain_blocked(self):
+        """Should block completely unrelated domains."""
+        with patch.dict('os.environ', {'ALLOWED_REDIRECT_HOSTS': 'axcouncil.com'}):
+            assert validate_redirect_url("https://evil-site.com/phishing") is False
+            assert validate_redirect_url("https://example.org/callback") is False
+
+    def test_localhost_allowed_in_dev(self):
+        """Should allow localhost in development."""
+        with patch.dict('os.environ', {'ALLOWED_REDIRECT_HOSTS': 'localhost,127.0.0.1'}):
+            assert validate_redirect_url("http://localhost:5173/success") is True
+            assert validate_redirect_url("http://127.0.0.1:8080/callback") is True
+
+    def test_invalid_scheme_blocked(self):
+        """Should block non-http(s) schemes."""
+        with patch.dict('os.environ', {'ALLOWED_REDIRECT_HOSTS': 'axcouncil.com'}):
+            assert validate_redirect_url("javascript:alert(1)") is False
+            assert validate_redirect_url("data:text/html,<script>") is False
+            assert validate_redirect_url("file:///etc/passwd") is False
+            assert validate_redirect_url("ftp://axcouncil.com/file") is False
+
+    def test_missing_scheme_blocked(self):
+        """Should block URLs without proper scheme."""
+        with patch.dict('os.environ', {'ALLOWED_REDIRECT_HOSTS': 'axcouncil.com'}):
+            assert validate_redirect_url("axcouncil.com/success") is False
+            assert validate_redirect_url("//axcouncil.com/success") is False
+
+    def test_empty_url_blocked(self):
+        """Should block empty or None URLs."""
+        assert validate_redirect_url("") is False
+        assert validate_redirect_url(None) is False  # type: ignore
+
+    def test_multiple_allowed_hosts(self):
+        """Should work with multiple allowed hosts."""
+        with patch.dict('os.environ', {'ALLOWED_REDIRECT_HOSTS': 'axcouncil.com,example.org,localhost'}):
+            assert validate_redirect_url("https://axcouncil.com/a") is True
+            assert validate_redirect_url("https://app.example.org/b") is True
+            assert validate_redirect_url("http://localhost:3000/c") is True
+            assert validate_redirect_url("https://attacker.com/d") is False
+
+    def test_case_insensitive(self):
+        """Should be case-insensitive for hostnames."""
+        with patch.dict('os.environ', {'ALLOWED_REDIRECT_HOSTS': 'axcouncil.com'}):
+            assert validate_redirect_url("https://AXCOUNCIL.COM/success") is True
+            assert validate_redirect_url("https://App.AxCouncil.Com/success") is True
+
+    def test_with_port(self):
+        """Should handle URLs with ports correctly."""
+        with patch.dict('os.environ', {'ALLOWED_REDIRECT_HOSTS': 'axcouncil.com'}):
+            assert validate_redirect_url("https://axcouncil.com:443/success") is True
+            assert validate_redirect_url("https://app.axcouncil.com:8080/callback") is True
+
+    def test_with_path_and_query(self):
+        """Should allow URLs with paths and query strings."""
+        with patch.dict('os.environ', {'ALLOWED_REDIRECT_HOSTS': 'axcouncil.com'}):
+            assert validate_redirect_url("https://axcouncil.com/billing/success?session_id=123") is True
+            assert validate_redirect_url("https://app.axcouncil.com/callback?status=ok&ref=stripe") is True

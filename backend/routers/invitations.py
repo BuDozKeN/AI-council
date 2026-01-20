@@ -15,6 +15,7 @@ from typing import Optional
 
 from ..database import get_supabase_service
 from ..security import log_app_event
+from ..i18n import t, get_locale_from_request
 
 # Import shared rate limiter
 from ..rate_limit import limiter
@@ -165,6 +166,7 @@ async def accept_invitation(
 
     No authentication required (user just created account).
     """
+    locale = get_locale_from_request(request)
     try:
         supabase = get_supabase_service()
 
@@ -174,7 +176,7 @@ async def accept_invitation(
         ).eq("token", token).maybe_single().execute()
 
         if not result or not result.data:
-            raise HTTPException(status_code=404, detail="Invalid invitation")
+            raise HTTPException(status_code=404, detail=t("errors.invitation_not_found", locale))
 
         invitation = result.data
 
@@ -182,7 +184,7 @@ async def accept_invitation(
         if invitation["status"] != "pending":
             raise HTTPException(
                 status_code=400,
-                detail=f"Invitation has already been {invitation['status']}"
+                detail=t("errors.invitation_already_used", locale, status=invitation['status'])
             )
 
         # Check expiration
@@ -191,19 +193,19 @@ async def accept_invitation(
             supabase.table("platform_invitations").update({
                 "status": "expired"
             }).eq("id", invitation["id"]).execute()
-            raise HTTPException(status_code=400, detail="Invitation has expired")
+            raise HTTPException(status_code=400, detail=t("errors.invitation_expired", locale))
 
         # Verify the user exists in auth.users
         try:
             user_response = supabase.auth.admin.get_user_by_id(data.user_id)
             if not user_response.user:
-                raise HTTPException(status_code=400, detail="User not found")
+                raise HTTPException(status_code=400, detail=t("errors.user_not_found", locale))
 
             # Verify email matches
             if user_response.user.email.lower() != invitation["email"].lower():
                 raise HTTPException(
                     status_code=400,
-                    detail="User email does not match invitation"
+                    detail=t("errors.user_email_mismatch", locale)
                 )
         except HTTPException:
             raise
@@ -214,7 +216,7 @@ async def accept_invitation(
                 user_id=data.user_id,
                 error=str(e)
             )
-            raise HTTPException(status_code=400, detail="Could not verify user")
+            raise HTTPException(status_code=400, detail=t("errors.could_not_verify_user", locale))
 
         # Mark invitation as accepted
         supabase.table("platform_invitations").update({
@@ -286,4 +288,4 @@ async def accept_invitation(
             level="ERROR",
             error=str(e)
         )
-        raise HTTPException(status_code=500, detail="Failed to accept invitation")
+        raise HTTPException(status_code=500, detail=t("errors.invitation_accept_failed", locale))

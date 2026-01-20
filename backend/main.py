@@ -290,6 +290,7 @@ def _get_cors_origins() -> list:
         return [
             "http://localhost:5173",  # Vite default
             "http://localhost:5174",  # Vite fallback
+            "http://localhost:5175",  # Vite fallback
             "http://localhost:3000",  # React default
             "https://ai-council-three.vercel.app",  # Preview deployments
         ]

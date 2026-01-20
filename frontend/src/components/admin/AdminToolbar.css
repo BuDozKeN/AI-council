@@ -138,6 +138,13 @@
    FILTERS
    ============================================================================= */
 
+/* Audit log filters wrapper */
+.admin-audit-filters {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 /* Legacy filters layout */
 .admin-filters {
   display: flex;
@@ -182,4 +189,60 @@
 
 .admin-filter-select:hover {
   border-color: var(--color-primary);
+}
+
+/* =============================================================================
+   MOBILE RESPONSIVE
+   ============================================================================= */
+
+@media (max-width: 640px) {
+  /* Compact toolbar on mobile - single row with search + filter */
+  .admin-toolbar {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-bg-primary);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .admin-toolbar-left {
+    flex: 1;
+    min-width: 0; /* Allow shrinking */
+  }
+
+  .admin-toolbar-right {
+    flex-shrink: 0;
+    gap: var(--space-2);
+  }
+
+  /* Compact search box on mobile */
+  .admin-toolbar .admin-search-box {
+    width: 100%;
+  }
+
+  .admin-toolbar .admin-search-input {
+    width: 100%;
+    min-height: 44px;
+    font-size: var(--font-size-sm);
+  }
+
+  /* Compact filter dropdown on mobile */
+  .admin-select-trigger,
+  .admin-filter-select {
+    min-width: 100px;
+    max-width: 120px;
+    min-height: 44px;
+    font-size: var(--font-size-sm);
+  }
+
+  /* Hide demo banner on mobile - not essential */
+  .admin-demo-banner {
+    display: none;
+  }
+
+  /* Hide filter dropdowns on mobile - too cluttered */
+  .admin-audit-filters {
+    display: none;
+  }
 }

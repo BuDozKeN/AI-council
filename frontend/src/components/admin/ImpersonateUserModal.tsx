@@ -9,6 +9,7 @@
  */
 
 import { useState, useCallback, memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AlertTriangle, User, Loader2 } from 'lucide-react';
 import { useImpersonation } from '../../hooks';
 import { AIWriteAssist } from '../ui/AIWriteAssist';
@@ -41,6 +42,7 @@ function ImpersonateUserModalComponent({
   targetUser,
   onSuccess,
 }: ImpersonateUserModalProps) {
+  const { t } = useTranslation();
   const { startImpersonation, isMutating } = useImpersonation();
 
   const [reason, setReason] = useState('');
@@ -88,19 +90,14 @@ function ImpersonateUserModalComponent({
         }
       } catch (err) {
         console.error('[ImpersonateUserModal] Error:', err);
-        setError(err instanceof Error ? err.message : 'Failed to start impersonation');
+        setError(
+          err instanceof Error
+            ? err.message
+            : t('admin.impersonation.failed', 'Failed to start impersonation')
+        );
       }
     },
-    [
-      canSubmit,
-      startImpersonation,
-      targetUser.id,
-      reason,
-      acknowledged,
-      isMutating,
-      onSuccess,
-      onClose,
-    ]
+    [startImpersonation, targetUser.id, reason, acknowledged, isMutating, onSuccess, onClose, t]
   );
 
   const handleClose = useCallback(() => {
@@ -131,7 +128,7 @@ function ImpersonateUserModalComponent({
           </div>
           <div className="admin-modal__header-content">
             <h2 id="impersonate-modal-title" className="admin-modal__title">
-              Impersonate User
+              {t('admin.impersonation.title', 'Impersonate User')}
             </h2>
             <p className="admin-modal__subtitle">{targetUser.email}</p>
           </div>
@@ -143,14 +140,19 @@ function ImpersonateUserModalComponent({
           <div className="admin-modal__alert admin-modal__alert--warning">
             <AlertTriangle className="admin-modal__alert-icon" />
             <p className="admin-modal__alert-text">
-              All actions are logged. Session expires in {SESSION_DURATION_MINUTES} minutes.
+              {t(
+                'admin.impersonation.securityNotice',
+                'All actions are logged. Session expires in {{minutes}} minutes.',
+                { minutes: SESSION_DURATION_MINUTES }
+              )}
             </p>
           </div>
 
           {/* Reason input with AI assist */}
           <div className="admin-modal__field">
             <label htmlFor="impersonate-reason" className="admin-modal__label">
-              Reason <span className="admin-modal__required">*</span>
+              {t('admin.impersonation.reason', 'Reason')}{' '}
+              <span className="admin-modal__required">*</span>
             </label>
             <AIWriteAssist
               context="impersonation-reason"
@@ -164,7 +166,10 @@ function ImpersonateUserModalComponent({
                 className="admin-modal__textarea"
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                placeholder="e.g., Support ticket #1234 - user reports payment issue"
+                placeholder={t(
+                  'admin.impersonation.reasonPlaceholder',
+                  'e.g., Support ticket #1234 - user reports payment issue'
+                )}
                 rows={2}
                 disabled={isMutating}
               />
@@ -180,7 +185,12 @@ function ImpersonateUserModalComponent({
               disabled={isMutating}
               className="admin-modal__checkbox"
             />
-            <span>User has granted permission for this support session</span>
+            <span>
+              {t(
+                'admin.impersonation.acknowledgement',
+                'User has granted permission for this support session'
+              )}
+            </span>
           </label>
 
           {/* Error message */}
@@ -199,7 +209,7 @@ function ImpersonateUserModalComponent({
               onClick={handleClose}
               disabled={isMutating}
             >
-              Cancel
+              {t('common.cancel', 'Cancel')}
             </button>
             <button
               type="submit"
@@ -209,12 +219,12 @@ function ImpersonateUserModalComponent({
               {isMutating ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Starting...
+                  {t('admin.impersonation.starting', 'Starting...')}
                 </>
               ) : (
                 <>
                   <User className="h-4 w-4" />
-                  Start Impersonation
+                  {t('admin.impersonation.start', 'Start Impersonation')}
                 </>
               )}
             </button>

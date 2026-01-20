@@ -52,6 +52,9 @@ def validate_redirect_url(url: str) -> bool:
     Prevents open redirect attacks where attacker could craft:
     - success_url=https://evil-phishing-site.com/fake-success
 
+    SECURITY: Subdomain matching must verify label boundaries to prevent
+    attacks like "evil-axcouncil.com" matching "axcouncil.com".
+
     Args:
         url: The URL to validate
 
@@ -80,15 +83,26 @@ def validate_redirect_url(url: str) -> bool:
         hostname = hostname.lower()
         allowed_hosts = _get_allowed_redirect_hosts()
 
-        # Check if hostname is in allowed list
+        # Check if hostname is in allowed list (exact match)
         # For localhost, allow any port
         if hostname in allowed_hosts:
             return True
 
-        # Check subdomain matching (e.g., app.axcouncil.com matches axcouncil.com)
+        # SECURITY: Check subdomain matching with proper label boundary verification
+        # Split hostname into labels (e.g., "app.axcouncil.com" -> ["app", "axcouncil", "com"])
+        hostname_labels = hostname.split(".")
+
         for allowed in allowed_hosts:
-            if hostname.endswith(f".{allowed}"):
-                return True
+            allowed_labels = allowed.split(".")
+
+            # For subdomain match: hostname must have MORE labels than allowed host
+            # AND the rightmost labels must match exactly
+            # e.g., "app.axcouncil.com" (3 labels) matches "axcouncil.com" (2 labels)
+            # but "evil-axcouncil.com" (2 labels) does NOT match "axcouncil.com" (2 labels)
+            if len(hostname_labels) > len(allowed_labels):
+                # Compare the rightmost N labels where N = len(allowed_labels)
+                if hostname_labels[-len(allowed_labels):] == allowed_labels:
+                    return True
 
         return False
 

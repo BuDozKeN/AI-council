@@ -704,7 +704,7 @@ async def query_model_stream(
     Yields:
         Text chunks as they arrive from the model
     """
-    from .openrouter_stream_refactored import (
+    from .openrouter_stream import (
         _build_streaming_payload,
         _should_retry_connection_error,
         _handle_http_error_response,

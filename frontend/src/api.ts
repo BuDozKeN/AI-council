@@ -1068,101 +1068,6 @@ export const api = {
   },
 
   /**
-   * Create a new department for a company.
-   * @deprecated Use createCompanyDepartment instead
-   * @param {string} companyId - The company ID
-   * @param {object} department - The department to create
-   * @param {string} department.id - The department ID (used as slug)
-   * @param {string} department.name - The display name for the department
-   * @returns {Promise<Object>} Created department
-   */
-  async createDepartment(
-    companyId: string,
-    department: { id?: string; name: string; description?: string }
-  ) {
-    // Delegate to new unified endpoint
-    const payload: { name: string; slug: string; description?: string } = {
-      name: department.name,
-      slug: department.id || department.name.toLowerCase().replace(/\s+/g, '-'),
-    };
-    if (department.description) {
-      payload.description = department.description;
-    }
-    return this.createCompanyDepartment(companyId, payload);
-  },
-
-  /**
-   * Update a department's name and/or description.
-   * @deprecated Use updateCompanyDepartment instead
-   * @param {string} companyId - The company ID
-   * @param {string} departmentId - The department ID to update
-   * @param {object} updates - Fields to update
-   * @returns {Promise<Object>} Updated department
-   */
-  async updateDepartment(
-    companyId: string,
-    departmentId: string,
-    updates: { name?: string; slug?: string; description?: string; purpose?: string }
-  ) {
-    // Delegate to new unified endpoint
-    return this.updateCompanyDepartment(companyId, departmentId, updates);
-  },
-
-  /**
-   * Add a new role to a department.
-   * @deprecated Use createCompanyRole instead
-   * @param {string} companyId - The company ID
-   * @param {string} departmentId - The department to add the role to
-   * @param {object} role - The role to create
-   * @param {string} role.role_id - The role ID (used as slug)
-   * @param {string} role.role_name - The display name for the role
-   * @param {string} role.role_description - Optional description
-   * @returns {Promise<Object>} Created role
-   */
-  async addRole(
-    companyId: string,
-    departmentId: string,
-    role: { role_id?: string; role_name: string; role_description?: string }
-  ) {
-    // Delegate to new unified endpoint
-    const payload: { name: string; slug: string; title: string; responsibilities?: string } = {
-      name: role.role_name,
-      slug: role.role_id || role.role_name.toLowerCase().replace(/\s+/g, '-'),
-      title: role.role_name,
-    };
-    if (role.role_description) {
-      payload.responsibilities = role.role_description;
-    }
-    return this.createCompanyRole(companyId, departmentId, payload);
-  },
-
-  /**
-   * Update a role's name and/or description.
-   * @deprecated Use updateCompanyRole instead
-   * @param {string} companyId - The company ID
-   * @param {string} departmentId - The department the role belongs to
-   * @param {string} roleId - The role ID to update
-   * @param {object} updates - Fields to update
-   * @returns {Promise<Object>} Updated role
-   */
-  async updateRole(
-    companyId: string,
-    departmentId: string,
-    roleId: string,
-    updates: { name?: string; description?: string }
-  ) {
-    // Delegate to new unified endpoint
-    const payload: { name?: string; responsibilities?: string } = {};
-    if (updates.name) {
-      payload.name = updates.name;
-    }
-    if (updates.description) {
-      payload.responsibilities = updates.description;
-    }
-    return this.updateCompanyRole(companyId, departmentId, roleId, payload);
-  },
-
-  /**
    * Get the system prompt/context for a specific role.
    * @param {string} companyId - The company ID
    * @param {string} departmentId - The department ID
@@ -3602,6 +3507,18 @@ export const api = {
   },
 
   /**
+   * Get model performance analytics (admin only).
+   */
+  async getModelAnalytics(): Promise<ModelAnalyticsResponse> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}${API_VERSION}/admin/model-analytics`, { headers });
+    if (!response.ok) {
+      throw new Error('Failed to fetch model analytics');
+    }
+    return response.json();
+  },
+
+  /**
    * List all platform users (admin only).
    */
   async listAdminUsers(params?: {
@@ -3772,7 +3689,11 @@ export const api = {
     });
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Failed to cancel invitation' }));
-      throw new Error(error.detail || 'Failed to cancel invitation');
+      // Handle both {detail: ...} and {error: {message: ...}} formats
+      const message =
+        error.detail || error.error?.message || error.message || `HTTP ${response.status}`;
+      console.error('Cancel invitation error:', { status: response.status, error, invitationId });
+      throw new Error(message);
     }
     return response.json();
   },
@@ -3789,6 +3710,25 @@ export const api = {
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Failed to resend invitation' }));
       throw new Error(error.detail || 'Failed to resend invitation');
+    }
+    return response.json();
+  },
+
+  /**
+   * Permanently delete a cancelled/expired invitation (admin only).
+   * This removes the invitation record from the database.
+   */
+  async deleteAdminInvitation(
+    invitationId: string
+  ): Promise<{ success: boolean; message: string }> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/admin/invitations/${invitationId}/permanent`,
+      { method: 'DELETE', headers }
+    );
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to delete invitation' }));
+      throw new Error(error.detail || 'Failed to delete invitation');
     }
     return response.json();
   },
@@ -3815,7 +3755,7 @@ export const api = {
    */
   async updateAdminUser(
     userId: string,
-    data: { is_suspended?: boolean }
+    data: { is_suspended?: boolean; suspend_reason?: string }
   ): Promise<{ success: boolean; message: string }> {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_BASE}${API_VERSION}/admin/users/${userId}`, {
@@ -3831,18 +3771,71 @@ export const api = {
   },
 
   /**
-   * Delete a user and all their data (admin only).
-   * Requires confirm=true as a safety measure.
+   * Soft-delete a user (admin only).
+   * By default, performs a soft delete (user can be restored within 30 days).
+   * With permanent=true (super_admin only), permanently deletes all user data.
    */
-  async deleteAdminUser(userId: string): Promise<AdminDeleteUserResponse> {
+  async deleteAdminUser(
+    userId: string,
+    options?: { reason?: string; permanent?: boolean }
+  ): Promise<AdminDeleteUserResponse> {
     const headers = await getAuthHeaders();
-    const response = await fetch(`${API_BASE}${API_VERSION}/admin/users/${userId}?confirm=true`, {
-      method: 'DELETE',
-      headers,
-    });
+    const params = new URLSearchParams({ confirm: 'true' });
+    if (options?.reason) {
+      params.set('reason', options.reason);
+    }
+    if (options?.permanent) {
+      params.set('permanent', 'true');
+    }
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/admin/users/${userId}?${params.toString()}`,
+      {
+        method: 'DELETE',
+        headers,
+      }
+    );
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: 'Failed to delete user' }));
       throw new Error(error.detail || 'Failed to delete user');
+    }
+    return response.json();
+  },
+
+  /**
+   * Restore a soft-deleted user (admin only).
+   * Can only restore within the 30-day restoration window.
+   */
+  async restoreAdminUser(userId: string): Promise<AdminRestoreUserResponse> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_BASE}${API_VERSION}/admin/users/${userId}/restore`, {
+      method: 'POST',
+      headers,
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to restore user' }));
+      throw new Error(error.detail || 'Failed to restore user');
+    }
+    return response.json();
+  },
+
+  /**
+   * List soft-deleted users (admin only).
+   */
+  async listDeletedUsers(options?: {
+    include_anonymized?: boolean;
+  }): Promise<{ deleted_users: AdminDeletedUser[]; total: number }> {
+    const headers = await getAuthHeaders();
+    const params = new URLSearchParams();
+    if (options?.include_anonymized) {
+      params.set('include_anonymized', 'true');
+    }
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/admin/users/deleted?${params.toString()}`,
+      { headers }
+    );
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to list deleted users' }));
+      throw new Error(error.detail || 'Failed to list deleted users');
     }
     return response.json();
   },
@@ -3980,6 +3973,28 @@ export interface AdminStats {
   active_users_7d: number;
 }
 
+export interface ModelRanking {
+  model: string;
+  avg_rank: number;
+  sessions: number;
+  wins: number;
+  win_rate: number;
+}
+
+export interface DepartmentLeaderboard {
+  department: string;
+  leader: ModelRanking | null;
+  sessions: number;
+  leaderboard: ModelRanking[];
+}
+
+export interface ModelAnalyticsResponse {
+  overall_leader: ModelRanking | null;
+  total_sessions: number;
+  overall_leaderboard: ModelRanking[];
+  departments: DepartmentLeaderboard[];
+}
+
 export interface AdminPlatformUser {
   id: string;
   email: string;
@@ -4092,10 +4107,36 @@ export interface AdminUserDetails {
 export interface AdminDeleteUserResponse {
   success: boolean;
   message: string;
-  deleted: {
+  type: 'soft_delete' | 'permanent';
+  // For soft delete
+  restoration_deadline_days?: number;
+  data_preserved?: {
     companies: number;
     conversations: number;
   };
+  // For permanent delete
+  deleted?: {
+    companies: number;
+    conversations: number;
+  };
+}
+
+export interface AdminDeletedUser {
+  user_id: string;
+  email: string | null;
+  deleted_at: string;
+  deleted_by: string | null;
+  deletion_reason: string | null;
+  restoration_deadline: string;
+  can_restore: boolean;
+  days_until_anonymization: number | null;
+  is_anonymized: boolean;
+}
+
+export interface AdminRestoreUserResponse {
+  success: boolean;
+  message: string;
+  user_id: string;
 }
 
 export interface AdminUpdateUserResponse {
