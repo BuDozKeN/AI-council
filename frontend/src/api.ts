@@ -213,8 +213,31 @@ export const setTokenGetter = (getter: TokenGetter): void => {
   getAccessToken = getter;
 };
 
+// =============================================================================
+// Impersonation Context
+// =============================================================================
+
+// Session storage key for impersonation data (must match useImpersonation.ts)
+const IMPERSONATION_STORAGE_KEY = 'axcouncil_impersonation_session';
+
+/**
+ * Get the active impersonation session ID (if any).
+ * This is read from sessionStorage where the useImpersonation hook stores it.
+ */
+const getImpersonationSessionId = (): string | null => {
+  try {
+    const stored = sessionStorage.getItem(IMPERSONATION_STORAGE_KEY);
+    if (!stored) return null;
+    const session = JSON.parse(stored) as { session_id?: string };
+    return session.session_id || null;
+  } catch {
+    return null;
+  }
+};
+
 /**
  * Get headers including Authorization if token is available.
+ * Also includes X-Impersonate-User header if impersonation session is active.
  */
 const getAuthHeaders = async (): Promise<Record<string, string>> => {
   const headers: Record<string, string> = {
@@ -230,6 +253,14 @@ const getAuthHeaders = async (): Promise<Record<string, string>> => {
   } else {
     log.warn('getAccessToken not set - API calls will be unauthenticated');
   }
+
+  // Add impersonation header if session is active
+  const impersonationSessionId = getImpersonationSessionId();
+  if (impersonationSessionId) {
+    headers['X-Impersonate-User'] = impersonationSessionId;
+    log.debug('Adding impersonation header:', impersonationSessionId);
+  }
+
   return headers;
 };
 

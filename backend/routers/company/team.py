@@ -15,7 +15,7 @@ from datetime import datetime
 import json
 import logging
 
-from ...auth import get_current_user
+from ...auth import get_current_user, get_effective_user
 from ...i18n import t, get_locale_from_request
 
 logger = logging.getLogger(__name__)
@@ -375,7 +375,7 @@ router = APIRouter(prefix="/company", tags=["company-team"])
 
 @router.get("/{company_id}/team")
 @limiter.limit("100/minute;500/hour")
-async def get_team(request: Request, company_id: ValidCompanyId, user=Depends(get_current_user)):
+async def get_team(request: Request, company_id: ValidCompanyId, user=Depends(get_effective_user)):
     """
     Get all departments with their roles from DATABASE.
     Returns hierarchical structure: departments → roles.
@@ -450,7 +450,7 @@ async def get_team(request: Request, company_id: ValidCompanyId, user=Depends(ge
 
 @router.post("/{company_id}/departments")
 @limiter.limit("30/minute;100/hour")
-async def create_department(request: Request, company_id: ValidCompanyId, data: DepartmentCreate, user=Depends(get_current_user)):
+async def create_department(request: Request, company_id: ValidCompanyId, data: DepartmentCreate, user=Depends(get_effective_user)):
     """Create a new department."""
     locale = get_locale_from_request(request)
     client = get_client(user)
@@ -483,7 +483,7 @@ async def create_department(request: Request, company_id: ValidCompanyId, data: 
 
 @router.put("/{company_id}/departments/{dept_id}")
 @limiter.limit("30/minute;100/hour")
-async def update_department(request: Request, company_id: ValidCompanyId, dept_id: ValidDeptId, data: DepartmentUpdate, user=Depends(get_current_user)):
+async def update_department(request: Request, company_id: ValidCompanyId, dept_id: ValidDeptId, data: DepartmentUpdate, user=Depends(get_effective_user)):
     """Update a department."""
     locale = get_locale_from_request(request)
     client = get_client(user)
@@ -506,7 +506,7 @@ async def update_department(request: Request, company_id: ValidCompanyId, dept_i
 
 @router.post("/{company_id}/departments/{dept_id}/roles")
 @limiter.limit("30/minute;100/hour")
-async def create_role(request: Request, company_id: ValidCompanyId, dept_id: ValidDeptId, data: RoleCreate, user=Depends(get_current_user)):
+async def create_role(request: Request, company_id: ValidCompanyId, dept_id: ValidDeptId, data: RoleCreate, user=Depends(get_effective_user)):
     """Create a new role in a department."""
     locale = get_locale_from_request(request)
     client = get_client(user)
@@ -541,7 +541,7 @@ async def create_role(request: Request, company_id: ValidCompanyId, dept_id: Val
 
 @router.put("/{company_id}/departments/{dept_id}/roles/{role_id}")
 @limiter.limit("30/minute;100/hour")
-async def update_role(request: Request, company_id: ValidCompanyId, dept_id: ValidDeptId, role_id: ValidRoleId, data: RoleUpdate, user=Depends(get_current_user)):
+async def update_role(request: Request, company_id: ValidCompanyId, dept_id: ValidDeptId, role_id: ValidRoleId, data: RoleUpdate, user=Depends(get_effective_user)):
     """Update a role."""
     locale = get_locale_from_request(request)
     client = get_client(user)
@@ -563,7 +563,7 @@ async def update_role(request: Request, company_id: ValidCompanyId, dept_id: Val
 
 @router.get("/{company_id}/departments/{dept_id}/roles/{role_id}")
 @limiter.limit("100/minute;500/hour")
-async def get_role(request: Request, company_id: ValidCompanyId, dept_id: ValidDeptId, role_id: ValidRoleId, user=Depends(get_current_user)):
+async def get_role(request: Request, company_id: ValidCompanyId, dept_id: ValidDeptId, role_id: ValidRoleId, user=Depends(get_effective_user)):
     """Get a single role with full details including system prompt."""
     locale = get_locale_from_request(request)
     client = get_client(user)
@@ -591,7 +591,7 @@ async def delete_department(
     request: Request,
     company_id: ValidCompanyId,
     dept_id: ValidDeptId,
-    user=Depends(get_current_user)
+    user=Depends(get_effective_user)
 ):
     """
     Delete a department and all its roles permanently.
@@ -663,7 +663,7 @@ async def delete_role(
     company_id: ValidCompanyId,
     dept_id: ValidDeptId,
     role_id: ValidRoleId,
-    user=Depends(get_current_user)
+    user=Depends(get_effective_user)
 ):
     """Delete a role permanently."""
     from ...security import log_app_event

@@ -44,6 +44,16 @@ function ImpersonationBannerComponent({ onExit }: ImpersonationBannerProps) {
     }
   }, [endImpersonation, onExit]);
 
+  // Debug: Log impersonation state (expanded for visibility)
+  console.log(
+    '[ImpersonationBanner] isImpersonating:',
+    isImpersonating,
+    '| session:',
+    session ? session.target_user_email : 'null',
+    '| timeRemaining:',
+    timeRemaining
+  );
+
   // Don't render if not impersonating
   if (!isImpersonating || !session) {
     return null;

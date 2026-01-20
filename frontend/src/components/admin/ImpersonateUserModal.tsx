@@ -9,9 +9,11 @@
  */
 
 import { useState, useCallback, memo } from 'react';
-import { AlertTriangle, User, Clock, Loader2 } from 'lucide-react';
+import { AlertTriangle, User, Loader2 } from 'lucide-react';
 import { useImpersonation } from '../../hooks';
+import { AIWriteAssist } from '../ui/AIWriteAssist';
 import './AdminModals.css';
+import './AdminButtons.css';
 
 interface ImpersonateUserModalProps {
   /** Whether the modal is open */
@@ -51,25 +53,43 @@ function ImpersonateUserModalComponent({
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
-      if (!canSubmit) return;
+
+      // Compute canSubmit fresh inside handler to avoid stale closure
+      const freshIsReasonValid = reason.trim().length >= MIN_REASON_LENGTH;
+      const freshCanSubmit = freshIsReasonValid && acknowledged && !isMutating;
+
+      if (!freshCanSubmit) {
+        return;
+      }
 
       setError(null);
 
       try {
         await startImpersonation(targetUser.id, reason.trim());
+
         // Reset form
         setReason('');
         setAcknowledged(false);
         // Navigate to main app to view as user
         onSuccess?.();
         onClose();
-        // Redirect to main app
-        window.location.href = '/';
+
+        // Use the session ID from storage to ensure it persists
+        const sessionForRedirect = sessionStorage.getItem('axcouncil_impersonation_session');
+        const sessionIdForUrl = sessionForRedirect ? JSON.parse(sessionForRedirect).session_id : null;
+
+        // Redirect with session ID in URL as backup (will be picked up by useImpersonation)
+        if (sessionIdForUrl) {
+          window.location.href = `/?imp_session=${encodeURIComponent(sessionIdForUrl)}`;
+        } else {
+          window.location.href = '/';
+        }
       } catch (err) {
+        console.error('[ImpersonateUserModal] Error:', err);
         setError(err instanceof Error ? err.message : 'Failed to start impersonation');
       }
     },
-    [canSubmit, startImpersonation, targetUser.id, reason, onSuccess, onClose]
+    [canSubmit, startImpersonation, targetUser.id, reason, acknowledged, isMutating, onSuccess, onClose]
   );
 
   const handleClose = useCallback(() => {
@@ -108,44 +128,36 @@ function ImpersonateUserModalComponent({
 
         {/* Content */}
         <form onSubmit={handleSubmit} className="admin-modal__content">
-          {/* Security warning */}
+          {/* Compact security notice */}
           <div className="admin-modal__alert admin-modal__alert--warning">
             <AlertTriangle className="admin-modal__alert-icon" />
-            <div className="admin-modal__alert-content">
-              <p className="admin-modal__alert-title">Security Notice</p>
-              <ul className="admin-modal__alert-list">
-                <li>All actions will be logged for audit purposes</li>
-                <li>Session will automatically expire after {SESSION_DURATION_MINUTES} minutes</li>
-                <li>You will see the platform exactly as this user sees it</li>
-                <li>Do not perform actions the user did not request</li>
-              </ul>
-            </div>
+            <p className="admin-modal__alert-text">
+              All actions are logged. Session expires in {SESSION_DURATION_MINUTES} minutes.
+            </p>
           </div>
 
-          {/* Session info */}
-          <div className="admin-modal__info">
-            <Clock className="admin-modal__info-icon" />
-            <span>Session duration: {SESSION_DURATION_MINUTES} minutes</span>
-          </div>
-
-          {/* Reason input */}
+          {/* Reason input with AI assist */}
           <div className="admin-modal__field">
             <label htmlFor="impersonate-reason" className="admin-modal__label">
-              Reason for impersonation <span className="admin-modal__required">*</span>
+              Reason <span className="admin-modal__required">*</span>
             </label>
-            <textarea
-              id="impersonate-reason"
-              className="admin-modal__textarea"
+            <AIWriteAssist
+              context="impersonation-reason"
               value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              placeholder="e.g., Investigating support ticket #1234, user reported issue with..."
-              rows={3}
+              onSuggestion={setReason}
+              additionalContext={`Target user: ${targetUser.email}`}
               disabled={isMutating}
-              autoFocus
-            />
-            <p className="admin-modal__hint">
-              {reason.length}/{MIN_REASON_LENGTH}+ characters required
-            </p>
+            >
+              <textarea
+                id="impersonate-reason"
+                className="admin-modal__textarea"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder="e.g., Support ticket #1234 - user reports payment issue"
+                rows={2}
+                disabled={isMutating}
+              />
+            </AIWriteAssist>
           </div>
 
           {/* Acknowledgement checkbox */}
@@ -157,10 +169,7 @@ function ImpersonateUserModalComponent({
               disabled={isMutating}
               className="admin-modal__checkbox"
             />
-            <span>
-              I understand this action is logged and I will only perform actions necessary for
-              support purposes.
-            </span>
+            <span>User has granted permission for this support session</span>
           </label>
 
           {/* Error message */}
@@ -175,7 +184,7 @@ function ImpersonateUserModalComponent({
           <div className="admin-modal__actions">
             <button
               type="button"
-              className="admin-btn admin-btn--secondary"
+              className="admin-action-btn admin-action-btn--secondary"
               onClick={handleClose}
               disabled={isMutating}
             >
@@ -183,17 +192,17 @@ function ImpersonateUserModalComponent({
             </button>
             <button
               type="submit"
-              className="admin-btn admin-btn--warning"
+              className="admin-action-btn admin-action-btn--warning"
               disabled={!canSubmit}
             >
               {isMutating ? (
                 <>
-                  <Loader2 className="admin-btn__icon animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   Starting...
                 </>
               ) : (
                 <>
-                  <User className="admin-btn__icon" />
+                  <User className="h-4 w-4" />
                   Start Impersonation
                 </>
               )}

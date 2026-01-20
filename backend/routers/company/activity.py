@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from typing import Optional
 from datetime import datetime, timedelta
 
-from ...auth import get_current_user
+from ...auth import get_current_user, get_effective_user
 from ...security import log_error
 from .utils import (
     get_service_client,
@@ -36,7 +36,7 @@ async def get_activity_logs(request: Request, company_id: ValidCompanyId,
     limit: int = 50,
     event_type: Optional[str] = None,
     days: Optional[int] = None,
-    user=Depends(get_current_user)
+    user=Depends(get_effective_user)
 ):
     """
     Get activity logs for a company.
@@ -108,7 +108,7 @@ async def get_activity_logs(request: Request, company_id: ValidCompanyId,
 @router.delete("/{company_id}/activity/cleanup")
 @limiter.limit("10/minute;30/hour")
 async def cleanup_orphaned_activity_logs(request: Request, company_id: ValidCompanyId,
-    user=Depends(get_current_user)
+    user=Depends(get_effective_user)
 ):
     """
     Remove activity log entries that reference non-existent items.

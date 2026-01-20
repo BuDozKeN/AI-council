@@ -19,6 +19,7 @@ type ContextType =
   | 'decision-statement'
   | 'knowledge-reasoning'
   | 'question-refine'
+  | 'impersonation-reason'
   | 'generic';
 
 interface ContextPromptConfig {
@@ -166,6 +167,20 @@ Make it easy to follow:`,
     buttonText: 'Help me ask better',
     emptyHint: 'Type your question',
   },
+  'impersonation-reason': {
+    instruction: `Write a clear, professional reason for admin impersonation of a user account. The reason should:
+- Reference a specific support ticket, bug report, or user request
+- Explain what needs to be investigated or verified
+- Be suitable for an audit log
+
+Format: "[Action] [User issue/ticket] to [Purpose]"
+Example: "Investigating support ticket #1234 - user reports payment not processing correctly"
+
+Based on this brief description:`,
+    placeholder: 'e.g., Support ticket #1234, user can\'t see their data...',
+    buttonText: 'Help me write this',
+    emptyHint: 'Describe the support issue briefly',
+  },
   generic: {
     instruction: 'Improve the clarity of this text while keeping the same meaning:',
     placeholder: 'Enter your text...',
@@ -232,6 +247,7 @@ export function AIWriteAssist({
       'decision-statement': 'decisionStatement',
       'knowledge-reasoning': 'knowledgeReasoning',
       'question-refine': 'questionRefine',
+      'impersonation-reason': 'impersonationReason',
       generic: 'generic',
     }),
     []
@@ -474,6 +490,7 @@ const CONTEXT_KEY_MAP: Record<ContextType, string> = {
   'decision-statement': 'decisionStatement',
   'knowledge-reasoning': 'knowledgeReasoning',
   'question-refine': 'questionRefine',
+  'impersonation-reason': 'impersonationReason',
   generic: 'generic',
 };
 
