@@ -8,7 +8,11 @@
   flex-direction: column;
   gap: var(--gap-sm);
   padding: var(--space-4) var(--space-6);
-  padding-bottom: max(var(--space-4), env(safe-area-inset-bottom, var(--space-4))); /* Safe area for notched devices */
+  padding-bottom: max(
+    var(--space-4),
+    env(safe-area-inset-bottom, var(--space-4))
+  ); /* Safe area for notched devices */
+
   flex-shrink: 0;
   scrollbar-gutter: stable both-edges; /* Match messages-container for alignment */
   background: var(--color-bg-primary);
