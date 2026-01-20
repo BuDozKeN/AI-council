@@ -95,6 +95,7 @@ import {
 import './AdminPortal.css';
 import './AdminStats.css';
 import './AdminTable.css';
+import './AdminDeletedUsers.css';
 import './AdminToolbar.css';
 import './AdminButtons.css';
 import './AdminModals.css';
