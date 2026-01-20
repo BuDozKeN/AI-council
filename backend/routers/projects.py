@@ -580,7 +580,7 @@ async def merge_decision_into_project(
     from ..openrouter import query_model, MOCK_LLM
     from ..personas import get_db_persona_with_fallback
     from ..database import get_supabase_with_auth
-    from .projects_refactored import (
+    from .projects_impl import (
         _extract_json_from_llm_response,
         _generate_decision_title,
         _normalize_department_ids,
@@ -712,7 +712,7 @@ async def _handle_decision_save(
     if not merge_request.save_decision or not merge_request.company_id:
         return None, None
 
-    from .projects_refactored import (
+    from .projects_impl import (
         _generate_decision_title,
         _normalize_department_ids,
         _save_decision_to_knowledge,

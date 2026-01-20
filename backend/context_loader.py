@@ -1258,7 +1258,7 @@ def get_system_prompt_with_context(
     Returns:
         System prompt string with all context, or None if no context found
     """
-    from .context_loader_refactored import (
+    from .context_loader_impl import (
         _normalize_role_and_department_ids,
         _resolve_company_uuid,
         _build_role_header_prompt,

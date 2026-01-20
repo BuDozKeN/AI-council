@@ -47,7 +47,7 @@ async def get_activity_logs(request: Request, company_id: ValidCompanyId,
 
     REFACTORED: Complexity reduced from E (45) to C (~12) by extracting helper functions.
     """
-    from .activity_refactored import (
+    from .activity_impl import (
         _build_activity_query,
         _collect_related_ids,
         _batch_check_decisions,

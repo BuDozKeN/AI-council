@@ -136,7 +136,7 @@ async def stage1_stream_responses(
     Yields:
         Dicts with 'type' (token/complete), 'model', and 'content'/'response'
     """
-    from .council_stage1_refactored import (
+    from .council_stage1 import (
         _validate_query_security,
         _build_stage1_messages,
         _get_council_models_and_config,
@@ -252,7 +252,7 @@ async def stage2_stream_rankings(
     Yields:
         Dicts with event type and data
     """
-    from .council_stage2_refactored import (
+    from .council_stage2 import (
         _create_anonymized_labels,
         _build_sanitized_responses_text,
         _build_ranking_prompt,
