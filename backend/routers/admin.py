@@ -20,6 +20,7 @@ from ..database import get_supabase_service, get_supabase_with_auth
 from ..security import SecureHTTPException, log_app_event, escape_sql_like_pattern
 from ..services.email import send_invitation_email
 from .. import leaderboard as leaderboard_module
+from ..i18n import t, get_locale_from_request
 
 # Import shared rate limiter
 from ..rate_limit import limiter
@@ -348,9 +349,10 @@ async def list_users(
     user_id = user.get("id")
 
     # Verify admin access
+    locale = get_locale_from_request(request)
     is_admin, role = await check_is_platform_admin(user_id)
     if not is_admin:
-        raise HTTPException(status_code=403, detail="Admin access required")
+        raise HTTPException(status_code=403, detail=t("errors.admin_access_required", locale))
 
     try:
         supabase = get_supabase_service()
@@ -571,11 +573,12 @@ async def get_user_details(
     """
     admin_user_id = user.get("id")
     admin_email = user.get("email")
+    locale = get_locale_from_request(request)
 
     # Verify admin access
     is_admin, role = await check_is_platform_admin(admin_user_id)
     if not is_admin:
-        raise HTTPException(status_code=403, detail="Admin access required")
+        raise HTTPException(status_code=403, detail=t("errors.admin_access_required", locale))
 
     try:
         supabase = get_supabase_service()
@@ -585,10 +588,10 @@ async def get_user_details(
             user_response = supabase.auth.admin.get_user_by_id(target_user_id)
             target_user = user_response.user
         except Exception:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=404, detail=t("errors.user_not_found", locale))
 
         if not target_user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=404, detail=t("errors.user_not_found", locale))
 
         # Helper to convert datetime to string
         def to_str(value):
@@ -659,15 +662,16 @@ async def update_user(
     """
     admin_user_id = user.get("id")
     admin_email = user.get("email")
+    locale = get_locale_from_request(request)
 
     # Verify admin access
     is_admin, role = await check_is_platform_admin(admin_user_id)
     if not is_admin:
-        raise HTTPException(status_code=403, detail="Admin access required")
+        raise HTTPException(status_code=403, detail=t("errors.admin_access_required", locale))
 
     # Prevent self-suspension
     if target_user_id == admin_user_id:
-        raise HTTPException(status_code=400, detail="Cannot modify your own account")
+        raise HTTPException(status_code=400, detail=t("errors.cannot_modify_own_account", locale))
 
     try:
         supabase = get_supabase_service()
@@ -677,17 +681,17 @@ async def update_user(
             user_response = supabase.auth.admin.get_user_by_id(target_user_id)
             target_user = user_response.user
         except Exception:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=404, detail=t("errors.user_not_found", locale))
 
         if not target_user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=404, detail=t("errors.user_not_found", locale))
 
         # Check if target is also an admin (prevent suspending admins unless super_admin)
         target_is_admin, target_role = await check_is_platform_admin(target_user_id)
         if target_is_admin and role != "super_admin":
             raise HTTPException(
                 status_code=403,
-                detail="Only super admins can modify other admin accounts"
+                detail=t("errors.only_super_admin_modify_admin", locale)
             )
 
         # Update user metadata for suspension
@@ -784,17 +788,18 @@ async def delete_user(
     """
     admin_user_id = user.get("id")
     admin_email = user.get("email")
+    locale = get_locale_from_request(request)
 
     # Verify admin access
     is_admin, role = await check_is_platform_admin(admin_user_id)
     if not is_admin:
-        raise HTTPException(status_code=403, detail="Admin access required")
+        raise HTTPException(status_code=403, detail=t("errors.admin_access_required", locale))
 
     # Require confirmation
     if not confirm:
         raise HTTPException(
             status_code=400,
-            detail="Deletion requires confirmation. Set confirm=true to proceed."
+            detail=t("errors.deletion_requires_confirmation", locale)
         )
 
     # Permanent deletion requires super_admin
@@ -806,7 +811,7 @@ async def delete_user(
 
     # Prevent self-deletion
     if target_user_id == admin_user_id:
-        raise HTTPException(status_code=400, detail="Cannot delete your own account")
+        raise HTTPException(status_code=400, detail=t("errors.cannot_delete_own_account", locale))
 
     try:
         supabase = get_supabase_service()
@@ -816,10 +821,10 @@ async def delete_user(
             user_response = supabase.auth.admin.get_user_by_id(target_user_id)
             target_user = user_response.user
         except Exception:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=404, detail=t("errors.user_not_found", locale))
 
         if not target_user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=404, detail=t("errors.user_not_found", locale))
 
         target_email = target_user.email
 
@@ -828,7 +833,7 @@ async def delete_user(
         if target_is_admin and role != "super_admin":
             raise HTTPException(
                 status_code=403,
-                detail="Only super admins can delete admin accounts"
+                detail=t("errors.only_super_admin_delete_admin", locale)
             )
 
         # Check if already soft-deleted
@@ -1162,9 +1167,10 @@ async def list_admins(request: Request, user: dict = Depends(get_current_user)):
     user_id = user.get("id")
 
     # Verify admin access
+    locale = get_locale_from_request(request)
     is_admin, role = await check_is_platform_admin(user_id)
     if not is_admin:
-        raise HTTPException(status_code=403, detail="Admin access required")
+        raise HTTPException(status_code=403, detail=t("errors.admin_access_required", locale))
 
     try:
         supabase = get_supabase_service()
@@ -1228,9 +1234,10 @@ async def list_companies(
     user_id = user.get("id")
 
     # Verify admin access
+    locale = get_locale_from_request(request)
     is_admin, role = await check_is_platform_admin(user_id)
     if not is_admin:
-        raise HTTPException(status_code=403, detail="Admin access required")
+        raise HTTPException(status_code=403, detail=t("errors.admin_access_required", locale))
 
     try:
         supabase = get_supabase_service()
@@ -1311,9 +1318,10 @@ async def get_platform_stats(request: Request, user: dict = Depends(get_current_
     user_id = user.get("id")
 
     # Verify admin access
+    locale = get_locale_from_request(request)
     is_admin, role = await check_is_platform_admin(user_id)
     if not is_admin:
-        raise HTTPException(status_code=403, detail="Admin access required")
+        raise HTTPException(status_code=403, detail=t("errors.admin_access_required", locale))
 
     try:
         supabase = get_supabase_service()
@@ -1402,16 +1410,17 @@ async def list_audit_logs(
     user_email = user.get("email")
 
     # Verify admin access
+    locale = get_locale_from_request(request)
     is_admin, role = await check_is_platform_admin(user_id)
     if not is_admin:
-        raise HTTPException(status_code=403, detail="Admin access required")
+        raise HTTPException(status_code=403, detail=t("errors.admin_access_required", locale))
 
     try:
         supabase = get_supabase_service()
         if supabase is None:
             raise HTTPException(
                 status_code=500,
-                detail="Database service not available. Check SUPABASE_SERVICE_ROLE_KEY configuration."
+                detail=t("errors.database_service_unavailable", locale)
             )
 
         # Build query
@@ -1502,9 +1511,10 @@ async def get_audit_categories(request: Request, user: dict = Depends(get_curren
     user_id = user.get("id")
 
     # Verify admin access
+    locale = get_locale_from_request(request)
     is_admin, role = await check_is_platform_admin(user_id)
     if not is_admin:
-        raise HTTPException(status_code=403, detail="Admin access required")
+        raise HTTPException(status_code=403, detail=t("errors.admin_access_required", locale))
 
     return {
         "action_categories": [
@@ -1550,18 +1560,19 @@ async def export_audit_logs(
     """
     user_id = user.get("id")
     user_email = user.get("email")
+    locale = get_locale_from_request(request)
 
     # Verify admin access - only super_admin can export
     is_admin, role = await check_is_platform_admin(user_id)
     if not is_admin or role != "super_admin":
-        raise HTTPException(status_code=403, detail="Super admin access required for export")
+        raise HTTPException(status_code=403, detail=t("errors.super_admin_access_required", locale))
 
     try:
         supabase = get_supabase_service()
         if supabase is None:
             raise HTTPException(
                 status_code=500,
-                detail="Database service not available. Check SUPABASE_SERVICE_ROLE_KEY configuration."
+                detail=t("errors.database_service_unavailable", locale)
             )
 
         # Build query
@@ -1640,9 +1651,10 @@ async def create_invitation(
     user_email = user.get("email")
 
     # Verify admin access
+    locale = get_locale_from_request(request)
     is_admin, role = await check_is_platform_admin(user_id)
     if not is_admin:
-        raise HTTPException(status_code=403, detail="Admin access required")
+        raise HTTPException(status_code=403, detail=t("errors.admin_access_required", locale))
 
     try:
         supabase = get_supabase_service()
@@ -1670,7 +1682,7 @@ async def create_invitation(
                     if u.email and u.email.lower() == target_email:
                         raise HTTPException(
                             status_code=400,
-                            detail=f"User with email {invitation_data.email} already exists"
+                            detail=t("errors.user_already_exists", locale, email=invitation_data.email)
                         )
 
                 # If we got fewer users than per_page, we've reached the end
@@ -1690,7 +1702,7 @@ async def create_invitation(
         if existing and existing.data:
             raise HTTPException(
                 status_code=400,
-                detail=f"Pending invitation already exists for {invitation_data.email}"
+                detail=t("errors.pending_invitation_exists", locale, email=invitation_data.email)
             )
 
         # Generate token and expiry
@@ -1722,7 +1734,7 @@ async def create_invitation(
         result = supabase.table("platform_invitations").insert(insert_data).execute()
 
         if not result.data:
-            raise HTTPException(status_code=500, detail="Failed to create invitation")
+            raise HTTPException(status_code=500, detail=t("errors.invitation_create_failed", locale))
 
         invitation_id = result.data[0]["id"]
 
@@ -1805,9 +1817,10 @@ async def list_invitations(
     user_id = user.get("id")
 
     # Verify admin access
+    locale = get_locale_from_request(request)
     is_admin, role = await check_is_platform_admin(user_id)
     if not is_admin:
-        raise HTTPException(status_code=403, detail="Admin access required")
+        raise HTTPException(status_code=403, detail=t("errors.admin_access_required", locale))
 
     try:
         supabase = get_supabase_service()
@@ -1901,9 +1914,10 @@ async def cancel_invitation(
     user_email = user.get("email")
 
     # Verify admin access
+    locale = get_locale_from_request(request)
     is_admin, role = await check_is_platform_admin(user_id)
     if not is_admin:
-        raise HTTPException(status_code=403, detail="Admin access required")
+        raise HTTPException(status_code=403, detail=t("errors.admin_access_required", locale))
 
     try:
         supabase = get_supabase_service()
@@ -1914,12 +1928,12 @@ async def cancel_invitation(
         ).eq("id", invitation_id).maybe_single().execute()
 
         if not inv_result or not inv_result.data:
-            raise HTTPException(status_code=404, detail="Invitation not found")
+            raise HTTPException(status_code=404, detail=t("errors.invitation_not_found", locale))
 
         if inv_result.data["status"] != "pending":
             raise HTTPException(
                 status_code=400,
-                detail=f"Cannot cancel invitation with status: {inv_result.data['status']}"
+                detail=t("errors.cannot_cancel_invitation", locale, status=inv_result.data['status'])
             )
 
         # Update status to cancelled
@@ -1978,9 +1992,10 @@ async def resend_invitation(
     user_email = user.get("email")
 
     # Verify admin access
+    locale = get_locale_from_request(request)
     is_admin, role = await check_is_platform_admin(user_id)
     if not is_admin:
-        raise HTTPException(status_code=403, detail="Admin access required")
+        raise HTTPException(status_code=403, detail=t("errors.admin_access_required", locale))
 
     try:
         supabase = get_supabase_service()
@@ -1991,12 +2006,12 @@ async def resend_invitation(
         ).eq("id", invitation_id).maybe_single().execute()
 
         if not inv_result or not inv_result.data:
-            raise HTTPException(status_code=404, detail="Invitation not found")
+            raise HTTPException(status_code=404, detail=t("errors.invitation_not_found", locale))
 
         if inv_result.data["status"] != "pending":
             raise HTTPException(
                 status_code=400,
-                detail=f"Cannot resend invitation with status: {inv_result.data['status']}"
+                detail=t("errors.cannot_resend_invitation", locale, status=inv_result.data['status'])
             )
 
         # Extend expiration
@@ -2209,22 +2224,23 @@ async def start_impersonation(
     """
     admin_user_id = user.get("id")
     admin_email = user.get("email")
+    locale = get_locale_from_request(request)
 
     # Verify admin access
     is_admin, role = await check_is_platform_admin(admin_user_id)
     if not is_admin:
-        raise HTTPException(status_code=403, detail="Admin access required")
+        raise HTTPException(status_code=403, detail=t("errors.admin_access_required", locale))
 
     # Only super_admin and admin can impersonate
     if role not in ("super_admin", "admin"):
         raise HTTPException(
             status_code=403,
-            detail="Only super_admin and admin roles can impersonate users"
+            detail=t("errors.only_admin_can_impersonate", locale)
         )
 
     # Cannot impersonate yourself
     if target_user_id == admin_user_id:
-        raise HTTPException(status_code=400, detail="Cannot impersonate yourself")
+        raise HTTPException(status_code=400, detail=t("errors.cannot_impersonate_self", locale))
 
     try:
         supabase = get_supabase_service()
@@ -2234,17 +2250,17 @@ async def start_impersonation(
             user_response = supabase.auth.admin.get_user_by_id(target_user_id)
             target_user = user_response.user
         except Exception:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=404, detail=t("errors.user_not_found", locale))
 
         if not target_user:
-            raise HTTPException(status_code=404, detail="User not found")
+            raise HTTPException(status_code=404, detail=t("errors.user_not_found", locale))
 
         # Check if target is an admin (cannot impersonate admins)
         target_is_admin, target_role = await check_is_platform_admin(target_user_id)
         if target_is_admin:
             raise HTTPException(
                 status_code=403,
-                detail="Cannot impersonate platform administrators"
+                detail=t("errors.cannot_impersonate_admin", locale)
             )
 
         # Check if user is suspended
@@ -2252,7 +2268,7 @@ async def start_impersonation(
         if target_metadata.get("is_suspended"):
             raise HTTPException(
                 status_code=400,
-                detail="Cannot impersonate a suspended user"
+                detail=t("errors.cannot_impersonate_suspended", locale)
             )
 
         # Generate session ID and timestamps
@@ -2344,11 +2360,12 @@ async def end_impersonation(
     """
     admin_user_id = user.get("id")
     admin_email = user.get("email")
+    locale = get_locale_from_request(request)
 
     # Verify admin access
     is_admin, role = await check_is_platform_admin(admin_user_id)
     if not is_admin:
-        raise HTTPException(status_code=403, detail="Admin access required")
+        raise HTTPException(status_code=403, detail=t("errors.admin_access_required", locale))
 
     try:
         supabase = get_supabase_service()
@@ -2529,11 +2546,12 @@ async def list_impersonation_sessions(
     """
     admin_user_id = user.get("id")
     admin_email = user.get("email")
+    locale = get_locale_from_request(request)
 
     # Verify super_admin access
     is_admin, role = await check_is_platform_admin(admin_user_id)
     if not is_admin or role != "super_admin":
-        raise HTTPException(status_code=403, detail="Super admin access required")
+        raise HTTPException(status_code=403, detail=t("errors.super_admin_access_required", locale))
 
     try:
         supabase = get_supabase_service()

@@ -14,6 +14,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { getIntlLocale } from '../../i18n';
 import {
   Users,
   Building2,
@@ -485,8 +486,10 @@ function StatsOverview() {
               </div>
               <div className="admin-stat-content">
                 <span className="admin-stat-value">
-                  {stat.value.toLocaleString()}
-                  {useDummyData && <span className="admin-demo-badge-inline">DEMO</span>}
+                  {stat.value.toLocaleString(getIntlLocale())}
+                  {useDummyData && (
+                    <span className="admin-demo-badge-inline">{t('admin.demo', 'DEMO')}</span>
+                  )}
                 </span>
                 <span className="admin-stat-label">{stat.label}</span>
               </div>
@@ -2575,7 +2578,7 @@ function AuditTab() {
   const formatTimestamp = (ts: string): string => {
     try {
       const date = new Date(ts);
-      return date.toLocaleString(undefined, {
+      return date.toLocaleString(getIntlLocale(), {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -4143,7 +4146,7 @@ function formatDate(dateString: string): string {
   if (!dateString) return 'N/A';
   try {
     const date = new Date(dateString);
-    return date.toLocaleDateString(undefined, {
+    return date.toLocaleDateString(getIntlLocale(), {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
