@@ -210,7 +210,7 @@ async def ai_write_assist(
     """
     from ..openrouter import query_model, MOCK_LLM
     from ..personas import get_write_assist_persona_async, PersonaNotFoundError
-    from .ai_utils_refactored import (
+    from .ai_utils_impl import (
         _generate_mock_response,
         _preprocess_prompt,
         _build_write_assist_system_prompt,

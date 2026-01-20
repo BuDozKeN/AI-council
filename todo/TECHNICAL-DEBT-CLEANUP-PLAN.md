@@ -392,11 +392,11 @@ Use this checklist to track progress:
 - [x] Convert backend print() to logger (ai_i18n.py, i18n.py, email.py)
 - [x] Clean up root utility scripts (deleted: main.py, check_context.py, create_project.py, fix_selects.py)
 
-### Phase 2 (Low Risk)
-- [ ] Rename _refactored files
-- [ ] Remove unused npm packages
-- [ ] Remove unused pip packages
-- [ ] Sync requirements.txt with pyproject.toml
+### Phase 2 (Low Risk) - COMPLETED 2026-01-20
+- [x] Rename _refactored files (8 files → clear names, imports updated)
+- [x] Remove unused npm packages (geist, postcss-rtlcss from package.json)
+- [x] Remove unused pip packages (apscheduler from both, email-validator from pyproject.toml)
+- [x] Sync requirements.txt with pyproject.toml (stripe >=14.0.0, added sentry-sdk, cryptography)
 
 ### Phase 3 (Medium Risk)
 - [ ] Migrate deprecated API method callers
@@ -442,14 +442,14 @@ Use this checklist to track progress:
 | Callers in Organization | `frontend/src/components/Organization.tsx` | various |
 | Callers in useCompany | `frontend/src/hooks/queries/useCompany.ts` | various |
 
-### Duplicate Files Locations
-| Refactored File | Original Importer |
-|-----------------|-------------------|
-| `backend/council_stage1_refactored.py` | `backend/council.py` |
-| `backend/council_stage2_refactored.py` | `backend/council.py` |
-| `backend/context_loader_refactored.py` | `backend/context_loader.py` |
-| `backend/openrouter_stream_refactored.py` | `backend/openrouter.py` |
-| `backend/routers/company/activity_refactored.py` | `backend/routers/company/activity.py` |
-| `backend/routers/company/utils_refactored.py` | `backend/routers/company/utils.py` |
-| `backend/routers/projects_refactored.py` | `backend/routers/projects.py` |
-| `backend/routers/ai_utils_refactored.py` | `backend/routers/ai_utils.py` |
+### Duplicate Files Locations - **RENAMED (Phase 2)**
+| Old Name | New Name | Status |
+|----------|----------|--------|
+| ~~`council_stage1_refactored.py`~~ | `council_stage1.py` | **RENAMED** |
+| ~~`council_stage2_refactored.py`~~ | `council_stage2.py` | **RENAMED** |
+| ~~`context_loader_refactored.py`~~ | `context_loader_impl.py` | **RENAMED** |
+| ~~`openrouter_stream_refactored.py`~~ | `openrouter_stream.py` | **RENAMED** |
+| ~~`activity_refactored.py`~~ | `activity_impl.py` | **RENAMED** |
+| ~~`utils_refactored.py`~~ | `company_utils.py` | **RENAMED** |
+| ~~`projects_refactored.py`~~ | `projects_impl.py` | **RENAMED** |
+| ~~`ai_utils_refactored.py`~~ | `ai_utils_impl.py` | **RENAMED** |

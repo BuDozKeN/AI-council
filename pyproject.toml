@@ -13,15 +13,15 @@ dependencies = [
     "supabase>=2.0.0",
     "gunicorn>=21.0.0",
     "pillow>=10.0.0",  # Image optimization for uploads
-    "stripe>=7.0.0",  # Billing integration
+    "stripe>=14.0.0",  # Billing integration
     "slowapi>=0.1.9",  # Rate limiting
     "python-multipart>=0.0.9",  # File upload support for FastAPI
     "tiktoken>=0.7.0",  # Token counting for LLM cost management
     "redis>=5.0.0",  # Caching, rate limiting, job queues
     "numpy>=1.26.0",  # Vector math for embeddings/similarity
     "qdrant-client>=1.9.0",  # Vector database for semantic search
-    "apscheduler>=3.10.0",  # Scheduled background tasks
-    "email-validator>=2.0.0",  # Email validation for Pydantic EmailStr
+    "sentry-sdk[fastapi]>=2.0.0",  # Error monitoring
+    "cryptography>=42.0.0",  # Secure token generation
 ]
 
 [project.optional-dependencies]
