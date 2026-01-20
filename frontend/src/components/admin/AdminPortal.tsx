@@ -452,7 +452,7 @@ function StatsOverview() {
               <div className="admin-stat-content">
                 <span className="admin-stat-value">
                   {stat.value.toLocaleString()}
-                  {useDummyData && <span className="admin-demo-badge-inline">DEMO</span>}
+                  {useDummyData && <span className="admin-demo-badge-inline">{t('admin.demo', 'DEMO')}</span>}
                 </span>
                 <span className="admin-stat-label">{stat.label}</span>
               </div>
@@ -665,8 +665,8 @@ function UsersTab() {
                           <div className="admin-user-cell">
                             <Mail className="h-4 w-4" />
                             <span>{user.email}</span>
-                            {useDummyData && <span className="admin-demo-badge">DEMO</span>}
-                            {isCurrentUser && <span className="admin-you-badge">You</span>}
+                            {useDummyData && <span className="admin-demo-badge">{t('admin.demo', 'DEMO')}</span>}
+                            {isCurrentUser && <span className="admin-you-badge">{t('admin.users.you', 'You')}</span>}
                           </div>
                         </td>
                         <td>
@@ -679,7 +679,7 @@ function UsersTab() {
                           <div className="admin-date-cell">
                             <Clock className="h-4 w-4" />
                             <span>
-                              {user.last_sign_in_at ? formatDate(user.last_sign_in_at) : 'Never'}
+                              {user.last_sign_in_at ? formatDate(user.last_sign_in_at) : t('admin.users.never', 'Never')}
                             </span>
                           </div>
                         </td>
@@ -687,13 +687,13 @@ function UsersTab() {
                           {isSuspended ? (
                             <span className="admin-status-badge admin-status-badge--suspended">
                               <Ban className="h-3 w-3" />
-                              Suspended
+                              {t('admin.users.statusSuspended', 'Suspended')}
                             </span>
                           ) : (
                             <span
                               className={`admin-status-badge ${user.email_confirmed_at ? 'admin-status-badge--active' : 'admin-status-badge--pending'}`}
                             >
-                              {user.email_confirmed_at ? 'Verified' : 'Pending'}
+                              {user.email_confirmed_at ? t('admin.users.statusVerified', 'Verified') : t('admin.users.statusPending', 'Pending')}
                             </span>
                           )}
                         </td>
@@ -1165,13 +1165,13 @@ function CompaniesTab() {
                         <div className="admin-company-cell">
                           <Building2 className="h-4 w-4" />
                           <span>{company.name}</span>
-                          {useDummyData && <span className="admin-demo-badge">DEMO</span>}
+                          {useDummyData && <span className="admin-demo-badge">{t('admin.demo', 'DEMO')}</span>}
                         </div>
                       </td>
                       <td>
                         <div className="admin-user-cell">
                           <Mail className="h-4 w-4" />
-                          <span>{company.owner_email || 'Unknown'}</span>
+                          <span>{company.owner_email || t('admin.companies.unknown', 'Unknown')}</span>
                         </div>
                       </td>
                       <td>
@@ -1295,12 +1295,12 @@ function AdminsTab() {
                       <div className="admin-user-cell">
                         <Shield className="h-4 w-4" />
                         <span>{admin.email}</span>
-                        {useDummyData && <span className="admin-demo-badge">DEMO</span>}
+                        {useDummyData && <span className="admin-demo-badge">{t('admin.demo', 'DEMO')}</span>}
                       </div>
                     </td>
                     <td>
                       <span className={`admin-role-badge admin-role-badge--${admin.role}`}>
-                        {admin.role.replace('_', ' ')}
+                        {t(`admin.admins.roles.${admin.role}`, admin.role.replace('_', ' '))}
                       </span>
                     </td>
                     <td>
@@ -1648,7 +1648,7 @@ function AuditTab() {
                         <div className="admin-date-cell">
                           <Clock className="h-4 w-4" />
                           <span>{formatTimestamp(log.timestamp)}</span>
-                          {useDummyData && <span className="admin-demo-badge">DEMO</span>}
+                          {useDummyData && <span className="admin-demo-badge">{t('admin.demo', 'DEMO')}</span>}
                         </div>
                       </td>
                       <td>
@@ -2001,7 +2001,7 @@ function InvitationsTab() {
                           <Mail className="h-4 w-4" />
                           <span>{invitation.email}</span>
                           {/* DUMMY DATA INDICATOR - Shows subtle badge when using sample data */}
-                          {useDummyData && <span className="admin-demo-badge">DEMO</span>}
+                          {useDummyData && <span className="admin-demo-badge">{t('admin.demo', 'DEMO')}</span>}
                         </div>
                       </td>
                       <td>
@@ -2013,11 +2013,11 @@ function InvitationsTab() {
                           {invitation.status === 'accepted' && <CheckCircle className="h-3 w-3" />}
                           {invitation.status === 'expired' && <XCircle className="h-3 w-3" />}
                           {invitation.status === 'cancelled' && <X className="h-3 w-3" />}
-                          {invitation.status}
+                          {t(`admin.invitations.status${invitation.status.charAt(0).toUpperCase() + invitation.status.slice(1)}`, invitation.status)}
                         </span>
                       </td>
                       <td>
-                        <span>{invitation.invited_by_email || 'System'}</span>
+                        <span>{invitation.invited_by_email || t('admin.invitations.system', 'System')}</span>
                       </td>
                       <td>
                         <div className="admin-date-cell">

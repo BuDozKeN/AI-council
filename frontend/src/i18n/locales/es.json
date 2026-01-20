@@ -1708,6 +1708,13 @@
     "title": "Portal de Administración",
     "badge": "Administrador de Plataforma",
     "loading": "Verificando acceso de administrador...",
+    "demo": "DEMO",
+    "error": "Error de Conexión",
+    "retry": "Reintentar",
+    "notLoggedIn": "No ha iniciado sesión",
+    "pleaseLogin": "Por favor inicie sesión para acceder al portal de administración.",
+    "accessDenied": "Acceso Denegado",
+    "notAuthorized": "No está autorizado para acceder al portal de administración. Esta área está restringida a administradores de plataforma.",
     "tabs": {
       "users": "Usuarios",
       "companies": "Empresas",
@@ -1720,7 +1727,8 @@
       "totalUsers": "Total de Usuarios",
       "totalCompanies": "Total de Empresas",
       "totalConversations": "Conversaciones",
-      "totalMessages": "Mensajes"
+      "totalMessages": "Mensajes",
+      "demoMode": "Datos de ejemplo"
     },
     "users": {
       "title": "Gestión de Usuarios",
@@ -1733,7 +1741,31 @@
       "actions": "Acciones",
       "impersonate": "Ver como usuario",
       "suspend": "Suspender usuario",
-      "delete": "Eliminar usuario"
+      "unsuspend": "Reactivar usuario",
+      "delete": "Eliminar usuario",
+      "demoMode": "Mostrando datos de ejemplo para vista previa.",
+      "noUsers": "No se encontraron usuarios",
+      "you": "Tú",
+      "never": "Nunca",
+      "statusSuspended": "Suspendido",
+      "statusVerified": "Verificado",
+      "statusPending": "Pendiente",
+      "deleteTitle": "Eliminar Usuario",
+      "deleteWarning": "Esta acción no se puede deshacer",
+      "deleteWarningDesc": "Eliminar este usuario eliminará permanentemente todos sus datos incluyendo empresas, conversaciones y mensajes.",
+      "createdOn": "Creado el {{date}}",
+      "deleting": "Eliminando...",
+      "confirmDelete": "Eliminar Usuario",
+      "unsuspendTitle": "Reactivar Usuario",
+      "suspendTitle": "Suspender Usuario",
+      "unsuspendDesc": "Esto restaurará el acceso del usuario a la plataforma.",
+      "suspendDesc": "Esto impedirá que el usuario inicie sesión. Sus datos se conservarán.",
+      "currentlySuspended": "Actualmente suspendido",
+      "currentlyActive": "Actualmente activo",
+      "unsuspending": "Reactivando...",
+      "suspending": "Suspendiendo...",
+      "confirmUnsuspend": "Reactivar Usuario",
+      "confirmSuspend": "Suspender Usuario"
     },
     "companies": {
       "title": "Gestión de Empresas",
@@ -1742,14 +1774,25 @@
       "name": "Nombre de Empresa",
       "owner": "Propietario",
       "conversations": "Conversaciones",
-      "createdAt": "Creado"
+      "createdAt": "Creado",
+      "demoMode": "Mostrando datos de ejemplo para vista previa.",
+      "noCompanies": "No se encontraron empresas",
+      "unknown": "Desconocido"
     },
     "admins": {
       "title": "Roles de Administrador",
       "description": "Gestionar acceso y roles de administradores de plataforma.",
       "email": "Email",
       "role": "Rol",
-      "grantedAt": "Otorgado"
+      "grantedAt": "Otorgado",
+      "demoMode": "Mostrando datos de ejemplo para vista previa.",
+      "noAdmins": "No se encontraron administradores",
+      "roles": {
+        "super_admin": "Super Admin",
+        "admin": "Admin",
+        "support": "Soporte",
+        "moderator": "Moderador"
+      }
     },
     "audit": {
       "title": "Registros de Auditoría",
@@ -1757,13 +1800,77 @@
       "searchPlaceholder": "Buscar acciones...",
       "allCategories": "Todas las Categorías",
       "allActors": "Todos los Tipos de Actor",
-      "errorLoading": "Error al cargar registros de auditoría"
+      "errorLoading": "Error al cargar registros de auditoría",
+      "demoMode": "Mostrando datos de ejemplo para vista previa.",
+      "noLogs": "No se encontraron registros de auditoría",
+      "noLogsHint": "Los registros de auditoría aparecerán a medida que se registren las acciones de la plataforma.",
+      "timestamp": "Fecha y hora",
+      "actor": "Actor",
+      "action": "Acción",
+      "category": "Categoría",
+      "resource": "Recurso",
+      "ip": "IP",
+      "reason": "Razón"
+    },
+    "invitations": {
+      "title": "Invitaciones de Usuario",
+      "description": "Invitar nuevos usuarios a la plataforma. Recibirán un email con un enlace de registro.",
+      "invite": "Invitar Usuario",
+      "searchPlaceholder": "Buscar por email...",
+      "allStatuses": "Todos los Estados",
+      "email": "Email",
+      "name": "Nombre",
+      "status": "Estado",
+      "invitedBy": "Invitado Por",
+      "sentAt": "Enviado",
+      "expiresAt": "Expira",
+      "actions": "Acciones",
+      "resend": "Reenviar invitación",
+      "cancel": "Cancelar invitación",
+      "demoMode": "Mostrando datos de ejemplo. Ejecute la migración de base de datos para ver invitaciones reales.",
+      "noInvitations": "No se encontraron invitaciones",
+      "noInvitationsHint": "Haga clic en \"Invitar Usuario\" para enviar invitaciones a la plataforma.",
+      "statusPending": "Pendiente",
+      "statusAccepted": "Aceptada",
+      "statusExpired": "Expirada",
+      "statusCancelled": "Cancelada",
+      "system": "Sistema",
+      "inviteTitle": "Invitar Nuevo Usuario",
+      "emailLabel": "Dirección de Email",
+      "emailPlaceholder": "usuario@ejemplo.com",
+      "nameLabel": "Nombre (opcional)",
+      "namePlaceholder": "Juan García",
+      "notesLabel": "Notas (solo interno)",
+      "notesPlaceholder": "Notas opcionales sobre esta invitación...",
+      "sending": "Enviando...",
+      "sendInvite": "Enviar Invitación"
     },
     "settings": {
       "title": "Configuración de Plataforma",
       "description": "Configurar ajustes y preferencias globales de la plataforma.",
       "comingSoon": "Configuración de Plataforma Próximamente",
       "comingSoonDesc": "Las opciones de configuración global estarán disponibles en una futura actualización."
+    },
+    "pagination": {
+      "showing": "Mostrando página {{page}} de {{totalPages}} ({{total}} en total)",
+      "prev": "Anterior",
+      "next": "Siguiente"
+    },
+    "impersonation": {
+      "title": "Suplantar Usuario",
+      "securityNotice": "Todas las acciones se registran. La sesión expira en {{minutes}} minutos.",
+      "reason": "Razón",
+      "reasonPlaceholder": "ej., Ticket de soporte #1234 - usuario reporta problema de pago",
+      "acknowledgement": "El usuario ha otorgado permiso para esta sesión de soporte",
+      "starting": "Iniciando...",
+      "start": "Iniciar Suplantación",
+      "failed": "Error al iniciar suplantación",
+      "viewingAs": "Viendo como:",
+      "timeRemaining": "Tiempo restante: {{time}}",
+      "remaining": "restante",
+      "exit": "Salir",
+      "exitMode": "Salir del modo de suplantación",
+      "watermark": "MODO DE SUPLANTACIÓN"
     }
   }
 }
