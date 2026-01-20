@@ -218,14 +218,37 @@ export default function AdminPortal() {
     navigate('/');
   };
 
-  // Loading state
-  if (authLoading || adminLoading) {
+  // Loading state (only show if no error)
+  if ((authLoading || adminLoading) && !error) {
     return (
       <div className="admin-portal admin-portal--loading">
         <ThemeToggle />
         <div className="admin-loading-content">
           <Loader2 className="admin-loading-spinner animate-spin" />
           <p>{t('admin.loading', 'Checking admin access...')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state (timeout or other errors)
+  if (error) {
+    return (
+      <div className="admin-portal admin-portal--error">
+        <ThemeToggle />
+        <div className="admin-error-content">
+          <AlertCircle className="admin-error-icon" />
+          <h2>{t('admin.error', 'Connection Error')}</h2>
+          <p>{error.message}</p>
+          <div className="admin-error-actions">
+            <button className="admin-retry-btn" onClick={() => window.location.reload()}>
+              {t('admin.retry', 'Retry')}
+            </button>
+            <button className="admin-back-btn" onClick={handleBackToApp}>
+              <ArrowLeft className="h-4 w-4" />
+              {t('admin.backToApp', 'Back to App')}
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -263,11 +286,6 @@ export default function AdminPortal() {
               'You are not authorized to access the admin portal. This area is restricted to platform administrators.'
             )}
           </p>
-          {error && (
-            <p className="admin-error-detail">
-              {t('admin.errorDetail', 'Error: {{message}}', { message: error.message })}
-            </p>
-          )}
           <button className="admin-back-btn" onClick={handleBackToApp}>
             <ArrowLeft className="h-4 w-4" />
             {t('admin.backToApp', 'Back to App')}

@@ -15,6 +15,7 @@
  * On auth errors (rate limiting, expired tokens), retry after re-authentication.
  */
 
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../api';
 import { useAuth } from '../AuthContext';
@@ -31,6 +32,9 @@ export const adminAccessKeys = {
   user: (userId: string) => ['admin-access', userId] as const,
 };
 
+// Timeout for admin access check (15 seconds)
+const AUTH_LOADING_TIMEOUT_MS = 15000;
+
 /**
  * Hook to check admin access for the current user.
  *
@@ -42,11 +46,34 @@ export const adminAccessKeys = {
  */
 export function useAdminAccess(): AdminAccessState {
   const { user, loading: isAuthLoading } = useAuth();
+  const [authTimeout, setAuthTimeout] = useState(false);
+
+  // Timeout mechanism for auth loading
+  // If auth loading takes too long (e.g., Supabase is down), show error instead of spinner
+  useEffect(() => {
+    // Only set up timeout if auth is actively loading
+    if (!isAuthLoading) {
+      // Clear timeout state if auth finished - use queueMicrotask to avoid
+      // synchronous setState in effect body (violates react-hooks/set-state-in-effect)
+      if (authTimeout) {
+        queueMicrotask(() => setAuthTimeout(false));
+      }
+      return;
+    }
+
+    // Set a timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      console.error('[useAdminAccess] Auth loading timeout after', AUTH_LOADING_TIMEOUT_MS, 'ms');
+      setAuthTimeout(true);
+    }, AUTH_LOADING_TIMEOUT_MS);
+
+    return () => clearTimeout(timeoutId);
+  }, [isAuthLoading, authTimeout]);
 
   const { data, isLoading, error } = useQuery({
     queryKey: adminAccessKeys.user(user?.id ?? 'anonymous'),
     queryFn: () => api.checkAdminAccess(),
-    enabled: !isAuthLoading && !!user, // Only check when user is authenticated
+    enabled: !isAuthLoading && !authTimeout && !!user, // Only check when user is authenticated and no timeout
     staleTime: 5 * 60 * 1000, // 5 minutes - admin status rarely changes
     gcTime: 30 * 60 * 1000, // 30 minutes cache
     retry: 2, // Retry twice on failure (handles transient auth errors)
@@ -55,15 +82,26 @@ export function useAdminAccess(): AdminAccessState {
     refetchOnMount: 'always', // Always check on mount to catch auth state changes
   });
 
-  // Only show loading on initial load, not on background refetches
-  // This prevents the admin portal from showing a loading spinner forever
-  // when the API responds but isFetching is still true during refetch
-  const showLoading = isAuthLoading || (isLoading && !data);
+  // Determine loading state:
+  // - Show loading if auth is loading (and not timed out)
+  // - Show loading if query is loading and has no cached data
+  const showLoading = (isAuthLoading && !authTimeout) || (isLoading && !data);
+
+  // Determine error state:
+  // - If auth timed out, show timeout error
+  // - Otherwise, show query error if any
+  const effectiveError = authTimeout
+    ? new Error(
+        'Authentication is taking too long. Please refresh the page or check your network connection.'
+      )
+    : error instanceof Error
+      ? error
+      : null;
 
   return {
     isAdmin: data?.is_admin ?? false,
     adminRole: data?.role ?? null,
     isLoading: showLoading,
-    error: error instanceof Error ? error : null,
+    error: effectiveError,
   };
 }
