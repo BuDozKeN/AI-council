@@ -12,6 +12,7 @@
     var(--space-4),
     env(safe-area-inset-bottom, var(--space-4))
   ); /* Safe area for notched devices */
+
   flex-shrink: 0;
   scrollbar-gutter: stable both-edges; /* Match messages-container for alignment */
   background: var(--color-bg-primary);
