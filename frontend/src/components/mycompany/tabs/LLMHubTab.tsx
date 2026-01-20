@@ -7,6 +7,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { getIntlLocale } from '../../../i18n';
 import {
   Users,
   FileText,
@@ -1021,7 +1022,7 @@ export function LLMHubTab({ companyId }: LLMHubTabProps) {
 
                                 {/* Desktop: Column 3 - Response length dropdown */}
                                 <Tooltip
-                                  content={`${stageData.max_tokens.toLocaleString()} ${t('llmHub.tokens')}`}
+                                  content={`${stageData.max_tokens.toLocaleString(getIntlLocale())} ${t('llmHub.tokens')}`}
                                   side="top"
                                 >
                                   <div className="llm-length-wrapper llm-length-wrapper--desktop">

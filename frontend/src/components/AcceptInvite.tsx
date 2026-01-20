@@ -12,6 +12,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { getIntlLocale } from '../i18n';
 import {
   Mail,
   User,
@@ -168,7 +169,7 @@ export default function AcceptInvite() {
   const formatExpiry = (dateStr: string): string => {
     try {
       const date = new Date(dateStr);
-      return date.toLocaleDateString(undefined, {
+      return date.toLocaleDateString(getIntlLocale(), {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
