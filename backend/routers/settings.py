@@ -18,6 +18,7 @@ from ..database import get_supabase_with_auth
 from ..security import log_app_event
 from ..utils.encryption import encrypt_api_key, decrypt_api_key, get_key_suffix, mask_api_key, DecryptionError
 from ..byok import KEY_EXPIRY_DAYS, log_api_key_event, get_key_expiry_info
+from ..i18n import t, get_locale_from_request
 
 # Import shared rate limiter (ensures limits are tracked globally)
 from ..rate_limit import limiter
@@ -193,15 +194,16 @@ async def save_openrouter_key(request: Request,
     Sets expiry to 90 days from now.
     """
     key = key_request.key.strip()
+    locale = get_locale_from_request(request)
 
     # Basic format validation
     if not key:
-        raise HTTPException(status_code=400, detail="API key cannot be empty")
+        raise HTTPException(status_code=400, detail=t("errors.api_key_empty", locale))
 
     if not key.startswith("sk-or-"):
         raise HTTPException(
             status_code=400,
-            detail="Invalid key format. OpenRouter keys start with 'sk-or-'"
+            detail=t("errors.invalid_key_format", locale)
         )
 
     # Validate with OpenRouter
@@ -216,7 +218,7 @@ async def save_openrouter_key(request: Request,
         )
         raise HTTPException(
             status_code=400,
-            detail="Invalid OpenRouter API key. Please check it's copied correctly and has credits."
+            detail=t("errors.invalid_openrouter_key", locale)
         )
 
     # Encrypt and save
@@ -296,6 +298,7 @@ async def test_openrouter_key(request: Request, current_user=Depends(get_current
     Test the user's stored OpenRouter API key.
     Updates the is_valid status.
     """
+    locale = get_locale_from_request(request)
     db = get_supabase_with_auth(current_user["access_token"])
 
     try:
@@ -303,10 +306,10 @@ async def test_openrouter_key(request: Request, current_user=Depends(get_current
             "encrypted_key, key_suffix, is_active"
         ).eq("user_id", current_user["id"]).maybe_single().execute()
     except Exception:
-        raise HTTPException(status_code=500, detail="Database error")
+        raise HTTPException(status_code=500, detail=t("errors.database_error", locale))
 
     if not result or not result.data:
-        raise HTTPException(status_code=404, detail="No API key configured")
+        raise HTTPException(status_code=404, detail=t("errors.api_key_not_configured", locale))
 
     # Decrypt and test
     # SECURITY: Use per-user derived key for decryption
@@ -319,7 +322,7 @@ async def test_openrouter_key(request: Request, current_user=Depends(get_current
         }).eq("user_id", current_user["id"]).execute()
         raise HTTPException(
             status_code=400,
-            detail="Stored key cannot be decrypted. Please delete and add a new key."
+            detail=t("errors.key_decryption_failed", locale)
         )
 
     is_valid = await validate_openrouter_key(raw_key)
@@ -357,6 +360,7 @@ async def toggle_openrouter_key(request: Request, current_user=Depends(get_curre
     Toggle the is_active status of the user's OpenRouter API key.
     Allows users to temporarily disable their key without deleting it.
     """
+    locale = get_locale_from_request(request)
     db = get_supabase_with_auth(current_user["access_token"])
 
     try:
@@ -364,10 +368,10 @@ async def toggle_openrouter_key(request: Request, current_user=Depends(get_curre
             "encrypted_key, key_suffix, is_valid, is_active"
         ).eq("user_id", current_user["id"]).maybe_single().execute()
     except Exception:
-        raise HTTPException(status_code=500, detail="Database error")
+        raise HTTPException(status_code=500, detail=t("errors.database_error", locale))
 
     if not result or not result.data:
-        raise HTTPException(status_code=404, detail="No API key configured")
+        raise HTTPException(status_code=404, detail=t("errors.api_key_not_configured", locale))
 
     # Toggle is_active
     new_is_active = not result.data.get("is_active", True)
@@ -419,15 +423,16 @@ async def rotate_openrouter_key(request: Request, key_request: OpenRouterKeyRequ
     Increments rotation_count for audit purposes.
     """
     key = key_request.key.strip()
+    locale = get_locale_from_request(request)
 
     # Basic format validation
     if not key:
-        raise HTTPException(status_code=400, detail="API key cannot be empty")
+        raise HTTPException(status_code=400, detail=t("errors.api_key_empty", locale))
 
     if not key.startswith("sk-or-"):
         raise HTTPException(
             status_code=400,
-            detail="Invalid key format. OpenRouter keys start with 'sk-or-'"
+            detail=t("errors.invalid_key_format", locale)
         )
 
     db = get_supabase_with_auth(current_user["access_token"])
@@ -458,7 +463,7 @@ async def rotate_openrouter_key(request: Request, key_request: OpenRouterKeyRequ
         )
         raise HTTPException(
             status_code=400,
-            detail="Invalid OpenRouter API key. Please check it's copied correctly and has credits."
+            detail=t("errors.invalid_openrouter_key", locale)
         )
 
     # Encrypt new key
@@ -525,10 +530,11 @@ async def get_openrouter_key_expiry(request: Request, current_user=Depends(get_c
     Get detailed expiry information for the user's API key.
     Useful for showing warnings when key is about to expire.
     """
+    locale = get_locale_from_request(request)
     expiry_info = await get_key_expiry_info(current_user["id"])
 
     if not expiry_info:
-        raise HTTPException(status_code=404, detail="No API key configured")
+        raise HTTPException(status_code=404, detail=t("errors.api_key_not_configured", locale))
 
     return {
         "expires_at": expiry_info["expires_at"],
@@ -618,6 +624,7 @@ async def update_user_settings(request: Request, settings_request: UpdateSetting
     """
     Update user settings.
     """
+    locale = get_locale_from_request(request)
     db = get_supabase_with_auth(current_user["access_token"])
 
     updates = {}
@@ -625,7 +632,7 @@ async def update_user_settings(request: Request, settings_request: UpdateSetting
         if settings_request.default_mode not in ("quick", "full_council"):
             raise HTTPException(
                 status_code=400,
-                detail="Invalid mode. Must be 'quick' or 'full_council'"
+                detail=t("errors.invalid_council_mode", locale)
             )
         updates["default_mode"] = settings_request.default_mode
 
