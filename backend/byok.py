@@ -79,7 +79,7 @@ async def get_user_api_key(user_id: str, log_usage: bool = True) -> Optional[str
             "encrypted_key, is_valid, is_active, expires_at, revoked_at"
         ).eq("user_id", user_id).maybe_single().execute()
 
-        if not result.data:
+        if not result or not result.data:
             return None
 
         # Check if key is valid and active
@@ -138,7 +138,7 @@ async def get_key_expiry_info(user_id: str) -> Optional[Dict[str, Any]]:
             "expires_at, revoked_at, last_used_at, rotation_count, created_at"
         ).eq("user_id", user_id).maybe_single().execute()
 
-        if not result.data:
+        if not result or not result.data:
             return None
 
         expires_at = result.data.get("expires_at")
@@ -249,7 +249,7 @@ def has_byok_configured(user_id: str) -> bool:
 
         # Key must exist, be valid, and be active
         return bool(
-            result.data and
+            result and result.data and
             result.data.get("is_valid", True) and
             result.data.get("is_active", True)
         )

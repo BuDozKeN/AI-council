@@ -488,7 +488,7 @@ def handle_webhook_event(payload: bytes, sig_header: str) -> Dict[str, Any]:
     # SECURITY: Idempotency check - prevent replay attacks
     try:
         existing = supabase.table('processed_webhook_events').select('id').eq('event_id', event_id).maybe_single().execute()
-        if existing.data:
+        if existing and existing.data:
             log_billing_event("Webhook already processed (idempotency)", event_id=event_id)
             return {"success": True, "status": "already_processed", "event_type": event_type}
 

@@ -251,7 +251,7 @@ async def get_effective_user(
         "is_active", True
     ).maybe_single().execute()
 
-    if not session_result.data:
+    if not session_result or not session_result.data:
         logger.warning(f"Invalid or inactive impersonation session: {x_impersonate_user}")
         raise HTTPException(
             status_code=403,

@@ -121,7 +121,7 @@ async def get_openrouter_key_status(request: Request, current_user=Depends(get_c
             is_active=True
         )
 
-    if not result.data:
+    if not result or not result.data:
         return OpenRouterKeyResponse(
             status="not_connected",
             is_valid=False,
@@ -305,7 +305,7 @@ async def test_openrouter_key(request: Request, current_user=Depends(get_current
     except Exception:
         raise HTTPException(status_code=500, detail="Database error")
 
-    if not result.data:
+    if not result or not result.data:
         raise HTTPException(status_code=404, detail="No API key configured")
 
     # Decrypt and test
@@ -366,7 +366,7 @@ async def toggle_openrouter_key(request: Request, current_user=Depends(get_curre
     except Exception:
         raise HTTPException(status_code=500, detail="Database error")
 
-    if not result.data:
+    if not result or not result.data:
         raise HTTPException(status_code=404, detail="No API key configured")
 
     # Toggle is_active
@@ -438,11 +438,11 @@ async def rotate_openrouter_key(request: Request, key_request: OpenRouterKeyRequ
             "rotation_count, key_suffix"
         ).eq("user_id", current_user["id"]).maybe_single().execute()
     except Exception:
-        current_key = type('obj', (object,), {'data': None})()
+        current_key = None
 
     current_rotation_count = 0
     old_suffix = None
-    if current_key.data:
+    if current_key and current_key.data:
         current_rotation_count = current_key.data.get("rotation_count", 0)
         old_suffix = current_key.data.get("key_suffix")
 
@@ -559,10 +559,10 @@ async def get_user_settings(request: Request, current_user=Depends(get_current_u
             "default_mode"
         ).eq("user_id", current_user["id"]).maybe_single().execute()
     except Exception:
-        settings_result = type('obj', (object,), {'data': None})()
+        settings_result = None
 
     default_mode = "full_council"
-    if settings_result.data:
+    if settings_result and settings_result.data:
         default_mode = settings_result.data.get("default_mode", "full_council")
 
     # Get API key status
@@ -571,12 +571,12 @@ async def get_user_settings(request: Request, current_user=Depends(get_current_u
             "encrypted_key, key_suffix, is_valid, is_active"
         ).eq("user_id", current_user["id"]).maybe_single().execute()
     except Exception:
-        key_result = type('obj', (object,), {'data': None})()
+        key_result = None
 
     api_key_status = None
     has_api_key = False
 
-    if key_result.data:
+    if key_result and key_result.data:
         has_api_key = True
         # SECURITY: Use per-user derived key for decryption
         try:
