@@ -18,6 +18,7 @@ export default defineConfig({
         'e2e/**',
         // Admin portal - new feature, tests to be added later
         'src/components/admin/**',
+        'src/hooks/useImpersonation.ts',
       ],
       thresholds: {
         // Minimum coverage thresholds - incrementally increase to 70%
