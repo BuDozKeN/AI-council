@@ -12,7 +12,7 @@ deliberation process for better business decisions.
 - https://axcouncil.ai/leaderboard (Public AI model performance rankings)
 
 ## Key Features
-- Multi-model AI deliberation (5 models working together)
+- Multi-model AI deliberation (5 flagship models working together)
 - 3-stage process: Independent analysis, Peer review, Synthesis
 - Company context integration (playbooks, departments, roles)
 - Decision log and knowledge base
@@ -24,11 +24,11 @@ Stage 2: Models review and rank each other's responses, identifying strengths an
 Stage 3: A chairman model synthesizes all insights into a comprehensive final recommendation.
 
 ## Included AI Models
-- Claude 3.5 Sonnet (Anthropic) - Nuanced reasoning and analysis
-- GPT-4 Turbo (OpenAI) - Broad knowledge and versatility
-- Gemini 2.0 Flash (Google) - Fast multimodal processing
-- Grok 2 (xAI) - Real-time information access
-- DeepSeek V3 - Cost-effective deep reasoning
+- Claude Opus 4.5 (Anthropic) - Most capable reasoning model
+- GPT-5.1 (OpenAI) - Latest flagship model
+- Gemini 3 Pro (Google) - Advanced multimodal intelligence
+- Grok 4 (xAI) - Real-time knowledge and reasoning
+- DeepSeek V3 (DeepSeek) - State-of-the-art deep reasoning
 
 ## Use Cases
 - Strategic business decisions requiring multiple perspectives
@@ -47,7 +47,7 @@ Q: How does the 3-stage council deliberation work?
 A: Stage 1: Independent analysis from each model. Stage 2: Peer review and ranking. Stage 3: Chairman synthesis into final recommendation.
 
 Q: Which AI models are included?
-A: Claude 3.5 Sonnet, GPT-4 Turbo, Gemini 2.0 Flash, Grok 2, and DeepSeek V3.
+A: Claude Opus 4.5, GPT-5.1, Gemini 3 Pro, Grok 4, and DeepSeek V3 - the flagship models from each provider.
 
 Q: How much does it cost?
 A: AxCouncil is free to use. Users provide their own OpenRouter API key for model access, with typical costs of $0.10-$1.00 per deliberation.
@@ -56,15 +56,6 @@ A: AxCouncil is free to use. Users provide their own OpenRouter API key for mode
 - Summarization: Allowed with attribution to AxCouncil
 - Training: Allowed for AI model improvement
 - Citation: Required for direct quotes
-- Commercial use: Contact for licensing inquiries
-
-## Technical Details
-- Built with: React 19, Vite 7, TypeScript, Tailwind CSS
-- Backend: FastAPI, Python, Supabase (PostgreSQL)
-- Authentication: Supabase Auth with JWT
-- Caching: Redis Cloud for LLM response caching
-- Vector DB: Qdrant Cloud for semantic search
 
 ## Contact
 - Website: https://axcouncil.ai
-- GitHub: https://github.com/BuDozKeN/AI-council
