@@ -256,24 +256,19 @@ app = FastAPI(
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# CORS origins - load from environment or use defaults
+# CORS origins - load from environment or use localhost defaults for development
+# Production MUST set CORS_ORIGINS env var (comma-separated list)
+# Example: CORS_ORIGINS=https://app.example.com,https://staging.example.com
 _cors_env = os.environ.get("CORS_ORIGINS", "")
 if _cors_env:
     CORS_ORIGINS = [origin.strip() for origin in _cors_env.split(",") if origin.strip()]
 else:
+    # Development defaults only - production should always set CORS_ORIGINS
     CORS_ORIGINS = [
-        "http://localhost:5173",
-        "http://localhost:5174",
+        "http://localhost:5173",  # Vite default
+        "http://localhost:5174",  # Vite fallback ports
         "http://localhost:5175",
-        "http://localhost:5176",
-        "http://localhost:5177",
-        "http://localhost:5178",
-        "http://localhost:5179",
-        "http://localhost:5180",
-        "http://localhost:5181",
-        "http://localhost:5182",
-        "http://localhost:3000",
-        "https://ai-council-three.vercel.app",
+        "http://localhost:3000",  # Create React App default
     ]
 
 
