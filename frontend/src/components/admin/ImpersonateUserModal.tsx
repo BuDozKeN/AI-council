@@ -102,6 +102,7 @@ function ImpersonateUserModalComponent({
       isMutating,
       onSuccess,
       onClose,
+      t,
     ]
   );
 
