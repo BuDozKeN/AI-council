@@ -50,7 +50,7 @@
 
 .admin-action-btn--warning {
   background: var(--color-warning);
-  color: var(--color-text-on-warning, #1a1a1a);
+  color: var(--color-text-on-warning);
   font-weight: 600;
 }
 

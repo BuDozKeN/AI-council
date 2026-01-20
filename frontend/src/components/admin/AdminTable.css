@@ -46,12 +46,9 @@
    TABLE SEPARATOR ROW (for deleted users section)
    ============================================================================= */
 
-.admin-table-separator {
-  background: var(--color-bg-secondary) !important;
-}
-
-.admin-table-separator:hover {
-  background: var(--color-bg-secondary) !important;
+.admin-table .admin-table-separator,
+.admin-table .admin-table-separator:hover {
+  background: var(--color-bg-secondary);
 }
 
 .admin-table-separator td {
@@ -76,12 +73,12 @@
 }
 
 /* Deleted user rows - subtle background */
-.admin-deleted-row {
-  background: var(--overlay-amber-5, rgba(245, 158, 11, 0.05));
+.admin-table .admin-deleted-row {
+  background: var(--overlay-amber-8);
 }
 
-.admin-deleted-row:hover {
-  background: var(--overlay-amber-10, rgba(245, 158, 11, 0.1)) !important;
+.admin-table .admin-deleted-row:hover {
+  background: var(--overlay-amber-15);
 }
 
 /* Table cell styles */
@@ -517,6 +514,7 @@
     font-size: var(--font-size-sm);
     color: var(--color-text-secondary);
     white-space: nowrap;
+
     /* Override tablet truncation - we have full width on mobile */
     max-width: none;
     overflow: visible;
@@ -670,9 +668,9 @@
   top: -40px;
   left: 0;
   background: var(--color-primary);
-  color: white;
+  color: var(--color-text-inverse);
   padding: var(--space-2) var(--space-4);
-  z-index: 100;
+  z-index: var(--z-elevated);
   border-radius: var(--radius-md);
   font-size: var(--font-size-sm);
   font-weight: 500;
@@ -798,7 +796,7 @@
   gap: var(--space-1-5);
   padding: var(--space-1-5) var(--space-3);
   background: var(--color-success);
-  color: white;
+  color: var(--color-text-inverse);
   border: none;
   border-radius: var(--radius-md);
   font-size: var(--font-size-xs);
