@@ -740,8 +740,16 @@ async def send_message(
 
         except Exception as e:
             import traceback
-            log_app_event("STREAM: Exception in event_generator", level="ERROR", error=str(e), traceback=traceback.format_exc())
-            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+            # Log full error details for debugging (internal only)
+            log_app_event(
+                "STREAM_ERROR",
+                level="ERROR",
+                error=str(e),
+                error_type=type(e).__name__,
+                traceback=traceback.format_exc()
+            )
+            # Return sanitized error to user - never expose internal details
+            yield f"data: {json.dumps({'type': 'error', 'message': 'An error occurred processing your request. Please try again.'})}\n\n"
         finally:
             if api_key_token:
                 reset_request_api_key(api_key_token)
@@ -955,7 +963,17 @@ async def chat_with_chairman(
             yield f"data: {json.dumps({'type': 'complete'})}\n\n"
 
         except Exception as e:
-            yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+            import traceback
+            # Log full error details for debugging (internal only)
+            log_app_event(
+                "CHAT_STREAM_ERROR",
+                level="ERROR",
+                error=str(e),
+                error_type=type(e).__name__,
+                traceback=traceback.format_exc()
+            )
+            # Return sanitized error to user - never expose internal details
+            yield f"data: {json.dumps({'type': 'error', 'message': 'An error occurred processing your request. Please try again.'})}\n\n"
         finally:
             if api_key_token:
                 reset_request_api_key(api_key_token)
