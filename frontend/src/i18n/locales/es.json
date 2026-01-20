@@ -1707,12 +1707,14 @@
     "backToApp": "Volver a la App",
     "title": "Portal de Administración",
     "badge": "Administrador de Plataforma",
+    "loading": "Verificando acceso de administrador...",
     "tabs": {
       "users": "Usuarios",
       "companies": "Empresas",
       "audit": "Registros de Auditoría",
       "admins": "Roles de Admin",
-      "settings": "Configuración"
+      "settings": "Configuración",
+      "invitations": "Invitaciones"
     },
     "stats": {
       "totalUsers": "Total de Usuarios",
@@ -1727,7 +1729,11 @@
       "email": "Email",
       "createdAt": "Creado",
       "lastSignIn": "Último Acceso",
-      "status": "Estado"
+      "status": "Estado",
+      "actions": "Acciones",
+      "impersonate": "Ver como usuario",
+      "suspend": "Suspender usuario",
+      "delete": "Eliminar usuario"
     },
     "companies": {
       "title": "Gestión de Empresas",

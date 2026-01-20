@@ -15,7 +15,7 @@ from datetime import datetime
 import uuid
 import json
 
-from ...auth import get_current_user
+from ...auth import get_current_user, get_effective_user
 from .utils import (
     get_client,
     get_service_client,
@@ -64,7 +64,7 @@ async def get_playbooks(request: Request, company_id: str,
     doc_type: Optional[str] = None,
     department_id: Optional[str] = None,
     tag: Optional[str] = None,
-    user=Depends(get_current_user)
+    user=Depends(get_effective_user)
 ):
     """
     Get all playbooks with current version content.
@@ -154,7 +154,7 @@ async def get_playbooks(request: Request, company_id: str,
 
 @router.get("/{company_id}/playbooks/tags")
 @limiter.limit("100/minute;500/hour")
-async def get_playbook_tags(request: Request, company_id: str, user=Depends(get_current_user)):
+async def get_playbook_tags(request: Request, company_id: str, user=Depends(get_effective_user)):
     """Get predefined playbook tag categories."""
     predefined_tags = [
         {"tag": "deployment", "description": "Deployment and release procedures"},
@@ -180,7 +180,7 @@ async def get_playbook_tags(request: Request, company_id: str, user=Depends(get_
 
 @router.get("/{company_id}/playbooks/{playbook_id}")
 @limiter.limit("100/minute;500/hour")
-async def get_playbook(request: Request, company_id: ValidCompanyId, playbook_id: str, user=Depends(get_current_user)):
+async def get_playbook(request: Request, company_id: ValidCompanyId, playbook_id: str, user=Depends(get_effective_user)):
     """Get a single playbook with its current version content."""
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
@@ -233,7 +233,7 @@ async def get_playbook(request: Request, company_id: ValidCompanyId, playbook_id
 
 @router.post("/{company_id}/playbooks")
 @limiter.limit("20/minute")
-async def create_playbook(request: Request, company_id: ValidCompanyId, data: PlaybookCreate, user=Depends(get_current_user)):
+async def create_playbook(request: Request, company_id: ValidCompanyId, data: PlaybookCreate, user=Depends(get_effective_user)):
     """Create a new playbook with initial version."""
     import re
     client = get_client(user)
@@ -308,7 +308,7 @@ async def create_playbook(request: Request, company_id: ValidCompanyId, data: Pl
 
 @router.put("/{company_id}/playbooks/{playbook_id}")
 @limiter.limit("30/minute;100/hour")
-async def update_playbook(request: Request, company_id: ValidCompanyId, playbook_id: ValidPlaybookId, data: PlaybookUpdate, user=Depends(get_current_user)):
+async def update_playbook(request: Request, company_id: ValidCompanyId, playbook_id: ValidPlaybookId, data: PlaybookUpdate, user=Depends(get_effective_user)):
     """Update a playbook - creates a new version if content changed."""
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)
@@ -409,7 +409,7 @@ async def update_playbook(request: Request, company_id: ValidCompanyId, playbook
 
 @router.delete("/{company_id}/playbooks/{playbook_id}")
 @limiter.limit("20/minute;50/hour")
-async def delete_playbook(request: Request, company_id: ValidCompanyId, playbook_id: ValidPlaybookId, user=Depends(get_current_user)):
+async def delete_playbook(request: Request, company_id: ValidCompanyId, playbook_id: ValidPlaybookId, user=Depends(get_effective_user)):
     """Delete a playbook permanently."""
     client = get_client(user)
     company_uuid = resolve_company_id(client, company_id)

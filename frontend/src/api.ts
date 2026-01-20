@@ -213,8 +213,31 @@ export const setTokenGetter = (getter: TokenGetter): void => {
   getAccessToken = getter;
 };
 
+// =============================================================================
+// Impersonation Context
+// =============================================================================
+
+// Session storage key for impersonation data (must match useImpersonation.ts)
+const IMPERSONATION_STORAGE_KEY = 'axcouncil_impersonation_session';
+
+/**
+ * Get the active impersonation session ID (if any).
+ * This is read from sessionStorage where the useImpersonation hook stores it.
+ */
+const getImpersonationSessionId = (): string | null => {
+  try {
+    const stored = sessionStorage.getItem(IMPERSONATION_STORAGE_KEY);
+    if (!stored) return null;
+    const session = JSON.parse(stored) as { session_id?: string };
+    return session.session_id || null;
+  } catch {
+    return null;
+  }
+};
+
 /**
  * Get headers including Authorization if token is available.
+ * Also includes X-Impersonate-User header if impersonation session is active.
  */
 const getAuthHeaders = async (): Promise<Record<string, string>> => {
   const headers: Record<string, string> = {
@@ -230,6 +253,14 @@ const getAuthHeaders = async (): Promise<Record<string, string>> => {
   } else {
     log.warn('getAccessToken not set - API calls will be unauthenticated');
   }
+
+  // Add impersonation header if session is active
+  const impersonationSessionId = getImpersonationSessionId();
+  if (impersonationSessionId) {
+    headers['X-Impersonate-User'] = impersonationSessionId;
+    log.debug('Adding impersonation header:', impersonationSessionId);
+  }
+
   return headers;
 };
 
@@ -3804,6 +3835,92 @@ export const api = {
   },
 
   // ===========================================================================
+  // Admin Impersonation
+  // ===========================================================================
+
+  /**
+   * Start impersonating a user (admin only).
+   * Returns a session that must be stored client-side.
+   */
+  async startImpersonation(
+    targetUserId: string,
+    reason: string
+  ): Promise<StartImpersonationResponse> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/admin/users/${targetUserId}/impersonate`,
+      {
+        method: 'POST',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason }),
+      }
+    );
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ detail: 'Failed to start impersonation' }));
+      throw new Error(error.detail || 'Failed to start impersonation');
+    }
+    return response.json();
+  },
+
+  /**
+   * End an active impersonation session (admin only).
+   */
+  async endImpersonation(sessionId?: string): Promise<EndImpersonationResponse> {
+    const headers = await getAuthHeaders();
+    const params = sessionId ? `?session_id=${encodeURIComponent(sessionId)}` : '';
+    const response = await fetch(`${API_BASE}${API_VERSION}/admin/impersonation/end${params}`, {
+      method: 'POST',
+      headers,
+    });
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Failed to end impersonation' }));
+      throw new Error(error.detail || 'Failed to end impersonation');
+    }
+    return response.json();
+  },
+
+  /**
+   * Check current impersonation status (admin only).
+   */
+  async getImpersonationStatus(sessionId?: string): Promise<ImpersonationStatusResponse> {
+    const headers = await getAuthHeaders();
+    const params = sessionId ? `?session_id=${encodeURIComponent(sessionId)}` : '';
+    const response = await fetch(`${API_BASE}${API_VERSION}/admin/impersonation/status${params}`, {
+      headers,
+    });
+    if (!response.ok) {
+      // Return not impersonating on error
+      return { is_impersonating: false, session: null };
+    }
+    return response.json();
+  },
+
+  /**
+   * List impersonation sessions (super_admin only).
+   */
+  async listImpersonationSessions(params?: {
+    page?: number;
+    page_size?: number;
+    include_inactive?: boolean;
+  }): Promise<ImpersonationSessionsResponse> {
+    const headers = await getAuthHeaders();
+    const searchParams = new URLSearchParams();
+    if (params?.page) searchParams.set('page', params.page.toString());
+    if (params?.page_size) searchParams.set('page_size', params.page_size.toString());
+    if (params?.include_inactive) searchParams.set('include_inactive', 'true');
+    const response = await fetch(
+      `${API_BASE}${API_VERSION}/admin/impersonation/sessions?${searchParams.toString()}`,
+      { headers }
+    );
+    if (!response.ok) {
+      throw new Error('Failed to fetch impersonation sessions');
+    }
+    return response.json();
+  },
+
+  // ===========================================================================
   // Public Invitation Endpoints (no auth required)
   // ===========================================================================
 
@@ -4037,6 +4154,62 @@ export interface AcceptInvitationResponse {
   message: string;
   added_to_company: boolean;
   company_name: string | null;
+}
+
+// =============================================================================
+// Types for Admin Impersonation
+// =============================================================================
+
+export interface ImpersonationSession {
+  session_id: string;
+  admin_id: string;
+  admin_email: string;
+  target_user_id: string;
+  target_user_email: string;
+  started_at: string;
+  expires_at: string;
+  reason: string;
+}
+
+export interface StartImpersonationRequest {
+  reason: string;
+}
+
+export interface StartImpersonationResponse {
+  success: boolean;
+  session: ImpersonationSession;
+}
+
+export interface ImpersonationStatusResponse {
+  is_impersonating: boolean;
+  session: ImpersonationSession | null;
+}
+
+export interface EndImpersonationResponse {
+  success: boolean;
+  message: string;
+  ended_count: number;
+}
+
+export interface ImpersonationSessionHistoryItem {
+  session_id: string;
+  admin_id: string;
+  admin_email: string;
+  target_user_id: string;
+  target_user_email: string;
+  started_at: string;
+  expires_at: string;
+  ended_at: string | null;
+  ended_reason: 'manual' | 'expired' | 'admin_logout' | 'target_deleted' | null;
+  reason: string;
+  is_active: boolean;
+}
+
+export interface ImpersonationSessionsResponse {
+  sessions: ImpersonationSessionHistoryItem[];
+  total: number;
+  page: number;
+  page_size: number;
 }
 
 // =============================================================================

@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 
-from ...auth import get_current_user
+from ...auth import get_current_user, get_effective_user
 from .utils import (
     get_service_client,
     verify_company_access,
@@ -169,7 +169,7 @@ class UpdateRateLimits(BaseModel):
 @limiter.limit("100/minute;500/hour")
 async def get_llm_usage(request: Request, company_id: ValidCompanyId,
     days: int = Query(default=30, ge=1, le=90),
-    user: dict = Depends(get_current_user)
+    user: dict = Depends(get_effective_user)
 ):
     """
     Get LLM usage analytics for the dashboard.
@@ -312,7 +312,7 @@ async def get_llm_usage(request: Request, company_id: ValidCompanyId,
 @router.get("/{company_id}/llm-ops/rate-limits")
 @limiter.limit("100/minute;500/hour")
 async def get_rate_limit_status(request: Request, company_id: ValidCompanyId,
-    user: dict = Depends(get_current_user)
+    user: dict = Depends(get_effective_user)
 ):
     """
     Get current rate limit status and configuration.
@@ -364,7 +364,7 @@ async def get_rate_limit_status(request: Request, company_id: ValidCompanyId,
 @limiter.limit("30/minute;100/hour")
 async def update_rate_limits(request: Request, company_id: ValidCompanyId,
     body: UpdateRateLimits,
-    user: dict = Depends(get_current_user)
+    user: dict = Depends(get_effective_user)
 ):
     """
     Update rate limit configuration.
@@ -424,7 +424,7 @@ async def update_rate_limits(request: Request, company_id: ValidCompanyId,
 async def get_budget_alerts(request: Request, company_id: ValidCompanyId,
     acknowledged: Optional[bool] = None,
     limit: int = Query(default=20, ge=1, le=100),
-    user: dict = Depends(get_current_user)
+    user: dict = Depends(get_effective_user)
 ):
     """
     Get budget alerts for the company.
@@ -475,7 +475,7 @@ async def get_budget_alerts(request: Request, company_id: ValidCompanyId,
 @limiter.limit("30/minute;100/hour")
 async def acknowledge_alert(request: Request, company_id: ValidCompanyId,
     alert_id: str,
-    user: dict = Depends(get_current_user)
+    user: dict = Depends(get_effective_user)
 ):
     """
     Acknowledge a budget alert.
@@ -575,7 +575,7 @@ class CreateModelRegistry(BaseModel):
 @router.get("/{company_id}/llm-hub/presets")
 @limiter.limit("100/minute;500/hour")
 async def get_llm_presets(request: Request, company_id: ValidCompanyId,
-    user: dict = Depends(get_current_user)
+    user: dict = Depends(get_effective_user)
 ):
     """
     Get all LLM presets (system-wide).
@@ -621,7 +621,7 @@ async def get_llm_presets(request: Request, company_id: ValidCompanyId,
 async def update_llm_preset(request: Request, company_id: ValidCompanyId,
     preset_id: str,
     body: UpdatePreset,
-    user: dict = Depends(get_current_user)
+    user: dict = Depends(get_effective_user)
 ):
     """
     Update an LLM preset configuration.
@@ -701,7 +701,7 @@ CONSOLIDATED_ROLES = [
 @limiter.limit("100/minute;500/hour")
 async def get_model_registry(request: Request, company_id: ValidCompanyId,
     role: Optional[str] = None,
-    user: dict = Depends(get_current_user)
+    user: dict = Depends(get_effective_user)
 ):
     """
     Get model registry entries.
@@ -774,7 +774,7 @@ async def get_model_registry(request: Request, company_id: ValidCompanyId,
 async def update_model_registry_entry(request: Request, company_id: ValidCompanyId,
     model_uuid: str,
     body: UpdateModelRegistry,
-    user: dict = Depends(get_current_user)
+    user: dict = Depends(get_effective_user)
 ):
     """
     Update a model registry entry.
@@ -849,7 +849,7 @@ async def update_model_registry_entry(request: Request, company_id: ValidCompany
 @limiter.limit("30/minute;100/hour")
 async def create_model_registry_entry(request: Request, company_id: ValidCompanyId,
     body: CreateModelRegistry,
-    user: dict = Depends(get_current_user)
+    user: dict = Depends(get_effective_user)
 ):
     """
     Create a new model registry entry.
@@ -904,7 +904,7 @@ async def create_model_registry_entry(request: Request, company_id: ValidCompany
 @limiter.limit("20/minute;50/hour")
 async def delete_model_registry_entry(request: Request, company_id: ValidCompanyId,
     model_uuid: str,
-    user: dict = Depends(get_current_user)
+    user: dict = Depends(get_effective_user)
 ):
     """
     Delete a model registry entry.
@@ -999,7 +999,7 @@ class UpdatePersona(BaseModel):
 @router.get("/{company_id}/llm-hub/personas")
 @limiter.limit("100/minute;500/hour")
 async def get_personas(request: Request, company_id: ValidCompanyId,
-    user: dict = Depends(get_current_user)
+    user: dict = Depends(get_effective_user)
 ):
     """
     Get all editable AI personas for the LLM Hub.
@@ -1078,7 +1078,7 @@ async def get_personas(request: Request, company_id: ValidCompanyId,
 @limiter.limit("100/minute;500/hour")
 async def get_persona(request: Request, company_id: ValidCompanyId,
     persona_key: str,
-    user: dict = Depends(get_current_user)
+    user: dict = Depends(get_effective_user)
 ):
     """
     Get a single persona by key.
@@ -1155,7 +1155,7 @@ async def get_persona(request: Request, company_id: ValidCompanyId,
 async def update_persona(request: Request, company_id: ValidCompanyId,
     persona_key: str,
     body: UpdatePersona,
-    user: dict = Depends(get_current_user)
+    user: dict = Depends(get_effective_user)
 ):
     """
     Update a persona's prompts.
@@ -1264,7 +1264,7 @@ async def update_persona(request: Request, company_id: ValidCompanyId,
 @limiter.limit("20/minute;50/hour")
 async def reset_persona(request: Request, company_id: ValidCompanyId,
     persona_key: str,
-    user: dict = Depends(get_current_user)
+    user: dict = Depends(get_effective_user)
 ):
     """
     Reset a persona to global defaults.

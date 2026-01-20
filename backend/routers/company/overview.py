@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field
 from typing import Optional
 import json
 
-from ...auth import get_current_user
+from ...auth import get_current_user, get_effective_user
 from ... import model_registry
 from .utils import (
     get_service_client,
@@ -58,10 +58,11 @@ class StructureCompanyContextRequest(BaseModel):
 
 @router.get("/{company_id}/overview")
 @limiter.limit("100/minute;500/hour")
-async def get_company_overview(request: Request, company_id: ValidCompanyId, user=Depends(get_current_user)):
+async def get_company_overview(request: Request, company_id: ValidCompanyId, user=Depends(get_effective_user)):
     """
     Get company overview with stats from DATABASE.
     Returns company info + counts of departments, roles, playbooks, decisions.
+    Supports impersonation via X-Impersonate-User header.
     """
     client = get_service_client()
 

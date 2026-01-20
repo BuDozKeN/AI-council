@@ -179,12 +179,12 @@ def ValidUUID(field_name: str = "id"):
 # =============================================================================
 try:
     from .context_loader import list_available_businesses
-    from .auth import get_current_user
+    from .auth import get_current_user, get_effective_user
     from .routers import v1_router
     from .schemas import error_response, ErrorCodes
 except ImportError:
     from backend.context_loader import list_available_businesses
-    from backend.auth import get_current_user
+    from backend.auth import get_current_user, get_effective_user
     from backend.routers import v1_router
     from backend.schemas import error_response, ErrorCodes
 
@@ -1028,13 +1028,16 @@ async def metrics_endpoint():
 
 @app.get("/api/v1/businesses")
 async def get_businesses(
-    user: dict = Depends(get_current_user),
+    user: dict = Depends(get_effective_user),  # Supports impersonation via X-Impersonate-User header
     limit: int = Query(default=50, ge=1, le=100, description="Max companies to return"),
     offset: int = Query(default=0, ge=0, description="Number of companies to skip")
 ):
     """
     List available business contexts for the authenticated user.
     Supports pagination with limit/offset parameters.
+
+    When an admin is impersonating a user (X-Impersonate-User header),
+    returns the impersonated user's companies instead.
     """
     user_id = user.get("id")
     result = list_available_businesses(user_id=user_id, limit=limit, offset=offset)

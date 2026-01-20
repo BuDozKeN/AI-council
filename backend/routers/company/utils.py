@@ -41,8 +41,20 @@ _CACHE_TTL = 300  # 5 minutes
 # =============================================================================
 
 def get_client(user):
-    """Get authenticated Supabase client."""
+    """
+    Get Supabase client appropriate for the user context.
+
+    When impersonating (user has _is_impersonating flag), returns the service
+    client to bypass RLS since the admin's JWT won't match the impersonated user.
+    Callers must use verify_company_access for authorization.
+
+    For normal users, returns an authenticated client with RLS.
+    """
     if isinstance(user, dict):
+        # Check if this is an impersonation context
+        if user.get('_is_impersonating'):
+            # Use service client to bypass RLS (JWT is admin's, not target user's)
+            return get_supabase_service()
         access_token = user.get('access_token')
     else:
         access_token = user.access_token

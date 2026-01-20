@@ -11,7 +11,7 @@ Endpoints for team member management:
 from fastapi import APIRouter, Depends, HTTPException, Request
 from datetime import datetime
 
-from ...auth import get_current_user
+from ...auth import get_current_user, get_effective_user
 from ...security import log_security_event, log_app_event, log_error
 from ...i18n import t, get_locale_from_request
 from .utils import (
@@ -42,7 +42,7 @@ router = APIRouter(prefix="/company", tags=["company-members"])
 @router.get("/{company_id}/members")
 @limiter.limit("100/minute;500/hour")
 async def get_company_members(request: Request, company_id: ValidCompanyId,
-    user=Depends(get_current_user)
+    user=Depends(get_effective_user)
 ):
     """
     Get all members of the company with their roles.
@@ -91,7 +91,7 @@ async def add_company_member(
     request: Request,
     company_id: ValidCompanyId,
     data: MemberInvite,
-    user=Depends(get_current_user)
+    user=Depends(get_effective_user)
 ):
     """
     Add a new member to the company.
@@ -182,7 +182,7 @@ async def add_company_member(
 async def update_company_member(request: Request, company_id: ValidCompanyId,
     member_id: str,
     data: MemberUpdate,
-    user=Depends(get_current_user)
+    user=Depends(get_effective_user)
 ):
     """
     Update a member's role.
@@ -259,7 +259,7 @@ async def update_company_member(request: Request, company_id: ValidCompanyId,
 @limiter.limit("20/minute;50/hour")
 async def remove_company_member(request: Request, company_id: ValidCompanyId,
     member_id: str,
-    user=Depends(get_current_user)
+    user=Depends(get_effective_user)
 ):
     """
     Remove a member from the company.
@@ -348,7 +348,7 @@ async def remove_company_member(request: Request, company_id: ValidCompanyId,
 @router.get("/{company_id}/usage")
 @limiter.limit("100/minute;500/hour")
 async def get_company_usage(request: Request, company_id: ValidCompanyId,
-    user=Depends(get_current_user)
+    user=Depends(get_effective_user)
 ):
     """
     Get usage statistics for the company.

@@ -1699,3 +1699,465 @@ async def resend_invitation(
             error=str(e)
         )
         raise SecureHTTPException.internal_error("Failed to resend invitation")
+
+
+# =============================================================================
+# IMPERSONATION ENDPOINTS
+# =============================================================================
+
+# Configuration for impersonation sessions
+IMPERSONATION_MAX_DURATION_MINUTES = 30
+IMPERSONATION_TOKEN_PREFIX = "imp_"
+
+
+class StartImpersonationRequest(BaseModel):
+    """Request to start impersonating a user."""
+    reason: str = Field(..., min_length=5, max_length=500, description="Reason for impersonation (required for audit)")
+
+
+class ImpersonationSession(BaseModel):
+    """Active impersonation session info."""
+    session_id: str
+    admin_id: str
+    admin_email: str
+    target_user_id: str
+    target_user_email: str
+    started_at: str
+    expires_at: str
+    reason: str
+
+
+class StartImpersonationResponse(BaseModel):
+    """Response when starting impersonation."""
+    success: bool
+    session: ImpersonationSession
+
+
+class ImpersonationStatusResponse(BaseModel):
+    """Response for impersonation status check."""
+    is_impersonating: bool
+    session: Optional[ImpersonationSession] = None
+
+
+@router.post("/users/{target_user_id}/impersonate")
+@limiter.limit("10/minute;30/hour")
+async def start_impersonation(
+    request: Request,
+    impersonation_request: StartImpersonationRequest,
+    target_user_id: str = Path(..., description="User ID to impersonate"),
+    user: dict = Depends(get_current_user),
+):
+    """
+    Start an impersonation session to view the platform as another user.
+
+    Security requirements:
+    - Only super_admin and admin roles can impersonate
+    - Cannot impersonate other admins
+    - Cannot impersonate yourself
+    - Session automatically expires after 30 minutes
+    - All actions during impersonation are logged
+
+    Returns an impersonation session that must be stored client-side.
+    """
+    admin_user_id = user.get("id")
+    admin_email = user.get("email")
+
+    # Verify admin access
+    is_admin, role = await check_is_platform_admin(admin_user_id)
+    if not is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    # Only super_admin and admin can impersonate
+    if role not in ("super_admin", "admin"):
+        raise HTTPException(
+            status_code=403,
+            detail="Only super_admin and admin roles can impersonate users"
+        )
+
+    # Cannot impersonate yourself
+    if target_user_id == admin_user_id:
+        raise HTTPException(status_code=400, detail="Cannot impersonate yourself")
+
+    try:
+        supabase = get_supabase_service()
+
+        # Get target user
+        try:
+            user_response = supabase.auth.admin.get_user_by_id(target_user_id)
+            target_user = user_response.user
+        except Exception:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        if not target_user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        # Check if target is an admin (cannot impersonate admins)
+        target_is_admin, target_role = await check_is_platform_admin(target_user_id)
+        if target_is_admin:
+            raise HTTPException(
+                status_code=403,
+                detail="Cannot impersonate platform administrators"
+            )
+
+        # Check if user is suspended
+        target_metadata = getattr(target_user, "user_metadata", {}) or {}
+        if target_metadata.get("is_suspended"):
+            raise HTTPException(
+                status_code=400,
+                detail="Cannot impersonate a suspended user"
+            )
+
+        # Generate session ID and timestamps
+        session_id = f"{IMPERSONATION_TOKEN_PREFIX}{uuid.uuid4().hex}"
+        started_at = datetime.utcnow()
+        expires_at = started_at + timedelta(minutes=IMPERSONATION_MAX_DURATION_MINUTES)
+
+        # Store impersonation session in database
+        session_data = {
+            "id": session_id,
+            "admin_id": admin_user_id,
+            "admin_email": admin_email,
+            "target_user_id": target_user_id,
+            "target_user_email": target_user.email,
+            "started_at": started_at.isoformat(),
+            "expires_at": expires_at.isoformat(),
+            "reason": impersonation_request.reason,
+            "is_active": True,
+        }
+
+        supabase.table("impersonation_sessions").insert(session_data).execute()
+
+        # Log audit event
+        client_ip = request.client.host if request.client else None
+        await log_platform_audit(
+            action="start_impersonation",
+            action_category="security",
+            actor_id=admin_user_id,
+            actor_email=admin_email,
+            actor_type="admin",
+            resource_type="user",
+            resource_id=target_user_id,
+            resource_name=target_user.email,
+            ip_address=client_ip,
+            metadata={
+                "session_id": session_id,
+                "reason": impersonation_request.reason,
+                "expires_at": expires_at.isoformat(),
+            },
+            is_sensitive=True,
+        )
+
+        log_app_event(
+            "ADMIN: Started impersonation",
+            user_id=admin_user_id,
+            target_user_id=target_user_id,
+            target_email=target_user.email,
+            session_id=session_id,
+        )
+
+        session = ImpersonationSession(
+            session_id=session_id,
+            admin_id=admin_user_id,
+            admin_email=admin_email,
+            target_user_id=target_user_id,
+            target_user_email=target_user.email,
+            started_at=started_at.isoformat(),
+            expires_at=expires_at.isoformat(),
+            reason=impersonation_request.reason,
+        )
+
+        return StartImpersonationResponse(success=True, session=session)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        log_app_event(
+            "ADMIN: Failed to start impersonation",
+            level="ERROR",
+            user_id=admin_user_id,
+            target_user_id=target_user_id,
+            error=str(e)
+        )
+        raise SecureHTTPException.internal_error("Failed to start impersonation")
+
+
+@router.post("/impersonation/end")
+@limiter.limit("30/minute")
+async def end_impersonation(
+    request: Request,
+    user: dict = Depends(get_current_user),
+    session_id: Optional[str] = Query(None, description="Specific session ID to end"),
+):
+    """
+    End an active impersonation session.
+
+    If session_id is provided, ends that specific session.
+    Otherwise, ends all active sessions for the current admin.
+    """
+    admin_user_id = user.get("id")
+    admin_email = user.get("email")
+
+    # Verify admin access
+    is_admin, role = await check_is_platform_admin(admin_user_id)
+    if not is_admin:
+        raise HTTPException(status_code=403, detail="Admin access required")
+
+    try:
+        supabase = get_supabase_service()
+
+        # Build query to find active sessions
+        query = supabase.table("impersonation_sessions").select("*").eq(
+            "admin_id", admin_user_id
+        ).eq("is_active", True)
+
+        if session_id:
+            query = query.eq("id", session_id)
+
+        result = query.execute()
+        sessions = result.data or []
+
+        if not sessions:
+            return {
+                "success": True,
+                "message": "No active impersonation sessions found",
+                "ended_count": 0,
+            }
+
+        # End each session
+        ended_count = 0
+        for session in sessions:
+            supabase.table("impersonation_sessions").update({
+                "is_active": False,
+                "ended_at": datetime.utcnow().isoformat(),
+                "ended_reason": "manual",
+            }).eq("id", session["id"]).execute()
+
+            # Log audit event for each ended session
+            client_ip = request.client.host if request.client else None
+            await log_platform_audit(
+                action="end_impersonation",
+                action_category="security",
+                actor_id=admin_user_id,
+                actor_email=admin_email,
+                actor_type="admin",
+                resource_type="user",
+                resource_id=session["target_user_id"],
+                resource_name=session.get("target_user_email"),
+                ip_address=client_ip,
+                metadata={
+                    "session_id": session["id"],
+                    "duration_minutes": _calculate_duration_minutes(session["started_at"]),
+                },
+                is_sensitive=True,
+            )
+
+            ended_count += 1
+
+        log_app_event(
+            "ADMIN: Ended impersonation",
+            user_id=admin_user_id,
+            ended_count=ended_count,
+        )
+
+        return {
+            "success": True,
+            "message": f"Ended {ended_count} impersonation session(s)",
+            "ended_count": ended_count,
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        log_app_event(
+            "ADMIN: Failed to end impersonation",
+            level="ERROR",
+            user_id=admin_user_id,
+            error=str(e)
+        )
+        raise SecureHTTPException.internal_error("Failed to end impersonation")
+
+
+@router.get("/impersonation/status")
+@limiter.limit("60/minute")
+async def get_impersonation_status(
+    request: Request,
+    user: dict = Depends(get_current_user),
+    session_id: Optional[str] = Query(None, description="Specific session ID to check"),
+):
+    """
+    Check the current impersonation status.
+
+    If session_id is provided, validates that specific session.
+    Otherwise, returns any active session for the current admin.
+    """
+    admin_user_id = user.get("id")
+
+    # Verify admin access
+    is_admin, role = await check_is_platform_admin(admin_user_id)
+    if not is_admin:
+        return ImpersonationStatusResponse(is_impersonating=False)
+
+    try:
+        supabase = get_supabase_service()
+
+        # Build query
+        query = supabase.table("impersonation_sessions").select("*").eq(
+            "admin_id", admin_user_id
+        ).eq("is_active", True)
+
+        if session_id:
+            query = query.eq("id", session_id)
+
+        result = query.order("started_at", desc=True).limit(1).maybe_single().execute()
+
+        if not result.data:
+            return ImpersonationStatusResponse(is_impersonating=False)
+
+        session_data = result.data
+
+        # Check if session has expired
+        expires_at = datetime.fromisoformat(session_data["expires_at"].replace("Z", "+00:00"))
+        now = datetime.utcnow().replace(tzinfo=expires_at.tzinfo)
+
+        if now > expires_at:
+            # Session expired - mark as inactive
+            supabase.table("impersonation_sessions").update({
+                "is_active": False,
+                "ended_at": datetime.utcnow().isoformat(),
+                "ended_reason": "expired",
+            }).eq("id", session_data["id"]).execute()
+
+            # Log expiration
+            await log_platform_audit(
+                action="impersonation_expired",
+                action_category="security",
+                actor_id=admin_user_id,
+                actor_type="system",
+                resource_type="user",
+                resource_id=session_data["target_user_id"],
+                resource_name=session_data.get("target_user_email"),
+                metadata={"session_id": session_data["id"]},
+            )
+
+            return ImpersonationStatusResponse(is_impersonating=False)
+
+        # Return active session
+        session = ImpersonationSession(
+            session_id=session_data["id"],
+            admin_id=session_data["admin_id"],
+            admin_email=session_data["admin_email"],
+            target_user_id=session_data["target_user_id"],
+            target_user_email=session_data["target_user_email"],
+            started_at=session_data["started_at"],
+            expires_at=session_data["expires_at"],
+            reason=session_data["reason"],
+        )
+
+        return ImpersonationStatusResponse(is_impersonating=True, session=session)
+
+    except Exception as e:
+        log_app_event(
+            "ADMIN: Failed to check impersonation status",
+            level="ERROR",
+            user_id=admin_user_id,
+            error=str(e)
+        )
+        return ImpersonationStatusResponse(is_impersonating=False)
+
+
+@router.get("/impersonation/sessions")
+@limiter.limit("30/minute")
+async def list_impersonation_sessions(
+    request: Request,
+    user: dict = Depends(get_current_user),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    include_inactive: bool = Query(False, description="Include ended sessions"),
+):
+    """
+    List impersonation sessions (super_admin only).
+
+    Returns history of impersonation sessions for audit purposes.
+    """
+    admin_user_id = user.get("id")
+    admin_email = user.get("email")
+
+    # Verify super_admin access
+    is_admin, role = await check_is_platform_admin(admin_user_id)
+    if not is_admin or role != "super_admin":
+        raise HTTPException(status_code=403, detail="Super admin access required")
+
+    try:
+        supabase = get_supabase_service()
+
+        # Build query
+        query = supabase.table("impersonation_sessions").select("*", count="exact")
+
+        if not include_inactive:
+            query = query.eq("is_active", True)
+
+        # Paginate
+        offset = (page - 1) * page_size
+        query = query.order("started_at", desc=True).range(offset, offset + page_size - 1)
+
+        result = query.execute()
+        sessions_data = result.data or []
+        total = result.count or 0
+
+        sessions = [
+            {
+                "session_id": s["id"],
+                "admin_id": s["admin_id"],
+                "admin_email": s["admin_email"],
+                "target_user_id": s["target_user_id"],
+                "target_user_email": s["target_user_email"],
+                "started_at": s["started_at"],
+                "expires_at": s["expires_at"],
+                "ended_at": s.get("ended_at"),
+                "ended_reason": s.get("ended_reason"),
+                "reason": s["reason"],
+                "is_active": s["is_active"],
+            }
+            for s in sessions_data
+        ]
+
+        # Log this access (audit the auditor)
+        client_ip = request.client.host if request.client else None
+        await log_platform_audit(
+            action="view_impersonation_sessions",
+            action_category="admin",
+            actor_id=admin_user_id,
+            actor_email=admin_email,
+            actor_type="admin",
+            ip_address=client_ip,
+            metadata={"page": page, "include_inactive": include_inactive},
+        )
+
+        return {
+            "sessions": sessions,
+            "total": total,
+            "page": page,
+            "page_size": page_size,
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        log_app_event(
+            "ADMIN: Failed to list impersonation sessions",
+            level="ERROR",
+            user_id=admin_user_id,
+            error=str(e)
+        )
+        raise SecureHTTPException.internal_error("Failed to list impersonation sessions")
+
+
+def _calculate_duration_minutes(started_at_str: str) -> float:
+    """Calculate duration in minutes from start time to now."""
+    try:
+        started_at = datetime.fromisoformat(started_at_str.replace("Z", "+00:00"))
+        now = datetime.utcnow().replace(tzinfo=started_at.tzinfo)
+        duration = now - started_at
+        return round(duration.total_seconds() / 60, 1)
+    except Exception:
+        return 0.0

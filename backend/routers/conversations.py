@@ -17,7 +17,7 @@ import asyncio
 import json
 import uuid
 
-from ..auth import get_current_user
+from ..auth import get_current_user, get_effective_user
 from .. import storage
 from .. import billing
 from .. import leaderboard
@@ -209,10 +209,11 @@ async def list_conversations(request: Request, limit: int = Query(50, ge=1, le=1
     company_id: Optional[str] = None,
     starred: Optional[bool] = None,
     archived: Optional[bool] = None,
-    user: dict = Depends(get_current_user)
+    user: dict = Depends(get_effective_user)  # Supports impersonation
 ):
     """
     List conversations for the current user with pagination, filtering, and search.
+    When impersonating, returns the impersonated user's conversations.
     """
     access_token = user.get("access_token")
     result = storage.list_conversations(
@@ -255,8 +256,8 @@ async def create_conversation(request: Request, create_request: CreateConversati
 
 @router.get("/{conversation_id}")
 @limiter.limit("100/minute;500/hour")
-async def get_conversation(request: Request, conversation_id: str, user: dict = Depends(get_current_user)):
-    """Get a specific conversation by ID."""
+async def get_conversation(request: Request, conversation_id: str, user: dict = Depends(get_effective_user)):
+    """Get a specific conversation by ID. Supports impersonation."""
     locale = get_locale_from_request(request)
     access_token = user.get("access_token")
     conversation = storage.get_conversation(conversation_id, access_token=access_token)

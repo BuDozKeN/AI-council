@@ -36,6 +36,7 @@ import { Toaster, toast } from './components/ui/sonner';
 import { MockModeBanner } from './components/ui/MockModeBanner';
 import { ThemeToggle } from './components/ui/ThemeToggle';
 import { HelpButton } from './components/ui/HelpButton';
+import { ImpersonationBanner } from './components/admin/ImpersonationBanner';
 import MobileBottomNav from './components/ui/MobileBottomNav';
 import { CommandPalette } from './components/ui/CommandPalette';
 import { useTheme } from 'next-themes';
@@ -769,6 +770,9 @@ function App() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
     >
+      {/* Impersonation banner - shown when admin is impersonating a user */}
+      <ImpersonationBanner />
+
       {/* Mock mode banner - shown when mock mode is enabled */}
       {mockModeEnabled && <MockModeBanner />}
 

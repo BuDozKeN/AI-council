@@ -43,7 +43,7 @@ export const adminAccessKeys = {
 export function useAdminAccess(): AdminAccessState {
   const { user, loading: isAuthLoading } = useAuth();
 
-  const { data, isLoading, error, isFetching } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: adminAccessKeys.user(user?.id ?? 'anonymous'),
     queryFn: () => api.checkAdminAccess(),
     enabled: !isAuthLoading && !!user, // Only check when user is authenticated
@@ -55,10 +55,15 @@ export function useAdminAccess(): AdminAccessState {
     refetchOnMount: 'always', // Always check on mount to catch auth state changes
   });
 
+  // Only show loading on initial load, not on background refetches
+  // This prevents the admin portal from showing a loading spinner forever
+  // when the API responds but isFetching is still true during refetch
+  const showLoading = isAuthLoading || (isLoading && !data);
+
   return {
     isAdmin: data?.is_admin ?? false,
     adminRole: data?.role ?? null,
-    isLoading: isAuthLoading || isLoading || isFetching,
+    isLoading: showLoading,
     error: error instanceof Error ? error : null,
   };
 }

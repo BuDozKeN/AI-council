@@ -13,7 +13,7 @@ from pydantic import BaseModel
 from typing import Optional, List
 import re
 
-from ...auth import get_current_user
+from ...auth import get_current_user, get_effective_user
 from ...security import escape_sql_like_pattern, log_app_event
 from ...i18n import t, get_locale_from_request
 from .utils import (
@@ -89,7 +89,7 @@ def _sync_project_departments_internal(project_id: str):
 async def get_decisions(request: Request, company_id: str,
     search: Optional[str] = None,
     limit: int = 50,
-    user=Depends(get_current_user)
+    user=Depends(get_effective_user)
 ):
     """Get all decisions (knowledge entries), newest first."""
     client = get_client(user)
@@ -160,7 +160,7 @@ async def get_decisions(request: Request, company_id: str,
 
 @router.post("/{company_id}/decisions")
 @limiter.limit("30/minute;100/hour")
-async def create_decision(request: Request, company_id: ValidCompanyId, data: DecisionCreate, user=Depends(get_current_user)):
+async def create_decision(request: Request, company_id: ValidCompanyId, data: DecisionCreate, user=Depends(get_effective_user)):
     """Save a new decision from a council session."""
     locale = get_locale_from_request(request)
     client = get_client(user)
@@ -255,7 +255,7 @@ async def create_decision(request: Request, company_id: ValidCompanyId, data: De
 
 @router.get("/{company_id}/decisions/{decision_id}")
 @limiter.limit("100/minute;500/hour")
-async def get_decision(request: Request, company_id: ValidCompanyId, decision_id: ValidDecisionId, user=Depends(get_current_user)):
+async def get_decision(request: Request, company_id: ValidCompanyId, decision_id: ValidDecisionId, user=Depends(get_effective_user)):
     """Get a single decision (knowledge entry)."""
     locale = get_locale_from_request(request)
     client = get_client(user)
@@ -306,7 +306,7 @@ async def get_decision(request: Request, company_id: ValidCompanyId, decision_id
 
 @router.post("/{company_id}/decisions/{decision_id}/archive")
 @limiter.limit("30/minute;100/hour")
-async def archive_decision(request: Request, company_id: ValidCompanyId, decision_id: ValidDecisionId, user=Depends(get_current_user)):
+async def archive_decision(request: Request, company_id: ValidCompanyId, decision_id: ValidDecisionId, user=Depends(get_effective_user)):
     """Archive (soft delete) a decision."""
     locale = get_locale_from_request(request)
     client = get_client(user)
@@ -360,7 +360,7 @@ async def archive_decision(request: Request, company_id: ValidCompanyId, decisio
 
 @router.delete("/{company_id}/decisions/{decision_id}")
 @limiter.limit("20/minute;50/hour")
-async def delete_decision(request: Request, company_id: ValidCompanyId, decision_id: ValidDecisionId, user=Depends(get_current_user)):
+async def delete_decision(request: Request, company_id: ValidCompanyId, decision_id: ValidDecisionId, user=Depends(get_effective_user)):
     """Permanently delete a decision."""
     locale = get_locale_from_request(request)
     client = get_client(user)
@@ -401,7 +401,7 @@ async def delete_decision(request: Request, company_id: ValidCompanyId, decision
 
 @router.post("/{company_id}/decisions/{decision_id}/promote")
 @limiter.limit("20/minute;50/hour")
-async def promote_decision(request: Request, company_id: ValidCompanyId, decision_id: ValidDecisionId, data: PromoteDecision, user=Depends(get_current_user)):
+async def promote_decision(request: Request, company_id: ValidCompanyId, decision_id: ValidDecisionId, data: PromoteDecision, user=Depends(get_effective_user)):
     """Promote a decision to a playbook (SOP/framework/policy)."""
     locale = get_locale_from_request(request)
     client = get_client(user)
@@ -500,7 +500,7 @@ async def promote_decision(request: Request, company_id: ValidCompanyId, decisio
 
 @router.post("/{company_id}/decisions/{decision_id}/link-project")
 @limiter.limit("30/minute;100/hour")
-async def link_decision_to_project(request: Request, company_id: str, decision_id: str, data: LinkDecisionToProject, user=Depends(get_current_user)):
+async def link_decision_to_project(request: Request, company_id: str, decision_id: str, data: LinkDecisionToProject, user=Depends(get_effective_user)):
     """Link a decision to an existing project."""
     locale = get_locale_from_request(request)
     client = get_client(user)
@@ -564,7 +564,7 @@ async def link_decision_to_project(request: Request, company_id: str, decision_i
 
 @router.post("/{company_id}/decisions/{decision_id}/create-project")
 @limiter.limit("20/minute;50/hour")
-async def create_project_from_decision(request: Request, company_id: str, decision_id: str, data: CreateProjectFromDecision, user=Depends(get_current_user)):
+async def create_project_from_decision(request: Request, company_id: str, decision_id: str, data: CreateProjectFromDecision, user=Depends(get_effective_user)):
     """Create a new project from a decision."""
     locale = get_locale_from_request(request)
     client = get_client(user)
@@ -726,7 +726,7 @@ Use sections: ## Objective, ## Key Insights, ## Deliverables, ## Success Criteri
 async def get_project_decisions(request: Request, company_id: str,
     project_id: str,
     limit: int = 100,
-    user=Depends(get_current_user)
+    user=Depends(get_effective_user)
 ):
     """Get all decisions linked to a specific project."""
     locale = get_locale_from_request(request)
@@ -804,7 +804,7 @@ async def get_project_decisions(request: Request, company_id: str,
 
 @router.post("/{company_id}/projects/{project_id}/sync-departments")
 @limiter.limit("30/minute;100/hour")
-async def sync_project_departments(request: Request, company_id: str, project_id: str, user=Depends(get_current_user)):
+async def sync_project_departments(request: Request, company_id: str, project_id: str, user=Depends(get_effective_user)):
     """Recalculate project's department_ids from all its active decisions."""
     locale = get_locale_from_request(request)
     service_client = get_service_client()
@@ -834,7 +834,7 @@ async def sync_project_departments(request: Request, company_id: str, project_id
 @limiter.limit("10/minute;30/hour")
 async def generate_decision_summary(request: Request, company_id: str,
     decision_id: str,
-    user=Depends(get_current_user)
+    user=Depends(get_effective_user)
 ):
     """Generate an AI summary for a decision."""
     locale = get_locale_from_request(request)

@@ -41,6 +41,7 @@ import {
   Ban,
   UserX,
   UserCheck,
+  Eye,
 } from 'lucide-react';
 import { useAuth } from '../../AuthContext';
 import { useAdminAccess } from '../../hooks';
@@ -55,6 +56,8 @@ import type {
 } from '../../api';
 import { ThemeToggle } from '../ui/ThemeToggle';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { ImpersonateUserModal } from './ImpersonateUserModal';
+import { Tooltip } from '../ui/Tooltip';
 import './AdminPortal.css';
 import './AdminStats.css';
 import './AdminTable.css';
@@ -499,12 +502,17 @@ const DUMMY_USERS: AdminPlatformUser[] = [
 function UsersTab() {
   const { t } = useTranslation();
   const { user: currentUser } = useAuth();
+  const { adminRole } = useAdminAccess();
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [userToDelete, setUserToDelete] = useState<AdminPlatformUser | null>(null);
   const [userToSuspend, setUserToSuspend] = useState<AdminPlatformUser | null>(null);
+  const [userToImpersonate, setUserToImpersonate] = useState<AdminPlatformUser | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const pageSize = 20;
+
+  // Check if current admin can impersonate
+  const canImpersonate = adminRole === 'super_admin' || adminRole === 'admin';
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['admin', 'users', { page, search }],
@@ -680,6 +688,16 @@ function UsersTab() {
                                 <Loader2 className="h-4 w-4 animate-spin" />
                               ) : (
                                 <>
+                                  {/* Impersonate button */}
+                                  {canImpersonate && !isSuspended && (
+                                    <button
+                                      className="admin-icon-btn admin-icon-btn--impersonate"
+                                      onClick={() => setUserToImpersonate(user)}
+                                      title={t('admin.users.impersonate', 'View as user')}
+                                    >
+                                      <Eye className="h-4 w-4" />
+                                    </button>
+                                  )}
                                   <button
                                     className={`admin-icon-btn ${isSuspended ? 'admin-icon-btn--success' : 'admin-icon-btn--warning'}`}
                                     onClick={() => setUserToSuspend(user)}
@@ -737,6 +755,18 @@ function UsersTab() {
           onClose={() => setUserToSuspend(null)}
           onConfirm={() => handleToggleSuspend(userToSuspend)}
           isLoading={actionLoading === userToSuspend.id}
+        />
+      )}
+
+      {/* Impersonate User Modal */}
+      {userToImpersonate && (
+        <ImpersonateUserModal
+          isOpen={!!userToImpersonate}
+          onClose={() => setUserToImpersonate(null)}
+          targetUser={{
+            id: userToImpersonate.id,
+            email: userToImpersonate.email,
+          }}
         />
       )}
     </div>
@@ -1370,6 +1400,39 @@ const DUMMY_AUDIT_LOGS: AdminAuditLog[] = [
     ip_address: '52.14.128.73',
     metadata: null,
   },
+  {
+    id: 'demo-audit-7',
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    actor_id: 'demo-admin-1',
+    actor_email: 'ozpaniard+admin@gmail.com',
+    actor_type: 'admin',
+    action: 'Started user impersonation',
+    action_category: 'security',
+    resource_type: 'user',
+    resource_id: 'demo-user-1',
+    resource_name: 'ozpaniard+alice@gmail.com',
+    company_id: null,
+    ip_address: '192.168.1.100',
+    metadata: { reason: 'Investigating billing issue reported by customer in ticket #4521' },
+  },
+  {
+    id: 'demo-audit-8',
+    timestamp: new Date(Date.now() - 1.5 * 60 * 60 * 1000).toISOString(),
+    actor_id: 'demo-admin-1',
+    actor_email: 'ozpaniard+admin@gmail.com',
+    actor_type: 'admin',
+    action: 'Ended user impersonation',
+    action_category: 'security',
+    resource_type: 'user',
+    resource_id: 'demo-user-1',
+    resource_name: 'ozpaniard+alice@gmail.com',
+    company_id: null,
+    ip_address: '192.168.1.100',
+    metadata: {
+      reason: 'Investigating billing issue reported by customer in ticket #4521',
+      ended_reason: 'manual',
+    },
+  },
 ];
 // =============================================================================
 // DUMMY DATA - END (Audit Logs)
@@ -1585,7 +1648,25 @@ function AuditTab() {
                         </div>
                       </td>
                       <td>
-                        <span className="admin-action-text">{log.action}</span>
+                        {/* Show tooltip with reason for impersonation actions */}
+                        {log.metadata?.reason ? (
+                          <Tooltip
+                            content={
+                              <div className="admin-audit-reason-tooltip">
+                                <strong>{t('admin.audit.reason', 'Reason')}:</strong>
+                                <p>{String(log.metadata.reason)}</p>
+                              </div>
+                            }
+                            side="top"
+                          >
+                            <span className="admin-action-text admin-action-text--has-reason">
+                              {log.action}
+                              <Eye className="h-3 w-3" />
+                            </span>
+                          </Tooltip>
+                        ) : (
+                          <span className="admin-action-text">{log.action}</span>
+                        )}
                       </td>
                       <td>
                         <span

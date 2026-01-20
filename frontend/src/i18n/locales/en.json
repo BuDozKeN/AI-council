@@ -1707,12 +1707,14 @@
     "backToApp": "Back to App",
     "title": "Admin Portal",
     "badge": "Platform Admin",
+    "loading": "Checking admin access...",
     "tabs": {
       "users": "Users",
       "companies": "Companies",
       "audit": "Audit Logs",
       "admins": "Admin Roles",
-      "settings": "Settings"
+      "settings": "Settings",
+      "invitations": "Invitations"
     },
     "stats": {
       "totalUsers": "Total Users",
@@ -1727,7 +1729,11 @@
       "email": "Email",
       "createdAt": "Created",
       "lastSignIn": "Last Sign In",
-      "status": "Status"
+      "status": "Status",
+      "actions": "Actions",
+      "impersonate": "View as user",
+      "suspend": "Suspend user",
+      "delete": "Delete user"
     },
     "companies": {
       "title": "Company Management",

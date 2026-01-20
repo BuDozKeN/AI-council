@@ -14,6 +14,8 @@ export { useBulkConversationActions } from './useBulkConversationActions';
 export { usePrefetchCompany, usePrefetchConversation } from './usePrefetch';
 export { useAdminAccess } from './useAdminAccess';
 export type { AdminAccessState } from './useAdminAccess';
+export { useImpersonation } from './useImpersonation';
+export type { ImpersonationState } from './useImpersonation';
 
 // Gesture and UI Hooks
 export { useSwipeGesture, useGlobalSwipe } from './useSwipeGesture';

@@ -3,10 +3,11 @@
 import logging
 import time
 from collections import defaultdict
-from fastapi import HTTPException, Depends, Request
+from datetime import datetime, timezone
+from fastapi import HTTPException, Depends, Request, Header
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from typing import Optional
-from .database import get_supabase
+from .database import get_supabase, get_supabase_service
 from .security import log_security_event, get_client_ip
 from .i18n import t, get_locale_from_request
 
@@ -183,3 +184,129 @@ async def get_optional_user(
         return await get_current_user(request, credentials)
     except HTTPException:
         return None
+
+
+# =============================================================================
+# IMPERSONATION CONTEXT
+# =============================================================================
+# When an admin is impersonating a user, we need to switch the effective user
+# context for data queries. The admin passes their impersonation session ID
+# in the X-Impersonate-User header, and we validate it and return an augmented
+# user dict with the impersonated user's ID/email.
+
+
+async def get_effective_user(
+    request: Request,
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
+    x_impersonate_user: Optional[str] = Header(None, alias="X-Impersonate-User")
+) -> dict:
+    """
+    Get the effective user context, respecting impersonation headers.
+
+    If X-Impersonate-User header is provided with a valid session ID,
+    returns the impersonated user's context instead of the admin's.
+
+    This enables admins to see exactly what a user sees during support.
+
+    Args:
+        request: FastAPI request object
+        credentials: Bearer token from Authorization header
+        x_impersonate_user: Optional impersonation session ID (e.g., "imp_abc123...")
+
+    Returns:
+        Dict with effective user 'id', 'email', 'access_token', and impersonation metadata:
+        - _is_impersonating: True if currently impersonating
+        - _admin_id: Original admin's user ID (if impersonating)
+        - _admin_email: Original admin's email (if impersonating)
+        - _session_id: Impersonation session ID (if impersonating)
+
+    Raises:
+        HTTPException 401 if token is missing or invalid
+        HTTPException 403 if impersonation session is invalid or expired
+    """
+    # First, authenticate the actual user (admin)
+    user = await get_current_user(request, credentials)
+
+    # If no impersonation header, return normal user context
+    if not x_impersonate_user:
+        return user
+
+    # Validate the impersonation session
+    supabase = get_supabase_service()
+
+    # Session ID must start with "imp_" prefix
+    if not x_impersonate_user.startswith("imp_"):
+        logger.warning(f"Invalid impersonation session format: {x_impersonate_user[:20]}...")
+        raise HTTPException(
+            status_code=403,
+            detail="Invalid impersonation session format"
+        )
+
+    # Look up the session
+    session_result = supabase.table("impersonation_sessions").select("*").eq(
+        "id", x_impersonate_user
+    ).eq(
+        "admin_id", user["id"]  # Ensure the requesting admin owns this session
+    ).eq(
+        "is_active", True
+    ).maybe_single().execute()
+
+    if not session_result.data:
+        logger.warning(f"Invalid or inactive impersonation session: {x_impersonate_user}")
+        raise HTTPException(
+            status_code=403,
+            detail="Invalid or expired impersonation session"
+        )
+
+    session = session_result.data
+
+    # Check if session has expired
+    expires_at_str = session["expires_at"]
+    # Handle both ISO formats with and without 'Z' suffix
+    if expires_at_str.endswith("Z"):
+        expires_at_str = expires_at_str[:-1] + "+00:00"
+    elif "+" not in expires_at_str and "-" not in expires_at_str[-6:]:
+        # Assume UTC if no timezone
+        expires_at_str = expires_at_str + "+00:00"
+
+    expires_at = datetime.fromisoformat(expires_at_str)
+    now = datetime.now(timezone.utc)
+
+    if now > expires_at:
+        # Auto-deactivate expired session
+        logger.info(f"Impersonation session expired: {x_impersonate_user}")
+        supabase.table("impersonation_sessions").update({
+            "is_active": False,
+            "ended_at": now.isoformat(),
+            "ended_reason": "expired"
+        }).eq("id", x_impersonate_user).execute()
+
+        raise HTTPException(
+            status_code=403,
+            detail="Impersonation session expired"
+        )
+
+    # Log the impersonation API call for audit trail
+    log_security_event(
+        "IMPERSONATION_API_CALL",
+        ip_address=get_client_ip(request),
+        user_id=user["id"],
+        details={
+            "session_id": x_impersonate_user,
+            "target_user_id": session["target_user_id"],
+            "endpoint": str(request.url.path),
+            "method": request.method,
+        },
+        severity="INFO"
+    )
+
+    # Return augmented user context with impersonated user's identity
+    return {
+        "id": session["target_user_id"],  # Override with impersonated user
+        "email": session["target_user_email"],
+        "access_token": user["access_token"],  # Keep admin's token for auth
+        "_is_impersonating": True,
+        "_admin_id": user["id"],
+        "_admin_email": user["email"],
+        "_session_id": x_impersonate_user,
+    }
