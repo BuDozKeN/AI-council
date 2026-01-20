@@ -15,13 +15,14 @@
     </image:image>
   </url>
 
-  <!-- Leaderboard (Public - no auth required) -->
+  <!-- Leaderboard - temporarily hidden while adding content
   <url>
     <loc>https://axcouncil.ai/leaderboard</loc>
     <lastmod>2026-01-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
+  -->
 
   <!--
     FUTURE: Uncomment when marketing pages are created

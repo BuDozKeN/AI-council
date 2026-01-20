@@ -9,7 +9,6 @@ deliberation process for better business decisions.
 
 ## Primary Pages
 - https://axcouncil.ai/ (Homepage - Platform overview and landing)
-- https://axcouncil.ai/leaderboard (Public AI model performance rankings)
 
 ## Key Features
 - Multi-model AI deliberation (5 flagship models working together)

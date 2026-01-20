@@ -11,7 +11,9 @@ Disallow: /company/
 
 # Public pages - allow indexing
 Allow: /$
-Allow: /leaderboard
+
+# Leaderboard - temporarily hidden while adding content
+# Allow: /leaderboard
 
 # Future marketing pages (uncomment when created)
 # Allow: /features
