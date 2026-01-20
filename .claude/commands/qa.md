@@ -58,6 +58,9 @@ cd frontend
 # ESLint (same as CI)
 npm run lint
 
+# Stylelint - CSS lint (same as CI) 🆕
+npm run lint:css
+
 # TypeScript (same as CI)
 npm run type-check
 
@@ -70,6 +73,7 @@ npm run test:run -- --changed --changedSince=origin/main --passWithNoTests
 
 **Checklist:**
 - [ ] ESLint passes (0 errors)
+- [ ] Stylelint passes (0 CSS errors) 🆕
 - [ ] TypeScript compiles (0 errors)
 - [ ] Prettier formatted (0 files need formatting)
 - [ ] Affected tests pass (X/X passed)
@@ -108,7 +112,53 @@ cd frontend && npm run build
 
 **If fails:** ❌ **STOP** - Fix before continuing
 
-### 2.4 Accessibility Check (axe-core) 🆕
+### 2.4 CSS Source Budget Check (same as CI) 🆕
+
+**Why:** CI enforces a 1200KB CSS source budget. Exceeding it fails the build.
+
+```bash
+cd frontend
+
+# Calculate total CSS source size (same check as CI)
+CSS_SIZE=$(find src -name '*.css' -type f -exec cat {} + | wc -c)
+CSS_KB=$((CSS_SIZE / 1024))
+MAX_CSS_KB=1200
+
+echo "📦 CSS Source Size: ${CSS_KB}KB / ${MAX_CSS_KB}KB"
+
+if [ $CSS_KB -gt $MAX_CSS_KB ]; then
+  echo "❌ FAIL: CSS budget exceeded (${CSS_KB}KB > ${MAX_CSS_KB}KB)"
+  echo "Actions:"
+  echo "  1. Remove unused CSS"
+  echo "  2. Split large components"
+  echo "  3. Use existing design tokens instead of new ones"
+  exit 1
+else
+  REMAINING=$((MAX_CSS_KB - CSS_KB))
+  PERCENT=$((CSS_KB * 100 / MAX_CSS_KB))
+  echo "✅ PASS: ${PERCENT}% used, ${REMAINING}KB remaining"
+fi
+
+# Check for files over 800 lines (hard limit, excludes tailwind.css)
+echo ""
+echo "🔍 Checking for oversized CSS files (>800 lines)..."
+LARGE_FILES=$(find src -name '*.css' -type f ! -name 'tailwind.css' -exec wc -l {} + | awk '$1 > 800 && $2 !~ /total/ {print "  ❌ " $1 " lines: " $2}')
+if [ -n "$LARGE_FILES" ]; then
+  echo "$LARGE_FILES"
+  echo "❌ FAIL: Files over 800 lines must be split"
+  exit 1
+else
+  echo "✅ All CSS files under 800 lines"
+fi
+```
+
+**Checklist:**
+- [ ] CSS source < 1200KB
+- [ ] No CSS files > 800 lines (except tailwind.css)
+
+**If fails:** ❌ **STOP** - CI will fail. Reduce CSS before pushing.
+
+### 2.5 Accessibility Check (axe-core)
 
 **Why:** Catches 40% of accessibility issues automatically. Prevents ADA lawsuits.
 
@@ -146,7 +196,7 @@ fi
 
 **If fails:** ⚠️ **WARNING** - Fix before deploy (won't block push, but should fix)
 
-### 2.5 Bundle Size Regression Check 🆕
+### 2.6 Bundle Size Regression Check
 
 **Why:** Prevents performance degradation. Every 1KB = ~1ms slower load on 3G.
 
@@ -558,12 +608,14 @@ git diff HEAD | grep "dangerouslySetInnerHTML" && echo "⚠️ XSS risk - ensure
 
 ### Static Analysis (CI Checks Run Locally)
 - ESLint: ✅ PASS
+- Stylelint (CSS): ✅ PASS
 - TypeScript: ✅ PASS
 - Prettier: ✅ PASS
 - Frontend Tests: ✅ 12/145 affected passed (--changed flag)
 - Backend Tests: ✅ 8/289 affected passed (--testmon)
 - Coverage: ✅ 72% (target: 40%+)
 - Build: ✅ SUCCESS
+- CSS Budget: ✅ 1050KB / 1200KB (88% used)
 - Accessibility: ✅ PASS (0 violations)
 - Bundle Size: ✅ +2.3% (target: < 10%)
 
@@ -613,6 +665,8 @@ git push -u origin claude/enhance-qa-best-practices-1lTd9
 
 ❌ **TypeScript errors** → CI will fail
 ❌ **ESLint errors** → CI will fail
+❌ **Stylelint errors** → CI will fail
+❌ **CSS budget exceeded (>1200KB)** → CI will fail
 ❌ **Tests fail** → CI will fail
 ❌ **Build fails** → CI will fail
 ❌ **Hardcoded secrets** → Security risk
@@ -667,10 +721,14 @@ git diff --name-only HEAD
 # Frontend (optimized with --changed flag)
 cd frontend
 npm run lint
+npm run lint:css          # Stylelint - catches CSS errors before CI
 npm run type-check
 npm run format:check
 npm run test:run -- --changed --changedSince=origin/main --passWithNoTests
 npm run build
+
+# CSS Budget check (same as CI - 1300KB limit)
+find src -name '*.css' -type f -exec cat {} + | wc -c | awk '{kb=int($1/1024); if(kb>1200) print "❌ FAIL: "kb"KB > 1200KB"; else print "✅ CSS: "kb"KB / 1200KB"}'
 
 # Accessibility (if UI changed)
 npx @axe-core/cli dist --exit
@@ -726,11 +784,12 @@ git push -u origin <branch-name>
 
 **Speed up QA (run checks in parallel):**
 ```bash
-# Terminal 1: Frontend static checks
-cd frontend && npm run lint && npm run type-check && npm run format:check
+# Terminal 1: Frontend static checks (lint + CSS lint + type-check + format)
+cd frontend && npm run lint && npm run lint:css && npm run type-check && npm run format:check
 
-# Terminal 2: Frontend tests + build
-cd frontend && npm run test:run -- --changed && npm run build
+# Terminal 2: Frontend tests + build + CSS budget
+cd frontend && npm run test:run -- --changed && npm run build && \
+  find src -name '*.css' -type f -exec cat {} + | wc -c | awk '{kb=int($1/1024); print "CSS: "kb"KB / 1200KB"}'
 
 # Terminal 3: Backend tests
 pytest backend/tests/ --testmon -v
