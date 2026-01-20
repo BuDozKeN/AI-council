@@ -76,7 +76,9 @@ function ImpersonateUserModalComponent({
 
         // Use the session ID from storage to ensure it persists
         const sessionForRedirect = sessionStorage.getItem('axcouncil_impersonation_session');
-        const sessionIdForUrl = sessionForRedirect ? JSON.parse(sessionForRedirect).session_id : null;
+        const sessionIdForUrl = sessionForRedirect
+          ? JSON.parse(sessionForRedirect).session_id
+          : null;
 
         // Redirect with session ID in URL as backup (will be picked up by useImpersonation)
         if (sessionIdForUrl) {
@@ -89,7 +91,16 @@ function ImpersonateUserModalComponent({
         setError(err instanceof Error ? err.message : 'Failed to start impersonation');
       }
     },
-    [canSubmit, startImpersonation, targetUser.id, reason, acknowledged, isMutating, onSuccess, onClose]
+    [
+      canSubmit,
+      startImpersonation,
+      targetUser.id,
+      reason,
+      acknowledged,
+      isMutating,
+      onSuccess,
+      onClose,
+    ]
   );
 
   const handleClose = useCallback(() => {

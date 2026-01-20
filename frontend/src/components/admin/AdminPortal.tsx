@@ -1428,7 +1428,10 @@ const DUMMY_AUDIT_LOGS: AdminAuditLog[] = [
     resource_name: 'ozpaniard+alice@gmail.com',
     company_id: null,
     ip_address: '192.168.1.100',
-    metadata: { reason: 'Investigating billing issue reported by customer in ticket #4521', ended_reason: 'manual' },
+    metadata: {
+      reason: 'Investigating billing issue reported by customer in ticket #4521',
+      ended_reason: 'manual',
+    },
   },
 ];
 // =============================================================================

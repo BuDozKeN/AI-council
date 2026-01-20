@@ -3856,7 +3856,9 @@ export const api = {
       }
     );
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ detail: 'Failed to start impersonation' }));
+      const error = await response
+        .json()
+        .catch(() => ({ detail: 'Failed to start impersonation' }));
       throw new Error(error.detail || 'Failed to start impersonation');
     }
     return response.json();

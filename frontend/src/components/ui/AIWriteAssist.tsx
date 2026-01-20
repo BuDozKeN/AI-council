@@ -177,7 +177,7 @@ Format: "[Action] [User issue/ticket] to [Purpose]"
 Example: "Investigating support ticket #1234 - user reports payment not processing correctly"
 
 Based on this brief description:`,
-    placeholder: 'e.g., Support ticket #1234, user can\'t see their data...',
+    placeholder: "e.g., Support ticket #1234, user can't see their data...",
     buttonText: 'Help me write this',
     emptyHint: 'Describe the support issue briefly',
   },

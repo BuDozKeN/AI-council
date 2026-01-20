@@ -191,12 +191,16 @@ def app(mock_user):
     app = FastAPI()
     app.include_router(router)
 
-    # Override auth dependency
+    # Override auth dependencies
     async def override_get_current_user():
         return mock_user
 
-    from backend.auth import get_current_user
+    async def override_get_effective_user():
+        return mock_user
+
+    from backend.auth import get_current_user, get_effective_user
     app.dependency_overrides[get_current_user] = override_get_current_user
+    app.dependency_overrides[get_effective_user] = override_get_effective_user
 
     return app
 

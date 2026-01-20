@@ -136,7 +136,10 @@ export function useImpersonation(): ImpersonationState {
   // Use lazy initializer so this runs synchronously during first render
   const [storedSession, setStoredSession] = useState<ImpersonationSession | null>(() => {
     const initial = getStoredSession();
-    console.log('[useImpersonation] Initial stored session:', initial ? initial.session_id : 'null');
+    console.log(
+      '[useImpersonation] Initial stored session:',
+      initial ? initial.session_id : 'null'
+    );
     return initial;
   });
 
@@ -150,7 +153,9 @@ export function useImpersonation(): ImpersonationState {
       const newUrl = window.location.pathname;
       window.history.replaceState({}, '', newUrl);
     } else if (urlSessionId && !storedSession) {
-      console.log('[useImpersonation] URL has session ID but no stored session, waiting for server response...');
+      console.log(
+        '[useImpersonation] URL has session ID but no stored session, waiting for server response...'
+      );
     }
   }, [urlSessionId, storedSession]);
 
@@ -162,7 +167,10 @@ export function useImpersonation(): ImpersonationState {
   useEffect(() => {
     const updateFromStorage = () => {
       const current = getStoredSession();
-      console.log('[useImpersonation] Reading from storage:', current ? current.session_id : 'null');
+      console.log(
+        '[useImpersonation] Reading from storage:',
+        current ? current.session_id : 'null'
+      );
       setStoredSession(current);
     };
 
@@ -185,7 +193,12 @@ export function useImpersonation(): ImpersonationState {
   // Query server for session status
   // IMPORTANT: Only enable when user is CONFIRMED as admin (not just loading)
   // This prevents unauthenticated requests that return false negatives
-  console.log('[useImpersonation] Query config:', { sessionId, isAdmin, isAdminLoading, enabled: !!sessionId && isAdmin && !isAdminLoading });
+  console.log('[useImpersonation] Query config:', {
+    sessionId,
+    isAdmin,
+    isAdminLoading,
+    enabled: !!sessionId && isAdmin && !isAdminLoading,
+  });
   const {
     data: statusData,
     isLoading,
@@ -245,9 +258,8 @@ export function useImpersonation(): ImpersonationState {
   }, [statusData, storedSession, isAdminLoading, isAdmin, urlSessionId]);
 
   // Use server session if available, fallback to stored session
-  const session = statusData?.is_impersonating && statusData.session
-    ? statusData.session
-    : storedSession;
+  const session =
+    statusData?.is_impersonating && statusData.session ? statusData.session : storedSession;
 
   // Check if session is expired (client-side check)
   const isSessionExpired = session ? calculateTimeRemaining(session.expires_at) <= 0 : true;
@@ -263,7 +275,8 @@ export function useImpersonation(): ImpersonationState {
   // - The query has actually run (statusData is defined)
   // - Server explicitly returned is_impersonating: false
   // This prevents false negatives when auth token isn't ready yet
-  const serverExplicitlyDenied = !isAdminLoading && isAdmin && statusData !== undefined && statusData.is_impersonating === false;
+  const serverExplicitlyDenied =
+    !isAdminLoading && isAdmin && statusData !== undefined && statusData.is_impersonating === false;
   const isImpersonating = !!session && !isSessionExpired && !serverExplicitlyDenied;
   console.log('[useImpersonation] Final state:', {
     session: session?.session_id ?? null,

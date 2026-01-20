@@ -85,7 +85,10 @@ function ImpersonationBannerComponent({ onExit }: ImpersonationBannerProps) {
         </div>
 
         {/* Timer */}
-        <div className="impersonation-banner__timer" aria-label={`Time remaining: ${timeRemainingFormatted}`}>
+        <div
+          className="impersonation-banner__timer"
+          aria-label={`Time remaining: ${timeRemainingFormatted}`}
+        >
           <Clock className="impersonation-banner__clock-icon" aria-hidden="true" />
           <span className="impersonation-banner__time">{timeRemainingFormatted}</span>
           <span className="impersonation-banner__time-label">remaining</span>
