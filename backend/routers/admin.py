@@ -199,7 +199,7 @@ async def check_is_platform_admin(user_id: str) -> tuple[bool, Optional[str]]:
             "role"
         ).eq("user_id", user_id).eq("is_active", True).maybe_single().execute()
 
-        if result.data:
+        if result and result.data:
             return True, result.data.get("role")
         return False, None
     except Exception as e:
@@ -1323,7 +1323,7 @@ async def create_invitation(
             "id, status"
         ).eq("email", invitation_data.email.lower()).eq("status", "pending").maybe_single().execute()
 
-        if existing.data:
+        if existing and existing.data:
             raise HTTPException(
                 status_code=400,
                 detail=f"Pending invitation already exists for {invitation_data.email}"
@@ -1339,7 +1339,7 @@ async def create_invitation(
             company_result = supabase.table("companies").select(
                 "name"
             ).eq("id", invitation_data.target_company_id).maybe_single().execute()
-            if company_result.data:
+            if company_result and company_result.data:
                 target_company_name = company_result.data.get("name")
 
         # Create invitation record
@@ -1479,7 +1479,7 @@ async def list_invitations(
                     company_result = supabase.table("companies").select(
                         "name"
                     ).eq("id", inv["target_company_id"]).maybe_single().execute()
-                    if company_result.data:
+                    if company_result and company_result.data:
                         target_company_name = company_result.data.get("name")
                 except Exception:
                     pass
@@ -1549,7 +1549,7 @@ async def cancel_invitation(
             "id, email, status"
         ).eq("id", invitation_id).maybe_single().execute()
 
-        if not inv_result.data:
+        if not inv_result or not inv_result.data:
             raise HTTPException(status_code=404, detail="Invitation not found")
 
         if inv_result.data["status"] != "pending":
@@ -1626,7 +1626,7 @@ async def resend_invitation(
             "id, email, name, token, status, resend_count"
         ).eq("id", invitation_id).maybe_single().execute()
 
-        if not inv_result.data:
+        if not inv_result or not inv_result.data:
             raise HTTPException(status_code=404, detail="Invitation not found")
 
         if inv_result.data["status"] != "pending":
@@ -2010,7 +2010,7 @@ async def get_impersonation_status(
 
         result = query.order("started_at", desc=True).limit(1).maybe_single().execute()
 
-        if not result.data:
+        if not result or not result.data:
             return ImpersonationStatusResponse(is_impersonating=False)
 
         session_data = result.data

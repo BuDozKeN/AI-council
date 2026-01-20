@@ -76,7 +76,7 @@ async def validate_invitation(
             "id, email, name, status, expires_at, target_company_id"
         ).eq("token", token).maybe_single().execute()
 
-        if not result.data:
+        if not result or not result.data:
             log_app_event(
                 "INVITATION: Invalid token attempted",
                 token_prefix=token[:8] if token else None,
@@ -114,7 +114,7 @@ async def validate_invitation(
             company_result = supabase.table("companies").select(
                 "name"
             ).eq("id", invitation["target_company_id"]).maybe_single().execute()
-            if company_result.data:
+            if company_result and company_result.data:
                 target_company_name = company_result.data.get("name")
 
         log_app_event(
@@ -173,7 +173,7 @@ async def accept_invitation(
             "id, email, status, expires_at, target_company_id, target_company_role"
         ).eq("token", token).maybe_single().execute()
 
-        if not result.data:
+        if not result or not result.data:
             raise HTTPException(status_code=404, detail="Invalid invitation")
 
         invitation = result.data
@@ -233,7 +233,7 @@ async def accept_invitation(
                 company_result = supabase.table("companies").select(
                     "name"
                 ).eq("id", invitation["target_company_id"]).maybe_single().execute()
-                if company_result.data:
+                if company_result and company_result.data:
                     company_name = company_result.data.get("name")
 
                 # Add as company member
