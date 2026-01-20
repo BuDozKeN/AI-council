@@ -51,22 +51,24 @@ export function useAdminAccess(): AdminAccessState {
   // Timeout mechanism for auth loading
   // If auth loading takes too long (e.g., Supabase is down), show error instead of spinner
   useEffect(() => {
+    // Only set up timeout if auth is actively loading
     if (!isAuthLoading) {
-      // Auth finished, clear any timeout state
-      setAuthTimeout(false);
+      // Clear timeout state if auth finished - use queueMicrotask to avoid
+      // synchronous setState in effect body (violates react-hooks/set-state-in-effect)
+      if (authTimeout) {
+        queueMicrotask(() => setAuthTimeout(false));
+      }
       return;
     }
 
     // Set a timeout to prevent infinite loading
     const timeoutId = setTimeout(() => {
-      if (isAuthLoading) {
-        console.error('[useAdminAccess] Auth loading timeout after', AUTH_LOADING_TIMEOUT_MS, 'ms');
-        setAuthTimeout(true);
-      }
+      console.error('[useAdminAccess] Auth loading timeout after', AUTH_LOADING_TIMEOUT_MS, 'ms');
+      setAuthTimeout(true);
     }, AUTH_LOADING_TIMEOUT_MS);
 
     return () => clearTimeout(timeoutId);
-  }, [isAuthLoading]);
+  }, [isAuthLoading, authTimeout]);
 
   const { data, isLoading, error } = useQuery({
     queryKey: adminAccessKeys.user(user?.id ?? 'anonymous'),
