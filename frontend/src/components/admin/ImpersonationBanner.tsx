@@ -12,6 +12,7 @@
 
 import { useCallback, memo } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import { AlertTriangle, Clock, X, User } from 'lucide-react';
 import { useImpersonation } from '../../hooks';
 import './ImpersonationBanner.css';
@@ -26,6 +27,7 @@ interface ImpersonationBannerProps {
  * Renders via portal to ensure it's always on top.
  */
 function ImpersonationBannerComponent({ onExit }: ImpersonationBannerProps) {
+  const { t } = useTranslation();
   const {
     isImpersonating,
     session,
@@ -79,7 +81,7 @@ function ImpersonationBannerComponent({ onExit }: ImpersonationBannerProps) {
         <div className="impersonation-banner__message">
           <span className="impersonation-banner__label">
             <User className="impersonation-banner__user-icon" aria-hidden="true" />
-            Viewing as:
+            {t('admin.impersonation.viewingAs', 'Viewing as:')}
           </span>
           <strong className="impersonation-banner__email">{session.target_user_email}</strong>
         </div>
@@ -87,11 +89,11 @@ function ImpersonationBannerComponent({ onExit }: ImpersonationBannerProps) {
         {/* Timer */}
         <div
           className="impersonation-banner__timer"
-          aria-label={`Time remaining: ${timeRemainingFormatted}`}
+          aria-label={t('admin.impersonation.timeRemaining', 'Time remaining: {{time}}', { time: timeRemainingFormatted })}
         >
           <Clock className="impersonation-banner__clock-icon" aria-hidden="true" />
           <span className="impersonation-banner__time">{timeRemainingFormatted}</span>
-          <span className="impersonation-banner__time-label">remaining</span>
+          <span className="impersonation-banner__time-label">{t('admin.impersonation.remaining', 'remaining')}</span>
         </div>
 
         {/* Reason (truncated) */}
@@ -108,18 +110,18 @@ function ImpersonationBannerComponent({ onExit }: ImpersonationBannerProps) {
           className="impersonation-banner__exit"
           onClick={handleExit}
           disabled={isMutating}
-          aria-label="Exit impersonation mode"
+          aria-label={t('admin.impersonation.exitMode', 'Exit impersonation mode')}
         >
           <X className="impersonation-banner__exit-icon" aria-hidden="true" />
-          <span>Exit</span>
+          <span>{t('admin.impersonation.exit', 'Exit')}</span>
         </button>
       </div>
 
       {/* Visual watermark pattern (security indicator) */}
       <div className="impersonation-banner__watermark" aria-hidden="true">
-        <span>IMPERSONATION MODE</span>
-        <span>IMPERSONATION MODE</span>
-        <span>IMPERSONATION MODE</span>
+        <span>{t('admin.impersonation.watermark', 'IMPERSONATION MODE')}</span>
+        <span>{t('admin.impersonation.watermark', 'IMPERSONATION MODE')}</span>
+        <span>{t('admin.impersonation.watermark', 'IMPERSONATION MODE')}</span>
       </div>
     </div>
   );
