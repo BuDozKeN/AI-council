@@ -124,23 +124,13 @@ export function useImpersonation(): ImpersonationState {
   const urlParams = new URLSearchParams(window.location.search);
   const urlSessionId = urlParams.get('imp_session');
 
-  // DEBUG: Check sessionStorage immediately on hook init
-  const rawStorage = sessionStorage.getItem('axcouncil_impersonation_session');
-  console.log('[useImpersonation] RAW sessionStorage on init:', rawStorage);
-  console.log('[useImpersonation] URL session param:', urlSessionId);
-
   // Local state for countdown timer
   const [timeRemaining, setTimeRemaining] = useState(0);
 
   // Track stored session in state so it updates when storage changes
   // Use lazy initializer so this runs synchronously during first render
   const [storedSession, setStoredSession] = useState<ImpersonationSession | null>(() => {
-    const initial = getStoredSession();
-    console.log(
-      '[useImpersonation] Initial stored session:',
-      initial ? initial.session_id : 'null'
-    );
-    return initial;
+    return getStoredSession();
   });
 
   // If we have a URL session ID but no stored session, we need to fetch the session from server
@@ -149,13 +139,8 @@ export function useImpersonation(): ImpersonationState {
   useEffect(() => {
     if (urlSessionId && storedSession) {
       // We have both URL param and stored session - safe to clean up URL
-      console.log('[useImpersonation] Session stored, cleaning up URL param');
       const newUrl = window.location.pathname;
       window.history.replaceState({}, '', newUrl);
-    } else if (urlSessionId && !storedSession) {
-      console.log(
-        '[useImpersonation] URL has session ID but no stored session, waiting for server response...'
-      );
     }
   }, [urlSessionId, storedSession]);
 
@@ -167,10 +152,6 @@ export function useImpersonation(): ImpersonationState {
   useEffect(() => {
     const updateFromStorage = () => {
       const current = getStoredSession();
-      console.log(
-        '[useImpersonation] Reading from storage:',
-        current ? current.session_id : 'null'
-      );
       setStoredSession(current);
     };
 
@@ -193,12 +174,6 @@ export function useImpersonation(): ImpersonationState {
   // Query server for session status
   // IMPORTANT: Only enable when user is CONFIRMED as admin (not just loading)
   // This prevents unauthenticated requests that return false negatives
-  console.log('[useImpersonation] Query config:', {
-    sessionId,
-    isAdmin,
-    isAdminLoading,
-    enabled: !!sessionId && isAdmin && !isAdminLoading,
-  });
   const {
     data: statusData,
     isLoading,
@@ -207,9 +182,7 @@ export function useImpersonation(): ImpersonationState {
   } = useQuery({
     queryKey: impersonationKeys.status(sessionId),
     queryFn: async () => {
-      console.log('[useImpersonation] Fetching status from server...');
       const result = await api.getImpersonationStatus(sessionId);
-      console.log('[useImpersonation] Server status response:', result);
       return result;
     },
     // ONLY enable when user is CONFIRMED as admin - prevents unauthenticated requests
@@ -224,18 +197,9 @@ export function useImpersonation(): ImpersonationState {
   // If server confirms impersonating and we have session data, store it
   // If server says not impersonating, clear local storage
   useEffect(() => {
-    console.log('[useImpersonation] Session sync effect:', {
-      isAdminLoading,
-      isAdmin,
-      statusData_is_impersonating: statusData?.is_impersonating,
-      storedSession: storedSession?.session_id ?? null,
-      urlSessionId,
-    });
-
     // If server confirms impersonation and we don't have it stored, store it
     // Using setTimeout(0) to defer state update and satisfy React compiler lint rules
     if (statusData?.is_impersonating && statusData.session && !storedSession) {
-      console.log('[useImpersonation] Server confirms impersonation, storing session');
       storeSession(statusData.session);
       const sessionToStore = statusData.session;
       const timeout = setTimeout(() => setStoredSession(sessionToStore), 0);
@@ -249,7 +213,6 @@ export function useImpersonation(): ImpersonationState {
     // This prevents false negatives from unauthenticated requests
     // Using setTimeout(0) to defer state update and satisfy React compiler lint rules
     if (!isAdminLoading && isAdmin && statusData && !statusData.is_impersonating && storedSession) {
-      console.log('[useImpersonation] Server says not impersonating, clearing storage');
       storeSession(null);
       const timeout = setTimeout(() => setStoredSession(null), 0);
       return () => clearTimeout(timeout);
@@ -278,15 +241,6 @@ export function useImpersonation(): ImpersonationState {
   const serverExplicitlyDenied =
     !isAdminLoading && isAdmin && statusData !== undefined && statusData.is_impersonating === false;
   const isImpersonating = !!session && !isSessionExpired && !serverExplicitlyDenied;
-  console.log('[useImpersonation] Final state:', {
-    session: session?.session_id ?? null,
-    isSessionExpired,
-    isAdmin,
-    isAdminLoading,
-    statusData_is_impersonating: statusData?.is_impersonating,
-    serverExplicitlyDenied,
-    isImpersonating,
-  });
 
   // Start impersonation mutation
   const startMutation = useMutation({
@@ -316,20 +270,12 @@ export function useImpersonation(): ImpersonationState {
   // Start impersonation handler
   const startImpersonation = useCallback(
     async (targetUserId: string, reason: string): Promise<void> => {
-      console.log('[useImpersonation] Starting impersonation for:', targetUserId);
       const result = await startMutation.mutateAsync({ targetUserId, reason });
-      console.log('[useImpersonation] Mutation result:', result);
       // Store session immediately after mutation completes (before any redirect)
       // This is critical because onSuccess may run asynchronously after mutateAsync resolves
       if (result.success && result.session) {
-        console.log('[useImpersonation] Storing session:', result.session.session_id);
         storeSession(result.session);
         setStoredSession(result.session);
-        // Verify it was stored
-        const verified = sessionStorage.getItem(IMPERSONATION_STORAGE_KEY);
-        console.log('[useImpersonation] Session stored, verified:', !!verified);
-      } else {
-        console.error('[useImpersonation] No session in result:', result);
       }
     },
     [startMutation]
